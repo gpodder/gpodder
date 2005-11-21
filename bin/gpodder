@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""gPodder Media Aggregator"""
+
+# PLEASE DO NOT CHANGE FORMAT OF __version__ LINE (Makefile reads this)
+
+__author__    = "Thomas Perl <thp@perli.net>"
+__version__   = "SVN.20051120"
+__date__      = "2005-11-20"
+__copyright__ = "Copyright (c) 2005 %s. All rights reserved." %__author__
+__licence__   = "GPL"
+
+import sys,os
+from optparse import OptionParser
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    parser = OptionParser(usage="usage: %%prog [options] arg1 arg2\n%s" %__doc__,
+                          version = "%%prog %s %s" %(__version__, __date__))
+
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose", default=False,
+                      help="print extra information")
+
+    parser.add_option("--debug",
+                      action="store_true", dest="debug", default=False,
+                      help="run local version for debugging")
+    
+    parser.add_option("-l", "--list",
+                      action="store_true", dest="list", default=False,
+                      help="list all channel subscriptions")
+
+    parser.add_option("-r", "--run",
+                      action="store_true", dest="run", default=False,
+                      help="update channels and download new podcasts")
+
+    parser.add_option("-u", "--update",
+                      action="store_true", dest="update", default=False,
+                      help="update channels")
+    
+    parser.add_option("-a", "--add", dest="add",
+                      help="add FEEDURL to channel subscriptions", metavar="FEEDURL")
+    
+    parser.add_option("-d", "--delete", dest="delete",
+                      help="delete channel n", metavar="n")
+
+
+    (options, args) = parser.parse_args(argv)
+
+    if options.verbose:
+        print "Options: "+str(options)
+        print "Args: "+str(args)
+
+    if options.debug:
+        sys.path = ['./src/','../src/'] + sys.path
+        #sys.path.append('../src/')
+        #sys.path.append('./src/')
+
+    from gpodder import console
+    
+    if options.list:
+        console.list_channels()
+
+    elif options.run:
+        console.run()
+        
+    elif options.update:
+        console.update()
+
+    elif options.add:
+        if options.add != None and options.add != "" and (options.add[:4] == "http" or options.add[:3] == "ftp"):
+            console.add_channel(options.add)
+        else:
+            print 'unknown channel: %s' % options.add
+
+    elif options.delete:
+        try:
+            chid = int(options.delete)
+            console.del_channel(chid)
+            print "channel IDs may have changed, list before deleting again"
+        except ValueError:
+            print '%s is not a valid id' %options.delete
+
+    else:
+        #default run gui
+        from gpodder import gpodder
+        if options.debug:
+            gpodder.glade_dir = "../data"
+        gpodder.main( __version__)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
