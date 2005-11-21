@@ -27,6 +27,12 @@ from libpodcasts import configChannel
 from librssreader import rssReader
 from libwget import downloadThread
 
+# global debugging variable, set to False on release
+debugging = True
+
+def isDebugging():
+    return debugging
+
 class gPodderLib( object):
     gpodderdir = ""
     downloaddir = ""

@@ -18,6 +18,8 @@ from os import system
 from threading import Thread
 from shutil import move
 
+import libgpodder
+
 import popen2
 import re
 
@@ -58,7 +60,8 @@ class downloadThread( object):
         
         while process.poll() == -1:
             msg = stderr.readline( 80)
-            print msg
+            if libgpodder.isDebugging():
+	        print msg
             msg = msg.strip()
             
             if msg.find("%") != -1:
