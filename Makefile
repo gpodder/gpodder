@@ -13,11 +13,11 @@ MANPAGE=doc/man/gpodder.man.1
 
 ##########################################################################
 
-all: generators
+all:
 
 ##########################################################################
 
-test: generators
+test:
 	$(BINFILE) --debug
 
 release: generators
