@@ -23,6 +23,9 @@ import libgpodder
 import popen2
 import re
 
+import gtk
+import gobject
+
 class downloadThread( object):
     url = ""
     filename = ""
@@ -35,8 +38,13 @@ class downloadThread( object):
 
     thread = None
     result = -1
+
+    statusmgr = None
+    statusmgr_id = None
+
+    cutename = None
     
-    def __init__( self, url, filename, ready_event = None):
+    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown"):
         self.url = url.replace( "%20", " ")
         
         self.filename = filename
@@ -49,6 +57,14 @@ class downloadThread( object):
         
         self.thread = None
         self.result = -1
+
+	self.cutename = cutename
+
+	self.statusmgr = statusmgr
+	if self.statusmgr != None:
+	    # request new id from status manager
+	    self.statusmgr_id = self.statusmgr.getNextId()
+	    self.statusmgr.registerId( self.statusmgr_id)
     
     def thread_function( self):
         command = "/usr/bin/wget \"" + self.url + "\" -O \"" + self.tempname + "\""
@@ -70,12 +86,20 @@ class downloadThread( object):
                 iter = re.compile('...\... .B\/s').finditer( msg)
                 for speed_string in iter:
                     self.speed = speed_string.group(0).strip()
+
+            if self.statusmgr != None:
+	        self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':self.speed, 'progress':int(self.percentage*100)})
+	    # self.statusmgr
         
         if process.wait() == 0:
             move( self.tempname, self.filename)
         
         self.result = process.poll()
         self.pid = -1
+
+	if self.statusmgr != None:
+	    self.statusmgr.unregisterId( self.statusmgr_id)
+	# self.statusmgr
         
         if self.ready_event != None:
             self.ready_event.set()
@@ -89,6 +113,37 @@ class downloadThread( object):
         self.thread.start()
 
 
+class downloadStatusManager( object):
+    status_list = None
+    next_status_id = 0
+    tree_model = None
+    
+    def __init__( self):
+        self.status_list = {}
+	self.next_status_id = 0
+	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
+    
+    def getNextId( self):
+        res = self.next_status_id
+	self.next_status_id = res + 1
+	return res
+
+    def registerId( self, id):
+        self.status_list[id] = self.tree_model.append()
+
+    def unregisterId( self, id):
+        self.tree_model.remove( self.status_list[id])
+	del self.status_list[id]
+
+    def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0 }):
+        iter = self.status_list[id]
+        self.tree_model.set( iter, 0, new_status['episode'])
+	self.tree_model.set( iter, 1, new_status['speed'])
+	self.tree_model.set( iter, 2, new_status['progress'])
+
+    def getModel( self):
+        return self.tree_model
+# end downloadStatusManager
 
 def getDownloadFilename( url):
     global downloadpath
@@ -166,3 +221,4 @@ def downloadProcedure( url, filename, force_update):
     # make the download result available to caller
     return dlinfo_result
 # end downloadProcedure()
+

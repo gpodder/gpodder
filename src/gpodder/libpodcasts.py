@@ -53,7 +53,7 @@ class podcastChannel(object):
         for item in self.items:
             # Skip items with no download url
             if item.url != "":
-                if self.is_downloaded(item): background_color = "lightgrey"
+                if self.is_downloaded(item): background_color = "#eeeeee"
                 else: background_color = "white"
                 new_iter = new_model.append()
                 new_model.set( new_iter, 0, item.url)

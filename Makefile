@@ -47,7 +47,7 @@ gen_glade: $(GLADEFILE)
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST $(MANPAGE) PKG-INFO
+	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST $(MANPAGE) PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak
 	rm -rf build
 
 distclean: clean
