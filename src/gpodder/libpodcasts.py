@@ -39,18 +39,28 @@ class podcastChannel(object):
         print "- Channel: \"" + self.title + "\""
         for item in self.items:
             print "-- Item: \"" + item.title + "\""
-    
+
+    def is_downloaded(self, item):
+        #TODO ist this the right place for this function? if yes move imports to head
+        import libgpodder
+        import os
+        filename = libgpodder.gPodderLib().getPodcastFilename(self, item.url)
+        return os.path.exists(filename)    
+
     def getItemsModel( self):
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
 
         for item in self.items:
-                        # Skip items with no download url
-                        if item.url != "":
-                                new_iter = new_model.append()
-                                new_model.set( new_iter, 0, item.url)
-                                new_model.set( new_iter, 1, item.title)
-                                new_model.set( new_iter, 2, item.getSize())
-                                new_model.set( new_iter, 3, True)
+            # Skip items with no download url
+            if item.url != "":
+                if self.is_downloaded(item): background_color = "lightgrey"
+                else: background_color = "white"
+                new_iter = new_model.append()
+                new_model.set( new_iter, 0, item.url)
+                new_model.set( new_iter, 1, item.title)
+                new_model.set( new_iter, 2, item.getSize())
+                new_model.set( new_iter, 3, True)
+                new_model.set( new_iter, 4, background_color)
         
         return new_model
     

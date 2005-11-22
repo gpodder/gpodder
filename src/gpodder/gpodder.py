@@ -81,11 +81,24 @@ class Gpodder(SimpleGladeApp):
         self.comboAvailable.pack_start( cellrenderer, True)
         self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
 
+
+        #See http://www.pygtk.org/pygtk2tutorial/sec-CellRenderers.html
+        #gtk.TreeViewColumn( "", gtk.CellRendererToggle(), active=3),
+        namecell = gtk.CellRendererText()
+        namecell.set_property('cell-background', 'white')
+        namecolumn = gtk.TreeViewColumn( "Episode", namecell, text=1)
+        namecolumn.add_attribute(namecell, "cell-background", 4)        
+
+        sizecell = gtk.CellRendererText()
+        sizecell.set_property('cell-background', 'white')
+        sizecolumn = gtk.TreeViewColumn( "Size", sizecell, text=2)
+        sizecolumn.add_attribute(sizecell, "cell-background", 4)
+        
+
         # set up the rendering of the treeAvailable treeview
         itemcolumns = [
-          #gtk.TreeViewColumn( "", gtk.CellRendererToggle(), active=3),
-          gtk.TreeViewColumn( "Episode", gtk.CellRendererText(), text=1),
-          gtk.TreeViewColumn( "Size", gtk.CellRendererText(), text=2)
+          namecolumn,
+          sizecolumn
         ]
         
         for itemcolumn in itemcolumns:
