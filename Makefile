@@ -20,6 +20,12 @@ all:
 test:
 	$(BINFILE) --debug
 
+deb:
+	@echo "##########################################################################"
+	@echo "# This is still alpha, see doc/dev/debian.txt for more info.             #"
+	@echo "##########################################################################"
+	python setup.py bdist_deb --maintainer "Peter Hoffmann <tosh@cs.tu-berlin.de>"  --extra-depends "python-gtk2, python-glade2, python-xml, wget"
+
 release: generators
 	python setup.py sdist
 
