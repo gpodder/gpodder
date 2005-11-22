@@ -103,6 +103,13 @@ class Gpodder(SimpleGladeApp):
         
         # update view
         self.updateComboBox()
+        
+        #Add Drag and Drop Support
+        targets = [("text/plain", 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4)]
+        self.main_widget.drag_dest_set(gtk.DEST_DEFAULT_ALL, targets, \
+                        gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY | \
+                        gtk.gdk.ACTION_DEFAULT)
+        self.main_widget.connect("drag_data_received", self.drag_data_received)
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
@@ -153,6 +160,32 @@ class Gpodder(SimpleGladeApp):
                 pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, size, size)
                 pb.fill(0x00000000)
         return pb
+
+    def drag_data_received(self, widget, context, x, y, sel, ttype, time):
+        #TODO following code is copied from on_itemAddChannel_activate refactor both to new method
+        result = sel.data
+        if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+            print "will ADD: " + result
+            self.statusLabel.set_text( "Fetching channel index...")
+            channel_new = podcastChannel( result)
+            channel_new.shortname = "__unknown__"
+            self.channels.append( channel_new)
+            
+            # fetch metadata for that channel
+            gPodderChannelWriter().write( self.channels)
+            self.channels = gPodderChannelReader().read( False)
+            
+            # fetch feed for that channel
+            gPodderChannelWriter().write( self.channels)
+            self.channels = gPodderChannelReader().read( False)
+            
+            #TODO maybe change to new channel
+            self.updateComboBox()
+            self.statusLabel.set_text( "")
+        else:
+            #TODO graphical reaction
+            print "unkonwn link format: %s" %result
+
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
