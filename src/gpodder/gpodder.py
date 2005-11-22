@@ -97,27 +97,26 @@ class Gpodder(SimpleGladeApp):
         sizecolumn = gtk.TreeViewColumn( "Size", sizecell, text=2)
         sizecolumn.add_attribute(sizecell, "cell-background", 4)
         
-
         for itemcolumn in ( namecolumn, sizecolumn ):
             self.treeAvailable.append_column( itemcolumn)
         
-    # columns and renderers for "download progress" tab
+        # columns and renderers for "download progress" tab
         episodecell = gtk.CellRendererText()
         episodecolumn = gtk.TreeViewColumn( "Episode", episodecell, text=0)
-
+        
         speedcell = gtk.CellRendererText()
-    speedcolumn = gtk.TreeViewColumn( "Speed", speedcell, text=1)
-    
-    progresscell = gtk.CellRendererProgress()
-    progresscolumn = gtk.TreeViewColumn( "Progress", progresscell, value=2)
-
-    for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
+        speedcolumn = gtk.TreeViewColumn( "Speed", speedcell, text=1)
+        
+        progresscell = gtk.CellRendererProgress()
+        progresscolumn = gtk.TreeViewColumn( "Progress", progresscell, value=2)
+        
+        for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
     
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
-    self.download_status_manager = downloadStatusManager()
+        self.download_status_manager = downloadStatusManager()
         self.treeDownloads.set_model( self.download_status_manager.getModel())
-
+        
         # xml test
         #reader = rssReader()
         #reader.parseXML( "http://www.perli.net", "test.xml")
