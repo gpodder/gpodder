@@ -12,11 +12,25 @@
 #
 
 from xml.sax.saxutils import DefaultHandler
+from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
 from string import strip
 
 from libpodcasts import podcastChannel
 from libpodcasts import podcastItem
+
+class rssErrorHandler( ErrorHandler):
+    def __init__( self):
+        None
+
+    def error( self, exception):
+        print exception
+
+    def fatalError( self, exception):
+        print "FATAL ERROR: ", exception
+
+    def warning( self, exception):
+        print "warning: ", exception
 
 class rssReader( DefaultHandler):
     channel_url = ""
@@ -30,7 +44,9 @@ class rssReader( DefaultHandler):
     def parseXML( self, url, filename):
         self.channel_url = url
         parser = make_parser()
+	parser.returns_unicode = True
         parser.setContentHandler( self)
+	parser.setErrorHandler( rssErrorHandler())
         parser.parse( filename)
     
     def startElement( self, name, attrs):
