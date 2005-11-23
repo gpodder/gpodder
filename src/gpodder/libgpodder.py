@@ -74,7 +74,13 @@ class gPodderLib( object):
         return self.cachedir + filename + ".xml"
     
     def getPodcastFilename( self, channel, url):
-        return self.getChannelSaveDir( configChannel( channel.title).filename) + basename( url)
+        # strip question mark (and everything behind it), fix %20 errors
+        filename = basename( url).replace( "%20", " ")
+	indexOfQuestionMark = filename.rfind( "?")
+	if indexOfQuestionMark != -1:
+	    filename = filename[:indexOfQuestionMark]
+	# end strip questionmark
+        return self.getChannelSaveDir( configChannel( channel.title).filename) + filename
     
     def downloadRss( self, channel_url, channel_filename = "__unknown__", force_update = True):
         if channel_filename == "":

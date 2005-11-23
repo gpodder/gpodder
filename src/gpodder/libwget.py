@@ -64,7 +64,7 @@ class downloadThread( object):
 	if self.statusmgr != None:
 	    # request new id from status manager
 	    self.statusmgr_id = self.statusmgr.getNextId()
-	    self.statusmgr.registerId( self.statusmgr_id)
+	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
         command = "/usr/bin/wget \"" + self.url + "\" -O \"" + self.tempname + "\""
@@ -88,7 +88,7 @@ class downloadThread( object):
                     self.speed = speed_string.group(0).strip()
 
             if self.statusmgr != None:
-	        self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':self.speed, 'progress':int(self.percentage*100)})
+	        self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':self.speed, 'progress':int(self.percentage*100), 'url':self.url})
 	    # self.statusmgr
         
         if process.wait() == 0:
@@ -120,26 +120,54 @@ class downloadStatusManager( object):
     
     def __init__( self):
         self.status_list = {}
-	self.next_status_id = 0
-	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
+	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
+	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING)
     
     def getNextId( self):
         res = self.next_status_id
 	self.next_status_id = res + 1
 	return res
 
-    def registerId( self, id):
-        self.status_list[id] = self.tree_model.append()
+    def registerId( self, id, thread):
+        self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread }
 
     def unregisterId( self, id):
-        self.tree_model.remove( self.status_list[id])
-	del self.status_list[id]
+        iter = self.status_list[id]['iter']
+	if iter != None:
+            self.tree_model.remove( iter)
+            self.status_list[id]['thread'].cancel()
+            del self.status_list[id]
 
-    def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0 }):
-        iter = self.status_list[id]
-        self.tree_model.set( iter, 0, new_status['episode'])
-	self.tree_model.set( iter, 1, new_status['speed'])
-	self.tree_model.set( iter, 2, new_status['progress'])
+    def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0, 'url':"unknown" }):
+        iter = self.status_list[id]['iter']
+	if iter != None:
+            self.tree_model.set( iter, 0, new_status['episode'])
+            self.tree_model.set( iter, 1, new_status['speed'])
+            self.tree_model.set( iter, 2, new_status['progress'])
+	    self.tree_model.set( iter, 3, new_status['url'])
+
+    def is_download_in_progress( self, url):
+        for element in self.status_list:
+	    thread = self.status_list[element]['thread']
+	    if thread != None and thread.url == url:
+	        return True
+	
+	return False
+
+    def cancelAll( self):
+        self.tree_model.clear()
+        for element in self.status_list:
+	    self.status_list[element]['iter'] = None
+	    self.status_list[element]['thread'].cancel()
+
+    def cancel_by_url( self, url):
+        for element in self.status_list:
+	    thread = self.status_list[element]['thread']
+	    if thread != None and thread.url == url:
+	        thread.cancel()
+		return True
+        
+        return False
 
     def getModel( self):
         return self.tree_model
