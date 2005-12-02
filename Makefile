@@ -32,6 +32,14 @@ release: generators
 install: generators
 	python setup.py install
 
+uninstall:
+	@echo "##########################################################################"
+	@echo "#  MAKE UNINSTALL STILL NOT READY FOR PRIME TIME, WILL DO MY BEST TO     #"
+	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
+	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
+	@echo "##########################################################################"
+	rm -rf /usr/share/gpodder /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/
+
 ##########################################################################
 
 generators: gen_manpage gen_glade
