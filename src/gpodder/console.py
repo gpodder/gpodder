@@ -11,6 +11,11 @@ from libpodcasts import podcastChannel
 from librssreader import rssReader
 from libwget import downloadThread
 
+from os import kill
+from string import strip
+import popen2
+import signal
+
 
 #TODO: move to libwget??
 class DownloadPool:
@@ -89,3 +94,12 @@ def run():
                thread.download()
                
     
+def testForWget():
+        command = "wget --version | head -n1"
+        process = popen2.Popen3( command, True)
+        stdout = process.fromchild
+        data = stdout.readline( 80)
+	kill( process.pid, signal.SIGKILL)
+	return strip( data)
+# end testForWget()
+

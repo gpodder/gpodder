@@ -19,6 +19,7 @@ from threading import Thread
 from shutil import move
 
 import libgpodder
+import signal
 
 import popen2
 import re
@@ -67,7 +68,7 @@ class downloadThread( object):
 	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
-        command = "/usr/bin/wget \"" + self.url + "\" -O \"" + self.tempname + "\""
+        command = "wget \"" + self.url + "\" -O \"" + self.tempname + "\""
         print command
         process = popen2.Popen3( command, True)
         

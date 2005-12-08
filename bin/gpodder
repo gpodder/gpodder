@@ -7,7 +7,7 @@
 
 __author__    = "Thomas Perl <thp@perli.net>"
 __version__   = "0.5-svn"
-__date__      = "2005-11-21"
+__date__      = "2005-12-08"
 __copyright__ = "Copyright (c) 2005 %s. All rights reserved." %__author__
 __licence__   = "GPL"
 
@@ -59,8 +59,16 @@ def main(argv=None):
         sys.path = ['./src/','../src/'] + sys.path
         #sys.path.append('../src/')
         #sys.path.append('./src/')
-
+    
+    # wget installation detection
     from gpodder import console
+    which_wget = console.testForWget()
+    if which_wget == "":
+        print "ERROR: You do not seem to have a usable \"wget\" binary in your path."
+	return 20
+    else:
+        print "Found wget: " + which_wget
+    # which_wget
     
     if options.list:
         console.list_channels()
