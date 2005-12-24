@@ -81,6 +81,9 @@ class gPodderLib( object):
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
         return self.getChannelSaveDir( configChannel( channel.title).filename) + filename
+
+    def podcastFilenameExists( self, channel, url):
+        return exists( self.getPodcastFilename( channel, url))
     
     def downloadRss( self, channel_url, channel_filename = "__unknown__", force_update = True):
         if channel_filename == "":
