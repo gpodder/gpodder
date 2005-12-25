@@ -516,12 +516,12 @@ class Gpodderchannel(SimpleGladeApp):
         if preset != None:
             self.entryURL.set_text( preset)
         
-            self.waiting = Event()
-            while self.waiting.isSet() == False:
-                self.waiting.wait( 0.01)
-                while gtk.events_pending():
-                    gtk.main_iteration( False)
-    
+        self.waiting = Event()
+        while self.waiting.isSet() == False:
+            self.waiting.wait( 0.01)
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+        
         if self.result == True:
             return self.url
         else:
@@ -533,13 +533,13 @@ class Gpodderchannel(SimpleGladeApp):
         if libgpodder.isDebugging():
             print "on_gPodderChannel_destroy called with self.%s" % widget.get_name()
         self.result = False
-        self.url = self.entryURL.get_text()
     #-- Gpodderchannel.on_gPodderChannel_destroy }
 
     #-- Gpodderchannel.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_btnOK_clicked called with self.%s" % widget.get_name()
+        self.url = self.entryURL.get_text()
         self.gPodderChannel.destroy()
         self.result = True
 
