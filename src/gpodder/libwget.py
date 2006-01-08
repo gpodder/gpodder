@@ -77,6 +77,9 @@ class downloadThread( object):
         
         while process.poll() == -1:
             msg = stderr.readline( 80)
+            # the next two lines might fix some lockup problems
+            if msg == "":
+               break
             if libgpodder.isDebugging():
 	        print msg
             msg = msg.strip()

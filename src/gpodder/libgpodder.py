@@ -21,6 +21,7 @@ from os.path import basename
 from os.path import exists
 from os.path import dirname
 from os import mkdir
+from os import environ
 from threading import Event
 
 from libpodcasts import configChannel
@@ -37,6 +38,8 @@ class gPodderLib( object):
     gpodderdir = ""
     downloaddir = ""
     cachedir = ""
+    http_proxy = ""
+    ftp_proxy = ""
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
@@ -45,6 +48,15 @@ class gPodderLib( object):
         self.createIfNecessary( self.downloaddir)
         self.cachedir = self.gpodderdir + "cache/"
         self.createIfNecessary( self.cachedir)
+        try:
+            self.http_proxy = environ['http_proxy']
+        except:
+            self.http_proxy = ''
+        try:
+            self.ftp_proxy = environ['ftp_proxy']
+        except:
+            self.ftp_proxy = ''
+        self.loadConfig()
     
     def createIfNecessary( self, path):
         #TODO: recursive mkdir all parent directories
@@ -59,7 +71,7 @@ class gPodderLib( object):
             mkdir( path)
     
     def getConfigFilename( self):
-        return self.gpodderdir + "gpodder.conf.xml"
+        return self.gpodderdir + "gpodder.conf"
     
     def getChannelsFilename( self):
         return self.gpodderdir + "channels.xml"
@@ -69,6 +81,34 @@ class gPodderLib( object):
         self.createIfNecessary( savedir)
         
         return savedir
+
+    def propertiesChanged( self):
+        # set new environment variables for subprocesses to use
+        environ['http_proxy'] = self.http_proxy
+        environ['ftp_proxy'] = self.ftp_proxy
+        # save settings for next startup
+        self.saveConfig()
+
+    def saveConfig( self):
+        fn = self.getConfigFilename()
+        fp = open( fn, "w")
+        fp.write( self.http_proxy + "\n")
+        fp.write( self.ftp_proxy + "\n")
+        fp.close()
+    
+    def loadConfig( self):
+        try:
+            fn = self.getConfigFilename()
+            fp = open( fn, "r")
+            http = fp.readline()
+            ftp = fp.readline()
+            if http != "" and ftp != "":
+                self.http_proxy = strip( http)
+                self.ftp_proxy = strip( ftp)
+            fp.close()
+        except:
+            # TODO: well, well..
+            None
     
     def getChannelCacheFile( self, filename):
         return self.cachedir + filename + ".xml"
