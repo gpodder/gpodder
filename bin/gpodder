@@ -19,7 +19,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = OptionParser(usage="usage: %%prog [options] arg1 arg2\n%s" %__doc__,
+    parser = OptionParser(usage="usage: %%prog [options] arg1 arg2\n\n%s" %__doc__,
                           version = "%%prog %s %s" %(__version__, __date__))
 
     parser.add_option("-v", "--verbose",

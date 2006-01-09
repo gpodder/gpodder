@@ -120,7 +120,11 @@ class gPodderLib( object):
 	if indexOfQuestionMark != -1:
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
-        return self.getChannelSaveDir( configChannel( channel.title).filename) + filename
+        return self.getChannelSaveDir( configChannel( channel.title, channel.url, channel.shortname).filename) + filename
+    
+    def getChannelIndexFile( self, channel):
+        # gets index xml filename from a channel for downloaded channels list
+        return self.getChannelSaveDir( configChannel( channel.title, channel.url, channel.shortname).filename) + "index.xml"
 
     def podcastFilenameExists( self, channel, url):
         return exists( self.getPodcastFilename( channel, url))
