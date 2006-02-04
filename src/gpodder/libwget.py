@@ -44,8 +44,12 @@ class downloadThread( object):
     statusmgr_id = None
 
     cutename = None
+
+    # for downloaded items
+    channelitem = None
+    item = None
     
-    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown"):
+    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown", channelitem = None, item = None):
         self.url = url.replace( "%20", " ")
         
         self.filename = filename
@@ -60,6 +64,9 @@ class downloadThread( object):
         self.result = -1
 
 	self.cutename = cutename
+
+        self.channelitem = channelitem
+        self.item = item
 
 	self.statusmgr = statusmgr
 	if self.statusmgr != None:
@@ -77,9 +84,6 @@ class downloadThread( object):
         
         while process.poll() == -1:
             msg = stderr.readline( 80)
-            # the next two lines might fix some lockup problems
-            if msg == "":
-               break
             if libgpodder.isDebugging():
 	        print msg
             msg = msg.strip()
@@ -104,6 +108,11 @@ class downloadThread( object):
 	if self.statusmgr != None:
 	    self.statusmgr.unregisterId( self.statusmgr_id)
 	# self.statusmgr
+
+        if self.result == 0 and self.channelitem != None and self.item != None:
+            if libgpodder.isDebugging():
+                print "downloadThread finished: adding downloaded item to downloaded list"
+            self.channelitem.addDownloadedItem( self.item)
         
         if self.ready_event != None:
             self.ready_event.set()

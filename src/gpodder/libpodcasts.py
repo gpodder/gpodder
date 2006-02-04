@@ -14,6 +14,11 @@
 import gtk
 import gobject
 
+import libgpodder
+
+from liblocdbwriter import writeLocalDB
+from liblocdbreader import readLocalDB
+
 
 # podcastChannel: holds data for a complete channel
 class podcastChannel(object):
@@ -24,6 +29,7 @@ class podcastChannel(object):
     items = []
     image = None
     shortname = None
+    downloaded = None
 
     def __init__( self, url = "", title = "", link = "", description = ""):
         self.url = url
@@ -34,6 +40,23 @@ class podcastChannel(object):
     
     def addItem( self, item):
         self.items.append( item)
+
+    def addDownloadedItem( self, item):
+        localdb = libgpodder.gPodderLib().getChannelIndexFile( self)
+        if libgpodder.isDebugging():
+            print "localdb: " + localdb
+
+        try:
+            locdb_reader = readLocalDB()
+            locdb_reader.parseXML( self.url, localdb)
+            self.downloaded = locdb_reader.channel
+        except:
+            print "no local db found or local db error: creating new.."
+            self.downloaded = podcastChannel( self.url, self.title, self.link, self.description)
+
+        self.downloaded.items.append( item)
+        localdb = libgpodder.gPodderLib().getChannelIndexFile( self)
+        writeLocalDB( localdb, self.downloaded)
     
     def printChannel( self):
         print "- Channel: \"" + self.title + "\""
@@ -41,8 +64,7 @@ class podcastChannel(object):
             print "-- Item: \"" + item.title + "\""
 
     def isDownloaded( self, item):
-        from libgpodder import gPodderLib
-        return gPodderLib().podcastFilenameExists( self, item.url)
+        return libgpodder.gPodderLib().podcastFilenameExists( self, item.url)
 
     def getItemsModel( self):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
