@@ -48,14 +48,13 @@ class podcastChannel(object):
 
         try:
             locdb_reader = readLocalDB()
-            locdb_reader.parseXML( self.url, localdb)
+            locdb_reader.parseXML( localdb)
             self.downloaded = locdb_reader.channel
         except:
             print "no local db found or local db error: creating new.."
             self.downloaded = podcastChannel( self.url, self.title, self.link, self.description)
-
+        
         self.downloaded.items.append( item)
-        localdb = libgpodder.gPodderLib().getChannelIndexFile( self)
         writeLocalDB( localdb, self.downloaded)
     
     def printChannel( self):

@@ -22,6 +22,7 @@ from os.path import exists
 from os.path import dirname
 from os import mkdir
 from os import environ
+from os import system
 from threading import Event
 
 from libpodcasts import configChannel
@@ -29,7 +30,8 @@ from librssreader import rssReader
 from libwget import downloadThread
 
 # global debugging variable, set to False on release
-debugging = True
+# TODO: while developing a new version, set this to "True"
+debugging = False
 
 def isDebugging():
     return debugging
@@ -40,6 +42,7 @@ class gPodderLib( object):
     cachedir = ""
     http_proxy = ""
     ftp_proxy = ""
+    open_app = ""
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
@@ -82,6 +85,9 @@ class gPodderLib( object):
         
         return savedir
 
+    def getChannelDownloadDir( self):
+        return self.downloaddir
+
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use
         environ['http_proxy'] = self.http_proxy
@@ -94,6 +100,7 @@ class gPodderLib( object):
         fp = open( fn, "w")
         fp.write( self.http_proxy + "\n")
         fp.write( self.ftp_proxy + "\n")
+        fp.write( self.open_app + "\n")
         fp.close()
     
     def loadConfig( self):
@@ -102,13 +109,23 @@ class gPodderLib( object):
             fp = open( fn, "r")
             http = fp.readline()
             ftp = fp.readline()
+            app = fp.readline()
             if http != "" and ftp != "":
                 self.http_proxy = strip( http)
                 self.ftp_proxy = strip( ftp)
+            if app != "":
+                self.open_app = strip( app)
+            else:
+                self.open_app = "gnome-open"
             fp.close()
         except:
-            # TODO: well, well..
-            None
+            # TODO: well, well.. (http + ftp?)
+            self.open_app = "gnome-open"
+
+    def openFilename( self, filename):
+        if isDebugging():
+            print "open " + filename + " with " + self.open_app
+        system( self.open_app + " " + filename + " &")
     
     def getChannelCacheFile( self, filename):
         return self.cachedir + filename + ".xml"

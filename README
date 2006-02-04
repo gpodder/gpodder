@@ -1,32 +1,42 @@
 
 
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!1THIS IS OUTDATED!!!!!!!!!!!!!!!!!!!!!!!
 
- build deps: help2man, tepache
 
-                                                      ___
-                        |'\     |   |         /''\   |
+
+
+                                                      
+                        |'\     |   |         /''\   |'''
                         |./    .|  .|         |  |   |__
-                    /'\ |  /\ / | / | /| |'   |  |      \
-                    \_/ |  \/ \_| \_| \_ |    \../ o ___/
-                   \_/     www.perli.net/projekte/gpodder
+                    /'\ |  /\ / | / | /| |'   |  |      |
+                    \_/ |  \/ \_| \_| \_ |    \../ o .__/
+                   \_/  http://perli.net/projekte/gpodder/
 
            - -- == === ================================= === == -- -
 
 
  gPodder 0.5 README
  ==================
- Copyright (c) 2005 Thomas Perl <thp@perli.net>
- Released on 31.10.2005 under the GNU GPL
+ Copyright (c) 2005-2006 Thomas Perl <thp@perli.net>
+ Version 0.5 released on 04.02.2006 under the GNU GPL
+
+
 
 
  ============================
- 1) What's new in version 0.5
+ 1) What's new in version 0.6
  ============================
 
- please see the gPodder homepage for most recent information.
-
- gPodder 0.5 is a pre-release snapshot of the upcoming 0.6 release.
+ Please see the gPodder homepage for most recent information.
+ 
+ Highlights of this release include:
+  * Object-oriented code
+  * Lightweight dependencies
+  * Improved user interface (GUI)
+  * Displaying titles instead of URLs
+  * Simultaneous downloads (in a new download list!)
+  * XML-based local database
+  * Real parsing of RSS files now ("the XML way")
+  * New features and new bugs - included!
 
  ===============
  2) Dependencies
@@ -37,6 +47,15 @@
    apt-get install python python-glade2 python-gtk2 wget
 
  Other users: Please install the above packages somehow ;)
+ If you want to install gPodder from source, you have to 
+ get the following packages:
+ 
+   apt-get install help2man python-setuptools
+ 
+ Please also copy the "tepache" executable in "doc/dev/tepache" 
+ somewhere into your $PATH so that the installation routine and 
+ the makefile scripts can find and use that utility (it's necessary 
+ for sketching code based on gladefiles).
 
  =====================
  3) How to run/install
@@ -45,38 +64,42 @@
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
-   tar xzvf gpodder-0.5-pre.tar.gz
-   cd gpodder-0.5-pre/
+   tar xzvf gpodder-0.5.tar.gz
+   cd gpodder-0.5/
  
  After that you can start gPodder 0.5 by starting it with the following 
  command:
 
-   ./gpodder-run
+   make test
  
- Currently there is no way to automatically install it system-wide, but 
- if you are whiz enough you will figure out how to do it anyway - if not, 
- you can always write an e-mail to me :)
+ If this works out, close gPodder again and install it system-wide:
+
+   sudo make install
+
+ This will install gPodder in standard locations. After the installation 
+ routine (hopefully) finished successfully, you might run gPodder from 
+ any path on your machine by simply typing:
+
+   gpodder
+
+ If you have any problems, please visit the gPodder website or mail the 
+ gPodder mailing list (see below for more information).
 
  =============
  4) How to use
  =============
 
  gPodder was designed with usability in mind. Saying that gPodder is 
- self-explaining saves me from writing long documentation. Will write some 
- more documentation for the 0.6 relese.
+ self-explaining saves me from writing long documentation. Watch out 
+ for the gPodder website. If you need more information, please mail 
+ our gPodder mailing list :)
 
  =============
  5) Known bugs
  =============
 
- Here is a short list of known bugs which i (or someone else) will fix 
- soon hopefully:
-
-   *) Who has seen the "downloaded podcasts" screen?
-   *) Some more code coolness
-   *) Preferences dialog
-   *) Export channel list
-   *) YOUR FEATURE REQUEST/BUG REPORT HERE
+ No known bug so far. Please mail the mailing list or the author directly 
+ to report bugs - we'll try to fix them in the next release :) Thanks!
 
  =========================================
  6) Feature requests, bug reports, patches
@@ -85,12 +108,13 @@
  Feel free to mail me about feature requests, bug reports, patches or nearly
  anything that comes to your mind relating gPodder:
 
-   eMail: thp@perli.net
-   www: http://www.perli.net/projekte/gpodder/
+   Author's eMail:         thp@perli.net
+   gPodder homepage:       http://perli.net/projekte/gpodder/
+   gPodder mailing list:   gpodder-devel@berlios.de
 
 
- Last but not least... have fun with gPodder :)
+           And last but not least... have fun with gPodder :)
 
-                                    -- Thomas Perl, October 31st 2005
+                                    -- Thomas Perl, February 04th 2006
 
 

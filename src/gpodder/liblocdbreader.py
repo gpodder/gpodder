@@ -33,16 +33,16 @@ class rssLocDBErrorHandler( ErrorHandler):
         print "warning: ", exception
 
 class readLocalDB( DefaultHandler):
-    channel_url = ""
     channel = None
     current_item = None
     current_element_data = ""
+    filename = None
 
     def __init__( self):
         None
     
-    def parseXML( self, url, filename):
-        self.channel_url = url
+    def parseXML( self, filename):
+        self.filename = filename
         parser = make_parser()
 	parser.returns_unicode = True
         parser.setContentHandler( self)
@@ -51,18 +51,14 @@ class readLocalDB( DefaultHandler):
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
-        if libgpodder.isDebugging():
-            print "(readLocalDB) startElement: " + name
-
+        
         if name == "channel":
-            self.channel = libpodcasts.podcastChannel( self.channel_url)
+            # no "real" url needed for podcastChannel, because we only use it as a container
+            self.channel = libpodcasts.podcastChannel( self.filename)
         if name == "item":
             self.current_item = libpodcasts.podcastItem()
     
     def endElement( self, name):
-        if libgpodder.isDebugging():
-            print "(readLocalDB) endElement: " + name
-        
         if self.current_item == None:
             if name == "title":
                 self.channel.title = self.current_element_data
