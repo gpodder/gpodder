@@ -1,6 +1,6 @@
 #
 # gpodder makefile
-# copyright 2005 thomas perl <thp@perli.net>
+# copyright 2005-2006 thomas perl <thp@perli.net>
 # released under the gnu gpl
 #
 
@@ -10,6 +10,7 @@ BINFILE=bin/gpodder
 GLADEFILE=data/gpodder.glade
 GUIFILE=src/gpodder/gpodder.py
 MANPAGE=doc/man/gpodder.man.1
+TEPACHE=./doc/dev/tepache
 
 ##########################################################################
 
@@ -42,20 +43,20 @@ uninstall:
 
 ##########################################################################
 
-generators: gen_manpage gen_glade
+generators: $(MANPAGE) gen_glade
 
-gen_manpage:
-	help2man -N ./bin/gpodder >$(MANPAGE)
+$(MANPAGE): $(BINFILE)
+	help2man -N $(BINFILE) >$(MANPAGE)
 
 gen_glade: $(GLADEFILE)
-	tepache --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)
+	$(TEPACHE) --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)
 	chmod -x $(GUIFILE) $(GUIFILE).orig
 
 ##########################################################################
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST $(MANPAGE) PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak
+	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak
 	rm -rf build
 
 distclean: clean
