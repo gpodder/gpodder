@@ -31,7 +31,7 @@ from libwget import downloadThread
 
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
-debugging = False
+debugging = True
 
 def isDebugging():
     return debugging
