@@ -18,6 +18,7 @@ from string import strip
 
 from libpodcasts import podcastChannel
 from libpodcasts import podcastItem
+from libpodcasts import stripHtml
 
 class rssErrorHandler( ErrorHandler):
     def __init__( self):
@@ -72,7 +73,7 @@ class rssReader( DefaultHandler):
             if name == "link":
                 self.channel.link = self.current_element_data
             if name == "description":
-                self.channel.description = self.current_element_data
+                self.channel.description = stripHtml( self.current_element_data)
         
         if self.current_item != None:
             if name == "title":
@@ -80,7 +81,7 @@ class rssReader( DefaultHandler):
             if name == "link":
                 self.current_item.link = self.current_element_data
             if name == "description":
-                self.current_item.description = self.current_element_data
+                self.current_item.description = stripHtml( self.current_element_data)
             if name == "guid":
                 self.current_item.guid = self.current_element_data
             if name == "item":

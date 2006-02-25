@@ -19,6 +19,8 @@ import libgpodder
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
 
+import re
+
 
 # podcastChannel: holds data for a complete channel
 class podcastChannel(object):
@@ -35,7 +37,7 @@ class podcastChannel(object):
         self.url = url
         self.title = title
         self.link = link
-        self.description = description
+        self.description = stripHtml( description)
         self.items = []
     
     def addItem( self, item):
@@ -111,7 +113,7 @@ class podcastItem(object):
         self.length = length
         self.mimetype = mimetype
         self.guid = guid
-        self.description = description
+        self.description = stripHtml( description)
         self.link = ""
     
     def getSize( self):
@@ -168,4 +170,9 @@ def channelsToModel( channels):
     
     return new_model
 
+
+def stripHtml( html):
+    # strips html from a string (fix for <description> tags containing html)
+    rexp = re.compile( "<[^>]*>")
+    return rexp.sub( "", html)
 
