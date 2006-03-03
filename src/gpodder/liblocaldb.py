@@ -27,7 +27,7 @@ class localDB( object):
     downloaddir = None
     
     def __init__( self):
-        self.downloaddir = gPodderLib().getChannelDownloadDir()
+        self.downloaddir = gPodderLib().downloaddir
         self.directories = listdir( self.downloaddir)
 
     def getIndexFileList( self):

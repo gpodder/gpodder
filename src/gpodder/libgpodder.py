@@ -23,11 +23,9 @@ from os.path import dirname
 from os import mkdir
 from os import environ
 from os import system
-from threading import Event
 
-from libpodcasts import configChannel
 from librssreader import rssReader
-from libwget import downloadThread
+from libpodcasts import podcastChannel
 
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
@@ -78,15 +76,6 @@ class gPodderLib( object):
     
     def getChannelsFilename( self):
         return self.gpodderdir + "channels.xml"
-    
-    def getChannelSaveDir( self, filename):
-        savedir = self.downloaddir + filename + "/"
-        self.createIfNecessary( savedir)
-        
-        return savedir
-
-    def getChannelDownloadDir( self):
-        return self.downloaddir
 
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use
@@ -126,10 +115,7 @@ class gPodderLib( object):
         if isDebugging():
             print "open " + filename + " with " + self.open_app
         system( self.open_app + " " + filename + " &")
-    
-    def getChannelCacheFile( self, filename):
-        return self.cachedir + filename + ".xml"
-    
+
     def getPodcastFilename( self, channel, url):
         # strip question mark (and everything behind it), fix %20 errors
         filename = basename( url).replace( "%20", " ")
@@ -137,49 +123,25 @@ class gPodderLib( object):
 	if indexOfQuestionMark != -1:
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
-        return self.getChannelSaveDir( configChannel( channel.title, channel.url, channel.shortname).filename) + filename
+        channel.download_dir
+        print "getPodcastFilename: ", channel.download_dir + filename
+        return channel.download_dir + filename
     
-    def getChannelIndexFile( self, channel):
-        # gets index xml filename from a channel for downloaded channels list
-        return self.getChannelSaveDir( configChannel( channel.title, channel.url, channel.shortname).filename) + "index.xml"
-
     def podcastFilenameExists( self, channel, url):
         return exists( self.getPodcastFilename( channel, url))
-    
-    def downloadRss( self, channel_url, channel_filename = "__unknown__", force_update = True):
-        if channel_filename == "":
-            channel_filename = "__unknown__"
-        
-        cachefile = gPodderLib().getChannelCacheFile( channel_filename)
-        
-        if (channel_filename == "__unknown__" or exists( cachefile) == False) or force_update:
-            event = Event()
-            downloadThread( channel_url, cachefile, event).download()
-            
-            while event.isSet() == False:
-                event.wait( 0.2)
-                while gtk.events_pending():
-                    gtk.main_iteration( False)
-        
-        return cachefile
-
-
 
 class gPodderChannelWriter( object):
-    def __init__( self):
-        None
-    
     def write( self, channels):
         filename = gPodderLib().getChannelsFilename()
         fd = open( filename, "w")
-        fd.write( "<!-- automatically generated, will be overwritten on next gpodder shutdown.-->\n")
-        fd.write( "<channels>\n")
+        print >> fd, '<!-- automatically generated, will be overwritten on next gpodder shutdown.-->'
+        print >> fd, '<channels>'
         for chan in channels:
-            configch = configChannel( chan.title, chan.url, chan.shortname)
-            fd.write( "  <channel name=\"" + configch.filename + "\">\n")
-            fd.write( "    <url>" + configch.url + "</url>\n")
-            fd.write( "  </channel>\n")
-        fd.write( "</channels>\n")
+            print >> fd, '  <channel name="%s">' %chan.filename
+            print >> fd, '    <url>%s</url>' %chan.url
+            print >> fd, '    <download_dir>%s</download_dir>' %chan.save_dir
+            print >> fd, '  </channel>'
+        print >> fd, '</channels>'
         fd.close()
 
 class gPodderChannelReader( DefaultHandler):
@@ -202,8 +164,8 @@ class gPodderChannelReader( DefaultHandler):
         input_channels = []
         
         for channel in self.channels:
-            cachefile = gPodderLib().downloadRss( channel.url, channel.filename, force_update)
-            reader.parseXML( channel.url, cachefile)
+            cachefile = channel.downloadRss(force_update)
+            reader.parseXML(channel.url, cachefile)
             
             if channel.filename != "" and channel.filename != "__unknown__":
                 reader.channel.shortname = channel.filename
@@ -216,13 +178,15 @@ class gPodderChannelReader( DefaultHandler):
         self.current_element_data = ""
         
         if name == "channel":
-            self.current_item = configChannel()
+            self.current_item = podcastChannel()
             self.current_item.filename = attrs.get( "name", "")
     
     def endElement( self, name):
         if self.current_item != None:
             if name == "url":
                 self.current_item.url = self.current_element_data
+            if name == "download_dir":
+                self.current_item.download_dir = self.current_element_data
             if name == "channel":
                 self.channels.append( self.current_item)
                 self.current_item = None

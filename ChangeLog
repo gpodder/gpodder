@@ -1,7 +1,18 @@
+Fri, 03 Mar 2006 20:59:17 +0100 <thp@perli.net>
+	* Applied patch from informancer@web.de (see below)
+	- Reverted to old-style channel properties dialog for now
+
 Sun, 26 Feb 2006 00:11:28 +0100 <thp@perli.net>
 	* Bumped version number and date in bin/gpodder
 	* Updated TODO-List
 	* Strip html inside <description> tags (Reported by Leo Gomez)
+
+Sat, 25 Fen 2006 12:00:00 +0100 <informancer@web.de>
+	* Added download dir field to channel property window
+	* Changed save/load of channel.xml to use download dir
+	* Added download_dir as a property of podcastChannel
+	* moved chan properties from gPodderLib to podcastChannel
+	* merged configChannel in podcastChannel
 
 Sat, 04 Feb 2006 19:07:33 +0100 <thp@perli.net> 
 	* ** gPodder version 0.5 is here! **
