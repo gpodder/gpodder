@@ -63,7 +63,7 @@ class podcastChannel(object):
         self.items.append( item)
 
     def addDownloadedItem( self, item):
-        localdb = libgpodder.gPodderLib().getChannelIndexFile( self)
+        localdb = self.index_file
         if libgpodder.isDebugging():
             print "localdb: " + localdb
 
@@ -203,7 +203,7 @@ def channelsToModel( channels):
     for channel in channels:
         new_iter = new_model.append()
         new_model.set( new_iter, 0, channel.url)
-        new_model.set( new_iter, 1, channel.title + " ("+channel.url+")")
+        new_model.set( new_iter, 1, channel.title) # + " ("+channel.url+")")
         #if channel.image != None:
         #    new_model.set( new_iter, 2, gtk.gdk.pixbuf_new_from_file_at_size( channel.image, 60, 60))
         #else:

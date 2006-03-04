@@ -124,8 +124,7 @@ class gPodderLib( object):
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
         channel.download_dir
-        print "getPodcastFilename: ", channel.download_dir + filename
-        return channel.download_dir + filename
+        return channel.save_dir + filename
     
     def podcastFilenameExists( self, channel, url):
         return exists( self.getPodcastFilename( channel, url))
