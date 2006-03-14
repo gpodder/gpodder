@@ -1,7 +1,9 @@
 
   == 0.6 release-critical ==
 
- (none so far)
+ * Race condition (?) happening when two concurrent downloads finish 
+   and only one download gets written to local db - make local db writing
+   thread-safe. (thanks to plwoodward@charter.net for pointing that out)
 
   == 0.6 or afterwards ==
 
