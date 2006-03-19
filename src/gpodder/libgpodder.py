@@ -12,6 +12,7 @@
 #
 
 import gtk
+import thread
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -31,8 +32,17 @@ from libpodcasts import podcastChannel
 # TODO: while developing a new version, set this to "True"
 debugging = True
 
+# global lock for thread exclusion
+globalLock = thread.allocate_lock()
+
 def isDebugging():
     return debugging
+
+def getLock():
+    globalLock.acquire()
+
+def releaseLock():
+    globalLock.release()
 
 class gPodderLib( object):
     gpodderdir = ""

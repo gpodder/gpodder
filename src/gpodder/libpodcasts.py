@@ -63,6 +63,8 @@ class podcastChannel(object):
         self.items.append( item)
 
     def addDownloadedItem( self, item):
+        # no mulitithreaded access
+        libgpodder.getLock()
         localdb = self.index_file
         if libgpodder.isDebugging():
             print "localdb: " + localdb
@@ -77,6 +79,7 @@ class podcastChannel(object):
         
         self.downloaded.items.append( item)
         writeLocalDB( localdb, self.downloaded)
+        libgpodder.releaseLock()
     
     def printChannel( self):
         print '- Channel: "' + self.title + '"'
