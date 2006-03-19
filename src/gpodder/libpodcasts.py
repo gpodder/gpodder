@@ -13,6 +13,7 @@
 
 import gtk
 import gobject
+import htmlentitydefs
 
 import libgpodder
 
@@ -216,5 +217,11 @@ def channelsToModel( channels):
 
 def stripHtml( html):
     # strips html from a string (fix for <description> tags containing html)
+    dict = htmlentitydefs.entitydefs
     rexp = re.compile( "<[^>]*>")
-    return rexp.sub( "", html)
+    stripstr = rexp.sub( "", html)
+    # strips html entities
+    for key in dict.keys():
+        stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
+    return stripstr
+
