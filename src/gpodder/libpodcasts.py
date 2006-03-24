@@ -64,7 +64,7 @@ class podcastChannel(object):
         self.items.append( item)
 
     def addDownloadedItem( self, item):
-        # no mulitithreaded access
+        # no multithreaded access
         libgpodder.getLock()
         localdb = self.index_file
         if libgpodder.isDebugging():
@@ -167,6 +167,34 @@ class podcastChannel(object):
         return self.save_dir + "index.xml"
     
     index_file = property(fget=get_index_file)
+
+    def deleteDownloadedItemByUrlAndTitle(self, url, title):
+        if libgpodder.isDebugging():
+            print "deleteDownloadedItemByUrlAndTitle: " + title + " (" + url + ")"
+        # no multithreaded access
+        libgpodder.getLock()
+	nr_items = 0
+        localdb = self.index_file
+        if libgpodder.isDebugging():
+            print "localdb: " + localdb
+        try: 
+            locdb_reader = readLocalDB()
+            locdb_reader.parseXML( localdb)
+            self.downloaded = locdb_reader.channel
+            for item in self.downloaded.items:
+                if item.title == title and item.url == url:
+                    nr_items += 1
+                    self.downloaded.items.remove(item)
+        except:
+            print "no local db found or local db error"
+        if libgpodder.isDebugging():
+            print " found", nr_items, "matching item(s)"
+        if nr_items > 0:
+            writeLocalDB( localdb, self.downloaded)
+        libgpodder.releaseLock()
+        if nr_items > 0:
+            return True
+	return False
 
 class podcastItem(object):
     """holds data for one object in a channel"""

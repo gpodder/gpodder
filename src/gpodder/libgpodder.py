@@ -13,6 +13,7 @@
 
 import gtk
 import thread
+import threading
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -24,6 +25,7 @@ from os.path import dirname
 from os import mkdir
 from os import environ
 from os import system
+from os import unlink
 
 from librssreader import rssReader
 from libpodcasts import podcastChannel
@@ -32,8 +34,8 @@ from libpodcasts import podcastChannel
 # TODO: while developing a new version, set this to "True"
 debugging = True
 
-# global lock for thread exclusion
-globalLock = thread.allocate_lock()
+# global recursive lock for thread exclusion
+globalLock = threading.RLock()
 
 def isDebugging():
     return debugging
@@ -125,6 +127,11 @@ class gPodderLib( object):
         if isDebugging():
             print "open " + filename + " with " + self.open_app
         system( self.open_app + " " + filename + " &")
+
+    def deleteFilename( self, filename):
+        if isDebugging():
+            print "deleteFilename: " + filename
+        unlink( filename)
 
     def getPodcastFilename( self, channel, url):
         # strip question mark (and everything behind it), fix %20 errors

@@ -144,6 +144,10 @@ class Gpodder(SimpleGladeApp):
         reader = gPodderChannelReader()
         self.channels = reader.read( False)
         self.channels_loaded = True
+
+        # keep Downloaded channels list
+        self.downloaded_channels = None
+        self.active_downloaded_channels = 0
         
         # update view
         self.updateComboBox()
@@ -177,10 +181,13 @@ class Gpodder(SimpleGladeApp):
     def updateDownloadedComboBox( self):
         # now, update downloaded feeds tab:
         ldb = localDB()
+        # update downloaded_channels list
+        self.downloaded_channels = ldb.getDownloadedChannelsList()
         self.comboDownloaded.set_model( ldb.getDownloadedChannelsModel())
         try:
-            self.comboDownloaded.set_active( 0)
+            self.comboDownloaded.set_active( self.active_downloaded_channels)
         except:
+            self.active_downloaded_channels = 0
             if libgpodder.isDebugging():
               print "no downloaded podcasts found.."
     # end of self.updateDownloadedComboBox()
@@ -486,6 +493,7 @@ class Gpodder(SimpleGladeApp):
     def on_comboDownloaded_changed(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_comboDownloaded_changed called with self.%s" % widget.get_name()
+        self.active_downloaded_channels = self.comboDownloaded.get_active()
         selection_iter = self.comboDownloaded.get_active_iter()
         selected_value = self.comboDownloaded.get_model().get_value( selection_iter, 0)
         if libgpodder.isDebugging():
@@ -515,6 +523,27 @@ class Gpodder(SimpleGladeApp):
             print "on_btnDownloadedExecute_clicked called with self.%s" % widget.get_name()
         self.on_treeDownloaded_row_activated( widget, args)
     #-- Gpodder.on_btnDownloadedExecute_clicked }
+
+    #-- Gpodder.on_btnDownloadedDelete_clicked {
+    def on_btnDownloadedDelete_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnDownloadedDelete_clicked called with self.%s" % widget.get_name()
+        # Note: same code as in on_treeDownloaded_row_activated()
+        selection_iter = self.comboDownloaded.get_active_iter()
+        channel_filename = self.comboDownloaded.get_model().get_value( selection_iter, 0)
+        
+        selection_tuple = self.treeDownloaded.get_selection().get_selected()
+        selection_iter = selection_tuple[1]
+        url = self.treeDownloaded.get_model().get_value( selection_iter, 0)
+        title = self.treeDownloaded.get_model().get_value( selection_iter, 1)
+        filename_final = localDB().getLocalFilenameByPodcastURL( channel_filename, url)
+
+        current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
+	if current_channel.deleteDownloadedItemByUrlAndTitle(url, title):
+            gPodderLib().deleteFilename( filename_final)
+            self.updateComboBox()
+            self.updateDownloadedComboBox()
+    #-- Gpodder.on_btnDownloadedDelete_clicked }
 
 
 class Gpodderstatus(SimpleGladeApp):

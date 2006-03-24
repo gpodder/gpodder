@@ -47,7 +47,12 @@ class readLocalDB( DefaultHandler):
 	parser.returns_unicode = True
         parser.setContentHandler( self)
 	parser.setErrorHandler( rssLocDBErrorHandler())
-        parser.parse( filename)
+        # no multithread access to filename
+        libgpodder.getLock()
+        try:
+            parser.parse( filename)
+        finally:
+            libgpodder.releaseLock()
     
     def startElement( self, name, attrs):
         self.current_element_data = ""

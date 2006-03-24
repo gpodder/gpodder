@@ -11,6 +11,8 @@
 #
 #
 
+import libgpodder
+
 from xml.sax.saxutils import DefaultHandler
 from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
@@ -48,7 +50,12 @@ class rssReader( DefaultHandler):
 	parser.returns_unicode = True
         parser.setContentHandler( self)
 	parser.setErrorHandler( rssErrorHandler())
-        parser.parse( filename)
+        # no multithreaded access to filename
+        libgpodder.getLock()
+        try:
+            parser.parse( filename)
+        finally:
+            libgpodder.releaseLock()
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
