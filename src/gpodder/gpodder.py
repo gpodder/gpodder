@@ -47,7 +47,14 @@ import libgpodder
 
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
-app_authors = [ "Thomas Perl <thp@perli.net>", "Peter Hoffmann <tosh@cs.tu-berlin.de>", "Adrien Beaucreux <informancer@web.de>" ]
+app_authors = [
+                "Thomas Perl <thp@perli.net>",
+                "", "Contributors / patch writers:",
+                "Peter Hoffmann <tosh@cs.tu-berlin.de>",
+                "Adrien Beaucreux <informancer@web.de>",
+                "Alain Tauch <contrib@maisondubonheur.com>",
+                "", "For a complete list of contributors, see AUTHORS file"
+              ]
 app_copyright = "Copyright (c) 2005-2006 Thomas Perl"
 app_website = "http://perli.net/projekte/gpodder/"
 
