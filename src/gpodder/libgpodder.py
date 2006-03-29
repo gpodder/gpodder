@@ -131,7 +131,11 @@ class gPodderLib( object):
     def deleteFilename( self, filename):
         if isDebugging():
             print "deleteFilename: " + filename
-        unlink( filename)
+        try:
+            unlink( filename)
+        except:
+            # silently ignore 
+            pass
 
     def getPodcastFilename( self, channel, url):
         # strip question mark (and everything behind it), fix %20 errors
@@ -181,12 +185,14 @@ class gPodderChannelReader( DefaultHandler):
         
         for channel in self.channels:
             cachefile = channel.downloadRss(force_update)
-            reader.parseXML(channel.url, cachefile)
+            # check if download was a success
+            if cachefile != None:
+                reader.parseXML(channel.url, cachefile)
             
-            if channel.filename != "" and channel.filename != "__unknown__":
-                reader.channel.shortname = channel.filename
+                if channel.filename != "" and channel.filename != "__unknown__":
+                    reader.channel.shortname = channel.filename
             
-            input_channels.append( reader.channel)
+                input_channels.append( reader.channel)
         
         return input_channels
     

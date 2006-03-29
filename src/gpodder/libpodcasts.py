@@ -122,6 +122,8 @@ class podcastChannel(object):
     def downloadRss( self, force_update = True):
         
         if (self.filename == "__unknown__" or exists( self.cache_file) == False) or force_update:
+            # remove old cache file
+            libgpodder.gPodderLib().deleteFilename( self.cache_file)
             event = Event()
             downloadThread(self.url, self.cache_file, event).download()
             
@@ -130,6 +132,10 @@ class podcastChannel(object):
                 #FIXME: we do not want gtk code when not needed
                 while gtk.events_pending():
                     gtk.main_iteration( False)
+
+            # check if download was a success
+            if exists( self.cache_file) == False:
+                return None
         
         return self.cache_file
     
