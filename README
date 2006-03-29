@@ -4,21 +4,20 @@
 
 
 
-                                                      
-                        |'\     |   |         /''\   |'''
+                                                      __
+                        |'\     |   |         /''\   /  \
                         |./    .|  .|         |  |   |__
-                    /'\ |  /\ / | / | /| |'   |  |      |
-                    \_/ |  \/ \_| \_| \_ |    \../ o .__/
+                    /'\ |  /\ / | / | /| |'   |  |   |  \
+                    \_/ |  \/ \_| \_| \_ |    \../ o \__/
                    \_/  http://perli.net/projekte/gpodder/
 
            - -- == === ================================= === == -- -
 
 
- gPodder 0.5 README
+ gPodder 0.6 README
  ==================
  Copyright (c) 2005-2006 Thomas Perl <thp@perli.net>
- Version 0.5 released on 04.02.2006 under the GNU GPL
- This version includes a patch from 05.02.2006.
+ Version 0.6 released on 29.03.2006 under the GNU GPL
 
 
 
@@ -30,13 +29,23 @@
  Please see the gPodder homepage for most recent information.
  
  Highlights of this release include:
-  * Object-oriented code
-  * Lightweight dependencies
-  * Improved user interface (GUI)
-  * Displaying titles instead of URLs
-  * Simultaneous downloads (in a new download list!)
-  * XML-based local database
-  * Real parsing of RSS files now ("the XML way")
+  * Code structure cleanups (even more object-oriented)
+  * No more errors with HTML inside <description> tags (Thanks Leo Gomez)
+  * Brand-new channel information/editor dialog
+  * Brand-new episode information dialog
+  * Tooltips for all your mouse hovering needs
+  * Race condition bug that made downloaded podcasts to disappear fixed!
+  * Possibility to delete already-downloaded podcasts
+  * Menu items are not even more intelligent and disable themselves when 
+    not needed
+  * Now handling bad URLs in "Add channel" dialog gracefully
+  * Code cleanups in gPodder's main window code
+  * New properties dialog - more options!
+  * Possibility to create a symlink to the downloaddir on the Desktop
+  * Added confirmation dialogs to "deleting" functions
+  * More stable download handling
+  * More messages informing the user what's going on when something is 
+    going wrong..
   * New features and new bugs - included!
 
  ===============
@@ -60,8 +69,8 @@
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
-   tar xzvf gpodder-0.5.tar.gz
-   cd gpodder-0.5/
+   tar xzvf gpodder-0.6.tar.gz
+   cd gpodder-0.6/
  
  After that you can start gPodder 0.5 by starting it with the following 
  command:
@@ -111,6 +120,6 @@
 
            And last but not least... have fun with gPodder :)
 
-                                    -- Thomas Perl, February 04th 2006
+                                     -- Thomas Perl, March 29th 2006
 
 
