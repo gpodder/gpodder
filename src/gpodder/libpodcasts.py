@@ -18,6 +18,7 @@ import htmlentitydefs
 import libgpodder
 
 from os.path import exists
+from os.path import basename
 
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
@@ -88,7 +89,7 @@ class podcastChannel(object):
             print '-- Item: "' + item.title + '"'
 
     def isDownloaded( self, item):
-        return libgpodder.gPodderLib().podcastFilenameExists( self, item.url)
+        return self.podcastFilenameExists( item.url)
 
     def getItemsModel( self):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
@@ -171,7 +172,20 @@ class podcastChannel(object):
         return self.save_dir + "index.xml"
     
     index_file = property(fget=get_index_file)
-
+    
+    def getPodcastFilename( self, url):
+        # strip question mark (and everything behind it), fix %20 errors
+        filename = basename( url).replace( "%20", " ")
+	indexOfQuestionMark = filename.rfind( "?")
+	if indexOfQuestionMark != -1:
+	    filename = filename[:indexOfQuestionMark]
+	# end strip questionmark
+        self.download_dir
+        return self.save_dir + filename
+    
+    def podcastFilenameExists( self, url):
+        return exists( self.getPodcastFilename( url))
+    
     def deleteDownloadedItemByUrlAndTitle(self, url, title):
         if libgpodder.isDebugging():
             print "deleteDownloadedItemByUrlAndTitle: " + title + " (" + url + ")"

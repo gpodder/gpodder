@@ -82,7 +82,7 @@ def run():
     
     for channel in updated_channels:
        for item in channel.items:
-           filename = gPodderLib().getPodcastFilename(channel, item.url)
+           filename = channel.getPodcastFilename( item.url)
            if not channel.isDownloaded( item):
                while not pool.may_download():
                    time.sleep(3)

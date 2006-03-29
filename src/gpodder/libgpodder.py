@@ -19,7 +19,6 @@ from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
 from string import strip
 from os.path import expanduser
-from os.path import basename
 from os.path import exists
 from os.path import dirname
 from os import mkdir
@@ -136,19 +135,6 @@ class gPodderLib( object):
         except:
             # silently ignore 
             pass
-
-    def getPodcastFilename( self, channel, url):
-        # strip question mark (and everything behind it), fix %20 errors
-        filename = basename( url).replace( "%20", " ")
-	indexOfQuestionMark = filename.rfind( "?")
-	if indexOfQuestionMark != -1:
-	    filename = filename[:indexOfQuestionMark]
-	# end strip questionmark
-        channel.download_dir
-        return channel.save_dir + filename
-    
-    def podcastFilenameExists( self, channel, url):
-        return exists( self.getPodcastFilename( channel, url))
 
 class gPodderChannelWriter( object):
     def write( self, channels):

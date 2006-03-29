@@ -104,7 +104,7 @@ class localDB( object):
           rdb.parseXML( channel_filename)
           self.localdbs[channel_filename] = rdb
         
-        return gPodderLib().getPodcastFilename( rdb.channel, url)
+        return rdb.channel.getPodcastFilename( url)
     
     def clear_cache( self):
         # clear cached data, so it is re-read next time
