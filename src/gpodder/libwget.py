@@ -16,6 +16,7 @@ from os.path import dirname
 
 from os import system
 from threading import Thread
+from threading import Lock
 from shutil import move
 
 import libgpodder
@@ -49,6 +50,9 @@ class downloadThread( object):
     channelitem = None
     item = None
     localdb = None
+
+    # well..
+    is_cancelled = False
     
     def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown", channelitem = None, item = None, localdb = None):
         self.url = url.replace( "%20", " ")
@@ -84,7 +88,7 @@ class downloadThread( object):
         self.pid = process.pid
         stderr = process.childerr
         
-        while process.poll() == -1:
+        while process.poll() == -1 and self.is_cancelled == False:
             msg = stderr.readline( 80)
             if libgpodder.isDebugging():
 	        print msg
@@ -124,6 +128,7 @@ class downloadThread( object):
             self.ready_event.set()
     
     def cancel( self):
+        self.is_cancelled = True
         if self.pid != -1:
             system( "kill -9 " + str( self.pid))
     
@@ -136,11 +141,17 @@ class downloadStatusManager( object):
     status_list = None
     next_status_id = 0
     tree_model = None
+    smlock = None # this lock should be used around any treemodel calls
     
     def __init__( self):
         self.status_list = {}
 	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
+        self.smlock = Lock()
+
+        # use smlock around every tree_model usage, as seen here:
+        self.smlock.acquire()
 	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING)
+        self.smlock.release()
     
     def getNextId( self):
         res = self.next_status_id
@@ -148,22 +159,33 @@ class downloadStatusManager( object):
 	return res
 
     def registerId( self, id, thread):
+        self.smlock.acquire()
         self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread }
+        self.smlock.release()
 
     def unregisterId( self, id):
+        if not id in self.status_list:
+            return
         iter = self.status_list[id]['iter']
 	if iter != None:
+            self.smlock.acquire()
             self.tree_model.remove( iter)
+            self.smlock.release()
+            self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
             del self.status_list[id]
 
     def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0, 'url':"unknown" }):
+        if not id in self.status_list:
+            return
         iter = self.status_list[id]['iter']
 	if iter != None:
+            self.smlock.acquire()
             self.tree_model.set( iter, 0, new_status['episode'])
             self.tree_model.set( iter, 1, new_status['speed'])
             self.tree_model.set( iter, 2, new_status['progress'])
 	    self.tree_model.set( iter, 3, new_status['url'])
+            self.smlock.release()
 
     def is_download_in_progress( self, url):
         for element in self.status_list:
@@ -174,16 +196,31 @@ class downloadStatusManager( object):
 	return False
 
     def cancelAll( self):
-        self.tree_model.clear()
         for element in self.status_list:
 	    self.status_list[element]['iter'] = None
 	    self.status_list[element]['thread'].cancel()
+        # clear the tree model after cancelling
+        self.smlock.acquire()
+        self.tree_model.clear()
+        self.smlock.release()
+
+    def get_url_by_iter( self, iter):
+        self.smlock.acquire()
+        result = self.tree_model.get_value( iter, 3)
+        self.smlock.release()
+        return result
+
+    def get_title_by_iter( self, iter):
+        self.smlock.acquire()
+        result = self.tree_model.get_value( iter, 0)
+        self.smlock.release()
+        return result
 
     def cancel_by_url( self, url):
         for element in self.status_list:
 	    thread = self.status_list[element]['thread']
 	    if thread != None and thread.url == url:
-	        thread.cancel()
+                self.unregisterId( element)
 		return True
         
         return False
