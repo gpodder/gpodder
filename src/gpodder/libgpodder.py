@@ -26,6 +26,12 @@ from os import environ
 from os import system
 from os import unlink
 
+# for the desktop symlink stuff:
+from os import symlink
+from os import stat
+from stat import S_ISLNK
+from stat import ST_MODE
+
 from librssreader import rssReader
 from libpodcasts import podcastChannel
 
@@ -113,7 +119,7 @@ class gPodderLib( object):
             if http != "" and ftp != "":
                 self.http_proxy = strip( http)
                 self.ftp_proxy = strip( ftp)
-            if app != "":
+            if strip( app) != "":
                 self.open_app = strip( app)
             else:
                 self.open_app = "gnome-open"
@@ -126,6 +132,24 @@ class gPodderLib( object):
         if isDebugging():
             print "open " + filename + " with " + self.open_app
         system( self.open_app + " " + filename + " &")
+
+    def getDesktopSymlink( self):
+        symlink_path = expanduser( "~/Desktop/gPodder downloads")
+        return exists( symlink_path)
+
+    def createDesktopSymlink( self):
+        if isDebugging():
+            print "createDesktopSymlink requested"
+        if not self.getDesktopSymlink():
+            downloads_path = expanduser( "~/Desktop/")
+            self.createIfNecessary( downloads_path)
+            symlink( self.downloaddir, downloads_path + "gPodder downloads")
+    
+    def removeDesktopSymlink( self):
+        if isDebugging():
+            print "removeDesktopSymlink requested"
+        if self.getDesktopSymlink():
+            unlink( expanduser( "~/Desktop/gPodder downloads"))
 
     def deleteFilename( self, filename):
         if isDebugging():
