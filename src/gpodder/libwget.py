@@ -48,8 +48,9 @@ class downloadThread( object):
     # for downloaded items
     channelitem = None
     item = None
+    localdb = None
     
-    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown", channelitem = None, item = None):
+    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown", channelitem = None, item = None, localdb = None):
         self.url = url.replace( "%20", " ")
         
         self.filename = filename
@@ -67,6 +68,7 @@ class downloadThread( object):
 
         self.channelitem = channelitem
         self.item = item
+        self.localdb = localdb
 
 	self.statusmgr = statusmgr
 	if self.statusmgr != None:
@@ -113,6 +115,10 @@ class downloadThread( object):
             if libgpodder.isDebugging():
                 print "downloadThread finished: adding downloaded item to downloaded list"
             self.channelitem.addDownloadedItem( self.item)
+            
+            # if we have received a localDB, clear its cache
+            if self.localdb != None:
+                self.localdb.clear_cache()
         
         if self.ready_event != None:
             self.ready_event.set()

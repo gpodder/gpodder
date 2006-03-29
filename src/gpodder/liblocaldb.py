@@ -25,31 +25,54 @@ from os.path import isfile
 class localDB( object):
     directories = []
     downloaddir = None
+    iflist = None # index file list (will be cached in object)
+    chlist = None # downloaded channels list (will be cached in object)
+    localdbs = {} # localdbs is a cache that maps filenames to readLocalDB objs
     
     def __init__( self):
+        if libgpodder.isDebugging():
+            print "created new localDB object"
         self.downloaddir = gPodderLib().downloaddir
         self.directories = listdir( self.downloaddir)
 
     def getIndexFileList( self):
-        iflist = []
+        # do not re-read if we already readed the list of index files
+        if self.iflist != None:
+            if libgpodder.isDebugging():
+                print "(localDB) using cached index file list"
+            return self.iflist
+        
+        self.iflist = []
         
         for d in self.directories:
-            iflist.append( self.downloaddir + sep + d + sep + "index.xml")
-
-        return iflist
+            self.iflist.append( self.downloaddir + sep + d + sep + "index.xml")
+        
+        return self.iflist
 
     def getDownloadedChannelsList( self):
-        newlist = []
+        # do not re-read downloaded channels list
+        if self.chlist != None:
+            if libgpodder.isDebugging():
+                print "(localDB) using cached downloaded channels list"
+            return self.chlist
+        
+        self.chlist = []
         
         ifl = self.getIndexFileList()
         for f in ifl:
             if isfile( f):
                 # whew! found a index file, parse it and append
-                rdb = readLocalDB()
-                rdb.parseXML( f)
-                newlist.append( rdb.channel)
+                # if there's a rdb in cache already, use that
+                if f in self.localdbs:
+                  rdb = self.localdbs[f]
+                else:
+                  rdb = readLocalDB()
+                  rdb.parseXML( f)
+                  self.localdbs[f] = rdb
+                # append this one to list
+                self.chlist.append( rdb.channel)
         
-        return newlist
+        return self.chlist
 
     def getDownloadedChannelsModel( self):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
@@ -64,12 +87,28 @@ class localDB( object):
         return new_model
     
     def getDownloadedEpisodesModelByFilename( self, filename):
-        rdb = readLocalDB()
-        rdb.parseXML( filename)
+        if filename in self.localdbs:
+          rdb = self.localdbs[filename]
+        else:
+          rdb = readLocalDB()
+          rdb.parseXML( filename)
+          self.localdbs[filename] = rdb
+        
         return rdb.channel.getItemsModel()
     
     def getLocalFilenameByPodcastURL( self, channel_filename, url):
-        rdb = readLocalDB()
-        rdb.parseXML( channel_filename)
+        if channel_filename in self.localdbs:
+          rdb = self.localdbs[channel_filename]
+        else:
+          rdb = readLocalDB()
+          rdb.parseXML( channel_filename)
+          self.localdbs[channel_filename] = rdb
+        
         return gPodderLib().getPodcastFilename( rdb.channel, url)
+    
+    def clear_cache( self):
+        # clear cached data, so it is re-read next time
+        self.localdbs.clear()
+        self.chlist = None
+        self.iflist = None
 

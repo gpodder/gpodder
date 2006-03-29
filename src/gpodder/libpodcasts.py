@@ -141,8 +141,6 @@ class podcastChannel(object):
     save_dir = property(fget=get_save_dir)
 
     def get_download_dir(self):
-        if libgpodder.isDebugging():
-            print "get_download_dir: ", self, self.__download_dir
         if self.__download_dir == None:
             return libgpodder.gPodderLib().downloaddir
         else:
