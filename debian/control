@@ -1,0 +1,11 @@
+Source: gpodder
+Maintainer: Peter Hoffmann <tosh@cs.tu-berlin.de>
+Section: python
+Priority: optional
+Standards-Version: 3.6.1
+Build-Depends-Indep: debhelper (>= 4.1.67), python2.4-dev
+
+Package: gpodder
+Architecture: all
+Depends: ${python:Depends}, python-gtk2, python-glade2, python-xml, wget
+Description: Media Aggregator
