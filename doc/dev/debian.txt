@@ -1,42 +1,12 @@
-= Howto patch distutils for building deb packages =
+Building .deb packages
+======================
 
-Get Patch from the bottom of
+generate a new entry in debian/changelog 
+   
+  debchange -v 0.7+svn20060331_2
 
- *  https://sourceforge.net/tracker/?func=detail&atid=305470&aid=1054967&group_id=5470
 
-Get the distutils cvs version:
+build the new package:
 
-{{{
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/python co -P distutils
-cp -r distutils cvs.3
-}}}
-
-Unzip the patch and apply it:
-
-{{{
-gunzip distutils-cvs_bdist_deb-20041111.patch.gz 
-patch -p0 <distutils-cvs_bdist_deb-20041111.patch
-}}}
-
-It is better to keep your version of distutils and install the patched version
-somewhere else:
-
-{{{
-cd cvs.3
-python setup.py install --root=/home/ph/tmp
-}}}
-
-Add the new version of distutils to your pythonpath:
-{{{
-export PYTHONPATH=/home/ph/tmp/lib/python/
-}}}
-
-Maybe you need to install devscripts
-{{{
-sudo apt-get install devscripts
-}}}
-
-Build the new pakage
-{{{
-python setup.py bdist_deb --maintainer "Peter Hoffmann <tosh@cs.tu-berlin.de>"  --extra-depends "python-gtk2, python-glade2, python-xml, wget"
-}}}
+  fakeroot ./debian/rules binary
+   
