@@ -94,7 +94,7 @@ class localDB( object):
           rdb.parseXML( filename)
           self.localdbs[filename] = rdb
         
-        return rdb.channel.getItemsModel()
+        return rdb.channel.getItemsModel( False)
     
     def getLocalFilenameByPodcastURL( self, channel_filename, url):
         if channel_filename in self.localdbs:

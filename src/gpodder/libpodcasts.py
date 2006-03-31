@@ -76,7 +76,8 @@ class podcastChannel(object):
             locdb_reader.parseXML( localdb)
             self.downloaded = locdb_reader.channel
         except:
-            print "no local db found or local db error: creating new.."
+            if libgpodder.isDebugging():
+                print "no local db found or local db error: creating new.."
             self.downloaded = podcastChannel( self.url, self.title, self.link, self.description)
         
         self.downloaded.items.append( item)
@@ -91,13 +92,13 @@ class podcastChannel(object):
     def isDownloaded( self, item):
         return self.podcastFilenameExists( item.url)
 
-    def getItemsModel( self):
+    def getItemsModel( self, want_color = True):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
 
         for item in self.items:
             # Skip items with no download url
             if item.url != "":
-                if self.isDownloaded(item):
+                if self.isDownloaded(item) and want_color:
                     background_color = "#eeeeee"
                 else:
                     background_color = "white"
@@ -173,6 +174,12 @@ class podcastChannel(object):
     
     index_file = property(fget=get_index_file)
     
+    def get_cover_file( self):
+        # gets cover filename for cover download cache
+        return self.save_dir + "cover"
+
+    cover_file = property(fget=get_cover_file)
+    
     def getPodcastFilename( self, url):
         # strip question mark (and everything behind it), fix %20 errors
         filename = basename( url).replace( "%20", " ")
@@ -204,7 +211,7 @@ class podcastChannel(object):
                     nr_items += 1
                     self.downloaded.items.remove(item)
         except:
-            print _("no local db found or local db error")
+            print _("No LocalDB found or error in existing LocalDB.")
         if libgpodder.isDebugging():
             print " found", nr_items, "matching item(s)"
         if nr_items > 0:
@@ -239,13 +246,14 @@ class podcastItem(object):
 
         size = int( self.length)
         if size > gigabyte:
-            return str( size / gigabyte) + " " + _("GB")
+            # Might be a bit big, but who cares...
+            return '%d GB' % str(size / gigabyte)
         if size > megabyte:
-            return str( size / megabyte) + " " + _("MB")
+            return '%d MB' % int(size / megabyte)
         if size > kilobyte:
-            return str( size / kilobyte) + " " + _("KB")
+            return '%d KB' % int(size / kilobyte)
 
-        return str( size) + " "+_("Bytes")
+        return '%d Bytes' % size
 
 def channelsToModel( channels):
     new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_OBJECT)

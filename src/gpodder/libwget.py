@@ -269,7 +269,7 @@ def downloadProcedure( url, filename, force_update):
     
     url = url.replace( "%20", " ")
     
-    dlinfo_speed = _("initializing download...")
+    dlinfo_speed = '...'
     dlinfo_percentage = "0"
     dlinfo_result = -1
     
@@ -297,8 +297,7 @@ def downloadProcedure( url, filename, force_update):
         if dlinfo_result == 9:
             showMessage( _("Download has been cancelled."))
         else:
-            showMessage( _("wget exited with status: %s") % str( dlinfo_result))
-            print _("*** THERE HAS BEEN AN ERROR WHILE DOWNLOADING **")
+            showMessage( _("Download error. Wget exit code was: %d") % dlinfo_result)
         # end if
     # end if
     

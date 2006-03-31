@@ -14,6 +14,7 @@
 import gtk
 import thread
 import threading
+import urllib
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -34,6 +35,8 @@ from stat import ST_MODE
 
 from librssreader import rssReader
 from libpodcasts import podcastChannel
+
+from gtk.gdk import PixbufLoader
 
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
@@ -58,6 +61,7 @@ class gPodderLib( object):
     http_proxy = ""
     ftp_proxy = ""
     open_app = ""
+    desktop_link = _("gPodder downloads")
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
@@ -134,7 +138,7 @@ class gPodderLib( object):
         system( self.open_app + " " + filename + " &")
 
     def getDesktopSymlink( self):
-        symlink_path = expanduser( "~/Desktop/"+_("gPodder downloads"))
+        symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
         return exists( symlink_path)
 
     def createDesktopSymlink( self):
@@ -143,13 +147,53 @@ class gPodderLib( object):
         if not self.getDesktopSymlink():
             downloads_path = expanduser( "~/Desktop/")
             self.createIfNecessary( downloads_path)
-            symlink( self.downloaddir, downloads_path + _("gPodder downloads"))
+            symlink( self.downloaddir, "%s%s" % (downloads_path, self.desktop_link))
     
     def removeDesktopSymlink( self):
         if isDebugging():
             print "removeDesktopSymlink requested"
         if self.getDesktopSymlink():
-            unlink( expanduser( "~/Desktop/"+_("gPodder downloads")))
+            unlink( expanduser( "~/Desktop/%s" % self.desktop_link))
+
+    def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
+        if callback_status != None:
+            callback_status( _('Downloading channel cover...'))
+        pixbuf = PixbufLoader()
+        
+        if cover_file == None:
+            if isDebugging():
+                print "directly downloading %s" % url
+            pixbuf.write( urllib.urlopen(url).read())
+        
+        if cover_file != None and not exists( cover_file):
+            if isDebugging():
+                print "downloading cover to %s" % cover_file
+            cachefile = open( cover_file, "w")
+            cachefile.write( urllib.urlopen(url).read())
+            cachefile.close()
+        
+        if cover_file != None:
+            if isDebugging():
+                print "reading cover from %s" % cover_file
+            pixbuf.write( open( cover_file, "r").read())
+        
+        try:
+            pixbuf.close()
+        except:
+            # data error, delete temp file
+            self.deleteFilename( cover_file)
+        
+        if callback_pixbuf != None:
+            callback_pixbuf( pixbuf.get_pixbuf())
+        if callback_status != None:
+            callback_status( '')
+        if callback_finished != None:
+            callback_finished()
+
+    def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
+        args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
+        thread = threading.Thread( target = self.image_download_thread, args = args)
+        thread.start()
 
     def deleteFilename( self, filename):
         if isDebugging():
@@ -164,12 +208,12 @@ class gPodderChannelWriter( object):
     def write( self, channels):
         filename = gPodderLib().getChannelsFilename()
         fd = open( filename, "w")
-        print >> fd, '<!-- '+_('automatically generated, will be overwritten on next gpodder shutdown.')+' -->'
+        print >> fd, '<!-- '+_('gPodder channel list')+' -->'
         print >> fd, '<channels>'
         for chan in channels:
-            print >> fd, '  <channel name="%s">' %chan.filename
-            print >> fd, '    <url>%s</url>' %chan.url
-            print >> fd, '    <download_dir>%s</download_dir>' %chan.save_dir
+            print >> fd, '  <channel name="%s">' % chan.filename
+            print >> fd, '    <url>%s</url>' % chan.url
+            print >> fd, '    <download_dir>%s</download_dir>' % chan.save_dir
             print >> fd, '  </channel>'
         print >> fd, '</channels>'
         fd.close()

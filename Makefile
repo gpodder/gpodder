@@ -62,7 +62,7 @@ $(GLADEGETTEXT): $(GLADEFILE)
 	intltool-extract --type=gettext/glade $(GLADEFILE)
 
 $(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
-	xgettext -j -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
+	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
 	sed -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT) > $(MESSAGESPOT).tmp
 	mv $(MESSAGESPOT).tmp $(MESSAGESPOT)
 

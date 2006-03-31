@@ -36,29 +36,29 @@ def main(argv=None):
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
-                      help=_("print extra information"))
+                      help=_("Be more verbose"))
 
     parser.add_option("--debug",
                       action="store_true", dest="debug", default=False,
-                      help=_("run local version for debugging"))
+                      help=_("Run local version in current directory"))
     
     parser.add_option("-l", "--list",
                       action="store_true", dest="list", default=False,
-                      help=_("list all channel subscriptions"))
+                      help=_("List all channel subscriptions"))
 
     parser.add_option("-r", "--run",
                       action="store_true", dest="run", default=False,
-                      help=_("update channels and download new podcasts"))
+                      help=_("Update channel list, download new podcasts"))
 
     parser.add_option("-u", "--update",
                       action="store_true", dest="update", default=False,
-                      help=_("update channels"))
+                      help=_("Update channel list and exit"))
     
     parser.add_option("-a", "--add", dest="add",
-                      help=_("add FEEDURL to channel subscriptions"), metavar="FEEDURL")
+                      help=_("Subscribe to channel from FEEDURL"), metavar="FEEDURL")
     
     parser.add_option("-d", "--delete", dest="delete",
-                      help=_("delete channel n"), metavar="n")
+                      help=_("Delete channel with ID n"), metavar="n")
 
 
     (options, args) = parser.parse_args(argv)
@@ -76,10 +76,8 @@ def main(argv=None):
     from gpodder import console
     which_wget = console.testForWget()
     if which_wget == "":
-        print _("ERROR: You do not seem to have a usable \"wget\" binary in your path.")
+        print _("Error: cannot find wget.")
 	return 20
-    else:
-        print _("Found wget: %s") % which_wget
     # which_wget
     
     if options.list:
@@ -95,15 +93,15 @@ def main(argv=None):
         if options.add != None and options.add != "" and (options.add[:4] == "http" or options.add[:3] == "ftp"):
             console.add_channel(options.add)
         else:
-            print _('unknown channel: %s') % options.add
+            print _('Cannot add channel: %s') % options.add
 
     elif options.delete:
         try:
             chid = int(options.delete)
             console.del_channel(chid)
-            print _("channel IDs may have changed, list before deleting again")
+            print _("Channel IDs may have changed, list before deleting again.")
         except ValueError:
-            print _('%s is not a valid id') %options.delete
+            print _('Not a valid channel ID: %s') %options.delete
 
     else:
         #default run gui
