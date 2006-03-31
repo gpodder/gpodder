@@ -23,7 +23,7 @@ class opmlWriter( object):
 	self.ofile.write( '<?xml version="1.0" encoding="ISO-8859-1"?>'+"\n")
 	self.ofile.write( '<opml version="1.1">'+"\n")
 	self.ofile.write( '<head>'+"\n")
-	self.ofile.write( '<title>gPodder subscription list (exported)</title>'+"\n")
+	self.ofile.write( '<title>'+_('gPodder subscription list (exported)')+'</title>'+"\n")
 	self.ofile.write( '<dateCreated>' + datetime.now().ctime() + '</dateCreated>'+"\n")
 	self.ofile.write( '</head>'+"\n")
 	self.ofile.write( '<body>'+"\n")

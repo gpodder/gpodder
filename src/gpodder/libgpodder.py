@@ -134,7 +134,7 @@ class gPodderLib( object):
         system( self.open_app + " " + filename + " &")
 
     def getDesktopSymlink( self):
-        symlink_path = expanduser( "~/Desktop/gPodder downloads")
+        symlink_path = expanduser( "~/Desktop/"+_("gPodder downloads"))
         return exists( symlink_path)
 
     def createDesktopSymlink( self):
@@ -143,13 +143,13 @@ class gPodderLib( object):
         if not self.getDesktopSymlink():
             downloads_path = expanduser( "~/Desktop/")
             self.createIfNecessary( downloads_path)
-            symlink( self.downloaddir, downloads_path + "gPodder downloads")
+            symlink( self.downloaddir, downloads_path + _("gPodder downloads"))
     
     def removeDesktopSymlink( self):
         if isDebugging():
             print "removeDesktopSymlink requested"
         if self.getDesktopSymlink():
-            unlink( expanduser( "~/Desktop/gPodder downloads"))
+            unlink( expanduser( "~/Desktop/"+_("gPodder downloads")))
 
     def deleteFilename( self, filename):
         if isDebugging():
@@ -164,7 +164,7 @@ class gPodderChannelWriter( object):
     def write( self, channels):
         filename = gPodderLib().getChannelsFilename()
         fd = open( filename, "w")
-        print >> fd, '<!-- automatically generated, will be overwritten on next gpodder shutdown.-->'
+        print >> fd, '<!-- '+_('automatically generated, will be overwritten on next gpodder shutdown.')+' -->'
         print >> fd, '<channels>'
         for chan in channels:
             print >> fd, '  <channel name="%s">' %chan.filename

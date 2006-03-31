@@ -204,7 +204,7 @@ class podcastChannel(object):
                     nr_items += 1
                     self.downloaded.items.remove(item)
         except:
-            print "no local db found or local db error"
+            print _("no local db found or local db error")
         if libgpodder.isDebugging():
             print " found", nr_items, "matching item(s)"
         if nr_items > 0:
@@ -239,13 +239,13 @@ class podcastItem(object):
 
         size = int( self.length)
         if size > gigabyte:
-            return str( size / gigabyte) + " GB"
+            return str( size / gigabyte) + " " + _("GB")
         if size > megabyte:
-            return str( size / megabyte) + " MB"
+            return str( size / megabyte) + " " + _("MB")
         if size > kilobyte:
-            return str( size / kilobyte) + " KB"
+            return str( size / kilobyte) + " " + _("KB")
 
-        return str( size) + " Bytes"
+        return str( size) + " "+_("Bytes")
 
 def channelsToModel( channels):
     new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_OBJECT)

@@ -36,7 +36,7 @@ class downloadThread( object):
     ready_event = None
     pid = -1
     percentage = "0"
-    speed = "unknown"
+    speed = _("unknown")
 
     thread = None
     result = -1
@@ -54,7 +54,7 @@ class downloadThread( object):
     # well..
     is_cancelled = False
     
-    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = "unknown", channelitem = None, item = None, localdb = None):
+    def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = _("unknown"), channelitem = None, item = None, localdb = None):
         self.url = url.replace( "%20", " ")
         
         self.filename = filename
@@ -63,7 +63,7 @@ class downloadThread( object):
         self.ready_event = ready_event
         self.pid= -1
         self.percentage = "0"
-        self.speed = "unknown"
+        self.speed = _("unknown")
         
         self.thread = None
         self.result = -1
@@ -269,7 +269,7 @@ def downloadProcedure( url, filename, force_update):
     
     url = url.replace( "%20", " ")
     
-    dlinfo_speed = "initializing download..."
+    dlinfo_speed = _("initializing download...")
     dlinfo_percentage = "0"
     dlinfo_result = -1
     
@@ -295,10 +295,10 @@ def downloadProcedure( url, filename, force_update):
     # the error handling comes here..
     if dlinfo_result > 0:
         if dlinfo_result == 9:
-            showMessage( "Download has been cancelled.")
+            showMessage( _("Download has been cancelled."))
         else:
-            showMessage( "wget exited with status: " + str( dlinfo_result))
-            print "*** THERE HAS BEEN AN ERROR WHILE DOWNLOADING **"
+            showMessage( _("wget exited with status: %s") % str( dlinfo_result))
+            print _("*** THERE HAS BEEN AN ERROR WHILE DOWNLOADING **")
         # end if
     # end if
     

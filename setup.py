@@ -16,7 +16,7 @@ inst_manpages = glob.glob( 'doc/man/*.1')
 inst_images   = [ 'data/gpodder.png' ]
 inst_share    = [ 'data/gpodder.glade' ]
 inst_icons    = [ 'data/gpodder.desktop' ]
-
+# TODO: install locales!!
 
 data_files = [
   ('share/man/man1',       inst_manpages),

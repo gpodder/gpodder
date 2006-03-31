@@ -62,10 +62,10 @@ def del_channel(chid):
     channels = reader.read()
     if chid >=0 and chid < len(channels):
         ch = channels.pop(chid)
-        print 'delete channel: %s' %ch.url
+        print _('delete channel: %s') %ch.url
         gPodderChannelWriter().write(channels)
     else:
-        print '%s is not a valid id' %str(chid)
+        print _('%s is not a valid id') %str(chid)
 
 
 def update():

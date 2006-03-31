@@ -14,8 +14,20 @@ __licence__   = "GPL"
 import sys,os
 from optparse import OptionParser
 
+import locale
+import gettext
+
+# gettext variables
+APP = 'gpodder'
+DIR = '/usr/share/locale/'
 
 def main(argv=None):
+    # gettext support
+    #locale.setlocale( locale.LC_ALL, '')
+    gettext.bindtextdomain( APP, DIR)
+    gettext.textdomain( APP)
+    gettext.install( APP)
+    
     if argv is None:
         argv = sys.argv
 
@@ -24,29 +36,29 @@ def main(argv=None):
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
-                      help="print extra information")
+                      help=_("print extra information"))
 
     parser.add_option("--debug",
                       action="store_true", dest="debug", default=False,
-                      help="run local version for debugging")
+                      help=_("run local version for debugging"))
     
     parser.add_option("-l", "--list",
                       action="store_true", dest="list", default=False,
-                      help="list all channel subscriptions")
+                      help=_("list all channel subscriptions"))
 
     parser.add_option("-r", "--run",
                       action="store_true", dest="run", default=False,
-                      help="update channels and download new podcasts")
+                      help=_("update channels and download new podcasts"))
 
     parser.add_option("-u", "--update",
                       action="store_true", dest="update", default=False,
-                      help="update channels")
+                      help=_("update channels"))
     
     parser.add_option("-a", "--add", dest="add",
-                      help="add FEEDURL to channel subscriptions", metavar="FEEDURL")
+                      help=_("add FEEDURL to channel subscriptions"), metavar="FEEDURL")
     
     parser.add_option("-d", "--delete", dest="delete",
-                      help="delete channel n", metavar="n")
+                      help=_("delete channel n"), metavar="n")
 
 
     (options, args) = parser.parse_args(argv)
@@ -64,10 +76,10 @@ def main(argv=None):
     from gpodder import console
     which_wget = console.testForWget()
     if which_wget == "":
-        print "ERROR: You do not seem to have a usable \"wget\" binary in your path."
+        print _("ERROR: You do not seem to have a usable \"wget\" binary in your path.")
 	return 20
     else:
-        print "Found wget: " + which_wget
+        print _("Found wget: %s") % which_wget
     # which_wget
     
     if options.list:
@@ -83,21 +95,26 @@ def main(argv=None):
         if options.add != None and options.add != "" and (options.add[:4] == "http" or options.add[:3] == "ftp"):
             console.add_channel(options.add)
         else:
-            print 'unknown channel: %s' % options.add
+            print _('unknown channel: %s') % options.add
 
     elif options.delete:
         try:
             chid = int(options.delete)
             console.del_channel(chid)
-            print "channel IDs may have changed, list before deleting again"
+            print _("channel IDs may have changed, list before deleting again")
         except ValueError:
-            print '%s is not a valid id' %options.delete
+            print _('%s is not a valid id') %options.delete
 
     else:
         #default run gui
         from gpodder import gpodder
+        from gpodder.SimpleGladeApp import bindtextdomain
+        import gtk.glade
         if options.debug:
-            gpodder.glade_dir = "../data"
+            gpodder.glade_dir = '../data'
+            gpodder.locale_dir = 'data/locale/'
+            gpodder.icon_dir = 'data/gpodder.png'
+        bindtextdomain( 'gpodder', gpodder.locale_dir)
         gpodder.main( __version__)
 
 

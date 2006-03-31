@@ -8,9 +8,12 @@
 
 BINFILE=bin/gpodder
 GLADEFILE=data/gpodder.glade
+GLADEGETTEXT=$(GLADEFILE).h
+MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gpodder.py
 MANPAGE=doc/man/gpodder.man.1
 TEPACHE=./doc/dev/tepache
+GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
 ##########################################################################
 
@@ -39,11 +42,11 @@ uninstall:
 	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
 	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
 	@echo "##########################################################################"
-	rm -rf /usr/share/gpodder /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/
+	rm -rf /usr/share/gpodder /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/ /usr/share/locale/*/LC_MESSAGES/gpodder.mo
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_glade
+generators: $(MANPAGE) gen_glade gen_gettext
 
 $(MANPAGE): $(BINFILE)
 	help2man -N $(BINFILE) >$(MANPAGE)
@@ -52,12 +55,24 @@ gen_glade: $(GLADEFILE)
 	$(TEPACHE) --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)
 	chmod -x $(GUIFILE) $(GUIFILE).orig
 
+gen_gettext: $(MESSAGESPOT)
+	make -C data/po
+
+$(GLADEGETTEXT): $(GLADEFILE)
+	intltool-extract --type=gettext/glade $(GLADEFILE)
+
+$(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
+	xgettext -j -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
+	sed -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT) > $(MESSAGESPOT).tmp
+	mv $(MESSAGESPOT).tmp $(MESSAGESPOT)
+
 ##########################################################################
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak
+	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT)
 	rm -rf build
+	make -C data/po clean
 
 distclean: clean
 	rm -rf dist
