@@ -166,13 +166,17 @@ class downloadStatusManager( object):
         self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread }
         self.smlock.release()
 
+    def remove_iter( self, iter):
+        self.tree_model.remove( iter)
+        return False
+
     def unregisterId( self, id):
         if not id in self.status_list:
             return
         iter = self.status_list[id]['iter']
 	if iter != None:
             self.smlock.acquire()
-            gobject.idle_add( self.tree_model.remove, iter)
+            gobject.idle_add( self.remove_iter, iter)
             self.smlock.release()
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
