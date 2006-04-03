@@ -61,7 +61,7 @@ class writeLocalDB( object):
     def addItem( self, item):
         self.ofile.write( '<item>'+"\n")
         self.ofile.write( '<title>'+item.title+'</title>'+"\n")
-        self.ofile.write( '<description>'+item.description+'</description>'+"\n")
+        self.ofile.write( '<description><![CDATA['+item.description+']]></description>'+"\n")
         self.ofile.write( '<url>'+item.url+'</url>'+"\n")
         self.ofile.write( '</item>'+"\n")
 
