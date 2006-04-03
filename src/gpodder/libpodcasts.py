@@ -19,6 +19,7 @@ import libgpodder
 
 from os.path import exists
 from os.path import basename
+from os.path import splitext
 
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
@@ -26,6 +27,8 @@ from liblocdbreader import readLocalDB
 from threading import Event
 from libwget import downloadThread
 import re
+
+import md5
 
 class podcastChannel(object):
     """holds data for a complete channel"""
@@ -201,8 +204,18 @@ class podcastChannel(object):
 	if indexOfQuestionMark != -1:
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
-        self.download_dir
-        return self.save_dir + filename
+        extension = splitext( filename)[1].lower()
+
+        legacy_location = self.save_dir + filename
+        new_location = self.save_dir + md5.new(url).hexdigest() + extension
+
+        # this supports legacy podcast locations, should be removed at some point (or move files from old location to new location)
+        if exists( legacy_location):
+            if libgpodder.isDebugging():
+                print "(gpodder < 0.7 compat) using old filename scheme for already downloaded podcast."
+            return legacy_location
+        else:
+            return new_location
     
     def podcastFilenameExists( self, url):
         return exists( self.getPodcastFilename( url))

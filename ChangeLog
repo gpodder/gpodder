@@ -1,3 +1,11 @@
+Tue, 04 Apr 2006 00:16:28 +0200 <thp@perli.net>
+	* New podcast download location (save_dir + md5 of url + ext), 
+	  while still supporting "legacy" locations (for already downloaded 
+	  episodes)
+	* Cleanup of libwget (removed two orphaned functions)
+	* Notification on startup when running SVN-based version ("warn user")
+	* Updated data/po/de.po (german translation)
+
 Mon, 03 Apr 2006 21:40:39 +0200 <thp@perli.net>
 	* Retry adding item to localDB on new download attept when not
 	  yet added to localDB (helps when already downloaded "grey" item 

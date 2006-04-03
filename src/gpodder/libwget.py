@@ -24,6 +24,7 @@ import signal
 
 import popen2
 import re
+import md5
 
 import gtk
 import gobject
@@ -229,30 +230,6 @@ class downloadStatusManager( object):
     def getModel( self):
         return self.tree_model
 # end downloadStatusManager
-
-def getDownloadFilename( url):
-    global downloadpath
-    filename = os.path.basename( url)
-    
-    # strip question mark (and everything behind it)
-    indexOfQuestionMark = filename.rfind( "?")
-    if( indexOfQuestionMark != -1):
-        filename = filename[0:indexOfQuestionMark]
-    # end if
-    
-    downloadfilename = downloadpath+filename
-    
-    return downloadfilename.replace( "%20", " ")
-# end getDownloadFilename()
-
-# downloadFile: simply download a file to current directory
-def downloadFile( url):
-    filename = getDownloadFilename( url)
-    # download it, and never overwrite anything =)
-    result = downloadProcedure( url, filename, False)
-    
-    return result
-# end downloadFile()
 
 # getWebData: get an rss feed and save it locally, return content
 def getWebData( url, force_update):
