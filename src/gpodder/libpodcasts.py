@@ -80,9 +80,23 @@ class podcastChannel(object):
                 print "no local db found or local db error: creating new.."
             self.downloaded = podcastChannel( self.url, self.title, self.link, self.description)
         
-        self.downloaded.items.append( item)
+        already_in_list = False
+        # try to find the new item in the list
+        for it in self.downloaded.items:
+            if it.equals( item):
+                already_in_list = True
+                break
+
+        # only append if not already in list
+        if not already_in_list:
+            self.downloaded.items.append( item)
+        else:
+            if libgpodder.isDebugging():
+                print "no need to re-add already added podcast item to localDB"
+        
         writeLocalDB( localdb, self.downloaded)
         libgpodder.releaseLock()
+        return not already_in_list
     
     def printChannel( self):
         print '- Channel: "' + self.title + '"'
@@ -238,6 +252,13 @@ class podcastItem(object):
         self.guid = guid
         self.description = stripHtml( description)
         self.link = ""
+
+    def equals( self, other_item):
+        if other_item == None:
+            return False
+        
+        # we suppose it's the same when the download URL is the same..
+        return self.url == other_item.url
     
     def getSize( self):
         kilobyte = 1024
