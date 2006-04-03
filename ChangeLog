@@ -7,6 +7,8 @@ Mon, 03 Apr 2006 21:40:39 +0200 <thp@perli.net>
 	* Better threading, shouldn't fuck up GUI responsiveness after 
 	  download has finished (also gives us realtime "downloading" 
 	  status updates - yeah, I've now read the pygtk threading faq..)
+	* Catch exception when wget's URL contains a % sign and the 
+	  download thread tries to convert it to an integer
 
 Fri, 31 Mar 2006 18:13:16 +0200 <thp@perli.net>
 	* Major code clean-up in gpodder.py and other modules

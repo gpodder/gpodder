@@ -95,7 +95,10 @@ class downloadThread( object):
             msg = msg.strip()
             
             if msg.find("%") != -1:
-                self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0;
+                try:
+                    self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0
+                except:
+                    self.percentage = 'n/a'
                 
                 iter = re.compile('...\... .B\/s').finditer( msg)
                 for speed_string in iter:
