@@ -820,7 +820,8 @@ class Gpodderepisode(SimpleGladeApp):
 def main( __version__ = None):
     global app_version
     
-    gtk.gdk.threads_init()
+    #gtk.gdk.threads_init()
+    gobject.threads_init()
     bindtextdomain( app_name, locale_dir)
     app_version = __version__
     g_podder = Gpodder()

@@ -169,7 +169,7 @@ class downloadStatusManager( object):
         iter = self.status_list[id]['iter']
 	if iter != None:
             self.smlock.acquire()
-            self.tree_model.remove( iter)
+            gobject.idle_add( self.tree_model.remove, iter)
             self.smlock.release()
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
@@ -181,10 +181,10 @@ class downloadStatusManager( object):
         iter = self.status_list[id]['iter']
 	if iter != None:
             self.smlock.acquire()
-            self.tree_model.set( iter, 0, new_status['episode'])
-            self.tree_model.set( iter, 1, new_status['speed'])
-            self.tree_model.set( iter, 2, new_status['progress'])
-	    self.tree_model.set( iter, 3, new_status['url'])
+            gobject.idle_add( self.tree_model.set, iter, 0, new_status['episode'])
+            gobject.idle_add( self.tree_model.set, iter, 1, new_status['speed'])
+            gobject.idle_add( self.tree_model.set, iter, 2, new_status['progress'])
+            gobject.idle_add( self.tree_model.set, iter, 3, new_status['url'])
             self.smlock.release()
 
     def is_download_in_progress( self, url):
@@ -200,20 +200,14 @@ class downloadStatusManager( object):
 	    self.status_list[element]['iter'] = None
 	    self.status_list[element]['thread'].cancel()
         # clear the tree model after cancelling
-        self.smlock.acquire()
-        self.tree_model.clear()
-        self.smlock.release()
+        gobject.idle_add( self.tree_model.clear)
 
     def get_url_by_iter( self, iter):
-        self.smlock.acquire()
         result = self.tree_model.get_value( iter, 3)
-        self.smlock.release()
         return result
 
     def get_title_by_iter( self, iter):
-        self.smlock.acquire()
         result = self.tree_model.get_value( iter, 0)
-        self.smlock.release()
         return result
 
     def cancel_by_url( self, url):
