@@ -38,12 +38,17 @@ from libpodcasts import podcastChannel
 
 from gtk.gdk import PixbufLoader
 
+from ConfigParser import ConfigParser
+
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
 debugging = True
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
+
+# my gpodderlib variable
+g_podder_lib = None
 
 def isDebugging():
     return debugging
@@ -54,14 +59,23 @@ def getLock():
 def releaseLock():
     globalLock.release()
 
-class gPodderLib( object):
+# some awkward kind of "singleton" ;)
+def gPodderLib():
+    global g_podder_lib
+    if g_podder_lib == None:
+        g_podder_lib = gPodderLibClass()
+    return g_podder_lib
+
+class gPodderLibClass( object):
     gpodderdir = ""
     downloaddir = ""
     cachedir = ""
     http_proxy = ""
     ftp_proxy = ""
+    proxy_use_environment = False
     open_app = ""
     desktop_link = _("gPodder downloads")
+    gpodderconf_section = 'gpodder-conf-1'
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
@@ -94,43 +108,91 @@ class gPodderLib( object):
     
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
-    
+
     def getChannelsFilename( self):
         return self.gpodderdir + "channels.xml"
 
     def propertiesChanged( self):
-        # set new environment variables for subprocesses to use
-        environ['http_proxy'] = self.http_proxy
-        environ['ftp_proxy'] = self.ftp_proxy
+        # set new environment variables for subprocesses to use,
+        # but only if we are not told to passthru the env vars
+        if not self.proxy_use_environment:
+            environ['http_proxy'] = self.http_proxy
+            environ['ftp_proxy'] = self.ftp_proxy
         # save settings for next startup
         self.saveConfig()
 
     def saveConfig( self):
+        parser = ConfigParser()
+        self.write_to_parser( parser, 'http_proxy', self.http_proxy)
+        self.write_to_parser( parser, 'ftp_proxy', self.ftp_proxy)
+        self.write_to_parser( parser, 'player', self.open_app)
+        self.write_to_parser( parser, 'proxy_use_env', self.proxy_use_environment)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
-        fp.write( self.http_proxy + "\n")
-        fp.write( self.ftp_proxy + "\n")
-        fp.write( self.open_app + "\n")
+        parser.write( fp)
         fp.close()
+
+    def get_from_parser( self, parser, option, default = ''):
+        try:
+            result = parser.get( self.gpodderconf_section, option)
+            if isDebugging():
+                print "get_from_parser( %s) = %s" % ( option, result )
+            return result
+        except:
+            return default
+
+    def get_boolean_from_parser( self, parser, option, default = False):
+        try:
+            result = parser.getboolean( self.gpodderconf_section, option)
+            return result
+        except:
+            return default
+
+    def write_to_parser( self, parser, option, value = ''):
+        if not parser.has_section( self.gpodderconf_section):
+            parser.add_section( self.gpodderconf_section)
+        try:
+            parser.set( self.gpodderconf_section, option, str(value))
+        except:
+            if isDebugging():
+                print 'write_to_parser: could not write config (option=%s, value=%s' % (option, value)
     
     def loadConfig( self):
+        was_oldstyle = False
         try:
             fn = self.getConfigFilename()
-            fp = open( fn, "r")
-            http = fp.readline()
-            ftp = fp.readline()
-            app = fp.readline()
-            if http != "" and ftp != "":
+            if open(fn,'r').read(1) != '[':
+                if isDebugging():
+                    print 'seems like old-style config. trying to read it anyways..'
+                fp = open( fn, 'r')
+                http = fp.readline()
+                ftp = fp.readline()
+                app = fp.readline()
+                fp.close()
+                was_oldstyle = True
+            else:
+                parser = ConfigParser()
+                parser.read( fn)
+                if parser.has_section( self.gpodderconf_section):
+                    http = self.get_from_parser( parser, 'http_proxy')
+                    ftp = self.get_from_parser( parser, 'ftp_proxy')
+                    app = self.get_from_parser( parser, 'player', 'gnome-open')
+                    self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env')
+                else:
+                    if isDebugging():
+                        print "config file %s has no section %s" % (fn, gpodderconf_section)
+            if not self.proxy_use_environment:
                 self.http_proxy = strip( http)
                 self.ftp_proxy = strip( ftp)
-            if strip( app) != "":
+            if strip( app) != '':
                 self.open_app = strip( app)
             else:
-                self.open_app = "gnome-open"
-            fp.close()
+                self.open_app = 'gnome-open'
         except:
             # TODO: well, well.. (http + ftp?)
-            self.open_app = "gnome-open"
+            self.open_app = 'gnome-open'
+        if was_oldstyle:
+            self.saveConfig()
 
     def openFilename( self, filename):
         if isDebugging():

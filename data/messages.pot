@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-05 16:32+0200\n"
+"POT-Creation-Date: 2006-04-05 21:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/gpodder/console.py:65
+#: src/gpodder/console.py:64
 #, python-format
 msgid "delete channel: %s"
 msgstr ""
 
-#: src/gpodder/console.py:68
+#: src/gpodder/console.py:67
 #, python-format
 msgid "%s is not a valid id"
 msgstr ""
@@ -178,20 +178,20 @@ msgstr ""
 msgid "(unknown)"
 msgstr ""
 
-#: src/gpodder/gpodder.py:840
+#: src/gpodder/gpodder.py:852
 msgid ""
 "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr ""
 
-#: src/gpodder/libgpodder.py:64
+#: src/gpodder/libgpodder.py:77
 msgid "gPodder downloads"
 msgstr ""
 
-#: src/gpodder/libgpodder.py:160
+#: src/gpodder/libgpodder.py:222
 msgid "Downloading channel cover..."
 msgstr ""
 
-#: src/gpodder/libgpodder.py:211
+#: src/gpodder/libgpodder.py:273
 msgid "gPodder channel list"
 msgstr ""
 
@@ -230,78 +230,82 @@ msgid "Advanced"
 msgstr ""
 
 #: data/gpodder.glade.h:4
-msgid "Available Podcasts"
+msgid "Automatic:"
 msgstr ""
 
 #: data/gpodder.glade.h:5
-msgid "Channel:"
+msgid "Available Podcasts"
 msgstr ""
 
 #: data/gpodder.glade.h:6
-msgid "Command:"
+msgid "Channel:"
 msgstr ""
 
 #: data/gpodder.glade.h:7
-msgid "Cover"
+msgid "Command:"
 msgstr ""
 
 #: data/gpodder.glade.h:8
-msgid "Delete selected item"
+msgid "Cover"
 msgstr ""
 
 #: data/gpodder.glade.h:9
-msgid "Description:"
+msgid "Delete selected item"
 msgstr ""
 
 #: data/gpodder.glade.h:10
-msgid "Desktop:"
+msgid "Description:"
 msgstr ""
 
 #: data/gpodder.glade.h:11
-msgid "Download Pod_cast"
+msgid "Desktop:"
 msgstr ""
 
 #: data/gpodder.glade.h:12
-msgid "Download Status"
+msgid "Download Pod_cast"
 msgstr ""
 
 #: data/gpodder.glade.h:13
-msgid "Download to:"
+msgid "Download Status"
 msgstr ""
 
 #: data/gpodder.glade.h:14
-msgid "Downloaded Podcasts"
+msgid "Download to:"
 msgstr ""
 
 #: data/gpodder.glade.h:15
-msgid "Downloads"
+msgid "Downloaded Podcasts"
 msgstr ""
 
 #: data/gpodder.glade.h:16
-msgid "E_xport list..."
+msgid "Downloads"
 msgstr ""
 
 #: data/gpodder.glade.h:17
-msgid "Episode Information"
+msgid "E_xport list..."
 msgstr ""
 
 #: data/gpodder.glade.h:18
-msgid "FTP Proxy:"
+msgid "Episode Information"
 msgstr ""
 
 #: data/gpodder.glade.h:19
-msgid "Feed URL:"
+msgid "FTP Proxy:"
 msgstr ""
 
 #: data/gpodder.glade.h:20
-msgid "General"
+msgid "Feed URL:"
 msgstr ""
 
 #: data/gpodder.glade.h:21
-msgid "HTTP Proxy:"
+msgid "General"
 msgstr ""
 
 #: data/gpodder.glade.h:22
+msgid "HTTP Proxy:"
+msgstr ""
+
+#: data/gpodder.glade.h:23
 msgid ""
 "If you have to use a HTTP or FTP proxy server,\n"
 "you can use the usual format of the environment variables:\n"
@@ -309,83 +313,87 @@ msgid ""
 "<b>http://username:password@proxy_host:proxy_port/</b>"
 msgstr ""
 
-#: data/gpodder.glade.h:26
+#: data/gpodder.glade.h:27
 msgid "No cover available."
 msgstr ""
 
-#: data/gpodder.glade.h:27
+#: data/gpodder.glade.h:28
 msgid "Play selected item"
 msgstr ""
 
-#: data/gpodder.glade.h:28
+#: data/gpodder.glade.h:29
 msgid "Player application:"
 msgstr ""
 
-#: data/gpodder.glade.h:29
+#: data/gpodder.glade.h:30
 msgid "Proxy"
 msgstr ""
 
-#: data/gpodder.glade.h:30
+#: data/gpodder.glade.h:31
 msgid "Save downloads in:"
 msgstr ""
 
-#: data/gpodder.glade.h:31
+#: data/gpodder.glade.h:32
 msgid "Show \"gPodder downloads\" link"
 msgstr ""
 
-#: data/gpodder.glade.h:32
+#: data/gpodder.glade.h:33
 msgid "Title:"
 msgstr ""
 
-#: data/gpodder.glade.h:33
-msgid "_About gPodder..."
-msgstr ""
-
 #: data/gpodder.glade.h:34
-msgid "_Add channel..."
+msgid "Use environment variables"
 msgstr ""
 
 #: data/gpodder.glade.h:35
-msgid "_Channels"
+msgid "_About gPodder..."
 msgstr ""
 
 #: data/gpodder.glade.h:36
-msgid "_Check for Updates"
+msgid "_Add channel..."
 msgstr ""
 
 #: data/gpodder.glade.h:37
-msgid "_Close"
+msgid "_Channels"
 msgstr ""
 
 #: data/gpodder.glade.h:38
-msgid "_Edit channel..."
+msgid "_Check for Updates"
 msgstr ""
 
 #: data/gpodder.glade.h:39
-msgid "_Help"
+msgid "_Close"
 msgstr ""
 
 #: data/gpodder.glade.h:40
-msgid "_Podcasts"
+msgid "_Edit channel..."
 msgstr ""
 
 #: data/gpodder.glade.h:41
-msgid "_Preferences..."
+msgid "_Help"
 msgstr ""
 
 #: data/gpodder.glade.h:42
-msgid "_Remove channel"
+msgid "_Podcasts"
 msgstr ""
 
 #: data/gpodder.glade.h:43
-msgid "gPodder - your podcast catcher."
+msgid "_Preferences..."
 msgstr ""
 
 #: data/gpodder.glade.h:44
-msgid "gPodder Channel Editor"
+msgid "_Remove channel"
 msgstr ""
 
 #: data/gpodder.glade.h:45
+msgid "gPodder - your podcast catcher."
+msgstr ""
+
+#: data/gpodder.glade.h:46
+msgid "gPodder Channel Editor"
+msgstr ""
+
+#: data/gpodder.glade.h:47
 msgid "gPodder properties"
 msgstr ""
 
