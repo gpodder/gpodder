@@ -177,7 +177,7 @@ class gPodderLibClass( object):
                     http = self.get_from_parser( parser, 'http_proxy')
                     ftp = self.get_from_parser( parser, 'ftp_proxy')
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
-                    self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env')
+                    self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                 else:
                     if isDebugging():
                         print "config file %s has no section %s" % (fn, gpodderconf_section)
