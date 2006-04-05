@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-PYTHON_VERSIONS	= 2.4
+PYTHON_VERSIONS	= ''
 IS_PURE		= yes
 HAVE_DH_PYTHON	= yes
 DUMMY_PACKAGE	= 
@@ -46,7 +46,7 @@ foreach_python_version\
 SETUP_CLEAN_CMD	= ${SETUP} clean --all
 SETUP_BUILD_CMD	= ${SETUP} build
 SETUP_INSTALL_CMD= ${SETUP} install --root='${DESTDIR}' --no-compile
-DH_PYTHON_CMD	= dh_python -V ${PYTHON_VERSION} -p ${DEBPACKAGE}
+DH_PYTHON_CMD	= dh_python -p ${DEBPACKAGE}
 
 configure: configure-stamp
 configure-stamp:
@@ -73,12 +73,14 @@ clean:
 	$(call foreach_python_version, SETUP_CLEAN)
 	rm -rf build dist
 	dh_clean --exclude 'gpodder.py.orig'
+	make clean
 
 install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k --exclude 'gpodder.py.orig' 
 	dh_installdirs
+	make generators
 	$(call foreach_python_version, SETUP_INSTALL)
 
 

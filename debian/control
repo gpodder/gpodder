@@ -1,11 +1,19 @@
 Source: gpodder
 Maintainer: Peter Hoffmann <tosh@cs.tu-berlin.de>
+Uploaders: Thomas Perl <thp@perli.net>
 Section: python
 Priority: optional
-Standards-Version: 3.6.1
-Build-Depends-Indep: debhelper (>= 4.1.67), python2.4-dev
+Standards-Version: 3.6.2
+Build-Depends-Indep: debhelper (>= 4.1.67), python-dev, help2man, intltool
 
 Package: gpodder
 Architecture: all
 Depends: ${python:Depends}, python-gtk2, python-glade2, python-xml, wget
-Description: Media Aggregator
+Description: a media aggregator / podcast catcher
+ gPodder enables you to download and organize podcasts. You can 
+ subscribe to many RSS feeds from the internet and download the 
+ episodes you are interested in. gPodder targets to be easy to 
+ use and lightweight.
+ .
+ This package includes the GTK2 GUI and the command-line interface.
+

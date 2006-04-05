@@ -11,7 +11,7 @@ GLADEFILE=data/gpodder.glade
 GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gpodder.py
-MANPAGE=doc/man/gpodder.man.1
+MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
@@ -25,12 +25,9 @@ test:
 	$(BINFILE) --debug
 
 deb:
-	@echo "##########################################################################"
-	@echo "# This is still alpha, see doc/dev/debian.txt for more info.             #"
-	@echo "##########################################################################"
-	python setup.py bdist_deb --maintainer "Peter Hoffmann <tosh@cs.tu-berlin.de>"  --extra-depends "python-gtk2, python-glade2, python-xml, wget"
+	debuild
 
-release: generators
+release: distclean releasegen
 	python setup.py sdist
 
 install: generators
@@ -47,6 +44,8 @@ uninstall:
 ##########################################################################
 
 generators: $(MANPAGE) gen_glade gen_gettext
+
+releasegen: $(MANPAGE) gen_glade
 
 $(MANPAGE): $(BINFILE)
 	help2man -N $(BINFILE) >$(MANPAGE)
@@ -73,6 +72,9 @@ clean:
 	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT)
 	rm -rf build
 	make -C data/po clean
+
+debclean:
+	fakeroot debian/rules clean
 
 distclean: clean
 	rm -rf dist

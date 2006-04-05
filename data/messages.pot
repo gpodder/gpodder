@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder 0.7-svn\n"
+"Project-Id-Version: gPodder 0.7svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-04 00:22+0200\n"
+"POT-Creation-Date: 2006-04-05 16:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,47 +26,47 @@ msgstr ""
 msgid "%s is not a valid id"
 msgstr ""
 
-#: src/gpodder/gpodder.py:54
+#: src/gpodder/gpodder.py:53
 msgid "Contributors / patch writers:"
 msgstr ""
 
-#: src/gpodder/gpodder.py:58
+#: src/gpodder/gpodder.py:57
 msgid "See the AUTHORS file for all contributors"
 msgstr ""
 
-#: src/gpodder/gpodder.py:99
+#: src/gpodder/gpodder.py:113 src/gpodder/gpodder.py:128
+#: src/gpodder/gpodder.py:134
+msgid "Episode"
+msgstr ""
+
+#: src/gpodder/gpodder.py:118
+msgid "Size"
+msgstr ""
+
+#: src/gpodder/gpodder.py:137
+msgid "Speed"
+msgstr ""
+
+#: src/gpodder/gpodder.py:140
+msgid "Progress"
+msgstr ""
+
+#: src/gpodder/gpodder.py:164
+msgid "Channel Info"
+msgstr ""
+
+#: src/gpodder/gpodder.py:176
 #, python-format
 msgid ""
 "<b>gPodder development version %s</b>\n"
 "Use at your own risk, but also enjoy new features :)"
 msgstr ""
 
-#: src/gpodder/gpodder.py:116 src/gpodder/gpodder.py:131
-#: src/gpodder/gpodder.py:137
-msgid "Episode"
-msgstr ""
-
-#: src/gpodder/gpodder.py:121
-msgid "Size"
-msgstr ""
-
-#: src/gpodder/gpodder.py:140
-msgid "Speed"
-msgstr ""
-
-#: src/gpodder/gpodder.py:143
-msgid "Progress"
-msgstr ""
-
-#: src/gpodder/gpodder.py:167
-msgid "Channel Info"
-msgstr ""
-
-#: src/gpodder/gpodder.py:202
+#: src/gpodder/gpodder.py:203
 msgid "No downloaded podcasts found."
 msgstr ""
 
-#: src/gpodder/gpodder.py:212
+#: src/gpodder/gpodder.py:213
 msgid ""
 "<b>No channels found</b>\n"
 "\n"
@@ -74,35 +74,35 @@ msgid ""
 "new channel."
 msgstr ""
 
-#: src/gpodder/gpodder.py:214
+#: src/gpodder/gpodder.py:215
 msgid "gPodder message"
 msgstr ""
 
-#: src/gpodder/gpodder.py:222
+#: src/gpodder/gpodder.py:223
 msgid "Do you really want to do this?"
 msgstr ""
 
-#: src/gpodder/gpodder.py:222
+#: src/gpodder/gpodder.py:223
 msgid "gPodder confirmation"
 msgstr ""
 
-#: src/gpodder/gpodder.py:287
+#: src/gpodder/gpodder.py:288
 msgid ""
 "There has been an error adding the channel.\n"
 "Maybe the URL is wrong?"
 msgstr ""
 
-#: src/gpodder/gpodder.py:293 src/gpodder/gpodder.py:380
+#: src/gpodder/gpodder.py:294 src/gpodder/gpodder.py:381
 msgid "Fetching channel index..."
 msgstr ""
 
-#: src/gpodder/gpodder.py:306
+#: src/gpodder/gpodder.py:307
 msgid ""
 "Could not add new channel.\n"
 "Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
 msgstr ""
 
-#: src/gpodder/gpodder.py:336
+#: src/gpodder/gpodder.py:337
 msgid ""
 "<big><b>Updating feed cache</b></big>\n"
 "\n"
@@ -110,14 +110,14 @@ msgid ""
 "updating the feed cache..."
 msgstr ""
 
-#: src/gpodder/gpodder.py:373
+#: src/gpodder/gpodder.py:374
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
 "No channel found."
 msgstr ""
 
-#: src/gpodder/gpodder.py:403
+#: src/gpodder/gpodder.py:404
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -125,31 +125,31 @@ msgid ""
 " %s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:410
+#: src/gpodder/gpodder.py:411
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
 msgstr ""
 
-#: src/gpodder/gpodder.py:418
+#: src/gpodder/gpodder.py:419
 msgid "Your channel list is empty. Nothing to export."
 msgstr ""
 
-#: src/gpodder/gpodder.py:420
+#: src/gpodder/gpodder.py:421
 msgid "Export to OPML"
 msgstr ""
 
-#: src/gpodder/gpodder.py:488
+#: src/gpodder/gpodder.py:489
 msgid "You have not selected an episode to download."
 msgstr ""
 
-#: src/gpodder/gpodder.py:503
+#: src/gpodder/gpodder.py:504
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
 msgstr ""
 
-#: src/gpodder/gpodder.py:528
+#: src/gpodder/gpodder.py:529
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -157,11 +157,11 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:531 src/gpodder/gpodder.py:568
+#: src/gpodder/gpodder.py:532 src/gpodder/gpodder.py:569
 msgid "No episode selected."
 msgstr ""
 
-#: src/gpodder/gpodder.py:594
+#: src/gpodder/gpodder.py:595
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -169,16 +169,16 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:604
+#: src/gpodder/gpodder.py:605
 msgid "Could not delete downloaded podcast."
 msgstr ""
 
-#: src/gpodder/gpodder.py:640 src/gpodder/gpodder.py:641
+#: src/gpodder/gpodder.py:641 src/gpodder/gpodder.py:642
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr ""
 
-#: src/gpodder/gpodder.py:839
+#: src/gpodder/gpodder.py:840
 msgid ""
 "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr ""

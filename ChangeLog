@@ -1,3 +1,20 @@
+Wed, 05 Apr 2006 16:50:40 +0200 <thp@perli.net>
+	* Today is the "debian packaging" day - thanks to Peter Hoffmann 
+	  for his hard work on getting the "debian/" directory into gPodder
+	  and his work on creating packages - here are some fixes to 
+	  streamline package generation and installation..
+	* setup.py now installs the translation files
+	* Updated debian/* files (see seperate debian/changelog)
+	* Modified setup.py to generate "right" source pkg (make release)
+	* Renamed version in bin/gpodder to "0.7svn", pushed date
+	* Renamed manpage from gpodder.man.1 to gpodder.1 (obvious error?!)
+	* Updated MANIFEST.in to include the "debian" subfolder
+	* Updated Makefile to create "deb" with debuild instead of bdist_deb
+	* Do not generate binary gettext files (*.mo) on "make release"
+	* Added Makefile target "debclean" to clean up debian-related stuff
+	* Fixed several warnings reported by "lintian" for the debian pkg
+	* Updated TODO list
+
 Tue, 04 Apr 2006 00:16:28 +0200 <thp@perli.net>
 	* New podcast download location (save_dir + md5 of url + ext), 
 	  while still supporting "legacy" locations (for already downloaded 
