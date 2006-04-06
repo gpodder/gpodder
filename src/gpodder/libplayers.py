@@ -29,7 +29,7 @@ from gtk.gdk import Pixbuf
 import libgpodder
 
 # where are the .desktop files located?
-userappsdir = '/usr/share/applications/'
+userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/' ]
 
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
@@ -61,14 +61,16 @@ class UserAppsReader(object):
         self.apps = []
 
     def read( self):
-        files = listdir( userappsdir)
-        for file in files:
-            self.parse_and_append( file)
+        for dir in userappsdirs:
+            if exists( dir):
+                files = listdir( dir)
+                for file in files:
+                    self.parse_and_append( dir, file)
         self.apps.append( UserApplication( 'Shell command', '', 'audio/*', 'gtk-execute'))
 
-    def parse_and_append( self, filename):
+    def parse_and_append( self, dir, filename):
         parser = RawConfigParser()
-        parser.read( [ userappsdir + filename ])
+        parser.read( [ dir + filename ])
         if not parser.has_section( sect):
             return
         
@@ -79,7 +81,7 @@ class UserAppsReader(object):
             app_icon = parser.get( sect, 'Icon')
             if app_mime.find( 'audio/') != -1:
                 if libgpodder.isDebugging():
-                    print "found app in " + userappsdir + filename + " ("+app_name+")"
+                    print "found app in " + dir + filename + " ("+app_name+")"
                 self.apps.append( UserApplication( app_name, app_cmd, app_mime, app_icon))
         except:
             return

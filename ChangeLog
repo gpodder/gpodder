@@ -1,3 +1,18 @@
+Thu, 06 Apr 2006 15:38:45 +0200 <thp@perli.net>
+	* Applied patch from Ortwin Forster (ortwin@videotron.ca) to fix 
+	  special characters in XML files (escape ampersands, ...)
+	* Applied patch from Alain Tauch to search for *.desktop files in 
+	  the libplayers in more than one directory
+	+ Added French translation (Thanks to Alain Tauch)
+	* Experimental iPod sync stuff (see doc/dev/ipod-sync.txt)
+	* Added libipodsync and functionality
+	* Added iPod sync + cleanup menu items in gladefile
+	* iPod support will always remain OPTIONAL for gPodder, and gPodder 
+	  will keep to have all functionality (except iPod-related of 
+	  course) without the user having to have an iPod. If you don't 
+	  install the additional dependencies, iPod support will be disabled,
+	  but gPodder will still work as expected..
+
 Wed, 05 Apr 2006 21:04:10 +0200 <thp@perli.net>
 	* Migrated to new config file style, retaining import support for old
 	* Using Python's ConfigParser to read/write ini-style config file

@@ -14,6 +14,7 @@
 import codecs
 
 from datetime import datetime
+from xml.sax import saxutils
 
 import libgpodder
 
@@ -45,10 +46,10 @@ class writeLocalDB( object):
         self.close()
 
     def writeTitle( self, title):
-	self.ofile.write( '<title>'+title+'</title>'+"\n")
+	self.ofile.write( '<title>'+saxutils.escape(title)+'</title>'+"\n")
 
     def writeDescription( self, description):
-	self.ofile.write( '<description>'+description+'</description>'+"\n")
+	self.ofile.write( '<description><![CDATA['+description+']]></description>'+"\n")
 
     def writeLink( self, link):
 	self.ofile.write( '<link>'+link+'</link>'+"\n")
@@ -60,9 +61,9 @@ class writeLocalDB( object):
 
     def addItem( self, item):
         self.ofile.write( '<item>'+"\n")
-        self.ofile.write( '<title>'+item.title+'</title>'+"\n")
+        self.ofile.write( '<title>'+saxutils.escape(item.title)+'</title>'+"\n")
         self.ofile.write( '<description><![CDATA['+item.description+']]></description>'+"\n")
-        self.ofile.write( '<url>'+item.url+'</url>'+"\n")
+        self.ofile.write( '<url>'+saxutils.escape(item.url)+'</url>'+"\n")
         self.ofile.write( '</item>'+"\n")
 
 
