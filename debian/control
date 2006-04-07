@@ -9,6 +9,7 @@ Build-Depends-Indep: debhelper (>= 4.1.67), python-dev, help2man, intltool
 Package: gpodder
 Architecture: all
 Depends: ${python:Depends}, python-gtk2, python-glade2, python-xml, wget
+Suggests: python-gpod, python-eyed3
 Description: a media aggregator / podcast catcher
  gPodder enables you to download and organize podcasts. You can 
  subscribe to many RSS feeds from the internet and download the 
