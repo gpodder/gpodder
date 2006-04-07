@@ -39,6 +39,7 @@ class writeLocalDB( object):
         self.writeTitle( channel.title)
         self.writeDescription( channel.description)
         self.writeLink( channel.link)
+        self.writeMetadata( channel)
         
         for item in channel.items:
             self.addItem( item)
@@ -53,6 +54,11 @@ class writeLocalDB( object):
 
     def writeLink( self, link):
 	self.ofile.write( '<link>'+link+'</link>'+"\n")
+
+    def writeMetadata( self, channel):
+        self.ofile.write( '<gpodder:info')
+        self.ofile.write( ' nosync="%s"' % (str(not channel.sync_to_devices).lower()))
+        self.ofile.write( '/>'+"\n")
 
     def close( self):
         self.ofile.write( '</channel>'+"\n")

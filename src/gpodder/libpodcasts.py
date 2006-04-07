@@ -43,6 +43,8 @@ class podcastChannel(object):
         self.downloaded = None
         self.__filename = None
         self.__download_dir = None
+        # should this channel be synced to devices? (ex: iPod)
+        self.sync_to_devices = True
         
     # Create all the properties
     def get_filename(self):
@@ -67,6 +69,46 @@ class podcastChannel(object):
     def addItem( self, item):
         self.items.append( item)
 
+    def get_localdb_channel( self):
+        ch = None
+        try:
+            locdb_reader = readLocalDB()
+            locdb_reader.parseXML( self.index_file)
+            return locdb_reader.channel
+        except:
+            return None
+
+    def set_localdb_channel( self, channel):
+        if channel != None:
+            try:
+                writeLocalDB( self.index_file, channel)
+            except:
+                if libgpodder.isDebugging():
+                    print 'Cannot save localDB channel in set_localdb_channel( %s)' % channel.title
+    
+    def set_metadata_from_localdb( self):
+        if libgpodder.isDebugging():
+            print 'Reading metadata from localdb: %s' % self.index_file
+        libgpodder.getLock()
+        ch = self.get_localdb_channel()
+        if ch != None:
+            self.copy_metadata_from( ch)
+        libgpodder.releaseLock()
+
+    def save_metadata_to_localdb( self):
+        if libgpodder.isDebugging():
+            print 'Saving metadata to localdb: %s' % self.index_file
+        libgpodder.getLock()
+        ch = self.get_localdb_channel()
+        if ch != None:
+            ch.copy_metadata_from( self)
+            self.set_localdb_channel( ch)
+        libgpodder.releaseLock()
+
+    def copy_metadata_from( self, ch):
+        # copy all metadata fields
+        self.sync_to_devices = ch.sync_to_devices
+    
     def addDownloadedItem( self, item):
         # no multithreaded access
         libgpodder.getLock()
@@ -174,8 +216,9 @@ class podcastChannel(object):
     def set_download_dir(self, value):
         self.__download_dir = value
         libgpodder.gPodderLib().createIfNecessary(self.__download_dir)
-        if libgpodder.isDebugging():
-            print "set_download_dir: ", self, self.__download_dir        
+        #  the following disabled at the moment..
+        #if libgpodder.isDebugging():
+        #    print "set_download_dir: ", self, self.__download_dir
         
     download_dir = property (fget=get_download_dir,
                              fset=set_download_dir)

@@ -62,6 +62,11 @@ class readLocalDB( DefaultHandler):
             self.channel = libpodcasts.podcastChannel( self.filename)
         if name == "item":
             self.current_item = libpodcasts.podcastItem()
+        if name == "gpodder:info" and self.channel != None:
+            if attrs.get('nosync', 'false').lower() == 'true':
+                if libgpodder.isDebugging():
+                    print 'local channel does not want to be synced: %s' % self.channel.title
+                self.channel.sync_to_devices = False
     
     def endElement( self, name):
         if self.current_item == None:
@@ -81,7 +86,8 @@ class readLocalDB( DefaultHandler):
                 self.current_item.description = self.current_element_data
             if name == "item":
                 self.channel.addItem( self.current_item)
-                if libgpodder.isDebugging():
+                # this produces lots of output and works ATM, so output disabled
+                if libgpodder.isDebugging() and False:
                     print "importing local db channel: " + self.current_item.url
                 self.current_item = None
     

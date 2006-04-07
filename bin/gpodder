@@ -112,6 +112,7 @@ def main(argv=None):
             gpodder.glade_dir = '../data'
             gpodder.locale_dir = 'data/locale/'
             gpodder.icon_dir = 'data/gpodder.png'
+            gpodder.artwork_dir = 'data/artwork/'
         bindtextdomain( 'gpodder', gpodder.locale_dir)
         gpodder.main( __version__)
 

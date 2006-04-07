@@ -1,3 +1,18 @@
+Fri, 07 Apr 2006 03:33:18 +0200 <thp@perli.net>
+	+ Added new XML tag to localDB so we can save channel metdata
+	* Channel metadata save/read functions
+	* Added sync_to_devices metadata field to podcastChannel
+	* Disabled some unneeded debug output
+	* Callback-function support in libipodsync (for GUI feedback)
+	* iPod synchronization status window
+	+ Added data/artwork/* stuff for iPod sync window graphics
+	* iPod synchronization - check if an episode is already on iPod
+	* call "sync" on episode copy end to iPod to show real progress
+	* Sync all channels (that are enabled) instead of just one to iPod
+	* Added "sync to devices" to Channel Editor window
+	* Updated German translation
+	* Updated TODO list
+
 Thu, 06 Apr 2006 15:38:45 +0200 <thp@perli.net>
 	* Applied patch from Ortwin Forster (ortwin@videotron.ca) to fix 
 	  special characters in XML files (escape ampersands, ...)

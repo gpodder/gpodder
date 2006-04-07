@@ -21,7 +21,7 @@ for l in languages:
 
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
-inst_images   = [ 'data/gpodder.png' ]
+inst_images   = [ 'data/gpodder.png' ] + glob.glob('data/artwork/*')
 inst_share    = [ 'data/gpodder.glade' ]
 inst_icons    = [ 'data/gpodder.desktop' ]
 

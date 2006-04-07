@@ -24,11 +24,13 @@ except:
 
 import os
 import sys
+import time
 
 import libgpodder
 import liblocaldb
 import libpodcasts
 
+import gobject
 
 # do we provide iPod functions to the user?
 def ipod_supported():
@@ -42,12 +44,18 @@ class gPodder_iPodSync(object):
     playlist_name = 'gpodder'
     pl_master = None
     pl_gpodder = None
-    
-    def __init__( self, ipod_mount = '/media/ipod/'):
+    callback_progress = None
+    callback_status = None
+    callback_done = None
+
+    def __init__( self, ipod_mount = '/media/ipod/', callback_progress = None, callback_status = None, callback_done = None):
         if not ipod_supported():
             if libgpodder.isDebugging():
                 print '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)'
         self.ipod_mount = ipod_mount
+        self.callback_progress = callback_progress
+        self.callback_status = callback_status
+        self.callback_done = callback_done
 
     def open( self):
         if not ipod_supported():
@@ -62,19 +70,32 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         if write_update:
+            if self.callback_progress != None:
+                gobject.idle_add( self.callback_progress, 100, 100)
+            if self.callback_status != None:
+                gobject.idle_add( self.callback_status, '...', '...', _('Saving iPod database...'))
             gpod.itdb_write( self.itdb, None)
         self.itdb = None
+        if self.callback_done != None:
+            time.sleep(1)
+            gobject.idle_add( self.callback_done)
 
     def remove_from_ipod( self, track):
         if not ipod_supported():
             return False
         if libgpodder.isDebugging():
            print '(ipodsync) REMOVING FROM IPOD!! track: %s' % track.title
+        if self.callback_status != None:
+            gobject.idle_add( self.callback_status, track.title, track.artist)
         fname = gpod.itdb_filename_on_ipod( track)
         gpod.itdb_playlist_remove_track( self.pl_master, track)
         gpod.itdb_playlist_remove_track( self.pl_gpodder, track)
         gpod.itdb_track_unlink( track)
-        os.unlink( fname)
+        try:
+            os.unlink( fname)
+        except:
+            # suppose we've already deleted it or so..
+            pass
     
     def get_gpodder_playlist( self):
         if not ipod_supported():
@@ -91,6 +112,17 @@ class gPodder_iPodSync(object):
         new_playlist = gpod.itdb_playlist_new( 'gpodder', False)
         gpod.itdb_playlist_add( self.itdb, new_playlist, -1)
         return new_playlist
+
+    def episode_is_on_ipod( self, channel, episode):
+        if not ipod_supported():
+            return False
+        for track in gpod.sw_get_playlist_tracks( self.pl_gpodder):
+            if episode.title == track.title and channel.title == track.artist:
+                if libgpodder.isDebugging():
+                    print '(ipodsync) Already on iPod: %s (from %s)' % (episode.title, track.title)
+                return True
+        
+        return False
 
     def dump( self):
         if not ipod_supported():
@@ -109,9 +141,21 @@ class gPodder_iPodSync(object):
     def copy_channel_to_ipod( self, channel):
         if not ipod_supported():
             return False
-        for episode in channel.items:
+        if not channel.sync_to_devices:
+            # we don't want to sync this..
+            return False
+        items = channel.items
+        max = len(items)
+        i = 1
+        for episode in items:        
+            if self.callback_progress != None:
+                gobject.idle_add( self.callback_progress, i, max)
             if channel.isDownloaded( episode):
                 self.add_episode_from_channel( channel, episode)
+            i=i+1
+        if self.callback_status != None:
+            gobject.idle_add( self.callback_status, '...', '...', _('Complete: %s') % channel.title)
+        time.sleep(1)
 
     def set_podcast_flags( self, track):
         if not ipod_supported():
@@ -125,6 +169,13 @@ class gPodder_iPodSync(object):
     def add_episode_from_channel( self, channel, episode):
         if not ipod_supported():
             return False
+        if self.callback_status != None:
+            gobject.idle_add( self.callback_status, episode.title, channel.title)
+        
+        if self.episode_is_on_ipod( channel, episode):
+            # episode is already here :)
+            return True
+        
         if libgpodder.isDebugging():
             print '(ipodsync) Adding item: %s from %s' % (episode.title, channel.title)
         local_filename = str(channel.getPodcastFilename( episode.url))
@@ -155,5 +206,10 @@ class gPodder_iPodSync(object):
         else:
             if libgpodder.isDebugging():
                 print '(ipodsync) success for %s :)' % episode.title
-
+        
+        try:
+            os.system('sync')
+        except:
+            # silently ignore :)
+            pass
 
