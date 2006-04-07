@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-07 03:43+0200\n"
+"POT-Creation-Date: 2006-04-07 16:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,7 +92,7 @@ msgid ""
 "Maybe the URL is wrong?"
 msgstr ""
 
-#: src/gpodder/gpodder.py:304 src/gpodder/gpodder.py:429
+#: src/gpodder/gpodder.py:304 src/gpodder/gpodder.py:439
 msgid "Fetching channel index..."
 msgstr ""
 
@@ -102,7 +102,14 @@ msgid ""
 "Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
 msgstr ""
 
-#: src/gpodder/gpodder.py:361
+#: src/gpodder/gpodder.py:328 src/gpodder/gpodder.py:341
+#, python-format
+msgid ""
+"Cannot access iPod at %s.\n"
+"Make sure your iPod is connected and mounted."
+msgstr ""
+
+#: src/gpodder/gpodder.py:371
 msgid ""
 "<big><b>Updating feed cache</b></big>\n"
 "\n"
@@ -110,14 +117,14 @@ msgid ""
 "updating the feed cache..."
 msgstr ""
 
-#: src/gpodder/gpodder.py:422
+#: src/gpodder/gpodder.py:432
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
 "No channel found."
 msgstr ""
 
-#: src/gpodder/gpodder.py:451
+#: src/gpodder/gpodder.py:461
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -125,35 +132,35 @@ msgid ""
 " %s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:458
+#: src/gpodder/gpodder.py:468
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
 msgstr ""
 
-#: src/gpodder/gpodder.py:466
+#: src/gpodder/gpodder.py:476
 msgid "Your channel list is empty. Nothing to export."
 msgstr ""
 
-#: src/gpodder/gpodder.py:468
+#: src/gpodder/gpodder.py:478
 msgid "Export to OPML"
 msgstr ""
 
-#: src/gpodder/gpodder.py:497
+#: src/gpodder/gpodder.py:507
 msgid "translator-credits"
 msgstr ""
 
-#: src/gpodder/gpodder.py:537
+#: src/gpodder/gpodder.py:547
 msgid "You have not selected an episode to download."
 msgstr ""
 
-#: src/gpodder/gpodder.py:552
+#: src/gpodder/gpodder.py:562
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
 msgstr ""
 
-#: src/gpodder/gpodder.py:577
+#: src/gpodder/gpodder.py:587
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -161,11 +168,11 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:580 src/gpodder/gpodder.py:617
+#: src/gpodder/gpodder.py:590 src/gpodder/gpodder.py:627
 msgid "No episode selected."
 msgstr ""
 
-#: src/gpodder/gpodder.py:643
+#: src/gpodder/gpodder.py:653
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -173,42 +180,42 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/gpodder/gpodder.py:653
+#: src/gpodder/gpodder.py:663
 msgid "Could not delete downloaded podcast."
 msgstr ""
 
-#: src/gpodder/gpodder.py:691 src/gpodder/gpodder.py:692
+#: src/gpodder/gpodder.py:701 src/gpodder/gpodder.py:702
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr ""
 
-#: src/gpodder/gpodder.py:907
+#: src/gpodder/gpodder.py:919
 #, python-format
 msgid "%d of %d"
 msgstr ""
 
-#: src/gpodder/gpodder.py:950
+#: src/gpodder/gpodder.py:962
 msgid ""
 "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr ""
 
-#: src/gpodder/libgpodder.py:77
+#: src/gpodder/libgpodder.py:78
 msgid "gPodder downloads"
 msgstr ""
 
-#: src/gpodder/libgpodder.py:222
+#: src/gpodder/libgpodder.py:226
 msgid "Downloading channel cover..."
 msgstr ""
 
-#: src/gpodder/libgpodder.py:273
+#: src/gpodder/libgpodder.py:277
 msgid "gPodder channel list"
 msgstr ""
 
-#: src/gpodder/libipodsync.py:76
+#: src/gpodder/libipodsync.py:78
 msgid "Saving iPod database..."
 msgstr ""
 
-#: src/gpodder/libipodsync.py:157
+#: src/gpodder/libipodsync.py:160
 #, python-format
 msgid "Complete: %s"
 msgstr ""
@@ -444,6 +451,10 @@ msgid "gPodder properties"
 msgstr ""
 
 #: data/gpodder.glade.h:55
+msgid "iPod mountpoint:"
+msgstr ""
+
+#: data/gpodder.glade.h:56
 msgid "iPod:"
 msgstr ""
 

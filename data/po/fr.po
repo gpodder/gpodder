@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7-svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-07 03:38+0200\n"
+"POT-Creation-Date: 2006-04-07 16:03+0200\n"
 "PO-Revision-Date: 2006-04-06 15:37+0100\n"
 "Last-Translator: Thomas Perl <thp@perli.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,7 +101,7 @@ msgstr ""
 "L'ajout du flux a echoué.\n"
 "L'URL est sans doute erronée?"
 
-#: src/gpodder/gpodder.py:304 src/gpodder/gpodder.py:429
+#: src/gpodder/gpodder.py:304 src/gpodder/gpodder.py:439
 msgid "Fetching channel index..."
 msgstr "Récupération de l'index du flux RSS"
 
@@ -114,7 +114,14 @@ msgstr ""
 "Seules les URL <b>http://</b> et <b>ftp://</b> sont supportées pour le "
 "moment."
 
-#: src/gpodder/gpodder.py:361
+#: src/gpodder/gpodder.py:328 src/gpodder/gpodder.py:341
+#, python-format
+msgid ""
+"Cannot access iPod at %s.\n"
+"Make sure your iPod is connected and mounted."
+msgstr ""
+
+#: src/gpodder/gpodder.py:371
 msgid ""
 "<big><b>Updating feed cache</b></big>\n"
 "\n"
@@ -126,7 +133,7 @@ msgstr ""
 "Merci de patienter pendant que gpodder met\n"
 "à jour le cache des flux RSS..."
 
-#: src/gpodder/gpodder.py:422
+#: src/gpodder/gpodder.py:432
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
@@ -136,7 +143,7 @@ msgstr ""
 "\n"
 "Flux RSS introuvable."
 
-#: src/gpodder/gpodder.py:451
+#: src/gpodder/gpodder.py:461
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -147,7 +154,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:458
+#: src/gpodder/gpodder.py:468
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
@@ -155,23 +162,23 @@ msgstr ""
 "Impossible de supprimer ce flux.\n"
 "Il n'y a sans doute pas de flux selectionné."
 
-#: src/gpodder/gpodder.py:466
+#: src/gpodder/gpodder.py:476
 msgid "Your channel list is empty. Nothing to export."
 msgstr "Votre liste de flux est vide. Il n'y a rien à exporter."
 
-#: src/gpodder/gpodder.py:468
+#: src/gpodder/gpodder.py:478
 msgid "Export to OPML"
 msgstr "Exporter au format OPML"
 
-#: src/gpodder/gpodder.py:497
+#: src/gpodder/gpodder.py:507
 msgid "translator-credits"
 msgstr "Alain Tauch <contrib@maisondubonheur.com>"
 
-#: src/gpodder/gpodder.py:537
+#: src/gpodder/gpodder.py:547
 msgid "You have not selected an episode to download."
 msgstr "Vous n'avez pas selectionné d'émission à télécharger."
 
-#: src/gpodder/gpodder.py:552
+#: src/gpodder/gpodder.py:562
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
@@ -179,7 +186,7 @@ msgstr ""
 "Vous avez déjà téléchargé cette émission\n"
 "ou elle est en cours de téléchargement."
 
-#: src/gpodder/gpodder.py:577
+#: src/gpodder/gpodder.py:587
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -190,11 +197,11 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:580 src/gpodder/gpodder.py:617
+#: src/gpodder/gpodder.py:590 src/gpodder/gpodder.py:627
 msgid "No episode selected."
 msgstr "Aucune émission sélectionnée."
 
-#: src/gpodder/gpodder.py:643
+#: src/gpodder/gpodder.py:653
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -205,44 +212,44 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:653
+#: src/gpodder/gpodder.py:663
 msgid "Could not delete downloaded podcast."
 msgstr "La suppression du podcast a échouée"
 
-#: src/gpodder/gpodder.py:691 src/gpodder/gpodder.py:692
+#: src/gpodder/gpodder.py:701 src/gpodder/gpodder.py:702
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(inconnu(e))"
 
-#: src/gpodder/gpodder.py:907
+#: src/gpodder/gpodder.py:919
 #, python-format
 msgid "%d of %d"
 msgstr ""
 
-#: src/gpodder/gpodder.py:950
+#: src/gpodder/gpodder.py:962
 msgid ""
 "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr ""
 "Merci de ne pas lancer gpodder.py directement. Utilisez plutôt le binaire "
 "gpodder."
 
-#: src/gpodder/libgpodder.py:77
+#: src/gpodder/libgpodder.py:78
 msgid "gPodder downloads"
 msgstr "Téléchargements gPodder"
 
-#: src/gpodder/libgpodder.py:222
+#: src/gpodder/libgpodder.py:226
 msgid "Downloading channel cover..."
 msgstr "Téléchargement du logo"
 
-#: src/gpodder/libgpodder.py:273
+#: src/gpodder/libgpodder.py:277
 msgid "gPodder channel list"
 msgstr "Liste des flux RSS gPodder"
 
-#: src/gpodder/libipodsync.py:76
+#: src/gpodder/libipodsync.py:78
 msgid "Saving iPod database..."
 msgstr ""
 
-#: src/gpodder/libipodsync.py:157
+#: src/gpodder/libipodsync.py:160
 #, python-format
 msgid "Complete: %s"
 msgstr ""
@@ -484,6 +491,10 @@ msgid "gPodder properties"
 msgstr "Préférences gPodder"
 
 #: data/gpodder.glade.h:55
+msgid "iPod mountpoint:"
+msgstr ""
+
+#: data/gpodder.glade.h:56
 msgid "iPod:"
 msgstr ""
 

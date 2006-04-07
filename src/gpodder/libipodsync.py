@@ -41,7 +41,7 @@ def ipod_supported():
 class gPodder_iPodSync(object):
     itdb = None
     ipod_mount = '' # mountpoint for ipod
-    playlist_name = 'gpodder'
+    playlist_name = 'gpodder' # name of playlist to sync to
     pl_master = None
     pl_gpodder = None
     callback_progress = None
@@ -62,9 +62,13 @@ class gPodder_iPodSync(object):
             return False
         if self.itdb == None:
             self.itdb = gpod.itdb_parse( self.ipod_mount, None)
+            if not self.itdb:
+                return False
             self.itdb.mountpoint = self.ipod_mount
             self.pl_master = gpod.sw_get_playlists( self.itdb)[0]
-            self.pl_gpodder = self.get_gpodder_playlist()
+            #self.pl_gpodder = self.get_gpodder_playlist()
+            self.pl_gpodder = gpod.itdb_playlist_podcasts( self.itdb)
+        return True
 
     def close( self, write_update = True):
         if not ipod_supported():
@@ -74,11 +78,13 @@ class gPodder_iPodSync(object):
                 gobject.idle_add( self.callback_progress, 100, 100)
             if self.callback_status != None:
                 gobject.idle_add( self.callback_status, '...', '...', _('Saving iPod database...'))
-            gpod.itdb_write( self.itdb, None)
+            if self.itdb:
+                gpod.itdb_write( self.itdb, None)
         self.itdb = None
         if self.callback_done != None:
             time.sleep(1)
             gobject.idle_add( self.callback_done)
+        return True
 
     def remove_from_ipod( self, track):
         if not ipod_supported():
@@ -117,7 +123,7 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         for track in gpod.sw_get_playlist_tracks( self.pl_gpodder):
-            if episode.title == track.title and channel.title == track.artist:
+            if episode.title == track.title and channel.title == track.album:
                 if libgpodder.isDebugging():
                     print '(ipodsync) Already on iPod: %s (from %s)' % (episode.title, track.title)
                 return True
@@ -190,10 +196,10 @@ class gPodder_iPodSync(object):
         track = gpod.itdb_track_new()
         self.set_podcast_flags( track)
         track.title = str(episode.title)
-        track.artist = str(channel.title)
-        track.album = 'gPodder podcast'
+        track.artist = 'gPodder podcasts'
+        track.album = str(channel.title)
         track.tracklen = track_length
-        track.filetype = 'mp3' # huh?! harcoded?! well, well :)
+        track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say
         track.description = str(episode.description)
         
         gpod.itdb_track_add( self.itdb, track, -1)

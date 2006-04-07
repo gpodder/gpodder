@@ -10,6 +10,12 @@
   *) copy "data/messages.pot" to "data/po/XX.po",
      with "XX" being your iso lang code (example: "de")
   *) edit the "data/po/XX.po" file (translate the strings)
+  *) edit "data/gpodder.desktop" and translate the Comment line,
+     so if you're adding the "XX" translation, add a line like this:
+     
+     Comment[XX]=a media aggregator / podcast catcher
+
+     (of course, with the comment translated into the XX language)     
   *) run "make generators" again
   *) run "make test" to see if it works
   *) add your language to the languages list in setup.py
@@ -20,5 +26,6 @@
    -- thp <thp@perli.net>, Thu, 30 Mar 2006 23:16:20 +0200
                   Updated: Fri, 31 Mar 2006 18:11:41 +0200
                   Updated: Wed, 05 Apr 2006 20:13:07 +0200
+                  Updated: Fri, 07 Apr 2006 15:28:33 +0200
 
 
