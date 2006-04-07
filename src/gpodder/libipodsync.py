@@ -94,7 +94,7 @@ class gPodder_iPodSync(object):
         if self.callback_status != None:
             gobject.idle_add( self.callback_status, track.title, track.artist)
         fname = gpod.itdb_filename_on_ipod( track)
-        gpod.itdb_playlist_remove_track( self.pl_master, track)
+        #gpod.itdb_playlist_remove_track( self.pl_master, track)
         gpod.itdb_playlist_remove_track( self.pl_gpodder, track)
         gpod.itdb_track_unlink( track)
         try:
@@ -168,8 +168,9 @@ class gPodder_iPodSync(object):
             return False
         # try to modify track to be more podcast-ish
         #track.flag1 = 0x02
+        #track.flag2 = 0x01
         #track.flag3 = 0x01
-        #track.flag4 = 0x02
+        #track.flag4 = 0x01
         pass
 
     def add_episode_from_channel( self, channel, episode):
@@ -196,14 +197,16 @@ class gPodder_iPodSync(object):
         track = gpod.itdb_track_new()
         self.set_podcast_flags( track)
         track.title = str(episode.title)
-        track.artist = 'gPodder podcasts'
+        track.artist = 'gPodder podcast'
         track.album = str(channel.title)
         track.tracklen = track_length
         track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say
         track.description = str(episode.description)
+        track.podcasturl = str(episode.url)
+        track.podcastrss = str(channel.url)
         
         gpod.itdb_track_add( self.itdb, track, -1)
-        gpod.itdb_playlist_add_track( self.pl_master, track, -1)
+        #gpod.itdb_playlist_add_track( self.pl_master, track, -1)
         gpod.itdb_playlist_add_track( self.pl_gpodder, track, -1)
 
         if gpod.itdb_cp_track_to_ipod( track, local_filename, None) != 1:
