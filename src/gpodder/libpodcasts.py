@@ -37,6 +37,7 @@ from os.path import basename
 from os.path import splitext
 
 from types import ListType
+from datetime import datetime
 
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
@@ -55,6 +56,10 @@ class podcastChannel(ListType):
         self.link = link
         self.description = stripHtml( description)
         self.image = None
+        self.pubDate = datetime.now().ctime()
+        self.language = ''
+        self.copyright = ''
+        self.webMaster = ''
         self.shortname = None
         self.downloaded = None
         self.__filename = None
@@ -91,9 +96,9 @@ class podcastChannel(ListType):
 
     def get_localdb_channel( self):
         ch = None
+        locdb_reader = readLocalDB()
+        locdb_reader.parseXML( self.index_file)
         try:
-            locdb_reader = readLocalDB()
-            locdb_reader.parseXML( self.index_file)
             return locdb_reader.channel
         except:
             return podcastChannel( self.url, self.title, self.link, self.description)
@@ -315,7 +320,8 @@ class podcastItem(object):
                   mimetype = "",
                   guid = "",
                   description = "",
-                  link = ""):
+                  link = "",
+                  pubDate = None):
         self.url = url
         self.title = title
         self.length = length
@@ -323,6 +329,9 @@ class podcastItem(object):
         self.guid = guid
         self.description = stripHtml( description)
         self.link = ""
+        self.pubDate = pubDate
+        if pubDate == None:
+            self.pubDate = datetime.now().ctime()
 
     def equals( self, other_item):
         if other_item == None:

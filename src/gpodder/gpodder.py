@@ -568,7 +568,7 @@ class Gpodder(SimpleGladeApp):
         current_podcast = current_channel[self.active_item]
         filename = current_channel.getPodcastFilename( current_podcast.url)
         if widget.get_name() == "treeAvailable":
-            Gpodderepisode().set_episode( current_podcast)
+            Gpodderepisode().set_episode( current_podcast, current_channel)
             return
         
         if os.path.exists( filename) == False and self.download_status_manager.is_download_in_progress( current_podcast.url) == False:
@@ -636,6 +636,11 @@ class Gpodder(SimpleGladeApp):
           selection_tuple = self.treeDownloaded.get_selection().get_selected()
           selection_iter = selection_tuple[1]
           url = self.treeDownloaded.get_model().get_value( selection_iter, 0)
+          if widget.get_name() == "treeDownloaded":
+              podcast = self.ldb.get_podcast_by_podcast_url( channel_filename, url)
+              Gpodderepisode().set_episode( podcast)
+              return
+          filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
           filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
           gPodderLib().openFilename( filename_final)
         except:
@@ -907,11 +912,16 @@ class Gpodderepisode(SimpleGladeApp):
 
     #-- Gpodderepisode custom methods {
     #   Write your own methods here
-    def set_episode( self, episode):
+    def set_episode( self, episode, channel = None):
         self.episode_title.set_markup( '<big><b>%s</b></big>' % episode.title)
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
         self.episode_description.set_buffer( b)
+        self.entryURL.set_text(episode.url)
+        self.entryLink.set_text(episode.link)
+        if episode.link == '' and channel != None:
+            self.entryLink.set_text( channel.link)
+        self.labelPubDate.set_markup( '<b>%s</b>' % ( episode.pubDate ))
     #-- Gpodderepisode custom methods }
 
     #-- Gpodderepisode.on_btnCloseWindow_clicked {

@@ -96,6 +96,14 @@ class rssReader( DefaultHandler):
                 self.channel.link = self.current_element_data
             if name == "description":
                 self.channel.description = stripHtml( self.current_element_data)
+            if name == "pubDate":
+                self.channel.pubDate = self.current_element_data
+            if name == "language":
+                self.channel.language = self.current_element_data
+            if name == "copyright":
+                self.channel.copyright = self.current_element_data
+            if name == "webMaster":
+                self.channel.webMaster = self.current_element_data
         
         if self.current_item != None:
             if name == "title":
@@ -106,6 +114,8 @@ class rssReader( DefaultHandler):
                 self.current_item.description = stripHtml( self.current_element_data)
             if name == "guid":
                 self.current_item.guid = self.current_element_data
+            if name == "pubDate":
+                self.current_item.pubDate = self.current_element_data
             if name == "item":
                 self.channel.addItem( self.current_item)
                 self.current_item = None

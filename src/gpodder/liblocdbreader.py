@@ -60,9 +60,9 @@ class readLocalDB( DefaultHandler):
     def parseXML( self, filename):
         self.filename = filename
         parser = make_parser()
-	parser.returns_unicode = True
+        parser.returns_unicode = True
         parser.setContentHandler( self)
-	parser.setErrorHandler( rssLocDBErrorHandler())
+        parser.setErrorHandler( rssLocDBErrorHandler())
         # no multithread access to filename
         libgpodder.getLock()
         try:
@@ -72,13 +72,13 @@ class readLocalDB( DefaultHandler):
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
-        
+
         if name == "channel":
             # no "real" url needed for podcastChannel, because we only use it as a container
             self.channel = libpodcasts.podcastChannel( self.filename)
         if name == "item":
             self.current_item = libpodcasts.podcastItem()
-        if name == "gpodder:info" and self.channel != None:
+        if name == "gpodder:info" and self.channel != None and self.current_item == None:
             self.channel.device_playlist_name = attrs.get('playlist', 'gPodder')
             if attrs.get('music', 'false').lower() == 'true':
                 self.channel.is_music_channel = True
@@ -95,6 +95,14 @@ class readLocalDB( DefaultHandler):
                 self.channel.link = self.current_element_data
             if name == "description":
                 self.channel.description = self.current_element_data
+            if name == "pubDate":
+                self.channel.pubDate = self.current_element_data
+            if name == "language":
+                self.channel.language = self.current_element_data
+            if name == "copyright":
+                self.channel.copyright = self.current_element_data
+            if name == "webMaster":
+                self.channel.webMaster = self.current_element_data
         
         if self.current_item != None:
             if name == "title":
@@ -103,6 +111,12 @@ class readLocalDB( DefaultHandler):
                 self.current_item.url = self.current_element_data
             if name == "description":
                 self.current_item.description = self.current_element_data
+            if name == "link":
+                self.current_item.link = self.current_element_data
+            if name == "guid":
+                self.current_item.guid = self.current_element_data
+            if name == "pubDate":
+                self.current_item.pubDate = self.current_element_data
             if name == "item":
                 self.channel.addItem( self.current_item)
                 # this produces lots of output and works ATM, so output disabled

@@ -101,8 +101,8 @@ class localDB( object):
             new_model.set( new_iter, 1, channel.title)
         
         return new_model
-    
-    def getDownloadedEpisodesModelByFilename( self, filename):
+
+    def get_rdb_by_filename( self, filename):
         if filename in self.localdbs:
           rdb = self.localdbs[filename]
         else:
@@ -110,17 +110,20 @@ class localDB( object):
           rdb.parseXML( filename)
           self.localdbs[filename] = rdb
         
-        return rdb.channel.getItemsModel( False)
+        return rdb
+    
+    def getDownloadedEpisodesModelByFilename( self, filename):
+        return self.get_rdb_by_filename( filename).channel.getItemsModel( False)
     
     def getLocalFilenameByPodcastURL( self, channel_filename, url):
-        if channel_filename in self.localdbs:
-          rdb = self.localdbs[channel_filename]
-        else:
-          rdb = readLocalDB()
-          rdb.parseXML( channel_filename)
-          self.localdbs[channel_filename] = rdb
+        return self.get_rdb_by_filename( channel_filename).channel.getPodcastFilename( url)
+
+    def get_podcast_by_podcast_url( self, channel_filename, url):
+        for episode in self.get_rdb_by_filename( channel_filename).channel:
+            if episode.url == url:
+                return episode
         
-        return rdb.channel.getPodcastFilename( url)
+        return None
     
     def clear_cache( self):
         # clear cached data, so it is re-read next time

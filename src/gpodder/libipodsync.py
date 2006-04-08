@@ -196,7 +196,7 @@ class gPodder_iPodSync(object):
         if self.callback_status != None:
             channeltext = channel.title
             if channel.is_music_channel:
-                channeltext = '%s (to "%s")' % ( channel.title, channel.device_playlist_name )
+                channeltext = _('%s (to "%s")') % ( channel.title, channel.device_playlist_name )
             gobject.idle_add( self.callback_status, episode.title, channeltext)
         
         if self.episode_is_on_ipod( channel, episode):
