@@ -17,7 +17,17 @@ GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
 ##########################################################################
 
-all:
+all: help
+
+help:
+	@echo 'make test            run gpodder in local directory'
+	@echo 'make release         create source tarball in "dist/"'
+	@echo 'make install         install gpodder into "/usr/"'
+	@echo 'make uninstall       uninstall gpodder from "/usr/"'
+	@echo 'make generators      re-generate manpage and run tepache'
+	@echo 'make messages        rebuild messages.pot from new source'
+	@echo 'make clean           remove generated+temp+*.pyc files'
+	@echo 'make distclean       do a "make clean" + remove "dist/"'
 
 ##########################################################################
 
@@ -27,7 +37,7 @@ test:
 deb:
 	debuild
 
-release: distclean releasegen
+release: distclean generators
 	python setup.py sdist
 
 install: generators
@@ -43,9 +53,9 @@ uninstall:
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_glade gen_gettext
+generators: $(MANPAGE) gen_glade
 
-releasegen: $(MANPAGE) gen_glade
+messages: gen_gettext
 
 $(MANPAGE): $(BINFILE)
 	help2man -N $(BINFILE) >$(MANPAGE)
@@ -62,8 +72,7 @@ $(GLADEGETTEXT): $(GLADEFILE)
 
 $(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
 	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
-	sed -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT) > $(MESSAGESPOT).tmp
-	mv $(MESSAGESPOT).tmp $(MESSAGESPOT)
+	sed -i -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
 ##########################################################################
 
@@ -81,7 +90,7 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: all test release install generators gen_manpage gen_glade clean distclean
+.PHONY: all test release install generators gen_manpage gen_glade clean distclean messages help
 
 ##########################################################################
 
