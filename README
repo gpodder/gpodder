@@ -4,48 +4,52 @@
 
 
 
-                                                      __
-                        |'\     |   |         /''\   /  \
-                        |./    .|  .|         |  |   |__
-                    /'\ |  /\ / | / | /| |'   |  |   |  \
-                    \_/ |  \/ \_| \_| \_ |    \../ o \__/
+                                                     _____
+                        |'\     |   |         /''\      /
+                        |./    .|  .|         |  |     /
+                    /'\ |  /\ / | / | /| |'   |  |    /
+                    \_/ |  \/ \_| \_| \_ |    \../ o /
                    \_/  http://perli.net/projekte/gpodder/
 
            - -- == === ================================= === == -- -
 
 
- gPodder 0.6 README
+ gPodder 0.7 README
  ==================
  Copyright (c) 2005-2006 Thomas Perl <thp@perli.net>
- Version 0.6 released on 29.03.2006 under the GNU GPL
+ Version 0.7 released on 08.04.2006 under the GNU GPL
 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+ MA  02110-1301, USA.
 
 
  ============================
- 1) What's new in version 0.6
+ 1) What's new in version 0.7
  ============================
 
- Please see the gPodder homepage for most recent information.
+ There's been MUCH work going on in gPodder 0.7, and you can clearly 
+ see the improvements. For more information, look at the gPodder homepage.
  
  Highlights of this release include:
-  * Code structure cleanups (even more object-oriented)
-  * No more errors with HTML inside <description> tags (Thanks Leo Gomez)
-  * Brand-new channel information/editor dialog
-  * Brand-new episode information dialog
-  * Tooltips for all your mouse hovering needs
-  * Race condition bug that made downloaded podcasts to disappear fixed!
-  * Possibility to delete already-downloaded podcasts
-  * Menu items are not even more intelligent and disable themselves when 
-    not needed
-  * Now handling bad URLs in "Add channel" dialog gracefully
-  * Code cleanups in gPodder's main window code
-  * New properties dialog - more options!
-  * Possibility to create a symlink to the downloaddir on the Desktop
-  * Added confirmation dialogs to "deleting" functions
-  * More stable download handling
-  * More messages informing the user what's going on when something is 
-    going wrong..
+  * Very stable download handling - finally
+  * Graphical selection of audio players that are installed on system
+  * Internationalization support! (German and French supported at the moment)
+  * iTunes image ("Cover") support in the channel editor
+  * Better handling of malformed (or complicated) XML RSS feeds
+  * iPod synchronization support (Yay!) - requires optional libraries
+  * Code clean-ups and refinements
   * New features and new bugs - included!
 
  ===============
@@ -66,7 +70,7 @@
  If you want to install gPodder from source, you have to 
  get the following packages:
  
-   apt-get install help2man python-dev intltool gettext
+   apt-get install help2man python-dev intltool
  
  =====================
  3) How to run/install
@@ -75,10 +79,10 @@
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
-   tar xzvf gpodder-0.6.tar.gz
-   cd gpodder-0.6/
+   tar xzvf gpodder-0.7.tar.gz
+   cd gpodder-0.7/
  
- After that you can start gPodder 0.5 by starting it with the following 
+ After that you can start gPodder by starting it with the following 
  command:
 
    make test
@@ -126,6 +130,6 @@
 
            And last but not least... have fun with gPodder :)
 
-                                     -- Thomas Perl, March 29th 2006
+                                      -- Thomas Perl, April 8th 2006
 
 

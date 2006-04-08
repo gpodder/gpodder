@@ -57,7 +57,7 @@ from ConfigParser import ConfigParser
 
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
-debugging = True
+debugging = False
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
