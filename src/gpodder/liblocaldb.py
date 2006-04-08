@@ -85,7 +85,8 @@ class localDB( object):
                     rdb.parseXML( f)
                     self.localdbs[f] = rdb
                 # append this one to list
-                self.chlist.append( rdb.channel)
+                if len( rdb.channel) > 0:
+                    self.chlist.append( rdb.channel)
         
         return self.chlist
 
@@ -93,12 +94,11 @@ class localDB( object):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
         
         for channel in self.getDownloadedChannelsList():
-            if len( channel) > 0:
-                if libgpodder.isDebugging():
-                    print "(getmodel) " + channel.title
-                new_iter = new_model.append()
-                new_model.set( new_iter, 0, channel.url)
-                new_model.set( new_iter, 1, channel.title)
+            if libgpodder.isDebugging():
+                print "(getmodel) " + channel.title
+            new_iter = new_model.append()
+            new_model.set( new_iter, 0, channel.url)
+            new_model.set( new_iter, 1, channel.title)
         
         return new_model
     
