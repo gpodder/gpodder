@@ -98,7 +98,8 @@ class downloadThread( object):
     
     def thread_function( self):
         command = "wget \"" + self.url + "\" -O \"" + self.tempname + "\""
-        print command
+        if libgpodder.isDebugging():
+            print command
         process = popen2.Popen3( command, True)
         
         self.pid = process.pid
