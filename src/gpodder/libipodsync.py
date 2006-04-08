@@ -218,7 +218,7 @@ class gPodder_iPodSync(object):
         self.set_podcast_flags( track)
         track.title = str(episode.title)
         if channel.is_music_channel:
-            track.artist = str(episode.title)
+            track.artist = str(channel.title)
         else:
             track.artist = 'gPodder podcast'
         track.album = str(channel.title)
