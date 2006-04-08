@@ -332,11 +332,15 @@ class podcastItem(object):
         return self.url == other_item.url
     
     def getSize( self):
+        try:
+            size = int( self.length)
+        except ValueError:
+            return '?? MB'
+        
         kilobyte = 1024
         megabyte = kilobyte * 1024
         gigabyte = megabyte * 1024
-
-        size = int( self.length)
+        
         if size > gigabyte:
             # Might be a bit big, but who cares...
             return '%d GB' % str(size / gigabyte)
