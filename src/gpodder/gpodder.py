@@ -405,6 +405,8 @@ class Gpodder(SimpleGladeApp):
     def on_cleanup_ipod_activate(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_cleanup_ipod_activate called with self.%s" % widget.get_name()
+        if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
+            return
         sync_win = Gpoddersync()
         while gtk.events_pending():
             gtk.main_iteration( False)
@@ -706,6 +708,8 @@ class Gpodderchannel(SimpleGladeApp):
             self.channel_title.set_markup( "<b>%s</b>" % channel.title)
             channel.set_metadata_from_localdb()
             self.cbNoSync.set_active( not channel.sync_to_devices)
+            self.musicPlaylist.set_text( channel.device_playlist_name)
+            self.cbMusicChannel.set_active( channel.is_music_channel)
             description = channel.description
             if channel.image != None:
                 # load image in background
@@ -727,6 +731,8 @@ class Gpodderchannel(SimpleGladeApp):
         if self.result == True:
             if channel != None:
                 channel.sync_to_devices = not self.cbNoSync.get_active()
+                channel.is_music_channel = self.cbMusicChannel.get_active()
+                channel.device_playlist_name = self.musicPlaylist.get_text()
                 channel.save_metadata_to_localdb()
             return self.url
         else:
@@ -739,6 +745,13 @@ class Gpodderchannel(SimpleGladeApp):
             print "on_gPodderChannel_destroy called with self.%s" % widget.get_name()
         self.result = False
     #-- Gpodderchannel.on_gPodderChannel_destroy }
+
+    #-- Gpodderchannel.on_cbMusicChannel_toggled {
+    def on_cbMusicChannel_toggled(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_cbMusicChannel_toggled called with self.%s" % widget.get_name()
+        self.musicPlaylist.set_sensitive( self.cbMusicChannel.get_active())
+    #-- Gpodderchannel.on_cbMusicChannel_toggled }
 
     #-- Gpodderchannel.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):

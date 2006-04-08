@@ -79,11 +79,11 @@ class localDB( object):
                 # whew! found a index file, parse it and append
                 # if there's a rdb in cache already, use that
                 if f in self.localdbs:
-                  rdb = self.localdbs[f]
+                    rdb = self.localdbs[f]
                 else:
-                  rdb = readLocalDB()
-                  rdb.parseXML( f)
-                  self.localdbs[f] = rdb
+                    rdb = readLocalDB()
+                    rdb.parseXML( f)
+                    self.localdbs[f] = rdb
                 # append this one to list
                 self.chlist.append( rdb.channel)
         
@@ -93,11 +93,12 @@ class localDB( object):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
         
         for channel in self.getDownloadedChannelsList():
-            if libgpodder.isDebugging():
-                print "(getmodel) " + channel.title
-            new_iter = new_model.append()
-            new_model.set( new_iter, 0, channel.url)
-            new_model.set( new_iter, 1, channel.title)
+            if len( channel) > 0:
+                if libgpodder.isDebugging():
+                    print "(getmodel) " + channel.title
+                new_iter = new_model.append()
+                new_model.set( new_iter, 0, channel.url)
+                new_model.set( new_iter, 1, channel.title)
         
         return new_model
     

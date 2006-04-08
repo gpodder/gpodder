@@ -168,6 +168,11 @@ class Gpodderchannel(SimpleGladeApp):
         print "on_gPodderChannel_destroy called with self.%s" % widget.get_name()
     #-- Gpodderchannel.on_gPodderChannel_destroy }
 
+    #-- Gpodderchannel.on_cbMusicChannel_toggled {
+    def on_cbMusicChannel_toggled(self, widget, *args):
+        print "on_cbMusicChannel_toggled called with self.%s" % widget.get_name()
+    #-- Gpodderchannel.on_cbMusicChannel_toggled }
+
     #-- Gpodderchannel.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         print "on_btnOK_clicked called with self.%s" % widget.get_name()

@@ -58,7 +58,7 @@ class gPodder_iPodSync(object):
     ipod_mount = '' # mountpoint for ipod
     playlist_name = 'gpodder' # name of playlist to sync to
     pl_master = None
-    pl_gpodder = None
+    pl_podcasts = None
     callback_progress = None
     callback_status = None
     callback_done = None
@@ -81,8 +81,7 @@ class gPodder_iPodSync(object):
                 return False
             self.itdb.mountpoint = self.ipod_mount
             self.pl_master = gpod.sw_get_playlists( self.itdb)[0]
-            #self.pl_gpodder = self.get_gpodder_playlist()
-            self.pl_gpodder = gpod.itdb_playlist_podcasts( self.itdb)
+            self.pl_podcasts = gpod.itdb_playlist_podcasts( self.itdb)
         return True
 
     def close( self, write_update = True):
@@ -101,7 +100,7 @@ class gPodder_iPodSync(object):
             gobject.idle_add( self.callback_done)
         return True
 
-    def remove_from_ipod( self, track):
+    def remove_from_ipod( self, track, playlists):
         if not ipod_supported():
             return False
         if libgpodder.isDebugging():
@@ -109,8 +108,12 @@ class gPodder_iPodSync(object):
         if self.callback_status != None:
             gobject.idle_add( self.callback_status, track.title, track.artist)
         fname = gpod.itdb_filename_on_ipod( track)
-        #gpod.itdb_playlist_remove_track( self.pl_master, track)
-        gpod.itdb_playlist_remove_track( self.pl_gpodder, track)
+        for playlist in playlists:
+            try:
+                gpod.itdb_playlist_remove_track( playlist, track)
+            except:
+                pass
+        
         gpod.itdb_track_unlink( track)
         try:
             os.unlink( fname)
@@ -118,26 +121,32 @@ class gPodder_iPodSync(object):
             # suppose we've already deleted it or so..
             pass
     
-    def get_gpodder_playlist( self):
+    def get_playlist_by_name( self, playlistname = 'gPodder'):
         if not ipod_supported():
             return False
         for playlist in gpod.sw_get_playlists( self.itdb):
-            if playlist.name == 'gpodder':
+            if playlist.name == playlistname:
                 if libgpodder.isDebugging():
-                    print "(ipodsync) found old gpodder playlist"
+                    print "(ipodsync) found old playlist: %s" % (playlist.name)
                 return playlist
         
         # if we arrive here: gpodder playlist not found!
         if libgpodder.isDebugging():
-            print "creating new playlist"
-        new_playlist = gpod.itdb_playlist_new( 'gpodder', False)
+            print "creating new playlist: %s" % (playlistname)
+        new_playlist = gpod.itdb_playlist_new( str(playlistname), False)
         gpod.itdb_playlist_add( self.itdb, new_playlist, -1)
         return new_playlist
+
+    def get_playlist_for_channel( self, channel):
+        if channel.is_music_channel:
+            return self.get_playlist_by_name( channel.device_playlist_name)
+        else:
+            return self.pl_podcasts
 
     def episode_is_on_ipod( self, channel, episode):
         if not ipod_supported():
             return False
-        for track in gpod.sw_get_playlist_tracks( self.pl_gpodder):
+        for track in gpod.sw_get_playlist_tracks( self.get_playlist_for_channel( channel)):
             if episode.title == track.title and channel.title == track.album:
                 if libgpodder.isDebugging():
                     print '(ipodsync) Already on iPod: %s (from %s)' % (episode.title, track.title)
@@ -145,19 +154,13 @@ class gPodder_iPodSync(object):
         
         return False
 
-    def dump( self):
-        if not ipod_supported():
-            return False
-        for track in gpod.sw_get_playlist_tracks( self.pl_gpodder):
-            print gpod.itdb_filename_on_ipod( track)
-
     def clean_playlist( self):
         if not ipod_supported():
             return False
-        for track in gpod.sw_get_playlist_tracks( self.pl_gpodder):
+        for track in gpod.sw_get_playlist_tracks( self.pl_podcasts):
             if libgpodder.isDebugging():
                 print '(ipodsync) trying to remove track %s' % track.title
-            self.remove_from_ipod( track)
+            self.remove_from_ipod( track, [ self.pl_podcasts ])
 
     def copy_channel_to_ipod( self, channel):
         if not ipod_supported():
@@ -191,7 +194,10 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         if self.callback_status != None:
-            gobject.idle_add( self.callback_status, episode.title, channel.title)
+            channeltext = channel.title
+            if channel.is_music_channel:
+                channeltext = '%s (to "%s")' % ( channel.title, channel.device_playlist_name )
+            gobject.idle_add( self.callback_status, episode.title, channeltext)
         
         if self.episode_is_on_ipod( channel, episode):
             # episode is already here :)
@@ -211,7 +217,10 @@ class gPodder_iPodSync(object):
         track = gpod.itdb_track_new()
         self.set_podcast_flags( track)
         track.title = str(episode.title)
-        track.artist = 'gPodder podcast'
+        if channel.is_music_channel:
+            track.artist = str(episode.title)
+        else:
+            track.artist = 'gPodder podcast'
         track.album = str(channel.title)
         track.tracklen = track_length
         track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say
@@ -220,8 +229,11 @@ class gPodder_iPodSync(object):
         track.podcastrss = str(channel.url)
         
         gpod.itdb_track_add( self.itdb, track, -1)
-        #gpod.itdb_playlist_add_track( self.pl_master, track, -1)
-        gpod.itdb_playlist_add_track( self.pl_gpodder, track, -1)
+        playlist = self.get_playlist_for_channel( channel)
+        gpod.itdb_playlist_add_track( playlist, track, -1)
+        # if it's a music channel, also sync to master playlist
+        if channel.is_music_channel:
+            gpod.itdb_playlist_add_track( self.pl_master, track, -1)
 
         if gpod.itdb_cp_track_to_ipod( track, local_filename, None) != 1:
             if libgpodder.isDebugging():

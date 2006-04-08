@@ -61,6 +61,10 @@ class podcastChannel(ListType):
         self.__download_dir = None
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
+        # if this is set to true, device syncing (ex: iPod) should treat this as music, not as podcast)
+        self.is_music_channel = False
+        # to which playlist should be synced when "is_music_channel" is true?
+        self.device_playlist_name = 'gPodder'
         
     # Create all the properties
     def get_filename(self):
@@ -92,7 +96,7 @@ class podcastChannel(ListType):
             locdb_reader.parseXML( self.index_file)
             return locdb_reader.channel
         except:
-            return None
+            return podcastChannel( self.url, self.title, self.link, self.description)
 
     def set_localdb_channel( self, channel):
         if channel != None:
@@ -124,6 +128,8 @@ class podcastChannel(ListType):
     def copy_metadata_from( self, ch):
         # copy all metadata fields
         self.sync_to_devices = ch.sync_to_devices
+        self.is_music_channel = ch.is_music_channel
+        self.device_playlist_name = ch.device_playlist_name
     
     def addDownloadedItem( self, item):
         # no multithreaded access
@@ -132,14 +138,7 @@ class podcastChannel(ListType):
         if libgpodder.isDebugging():
             print "localdb: " + localdb
 
-        try:
-            locdb_reader = readLocalDB()
-            locdb_reader.parseXML( localdb)
-            self.downloaded = locdb_reader.channel
-        except:
-            if libgpodder.isDebugging():
-                print "no local db found or local db error: creating new.."
-            self.downloaded = podcastChannel( self.url, self.title, self.link, self.description)
+        self.downloaded = self.get_localdb_channel()
         
         already_in_list = False
         # try to find the new item in the list

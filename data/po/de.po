@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7-svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-07 21:58+0200\n"
-"PO-Revision-Date: 2006-04-07 16:05+0100\n"
+"POT-Creation-Date: 2006-04-08 10:32+0200\n"
+"PO-Revision-Date: 2006-04-08 10:35+0100\n"
 "Last-Translator: Thomas Perl <thp@perli.net>\n"
 "Language-Team: gPodder Team <thp@perli.net>\n"
 "MIME-Version: 1.0\n"
@@ -34,7 +34,8 @@ msgstr "Helfer und Patchschreiber:"
 msgid "See the AUTHORS file for all contributors"
 msgstr "Eine Liste aller Helfer finden Sie in der AUTHORS-Datei"
 
-#: src/gpodder/gpodder.py:131 src/gpodder/gpodder.py:146
+#: src/gpodder/gpodder.py:131
+#: src/gpodder/gpodder.py:146
 #: src/gpodder/gpodder.py:152
 msgid "Episode"
 msgstr "Episode"
@@ -72,13 +73,11 @@ msgstr "Keine heruntergeladenen Podcasts gefunden."
 msgid ""
 "<b>No channels found</b>\n"
 "\n"
-"Click on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a "
-"new channel."
+"Click on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a new channel."
 msgstr ""
 "<b>Keine Channels gefunden</b>\n"
 "\n"
-"Klicken Sie auf <b><i>Channels</i></b> &gt; <b><i>Abbonieren...</i></b>, um "
-"einen neuen Channel zu abbonieren."
+"Klicken Sie auf <b><i>Channels</i></b> &gt; <b><i>Abbonieren...</i></b>, um einen neuen Channel zu abbonieren."
 
 #: src/gpodder/gpodder.py:238
 msgid "gPodder message"
@@ -100,7 +99,8 @@ msgstr ""
 "Ein Fehler trat beim Hinzufügen des Channels auf.\n"
 "Vielleicht ist die URL falsch?"
 
-#: src/gpodder/gpodder.py:317 src/gpodder/gpodder.py:452
+#: src/gpodder/gpodder.py:317
+#: src/gpodder/gpodder.py:454
 msgid "Fetching channel index..."
 msgstr "Channel-Index wird heruntergeladen..."
 
@@ -112,7 +112,8 @@ msgstr ""
 "Konnte neuen Channel nicht abbonieren.\n"
 "Derzeit werden nur <b>http://</b> und <b>ftp://</b>-URLs unterstützt."
 
-#: src/gpodder/gpodder.py:341 src/gpodder/gpodder.py:354
+#: src/gpodder/gpodder.py:341
+#: src/gpodder/gpodder.py:354
 #, python-format
 msgid ""
 "Cannot access iPod at %s.\n"
@@ -133,7 +134,11 @@ msgstr ""
 "Bitte warten Sie, während gPodder Ihre\n"
 "Channel-Abonnements aktualisiert..."
 
-#: src/gpodder/gpodder.py:445
+#: src/gpodder/gpodder.py:408
+msgid "Do you really want to truncate the Podcasts playlist on your iPod?"
+msgstr "Wollen Sie wirklich die Podcasts-Liste auf dem iPod leeren?"
+
+#: src/gpodder/gpodder.py:447
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
@@ -143,7 +148,7 @@ msgstr ""
 "\n"
 "Kein Channel gefunden."
 
-#: src/gpodder/gpodder.py:474
+#: src/gpodder/gpodder.py:476
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -154,7 +159,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:481
+#: src/gpodder/gpodder.py:483
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
@@ -162,23 +167,23 @@ msgstr ""
 "Konnte Channel nicht entfernen.\n"
 "Wahrscheinlich ist keiner ausgewählt."
 
-#: src/gpodder/gpodder.py:489
+#: src/gpodder/gpodder.py:491
 msgid "Your channel list is empty. Nothing to export."
 msgstr "Nichts zu exportieren: Sie haben keine Abonnements."
 
-#: src/gpodder/gpodder.py:491
+#: src/gpodder/gpodder.py:493
 msgid "Export to OPML"
 msgstr "Als OPML-Datei exportieren"
 
-#: src/gpodder/gpodder.py:520
+#: src/gpodder/gpodder.py:522
 msgid "translator-credits"
 msgstr "Thomas Perl <thp@perli.net>"
 
-#: src/gpodder/gpodder.py:560
+#: src/gpodder/gpodder.py:562
 msgid "You have not selected an episode to download."
 msgstr "Sie haben keine Episode für den Download ausgewählt."
 
-#: src/gpodder/gpodder.py:575
+#: src/gpodder/gpodder.py:577
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
@@ -186,7 +191,7 @@ msgstr ""
 "Sie haben diese Episode bereits heruntergeladen\n"
 "oder Sie laden sie jetzt gerade herunter."
 
-#: src/gpodder/gpodder.py:600
+#: src/gpodder/gpodder.py:602
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -197,11 +202,12 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:603 src/gpodder/gpodder.py:640
+#: src/gpodder/gpodder.py:605
+#: src/gpodder/gpodder.py:642
 msgid "No episode selected."
 msgstr "Keine Episode ausgewählt."
 
-#: src/gpodder/gpodder.py:666
+#: src/gpodder/gpodder.py:668
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -212,26 +218,24 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:676
+#: src/gpodder/gpodder.py:678
 msgid "Could not delete downloaded podcast."
 msgstr "Konnte den ausgewählten Podcast nicht entfernen."
 
-#: src/gpodder/gpodder.py:714 src/gpodder/gpodder.py:715
+#: src/gpodder/gpodder.py:718
+#: src/gpodder/gpodder.py:719
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
-#: src/gpodder/gpodder.py:933
+#: src/gpodder/gpodder.py:946
 #, python-format
 msgid "%d of %d"
 msgstr "%d von %d"
 
-#: src/gpodder/gpodder.py:976
-msgid ""
-"Please do not call gpodder.py directly. Instead, call the gpodder binary."
-msgstr ""
-"Bitte starten Sie gPodder nie direkt über gpodder.py. Rufen Sie stattdessen "
-"das \"gpodder\" Programm auf."
+#: src/gpodder/gpodder.py:989
+msgid "Please do not call gpodder.py directly. Instead, call the gpodder binary."
+msgstr "Bitte starten Sie gPodder nie direkt über gpodder.py. Rufen Sie stattdessen das \"gpodder\" Programm auf."
 
 #: src/gpodder/libgpodder.py:93
 msgid "gPodder downloads"
@@ -245,11 +249,11 @@ msgstr "Bild wird heruntergeladen..."
 msgid "gPodder channel list"
 msgstr "gPodder Channel-Editor"
 
-#: src/gpodder/libipodsync.py:95
+#: src/gpodder/libipodsync.py:94
 msgid "Saving iPod database..."
 msgstr "Speichere iPod-Datenbank..."
 
-#: src/gpodder/libipodsync.py:178
+#: src/gpodder/libipodsync.py:180
 #, python-format
 msgid "Complete: %s"
 msgstr "Fertig: %s"
@@ -262,12 +266,12 @@ msgstr "lokale Download-Datenbank, generiert von gPodder"
 msgid "gPodder subscription list (exported)"
 msgstr "gPodder Abonnement-Liste (exportiert)"
 
-#: src/gpodder/libpodcasts.py:299
+#: src/gpodder/libpodcasts.py:306
 msgid "No LocalDB found or error in existing LocalDB."
-msgstr ""
-"Keine Lokale Datenbank gefunden (oder Fehler in existierender Datenbank)."
+msgstr "Keine Lokale Datenbank gefunden (oder Fehler in existierender Datenbank)."
 
-#: src/gpodder/libwget.py:55 src/gpodder/libwget.py:73
+#: src/gpodder/libwget.py:55
+#: src/gpodder/libwget.py:73
 #: src/gpodder/libwget.py:82
 msgid "unknown"
 msgstr "unbekannt"
@@ -310,78 +314,70 @@ msgid "Channel:"
 msgstr "Channel:"
 
 #: data/gpodder.glade.h:9
-msgid "Cl_eanup iPod"
-msgstr "iPod a_ufräumen"
-
-#: data/gpodder.glade.h:10
 msgid "Command:"
 msgstr "Befehl:"
 
-#: data/gpodder.glade.h:11
+#: data/gpodder.glade.h:10
 msgid "Cover"
 msgstr "Bild"
 
-#: data/gpodder.glade.h:12
+#: data/gpodder.glade.h:11
 msgid "Delete selected item"
 msgstr "Ausgewähltes Element löschen"
 
-#: data/gpodder.glade.h:13
+#: data/gpodder.glade.h:12
 msgid "Description:"
 msgstr "Beschreibung:"
 
-#: data/gpodder.glade.h:14
+#: data/gpodder.glade.h:13
 msgid "Desktop:"
 msgstr "Desktop:"
 
-#: data/gpodder.glade.h:15
+#: data/gpodder.glade.h:14
 msgid "Download Pod_cast"
 msgstr "Pod_cast herunterladen"
 
-#: data/gpodder.glade.h:16
+#: data/gpodder.glade.h:15
 msgid "Download Status"
 msgstr "Download-Status"
 
-#: data/gpodder.glade.h:17
+#: data/gpodder.glade.h:16
 msgid "Download to:"
 msgstr "Herunterladen nach:"
 
-#: data/gpodder.glade.h:18
+#: data/gpodder.glade.h:17
 msgid "Downloaded Podcasts"
 msgstr "Heruntergeladene Podcasts"
 
-#: data/gpodder.glade.h:19
+#: data/gpodder.glade.h:18
 msgid "Downloads"
 msgstr "Downloads"
 
-#: data/gpodder.glade.h:20
+#: data/gpodder.glade.h:19
 msgid "E_xport list..."
 msgstr "Liste e_xportieren..."
 
-#: data/gpodder.glade.h:21
+#: data/gpodder.glade.h:20
 msgid "Episode Information"
 msgstr "Informationen zur Episode"
 
-#: data/gpodder.glade.h:22
-msgid "Exclude from synchronization"
-msgstr "Von Synchronisierung ausschließen"
-
-#: data/gpodder.glade.h:23
+#: data/gpodder.glade.h:21
 msgid "FTP Proxy:"
 msgstr "FTP-Proxy:"
 
-#: data/gpodder.glade.h:24
+#: data/gpodder.glade.h:22
 msgid "Feed URL:"
 msgstr "Feed-Adresse:"
 
-#: data/gpodder.glade.h:25
+#: data/gpodder.glade.h:23
 msgid "General"
 msgstr "Allgemeines"
 
-#: data/gpodder.glade.h:26
+#: data/gpodder.glade.h:24
 msgid "HTTP Proxy:"
 msgstr "HTTP-Proxy:"
 
-#: data/gpodder.glade.h:27
+#: data/gpodder.glade.h:25
 msgid ""
 "If you have to use a HTTP or FTP proxy server,\n"
 "you can use the usual format of the environment variables:\n"
@@ -393,109 +389,125 @@ msgstr ""
 "\n"
 "<b>http://benutzer:passwort@proxy_host:proxy_port/</b>"
 
-#: data/gpodder.glade.h:31
+#: data/gpodder.glade.h:29
 msgid "Initializing..."
 msgstr "Initialisiere..."
 
-#: data/gpodder.glade.h:32
+#: data/gpodder.glade.h:30
 msgid "No cover available."
 msgstr "Kein Cover verfügbar."
 
-#: data/gpodder.glade.h:33
+#: data/gpodder.glade.h:31
 msgid "Play selected item"
 msgstr "Ausgewähltes Element abspielen"
 
-#: data/gpodder.glade.h:34
+#: data/gpodder.glade.h:32
 msgid "Player application:"
 msgstr "Abspielprogramm:"
 
-#: data/gpodder.glade.h:35
+#: data/gpodder.glade.h:33
 msgid "Proxy"
 msgstr "Proxy"
 
-#: data/gpodder.glade.h:36
+#: data/gpodder.glade.h:34
 msgid "Save downloads in:"
 msgstr "Downloads speichern in:"
 
-#: data/gpodder.glade.h:37
+#: data/gpodder.glade.h:35
 msgid "Show \"gPodder downloads\" link"
 msgstr "\"gPodder Downloads\"-Verknüpfung anzeigen"
 
+#: data/gpodder.glade.h:36
+msgid "Skip this channel when syncing to the iPod"
+msgstr "Diesen Channel beim Synchronisieren überspringen"
+
+#: data/gpodder.glade.h:37
+msgid "Sync to Playlist:"
+msgstr "Synchronisiere mit Wiedergabeliste:"
+
 #: data/gpodder.glade.h:38
+msgid "Sync to Podcasts playlist"
+msgstr "Synchronisiere mit der Podcasts-Liste"
+
+#: data/gpodder.glade.h:39
 msgid "Synchronization"
 msgstr "Synchronisierung"
 
-#: data/gpodder.glade.h:39
+#: data/gpodder.glade.h:40
 msgid "Title:"
 msgstr "Titel:"
 
-#: data/gpodder.glade.h:40
+#: data/gpodder.glade.h:41
 msgid "Use environment variables"
 msgstr "Benutze Umgebungsvariablen"
 
-#: data/gpodder.glade.h:41
+#: data/gpodder.glade.h:42
 msgid "_About gPodder..."
 msgstr "Üb_er gPodder..."
 
-#: data/gpodder.glade.h:42
+#: data/gpodder.glade.h:43
 msgid "_Add channel..."
 msgstr "Ch_annel abbonieren..."
 
-#: data/gpodder.glade.h:43
+#: data/gpodder.glade.h:44
 msgid "_Channels"
 msgstr "_Channels"
 
-#: data/gpodder.glade.h:44
+#: data/gpodder.glade.h:45
 msgid "_Check for Updates"
 msgstr "Na_ch Aktualisierungen suchen"
 
-#: data/gpodder.glade.h:45
+#: data/gpodder.glade.h:46
+msgid "_Cleanup iPod podcasts"
+msgstr "iP_od-Podcasts löschen"
+
+#: data/gpodder.glade.h:47
 msgid "_Close"
 msgstr "S_chließen"
 
-#: data/gpodder.glade.h:46
+#: data/gpodder.glade.h:48
 msgid "_Edit channel..."
 msgstr "_Editiere Channel..."
 
-#: data/gpodder.glade.h:47
+#: data/gpodder.glade.h:49
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: data/gpodder.glade.h:48
+#: data/gpodder.glade.h:50
 msgid "_Podcasts"
 msgstr "_Podcasts"
 
-#: data/gpodder.glade.h:49
+#: data/gpodder.glade.h:51
 msgid "_Preferences..."
 msgstr "Ein_s_tellungen..."
 
-#: data/gpodder.glade.h:50
+#: data/gpodder.glade.h:52
 msgid "_Remove channel"
 msgstr "Entfe_rne Channel"
 
-#: data/gpodder.glade.h:51
+#: data/gpodder.glade.h:53
 msgid "_Sync to iPod"
 msgstr "iPod _synchronisieren"
 
-#: data/gpodder.glade.h:52
+#: data/gpodder.glade.h:54
 msgid "gPodder - your podcast catcher."
 msgstr "gPodder - dein podcast catcher."
 
-#: data/gpodder.glade.h:53
+#: data/gpodder.glade.h:55
 msgid "gPodder Channel Editor"
 msgstr "gPodder Channel-Editor"
 
-#: data/gpodder.glade.h:54
+#: data/gpodder.glade.h:56
 msgid "gPodder properties"
 msgstr "gPodder Einstellungen"
 
-#: data/gpodder.glade.h:55
+#: data/gpodder.glade.h:57
+msgid "iPod"
+msgstr "iPod"
+
+#: data/gpodder.glade.h:58
 msgid "iPod mountpoint:"
 msgstr "iPod Einhängepunkt:"
-
-#: data/gpodder.glade.h:56
-msgid "iPod:"
-msgstr "iPod:"
 
 #: bin/gpodder:59
 msgid "Be more verbose"
@@ -531,9 +543,10 @@ msgstr "Fehler: kann wget nicht finden."
 
 #: bin/gpodder:122
 msgid "Channel IDs may have changed, list before deleting again."
-msgstr ""
-"Channel IDs könnten sich verändert haben. Bitte vor dem nächsten Löschen "
-"zuerst Channel-Liste anzeigen lassen."
+msgstr "Channel IDs könnten sich verändert haben. Bitte vor dem nächsten Löschen zuerst Channel-Liste anzeigen lassen."
 
+#~ msgid "Exclude from synchronization"
+#~ msgstr "Von Synchronisierung ausschließen"
 #~ msgid "Saving iTunesDB..."
 #~ msgstr "Speichere iTunesDB..."
+

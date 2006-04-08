@@ -79,6 +79,9 @@ class readLocalDB( DefaultHandler):
         if name == "item":
             self.current_item = libpodcasts.podcastItem()
         if name == "gpodder:info" and self.channel != None:
+            self.channel.device_playlist_name = attrs.get('playlist', 'gPodder')
+            if attrs.get('music', 'false').lower() == 'true':
+                self.channel.is_music_channel = True
             if attrs.get('nosync', 'false').lower() == 'true':
                 if libgpodder.isDebugging():
                     print 'local channel does not want to be synced: %s' % self.channel.title
