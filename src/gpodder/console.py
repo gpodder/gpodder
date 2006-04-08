@@ -101,7 +101,7 @@ def run():
     pool = DownloadPool()
     
     for channel in updated_channels:
-       for item in channel.items:
+       for item in channel:
            filename = channel.getPodcastFilename( item.url)
            if not channel.isDownloaded( item):
                while not pool.may_download():

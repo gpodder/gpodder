@@ -165,10 +165,9 @@ class gPodder_iPodSync(object):
         if not channel.sync_to_devices:
             # we don't want to sync this..
             return False
-        items = channel.items
-        max = len(items)
+        max = len( channel)
         i = 1
-        for episode in items:        
+        for episode in channel:
             if self.callback_progress != None:
                 gobject.idle_add( self.callback_progress, i, max)
             if channel.isDownloaded( episode):

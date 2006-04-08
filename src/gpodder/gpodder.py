@@ -563,7 +563,7 @@ class Gpodder(SimpleGladeApp):
         self.active_item = self.channels[self.active_channel].getActiveByUrl( url)
         
         current_channel = self.channels[self.active_channel]
-        current_podcast = current_channel.items[self.active_item]
+        current_podcast = current_channel[self.active_item]
         filename = current_channel.getPodcastFilename( current_podcast.url)
         if widget.get_name() == "treeAvailable":
             Gpodderepisode().set_episode( current_podcast)

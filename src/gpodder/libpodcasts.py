@@ -36,6 +36,8 @@ from os.path import exists
 from os.path import basename
 from os.path import splitext
 
+from types import ListType
+
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
 
@@ -45,14 +47,13 @@ import re
 
 import md5
 
-class podcastChannel(object):
+class podcastChannel(ListType):
     """holds data for a complete channel"""
     def __init__( self, url = "", title = "", link = "", description = ""):
         self.url = url
         self.title = title
         self.link = link
         self.description = stripHtml( description)
-        self.items = []
         self.image = None
         self.shortname = None
         self.downloaded = None
@@ -82,7 +83,7 @@ class podcastChannel(object):
                         fset=set_filename)
     
     def addItem( self, item):
-        self.items.append( item)
+        self.append( item)
 
     def get_localdb_channel( self):
         ch = None
@@ -142,14 +143,14 @@ class podcastChannel(object):
         
         already_in_list = False
         # try to find the new item in the list
-        for it in self.downloaded.items:
+        for it in self.downloaded:
             if it.equals( item):
                 already_in_list = True
                 break
 
         # only append if not already in list
         if not already_in_list:
-            self.downloaded.items.append( item)
+            self.downloaded.append( item)
         else:
             if libgpodder.isDebugging():
                 print "no need to re-add already added podcast item to localDB"
@@ -160,7 +161,7 @@ class podcastChannel(object):
     
     def printChannel( self):
         print '- Channel: "' + self.title + '"'
-        for item in self.items:
+        for item in self:
             print '-- Item: "' + item.title + '"'
 
     def isDownloaded( self, item):
@@ -169,7 +170,7 @@ class podcastChannel(object):
     def getItemsModel( self, want_color = True):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
 
-        for item in self.items:
+        for item in self:
             # Skip items with no download url
             if item.url != "":
                 if self.isDownloaded(item) and want_color:
@@ -188,7 +189,7 @@ class podcastChannel(object):
     def getActiveByUrl( self, url):
         i = 0
         
-        for item in self.items:
+        for item in self:
             if item.url == url:
                 return i
             i = i + 1
@@ -291,10 +292,10 @@ class podcastChannel(object):
             locdb_reader = readLocalDB()
             locdb_reader.parseXML( localdb)
             self.downloaded = locdb_reader.channel
-            for item in self.downloaded.items:
+            for item in self.downloaded:
                 if item.title == title and item.url == url:
                     nr_items += 1
-                    self.downloaded.items.remove(item)
+                    self.downloaded.remove(item)
         except:
             print _("No LocalDB found or error in existing LocalDB.")
         if libgpodder.isDebugging():

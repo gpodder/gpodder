@@ -37,7 +37,7 @@ class writeLocalDB( object):
     ofile = None
     
     def __init__( self, filename, channel, delete_if_empty = True):
-        if delete_if_empty and len( channel.items) == 0:
+        if delete_if_empty and len( channel) == 0:
             if libgpodder.isDebugging():
                 print "Seems like there is no item left in this localDB channel"
                 print "Deleting channel index file of empty local channel.."
@@ -56,7 +56,7 @@ class writeLocalDB( object):
         self.writeLink( channel.link)
         self.writeMetadata( channel)
         
-        for item in channel.items:
+        for item in channel:
             self.addItem( item)
             
         self.close()

@@ -54,6 +54,7 @@ uninstall:
 ##########################################################################
 
 generators: $(MANPAGE) gen_glade
+	make -C data/po update
 
 messages: gen_gettext
 
@@ -65,7 +66,8 @@ gen_glade: $(GLADEFILE)
 	chmod -x $(GUIFILE) $(GUIFILE).orig
 
 gen_gettext: $(MESSAGESPOT)
-	make -C data/po
+	make -C data/po generators
+	make -C data/po update
 
 $(GLADEGETTEXT): $(GLADEFILE)
 	intltool-extract --type=gettext/glade $(GLADEFILE)
