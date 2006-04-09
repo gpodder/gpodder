@@ -59,6 +59,7 @@ from libplayers import UserAppsReader
 
 from libipodsync import gPodder_iPodSync
 from libipodsync import ipod_supported
+from libipodsync import iPodManagerSingleton
 
 # for isDebugging:
 import libgpodder
@@ -100,6 +101,9 @@ class Gpodder(SimpleGladeApp):
 
     # User Apps Reader
     uar = None
+
+    # D-BUSified iPod Manager
+    ipod_mgr = None
 
     def __init__(self, path="gpodder.glade",
                  root="gPodder",
@@ -191,8 +195,10 @@ class Gpodder(SimpleGladeApp):
 
         # disable iPod sync features if not supported
         if not ipod_supported():
-            self.cleanup_ipod.set_sensitive( False)
-            self.sync_to_ipod.set_sensitive( False)
+            ipod_functions( False)
+        else:
+            self.ipod_mgr = iPodManagerSingleton()
+            self.ipod_mgr.register( self.ipod_changed_callback)
 
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
@@ -200,7 +206,24 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
-    #   Write your own methods here
+    def ipod_functions( self, enable = True):
+        self.cleanup_ipod.set_sensitive( enable)
+        self.sync_to_ipod.set_sensitive( enable)
+    
+    def ipod_changed_callback( self, ipod):
+        if ipod != None:
+            if libgpodder.isDebugging():
+                print '(ipod) iPod attached / modified'
+            connected = ipod.mount_point != None
+            self.ipod_functions( connected)
+            if connected:
+                if self.showConfirmation( _('iPod connected. Do you want to sync now?')):
+                    self.on_sync_to_ipod_activate( self.gPodder)
+        else:
+            if libgpodder.isDebugging():
+                print '(ipod) iPod removed / not attached'
+            self.ipod_functions( False)
+        
     def updateComboBox( self):
         self.channels_model = channelsToModel( self.channels)
         
@@ -334,11 +357,9 @@ class Gpodder(SimpleGladeApp):
         return self.comboDownloaded.get_model().get_value( iter, 0)
     
     def sync_to_ipod_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-        sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+        sync = gPodder_iPodSync( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
         if not sync.open():
-            gobject.idle_add( self.showMessage, _('Cannot access iPod at %s.\nMake sure your iPod is connected and mounted.') % gpl.ipod_mount)
+            gobject.idle_add( self.showMessage, _('Cannot access iPod.\nMake sure your iPod is connected.'))
             sync.close()
             return False
         for channel in self.downloaded_channels:
@@ -347,11 +368,9 @@ class Gpodder(SimpleGladeApp):
         sync.close()
 
     def ipod_cleanup_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-        sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+        sync = gPodder_iPodSync( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
         if not sync.open():
-            gobject.idle_add( self.showMessage, _('Cannot access iPod at %s.\nMake sure your iPod is connected and mounted.') % gpl.ipod_mount)
+            gobject.idle_add( self.showMessage, _('Cannot access iPod.\nMake sure your iPod is connected.'))
             sync.close()
             return False
         sync.clean_playlist()
@@ -424,6 +443,9 @@ class Gpodder(SimpleGladeApp):
             self.uar.read()
         prop = Gpodderproperties()
         prop.set_uar( self.uar)
+        #if self.ipod_mgr != None:
+        #    self.ipod_mgr.register( prop.update_mountpoint)
+        #    prop.on_close = lambda: self.ipod_mgr.unregister( prop.update_mountpoint)
     #-- Gpodder.on_itemPreferences_activate }
 
     #-- Gpodder.on_itemAddChannel_activate {
@@ -810,9 +832,16 @@ class Gpodderproperties(SimpleGladeApp):
         self.comboPlayerApp.pack_start( cellrenderer, True)
         self.comboPlayerApp.add_attribute( cellrenderer, 'markup', 0)
         # end setup cell renderers
+        self.on_close = None
     #-- Gpodderproperties.new }
 
     #-- Gpodderproperties custom methods {
+    def update_mountpoint( self, ipod):
+        if ipod == None or ipod.mount_point == None:
+            self.iPodMountpoint.set_text( '')
+        else:
+            self.iPodMountpoint.set_text( ipod.mount_point)
+    
     def set_uar( self, uar):
         self.comboPlayerApp.set_model( uar.get_applications_as_model())
         # try to activate an item
@@ -839,6 +868,8 @@ class Gpodderproperties(SimpleGladeApp):
     def on_gPodderProperties_destroy(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_gPodderProperties_destroy called with self.%s" % widget.get_name()
+        if self.on_close != None:
+            self.on_close()
     #-- Gpodderproperties.on_gPodderProperties_destroy }
 
     #-- Gpodderproperties.on_comboPlayerApp_changed {

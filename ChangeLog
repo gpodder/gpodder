@@ -1,3 +1,15 @@
+Sun, 09 Apr 2006 18:10:54 +0200 <thp@perli.net>
+	* Added iPodManager and iPod to libipodsync (D-BUSified)
+	* Automatically detect connected iPod, ask if user wants to sync
+	* Automatically eject iPod device on sync finish (should be opt.)
+	* Python 2.4 is now used instead of Python 2.3 (for D-BUS)
+	* Lots of D-BUS magic, still VERY experimental..
+	* gPodder SVN will now feature very experimental D-BUS stuff in 
+	  the near future, related to iPod, but it should keep working 
+	  if you either haven't installed "gpod" or "dbus" for Python2.4
+	* Send your RANTS about svn not working to thp@perli.net.. hehe
+	* Updated German translation
+
 Sun, 09 Apr 2006 14:10:28 +0200 <thp@perli.net>
 	* Enabled podcast flag setting (works with libgpod cvs)
 	* Fixed a brainfart of mine -- new localDB could not be created
