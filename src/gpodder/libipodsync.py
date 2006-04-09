@@ -184,10 +184,14 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         # try to modify track to be more podcast-ish
-        #track.flag1 = 0x02
-        #track.flag2 = 0x01
-        #track.flag3 = 0x01
-        #track.flag4 = 0x01
+        try:
+            track.flag1 = 0x02
+            track.flag2 = 0x01
+            track.flag3 = 0x01
+            track.flag4 = 0x01
+        except:
+            if libgpodder.isDebugging():
+                print '(ipodsync) Seems like your python-gpod is out-of-date.'
         pass
 
     def add_episode_from_channel( self, channel, episode):
@@ -215,12 +219,14 @@ class gPodder_iPodSync(object):
             track_length = 0 # hmm.. better do something else?!
         
         track = gpod.itdb_track_new()
-        self.set_podcast_flags( track)
-        track.title = str(episode.title)
+        
         if channel.is_music_channel:
             track.artist = str(channel.title)
         else:
             track.artist = 'gPodder podcast'
+            self.set_podcast_flags( track)
+        
+        track.title = str(episode.title)
         track.album = str(channel.title)
         track.tracklen = track_length
         track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say

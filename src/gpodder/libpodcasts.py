@@ -96,9 +96,9 @@ class podcastChannel(ListType):
 
     def get_localdb_channel( self):
         ch = None
-        locdb_reader = readLocalDB()
-        locdb_reader.parseXML( self.index_file)
         try:
+            locdb_reader = readLocalDB()
+            locdb_reader.parseXML( self.index_file)
             return locdb_reader.channel
         except:
             return podcastChannel( self.url, self.title, self.link, self.description)
