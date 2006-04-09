@@ -195,7 +195,7 @@ class Gpodder(SimpleGladeApp):
 
         # disable iPod sync features if not supported
         if not ipod_supported():
-            ipod_functions( False)
+            self.ipod_functions( False)
         else:
             self.ipod_mgr = iPodManagerSingleton()
             self.ipod_mgr.register( self.ipod_changed_callback)
