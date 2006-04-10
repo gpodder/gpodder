@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7-svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-09 18:14+0200\n"
+"POT-Creation-Date: 2006-04-10 18:39+0200\n"
 "PO-Revision-Date: 2006-04-08 00:36+0100\n"
 "Last-Translator: Alain TAUCH <contrib@maisondubonheur.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,8 +35,8 @@ msgstr "Contributeurs:"
 msgid "See the AUTHORS file for all contributors"
 msgstr "Voir le fichier AUTHORS pour la liste complète des contributeurs."
 
-#: src/gpodder/gpodder.py:135 src/gpodder/gpodder.py:150
-#: src/gpodder/gpodder.py:156
+#: src/gpodder/gpodder.py:135 src/gpodder/gpodder.py:155
+#: src/gpodder/gpodder.py:161
 msgid "Episode"
 msgstr "Émission"
 
@@ -44,19 +44,23 @@ msgstr "Émission"
 msgid "Size"
 msgstr "Taille"
 
-#: src/gpodder/gpodder.py:159
+#: src/gpodder/gpodder.py:145
+msgid "Released"
+msgstr ""
+
+#: src/gpodder/gpodder.py:164
 msgid "Speed"
 msgstr "Vitesse"
 
-#: src/gpodder/gpodder.py:162
+#: src/gpodder/gpodder.py:167
 msgid "Progress"
 msgstr "Progression"
 
-#: src/gpodder/gpodder.py:186
+#: src/gpodder/gpodder.py:191
 msgid "Channel Info"
 msgstr "Informations sur le flux RSS"
 
-#: src/gpodder/gpodder.py:205
+#: src/gpodder/gpodder.py:210
 #, python-format
 msgid ""
 "<b>gPodder development version %s</b>\n"
@@ -65,15 +69,15 @@ msgstr ""
 "<b>Ceci est la version de développement %s de gPodder</b>\n"
 "Cette version est instable mais comprend de nouvelles fonctionnalités :)"
 
-#: src/gpodder/gpodder.py:220
+#: src/gpodder/gpodder.py:225
 msgid "iPod connected. Do you want to sync now?"
 msgstr ""
 
-#: src/gpodder/gpodder.py:249
+#: src/gpodder/gpodder.py:254
 msgid "No downloaded podcasts found."
 msgstr "Aucun podcast n'a été encore téléchargé."
 
-#: src/gpodder/gpodder.py:259
+#: src/gpodder/gpodder.py:264
 msgid ""
 "<b>No channels found</b>\n"
 "\n"
@@ -85,19 +89,19 @@ msgstr ""
 "Cliquer sur <b><i>Flux</i></b> &gt; <b><i>Ajouter un flux RSS..</i></b> pour "
 "ajouter un nouveau flux RSS."
 
-#: src/gpodder/gpodder.py:261
+#: src/gpodder/gpodder.py:266
 msgid "gPodder message"
 msgstr "Message gPodder"
 
-#: src/gpodder/gpodder.py:269
+#: src/gpodder/gpodder.py:274
 msgid "Do you really want to do this?"
 msgstr "Voulez vous continuer ?"
 
-#: src/gpodder/gpodder.py:269
+#: src/gpodder/gpodder.py:274
 msgid "gPodder confirmation"
 msgstr "Demande de confirmation gpodder"
 
-#: src/gpodder/gpodder.py:334
+#: src/gpodder/gpodder.py:339
 msgid ""
 "There has been an error adding the channel.\n"
 "Maybe the URL is wrong?"
@@ -105,11 +109,11 @@ msgstr ""
 "L'ajout du flux a echoué.\n"
 "L'URL est sans doute erronée?"
 
-#: src/gpodder/gpodder.py:340 src/gpodder/gpodder.py:476
+#: src/gpodder/gpodder.py:345 src/gpodder/gpodder.py:481
 msgid "Fetching channel index..."
 msgstr "Récupération de l'index du flux RSS"
 
-#: src/gpodder/gpodder.py:353
+#: src/gpodder/gpodder.py:358
 msgid ""
 "Could not add new channel.\n"
 "Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
@@ -118,7 +122,7 @@ msgstr ""
 "Seules les URL <b>http://</b> et <b>ftp://</b> sont supportées pour le "
 "moment."
 
-#: src/gpodder/gpodder.py:362 src/gpodder/gpodder.py:373
+#: src/gpodder/gpodder.py:367 src/gpodder/gpodder.py:378
 #, fuzzy
 msgid ""
 "Cannot access iPod.\n"
@@ -127,7 +131,7 @@ msgstr ""
 "Impossible d'accéder à l'iPod a partir de %s.\n"
 " Vérifiez que l'iPod est bien connecté et monté."
 
-#: src/gpodder/gpodder.py:403
+#: src/gpodder/gpodder.py:408
 msgid ""
 "<big><b>Updating feed cache</b></big>\n"
 "\n"
@@ -139,7 +143,7 @@ msgstr ""
 "Merci de patienter pendant que gpodder met\n"
 "à jour le cache des flux RSS..."
 
-#: src/gpodder/gpodder.py:427
+#: src/gpodder/gpodder.py:432
 #, fuzzy
 msgid "Do you really want to truncate the Podcasts playlist on your iPod?"
 msgstr ""
@@ -147,7 +151,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:469
+#: src/gpodder/gpodder.py:474
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
@@ -157,7 +161,7 @@ msgstr ""
 "\n"
 "Flux RSS introuvable."
 
-#: src/gpodder/gpodder.py:498
+#: src/gpodder/gpodder.py:503
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -168,7 +172,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:505
+#: src/gpodder/gpodder.py:510
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
@@ -176,23 +180,23 @@ msgstr ""
 "Impossible de supprimer ce flux.\n"
 "Il n'y a sans doute pas de flux selectionné."
 
-#: src/gpodder/gpodder.py:513
+#: src/gpodder/gpodder.py:518
 msgid "Your channel list is empty. Nothing to export."
 msgstr "Votre liste de flux est vide. Il n'y a rien à exporter."
 
-#: src/gpodder/gpodder.py:515
+#: src/gpodder/gpodder.py:520
 msgid "Export to OPML"
 msgstr "Exporter au format OPML"
 
-#: src/gpodder/gpodder.py:544
+#: src/gpodder/gpodder.py:549
 msgid "translator-credits"
 msgstr "Alain Tauch <contrib@maisondubonheur.com>"
 
-#: src/gpodder/gpodder.py:584
+#: src/gpodder/gpodder.py:589
 msgid "You have not selected an episode to download."
 msgstr "Vous n'avez pas selectionné d'émission à télécharger."
 
-#: src/gpodder/gpodder.py:599
+#: src/gpodder/gpodder.py:604
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
@@ -200,7 +204,7 @@ msgstr ""
 "Vous avez déjà téléchargé cette émission\n"
 "ou elle est en cours de téléchargement."
 
-#: src/gpodder/gpodder.py:624
+#: src/gpodder/gpodder.py:629
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -211,11 +215,11 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:627 src/gpodder/gpodder.py:669
+#: src/gpodder/gpodder.py:632 src/gpodder/gpodder.py:674
 msgid "No episode selected."
 msgstr "Aucune émission sélectionnée."
 
-#: src/gpodder/gpodder.py:695
+#: src/gpodder/gpodder.py:700
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -226,21 +230,21 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:705
+#: src/gpodder/gpodder.py:710
 msgid "Could not delete downloaded podcast."
 msgstr "La suppression du podcast a échoué"
 
-#: src/gpodder/gpodder.py:745 src/gpodder/gpodder.py:746
+#: src/gpodder/gpodder.py:750 src/gpodder/gpodder.py:751
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(inconnu(e))"
 
-#: src/gpodder/gpodder.py:987
+#: src/gpodder/gpodder.py:992
 #, python-format
 msgid "%d of %d"
 msgstr "%d sur %d"
 
-#: src/gpodder/gpodder.py:1030
+#: src/gpodder/gpodder.py:1035
 msgid ""
 "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr ""
@@ -281,9 +285,17 @@ msgstr "Base de donnée locale, générée par gPodder"
 msgid "gPodder subscription list (exported)"
 msgstr "Liste des flux RSS de gPodder (export)"
 
-#: src/gpodder/libpodcasts.py:304
+#: src/gpodder/libpodcasts.py:309
 msgid "No LocalDB found or error in existing LocalDB."
 msgstr "Base de donnée introuvable ou corrompue"
+
+#: src/gpodder/libpodcasts.py:347
+msgid "Today"
+msgstr ""
+
+#: src/gpodder/libpodcasts.py:349
+msgid "Yesterday"
+msgstr ""
 
 #: src/gpodder/libwget.py:55 src/gpodder/libwget.py:73
 #: src/gpodder/libwget.py:82

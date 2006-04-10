@@ -139,8 +139,13 @@ class Gpodder(SimpleGladeApp):
         sizecell.set_property('cell-background', 'white')
         sizecolumn = gtk.TreeViewColumn( _("Size"), sizecell, text=2)
         sizecolumn.add_attribute(sizecell, "cell-background", 4)
+
+        releasecell = gtk.CellRendererText()
+        releasecell.set_property('cell-background', 'white')
+        releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
+        releasecolumn.add_attribute(releasecell, "cell-background", 4)
         
-        for itemcolumn in ( namecolumn, sizecolumn ):
+        for itemcolumn in ( namecolumn, sizecolumn, releasecolumn ):
             self.treeAvailable.append_column( itemcolumn)
         
         # columns and renderers for the "downloaded" tab

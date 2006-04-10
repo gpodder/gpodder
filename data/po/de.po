@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.7-svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-09 18:14+0200\n"
-"PO-Revision-Date: 2006-04-09 18:15+0100\n"
+"POT-Creation-Date: 2006-04-10 18:39+0200\n"
+"PO-Revision-Date: 2006-04-10 18:39+0100\n"
 "Last-Translator: Thomas Perl <thp@perli.net>\n"
 "Language-Team: gPodder Team <thp@perli.net>\n"
 "MIME-Version: 1.0\n"
@@ -35,8 +35,8 @@ msgid "See the AUTHORS file for all contributors"
 msgstr "Eine Liste aller Helfer finden Sie in der AUTHORS-Datei"
 
 #: src/gpodder/gpodder.py:135
-#: src/gpodder/gpodder.py:150
-#: src/gpodder/gpodder.py:156
+#: src/gpodder/gpodder.py:155
+#: src/gpodder/gpodder.py:161
 msgid "Episode"
 msgstr "Episode"
 
@@ -44,19 +44,23 @@ msgstr "Episode"
 msgid "Size"
 msgstr "Größe"
 
-#: src/gpodder/gpodder.py:159
+#: src/gpodder/gpodder.py:145
+msgid "Released"
+msgstr "Veröffentlicht"
+
+#: src/gpodder/gpodder.py:164
 msgid "Speed"
 msgstr "Geschwindigkeit"
 
-#: src/gpodder/gpodder.py:162
+#: src/gpodder/gpodder.py:167
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: src/gpodder/gpodder.py:186
+#: src/gpodder/gpodder.py:191
 msgid "Channel Info"
 msgstr "Channel-Informationen"
 
-#: src/gpodder/gpodder.py:205
+#: src/gpodder/gpodder.py:210
 #, python-format
 msgid ""
 "<b>gPodder development version %s</b>\n"
@@ -65,15 +69,15 @@ msgstr ""
 "<b>gPodder Entwicklungs-Version %s</b>\n"
 "Benutzung auf eigene Gefahr. Viel Spaß mit neuen Features :)"
 
-#: src/gpodder/gpodder.py:220
+#: src/gpodder/gpodder.py:225
 msgid "iPod connected. Do you want to sync now?"
 msgstr "iPod verbunden. Jetzt synchronisieren?"
 
-#: src/gpodder/gpodder.py:249
+#: src/gpodder/gpodder.py:254
 msgid "No downloaded podcasts found."
 msgstr "Keine heruntergeladenen Podcasts gefunden."
 
-#: src/gpodder/gpodder.py:259
+#: src/gpodder/gpodder.py:264
 msgid ""
 "<b>No channels found</b>\n"
 "\n"
@@ -83,19 +87,19 @@ msgstr ""
 "\n"
 "Klicken Sie auf <b><i>Channels</i></b> &gt; <b><i>Abbonieren...</i></b>, um einen neuen Channel zu abbonieren."
 
-#: src/gpodder/gpodder.py:261
+#: src/gpodder/gpodder.py:266
 msgid "gPodder message"
 msgstr "gPodder Nachricht"
 
-#: src/gpodder/gpodder.py:269
+#: src/gpodder/gpodder.py:274
 msgid "Do you really want to do this?"
 msgstr "Willst du das wirklich machen?"
 
-#: src/gpodder/gpodder.py:269
+#: src/gpodder/gpodder.py:274
 msgid "gPodder confirmation"
 msgstr "gPodder Bestätigung"
 
-#: src/gpodder/gpodder.py:334
+#: src/gpodder/gpodder.py:339
 msgid ""
 "There has been an error adding the channel.\n"
 "Maybe the URL is wrong?"
@@ -103,12 +107,12 @@ msgstr ""
 "Ein Fehler trat beim Hinzufügen des Channels auf.\n"
 "Vielleicht ist die URL falsch?"
 
-#: src/gpodder/gpodder.py:340
-#: src/gpodder/gpodder.py:476
+#: src/gpodder/gpodder.py:345
+#: src/gpodder/gpodder.py:481
 msgid "Fetching channel index..."
 msgstr "Channel-Index wird heruntergeladen..."
 
-#: src/gpodder/gpodder.py:353
+#: src/gpodder/gpodder.py:358
 msgid ""
 "Could not add new channel.\n"
 "Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
@@ -116,8 +120,8 @@ msgstr ""
 "Konnte neuen Channel nicht abbonieren.\n"
 "Derzeit werden nur <b>http://</b> und <b>ftp://</b>-URLs unterstützt."
 
-#: src/gpodder/gpodder.py:362
-#: src/gpodder/gpodder.py:373
+#: src/gpodder/gpodder.py:367
+#: src/gpodder/gpodder.py:378
 msgid ""
 "Cannot access iPod.\n"
 "Make sure your iPod is connected."
@@ -125,7 +129,7 @@ msgstr ""
 "Kann auf den iPod nicht zugreifen.\n"
 "Bitte sicherstellen, dass der iPod angesteckt ist."
 
-#: src/gpodder/gpodder.py:403
+#: src/gpodder/gpodder.py:408
 msgid ""
 "<big><b>Updating feed cache</b></big>\n"
 "\n"
@@ -137,11 +141,11 @@ msgstr ""
 "Bitte warten Sie, während gPodder Ihre\n"
 "Channel-Abonnements aktualisiert..."
 
-#: src/gpodder/gpodder.py:427
+#: src/gpodder/gpodder.py:432
 msgid "Do you really want to truncate the Podcasts playlist on your iPod?"
 msgstr "Wollen Sie wirklich die Podcasts-Liste auf dem iPod leeren?"
 
-#: src/gpodder/gpodder.py:469
+#: src/gpodder/gpodder.py:474
 msgid ""
 "Cannot edit this channel.\n"
 "\n"
@@ -151,7 +155,7 @@ msgstr ""
 "\n"
 "Kein Channel gefunden."
 
-#: src/gpodder/gpodder.py:498
+#: src/gpodder/gpodder.py:503
 #, python-format
 msgid ""
 "Do you really want to remove this channel?\n"
@@ -162,7 +166,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:505
+#: src/gpodder/gpodder.py:510
 msgid ""
 "Could not delete channel.\n"
 "Probably no channel is selected."
@@ -170,23 +174,23 @@ msgstr ""
 "Konnte Channel nicht entfernen.\n"
 "Wahrscheinlich ist keiner ausgewählt."
 
-#: src/gpodder/gpodder.py:513
+#: src/gpodder/gpodder.py:518
 msgid "Your channel list is empty. Nothing to export."
 msgstr "Nichts zu exportieren: Sie haben keine Abonnements."
 
-#: src/gpodder/gpodder.py:515
+#: src/gpodder/gpodder.py:520
 msgid "Export to OPML"
 msgstr "Als OPML-Datei exportieren"
 
-#: src/gpodder/gpodder.py:544
+#: src/gpodder/gpodder.py:549
 msgid "translator-credits"
 msgstr "Thomas Perl <thp@perli.net>"
 
-#: src/gpodder/gpodder.py:584
+#: src/gpodder/gpodder.py:589
 msgid "You have not selected an episode to download."
 msgstr "Sie haben keine Episode für den Download ausgewählt."
 
-#: src/gpodder/gpodder.py:599
+#: src/gpodder/gpodder.py:604
 msgid ""
 "You have already downloaded this episode\n"
 "or you are currently downloading it."
@@ -194,7 +198,7 @@ msgstr ""
 "Sie haben diese Episode bereits heruntergeladen\n"
 "oder Sie laden sie jetzt gerade herunter."
 
-#: src/gpodder/gpodder.py:624
+#: src/gpodder/gpodder.py:629
 #, python-format
 msgid ""
 "Do you really want to cancel this download?\n"
@@ -205,12 +209,12 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:627
-#: src/gpodder/gpodder.py:669
+#: src/gpodder/gpodder.py:632
+#: src/gpodder/gpodder.py:674
 msgid "No episode selected."
 msgstr "Keine Episode ausgewählt."
 
-#: src/gpodder/gpodder.py:695
+#: src/gpodder/gpodder.py:700
 #, python-format
 msgid ""
 "Do you really want to remove this episode?\n"
@@ -221,22 +225,22 @@ msgstr ""
 "\n"
 "%s"
 
-#: src/gpodder/gpodder.py:705
+#: src/gpodder/gpodder.py:710
 msgid "Could not delete downloaded podcast."
 msgstr "Konnte den ausgewählten Podcast nicht entfernen."
 
-#: src/gpodder/gpodder.py:745
-#: src/gpodder/gpodder.py:746
+#: src/gpodder/gpodder.py:750
+#: src/gpodder/gpodder.py:751
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
-#: src/gpodder/gpodder.py:987
+#: src/gpodder/gpodder.py:992
 #, python-format
 msgid "%d of %d"
 msgstr "%d von %d"
 
-#: src/gpodder/gpodder.py:1030
+#: src/gpodder/gpodder.py:1035
 msgid "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 msgstr "Bitte starten Sie gPodder nie direkt über gpodder.py. Rufen Sie stattdessen das \"gpodder\" Programm auf."
 
@@ -274,9 +278,17 @@ msgstr "lokale Download-Datenbank, generiert von gPodder"
 msgid "gPodder subscription list (exported)"
 msgstr "gPodder Abonnement-Liste (exportiert)"
 
-#: src/gpodder/libpodcasts.py:304
+#: src/gpodder/libpodcasts.py:309
 msgid "No LocalDB found or error in existing LocalDB."
 msgstr "Keine Lokale Datenbank gefunden (oder Fehler in existierender Datenbank)."
+
+#: src/gpodder/libpodcasts.py:347
+msgid "Today"
+msgstr "Heute"
+
+#: src/gpodder/libpodcasts.py:349
+msgid "Yesterday"
+msgstr "Gestern"
 
 #: src/gpodder/libwget.py:55
 #: src/gpodder/libwget.py:73

@@ -38,6 +38,7 @@ from os.path import splitext
 
 from types import ListType
 from datetime import datetime
+from time import time
 
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
@@ -45,6 +46,9 @@ from liblocdbreader import readLocalDB
 from threading import Event
 from libwget import downloadThread
 import re
+
+from email.Utils import mktime_tz
+from email.Utils import parsedate_tz
 
 import md5
 
@@ -172,7 +176,7 @@ class podcastChannel(ListType):
         return self.podcastFilenameExists( item.url)
 
     def getItemsModel( self, want_color = True):
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
         for item in self:
             # Skip items with no download url
@@ -187,6 +191,7 @@ class podcastChannel(ListType):
                 new_model.set( new_iter, 2, item.getSize())
                 new_model.set( new_iter, 3, True)
                 new_model.set( new_iter, 4, background_color)
+                new_model.set( new_iter, 5, item.cute_pubdate())
         
         return new_model
     
@@ -332,7 +337,24 @@ class podcastItem(object):
         self.pubDate = pubDate
         if pubDate == None:
             self.pubDate = datetime.now().ctime()
-
+    
+    def cute_pubdate( self):
+        seconds_in_a_day = 86400
+        try:
+            timestamp = int(mktime_tz( parsedate_tz( self.pubDate)))
+        except:
+            return _("(unknown)")
+        diff = int((time() - timestamp)/seconds_in_a_day)
+        
+        if diff == 0:
+           return _("Today")
+        if diff == 1:
+           return _("Yesterday")
+        if diff < 7:
+            return str(datetime.fromtimestamp( timestamp).strftime( "%A"))
+        
+        return str(datetime.fromtimestamp( timestamp).strftime( "%x"))
+    
     def equals( self, other_item):
         if other_item == None:
             return False
