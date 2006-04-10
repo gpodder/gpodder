@@ -344,7 +344,7 @@ class podcastItem(object):
             timestamp = int(mktime_tz( parsedate_tz( self.pubDate)))
         except:
             return _("(unknown)")
-        diff = int((time() - timestamp)/seconds_in_a_day)
+        diff = int((time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
         
         if diff == 0:
            return _("Today")
