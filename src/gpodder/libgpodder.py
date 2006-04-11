@@ -38,6 +38,7 @@ from os.path import expanduser
 from os.path import exists
 from os.path import dirname
 from os import mkdir
+from os import makedirs
 from os import environ
 from os import system
 from os import unlink
@@ -111,16 +112,8 @@ class gPodderLibClass( object):
         self.loadConfig()
     
     def createIfNecessary( self, path):
-        #TODO: recursive mkdir all parent directories
-	
-        if path.endswith('/'):
-            path = path[:-1]
-	
-        if not exists(dirname(path)):
-            mkdir(dirname(path))
-	
         if not exists( path):
-            mkdir( path)
+            makedirs( path)
     
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
