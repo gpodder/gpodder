@@ -15,6 +15,8 @@ MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
+DESTDIR ?= /
+
 ##########################################################################
 
 all: help
@@ -41,7 +43,7 @@ release: distclean generators
 	python setup.py sdist
 
 install: generators
-	python setup.py install
+	python setup.py install --root=$(DESTDIR)
 
 uninstall:
 	@echo "##########################################################################"
