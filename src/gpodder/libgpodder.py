@@ -113,7 +113,15 @@ class gPodderLibClass( object):
     
     def createIfNecessary( self, path):
         if not exists( path):
-            makedirs( path)
+            try:
+                makedirs( path)
+                return True
+            except:
+                if isDebugging():
+                    print 'createIfNecessary: could not create: %s' % ( path )
+                return False
+        
+        return True
     
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"

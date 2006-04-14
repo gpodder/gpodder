@@ -227,7 +227,9 @@ class podcastChannel(ListType):
     
     def get_save_dir(self):
         savedir = self.download_dir + self.filename + "/"
-        libgpodder.gPodderLib().createIfNecessary( savedir)
+        if libgpodder.gPodderLib().createIfNecessary( savedir) == False:
+            self.reset_download_dir()
+            savedir = self.download_dir + self.filename + "/"
         return savedir
     
     save_dir = property(fget=get_save_dir)
@@ -238,9 +240,16 @@ class podcastChannel(ListType):
         else:
             return self.__download_dir
 
+    def reset_download_dir( self):
+        self.__download_dir = libgpodder.gPodderLib().downloaddir
+
     def set_download_dir(self, value):
         self.__download_dir = value
-        libgpodder.gPodderLib().createIfNecessary(self.__download_dir)
+        if libgpodder.gPodderLib().createIfNecessary(self.__download_dir) == False:
+            # fallback to hopefully sane download dir
+            self.reset_download_dir()
+            return False
+        return True
         #  the following disabled at the moment..
         #if libgpodder.isDebugging():
         #    print "set_download_dir: ", self, self.__download_dir
