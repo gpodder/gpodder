@@ -120,6 +120,7 @@ class gPodder_iPodSync(object):
             if self.ipod_mgr.ipod != None:
                 # there has to be a better way.. ;)
                 # os.system( 'sudo eject %s' % ( self.ipod_mgr.ipod.device ))
+                pass
         return True
 
     def remove_from_ipod( self, track, playlists):
