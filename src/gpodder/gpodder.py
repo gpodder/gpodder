@@ -208,6 +208,9 @@ class Gpodder(SimpleGladeApp):
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
+        # Update the feed list if the user has set it up
+        if gPodderLib().update_on_startup:
+            self.update_feed_cache()
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
@@ -380,6 +383,19 @@ class Gpodder(SimpleGladeApp):
             return False
         sync.clean_playlist()
         sync.close()
+
+    def update_feed_cache(self):
+        reader = gPodderChannelReader()
+        #self.channels = reader.read( True)
+        #self.labelStatus.set_text( "Updating feed cache...")
+        please_wait = gtk.MessageDialog()
+        please_wait.set_markup( _("<big><b>Updating feed cache</b></big>\n\nPlease wait while gPodder is\nupdating the feed cache..."))
+        please_wait.show()
+        self.channels = reader.read( True)
+        please_wait.destroy()
+        #self.labelStatus.set_text( "")
+        self.updateComboBox()
+
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
@@ -401,16 +417,7 @@ class Gpodder(SimpleGladeApp):
     def on_itemUpdate_activate(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_itemUpdate_activate called with self.%s" % widget.get_name()
-        reader = gPodderChannelReader()
-        #self.channels = reader.read( True)
-        #self.labelStatus.set_text( "Updating feed cache...")
-        please_wait = gtk.MessageDialog()
-        please_wait.set_markup( _("<big><b>Updating feed cache</b></big>\n\nPlease wait while gPodder is\nupdating the feed cache..."))
-        please_wait.show()
-        self.channels = reader.read( True)
-        please_wait.destroy()
-        #self.labelStatus.set_text( "")
-        self.updateComboBox()
+        self.update_feed_cache()
     #-- Gpodder.on_itemUpdate_activate }
 
     #-- Gpodder.on_sync_to_ipod_activate {
@@ -825,6 +832,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_text( gl.ftp_proxy)
         self.openApp.set_text( gl.open_app)
         self.iPodMountpoint.set_text( gl.ipod_mount)
+        self.updateonstartup.set_active(gl.update_on_startup)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
         # if the symlink exists, set the checkbox active
@@ -916,6 +924,7 @@ class Gpodderproperties(SimpleGladeApp):
         gl.open_app = self.openApp.get_text()
         gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
         gl.ipod_mount = self.iPodMountpoint.get_text()
+        gl.update_on_startup = self.updateonstartup.get_active()
         gl.propertiesChanged()
         # create or remove symlink to download dir on desktop
         if self.cbDesktopSymlink.get_active():

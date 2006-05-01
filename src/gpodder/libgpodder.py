@@ -145,6 +145,7 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'player', self.open_app)
         self.write_to_parser( parser, 'proxy_use_env', self.proxy_use_environment)
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
+        self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
@@ -197,6 +198,7 @@ class gPodderLibClass( object):
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
+                    self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
                 else:
                     if isDebugging():
                         print "config file %s has no section %s" % (fn, gpodderconf_section)
