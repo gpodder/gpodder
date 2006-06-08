@@ -56,6 +56,8 @@ from gtk.gdk import PixbufLoader
 
 from ConfigParser import ConfigParser
 
+from xml.sax import saxutils
+
 # global debugging variable, set to False on release
 # TODO: while developing a new version, set this to "True"
 debugging = True
@@ -296,8 +298,8 @@ class gPodderChannelWriter( object):
         print >> fd, '<channels>'
         for chan in channels:
             print >> fd, '  <channel name="%s">' % chan.filename
-            print >> fd, '    <url>%s</url>' % chan.url
-            print >> fd, '    <download_dir>%s</download_dir>' % chan.save_dir
+            print >> fd, '    <url>%s</url>' % saxutils.escape( chan.url)
+            print >> fd, '    <download_dir>%s</download_dir>' % saxutils.escape( chan.save_dir)
             print >> fd, '  </channel>'
         print >> fd, '</channels>'
         fd.close()
