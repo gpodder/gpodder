@@ -267,7 +267,7 @@ class gPodder_iPodSync(object):
         # dirty hack to get video working, seems to work
         for ext in video_extensions:
             if local_filename.lower().endswith( '.%s' % ext):
-                track.unk208 = 0x00000002 # FIXME: somebody can document this?
+                track.unk208 = 0x00000002 # documented on http://ipodlinux.org/ITunesDB
 
         # if it's a music channel, also sync to master playlist
         if channel.is_music_channel:
