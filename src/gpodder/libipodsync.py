@@ -56,6 +56,8 @@ def ipod_supported():
     global enable_ipod_functions
     return enable_ipod_functions
 
+# file extensions that are handled as video
+video_extensions = [ "mov", "mp4", "m4v" ]
 
 
 __ipodmanager = None
@@ -236,10 +238,11 @@ class gPodder_iPodSync(object):
         try:
             eyed3_info = eyeD3.Mp3AudioFile( local_filename)
             track_length = eyed3_info.getPlayTime() * 1000 # in milliseconds
+            # TODO: how to get length of video (mov, mp4, m4v) files??
         except:
             if libgpodder.isDebugging():
                 print '(ipodsync) Warning: cannot get length for %s, will use zero-length' % episode.title
-            track_length = 0 # hmm.. better do something else?!
+            track_length = 20*60*1000 # hmm.. (20m so we can skip on video/audio with unknown length)
         
         track = gpod.itdb_track_new()
         
@@ -260,6 +263,12 @@ class gPodder_iPodSync(object):
         gpod.itdb_track_add( self.itdb, track, -1)
         playlist = self.get_playlist_for_channel( channel)
         gpod.itdb_playlist_add_track( playlist, track, -1)
+
+        # dirty hack to get video working, seems to work
+        for ext in video_extensions:
+            if local_filename.lower().endswith( '.%s' % ext):
+                track.unk208 = 0x00000002 # FIXME: somebody can document this?
+
         # if it's a music channel, also sync to master playlist
         if channel.is_music_channel:
             gpod.itdb_playlist_add_track( self.pl_master, track, -1)
