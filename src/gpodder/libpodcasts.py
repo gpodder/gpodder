@@ -391,6 +391,13 @@ class podcastItem(object):
 
         return '%d Bytes' % size
 
+
+class opmlChannel(object):
+    def __init__( self, xmlurl, title = 'Unknown OPML Channel'):
+        self.title = title
+        self.xmlurl = xmlurl
+
+
 def channelsToModel( channels):
     new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_OBJECT)
     

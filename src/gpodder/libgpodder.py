@@ -69,6 +69,9 @@ globalLock = threading.RLock()
 # my gpodderlib variable
 g_podder_lib = None
 
+# default url to use for opml directory on the web
+default_opml_directory = 'http://share.opml.org/opml/topPodcasts.opml'
+
 def isDebugging():
     return debugging
 
@@ -94,6 +97,7 @@ class gPodderLibClass( object):
     proxy_use_environment = False
     open_app = ""
     ipod_mount = ""
+    opml_url = ""
     desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
@@ -149,6 +153,7 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'proxy_use_env', self.proxy_use_environment)
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
+        self.write_to_parser( parser, 'opml_url', self.opml_url)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
@@ -199,6 +204,7 @@ class gPodderLibClass( object):
                     http = self.get_from_parser( parser, 'http_proxy')
                     ftp = self.get_from_parser( parser, 'ftp_proxy')
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
+                    opml_url = self.get_from_parser( parser, 'opml_url', default_opml_directory)
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
@@ -212,10 +218,15 @@ class gPodderLibClass( object):
                 self.open_app = strip( app)
             else:
                 self.open_app = 'gnome-open'
+            if strip( opml_url) != '':
+                self.opml_url = strip( opml_url)
+            else:
+                self.opml_url = default_opml_directory
         except:
             # TODO: well, well.. (http + ftp?)
             self.open_app = 'gnome-open'
             self.ipod_mount = '/media/ipod/'
+            self.opml_url = default_opml_directory
         if was_oldstyle:
             self.saveConfig()
 

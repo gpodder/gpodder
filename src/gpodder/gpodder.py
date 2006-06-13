@@ -46,6 +46,7 @@ from libpodcasts import channelsToModel
 
 from librssreader import rssReader
 from libopmlwriter import opmlWriter
+from libopmlreader import opmlReader
 from libwget import downloadThread
 from libwget import downloadStatusManager
 
@@ -324,6 +325,11 @@ class Gpodder(SimpleGladeApp):
     
     def add_new_channel( self, result = None):
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+            for old_channel in self.channels:
+                if old_channel.url == result:
+                    if libgpodder.isDebugging():
+                        print 'channel already exists in my list :)'
+                    return
             if libgpodder.isDebugging():
                 print ("Will add channel :%s") % result
             self.statusLabel.set_text( _("Fetching channel index..."))
@@ -524,6 +530,18 @@ class Gpodder(SimpleGladeApp):
         dlg.destroy()
     # end dlg.run()
     #-- Gpodder.on_itemExportChannels_activate }
+
+    #-- Gpodder.on_itemImportChannels_activate {
+    def on_itemImportChannels_activate(self, widget, *args):
+        if libgpodder.isDebugging:
+            print "on_itemImportChannels_activate called with self.%s" % widget.get_name()
+        opml_lister = Gpodderopmllister()
+        
+        gl = gPodderLib()
+        url = gl.opml_url
+
+        opml_lister.get_channels_from_url( url, self.add_new_channel)
+    #-- Gpodder.on_itemImportChannels_activate }
 
     #-- Gpodder.on_itemAbout_activate {
     def on_itemAbout_activate(self, widget, *args):
@@ -814,6 +832,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_text( gl.ftp_proxy)
         self.openApp.set_text( gl.open_app)
         self.iPodMountpoint.set_text( gl.ipod_mount)
+        self.opmlURL.set_text( gl.opml_url)
         self.updateonstartup.set_active(gl.update_on_startup)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
@@ -906,6 +925,7 @@ class Gpodderproperties(SimpleGladeApp):
         gl.open_app = self.openApp.get_text()
         gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
         gl.ipod_mount = self.iPodMountpoint.get_text()
+        gl.opml_url = self.opmlURL.get_text()
         gl.update_on_startup = self.updateonstartup.get_active()
         gl.propertiesChanged()
         # create or remove symlink to download dir on desktop
@@ -1004,6 +1024,84 @@ class Gpoddersync(SimpleGladeApp):
     #-- Gpoddersync.on_gPodderSync_destroy }
 
 
+class Gpodderopmllister(SimpleGladeApp):
+
+    def __init__(self, path="gpodder.glade",
+                 root="gPodderOpmlLister",
+                 domain=app_name, **kwargs):
+        path = os.path.join(glade_dir, path)
+        SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+
+    #-- Gpodderopmllister.new {
+    def new(self):
+        if libgpodder.isDebugging():
+            print "A new %s has been created" % self.__class__.__name__
+
+        # initiate channels list
+        self.channels = []
+        self.callback_for_channel = None
+
+        togglecell = gtk.CellRendererToggle()
+        togglecell.set_property( 'activatable', True)
+        togglecell.connect( 'toggled', self.callback_edited)
+        togglecolumn = gtk.TreeViewColumn( _("Subscribe"), togglecell, active=0)
+        
+        titlecell = gtk.CellRendererText()
+        titlecolumn = gtk.TreeViewColumn( _("Channel name"), titlecell, text=1)
+
+        for itemcolumn in ( togglecolumn, titlecolumn ):
+            self.treeviewChannelChooser.append_column( itemcolumn)
+    #-- Gpodderopmllister.new }
+
+    #-- Gpodderopmllister custom methods {
+    #   Write your own methods here
+    def callback_edited( self, cell, path):
+        model = self.treeviewChannelChooser.get_model()
+        activated = not model[path][0]
+        url = model[path][2]
+
+        model[path][0] = activated
+
+        if activated:
+            self.channels.append( url)
+        else:
+            self.channels.remove( url)
+
+        if libgpodder.isDebugging():
+            print url
+    
+    def get_channels_from_url( self, url, callback):
+        reader = opmlReader()
+        reader.parseXML( url)
+        self.treeviewChannelChooser.set_model( reader.get_model())
+        self.callback_for_channel = callback
+    #-- Gpodderopmllister custom methods }
+
+    #-- Gpodderopmllister.on_gPodderOpmlLister_destroy {
+    def on_gPodderOpmlLister_destroy(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_gPodderOpmlLister_destroy called with self.%s" % widget.get_name()
+    #-- Gpodderopmllister.on_gPodderOpmlLister_destroy }
+
+    #-- Gpodderopmllister.on_btnOK_clicked {
+    def on_btnOK_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnOK_clicked called with self.%s" % widget.get_name()
+        self.gPodderOpmlLister.destroy()
+        # add channels that have been selected
+        for url in self.channels:
+            if self.callback_for_channel != None:
+                self.callback_for_channel (url)
+    #-- Gpodderopmllister.on_btnOK_clicked }
+
+    #-- Gpodderopmllister.on_btnCancel_clicked {
+    def on_btnCancel_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnCancel_clicked called with self.%s" % widget.get_name()
+        self.gPodderOpmlLister.destroy()
+    #-- Gpodderopmllister.on_btnCancel_clicked }
+
+
 #-- main {
 
 def main( __version__ = None):
@@ -1018,6 +1116,7 @@ def main( __version__ = None):
     #g_podder_properties = Gpodderproperties()
     #g_podder_episode = Gpodderepisode()
     #g_podder_sync = Gpoddersync()
+    #g_podder_opml_lister = Gpodderopmllister()
 
     g_podder.set_icon()
     g_podder.run()

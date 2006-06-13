@@ -85,6 +85,11 @@ class Gpodder(SimpleGladeApp):
         print "on_itemExportChannels_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemExportChannels_activate }
 
+    #-- Gpodder.on_itemImportChannels_activate {
+    def on_itemImportChannels_activate(self, widget, *args):
+        print "on_itemImportChannels_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_itemImportChannels_activate }
+
     #-- Gpodder.on_itemAbout_activate {
     def on_itemAbout_activate(self, widget, *args):
         print "on_itemAbout_activate called with self.%s" % widget.get_name()
@@ -273,6 +278,39 @@ class Gpoddersync(SimpleGladeApp):
     #-- Gpoddersync.on_gPodderSync_destroy }
 
 
+class Gpodderopmllister(SimpleGladeApp):
+
+    def __init__(self, path="gpodder.glade",
+                 root="gPodderOpmlLister",
+                 domain=app_name, **kwargs):
+        path = os.path.join(glade_dir, path)
+        SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+
+    #-- Gpodderopmllister.new {
+    def new(self):
+        print "A new %s has been created" % self.__class__.__name__
+    #-- Gpodderopmllister.new }
+
+    #-- Gpodderopmllister custom methods {
+    #   Write your own methods here
+    #-- Gpodderopmllister custom methods }
+
+    #-- Gpodderopmllister.on_gPodderOpmlLister_destroy {
+    def on_gPodderOpmlLister_destroy(self, widget, *args):
+        print "on_gPodderOpmlLister_destroy called with self.%s" % widget.get_name()
+    #-- Gpodderopmllister.on_gPodderOpmlLister_destroy }
+
+    #-- Gpodderopmllister.on_btnOK_clicked {
+    def on_btnOK_clicked(self, widget, *args):
+        print "on_btnOK_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderopmllister.on_btnOK_clicked }
+
+    #-- Gpodderopmllister.on_btnCancel_clicked {
+    def on_btnCancel_clicked(self, widget, *args):
+        print "on_btnCancel_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderopmllister.on_btnCancel_clicked }
+
+
 #-- main {
 
 def main():
@@ -281,6 +319,7 @@ def main():
     g_podder_properties = Gpodderproperties()
     g_podder_episode = Gpodderepisode()
     g_podder_sync = Gpoddersync()
+    g_podder_opml_lister = Gpodderopmllister()
 
     g_podder.run()
 
