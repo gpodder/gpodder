@@ -51,6 +51,7 @@ from stat import ST_MODE
 
 from librssreader import rssReader
 from libpodcasts import podcastChannel
+from libplayers import dotdesktop_command
 
 from gtk.gdk import PixbufLoader
 
@@ -220,8 +221,10 @@ class gPodderLibClass( object):
 
     def openFilename( self, filename):
         if isDebugging():
-            print "open " + filename + " with " + self.open_app
-        system( self.open_app + " " + filename + " &")
+            print 'open %s with %s' % ( filename, self.open_app )
+
+        # use libplayers to create a commandline out of open_app plus filename, then exec in background ('&')
+        system( '%s &' % dotdesktop_command( self.open_app, filename))
 
     def getDesktopSymlink( self):
         symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)

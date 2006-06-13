@@ -111,3 +111,30 @@ class UserAppsReader(object):
         return result
 # end of UserAppsReader
 
+
+def dotdesktop_command( command, filename):
+    # the following flags are specified in the FDO standards for ".desktop" files:
+    # http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.4.html
+    if command.find( '%U') != -1:
+        # A list of URLs. (we only need one, anyway..)
+        commandline = command.replace( '%U', ( '"file://%s"' % (filename) ) )
+    else if command.find( '%u') != -1:
+        # A single URL.
+        commandline = command.replace( '%u', ( '"file://%s"' % (filename) ) )
+    else if command.find( '%F') != -1:
+       # A list of files. (we only need one...)
+        commandline = command.replace( '%F', filename )
+    else if command.find( '%f') != -1:
+       # A single file name, even if multiple files are selected.
+        commandline = command.replace( '%f', filename )
+    else:
+        # default known-good variant: 1st parameter = filename
+        commandline = '%s "%s"' % ( command, filename )
+    
+    if libgpodder.isDebugging():
+        print 'dotdesktop_command provides: %s' % ( commandline )
+    
+    return commandline
+# end dotdesktop_command
+
+
