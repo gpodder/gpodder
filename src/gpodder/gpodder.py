@@ -144,6 +144,9 @@ class Gpodder(SimpleGladeApp):
         
         for itemcolumn in ( namecolumn, sizecolumn, releasecolumn ):
             self.treeAvailable.append_column( itemcolumn)
+
+        # enable multiple selection support
+        self.treeAvailable.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         
         # columns and renderers for the "downloaded" tab
         # more information: see above..
@@ -387,6 +390,27 @@ class Gpodder(SimpleGladeApp):
         #self.labelStatus.set_text( "")
         self.updateComboBox()
 
+    def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
+        self.active_item = self.channels[self.active_channel].getActiveByUrl( url)
+        
+        current_channel = self.channels[self.active_channel]
+        current_podcast = current_channel[self.active_item]
+        filename = current_channel.getPodcastFilename( current_podcast.url)
+        if widget != None and widget.get_name() == "treeAvailable":
+            Gpodderepisode().set_episode( current_podcast, current_channel)
+            return
+        
+        if os.path.exists( filename) == False and self.download_status_manager.is_download_in_progress( current_podcast.url) == False:
+            downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
+        else:
+            if want_message_dialog:
+                self.showMessage( _("You have already downloaded this episode\nor you are currently downloading it."))
+            # if we're not downloading it, but it exists: add to localdb (if not already done so)
+            if os.path.exists( filename) == True:
+                if libgpodder.isDebugging():
+                    print "already downloaded, trying to add to localDB if needed"
+                if current_channel.addDownloadedItem( current_podcast):
+                    self.ldb.clear_cache()
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
@@ -589,32 +613,20 @@ class Gpodder(SimpleGladeApp):
         if libgpodder.isDebugging():
             print "on_treeAvailable_row_activated called with self.%s" % widget.get_name()
         try:
-            selection_tuple = self.treeAvailable.get_selection().get_selected()
-            selection_iter = selection_tuple[1]
-            url = self.items_model.get_value( selection_iter, 0)
+            selection = self.treeAvailable.get_selection()
+            selection_tuple = selection.get_selected_rows()
+            if selection.count_selected_rows() > 1:
+                widget_to_send = None
+                show_message_dialog = False
+            else:
+                widget_to_send = widget
+                show_message_dialog = True
+            for apath in selection_tuple[1]:
+                selection_iter = self.items_model.get_iter( apath)
+                url = self.items_model.get_value( selection_iter, 0)
+                self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
         except:
             self.showMessage( _("You have not selected an episode to download."))
-            return
-
-        self.active_item = self.channels[self.active_channel].getActiveByUrl( url)
-        
-        current_channel = self.channels[self.active_channel]
-        current_podcast = current_channel[self.active_item]
-        filename = current_channel.getPodcastFilename( current_podcast.url)
-        if widget.get_name() == "treeAvailable":
-            Gpodderepisode().set_episode( current_podcast, current_channel)
-            return
-        
-        if os.path.exists( filename) == False and self.download_status_manager.is_download_in_progress( current_podcast.url) == False:
-            downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
-        else:
-            self.showMessage( _("You have already downloaded this episode\nor you are currently downloading it."))
-            # if we're not downloading it, but it exists: add to localdb (if not already done so)
-            if os.path.exists( filename) == True:
-                if libgpodder.isDebugging():
-                    print "already downloaded, trying to add to localDB if needed"
-                if current_channel.addDownloadedItem( current_podcast):
-                    self.ldb.clear_cache()
     #-- Gpodder.on_treeAvailable_row_activated }
 
     #-- Gpodder.on_btnDownload_clicked {
