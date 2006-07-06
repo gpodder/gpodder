@@ -147,6 +147,8 @@ class Gpodder(SimpleGladeApp):
 
         # enable multiple selection support
         self.treeAvailable.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        self.treeDownloads.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        #self.treeDownloaded.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         
         # columns and renderers for the "downloaded" tab
         # more information: see above..
@@ -640,15 +642,22 @@ class Gpodder(SimpleGladeApp):
     def on_treeDownloads_row_activated(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()
-        selection_tuple = self.treeDownloads.get_selection().get_selected()
-        selection_iter = selection_tuple[1]
-        if selection_iter != None:
-            url = self.download_status_manager.get_url_by_iter( selection_iter)
-            title = self.download_status_manager.get_title_by_iter( selection_iter)
-            if self.showConfirmation( _("Do you really want to cancel this download?\n\n%s") % title):
-                self.download_status_manager.cancel_by_url( url)
+        selection = self.treeDownloads.get_selection()
+        selection_tuple = selection.get_selected_rows()
+        if selection.count_selected_rows() == 1:
+            msg = _("Do you really want to cancel this download?")
         else:
-            self.showMessage( _("No episode selected."))
+            msg = _("Do you really want to cancel %d downloads?") % selection.count_selected_rows()
+        if self.showConfirmation( msg):
+            # cancel downloads one by one
+            try:
+                for apath in selection_tuple[1]:
+                    selection_iter = self.treeDownloads.get_model().get_iter( apath)
+                    url = self.download_status_manager.get_url_by_iter( selection_iter)
+                    self.download_status_manager.cancel_by_url( url)
+            except:
+                if libgpodder.isDebugging():
+                      print "error while cancelling downloads"
     #-- Gpodder.on_treeDownloads_row_activated }
 
     #-- Gpodder.on_btnCancelDownloadStatus_clicked {
