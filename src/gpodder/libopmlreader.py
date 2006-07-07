@@ -78,9 +78,18 @@ class opmlReader( DefaultHandler):
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
+        
+        otype = attrs.get( 'type', '???')
+        xmlurl = attrs.get( 'xmlUrl', '')
+        title = attrs.get( 'title', '')
 
-        if name == 'outline' and attrs.get( 'type', '???') == 'rss':
-            self.channels.append( opmlChannel( attrs.get( 'xmlUrl', ''), attrs.get( 'title', '') ))
+        # in case the title is not set, use text (example: odeo.com)
+        if title == '':
+            title = attrs.get( 'text', 'Unknown (%s)' % ( xmlurl ))
+
+        # otype = 'link' to support odeo.com feeds
+        if name == 'outline' and (otype == 'rss' or otype == 'link') and xmlurl != '':
+            self.channels.append( opmlChannel( xmlurl, title))
     
     def endElement( self, name):
         if name == 'title':
