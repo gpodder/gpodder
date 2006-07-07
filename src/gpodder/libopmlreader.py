@@ -36,6 +36,8 @@ from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
 from string import strip
 
+from urllib import unquote_plus
+
 from libpodcasts import opmlChannel
 from libpodcasts import stripHtml
 
@@ -85,7 +87,10 @@ class opmlReader( DefaultHandler):
 
         # in case the title is not set, use text (example: odeo.com)
         if title == '':
-            title = attrs.get( 'text', 'Unknown (%s)' % ( xmlurl ))
+            title = unquote_plus( attrs.get( 'text', ''))
+            # if still not found (what the..?), use URL
+            if title == '':
+                title = 'Unknown (%s)' % ( xmlurl )
 
         # otype = 'link' to support odeo.com feeds
         if name == 'outline' and (otype == 'rss' or otype == 'link') and xmlurl != '':
