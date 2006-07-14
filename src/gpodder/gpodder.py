@@ -148,7 +148,7 @@ class Gpodder(SimpleGladeApp):
         # enable multiple selection support
         self.treeAvailable.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         self.treeDownloads.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
-        #self.treeDownloaded.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        self.treeDownloaded.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         
         # columns and renderers for the "downloaded" tab
         # more information: see above..
@@ -713,29 +713,37 @@ class Gpodder(SimpleGladeApp):
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         if libgpodder.isDebugging():
             print "on_btnDownloadedDelete_clicked called with self.%s" % widget.get_name()
+
+        channel_filename = self.get_current_channel_downloaded()
+        selection = self.treeDownloaded.get_selection()
+        selection_tuple = selection.get_selected_rows()
+        model = self.treeDownloaded.get_model()
+
+        if selection.count_selected_rows() == 1:
+            msg = _("Do you really want to remove this episode?")
+        else:
+            msg = _("Do you really want to remove %d episodes?" % ( selection.count_selected_rows() ))
         
-        # Note: same code as in on_treeDownloaded_row_activated() TODO: refactor!
-        try:
-            channel_filename = self.get_current_channel_downloaded()
-            
-            selection_tuple = self.treeDownloaded.get_selection().get_selected()
-            selection_iter = selection_tuple[1]
-            
-            url = self.treeDownloaded.get_model().get_value( selection_iter, 0)
-            title = self.treeDownloaded.get_model().get_value( selection_iter, 1)
-            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-            current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
-            if self.showConfirmation( _("Do you really want to remove this episode?\n\n%s") % title) == False:
-                return
-            
-            if current_channel.deleteDownloadedItemByUrlAndTitle( url, title):
-                gPodderLib().deleteFilename( filename_final)
-                # clear local db cache so we can re-read it
+        # if user confirms deletion, let's remove some stuff ;)
+        if self.showConfirmation( msg):
+            try:
+                # iterate over the selection, see also on_treeDownloads_row_activated
+                for apath in selection_tuple[1]:
+                    selection_iter = model.get_iter( apath)
+                    url = model.get_value( selection_iter, 0)
+                    title = model.get_value( selection_iter, 1)
+                    filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
+                    current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
+                    if current_channel.deleteDownloadedItemByUrlAndTitle( url, title):
+                        gPodderLib().deleteFilename( filename_final)
+      
+                # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
                 self.updateComboBox()
                 self.updateDownloadedComboBox()
-        except:
-            self.showMessage( _("Could not delete downloaded podcast."))
+            except:
+                if libgpodder.isDebugging():
+                    print "error while deleting (some) downloads"
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
 
