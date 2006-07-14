@@ -326,7 +326,10 @@ class gPodderChannelReader( DefaultHandler):
     def __init__( self):
         None
     
-    def read( self, force_update = False):
+    def read( self, force_update = False, callback_proc = None):
+        # callback proc should be like cb( pos, count), where pos is 
+        # the current position (of course) and count is how many feeds 
+        # will be updated. this can be used to visualize progress..
         self.channels = []
         parser = make_parser()
         parser.setContentHandler( self)
@@ -337,7 +340,12 @@ class gPodderChannelReader( DefaultHandler):
         reader = rssReader()
         input_channels = []
         
+        channel_count = len( self.channels)
+        position = 0
         for channel in self.channels:
+            if callback_proc != None:
+                callback_proc( position, channel_count)
+
             cachefile = channel.downloadRss(force_update)
             # check if download was a success
             if cachefile != None:
@@ -347,6 +355,12 @@ class gPodderChannelReader( DefaultHandler):
                     reader.channel.shortname = channel.filename
             
                 input_channels.append( reader.channel)
+
+            position = position + 1
+
+        # the last call sets everything to 100% (hopefully ;)
+        if callback_proc != None:
+            callback_proc( position, channel_count)
         
         return input_channels
     

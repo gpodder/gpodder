@@ -380,14 +380,31 @@ class Gpodder(SimpleGladeApp):
         sync.clean_playlist()
         sync.close()
 
+    def update_feed_cache_callback( self, progressbar, position, count):
+        progressbar.set_text( _("%d of %d") % ( position, count ))
+        progressbar.set_fraction( ((1.00*position) / (1.00*count)))
+
     def update_feed_cache(self):
         reader = gPodderChannelReader()
-        #self.channels = reader.read( True)
-        #self.labelStatus.set_text( "Updating feed cache...")
-        please_wait = gtk.MessageDialog()
-        please_wait.set_markup( _("<big><b>Updating feed cache</b></big>\n\nPlease wait while gPodder is\nupdating the feed cache..."))
-        please_wait.show()
-        self.channels = reader.read( True)
+        please_wait = gtk.Dialog( _("Updating feed cache"), self.gPodder)
+        #please_wait.vbox.set_border_width( 10)
+        please_wait.vbox.set_spacing( 5)
+        please_wait.set_border_width( 5)
+
+        label = gtk.Label( _("Please wait - gPodder is updating its feed cache..."))
+        myprogressbar = gtk.ProgressBar()
+
+        # put it all together
+        please_wait.vbox.pack_start( label)
+        please_wait.vbox.pack_end( myprogressbar)
+        please_wait.show_all()
+
+        # hide action anre and separator line
+        please_wait.action_area.hide()
+        please_wait.set_has_separator( False)
+
+        # let's get down to business..
+        self.channels = reader.read( True, lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
         please_wait.destroy()
         #self.labelStatus.set_text( "")
         self.updateComboBox()
@@ -644,6 +661,11 @@ class Gpodder(SimpleGladeApp):
             print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()
         selection = self.treeDownloads.get_selection()
         selection_tuple = selection.get_selected_rows()
+        if selection.count_selected_rows() == 0:
+            if libgpodder.isDebugging():
+                print "will not cancel any download. reason: nothing selected."
+            return
+
         if selection.count_selected_rows() == 1:
             msg = _("Do you really want to cancel this download?")
         else:
@@ -718,6 +740,11 @@ class Gpodder(SimpleGladeApp):
         selection = self.treeDownloaded.get_selection()
         selection_tuple = selection.get_selected_rows()
         model = self.treeDownloaded.get_model()
+        
+        if selection.count_selected_rows() == 0:
+            if libgpodder.isDebugging():
+                print "will not remove any episode reason: nothing selected."
+            return
 
         if selection.count_selected_rows() == 1:
             msg = _("Do you really want to remove this episode?")

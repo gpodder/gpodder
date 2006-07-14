@@ -1,10 +1,6 @@
 
   == 0.8 or afterwards ==
 
- * select multiple podcasts (episodes) and execute one command (ex: 
-   download) on all of these. (suggested by James Dorey and Haim Roitgrund)
-   --> DONE for available podcasts, TODO for downloading and downloaded!
-
  * in libipodsync.py: use mime magic instead of extension-based 
    video detection? --> also, is mp4 always video or could it be 
    aac audio too? if so, how to check what is what?
@@ -23,16 +19,13 @@
  * gpodder doesn't start if somebody has messed with the channels.xml file
    (or if you send the channels.xml to somebody -- greetings to steve :)
 
- * Suggestions by Marius Scurtescu <marius.scurtescu at gmail dot com>:
-   - add more columns to the Available Podcasts tab (date, ...)
+ * Suggestion by Marius Scurtescu <marius.scurtescu at gmail dot com>:
    - add the download progress to the same Available Podcasts tab and
      then you don't need the Download Status tab at all, this will allow
      you to see what is downloaded and what not
  
  * libipodsync
-   -> check if ipod is connected (the automagic way)
    -> maybe delete podcasts that are deleted locally but still on ipod
-   -> ............... :)
  
  * do more translations (you can contribute here, of course :)
  
@@ -49,13 +42,8 @@
  
  * update "downloaded" (grey) episodes on download finish
    
- * (properties: set http proxy)          <--- done
-   ---> or use gnome's proxy setting     <--- not done
-   (suggested by alabrosse.ext@rd.francetelecom.fr)
-
  * sort view
 
- * maybe save date with downloads
  * maybe a "all channels view"
 
  * consider using "--continue" for wget
