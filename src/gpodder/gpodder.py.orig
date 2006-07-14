@@ -254,6 +254,11 @@ class Gpodderepisode(SimpleGladeApp):
         print "on_btnCloseWindow_clicked called with self.%s" % widget.get_name()
     #-- Gpodderepisode.on_btnCloseWindow_clicked }
 
+    #-- Gpodderepisode.on_btnDownload_clicked {
+    def on_btnDownload_clicked(self, widget, *args):
+        print "on_btnDownload_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderepisode.on_btnDownload_clicked }
+
 
 class Gpoddersync(SimpleGladeApp):
 

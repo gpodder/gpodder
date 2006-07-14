@@ -416,7 +416,10 @@ class Gpodder(SimpleGladeApp):
         current_podcast = current_channel[self.active_item]
         filename = current_channel.getPodcastFilename( current_podcast.url)
         if widget != None and widget.get_name() == "treeAvailable":
-            Gpodderepisode().set_episode( current_podcast, current_channel)
+            gpe = Gpodderepisode()
+            gpe.set_episode( current_podcast, current_channel)
+            # to download, the dialog calls this function again but without widget param (widget = None)
+            gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
             return
         
         if os.path.exists( filename) == False and self.download_status_manager.is_download_in_progress( current_podcast.url) == False:
@@ -1033,6 +1036,13 @@ class Gpodderepisode(SimpleGladeApp):
         if episode.link == '' and channel != None:
             self.entryLink.set_text( channel.link)
         self.labelPubDate.set_markup( '<b>%s</b>' % ( episode.pubDate ))
+        self.download_callback = None
+
+    def set_download_callback( self, callback = None):
+        self.download_callback = callback
+        if callback != None:
+            # show the button if we have a callback!
+            self.btnDownload.show_all()
     #-- Gpodderepisode custom methods }
 
     #-- Gpodderepisode.on_btnCloseWindow_clicked {
@@ -1041,6 +1051,18 @@ class Gpodderepisode(SimpleGladeApp):
             print "on_btnCloseWindow_clicked called with self.%s" % widget.get_name()
         self.gPodderEpisode.destroy()
     #-- Gpodderepisode.on_btnCloseWindow_clicked }
+
+    #-- Gpodderepisode.on_btnDownload_clicked {
+    def on_btnDownload_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnDownload_clicked called with self.%s" % widget.get_name()
+
+        # if we have a callback, .. well.. call it back! ;)
+        if self.download_callback != None:
+            self.download_callback()
+
+        self.gPodderEpisode.destroy()
+    #-- Gpodderepisode.on_btnDownload_clicked }
 
 
 class Gpoddersync(SimpleGladeApp):
