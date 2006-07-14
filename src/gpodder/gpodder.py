@@ -708,18 +708,26 @@ class Gpodder(SimpleGladeApp):
         if libgpodder.isDebugging():
             print "on_treeDownloaded_row_activated called with self.%s" % widget.get_name()
         try:
-          channel_filename = self.get_current_channel_downloaded()
-          
-          selection_tuple = self.treeDownloaded.get_selection().get_selected()
-          selection_iter = selection_tuple[1]
-          url = self.treeDownloaded.get_model().get_value( selection_iter, 0)
-          if widget.get_name() == "treeDownloaded":
-              podcast = self.ldb.get_podcast_by_podcast_url( channel_filename, url)
-              Gpodderepisode().set_episode( podcast)
-              return
-          filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-          filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-          gPodderLib().openFilename( filename_final)
+            channel_filename = self.get_current_channel_downloaded()
+ 
+            selection = self.treeDownloaded.get_selection()
+            model = self.treeDownloaded.get_model()
+ 
+            if selection.count_selected_rows() != 1:
+                # bug out, 'cos we only want one, really!
+                return
+ 
+            selection_tuple = selection.get_selected_rows()
+            apath = selection_tuple[1][0]
+            selection_iter = model.get_iter( apath)
+            url = model.get_value( selection_iter, 0)
+            if widget.get_name() == "treeDownloaded":
+                podcast = self.ldb.get_podcast_by_podcast_url( channel_filename, url)
+                Gpodderepisode().set_episode( podcast)
+                return
+            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
+            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
+            gPodderLib().openFilename( filename_final)
         except:
           self.showMessage( _("No episode selected."))
     #-- Gpodder.on_treeDownloaded_row_activated }
