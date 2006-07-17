@@ -98,6 +98,7 @@ class gPodderLibClass( object):
     open_app = ""
     ipod_mount = ""
     opml_url = ""
+    update_on_startup = False
     desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
