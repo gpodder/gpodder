@@ -52,16 +52,15 @@ from stat import ST_MODE
 from librssreader import rssReader
 from libpodcasts import podcastChannel
 from libplayers import dotdesktop_command
+from utils import deleteFilename
+from utils import createIfNecessary
+from constants import isDebugging
 
 from gtk.gdk import PixbufLoader
 
 from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
-
-# global debugging variable, set to False on release
-# TODO: while developing a new version, set this to "True"
-debugging = False
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
@@ -71,9 +70,6 @@ g_podder_lib = None
 
 # default url to use for opml directory on the web
 default_opml_directory = 'http://share.opml.org/opml/topPodcasts.opml'
-
-def isDebugging():
-    return debugging
 
 def getLock():
     globalLock.acquire()
@@ -104,11 +100,11 @@ class gPodderLibClass( object):
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
-        self.createIfNecessary( self.gpodderdir)
+        createIfNecessary( self.gpodderdir)
         self.downloaddir = self.gpodderdir + "downloads/"
-        self.createIfNecessary( self.downloaddir)
+        createIfNecessary( self.downloaddir)
         self.cachedir = self.gpodderdir + "cache/"
-        self.createIfNecessary( self.cachedir)
+        createIfNecessary( self.cachedir)
         try:
             self.http_proxy = environ['http_proxy']
         except:
@@ -118,18 +114,6 @@ class gPodderLibClass( object):
         except:
             self.ftp_proxy = ''
         self.loadConfig()
-    
-    def createIfNecessary( self, path):
-        if not exists( path):
-            try:
-                makedirs( path)
-                return True
-            except:
-                if isDebugging():
-                    print 'createIfNecessary: could not create: %s' % ( path )
-                return False
-        
-        return True
     
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
@@ -247,7 +231,7 @@ class gPodderLibClass( object):
             print "createDesktopSymlink requested"
         if not self.getDesktopSymlink():
             downloads_path = expanduser( "~/Desktop/")
-            self.createIfNecessary( downloads_path)
+            createIfNecessary( downloads_path)
             symlink( self.downloaddir, "%s%s" % (downloads_path, self.desktop_link))
     
     def removeDesktopSymlink( self):
@@ -282,7 +266,7 @@ class gPodderLibClass( object):
             pixbuf.close()
         except:
             # data error, delete temp file
-            self.deleteFilename( cover_file)
+            deleteFilename( cover_file)
         
         if callback_pixbuf != None:
             callback_pixbuf( pixbuf.get_pixbuf())
@@ -295,15 +279,6 @@ class gPodderLibClass( object):
         args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
         thread = threading.Thread( target = self.image_download_thread, args = args)
         thread.start()
-
-    def deleteFilename( self, filename):
-        if isDebugging():
-            print "deleteFilename: " + filename
-        try:
-            unlink( filename)
-        except:
-            # silently ignore 
-            pass
 
 class gPodderChannelWriter( object):
     def write( self, channels):

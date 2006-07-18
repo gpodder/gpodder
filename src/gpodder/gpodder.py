@@ -54,6 +54,8 @@ from libgpodder import gPodderLib
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 
+
+
 from liblocaldb import localDB
 
 from libplayers import UserAppsReader
@@ -61,8 +63,8 @@ from libplayers import UserAppsReader
 from libipodsync import gPodder_iPodSync
 from libipodsync import ipod_supported
 
-# for isDebugging:
-import libgpodder
+from utils import deleteFilename
+from constants import isDebugging
 
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
@@ -110,7 +112,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.new {
     def new(self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
 
         #self.gPodder.set_title( self.gPodder.get_title())
@@ -240,7 +242,7 @@ class Gpodder(SimpleGladeApp):
             self.comboDownloaded.set_active( self.active_downloaded_channels)
         except:
             self.active_downloaded_channels = 0
-            if libgpodder.isDebugging():
+            if isDebugging():
               print _('No downloaded podcasts found.')
     # end of self.updateDownloadedComboBox()
     
@@ -271,7 +273,7 @@ class Gpodder(SimpleGladeApp):
             myresult = True
         
         dlg.destroy()
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "I Asked: %s" % message
             print "User answered: %s" % str(myresult)
         return myresult
@@ -332,10 +334,10 @@ class Gpodder(SimpleGladeApp):
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             for old_channel in self.channels:
                 if old_channel.url == result:
-                    if libgpodder.isDebugging():
+                    if isDebugging():
                         print 'channel already exists in my list :)'
                     return
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print ("Will add channel :%s") % result
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel_new = podcastChannel( result)
@@ -429,7 +431,7 @@ class Gpodder(SimpleGladeApp):
                 self.showMessage( _("You have already downloaded this episode\nor you are currently downloading it."))
             # if we're not downloading it, but it exists: add to localdb (if not already done so)
             if os.path.exists( filename) == True:
-                if libgpodder.isDebugging():
+                if isDebugging():
                     print "already downloaded, trying to add to localDB if needed"
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
@@ -437,7 +439,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.close_gpodder {
     def close_gpodder(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "close_gpodder called with self.%s" % widget.get_name()
         
         if self.channels_loaded:
@@ -452,14 +454,14 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemUpdate_activate {
     def on_itemUpdate_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemUpdate_activate called with self.%s" % widget.get_name()
         self.update_feed_cache()
     #-- Gpodder.on_itemUpdate_activate }
 
     #-- Gpodder.on_sync_to_ipod_activate {
     def on_sync_to_ipod_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_sync_to_ipod_activate called with self.%s" % widget.get_name()
         sync_win = Gpoddersync()
         while gtk.events_pending():
@@ -471,7 +473,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_cleanup_ipod_activate {
     def on_cleanup_ipod_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_cleanup_ipod_activate called with self.%s" % widget.get_name()
         if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
             return
@@ -485,7 +487,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemPreferences_activate {
     def on_itemPreferences_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemPreferences_activate called with self.%s" % widget.get_name()
         if self.uar == None:
             self.uar = UserAppsReader()
@@ -496,7 +498,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemAddChannel_activate called with self.%s" % widget.get_name()
         ch = Gpodderchannel()
         ch.entryURL.set_text( "http://")
@@ -506,7 +508,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemEditChannel_activate {
     def on_itemEditChannel_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemEditChannel_activate called with self.%s" % widget.get_name()
         channel = None
         try:
@@ -517,7 +519,7 @@ class Gpodder(SimpleGladeApp):
         
         result = Gpodderchannel().requestURL( channel)
         if result != channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print 'Changing ID %d from "%s" to "%s"' % (active, channel.url, result)
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel_new = podcastChannel( result)
@@ -537,7 +539,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemRemoveChannel_activate {
     def on_itemRemoveChannel_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemRemoveChannel_activate called with self.%s" % widget.get_name()
         
         try:
@@ -553,7 +555,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemExportChannels_activate {
     def on_itemExportChannels_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemExportChannels_activate called with self.%s" % widget.get_name()
         if len( self.channels) == 0:
           self.showMessage( _("Your channel list is empty. Nothing to export."))
@@ -566,7 +568,7 @@ class Gpodder(SimpleGladeApp):
             foutname = dlg.get_filename()
             if foutname[-5:] != ".opml" and foutname[-4:] != ".xml":
                 foutname = foutname + ".opml"
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print 'Exporting channels list to: %s' % foutname
             w = opmlWriter( foutname)
             for ch in self.channels:
@@ -591,7 +593,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemAbout_activate {
     def on_itemAbout_activate(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_itemAbout_activate called with self.%s" % widget.get_name()
         dlg = gtk.AboutDialog()
         dlg.set_name( app_name)
@@ -611,13 +613,13 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_wNotebook_switch_page {
     def on_wNotebook_switch_page(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_wNotebook_switch_page called with self.%s" % widget.get_name()
     #-- Gpodder.on_wNotebook_switch_page }
 
     #-- Gpodder.on_comboAvailable_changed {
     def on_comboAvailable_changed(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_comboAvailable_changed called with self.%s" % widget.get_name()
         self.active_channel = self.comboAvailable.get_active()
         self.updateTreeView()
@@ -625,14 +627,14 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnEditChannel_clicked {
     def on_btnEditChannel_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
            print "on_btnEditChannel_clicked called with self.%s" % widget.get_name()
         self.on_itemEditChannel_activate( widget, args)
     #-- Gpodder.on_btnEditChannel_clicked }
 
     #-- Gpodder.on_treeAvailable_row_activated {
     def on_treeAvailable_row_activated(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_treeAvailable_row_activated called with self.%s" % widget.get_name()
         try:
             selection = self.treeAvailable.get_selection()
@@ -653,19 +655,19 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnDownload_clicked {
     def on_btnDownload_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnDownload_clicked called with self.%s" % widget.get_name()
         self.on_treeAvailable_row_activated( widget, args)
     #-- Gpodder.on_btnDownload_clicked }
 
     #-- Gpodder.on_treeDownloads_row_activated {
     def on_treeDownloads_row_activated(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()
         selection = self.treeDownloads.get_selection()
         selection_tuple = selection.get_selected_rows()
         if selection.count_selected_rows() == 0:
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "will not cancel any download. reason: nothing selected."
             return
 
@@ -681,20 +683,20 @@ class Gpodder(SimpleGladeApp):
                     url = self.download_status_manager.get_url_by_iter( selection_iter)
                     self.download_status_manager.cancel_by_url( url)
             except:
-                if libgpodder.isDebugging():
+                if isDebugging():
                       print "error while cancelling downloads"
     #-- Gpodder.on_treeDownloads_row_activated }
 
     #-- Gpodder.on_btnCancelDownloadStatus_clicked {
     def on_btnCancelDownloadStatus_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnCancelDownloadStatus_clicked called with self.%s" % widget.get_name()
         self.on_treeDownloads_row_activated( widget, None)
     #-- Gpodder.on_btnCancelDownloadStatus_clicked }
 
     #-- Gpodder.on_comboDownloaded_changed {
     def on_comboDownloaded_changed(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_comboDownloaded_changed called with self.%s" % widget.get_name()
         self.active_downloaded_channels = self.comboDownloaded.get_active()
         try:
@@ -708,7 +710,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_treeDownloaded_row_activated {
     def on_treeDownloaded_row_activated(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_treeDownloaded_row_activated called with self.%s" % widget.get_name()
         try:
             channel_filename = self.get_current_channel_downloaded()
@@ -737,14 +739,14 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnDownloadedExecute_clicked {
     def on_btnDownloadedExecute_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnDownloadedExecute_clicked called with self.%s" % widget.get_name()
         self.on_treeDownloaded_row_activated( widget, args)
     #-- Gpodder.on_btnDownloadedExecute_clicked }
 
     #-- Gpodder.on_btnDownloadedDelete_clicked {
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnDownloadedDelete_clicked called with self.%s" % widget.get_name()
 
         channel_filename = self.get_current_channel_downloaded()
@@ -753,7 +755,7 @@ class Gpodder(SimpleGladeApp):
         model = self.treeDownloaded.get_model()
         
         if selection.count_selected_rows() == 0:
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "will not remove any episode reason: nothing selected."
             return
 
@@ -773,14 +775,14 @@ class Gpodder(SimpleGladeApp):
                     filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
                     current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
                     if current_channel.deleteDownloadedItemByUrlAndTitle( url, title):
-                        gPodderLib().deleteFilename( filename_final)
+                        deleteFilename( filename_final)
       
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
                 self.updateComboBox()
                 self.updateDownloadedComboBox()
             except:
-                if libgpodder.isDebugging():
+                if isDebugging():
                     print "error while deleting (some) downloads"
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
@@ -802,7 +804,7 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel.new {
     def new(self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
     #-- Gpodderchannel.new }
 
@@ -847,21 +849,21 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel.on_gPodderChannel_destroy {
     def on_gPodderChannel_destroy(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_gPodderChannel_destroy called with self.%s" % widget.get_name()
         self.result = False
     #-- Gpodderchannel.on_gPodderChannel_destroy }
 
     #-- Gpodderchannel.on_cbMusicChannel_toggled {
     def on_cbMusicChannel_toggled(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_cbMusicChannel_toggled called with self.%s" % widget.get_name()
         self.musicPlaylist.set_sensitive( self.cbMusicChannel.get_active())
     #-- Gpodderchannel.on_cbMusicChannel_toggled }
 
     #-- Gpodderchannel.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnOK_clicked called with self.%s" % widget.get_name()
         self.url = self.entryURL.get_text()
         self.gPodderChannel.destroy()
@@ -873,7 +875,7 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel.on_btnCancel_clicked {
     def on_btnCancel_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnCancel_clicked called with self.%s" % widget.get_name()
         self.gPodderChannel.destroy()
         self.result = False
@@ -892,7 +894,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.new {
     def new(self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
         gl = gPodderLib()
         self.httpProxy.set_text( gl.http_proxy)
@@ -947,7 +949,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_gPodderProperties_destroy {
     def on_gPodderProperties_destroy(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_gPodderProperties_destroy called with self.%s" % widget.get_name()
         if self.on_close != None:
             self.on_close()
@@ -955,7 +957,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_comboPlayerApp_changed {
     def on_comboPlayerApp_changed(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_comboPlayerApp_changed called with self.%s" % widget.get_name()
         
         # find out which one
@@ -975,7 +977,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
         sens = not self.cbEnvironmentVariables.get_active()
         self.httpProxy.set_sensitive( sens)
@@ -984,7 +986,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnOK_clicked called with self.%s" % widget.get_name()
         gl = gPodderLib()
         gl.http_proxy = self.httpProxy.get_text()
@@ -1005,7 +1007,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_btnCancel_clicked {
     def on_btnCancel_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnCancel_clicked called with self.%s" % widget.get_name()
         self.gPodderProperties.destroy()
     #-- Gpodderproperties.on_btnCancel_clicked }
@@ -1020,7 +1022,7 @@ class Gpodderepisode(SimpleGladeApp):
 
     #-- Gpodderepisode.new {
     def new(self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
     #-- Gpodderepisode.new }
 
@@ -1047,14 +1049,14 @@ class Gpodderepisode(SimpleGladeApp):
 
     #-- Gpodderepisode.on_btnCloseWindow_clicked {
     def on_btnCloseWindow_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnCloseWindow_clicked called with self.%s" % widget.get_name()
         self.gPodderEpisode.destroy()
     #-- Gpodderepisode.on_btnCloseWindow_clicked }
 
     #-- Gpodderepisode.on_btnDownload_clicked {
     def on_btnDownload_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnDownload_clicked called with self.%s" % widget.get_name()
 
         # if we have a callback, .. well.. call it back! ;)
@@ -1076,7 +1078,7 @@ class Gpoddersync(SimpleGladeApp):
     #-- Gpoddersync.new {
     def new(self):
         global artwork_dir
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
         self.imageSyncServer.set_from_file( artwork_dir + 'computer.png')
         self.imageSyncAnimation.set_from_file( artwork_dir + 'sync-anim.gif')
@@ -1105,7 +1107,7 @@ class Gpoddersync(SimpleGladeApp):
 
     #-- Gpoddersync.on_gPodderSync_destroy {
     def on_gPodderSync_destroy(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_gPodderSync_destroy called with self.%s" % widget.get_name()
     #-- Gpoddersync.on_gPodderSync_destroy }
 
@@ -1120,7 +1122,7 @@ class Gpodderopmllister(SimpleGladeApp):
 
     #-- Gpodderopmllister.new {
     def new(self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "A new %s has been created" % self.__class__.__name__
 
         # initiate channels list
@@ -1153,7 +1155,7 @@ class Gpodderopmllister(SimpleGladeApp):
         else:
             self.channels.remove( url)
 
-        if libgpodder.isDebugging():
+        if isDebugging():
             print url
     
     def get_channels_from_url( self, url, callback):
@@ -1165,13 +1167,13 @@ class Gpodderopmllister(SimpleGladeApp):
 
     #-- Gpodderopmllister.on_gPodderOpmlLister_destroy {
     def on_gPodderOpmlLister_destroy(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_gPodderOpmlLister_destroy called with self.%s" % widget.get_name()
     #-- Gpodderopmllister.on_gPodderOpmlLister_destroy }
 
     #-- Gpodderopmllister.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnOK_clicked called with self.%s" % widget.get_name()
         self.gPodderOpmlLister.destroy()
         # add channels that have been selected
@@ -1182,7 +1184,7 @@ class Gpodderopmllister(SimpleGladeApp):
 
     #-- Gpodderopmllister.on_btnCancel_clicked {
     def on_btnCancel_clicked(self, widget, *args):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "on_btnCancel_clicked called with self.%s" % widget.get_name()
         self.gPodderOpmlLister.destroy()
     #-- Gpodderopmllister.on_btnCancel_clicked }

@@ -34,6 +34,7 @@ from string import strip
 
 import libpodcasts
 import libgpodder
+from constants import isDebugging
 
 class rssLocDBErrorHandler( ErrorHandler):
     def __init__( self):
@@ -83,7 +84,7 @@ class readLocalDB( DefaultHandler):
             if attrs.get('music', 'false').lower() == 'true':
                 self.channel.is_music_channel = True
             if attrs.get('nosync', 'false').lower() == 'true':
-                if libgpodder.isDebugging():
+                if isDebugging():
                     print 'local channel does not want to be synced: %s' % self.channel.title
                 self.channel.sync_to_devices = False
     
@@ -120,7 +121,7 @@ class readLocalDB( DefaultHandler):
             if name == "item":
                 self.channel.addItem( self.current_item)
                 # this produces lots of output and works ATM, so output disabled
-                if libgpodder.isDebugging() and False:
+                if isDebugging() and False:
                     print "importing local db channel: " + self.current_item.url
                 self.current_item = None
     

@@ -32,6 +32,7 @@ import libgpodder
 
 from liblocdbreader import readLocalDB
 from libgpodder import gPodderLib
+from constants import isDebugging
 
 from os import listdir
 from os import sep
@@ -45,7 +46,7 @@ class localDB( object):
     localdbs = {} # localdbs is a cache that maps filenames to readLocalDB objs
     
     def __init__( self):
-        if libgpodder.isDebugging():
+        if isDebugging():
             print "created new localDB object"
         self.downloaddir = gPodderLib().downloaddir
         self.directories = listdir( self.downloaddir)
@@ -53,7 +54,7 @@ class localDB( object):
     def getIndexFileList( self):
         # do not re-read if we already readed the list of index files
         if self.iflist != None:
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "(localDB) using cached index file list"
             return self.iflist
         
@@ -67,7 +68,7 @@ class localDB( object):
     def getDownloadedChannelsList( self):
         # do not re-read downloaded channels list
         if self.chlist != None:
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "(localDB) using cached downloaded channels list"
             return self.chlist
         
@@ -94,7 +95,7 @@ class localDB( object):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
         
         for channel in self.getDownloadedChannelsList():
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "(getmodel) " + channel.title
             new_iter = new_model.append()
             new_model.set( new_iter, 0, channel.url)

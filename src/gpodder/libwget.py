@@ -34,7 +34,7 @@ from threading import Thread
 from threading import Lock
 from shutil import move
 
-import libgpodder
+from constants import isDebugging
 import signal
 
 import popen2
@@ -98,7 +98,7 @@ class downloadThread( object):
     
     def thread_function( self):
         command = "wget \"" + self.url + "\" -O \"" + self.tempname + "\""
-        if libgpodder.isDebugging():
+        if isDebugging():
             print command
         process = popen2.Popen3( command, True)
         
@@ -107,7 +107,7 @@ class downloadThread( object):
         
         while process.poll() == -1 and self.is_cancelled == False:
             msg = stderr.readline( 80)
-            if libgpodder.isDebugging():
+            if isDebugging():
 	        print msg
             msg = msg.strip()
             
@@ -136,7 +136,7 @@ class downloadThread( object):
 	# self.statusmgr
 
         if self.result == 0 and self.channelitem != None and self.item != None:
-            if libgpodder.isDebugging():
+            if isDebugging():
                 print "downloadThread finished: adding downloaded item to downloaded list"
             self.channelitem.addDownloadedItem( self.item)
             

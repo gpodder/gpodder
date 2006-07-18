@@ -42,6 +42,7 @@ from gtk.gdk import pixbuf_new_from_file_at_size
 from gtk.gdk import Pixbuf
 
 import libgpodder
+from constants import isDebugging
 
 # where are the .desktop files located?
 userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/' ]
@@ -95,7 +96,7 @@ class UserAppsReader(object):
             app_mime = parser.get( sect, 'MimeType')
             app_icon = parser.get( sect, 'Icon')
             if app_mime.find( 'audio/') != -1:
-                if libgpodder.isDebugging():
+                if isDebugging():
                     print "found app in " + dir + filename + " ("+app_name+")"
                 self.apps.append( UserApplication( app_name, app_cmd, app_mime, app_icon))
         except:
