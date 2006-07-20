@@ -1,9 +1,21 @@
 
   == 0.8.0 release-critical ==
 
-* write the README file
+ * write the README file
+ * set "debugging" variable to False
 
   == after 0.8.0 ==
+ 
+ * Although downloads worked, as shown by presence in channel directory
+   on hard disk and by playing the pod with RealPlayer, the pods didn't
+   always show up in the 'downloaded' tab. When the downloaded podcast
+   did show up in the 'downloaded' tab, it did once I closed and
+   re-opened gPodder.    (thanks to Haim Roitgrund for reporting this)
+ 
+ * re-factor "if libgpodder.isDebugging()" + "print" into a more 
+   sophisticated logging/debugging infrastructure (the code should 
+   not "print" debug messages, but hand the debug strings to the 
+   logging facility, something like:  libgpodder.debug( "bla bla")
 
  * in libipodsync.py: use mime magic instead of extension-based 
    video detection? --> also, is mp4 always video or could it be 
