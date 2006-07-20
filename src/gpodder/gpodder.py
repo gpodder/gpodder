@@ -658,6 +658,15 @@ class Gpodder(SimpleGladeApp):
         self.on_treeAvailable_row_activated( widget, args)
     #-- Gpodder.on_btnDownload_clicked }
 
+    #-- Gpodder.on_btnSelectAllAvailable_clicked {
+    def on_btnSelectAllAvailable_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnSelectAllAvailable_clicked called with self.%s" % widget.get_name()
+        self.treeAvailable.get_selection().select_all()
+        self.on_treeAvailable_row_activated( self.btnDownload, args)
+        self.treeAvailable.get_selection().unselect_all()
+    #-- Gpodder.on_btnSelectAllAvailable_clicked }
+
     #-- Gpodder.on_treeDownloads_row_activated {
     def on_treeDownloads_row_activated(self, widget, *args):
         if libgpodder.isDebugging():
@@ -691,6 +700,15 @@ class Gpodder(SimpleGladeApp):
             print "on_btnCancelDownloadStatus_clicked called with self.%s" % widget.get_name()
         self.on_treeDownloads_row_activated( widget, None)
     #-- Gpodder.on_btnCancelDownloadStatus_clicked }
+
+    #-- Gpodder.on_btnCancelAll_clicked {
+    def on_btnCancelAll_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnCancelAll_clicked called with self.%s" % widget.get_name()
+        self.treeDownloads.get_selection().select_all()
+        self.on_treeDownloads_row_activated( self.btnCancelDownloadStatus, None)
+        self.treeDownloads.get_selection().unselect_all()
+    #-- Gpodder.on_btnCancelAll_clicked }
 
     #-- Gpodder.on_comboDownloaded_changed {
     def on_comboDownloaded_changed(self, widget, *args):
@@ -783,6 +801,15 @@ class Gpodder(SimpleGladeApp):
                 if libgpodder.isDebugging():
                     print "error while deleting (some) downloads"
     #-- Gpodder.on_btnDownloadedDelete_clicked }
+
+    #-- Gpodder.on_btnDeleteAll_clicked {
+    def on_btnDeleteAll_clicked(self, widget, *args):
+        if libgpodder.isDebugging():
+            print "on_btnDeleteAll_clicked called with self.%s" % widget.get_name()
+        self.treeDownloaded.get_selection().select_all()
+        self.on_btnDownloadedDelete_clicked( widget, args)
+        self.treeDownloaded.get_selection().unselect_all()
+    #-- Gpodder.on_btnDeleteAll_clicked }
 
 
 class Gpodderchannel(SimpleGladeApp):

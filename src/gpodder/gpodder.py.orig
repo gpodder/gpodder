@@ -120,6 +120,11 @@ class Gpodder(SimpleGladeApp):
         print "on_btnDownload_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnDownload_clicked }
 
+    #-- Gpodder.on_btnSelectAllAvailable_clicked {
+    def on_btnSelectAllAvailable_clicked(self, widget, *args):
+        print "on_btnSelectAllAvailable_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnSelectAllAvailable_clicked }
+
     #-- Gpodder.on_treeDownloads_row_activated {
     def on_treeDownloads_row_activated(self, widget, *args):
         print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()
@@ -129,6 +134,11 @@ class Gpodder(SimpleGladeApp):
     def on_btnCancelDownloadStatus_clicked(self, widget, *args):
         print "on_btnCancelDownloadStatus_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnCancelDownloadStatus_clicked }
+
+    #-- Gpodder.on_btnCancelAll_clicked {
+    def on_btnCancelAll_clicked(self, widget, *args):
+        print "on_btnCancelAll_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnCancelAll_clicked }
 
     #-- Gpodder.on_comboDownloaded_changed {
     def on_comboDownloaded_changed(self, widget, *args):
@@ -149,6 +159,11 @@ class Gpodder(SimpleGladeApp):
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         print "on_btnDownloadedDelete_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnDownloadedDelete_clicked }
+
+    #-- Gpodder.on_btnDeleteAll_clicked {
+    def on_btnDeleteAll_clicked(self, widget, *args):
+        print "on_btnDeleteAll_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnDeleteAll_clicked }
 
 
 class Gpodderchannel(SimpleGladeApp):
