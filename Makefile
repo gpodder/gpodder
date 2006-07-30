@@ -15,6 +15,11 @@ MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
+CHANGELOG=ChangeLog
+CHANGELOG_TMP=.ChangeLog.tmp
+CHANGELOG_EDT=.ChangeLog.edit
+EMAIL ?= $$USER@`hostname -f`
+
 DESTDIR ?= /
 
 ##########################################################################
@@ -23,6 +28,7 @@ all: help
 
 help:
 	@echo 'make test            run gpodder in local directory'
+	@echo 'make cl              make new changelog entry (1)'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make install         install gpodder into "/usr/"'
 	@echo 'make uninstall       uninstall gpodder from "/usr/"'
@@ -30,6 +36,18 @@ help:
 	@echo 'make messages        rebuild messages.pot from new source'
 	@echo 'make clean           remove generated+temp+*.pyc files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
+	@echo ''
+	@echo '(1) Please set environment variable "EMAIL" to your e-mail address'
+
+##########################################################################
+
+cl:
+	(echo "`date -R` <$(EMAIL)>"; echo -e "\t* \n"; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
+	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
+	$(EDITOR) $(CHANGELOG_EDT)
+	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)
+	rm -f $(CHANGELOG_TMP) $(CHANGELOG_EDT)
+
 
 ##########################################################################
 
@@ -91,10 +109,10 @@ debclean:
 
 distclean: clean
 	rm -rf dist
-
+ 
 ##########################################################################
 
-.PHONY: all test release install generators gen_manpage gen_glade clean distclean messages help
+.PHONY: all cl test release install generators gen_manpage gen_glade clean distclean messages help
 
 ##########################################################################
 

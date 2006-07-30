@@ -22,7 +22,7 @@
 
 #
 #  constants.py -- constants used by gpodder
-#  Adrien Beaucreux <thp@perli.net>   20061807
+#  Adrien Beaucreux <informancer@web.de>   20060718
 #
 #
 
