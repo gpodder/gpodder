@@ -1,5 +1,4 @@
 
-
 #
 # gPodder (a media aggregator / podcast client)
 # Copyright (C) 2005-2006 Thomas Perl <thp at perli.net>
@@ -49,7 +48,10 @@ from os import stat
 from stat import S_ISLNK
 from stat import ST_MODE
 
-from librssreader import rssReader
+import gettext
+gettext.install('gpodder')
+
+import librssreader
 from libpodcasts import podcastChannel
 from libplayers import dotdesktop_command
 from utils import deleteFilename
@@ -61,6 +63,14 @@ from gtk.gdk import PixbufLoader
 from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
+
+import popen2
+
+import dbus
+import dbus.service
+import gobject
+if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
+    import dbus.glib
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
@@ -77,14 +87,32 @@ def getLock():
 def releaseLock():
     globalLock.release()
 
-# some awkward kind of "singleton" ;)
-def gPodderLib():
-    global g_podder_lib
-    if g_podder_lib == None:
-        g_podder_lib = gPodderLibClass()
-    return g_podder_lib
 
-class gPodderLibClass( object):
+
+def gPodderLib():
+    """Returns a proxy object for a gPodderLibClass, starting the
+    service if necessary"""        
+    # Initialize dbus
+    bus = dbus.SessionBus()
+    gpodder_app_proxy = bus.get_object('net.perli.gpodder.GPodderApp',
+                                       '/net/perli/gpodder/GPodderApp')
+    gpodder_app_iface = dbus.Interface(gpodder_app_proxy,
+                                       'net.perli.gpodder.GPodderAppIFace')
+    try:
+        gpodder_app_iface.is_running()
+    except dbus.DBusException:
+        waiting_loop = gobject.MainLoop()
+        # Setup a callback to be able to quit the waiting loop)
+        bus.add_signal_receiver(waiting_loop.quit, signal_name='ready',
+                                dbus_interface='net.perli.gpodder.GPodderAppIFace')
+        # Start the service
+        popen2.popen2("python libgpodder.py")
+        # Wait for the initialization to be finished
+        waiting_loop.run()
+    return gpodder_app_iface
+
+
+class gPodderLibClass( dbus.service.Object):
     gpodderdir = ""
     downloaddir = ""
     cachedir = ""
@@ -98,7 +126,11 @@ class gPodderLibClass( object):
     desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
-    def __init__( self):
+    def __init__( self, bus_name, object_path='/net/perli/gpodder/GPodderApp'):
+        print "initialising gpodderlib"
+        dbus.service.Object.__init__(self, bus_name, object_path)
+        self.main_loop = gobject.MainLoop()
+        
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         createIfNecessary( self.gpodderdir)
         self.downloaddir = self.gpodderdir + "downloads/"
@@ -114,7 +146,23 @@ class gPodderLibClass( object):
         except:
             self.ftp_proxy = ''
         self.loadConfig()
-    
+        self.ready()
+
+    def run(self):
+        self.main_loop.run()
+
+    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
+    def is_running(self):
+        return True
+        
+    @dbus.service.signal('net.perli.gpodder.GPodderAppIFace')
+    def ready(self):
+        pass
+
+    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
+    def quit(self):
+        self.main_loop.quit()
+
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
 
@@ -313,7 +361,7 @@ class gPodderChannelReader( DefaultHandler):
             parser.parse( gPodderLib().getChannelsFilename())
         else:
             return []
-        reader = rssReader()
+        reader = librssreader.rssReader()
         input_channels = []
         
         channel_count = len( self.channels)
@@ -360,4 +408,11 @@ class gPodderChannelReader( DefaultHandler):
     def characters( self, ch):
         self.current_element_data = self.current_element_data + ch
 
+def main():
+    bus = dbus.SessionBus()
+    bus_name = dbus.service.BusName('net.perli.gpodder.GPodderApp', bus=bus)
+    gpodderlib = gPodderLibClass(bus_name)
+    gpodderlib.run()
 
+if __name__=='__main__':
+    main()
