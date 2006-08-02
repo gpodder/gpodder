@@ -1,3 +1,9 @@
+Wed, 02 Aug 2006 20:21:49 +0200 <thp@perli.net>
+	* src/gpodder/libpodcasts.py: strip channel and episode title 
+          when changing it (so titles with a trailing newline don't mess 
+          up the episode list -- first seen with the play.fm podcast)
+	* Makefile: improved "make cl" target support
+
 Sun, 30 Jul 2006 15:11:51 +0200 <thp@perli.net>
 	* Added new makefile target "cl" to automatically generate a 
           new changelog entry with right formatting

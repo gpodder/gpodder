@@ -42,7 +42,7 @@ help:
 ##########################################################################
 
 cl:
-	(echo "`date -R` <$(EMAIL)>"; echo -e "\t* \n"; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
+	(echo "`date -R` <$(EMAIL)>"; svn status | grep ^M | sed -e 's/^M *\(.*\)/\t* \1: /'; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
 	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
 	$(EDITOR) $(CHANGELOG_EDT)
 	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)

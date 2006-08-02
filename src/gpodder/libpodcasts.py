@@ -94,6 +94,15 @@ class podcastChannel(ListType):
         
     filename = property(fget=get_filename,
                         fset=set_filename)
+
+    def get_title( self):
+        return self.__title
+
+    def set_title( self, value):
+        self.__title = value.strip()
+
+    title = property(fget=get_title,
+                     fset=set_title)
     
     def addItem( self, item):
         self.append( item)
@@ -370,6 +379,15 @@ class podcastItem(object):
         
         # we suppose it's the same when the download URL is the same..
         return self.url == other_item.url
+
+    def get_title( self):
+        return self.__title
+
+    def set_title( self, value):
+        self.__title = value.strip()
+
+    title = property(fget=get_title,
+                     fset=set_title)
     
     def getSize( self):
         try:
