@@ -1,0 +1,16 @@
+
+** Notes for porting gPodder to other systems **
+
+[gPodder-core] --> replacing d-bus with [ipc of the day on other system]
+
+(16:04:34) thp: how modular will gpodder-core be, in relation to d-bus? is it possible to "disable" d-bus functionality on systems with no d-bus? i'm thinking about maybe porting gpodder to some non-linux systems - and no d-bus there..
+(16:05:39) informancer: I'm not sure
+(16:06:21) informancer: We can modify gPodderLib to return a real instance of gPodderLibClass instead of a dbus stub.
+(16:07:14) informancer: the problem being the messages. I plan to make the app send "list updated" so the different UIs know they should update their views.
+(16:07:49) informancer: this would replace the call to "update list view"(not sure about the name right now).
+(16:08:58) informancer: maybe then replacing it by gobject signals, but I don't know the difference in the code, or how we can modularize that.
+(16:10:13) thp: well, we could create a class that represents our ipc model and depending on d-bus availability use that or [ipc of the day on other system]
+(16:10:47) informancer: something like a strategy pattern?
+(16:11:22) thp: yeah
+(16:12:16) informancer: could be something.
+
