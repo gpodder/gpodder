@@ -64,7 +64,7 @@ from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
 
-import popen2
+import subprocess
 
 import dbus
 import dbus.service
@@ -106,7 +106,8 @@ def gPodderLib():
         bus.add_signal_receiver(waiting_loop.quit, signal_name='ready',
                                 dbus_interface='net.perli.gpodder.GPodderAppIFace')
         # Start the service
-        popen2.popen2("python libgpodder.py")
+        subprocess.Popen("gpodder_backend")
+
         # Wait for the initialization to be finished
         waiting_loop.run()
     return gpodder_app_iface
@@ -407,12 +408,3 @@ class gPodderChannelReader( DefaultHandler):
     
     def characters( self, ch):
         self.current_element_data = self.current_element_data + ch
-
-def main():
-    bus = dbus.SessionBus()
-    bus_name = dbus.service.BusName('net.perli.gpodder.GPodderApp', bus=bus)
-    gpodderlib = gPodderLibClass(bus_name)
-    gpodderlib.run()
-
-if __name__=='__main__':
-    main()

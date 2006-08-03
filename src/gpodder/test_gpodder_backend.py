@@ -5,7 +5,7 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
     
 import unittest
 from test import test_support
-
+from os import chdir
 import gettext
 gettext.install('gpodder')
 import libgpodder
@@ -22,7 +22,6 @@ class GPodderAppDBusTestCase(unittest.TestCase):
         self.gpodder_app_iface = dbus.Interface(self.gpodder_app_proxy,
                                                 'net.perli.gpodder.GPodderAppIFace')
     def tearDown(self):
-        # TODO:Stop the GPodderApp
         self.gpodder_app_iface.quit()
         self.failUnlessRaises(dbus.DBusException, self.gpodder_app_iface.is_running)
     
@@ -31,6 +30,11 @@ class GPodderAppDBusTestCase(unittest.TestCase):
         gpodderapp = libgpodder.gPodderLib()
         self.failUnlessEqual(True, gpodderapp.is_running())
 
+    def test_different_wd(self):
+        chdir('../..')
+        gpodderapp = libgpodder.gPodderLib()
+        self.failUnlessEqual(True, gpodderapp.is_running())
+        
 def test_main():
     test_support.run_unittest(GPodderAppDBusTestCase)
 

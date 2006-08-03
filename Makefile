@@ -6,7 +6,10 @@
 
 ##########################################################################
 
+BINDIR=$(CURDIR)/bin:$(PATH)
+LIBDIR=$(CURDIR)/src
 BINFILE=bin/gpodder
+UNITTEST=src/gpodder/rununit.py
 GLADEFILE=data/gpodder.glade
 GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
@@ -28,6 +31,7 @@ all: help
 
 help:
 	@echo 'make test            run gpodder in local directory'
+	@echo 'make unittest        run the gpodder unittests suite'
 	@echo 'make cl              make new changelog entry (1)'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make install         install gpodder into "/usr/"'
@@ -53,6 +57,9 @@ cl:
 
 test:
 	$(BINFILE) --debug
+
+unittest:
+	PATH=$(BINDIR):$(PATH) PYTHONPATH=$(LIBDIR) $(UNITTEST)
 
 deb:
 	debuild
