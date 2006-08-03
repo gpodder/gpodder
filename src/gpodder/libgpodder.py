@@ -110,6 +110,9 @@ def gPodderLib():
 
         # Wait for the initialization to be finished
         waiting_loop.run()
+
+    # Register the caller
+    gpodder_app_iface.register()
     return gpodder_app_iface
 
 
@@ -146,6 +149,7 @@ class gPodderLibClass( dbus.service.Object):
             self.ftp_proxy = environ['ftp_proxy']
         except:
             self.ftp_proxy = ''
+        self.clients_ctr = 0
         self.loadConfig()
         self.ready()
 
@@ -160,9 +164,18 @@ class gPodderLibClass( dbus.service.Object):
     def ready(self):
         pass
 
-    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
     def quit(self):
         self.main_loop.quit()
+
+    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
+    def register(self):
+        self.clients_ctr = self.clients_ctr + 1
+
+    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
+    def unregister(self):
+        self.clients_ctr = self.clients_ctr - 1
+        if self.clients_ctr <= 0:
+            self.quit()    
 
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
