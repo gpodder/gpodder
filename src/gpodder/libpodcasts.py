@@ -64,7 +64,6 @@ class podcastChannel(ListType):
         self.language = ''
         self.copyright = ''
         self.webMaster = ''
-        self.shortname = None
         self.downloaded = None
         self.__filename = None
         self.__download_dir = None
@@ -77,15 +76,15 @@ class podcastChannel(ListType):
         
     # Create all the properties
     def get_filename(self):
-        if self.__filename == None:
-            self.__filename = ""
+        if self.__filename == None or (self.__filename == '__unknown__' and self.title != None):
+            self.__filename = ''
 
             for char in self.title.lower():
                 if (char >= 'a' and char <= 'z') or (char >= 'A' and char <= 'Z') or (char >= '1' and char <= '9'):
                     self.__filename = self.__filename + char
                     
-        if self.__filename == "":
-            self.__filename = "__unknown__"
+        if self.__filename == '':
+            self.__filename = '__unknown__'
 
         return self.__filename
 
@@ -393,7 +392,7 @@ class podcastItem(object):
         try:
             size = int( self.length)
         except ValueError:
-            return '?? MB'
+            return 'n/a'
         
         kilobyte = 1024
         megabyte = kilobyte * 1024

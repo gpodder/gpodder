@@ -326,6 +326,16 @@ class gPodderChannelReader( DefaultHandler):
 
     def __init__( self):
         None
+
+    def channel_filename_exists( self, url, filename):
+        for c in self.channels:
+            if filename == c.filename and url == c.url:
+                # we've reached the position of the channel
+                # we're checking, so bug out here :)
+                return False
+            if filename == c.filename and url != c.url:
+                return True
+        return False
     
     def read( self, force_update = False, callback_proc = None):
         # callback proc should be like cb( pos, count), where pos is 
@@ -351,10 +361,17 @@ class gPodderChannelReader( DefaultHandler):
             # check if download was a success
             if cachefile != None:
                 reader.parseXML(channel.url, cachefile)
-            
-                if channel.filename != "" and channel.filename != "__unknown__":
-                    reader.channel.shortname = channel.filename
-            
+                if channel.filename != '__unknown__':
+                    proposed_filename = channel.filename
+                    if isDebugging():
+                        print 'First proposed fn: %s' % ( proposed_filename )
+                    i = 2
+                    while self.channel_filename_exists( channel.url, proposed_filename):
+                        proposed_filename = '%s%d' % ( channel.filename, i )
+                        if isDebugging():
+                            print 'New proposed fn: %s' % ( proposed_filename )
+                        i = i+1
+                    reader.channel.filename = proposed_filename
                 input_channels.append( reader.channel)
 
             position = position + 1
@@ -370,7 +387,7 @@ class gPodderChannelReader( DefaultHandler):
         
         if name == "channel":
             self.current_item = podcastChannel()
-            self.current_item.filename = attrs.get( "name", "")
+            self.current_item.filename = attrs.get( 'name', '')
     
     def endElement( self, name):
         if self.current_item != None:

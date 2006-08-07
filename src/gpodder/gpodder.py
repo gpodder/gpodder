@@ -339,7 +339,6 @@ class Gpodder(SimpleGladeApp):
                 print ("Will add channel :%s") % result
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel_new = podcastChannel( result)
-            channel_new.shortname = "__unknown__"
             self.channels.append( channel_new)
             
             # download changed channels
@@ -521,7 +520,6 @@ class Gpodder(SimpleGladeApp):
                 print 'Changing ID %d from "%s" to "%s"' % (active, channel.url, result)
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel_new = podcastChannel( result)
-            channel_new.shortname = "__unknown__"
             new_channels = self.channels[0:active]
             new_channels.append( channel_new)
             new_channels.extend( self.channels[active+1:])

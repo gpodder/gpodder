@@ -1,3 +1,11 @@
+Mon, 07 Aug 2006 13:57:59 +0200 <thomas@wilson>
+	* src/gpodder/libpodcasts.py: Improvements in get_filename
+	* src/gpodder/libgpodder.py: Generate new filenames when 
+	  different URL channels have same "filename" property, so 
+	  these don't collide (thanks to ubunt2@gmail.com for reporting)
+	* src/gpodder/gpodder.py: Removed shortname property references
+	* Clean-up: Removed orphaned "shortname" property on channel
+
 Wed, 02 Aug 2006 20:21:49 +0200 <thp@perli.net>
 	* src/gpodder/libpodcasts.py: strip channel and episode title 
           when changing it (so titles with a trailing newline don't mess 
