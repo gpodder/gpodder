@@ -22,6 +22,9 @@ EMAIL ?= $$USER@`hostname -f`
 
 DESTDIR ?= /
 
+# default editor of user has not set "EDITOR" env variable
+EDITOR ?= vim
+
 ##########################################################################
 
 all: help
@@ -42,7 +45,7 @@ help:
 ##########################################################################
 
 cl:
-	(echo "`date -R` <$(EMAIL)>"; svn status | grep ^M | sed -e 's/^M *\(.*\)/\t* \1: /'; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
+	(echo "`822-date` <$(EMAIL)>"; svn status | grep ^M | sed -e 's/^M *\(.*\)/        * \1: /'; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
 	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
 	$(EDITOR) $(CHANGELOG_EDT)
 	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)
