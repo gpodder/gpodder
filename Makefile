@@ -6,6 +6,7 @@
 
 ##########################################################################
 
+
 BINDIR=$(CURDIR)/bin:$(PATH)
 LIBDIR=$(CURDIR)/src
 BINFILE=bin/gpodder
@@ -32,6 +33,7 @@ all: help
 help:
 	@echo 'make test            run gpodder in local directory'
 	@echo 'make unittest        run the gpodder unittests suite'
+	@echo 'make doc             creates doxgen documentation'
 	@echo 'make cl              make new changelog entry (1)'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make install         install gpodder into "/usr/"'
@@ -60,6 +62,9 @@ test:
 
 unittest:
 	PATH=$(BINDIR):$(PATH) PYTHONPATH=$(LIBDIR) $(UNITTEST)
+
+doc:	src/gpodder/*.py
+	doxygen Doxyfile
 
 deb:
 	debuild

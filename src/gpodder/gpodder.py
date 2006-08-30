@@ -85,11 +85,13 @@ artwork_dir = '/usr/share/gpodder/images/'
 locale_dir = '/usr/share/locale/'
 
 class Gpodder(SimpleGladeApp):
+    ##- \todo move to GpodderLibClass
     channels = []
     
     active_item = None
     items_model = None
-    
+
+    ##- \todo move to GpodderLibClass
     active_channel = None
     channels_model = None
 
@@ -118,6 +120,7 @@ class Gpodder(SimpleGladeApp):
         #self.gPodder.set_title( self.gPodder.get_title())
         #self.statusLabel.set_text( "Welcome to gPodder! Suggestions? Mail to: thp@perli.net")
         # set up the rendering of the comboAvailable combobox
+        ##- \todo refactor both combos in a function
         cellrenderer = gtk.CellRendererText()
         self.comboAvailable.pack_start( cellrenderer, True)
         self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
@@ -129,6 +132,7 @@ class Gpodder(SimpleGladeApp):
 
         #See http://www.pygtk.org/pygtk2tutorial/sec-CellRenderers.html
         #gtk.TreeViewColumn( "", gtk.CellRendererToggle(), active=3),
+        ##- \todo refactor the different cells in a function
         namecell = gtk.CellRendererText()
         namecell.set_property('cell-background', 'white')
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
@@ -178,15 +182,19 @@ class Gpodder(SimpleGladeApp):
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # read and display subscribed channels
+        # \todo move to GpodderLibClass
         reader = gPodderChannelReader()
         self.channels = reader.read( False)
         self.channels_loaded = True
 
         # keep Downloaded channels list
+        # \todo move to GpodderLibClass
         self.downloaded_channels = None
         self.active_downloaded_channels = 0
-        
+
+        # \todo connect to the core
         # update view
+        # \todo remove. This is called by callbacks.
         self.updateComboBox()
         self.updateDownloadedComboBox()
 
@@ -212,6 +220,7 @@ class Gpodder(SimpleGladeApp):
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
         # Update the feed list if the user has set it up
+        # \todo move to GpodderLibClass
         if gPodderLib().update_on_startup:
             self.update_feed_cache()
     #-- Gpodder.new }
@@ -232,6 +241,7 @@ class Gpodder(SimpleGladeApp):
         #self.updateTreeView()
 
     def updateDownloadedComboBox( self):
+        # \todo move to GpodderLibClass
         # now, update downloaded feeds tab:
         if self.ldb == None:
             self.ldb = localDB()
@@ -327,11 +337,16 @@ class Gpodder(SimpleGladeApp):
         self.channels = gPodderChannelReader().read( False)
         
         # check if gPodderChannelReader has successfully added the channel
+        # \todo There is no new channel in refetch_channel_list!
         if channels_should_be > len( self.channels):
             self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
-    
+
+    # \todo could go directly in the list.
     def add_new_channel( self, result = None):
+        # \todo The available types should not be hardcoded here.
+        # \todo They should be handled by a plugin system.
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+            # \todo The titles of the chans could be compared.
             for old_channel in self.channels:
                 if old_channel.url == result:
                     if isDebugging():

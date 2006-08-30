@@ -179,6 +179,7 @@ class podcastChannel(ListType):
     def isDownloaded( self, item):
         return self.podcastFilenameExists( item.url)
 
+    # \todo Move away. We don't want gtk code in the core.
     def getItemsModel( self, want_color = True):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
