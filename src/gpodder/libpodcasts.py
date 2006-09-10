@@ -56,6 +56,11 @@ from email.Utils import parsedate_tz
 
 import md5
 
+from xml.sax.saxutils import DefaultHandler
+from xml.sax.handler import ErrorHandler
+from xml.sax import make_parser
+from string import strip
+
 class podcastChannel(ListType):
     """holds data for a complete channel"""
     def __init__( self, url = "", title = "", link = "", description = ""):
@@ -226,10 +231,18 @@ class podcastChannel(ListType):
 
             # check if download was a success
             if exists( self.cache_file) == False:
+                # FIXME: this should raise an exception
                 return None
         
         return self.cache_file
-    
+
+    def update(self, rss_update):
+        cachefile = self.downloadRss(rss_update)
+        # check if download was a success
+        if cachefile != None:
+            reader = rssReader()
+            reader.parseXML(self, cachefile)
+            
     def get_save_dir(self):
         savedir = self.download_dir + self.filename + "/"
         if createIfNecessary( savedir) == False:
@@ -427,3 +440,89 @@ def stripHtml( html):
         stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
     return stripstr
 
+class rssErrorHandler( ErrorHandler):
+    def __init__( self):
+        None
+
+    def error( self, exception):
+        print exception
+
+    def fatalError( self, exception):
+        print "FATAL ERROR: ", exception
+
+    def warning( self, exception):
+        print "warning: ", exception
+
+class rssReader( DefaultHandler):
+    channel_url = ""
+    channel = None
+    current_item = None
+    current_element_data = ""
+
+    def __init__( self):
+        None
+    
+    def parseXML( self, channel, filename):
+        self.channel = channel
+        parser = make_parser()
+	parser.returns_unicode = True
+        parser.setContentHandler( self)
+	parser.setErrorHandler( rssErrorHandler())
+        # no multithreaded access to filename
+        libgpodder.getLock()
+        try:
+            parser.parse( filename)
+        finally:
+            libgpodder.releaseLock()
+    
+    def startElement( self, name, attrs):
+        self.current_element_data = ""
+
+        # We ignore the channel tag. 
+#        if name == "channel":
+#            pass 
+        if name == "item":
+            self.current_item = podcastItem()
+        
+        if name == "enclosure" and self.current_item != None:
+            self.current_item.url = attrs.get( "url", "")
+            self.current_item.length = attrs.get( "length", "")
+            self.current_item.mimetype = attrs.get( "type", "")
+
+        if name == "itunes:image":
+            self.channel.image = attrs.get( "href", "")
+    
+    def endElement( self, name):
+        if self.current_item == None:
+            if name == "title":
+                self.channel.title = self.current_element_data
+            if name == "link":
+                self.channel.link = self.current_element_data
+            if name == "description":
+                self.channel.description = stripHtml( self.current_element_data)
+            if name == "pubDate":
+                self.channel.pubDate = self.current_element_data
+            if name == "language":
+                self.channel.language = self.current_element_data
+            if name == "copyright":
+                self.channel.copyright = self.current_element_data
+            if name == "webMaster":
+                self.channel.webMaster = self.current_element_data
+        
+        if self.current_item != None:
+            if name == "title":
+                self.current_item.title = self.current_element_data
+            if name == "link":
+                self.current_item.link = self.current_element_data
+            if name == "description":
+                self.current_item.description = stripHtml( self.current_element_data)
+            if name == "guid":
+                self.current_item.guid = self.current_element_data
+            if name == "pubDate":
+                self.current_item.pubDate = self.current_element_data
+            if name == "item":
+                self.channel.addItem( self.current_item)
+                self.current_item = None
+    
+    def characters( self, ch):
+        self.current_element_data = self.current_element_data + ch

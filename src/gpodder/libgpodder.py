@@ -51,7 +51,6 @@ from stat import ST_MODE
 import gettext
 gettext.install('gpodder')
 
-import librssreader
 from libpodcasts import podcastChannel
 from libplayers import dotdesktop_command
 from utils import deleteFilename
@@ -300,6 +299,7 @@ class gPodderChannelWriter( object):
         print >> fd, '</channels>'
         fd.close()
 
+
 class gPodderChannelReader( DefaultHandler):
     channels = []
     current_item = None
@@ -319,25 +319,19 @@ class gPodderChannelReader( DefaultHandler):
             parser.parse( gPodderLib().getChannelsFilename())
         else:
             return []
-        reader = librssreader.rssReader()
         input_channels = []
         
         channel_count = len( self.channels)
         position = 0
+        
+        ## FIXME: This can be made simpler.
         for channel in self.channels:
             if callback_proc != None:
                 callback_proc( position, channel_count)
 
-            cachefile = channel.downloadRss(force_update)
-            # check if download was a success
-            if cachefile != None:
-                reader.parseXML(channel.url, cachefile)
-            
-                if channel.filename != "" and channel.filename != "__unknown__":
-                    reader.channel.shortname = channel.filename
-            
-                input_channels.append( reader.channel)
-
+            channel.update(force_update)
+            input_channels.append(channel)
+                
             position = position + 1
 
         # the last call sets everything to 100% (hopefully ;)
