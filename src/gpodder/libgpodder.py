@@ -66,12 +66,6 @@ from xml.sax import saxutils
 
 import subprocess
 
-import dbus
-import dbus.service
-import gobject
-if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
-    import dbus.glib
-
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
 
@@ -88,35 +82,14 @@ def releaseLock():
     globalLock.release()
 
 
-
+# some awkward kind of "singleton" ;)
 def gPodderLib():
-    """Returns a proxy object for a gPodderLibClass, starting the
-    service if necessary"""        
-    # Initialize dbus
-    bus = dbus.SessionBus()
-    gpodder_app_proxy = bus.get_object('net.perli.gpodder.GPodderApp',
-                                       '/net/perli/gpodder/GPodderApp')
-    gpodder_app_iface = dbus.Interface(gpodder_app_proxy,
-                                       'net.perli.gpodder.GPodderAppIFace')
-    try:
-        gpodder_app_iface.is_running()
-    except dbus.DBusException:
-        waiting_loop = gobject.MainLoop()
-        # Setup a callback to be able to quit the waiting loop)
-        bus.add_signal_receiver(waiting_loop.quit, signal_name='ready',
-                                dbus_interface='net.perli.gpodder.GPodderAppIFace')
-        # Start the service
-        subprocess.Popen("gpodder_backend")
+    global g_podder_lib
+    if g_podder_lib == None:
+        g_podder_lib = gPodderLibClass()
+    return g_podder_lib
 
-        # Wait for the initialization to be finished
-        waiting_loop.run()
-
-    # Register the caller
-    gpodder_app_iface.register()
-    return gpodder_app_iface
-
-
-class gPodderLibClass( dbus.service.Object):
+class gPodderLibClass:
     gpodderdir = ""
     downloaddir = ""
     cachedir = ""
@@ -130,11 +103,7 @@ class gPodderLibClass( dbus.service.Object):
     desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
-    def __init__( self, bus_name, object_path='/net/perli/gpodder/GPodderApp'):
-        print "initialising gpodderlib"
-        dbus.service.Object.__init__(self, bus_name, object_path)
-        self.main_loop = gobject.MainLoop()
-        
+    def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         createIfNecessary( self.gpodderdir)
         self.downloaddir = self.gpodderdir + "downloads/"
@@ -151,31 +120,6 @@ class gPodderLibClass( dbus.service.Object):
             self.ftp_proxy = ''
         self.clients_ctr = 0
         self.loadConfig()
-        self.ready()
-
-    def run(self):
-        self.main_loop.run()
-
-    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
-    def is_running(self):
-        return True
-        
-    @dbus.service.signal('net.perli.gpodder.GPodderAppIFace')
-    def ready(self):
-        pass
-
-    def quit(self):
-        self.main_loop.quit()
-
-    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
-    def register(self):
-        self.clients_ctr = self.clients_ctr + 1
-
-    @dbus.service.method('net.perli.gpodder.GPodderAppIFace')
-    def unregister(self):
-        self.clients_ctr = self.clients_ctr - 1
-        if self.clients_ctr <= 0:
-            self.quit()    
 
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
