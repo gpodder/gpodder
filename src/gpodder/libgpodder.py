@@ -29,6 +29,7 @@ import gtk
 import thread
 import threading
 import urllib
+import gobject
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -52,6 +53,7 @@ import gettext
 gettext.install('gpodder')
 
 from libpodcasts import podcastChannel
+from libpodcasts import WrongRssError
 from libplayers import dotdesktop_command
 from utils import deleteFilename
 from utils import createIfNecessary
@@ -284,6 +286,41 @@ class gPodderLibClass:
         args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
         thread = threading.Thread( target = self.image_download_thread, args = args)
         thread.start()
+
+class ChannelList(gobject.GObject):
+    def __init__(self):
+        # ChannelList can not inherit from ListType because ListType
+        # and GObject conflict as base classes. (call that a base
+        # clash :)
+        gobject.GObject.__init__(self)
+        self.channels = []
+        
+    def append(self, item):
+        if isinstance(item, str):
+            item = podcastChannel(item)
+        try:
+            item.update(True)
+            if not self.dupe(item):
+                self.channels.append(item)
+                self.emit("updated", self)
+
+        except WrongRssError, e:
+            print e
+        
+    def dupe(self, item):
+        for i in self.channels:
+            if i.url == item.url:
+                return True
+        return False
+
+    def __getitem__(self, index):
+        return self.channels[index]
+
+    def __len__(self):
+        return len(self.channels)
+    
+
+gobject.signal_new("updated", ChannelList, gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (ChannelList,))
 
 class gPodderChannelWriter( object):
     def write( self, channels):

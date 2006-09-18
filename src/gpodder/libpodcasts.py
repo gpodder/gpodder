@@ -61,6 +61,9 @@ from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
 from string import strip
 
+class WrongRssError(Exception):
+    pass
+
 class podcastChannel(ListType):
     """holds data for a complete channel"""
     def __init__( self, url = "", title = "", link = "", description = ""):
@@ -242,6 +245,8 @@ class podcastChannel(ListType):
         if cachefile != None:
             reader = rssReader()
             reader.parseXML(self, cachefile)
+        else:
+            raise WrongRssError('Could not download RSS file')
             
     def get_save_dir(self):
         savedir = self.download_dir + self.filename + "/"
