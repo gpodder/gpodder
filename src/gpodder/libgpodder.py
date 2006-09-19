@@ -298,6 +298,9 @@ class ChannelList(gobject.GObject):
     def append(self, item):
         if isinstance(item, str):
             item = podcastChannel(item)
+        elif not isinstance(item, podcastChannel):
+            raise TypeError('item should be a string or a podcastChannel')
+        
         try:
             item.update(True)
             if not self.dupe(item):
@@ -313,6 +316,19 @@ class ChannelList(gobject.GObject):
                 return True
         return False
 
+    def update(self):
+        for chan in self.channels:
+            chan.update(True)
+
+    def __delitem__(self, item):
+        if isinstance(item, podcastChannel):
+            item = self.channels.index(item)
+        elif not isinstance(item, int):
+            raise TypeError('item should be an int or a podcastChannel')
+        del self.channels[item]
+        self.emit("updated", self)
+
+        
     def __getitem__(self, index):
         return self.channels[index]
 

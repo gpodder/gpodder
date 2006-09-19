@@ -33,9 +33,25 @@ class ChannelListTestCase(unittest.TestCase):
         self.cur_list.append('http://www.osnews.com/files/podcast.xml')
         self.failUnlessEqual(len(self.cur_list), 1)
 
+class ChannelListDelTestCase(unittest.TestCase):
+
+    # Only use setUp() and tearDown() if necessary
+
+    def setUp(self):
+        self.cur_list = ChannelList()
+        self.cur_list.append('http://www.osnews.com/files/podcast.xml')
+
+    def test_del_by_index(self):
+        del self.cur_list[0]
+        self.failUnlessEqual(len(self.cur_list), 0)
+
+    def test_del_by_object(self):
+        del self.cur_list[self.cur_list[0]]
+        self.failUnlessEqual(len(self.cur_list), 0)
         
 def test_main():
-    test_support.run_unittest(ChannelListTestCase)
+    test_support.run_unittest(ChannelListTestCase,
+                              ChannelListDelTestCase)
 
 if __name__ == '__main__':
     test_main()
