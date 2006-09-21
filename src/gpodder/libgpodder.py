@@ -295,14 +295,14 @@ class ChannelList(gobject.GObject):
         gobject.GObject.__init__(self)
         self.channels = []
         
-    def append(self, item):
+    def append(self, item, update_rss=True):
         if isinstance(item, str):
             item = podcastChannel(item)
         elif not isinstance(item, podcastChannel):
             raise TypeError('item should be a string or a podcastChannel')
         
         try:
-            item.update(True)
+            item.update(update_rss)
             if not self.dupe(item):
                 self.channels.append(item)
                 self.emit("updated", self)
@@ -319,6 +319,27 @@ class ChannelList(gobject.GObject):
     def update(self):
         for chan in self.channels:
             chan.update(True)
+
+    def load_from_file(self, chan_file, update_rss=False):
+        parser = make_parser()
+        reader = gPodderChannelReader()
+
+        parser.setContentHandler( reader)
+        parser.parse( chan_file)
+
+        for channel in reader.channels:
+            self.append(channel, update_rss)
+
+    def save_to_file(self, chan_file):
+        print >> chan_file, '<!-- '+_('gPodder channel list')+' -->'
+        print >> chan_file, '<channels>'
+        for chan in self.channels:
+            print >> chan_file, '  <channel name="%s">' % chan.filename
+            print >> chan_file, '    <url>%s</url>' % saxutils.escape( chan.url)
+            print >> chan_file, '    <download_dir>%s</download_dir>' % saxutils.escape( chan.save_dir)
+            print >> chan_file, '  </channel>'
+        print >> chan_file, '</channels>'
+        
 
     def __delitem__(self, item):
         if isinstance(item, podcastChannel):
@@ -353,13 +374,11 @@ class gPodderChannelWriter( object):
         fd.close()
 
 
-class gPodderChannelReader( DefaultHandler):
-    channels = []
-    current_item = None
-    current_element_data = ""
 
+
+class gPodderChannelReader( DefaultHandler):
     def __init__( self):
-        None
+        self.channels = []
     
     def read( self, force_update = False, callback_proc = None):
         # callback proc should be like cb( pos, count), where pos is 
