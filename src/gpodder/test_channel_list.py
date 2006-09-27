@@ -25,10 +25,6 @@ class ChannelListTestCase(unittest.TestCase):
         self.failUnlessEqual(len(self.cur_list), 1)
         self.failUnless(isinstance(self.cur_list[0], podcastChannel))
 
-    def test_add_invalid_channel(self):
-        self.cur_list.append('invalid url')
-        self.failUnlessEqual(len(self.cur_list), 0)
-
     def test_add_dupe(self):
         cur_chan = podcastChannel('http://www.osnews.com/files/podcast.xml')
         self.cur_list.append(cur_chan)

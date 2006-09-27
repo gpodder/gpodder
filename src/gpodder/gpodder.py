@@ -40,6 +40,7 @@ from SimpleGladeApp import SimpleGladeApp
 from SimpleGladeApp import bindtextdomain
 
 from libpodcasts import podcastChannel
+from libpodcasts import WrongRssError
 from libpodcasts import podcastItem
 
 from libpodcasts import channelsToModel
@@ -51,6 +52,7 @@ from libwget import downloadThread
 from libwget import downloadStatusManager
 
 from libgpodder import gPodderLib
+from libgpodder import ChannelList
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 
@@ -123,7 +125,7 @@ class Gpodder(SimpleGladeApp):
         ##- \todo refactor both combos in a function
         cellrenderer = gtk.CellRendererText()
         self.comboAvailable.pack_start( cellrenderer, True)
-        self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
+        self.comboAvailable.add_attribute( cellrenderer, 'text', 1)        
 
         # set up the rendering of the comboDownloaded combobox
         cellrenderer = gtk.CellRendererText()
@@ -183,8 +185,19 @@ class Gpodder(SimpleGladeApp):
         
         # read and display subscribed channels
         # \todo move to GpodderLibClass
-        reader = gPodderChannelReader()
-        self.channels = reader.read( False)
+        self.channels = ChannelList()
+        ## connect the signals to update the views
+        self.channels.connect("updated", self.updateComboBox)
+        
+        self.core = gPodderLib()
+        # Update the feed list if the user has set it up
+        # \todo move to GpodderLibClass
+        if self.core.update_on_startup:
+            update_rss = True
+        else:
+            update_rss = False
+        self.channels.load_from_file(self.core.getChannelsFilename(),
+                                     update_rss=update_rss)
         self.channels_loaded = True
 
         # keep Downloaded channels list
@@ -192,10 +205,8 @@ class Gpodder(SimpleGladeApp):
         self.downloaded_channels = None
         self.active_downloaded_channels = 0
 
-        # \todo connect to the core
         # update view
         # \todo remove. This is called by callbacks.
-        self.updateComboBox()
         self.updateDownloadedComboBox()
 
         # tooltips :)
@@ -219,10 +230,6 @@ class Gpodder(SimpleGladeApp):
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
-        # Update the feed list if the user has set it up
-        # \todo move to GpodderLibClass
-        if gPodderLib().update_on_startup:
-            self.update_feed_cache()
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
@@ -230,15 +237,14 @@ class Gpodder(SimpleGladeApp):
         self.cleanup_ipod.set_sensitive( enable)
         self.sync_to_ipod.set_sensitive( enable)
     
-    def updateComboBox( self):
-        self.channels_model = channelsToModel( self.channels)
+    def updateComboBox( self, channels):
+        self.channels_model = channelsToModel( channels)
         
         self.comboAvailable.set_model( self.channels_model)
         try:
             self.comboAvailable.set_active( 0)
         except:
             pass
-        #self.updateTreeView()
 
     def updateDownloadedComboBox( self):
         # \todo move to GpodderLibClass
@@ -326,44 +332,42 @@ class Gpodder(SimpleGladeApp):
         self.add_new_channel( result)
 
     def refetch_channel_list( self):
-        channels_should_be = len( self.channels)
+        pass
+        #channels_should_be = len( self.channels)
         
         # fetch metadata for that channel
-        gPodderChannelWriter().write( self.channels)
-        self.channels = gPodderChannelReader().read( False)
+        #gPodderChannelWriter().write( self.channels)
+        #self.channels = gPodderChannelReader().read( False)
         
         # fetch feed for that channel
-        gPodderChannelWriter().write( self.channels)
-        self.channels = gPodderChannelReader().read( False)
+        #gPodderChannelWriter().write( self.channels)
+        #self.channels = gPodderChannelReader().read( False)
         
         # check if gPodderChannelReader has successfully added the channel
         # \todo There is no new channel in refetch_channel_list!
-        if channels_should_be > len( self.channels):
-            self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
+        #if channels_should_be > len( self.channels):
+        #    self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
 
     # \todo could go directly in the list.
     def add_new_channel( self, result = None):
         # \todo The available types should not be hardcoded here.
         # \todo They should be handled by a plugin system.
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
-            # \todo The titles of the chans could be compared.
-            for old_channel in self.channels:
-                if old_channel.url == result:
-                    if isDebugging():
-                        print 'channel already exists in my list :)'
-                    return
+
             if isDebugging():
                 print ("Will add channel :%s") % result
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel_new = podcastChannel( result)
             channel_new.shortname = "__unknown__"
-            self.channels.append( channel_new)
-            
-            # download changed channels
-            self.refetch_channel_list()
-
-            # try to update combo box
-            self.updateComboBox()
+            ## Updating the channels allows to check the validity of
+            ## the url and of the channel content.
+            ## \todo Handle the exception
+            try:
+                channel_new.update(rss_update=True)
+                self.channels.append(channel_new)
+            except WrongRssError, e:
+                 self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
+            # Cleanup the status
             self.statusLabel.set_text( "")
         else:
             if result != None and result != "":
@@ -424,7 +428,7 @@ class Gpodder(SimpleGladeApp):
         self.channels = reader.read( True, lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
         please_wait.destroy()
         #self.labelStatus.set_text( "")
-        self.updateComboBox()
+        #self.updateComboBox()
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
         self.active_item = self.channels[self.active_channel].getActiveByUrl( url)
@@ -458,7 +462,9 @@ class Gpodder(SimpleGladeApp):
             print "close_gpodder called with self.%s" % widget.get_name()
         
         if self.channels_loaded:
-            gPodderChannelWriter().write( self.channels)
+            chan_file = open(self.core.getChannelsFilename(), 'w')
+            self.channels.save_to_file(chan_file)
+            chan_file.close()
 
         # cancel downloads by killing all threads in the list
         if self.download_status_manager:
@@ -563,7 +569,6 @@ class Gpodder(SimpleGladeApp):
             self.channels.remove( self.channels[self.active_channel])
             gPodderChannelWriter().write( self.channels)
             self.channels = gPodderChannelReader().read( False)
-            self.updateComboBox()
         except:
             self.showMessage( _("Could not delete channel.\nProbably no channel is selected."))
     #-- Gpodder.on_itemRemoveChannel_activate }
@@ -596,7 +601,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemImportChannels_activate {
     def on_itemImportChannels_activate(self, widget, *args):
-        if libgpodder.isDebugging:
+        if isDebugging:
             print "on_itemImportChannels_activate called with self.%s" % widget.get_name()
         opml_lister = Gpodderopmllister()
         

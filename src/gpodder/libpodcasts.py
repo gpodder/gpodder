@@ -89,7 +89,9 @@ class podcastChannel(ListType):
         
     # Create all the properties
     def get_filename(self):
-        if self.__filename == None:
+        ## Checking for '__unknown__' avoids to always have this value
+        ## after the first download.
+        if self.__filename == None or self.__filename == "__unknown__":
             self.__filename = ""
 
             for char in self.title.lower():
@@ -108,6 +110,7 @@ class podcastChannel(ListType):
                         fset=set_filename)
     
     def addItem( self, item):
+        ## \todo Check for dupes
         self.append( item)
 
     def get_localdb_channel( self):

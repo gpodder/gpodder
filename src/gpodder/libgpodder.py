@@ -301,14 +301,12 @@ class ChannelList(gobject.GObject):
         elif not isinstance(item, podcastChannel):
             raise TypeError('item should be a string or a podcastChannel')
         
-        try:
-            item.update(update_rss)
-            if not self.dupe(item):
-                self.channels.append(item)
-                self.emit("updated", self)
-
-        except WrongRssError, e:
-            print e
+        item.update(update_rss)
+        if not self.dupe(item):
+            self.channels.append(item)
+            self.emit("updated")
+        else:
+            self.emit("duplicate")
         
     def dupe(self, item):
         for i in self.channels:
@@ -355,9 +353,13 @@ class ChannelList(gobject.GObject):
 
     def __len__(self):
         return len(self.channels)
-    
 
-gobject.signal_new("updated", ChannelList, gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (ChannelList,))
+    def __iter__(self):
+        for item in self.channels:
+            yield item
+
+gobject.signal_new("updated", ChannelList, gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+gobject.signal_new("duplicate", ChannelList, gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
 
 class gPodderChannelWriter( object):
     def write( self, channels):
