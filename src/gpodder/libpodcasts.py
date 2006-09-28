@@ -110,8 +110,8 @@ class podcastChannel(ListType):
                         fset=set_filename)
     
     def addItem( self, item):
-        ## \todo Check for dupes
-        self.append( item)
+        if not self.dupe(item):
+            self.append( item)
 
     def get_localdb_channel( self):
         ch = None
@@ -351,6 +351,12 @@ class podcastChannel(ListType):
             return True
 	return False
 
+    def dupe(self, item):
+        for i in self:
+            if i.url == item.url:
+                return True
+        return False
+            
 class podcastItem(object):
     """holds data for one object in a channel"""
     def __init__( self,
