@@ -218,8 +218,7 @@ class gPodder_iPodSync(object):
             track_length = eyed3_info.getPlayTime() * 1000 # in milliseconds
             # TODO: how to get length of video (mov, mp4, m4v) files??
         except:
-            if libgpodder.isDebugging():
-                print '(ipodsync) Warning: cannot get length for %s, will use zero-length' % episode.title
+            print '(ipodsync) Warning: cannot get length for %s, will use 1 hour' % episode.title
             track_length = 20*60*1000 # hmm.. (20m so we can skip on video/audio with unknown length)
         
         track = gpod.itdb_track_new()
