@@ -40,6 +40,7 @@ except:
 import os
 import sys
 import time
+import email.Utils
 
 import libgpodder
 import liblocaldb
@@ -229,6 +230,12 @@ class gPodder_iPodSync(object):
             track.artist = 'gPodder podcast'
             self.set_podcast_flags( track)
         
+        # Add release time to track if pubDate is parseable
+        ipod_date = email.Utils.parsedate(episode.pubDate)
+        if ipod_date != None:
+            # + 2082844800 for unixtime => mactime (1970 => 1904)
+            track.time_released = time.mktime(ipod_date) + 2082844800
+        
         track.title = str(episode.title)
         track.album = str(channel.title)
         track.tracklen = track_length
@@ -241,6 +248,12 @@ class gPodder_iPodSync(object):
         playlist = self.get_playlist_for_channel( channel)
         gpod.itdb_playlist_add_track( playlist, track, -1)
 
+        # Copy channel cover file to iPod
+        cover_filename = os.path.dirname( local_filename) + '/cover'
+        if os.path.isfile( cover_filename):
+            # Copy it to the iPod only if it exists
+            gpod.itdb_track_set_thumbnails( track, cover_filename)
+        
         # dirty hack to get video working, seems to work
         for ext in video_extensions:
             if local_filename.lower().endswith( '.%s' % ext):
