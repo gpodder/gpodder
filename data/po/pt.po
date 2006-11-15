@@ -1,0 +1,638 @@
+# gPodder translation template.
+# Copyright (C) 2006 Thomas Perl
+# This file is distributed under the same license as the gPodder package.
+# Thomas Perl <thp@perli.net>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gPodder 0.8.0+svn20061113\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-11-15 09:31+0000\n"
+"PO-Revision-Date: 2006-11-15 09:57+0100\n"
+"Last-Translator: xplode_me <xplode_me@beryl-project.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/gpodder/console.py:85
+#, python-format
+msgid "delete channel: %s"
+msgstr "apagar podcast: %s"
+
+#: src/gpodder/console.py:88
+#, python-format
+msgid "%s is not a valid id"
+msgstr "%s não é um id válido"
+
+#: src/gpodder/gpodder.py:71
+msgid "Contributors / patch writers:"
+msgstr "Contribuidores:"
+
+#: src/gpodder/gpodder.py:75
+msgid "See the AUTHORS file for all contributors"
+msgstr "Veja o ficheiro AUTHORS para todos os contribuidores"
+
+#: src/gpodder/gpodder.py:132
+#: src/gpodder/gpodder.py:157
+#: src/gpodder/gpodder.py:163
+msgid "Episode"
+msgstr "Episódio"
+
+#: src/gpodder/gpodder.py:137
+msgid "Size"
+msgstr "Tamanho"
+
+#: src/gpodder/gpodder.py:142
+msgid "Released"
+msgstr "Publicado"
+
+#: src/gpodder/gpodder.py:166
+msgid "Speed"
+msgstr "Velocidade"
+
+#: src/gpodder/gpodder.py:169
+msgid "Progress"
+msgstr "Progresso"
+
+#: src/gpodder/gpodder.py:193
+msgid "Channel Info"
+msgstr "Informação do podcast"
+
+#: src/gpodder/gpodder.py:211
+#, python-format
+msgid ""
+"<b>gPodder development version %s</b>\n"
+"Use at your own risk, but also enjoy new features :)"
+msgstr ""
+"<b>Versão de desenvolvimento do gPodder %s</b>\n"
+"Use a seu próprio risco, mas aprecie as novas funcionalidades :)"
+
+#: src/gpodder/gpodder.py:244
+msgid "No downloaded podcasts found."
+msgstr "Sem podcasts descarregados."
+
+#: src/gpodder/gpodder.py:254
+msgid ""
+"<b>No channels found</b>\n"
+"\n"
+"Click on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a new channel."
+msgstr ""
+"<b>Não foram encontrados podcasts</b>\n"
+"\n"
+"Clique em <b><i>Podcasts</i></b> &gt; <b><i>Adicionar podcast...</i></b> para adicionar um novo podcast."
+
+#: src/gpodder/gpodder.py:256
+msgid "gPodder message"
+msgstr "Mensagem gPodder"
+
+#: src/gpodder/gpodder.py:264
+msgid "Do you really want to do this?"
+msgstr "Quer mesmo fazer isto?"
+
+#: src/gpodder/gpodder.py:264
+msgid "gPodder confirmation"
+msgstr "Confirmação gPodder"
+
+#: src/gpodder/gpodder.py:329
+msgid ""
+"There has been an error adding the channel.\n"
+"Maybe the URL is wrong?"
+msgstr ""
+"Houve um erro ao adicionar o podcast.\n"
+"Talvez o URL esteja errado?"
+
+#: src/gpodder/gpodder.py:340
+#: src/gpodder/gpodder.py:521
+msgid "Fetching channel index..."
+msgstr "Descarregando índice do podcast"
+
+#: src/gpodder/gpodder.py:352
+msgid ""
+"Could not add new channel.\n"
+"Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
+msgstr ""
+"Impossível adicionar novo podcast.\n"
+"Apenas URLs <b>http://</b> e <b>ftp://</b> são suportados de momento."
+
+#: src/gpodder/gpodder.py:363
+msgid ""
+"Cannot access iPod.\n"
+"Make sure your iPod is connected and mounted."
+msgstr ""
+"Impossível aceder ao iPod.\n"
+"Certifique-se que o iPod está ligado e montado."
+
+#: src/gpodder/gpodder.py:376
+msgid ""
+"Cannot access iPod.\n"
+"Make sure your iPod is connected."
+msgstr ""
+"Impossível aceder ao iPod.\n"
+"Certifique-se que o iPod está ligado."
+
+#: src/gpodder/gpodder.py:383
+#: src/gpodder/gpodder.py:1114
+#, python-format
+msgid "%d of %d"
+msgstr "%d de %d"
+
+#: src/gpodder/gpodder.py:388
+msgid "Updating feed cache"
+msgstr "Actualizar cache da feed"
+
+#: src/gpodder/gpodder.py:393
+msgid "Please wait - gPodder is updating its feed cache..."
+msgstr "Aguarde - o gPodder está a actualizar a cache dos podcasts"
+
+#: src/gpodder/gpodder.py:428
+msgid ""
+"You have already downloaded this episode\n"
+"or you are currently downloading it."
+msgstr ""
+"Já descarregou este episódio\n"
+"ou está a descarregá-lo."
+
+#: src/gpodder/gpodder.py:475
+msgid "Do you really want to truncate the Podcasts playlist on your iPod?"
+msgstr "Deseja mesmo truncar a playlist de podcasts no seu iPod?"
+
+#: src/gpodder/gpodder.py:514
+msgid ""
+"Cannot edit this channel.\n"
+"\n"
+"No channel found."
+msgstr ""
+"Impossível editar este podcast.\n"
+"\n"
+"Nenhum podcast encontrado."
+
+#: src/gpodder/gpodder.py:542
+#, python-format
+msgid ""
+"Do you really want to remove this channel?\n"
+"\n"
+" %s"
+msgstr ""
+"Deseja mesmo remover este podcast?\n"
+"\n"
+"%s"
+
+#: src/gpodder/gpodder.py:549
+msgid ""
+"Could not delete channel.\n"
+"Probably no channel is selected."
+msgstr ""
+"Impossível apagar o podcast.\n"
+"Provavelmente nenhum podcast foi seleccionado."
+
+#: src/gpodder/gpodder.py:557
+msgid "Your channel list is empty. Nothing to export."
+msgstr "A sua lista de podcasts está vazia. Nada para exportar."
+
+#: src/gpodder/gpodder.py:559
+msgid "Export to OPML"
+msgstr "Exportar para OPML"
+
+#: src/gpodder/gpodder.py:600
+msgid "translator-credits"
+msgstr "créditos dos tradutores"
+
+#: src/gpodder/gpodder.py:649
+msgid "You have not selected an episode to download."
+msgstr "Não seleccionou um episódio para descarregar."
+
+#: src/gpodder/gpodder.py:680
+msgid "Do you really want to cancel this download?"
+msgstr "Deseja mesmo cancelar este download?"
+
+#: src/gpodder/gpodder.py:682
+#, python-format
+msgid "Do you really want to cancel %d downloads?"
+msgstr "Deseja mesmo cancelar %d downloads ?"
+
+#: src/gpodder/gpodder.py:751
+msgid "No episode selected."
+msgstr "Sem episódio seleccionado."
+
+#: src/gpodder/gpodder.py:777
+msgid "Do you really want to remove this episode?"
+msgstr "Deseja mesmo remover este episódio?"
+
+#: src/gpodder/gpodder.py:779
+#, python-format
+msgid "Do you really want to remove %d episodes?"
+msgstr "Deseja mesmo remover %d epsódios?"
+
+#: src/gpodder/gpodder.py:849
+#: src/gpodder/gpodder.py:850
+#: src/gpodder/libpodcasts.py:363
+#: data/gpodder.glade.h:1
+msgid "(unknown)"
+msgstr "(desconhecido)"
+
+#: src/gpodder/gpodder.py:1158
+msgid "Subscribe"
+msgstr "Assinar"
+
+#: src/gpodder/gpodder.py:1161
+msgid "Channel name"
+msgstr "Nome do podcast"
+
+#: src/gpodder/gpodder.py:1236
+msgid "Please do not call gpodder.py directly. Instead, call the gpodder binary."
+msgstr "Por favor não corre o gpodder.py directamente. Ao invés, corra o binário."
+
+#: src/gpodder/libgpodder.py:102
+msgid "gPodder downloads"
+msgstr "Downloads gPodder"
+
+#: src/gpodder/libgpodder.py:261
+msgid "Downloading channel cover..."
+msgstr "A descarregar capa do podcast..."
+
+#: src/gpodder/libgpodder.py:312
+msgid "gPodder channel list"
+msgstr "Lista de podcasts gPodder"
+
+#: src/gpodder/libipodsync.py:98
+msgid "Saving iPod database..."
+msgstr "A guardar base de dados do iPod"
+
+#: src/gpodder/libipodsync.py:184
+#, python-format
+msgid "Complete: %s"
+msgstr "Completo: %s"
+
+#: src/gpodder/libipodsync.py:207
+#, python-format
+msgid "%s (to \"%s\")"
+msgstr "%s (a \"%s\")"
+
+#: src/gpodder/liblocdbwriter.py:42
+msgid "local download database, generated by gPodder"
+msgstr "base de dados local, gerada pelo gPodder"
+
+#: src/gpodder/libopmlwriter.py:41
+msgid "gPodder subscription list (exported)"
+msgstr "Lista de assinaturas gPodder (exportada)"
+
+#: src/gpodder/libpodcasts.py:326
+msgid "No LocalDB found or error in existing LocalDB."
+msgstr "Nenhuma LocalDB encontrada, ou erro na LocalDB existente"
+
+#: src/gpodder/libpodcasts.py:367
+msgid "Today"
+msgstr "Hoje"
+
+#: src/gpodder/libpodcasts.py:369
+msgid "Yesterday"
+msgstr "Ontem"
+
+#: src/gpodder/libwget.py:55
+#: src/gpodder/libwget.py:73
+#: src/gpodder/libwget.py:82
+msgid "unknown"
+msgstr "Desconhecida"
+
+#: src/gpodder/libwget.py:292
+msgid "Download has been cancelled."
+msgstr "Download cancelado"
+
+#: src/gpodder/libwget.py:294
+#, python-format
+msgid "Download error. Wget exit code was: %d"
+msgstr "Erro no download. Código de término do wget foi: %d"
+
+#: data/gpodder.glade.h:2
+msgid "<b>(unknown)</b>"
+msgstr "<b>(desconhecido)</b>"
+
+#: data/gpodder.glade.h:3
+msgid "<b>Channel:</b>"
+msgstr "<b>Podcast</b>"
+
+#: data/gpodder.glade.h:4
+msgid "<b>Episode:</b>"
+msgstr "<b>Episódio</b>"
+
+#: data/gpodder.glade.h:5
+msgid "Advanced"
+msgstr "Avançado"
+
+#: data/gpodder.glade.h:6
+msgid "Automatic:"
+msgstr "Automático:"
+
+#: data/gpodder.glade.h:7
+msgid "Autostart:"
+msgstr "Autostart:"
+
+#: data/gpodder.glade.h:8
+msgid "Available Podcasts"
+msgstr "Podcasts disponíveis"
+
+#: data/gpodder.glade.h:9
+msgid "Canc_el"
+msgstr "Canc_elar"
+
+#: data/gpodder.glade.h:10
+msgid "Cancel _all"
+msgstr "Cancelar _todos"
+
+#: data/gpodder.glade.h:11
+msgid "Cancels all running downloads"
+msgstr "Cancelar downloads actuais"
+
+#: data/gpodder.glade.h:12
+msgid "Cancels the selected downloads"
+msgstr "Cancelar downloads seleccionados"
+
+#: data/gpodder.glade.h:13
+msgid "Channel:"
+msgstr "Podcast:"
+
+#: data/gpodder.glade.h:14
+msgid "Command:"
+msgstr "Comando:"
+
+#: data/gpodder.glade.h:15
+msgid "Cover"
+msgstr "Capa"
+
+#: data/gpodder.glade.h:16
+msgid "Delete _all"
+msgstr "Apagar _todos"
+
+#: data/gpodder.glade.h:17
+msgid "Deletes all downloaded episodes in this channel"
+msgstr "Apaga todos os episódios deste canal"
+
+#: data/gpodder.glade.h:18
+msgid "Deletes the current selection"
+msgstr "Apaga a selecção actual"
+
+#: data/gpodder.glade.h:19
+msgid "Description:"
+msgstr "Descrição"
+
+#: data/gpodder.glade.h:20
+msgid "Desktop:"
+msgstr "Ambiente de trabalho:"
+
+#: data/gpodder.glade.h:21
+msgid "Download Status"
+msgstr "Estado do download"
+
+#: data/gpodder.glade.h:22
+msgid "Download _all"
+msgstr "Descarregar _todos"
+
+#: data/gpodder.glade.h:23
+msgid "Download _selected"
+msgstr "Descarregar _seleccionados"
+
+#: data/gpodder.glade.h:24
+msgid "Download link:"
+msgstr "Link de download:"
+
+#: data/gpodder.glade.h:25
+msgid "Download to:"
+msgstr "Descarregar para:"
+
+#: data/gpodder.glade.h:26
+msgid "Downloaded Podcasts"
+msgstr "Podcasts descarregados"
+
+#: data/gpodder.glade.h:27
+msgid "Downloads"
+msgstr "Downloads"
+
+#: data/gpodder.glade.h:28
+msgid "E_xport list..."
+msgstr "E_xportar lista..."
+
+#: data/gpodder.glade.h:29
+msgid "Episode Information"
+msgstr "Informação do episódio"
+
+#: data/gpodder.glade.h:30
+msgid "FTP Proxy:"
+msgstr "Proxy FTP:"
+
+#: data/gpodder.glade.h:31
+msgid "Feed URL:"
+msgstr "URL da Feed:"
+
+#: data/gpodder.glade.h:32
+msgid "General"
+msgstr "Geral"
+
+#: data/gpodder.glade.h:33
+msgid "HTTP Proxy:"
+msgstr "Proxy HTTP:"
+
+#: data/gpodder.glade.h:34
+msgid ""
+"If you have to use a HTTP or FTP proxy server,\n"
+"you can use the usual format of the environment variables:\n"
+"\n"
+"<b>http://username:password@proxy_host:proxy_port/</b>"
+msgstr ""
+"Se usa um proxy HTTP ou FTP,\n"
+"pode usar o formato normal das variáveis de ambiente:\n"
+"\n"
+"<b>http://username:password@proxy_host:proxy_port/</b>"
+
+#: data/gpodder.glade.h:38
+msgid "Initializing..."
+msgstr "A Inicializar..."
+
+#: data/gpodder.glade.h:39
+msgid "No cover available."
+msgstr "Sem capa disponível."
+
+#: data/gpodder.glade.h:40
+msgid "Player application:"
+msgstr "Aplicação de leitura:"
+
+#: data/gpodder.glade.h:41
+msgid "Plays the current selection in the media player"
+msgstr "Toca a selecção actual no leitor de média"
+
+#: data/gpodder.glade.h:42
+msgid "Podcast directory:"
+msgstr "Directório de podcasts:"
+
+#: data/gpodder.glade.h:43
+msgid "Proxy"
+msgstr "Proxy"
+
+#: data/gpodder.glade.h:44
+msgid "Publication date:"
+msgstr "Data de publicação"
+
+#: data/gpodder.glade.h:45
+msgid "Save downloads in:"
+msgstr "Salvar downloads em:"
+
+#: data/gpodder.glade.h:46
+msgid "Select channels to subscribe to"
+msgstr "Seleccionar podcasts a assinar"
+
+#: data/gpodder.glade.h:47
+msgid "Show \"gPodder downloads\" link"
+msgstr "Mostrar link \"Downloads gPodder\""
+
+#: data/gpodder.glade.h:48
+msgid "Skip this channel when syncing to the iPod"
+msgstr "Saltar este podcast ao sincronizar com o iPod"
+
+#: data/gpodder.glade.h:49
+msgid "Sync to Playlist:"
+msgstr "Sincronizar para a playlist:"
+
+#: data/gpodder.glade.h:50
+msgid "Sync to Podcasts playlist"
+msgstr "Sincronizar para a playlist dos podcasts"
+
+#: data/gpodder.glade.h:51
+msgid "Synchronization"
+msgstr "Sincronização"
+
+#: data/gpodder.glade.h:52
+msgid "Title:"
+msgstr "Título:"
+
+#: data/gpodder.glade.h:53
+msgid "Update channels on startup"
+msgstr "Actualizar podcasts ao iniciar"
+
+#: data/gpodder.glade.h:54
+msgid "Use environment variables"
+msgstr "Usar variáveis de ambiente"
+
+#: data/gpodder.glade.h:55
+msgid "Website link:"
+msgstr "Link do website:"
+
+#: data/gpodder.glade.h:56
+msgid "_About gPodder..."
+msgstr "_Acerca do gPodder..."
+
+#: data/gpodder.glade.h:57
+msgid "_Add channel..."
+msgstr "_Adicionar podcast..."
+
+#: data/gpodder.glade.h:58
+msgid "_Channels"
+msgstr "_Podcasts"
+
+#: data/gpodder.glade.h:59
+msgid "_Check for Updates"
+msgstr "_Verificar actualizações"
+
+#: data/gpodder.glade.h:60
+msgid "_Cleanup iPod podcasts"
+msgstr "_Limpar podcasts do iPod"
+
+#: data/gpodder.glade.h:61
+msgid "_Close"
+msgstr "_Fechar"
+
+#: data/gpodder.glade.h:62
+msgid "_Delete"
+msgstr "_Apagar"
+
+#: data/gpodder.glade.h:63
+msgid "_Download"
+msgstr "_Descarregar"
+
+#: data/gpodder.glade.h:64
+msgid "_Edit channel..."
+msgstr "_Editar podcast"
+
+#: data/gpodder.glade.h:65
+msgid "_Help"
+msgstr "_Ajuda"
+
+#: data/gpodder.glade.h:66
+msgid "_Import from web"
+msgstr "_Importar da web"
+
+#: data/gpodder.glade.h:67
+msgid "_Play"
+msgstr "_Play"
+
+#: data/gpodder.glade.h:68
+msgid "_Podcasts"
+msgstr "_Podcasts"
+
+#: data/gpodder.glade.h:69
+msgid "_Preferences..."
+msgstr "_Preferências"
+
+#: data/gpodder.glade.h:70
+msgid "_Remove channel"
+msgstr "_Remover podcast"
+
+#: data/gpodder.glade.h:71
+msgid "_Sync to iPod"
+msgstr "_Sincronizar para iPod"
+
+#: data/gpodder.glade.h:72
+msgid "gPodder - your podcast catcher."
+msgstr "gPodder - o seu cliente de podcasts."
+
+#: data/gpodder.glade.h:73
+msgid "gPodder Channel Editor"
+msgstr "Editor de podcasts gPodder"
+
+#: data/gpodder.glade.h:74
+msgid "gPodder properties"
+msgstr "Propriedades gPodder"
+
+#: data/gpodder.glade.h:75
+msgid "iPod"
+msgstr "iPod"
+
+#: data/gpodder.glade.h:76
+msgid "iPod mountpoint:"
+msgstr "Ponto de montagem do iPod:"
+
+#: bin/gpodder:59
+msgid "Be more verbose"
+msgstr "Aumentar verbosidade"
+
+#: bin/gpodder:63
+msgid "Run local version in current directory"
+msgstr "Correr versão local no directório actual"
+
+#: bin/gpodder:67
+msgid "List all channel subscriptions"
+msgstr "Listar todos os podcasts assinados"
+
+#: bin/gpodder:71
+msgid "Update channel list, download new podcasts"
+msgstr "Actualizar podcass, descarregar novos podcasts"
+
+#: bin/gpodder:75
+msgid "Update channel list and exit"
+msgstr "Actualizar podcasts e sair"
+
+#: bin/gpodder:78
+msgid "Subscribe to channel from FEEDURL"
+msgstr "Subscrever podcast de FEEDURL"
+
+#: bin/gpodder:81
+msgid "Delete channel with ID n"
+msgstr "Apagar podcast com ID n"
+
+#: bin/gpodder:99
+msgid "Error: cannot find wget."
+msgstr "Erro: Impossível usar wget."
+
+#: bin/gpodder:122
+msgid "Channel IDs may have changed, list before deleting again."
+msgstr "ID's dos podcasts mudaram, actualize antes de apagar."
+
