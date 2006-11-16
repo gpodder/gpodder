@@ -1,3 +1,11 @@
+Thu, 16 Nov 2006 23:44:43 +0100 <thp@perli.net>
+        * src/gpodder/liblocaldb.py: Applied modified version of patch 
+		  from Alain Tauch to fix a bug in liblocaldb.py; re-factored the 
+		  whole module to get rid of caching cruft and old code; this 
+		  should also fix the long-standing "new downloaded channel doesn't
+		  appear and requires a restart of gPodder" problem :)
+        * bin/gpodder: bumped version + release date
+
 Wed, 15 Nov 2006 12:12:13 +0100 <thp@perli.net>
         * setup.py: Added "pt" to list of languages to install
         * data/gpodder.desktop: Added Portuguese description
