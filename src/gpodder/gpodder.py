@@ -658,8 +658,8 @@ class Gpodder(SimpleGladeApp):
           new_model = self.ldb.getDownloadedEpisodesModelByFilename( filename)
           self.treeDownloaded.set_model( new_model)
         except:
-          # silently ignore the fact that we do not have any downloads
-          pass
+            if self.treeDownloaded.get_model() != None:
+                self.treeDownloaded.get_model().clear()
     #-- Gpodder.on_comboDownloaded_changed }
 
     #-- Gpodder.on_treeDownloaded_row_activated {
