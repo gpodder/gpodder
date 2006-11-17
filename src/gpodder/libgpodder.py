@@ -52,16 +52,13 @@ from stat import ST_MODE
 from librssreader import rssReader
 from libpodcasts import podcastChannel
 from libplayers import dotdesktop_command
+from liblogger import log
 
 from gtk.gdk import PixbufLoader
 
 from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
-
-# global debugging variable, set to False on release
-# TODO: while developing a new version, set this to "True"
-debugging = True
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
@@ -71,9 +68,6 @@ g_podder_lib = None
 
 # default url to use for opml directory on the web
 default_opml_directory = 'http://share.opml.org/opml/topPodcasts.opml'
-
-def isDebugging():
-    return debugging
 
 def getLock():
     globalLock.acquire()
@@ -125,8 +119,7 @@ class gPodderLibClass( object):
                 makedirs( path)
                 return True
             except:
-                if isDebugging():
-                    print 'createIfNecessary: could not create: %s' % ( path )
+                log( 'Could not create %s', path)
                 return False
         
         return True
@@ -163,8 +156,7 @@ class gPodderLibClass( object):
     def get_from_parser( self, parser, option, default = ''):
         try:
             result = parser.get( self.gpodderconf_section, option)
-            if isDebugging():
-                print "get_from_parser( %s) = %s" % ( option, result )
+            log( 'Option "%s" is set to "%s"', option, result)
             return result
         except:
             return default
@@ -182,16 +174,14 @@ class gPodderLibClass( object):
         try:
             parser.set( self.gpodderconf_section, option, str(value))
         except:
-            if isDebugging():
-                print 'write_to_parser: could not write config (option=%s, value=%s' % (option, value)
+            log( 'write_to_parser: could not write config (option=%s, value=%s)', option, value)
     
     def loadConfig( self):
         was_oldstyle = False
         try:
             fn = self.getConfigFilename()
             if open(fn,'r').read(1) != '[':
-                if isDebugging():
-                    print 'seems like old-style config. trying to read it anyways..'
+                log( 'seems like old-style config. trying to read it anyways..')
                 fp = open( fn, 'r')
                 http = fp.readline()
                 ftp = fp.readline()
@@ -210,8 +200,7 @@ class gPodderLibClass( object):
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
                 else:
-                    if isDebugging():
-                        print "config file %s has no section %s" % (fn, gpodderconf_section)
+                    log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:
                 self.http_proxy = strip( http)
                 self.ftp_proxy = strip( ftp)
@@ -232,8 +221,7 @@ class gPodderLibClass( object):
             self.saveConfig()
 
     def openFilename( self, filename):
-        if isDebugging():
-            print 'open %s with %s' % ( filename, self.open_app )
+        log( 'Opening %s (with %s)', filename, self.open_app)
 
         # use libplayers to create a commandline out of open_app plus filename, then exec in background ('&')
         system( '%s &' % dotdesktop_command( self.open_app, filename))
@@ -243,16 +231,12 @@ class gPodderLibClass( object):
         return exists( symlink_path)
 
     def createDesktopSymlink( self):
-        if isDebugging():
-            print "createDesktopSymlink requested"
         if not self.getDesktopSymlink():
             downloads_path = expanduser( "~/Desktop/")
             self.createIfNecessary( downloads_path)
             symlink( self.downloaddir, "%s%s" % (downloads_path, self.desktop_link))
     
     def removeDesktopSymlink( self):
-        if isDebugging():
-            print "removeDesktopSymlink requested"
         if self.getDesktopSymlink():
             unlink( expanduser( "~/Desktop/%s" % self.desktop_link))
 
@@ -262,20 +246,17 @@ class gPodderLibClass( object):
         pixbuf = PixbufLoader()
         
         if cover_file == None:
-            if isDebugging():
-                print "directly downloading %s" % url
+            log( 'Downloading %s', url)
             pixbuf.write( urllib.urlopen(url).read())
         
         if cover_file != None and not exists( cover_file):
-            if isDebugging():
-                print "downloading cover to %s" % cover_file
+            log( 'Downloading cover to %s', cover_file)
             cachefile = open( cover_file, "w")
             cachefile.write( urllib.urlopen(url).read())
             cachefile.close()
         
         if cover_file != None:
-            if isDebugging():
-                print "reading cover from %s" % cover_file
+            log( 'Reading cover from %s', cover_file)
             pixbuf.write( open( cover_file, "r").read())
         
         try:
@@ -297,8 +278,7 @@ class gPodderLibClass( object):
         thread.start()
 
     def deleteFilename( self, filename):
-        if isDebugging():
-            print "deleteFilename: " + filename
+        log( 'deleteFilename: %s', filename)
         try:
             unlink( filename)
         except:
@@ -358,18 +338,17 @@ class gPodderChannelReader( DefaultHandler):
                 callback_proc( position, channel_count)
 
             cachefile = channel.downloadRss(force_update)
+            log( 'cachefile for %s is %s', channel.url, cachefile)
             # check if download was a success
             if cachefile != None:
                 reader.parseXML(channel.url, cachefile)
                 if channel.filename != '__unknown__':
                     proposed_filename = channel.filename
-                    if isDebugging():
-                        print 'First proposed fn: %s' % ( proposed_filename )
+                    log( 'First proposed fn: %s', proposed_filename)
                     i = 2
                     while self.channel_filename_exists( channel.url, proposed_filename):
                         proposed_filename = '%s%d' % ( channel.filename, i )
-                        if isDebugging():
-                            print 'New proposed fn: %s' % ( proposed_filename )
+                        log( 'New proposed fn: %s', proposed_filename)
                         i = i+1
                     reader.channel.filename = proposed_filename
                 input_channels.append( reader.channel)

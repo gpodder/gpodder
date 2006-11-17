@@ -42,7 +42,8 @@ import sys
 import time
 import email.Utils
 
-import libgpodder
+from liblogger import log
+
 import liblocaldb
 import libpodcasts
 
@@ -69,8 +70,7 @@ class gPodder_iPodSync(object):
 
     def __init__( self, ipod_mount = '/media/ipod/', callback_progress = None, callback_status = None, callback_done = None):
         if not ipod_supported():
-            if libgpodder.isDebugging():
-                print '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)'
+            log( '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)')
         self.ipod_mount = ipod_mount
         self.callback_progress = callback_progress
         self.callback_status = callback_status
@@ -107,8 +107,7 @@ class gPodder_iPodSync(object):
     def remove_from_ipod( self, track, playlists):
         if not ipod_supported():
             return False
-        if libgpodder.isDebugging():
-           print '(ipodsync) REMOVING FROM IPOD!! track: %s' % track.title
+        log( '(ipodsync) Removing track from iPod: %s', track.title)
         if self.callback_status != None:
             gobject.idle_add( self.callback_status, track.title, track.artist)
         fname = gpod.itdb_filename_on_ipod( track)
@@ -130,13 +129,10 @@ class gPodder_iPodSync(object):
             return False
         for playlist in gpod.sw_get_playlists( self.itdb):
             if playlist.name == playlistname:
-                if libgpodder.isDebugging():
-                    print "(ipodsync) found old playlist: %s" % (playlist.name)
+                log( '(ipodsync) Found old playlist: %s', playlist.name)
                 return playlist
         
-        # if we arrive here: gpodder playlist not found!
-        if libgpodder.isDebugging():
-            print "creating new playlist: %s" % (playlistname)
+        log( '(ipodsync) New playlist: %s', playlistname)
         new_playlist = gpod.itdb_playlist_new( str(playlistname), False)
         gpod.itdb_playlist_add( self.itdb, new_playlist, -1)
         return new_playlist
@@ -152,8 +148,7 @@ class gPodder_iPodSync(object):
             return False
         for track in gpod.sw_get_playlist_tracks( self.get_playlist_for_channel( channel)):
             if episode.title == track.title and channel.title == track.album:
-                if libgpodder.isDebugging():
-                    print '(ipodsync) Already on iPod: %s (from %s)' % (episode.title, track.title)
+                log( '(ipodsync) Already on iPod: %s (from %s)', episode.title, track.title)
                 return True
         
         return False
@@ -162,8 +157,7 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         for track in gpod.sw_get_playlist_tracks( self.pl_podcasts):
-            if libgpodder.isDebugging():
-                print '(ipodsync) trying to remove track %s' % track.title
+            log( '(ipodsync) Trying to remove: %s', track.title)
             self.remove_from_ipod( track, [ self.pl_podcasts ])
 
     def copy_channel_to_ipod( self, channel):
@@ -194,8 +188,7 @@ class gPodder_iPodSync(object):
             track.flag3 = 0x01
             track.flag4 = 0x01
         except:
-            if libgpodder.isDebugging():
-                print '(ipodsync) Seems like your python-gpod is out-of-date.'
+            log( '(ipodsync) Seems like your python-gpod is out-of-date.')
         pass
 
     def add_episode_from_channel( self, channel, episode):
@@ -211,8 +204,7 @@ class gPodder_iPodSync(object):
             # episode is already here :)
             return True
         
-        if libgpodder.isDebugging():
-            print '(ipodsync) Adding item: %s from %s' % (episode.title, channel.title)
+        log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
         local_filename = str(channel.getPodcastFilename( episode.url))
         try:
             eyed3_info = eyeD3.Mp3AudioFile( local_filename)
@@ -264,15 +256,12 @@ class gPodder_iPodSync(object):
             gpod.itdb_playlist_add_track( self.pl_master, track, -1)
 
         if gpod.itdb_cp_track_to_ipod( track, local_filename, None) != 1:
-            if libgpodder.isDebugging():
-                print '(ipodsync) could not add track: %s' % episode.title
+            log( '(ipodsync) Could not add %s', episode.title)
         else:
-            if libgpodder.isDebugging():
-                print '(ipodsync) success for %s :)' % episode.title
+            log( '(ipodsync) Added %s', episode.title)
         
         try:
             os.system('sync')
         except:
-            # silently ignore :)
             pass
 

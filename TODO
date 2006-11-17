@@ -23,11 +23,6 @@
    did show up in the 'downloaded' tab, it did once I closed and
    re-opened gPodder.    (thanks to Haim Roitgrund for reporting this)
  
- * re-factor "if libgpodder.isDebugging()" + "print" into a more 
-   sophisticated logging/debugging infrastructure (the code should 
-   not "print" debug messages, but hand the debug strings to the 
-   logging facility, something like:  libgpodder.debug( "bla bla")
-
  * in libipodsync.py: use mime magic instead of extension-based 
    video detection? --> also, is mp4 always video or could it be 
    aac audio too? if so, how to check what is what?

@@ -1,3 +1,12 @@
+Fri, 17 Nov 2006 11:10:42 +0100 <thp@perli.net>
+        * src/gpodder/liblogger.py: Added new logging facility
+        * src/gpodder/libgpodder.py: Removed isDebugging() and debug flag
+        * src/gpodder/*: Use new liblogger instead of isDebugging() in
+          libwget.py, liblocdbreader.py, libplayers.py, libpodcasts.py,
+          libgpodder.py, libipodsync.py, gpodder.py and liblocaldb.py
+        * TODO: Updated TODO list
+        * bin/gpodder: bumped release date again
+
 Thu, 16 Nov 2006 23:44:43 +0100 <thp@perli.net>
         * src/gpodder/liblocaldb.py: Applied modified version of patch 
 		  from Alain Tauch to fix a bug in liblocaldb.py; re-factored the 

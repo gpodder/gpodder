@@ -35,6 +35,8 @@ from string import strip
 import libpodcasts
 import libgpodder
 
+from liblogger import log
+
 class rssLocDBErrorHandler( ErrorHandler):
     def __init__( self):
         None
@@ -83,8 +85,7 @@ class readLocalDB( DefaultHandler):
             if attrs.get('music', 'false').lower() == 'true':
                 self.channel.is_music_channel = True
             if attrs.get('nosync', 'false').lower() == 'true':
-                if libgpodder.isDebugging():
-                    print 'local channel does not want to be synced: %s' % self.channel.title
+                log( 'iPod sync deactivated for %s', self.channel.title)
                 self.channel.sync_to_devices = False
     
     def endElement( self, name):
@@ -119,9 +120,6 @@ class readLocalDB( DefaultHandler):
                 self.current_item.pubDate = self.current_element_data
             if name == "item":
                 self.channel.addItem( self.current_item)
-                # this produces lots of output and works ATM, so output disabled
-                if libgpodder.isDebugging() and False:
-                    print "importing local db channel: " + self.current_item.url
                 self.current_item = None
     
     def characters( self, ch):

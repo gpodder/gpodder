@@ -30,6 +30,7 @@ import gtk
 import gobject
 import htmlentitydefs
 
+from liblogger import log
 import libgpodder
 
 from os.path import exists
@@ -120,12 +121,10 @@ class podcastChannel(ListType):
             try:
                 writeLocalDB( self.index_file, channel)
             except:
-                if libgpodder.isDebugging():
-                    print 'Cannot save localDB channel in set_localdb_channel( %s)' % channel.title
+                log( 'Cannot save channel in set_localdb_channel( %s)', channel.title)
     
     def set_metadata_from_localdb( self):
-        if libgpodder.isDebugging():
-            print 'Reading metadata from localdb: %s' % self.index_file
+        log( 'Reading metadata from database: %s', self.index_file)
         libgpodder.getLock()
         ch = self.get_localdb_channel()
         if ch != None:
@@ -133,8 +132,7 @@ class podcastChannel(ListType):
         libgpodder.releaseLock()
 
     def save_metadata_to_localdb( self):
-        if libgpodder.isDebugging():
-            print 'Saving metadata to localdb: %s' % self.index_file
+        log( 'Saving metadata to database: %s', self.index_file)
         libgpodder.getLock()
         ch = self.get_localdb_channel()
         if ch != None:
@@ -152,8 +150,7 @@ class podcastChannel(ListType):
         # no multithreaded access
         libgpodder.getLock()
         localdb = self.index_file
-        if libgpodder.isDebugging():
-            print "localdb: " + localdb
+        log( 'Local database: %s', localdb)
 
         self.downloaded = self.get_localdb_channel()
         
@@ -168,8 +165,7 @@ class podcastChannel(ListType):
         if not already_in_list:
             self.downloaded.append( item)
         else:
-            if libgpodder.isDebugging():
-                print "no need to re-add already added podcast item to localDB"
+            log( 'Podcast episode already downloaded.')
         
         writeLocalDB( localdb, self.downloaded)
         libgpodder.releaseLock()
@@ -214,7 +210,6 @@ class podcastChannel(ListType):
         return -1
 
     def downloadRss( self, force_update = True):
-        
         if (self.filename == "__unknown__" or exists( self.cache_file) == False) or force_update:
             # remove old cache file
             libgpodder.gPodderLib().deleteFilename( self.cache_file)
@@ -258,9 +253,6 @@ class podcastChannel(ListType):
             self.reset_download_dir()
             return False
         return True
-        #  the following disabled at the moment..
-        #if libgpodder.isDebugging():
-        #    print "set_download_dir: ", self, self.__download_dir
         
     download_dir = property (fget=get_download_dir,
                              fset=set_download_dir)
@@ -294,10 +286,10 @@ class podcastChannel(ListType):
         legacy_location = self.save_dir + filename
         new_location = self.save_dir + md5.new(url).hexdigest() + extension
 
-        # this supports legacy podcast locations, should be removed at some point (or move files from old location to new location)
+        # this supports legacy podcast locations, should be removed at
+        # some point (or move files from old location to new location)
         if exists( legacy_location):
-            if libgpodder.isDebugging():
-                print "(gpodder < 0.7 compat) using old filename scheme for already downloaded podcast."
+            log( '(gpodder < 0.7 compat) Using old filename scheme for already downloaded podcast.')
             return legacy_location
         else:
             return new_location
@@ -306,14 +298,12 @@ class podcastChannel(ListType):
         return exists( self.getPodcastFilename( url))
     
     def deleteDownloadedItemByUrlAndTitle(self, url, title):
-        if libgpodder.isDebugging():
-            print "deleteDownloadedItemByUrlAndTitle: " + title + " (" + url + ")"
+        log( 'Delete %s (%s)', title, url)
         # no multithreaded access
         libgpodder.getLock()
-	nr_items = 0
+        nr_items = 0
         localdb = self.index_file
-        if libgpodder.isDebugging():
-            print "localdb: " + localdb
+        log( 'Local database: %s', localdb)
         try: 
             locdb_reader = readLocalDB()
             locdb_reader.parseXML( localdb)
@@ -324,8 +314,7 @@ class podcastChannel(ListType):
                     self.downloaded.remove(item)
         except:
             print _("No LocalDB found or error in existing LocalDB.")
-        if libgpodder.isDebugging():
-            print " found", nr_items, "matching item(s)"
+        log( 'Found %d matching item(s).', nr_items)
         if nr_items > 0:
             writeLocalDB( localdb, self.downloaded)
         libgpodder.releaseLock()

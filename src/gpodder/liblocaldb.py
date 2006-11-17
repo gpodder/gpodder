@@ -28,10 +28,10 @@
 
 import gtk
 import gobject
-import libgpodder
 
 from liblocdbreader import readLocalDB
 from libgpodder import gPodderLib
+from liblogger import log
 
 from os import listdir
 from os import sep
@@ -39,16 +39,13 @@ from os.path import isfile
 
 class localDB( object):
     def __init__( self):
-        if libgpodder.isDebugging():
-            print "created new localDB object"
         self.channel_list = None
         self.local_db_cache = {}
 
     def getDownloadedChannelsList( self):
         # do not re-read downloaded channels list
         if self.channel_list != None:
-            if libgpodder.isDebugging():
-                print "(localDB) using cached downloaded channels list"
+            log( '(localDB) using cached downloaded channels list')
             return self.channel_list
         
         self.channel_list = []
@@ -74,8 +71,7 @@ class localDB( object):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
         
         for channel in self.getDownloadedChannelsList():
-            if libgpodder.isDebugging():
-                print "(getmodel) " + channel.title
+            log( 'Getting ListStore for %s', channel.title)
             new_iter = new_model.append()
             new_model.set( new_iter, 0, channel.url)
             new_model.set( new_iter, 1, channel.title)
