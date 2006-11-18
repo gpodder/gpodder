@@ -1,3 +1,8 @@
+Sat, 18 Nov 2006 11:41:16 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Applied modified patch from (nikosapi
+          gmail com) to add "blue bullet" and "remember playback position" 
+	  for fifth generation iPods when syncing to Podcasts playlist
+
 Fri, 17 Nov 2006 21:42:18 +0100 <thp@perli.net>
         * src/gpodder/gpodder.py: Clear list of downloaded items after
           deleting the last channel (thanks to Alain Tauch for reporting)
@@ -13,10 +18,10 @@ Fri, 17 Nov 2006 11:10:42 +0100 <thp@perli.net>
 
 Thu, 16 Nov 2006 23:44:43 +0100 <thp@perli.net>
         * src/gpodder/liblocaldb.py: Applied modified version of patch 
-		  from Alain Tauch to fix a bug in liblocaldb.py; re-factored the 
-		  whole module to get rid of caching cruft and old code; this 
-		  should also fix the long-standing "new downloaded channel doesn't
-		  appear and requires a restart of gPodder" problem :)
+	  from Alain Tauch to fix a bug in liblocaldb.py; re-factored the 
+	  whole module to get rid of caching cruft and old code; this 
+	  should also fix the long-standing "new downloaded channel doesn't
+	  appear and requires a restart of gPodder" problem :)
         * bin/gpodder: bumped version + release date
 
 Wed, 15 Nov 2006 12:12:13 +0100 <thp@perli.net>

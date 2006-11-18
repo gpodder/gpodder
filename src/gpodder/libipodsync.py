@@ -181,15 +181,20 @@ class gPodder_iPodSync(object):
     def set_podcast_flags( self, track):
         if not ipod_supported():
             return False
-        # try to modify track to be more podcast-ish
         try:
+            # Add blue bullet next to unplayed tracks on 5G iPods
+            track.mark_unplayed = 0x02
+
+            # Podcast flags (for new iPods?)
+            track.remember_playback_position = 0x01
+
+            # Podcast flags (for old iPods?)
             track.flag1 = 0x02
             track.flag2 = 0x01
             track.flag3 = 0x01
             track.flag4 = 0x01
         except:
             log( '(ipodsync) Seems like your python-gpod is out-of-date.')
-        pass
 
     def add_episode_from_channel( self, channel, episode):
         if not ipod_supported():
