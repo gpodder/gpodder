@@ -240,6 +240,7 @@ class gPodder_iPodSync(object):
         track.description = str(episode.description)
         track.podcasturl = str(episode.url)
         track.podcastrss = str(channel.url)
+        track.size = os.path.getsize( local_filename)
         
         gpod.itdb_track_add( self.itdb, track, -1)
         playlist = self.get_playlist_for_channel( channel)
