@@ -498,6 +498,7 @@ class Gpodder(SimpleGladeApp):
             return
         
         result = Gpodderchannel().requestURL( channel)
+        active = self.active_channel
         if result != channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             log( 'Changing channel #%d from "%s" to "%s"', active, channel.url, result)
             self.statusLabel.set_text( _("Fetching channel index..."))
