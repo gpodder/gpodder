@@ -180,7 +180,7 @@ class podcastChannel(ListType):
         return self.podcastFilenameExists( item.url)
 
     def getItemsModel( self, want_color = True):
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
         for item in self:
             # Skip items with no download url
@@ -196,6 +196,7 @@ class podcastChannel(ListType):
                 new_model.set( new_iter, 3, True)
                 new_model.set( new_iter, 4, background_color)
                 new_model.set( new_iter, 5, item.cute_pubdate())
+                new_model.set( new_iter, 6, item.one_line_description())
         
         return new_model
     
@@ -343,6 +344,17 @@ class podcastItem(object):
         self.pubDate = pubDate
         if pubDate == None:
             self.pubDate = datetime.now().ctime()
+
+    def one_line_description( self):
+        lines = self.description.strip().splitlines()
+        if not lines or lines[0] == '':
+            return _('No description available')
+        else:
+            desc = lines[0].strip()
+            if len( desc) > 20:
+                return desc[:80] + '...'
+            else:
+                return desc
     
     def cute_pubdate( self):
         seconds_in_a_day = 86400

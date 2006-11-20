@@ -29,6 +29,7 @@
 import os
 import gtk
 import gobject
+import pango
 import sys
 
 from threading import Event
@@ -122,8 +123,9 @@ class Gpodder(SimpleGladeApp):
         #gtk.TreeViewColumn( "", gtk.CellRendererToggle(), active=3),
         namecell = gtk.CellRendererText()
         namecell.set_property('cell-background', 'white')
+        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
-        namecolumn.add_attribute(namecell, "cell-background", 4)        
+        namecolumn.add_attribute(namecell, "cell-background", 4)
 
         sizecell = gtk.CellRendererText()
         sizecell.set_property('cell-background', 'white')
@@ -135,7 +137,15 @@ class Gpodder(SimpleGladeApp):
         releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
         releasecolumn.add_attribute(releasecell, "cell-background", 4)
         
-        for itemcolumn in ( namecolumn, sizecolumn, releasecolumn ):
+        desccell = gtk.CellRendererText()
+        desccell.set_property('cell-background', 'white')
+        desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
+        desccolumn.add_attribute(desccell, "cell-background", 4)
+
+        for itemcolumn in ( namecolumn, sizecolumn, releasecolumn, desccolumn ):
+            itemcolumn.set_resizable( True)
+            itemcolumn.set_reorderable( True)
             self.treeAvailable.append_column( itemcolumn)
 
         # enable multiple selection support
@@ -240,6 +250,7 @@ class Gpodder(SimpleGladeApp):
         try:
             self.items_model = self.channels[self.active_channel].getItemsModel()
             self.treeAvailable.set_model( self.items_model)
+            self.treeAvailable.columns_autosize()
         except:
             if self.items_model != None:
                 self.items_model.clear()
@@ -657,6 +668,7 @@ class Gpodder(SimpleGladeApp):
           filename = self.get_current_channel_downloaded()
           new_model = self.ldb.getDownloadedEpisodesModelByFilename( filename)
           self.treeDownloaded.set_model( new_model)
+          self.treeDownloaded.columns_autosize()
         except:
             if self.treeDownloaded.get_model() != None:
                 self.treeDownloaded.get_model().clear()

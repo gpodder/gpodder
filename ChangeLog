@@ -1,3 +1,12 @@
+Mon, 20 Nov 2006 12:46:54 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Added one_line_description() to 
+          podcastItem; modified getItemsModel to return description
+        * src/gpodder/gpodder.py: Added description to "available 
+          episodes" list; made columns resizable and reorderable and 
+          added "ellipsize" property to both name and description field
+	* bin/gpodder: bumped release date again (wonder if we should 
+	  use svn:keywords on that file some time soon ;)
+
 Mon, 20 Nov 2006 11:58:37 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: Applied patch from Nick (nikosapi 
           gmail com) to add file size to iTunesDB. This should fix the 
