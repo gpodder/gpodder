@@ -351,7 +351,7 @@ class podcastItem(object):
             return _('No description available')
         else:
             desc = lines[0].strip()
-            if len( desc) > 20:
+            if len( desc) > 80:
                 return desc[:80] + '...'
             else:
                 return desc
