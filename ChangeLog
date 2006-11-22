@@ -1,3 +1,12 @@
+Wed, 22 Nov 2006 17:02:23 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Add support for pymad, because
+          it gives more correct track length of MP3 files for me; 
+          if pymad is not installed, gPodder will fallback to eyeD3;
+          if you only installed eyeD3 for gPodder, you can remove it 
+          now and install pymad instead
+        * README: Note pymad dependency (and now-optional eyeD3)
+        * doc/dev/ipod-sync.txt: State that pymad is now preferred
+
 Wed, 22 Nov 2006 16:13:33 +0100 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Small bugfix for description in 
           podcast item (80 instead of 20 chars is what we want ;)

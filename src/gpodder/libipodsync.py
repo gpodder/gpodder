@@ -30,19 +30,35 @@
 # variable tells if ipod functions are to be enabled
 enable_ipod_functions = True
 
+# possible mp3 length detection mechanisms
+MAD = 1
+EYED3 = 2
+
+# which detection mechanism are we going to use?
+use_mechanism = 0
+
+from liblogger import log
 
 try:
     import gpod
-    import eyeD3
+    try:
+        # prefer pymad
+        import mad
+        use_mechanism = MAD
+        log( '(ipodsync) Found pymad')
+    except:
+        # fallback to eyeD3
+        import eyeD3
+        use_mechanism = EYED3
+        log( '(ipodsync) Found eyeD3')
 except:
+    log( '(ipodsync) gpod and/or (mad|eyeD3) not found')
     enable_ipod_functions = False
 
 import os
 import sys
 import time
 import email.Utils
-
-from liblogger import log
 
 import liblocaldb
 import libpodcasts
@@ -212,8 +228,14 @@ class gPodder_iPodSync(object):
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
         local_filename = str(channel.getPodcastFilename( episode.url))
         try:
-            eyed3_info = eyeD3.Mp3AudioFile( local_filename)
-            track_length = eyed3_info.getPlayTime() * 1000 # in milliseconds
+            if use_mechanism == MAD:
+                log( '(ipodsync) Using pymad to get file length')
+                mad_info = mad.MadFile( local_filename)
+                track_length = mad_info.total_time()
+            elif use_mechanism == EYED3:
+                log( '(ipodsync) Using eyeD3 to get file length')
+                eyed3_info = eyeD3.Mp3AudioFile( local_filename)
+                track_length = eyed3_info.getPlayTime() * 1000
             # TODO: how to get length of video (mov, mp4, m4v) files??
         except:
             print '(ipodsync) Warning: cannot get length for %s, will use 1 hour' % episode.title
