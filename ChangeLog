@@ -1,3 +1,11 @@
+Thu, 30 Nov 2006 23:07:22 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Remove '.cover.jpg' file for 
+	  episode if left on disk by libipodsync.py (see below)
+        * src/gpodder/libipodsync.py: Applied iPodSync patch from 
+	  Nick <nikosapi gmail com> to add support for ID3v2 
+	  embedded cover art (please test this if you can)
+	* README: Note optional pyid3 dependency
+
 Tue, 28 Nov 2006 21:04:45 +0100 <thp@perli.net>
         * src/gpodder/gpodder.py: Added patch from Seth Remington (sremington 
           at saberlogic dot com) to fix about dialog close button

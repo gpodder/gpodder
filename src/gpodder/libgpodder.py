@@ -37,6 +37,7 @@ from string import strip
 from os.path import expanduser
 from os.path import exists
 from os.path import dirname
+from os.path import isfile
 from os import mkdir
 from os import makedirs
 from os import environ
@@ -281,6 +282,10 @@ class gPodderLibClass( object):
         log( 'deleteFilename: %s', filename)
         try:
             unlink( filename)
+            # if libipodsync extracted the cover file, remove it here
+            cover_filename = filename + '.cover.jpg'
+            if isfile( cover_filename):
+                unlink( cover_filename)
         except:
             # silently ignore 
             pass

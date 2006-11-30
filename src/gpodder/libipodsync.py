@@ -55,6 +55,19 @@ except:
     log( '(ipodsync) gpod and/or (mad|eyeD3) not found')
     enable_ipod_functions = False
 
+
+# are we going to use python-id3 for cover art extraction?
+use_pyid3 = False
+
+try:
+    # try to load PyID3
+    import id3
+    use_pyid3 = True
+    log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
+except:
+    log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
+
+
 import os
 import sys
 import time
@@ -211,6 +224,33 @@ class gPodder_iPodSync(object):
             track.flag4 = 0x01
         except:
             log( '(ipodsync) Seems like your python-gpod is out-of-date.')
+    
+    def set_channel_art(self, track, local_filename):
+        cover_filename = os.path.dirname( local_filename) + '/cover'
+        if os.path.isfile( cover_filename):
+            gpod.itdb_track_set_thumbnails( track, cover_filename)
+            return True
+        return False
+            
+    def set_cover_art(self, track, local_filename):
+        if not ipod_supported():
+            return False
+        if use_pyid3:
+            try:
+                cover_filename = local_filename + '.cover.jpg'
+                id3v2_tags = id3.ID3v2( local_filename )
+                for frame in id3v2_tags.frames:
+                    if frame.id == 'APIC':
+                        cover_file = file(cover_filename, 'w')
+                        cover_file.write(frame.image)
+                        cover_file.close()
+                if os.path.isfile( cover_filename):
+                    gpod.itdb_track_set_thumbnails( track, cover_filename)
+                    return True
+            except:
+                log( '(ipodsync) Error reading ID3v2 information for %s' % ( local_filename, ))
+        # If we haven't yet found cover art, fall back to channel cover
+        return self.set_channel_art( track, local_filename)
 
     def add_episode_from_channel( self, channel, episode):
         if not ipod_supported():
@@ -268,11 +308,7 @@ class gPodder_iPodSync(object):
         playlist = self.get_playlist_for_channel( channel)
         gpod.itdb_playlist_add_track( playlist, track, -1)
 
-        # Copy channel cover file to iPod
-        cover_filename = os.path.dirname( local_filename) + '/cover'
-        if os.path.isfile( cover_filename):
-            # Copy it to the iPod only if it exists
-            gpod.itdb_track_set_thumbnails( track, cover_filename)
+        self.set_cover_art( track, local_filename)
         
         # dirty hack to get video working, seems to work
         for ext in video_extensions:
