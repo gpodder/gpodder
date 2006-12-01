@@ -293,7 +293,7 @@ class gPodder_iPodSync(object):
         ipod_date = email.Utils.parsedate(episode.pubDate)
         if ipod_date != None:
             # + 2082844800 for unixtime => mactime (1970 => 1904)
-            track.time_released = time.mktime(ipod_date) + 2082844800
+            track.time_released = int(time.mktime(ipod_date) + 2082844800)
         
         track.title = str(episode.title)
         track.album = str(channel.title)
