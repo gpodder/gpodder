@@ -1,3 +1,14 @@
+Sun,  3 Dec 2006 19:07:27 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Remove partially downloaded files 
+	  after download is cancelled or an error occured
+        * src/gpodder/libgpodder.py: Added clean_up_downloads() function 
+	  to gPodderLibClass to do some housekeeping in the download 
+	  directory (remove temporary files from old sessions and remove 
+	  empty download directories)
+        * src/gpodder/gpodder.py: Call clean_up_downloads() when 
+	  gPodder starts
+        * bin/gpodder: Minor code cleanup, bumped version + release date
+
 Fri,  1 Dec 2006 15:42:07 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: Applied patch from Seth Remington
           to fix a synchronization error with newer libgpod versions

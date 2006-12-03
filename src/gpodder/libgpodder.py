@@ -37,12 +37,17 @@ from string import strip
 from os.path import expanduser
 from os.path import exists
 from os.path import dirname
+from os.path import basename
 from os.path import isfile
+from os.path import isdir
+from os.path import islink
 from os import mkdir
+from os import rmdir
 from os import makedirs
 from os import environ
 from os import system
 from os import unlink
+from glob import glob
 
 # for the desktop symlink stuff:
 from os import symlink
@@ -139,6 +144,25 @@ class gPodderLibClass( object):
             environ['ftp_proxy'] = self.ftp_proxy
         # save settings for next startup
         self.saveConfig()
+
+    def clean_up_downloads( self):
+        # Clean up temporary files left behind by old gPodder versions
+        temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
+        for tempfile in temporary_files:
+            self.deleteFilename( tempfile)
+
+        # Clean up empty download folders
+        download_dirs = glob( '%s/*' % ( self.downloaddir, ))
+        for ddir in download_dirs:
+            if isdir( ddir):
+                globr = glob( '%s/*' % ( ddir, ))
+                if not globr:
+                    log( 'Stale download directory found: %s', basename( ddir))
+                    try:
+                        rmdir( ddir)
+                        log( 'Successfully removed %s.', ddir)
+                    except:
+                        log( 'Could not remove %s.', ddir)
 
     def saveConfig( self):
         parser = ConfigParser()

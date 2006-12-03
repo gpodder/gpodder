@@ -35,6 +35,9 @@ from threading import Lock
 from shutil import move
 
 from liblogger import log
+
+import libgpodder
+
 import signal
 
 import popen2
@@ -125,6 +128,9 @@ class downloadThread( object):
         
         if process.wait() == 0:
             move( self.tempname, self.filename)
+        else:
+            # Delete partially downloaded file
+            libgpodder.gPodderLib().deleteFilename( self.tempname)
         
         self.result = process.poll()
         self.pid = -1

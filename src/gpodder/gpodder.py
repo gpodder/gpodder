@@ -212,9 +212,15 @@ class Gpodder(SimpleGladeApp):
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
+
+        gl = gPodderLib()
+
         # Update the feed list if the user has set it up
-        if gPodderLib().update_on_startup:
+        if gl.update_on_startup:
             self.update_feed_cache()
+
+        # Clean up old, orphaned download files
+        gl.clean_up_downloads()
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {

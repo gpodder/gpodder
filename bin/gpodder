@@ -26,8 +26,8 @@
 # PLEASE DO NOT CHANGE FORMAT OF __version__ LINE (setup.py reads this)
 
 __author__    = "Thomas Perl <thp@perli.net>"
-__version__   = "0.8.0+svn20061201"
-__date__      = "2006-12-01"
+__version__   = "0.8.0+svn20061203"
+__date__      = "2006-12-03"
 __copyright__ = "Copyright (c) 2005-2006 %s. All rights reserved." % __author__
 __licence__   = "GPL"
 
@@ -88,9 +88,7 @@ def main(argv=None):
         print "Args: "+str(args)
 
     if options.debug:
-        sys.path = ['./src/','../src/'] + sys.path
-        #sys.path.append('../src/')
-        #sys.path.append('./src/')
+        sys.path = [ './src/', '../src/' ] + sys.path
     
     # wget installation detection
     from gpodder import console
