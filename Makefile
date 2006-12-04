@@ -11,6 +11,9 @@ GLADEFILE=data/gpodder.glade
 GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gpodder.py
+LOGO=data/gpodder.png
+LOGO_48=data/gpodder-48x48.png
+LOGO_22=data/gpodder-22x22.png
 MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
@@ -35,7 +38,7 @@ help:
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make install         install gpodder into "/usr/"'
 	@echo 'make uninstall       uninstall gpodder from "/usr/"'
-	@echo 'make generators      re-generate manpage and run tepache'
+	@echo 'make generators      generate manpage, run tepache and resize logo'
 	@echo 'make messages        rebuild messages.pot from new source'
 	@echo 'make clean           remove generated+temp+*.pyc files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
@@ -72,11 +75,11 @@ uninstall:
 	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
 	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
 	@echo "##########################################################################"
-	rm -rf /usr/share/gpodder /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/ /usr/share/locale/*/LC_MESSAGES/gpodder.mo
+	rm -rf /usr/share/gpodder /usr/share/pixmaps/gpodder* /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/ /usr/share/locale/*/LC_MESSAGES/gpodder.mo
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_glade
+generators: $(MANPAGE) gen_glade gen_graphics
 	make -C data/po update
 
 messages: gen_gettext
@@ -92,6 +95,10 @@ gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
 	make -C data/po update
 
+gen_graphics:
+	convert $(LOGO) -resize 22x22 $(LOGO_22)
+	convert $(LOGO) -resize 48x48 $(LOGO_48)
+
 $(GLADEGETTEXT): $(GLADEFILE)
 	intltool-extract --type=gettext/glade $(GLADEFILE)
 
@@ -103,7 +110,7 @@ $(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~
+	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png
 	rm -rf build
 	make -C data/po clean
 
@@ -115,7 +122,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl test release install generators gen_manpage gen_glade clean distclean messages help
+.PHONY: all cl test release install generators gen_manpage gen_glade gen_graphics clean distclean messages help
 
 ##########################################################################
 

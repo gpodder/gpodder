@@ -90,6 +90,21 @@ class Gpodder(SimpleGladeApp):
         print "on_itemImportChannels_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemImportChannels_activate }
 
+    #-- Gpodder.on_homepage_activate {
+    def on_homepage_activate(self, widget, *args):
+        print "on_homepage_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_homepage_activate }
+
+    #-- Gpodder.on_wishlist_activate {
+    def on_wishlist_activate(self, widget, *args):
+        print "on_wishlist_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_wishlist_activate }
+
+    #-- Gpodder.on_mailinglist_activate {
+    def on_mailinglist_activate(self, widget, *args):
+        print "on_mailinglist_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_mailinglist_activate }
+
     #-- Gpodder.on_itemAbout_activate {
     def on_itemAbout_activate(self, widget, *args):
         print "on_itemAbout_activate called with self.%s" % widget.get_name()

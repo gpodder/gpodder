@@ -1,3 +1,13 @@
+Mon,  4 Dec 2006 14:04:04 +0100 <thp@perli.net>
+        * setup.py: Copy gPodder icon(s) to share/pixmaps now, and 
+          only the artwork files to share/gpodder/images
+        * Makefile: Generate 22x22 and 48x48 icons from gpodder.png
+        * README: Note "imagemagick" as new developer dependency - 
+          this is needed for the new image conversion in Makefile
+        * data/gpodder.glade: Added three new links to help menu
+        * src/gpodder/gpodder.py: Added three new link handlers for 
+          help menu to link to website, wishlist and mailing list
+
 Sun,  3 Dec 2006 19:07:27 +0100 <thp@perli.net>
         * src/gpodder/libwget.py: Remove partially downloaded files 
 	  after download is cancelled or an error occured

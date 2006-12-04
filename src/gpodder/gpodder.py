@@ -568,6 +568,21 @@ class Gpodder(SimpleGladeApp):
         opml_lister.get_channels_from_url( url, self.add_new_channel)
     #-- Gpodder.on_itemImportChannels_activate }
 
+    #-- Gpodder.on_homepage_activate {
+    def on_homepage_activate(self, widget, *args):
+        os.system( 'gnome-open http://perli.net/projekte/gpodder/')
+    #-- Gpodder.on_homepage_activate }
+
+    #-- Gpodder.on_wishlist_activate {
+    def on_wishlist_activate(self, widget, *args):
+        os.system( 'gnome-open http://www.amazon.de/gp/registry/2PD2MYGHE6857')
+    #-- Gpodder.on_wishlist_activate }
+
+    #-- Gpodder.on_mailinglist_activate {
+    def on_mailinglist_activate(self, widget, *args):
+        os.system( 'gnome-open http://lists.berlios.de/mailman/listinfo/gpodder-devel')
+    #-- Gpodder.on_mailinglist_activate }
+
     #-- Gpodder.on_itemAbout_activate {
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
@@ -578,12 +593,12 @@ class Gpodder(SimpleGladeApp):
         dlg.set_website( app_website)
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect("response", self.on_aboutDialog_response)
-        #
+
         try:
-            dlg.set_logo( gtk.gdk.pixbuf_new_from_file_at_size( icon_dir, 164, 164))
+            dlg.set_logo( gtk.gdk.pixbuf_new_from_file_at_size( icon_dir, 200, 200))
         except:
             None
-        #
+        
         dlg.run()
     #-- Gpodder.on_itemAbout_activate }
 
