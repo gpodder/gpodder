@@ -336,6 +336,9 @@ class Gpodder(SimpleGladeApp):
             self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
     
     def add_new_channel( self, result = None):
+        # Treat "feed://" URLs like "http://" ones
+        if result[:4] == 'feed':
+            result = 'http' + result[4:]
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             for old_channel in self.channels:
                 if old_channel.url == result:
@@ -354,7 +357,7 @@ class Gpodder(SimpleGladeApp):
             self.statusLabel.set_text( "")
         else:
             if result != None and result != "":
-                self.showMessage( _("Could not add new channel.\nOnly <b>http://</b> and <b>ftp://</b> URLs supported at the moment."))
+                self.showMessage( _('Could not add new channel.\n\nThe URL must start with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.'))
     
     def get_current_channel_downloaded( self):
         iter = self.comboDownloaded.get_active_iter()
@@ -489,7 +492,6 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
         ch = Gpodderchannel()
-        ch.entryURL.set_text( "http://")
         result = ch.requestURL()
         self.add_new_channel( result)
     #-- Gpodder.on_itemAddChannel_activate }
