@@ -36,6 +36,9 @@ import libgpodder
 from os.path import exists
 from os.path import basename
 from os.path import splitext
+import os.path
+import os
+import glob
 
 from types import ListType
 from datetime import datetime
@@ -53,8 +56,10 @@ from email.Utils import parsedate_tz
 
 import md5
 
+
 class podcastChannel(ListType):
     """holds data for a complete channel"""
+
     def __init__( self, url = "", title = "", link = "", description = ""):
         self.url = url
         self.title = title
@@ -66,8 +71,6 @@ class podcastChannel(ListType):
         self.copyright = ''
         self.webMaster = ''
         self.downloaded = None
-        self.__filename = None
-        self.__download_dir = None
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
         # if this is set to true, device syncing (ex: iPod) should treat this as music, not as podcast)
@@ -75,25 +78,11 @@ class podcastChannel(ListType):
         # to which playlist should be synced when "is_music_channel" is true?
         self.device_playlist_name = 'gPodder'
         
-    # Create all the properties
-    def get_filename(self):
-        if self.__filename == None or (self.__filename == '__unknown__' and self.title != None):
-            self.__filename = ''
+    def get_filename( self):
+        """Return the MD5 sum of the channel URL"""
+        return md5.new( self.url).hexdigest()
 
-            for char in self.title.lower():
-                if (char >= 'a' and char <= 'z') or (char >= 'A' and char <= 'Z') or (char >= '1' and char <= '9'):
-                    self.__filename = self.__filename + char
-                    
-        if self.__filename == '':
-            self.__filename = '__unknown__'
-
-        return self.__filename
-
-    def set_filename(self, value):
-        self.__filename = value
-        
-    filename = property(fget=get_filename,
-                        fset=set_filename)
+    filename = property(fget=get_filename)
 
     def get_title( self):
         return self.__title
@@ -104,13 +93,9 @@ class podcastChannel(ListType):
     title = property(fget=get_title,
                      fset=set_title)
     
-    def addItem( self, item):
-        self.append( item)
-
     def get_localdb_channel( self):
-        ch = None
         try:
-            locdb_reader = readLocalDB()
+            locdb_reader = readLocalDB( self.url)
             locdb_reader.parseXML( self.index_file)
             return locdb_reader.channel
         except:
@@ -119,25 +104,26 @@ class podcastChannel(ListType):
     def set_localdb_channel( self, channel):
         if channel != None:
             try:
+                log( 'Setting localdb channel data')
                 writeLocalDB( self.index_file, channel)
             except:
                 log( 'Cannot save channel in set_localdb_channel( %s)', channel.title)
+
+    localdb_channel = property(fget=get_localdb_channel,
+                               fset=set_localdb_channel)
     
     def set_metadata_from_localdb( self):
         log( 'Reading metadata from database: %s', self.index_file)
         libgpodder.getLock()
-        ch = self.get_localdb_channel()
-        if ch != None:
-            self.copy_metadata_from( ch)
+        self.copy_metadata_from( self.localdb_channel)
         libgpodder.releaseLock()
 
     def save_metadata_to_localdb( self):
         log( 'Saving metadata to database: %s', self.index_file)
         libgpodder.getLock()
-        ch = self.get_localdb_channel()
-        if ch != None:
-            ch.copy_metadata_from( self)
-            self.set_localdb_channel( ch)
+        ch = self.localdb_channel
+        ch.copy_metadata_from( self)
+        self.localdb_channel = ch
         libgpodder.releaseLock()
 
     def copy_metadata_from( self, ch):
@@ -152,7 +138,7 @@ class podcastChannel(ListType):
         localdb = self.index_file
         log( 'Local database: %s', localdb)
 
-        self.downloaded = self.get_localdb_channel()
+        self.downloaded = self.localdb_channel
         
         already_in_list = False
         # try to find the new item in the list
@@ -211,11 +197,11 @@ class podcastChannel(ListType):
         return -1
 
     def downloadRss( self, force_update = True):
-        if (self.filename == "__unknown__" or exists( self.cache_file) == False) or force_update:
+        if not exists( self.cache_file) or force_update:
             # remove old cache file
             libgpodder.gPodderLib().deleteFilename( self.cache_file)
             event = Event()
-            downloadThread(self.url, self.cache_file, event).download()
+            downloadThread( self.url, self.cache_file, event).download()
             
             while event.isSet() == False:
                 event.wait( 0.2)
@@ -230,70 +216,51 @@ class podcastChannel(ListType):
         return self.cache_file
     
     def get_save_dir(self):
-        savedir = self.download_dir + self.filename + "/"
-        if libgpodder.gPodderLib().createIfNecessary( savedir) == False:
-            self.reset_download_dir()
-            savedir = self.download_dir + self.filename + "/"
-        return savedir
+        save_dir = os.path.join( libgpodder.gPodderLib().downloaddir, self.filename ) + '/'
+
+        # Create save_dir if it does not yet exist
+        if libgpodder.gPodderLib().createIfNecessary( save_dir) == False:
+            log( '(libpodcasts) Could not create: %s', save_dir)
+
+        return save_dir
     
     save_dir = property(fget=get_save_dir)
 
-    def get_download_dir(self):
-        if self.__download_dir == None:
-            return libgpodder.gPodderLib().downloaddir
-        else:
-            return self.__download_dir
-
-    def reset_download_dir( self):
-        self.__download_dir = libgpodder.gPodderLib().downloaddir
-
-    def set_download_dir(self, value):
-        self.__download_dir = value
-        if libgpodder.gPodderLib().createIfNecessary(self.__download_dir) == False:
-            # fallback to hopefully sane download dir
-            self.reset_download_dir()
-            return False
-        return True
-        
-    download_dir = property (fget=get_download_dir,
-                             fset=set_download_dir)
-
     def get_cache_file(self):
-        return libgpodder.gPodderLib().cachedir + self.filename + ".xml"
+        return libgpodder.gPodderLib().cachedir + self.filename + '.xml'
 
     cache_file = property(fget=get_cache_file)
+
+    def remove_cache_file( self):
+        libgpodder.gPodderLib().deleteFilename( self.cache_file)
+
+    def remove_downloaded( self):
+        files = glob.glob( os.path.join( self.save_dir, '*'))
+        for file in files:
+            libgpodder.gPodderLib().deleteFilename( file)
     
     def get_index_file(self):
         # gets index xml filename for downloaded channels list
-        return self.save_dir + "index.xml"
+        return os.path.join( self.save_dir, 'index.xml')
     
     index_file = property(fget=get_index_file)
     
     def get_cover_file( self):
         # gets cover filename for cover download cache
-        return self.save_dir + "cover"
+        return os.path.join( self.save_dir, 'cover')
 
     cover_file = property(fget=get_cover_file)
     
     def getPodcastFilename( self, url):
         # strip question mark (and everything behind it), fix %20 errors
-        filename = basename( url).replace( "%20", " ")
-	indexOfQuestionMark = filename.rfind( "?")
+        filename = basename( url).replace( '%20', ' ')
+	indexOfQuestionMark = filename.rfind( '?')
 	if indexOfQuestionMark != -1:
 	    filename = filename[:indexOfQuestionMark]
 	# end strip questionmark
         extension = splitext( filename)[1].lower()
 
-        legacy_location = self.save_dir + filename
-        new_location = self.save_dir + md5.new(url).hexdigest() + extension
-
-        # this supports legacy podcast locations, should be removed at
-        # some point (or move files from old location to new location)
-        if exists( legacy_location):
-            log( '(gpodder < 0.7 compat) Using old filename scheme for already downloaded podcast.')
-            return legacy_location
-        else:
-            return new_location
+        return self.save_dir + md5.new(url).hexdigest() + extension
     
     def podcastFilenameExists( self, url):
         return exists( self.getPodcastFilename( url))
@@ -306,7 +273,7 @@ class podcastChannel(ListType):
         localdb = self.index_file
         log( 'Local database: %s', localdb)
         try: 
-            locdb_reader = readLocalDB()
+            locdb_reader = readLocalDB( self.url)
             locdb_reader.parseXML( localdb)
             self.downloaded = locdb_reader.channel
             for item in self.downloaded:
@@ -377,7 +344,6 @@ class podcastItem(object):
         if other_item == None:
             return False
         
-        # we suppose it's the same when the download URL is the same..
         return self.url == other_item.url
 
     def get_title( self):
@@ -393,7 +359,7 @@ class podcastItem(object):
         try:
             size = int( self.length)
         except ValueError:
-            return 'n/a'
+            return '-'
         
         kilobyte = 1024
         megabyte = kilobyte * 1024
@@ -401,7 +367,7 @@ class podcastItem(object):
         
         if size > gigabyte:
             # Might be a bit big, but who cares...
-            return '%d GB' % str(size / gigabyte)
+            return '%d GB' % int(size / gigabyte)
         if size > megabyte:
             return '%d MB' % int(size / megabyte)
         if size > kilobyte:
@@ -417,16 +383,12 @@ class opmlChannel(object):
 
 
 def channelsToModel( channels):
-    new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_OBJECT)
+    new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
     
     for channel in channels:
         new_iter = new_model.append()
         new_model.set( new_iter, 0, channel.url)
-        new_model.set( new_iter, 1, channel.title) # + " ("+channel.url+")")
-        #if channel.image != None:
-        #    new_model.set( new_iter, 2, gtk.gdk.pixbuf_new_from_file_at_size( channel.image, 60, 60))
-        #else:
-        #    new_model.set( new_iter, 2, None)
+        new_model.set( new_iter, 1, channel.title)
     
     return new_model
 

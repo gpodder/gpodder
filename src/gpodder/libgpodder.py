@@ -321,9 +321,8 @@ class gPodderChannelWriter( object):
         print >> fd, '<!-- '+_('gPodder channel list')+' -->'
         print >> fd, '<channels>'
         for chan in channels:
-            print >> fd, '  <channel name="%s">' % chan.filename
+            print >> fd, '  <channel>'
             print >> fd, '    <url>%s</url>' % saxutils.escape( chan.url)
-            print >> fd, '    <download_dir>%s</download_dir>' % saxutils.escape( chan.save_dir)
             print >> fd, '  </channel>'
         print >> fd, '</channels>'
         fd.close()
@@ -335,28 +334,29 @@ class gPodderChannelReader( DefaultHandler):
 
     def __init__( self):
         None
-
-    def channel_filename_exists( self, url, filename):
-        for c in self.channels:
-            if filename == c.filename and url == c.url:
-                # we've reached the position of the channel
-                # we're checking, so bug out here :)
-                return False
-            if filename == c.filename and url != c.url:
-                return True
-        return False
     
     def read( self, force_update = False, callback_proc = None):
-        # callback proc should be like cb( pos, count), where pos is 
-        # the current position (of course) and count is how many feeds 
-        # will be updated. this can be used to visualize progress..
+        """Read channels from a file into gPodder's cache
+
+        force_update:   When true, re-download even if the cache file 
+                        already exists locally
+
+        callback_proc:  A function that takes two integer parameters, 
+                        the first being the number of the currently 
+                        processed item and the second being the count 
+                        of the items that will be read/updated.
+        """
+
         self.channels = []
+
         parser = make_parser()
         parser.setContentHandler( self)
+
         if exists( gPodderLib().getChannelsFilename()):
             parser.parse( gPodderLib().getChannelsFilename())
         else:
             return []
+
         reader = rssReader()
         input_channels = []
         
@@ -366,20 +366,10 @@ class gPodderChannelReader( DefaultHandler):
             if callback_proc != None:
                 callback_proc( position, channel_count)
 
-            cachefile = channel.downloadRss(force_update)
-            log( 'cachefile for %s is %s', channel.url, cachefile)
+            cachefile = channel.downloadRss( force_update)
             # check if download was a success
             if cachefile != None:
-                reader.parseXML(channel.url, cachefile)
-                if channel.filename != '__unknown__':
-                    proposed_filename = channel.filename
-                    log( 'First proposed fn: %s', proposed_filename)
-                    i = 2
-                    while self.channel_filename_exists( channel.url, proposed_filename):
-                        proposed_filename = '%s%d' % ( channel.filename, i )
-                        log( 'New proposed fn: %s', proposed_filename)
-                        i = i+1
-                    reader.channel.filename = proposed_filename
+                reader.parseXML( channel.url, cachefile)
                 input_channels.append( reader.channel)
 
             position = position + 1
@@ -393,17 +383,14 @@ class gPodderChannelReader( DefaultHandler):
     def startElement( self, name, attrs):
         self.current_element_data = ""
         
-        if name == "channel":
+        if name == 'channel':
             self.current_item = podcastChannel()
-            self.current_item.filename = attrs.get( 'name', '')
     
     def endElement( self, name):
         if self.current_item != None:
-            if name == "url":
+            if name == 'url':
                 self.current_item.url = self.current_element_data
-            if name == "download_dir":
-                self.current_item.download_dir = self.current_element_data
-            if name == "channel":
+            if name == 'channel':
                 self.channels.append( self.current_item)
                 self.current_item = None
     

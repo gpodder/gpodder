@@ -243,8 +243,8 @@ class Gpodder(SimpleGladeApp):
         if self.ldb == None:
             self.ldb = localDB()
         # update downloaded_channels list
-        self.downloaded_channels = self.ldb.getDownloadedChannelsList()
-        self.comboDownloaded.set_model( self.ldb.getDownloadedChannelsModel())
+        self.downloaded_channels = self.ldb.channel_list
+        self.comboDownloaded.set_model( self.ldb.get_model())
         try:
             self.comboDownloaded.set_active( self.active_downloaded_channels)
         except:
@@ -253,14 +253,13 @@ class Gpodder(SimpleGladeApp):
     # end of self.updateDownloadedComboBox()
     
     def updateTreeView( self):
-        try:
+        if self.channels:
             self.items_model = self.channels[self.active_channel].getItemsModel()
             self.treeAvailable.set_model( self.items_model)
             self.treeAvailable.columns_autosize()
-        except:
-            if self.items_model != None:
-                self.items_model.clear()
-            self.showMessage( _("<b>No channels found</b>\n\nClick on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a new channel."))
+        else:
+            if self.treeAvailable.get_model():
+                self.treeAvailable.get_model().clear()
     
     def showMessage( self, message, title = _('gPodder message')):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -302,16 +301,6 @@ class Gpodder(SimpleGladeApp):
         return pb
 
     def switched_notebook( self, notebook, page, page_num):
-        # if we are NOT on the "available downloads" page, disable menu items
-        if page_num != 0:
-            is_available = False
-        else:
-            is_available = True
-        
-        # disable/enable menu items related to only the first notebook tab
-        self.itemRemoveChannel.set_sensitive( is_available)
-        self.itemEditChannel.set_sensitive( is_available)
-
         # when switching to last page, update the "downloaded" combo box
         if page_num == 2:
             self.updateDownloadedComboBox()
@@ -323,11 +312,6 @@ class Gpodder(SimpleGladeApp):
     def refetch_channel_list( self):
         channels_should_be = len( self.channels)
         
-        # fetch metadata for that channel
-        gPodderChannelWriter().write( self.channels)
-        self.channels = gPodderChannelReader().read( False)
-        
-        # fetch feed for that channel
         gPodderChannelWriter().write( self.channels)
         self.channels = gPodderChannelReader().read( False)
         
@@ -337,7 +321,7 @@ class Gpodder(SimpleGladeApp):
     
     def add_new_channel( self, result = None):
         # Treat "feed://" URLs like "http://" ones
-        if result[:4] == 'feed':
+        if result and result[:4] == 'feed':
             result = 'http' + result[4:]
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             for old_channel in self.channels:
@@ -346,8 +330,7 @@ class Gpodder(SimpleGladeApp):
                     return
             log( 'Adding new channel: %s', result)
             self.statusLabel.set_text( _("Fetching channel index..."))
-            channel_new = podcastChannel( result)
-            self.channels.append( channel_new)
+            self.channels.append( podcastChannel( url = result))
             
             # download changed channels
             self.refetch_channel_list()
@@ -455,7 +438,10 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemUpdate_activate {
     def on_itemUpdate_activate(self, widget, *args):
-        self.update_feed_cache()
+        if self.channels:
+            self.update_feed_cache()
+        else:
+            self.showMessage( _('Subscribe to some channels first.'))
     #-- Gpodder.on_itemUpdate_activate }
 
     #-- Gpodder.on_sync_to_ipod_activate {
@@ -502,7 +488,7 @@ class Gpodder(SimpleGladeApp):
         try:
             channel = self.channels[self.active_channel]
         except:
-            self.showMessage( _("Cannot edit this channel.\n\nNo channel found."))
+            self.showMessage( _('Please select a channel to edit.'))
             return
         
         result = Gpodderchannel().requestURL( channel)
@@ -510,11 +496,8 @@ class Gpodder(SimpleGladeApp):
         if result != channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             log( 'Changing channel #%d from "%s" to "%s"', active, channel.url, result)
             self.statusLabel.set_text( _("Fetching channel index..."))
-            channel_new = podcastChannel( result)
-            new_channels = self.channels[0:active]
-            new_channels.append( channel_new)
-            new_channels.extend( self.channels[active+1:])
-            self.channels = new_channels
+
+            self.channels = self.channels[0:active] + [ podcastChannel( url = result) ] + self.channels[active+1:]
             
             # fetch new channels
             self.refetch_channel_list()
@@ -527,14 +510,17 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemRemoveChannel_activate {
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
-            if self.showConfirmation( _("Do you really want to remove this channel?\n\n %s") % self.channels[self.active_channel].title) == False:
+            if self.showConfirmation( _("Do you really want to remove this channel and downloaded episodes?\n\n %s") % self.channels[self.active_channel].title) == False:
                 return
+            self.channels[self.active_channel].remove_cache_file()
+            self.channels[self.active_channel].remove_downloaded()
+            gPodderLib().clean_up_downloads()
             self.channels.remove( self.channels[self.active_channel])
             gPodderChannelWriter().write( self.channels)
             self.channels = gPodderChannelReader().read( False)
             self.updateComboBox()
         except:
-            self.showMessage( _("Could not delete channel.\nProbably no channel is selected."))
+            pass
     #-- Gpodder.on_itemRemoveChannel_activate }
 
     #-- Gpodder.on_itemExportChannels_activate {
@@ -693,8 +679,7 @@ class Gpodder(SimpleGladeApp):
     def on_comboDownloaded_changed(self, widget, *args):
         self.active_downloaded_channels = self.comboDownloaded.get_active()
         try:
-          filename = self.get_current_channel_downloaded()
-          new_model = self.ldb.getDownloadedEpisodesModelByFilename( filename)
+          new_model = self.ldb.get_tree_model( self.get_current_channel_downloaded())
           self.treeDownloaded.set_model( new_model)
           self.treeDownloaded.columns_autosize()
         except:
@@ -705,8 +690,6 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_treeDownloaded_row_activated {
     def on_treeDownloaded_row_activated(self, widget, *args):
         try:
-            channel_filename = self.get_current_channel_downloaded()
- 
             selection = self.treeDownloaded.get_selection()
             model = self.treeDownloaded.get_model()
  
@@ -719,12 +702,11 @@ class Gpodder(SimpleGladeApp):
             selection_iter = model.get_iter( apath)
             url = model.get_value( selection_iter, 0)
             if widget.get_name() == "treeDownloaded":
-                podcast = self.ldb.get_podcast_by_podcast_url( channel_filename, url)
+                podcast = self.ldb.get_podcast( url)
                 Gpodderepisode().set_episode( podcast)
                 return
-            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-            gPodderLib().openFilename( filename_final)
+            filename = self.ldb.get_filename_by_podcast( self.get_current_channel_downloaded(), url)
+            gPodderLib().openFilename( filename)
         except:
           self.showMessage( _("No episode selected."))
     #-- Gpodder.on_treeDownloaded_row_activated }

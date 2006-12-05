@@ -1,3 +1,37 @@
+Tue,  5 Dec 2006 23:36:41 +0100 <thp@perli.net>
+	* svn branch gpodder-thp-december-2006: This branch will be 
+	  used to develop and test the new filenaming scheme and some 
+	  code clean-ups. After the code has been tested and the 
+	  codebase seems stable, this branch will be merged back into 
+	  the gpodder trunk. This codebase breaks compatibility with 
+	  the old download directory scheme, but also makes the code 
+	  simpler and easier to manage. See below for the first cut of 
+	  these changes and enjoy!            -- Thomas Perl
+        * src/gpodder/liblocdbreader.py: Code clean-ups, utilize real 
+          channel URL when reading localdb
+        * src/gpodder/libpodcasts.py: Code clean-ups; new file naming 
+          scheme; remove unnecessary download_dir property (you just 
+          want to use save_dir instead); add remove_cache_file() and 
+          remove_downloaded() methods to podcastChannel; remove support 
+          for legacy (pre-0.7) filename locations - the old download 
+          directory scheme is not supported anymore with this change; 
+          channelsToModel function code cleanup
+        * src/gpodder/libgpodder.py: Do not save channel name in the 
+          gPodder channel list (because the name will be calculated 
+          depending on the URL as of now); simplify the channel reading 
+          process by getting rid of the "filename-discovery" code parts
+          and do not read in the download_dir variable for the channel
+        * src/gpodder/gpodder.py: Clear available episodes list when 
+          there are no channels selected; do not disable/enable menu 
+          items based on which page of the gtknotebook we are; only 
+          fetch channel feed once, because we do not need to fetch it
+          twice with the new channel naming scheme; added support for 
+          feed:// URLs; remove downloaded items when removing a channel;
+          some more code clean-ups to increase code readability
+        * src/gpodder/liblocaldb.py: Major code overhaul, cleanup and 
+          simplification; getting rid of camelCasedFunctionNames
+	* bin/gpodder: Note version and release date for svn branch
+
 Tue,  5 Dec 2006 03:31:38 +0100 <thp@perli.net>
         * src/gpodder/console.py: Removed unneeded import
         * src/gpodder/librssreader.py: Use "append" instead of 

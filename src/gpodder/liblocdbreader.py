@@ -39,25 +39,24 @@ from liblogger import log
 
 class rssLocDBErrorHandler( ErrorHandler):
     def __init__( self):
-        None
+        pass
 
     def error( self, exception):
-        print exception
+        log( 'Local DB reader error: %s', str(exception))
 
     def fatalError( self, exception):
-        print "FATAL ERROR: ", exception
+        log( 'Local DB reader fatal error: %s', str(exception))
 
     def warning( self, exception):
-        print "warning: ", exception
+        log( 'Local DB reader warning: %s', str(exception))
 
 class readLocalDB( DefaultHandler):
-    channel = None
-    current_item = None
-    current_element_data = ""
-    filename = None
-
-    def __init__( self):
-        None
+    def __init__( self, url):
+        self.url = url
+        self.channel = None
+        self.current_item = None
+        self.current_element_data = ""
+        self.filename = None
     
     def parseXML( self, filename):
         self.filename = filename
@@ -76,8 +75,7 @@ class readLocalDB( DefaultHandler):
         self.current_element_data = ""
 
         if name == "channel":
-            # no "real" url needed for podcastChannel, because we only use it as a container
-            self.channel = libpodcasts.podcastChannel( self.filename)
+            self.channel = libpodcasts.podcastChannel( url = self.url)
         if name == "item":
             self.current_item = libpodcasts.podcastItem()
         if name == "gpodder:info" and self.channel != None and self.current_item == None:
@@ -119,7 +117,7 @@ class readLocalDB( DefaultHandler):
             if name == "pubDate":
                 self.current_item.pubDate = self.current_element_data
             if name == "item":
-                self.channel.addItem( self.current_item)
+                self.channel.append( self.current_item)
                 self.current_item = None
     
     def characters( self, ch):
