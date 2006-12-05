@@ -27,7 +27,6 @@ import time
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 from libgpodder import gPodderLib
-from libpodcasts import podcastChannel
 from librssreader import rssReader
 from libwget import downloadThread
 

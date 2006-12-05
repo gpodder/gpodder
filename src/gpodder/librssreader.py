@@ -117,7 +117,7 @@ class rssReader( DefaultHandler):
             if name == "pubDate":
                 self.current_item.pubDate = self.current_element_data
             if name == "item":
-                self.channel.addItem( self.current_item)
+                self.channel.append( self.current_item)
                 self.current_item = None
     
     def characters( self, ch):
