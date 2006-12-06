@@ -159,7 +159,22 @@ class Gpodder(SimpleGladeApp):
         namecell.set_property('cell-background', 'white')
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
         namecolumn.add_attribute(namecell, "cell-background", 4)
-        self.treeDownloaded.append_column( namecolumn)
+
+        releasecell = gtk.CellRendererText()
+        releasecell.set_property('cell-background', 'white')
+        releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
+        releasecolumn.add_attribute(releasecell, "cell-background", 4)
+        
+        desccell = gtk.CellRendererText()
+        desccell.set_property('cell-background', 'white')
+        desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
+        desccolumn.add_attribute(desccell, "cell-background", 4)
+
+        for itemcolumn in ( namecolumn, releasecolumn, desccolumn ):
+            itemcolumn.set_resizable( True)
+            itemcolumn.set_reorderable( True)
+            self.treeDownloaded.append_column( itemcolumn)
         
         # columns and renderers for "download progress" tab
         episodecell = gtk.CellRendererText()
