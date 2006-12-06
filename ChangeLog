@@ -1,3 +1,13 @@
+Wed,  6 Dec 2006 03:36:51 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Clean up downloadStatusManager 
+          and add support for a GTK window that will have its 
+          title updated based on the current download status (show 
+          total download progress in titlebar of gPodder window)
+        * src/gpodder/gpodder.py: Send the main window to the 
+          downloadStatusManager object so it can access the window 
+          title
+        * data/gpodder.glade: Main window title is now "gPodder"
+
 Wed,  6 Dec 2006 02:59:10 +0100 <thp@perli.net>
         * src/gpodder/libgpodder.py: Add support for updating 
           symlink on Desktop when moving downloads folder

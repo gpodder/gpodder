@@ -175,7 +175,7 @@ class Gpodder(SimpleGladeApp):
             self.treeDownloads.append_column( itemcolumn)
     
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
-        self.download_status_manager = downloadStatusManager()
+        self.download_status_manager = downloadStatusManager( self.gPodder)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # read and display subscribed channels
