@@ -37,6 +37,10 @@ from xml.sax import make_parser
 from string import strip
 from os.path import expanduser
 from os.path import exists
+try:
+    from os.path import lexists
+except:
+    log( 'lexists() not found in module os.path - (using Python < 2.4?) - will fallback to exists()')
 from os.path import dirname
 from os.path import basename
 from os.path import isfile
@@ -181,7 +185,20 @@ class gPodderLibClass( object):
         if self.__download_dir and self.__download_dir != new_downloaddir:
             log( 'Moving downloads from %s to %s', self.__download_dir, new_downloaddir)
             try:
+                # Save state of Symlink on Desktop
+                generate_symlink = False
+                if self.getDesktopSymlink():
+                    log( 'Desktop symlink exists before move.')
+                    generate_symlink = True
+
                 shutil.move( self.__download_dir, new_downloaddir)
+
+                if generate_symlink:
+                    # Re-generate Symlink on Desktop
+                    log( 'Will re-generate desktop symlink to %s.', new_downloaddir)
+                    self.removeDesktopSymlink()
+                    self.__download_dir = new_downloaddir
+                    self.createDesktopSymlink()
             except:
                 log( 'Error while moving %s to %s.', self.__download_dir, new_downloaddir)
                 return
@@ -266,7 +283,10 @@ class gPodderLibClass( object):
 
     def getDesktopSymlink( self):
         symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
-        return exists( symlink_path)
+        try:
+            return lexists( symlink_path)
+        except:
+            return exists( symlink_path)
 
     def createDesktopSymlink( self):
         if not self.getDesktopSymlink():
