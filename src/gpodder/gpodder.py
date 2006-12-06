@@ -175,7 +175,7 @@ class Gpodder(SimpleGladeApp):
             self.treeDownloads.append_column( itemcolumn)
     
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
-        self.download_status_manager = downloadStatusManager( self.gPodder)
+        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateTreeView)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # read and display subscribed channels
@@ -254,7 +254,7 @@ class Gpodder(SimpleGladeApp):
     
     def updateTreeView( self):
         if self.channels:
-            self.items_model = self.channels[self.active_channel].getItemsModel()
+            self.items_model = self.channels[self.active_channel].getItemsModel( downloading_callback = self.download_status_manager.is_download_in_progress)
             self.treeAvailable.set_model( self.items_model)
             self.treeAvailable.columns_autosize()
         else:
@@ -330,6 +330,10 @@ class Gpodder(SimpleGladeApp):
             for old_channel in self.channels:
                 if old_channel.url == result:
                     log( 'Channel already exists: %s', result)
+                    # Select the existing channel in combo box
+                    for i in range( len( self.channels)):
+                        if self.channels[i] == old_channel:
+                            self.comboAvailable.set_active( i)
                     return
             log( 'Adding new channel: %s', result)
             self.statusLabel.set_text( _("Fetching channel index..."))
@@ -429,6 +433,9 @@ class Gpodder(SimpleGladeApp):
                 log( 'Episode has already been downloaded.')
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
+
+        # update tree view to mark the episode as being downloaded
+        self.updateTreeView()
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
@@ -651,7 +658,7 @@ class Gpodder(SimpleGladeApp):
                 episodes_to_download = channel[0:min(len(channel),3)]
         else:
             for episode in channel:
-                if episode.compare_pubdate( last_pubdate) > 0:
+                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode):
                     log( 'Episode "%s" is newer.', episode.title)
                     episodes_to_download.append( episode)
 
@@ -712,9 +719,9 @@ class Gpodder(SimpleGladeApp):
     def on_comboDownloaded_changed(self, widget, *args):
         self.active_downloaded_channels = self.comboDownloaded.get_active()
         try:
-          new_model = self.ldb.get_tree_model( self.get_current_channel_downloaded())
-          self.treeDownloaded.set_model( new_model)
-          self.treeDownloaded.columns_autosize()
+            new_model = self.ldb.get_tree_model( self.get_current_channel_downloaded())
+            self.treeDownloaded.set_model( new_model)
+            self.treeDownloaded.columns_autosize()
         except:
             if self.treeDownloaded.get_model() != None:
                 self.treeDownloaded.get_model().clear()

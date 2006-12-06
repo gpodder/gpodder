@@ -27,6 +27,7 @@ import time
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 from libgpodder import gPodderLib
+from liblogger import log
 from librssreader import rssReader
 from libwget import downloadThread
 
@@ -93,16 +94,31 @@ def update():
 
 
 def run():
-    '''Update channels und download all items which are not already downloaded'''
-    reader = gPodderChannelReader()
-    updated_channels = reader.read(True)
+    '''Update channels und download episodes newer than the newest downloaded item'''
+    updated_channels = gPodderChannelReader().read( True)
 
     pool = DownloadPool()
-    
+
     for channel in updated_channels:
-       for item in channel:
+       episodes_to_download = []
+       last_pubdate = channel.newest_pubdate_downloaded()
+
+       if not last_pubdate:
+            # download maximum 3 newest episodes
+            log( '%s seems like a new channel. Downloading newest three episodes.', channel.title)
+            episodes_to_download = channel[0:min(len(channel),3)]
+       else:
+            for item in channel:
+                if item.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( item):
+                    # if this episode is new, download it!
+                    log( 'Queueing new episode for download: %s', item.title)
+                    episodes_to_download.append( item)
+            if not episodes_to_download:
+                log( 'Nothing to do for %s.', channel.title)
+
+       for item in episodes_to_download:
            filename = channel.getPodcastFilename( item.url)
-           if not channel.isDownloaded( item):
+           if not channel.is_downloaded( item):
                while not pool.may_download():
                    time.sleep(3)
                

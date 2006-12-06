@@ -110,7 +110,7 @@ class downloadThread( object):
         while process.poll() == -1 and self.is_cancelled == False:
             msg = stderr.readline( 80)
             msg = msg.strip()
-            log( 'wget> %s', msg)
+            #log( 'wget> %s', msg)
             
             if msg.find("%") != -1:
                 try:
@@ -161,7 +161,7 @@ class downloadThread( object):
 
 
 class downloadStatusManager( object):
-    def __init__( self, main_window = None):
+    def __init__( self, main_window = None, change_notification = None):
         self.status_list = {}
 	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
         self.smlock = Lock()
@@ -173,6 +173,7 @@ class downloadStatusManager( object):
         self.default_window_title = ''
         if self.main_window:
             self.default_window_title = self.main_window.get_title()
+        self.change_notification = change_notification
         self.smlock.release()
     
     def getNextId( self):
@@ -183,6 +184,8 @@ class downloadStatusManager( object):
     def registerId( self, id, thread):
         self.smlock.acquire()
         self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread, 'progress': 0, }
+        if self.change_notification:
+            gobject.idle_add( self.change_notification)
         self.smlock.release()
 
     def remove_iter( self, iter):
@@ -202,6 +205,8 @@ class downloadStatusManager( object):
             del self.status_list[id]
         if not self.status_list:
             gobject.idle_add( self.main_window.set_title, self.default_window_title)
+        if self.change_notification:
+            gobject.idle_add( self.change_notification)
 
     def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0, 'url':"unknown" }):
         if not id in self.status_list:

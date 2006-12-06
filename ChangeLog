@@ -1,3 +1,26 @@
+Wed,  6 Dec 2006 19:43:11 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Don't log wget's output for now (too 
+          noisy for testing, also wget seems to be stable for gPodder);
+          added change_notification parameter to downloadStatusManager
+        * src/gpodder/console.py: Only download episodes that are newer 
+          than the latest downloaded episodes (like the "download new" 
+          button) when running "gpodder -r" (as suggested by Stephen, 
+          "urban at inetdesign.org" a while ago)
+        * src/gpodder/libpodcasts.py: Refactor isDownloaded() to new name 
+          is_downloaded() in podcastChannel; add a downloading_callback 
+          parameter to getItemsModel(); have new colors for available 
+          episodes list (green, orange-red and white)
+        * src/gpodder/libipodsync.py: Check if iTunesDB has a master 
+          and a podcasts playlist, bug out if there is none; also fix 
+          some minor problems that might lead to crashes
+        * src/gpodder/gpodder.py: update available tree view when the 
+          downloadStatusManager reports a change; mark "downloading" 
+          episodes with special color; when adding a channel that already 
+          exists, switch the available podcasts view to the existing 
+          channel; download "newer" episodes with the same timestamp as 
+          the latest downloaded podcast; fix indentation
+        * TODO: Removed items marked as done already
+
 Wed,  6 Dec 2006 17:49:43 +0100 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Added newest_pubdate_downloaded() 
           to podcastChannel, added compare_pubdate() and newer_pubdate() 

@@ -171,19 +171,30 @@ class podcastChannel(ListType):
         for item in self:
             print '-- Item: "' + item.title + '"'
 
-    def isDownloaded( self, item):
+    def is_downloaded( self, item):
         return self.podcastFilenameExists( item.url)
 
-    def getItemsModel( self, want_color = True):
+    def getItemsModel( self, want_color = True, downloading_callback = None):
+        """Return a gtk.ListStore containing episodes for this channel
+
+        If want_color is True (the default), this will set special colors
+        for already downloaded episodes and download-in-progress episodes.
+
+        If downloading_callback is set, this should be a function that takes 
+        the URL of the episodes and returns True if the episode is currently 
+        being downloaded and False otherwise.
+        """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
         for item in self:
             # Skip items with no download url
-            if item.url != "":
-                if self.isDownloaded(item) and want_color:
-                    background_color = "#eeeeee"
+            if item.url:
+                if self.is_downloaded( item) and want_color:
+                    background_color = '#AAFFAA'
+                elif downloading_callback and downloading_callback( item.url):
+                    background_color = '#FFCCAA'
                 else:
-                    background_color = "white"
+                    background_color = '#FFFFFF'
                 new_iter = new_model.append()
                 new_model.set( new_iter, 0, item.url)
                 new_model.set( new_iter, 1, item.title)
