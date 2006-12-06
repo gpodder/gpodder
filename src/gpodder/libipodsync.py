@@ -114,7 +114,11 @@ class gPodder_iPodSync(object):
                 return False
             self.itdb.mountpoint = str(self.ipod_mount)
             self.pl_master = gpod.sw_get_playlists( self.itdb)[0]
+            if not self.pl_master:
+                return False
             self.pl_podcasts = gpod.itdb_playlist_podcasts( self.itdb)
+            if not self.pl_podcasts:
+                return False
         return True
 
     def close( self, write_update = True):
@@ -175,7 +179,10 @@ class gPodder_iPodSync(object):
     def episode_is_on_ipod( self, channel, episode):
         if not ipod_supported():
             return False
-        for track in gpod.sw_get_playlist_tracks( self.get_playlist_for_channel( channel)):
+        pl = self.get_playlist_for_channel( channel)
+        if not pl:
+            return False
+        for track in gpod.sw_get_playlist_tracks( pl):
             if episode.title == track.title and channel.title == track.album:
                 log( '(ipodsync) Already on iPod: %s (from %s)', episode.title, track.title)
                 return True
@@ -200,7 +207,7 @@ class gPodder_iPodSync(object):
         for episode in channel:
             if self.callback_progress != None:
                 gobject.idle_add( self.callback_progress, i, max)
-            if channel.isDownloaded( episode):
+            if channel.is_downloaded( episode):
                 self.add_episode_from_channel( channel, episode)
             i=i+1
         if self.callback_status != None:
@@ -297,7 +304,7 @@ class gPodder_iPodSync(object):
         
         track.title = str(episode.title)
         track.album = str(channel.title)
-        track.tracklen = track_length
+        track.tracklen = int(track_length)
         track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say
         track.description = str(episode.description)
         track.podcasturl = str(episode.url)

@@ -1,11 +1,3 @@
-
- * New file (and directory) naming scheme, to be implemented:
-   -> Episode "A Strange Title for an Episode"
-   -> plus MD5 of the episode download URL
-   -> a-strange-title-fo.ad4ca80f3a003a299fbd3f98b5b9952c.mp3
-   -> Same for podcast channels
-
-   me as http. (suggested by Timm Preetz <timm -- preetz us>)
  
  * My favourite Videocast offers 3gp-Files (for mobiles) and m4v-Files 
    (for iPods) in his feed.gPodder loads the low quality m4v-File, which 
@@ -17,10 +9,16 @@
    podcasts, one for audio podcasts)
                    (suggested by Philipp Ottlinger, otg@aiki-it.de)
 
+ -------------------------
+
  * i would like to have a button that will download all new files in all
    channels that are subscribed. An option in preferences that will
    autostart this process after startup would be also a nice feature :-)
       (suggested by Robert Pankowecki <robert.pankowecki     gmail.com>)
+
+      -> partially done already
+
+ -------------------------
 
  * Make (at least optional) it possible to populate MP3 files' tags from 
    the metadata found in the feed. Possible options:
@@ -31,12 +29,6 @@
 
    (Thanks to ubunt2@gmail.com for suggesting the metadata populate feat.)
 
- * Although downloads worked, as shown by presence in channel directory
-   on hard disk and by playing the pod with RealPlayer, the pods didn't
-   always show up in the 'downloaded' tab. When the downloaded podcast
-   did show up in the 'downloaded' tab, it did once I closed and
-   re-opened gPodder.    (thanks to Haim Roitgrund for reporting this)
- 
  * in libipodsync.py: use mime magic instead of extension-based 
    video detection? --> also, is mp4 always video or could it be 
    aac audio too? if so, how to check what is what?
@@ -46,14 +38,6 @@
    extensions introduced by apple.. maybe a stripped-down mime magic 
    detection could do the trick? (we only need to detect the file types 
    supported by ipods, after all.. mp3, aac, wav, mov, mp4-video, ..?)
-
- * The only thing that I can't seem to find is the ability to have 
-   gpodder only download the latest podcast when running it at the 
-   command line (gpodder -r).  Currently after subscribing to a cast 
-   it will download all of them.  (suggested by Stephen, urban@inetdesign.org)
-
- * gpodder doesn't start if somebody has messed with the channels.xml file
-   (or if you send the channels.xml to somebody -- greetings to steve :)
 
  * Suggestion by Marius Scurtescu <marius.scurtescu at gmail dot com>:
    - add the download progress to the same Available Podcasts tab and
@@ -65,23 +49,5 @@
  
  * do more translations (you can contribute here, of course :)
  
- * Downloads  should be stored (at least optionally) in a
-   directory that is not hidden. This will make the files 
-   easier to find, for when one wants to copy the files to 
-   a portable audio player or whatever.
-                       (suggested by leogomez@gmail.com)
-   -> a "nice" symlink to the download dir in ~/Desktop option 
-      has already been added to the properties dialog.  --thp
-  
- * mark "currently downloading" episodes
-   with different color (+ live update)
- 
- * update "downloaded" (grey) episodes on download finish
-   
- * sort view
-
  * maybe a "all channels view"
-
- * consider using "--continue" for wget
-   (suggested by asjo@koldfront.dk>
 

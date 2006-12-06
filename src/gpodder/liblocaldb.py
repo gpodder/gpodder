@@ -29,77 +29,65 @@
 import gtk
 import gobject
 
-from liblocdbreader import readLocalDB
 from libgpodder import gPodderLib
+from libgpodder import gPodderChannelReader
 from liblogger import log
-
-from os import listdir
-from os import sep
-from os.path import isfile
 
 class localDB( object):
     def __init__( self):
-        self.channel_list = None
-        self.local_db_cache = {}
+        self.__channel_list = None
 
-    def getDownloadedChannelsList( self):
-        # do not re-read downloaded channels list
-        if self.channel_list != None:
-            log( '(localDB) using cached downloaded channels list')
-            return self.channel_list
-        
-        self.channel_list = []
-        
-        for d in listdir( gPodderLib().downloaddir):
-            f = sep.join( [ gPodderLib().downloaddir, d, 'index.xml' ])
-            if isfile( f):
-                # Index file exists, parse if needed
-                if f not in self.local_db_cache:
-                    rdb = readLocalDB()
-                    rdb.parseXML( f)
-                    # Use folder name as channel's filename
-                    rdb.channel.set_filename( d)
-                    self.local_db_cache[f] = rdb
+    def get_channel_list( self):
+        if self.__channel_list != None:
+            return self.__channel_list
 
-                # Append index file to list if it has episodes
-                if len( self.local_db_cache[f].channel) > 0:
-                    self.channel_list.append( self.local_db_cache[f].channel)
-        
-        return self.channel_list
+        self.__channel_list = []
+        self.available_channels = gPodderChannelReader().read()
 
-    def getDownloadedChannelsModel( self):
+        for channel in self.available_channels:
+            local = channel.localdb_channel
+            if len( local):
+                self.__channel_list.append( local)
+        
+        return self.__channel_list
+
+    channel_list = property(fget=get_channel_list)
+
+
+    def get_channel( self, url):
+        for channel in self.channel_list:
+            if channel.url == url:
+                return channel
+        
+        return None
+
+    def get_podcast( self, url):
+        for channel in self.channel_list:
+            for episode in channel:
+                if episode.url == url:
+                    return episode
+        
+        return None
+    
+
+    def get_tree_model( self, url):
+        return self.get_channel( url).getItemsModel( False)
+
+    def get_model( self):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
         
-        for channel in self.getDownloadedChannelsList():
-            log( 'Getting ListStore for %s', channel.title)
+        for channel in self.channel_list:
             new_iter = new_model.append()
             new_model.set( new_iter, 0, channel.url)
             new_model.set( new_iter, 1, channel.title)
         
         return new_model
-
-    def get_rdb_by_filename( self, filename):
-        if filename not in self.local_db_cache:
-            self.clear_cache()
-            self.getDownloadedChannelsList()
-        
-        return self.local_db_cache[filename]
     
-    def getDownloadedEpisodesModelByFilename( self, filename):
-        return self.get_rdb_by_filename( filename).channel.getItemsModel( False)
-    
-    def getLocalFilenameByPodcastURL( self, channel_filename, url):
-        return self.get_rdb_by_filename( channel_filename).channel.getPodcastFilename( url)
 
-    def get_podcast_by_podcast_url( self, channel_filename, url):
-        for episode in self.get_rdb_by_filename( channel_filename).channel:
-            if episode.url == url:
-                return episode
-        
-        return None
+    def get_filename_by_podcast( self, url, podcast_url):
+        return self.get_channel( url).getPodcastFilename( podcast_url)
     
     def clear_cache( self):
-        # Clear cache, so it can be re-read on next request
-        self.local_db_cache = {}
-        self.channel_list = None
+        self.__channel_list = None
+
 

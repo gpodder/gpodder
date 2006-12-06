@@ -159,7 +159,22 @@ class Gpodder(SimpleGladeApp):
         namecell.set_property('cell-background', 'white')
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
         namecolumn.add_attribute(namecell, "cell-background", 4)
-        self.treeDownloaded.append_column( namecolumn)
+
+        releasecell = gtk.CellRendererText()
+        releasecell.set_property('cell-background', 'white')
+        releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
+        releasecolumn.add_attribute(releasecell, "cell-background", 4)
+        
+        desccell = gtk.CellRendererText()
+        desccell.set_property('cell-background', 'white')
+        desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
+        desccolumn.add_attribute(desccell, "cell-background", 4)
+
+        for itemcolumn in ( namecolumn, releasecolumn, desccolumn ):
+            itemcolumn.set_resizable( True)
+            itemcolumn.set_reorderable( True)
+            self.treeDownloaded.append_column( itemcolumn)
         
         # columns and renderers for "download progress" tab
         episodecell = gtk.CellRendererText()
@@ -175,7 +190,7 @@ class Gpodder(SimpleGladeApp):
             self.treeDownloads.append_column( itemcolumn)
     
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT)
-        self.download_status_manager = downloadStatusManager()
+        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateTreeView)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # read and display subscribed channels
@@ -203,12 +218,6 @@ class Gpodder(SimpleGladeApp):
         self.main_widget.connect("drag_data_received", self.drag_data_received)
         self.wNotebook.connect("switch-page", self.switched_notebook)
 
-        # disable iPod sync features if not supported
-        if not ipod_supported():
-            self.ipod_functions( False)
-        else:
-            self.ipod_functions( True)
-
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
@@ -224,10 +233,6 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
-    def ipod_functions( self, enable = True):
-        self.cleanup_ipod.set_sensitive( enable)
-        self.sync_to_ipod.set_sensitive( enable)
-    
     def updateComboBox( self):
         self.channels_model = channelsToModel( self.channels)
         
@@ -243,8 +248,8 @@ class Gpodder(SimpleGladeApp):
         if self.ldb == None:
             self.ldb = localDB()
         # update downloaded_channels list
-        self.downloaded_channels = self.ldb.getDownloadedChannelsList()
-        self.comboDownloaded.set_model( self.ldb.getDownloadedChannelsModel())
+        self.downloaded_channels = self.ldb.channel_list
+        self.comboDownloaded.set_model( self.ldb.get_model())
         try:
             self.comboDownloaded.set_active( self.active_downloaded_channels)
         except:
@@ -253,14 +258,13 @@ class Gpodder(SimpleGladeApp):
     # end of self.updateDownloadedComboBox()
     
     def updateTreeView( self):
-        try:
-            self.items_model = self.channels[self.active_channel].getItemsModel()
+        if self.channels:
+            self.items_model = self.channels[self.active_channel].getItemsModel( downloading_callback = self.download_status_manager.is_download_in_progress)
             self.treeAvailable.set_model( self.items_model)
             self.treeAvailable.columns_autosize()
-        except:
-            if self.items_model != None:
-                self.items_model.clear()
-            self.showMessage( _("<b>No channels found</b>\n\nClick on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a new channel."))
+        else:
+            if self.treeAvailable.get_model():
+                self.treeAvailable.get_model().clear()
     
     def showMessage( self, message, title = _('gPodder message')):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -302,18 +306,11 @@ class Gpodder(SimpleGladeApp):
         return pb
 
     def switched_notebook( self, notebook, page, page_num):
-        # if we are NOT on the "available downloads" page, disable menu items
-        if page_num != 0:
-            is_available = False
-        else:
-            is_available = True
-        
-        # disable/enable menu items related to only the first notebook tab
-        self.itemRemoveChannel.set_sensitive( is_available)
-        self.itemEditChannel.set_sensitive( is_available)
-
-        # when switching to last page, update the "downloaded" combo box
-        if page_num == 2:
+        if page_num == 0:
+            # when switching to first page, update the "downloading" list
+            self.updateTreeView()
+        elif page_num == 2:
+            # when switching to last page, update the "downloaded" combo box
             self.updateDownloadedComboBox()
 
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
@@ -323,11 +320,6 @@ class Gpodder(SimpleGladeApp):
     def refetch_channel_list( self):
         channels_should_be = len( self.channels)
         
-        # fetch metadata for that channel
-        gPodderChannelWriter().write( self.channels)
-        self.channels = gPodderChannelReader().read( False)
-        
-        # fetch feed for that channel
         gPodderChannelWriter().write( self.channels)
         self.channels = gPodderChannelReader().read( False)
         
@@ -337,17 +329,20 @@ class Gpodder(SimpleGladeApp):
     
     def add_new_channel( self, result = None):
         # Treat "feed://" URLs like "http://" ones
-        if result[:4] == 'feed':
+        if result and result[:4] == 'feed':
             result = 'http' + result[4:]
         if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             for old_channel in self.channels:
                 if old_channel.url == result:
                     log( 'Channel already exists: %s', result)
+                    # Select the existing channel in combo box
+                    for i in range( len( self.channels)):
+                        if self.channels[i] == old_channel:
+                            self.comboAvailable.set_active( i)
                     return
             log( 'Adding new channel: %s', result)
             self.statusLabel.set_text( _("Fetching channel index..."))
-            channel_new = podcastChannel( result)
-            self.channels.append( channel_new)
+            self.channels.append( podcastChannel( url = result))
             
             # download changed channels
             self.refetch_channel_list()
@@ -355,6 +350,10 @@ class Gpodder(SimpleGladeApp):
             # try to update combo box
             self.updateComboBox()
             self.statusLabel.set_text( "")
+
+            # ask user to download some new episodes
+            self.comboAvailable.set_active( len( self.channels)-1)
+            self.on_btnDownloadNewer_clicked( None)
         else:
             if result != None and result != "":
                 self.showMessage( _('Could not add new channel.\n\nThe URL must start with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.'))
@@ -422,7 +421,7 @@ class Gpodder(SimpleGladeApp):
         current_channel = self.channels[self.active_channel]
         current_podcast = current_channel[self.active_item]
         filename = current_channel.getPodcastFilename( current_podcast.url)
-        if widget != None and widget.get_name() == "treeAvailable":
+        if widget and widget.get_name() == 'treeAvailable':
             gpe = Gpodderepisode()
             gpe.set_episode( current_podcast, current_channel)
             # to download, the dialog calls this function again but without widget param (widget = None)
@@ -439,6 +438,9 @@ class Gpodder(SimpleGladeApp):
                 log( 'Episode has already been downloaded.')
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
+
+        # update tree view to mark the episode as being downloaded
+        self.updateTreeView()
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
@@ -455,29 +457,47 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemUpdate_activate {
     def on_itemUpdate_activate(self, widget, *args):
-        self.update_feed_cache()
+        if self.channels:
+            self.update_feed_cache()
+        else:
+            self.showMessage( _('Subscribe to some channels first.'))
     #-- Gpodder.on_itemUpdate_activate }
 
     #-- Gpodder.on_sync_to_ipod_activate {
     def on_sync_to_ipod_activate(self, widget, *args):
-        sync_win = Gpoddersync()
-        while gtk.events_pending():
-            gtk.main_iteration( False)
-        args = ( sync_win, )
-        thread = Thread( target = self.sync_to_ipod_proc, args = args)
-        thread.start()
+        gl = gPodderLib()
+        if gl.device_type == 'none':
+            self.showMessage( _('Configure your device in the preferences dialog first.'))
+        elif gl.device_type == 'ipod':
+            if not ipod_supported():
+                self.showMessage( _('Please install python-gpod and pymad libraries.\nMore information on the gPodder homepage.'))
+                return
+            sync_win = Gpoddersync()
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            args = ( sync_win, )
+            thread = Thread( target = self.sync_to_ipod_proc, args = args)
+            thread.start()
+        elif gl.device_type == 'filesystem':
+            self.showMessage( _('Sync to %s currently not supported.') % ( gl.mp3_player_folder, ))
     #-- Gpodder.on_sync_to_ipod_activate }
 
     #-- Gpodder.on_cleanup_ipod_activate {
     def on_cleanup_ipod_activate(self, widget, *args):
-        if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
-            return
-        sync_win = Gpoddersync()
-        while gtk.events_pending():
-            gtk.main_iteration( False)
-        args = ( sync_win, )
-        thread = Thread( target = self.ipod_cleanup_proc, args = args)
-        thread.start()
+        gl = gPodderLib()
+        if gl.device_type == 'none':
+            self.showMessage( _('Configure your device in the preferences dialog first.'))
+        elif gl.device_type == 'ipod':
+            if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
+                return
+            sync_win = Gpoddersync()
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            args = ( sync_win, )
+            thread = Thread( target = self.ipod_cleanup_proc, args = args)
+            thread.start()
+        elif gl.device_type == 'filesystem':
+            self.showMessage( _('Cleanup of %s currently not supported.') % ( gl.mp3_player_folder, ))
     #-- Gpodder.on_cleanup_ipod_activate }
 
     #-- Gpodder.on_itemPreferences_activate {
@@ -502,7 +522,7 @@ class Gpodder(SimpleGladeApp):
         try:
             channel = self.channels[self.active_channel]
         except:
-            self.showMessage( _("Cannot edit this channel.\n\nNo channel found."))
+            self.showMessage( _('Please select a channel to edit.'))
             return
         
         result = Gpodderchannel().requestURL( channel)
@@ -510,11 +530,8 @@ class Gpodder(SimpleGladeApp):
         if result != channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             log( 'Changing channel #%d from "%s" to "%s"', active, channel.url, result)
             self.statusLabel.set_text( _("Fetching channel index..."))
-            channel_new = podcastChannel( result)
-            new_channels = self.channels[0:active]
-            new_channels.append( channel_new)
-            new_channels.extend( self.channels[active+1:])
-            self.channels = new_channels
+
+            self.channels = self.channels[0:active] + [ podcastChannel( url = result) ] + self.channels[active+1:]
             
             # fetch new channels
             self.refetch_channel_list()
@@ -527,14 +544,17 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemRemoveChannel_activate {
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
-            if self.showConfirmation( _("Do you really want to remove this channel?\n\n %s") % self.channels[self.active_channel].title) == False:
+            if self.showConfirmation( _("Do you really want to remove this channel and downloaded episodes?\n\n %s") % self.channels[self.active_channel].title) == False:
                 return
+            self.channels[self.active_channel].remove_cache_file()
+            self.channels[self.active_channel].remove_downloaded()
+            gPodderLib().clean_up_downloads()
             self.channels.remove( self.channels[self.active_channel])
             gPodderChannelWriter().write( self.channels)
             self.channels = gPodderChannelReader().read( False)
             self.updateComboBox()
         except:
-            self.showMessage( _("Could not delete channel.\nProbably no channel is selected."))
+            pass
     #-- Gpodder.on_itemRemoveChannel_activate }
 
     #-- Gpodder.on_itemExportChannels_activate {
@@ -647,6 +667,32 @@ class Gpodder(SimpleGladeApp):
         self.on_treeAvailable_row_activated( widget, args)
     #-- Gpodder.on_btnDownload_clicked }
 
+    #-- Gpodder.on_btnDownloadNewer_clicked {
+    def on_btnDownloadNewer_clicked(self, widget, *args):
+        channel = self.channels[self.active_channel]
+        episodes_to_download = []
+
+        last_pubdate = channel.newest_pubdate_downloaded()
+        if not last_pubdate:
+            if self.showConfirmation( _('Would you like to download the three newest episodes in this channel?')):
+                episodes_to_download = channel[0:min(len(channel),3)]
+        else:
+            for episode in channel:
+                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode):
+                    log( 'Episode "%s" is newer.', episode.title)
+                    episodes_to_download.append( episode)
+
+            if not episodes_to_download:
+                self.showMessage( _('You have already downloaded the most recent episode.'))
+            else:
+                e_str = '\n'.join( [ e.title for e in episodes_to_download ] )
+                if not self.showConfirmation( _('Do you want to download these episodes?\n\n%s') % ( e_str, )):
+                    return
+
+        for episode in episodes_to_download:
+            self.download_podcast_by_url( episode.url, False)
+    #-- Gpodder.on_btnDownloadNewer_clicked }
+
     #-- Gpodder.on_btnSelectAllAvailable_clicked {
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
         self.treeAvailable.get_selection().select_all()
@@ -693,10 +739,9 @@ class Gpodder(SimpleGladeApp):
     def on_comboDownloaded_changed(self, widget, *args):
         self.active_downloaded_channels = self.comboDownloaded.get_active()
         try:
-          filename = self.get_current_channel_downloaded()
-          new_model = self.ldb.getDownloadedEpisodesModelByFilename( filename)
-          self.treeDownloaded.set_model( new_model)
-          self.treeDownloaded.columns_autosize()
+            new_model = self.ldb.get_tree_model( self.get_current_channel_downloaded())
+            self.treeDownloaded.set_model( new_model)
+            self.treeDownloaded.columns_autosize()
         except:
             if self.treeDownloaded.get_model() != None:
                 self.treeDownloaded.get_model().clear()
@@ -705,8 +750,6 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_treeDownloaded_row_activated {
     def on_treeDownloaded_row_activated(self, widget, *args):
         try:
-            channel_filename = self.get_current_channel_downloaded()
- 
             selection = self.treeDownloaded.get_selection()
             model = self.treeDownloaded.get_model()
  
@@ -719,12 +762,11 @@ class Gpodder(SimpleGladeApp):
             selection_iter = model.get_iter( apath)
             url = model.get_value( selection_iter, 0)
             if widget.get_name() == "treeDownloaded":
-                podcast = self.ldb.get_podcast_by_podcast_url( channel_filename, url)
+                podcast = self.ldb.get_podcast( url)
                 Gpodderepisode().set_episode( podcast)
                 return
-            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-            filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
-            gPodderLib().openFilename( filename_final)
+            filename = self.ldb.get_filename_by_podcast( self.get_current_channel_downloaded(), url)
+            gPodderLib().openFilename( filename)
         except:
           self.showMessage( _("No episode selected."))
     #-- Gpodder.on_treeDownloaded_row_activated }
@@ -736,7 +778,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnDownloadedDelete_clicked {
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        channel_filename = self.get_current_channel_downloaded()
+        channel_url = self.get_current_channel_downloaded()
         selection = self.treeDownloaded.get_selection()
         selection_tuple = selection.get_selected_rows()
         model = self.treeDownloaded.get_model()
@@ -757,11 +799,10 @@ class Gpodder(SimpleGladeApp):
                 for apath in selection_tuple[1]:
                     selection_iter = model.get_iter( apath)
                     url = model.get_value( selection_iter, 0)
-                    title = model.get_value( selection_iter, 1)
-                    filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
+                    episode_filename = self.ldb.get_filename_by_podcast( channel_url, url)
                     current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
-                    if current_channel.deleteDownloadedItemByUrlAndTitle( url, title):
-                        gPodderLib().deleteFilename( filename_final)
+                    current_channel.delete_episode_by_url( url)
+                    gPodderLib().deleteFilename( episode_filename)
       
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
@@ -769,6 +810,7 @@ class Gpodder(SimpleGladeApp):
                 self.updateDownloadedComboBox()
             except:
                 log( 'Error while deleting (some) downloads.')
+        gPodderLib().clean_up_downloads()
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
     #-- Gpodder.on_btnDeleteAll_clicked {
@@ -881,9 +923,18 @@ class Gpodderproperties(SimpleGladeApp):
         self.httpProxy.set_text( gl.http_proxy)
         self.ftpProxy.set_text( gl.ftp_proxy)
         self.openApp.set_text( gl.open_app)
-        self.iPodMountpoint.set_text( gl.ipod_mount)
+        self.iPodMountpoint.set_label( gl.ipod_mount)
+        self.ipodIcon.set_from_pixbuf( gtk.gdk.pixbuf_new_from_file_at_size( artwork_dir + 'ipod-mini.png', 24, 24))
+        self.filesystemMountpoint.set_label( gl.mp3_player_folder)
         self.opmlURL.set_text( gl.opml_url)
+        self.downloadTo.set_label( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
+        # device type
+        self.comboboxDeviceType.set_active( 0)
+        if gl.device_type == 'ipod':
+            self.comboboxDeviceType.set_active( 1)
+        elif gl.device_type == 'filesystem':
+            self.comboboxDeviceType.set_active( 2)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
         # if the symlink exists, set the checkbox active
@@ -902,9 +953,9 @@ class Gpodderproperties(SimpleGladeApp):
     #-- Gpodderproperties custom methods {
     def update_mountpoint( self, ipod):
         if ipod == None or ipod.mount_point == None:
-            self.iPodMountpoint.set_text( '')
+            self.iPodMountpoint.set_label( '')
         else:
-            self.iPodMountpoint.set_text( ipod.mount_point)
+            self.iPodMountpoint.set_label( ipod.mount_point)
     
     def set_uar( self, uar):
         self.comboPlayerApp.set_model( uar.get_applications_as_model())
@@ -951,12 +1002,73 @@ class Gpodderproperties(SimpleGladeApp):
             self.labelCustomCommand.hide()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_comboboxDeviceType_changed {
+    def on_comboboxDeviceType_changed(self, widget, *args):
+        active_item = self.comboboxDeviceType.get_active()
+
+        # iPod
+        if active_item == 1:
+            self.ipodLabel.show()
+            self.btn_iPodMountpoint.set_sensitive( True)
+            self.btn_iPodMountpoint.show_all()
+        else:
+            self.ipodLabel.hide()
+            self.btn_iPodMountpoint.set_sensitive( False)
+            self.btn_iPodMountpoint.hide()
+
+        # filesystem-based MP3 player
+        if active_item == 2:
+            self.filesystemLabel.show()
+            self.btn_filesystemMountpoint.set_sensitive( True)
+            self.btn_filesystemMountpoint.show_all()
+        else:
+            self.filesystemLabel.hide()
+            self.btn_filesystemMountpoint.set_sensitive( False)
+            self.btn_filesystemMountpoint.hide()
+    #-- Gpodderproperties.on_comboboxDeviceType_changed }
+
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked {
+    def on_btn_iPodMountpoint_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select iPod mountpoint'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.iPodMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.iPodMountpoint.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked }
+
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked {
+    def on_btn_FilesystemMountpoint_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select folder for MP3 player'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.filesystemMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.filesystemMountpoint.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
+
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
         sens = not self.cbEnvironmentVariables.get_active()
         self.httpProxy.set_sensitive( sens)
         self.ftpProxy.set_sensitive( sens)
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
+
+    #-- Gpodderproperties.on_browseDownloadTo_clicked {
+    def on_browseDownloadTo_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select download folder'), action = gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.downloadTo.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.downloadTo.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_browseDownloadTo_clicked }
 
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
@@ -965,9 +1077,18 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ftp_proxy = self.ftpProxy.get_text()
         gl.open_app = self.openApp.get_text()
         gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
-        gl.ipod_mount = self.iPodMountpoint.get_text()
+        gl.ipod_mount = self.iPodMountpoint.get_label()
+        gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
+        gl.downloaddir = self.downloadTo.get_label()
         gl.update_on_startup = self.updateonstartup.get_active()
+        device_type = self.comboboxDeviceType.get_active()
+        if device_type == 0:
+            gl.device_type = 'none'
+        elif device_type == 1:
+            gl.device_type = 'ipod'
+        elif device_type == 2:
+            gl.device_type = 'filesystem'
         gl.propertiesChanged()
         # create or remove symlink to download dir on desktop
         if self.cbDesktopSymlink.get_active():

@@ -1,3 +1,132 @@
+Wed,  6 Dec 2006 21:23:53 +0100 <thp@perli.net>
+        * merged svn branch thp-december-2006 into trunk
+
+Wed,  6 Dec 2006 21:03:35 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Added "device_type" and
+          "mp3_player_folder" configuration parameters
+        * src/gpodder/gpodder.py: Don't disable menu items based on the 
+          ipod_supported() functions; sync menu items now decide what to 
+          do based on what device the user selected in the properties;
+          properties dialog adds ipod mountpoint + mp3 player folder 
+          FileChooserDialog and UI code
+        * data/gpodder.glade: Rename sync UI items from "iPod" to "device" 
+          or "synchronization", add support for other non-iPod devices, 
+          currently filesystem-based MP3 players
+
+Wed,  6 Dec 2006 19:56:33 +0100 <thp@perli.net>
+        * src/gpodder/gpodder.py: Add columns, resizable and reorderable
+          columns to the downloaded podcasts tab (nearly the same as in 
+          the available podcasts tab)
+
+Wed,  6 Dec 2006 19:43:11 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Don't log wget's output for now (too 
+          noisy for testing, also wget seems to be stable for gPodder);
+          added change_notification parameter to downloadStatusManager
+        * src/gpodder/console.py: Only download episodes that are newer 
+          than the latest downloaded episodes (like the "download new" 
+          button) when running "gpodder -r" (as suggested by Stephen, 
+          "urban at inetdesign.org" a while ago)
+        * src/gpodder/libpodcasts.py: Refactor isDownloaded() to new name 
+          is_downloaded() in podcastChannel; add a downloading_callback 
+          parameter to getItemsModel(); have new colors for available 
+          episodes list (green, orange-red and white)
+        * src/gpodder/libipodsync.py: Check if iTunesDB has a master 
+          and a podcasts playlist, bug out if there is none; also fix 
+          some minor problems that might lead to crashes
+        * src/gpodder/gpodder.py: update available tree view when the 
+          downloadStatusManager reports a change; mark "downloading" 
+          episodes with special color; when adding a channel that already 
+          exists, switch the available podcasts view to the existing 
+          channel; download "newer" episodes with the same timestamp as 
+          the latest downloaded podcast; fix indentation
+        * TODO: Removed items marked as done already
+
+Wed,  6 Dec 2006 17:49:43 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Added newest_pubdate_downloaded() 
+          to podcastChannel, added compare_pubdate() and newer_pubdate() 
+          to podcastItem to enable getting most recent "pubDate" of the 
+          downloaded episodes list (for finding "new" episodes, see below)
+        * src/gpodder/gpodder.py: Update list of available episodes when
+          switching notebook tabs (to mark downloaded episodes with another 
+          color); ask user to download some new episodes after a channel 
+          has been added; handle "download new" button to download either 
+          the three newest episodes (if no downloads yet) or all episodes 
+          that are newer than the newest downloaded episode
+        * data/gpodder.glade: Added "download new" button for downloading 
+          episodes as described above
+	* TODO: one of the items in the TODO list is now partially done 
+	  after the changes above
+	* bin/gpodder: update release date and version
+
+Wed,  6 Dec 2006 03:36:51 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Clean up downloadStatusManager 
+          and add support for a GTK window that will have its 
+          title updated based on the current download status (show 
+          total download progress in titlebar of gPodder window)
+        * src/gpodder/gpodder.py: Send the main window to the 
+          downloadStatusManager object so it can access the window 
+          title
+        * data/gpodder.glade: Main window title is now "gPodder"
+
+Wed,  6 Dec 2006 02:59:10 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Add support for updating 
+          symlink on Desktop when moving downloads folder
+
+Wed,  6 Dec 2006 02:45:43 +0100 <thp@perli.net>
+        * TODO: Remove items on TODO list that have been done now
+
+Wed,  6 Dec 2006 02:26:43 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Use shutil.rmtree() instead of 
+          hand-crafted folder remove code in remove_downloaded();
+          convert deleteDownloadedItemByUrlAndTitle() to a simpler 
+          delete_episode_by_url() function (and get rid of duplicate 
+          code in the process)
+        * src/gpodder/libgpodder.py: Fix static<->object variables in 
+          gPodderLibClass, re-factor downloaddir in a property that 
+          automatically tries to move the downloaded folder when it 
+          changes; also save download_dir as a config file value
+        * src/gpodder/gpodder.py: Fix the delete single/multiple episodes 
+          in a downloaded channel bug introduced by last commit (thanks 
+          to Seth Remington for testing and reporting this :)
+          Make Gpodderproperties open a FileChooserDialog to select 
+          download directory
+        * data/gpodder.glade: Make "download to" input field a button 
+          that (when clicked) opens a folder chooser dialog
+
+Tue,  5 Dec 2006 23:36:41 +0100 <thp@perli.net>
+	* svn branch gpodder-thp-december-2006: This branch will be 
+	  used to develop and test the new filenaming scheme and some 
+	  code clean-ups. After the code has been tested and the 
+	  codebase seems stable, this branch will be merged back into 
+	  the gpodder trunk. This codebase breaks compatibility with 
+	  the old download directory scheme, but also makes the code 
+	  simpler and easier to manage. See below for the first cut of 
+	  these changes and enjoy!            -- Thomas Perl
+        * src/gpodder/liblocdbreader.py: Code clean-ups, utilize real 
+          channel URL when reading localdb
+        * src/gpodder/libpodcasts.py: Code clean-ups; new file naming 
+          scheme; remove unnecessary download_dir property (you just 
+          want to use save_dir instead); add remove_cache_file() and 
+          remove_downloaded() methods to podcastChannel; remove support 
+          for legacy (pre-0.7) filename locations - the old download 
+          directory scheme is not supported anymore with this change; 
+          channelsToModel function code cleanup
+        * src/gpodder/libgpodder.py: Do not save channel name in the 
+          gPodder channel list (because the name will be calculated 
+          depending on the URL as of now); simplify the channel reading 
+          process by getting rid of the "filename-discovery" code parts
+          and do not read in the download_dir variable for the channel
+        * src/gpodder/gpodder.py: Clear available episodes list when 
+          there are no channels selected; do not disable/enable menu 
+          items based on which page of the gtknotebook we are; only 
+          fetch channel feed once, because we do not need to fetch it
+          twice with the new channel naming scheme; added support for 
+          feed:// URLs; remove downloaded items when removing a channel;
+          some more code clean-ups to increase code readability
+        * src/gpodder/liblocaldb.py: Major code overhaul, cleanup and 
+          simplification; getting rid of camelCasedFunctionNames
+	* bin/gpodder: Note version and release date for svn branch
+
 Tue,  5 Dec 2006 03:31:38 +0100 <thp@perli.net>
         * src/gpodder/console.py: Removed unneeded import
         * src/gpodder/librssreader.py: Use "append" instead of 

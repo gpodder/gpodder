@@ -110,7 +110,7 @@ class downloadThread( object):
         while process.poll() == -1 and self.is_cancelled == False:
             msg = stderr.readline( 80)
             msg = msg.strip()
-            log( 'wget> %s', msg)
+            #log( 'wget> %s', msg)
             
             if msg.find("%") != -1:
                 try:
@@ -161,12 +161,7 @@ class downloadThread( object):
 
 
 class downloadStatusManager( object):
-    status_list = None
-    next_status_id = 0
-    tree_model = None
-    smlock = None # this lock should be used around any treemodel calls
-    
-    def __init__( self):
+    def __init__( self, main_window = None, change_notification = None):
         self.status_list = {}
 	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
         self.smlock = Lock()
@@ -174,6 +169,11 @@ class downloadStatusManager( object):
         # use smlock around every tree_model usage, as seen here:
         self.smlock.acquire()
 	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING)
+        self.main_window = main_window
+        self.default_window_title = ''
+        if self.main_window:
+            self.default_window_title = self.main_window.get_title()
+        self.change_notification = change_notification
         self.smlock.release()
     
     def getNextId( self):
@@ -183,7 +183,9 @@ class downloadStatusManager( object):
 
     def registerId( self, id, thread):
         self.smlock.acquire()
-        self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread }
+        self.status_list[id] = { 'iter':self.tree_model.append(), 'thread':thread, 'progress': 0, }
+        if self.change_notification:
+            gobject.idle_add( self.change_notification)
         self.smlock.release()
 
     def remove_iter( self, iter):
@@ -201,11 +203,25 @@ class downloadStatusManager( object):
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
             del self.status_list[id]
+        if not self.status_list:
+            gobject.idle_add( self.main_window.set_title, self.default_window_title)
+        if self.change_notification:
+            gobject.idle_add( self.change_notification)
 
     def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0, 'url':"unknown" }):
         if not id in self.status_list:
             return
         iter = self.status_list[id]['iter']
+        self.status_list[id]['progress'] = new_status['progress']
+        if self.main_window:
+            average = 0
+            for status in self.status_list.values():
+                average = average + status['progress']
+            average = average / len(self.status_list)
+            n_files_str = _('one file')
+            if len(self.status_list) > 1:
+                n_files_str = _('%d files') % ( len( self.status_list), )
+            gobject.idle_add( self.main_window.set_title, _('%s - downloading %s (%s%%)') % ( self.default_window_title, n_files_str, str(average), ) )
 	if iter != None:
             self.smlock.acquire()
             gobject.idle_add( self.tree_model.set, iter, 0, new_status['episode'])

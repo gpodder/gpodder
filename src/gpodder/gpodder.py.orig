@@ -135,6 +135,11 @@ class Gpodder(SimpleGladeApp):
         print "on_btnDownload_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnDownload_clicked }
 
+    #-- Gpodder.on_btnDownloadNewer_clicked {
+    def on_btnDownloadNewer_clicked(self, widget, *args):
+        print "on_btnDownloadNewer_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnDownloadNewer_clicked }
+
     #-- Gpodder.on_btnSelectAllAvailable_clicked {
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
         print "on_btnSelectAllAvailable_clicked called with self.%s" % widget.get_name()
@@ -246,10 +251,30 @@ class Gpodderproperties(SimpleGladeApp):
         print "on_comboPlayerApp_changed called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_comboboxDeviceType_changed {
+    def on_comboboxDeviceType_changed(self, widget, *args):
+        print "on_comboboxDeviceType_changed called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_comboboxDeviceType_changed }
+
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked {
+    def on_btn_iPodMountpoint_clicked(self, widget, *args):
+        print "on_btn_iPodMountpoint_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked }
+
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked {
+    def on_btn_FilesystemMountpoint_clicked(self, widget, *args):
+        print "on_btn_FilesystemMountpoint_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
+
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
         print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
+
+    #-- Gpodderproperties.on_browseDownloadTo_clicked {
+    def on_browseDownloadTo_clicked(self, widget, *args):
+        print "on_browseDownloadTo_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_browseDownloadTo_clicked }
 
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):

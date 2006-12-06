@@ -30,12 +30,17 @@ import gtk
 import thread
 import threading
 import urllib
+import shutil
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
 from string import strip
 from os.path import expanduser
 from os.path import exists
+try:
+    from os.path import lexists
+except:
+    log( 'lexists() not found in module os.path - (using Python < 2.4?) - will fallback to exists()')
 from os.path import dirname
 from os.path import basename
 from os.path import isfile
@@ -89,24 +94,12 @@ def gPodderLib():
     return g_podder_lib
 
 class gPodderLibClass( object):
-    gpodderdir = ""
-    downloaddir = ""
-    cachedir = ""
-    http_proxy = ""
-    ftp_proxy = ""
-    proxy_use_environment = False
-    open_app = ""
-    ipod_mount = ""
-    opml_url = ""
-    update_on_startup = False
-    desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         self.createIfNecessary( self.gpodderdir)
-        self.downloaddir = self.gpodderdir + "downloads/"
-        self.createIfNecessary( self.downloaddir)
+        self.__download_dir = None
         self.cachedir = self.gpodderdir + "cache/"
         self.createIfNecessary( self.cachedir)
         try:
@@ -117,6 +110,14 @@ class gPodderLibClass( object):
             self.ftp_proxy = environ['ftp_proxy']
         except:
             self.ftp_proxy = ''
+        self.proxy_use_environment = False
+        self.open_app = ""
+        self.ipod_mount = ""
+        self.opml_url = ""
+        self.update_on_startup = False
+        self.desktop_link = _("gPodder downloads")
+        self.device_type = None
+        self.mp3_player_folder = ""
         self.loadConfig()
     
     def createIfNecessary( self, path):
@@ -173,10 +174,42 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
+        self.write_to_parser( parser, 'download_dir', self.downloaddir)
+        self.write_to_parser( parser, 'device_type', self.device_type)
+        self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
         fp.close()
+
+    def get_download_dir( self):
+        return self.__download_dir
+
+    def set_download_dir( self, new_downloaddir):
+        if self.__download_dir and self.__download_dir != new_downloaddir:
+            log( 'Moving downloads from %s to %s', self.__download_dir, new_downloaddir)
+            try:
+                # Save state of Symlink on Desktop
+                generate_symlink = False
+                if self.getDesktopSymlink():
+                    log( 'Desktop symlink exists before move.')
+                    generate_symlink = True
+
+                shutil.move( self.__download_dir, new_downloaddir)
+
+                if generate_symlink:
+                    # Re-generate Symlink on Desktop
+                    log( 'Will re-generate desktop symlink to %s.', new_downloaddir)
+                    self.removeDesktopSymlink()
+                    self.__download_dir = new_downloaddir
+                    self.createDesktopSymlink()
+            except:
+                log( 'Error while moving %s to %s.', self.__download_dir, new_downloaddir)
+                return
+
+        self.__download_dir = new_downloaddir
+
+    downloaddir = property(fget=get_download_dir,fset=set_download_dir)
 
     def get_from_parser( self, parser, option, default = ''):
         try:
@@ -222,8 +255,11 @@ class gPodderLibClass( object):
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
                     opml_url = self.get_from_parser( parser, 'opml_url', default_opml_directory)
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
-                    self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
+                    self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
+                    self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads/'))
+                    self.device_type = self.get_from_parser( parser, 'device_type', 'none')
+                    self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:
@@ -240,7 +276,9 @@ class gPodderLibClass( object):
         except:
             # TODO: well, well.. (http + ftp?)
             self.open_app = 'gnome-open'
-            self.ipod_mount = '/media/ipod/'
+            self.ipod_mount = '/media/ipod'
+            self.device_type = 'none'
+            self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
         if was_oldstyle:
             self.saveConfig()
@@ -253,7 +291,10 @@ class gPodderLibClass( object):
 
     def getDesktopSymlink( self):
         symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
-        return exists( symlink_path)
+        try:
+            return lexists( symlink_path)
+        except:
+            return exists( symlink_path)
 
     def createDesktopSymlink( self):
         if not self.getDesktopSymlink():
@@ -321,9 +362,8 @@ class gPodderChannelWriter( object):
         print >> fd, '<!-- '+_('gPodder channel list')+' -->'
         print >> fd, '<channels>'
         for chan in channels:
-            print >> fd, '  <channel name="%s">' % chan.filename
+            print >> fd, '  <channel>'
             print >> fd, '    <url>%s</url>' % saxutils.escape( chan.url)
-            print >> fd, '    <download_dir>%s</download_dir>' % saxutils.escape( chan.save_dir)
             print >> fd, '  </channel>'
         print >> fd, '</channels>'
         fd.close()
@@ -335,28 +375,29 @@ class gPodderChannelReader( DefaultHandler):
 
     def __init__( self):
         None
-
-    def channel_filename_exists( self, url, filename):
-        for c in self.channels:
-            if filename == c.filename and url == c.url:
-                # we've reached the position of the channel
-                # we're checking, so bug out here :)
-                return False
-            if filename == c.filename and url != c.url:
-                return True
-        return False
     
     def read( self, force_update = False, callback_proc = None):
-        # callback proc should be like cb( pos, count), where pos is 
-        # the current position (of course) and count is how many feeds 
-        # will be updated. this can be used to visualize progress..
+        """Read channels from a file into gPodder's cache
+
+        force_update:   When true, re-download even if the cache file 
+                        already exists locally
+
+        callback_proc:  A function that takes two integer parameters, 
+                        the first being the number of the currently 
+                        processed item and the second being the count 
+                        of the items that will be read/updated.
+        """
+
         self.channels = []
+
         parser = make_parser()
         parser.setContentHandler( self)
+
         if exists( gPodderLib().getChannelsFilename()):
             parser.parse( gPodderLib().getChannelsFilename())
         else:
             return []
+
         reader = rssReader()
         input_channels = []
         
@@ -366,20 +407,10 @@ class gPodderChannelReader( DefaultHandler):
             if callback_proc != None:
                 callback_proc( position, channel_count)
 
-            cachefile = channel.downloadRss(force_update)
-            log( 'cachefile for %s is %s', channel.url, cachefile)
+            cachefile = channel.downloadRss( force_update)
             # check if download was a success
             if cachefile != None:
-                reader.parseXML(channel.url, cachefile)
-                if channel.filename != '__unknown__':
-                    proposed_filename = channel.filename
-                    log( 'First proposed fn: %s', proposed_filename)
-                    i = 2
-                    while self.channel_filename_exists( channel.url, proposed_filename):
-                        proposed_filename = '%s%d' % ( channel.filename, i )
-                        log( 'New proposed fn: %s', proposed_filename)
-                        i = i+1
-                    reader.channel.filename = proposed_filename
+                reader.parseXML( channel.url, cachefile)
                 input_channels.append( reader.channel)
 
             position = position + 1
@@ -393,17 +424,14 @@ class gPodderChannelReader( DefaultHandler):
     def startElement( self, name, attrs):
         self.current_element_data = ""
         
-        if name == "channel":
+        if name == 'channel':
             self.current_item = podcastChannel()
-            self.current_item.filename = attrs.get( 'name', '')
     
     def endElement( self, name):
         if self.current_item != None:
-            if name == "url":
+            if name == 'url':
                 self.current_item.url = self.current_element_data
-            if name == "download_dir":
-                self.current_item.download_dir = self.current_element_data
-            if name == "channel":
+            if name == 'channel':
                 self.channels.append( self.current_item)
                 self.current_item = None
     
