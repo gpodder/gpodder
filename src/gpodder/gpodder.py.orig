@@ -135,6 +135,11 @@ class Gpodder(SimpleGladeApp):
         print "on_btnDownload_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnDownload_clicked }
 
+    #-- Gpodder.on_btnDownloadNewer_clicked {
+    def on_btnDownloadNewer_clicked(self, widget, *args):
+        print "on_btnDownloadNewer_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnDownloadNewer_clicked }
+
     #-- Gpodder.on_btnSelectAllAvailable_clicked {
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
         print "on_btnSelectAllAvailable_clicked called with self.%s" % widget.get_name()

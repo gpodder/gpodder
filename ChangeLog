@@ -1,3 +1,20 @@
+Wed,  6 Dec 2006 17:49:43 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Added newest_pubdate_downloaded() 
+          to podcastChannel, added compare_pubdate() and newer_pubdate() 
+          to podcastItem to enable getting most recent "pubDate" of the 
+          downloaded episodes list (for finding "new" episodes, see below)
+        * src/gpodder/gpodder.py: Update list of available episodes when
+          switching notebook tabs (to mark downloaded episodes with another 
+          color); ask user to download some new episodes after a channel 
+          has been added; handle "download new" button to download either 
+          the three newest episodes (if no downloads yet) or all episodes 
+          that are newer than the newest downloaded episode
+        * data/gpodder.glade: Added "download new" button for downloading 
+          episodes as described above
+	* TODO: one of the items in the TODO list is now partially done 
+	  after the changes above
+	* bin/gpodder: update release date and version
+
 Wed,  6 Dec 2006 03:36:51 +0100 <thp@perli.net>
         * src/gpodder/libwget.py: Clean up downloadStatusManager 
           and add support for a GTK window that will have its 

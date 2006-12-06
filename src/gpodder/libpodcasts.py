@@ -132,6 +132,14 @@ class podcastChannel(ListType):
         self.sync_to_devices = ch.sync_to_devices
         self.is_music_channel = ch.is_music_channel
         self.device_playlist_name = ch.device_playlist_name
+
+    def newest_pubdate_downloaded( self):
+        pubdate = None
+
+        for episode in self.localdb_channel:
+            pubdate = episode.newer_pubdate( pubdate)
+
+        return pubdate
     
     def addDownloadedItem( self, item):
         # no multithreaded access
@@ -311,6 +319,25 @@ class podcastItem(object):
                 return desc[:80] + '...'
             else:
                 return desc
+
+    def compare_pubdate( self, pubdate):
+        try:
+            timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
+        except:
+            return -1
+
+        try:
+            timestamp_other = int(mktime_tz( parsedate_tz( pubdate)))
+        except:
+            return 1
+
+        return timestamp_self - timestamp_other
+
+    def newer_pubdate( self, pubdate = None):
+        if self.compare_pubdate( pubdate) > 0:
+            return self.pubDate
+        else:
+            return pubdate
     
     def cute_pubdate( self):
         seconds_in_a_day = 86400

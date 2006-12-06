@@ -301,8 +301,11 @@ class Gpodder(SimpleGladeApp):
         return pb
 
     def switched_notebook( self, notebook, page, page_num):
-        # when switching to last page, update the "downloaded" combo box
-        if page_num == 2:
+        if page_num == 0:
+            # when switching to first page, update the "downloading" list
+            self.updateTreeView()
+        elif page_num == 2:
+            # when switching to last page, update the "downloaded" combo box
             self.updateDownloadedComboBox()
 
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
@@ -338,6 +341,10 @@ class Gpodder(SimpleGladeApp):
             # try to update combo box
             self.updateComboBox()
             self.statusLabel.set_text( "")
+
+            # ask user to download some new episodes
+            self.comboAvailable.set_active( len( self.channels)-1)
+            self.on_btnDownloadNewer_clicked( None)
         else:
             if result != None and result != "":
                 self.showMessage( _('Could not add new channel.\n\nThe URL must start with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.'))
@@ -405,7 +412,7 @@ class Gpodder(SimpleGladeApp):
         current_channel = self.channels[self.active_channel]
         current_podcast = current_channel[self.active_item]
         filename = current_channel.getPodcastFilename( current_podcast.url)
-        if widget != None and widget.get_name() == "treeAvailable":
+        if widget and widget.get_name() == 'treeAvailable':
             gpe = Gpodderepisode()
             gpe.set_episode( current_podcast, current_channel)
             # to download, the dialog calls this function again but without widget param (widget = None)
@@ -632,6 +639,32 @@ class Gpodder(SimpleGladeApp):
     def on_btnDownload_clicked(self, widget, *args):
         self.on_treeAvailable_row_activated( widget, args)
     #-- Gpodder.on_btnDownload_clicked }
+
+    #-- Gpodder.on_btnDownloadNewer_clicked {
+    def on_btnDownloadNewer_clicked(self, widget, *args):
+        channel = self.channels[self.active_channel]
+        episodes_to_download = []
+
+        last_pubdate = channel.newest_pubdate_downloaded()
+        if not last_pubdate:
+            if self.showConfirmation( _('Would you like to download the three newest episodes in this channel?')):
+                episodes_to_download = channel[0:min(len(channel),3)]
+        else:
+            for episode in channel:
+                if episode.compare_pubdate( last_pubdate) > 0:
+                    log( 'Episode "%s" is newer.', episode.title)
+                    episodes_to_download.append( episode)
+
+            if not episodes_to_download:
+                self.showMessage( _('You have already downloaded the most recent episode.'))
+            else:
+                e_str = '\n'.join( [ e.title for e in episodes_to_download ] )
+                if not self.showConfirmation( _('Do you want to download these episodes?\n\n%s') % ( e_str, )):
+                    return
+
+        for episode in episodes_to_download:
+            self.download_podcast_by_url( episode.url, False)
+    #-- Gpodder.on_btnDownloadNewer_clicked }
 
     #-- Gpodder.on_btnSelectAllAvailable_clicked {
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
