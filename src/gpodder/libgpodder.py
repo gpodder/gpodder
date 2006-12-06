@@ -30,6 +30,7 @@ import gtk
 import thread
 import threading
 import urllib
+import shutil
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -89,24 +90,12 @@ def gPodderLib():
     return g_podder_lib
 
 class gPodderLibClass( object):
-    gpodderdir = ""
-    downloaddir = ""
-    cachedir = ""
-    http_proxy = ""
-    ftp_proxy = ""
-    proxy_use_environment = False
-    open_app = ""
-    ipod_mount = ""
-    opml_url = ""
-    update_on_startup = False
-    desktop_link = _("gPodder downloads")
     gpodderconf_section = 'gpodder-conf-1'
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         self.createIfNecessary( self.gpodderdir)
-        self.downloaddir = self.gpodderdir + "downloads/"
-        self.createIfNecessary( self.downloaddir)
+        self.__download_dir = None
         self.cachedir = self.gpodderdir + "cache/"
         self.createIfNecessary( self.cachedir)
         try:
@@ -117,6 +106,12 @@ class gPodderLibClass( object):
             self.ftp_proxy = environ['ftp_proxy']
         except:
             self.ftp_proxy = ''
+        self.proxy_use_environment = False
+        self.open_app = ""
+        self.ipod_mount = ""
+        self.opml_url = ""
+        self.update_on_startup = False
+        self.desktop_link = _("gPodder downloads")
         self.loadConfig()
     
     def createIfNecessary( self, path):
@@ -173,10 +168,27 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
+        self.write_to_parser( parser, 'download_dir', self.downloaddir)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
         fp.close()
+
+    def get_download_dir( self):
+        return self.__download_dir
+
+    def set_download_dir( self, new_downloaddir):
+        if self.__download_dir and self.__download_dir != new_downloaddir:
+            log( 'Moving downloads from %s to %s', self.__download_dir, new_downloaddir)
+            try:
+                shutil.move( self.__download_dir, new_downloaddir)
+            except:
+                log( 'Error while moving %s to %s.', self.__download_dir, new_downloaddir)
+                return
+
+        self.__download_dir = new_downloaddir
+
+    downloaddir = property(fget=get_download_dir,fset=set_download_dir)
 
     def get_from_parser( self, parser, option, default = ''):
         try:
@@ -224,6 +236,7 @@ class gPodderLibClass( object):
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
+                    self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads/'))
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:

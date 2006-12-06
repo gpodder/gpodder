@@ -39,6 +39,7 @@ from os.path import splitext
 import os.path
 import os
 import glob
+import shutil
 
 from types import ListType
 from datetime import datetime
@@ -235,9 +236,7 @@ class podcastChannel(ListType):
         libgpodder.gPodderLib().deleteFilename( self.cache_file)
 
     def remove_downloaded( self):
-        files = glob.glob( os.path.join( self.save_dir, '*'))
-        for file in files:
-            libgpodder.gPodderLib().deleteFilename( file)
+        shutil.rmtree( self.save_dir, True)
     
     def get_index_file(self):
         # gets index xml filename for downloaded channels list
@@ -265,30 +264,20 @@ class podcastChannel(ListType):
     def podcastFilenameExists( self, url):
         return exists( self.getPodcastFilename( url))
     
-    def deleteDownloadedItemByUrlAndTitle(self, url, title):
-        log( 'Delete %s (%s)', title, url)
+    def delete_episode_by_url(self, url):
+        log( 'Delete %s', url)
         # no multithreaded access
         libgpodder.getLock()
-        nr_items = 0
-        localdb = self.index_file
-        log( 'Local database: %s', localdb)
-        try: 
-            locdb_reader = readLocalDB( self.url)
-            locdb_reader.parseXML( localdb)
-            self.downloaded = locdb_reader.channel
-            for item in self.downloaded:
-                if item.title == title and item.url == url:
-                    nr_items += 1
-                    self.downloaded.remove(item)
-        except:
-            print _("No LocalDB found or error in existing LocalDB.")
-        log( 'Found %d matching item(s).', nr_items)
-        if nr_items > 0:
-            writeLocalDB( localdb, self.downloaded)
+
+        new_localdb = self.localdb_channel
+
+        for item in new_localdb:
+            if item.url == url:
+                new_localdb.remove(item)
+
+        self.localdb_channel = new_localdb
+
         libgpodder.releaseLock()
-        if nr_items > 0:
-            return True
-	return False
 
 class podcastItem(object):
     """holds data for one object in a channel"""

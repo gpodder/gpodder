@@ -718,7 +718,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnDownloadedDelete_clicked {
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        channel_filename = self.get_current_channel_downloaded()
+        channel_url = self.get_current_channel_downloaded()
         selection = self.treeDownloaded.get_selection()
         selection_tuple = selection.get_selected_rows()
         model = self.treeDownloaded.get_model()
@@ -739,11 +739,10 @@ class Gpodder(SimpleGladeApp):
                 for apath in selection_tuple[1]:
                     selection_iter = model.get_iter( apath)
                     url = model.get_value( selection_iter, 0)
-                    title = model.get_value( selection_iter, 1)
-                    filename_final = self.ldb.getLocalFilenameByPodcastURL( channel_filename, url)
+                    episode_filename = self.ldb.get_filename_by_podcast( channel_url, url)
                     current_channel = self.downloaded_channels[self.comboDownloaded.get_active()]
-                    if current_channel.deleteDownloadedItemByUrlAndTitle( url, title):
-                        gPodderLib().deleteFilename( filename_final)
+                    current_channel.delete_episode_by_url( url)
+                    gPodderLib().deleteFilename( episode_filename)
       
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
@@ -751,6 +750,7 @@ class Gpodder(SimpleGladeApp):
                 self.updateDownloadedComboBox()
             except:
                 log( 'Error while deleting (some) downloads.')
+        gPodderLib().clean_up_downloads()
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
     #-- Gpodder.on_btnDeleteAll_clicked {
@@ -865,6 +865,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.openApp.set_text( gl.open_app)
         self.iPodMountpoint.set_text( gl.ipod_mount)
         self.opmlURL.set_text( gl.opml_url)
+        self.downloadTo.set_label( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
@@ -940,6 +941,18 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_sensitive( sens)
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
 
+    #-- Gpodderproperties.on_browseDownloadTo_clicked {
+    def on_browseDownloadTo_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select download folder'), action = gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.downloadTo.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.downloadTo.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_browseDownloadTo_clicked }
+
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         gl = gPodderLib()
@@ -949,6 +962,7 @@ class Gpodderproperties(SimpleGladeApp):
         gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
         gl.ipod_mount = self.iPodMountpoint.get_text()
         gl.opml_url = self.opmlURL.get_text()
+        gl.downloaddir = self.downloadTo.get_label()
         gl.update_on_startup = self.updateonstartup.get_active()
         gl.propertiesChanged()
         # create or remove symlink to download dir on desktop

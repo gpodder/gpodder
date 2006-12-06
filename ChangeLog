@@ -1,3 +1,21 @@
+Wed,  6 Dec 2006 02:26:43 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Use shutil.rmtree() instead of 
+          hand-crafted folder remove code in remove_downloaded();
+          convert deleteDownloadedItemByUrlAndTitle() to a simpler 
+          delete_episode_by_url() function (and get rid of duplicate 
+          code in the process)
+        * src/gpodder/libgpodder.py: Fix static<->object variables in 
+          gPodderLibClass, re-factor downloaddir in a property that 
+          automatically tries to move the downloaded folder when it 
+          changes; also save download_dir as a config file value
+        * src/gpodder/gpodder.py: Fix the delete single/multiple episodes 
+          in a downloaded channel bug introduced by last commit (thanks 
+          to Seth Remington for testing and reporting this :)
+          Make Gpodderproperties open a FileChooserDialog to select 
+          download directory
+        * data/gpodder.glade: Make "download to" input field a button 
+          that (when clicked) opens a folder chooser dialog
+
 Tue,  5 Dec 2006 23:36:41 +0100 <thp@perli.net>
 	* svn branch gpodder-thp-december-2006: This branch will be 
 	  used to develop and test the new filenaming scheme and some 

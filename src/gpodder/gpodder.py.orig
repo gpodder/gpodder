@@ -251,6 +251,11 @@ class Gpodderproperties(SimpleGladeApp):
         print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
 
+    #-- Gpodderproperties.on_browseDownloadTo_clicked {
+    def on_browseDownloadTo_clicked(self, widget, *args):
+        print "on_browseDownloadTo_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_browseDownloadTo_clicked }
+
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         print "on_btnOK_clicked called with self.%s" % widget.get_name()
