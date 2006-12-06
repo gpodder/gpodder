@@ -218,12 +218,6 @@ class Gpodder(SimpleGladeApp):
         self.main_widget.connect("drag_data_received", self.drag_data_received)
         self.wNotebook.connect("switch-page", self.switched_notebook)
 
-        # disable iPod sync features if not supported
-        if not ipod_supported():
-            self.ipod_functions( False)
-        else:
-            self.ipod_functions( True)
-
         # if we are running a SVN-based version, notify the user :)
         if app_version.rfind( "svn") != -1:
             self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
@@ -239,10 +233,6 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
-    def ipod_functions( self, enable = True):
-        self.cleanup_ipod.set_sensitive( enable)
-        self.sync_to_ipod.set_sensitive( enable)
-    
     def updateComboBox( self):
         self.channels_model = channelsToModel( self.channels)
         
@@ -475,24 +465,39 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_sync_to_ipod_activate {
     def on_sync_to_ipod_activate(self, widget, *args):
-        sync_win = Gpoddersync()
-        while gtk.events_pending():
-            gtk.main_iteration( False)
-        args = ( sync_win, )
-        thread = Thread( target = self.sync_to_ipod_proc, args = args)
-        thread.start()
+        gl = gPodderLib()
+        if gl.device_type == 'none':
+            self.showMessage( _('Configure your device in the preferences dialog first.'))
+        elif gl.device_type == 'ipod':
+            if not ipod_supported():
+                self.showMessage( _('Please install python-gpod and pymad libraries.\nMore information on the gPodder homepage.'))
+                return
+            sync_win = Gpoddersync()
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            args = ( sync_win, )
+            thread = Thread( target = self.sync_to_ipod_proc, args = args)
+            thread.start()
+        elif gl.device_type == 'filesystem':
+            self.showMessage( _('Sync to %s currently not supported.') % ( gl.mp3_player_folder, ))
     #-- Gpodder.on_sync_to_ipod_activate }
 
     #-- Gpodder.on_cleanup_ipod_activate {
     def on_cleanup_ipod_activate(self, widget, *args):
-        if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
-            return
-        sync_win = Gpoddersync()
-        while gtk.events_pending():
-            gtk.main_iteration( False)
-        args = ( sync_win, )
-        thread = Thread( target = self.ipod_cleanup_proc, args = args)
-        thread.start()
+        gl = gPodderLib()
+        if gl.device_type == 'none':
+            self.showMessage( _('Configure your device in the preferences dialog first.'))
+        elif gl.device_type == 'ipod':
+            if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
+                return
+            sync_win = Gpoddersync()
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            args = ( sync_win, )
+            thread = Thread( target = self.ipod_cleanup_proc, args = args)
+            thread.start()
+        elif gl.device_type == 'filesystem':
+            self.showMessage( _('Cleanup of %s currently not supported.') % ( gl.mp3_player_folder, ))
     #-- Gpodder.on_cleanup_ipod_activate }
 
     #-- Gpodder.on_itemPreferences_activate {
@@ -918,10 +923,18 @@ class Gpodderproperties(SimpleGladeApp):
         self.httpProxy.set_text( gl.http_proxy)
         self.ftpProxy.set_text( gl.ftp_proxy)
         self.openApp.set_text( gl.open_app)
-        self.iPodMountpoint.set_text( gl.ipod_mount)
+        self.iPodMountpoint.set_label( gl.ipod_mount)
+        self.ipodIcon.set_from_pixbuf( gtk.gdk.pixbuf_new_from_file_at_size( artwork_dir + 'ipod-mini.png', 24, 24))
+        self.filesystemMountpoint.set_label( gl.mp3_player_folder)
         self.opmlURL.set_text( gl.opml_url)
         self.downloadTo.set_label( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
+        # device type
+        self.comboboxDeviceType.set_active( 0)
+        if gl.device_type == 'ipod':
+            self.comboboxDeviceType.set_active( 1)
+        elif gl.device_type == 'filesystem':
+            self.comboboxDeviceType.set_active( 2)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
         # if the symlink exists, set the checkbox active
@@ -940,9 +953,9 @@ class Gpodderproperties(SimpleGladeApp):
     #-- Gpodderproperties custom methods {
     def update_mountpoint( self, ipod):
         if ipod == None or ipod.mount_point == None:
-            self.iPodMountpoint.set_text( '')
+            self.iPodMountpoint.set_label( '')
         else:
-            self.iPodMountpoint.set_text( ipod.mount_point)
+            self.iPodMountpoint.set_label( ipod.mount_point)
     
     def set_uar( self, uar):
         self.comboPlayerApp.set_model( uar.get_applications_as_model())
@@ -989,6 +1002,55 @@ class Gpodderproperties(SimpleGladeApp):
             self.labelCustomCommand.hide()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_comboboxDeviceType_changed {
+    def on_comboboxDeviceType_changed(self, widget, *args):
+        active_item = self.comboboxDeviceType.get_active()
+
+        # iPod
+        if active_item == 1:
+            self.ipodLabel.show()
+            self.btn_iPodMountpoint.set_sensitive( True)
+            self.btn_iPodMountpoint.show_all()
+        else:
+            self.ipodLabel.hide()
+            self.btn_iPodMountpoint.set_sensitive( False)
+            self.btn_iPodMountpoint.hide()
+
+        # filesystem-based MP3 player
+        if active_item == 2:
+            self.filesystemLabel.show()
+            self.btn_filesystemMountpoint.set_sensitive( True)
+            self.btn_filesystemMountpoint.show_all()
+        else:
+            self.filesystemLabel.hide()
+            self.btn_filesystemMountpoint.set_sensitive( False)
+            self.btn_filesystemMountpoint.hide()
+    #-- Gpodderproperties.on_comboboxDeviceType_changed }
+
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked {
+    def on_btn_iPodMountpoint_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select iPod mountpoint'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.iPodMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.iPodMountpoint.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked }
+
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked {
+    def on_btn_FilesystemMountpoint_clicked(self, widget, *args):
+        fs = gtk.FileChooserDialog( title = _('Select folder for MP3 player'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        gl = gPodderLib()
+        fs.set_filename( self.filesystemMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.filesystemMountpoint.set_label( fs.get_filename())
+        fs.destroy()
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
+
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
         sens = not self.cbEnvironmentVariables.get_active()
@@ -1015,10 +1077,18 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ftp_proxy = self.ftpProxy.get_text()
         gl.open_app = self.openApp.get_text()
         gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
-        gl.ipod_mount = self.iPodMountpoint.get_text()
+        gl.ipod_mount = self.iPodMountpoint.get_label()
+        gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
         gl.downloaddir = self.downloadTo.get_label()
         gl.update_on_startup = self.updateonstartup.get_active()
+        device_type = self.comboboxDeviceType.get_active()
+        if device_type == 0:
+            gl.device_type = 'none'
+        elif device_type == 1:
+            gl.device_type = 'ipod'
+        elif device_type == 2:
+            gl.device_type = 'filesystem'
         gl.propertiesChanged()
         # create or remove symlink to download dir on desktop
         if self.cbDesktopSymlink.get_active():

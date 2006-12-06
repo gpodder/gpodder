@@ -116,6 +116,8 @@ class gPodderLibClass( object):
         self.opml_url = ""
         self.update_on_startup = False
         self.desktop_link = _("gPodder downloads")
+        self.device_type = None
+        self.mp3_player_folder = ""
         self.loadConfig()
     
     def createIfNecessary( self, path):
@@ -173,6 +175,8 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
+        self.write_to_parser( parser, 'device_type', self.device_type)
+        self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
@@ -251,9 +255,11 @@ class gPodderLibClass( object):
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
                     opml_url = self.get_from_parser( parser, 'opml_url', default_opml_directory)
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
-                    self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod/')
+                    self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads/'))
+                    self.device_type = self.get_from_parser( parser, 'device_type', 'none')
+                    self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:
@@ -270,7 +276,9 @@ class gPodderLibClass( object):
         except:
             # TODO: well, well.. (http + ftp?)
             self.open_app = 'gnome-open'
-            self.ipod_mount = '/media/ipod/'
+            self.ipod_mount = '/media/ipod'
+            self.device_type = 'none'
+            self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
         if was_oldstyle:
             self.saveConfig()

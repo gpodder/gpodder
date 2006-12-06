@@ -1,3 +1,15 @@
+Wed,  6 Dec 2006 21:03:35 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Added "device_type" and
+          "mp3_player_folder" configuration parameters
+        * src/gpodder/gpodder.py: Don't disable menu items based on the 
+          ipod_supported() functions; sync menu items now decide what to 
+          do based on what device the user selected in the properties;
+          properties dialog adds ipod mountpoint + mp3 player folder 
+          FileChooserDialog and UI code
+        * data/gpodder.glade: Rename sync UI items from "iPod" to "device" 
+          or "synchronization", add support for other non-iPod devices, 
+          currently filesystem-based MP3 players
+
 Wed,  6 Dec 2006 19:56:33 +0100 <thp@perli.net>
         * src/gpodder/gpodder.py: Add columns, resizable and reorderable
           columns to the downloaded podcasts tab (nearly the same as in 

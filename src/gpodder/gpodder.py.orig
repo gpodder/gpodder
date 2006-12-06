@@ -251,6 +251,21 @@ class Gpodderproperties(SimpleGladeApp):
         print "on_comboPlayerApp_changed called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_comboboxDeviceType_changed {
+    def on_comboboxDeviceType_changed(self, widget, *args):
+        print "on_comboboxDeviceType_changed called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_comboboxDeviceType_changed }
+
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked {
+    def on_btn_iPodMountpoint_clicked(self, widget, *args):
+        print "on_btn_iPodMountpoint_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_btn_iPodMountpoint_clicked }
+
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked {
+    def on_btn_FilesystemMountpoint_clicked(self, widget, *args):
+        print "on_btn_FilesystemMountpoint_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
+
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
         print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
