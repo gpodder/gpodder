@@ -1,3 +1,18 @@
+Fri,  8 Dec 2006 21:50:39 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Add DownloadHistory class that saves 
+          a list of already downloaded URLs; Make the podcastChannel class 
+          utilize DownloadHistory through gPodderLib (background color for 
+          already downloaded but already deleted episode is light green, 
+          mark as downloaded when adding to localdb, utilize the history 
+          in newest_pubdate_downloaded(), but keep the old method as a 
+          fallback)
+        * src/gpodder/libgpodder.py: Make a single DownloadHistory object 
+          available through gPodderLib (+ functions to utilize it)
+        * src/gpodder/liblocaldb.py: Mark downloaded items when loading 
+          the model for the downloaded list (in case one has downloaded 
+          episodes before this commit)
+	* bin/gpodder: pushed release date + version
+
 Wed,  6 Dec 2006 21:23:53 +0100 <thp@perli.net>
         * merged svn branch thp-december-2006 into trunk
 

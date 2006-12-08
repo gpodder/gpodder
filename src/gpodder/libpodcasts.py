@@ -134,11 +134,19 @@ class podcastChannel(ListType):
         self.device_playlist_name = ch.device_playlist_name
 
     def newest_pubdate_downloaded( self):
-        pubdate = None
+        gl = libgpodder.gPodderLib()
+        last_episode = None
 
+        # Try DownloadHistory's entries first
+        for episode in self:
+            if gl.history_is_downloaded( episode.url) and last_episode:
+                return last_episode.pubDate
+            last_episode = episode
+
+        # If nothing found, do pubDate comparison
+        pubdate = None
         for episode in self.localdb_channel:
             pubdate = episode.newer_pubdate( pubdate)
-
         return pubdate
     
     def addDownloadedItem( self, item):
@@ -161,6 +169,8 @@ class podcastChannel(ListType):
             self.downloaded.append( item)
         else:
             log( 'Podcast episode already downloaded.')
+
+        libgpodder.gPodderLib().history_mark_downloaded( item.url)
         
         writeLocalDB( localdb, self.downloaded)
         libgpodder.releaseLock()
@@ -190,9 +200,11 @@ class podcastChannel(ListType):
             # Skip items with no download url
             if item.url:
                 if self.is_downloaded( item) and want_color:
-                    background_color = '#AAFFAA'
-                elif downloading_callback and downloading_callback( item.url):
-                    background_color = '#FFCCAA'
+                    background_color = '#99FF99'
+                elif downloading_callback and downloading_callback( item.url) and want_color:
+                    background_color = '#FFBC99'
+                elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
+                    background_color = '#DDFFCC'
                 else:
                     background_color = '#FFFFFF'
                 new_iter = new_model.append()
@@ -409,6 +421,44 @@ class opmlChannel(object):
         self.xmlurl = xmlurl
 
 
+class DownloadHistory( ListType):
+    def __init__( self, filename):
+        self.filename = filename
+        try:
+            self.read_from_file()
+        except:
+            log( '(DownloadHistory) Creating new history list.')
+
+    def read_from_file( self):
+        for line in open( self.filename, 'r'):
+            self.append( line.strip())
+
+    def save_to_file( self):
+        if len( self):
+            fp = open( self.filename, 'w')
+            for url in self:
+                fp.write( url + "\n")
+            fp.close()
+            log( '(DownloadHistory) Wrote %d history entries.', len( self))
+
+    def mark_downloaded( self, data, autosave = True):
+        affected = 0
+        if data and type( data) is ListType:
+            # Support passing a list of urls to this function
+            for url in data:
+                affected = affected + self.mark_downloaded( url, autosave = False)
+        else:
+            if data not in self:
+                log( '(DownloadHistory) Marking as downloaded: %s', data)
+                self.append( data)
+                affected = affected + 1
+
+        if affected and autosave:
+            self.save_to_file()
+
+        return affected
+
+
 def channelsToModel( channels):
     new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
     
@@ -428,4 +478,5 @@ def stripHtml( html):
     for key in dict.keys():
         stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
     return stripstr
+
 

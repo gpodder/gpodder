@@ -71,6 +71,13 @@ class localDB( object):
     
 
     def get_tree_model( self, url):
+        # Try to add downloaded items (TODO: remove at some point in the future)
+        to_be_added = []
+        for episode in self.get_channel( url):
+            to_be_added.append( episode.url)
+        if to_be_added:
+            gPodderLib().history_mark_downloaded( to_be_added)
+
         return self.get_channel( url).getItemsModel( False)
 
     def get_model( self):

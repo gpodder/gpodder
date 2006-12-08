@@ -62,6 +62,7 @@ from stat import ST_MODE
 
 from librssreader import rssReader
 from libpodcasts import podcastChannel
+from libpodcasts import DownloadHistory
 from libplayers import dotdesktop_command
 from liblogger import log
 
@@ -118,6 +119,7 @@ class gPodderLibClass( object):
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
         self.mp3_player_folder = ""
+        self.__download_history = DownloadHistory( self.get_download_history_filename())
         self.loadConfig()
     
     def createIfNecessary( self, path):
@@ -136,6 +138,9 @@ class gPodderLibClass( object):
 
     def getChannelsFilename( self):
         return self.gpodderdir + "channels.xml"
+
+    def get_download_history_filename( self):
+        return self.gpodderdir + 'download-history.txt'
 
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use,
@@ -210,6 +215,12 @@ class gPodderLibClass( object):
         self.__download_dir = new_downloaddir
 
     downloaddir = property(fget=get_download_dir,fset=set_download_dir)
+
+    def history_mark_downloaded( self, url):
+        self.__download_history.mark_downloaded( url)
+
+    def history_is_downloaded( self, url):
+        return (url in self.__download_history)
 
     def get_from_parser( self, parser, option, default = ''):
         try:
