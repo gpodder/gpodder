@@ -184,7 +184,18 @@ class podcastChannel(ListType):
     def is_downloaded( self, item):
         return self.podcastFilenameExists( item.url)
 
-    def getItemsModel( self, want_color = True, downloading_callback = None):
+    def get_all_episodes( self):
+        episodes = []
+        added_urls = []
+
+        for item in [] + self + self.localdb_channel:
+            if item.url and item.url not in added_urls:
+                episodes.append( item)
+                added_urls.append( item.url)
+
+        return episodes
+
+    def items_liststore( self, want_color = True, downloading_callback = None):
         """Return a gtk.ListStore containing episodes for this channel
 
         If want_color is True (the default), this will set special colors
@@ -196,37 +207,32 @@ class podcastChannel(ListType):
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
-        for item in self:
-            # Skip items with no download url
-            if item.url:
-                if self.is_downloaded( item) and want_color:
-                    background_color = '#99FF99'
-                elif downloading_callback and downloading_callback( item.url) and want_color:
-                    background_color = '#FFBC99'
-                elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
-                    background_color = '#DDFFCC'
-                else:
-                    background_color = '#FFFFFF'
-                new_iter = new_model.append()
-                new_model.set( new_iter, 0, item.url)
-                new_model.set( new_iter, 1, item.title)
-                new_model.set( new_iter, 2, item.getSize())
-                new_model.set( new_iter, 3, True)
-                new_model.set( new_iter, 4, background_color)
-                new_model.set( new_iter, 5, item.cute_pubdate())
-                new_model.set( new_iter, 6, item.one_line_description())
+        for item in self.get_all_episodes():
+            if self.is_downloaded( item) and want_color:
+                background_color = '#99FF99'
+            elif downloading_callback and downloading_callback( item.url) and want_color:
+                background_color = '#FFBC99'
+            elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
+                background_color = '#DDFFCC'
+            else:
+                background_color = '#FFFFFF'
+            new_iter = new_model.append()
+            new_model.set( new_iter, 0, item.url)
+            new_model.set( new_iter, 1, item.title)
+            new_model.set( new_iter, 2, item.getSize())
+            new_model.set( new_iter, 3, True)
+            new_model.set( new_iter, 4, background_color)
+            new_model.set( new_iter, 5, item.cute_pubdate())
+            new_model.set( new_iter, 6, item.one_line_description())
         
         return new_model
     
-    def getActiveByUrl( self, url):
-        i = 0
-        
-        for item in self:
-            if item.url == url:
-                return i
-            i = i + 1
+    def find_episode( self, url):
+        for item in self.get_all_episodes():
+            if url == item.url:
+                return item
 
-        return -1
+        return None
 
     def downloadRss( self, force_update = True):
         if not exists( self.cache_file) or force_update:
@@ -378,6 +384,12 @@ class podcastItem(object):
             return str(datetime.fromtimestamp( timestamp).strftime( "%A"))
         
         return str(datetime.fromtimestamp( timestamp).strftime( "%x"))
+
+    def calculate_filesize( self, channel):
+        try:
+            self.length = str(os.path.getsize( channel.getPodcastFilename( self.url)))
+        except:
+            log( 'Could not get filesize for %s.', self.url)
     
     def equals( self, other_item):
         if other_item == None:

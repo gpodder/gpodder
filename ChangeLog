@@ -1,3 +1,16 @@
+Sat,  9 Dec 2006 01:38:35 +0100 <thp@perli.net>
+        * src/gpodder/liblocdbreader.py: Read mimetype + calc filesize
+        * src/gpodder/liblocdbwriter.py: Write out mimetype
+        * src/gpodder/libpodcasts.py: re-design getItemsModel to new 
+          function items_liststore(), added get_all_episodes() function 
+          to retrieve episodes both in the feed and in the localdb; removed 
+          getActiveByUrl() and replaced with find_episode(); added new 
+          function calculate_filesize() to podcastItem
+        * src/gpodder/gpodder.py: Removed some orphaned comment lines; 
+          adopt GUI code for changes in libpodcasts (see above)
+        * src/gpodder/liblocaldb.py: Adopt for changes in libpodcasts
+        * data/gpodder.glade: Added first try on "Episodes" menuitem
+
 Fri,  8 Dec 2006 21:50:39 +0100 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Add DownloadHistory class that saves 
           a list of already downloaded URLs; Make the podcastChannel class 

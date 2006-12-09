@@ -116,7 +116,10 @@ class readLocalDB( DefaultHandler):
                 self.current_item.guid = self.current_element_data
             if name == "pubDate":
                 self.current_item.pubDate = self.current_element_data
+            if name == "mimeType":
+                self.current_item.mimetype = self.current_element_data
             if name == "item":
+                self.current_item.calculate_filesize( self.channel)
                 self.channel.append( self.current_item)
                 self.current_item = None
     

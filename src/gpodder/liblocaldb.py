@@ -78,7 +78,7 @@ class localDB( object):
         if to_be_added:
             gPodderLib().history_mark_downloaded( to_be_added)
 
-        return self.get_channel( url).getItemsModel( False)
+        return self.get_channel( url).items_liststore( False)
 
     def get_model( self):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)

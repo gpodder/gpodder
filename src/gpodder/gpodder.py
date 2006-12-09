@@ -241,7 +241,6 @@ class Gpodder(SimpleGladeApp):
             self.comboAvailable.set_active( 0)
         except:
             pass
-        #self.updateTreeView()
 
     def updateDownloadedComboBox( self):
         # now, update downloaded feeds tab:
@@ -259,7 +258,7 @@ class Gpodder(SimpleGladeApp):
     
     def updateTreeView( self):
         if self.channels:
-            self.items_model = self.channels[self.active_channel].getItemsModel( downloading_callback = self.download_status_manager.is_download_in_progress)
+            self.items_model = self.channels[self.active_channel].items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress)
             self.treeAvailable.set_model( self.items_model)
             self.treeAvailable.columns_autosize()
         else:
@@ -393,7 +392,6 @@ class Gpodder(SimpleGladeApp):
     def update_feed_cache(self):
         reader = gPodderChannelReader()
         please_wait = gtk.Dialog( _("Updating feed cache"), self.gPodder)
-        #please_wait.vbox.set_border_width( 10)
         please_wait.vbox.set_spacing( 5)
         please_wait.set_border_width( 5)
 
@@ -412,14 +410,11 @@ class Gpodder(SimpleGladeApp):
         # let's get down to business..
         self.channels = reader.read( True, lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
         please_wait.destroy()
-        #self.labelStatus.set_text( "")
         self.updateComboBox()
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
-        self.active_item = self.channels[self.active_channel].getActiveByUrl( url)
-        
         current_channel = self.channels[self.active_channel]
-        current_podcast = current_channel[self.active_item]
+        current_podcast = current_channel.find_episode( url)
         filename = current_channel.getPodcastFilename( current_podcast.url)
         if widget and widget.get_name() == 'treeAvailable':
             gpe = Gpodderepisode()
