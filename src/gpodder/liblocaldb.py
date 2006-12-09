@@ -92,7 +92,12 @@ class localDB( object):
     
 
     def get_filename_by_podcast( self, url, podcast_url):
-        return self.get_channel( url).getPodcastFilename( podcast_url)
+        ch = self.get_channel( url)
+
+        if not ch:
+            return None
+
+        return ch.getPodcastFilename( podcast_url)
     
     def clear_cache( self):
         self.__channel_list = None

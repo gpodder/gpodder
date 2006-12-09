@@ -175,16 +175,6 @@ class Gpodder(SimpleGladeApp):
         print "on_btnCancelAll_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnCancelAll_clicked }
 
-    #-- Gpodder.on_comboDownloaded_changed {
-    def on_comboDownloaded_changed(self, widget, *args):
-        print "on_comboDownloaded_changed called with self.%s" % widget.get_name()
-    #-- Gpodder.on_comboDownloaded_changed }
-
-    #-- Gpodder.on_treeDownloaded_row_activated {
-    def on_treeDownloaded_row_activated(self, widget, *args):
-        print "on_treeDownloaded_row_activated called with self.%s" % widget.get_name()
-    #-- Gpodder.on_treeDownloaded_row_activated }
-
 
 class Gpodderchannel(SimpleGladeApp):
 
@@ -313,6 +303,11 @@ class Gpodderepisode(SimpleGladeApp):
     def on_btnDownload_clicked(self, widget, *args):
         print "on_btnDownload_clicked called with self.%s" % widget.get_name()
     #-- Gpodderepisode.on_btnDownload_clicked }
+
+    #-- Gpodderepisode.on_btnPlay_clicked {
+    def on_btnPlay_clicked(self, widget, *args):
+        print "on_btnPlay_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderepisode.on_btnPlay_clicked }
 
 
 class Gpoddersync(SimpleGladeApp):
