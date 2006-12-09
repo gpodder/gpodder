@@ -183,6 +183,10 @@ class Gpodder(SimpleGladeApp):
         # create a localDB object
         self.ldb = localDB()
 
+        # load list of user applications
+        self.user_apps_reader = UserAppsReader()
+        self.user_apps_reader.read()
+
         # Clean up old, orphaned download files
         gl.clean_up_downloads()
     #-- Gpodder.new }
@@ -445,10 +449,6 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemPreferences_activate {
     def on_itemPreferences_activate(self, widget, *args):
-        if not self.user_apps_reader:
-            self.user_apps_reader = UserAppsReader()
-            self.user_apps_reader.read()
-
         prop = Gpodderproperties()
         prop.set_uar( self.user_apps_reader)
     #-- Gpodder.on_itemPreferences_activate }
