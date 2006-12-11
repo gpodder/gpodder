@@ -26,7 +26,7 @@
 #
 #
 
-from os import listdir
+from glob import glob
 from os.path import basename
 from os.path import splitext
 from os.path import exists
@@ -78,24 +78,23 @@ class UserAppsReader(object):
     def read( self):
         for dir in userappsdirs:
             if exists( dir):
-                files = listdir( dir)
-                for file in files:
-                    self.parse_and_append( dir, file)
+                for file in glob( dir+'/*.desktop'):
+                    self.parse_and_append( file)
         self.apps.append( UserApplication( 'Shell command', '', 'audio/*', 'gtk-execute'))
 
-    def parse_and_append( self, dir, filename):
-        parser = RawConfigParser()
-        parser.read( [ dir + filename ])
-        if not parser.has_section( sect):
-            return
-        
+    def parse_and_append( self, filename):
         try:
+            parser = RawConfigParser()
+            parser.read( [ filename ])
+            if not parser.has_section( sect):
+                return
+        
             app_name = parser.get( sect, 'Name')
             app_cmd = parser.get( sect, 'Exec')
             app_mime = parser.get( sect, 'MimeType')
             app_icon = parser.get( sect, 'Icon')
             if app_mime.find( 'audio/') != -1:
-                log( 'Player found: %s (%s in %s)', app_name, filename, dir)
+                log( 'Player found: %s (%s)', app_name, filename)
                 self.apps.append( UserApplication( app_name, app_cmd, app_mime, app_icon))
         except:
             return
