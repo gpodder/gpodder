@@ -609,6 +609,7 @@ class Gpodder(SimpleGladeApp):
     def on_btnDownloadNewer_clicked(self, widget, *args):
         channel = self.active_channel
         episodes_to_download = []
+        gl = gPodderLib()
 
         last_pubdate = channel.newest_pubdate_downloaded()
         if not last_pubdate:
@@ -616,7 +617,7 @@ class Gpodder(SimpleGladeApp):
                 episodes_to_download = channel[0:min(len(channel),3)]
         else:
             for episode in channel:
-                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode):
+                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url):
                     log( 'Episode "%s" is newer.', episode.title)
                     episodes_to_download.append( episode)
 
