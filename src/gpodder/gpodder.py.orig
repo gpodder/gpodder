@@ -160,6 +160,11 @@ class Gpodder(SimpleGladeApp):
         print "on_treeAvailable_row_activated called with self.%s" % widget.get_name()
     #-- Gpodder.on_treeAvailable_row_activated }
 
+    #-- Gpodder.on_treeAvailable_button_release_event {
+    def on_treeAvailable_button_release_event(self, widget, *args):
+        print "on_treeAvailable_button_release_event called with self.%s" % widget.get_name()
+    #-- Gpodder.on_treeAvailable_button_release_event }
+
     #-- Gpodder.on_treeDownloads_row_activated {
     def on_treeDownloads_row_activated(self, widget, *args):
         print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()

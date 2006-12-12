@@ -729,6 +729,8 @@
 			  <property name="hover_selection">False</property>
 			  <property name="hover_expand">False</property>
 			  <signal name="row_activated" handler="on_treeAvailable_row_activated" last_modification_time="Sat, 29 Oct 2005 11:49:26 GMT"/>
+			  <signal name="button_release_event" handler="on_treeAvailable_button_release_event" last_modification_time="Tue, 12 Dec 2006 22:51:54 GMT"/>
+			  <signal name="key_release_event" handler="on_treeAvailable_button_release_event" last_modification_time="Tue, 12 Dec 2006 22:54:24 GMT"/>
 			</widget>
 		      </child>
 		    </widget>
@@ -792,6 +794,22 @@
 			  <property name="padding">0</property>
 			  <property name="expand">True</property>
 			  <property name="fill">True</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkButton" id="btnPlay">
+			  <property name="can_focus">True</property>
+			  <property name="label">gtk-media-play</property>
+			  <property name="use_stock">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <signal name="clicked" handler="on_btnDownloadedExecute_clicked" last_modification_time="Tue, 12 Dec 2006 22:55:31 GMT"/>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
 			</packing>
 		      </child>
 

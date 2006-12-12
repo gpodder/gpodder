@@ -192,6 +192,31 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def play_or_download( self):
+        is_download_button = False
+        gl = gPodderLib()
+
+        try:
+            selection = self.treeAvailable.get_selection()
+            selection_tuple = selection.get_selected_rows()
+
+            for apath in selection_tuple[1]:
+                selection_iter = self.treeAvailable.get_model().get_iter( apath)
+                url = self.treeAvailable.get_model().get_value( selection_iter, 0)
+                filename = self.active_channel.getPodcastFilename( url)
+                if not os.path.exists( filename):
+                    is_download_button = True
+                    break
+        except:
+            is_download_button = True
+
+        if is_download_button:
+            self.btnPlay.hide_all()
+            self.btnDownload.show_all()
+        else:
+            self.btnPlay.show_all()
+            self.btnDownload.hide_all()
+
     def updateComboBox( self):
         try:
             old_active = self.comboAvailable.get_active()
@@ -361,20 +386,21 @@ class Gpodder(SimpleGladeApp):
         current_podcast = current_channel.find_episode( url)
         filename = current_channel.getPodcastFilename( current_podcast.url)
 
-        if widget and widget.get_name() == 'itemPlaySelected':
-            gPodderLib().openFilename( filename)
-            return
-
-        if widget and widget.get_name() == 'treeAvailable':
-            gpe = Gpodderepisode()
-            gpe.set_episode( current_podcast, current_channel)
-
-            if os.path.exists( filename):
-                gpe.set_play_callback( lambda: gPodderLib().openFilename( filename))
-            else:
-                gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
-
-            return
+        if widget:
+            if widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay':
+                gPodderLib().openFilename( filename)
+                return
+         
+            if widget.get_name() == 'treeAvailable':
+                gpe = Gpodderepisode()
+                gpe.set_episode( current_podcast, current_channel)
+         
+                if os.path.exists( filename):
+                    gpe.set_play_callback( lambda: gPodderLib().openFilename( filename))
+                else:
+                    gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
+         
+                return
         
         if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
@@ -604,6 +630,11 @@ class Gpodder(SimpleGladeApp):
     def on_btnDownload_clicked(self, widget, *args):
         self.on_treeAvailable_row_activated( widget, args)
     #-- Gpodder.on_btnDownload_clicked }
+
+    #-- Gpodder.on_treeAvailable_button_release_event {
+    def on_treeAvailable_button_release_event(self, widget, *args):
+        self.play_or_download()
+    #-- Gpodder.on_treeAvailable_button_release_event }
 
     #-- Gpodder.on_btnDownloadNewer_clicked {
     def on_btnDownloadNewer_clicked(self, widget, *args):
