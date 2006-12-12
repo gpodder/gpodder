@@ -40,7 +40,7 @@ for l in languages:
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_images   = glob.glob('data/artwork/*')
 inst_icons    = [ 'data/gpodder.png' ] + glob.glob('data/gpodder-??x??.png')
-inst_share    = [ 'data/gpodder.glade' ]
+inst_share    = [ 'data/gpodder.glade', 'data/gpodder-48x48.png' ]
 inst_desktop  = [ 'data/gpodder.desktop' ]
 
 data_files = [

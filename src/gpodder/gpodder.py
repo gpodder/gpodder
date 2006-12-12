@@ -77,7 +77,7 @@ app_copyright = 'Copyright (c) 2005-2006 Thomas Perl'
 app_website = 'http://perli.net/projekte/gpodder/'
 
 glade_dir = '/usr/share/gpodder/'
-icon_dir = '/usr/share/gpodder/images/gpodder.png'
+icon_dir = '/usr/share/pixmaps/gpodder.png'
 artwork_dir = '/usr/share/gpodder/images/'
 locale_dir = '/usr/share/locale/'
 
