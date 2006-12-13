@@ -1056,10 +1056,14 @@ class Gpodderepisode(SimpleGladeApp):
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
         self.episode_description.set_buffer( b)
-        self.entryURL.set_text(episode.url)
-        self.entryLink.set_text(episode.link)
-        if episode.link == '' and channel != None:
-            self.entryLink.set_text( channel.link)
+        self.LabelDownloadLink.set_text(episode.url)
+        self.LabelWebsiteLink.set_text(episode.link)
+        self.gPodderEpisode.set_title( episode.title)
+        if not episode.link and channel:
+            self.LabelWebsiteLink.set_text( channel.link)
+        if channel:
+            smalltext = _('from %s') % ( channel.title )
+            self.channel_title.set_markup( '<small>%s</small>' % smalltext)
         self.labelPubDate.set_markup( '<b>%s</b>' % ( episode.pubDate ))
         self.download_callback = None
         self.play_callback = None
