@@ -860,7 +860,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.ipodIcon.set_from_pixbuf( gtk.gdk.pixbuf_new_from_file_at_size( artwork_dir + 'ipod-mini.png', 24, 24))
         self.filesystemMountpoint.set_label( gl.mp3_player_folder)
         self.opmlURL.set_text( gl.opml_url)
-        self.downloadTo.set_label( gl.downloaddir)
+        self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         # device type
         self.comboboxDeviceType.set_active( 0)
@@ -991,18 +991,6 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_sensitive( sens)
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
 
-    #-- Gpodderproperties.on_browseDownloadTo_clicked {
-    def on_browseDownloadTo_clicked(self, widget, *args):
-        fs = gtk.FileChooserDialog( title = _('Select download folder'), action = gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
-        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-        gl = gPodderLib()
-        fs.set_filename( self.downloadTo.get_label())
-        if fs.run() == gtk.RESPONSE_OK:
-            self.downloadTo.set_label( fs.get_filename())
-        fs.destroy()
-    #-- Gpodderproperties.on_browseDownloadTo_clicked }
-
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         gl = gPodderLib()
@@ -1013,7 +1001,7 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ipod_mount = self.iPodMountpoint.get_label()
         gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
-        gl.downloaddir = self.downloadTo.get_label()
+        gl.downloaddir = self.chooserDownloadTo.get_filename()
         gl.update_on_startup = self.updateonstartup.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
