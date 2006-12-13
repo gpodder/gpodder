@@ -222,6 +222,8 @@ class Gpodder(SimpleGladeApp):
             old_active = self.comboAvailable.get_active()
             if old_active < 0:
                 old_active = 0
+            elif old_active > len( self.channels)-1:
+                old_active = len(self.channels)-1
             self.comboAvailable.set_model( channelsToModel( self.channels))
             self.comboAvailable.set_active( old_active)
         except:
