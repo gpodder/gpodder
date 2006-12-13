@@ -135,13 +135,11 @@ class podcastChannel(ListType):
 
     def newest_pubdate_downloaded( self):
         gl = libgpodder.gPodderLib()
-        last_episode = None
 
         # Try DownloadHistory's entries first
         for episode in self:
-            if gl.history_is_downloaded( episode.url) and last_episode:
-                return last_episode.pubDate
-            last_episode = episode
+            if gl.history_is_downloaded( episode.url):
+                return episode.pubDate
 
         # If nothing found, do pubDate comparison
         pubdate = None
