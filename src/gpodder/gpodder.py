@@ -309,7 +309,9 @@ class Gpodder(SimpleGladeApp):
                     return
             log( 'Adding new channel: %s', result)
             self.statusLabel.set_text( _("Fetching channel index..."))
-            self.channels.append( podcastChannel( url = result))
+            channel = podcastChannel( url = result)
+            channel.remove_cache_file()
+            self.channels.append( channel)
             
             # download changed channels
             self.refetch_channel_list()
@@ -407,8 +409,10 @@ class Gpodder(SimpleGladeApp):
         if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
-            if want_message_dialog:
-                self.showMessage( _("You have already downloaded this episode\nor you are currently downloading it."))
+            if want_message_dialog and os.path.exists( filename):
+                self.showMessage( _("You have already downloaded this episode,"))
+            elif want_message_dialog:
+                self.showMessage( _("This file is already being downloaded."))
 
             if os.path.exists( filename):
                 log( 'Episode has already been downloaded.')

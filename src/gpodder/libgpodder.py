@@ -373,9 +373,10 @@ class gPodderChannelWriter( object):
         print >> fd, '<!-- '+_('gPodder channel list')+' -->'
         print >> fd, '<channels>'
         for chan in channels:
-            print >> fd, '  <channel>'
-            print >> fd, '    <url>%s</url>' % saxutils.escape( chan.url)
-            print >> fd, '  </channel>'
+            try:
+                print >> fd, "  <channel>\n    <url>%s</url>\n  </channel>\n" % saxutils.escape( chan.url)
+            except:
+                log( 'Could not write channels to file.')
         print >> fd, '</channels>'
         fd.close()
 

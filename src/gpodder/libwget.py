@@ -100,7 +100,7 @@ class downloadThread( object):
 	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
-        command = "wget \"" + self.url + "\" -O \"" + self.tempname + "\""
+        command = "wget -ct0 \"" + self.url + "\" -O \"" + self.tempname + "\""
         log( 'Command: %s', command)
         process = popen2.Popen3( command, True)
         
@@ -127,7 +127,11 @@ class downloadThread( object):
 	    # self.statusmgr
         
         if process.wait() == 0:
-            move( self.tempname, self.filename)
+            try:
+                move( self.tempname, self.filename)
+            except:
+                log( 'Error happened during moving tempfile :/')
+                raise
         else:
             # Delete partially downloaded file
             libgpodder.gPodderLib().deleteFilename( self.tempname)

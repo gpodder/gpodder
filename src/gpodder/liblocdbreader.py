@@ -83,7 +83,6 @@ class readLocalDB( DefaultHandler):
             if attrs.get('music', 'false').lower() == 'true':
                 self.channel.is_music_channel = True
             if attrs.get('nosync', 'false').lower() == 'true':
-                log( 'iPod sync deactivated for %s', self.channel.title)
                 self.channel.sync_to_devices = False
     
     def endElement( self, name):

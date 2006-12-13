@@ -1,3 +1,17 @@
+Wed, 13 Dec 2006 13:57:54 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Make wget "continue" (-c) and "retry 
+          infinite" (-t0) so we don't get strange results when server 
+          connection is closed or other network problems come up
+        * src/gpodder/liblocdbreader.py: Remove bogus log message when 
+          iPod sync is deactivated for a channel
+        * src/gpodder/libgpodder.py: Handle broken channels more 
+          graceful when saving the channels list (instead of completely 
+          breaking the channel list.. oh my ;))
+        * src/gpodder/gpodder.py: Remove the cache file first when adding 
+          a channel that has been subscribed to before; display a more 
+          specific message when trying to download an episode that has 
+          already been downloaded
+
 Wed, 13 Dec 2006 02:05:23 +0100 <thp@perli.net>
         * src/gpodder/gpodder.py: Switch to (new) last channel when 
           deleting the last channel in the channel list in combobox
