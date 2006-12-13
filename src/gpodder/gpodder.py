@@ -776,10 +776,11 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel custom methods {
     def requestURL( self, channel = None):
-        if channel != None:
+        if channel:
+            self.gPodderChannel.set_title( _('Channel: %s') % channel.title)
             self.entryURL.set_text( channel.url)
-            self.downloadTo.set_text( channel.save_dir)
-            self.channel_title.set_markup( "<b>%s</b>" % channel.title)
+            self.LabelDownloadTo.set_text( channel.save_dir)
+            self.LabelWebsite.set_text( channel.link)
             channel.set_metadata_from_localdb()
             self.cbNoSync.set_active( not channel.sync_to_devices)
             self.musicPlaylist.set_text( channel.device_playlist_name)
@@ -789,7 +790,13 @@ class Gpodderchannel(SimpleGladeApp):
                 # load image in background
                 gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
         else:
-            self.channel_title.set_markup( "<b>%s</b>" % _("(unknown)"))
+            # Remove all tabs except for the first one
+            while self.notebookChannelEditor.get_n_pages() > 1:
+                self.notebookChannelEditor.remove_page( -1)
+            for widget in ( self.labelDescription, self.scrolledwindow, self.expander ):
+                widget.hide_all()
+            self.gPodderChannel.set_title( _('Add a new channel'))
+            self.gPodderChannel.queue_resize()
             description = _("(unknown)")
         
         b = gtk.TextBuffer()
