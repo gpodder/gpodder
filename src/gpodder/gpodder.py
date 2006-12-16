@@ -603,6 +603,15 @@ class Gpodder(SimpleGladeApp):
         except:
             self.active_channel = None
 
+        if self.active_channel:
+            self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
+            self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
+            self.itemEditChannel.show_all()
+            self.itemRemoveChannel.show_all()
+        else:
+            self.itemEditChannel.hide_all()
+            self.itemRemoveChannel.hide_all()
+
         self.updateTreeView()
     #-- Gpodder.on_comboAvailable_changed }
 

@@ -50,21 +50,6 @@ class Gpodder(SimpleGladeApp):
         print "on_itemUpdate_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemUpdate_activate }
 
-    #-- Gpodder.on_sync_to_ipod_activate {
-    def on_sync_to_ipod_activate(self, widget, *args):
-        print "on_sync_to_ipod_activate called with self.%s" % widget.get_name()
-    #-- Gpodder.on_sync_to_ipod_activate }
-
-    #-- Gpodder.on_cleanup_ipod_activate {
-    def on_cleanup_ipod_activate(self, widget, *args):
-        print "on_cleanup_ipod_activate called with self.%s" % widget.get_name()
-    #-- Gpodder.on_cleanup_ipod_activate }
-
-    #-- Gpodder.on_itemPreferences_activate {
-    def on_itemPreferences_activate(self, widget, *args):
-        print "on_itemPreferences_activate called with self.%s" % widget.get_name()
-    #-- Gpodder.on_itemPreferences_activate }
-
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
         print "on_itemAddChannel_activate called with self.%s" % widget.get_name()
@@ -80,6 +65,16 @@ class Gpodder(SimpleGladeApp):
         print "on_itemRemoveChannel_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemRemoveChannel_activate }
 
+    #-- Gpodder.on_sync_to_ipod_activate {
+    def on_sync_to_ipod_activate(self, widget, *args):
+        print "on_sync_to_ipod_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_sync_to_ipod_activate }
+
+    #-- Gpodder.on_cleanup_ipod_activate {
+    def on_cleanup_ipod_activate(self, widget, *args):
+        print "on_cleanup_ipod_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_cleanup_ipod_activate }
+
     #-- Gpodder.on_itemExportChannels_activate {
     def on_itemExportChannels_activate(self, widget, *args):
         print "on_itemExportChannels_activate called with self.%s" % widget.get_name()
@@ -89,6 +84,11 @@ class Gpodder(SimpleGladeApp):
     def on_itemImportChannels_activate(self, widget, *args):
         print "on_itemImportChannels_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemImportChannels_activate }
+
+    #-- Gpodder.on_itemPreferences_activate {
+    def on_itemPreferences_activate(self, widget, *args):
+        print "on_itemPreferences_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_itemPreferences_activate }
 
     #-- Gpodder.on_btnDownloadNewer_clicked {
     def on_btnDownloadNewer_clicked(self, widget, *args):
