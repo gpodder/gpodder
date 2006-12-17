@@ -69,6 +69,8 @@ except:
 
 
 import os
+import os.path
+import shutil
 import sys
 import time
 import email.Utils
@@ -87,23 +89,66 @@ def ipod_supported():
 video_extensions = [ "mov", "mp4", "m4v" ]
 
 
-class gPodder_iPodSync(object):
+class gPodderSyncMethod:
+    def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
+        self.callback_progress = callback_progress
+        self.callback_status = callback_status
+        self.callback_done = callback_done
+
+    def set_progress( self, pos, max):
+        if self.callback_progress:
+            gobject.idle_add( self.callback_progress, pos, max)
+    
+    def set_status( self, episode = None, channel = None, progressbar_text = None):
+        if self.callback_status:
+            gobject.idle_add( self.callback_status, episode, channel, progressbar_text)
+
+    def set_done( self):
+        if self.callback_done:
+            gobject.idle_add( self.callback_done)
+
+    def sync_channel( self, channel):
+        if not channel.sync_to_devices:
+            return False
+
+        max = len( channel)
+        pos = 1
+
+        for episode in channel:
+            self.set_progress( pos, max)
+            if channel.is_downloaded( episode):
+                self.add_episode_from_channel( channel, episode)
+            pos = pos + 1
+
+        self.set_status( '...', '...', _('Complete: %s') % channel.title)
+        time.sleep(1)
+
+        return True
+
+    def add_episode_from_channel( self, channel, episode):
+        channeltext = channel.title
+
+        if channel.is_music_channel:
+            channeltext = _('%s (to "%s")') % ( channel.title, channel.device_playlist_name )
+
+        self.set_status( episode.title, channeltext)
+
+    def close( self):
+        self.set_done()
+
+
+class gPodder_iPodSync( gPodderSyncMethod):
     itdb = None
     ipod_mount = '' # mountpoint for ipod
     playlist_name = 'gpodder' # name of playlist to sync to
     pl_master = None
     pl_podcasts = None
-    callback_progress = None
-    callback_status = None
-    callback_done = None
 
     def __init__( self, ipod_mount = '/media/ipod/', callback_progress = None, callback_status = None, callback_done = None):
         if not ipod_supported():
             log( '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)')
         self.ipod_mount = ipod_mount
-        self.callback_progress = callback_progress
-        self.callback_status = callback_status
-        self.callback_done = callback_done
+        gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def open( self):
         if not ipod_supported():
@@ -125,24 +170,20 @@ class gPodder_iPodSync(object):
         if not ipod_supported():
             return False
         if write_update:
-            if self.callback_progress != None:
-                gobject.idle_add( self.callback_progress, 100, 100)
-            if self.callback_status != None:
-                gobject.idle_add( self.callback_status, '...', '...', _('Saving iPod database...'))
+            self.set_progress( 100, 100)
+            self.set_status( '...', '...', _('Saving iPod database...'))
             if self.itdb:
                 gpod.itdb_write( self.itdb, None)
         self.itdb = None
-        if self.callback_done != None:
-            time.sleep(1)
-            gobject.idle_add( self.callback_done)
+        time.sleep( 1)
+        gPodderSyncMethod.close( self)
         return True
 
     def remove_from_ipod( self, track, playlists):
         if not ipod_supported():
             return False
         log( '(ipodsync) Removing track from iPod: %s', track.title)
-        if self.callback_status != None:
-            gobject.idle_add( self.callback_status, track.title, track.artist)
+        self.set_status( track.title, track.artist)
         fname = gpod.itdb_filename_on_ipod( track)
         for playlist in playlists:
             try:
@@ -196,24 +237,6 @@ class gPodder_iPodSync(object):
             log( '(ipodsync) Trying to remove: %s', track.title)
             self.remove_from_ipod( track, [ self.pl_podcasts ])
 
-    def copy_channel_to_ipod( self, channel):
-        if not ipod_supported():
-            return False
-        if not channel.sync_to_devices:
-            # we don't want to sync this..
-            return False
-        max = len( channel)
-        i = 1
-        for episode in channel:
-            if self.callback_progress != None:
-                gobject.idle_add( self.callback_progress, i, max)
-            if channel.is_downloaded( episode):
-                self.add_episode_from_channel( channel, episode)
-            i=i+1
-        if self.callback_status != None:
-            gobject.idle_add( self.callback_status, '...', '...', _('Complete: %s') % channel.title)
-        time.sleep(1)
-
     def set_podcast_flags( self, track):
         if not ipod_supported():
             return False
@@ -262,14 +285,10 @@ class gPodder_iPodSync(object):
     def add_episode_from_channel( self, channel, episode):
         if not ipod_supported():
             return False
-        if self.callback_status != None:
-            channeltext = channel.title
-            if channel.is_music_channel:
-                channeltext = _('%s (to "%s")') % ( channel.title, channel.device_playlist_name )
-            gobject.idle_add( self.callback_status, episode.title, channeltext)
+
+        gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
         
         if self.episode_is_on_ipod( channel, episode):
-            # episode is already here :)
             return True
         
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
@@ -330,6 +349,39 @@ class gPodder_iPodSync(object):
             log( '(ipodsync) Could not add %s', episode.title)
         else:
             log( '(ipodsync) Added %s', episode.title)
+        
+        try:
+            os.system('sync')
+        except:
+            pass
+
+
+
+class gPodder_FSSync( gPodderSyncMethod):
+    def __init__( self, destination = '/tmp/', callback_progress = None, callback_status = None, callback_done = None):
+        self.destination = destination
+        gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
+    
+    def add_episode_from_channel( self, channel, episode):
+        gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
+
+        folder = os.path.join( self.destination, channel.title)
+        from_file = channel.getPodcastFilename( episode.url)
+        to_file = episode.title + os.path.splitext( from_file)[1].lower()
+
+        for ch in ('/', '?', ':'):
+            to_file = to_file.replace( ch, '-')
+
+        to_file = os.path.join( folder, to_file)
+
+        try:
+            os.makedirs( folder)
+        except:
+            pass
+
+        if not os.path.exists( to_file):
+            log( 'Copying: %s => %s', os.path.basename( from_file), to_file)
+            shutil.copyfile( from_file, to_file)
         
         try:
             os.system('sync')

@@ -1,3 +1,13 @@
+Sun, 17 Dec 2006 02:19:04 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Re-factor general sync method 
+          interface to "gPodderSyncMethod" and let gPodder_iPodSync 
+          and gPodder_FSSync implement the syncing (added class 
+          gPodder_FSSync that simply syncs to a specified folder)
+        * src/gpodder/gpodder.py: Use new libipodsync + add support
+          for filesystem-based MP3 players (please test this :)
+        * TODO: fs-based mp3 player support seems to be working now
+        * bin/gpodder: the usual version bumping
+
 Sat, 16 Dec 2006 18:43:04 +0100 <thp@perli.net>
         * data/gpodder.glade: Re-structured the main menu
         * src/gpodder/gpodder.py: Added some code to make the main menu 

@@ -61,6 +61,7 @@ from liblocaldb import localDB
 from libplayers import UserAppsReader
 
 from libipodsync import gPodder_iPodSync
+from libipodsync import gPodder_FSSync
 from libipodsync import ipod_supported
 
 app_name = "gpodder"
@@ -338,7 +339,18 @@ class Gpodder(SimpleGladeApp):
 
         for channel in self.ldb.channel_list:
             channel.set_metadata_from_localdb()
-            sync.copy_channel_to_ipod( channel)
+            sync.sync_channel( channel)
+
+        sync.close()
+
+    def sync_to_fs_proc( self, sync_win):
+        gpl = gPodderLib()
+        gpl.loadConfig()
+        sync = gPodder_FSSync( destination = gpl.mp3_player_folder, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+
+        for channel in self.ldb.channel_list:
+            channel.set_metadata_from_localdb()
+            sync.sync_channel( channel)
 
         sync.close()
 
@@ -458,7 +470,12 @@ class Gpodder(SimpleGladeApp):
             thread = Thread( target = self.sync_to_ipod_proc, args = args)
             thread.start()
         elif gl.device_type == 'filesystem':
-            self.showMessage( _('Sync to %s currently not supported.') % ( gl.mp3_player_folder, ))
+            sync_win = Gpoddersync()
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            args = ( sync_win, )
+            thread = Thread( target = self.sync_to_fs_proc, args = args)
+            thread.start()
     #-- Gpodder.on_sync_to_ipod_activate }
 
     #-- Gpodder.on_cleanup_ipod_activate {
