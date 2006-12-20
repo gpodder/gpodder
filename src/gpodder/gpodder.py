@@ -454,6 +454,43 @@ class Gpodder(SimpleGladeApp):
             self.showMessage( _('Subscribe to some channels first.'))
     #-- Gpodder.on_itemUpdate_activate }
 
+    #-- Gpodder.on_itemDownloadAllNew_activate {
+    def on_itemDownloadAllNew_activate(self, widget, *args):
+        gl = gPodderLib()
+
+        to_download = []
+
+        message_part = ''
+
+        for channel in self.channels:
+            s = 0
+            last_pubdate = channel.newest_pubdate_downloaded()
+            if not last_pubdate:
+                log( 'Downloading newest three episodes.')
+                for episode in channel[0:min(len(channel),3)]:
+                    to_download.append( ( channel, episode ))
+                    s = s + 1
+            else:
+                for episode in channel:
+                    if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url):
+                        log( 'Episode "%s" is newer.', episode.title)
+                        to_download.append( ( channel, episode ))
+                        s = s + 1
+            if s:
+                message_part = message_part + (_('%d new in %s') % ( s, channel.title, )) + "\n"
+
+        if to_download:
+            if self.showConfirmation( _("New episodes:\n\n%s\nDo you want to download them now?") % ( message_part, )):
+                for channel, episode in to_download:
+                    filename = channel.getPodcastFilename( episode.url)
+                    if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( episode.url):
+                        downloadThread( episode.url, filename, None, self.download_status_manager, episode.title, channel, episode, self.ldb).download()
+        else:
+            self.showMessage( _('No new episodes.'))
+
+        self.updateTreeView()
+  #-- Gpodder.on_itemDownloadAllNew_activate }
+
     #-- Gpodder.on_sync_to_ipod_activate {
     def on_sync_to_ipod_activate(self, widget, *args):
         gl = gPodderLib()
