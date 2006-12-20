@@ -1,3 +1,15 @@
+Wed, 20 Dec 2006 17:35:48 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Added get_size() and 
+          size_to_string() functions to gPodderLib to get the size 
+          of a folder/file and to convert the byte size to a string
+        * src/gpodder/libpodcasts.py: Utilize gPodderLib's new 
+          size_to_string() function for getting the size string; 
+          fixed a bug when moving the download directory to another 
+          device (thanks to Andy <apblist speakeasy net> for reporting)
+        * src/gpodder/gpodder.py: Added moving progress dialog to 
+          show progress of moving download directory to another device
+        * bin/gpodder: the usual version bumping
+
 Sun, 17 Dec 2006 02:19:04 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: Re-factor general sync method 
           interface to "gPodderSyncMethod" and let gPodder_iPodSync 

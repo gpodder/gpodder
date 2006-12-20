@@ -949,6 +949,13 @@ class Gpodderproperties(SimpleGladeApp):
         # return last item = custom command
         return index-1
     # end find_active
+    
+    def set_download_dir( self, new_download_dir, event = None):
+        gl = gPodderLib()
+        gl.downloaddir = self.chooserDownloadTo.get_filename()
+
+        if event:
+            event.set()
     #-- Gpodderproperties custom methods }
 
     #-- Gpodderproperties.on_gPodderProperties_destroy {
@@ -1040,7 +1047,54 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ipod_mount = self.iPodMountpoint.get_label()
         gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
-        gl.downloaddir = self.chooserDownloadTo.get_filename()
+
+        if gl.downloaddir != self.chooserDownloadTo.get_filename():
+            new_download_dir = self.chooserDownloadTo.get_filename()
+            download_dir_size = gl.get_size( gl.downloaddir)
+            download_dir_size_string = gl.size_to_string( download_dir_size, 'MB')
+            event = Event()
+
+            dlg = gtk.Dialog( _('Moving downloads folder'), self.gPodderProperties)
+            dlg.vbox.set_spacing( 5)
+            dlg.set_border_width( 5)
+         
+            label = gtk.Label()
+            label.set_line_wrap( True)
+            label.set_markup( _('Moving downloads from <b>%s</b> to <b>%s</b>...') % ( gl.downloaddir, new_download_dir, ))
+            myprogressbar = gtk.ProgressBar()
+         
+            # put it all together
+            dlg.vbox.pack_start( label)
+            dlg.vbox.pack_end( myprogressbar)
+
+            # switch windows
+            dlg.show_all()
+            self.gPodderProperties.hide_all()
+         
+            # hide action area and separator line
+            dlg.action_area.hide()
+            dlg.set_has_separator( False)
+
+            args = ( new_download_dir, event, )
+
+            thread = Thread( target = self.set_download_dir, args = args)
+            thread.start()
+
+            while not event.isSet():
+                new_download_dir_size = gl.get_size( new_download_dir)
+                fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
+                if fract < 0.99:
+                    myprogressbar.set_text( _('%s of %s') % ( gl.size_to_string( new_download_dir_size, 'MB'), download_dir_size_string, ))
+                else:
+                    myprogressbar.set_text( _('Finishing... please wait.'))
+                myprogressbar.set_fraction( fract)
+                event.wait( 0.1)
+                while gtk.events_pending():
+                    gtk.main_iteration( False)
+
+            dlg.destroy()
+
+
         gl.update_on_startup = self.updateonstartup.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:

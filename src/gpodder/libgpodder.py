@@ -46,12 +46,15 @@ from os.path import basename
 from os.path import isfile
 from os.path import isdir
 from os.path import islink
+from os.path import getsize
+from os.path import join
 from os import mkdir
 from os import rmdir
 from os import makedirs
 from os import environ
 from os import system
 from os import unlink
+from os import listdir
 from glob import glob
 
 # for the desktop symlink stuff:
@@ -200,6 +203,10 @@ class gPodderLibClass( object):
                     log( 'Desktop symlink exists before move.')
                     generate_symlink = True
 
+                # Fix error when moving over disk boundaries
+                if isdir( new_downloaddir) and not listdir( new_downloaddir):
+                    rmdir( new_downloaddir)
+
                 shutil.move( self.__download_dir, new_downloaddir)
 
                 if generate_symlink:
@@ -306,6 +313,36 @@ class gPodderLibClass( object):
             return lexists( symlink_path)
         except:
             return exists( symlink_path)
+
+    def get_size( self, filename):
+        if isfile( filename):
+            return getsize( filename)
+        elif isdir( filename):
+            sum = getsize( filename)
+            for item in listdir( filename):
+                sum = sum + self.get_size( join( filename, item))
+            return sum
+        else:
+            log( 'Cannot get size for %s' % ( filename, ))
+            return 0L
+
+    def size_to_string( self, size, method = None):
+        methods = {
+            'GB': 1073741824.0,
+            'MB': 1048576.0,
+            'KB': 1024.0,
+            'B': 1.0,
+        }
+
+        size = float(size)
+
+        if method not in methods:
+            method = 'B'
+            for trying in ( 'KB', 'MB', 'GB'):
+                if size >= methods[trying]:
+                    method = trying
+
+        return '%.2f %s' % ( size / methods[method], method, )
 
     def createDesktopSymlink( self):
         if not self.getDesktopSymlink():

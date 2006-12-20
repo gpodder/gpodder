@@ -409,20 +409,9 @@ class podcastItem(object):
             size = int( self.length)
         except ValueError:
             return '-'
-        
-        kilobyte = 1024
-        megabyte = kilobyte * 1024
-        gigabyte = megabyte * 1024
-        
-        if size > gigabyte:
-            # Might be a bit big, but who cares...
-            return '%d GB' % int(size / gigabyte)
-        if size > megabyte:
-            return '%d MB' % int(size / megabyte)
-        if size > kilobyte:
-            return '%d KB' % int(size / kilobyte)
 
-        return '%d Bytes' % size
+        return libgpodder.gPodderLib().size_to_string( size)
+        
 
 
 class opmlChannel(object):
