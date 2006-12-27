@@ -50,6 +50,11 @@ class Gpodder(SimpleGladeApp):
         print "on_itemUpdate_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemUpdate_activate }
 
+    #-- Gpodder.on_itemDownloadAllNew_activate {
+    def on_itemDownloadAllNew_activate(self, widget, *args):
+        print "on_itemDownloadAllNew_activate called with self.%s" % widget.get_name()
+    #-- Gpodder.on_itemDownloadAllNew_activate }
+
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
         print "on_itemAddChannel_activate called with self.%s" % widget.get_name()
