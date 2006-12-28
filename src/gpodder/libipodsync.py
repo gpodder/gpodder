@@ -34,6 +34,12 @@ enable_ipod_functions = True
 MAD = 1
 EYED3 = 2
 
+# default length (our "educated guess") is 60 minutes
+DEFAULT_LENGTH = 60*60*1000
+
+# command line for mplayer
+MPLAYER_COMMAND = 'mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null'
+
 # which detection mechanism are we going to use?
 use_mechanism = 0
 
@@ -88,6 +94,13 @@ def ipod_supported():
 # file extensions that are handled as video
 video_extensions = [ "mov", "mp4", "m4v" ]
 
+# is mplayer available for finding track length?
+use_mplayer = False
+if not os.system("which mplayer > /dev/null 2>&1"):
+    use_mplayer = True
+    log('(ipodsync) Found mplayer, using it to find track length of video files')
+else:
+    log('(ipodsync) mplayer not found - length of video files will be guessed')
 
 class gPodderSyncMethod:
     def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
@@ -283,6 +296,9 @@ class gPodder_iPodSync( gPodderSyncMethod):
         return self.set_channel_art( track, local_filename)
 
     def add_episode_from_channel( self, channel, episode):
+        global DEFAULT_LENGTH
+        global MPLAYER_COMMAND
+
         if not ipod_supported():
             return False
 
@@ -293,6 +309,10 @@ class gPodder_iPodSync( gPodderSyncMethod):
         
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
         local_filename = str(channel.getPodcastFilename( episode.url))
+
+        # if we cannot get the track length, make an educated guess (default value)
+        track_length = DEFAULT_LENGTH
+
         try:
             if use_mechanism == MAD:
                 log( '(ipodsync) Using pymad to get file length')
@@ -302,10 +322,17 @@ class gPodder_iPodSync( gPodderSyncMethod):
                 log( '(ipodsync) Using eyeD3 to get file length')
                 eyed3_info = eyeD3.Mp3AudioFile( local_filename)
                 track_length = eyed3_info.getPlayTime() * 1000
-            # TODO: how to get length of video (mov, mp4, m4v) files??
+            # TODO: Find python module to get length of video (mov, mp4, m4v) files, instead of using mplayer.
         except:
-            print '(ipodsync) Warning: cannot get length for %s, will use 1 hour' % episode.title
-            track_length = 20*60*1000 # hmm.. (20m so we can skip on video/audio with unknown length)
+            if use_mplayer:
+                try:
+                    log('(ipodsync) eyeD3 failed, using mplayer to get track length')
+                    mplayer_output = os.popen( MPLAYER_COMMAND % local_filename).read()
+                    track_length = int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
+                except:
+                    log('(ipodsync) Warning: cannot get length for %s', episode.title)
+            else:
+                log('(ipodsync) Warning: cannot get length for %s; try installing mplayer', episode.title)
         
         track = gpod.itdb_track_new()
         
@@ -339,7 +366,12 @@ class gPodder_iPodSync( gPodderSyncMethod):
         # dirty hack to get video working, seems to work
         for ext in video_extensions:
             if local_filename.lower().endswith( '.%s' % ext):
-                track.unk208 = 0x00000002 # documented on http://ipodlinux.org/ITunesDB
+                try:
+                    # documented on http://ipodlinux.org/ITunesDB
+                    track.mediatype = 0x00000002
+                except:
+                    # for old libgpod versions, "mediatype" is "unk208"
+                    track.unk208 = 0x00000002
 
         # if it's a music channel, also sync to master playlist
         if channel.is_music_channel:
