@@ -2,7 +2,7 @@
 
 #
 # gPodder (a media aggregator / podcast client)
-# Copyright (C) 2005-2006 Thomas Perl <thp at perli.net>
+# Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -59,7 +59,7 @@ setup(
   description  = 'media aggregator',
   author       = 'Thomas Perl',
   author_email = 'thp@perli.net',
-  url          = 'http://perli.net/projekte/gpodder/',
+  url          = 'http://gpodder.berlios.de/',
   scripts      = [ 'bin/gpodder' ],
   data_files   = data_files + translation_files
 )

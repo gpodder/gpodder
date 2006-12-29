@@ -1,7 +1,7 @@
 #
-# gpodder makefile
-# copyright 2005-2006 thomas perl <thp@perli.net>
-# released under the gnu gpl
+# Makefile for gPodder
+# Copyright 2005-2007 Thomas Perl <thp at perli net>
+# License: see COPYING file
 #
 
 ##########################################################################

@@ -8,7 +8,7 @@
 
 #
 # gPodder (a media aggregator / podcast client)
-# Copyright (C) 2005-2006 Thomas Perl <thp at perli.net>
+# Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -74,8 +74,8 @@ app_authors = [
                 'Alain Tauch <contrib@maisondubonheur.com>', '',
                 _('See the AUTHORS file for all contributors')
               ]
-app_copyright = 'Copyright (c) 2005-2006 Thomas Perl'
-app_website = 'http://perli.net/projekte/gpodder/'
+app_copyright = 'Copyright (c) 2005-2007 Thomas Perl'
+app_website = 'http://gpodder.berlios.de/'
 
 glade_dir = '/usr/share/gpodder/'
 icon_dir = '/usr/share/pixmaps/gpodder.png'
@@ -610,7 +610,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_homepage_activate {
     def on_homepage_activate(self, widget, *args):
-        os.system( 'gnome-open http://perli.net/projekte/gpodder/')
+        os.system( 'gnome-open ' + app_website)
     #-- Gpodder.on_homepage_activate }
 
     #-- Gpodder.on_wishlist_activate {
