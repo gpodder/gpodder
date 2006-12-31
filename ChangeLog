@@ -1,3 +1,9 @@
+Sun, 31 Dec 2006 15:30:46 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: PyID3 seems to be uppercase in 
+          Ubuntu and Debian (new upstream version changed this?), so we 
+          will use and import the "ID3" package instead of the "id3" one 
+          now (thanks to Jon Ferguson <jon sd-6.org> for reporting)
+
 Fri, 29 Dec 2006 16:50:17 +0100 <thp@perli.net>
         * doc/dev/copyright_notice, INSTALL, src/gpodder/libopmlwriter.py,
           src/gpodder/libwget.py, src/gpodder/liblocdbreader.py,
