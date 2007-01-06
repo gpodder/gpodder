@@ -793,7 +793,7 @@ class Gpodder(SimpleGladeApp):
         if selection.count_selected_rows() == 1:
             msg = _("Do you really want to remove this episode?")
         else:
-            msg = _("Do you really want to remove %d episodes?" % ( selection.count_selected_rows() ))
+            msg = _("Do you really want to remove %d episodes?") % ( selection.count_selected_rows() )
         
         # if user confirms deletion, let's remove some stuff ;)
         if self.showConfirmation( msg):
@@ -936,7 +936,8 @@ class Gpodderproperties(SimpleGladeApp):
         self.ipodIcon.set_from_pixbuf( gtk.gdk.pixbuf_new_from_file_at_size( artwork_dir + 'ipod-mini.png', 24, 24))
         self.filesystemMountpoint.set_label( gl.mp3_player_folder)
         self.opmlURL.set_text( gl.opml_url)
-        self.chooserDownloadTo.set_filename( gl.downloaddir)
+        if gl.downloaddir:
+            self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         # device type
         self.comboboxDeviceType.set_active( 0)

@@ -103,7 +103,7 @@ class gPodderLibClass( object):
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         self.createIfNecessary( self.gpodderdir)
-        self.__download_dir = None
+        self.__download_dir = expanduser('~/gpodder-downloads/')
         self.cachedir = self.gpodderdir + "cache/"
         self.createIfNecessary( self.cachedir)
         try:

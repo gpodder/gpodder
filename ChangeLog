@@ -1,3 +1,11 @@
+Sat,  6 Jan 2007 14:06:31 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Set the default download dir to 
+          some same value when initializing gPodderLib
+        * src/gpodder/gpodder.py: Small translation bugfix from Alain 
+          Tauch; only set filename of chooserDownloadTo when gPodderLib 
+          has a value for "downloaddir"
+        * data/po/fr.po: Updated translation from Alain Tauch
+
 Sun, 31 Dec 2006 15:30:46 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: PyID3 seems to be uppercase in 
           Ubuntu and Debian (new upstream version changed this?), so we 
