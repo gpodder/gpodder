@@ -37,34 +37,38 @@ from libpodcasts import podcastChannel
 from libpodcasts import podcastItem
 from libpodcasts import stripHtml
 
-class rssErrorHandler( ErrorHandler):
-    def __init__( self):
-        None
+from liblogger import log
 
+class rssReader( DefaultHandler, ErrorHandler):
+    def __init__( self):
+        self.channel_url = ''
+        self.channel = None
+        self.current_item = None
+        self.current_element_data = ''
+    
     def error( self, exception):
-        print exception
+        log( '[rssReader] Error: %s', str( exception))
+        log( 'Disposing channel: %s', self.channel_url)
+        self.channel = None
 
     def fatalError( self, exception):
-        print "FATAL ERROR: ", exception
+        log( '[rssReader] Fatal Error: %s', str( exception))
+        log( 'Disposing channel: %s', self.channel_url)
+        self.channel = None
 
     def warning( self, exception):
-        print "warning: ", exception
+        log( '[rssReader] Warning: %s', str( exception))
 
-class rssReader( DefaultHandler):
-    channel_url = ""
-    channel = None
-    current_item = None
-    current_element_data = ""
-
-    def __init__( self):
-        None
-    
     def parseXML( self, url, filename):
+        log('rssReader parseXML-> %s, %s', url, filename)
         self.channel_url = url
+        self.channel = None
+        self.current_item = None
+        self.current_element_data = ''
         parser = make_parser()
 	parser.returns_unicode = True
         parser.setContentHandler( self)
-	parser.setErrorHandler( rssErrorHandler())
+	parser.setErrorHandler( self)
         # no multithreaded access to filename
         libgpodder.getLock()
         try:
@@ -77,19 +81,20 @@ class rssReader( DefaultHandler):
 
         if name == "channel":
             self.channel = podcastChannel( self.channel_url)
+
         if name == "item":
             self.current_item = podcastItem()
         
-        if name == "enclosure" and self.current_item != None:
+        if name == "enclosure" and self.current_item:
             self.current_item.url = attrs.get( "url", "")
             self.current_item.length = attrs.get( "length", "")
             self.current_item.mimetype = attrs.get( "type", "")
 
-        if name == "itunes:image":
+        if name == "itunes:image" and self.channel != None:
             self.channel.image = attrs.get( "href", "")
     
     def endElement( self, name):
-        if self.current_item == None:
+        if self.channel != None and not self.current_item:
             if name == "title":
                 self.channel.title = self.current_element_data
             if name == "link":
@@ -105,7 +110,7 @@ class rssReader( DefaultHandler):
             if name == "webMaster":
                 self.channel.webMaster = self.current_element_data
         
-        if self.current_item != None:
+        if self.channel != None and self.current_item:
             if name == "title":
                 self.current_item.title = self.current_element_data
             if name == "link":

@@ -312,6 +312,7 @@ class Gpodder(SimpleGladeApp):
             self.statusLabel.set_text( _("Fetching channel index..."))
             channel = podcastChannel( url = result)
             channel.remove_cache_file()
+            num_channels_before = len(self.channels)
             self.channels.append( channel)
             
             # download changed channels
@@ -321,9 +322,10 @@ class Gpodder(SimpleGladeApp):
             self.updateComboBox()
             self.statusLabel.set_text( "")
 
-            # ask user to download some new episodes
-            self.comboAvailable.set_active( len( self.channels)-1)
-            self.on_btnDownloadNewer_clicked( None)
+            if num_channels_before < len(self.channels):
+                # ask user to download some new episodes
+                self.comboAvailable.set_active( len( self.channels)-1)
+                self.on_btnDownloadNewer_clicked( None)
         else:
             if result:
                 self.showMessage( _('Could not add new channel.\n\nThe URL must start with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.'))

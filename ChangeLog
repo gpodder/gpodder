@@ -1,3 +1,18 @@
+Sat,  6 Jan 2007 14:45:20 +0100 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Re-factured gPodderChannelReader
+          to not have static members when they're not needed; only add 
+          channel to the list if our rssReader returns a valid channel
+        * src/gpodder/librssreader.py: Removed rssErrorHandler class 
+          and added handling routines directly to rssReader class; re-factor 
+          static members to object members; do better error handling, etc..
+        * src/gpodder/libopmlreader.py: Don't use rssErrorHandler from 
+          librssreader but handle errors directly in opmlReader
+        * src/gpodder/gpodder.py: Only ask user to download newer episodes 
+          when the channel really has been added (thanks to Alain Tauch for 
+          bringing this bug to my attention)
+        * bin/gpodder: Bumped version + release date - this being the first 
+          svn revision to mention 2007 in the version string :) Enjoy!
+
 Sat,  6 Jan 2007 14:06:31 +0100 <thp@perli.net>
         * src/gpodder/libgpodder.py: Set the default download dir to 
           some same value when initializing gPodderLib

@@ -41,18 +41,22 @@ from urllib import unquote_plus
 from libpodcasts import opmlChannel
 from libpodcasts import stripHtml
 
-from librssreader import rssErrorHandler
 
-
-class opmlReader( DefaultHandler):
-    channels = []
-    title = 'Unknown OPML Channel'
-    
-    current_item = None
-    current_element_data = ""
-
+class opmlReader( DefaultHandler, ErrorHandler):
     def __init__( self):
-        None
+        self.channels = []
+        self.title = 'Unknown OPML Channel'
+        self.current_item = None
+        self.current_element_data = ''
+    
+    def error( self, exception):
+        log( '[opmlReader] Error: %s', str( exception))
+
+    def fatalError( self, exception):
+        log( '[opmlReader] Fatal Error: %s', str( exception))
+
+    def warning( self, exception):
+        log( '[opmlReader] Warning: %s', str( exception))
 
     def get_model( self):
         new_model = gtk.ListStore( gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)

@@ -418,12 +418,10 @@ class gPodderChannelWriter( object):
         fd.close()
 
 class gPodderChannelReader( DefaultHandler):
-    channels = []
-    current_item = None
-    current_element_data = ""
-
     def __init__( self):
-        None
+        self.channels = []
+        self.current_item = None
+        self.current_element_data = ''
     
     def read( self, force_update = False, callback_proc = None):
         """Read channels from a file into gPodder's cache
@@ -460,7 +458,8 @@ class gPodderChannelReader( DefaultHandler):
             # check if download was a success
             if cachefile != None:
                 reader.parseXML( channel.url, cachefile)
-                input_channels.append( reader.channel)
+                if reader.channel != None:
+                    input_channels.append( reader.channel)
 
             position = position + 1
 
