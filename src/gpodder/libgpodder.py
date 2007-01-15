@@ -191,6 +191,7 @@ class gPodderLibClass( object):
         fp.close()
 
     def get_download_dir( self):
+        self.createIfNecessary( self.__download_dir)
         return self.__download_dir
 
     def set_download_dir( self, new_downloaddir):
@@ -275,7 +276,7 @@ class gPodderLibClass( object):
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
-                    self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads/'))
+                    self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.device_type = self.get_from_parser( parser, 'device_type', 'none')
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                 else:
@@ -298,6 +299,7 @@ class gPodderLibClass( object):
             self.device_type = 'none'
             self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
+            self.downloaddir = expanduser('~/gpodder-downloads')
         if was_oldstyle:
             self.saveConfig()
 
