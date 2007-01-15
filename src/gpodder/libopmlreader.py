@@ -74,7 +74,7 @@ class opmlReader( DefaultHandler, ErrorHandler):
         parser = make_parser()
 	parser.returns_unicode = True
         parser.setContentHandler( self)
-	parser.setErrorHandler( rssErrorHandler())
+	parser.setErrorHandler( self)
         # no multithreaded access to filename
         libgpodder.getLock()
         try:
