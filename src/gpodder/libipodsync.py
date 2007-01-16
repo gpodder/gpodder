@@ -71,7 +71,14 @@ try:
     use_pyid3 = True
     log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
 except:
-    log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
+    try:
+        # If you build PyID3 from source it's lowercase (??)
+        import id3
+        ID3 = id3
+        use_pyid3 = True
+        log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
+    except:
+        log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
 
 
 import os
