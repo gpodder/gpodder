@@ -402,15 +402,20 @@ class gPodder_FSSync( gPodderSyncMethod):
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def add_episode_from_channel( self, channel, episode):
+        replace_chars = ( '/', '?', ':', '!')
+
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
 
-        folder = os.path.join( self.destination, channel.title)
+        folder = channel.title
+        for ch in replace_chars:
+            folder = folder.replace( ch, '-')
+        folder = os.path.join( self.destination, folder)
+
         from_file = channel.getPodcastFilename( episode.url)
+
         to_file = episode.title + os.path.splitext( from_file)[1].lower()
-
-        for ch in ('/', '?', ':'):
+        for ch in replace_chars:
             to_file = to_file.replace( ch, '-')
-
         to_file = os.path.join( folder, to_file)
 
         try:
