@@ -117,10 +117,23 @@ class downloadThread( object):
                     self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0
                 except:
                     self.percentage = '0'
-                
-                iter = re.compile('...\... .B\/s').finditer( msg)
-                for speed_string in iter:
-                    self.speed = speed_string.group(0).strip()
+               
+                # Fedora/RedHat seem to have changed the output format of "wget", so we
+                # first try to "detect" the speed in the Fedora/RedHat format and if we 
+                # don't succeed, we'll use a regular expression to find the speed string.
+                # Also see: doc/dev/redhat-wget-output.txt
+
+                try:
+                    speed_msg = msg.split()[7]
+                except:
+                    speed_msg = ''
+
+                if re.search('[KB]', speed_msg):
+                    self.speed = speed_msg
+                else:
+                    iter = re.compile('...\... .B\/s').finditer( msg)
+                    for speed_string in iter:
+                        self.speed = speed_string.group(0).strip()
 
             if self.statusmgr != None:
 	        self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':self.speed, 'progress':int(self.percentage*100), 'url':self.url})
