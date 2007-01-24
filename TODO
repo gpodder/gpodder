@@ -12,6 +12,30 @@
 
  === Todo List for gPodder post-0.9.0 ===
 
+ * First, please don't use hard coded background colors when you use the
+   foreground color from the current gtk theme at the same time. Right now
+   you assume people always have a theme with dark text color, which is
+   just not true. My theme uses a bright text color and that makes the
+   podcasts list unreadable, which uses yellow/white as background. Also
+   think about people using gnomes highcontrast inverse theme (white text
+   color). (suggested by Holger Bauer -- umarmung@email.de)
+
+ * My second suggestion is to include a systray icon similar to the ones
+   many music players have. It would be great if I could hide/show the
+   gpodder window by clicking on it. Getting current download status on
+   mouseover would be amazing. Being notified when a download finished
+   either by status icon or notification popup would be the ne plus
+   ultra. :)   (suggested by Holger Bauer -- umarmung@email.de)
+
+ * Also, is there an automated way to keep only the most recent X episodes?
+   (suggested by Andy -- apblist@speakeasy.net)
+
+ * the sync command seems to be a one-way transfer. It doesn't seem to delete
+   from the iPod the episodes that have been deleted in gpodder.  Sure, I 
+   can use the "clean up" command, which seems to delete all of them, and 
+   then sync, but that's a lot of extra disk activity.
+   (suggested by Andy -- apblist@speakeasy.net)
+
  * 1. I didn't have write permission to my MP3 player mount point, but I
    didn't get an error - the sync just hung. It would be nice to get an
    error message, or something. (Robert Young <robertkyoung gmail.com>)
