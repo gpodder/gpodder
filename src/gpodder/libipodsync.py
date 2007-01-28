@@ -272,6 +272,9 @@ class gPodder_iPodSync( gPodderSyncMethod):
             track.flag2 = 0x01
             track.flag3 = 0x01
             track.flag4 = 0x01
+
+            # Podcast flags for iPod nano (thanks to José Luis Fustel)
+            track.mediatype = 0x00000004
         except:
             log( '(ipodsync) Seems like your python-gpod is out-of-date.')
     
