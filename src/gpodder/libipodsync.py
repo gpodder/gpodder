@@ -1,4 +1,5 @@
-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 #
 # gPodder (a media aggregator / podcast client)

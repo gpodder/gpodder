@@ -75,6 +75,15 @@ from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
 
+
+# default colors for episodes list
+default_colors = {
+    'default': '#FFFFFF',
+    'downloading': '#FFBC99',
+    'downloaded': '#99FF99',
+    'deleted': '#DDFFCC',
+}
+
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
 
@@ -101,6 +110,8 @@ class gPodderLibClass( object):
     gpodderconf_section = 'gpodder-conf-1'
     
     def __init__( self):
+        global default_colors
+
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         self.createIfNecessary( self.gpodderdir)
         self.__download_dir = None
@@ -122,6 +133,9 @@ class gPodderLibClass( object):
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
         self.mp3_player_folder = ""
+        self.colors = {}
+        for key in default_colors.keys():
+            self.colors[key] = default_colors[key]
         self.__download_history = DownloadHistory( self.get_download_history_filename())
         self.loadConfig()
     
@@ -154,6 +168,15 @@ class gPodderLibClass( object):
         # save settings for next startup
         self.saveConfig()
 
+    def set_color( self, key, value):
+        # calculate hex value from gtk.gdk.Color object
+        self.colors[key] = '#%02x%02x%02x' % ( value.red*256/65536, value.green*256/65536, value.blue*256/65536, )
+
+    def set_default_colors( self):
+        global default_colors
+        for key in default_colors.keys():
+            self.colors[key] = default_colors[key]
+
     def clean_up_downloads( self):
         # Clean up temporary files left behind by old gPodder versions
         temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
@@ -185,6 +208,8 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
         self.write_to_parser( parser, 'device_type', self.device_type)
         self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
+        for color in self.colors.keys():
+            self.write_to_parser( parser, 'color_' + color, self.colors[color])
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
@@ -254,6 +279,8 @@ class gPodderLibClass( object):
             log( 'write_to_parser: could not write config (option=%s, value=%s)', option, value)
     
     def loadConfig( self):
+        global default_colors
+
         was_oldstyle = False
         try:
             fn = self.getConfigFilename()
@@ -279,6 +306,8 @@ class gPodderLibClass( object):
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.device_type = self.get_from_parser( parser, 'device_type', 'none')
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
+                    for color in self.colors.keys():
+                        self.colors[color] = self.get_from_parser( parser, 'color_'+color, default_colors[color])
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:

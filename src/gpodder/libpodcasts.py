@@ -204,16 +204,17 @@ class podcastChannel(ListType):
         being downloaded and False otherwise.
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        gl = libgpodder.gPodderLib()
 
         for item in self.get_all_episodes():
             if self.is_downloaded( item) and want_color:
-                background_color = '#99FF99'
+                background_color = gl.colors['downloaded']
             elif downloading_callback and downloading_callback( item.url) and want_color:
-                background_color = '#FFBC99'
+                background_color = gl.colors['downloading']
             elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
-                background_color = '#DDFFCC'
+                background_color = gl.colors['deleted']
             else:
-                background_color = '#FFFFFF'
+                background_color = gl.colors['default']
             new_iter = new_model.append()
             new_model.set( new_iter, 0, item.url)
             new_model.set( new_iter, 1, item.title)

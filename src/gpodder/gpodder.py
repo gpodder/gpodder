@@ -28,6 +28,7 @@
 
 import os
 import gtk
+import gtk.gdk
 import gobject
 import pango
 import sys
@@ -539,6 +540,7 @@ class Gpodder(SimpleGladeApp):
     def on_itemPreferences_activate(self, widget, *args):
         prop = Gpodderproperties()
         prop.set_uar( self.user_apps_reader)
+        prop.set_callback_finished( self.updateTreeView)
     #-- Gpodder.on_itemPreferences_activate }
 
     #-- Gpodder.on_itemAddChannel_activate {
@@ -930,6 +932,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.new {
     def new(self):
+        self.callback_finished = None
         gl = gPodderLib()
         self.httpProxy.set_text( gl.http_proxy)
         self.ftpProxy.set_text( gl.ftp_proxy)
@@ -941,6 +944,8 @@ class Gpodderproperties(SimpleGladeApp):
         if gl.downloaddir:
             self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
+        # colors
+        self.reload_colors()
         # device type
         self.comboboxDeviceType.set_active( 0)
         if gl.device_type == 'ipod':
@@ -963,6 +968,22 @@ class Gpodderproperties(SimpleGladeApp):
     #-- Gpodderproperties.new }
 
     #-- Gpodderproperties custom methods {
+    def on_btnRevertToDefault_clicked( self, widget, *args):
+        gl = gPodderLib()
+        gl.set_default_colors()
+        self.reload_colors()
+
+    def reload_colors( self):
+        gl = gPodderLib()
+        try:
+            self.colorDefault.set_color( gtk.gdk.color_parse( gl.colors['default']))
+            self.colorDownloading.set_color( gtk.gdk.color_parse( gl.colors['downloading']))
+            self.colorDownloaded.set_color( gtk.gdk.color_parse( gl.colors['downloaded']))
+            self.colorDeleted.set_color( gtk.gdk.color_parse( gl.colors['deleted']))
+        except:
+            log( '(gPodderProperties) Could not parse color strings.')
+
+
     def update_mountpoint( self, ipod):
         if ipod == None or ipod.mount_point == None:
             self.iPodMountpoint.set_label( '')
@@ -974,6 +995,9 @@ class Gpodderproperties(SimpleGladeApp):
         # try to activate an item
         index = self.find_active()
         self.comboPlayerApp.set_active( index)
+    
+    def set_callback_finished( self, cb):
+        self.callback_finished = cb
     # end set_uar
     
     def find_active( self):
@@ -1087,6 +1111,13 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ipod_mount = self.iPodMountpoint.get_label()
         gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
+        try:
+            gl.set_color( 'default', self.colorDefault.get_color())
+            gl.set_color( 'downloading', self.colorDownloading.get_color())
+            gl.set_color( 'downloaded', self.colorDownloaded.get_color())
+            gl.set_color( 'deleted', self.colorDeleted.get_color())
+        except:
+            log('(gPodderProperties) Could not parse and save color values.')
 
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()
@@ -1150,6 +1181,8 @@ class Gpodderproperties(SimpleGladeApp):
         else:
             gl.removeDesktopSymlink()
         self.gPodderProperties.destroy()
+        if self.callback_finished:
+            self.callback_finished()
     #-- Gpodderproperties.on_btnOK_clicked }
 
     #-- Gpodderproperties.on_btnCancel_clicked {
