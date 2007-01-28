@@ -179,9 +179,9 @@ class gPodderLibClass( object):
 
     def clean_up_downloads( self):
         # Clean up temporary files left behind by old gPodder versions
-        temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
-        for tempfile in temporary_files:
-            self.deleteFilename( tempfile)
+        #temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
+        #for tempfile in temporary_files:
+        #    self.deleteFilename( tempfile)
 
         # Clean up empty download folders
         download_dirs = glob( '%s/*' % ( self.downloaddir, ))
