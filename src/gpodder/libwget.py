@@ -192,6 +192,9 @@ class downloadStatusManager( object):
             self.default_window_title = self.main_window.get_title()
         self.change_notification = change_notification
         self.smlock.release()
+
+    def has_items( self):
+        return bool( len( self.status_list))
     
     def getNextId( self):
         res = self.next_status_id

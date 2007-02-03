@@ -190,7 +190,7 @@ class Gpodder(SimpleGladeApp):
         self.user_apps_reader.read()
 
         # Clean up old, orphaned download files
-        gl.clean_up_downloads()
+        gl.clean_up_downloads( delete_partial = True)
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
@@ -575,7 +575,9 @@ class Gpodder(SimpleGladeApp):
             if self.showConfirmation( _("Do you really want to remove this channel and downloaded episodes?\n\n %s") % self.active_channel.title):
                 self.active_channel.remove_cache_file()
                 self.active_channel.remove_downloaded()
-                gPodderLib().clean_up_downloads()
+                # only delete partial files if we do not have any downloads in progress
+                delete_partial = not self.download_status_manager.has_items()
+                gPodderLib().clean_up_downloads( delete_partial)
                 self.channels.remove( self.active_channel)
                 gPodderChannelWriter().write( self.channels)
                 self.channels = gPodderChannelReader().read( False)
@@ -801,7 +803,7 @@ class Gpodder(SimpleGladeApp):
         
         # if user confirms deletion, let's remove some stuff ;)
         if self.showConfirmation( msg):
-            #try:
+            try:
                 # iterate over the selection, see also on_treeDownloads_row_activated
                 for apath in selection_tuple[1]:
                     selection_iter = model.get_iter( apath)
@@ -814,9 +816,11 @@ class Gpodder(SimpleGladeApp):
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
                 self.updateComboBox()
-            #except:
-            #    log( 'Error while deleting (some) downloads.')
-        gPodderLib().clean_up_downloads()
+            except:
+                log( 'Error while deleting (some) downloads.')
+        # only delete partial files if we do not have any downloads in progress
+        delete_partial = not self.download_status_manager.has_items()
+        gPodderLib().clean_up_downloads( delete_partial)
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
     #-- Gpodder.on_btnDeleteAll_clicked {

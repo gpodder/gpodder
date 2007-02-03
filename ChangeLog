@@ -1,3 +1,10 @@
+Sat,  3 Feb 2007 11:46:49 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Add has_items() to downloadStatusManager
+        * src/gpodder/libgpodder.py: Make deleting partial downloads optional
+        * src/gpodder/gpodder.py: Only ask gPodderLib to delete partially 
+          downloaded files when our downloadStatusManager does not have any 
+          downloads going at the moment (bugfix!)
+
 Sun, 28 Jan 2007 16:17:40 +0100 <thp@perli.net>
         * src/gpodder/libgpodder.py: Comment-out deletion of partial 
           downloads for now (so we won't have broken, finished downloads)

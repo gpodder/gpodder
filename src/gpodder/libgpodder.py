@@ -177,11 +177,12 @@ class gPodderLibClass( object):
         for key in default_colors.keys():
             self.colors[key] = default_colors[key]
 
-    def clean_up_downloads( self):
+    def clean_up_downloads( self, delete_partial = False):
         # Clean up temporary files left behind by old gPodder versions
-        #temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
-        #for tempfile in temporary_files:
-        #    self.deleteFilename( tempfile)
+        if delete_partial:
+            temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
+            for tempfile in temporary_files:
+                self.deleteFilename( tempfile)
 
         # Clean up empty download folders
         download_dirs = glob( '%s/*' % ( self.downloaddir, ))
