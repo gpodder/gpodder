@@ -37,6 +37,7 @@ from xml.sax import make_parser
 from string import strip
 from os.path import expanduser
 from os.path import exists
+from liblogger import log
 try:
     from os.path import lexists
 except:
@@ -67,7 +68,6 @@ from librssreader import rssReader
 from libpodcasts import podcastChannel
 from libpodcasts import DownloadHistory
 from libplayers import dotdesktop_command
-from liblogger import log
 
 from gtk.gdk import PixbufLoader
 
