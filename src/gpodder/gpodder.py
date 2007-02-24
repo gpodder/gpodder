@@ -232,9 +232,14 @@ class Gpodder(SimpleGladeApp):
             pass
     
     def updateTreeView( self):
+        rect = self.treeAvailable.get_visible_rect()
         if self.channels:
             self.treeAvailable.set_model( self.active_channel.items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress))
-            self.treeAvailable.columns_autosize()
+            # now, reset the scrolling position
+            self.treeAvailable.scroll_to_point( rect.x, rect.y)
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            self.treeAvailable.scroll_to_point( rect.x, rect.y)
         else:
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
