@@ -56,6 +56,8 @@ from os import environ
 from os import system
 from os import unlink
 from os import listdir
+from os import access
+from os import W_OK
 from glob import glob
 
 # for the desktop symlink stuff:
@@ -252,6 +254,9 @@ class gPodderLibClass( object):
 
     def history_mark_downloaded( self, url):
         self.__download_history.mark_downloaded( url)
+
+    def can_write_directory( self, directory):
+        return isdir( directory) and access( directory, W_OK)
 
     def history_is_downloaded( self, url):
         return (url in self.__download_history)

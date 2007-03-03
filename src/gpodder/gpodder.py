@@ -354,6 +354,13 @@ class Gpodder(SimpleGladeApp):
     def sync_to_fs_proc( self, sync_win):
         gpl = gPodderLib()
         gpl.loadConfig()
+
+        if not gpl.can_write_directory( gpl.mp3_player_folder):
+            gobject.idle_add( self.showMessage, _('Cannot write to %s.\nMake sure your MP3 player is connected.') % ( gpl.mp3_player_folder, ))
+            if sync_win.close:
+                sync_win.close()
+            return False
+
         sync = gPodder_FSSync( destination = gpl.mp3_player_folder, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
 
         for channel in self.ldb.channel_list:
@@ -371,6 +378,21 @@ class Gpodder(SimpleGladeApp):
             sync.close()
             return False
 
+        sync.clean_playlist()
+        sync.close()
+
+    def fs_cleanup_proc( self, sync_win):
+        gpl = gPodderLib()
+        gpl.loadConfig()
+
+        if not gpl.can_write_directory( gpl.mp3_player_folder):
+            gobject.idle_add( self.showMessage, _('Cannot write to %s.\nMake sure your MP3 player is connected.') % ( gpl.mp3_player_folder, ))
+            if sync_win.close:
+                sync_win.close()
+            return False
+
+        sync = gPodder_FSSync( destination = gpl.mp3_player_folder, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+        
         sync.clean_playlist()
         sync.close()
 
@@ -526,19 +548,24 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_cleanup_ipod_activate {
     def on_cleanup_ipod_activate(self, widget, *args):
         gl = gPodderLib()
+        target_function = None
+
         if gl.device_type == 'none':
             self.showMessage( _('Configure your device in the preferences dialog first.'))
         elif gl.device_type == 'ipod':
-            if not self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
-                return
+            if self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
+                target_function = self.ipod_cleanup_proc
+        elif gl.device_type == 'filesystem':
+            if self.showConfirmation( _('Do you really want to delete all Podcasts from your MP3 player?')):
+                target_function = self.fs_cleanup_proc
+
+        if target_function:
             sync_win = Gpoddersync()
             while gtk.events_pending():
                 gtk.main_iteration( False)
             args = ( sync_win, )
-            thread = Thread( target = self.ipod_cleanup_proc, args = args)
+            thread = Thread( target = target_function, args = args)
             thread.start()
-        elif gl.device_type == 'filesystem':
-            self.showMessage( _('Cleanup of %s currently not supported.') % ( gl.mp3_player_folder, ))
     #-- Gpodder.on_cleanup_ipod_activate }
 
     #-- Gpodder.on_itemPreferences_activate {

@@ -84,6 +84,7 @@ except:
 
 import os
 import os.path
+import glob
 import shutil
 import sys
 import time
@@ -435,4 +436,17 @@ class gPodder_FSSync( gPodderSyncMethod):
             os.system('sync')
         except:
             pass
+    
+    def clean_playlist( self):
+        folders = glob.glob( os.path.join( self.destination, '*'))
+        for folder in range( len( folders)):
+            self.set_progress( folder+1, len( folders))
+            self.set_status( channel = os.path.basename( folders[folder]), progressbar_text = _('%d of %d') % ( folder+1, len(folders), ))
+            log( 'deleting: %s', folders[folder])
+            shutil.rmtree( folders[folder])
+            try:
+                os.system('sync')
+            except:
+                pass
+
 
