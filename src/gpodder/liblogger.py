@@ -28,7 +28,7 @@
 
 
 
-write_to_stdout = False
+write_to_stdout = True
 
 
 def log( message, *args):
