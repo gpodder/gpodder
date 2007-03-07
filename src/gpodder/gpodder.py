@@ -80,7 +80,6 @@ app_website = 'http://gpodder.berlios.de/'
 
 glade_dir = '/usr/share/gpodder/'
 icon_dir = '/usr/share/pixmaps/gpodder.png'
-artwork_dir = '/usr/share/gpodder/images/'
 locale_dir = '/usr/share/locale/'
 
 class Gpodder(SimpleGladeApp):
@@ -974,7 +973,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_text( gl.ftp_proxy)
         self.openApp.set_text( gl.open_app)
         self.iPodMountpoint.set_label( gl.ipod_mount)
-        self.ipodIcon.set_from_pixbuf( gtk.gdk.pixbuf_new_from_file_at_size( artwork_dir + 'ipod-mini.png', 24, 24))
+        self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
         self.filesystemMountpoint.set_label( gl.mp3_player_folder)
         self.opmlURL.set_text( gl.opml_url)
         if gl.downloaddir:
@@ -1302,10 +1301,9 @@ class Gpoddersync(SimpleGladeApp):
 
     #-- Gpoddersync.new {
     def new(self):
-        global artwork_dir
-        self.imageSyncServer.set_from_file( artwork_dir + 'computer.png')
-        self.imageSyncAnimation.set_from_file( artwork_dir + 'sync-anim.gif')
-        self.imageSyncClient.set_from_file( artwork_dir + 'ipod-mini.png')
+        self.imageSyncServer.set_from_icon_name( 'gnome-fs-client', gtk.ICON_SIZE_DIALOG)
+        self.imageSyncAnimation.set_from_stock( gtk.STOCK_REFRESH, gtk.ICON_SIZE_BUTTON)
+        self.imageSyncClient.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
     #-- Gpoddersync.new }
 
     #-- Gpoddersync custom methods {
