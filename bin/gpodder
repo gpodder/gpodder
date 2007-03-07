@@ -21,12 +21,18 @@
 # MA  02110-1301, USA.
 #
 
-"""gPodder media aggregator"""
+"""
+gPodder enables you to subscribe to RSS feeds and download
+podcast episodes from these feeds. gPodder can operate in 
+GUI mode and in CLI mode. Downloaded podcasts can either 
+be synchronized to portable MP3 players (including iPods) 
+or played back on the user's desktop.
+"""
 
 # PLEASE DO NOT CHANGE FORMAT OF __version__ LINE (setup.py reads this)
 
 __author__    = "Thomas Perl <thp@perli.net>"
-__version__   = "0.9.0+svn20070307"
+__version__   = "0.9.0+svn200703072"
 __date__      = "2007-03-07"
 __copyright__ = "Copyright (c) 2005-2007 %s. All rights reserved." % __author__
 __licence__   = "GPL"
@@ -41,25 +47,23 @@ import gettext
 APP = 'gpodder'
 DIR = '/usr/share/locale/'
 
-def main(argv=None):
-    # gettext support
-    #locale.setlocale( locale.LC_ALL, '')
+def main( argv = sys.argv):
+    # Enable i18n support
     gettext.bindtextdomain( APP, DIR)
     gettext.textdomain( APP)
     gettext.install( APP)
-    
-    if argv is None:
-        argv = sys.argv
 
-    parser = OptionParser(usage="usage: %%prog [options] arg1 arg2\n\n%s" %__doc__,
-                          version = "%%prog %s %s" %(__version__, __date__))
+    s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
+    s_version = '%%prog %s' % ( __version__ )
+
+    parser = OptionParser( usage = s_usage, version = s_version)
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
-                      help=_("Be more verbose"))
+                      help=_("Print debugging output to stdout"))
 
-    parser.add_option("--debug",
-                      action="store_true", dest="debug", default=False,
+    parser.add_option("-t", "--local",
+                      action="store_true", dest="local", default=False,
                       help=_("Run local version in current directory"))
     
     parser.add_option("-l", "--list",
@@ -75,21 +79,21 @@ def main(argv=None):
                       help=_("Update channel list and exit"))
     
     parser.add_option("-a", "--add", dest="add",
-                      help=_("Subscribe to channel from FEEDURL"), metavar="FEEDURL")
+                      help=_("Subscribe to channel from URL"), metavar="URL")
     
     parser.add_option("-d", "--delete", dest="delete",
-                      help=_("Delete channel with ID n"), metavar="n")
+                      help=_("Delete channel specified by URL"), metavar="URL")
 
 
     (options, args) = parser.parse_args(argv)
 
-    if options.verbose:
-        print "Options: "+str(options)
-        print "Args: "+str(args)
-
-    if options.debug:
+    if options.local:
         sys.path = [ './src/', '../src/' ] + sys.path
-    
+
+    if options.verbose:
+        from gpodder.liblogger import enable_verbose
+        enable_verbose()
+
     # wget installation detection
     from gpodder import console
     which_wget = console.testForWget()
@@ -100,41 +104,27 @@ def main(argv=None):
     
     if options.list:
         console.list_channels()
-
     elif options.run:
         console.run()
-        
     elif options.update:
         console.update()
-
     elif options.add:
-        if options.add != None and options.add != "" and (options.add[:4] == "http" or options.add[:3] == "ftp"):
-            console.add_channel(options.add)
-        else:
-            print _('Cannot add channel: %s') % options.add
-
+        console.add_channel( options.add)
     elif options.delete:
-        try:
-            chid = int(options.delete)
-            console.del_channel(chid)
-            print _("Channel IDs may have changed, list before deleting again.")
-        except ValueError:
-            print _('Not a valid channel ID: %s') %options.delete
-
+        console.del_channel( options.delete)
     else:
         #default run gui
         from gpodder import gpodder
         from gpodder.SimpleGladeApp import bindtextdomain
         import gtk.glade
-        if options.debug:
+        if options.local:
             gpodder.glade_dir = '../data'
             gpodder.locale_dir = 'data/locale/'
             gpodder.icon_dir = 'data/gpodder.png'
-            gpodder.artwork_dir = 'data/artwork/'
         bindtextdomain( 'gpodder', gpodder.locale_dir)
         gpodder.main( __version__)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit( main())
 

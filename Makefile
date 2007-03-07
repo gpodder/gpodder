@@ -58,12 +58,12 @@ cl:
 ##########################################################################
 
 test:
-	$(BINFILE) --debug
+	$(BINFILE) --local --verbose
 
 deb:
 	debuild
 
-release: distclean generators
+release: distclean
 	python setup.py sdist
 
 install: generators
@@ -85,7 +85,7 @@ generators: $(MANPAGE) gen_glade gen_graphics
 messages: gen_gettext
 
 $(MANPAGE): $(BINFILE)
-	help2man -N $(BINFILE) >$(MANPAGE)
+	help2man --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
 
 gen_glade: $(GLADEFILE)
 	$(TEPACHE) --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)

@@ -218,6 +218,15 @@ class gPodderLibClass( object):
         parser.write( fp)
         fp.close()
 
+    def sanitize_feed_url( self, url):
+        if len(url) > 7 and url[:4] == 'feed':
+            url = 'http' + url[4:]
+        
+        if url != None and len(url) > 7 and (url[:4] == 'http' or result[:3] == 'ftp'):
+            return url
+        else:
+            return None
+
     def get_download_dir( self):
         self.createIfNecessary( self.__download_dir)
         return self.__download_dir
@@ -264,7 +273,6 @@ class gPodderLibClass( object):
     def get_from_parser( self, parser, option, default = ''):
         try:
             result = parser.get( self.gpodderconf_section, option)
-            log( 'Option "%s" is set to "%s"', option, result)
             return result
         except:
             return default
@@ -460,7 +468,7 @@ class gPodderChannelReader( DefaultHandler):
         self.current_item = None
         self.current_element_data = ''
     
-    def read( self, force_update = False, callback_proc = None):
+    def read( self, force_update = False, callback_proc = None, callback_url = None):
         """Read channels from a file into gPodder's cache
 
         force_update:   When true, re-download even if the cache file 
@@ -470,6 +478,11 @@ class gPodderChannelReader( DefaultHandler):
                         the first being the number of the currently 
                         processed item and the second being the count 
                         of the items that will be read/updated.
+
+        callback_url:   A function that takes one string parameter
+                        that contains the URL of the channel that 
+                        is being updated at the moment. Will be 
+                        called for every channel to be updated.
         """
 
         self.channels = []
@@ -488,8 +501,11 @@ class gPodderChannelReader( DefaultHandler):
         channel_count = len( self.channels)
         position = 0
         for channel in self.channels:
-            if callback_proc != None:
+            if callback_proc:
                 callback_proc( position, channel_count)
+
+            if callback_url:
+                callback_url( channel.url)
 
             cachefile = channel.downloadRss( force_update)
             # check if download was a success

@@ -1,3 +1,18 @@
+Wed,  7 Mar 2007 15:46:34 +0100 <thp@perli.net>
+        * doc/man/gpodder.1: Updated with new info and description
+        * src/gpodder/console.py: Clean-up of old/attic code; better output
+        * src/gpodder/liblogger.py: Debugging depending on the "--verbose" flag
+        * src/gpodder/libgpodder.py: Sanitize feed URL; URL callback for reader
+        * src/gpodder/gpodder.py: Don't display popup dialog, but modify main 
+          window title if we're running a svn version of gPodder; use the new 
+          sanitize_feed_url function from libgpodder; small clean-ups
+        * bin/gpodder: Description in docstring; better handling of command 
+          line arguments and calling of gpodder.console functions; the old 
+          --debug flag is now called --local (makes more sense, after all)
+        * Makefile: Don't run generators on "make release"; use new --local 
+          and --verbose flags for "make test"; specify application name in 
+          help2man call for manpage generation
+
 Wed,  7 Mar 2007 11:53:37 +0100 <thp@perli.net>
         * data/artwork: Removed Tango artwork
         * src/gpodder/gpodder.py: Use artwork from current icon theme

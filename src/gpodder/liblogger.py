@@ -28,10 +28,20 @@
 
 
 
-write_to_stdout = True
+write_to_stdout = False
+
+
+def enable_verbose():
+    global write_to_stdout
+    write_to_stdout = True
 
 
 def log( message, *args):
     if write_to_stdout:
         print message % args
+
+
+def msg( type, message, *args):
+    s = message % args
+    print '%c\t%s' % ( type[0].upper(), s )
 

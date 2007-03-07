@@ -97,6 +97,9 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.new {
     def new(self):
+        if app_version.rfind( "svn") != -1:
+            self.gPodder.set_title( 'gPodder %s' % ( app_version, ))
+
         # set up the rendering of the comboAvailable combobox
         cellrenderer = gtk.CellRendererText()
         self.comboAvailable.pack_start( cellrenderer, True)
@@ -170,10 +173,6 @@ class Gpodder(SimpleGladeApp):
                         gtk.gdk.ACTION_DEFAULT)
         self.main_widget.connect("drag_data_received", self.drag_data_received)
         self.wNotebook.connect("switch-page", self.switched_notebook)
-
-        # if we are running a SVN-based version, notify the user :)
-        if app_version.rfind( "svn") != -1:
-            self.showMessage( _("<b>gPodder development version %s</b>\nUse at your own risk, but also enjoy new features :)") % app_version)
 
         gl = gPodderLib()
 
@@ -302,9 +301,10 @@ class Gpodder(SimpleGladeApp):
     
     def add_new_channel( self, result = None):
         # Treat "feed://" URLs like "http://" ones
-        if result and result[:4] == 'feed':
-            result = 'http' + result[4:]
-        if result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+        gl = gPodderLib()
+
+        result = gl.sanizize_feed_url( result)
+        if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
                     log( 'Channel already exists: %s', result)
@@ -422,7 +422,7 @@ class Gpodder(SimpleGladeApp):
         please_wait.set_has_separator( False)
 
         # let's get down to business..
-        self.channels = reader.read( True, lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
+        self.channels = reader.read( True, callback_proc = lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
         please_wait.destroy()
         self.updateComboBox()
 
@@ -1406,22 +1406,13 @@ class Gpodderopmllister(SimpleGladeApp):
 def main( __version__ = None):
     global app_version
     
-    #gtk.gdk.threads_init()
     gobject.threads_init()
     bindtextdomain( app_name, locale_dir)
+
     app_version = __version__
     g_podder = Gpodder()
-    #g_podder_channel = Gpodderchannel()
-    #g_podder_properties = Gpodderproperties()
-    #g_podder_episode = Gpodderepisode()
-    #g_podder_sync = Gpoddersync()
-    #g_podder_opml_lister = Gpodderopmllister()
 
     g_podder.set_icon()
     g_podder.run()
-
-if __name__ == "__main__":
-    print _("Please do not call gpodder.py directly. Instead, call the gpodder binary.")
-    sys.exit( -1)
 
 #-- main }

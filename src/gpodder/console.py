@@ -27,9 +27,11 @@ import time
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 from libgpodder import gPodderLib
-from liblogger import log
+from libpodcasts import podcastChannel
+
 from librssreader import rssReader
 from libwget import downloadThread
+from liblogger import msg
 
 from os import kill
 from string import strip
@@ -37,103 +39,110 @@ import popen2
 import signal
 
 
-#TODO: move to libwget??
-class DownloadPool:
-    def __init__(self, max_downloads = 3):
-        assert(max_downloads > 0)
-        
+class DownloadPool(object):
+    def __init__( self, max_downloads = 1):
         self.max_downloads = max_downloads
         self.cur_downloads = 0
 
-    def addone(self):
+    def add( self):
         self.cur_downloads += 1
 
-    def set(self):
-        '''Ping function for downloadThread'''
-        if self.cur_downloads >0:
-            self.cur_downloads -= 1
-        else:
-            self.cur_downloads = 0
+    def set( self):
+        if self.cur_downloads < 1:
+            self.cur_downloads = 1
+
+        self.cur_downloads -= 1
     
-    def may_download(self):
+    def has_free_slot( self):
         return self.cur_downloads < self.max_downloads
 
 
 def list_channels():
-    reader = gPodderChannelReader()
-    reader.read()
-    for id, channel in enumerate(reader.channels):
-        print "%s: %s" %(id, channel.url)
+    for channel in gPodderChannelReader().read():
+        msg( 'channel', channel.url)
 
-def add_channel(url):
-    reader = gPodderChannelReader()
-    channels = reader.read()
 
-    cachefile = gPodderLib().downloadRss(url)
-    rssreader = rssReader()
-    rssreader.parseXML(url, cachefile)
-        
-    channels.append(rssreader.channel)
-    gPodderChannelWriter().write(channels)
+def add_channel( url):
+    gl = gPodderLib()
 
-def del_channel(chid):
-    #TODO maybe add id to channels.xml 
-    reader = gPodderChannelReader()
-    channels = reader.read()
-    if chid >=0 and chid < len(channels):
-        ch = channels.pop(chid)
-        print _('delete channel: %s') %ch.url
-        gPodderChannelWriter().write(channels)
+    channels = gPodderChannelReader().read()
+
+    url = gl.sanitize_feed_url( url)
+    channel = podcastChannel( url = url)
+    channel.remove_cache_file()
+    channels.append( channel)
+
+    gPodderChannelWriter().write( channels)
+
+    if len( gPodderChannelReader().read( False)) == len( channels):
+        msg( 'add', url)
     else:
-        print _('%s is not a valid id') %str(chid)
+        msg( 'error', _('Could not add channel.'))
+
+
+def del_channel( url):
+    gl = gPodderLib()
+    
+    channels = gPodderChannelReader().read()
+
+    removed = False
+
+    url = gl.sanitize_feed_url( url)
+    for i in range( len(channels)-1, -1, -1):
+        if channels[i].url == url:
+            channels.remove( channels[i])
+            msg( 'delete', url)
+            removed = True
+
+    if removed:
+        gPodderChannelWriter().write( channels)
+    else:
+        msg( 'error', _('Could not remove channel.'))
 
 
 def update():
-    reader = gPodderChannelReader()
-    reader.read(True)
+    urlcallback = lambda url: msg( 'update', url)
+
+    return gPodderChannelReader().read( True, callback_url = urlcallback)
 
 
 def run():
-    '''Update channels und download episodes newer than the newest downloaded item'''
-    updated_channels = gPodderChannelReader().read( True)
+    gl = gPodderLib()
+    channels = update()
 
     pool = DownloadPool()
-
-    for channel in updated_channels:
+    for channel in channels:
        episodes_to_download = []
        last_pubdate = channel.newest_pubdate_downloaded()
 
        if not last_pubdate:
-            # download maximum 3 newest episodes
-            log( '%s seems like a new channel. Downloading newest three episodes.', channel.title)
-            episodes_to_download = channel[0:min(len(channel),3)]
+            for item in channel[0:min(len(channel),3)]:
+                msg( 'queue', item.url)
+                episodes_to_download.append( item)
        else:
             for item in channel:
-                if item.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( item):
-                    # if this episode is new, download it!
-                    log( 'Queueing new episode for download: %s', item.title)
+                if item.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( item) and not gl.history_is_downloaded( item.url):
+                    msg( 'queue', item.url)
                     episodes_to_download.append( item)
-            if not episodes_to_download:
-                log( 'Nothing to do for %s.', channel.title)
 
        for item in episodes_to_download:
+           if channel.is_downloaded( item) or gl.history_is_downloaded( item.url):
+               break
+
+           while not pool.has_free_slot():
+               time.sleep( 3)
+
+           pool.add()
            filename = channel.getPodcastFilename( item.url)
-           if not channel.is_downloaded( item):
-               while not pool.may_download():
-                   time.sleep(3)
-               
-               pool.addone()
-               #thread will call pool.set() when finished
-               thread = downloadThread(item.url, filename, pool)
-               thread.download()
+           #thread will call pool.set() when finished
+           downloadThread( item.url, filename, ready_event = pool, channelitem = channel, item = item).download()
+           msg( 'downloading', item.url)
                
     
 def testForWget():
-        command = "wget --version | head -n1"
-        process = popen2.Popen3( command, True)
-        stdout = process.fromchild
-        data = stdout.readline( 80)
-	kill( process.pid, signal.SIGKILL)
-	return strip( data)
+        command = 'wget --version'
+        # get stdout, read all, split by line, strip whitespace
+        version = popen2.Popen3( command, True).fromchild.read().split('\n')[0].strip()
+	return version
 # end testForWget()
 
