@@ -1,3 +1,19 @@
+Thu,  8 Mar 2007 13:05:29 +0100 <thp@perli.net>
+        * src/gpodder/liblocdbreader.py, src/gpodder/liblocdbwriter.py: Add
+          support for override_title in channel's gpodder:info, so we can set 
+          a custom title to be displayed in the GUI
+        * src/gpodder/libpodcasts.py: Add support for override_title (custom
+          title set by the user) and handle feeds with missing/empty title 
+          gracefully (display URL as title instead)
+        * src/gpodder/libgpodder.py: Read metadata from localdb when reading 
+          the channel list (so we get the override_title if it is set
+        * src/gpodder/gpodder.py: Fix typo for channel adding; update combo 
+          box on channel properties change (for custom title); add support 
+          for custom title to Gpodderchannel dialog handling code
+        * data/gpodder.glade: Add custom title to the gPodder channel dialog
+	  Thanks to Konstantin Ryabitsev (mricon.com) for suggesting this 
+	  feature and for the donation :)
+
 Thu,  8 Mar 2007 11:44:29 +0100 <thp@perli.net>
         * src/gpodder/console.py: Add support for error messages on update
         * src/gpodder/libpodcasts.py: Backup and restore cache file, so we

@@ -61,6 +61,8 @@ class writeLocalDB( object):
         self.ofile.write( ' nosync="%s"' % (str(not channel.sync_to_devices).lower()))
         self.ofile.write( ' music="%s"' % (str(channel.is_music_channel).lower()))
         self.ofile.write( ' playlist="%s"' % (channel.device_playlist_name))
+        if channel.override_title:
+            self.ofile.write( ' title="%s"' % (channel.override_title))
         self.ofile.write( '/>'+"\n")
 
     def writeEpisodeMetadata( self, episode):

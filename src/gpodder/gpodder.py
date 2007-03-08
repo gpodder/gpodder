@@ -303,7 +303,7 @@ class Gpodder(SimpleGladeApp):
         # Treat "feed://" URLs like "http://" ones
         gl = gPodderLib()
 
-        result = gl.sanizize_feed_url( result)
+        result = gl.sanitize_feed_url( result)
         if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
@@ -586,6 +586,7 @@ class Gpodder(SimpleGladeApp):
             return
         
         result = Gpodderchannel().requestURL( self.active_channel)
+        self.updateComboBox()
         active = self.comboAvailable.get_active()
         if result != self.active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             log( 'Changing channel #%d from "%s" to "%s"', active, self.active_channel.url, result)
@@ -887,6 +888,7 @@ class Gpodderchannel(SimpleGladeApp):
         if channel:
             self.gPodderChannel.set_title( _('Channel: %s') % channel.title)
             self.entryURL.set_text( channel.url)
+            self.entryTitle.set_text( channel.title)
             self.LabelDownloadTo.set_text( channel.save_dir)
             self.LabelWebsite.set_text( channel.link)
             channel.set_metadata_from_localdb()
@@ -901,7 +903,7 @@ class Gpodderchannel(SimpleGladeApp):
             # Remove all tabs except for the first one
             while self.notebookChannelEditor.get_n_pages() > 1:
                 self.notebookChannelEditor.remove_page( -1)
-            for widget in ( self.labelDescription, self.scrolledwindow, self.expander ):
+            for widget in ( self.labelDescription, self.scrolledwindow, self.expander, self.labelTitle, self.entryTitle ):
                 widget.hide_all()
             self.gPodderChannel.set_title( _('Add a new channel'))
             self.gPodderChannel.queue_resize()
@@ -922,6 +924,7 @@ class Gpodderchannel(SimpleGladeApp):
                 channel.sync_to_devices = not self.cbNoSync.get_active()
                 channel.is_music_channel = self.cbMusicChannel.get_active()
                 channel.device_playlist_name = self.musicPlaylist.get_text()
+                channel.set_custom_title( self.entryTitle.get_text())
                 channel.save_metadata_to_localdb()
             return self.url
         else:

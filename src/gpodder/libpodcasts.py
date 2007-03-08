@@ -78,6 +78,8 @@ class podcastChannel(ListType):
         self.is_music_channel = False
         # to which playlist should be synced when "is_music_channel" is true?
         self.device_playlist_name = 'gPodder'
+        # if set, this overrides the channel-provided title
+        self.override_title = ''
         
     def get_filename( self):
         """Return the MD5 sum of the channel URL"""
@@ -86,13 +88,26 @@ class podcastChannel(ListType):
     filename = property(fget=get_filename)
 
     def get_title( self):
-        return self.__title
+        if self.override_title:
+            return self.override_title
+        elif not self.__title.strip():
+            return self.url
+        else:
+            return self.__title
 
     def set_title( self, value):
         self.__title = value.strip()
 
     title = property(fget=get_title,
                      fset=set_title)
+
+    def set_custom_title( self, custom_title):
+        custom_title = custom_title.strip()
+
+        if custom_title != self.__title:
+            self.override_title = custom_title
+        else:
+            self.override_title = ''
     
     def get_localdb_channel( self):
         try:
@@ -132,6 +147,7 @@ class podcastChannel(ListType):
         self.sync_to_devices = ch.sync_to_devices
         self.is_music_channel = ch.is_music_channel
         self.device_playlist_name = ch.device_playlist_name
+        self.override_title = ch.override_title
 
     def newest_pubdate_downloaded( self):
         gl = libgpodder.gPodderLib()

@@ -84,6 +84,7 @@ class readLocalDB( DefaultHandler):
                 self.channel.is_music_channel = True
             if attrs.get('nosync', 'false').lower() == 'true':
                 self.channel.sync_to_devices = False
+            self.channel.override_title = attrs.get('title','')
     
     def endElement( self, name):
         if self.current_item == None:

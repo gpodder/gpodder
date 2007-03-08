@@ -515,6 +515,7 @@ class gPodderChannelReader( DefaultHandler):
             if cachefile != None:
                 reader.parseXML( channel.url, cachefile)
                 if reader.channel != None:
+                    reader.channel.set_metadata_from_localdb()
                     input_channels.append( reader.channel)
 
             position = position + 1
