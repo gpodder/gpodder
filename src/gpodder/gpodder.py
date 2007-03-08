@@ -425,6 +425,10 @@ class Gpodder(SimpleGladeApp):
         self.channels = reader.read( True, callback_proc = lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count), callback_error = lambda x: self.showMessage( x, _('Channel update status')))
         please_wait.destroy()
         self.updateComboBox()
+        
+        # download all new?
+        if gPodderLib().download_after_update:
+            self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
         current_channel = self.active_channel
@@ -982,6 +986,7 @@ class Gpodderproperties(SimpleGladeApp):
         if gl.downloaddir:
             self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
+        self.downloadnew.set_active(gl.download_after_update)
         # colors
         self.reload_colors()
         # device type
@@ -1205,6 +1210,7 @@ class Gpodderproperties(SimpleGladeApp):
 
 
         gl.update_on_startup = self.updateonstartup.get_active()
+        gl.download_after_update = self.downloadnew.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
             gl.device_type = 'none'

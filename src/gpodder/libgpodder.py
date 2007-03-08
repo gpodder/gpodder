@@ -132,6 +132,7 @@ class gPodderLibClass( object):
         self.ipod_mount = ""
         self.opml_url = ""
         self.update_on_startup = False
+        self.download_after_update = False
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
         self.mp3_player_folder = ""
@@ -207,6 +208,7 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'proxy_use_env', self.proxy_use_environment)
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
+        self.write_to_parser( parser, 'download_after_update', self.download_after_update)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
         self.write_to_parser( parser, 'device_type', self.device_type)
@@ -317,6 +319,7 @@ class gPodderLibClass( object):
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
+                    self.download_after_update = self.get_boolean_from_parser(parser, 'download_after_update', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.device_type = self.get_from_parser( parser, 'device_type', 'none')
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
