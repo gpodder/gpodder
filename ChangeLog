@@ -1,3 +1,10 @@
+Thu,  8 Mar 2007 13:20:02 +0100 <thp@perli.net>
+        * src/gpodder/librssreader.py: Keep track of a "parse_tree" variable 
+          and check that the elements that set channel metadata are just below
+          the <channel> item; this bug has been spotted while examining RSS 
+          feeds on Radio Canada that have a <image> item which <title> tags 
+          would be mis-interpreted by gPodder as being the channel's title
+
 Thu,  8 Mar 2007 13:05:29 +0100 <thp@perli.net>
         * src/gpodder/liblocdbreader.py, src/gpodder/liblocdbwriter.py: Add
           support for override_title in channel's gpodder:info, so we can set 

@@ -45,6 +45,7 @@ class rssReader( DefaultHandler, ErrorHandler):
         self.channel = None
         self.current_item = None
         self.current_element_data = ''
+        self.parse_tree = []
     
     def error( self, exception):
         log( '[rssReader] Error: %s', str( exception))
@@ -65,6 +66,7 @@ class rssReader( DefaultHandler, ErrorHandler):
         self.channel = None
         self.current_item = None
         self.current_element_data = ''
+        self.parse_tree = []
         parser = make_parser()
 	parser.returns_unicode = True
         parser.setContentHandler( self)
@@ -78,6 +80,7 @@ class rssReader( DefaultHandler, ErrorHandler):
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
+        self.parse_tree.append( name)
 
         if name == "channel":
             self.channel = podcastChannel( self.channel_url)
@@ -94,7 +97,9 @@ class rssReader( DefaultHandler, ErrorHandler):
             self.channel.image = attrs.get( "href", "")
     
     def endElement( self, name):
-        if self.channel != None and not self.current_item:
+        self.parse_tree.pop()
+
+        if self.channel != None and not self.current_item and len(self.parse_tree) and self.parse_tree[-1] == 'channel':
             if name == "title":
                 self.channel.title = self.current_element_data
             if name == "link":
