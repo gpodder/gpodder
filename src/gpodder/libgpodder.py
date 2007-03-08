@@ -468,7 +468,7 @@ class gPodderChannelReader( DefaultHandler):
         self.current_item = None
         self.current_element_data = ''
     
-    def read( self, force_update = False, callback_proc = None, callback_url = None):
+    def read( self, force_update = False, callback_proc = None, callback_url = None, callback_error = None):
         """Read channels from a file into gPodder's cache
 
         force_update:   When true, re-download even if the cache file 
@@ -483,6 +483,9 @@ class gPodderChannelReader( DefaultHandler):
                         that contains the URL of the channel that 
                         is being updated at the moment. Will be 
                         called for every channel to be updated.
+
+        callback_error: A function that takes one string parameter 
+                        that contains a error message to be displayed.
         """
 
         self.channels = []
@@ -507,7 +510,7 @@ class gPodderChannelReader( DefaultHandler):
             if callback_url:
                 callback_url( channel.url)
 
-            cachefile = channel.downloadRss( force_update)
+            cachefile = channel.downloadRss( force_update, callback_error = callback_error)
             # check if download was a success
             if cachefile != None:
                 reader.parseXML( channel.url, cachefile)

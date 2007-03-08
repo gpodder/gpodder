@@ -233,10 +233,10 @@ class podcastChannel(ListType):
 
         return None
 
-    def downloadRss( self, force_update = True):
+    def downloadRss( self, force_update = True, callback_error = None):
         if not exists( self.cache_file) or force_update:
             # remove old cache file
-            libgpodder.gPodderLib().deleteFilename( self.cache_file)
+            self.remove_cache_file()
             event = Event()
             downloadThread( self.url, self.cache_file, event).download()
             
@@ -247,8 +247,15 @@ class podcastChannel(ListType):
                     gtk.main_iteration( False)
 
             # check if download was a success
-            if exists( self.cache_file) == False:
-                return None
+            if not exists( self.cache_file):
+                log('(downloadRss) Download failed! Trying to restore cache file..')
+                restored = self.restore_cache_file()
+                if callback_error:
+                    if restored:
+                        callback_error( _('Error downloading %s. Using cached file instead.') % ( self.url, ))
+                    else:
+                        callback_error( _('Error downloading %s.'))
+                return restored
         
         return self.cache_file
     
@@ -268,8 +275,25 @@ class podcastChannel(ListType):
 
     cache_file = property(fget=get_cache_file)
 
+    def get_cache_backup_file( self):
+        return libgpodder.gPodderLib().cachedir + self.filename + '.bak'
+
+    cache_backup_file = property(fget=get_cache_backup_file)
+
     def remove_cache_file( self):
+        if exists( self.cache_file):
+            shutil.copyfile( self.cache_file, self.cache_backup_file)
+
         libgpodder.gPodderLib().deleteFilename( self.cache_file)
+
+    def restore_cache_file( self):
+        if exists( self.cache_backup_file):
+            shutil.copyfile( self.cache_backup_file, self.cache_file)
+            log('Successfully restored cache file from old backup :)')
+            return self.cache_file
+
+        log('Could not restore cache file, sorry..')
+        return None
 
     def remove_downloaded( self):
         shutil.rmtree( self.save_dir, True)

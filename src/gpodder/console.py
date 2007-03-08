@@ -102,8 +102,9 @@ def del_channel( url):
 
 def update():
     urlcallback = lambda url: msg( 'update', url)
+    errorcallback = lambda s: msg( 'error', s)
 
-    return gPodderChannelReader().read( True, callback_url = urlcallback)
+    return gPodderChannelReader().read( True, callback_url = urlcallback, callback_error = errorcallback)
 
 
 def run():

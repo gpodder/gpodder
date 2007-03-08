@@ -1,3 +1,12 @@
+Thu,  8 Mar 2007 11:44:29 +0100 <thp@perli.net>
+        * src/gpodder/console.py: Add support for error messages on update
+        * src/gpodder/libpodcasts.py: Backup and restore cache file, so we
+          can fallback to the old cache file if the server is down/we have 
+          no network connectivity
+        * src/gpodder/libgpodder.py: Support for error message callback
+        * src/gpodder/gpodder.py: Display a message box when updating info 
+          from a channel results in a error message
+
 Wed,  7 Mar 2007 15:46:34 +0100 <thp@perli.net>
         * doc/man/gpodder.1: Updated with new info and description
         * src/gpodder/console.py: Clean-up of old/attic code; better output

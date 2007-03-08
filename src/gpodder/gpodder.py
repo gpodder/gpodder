@@ -422,7 +422,7 @@ class Gpodder(SimpleGladeApp):
         please_wait.set_has_separator( False)
 
         # let's get down to business..
-        self.channels = reader.read( True, callback_proc = lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count))
+        self.channels = reader.read( True, callback_proc = lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count), callback_error = lambda x: self.showMessage( x, _('Channel update status')))
         please_wait.destroy()
         self.updateComboBox()
 
