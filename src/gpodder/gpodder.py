@@ -441,7 +441,7 @@ class Gpodder(SimpleGladeApp):
                 return
          
             if widget.get_name() == 'treeAvailable':
-                gpe = Gpodderepisode()
+                gpe = Gpodderepisode( gpodderwindow = self.gPodder)
                 gpe.set_episode( current_podcast, current_channel)
          
                 if os.path.exists( filename):
@@ -533,14 +533,14 @@ class Gpodder(SimpleGladeApp):
             if not ipod_supported():
                 self.showMessage( _('Please install python-gpod and pymad libraries.\nMore information on the gPodder homepage.'))
                 return
-            sync_win = Gpoddersync()
+            sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             while gtk.events_pending():
                 gtk.main_iteration( False)
             args = ( sync_win, )
             thread = Thread( target = self.sync_to_ipod_proc, args = args)
             thread.start()
         elif gl.device_type == 'filesystem':
-            sync_win = Gpoddersync()
+            sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             while gtk.events_pending():
                 gtk.main_iteration( False)
             args = ( sync_win, )
@@ -563,7 +563,7 @@ class Gpodder(SimpleGladeApp):
                 target_function = self.fs_cleanup_proc
 
         if target_function:
-            sync_win = Gpoddersync()
+            sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             while gtk.events_pending():
                 gtk.main_iteration( False)
             args = ( sync_win, )
@@ -573,14 +573,14 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemPreferences_activate {
     def on_itemPreferences_activate(self, widget, *args):
-        prop = Gpodderproperties()
+        prop = Gpodderproperties( gpodderwindow = self.gPodder)
         prop.set_uar( self.user_apps_reader)
         prop.set_callback_finished( self.updateTreeView)
     #-- Gpodder.on_itemPreferences_activate }
 
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
-        self.add_new_channel( Gpodderchannel().requestURL())
+        self.add_new_channel( Gpodderchannel( gpodderwindow = self.gPodder).requestURL())
     #-- Gpodder.on_itemAddChannel_activate }
 
     #-- Gpodder.on_itemEditChannel_activate {
@@ -589,7 +589,7 @@ class Gpodder(SimpleGladeApp):
             self.showMessage( _('Please select a channel to edit.'))
             return
         
-        result = Gpodderchannel().requestURL( self.active_channel)
+        result = Gpodderchannel( gpodderwindow = self.gPodder).requestURL( self.active_channel)
         self.updateComboBox()
         active = self.comboAvailable.get_active()
         if result != self.active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
@@ -647,7 +647,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemImportChannels_activate {
     def on_itemImportChannels_activate(self, widget, *args):
-        Gpodderopmllister().get_channels_from_url( gPodderLib().opml_url, self.add_new_channel)
+        Gpodderopmllister( gpodderwindow = self.gPodder).get_channels_from_url( gPodderLib().opml_url, self.add_new_channel)
     #-- Gpodder.on_itemImportChannels_activate }
 
     #-- Gpodder.on_homepage_activate {
@@ -881,6 +881,9 @@ class Gpodderchannel(SimpleGladeApp):
         result = False
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        if 'gpodderwindow' in kwargs:
+            self.gPodderChannel.set_transient_for( kwargs['gpodderwindow'])
+            self.gPodderChannel.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     #-- Gpodderchannel.new {
     def new(self):
@@ -971,6 +974,9 @@ class Gpodderproperties(SimpleGladeApp):
                  domain=app_name, **kwargs):
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        if 'gpodderwindow' in kwargs:
+            self.gPodderProperties.set_transient_for( kwargs['gpodderwindow'])
+            self.gPodderProperties.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     #-- Gpodderproperties.new {
     def new(self):
@@ -1241,6 +1247,9 @@ class Gpodderepisode(SimpleGladeApp):
                  domain=app_name, **kwargs):
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        if 'gpodderwindow' in kwargs:
+            self.gPodderEpisode.set_transient_for( kwargs['gpodderwindow'])
+            self.gPodderEpisode.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     #-- Gpodderepisode.new {
     def new(self):
@@ -1307,6 +1316,9 @@ class Gpoddersync(SimpleGladeApp):
                  domain=app_name, **kwargs):
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        if 'gpodderwindow' in kwargs:
+            self.gPodderSync.set_transient_for( kwargs['gpodderwindow'])
+            self.gPodderSync.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     #-- Gpoddersync.new {
     def new(self):
@@ -1348,6 +1360,9 @@ class Gpodderopmllister(SimpleGladeApp):
                  domain=app_name, **kwargs):
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+        if 'gpodderwindow' in kwargs:
+            self.gPodderOpmlLister.set_transient_for( kwargs['gpodderwindow'])
+            self.gPodderOpmlLister.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     #-- Gpodderopmllister.new {
     def new(self):

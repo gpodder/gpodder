@@ -221,13 +221,16 @@ class gPodderLibClass( object):
         fp.close()
 
     def sanitize_feed_url( self, url):
-        if len(url) > 7 and url[:4] == 'feed':
+        if not url or len(url) < 7:
+            return None
+
+        if url[:4] == 'feed':
             url = 'http' + url[4:]
         
-        if url != None and len(url) > 7 and (url[:4] == 'http' or result[:3] == 'ftp'):
+        if url[:4] == 'http' or result[:3] == 'ftp':
             return url
-        else:
-            return None
+
+        return None
 
     def get_download_dir( self):
         self.createIfNecessary( self.__download_dir)
