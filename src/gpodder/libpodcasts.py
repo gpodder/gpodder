@@ -249,18 +249,24 @@ class podcastChannel(ListType):
 
         return None
 
-    def downloadRss( self, force_update = True, callback_error = None):
+    def downloadRss( self, force_update = True, callback_error = None, callback_is_cancelled = None):
+        if callback_is_cancelled:
+            if callback_is_cancelled() == True:
+                return self.cache_file
+
         if not exists( self.cache_file) or force_update:
             # remove old cache file
             self.remove_cache_file()
             event = Event()
-            downloadThread( self.url, self.cache_file, event).download()
+            download_thread = downloadThread( self.url, self.cache_file, event)
+            download_thread.download()
             
-            while event.isSet() == False:
+            while not event.isSet():
+                if callback_is_cancelled:
+                    if callback_is_cancelled() == True:
+                        download_thread.cancel()
+                        self.restore_cache_file()
                 event.wait( 0.2)
-                #FIXME: we do not want gtk code when not needed
-                while gtk.events_pending():
-                    gtk.main_iteration( False)
 
             # check if download was a success
             if not exists( self.cache_file):

@@ -1,3 +1,18 @@
+Sat, 10 Mar 2007 16:52:22 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Support cancelling downloading an RSS 
+          file by supplying a callback_is_cancelled variable that should
+          return True when the download should be cancelled (and the old, 
+          backed up cache file [if any] be used instead); additionally, get 
+          rid of gtk events_pending code, as we call downloadRss only in 
+          threads as of now
+        * src/gpodder/libgpodder.py: Support for cancelling the read() 
+          operation of a gPodderChannelReader (uses old cache files instead)
+        * src/gpodder/gpodder.py: Re-design of the update feed cache dialog 
+          following Gnome HIG guidelines for progress windows and making 
+          use of the update_feed_cache() function (which now is threaded) in 
+          every part of the gpodder window code; also provide the option of
+          cancelling a running update of the feed cache :)
+
 Fri,  9 Mar 2007 20:05:20 +0100 <thp@perli.net>
         * src/gpodder/libgpodder.py: Fix sanitize_feed_url() function
         * src/gpodder/gpodder.py: Add support for dialogs to be centered on 

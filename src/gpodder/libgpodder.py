@@ -473,6 +473,13 @@ class gPodderChannelReader( DefaultHandler):
         self.channels = []
         self.current_item = None
         self.current_element_data = ''
+        self.is_cancelled = False
+
+    def cancel( self):
+        self.is_cancelled = True
+
+    def callback_is_cancelled( self):
+        return self.is_cancelled
     
     def read( self, force_update = False, callback_proc = None, callback_url = None, callback_error = None):
         """Read channels from a file into gPodder's cache
@@ -516,7 +523,7 @@ class gPodderChannelReader( DefaultHandler):
             if callback_url:
                 callback_url( channel.url)
 
-            cachefile = channel.downloadRss( force_update, callback_error = callback_error)
+            cachefile = channel.downloadRss( force_update, callback_error = callback_error, callback_is_cancelled = self.callback_is_cancelled)
             # check if download was a success
             if cachefile != None:
                 reader.parseXML( channel.url, cachefile)

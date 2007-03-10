@@ -153,15 +153,6 @@ class Gpodder(SimpleGladeApp):
         self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateTreeView)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
-        # read and display subscribed channels
-        self.active_channel = None
-        self.channels = []
-        reader = gPodderChannelReader()
-        self.channels = reader.read( False)
-        
-        # update view
-        self.updateComboBox()
-
         # tooltips :)
         self.tooltips = gtk.Tooltips()
         self.tooltips.set_tip( self.btnEditChannel, _("Channel Info"))
@@ -176,9 +167,10 @@ class Gpodder(SimpleGladeApp):
 
         gl = gPodderLib()
 
-        # Update the feed list if the user has set it up
-        if gl.update_on_startup:
-            self.update_feed_cache()
+        # Subscribed channels
+        self.active_channel = None
+        self.channels = gPodderChannelReader().read( force_update = False)
+        self.update_feed_cache( force_update = gl.update_on_startup)
 
         # create a localDB object
         self.ldb = localDB()
@@ -293,16 +285,13 @@ class Gpodder(SimpleGladeApp):
         channels_should_be = len( self.channels)
         
         gPodderChannelWriter().write( self.channels)
-        self.channels = gPodderChannelReader().read( False)
+        self.update_feed_cache( force_update = False)
         
-        # check if gPodderChannelReader has successfully added the channel
         if channels_should_be > len( self.channels):
             self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
     
     def add_new_channel( self, result = None):
-        # Treat "feed://" URLs like "http://" ones
         gl = gPodderLib()
-
         result = gl.sanitize_feed_url( result)
         if result:
             for old_channel in self.channels:
@@ -314,7 +303,6 @@ class Gpodder(SimpleGladeApp):
                             self.comboAvailable.set_active( i)
                     return
             log( 'Adding new channel: %s', result)
-            self.statusLabel.set_text( _("Fetching channel index..."))
             channel = podcastChannel( url = result)
             channel.remove_cache_file()
             num_channels_before = len(self.channels)
@@ -322,10 +310,6 @@ class Gpodder(SimpleGladeApp):
             
             # download changed channels
             self.refetch_channel_list()
-
-            # try to update combo box
-            self.updateComboBox()
-            self.statusLabel.set_text( "")
 
             if num_channels_before < len(self.channels):
                 # ask user to download some new episodes
@@ -395,39 +379,79 @@ class Gpodder(SimpleGladeApp):
         sync.clean_playlist()
         sync.close()
 
-    def update_feed_cache_callback( self, progressbar, position, count):
-        try:
-            progressbar.set_text( _("Updating: %s") % ( self.channels[position].title, ))
-        except:
-            progressbar.set_text( _("%d of %d") % ( position, count ))
+    def update_feed_cache_callback( self, label, progressbar, position, count):
+        title = _('Please wait...')
 
+        if len(self.channels) > position:
+            title = _('Updating %s') % self.channels[position].title
+
+        label.set_markup( '<i>%s</i>' % title)
+        progressbar.set_text( _('%d of %d channels updated') % ( position, count ))
         progressbar.set_fraction( ((1.00*position) / (1.00*count)))
 
-    def update_feed_cache(self):
-        reader = gPodderChannelReader()
-        please_wait = gtk.Dialog( _("Updating feed cache"), self.gPodder)
-        please_wait.vbox.set_spacing( 5)
-        please_wait.set_border_width( 5)
+    def update_feed_cache_proc( self, reader, force_update, callback_proc, callback_error, finish_proc):
+        self.channels = reader.read( force_update, callback_proc = callback_proc, callback_error = callback_error)
+        finish_proc()
 
-        label = gtk.Label( _("Please wait - gPodder is updating its feed cache..."))
+    def update_feed_cache(self, force_update = True):
+        title = _('Downloading podcast feeds')
+        heading = _('Downloading feeds')
+        body = _('Podcast feeds contain channel metadata and information about current episodes.')
+
+        if not force_update:
+            title = _('Reading podcast feeds')
+            heading = _('Reading feeds')
+
+        please_wait = gtk.Dialog( title, self.gPodder, gtk.DIALOG_MODAL, ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, ))
+        please_wait.set_transient_for( self.gPodder)
+        please_wait.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+        please_wait.vbox.set_spacing( 5)
+        please_wait.set_border_width( 10)
+        please_wait.set_resizable( False)
+
+        label_heading = gtk.Label()
+        label_heading.set_alignment( 0.0, 0.5)
+        label_heading.set_markup( '<span weight="bold" size="larger">%s</span>' % heading)
+
+        label_body = gtk.Label()
+        label_body.set_text( body)
+        label_body.set_alignment( 0.0, 0.5)
+        label_body.set_line_wrap( True)
+
         myprogressbar = gtk.ProgressBar()
 
+        mylabel = gtk.Label()
+        mylabel.set_alignment( 0.0, 0.5)
+        mylabel.set_ellipsize( pango.ELLIPSIZE_END)
+
         # put it all together
-        please_wait.vbox.pack_start( label)
-        please_wait.vbox.pack_end( myprogressbar)
+        please_wait.vbox.pack_start( label_heading)
+        please_wait.vbox.pack_start( label_body)
+        please_wait.vbox.pack_start( myprogressbar)
+        please_wait.vbox.pack_end( mylabel)
         please_wait.show_all()
 
-        # hide action anre and separator line
-        please_wait.action_area.hide()
+        # hide separator line
         please_wait.set_has_separator( False)
 
         # let's get down to business..
-        self.channels = reader.read( True, callback_proc = lambda pos, count: self.update_feed_cache_callback( myprogressbar, pos, count), callback_error = lambda x: self.showMessage( x, _('Channel update status')))
-        please_wait.destroy()
+        callback_proc = lambda pos, count: gobject.idle_add( self.update_feed_cache_callback, mylabel, myprogressbar, pos, count)
+        callback_error = lambda x: gobject.idle_add( self.showMessage( x))
+        finish_proc = lambda: gobject.idle_add( please_wait.destroy)
+        reader = gPodderChannelReader()
+
+        args = ( reader, force_update, callback_proc, callback_error, finish_proc, )
+
+        thread = Thread( target = self.update_feed_cache_proc, args = args)
+        thread.start()
+        if please_wait.run() == gtk.RESPONSE_CANCEL:
+            reader.cancel()
+            please_wait.destroy()
+            thread.join( 0.5)
         self.updateComboBox()
         
         # download all new?
-        if gPodderLib().download_after_update:
+        if force_update and gPodderLib().download_after_update:
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
@@ -594,15 +618,8 @@ class Gpodder(SimpleGladeApp):
         active = self.comboAvailable.get_active()
         if result != self.active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             log( 'Changing channel #%d from "%s" to "%s"', active, self.active_channel.url, result)
-            self.statusLabel.set_text( _("Fetching channel index..."))
-
             self.channels = self.channels[0:active] + [ podcastChannel( url = result) ] + self.channels[active+1:]
-            
-            # fetch new channels
             self.refetch_channel_list()
-            
-            self.updateComboBox()
-            self.statusLabel.set_text( "")
     #-- Gpodder.on_itemEditChannel_activate }
 
     #-- Gpodder.on_itemRemoveChannel_activate {
@@ -616,8 +633,7 @@ class Gpodder(SimpleGladeApp):
                 gPodderLib().clean_up_downloads( delete_partial)
                 self.channels.remove( self.active_channel)
                 gPodderChannelWriter().write( self.channels)
-                self.channels = gPodderChannelReader().read( False)
-                self.updateComboBox()
+                self.update_feed_cache( force_update = False)
         except:
             pass
     #-- Gpodder.on_itemRemoveChannel_activate }
