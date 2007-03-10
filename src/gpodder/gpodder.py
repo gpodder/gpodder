@@ -234,27 +234,35 @@ class Gpodder(SimpleGladeApp):
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
     
-    def showMessage( self, message, title = _('gPodder message')):
+    def show_message( self, message, title = None):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-        dlg.set_title( title)
-        dlg.set_markup( message)
+
+        if title:
+            markup = '<span weight="bold" size="larger">%s</span>%s%s' % ( title, "\n\n", message, )
+        else:
+            markup = '<span weight="bold" size="larger">%s</span>' % message
+
+        dlg.set_markup( markup)
         
         dlg.run()
         dlg.destroy()
 
-    def showConfirmation( self, message = _('Do you really want to do this?'), title = _('gPodder confirmation')):
-        myresult = False
+    def show_confirmation( self, message, title = None):
+        confirmation_result = False
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
-        dlg.set_title( title)
-        dlg.set_markup( message)
 
-        if gtk.RESPONSE_YES == dlg.run():
-            myresult = True
+        if title:
+            markup = '<span weight="bold" size="larger">%s</span>%s%s' % ( title, "\n\n", message, )
+        else:
+            markup = '<span weight="bold" size="larger">%s</span>' % message
+
+        dlg.set_markup( markup)
+
+        if dlg.run() == gtk.RESPONSE_YES:
+            confirmation_result = True
         
         dlg.destroy()
-        log( "I Asked: %s\nUser answered: %s", message, str( myresult))
-
-        return myresult
+        return confirmation_result
 
     def set_icon(self):
         icon = self.get_icon('gpodder')
@@ -288,7 +296,9 @@ class Gpodder(SimpleGladeApp):
         self.update_feed_cache( force_update = False)
         
         if channels_should_be > len( self.channels):
-            self.showMessage( _("There has been an error adding the channel.\nMaybe the URL is wrong?"))
+            title = _('Error adding channel')
+            message = _('The channel could not be added. Please check the spelling of the URL or try again later.')
+            self.show_message( message, title)
     
     def add_new_channel( self, result = None):
         gl = gPodderLib()
@@ -317,14 +327,18 @@ class Gpodder(SimpleGladeApp):
                 self.on_btnDownloadNewer_clicked( None)
         else:
             if result:
-                self.showMessage( _('Could not add new channel.\n\nThe URL must start with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.'))
+                title = _('URL scheme not supported')
+                message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
+                self.show_message( message, title)
     
     def sync_to_ipod_proc( self, sync_win):
         gpl = gPodderLib()
         gpl.loadConfig()
         sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
         if not sync.open():
-            gobject.idle_add( self.showMessage, _('Cannot access iPod.\nMake sure your iPod is connected and mounted.'))
+            title = _('Cannot access iPod')
+            message = _('Make sure your iPod is connected to your computer and mounted. Please also make sure you have set the correct path to your iPod in the preferences dialog.')
+            gobject.idle_add( self.show_message, message, title)
             sync.close()
             return False
 
@@ -339,7 +353,9 @@ class Gpodder(SimpleGladeApp):
         gpl.loadConfig()
 
         if not gpl.can_write_directory( gpl.mp3_player_folder):
-            gobject.idle_add( self.showMessage, _('Cannot write to %s.\nMake sure your MP3 player is connected.') % ( gpl.mp3_player_folder, ))
+            title = _('Cannot write to MP3 player')
+            message = _('Make sure your MP3 player is connected to your computer and mounted and that you have the correct permissions.')
+            gobject.idle_add( self.show_message, message, title)
             if sync_win.close:
                 sync_win.close()
             return False
@@ -357,7 +373,9 @@ class Gpodder(SimpleGladeApp):
         gpl.loadConfig()
         sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
         if not sync.open():
-            gobject.idle_add( self.showMessage, _('Cannot access iPod.\nMake sure your iPod is connected.'))
+            title = _('Cannot access iPod')
+            message = _('Make sure your iPod is connected to your computer and mounted. Please also make sure you have set the correct path to your iPod in the preferences dialog.')
+            gobject.idle_add( self.show_message, message, title)
             sync.close()
             return False
 
@@ -369,7 +387,9 @@ class Gpodder(SimpleGladeApp):
         gpl.loadConfig()
 
         if not gpl.can_write_directory( gpl.mp3_player_folder):
-            gobject.idle_add( self.showMessage, _('Cannot write to %s.\nMake sure your MP3 player is connected.') % ( gpl.mp3_player_folder, ))
+            title = _('Cannot write to MP3 player')
+            message = _('Make sure your MP3 player is connected to your computer and mounted and that you have the correct permissions.')
+            gobject.idle_add( self.show_message, message, title)
             if sync_win.close:
                 sync_win.close()
             return False
@@ -383,7 +403,10 @@ class Gpodder(SimpleGladeApp):
         title = _('Please wait...')
 
         if len(self.channels) > position:
-            title = _('Updating %s') % self.channels[position].title
+            try:
+                title = _('Updating %s') % self.channels[position].title
+            except:
+                pass
 
         label.set_markup( '<i>%s</i>' % title)
         progressbar.set_text( _('%d of %d channels updated') % ( position, count ))
@@ -436,7 +459,7 @@ class Gpodder(SimpleGladeApp):
 
         # let's get down to business..
         callback_proc = lambda pos, count: gobject.idle_add( self.update_feed_cache_callback, mylabel, myprogressbar, pos, count)
-        callback_error = lambda x: gobject.idle_add( self.showMessage( x))
+        callback_error = lambda x: gobject.idle_add( self.show_message, x)
         finish_proc = lambda: gobject.idle_add( please_wait.destroy)
         reader = gPodderChannelReader()
 
@@ -446,8 +469,6 @@ class Gpodder(SimpleGladeApp):
         thread.start()
         if please_wait.run() == gtk.RESPONSE_CANCEL:
             reader.cancel()
-            please_wait.destroy()
-            thread.join( 0.5)
         self.updateComboBox()
         
         # download all new?
@@ -479,9 +500,13 @@ class Gpodder(SimpleGladeApp):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
             if want_message_dialog and os.path.exists( filename):
-                self.showMessage( _("You have already downloaded this episode,"))
+                title = _('Episode already downloaded')
+                message = _('You have already downloaded this episode. Click on the episode to play it.')
+                self.show_message( message, title)
             elif want_message_dialog:
-                self.showMessage( _("This file is already being downloaded."))
+                title = _('Download in progress')
+                message = _('You are currently downloading this episode. Please check the download status tab to check when the download is finished.')
+                self.show_message( message, title)
 
             if os.path.exists( filename):
                 log( 'Episode has already been downloaded.')
@@ -508,7 +533,9 @@ class Gpodder(SimpleGladeApp):
         if self.channels:
             self.update_feed_cache()
         else:
-            self.showMessage( _('Subscribe to some channels first.'))
+            title = _('No channels available')
+            message = _('You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts.')
+            self.show_message( message, title)
     #-- Gpodder.on_itemUpdate_activate }
 
     #-- Gpodder.on_itemDownloadAllNew_activate {
@@ -518,6 +545,7 @@ class Gpodder(SimpleGladeApp):
         to_download = []
 
         message_part = ''
+        new_sum = 0
 
         for channel in self.channels:
             s = 0
@@ -529,21 +557,36 @@ class Gpodder(SimpleGladeApp):
                     s = s + 1
             else:
                 for episode in channel:
-                    if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url):
+                    if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
                         log( 'Episode "%s" is newer.', episode.title)
                         to_download.append( ( channel, episode ))
-                        s = s + 1
+                        s += 1
             if s:
-                message_part = message_part + (_('%d new in %s') % ( s, channel.title, )) + "\n"
+                new_part = _('  <b>%d</b> new episodes in <b>%s</b>') % ( s, channel.title, )
+
+                if s == 1:
+                    new_part = _('  <b>1</b> new episode in <b>%s</b>') % ( channel.title, )
+
+                message_part += new_part + "\n"
+                new_sum += s
 
         if to_download:
-            if self.showConfirmation( _("New episodes:\n\n%s\nDo you want to download them now?") % ( message_part, )):
+            title = _('New episodes available')
+
+            if new_sum == 1:
+                title = _('New episode available')
+
+            message = _('New episodes are available to be downloaded:\n\n%s\nDo you want to download these episodes now?') % ( message_part, )
+
+            if self.show_confirmation( message, title):
                 for channel, episode in to_download:
                     filename = channel.getPodcastFilename( episode.url)
                     if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( episode.url):
                         downloadThread( episode.url, filename, None, self.download_status_manager, episode.title, channel, episode, self.ldb).download()
         else:
-            self.showMessage( _('No new episodes.'))
+            title = _('No new episodes')
+            message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
+            self.show_message( message, title)
 
         self.updateTreeView()
   #-- Gpodder.on_itemDownloadAllNew_activate }
@@ -552,10 +595,14 @@ class Gpodder(SimpleGladeApp):
     def on_sync_to_ipod_activate(self, widget, *args):
         gl = gPodderLib()
         if gl.device_type == 'none':
-            self.showMessage( _('Configure your device in the preferences dialog first.'))
+            title = _('No device configured')
+            message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
+            self.show_message( message, title)
         elif gl.device_type == 'ipod':
             if not ipod_supported():
-                self.showMessage( _('Please install python-gpod and pymad libraries.\nMore information on the gPodder homepage.'))
+                title = _('Libraries needed: gpod, pymad')
+                message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
+                self.show_message( message, title)
                 return
             sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             while gtk.events_pending():
@@ -578,12 +625,18 @@ class Gpodder(SimpleGladeApp):
         target_function = None
 
         if gl.device_type == 'none':
-            self.showMessage( _('Configure your device in the preferences dialog first.'))
+            title = _('No device configured')
+            message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
+            self.show_message( message, title)
         elif gl.device_type == 'ipod':
-            if self.showConfirmation( _('Do you really want to truncate the Podcasts playlist on your iPod?')):
+            title = _('Delete podcasts on iPod?')
+            message = _('Do you really want to completely remove all episodes in the <b>Podcasts</b> playlist on your iPod?')
+            if self.show_confirmation( message, title):
                 target_function = self.ipod_cleanup_proc
         elif gl.device_type == 'filesystem':
-            if self.showConfirmation( _('Do you really want to delete all Podcasts from your MP3 player?')):
+            title = _('Delete podcasts from MP3 player?')
+            message = _('Do you really want to completely remove all episodes from your MP3 player?')
+            if self.show_confirmation( message, title):
                 target_function = self.fs_cleanup_proc
 
         if target_function:
@@ -610,7 +663,9 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemEditChannel_activate {
     def on_itemEditChannel_activate(self, widget, *args):
         if not self.active_channel:
-            self.showMessage( _('Please select a channel to edit.'))
+            title = _('No channel selected')
+            message = _('Please select a channel in the channels list to edit.')
+            self.show_message( message, title)
             return
         
         result = Gpodderchannel( gpodderwindow = self.gPodder).requestURL( self.active_channel)
@@ -625,7 +680,9 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemRemoveChannel_activate {
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
-            if self.showConfirmation( _("Do you really want to remove this channel and downloaded episodes?\n\n %s") % self.active_channel.title):
+            title = _('Remove channel and episodes?')
+            message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % ( self.active_channel.title, )
+            if self.show_confirmation( message, title):
                 self.active_channel.remove_cache_file()
                 self.active_channel.remove_downloaded()
                 # only delete partial files if we do not have any downloads in progress
@@ -641,7 +698,9 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_itemExportChannels_activate {
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
-            self.showMessage( _("Your channel list is empty. Nothing to export."))
+            title = _('Nothing to export')
+            message = _('Your list of channel subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list.')
+            self.show_message( message, title)
             return
 
         dlg = gtk.FileChooserDialog( title=_("Export to OPML"), parent = None, action = gtk.FILE_CHOOSER_ACTION_SAVE)
@@ -750,7 +809,9 @@ class Gpodder(SimpleGladeApp):
                 url = self.treeAvailable.get_model().get_value( selection_iter, 0)
                 self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
         except:
-            self.showMessage( _("You have not selected an episode to download."))
+            title = _('Nothing selected')
+            message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')
+            self.show_message( message, title)
     #-- Gpodder.on_treeAvailable_row_activated }
 
     #-- Gpodder.on_btnDownload_clicked {
@@ -771,19 +832,31 @@ class Gpodder(SimpleGladeApp):
 
         last_pubdate = channel.newest_pubdate_downloaded()
         if not last_pubdate:
-            if self.showConfirmation( _('Would you like to download the three newest episodes in this channel?')):
+            title = _('Download newest podcasts?')
+            message = _('Would you like to download the three newest episodes from <b>%s</b>?') % ( channel.title, )
+            if self.show_confirmation( message, title):
                 episodes_to_download = channel[0:min(len(channel),3)]
         else:
             for episode in channel:
-                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url):
+                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
                     log( 'Episode "%s" is newer.', episode.title)
                     episodes_to_download.append( episode)
 
             if not episodes_to_download:
-                self.showMessage( _('You have already downloaded the most recent episode.'))
+                title = _('No episodes to download')
+                message = _('You have already downloaded the most recent episodes from <b>%s</b>.') % ( channel.title, )
+                self.show_message( message, title)
             else:
-                e_str = '\n'.join( [ e.title for e in episodes_to_download ] )
-                if not self.showConfirmation( _('Do you want to download these episodes?\n\n%s') % ( e_str, )):
+                if len(episodes_to_download) > 1:
+                    e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download ] )
+                    title = _('Download new episodes?')
+                    message = _('New episodes are available for download. If you want, you can download these episodes to your computer now.')
+                    message = '%s\n\n%s' % ( message, e_str, )
+                else:
+                    title = _('Download %s?') % episodes_to_download[0].title
+                    message = _('A new episodes is available for download. If you want, you can download this episode to your computer now.')
+
+                if not self.show_confirmation( message, title):
                     return
 
         for episode in episodes_to_download:
@@ -805,11 +878,14 @@ class Gpodder(SimpleGladeApp):
             log( 'Nothing selected to cancel.')
             return
 
+        title = _('Cancel downloads?')
+        message = _("Cancelling the download will stop the %d selected downloads and remove partially downloaded files.") % selection.count_selected_rows()
+
         if selection.count_selected_rows() == 1:
-            msg = _("Do you really want to cancel this download?")
-        else:
-            msg = _("Do you really want to cancel %d downloads?") % selection.count_selected_rows()
-        if self.showConfirmation( msg):
+            title = _('Cancel download?')
+            message = _("Cancelling this download will remove the partially downloaded file and stop the download.")
+
+        if self.show_confirmation( message, title):
             # cancel downloads one by one
             try:
                 for apath in selection_tuple[1]:
@@ -848,13 +924,14 @@ class Gpodder(SimpleGladeApp):
             log( 'Nothing selected - will not remove any downloaded episode.')
             return
 
+        title = _('Remove %d episodes?') % selection.count_selected_rows()
+        message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
         if selection.count_selected_rows() == 1:
-            msg = _("Do you really want to remove this episode?")
-        else:
-            msg = _("Do you really want to remove %d episodes?") % ( selection.count_selected_rows() )
+            title = _('Remove %s?')  % model.get_value( model.get_iter( selection_tuple[1][0]), 1)
+            message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
         
         # if user confirms deletion, let's remove some stuff ;)
-        if self.showConfirmation( msg):
+        if self.show_confirmation( message, title):
             try:
                 # iterate over the selection, see also on_treeDownloads_row_activated
                 for apath in selection_tuple[1]:
@@ -1275,19 +1352,22 @@ class Gpodderepisode(SimpleGladeApp):
     #-- Gpodderepisode custom methods {
     #   Write your own methods here
     def set_episode( self, episode, channel = None):
-        self.episode_title.set_markup( '<big><b>%s</b></big>' % episode.title)
+        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % episode.title)
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
         self.episode_description.set_buffer( b)
         self.LabelDownloadLink.set_text(episode.url)
         self.LabelWebsiteLink.set_text(episode.link)
         self.gPodderEpisode.set_title( episode.title)
+
         if not episode.link and channel:
             self.LabelWebsiteLink.set_text( channel.link)
+
         if channel:
-            smalltext = _('from %s') % ( channel.title )
-            self.channel_title.set_markup( '<small>%s</small>' % smalltext)
-        self.labelPubDate.set_markup( '<b>%s</b>' % ( episode.pubDate ))
+            smalltext = _('<i>from %s</i>') % ( channel.title )
+            self.channel_title.set_markup( smalltext)
+
+        self.labelPubDate.set_markup( episode.pubDate)
         self.download_callback = None
         self.play_callback = None
 

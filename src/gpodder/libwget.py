@@ -30,6 +30,7 @@ from os.path import basename
 from os.path import dirname
 
 from os import system
+from os import kill
 from threading import Thread
 from threading import Lock
 from shutil import move
@@ -48,31 +49,6 @@ import gtk
 import gobject
 
 class downloadThread( object):
-    url = ""
-    filename = ""
-    tempname = ""
-    
-    ready_event = None
-    pid = -1
-    percentage = "0"
-    speed = _("unknown")
-
-    thread = None
-    result = -1
-
-    statusmgr = None
-    statusmgr_id = None
-
-    cutename = None
-
-    # for downloaded items
-    channelitem = None
-    item = None
-    localdb = None
-
-    # well..
-    is_cancelled = False
-    
     def __init__( self, url, filename, ready_event = None, statusmgr = None, cutename = _("unknown"), channelitem = None, item = None, localdb = None):
         self.url = url.replace( "%20", " ")
         
@@ -92,6 +68,8 @@ class downloadThread( object):
         self.channelitem = channelitem
         self.item = item
         self.localdb = localdb
+
+        self.is_cancelled = False
 
 	self.statusmgr = statusmgr
 	if self.statusmgr != None:
@@ -170,7 +148,7 @@ class downloadThread( object):
     def cancel( self):
         self.is_cancelled = True
         if self.pid != -1:
-            system( "kill -9 " + str( self.pid))
+            kill( self.pid, signal.SIGKILL)
     
     def download( self):
         self.thread = Thread( target=self.thread_function)
@@ -285,56 +263,4 @@ class downloadStatusManager( object):
     def getModel( self):
         return self.tree_model
 # end downloadStatusManager
-
-# getWebData: get an rss feed and save it locally, return content
-def getWebData( url, force_update):
-    filename = configpath + md5.new( url).hexdigest() + ".feed"
-    downloadProcedure( url, filename, force_update)
-
-    return filename
-# end getWebData()
-
-# downloadProcedure: gerneric implementation of downloading with gui
-def downloadProcedure( url, filename, force_update):
-    global dlinfo_speed
-    global dlinfo_percentage
-    global dlinfo_result
-    
-    url = url.replace( "%20", " ")
-    
-    dlinfo_speed = '...'
-    dlinfo_percentage = "0"
-    dlinfo_result = -1
-    
-    # check if file does not exist and download if necessary
-    if( os.path.exists( filename) == False or force_update == True):
-        wait_dialog_display( url, filename, dlinfo_speed)
-        
-        # set up the thread and start it in the background
-        finished = threading.Event()
-        argumente = ( url, filename, finished)
-        mythread = threading.Thread( target=downloadThread, args=argumente )
-        mythread.start()
-
-        # wait for thread to be finished
-        while finished.isSet() == False:
-            finished.wait( 0.1)
-            wait_dialog_update( url, filename, dlinfo_speed, dlinfo_percentage)
-            updui()
-        # end while
-        wait_dialog_destroy()
-    # end if
-    
-    # the error handling comes here..
-    if dlinfo_result > 0:
-        if dlinfo_result == 9:
-            showMessage( _("Download has been cancelled."))
-        else:
-            showMessage( _("Download error. Wget exit code was: %d") % dlinfo_result)
-        # end if
-    # end if
-    
-    # make the download result available to caller
-    return dlinfo_result
-# end downloadProcedure()
 

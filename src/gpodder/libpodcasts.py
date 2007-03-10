@@ -276,7 +276,7 @@ class podcastChannel(ListType):
                     if restored:
                         callback_error( _('Error downloading %s. Using cached file instead.') % ( self.url, ))
                     else:
-                        callback_error( _('Error downloading %s.'))
+                        callback_error( _('Error downloading %s.') % ( self.url, ))
                 return restored
         
         return self.cache_file

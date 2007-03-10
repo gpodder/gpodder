@@ -1,3 +1,18 @@
+Sat, 10 Mar 2007 18:35:41 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Clean-up libwget (remove class members of 
+          downloadThread, use proper os.kill() instead of os.system("kill..,
+          remove _very_ old getWebData and downloadProcedure functions)
+        * src/gpodder/libpodcasts.py: Fix error callback when download fails 
+          and we do not have a backup cache file to restore
+        * src/gpodder/gpodder.py: Re-factor showMessage and showConfirmation 
+          to show_message() and show_confirmation(), respectively and make the
+          dialog creation as suggested in the Gnome HIG; update all invocations
+          of showMessage and showConfirmation to give better feedback on what
+          is going on; also clean up some things in gPodderEpisode dialog
+        * data/gpodder.glade: Fix some things in gPodderEpisode dialog and 
+          use the "gtk-down" icon for download buttons
+        * bin/gpodder: Bump version + release date
+
 Sat, 10 Mar 2007 16:52:22 +0100 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Support cancelling downloading an RSS 
           file by supplying a callback_is_cancelled variable that should
