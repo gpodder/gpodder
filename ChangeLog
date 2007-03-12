@@ -1,3 +1,16 @@
+Mon, 12 Mar 2007 12:17:02 +0100 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Add can_sort_by_pubdate() to 
+          podcastChannel and add __cmp__() to podcastItem to enable sorting 
+          of podcastChannel items by pubDate (ascending, descending by using
+          reverse()..)
+        * src/gpodder/librssreader.py: If after parsing a RSS file it is 
+          possible to sort the resulting channel by pubDate, do so
+        * src/gpodder/gpodder.py: Omit output of excessive episodes if there
+          are more than ten new episodes (so everything fits on the screen 
+          nicely); thanks to Michel Salim for reporting this and the bug 
+          above (channel with wrongly sorted episodes in RSS file)
+        * bin/gpodder: version + release date bump
+
 Sat, 10 Mar 2007 18:35:41 +0100 <thp@perli.net>
         * src/gpodder/libwget.py: Clean-up libwget (remove class members of 
           downloadThread, use proper os.kill() instead of os.system("kill..,

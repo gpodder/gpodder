@@ -848,7 +848,12 @@ class Gpodder(SimpleGladeApp):
                 self.show_message( message, title)
             else:
                 if len(episodes_to_download) > 1:
-                    e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download ] )
+                    if len(episodes_to_download) < 10:
+                        e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download ] )
+                    else:
+                        e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download[:7] ] )
+                        e_str_2 = _('(...%d more episodes...)') % ( len(episodes_to_download)-7, )
+                        e_str = _('%s\n  <i>%s</i>') % ( e_str, e_str_2, )
                     title = _('Download new episodes?')
                     message = _('New episodes are available for download. If you want, you can download these episodes to your computer now.')
                     message = '%s\n\n%s' % ( message, e_str, )

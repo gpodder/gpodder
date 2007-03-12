@@ -162,6 +162,17 @@ class podcastChannel(ListType):
         for episode in self.localdb_channel:
             pubdate = episode.newer_pubdate( pubdate)
         return pubdate
+
+    def can_sort_by_pubdate( self):
+        for episode in self:
+            try:
+                mktime_tz(parsedate_tz( episode.pubDate))
+            except:
+                log('Episode %s has non-parseable pubDate. Sorting disabled.', episode.title)
+                return False
+                can_sort = False
+
+        return True
     
     def addDownloadedItem( self, item):
         # no multithreaded access
@@ -393,6 +404,15 @@ class podcastItem(object):
                 return desc[:80] + '...'
             else:
                 return desc
+
+    def __cmp__( self, other):
+        try:
+            timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
+            timestamp_other = int(mktime_tz( parsedate_tz( other.pubDate)))
+        except:
+            return 0
+        
+        return timestamp_self - timestamp_other
 
     def compare_pubdate( self, pubdate):
         try:

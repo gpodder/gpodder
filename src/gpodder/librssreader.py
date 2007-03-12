@@ -77,6 +77,13 @@ class rssReader( DefaultHandler, ErrorHandler):
             parser.parse( filename)
         finally:
             libgpodder.releaseLock()
+
+        if self.channel and self.channel.can_sort_by_pubdate():
+            # All episodes have a parseable pubDate, so 
+            # we can simply sort the episodes by their 
+            # pubDate and be sure to have a sane ordering.
+            self.channel.sort()
+            self.channel.reverse()
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
