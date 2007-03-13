@@ -82,8 +82,7 @@ class rssReader( DefaultHandler, ErrorHandler):
             # All episodes have a parseable pubDate, so 
             # we can simply sort the episodes by their 
             # pubDate and be sure to have a sane ordering.
-            self.channel.sort()
-            self.channel.reverse()
+            self.channel.sort( reverse = True)
     
     def startElement( self, name, attrs):
         self.current_element_data = ""
