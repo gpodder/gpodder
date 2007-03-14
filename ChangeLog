@@ -1,3 +1,10 @@
+Wed, 14 Mar 2007 19:39:41 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Replace some more characters in podcast
+          channel sync code (for filesystem-based MP3 players) to fix issues 
+          with podcasts that have stupid titles (thanks to Pieter De Decker 
+          for reporting this issue)
+        * bin/gpodder: version + release date bump
+
 Tue, 13 Mar 2007 19:45:17 +0100 <thp@perli.net>
         * src/gpodder/librssreader.py: Make sorting a single step by using
           sort( reverse = True) instead of sort() + reverse() -- thanks to 

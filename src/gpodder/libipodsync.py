@@ -406,7 +406,7 @@ class gPodder_FSSync( gPodderSyncMethod):
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def add_episode_from_channel( self, channel, episode):
-        replace_chars = ( '/', '?', ':', '!')
+        replace_chars = ( '/', '?', ':', '!', '<', '>', '&', '*', '|')
 
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
 
