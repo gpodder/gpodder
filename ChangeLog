@@ -1,3 +1,17 @@
+Wed, 14 Mar 2007 20:27:19 +0100 <thp@perli.net>
+        * src/gpodder/libwget.py: Cosmetic change to check if some variables 
+          have values
+        * src/gpodder/libpodcasts.py: Only write localDB file if needed in 
+          addDownloadedItem; remove downloaded file in delete_episode_by_url();
+          in podcastItem's __cmp__() function, return -1 if there has been 
+          an error comparing some value (returning zero, as before, lead to 
+          many problems this week.. oh my.. ;)
+        * src/gpodder/gpodder.py: Try to add item to localdb (if it has not 
+          yet been added) when trying to playback a already downloaded item;
+          simply call delete_episode_by_url() in the remove function code, 
+          because podcastChannel will now care about carrying out the 
+          necessary steps to remove the item completely
+
 Wed, 14 Mar 2007 19:39:41 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: Replace some more characters in podcast
           channel sync code (for filesystem-based MP3 players) to fix issues 

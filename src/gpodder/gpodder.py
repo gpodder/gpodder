@@ -482,6 +482,9 @@ class Gpodder(SimpleGladeApp):
 
         if widget:
             if widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay':
+                # addDownloadedItem just to make sure the episode is marked correctly in localdb
+                current_channel.addDownloadedItem( current_podcast)
+                # open the file now
                 gPodderLib().openFilename( filename)
                 return
          
@@ -942,10 +945,7 @@ class Gpodder(SimpleGladeApp):
                 for apath in selection_tuple[1]:
                     selection_iter = model.get_iter( apath)
                     url = model.get_value( selection_iter, 0)
-                    episode_filename = self.ldb.get_filename_by_podcast( channel_url, url)
-                    if episode_filename:
-                        self.active_channel.delete_episode_by_url( url)
-                        gPodderLib().deleteFilename( episode_filename)
+                    self.active_channel.delete_episode_by_url( url)
       
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()

@@ -134,7 +134,7 @@ class downloadThread( object):
 	    self.statusmgr.unregisterId( self.statusmgr_id)
 	# self.statusmgr
 
-        if self.result == 0 and self.channelitem != None and self.item != None:
+        if self.result == 0 and self.channelitem and self.item:
             log( 'Download thread finished: Adding downloaded item to local database')
             self.channelitem.addDownloadedItem( self.item)
             

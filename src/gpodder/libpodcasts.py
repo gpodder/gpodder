@@ -192,12 +192,10 @@ class podcastChannel(ListType):
         # only append if not already in list
         if not already_in_list:
             self.downloaded.append( item)
-        else:
-            log( 'Podcast episode already downloaded.')
+            writeLocalDB( localdb, self.downloaded)
 
         libgpodder.gPodderLib().history_mark_downloaded( item.url)
         
-        writeLocalDB( localdb, self.downloaded)
         libgpodder.releaseLock()
         return not already_in_list
     
@@ -370,6 +368,11 @@ class podcastChannel(ListType):
 
         self.localdb_channel = new_localdb
 
+        # clean-up downloaded file
+        if self.podcastFilenameExists( url):
+            episode_filename = self.getPodcastFilename( url)
+            libgpodder.gPodderLib().deleteFilename( episode_filename)
+
         libgpodder.releaseLock()
 
 class podcastItem(object):
@@ -410,7 +413,10 @@ class podcastItem(object):
             timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
             timestamp_other = int(mktime_tz( parsedate_tz( other.pubDate)))
         except:
-            return 0
+            # by default, do as if this is not the same
+            # this is here so that comparisons with None 
+            # can be allowed (item != None -> True)
+            return -1
         
         return timestamp_self - timestamp_other
 
