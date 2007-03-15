@@ -48,6 +48,7 @@ from time import time
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
 
+from libtagupdate import update_metadata_on_file
 from threading import Event
 from libwget import downloadThread
 import re
@@ -181,7 +182,7 @@ class podcastChannel(ListType):
         log( 'Local database: %s', localdb)
 
         self.downloaded = self.localdb_channel
-        
+
         already_in_list = False
         # try to find the new item in the list
         for it in self.downloaded:
@@ -193,6 +194,14 @@ class podcastChannel(ListType):
         if not already_in_list:
             self.downloaded.append( item)
             writeLocalDB( localdb, self.downloaded)
+
+            # Update metadata on file (if possible and wanted)
+            if libgpodder.gPodderLib().update_tags:
+                filename = self.getPodcastFilename( item.url)
+                try:
+                    update_metadata_on_file( filename, title = item.title, artist = self.title, album = _('gPodder podcasts'))
+                except:
+                    log('Error while calling update_metadata_on_file() :(')
 
         libgpodder.gPodderLib().history_mark_downloaded( item.url)
         

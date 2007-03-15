@@ -1,3 +1,18 @@
+Thu, 15 Mar 2007 22:28:52 +0100 <thp@perli.net>
+        * src/gpodder/libtagupdate.py: Add libtagupdate.py, which takes care 
+          of writing metadata to audio files on the user's harddisk; initially
+          supporting MP3 (through eyeD3) and OGG vorbis (through vorbiscomment 
+          command-line utility called with Python's popen2)
+        * src/gpodder/libpodcasts.py: Utilize libtagupdate to write metadata 
+          from episode info to the audio file
+        * src/gpodder/libgpodder.py: Support the update_tags configuration 
+          option for enabling/disabling audio file tag updating after download
+        * src/gpodder/gpodder.py: Support for update_tags flag in properties
+        * bin/gpodder: version + release date bump
+        * data/gpodder.glade: Add a checkbox "Updat tags on audio files after 
+          downloading" that makes sure metadata is written from the episode 
+          info to the downloaded audio file
+
 Wed, 14 Mar 2007 20:27:19 +0100 <thp@perli.net>
         * src/gpodder/libwget.py: Cosmetic change to check if some variables 
           have values

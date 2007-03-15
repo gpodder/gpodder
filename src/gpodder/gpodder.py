@@ -1091,6 +1091,7 @@ class Gpodderproperties(SimpleGladeApp):
             self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         self.downloadnew.set_active(gl.download_after_update)
+        self.updatetags.set_active(gl.update_tags)
         # colors
         self.reload_colors()
         # device type
@@ -1315,6 +1316,7 @@ class Gpodderproperties(SimpleGladeApp):
 
         gl.update_on_startup = self.updateonstartup.get_active()
         gl.download_after_update = self.downloadnew.get_active()
+        gl.update_tags = self.updatetags.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
             gl.device_type = 'none'
