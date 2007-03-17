@@ -1120,7 +1120,6 @@ class Gpodderproperties(SimpleGladeApp):
         self.comboPlayerApp.pack_start( cellrenderer, True)
         self.comboPlayerApp.add_attribute( cellrenderer, 'markup', 0)
         # end setup cell renderers
-        self.on_close = None
     #-- Gpodderproperties.new }
 
     #-- Gpodderproperties custom methods {
@@ -1180,8 +1179,7 @@ class Gpodderproperties(SimpleGladeApp):
 
     #-- Gpodderproperties.on_gPodderProperties_destroy {
     def on_gPodderProperties_destroy(self, widget, *args):
-        if self.on_close != None:
-            self.on_close()
+        self.on_btnOK_clicked( widget, *args)
     #-- Gpodderproperties.on_gPodderProperties_destroy }
 
     #-- Gpodderproperties.on_comboPlayerApp_changed {
@@ -1342,11 +1340,6 @@ class Gpodderproperties(SimpleGladeApp):
         if self.callback_finished:
             self.callback_finished()
     #-- Gpodderproperties.on_btnOK_clicked }
-
-    #-- Gpodderproperties.on_btnCancel_clicked {
-    def on_btnCancel_clicked(self, widget, *args):
-        self.gPodderProperties.destroy()
-    #-- Gpodderproperties.on_btnCancel_clicked }
 
 
 class Gpodderepisode(SimpleGladeApp):
