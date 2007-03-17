@@ -24,6 +24,7 @@ CHANGELOG_EDT=.ChangeLog.edit
 EMAIL ?= $$USER@`hostname -f`
 
 DESTDIR ?= /
+PREFIX ?= /usr
 
 # default editor of user has not set "EDITOR" env variable
 EDITOR ?= vim
@@ -67,7 +68,7 @@ release: distclean
 	python setup.py sdist
 
 install: generators
-	python setup.py install --root=$(DESTDIR)
+	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 uninstall:
 	@echo "##########################################################################"
@@ -75,7 +76,7 @@ uninstall:
 	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
 	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
 	@echo "##########################################################################"
-	rm -rf /usr/share/gpodder /usr/share/pixmaps/gpodder* /usr/share/applications/gpodder.desktop /usr/share/man/man1/gpodder.man.1 /usr/bin/gpodder /usr/lib/python?.?/site-packages/gpodder/ /usr/share/locale/*/LC_MESSAGES/gpodder.mo
+	rm -rf $(PREFIX)/share/gpodder $(PREFIX)/share/pixmaps/gpodder* $(PREFIX)/share/applications/gpodder.desktop $(PREFIX)/share/man/man1/gpodder.man.1 $(PREFIX)/bin/gpodder $(PREFIX)/lib/python?.?/site-packages/gpodder/ $(PREFIX)/share/locale/*/LC_MESSAGES/gpodder.mo
 
 ##########################################################################
 
