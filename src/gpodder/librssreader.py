@@ -61,7 +61,6 @@ class rssReader( DefaultHandler, ErrorHandler):
         log( '[rssReader] Warning: %s', str( exception))
 
     def parseXML( self, url, filename):
-        log('rssReader parseXML-> %s, %s', url, filename)
         self.channel_url = url
         self.channel = None
         self.current_item = None

@@ -65,6 +65,8 @@ from libipodsync import gPodder_iPodSync
 from libipodsync import gPodder_FSSync
 from libipodsync import ipod_supported
 
+from libtagupdate import tagging_supported
+
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
 app_authors = [
@@ -483,7 +485,8 @@ class Gpodder(SimpleGladeApp):
         if widget:
             if widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay':
                 # addDownloadedItem just to make sure the episode is marked correctly in localdb
-                current_channel.addDownloadedItem( current_podcast)
+                if current_channel.addDownloadedItem( current_podcast):
+                    self.ldb.clear_cache()
                 # open the file now
                 gPodderLib().openFilename( filename)
                 return
@@ -1091,7 +1094,12 @@ class Gpodderproperties(SimpleGladeApp):
             self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         self.downloadnew.set_active(gl.download_after_update)
-        self.updatetags.set_active(gl.update_tags)
+        if tagging_supported():
+            self.updatetags.set_active(gl.update_tags)
+        else:
+            self.updatetags.set_sensitive( False)
+            new_label = '%s (%s)' % ( self.updatetags.get_label(), _('needs python-eyed3') )
+            self.updatetags.set_label( new_label)
         # colors
         self.reload_colors()
         # device type

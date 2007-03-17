@@ -31,15 +31,21 @@
 # for ogg/vorbis (vorbiscomment utility)
 import popen2
 
+# for logging
+from liblogger import log
+
 # for mp3 files
 has_eyed3 = True
 try:
     import eyeD3
 except:
+    log('(tagupdate) eyed3 not found -- tag update disabled')
     has_eyed3 = False
 
-
-from liblogger import log
+# do we provide tagging functions to the user?
+def tagging_supported():
+    global has_eyed3
+    return has_eyed3
 
 
 tag_update_methods = {}

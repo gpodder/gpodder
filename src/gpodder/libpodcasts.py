@@ -49,6 +49,8 @@ from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
 
 from libtagupdate import update_metadata_on_file
+from libtagupdate import tagging_supported
+
 from threading import Event
 from libwget import downloadThread
 import re
@@ -130,13 +132,13 @@ class podcastChannel(ListType):
                                fset=set_localdb_channel)
     
     def set_metadata_from_localdb( self):
-        log( 'Reading metadata from database: %s', self.index_file)
+        log( 'Reading metadata from %s', self.index_file)
         libgpodder.getLock()
         self.copy_metadata_from( self.localdb_channel)
         libgpodder.releaseLock()
 
     def save_metadata_to_localdb( self):
-        log( 'Saving metadata to database: %s', self.index_file)
+        log( 'Saving metadata to %s', self.index_file)
         libgpodder.getLock()
         ch = self.localdb_channel
         ch.copy_metadata_from( self)
@@ -196,7 +198,7 @@ class podcastChannel(ListType):
             writeLocalDB( localdb, self.downloaded)
 
             # Update metadata on file (if possible and wanted)
-            if libgpodder.gPodderLib().update_tags:
+            if libgpodder.gPodderLib().update_tags and tagging_supported():
                 filename = self.getPodcastFilename( item.url)
                 try:
                     update_metadata_on_file( filename, title = item.title, artist = self.title, album = _('gPodder podcasts'))

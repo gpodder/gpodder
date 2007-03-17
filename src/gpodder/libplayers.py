@@ -35,6 +35,8 @@ from ConfigParser import RawConfigParser
 
 import gobject
 
+import gtk
+
 from gtk import IconTheme
 from gtk import ListStore
 
@@ -80,7 +82,7 @@ class UserAppsReader(object):
             if exists( dir):
                 for file in glob( dir+'/*.desktop'):
                     self.parse_and_append( file)
-        self.apps.append( UserApplication( 'Shell command', '', 'audio/*', 'gtk-execute'))
+        self.apps.append( UserApplication( 'Shell command', '', 'audio/*', gtk.STOCK_EXECUTE))
 
     def parse_and_append( self, filename):
         try:

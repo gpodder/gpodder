@@ -1,136 +1,77 @@
-
-
-
-
-
-
-
-                        |'\     |   |         /''\   /''\
-                        |./    .|  .|         |  |   \  |
-                    /'\ |  /\ / | / | /| |'   |  |    ''|   \/
-                    \_/ |  \/ \_| \_| \_ |    \../ o .__/ o /\
-                   \_/        http://gpodder.berlios.de/
+                               _
+                              | \      |   |
+                           _  |_/ _   _|  _|  _   _
+                          / \ |  / \ / | / | /_| |
+                          \_/ |  \_/ \_| \_| \_  |
+                         ._/ http://gpodder.berlios.de/
 
            - -- == === ================================= === == -- -
+              Copyright (c) 2005-2007 Thomas Perl <thp@perli.net>
 
-
- gPodder 0.9.0 README
- ==================
- Copyright (c) 2005-2007 Thomas Perl <thp@perli.net>
- Version 0.9.0 released on 06.03.2007 under the GNU GPL
+ ==========================
+ License (see COPYING file)
+ ==========================
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  as published by the Free Software Foundation; either version 2
  of the License, or (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ ============
+ Dependencies
+ ============
 
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
- MA  02110-1301, USA.
-
-
- ============================================
- 1) What's new in gPodder since version 0.8.9
- ============================================
-
-  * Bugfix: Fix lexists fallback bug for python<2.4 (Thanks to Mike Coulson)
-  * Translation: Portuguese updated (Thanks to Joel Calado)
-  * Translation: Spanish updated (Thanks to José Luis Fustel)
-  * Feature: Keep the available podcasts tab scroll position after actions
-  * Feature: Support for MP3 player cleanup
-
- ===============
- 2) Dependencies
- ===============
-
- Debian/Ubuntu users can install the dependencies with:
+   * python (>= 2.3)
+   * python-glade2
+   * python-gtk2
+   * python-xml
+   * wget
  
-   apt-get install python python-glade2 python-gtk2 wget python-xml
- 
- If you want to have iPod synchronization support, you will also 
- have to install the following OPTIONAL packages:
+ Additional dependencies for iPod synchronization support:
 
    * One of the following metadata libraries:
-     * python-pymad (preferred; MAD MP3 decoder Python bindings)
-     * python-eyed3 (alternative to pymad; eyeD3 Python bindings)
+     - python-pymad (preferred; MAD MP3 decoder Python bindings)
+     - python-eyed3 (alternative to pymad; eyeD3 Python bindings)
    * python-gpod (libgpod's Python bindings)
    * python-id3 (OPTIONAL; if you want ID3v2 cover art extraction)
    * mplayer (OPTIONAL; if you want video podcast length detection)
 
- Other users: Please install the above packages somehow ;)
- If you want to install gPodder from source, you have to 
- get the following packages:
+ Additional dependencies for "Update tags after download":
  
-   apt-get install help2man python-dev intltool imagemagick
+   * python-eyed3 (for updating MP3 files)
+   * vorbis-tools (for updating OGG files)
 
-  Debian developers should install these additional packages:
-
-   apt-get install devscripts debhelper fakeroot
+ Additional dependencies if you want to install from source:
  
- =====================
- 3) How to run/install
- =====================
+   * help2man
+   * python-dev
+   * intltool
+   * imagemagick
+
+ ============
+ Installation
+ ============
 
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
    tar xzvf gpodder-0.9.0.tar.gz
    cd gpodder-0.9.0/
- 
- After that you can start gPodder by starting it with the following 
- command:
-
-   make test
- 
- If this works out, close gPodder again and install it system-wide:
-
-   sudo make install
-
- This will install gPodder in standard locations. After the installation 
- routine (hopefully) finished successfully, you might run gPodder from 
- any path on your machine by simply typing:
-
-   gpodder
+   make install
 
  If you have any problems, please visit the gPodder website or mail the 
  gPodder mailing list (see below for more information).
 
- =============
- 4) How to use
- =============
-
- gPodder was designed with usability in mind. Saying that gPodder is 
- self-explaining saves me from writing long documentation. Watch out 
- for the gPodder website. If you need more information, please mail 
- our gPodder mailing list :)
-
- =============
- 5) Known bugs
- =============
-
- No known bug so far. Please mail the mailing list to report bugs - 
- we'll try to fix them in the next release :) Thanks!
-
  =========================================
- 6) Feature requests, bug reports, patches
+ Feature requests, bug reports and patches
  =========================================
 
  Feel free to mail me about feature requests, bug reports, patches or nearly
  anything that comes to your mind relating gPodder:
 
-   Author's eMail:         thp@perli.net
    gPodder homepage:       http://gpodder.berlios.de/
    gPodder mailing list:   gpodder-devel@berlios.de
+   Author's eMail:         thp@perli.net
 
-
-           And last but not least... have fun with gPodder :)
-
-                                         -- Thomas Perl, March 06th 2007
-
+ Have fun with gPodder!
 
