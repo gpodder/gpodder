@@ -483,7 +483,7 @@ class Gpodder(SimpleGladeApp):
         filename = current_channel.getPodcastFilename( current_podcast.url)
 
         if widget:
-            if widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay':
+            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay') and os.path.exists( filename):
                 # addDownloadedItem just to make sure the episode is marked correctly in localdb
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()

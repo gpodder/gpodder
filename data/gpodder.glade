@@ -505,12 +505,19 @@
 		    </widget>
 		  </child>
 
+                  <child>
+                    <widget class="GtkSeparatorMenuItem" id="separator8">
+                      <property name="visible">True</property>
+                    </widget>
+                  </child>
+
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemPlaySelected">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Play selected episode</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownloadedExecute_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+                      <signal name="activate" handler="on_btnDownloadedExecute_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+                      <accelerator key="Return" modifiers="GDK_SHIFT_MASK" signal="activate"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image2325">
