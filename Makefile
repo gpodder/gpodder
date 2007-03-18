@@ -76,7 +76,7 @@ uninstall:
 	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
 	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
 	@echo "##########################################################################"
-	rm -rf $(PREFIX)/share/gpodder $(PREFIX)/share/pixmaps/gpodder* $(PREFIX)/share/applications/gpodder.desktop $(PREFIX)/share/man/man1/gpodder.man.1 $(PREFIX)/bin/gpodder $(PREFIX)/lib/python?.?/site-packages/gpodder/ $(PREFIX)/share/locale/*/LC_MESSAGES/gpodder.mo
+	rm -rf $(PREFIX)/share/gpodder $(PREFIX)/share/pixmaps/gpodder* $(PREFIX)/share/applications/gpodder.desktop $(PREFIX)/share/man/man1/gpodder.1 $(PREFIX)/bin/gpodder $(PREFIX)/lib/python?.?/site-packages/gpodder/ $(PREFIX)/share/locale/*/LC_MESSAGES/gpodder.mo
 
 ##########################################################################
 
