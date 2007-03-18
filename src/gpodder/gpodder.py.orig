@@ -125,6 +125,11 @@ class Gpodder(SimpleGladeApp):
         print "on_btnDownloadedExecute_clicked called with self.%s" % widget.get_name()
     #-- Gpodder.on_btnDownloadedExecute_clicked }
 
+    #-- Gpodder.on_btnTransfer_clicked {
+    def on_btnTransfer_clicked(self, widget, *args):
+        print "on_btnTransfer_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnTransfer_clicked }
+
     #-- Gpodder.on_homepage_activate {
     def on_homepage_activate(self, widget, *args):
         print "on_homepage_activate called with self.%s" % widget.get_name()

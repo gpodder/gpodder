@@ -206,9 +206,12 @@ class Gpodder(SimpleGladeApp):
         if is_download_button:
             self.btnPlay.hide_all()
             self.btnDownload.show_all()
+            self.btnTransfer.hide_all()
         else:
             self.btnPlay.show_all()
             self.btnDownload.hide_all()
+            if gl.device_type != 'none':
+                self.btnTransfer.show_all()
 
     def updateComboBox( self):
         try:
@@ -231,6 +234,7 @@ class Gpodder(SimpleGladeApp):
             while gtk.events_pending():
                 gtk.main_iteration( False)
             self.treeAvailable.scroll_to_point( rect.x, rect.y)
+            self.play_or_download()
         else:
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
@@ -332,71 +336,31 @@ class Gpodder(SimpleGladeApp):
                 message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
                 self.show_message( message, title)
     
-    def sync_to_ipod_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-        sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+    def sync_to_ipod_proc( self, sync, episodes = None):
         if not sync.open():
-            title = _('Cannot access iPod')
-            message = _('Make sure your iPod is connected to your computer and mounted. Please also make sure you have set the correct path to your iPod in the preferences dialog.')
+            title = _('Cannot access device')
+            message = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
             gobject.idle_add( self.show_message, message, title)
             sync.close()
             return False
 
-        for channel in self.ldb.channel_list:
-            channel.set_metadata_from_localdb()
-            sync.sync_channel( channel)
+        if episodes == None:
+            for channel in self.ldb.channel_list:
+                channel.set_metadata_from_localdb()
+                sync.sync_channel( channel)
+        else:
+            sync.sync_channel( self.active_channel, episodes)
 
         sync.close()
 
-    def sync_to_fs_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-
-        if not gpl.can_write_directory( gpl.mp3_player_folder):
-            title = _('Cannot write to MP3 player')
-            message = _('Make sure your MP3 player is connected to your computer and mounted and that you have the correct permissions.')
-            gobject.idle_add( self.show_message, message, title)
-            if sync_win.close:
-                sync_win.close()
-            return False
-
-        sync = gPodder_FSSync( destination = gpl.mp3_player_folder, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
-
-        for channel in self.ldb.channel_list:
-            channel.set_metadata_from_localdb()
-            sync.sync_channel( channel)
-
-        sync.close()
-
-    def ipod_cleanup_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-        sync = gPodder_iPodSync( ipod_mount = gpl.ipod_mount, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+    def ipod_cleanup_proc( self, sync):
         if not sync.open():
-            title = _('Cannot access iPod')
-            message = _('Make sure your iPod is connected to your computer and mounted. Please also make sure you have set the correct path to your iPod in the preferences dialog.')
+            title = _('Cannot access device')
+            message = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
             gobject.idle_add( self.show_message, message, title)
             sync.close()
             return False
 
-        sync.clean_playlist()
-        sync.close()
-
-    def fs_cleanup_proc( self, sync_win):
-        gpl = gPodderLib()
-        gpl.loadConfig()
-
-        if not gpl.can_write_directory( gpl.mp3_player_folder):
-            title = _('Cannot write to MP3 player')
-            message = _('Make sure your MP3 player is connected to your computer and mounted and that you have the correct permissions.')
-            gobject.idle_add( self.show_message, message, title)
-            if sync_win.close:
-                sync_win.close()
-            return False
-
-        sync = gPodder_FSSync( destination = gpl.mp3_player_folder, callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
-        
         sync.clean_playlist()
         sync.close()
 
@@ -603,53 +567,69 @@ class Gpodder(SimpleGladeApp):
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
             self.show_message( message, title)
-        elif gl.device_type == 'ipod':
-            if not ipod_supported():
-                title = _('Libraries needed: gpod, pymad')
-                message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
-                self.show_message( message, title)
+            return
+
+        if gl.device_type == 'ipod' and not ipod_supported():
+            title = _('Libraries needed: gpod, pymad')
+            message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
+            self.show_message( message, title)
+            return
+        
+        if gl.device_type in [ 'ipod', 'filesystem' ]:
+            sync_class = None
+
+            if gl.device_type == 'filesystem':
+                sync_class = gPodder_FSSync
+            elif gl.device_type == 'ipod':
+                sync_class = gPodder_iPodSync
+
+            if not sync_class:
                 return
+
             sync_win = Gpoddersync( gpodderwindow = self.gPodder)
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            args = ( sync_win, )
-            thread = Thread( target = self.sync_to_ipod_proc, args = args)
-            thread.start()
-        elif gl.device_type == 'filesystem':
-            sync_win = Gpoddersync( gpodderwindow = self.gPodder)
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            args = ( sync_win, )
-            thread = Thread( target = self.sync_to_fs_proc, args = args)
+            sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+            thread_args = [ sync ]
+            if widget == None:
+                thread_args.append( args[0])
+            thread = Thread( target = self.sync_to_ipod_proc, args = thread_args)
             thread.start()
     #-- Gpodder.on_sync_to_ipod_activate }
 
     #-- Gpodder.on_cleanup_ipod_activate {
     def on_cleanup_ipod_activate(self, widget, *args):
         gl = gPodderLib()
-        target_function = None
-
         if gl.device_type == 'none':
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
             self.show_message( message, title)
-        elif gl.device_type == 'ipod':
-            title = _('Delete podcasts on iPod?')
-            message = _('Do you really want to completely remove all episodes in the <b>Podcasts</b> playlist on your iPod?')
-            if self.show_confirmation( message, title):
-                target_function = self.ipod_cleanup_proc
-        elif gl.device_type == 'filesystem':
-            title = _('Delete podcasts from MP3 player?')
-            message = _('Do you really want to completely remove all episodes from your MP3 player?')
-            if self.show_confirmation( message, title):
-                target_function = self.fs_cleanup_proc
+            return
 
-        if target_function:
+        if gl.device_type == 'ipod' and not ipod_supported():
+            title = _('Libraries needed: gpod, pymad')
+            message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
+            self.show_message( message, title)
+            return
+        
+        if gl.device_type in [ 'ipod', 'filesystem' ]:
+            sync_class = None
+
+            if gl.device_type == 'filesystem':
+                title = _('Delete podcasts from MP3 player?')
+                message = _('Do you really want to completely remove all episodes from your MP3 player?')
+                if self.show_confirmation( message, title):
+                    sync_class = gPodder_FSSync
+            elif gl.device_type == 'ipod':
+                title = _('Delete podcasts on iPod?')
+                message = _('Do you really want to completely remove all episodes in the <b>Podcasts</b> playlist on your iPod?')
+                if self.show_confirmation( message, title):
+                    sync_class = gPodder_iPodSync
+
+            if not sync_class:
+                return
+
             sync_win = Gpoddersync( gpodderwindow = self.gPodder)
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            args = ( sync_win, )
-            thread = Thread( target = target_function, args = args)
+            sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+            thread = Thread( target = self.ipod_cleanup_proc, args = ( sync, ))
             thread.start()
     #-- Gpodder.on_cleanup_ipod_activate }
 
@@ -730,6 +710,11 @@ class Gpodder(SimpleGladeApp):
         Gpodderopmllister( gpodderwindow = self.gPodder).get_channels_from_url( gPodderLib().opml_url, self.add_new_channel)
     #-- Gpodder.on_itemImportChannels_activate }
 
+    #-- Gpodder.on_btnTransfer_clicked {
+    def on_btnTransfer_clicked(self, widget, *args):
+        self.on_treeAvailable_row_activated( widget, args)
+    #-- Gpodder.on_btnTransfer_clicked }
+
     #-- Gpodder.on_homepage_activate {
     def on_homepage_activate(self, widget, *args):
         os.system( 'gnome-open ' + app_website)
@@ -801,6 +786,8 @@ class Gpodder(SimpleGladeApp):
         try:
             selection = self.treeAvailable.get_selection()
             selection_tuple = selection.get_selected_rows()
+            transfer_files = False
+            episodes = []
 
             if selection.count_selected_rows() > 1:
                 widget_to_send = None
@@ -809,10 +796,20 @@ class Gpodder(SimpleGladeApp):
                 widget_to_send = widget
                 show_message_dialog = True
 
+            if widget.get_name() == 'itemTransferSelected' or widget.get_name() == 'btnTransfer':
+                transfer_files = True
+
             for apath in selection_tuple[1]:
                 selection_iter = self.treeAvailable.get_model().get_iter( apath)
                 url = self.treeAvailable.get_model().get_value( selection_iter, 0)
-                self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
+
+                if transfer_files:
+                    episodes.append( self.active_channel.find_episode( url))
+                else:
+                    self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
+
+            if transfer_files and len(episodes):
+                self.on_sync_to_ipod_activate( None, episodes)
         except:
             title = _('Nothing selected')
             message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')

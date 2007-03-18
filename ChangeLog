@@ -1,3 +1,17 @@
+Sun, 18 Mar 2007 19:23:46 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Add support for selected episodes to be 
+          transferred to the device; get configuration data directly 
+          from gPodderLib()
+        * src/gpodder/gpodder.py.orig: Updated by tepache
+        * src/gpodder/gpodder.py: Add support for "transfer" to device of 
+          selected episodes instead of all episodes based on a patch by 
+          Preben Randhol <randhol+gpodder pvv.org>; simplified and cleaned-up
+          code for device sync and device cleanup to allow for easier addition 
+          of aforementioned patch
+        * data/gpodder.glade: Support for "transfer" to device button and menu
+          item based on a patch by Preben Randhol <randhol+gpodder pvv.org>
+        * bin/gpodder: pushed version + release date
+
 Sun, 18 Mar 2007 17:18:17 +0100 <thp@perli.net>
         * Makefile: Bugfix - remove manpage "gpodder.1" in "make uninstall"
 

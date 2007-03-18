@@ -91,6 +91,7 @@ import email.Utils
 
 import liblocaldb
 import libpodcasts
+import libgpodder
 
 import gobject
 
@@ -115,6 +116,9 @@ class gPodderSyncMethod:
         self.callback_progress = callback_progress
         self.callback_status = callback_status
         self.callback_done = callback_done
+    
+    def open( self):
+        return False
 
     def set_progress( self, pos, max):
         if self.callback_progress:
@@ -128,14 +132,17 @@ class gPodderSyncMethod:
         if self.callback_done:
             gobject.idle_add( self.callback_done)
 
-    def sync_channel( self, channel):
-        if not channel.sync_to_devices:
+    def sync_channel( self, channel, episodes = None):
+        if not channel.sync_to_devices and episodes == None:
             return False
 
-        max = len( channel)
+        if episodes == None:
+            episodes = channel
+
+        max = len( episodes)
         pos = 1
 
-        for episode in channel:
+        for episode in episodes:
             self.set_progress( pos, max)
             if channel.is_downloaded( episode):
                 self.add_episode_from_channel( channel, episode)
@@ -165,10 +172,11 @@ class gPodder_iPodSync( gPodderSyncMethod):
     pl_master = None
     pl_podcasts = None
 
-    def __init__( self, ipod_mount = '/media/ipod/', callback_progress = None, callback_status = None, callback_done = None):
+    def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
         if not ipod_supported():
             log( '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)')
-        self.ipod_mount = ipod_mount
+        gl = libgpodder.gPodderLib()
+        self.ipod_mount = gl.ipod_mount
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def open( self):
@@ -187,14 +195,13 @@ class gPodder_iPodSync( gPodderSyncMethod):
                 return False
         return True
 
-    def close( self, write_update = True):
+    def close( self):
         if not ipod_supported():
             return False
-        if write_update:
+        if self.itdb:
             self.set_progress( 100, 100)
             self.set_status( '...', '...', _('Saving iPod database...'))
-            if self.itdb:
-                gpod.itdb_write( self.itdb, None)
+            gpod.itdb_write( self.itdb, None)
         self.itdb = None
         time.sleep( 1)
         gPodderSyncMethod.close( self)
@@ -401,9 +408,14 @@ class gPodder_iPodSync( gPodderSyncMethod):
 
 
 class gPodder_FSSync( gPodderSyncMethod):
-    def __init__( self, destination = '/tmp/', callback_progress = None, callback_status = None, callback_done = None):
-        self.destination = destination
+    def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
+        gl = libgpodder.gPodderLib()
+        self.destination = gl.mp3_player_folder
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
+
+    def open( self):
+        gpl = libgpodder.gPodderLib()
+        return gpl.can_write_directory( self.destination)
     
     def add_episode_from_channel( self, channel, episode):
         replace_chars = ( '/', '?', ':', '!', '<', '>', '&', '*', '|')
@@ -440,7 +452,7 @@ class gPodder_FSSync( gPodderSyncMethod):
         folders = glob.glob( os.path.join( self.destination, '*'))
         for folder in range( len( folders)):
             self.set_progress( folder+1, len( folders))
-            self.set_status( channel = os.path.basename( folders[folder]), progressbar_text = _('%d of %d') % ( folder+1, len(folders), ))
+            self.set_status( episode = _('All files'), channel = os.path.basename( folders[folder]), progressbar_text = _('%d of %d') % ( folder+1, len(folders), ))
             log( 'deleting: %s', folders[folder])
             shutil.rmtree( folders[folder])
             try:
