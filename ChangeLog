@@ -1,3 +1,15 @@
+Sun, 18 Mar 2007 17:08:29 +0100 <thp@perli.net>
+        * src/gpodder/gpodder.py: Do not do i18n stuff in gpodder.py; do not 
+          set direct paths to /usr in glade_dir and icon_dir, but use lists 
+          that will be filled by the initialization code in bin/gpodder
+        * bin/gpodder: Complete re-work of path detection, based on some 
+          suggestions from Preben Randhol <randhol+gpodder pvv.org> to make 
+          gpodder work when installed in /usr/local
+        * setup.py: Use /usr/bin/env python instead of /usr/bin/env python2.4
+          in shebang line
+        * Makefile: Display $(PREFIX) in makefile help text instead of hard-
+          coded "/usr" string
+
 Sun, 18 Mar 2007 16:42:32 +0100 <thp@perli.net>
         * src/gpodder/gpodder.py: Bugfix - only play a podcast episode when it 
           has been downloaded and the download filename exists

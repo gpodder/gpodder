@@ -37,21 +37,24 @@ __date__      = "2007-03-17"
 __copyright__ = "Copyright (c) 2005-2007 %s. All rights reserved." % __author__
 __licence__   = "GPL"
 
-import sys,os
-from optparse import OptionParser
+import sys
+import os
+import os.path
 
 import locale
 import gettext
 
-# gettext variables
-APP = 'gpodder'
-DIR = '/usr/share/locale/'
+from optparse import OptionParser
 
 def main( argv = sys.argv):
+    prefix = os.path.abspath( os.path.normpath( os.path.join( os.path.dirname( argv[0]), '..')))
+    locale_dir = os.path.join( prefix, 'share', 'locale')
+
     # Enable i18n support
-    gettext.bindtextdomain( APP, DIR)
-    gettext.textdomain( APP)
-    gettext.install( APP)
+    domain = 'gpodder'
+    gettext.bindtextdomain( domain, locale_dir)
+    gettext.textdomain( domain)
+    gettext.install( domain)
 
     s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
     s_version = '%%prog %s' % ( __version__ )
@@ -88,7 +91,7 @@ def main( argv = sys.argv):
     (options, args) = parser.parse_args(argv)
 
     if options.local:
-        sys.path = [ './src/', '../src/' ] + sys.path
+        sys.path = [ os.path.join( prefix, 'src') ] + sys.path
 
     if options.verbose:
         from gpodder.liblogger import enable_verbose
@@ -117,11 +120,16 @@ def main( argv = sys.argv):
         from gpodder import gpodder
         from gpodder.SimpleGladeApp import bindtextdomain
         import gtk.glade
+
+        gpodder.glade_dir = os.path.join( prefix, *gpodder.glade_dir)
+        gpodder.icon_dir = os.path.join( prefix, *gpodder.icon_dir)
+
         if options.local:
-            gpodder.glade_dir = '../data'
-            gpodder.locale_dir = 'data/locale/'
-            gpodder.icon_dir = 'data/gpodder.png'
-        bindtextdomain( 'gpodder', gpodder.locale_dir)
+            gpodder.glade_dir = os.path.join( prefix, 'data')
+            gpodder.icon_dir = os.path.join( prefix, 'data', 'gpodder.png')
+            locale_dir = os.path.join( prefix, 'data', 'locale')
+
+        bindtextdomain( domain, locale_dir)
         gpodder.main( __version__)
 
 

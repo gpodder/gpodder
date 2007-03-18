@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 
 #
 # gPodder (a media aggregator / podcast client)

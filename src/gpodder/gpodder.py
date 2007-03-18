@@ -39,7 +39,6 @@ from string import strip
 
 
 from SimpleGladeApp import SimpleGladeApp
-from SimpleGladeApp import bindtextdomain
 
 from libpodcasts import podcastChannel
 from libpodcasts import podcastItem
@@ -80,9 +79,9 @@ app_authors = [
 app_copyright = 'Copyright (c) 2005-2007 Thomas Perl'
 app_website = 'http://gpodder.berlios.de/'
 
-glade_dir = '/usr/share/gpodder/'
-icon_dir = '/usr/share/pixmaps/gpodder.png'
-locale_dir = '/usr/share/locale/'
+# these will be filled with pathnames in bin/gpodder
+glade_dir = [ 'share', 'gpodder' ]
+icon_dir = [ 'share', 'pixmaps', 'gpodder.png' ]
 
 class Gpodder(SimpleGladeApp):
     # Local DB
@@ -1535,7 +1534,6 @@ def main( __version__ = None):
     global app_version
     
     gobject.threads_init()
-    bindtextdomain( app_name, locale_dir)
 
     app_version = __version__
     g_podder = Gpodder()
