@@ -1,3 +1,8 @@
+Sun, 18 Mar 2007 15:04:03 +0100 <thp@perli.net>
+        * bin/gpodder: Use "/usr/bin/env python" instead of "/usr/bin/python" 
+          to fix problems with FreeBSD's default Python location of 
+          "/usr/local/bin/python" (thanks to Alain Tauch for pointing that out)
+
 Sat, 17 Mar 2007 13:57:50 +0100 <thp@perli.net>
         * data/gpodder.desktop: Clean-up the desktop entry file
         * Makefile: Make PREFIX a variable defaulting to /usr and pass it 
