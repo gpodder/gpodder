@@ -460,7 +460,7 @@ class gPodder_FSSync( gPodderSyncMethod):
         return gpl.can_write_directory( self.destination)
     
     def add_episode_from_channel( self, channel, episode):
-        replace_chars = ( '/', '?', ':', '!', '<', '>', '&', '*', '|')
+        replace_chars = ( '/', '?', ':', '!', '<', '>', '&', '*', '|', '"')
 
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
 
