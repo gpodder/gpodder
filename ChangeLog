@@ -1,3 +1,18 @@
+Mon, 19 Mar 2007 20:03:40 +0100 <thp@perli.net>
+        * src/gpodder/libconverter.py: Added libconverter.py that implements
+          file conversion from (anything-to-mp3) using lame; currently the 
+          only supported format is ogg (using oggdec); this is needed to sync
+          ogg podcasts to an iPod (that only supports MP3)
+        * src/gpodder/libipodsync.py: Re-work synchronization code to support 
+          the new libconverter.py library for syncing oggs to iPods and also 
+          re-work the status-setting code to be compatible with the new sync 
+          dialog (see below)
+        * src/gpodder/gpodder.py: Add some hooks for controlling the new 
+          synchronization dialog so it gets better display of progress; only 
+          have one icon (the iPod/audio player) in sync dialog
+        * data/gpodder.glade: New synchronization dialog for FS-based and iPods
+        * bin/gpodder: Push version + release date (again ;)
+
 Sun, 18 Mar 2007 19:31:44 +0100 <thp@perli.net>
         * AUTHORS: Added Preben Randhol to list of patch writers
 

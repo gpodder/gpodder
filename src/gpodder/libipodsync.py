@@ -92,6 +92,7 @@ import email.Utils
 import liblocaldb
 import libpodcasts
 import libgpodder
+import libconverter
 
 import gobject
 
@@ -123,6 +124,24 @@ class gPodderSyncMethod:
     def set_progress( self, pos, max):
         if self.callback_progress:
             gobject.idle_add( self.callback_progress, pos, max)
+
+    def set_progress_overall( self, pos, max):
+        if self.callback_progress:
+            gobject.idle_add( self.callback_progress, pos, max, True)
+
+    def set_progress_sub_episode( self, pos, max):
+        if self.callback_progress:
+            gobject.idle_add( self.callback_progress, pos, max, False, True)
+
+    def set_episode_status( self, episode):
+        self.set_status( episode = _('Copying %s') % episode)
+
+    def set_channel_status( self, channel):
+        self.set_status( channel = _('Synchronizing %s') % channel)
+
+    def set_episode_convert_status( self, episode, percentage):
+        self.set_progress_sub_episode( int(percentage), 100)
+        self.set_status( episode = _('Converting %s (%s%%)') % ( episode, str(percentage), ))
     
     def set_status( self, episode = None, channel = None, progressbar_text = None):
         if self.callback_status:
@@ -140,17 +159,18 @@ class gPodderSyncMethod:
             episodes = channel
 
         max = len( episodes)
-        pos = 1
+        pos = 0
 
         for episode in episodes:
             self.set_progress( pos, max)
             if channel.is_downloaded( episode):
                 self.add_episode_from_channel( channel, episode)
             pos = pos + 1
+        self.set_progress( pos, max)
 
-        self.set_status( '...', '...', _('Complete: %s') % channel.title)
+        self.set_status( channel = _('Completed %s') % channel.title)
         time.sleep(1)
-
+        
         return True
 
     def add_episode_from_channel( self, channel, episode):
@@ -159,7 +179,8 @@ class gPodderSyncMethod:
         if channel.is_music_channel:
             channeltext = _('%s (to "%s")') % ( channel.title, channel.device_playlist_name )
 
-        self.set_status( episode.title, channeltext)
+        self.set_episode_status( episode.title)
+        self.set_channel_status( channeltext)
 
     def close( self):
         self.set_done()
@@ -199,8 +220,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         if not ipod_supported():
             return False
         if self.itdb:
-            self.set_progress( 100, 100)
-            self.set_status( '...', '...', _('Saving iPod database...'))
+            self.set_status( channel = _('Saving iPod database'))
             gpod.itdb_write( self.itdb, None)
         self.itdb = None
         time.sleep( 1)
@@ -211,7 +231,8 @@ class gPodder_iPodSync( gPodderSyncMethod):
         if not ipod_supported():
             return False
         log( '(ipodsync) Removing track from iPod: %s', track.title)
-        self.set_status( track.title, track.artist)
+        status_text = _('Removing %s') % ( track.title, )
+        self.set_status( channel = status_text)
         fname = gpod.itdb_filename_on_ipod( track)
         for playlist in playlists:
             try:
@@ -323,10 +344,21 @@ class gPodder_iPodSync( gPodderSyncMethod):
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
         
         if self.episode_is_on_ipod( channel, episode):
+            status_text = 'Already on iPod: %s' % ( episode.title, )
+            self.set_status( episode = status_text)
             return True
         
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
-        local_filename = str(channel.getPodcastFilename( episode.url))
+        original_filename = str(channel.getPodcastFilename( episode.url))
+        local_filename = original_filename
+        if libconverter.converters.has_converter( os.path.splitext( original_filename)[1][1:]):
+            log('(ipodsync) Converting: %s', original_filename)
+            callback_status = lambda percentage: self.set_episode_convert_status( episode.title, percentage)
+            local_filename = str( libconverter.converters.convert( original_filename, callback = callback_status))
+            self.set_episode_status( episode.title)
+            if not local_filename:
+                log('(ipodsync) Error while converting file %s', original_filename)
+                return False
 
         # if we cannot get the track length, make an educated guess (default value)
         track_length = DEFAULT_LENGTH
@@ -400,10 +432,20 @@ class gPodder_iPodSync( gPodderSyncMethod):
         else:
             log( '(ipodsync) Added %s', episode.title)
         
+        status_text = 'Done: %s' % ( episode.title, )
+        self.set_status( episode = status_text)
+
         try:
             os.system('sync')
         except:
             pass
+
+        if local_filename != original_filename:
+            log('(ipodsync) Removing temporary file: %s', local_filename)
+            try:
+                os.unlink( local_filename)
+            except:
+                log('(ipodsync) Could not remove temporary file %s', local_filename)
 
 
 
@@ -451,8 +493,9 @@ class gPodder_FSSync( gPodderSyncMethod):
     def clean_playlist( self):
         folders = glob.glob( os.path.join( self.destination, '*'))
         for folder in range( len( folders)):
-            self.set_progress( folder+1, len( folders))
-            self.set_status( episode = _('All files'), channel = os.path.basename( folders[folder]), progressbar_text = _('%d of %d') % ( folder+1, len(folders), ))
+            self.set_progress_overall( folder+1, len( folders))
+            self.set_channel_status( os.path.basename( folders[folder]))
+            self.set_status( episode = _('Removing files'))
             log( 'deleting: %s', folders[folder])
             shutil.rmtree( folders[folder])
             try:

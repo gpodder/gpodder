@@ -345,9 +345,13 @@ class Gpodder(SimpleGladeApp):
             return False
 
         if episodes == None:
+            i = 0
             for channel in self.ldb.channel_list:
+                sync.set_progress_overall( i, len(self.ldb.channel_list))
                 channel.set_metadata_from_localdb()
                 sync.sync_channel( channel)
+                i += 1
+            sync.set_progress_overall( i, len(self.ldb.channel_list))
         else:
             sync.sync_channel( self.active_channel, episodes)
 
@@ -1419,26 +1423,45 @@ class Gpoddersync(SimpleGladeApp):
         if 'gpodderwindow' in kwargs:
             self.gPodderSync.set_transient_for( kwargs['gpodderwindow'])
             self.gPodderSync.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+        self.pos_overall = 0
+        self.max_overall = 1
+        self.pos_episode = 0
+        self.max_episode = 1
 
     #-- Gpoddersync.new {
     def new(self):
-        self.imageSyncServer.set_from_icon_name( 'gnome-fs-client', gtk.ICON_SIZE_DIALOG)
-        self.imageSyncAnimation.set_from_stock( gtk.STOCK_REFRESH, gtk.ICON_SIZE_BUTTON)
-        self.imageSyncClient.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
+        self.imageSync.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
     #-- Gpoddersync.new }
 
     #-- Gpoddersync custom methods {
-    def set_progress( self, pos, max):
-        self.pbSync.set_fraction( 1.0*pos/max)
-        percent = _('%d of %d') % ( pos, max )
-        self.pbSync.set_text( percent)
+    def set_progress( self, pos, max, is_overall = False, is_sub_episode = False):
+        if is_sub_episode:
+            fraction_episode = 1.0*(self.pos_episode+1.0*pos/max)/self.max_episode
+            self.pbEpisode.set_fraction( fraction_episode)
+            self.pbSync.set_fraction( 1.0*(self.pos_overall+fraction_episode)/self.max_overall)
+            return
+
+        if is_overall:
+            progressbar = self.pbSync
+            self.pos_overall = pos
+            self.max_overall = max
+            progressbar.set_fraction( 1.0*pos/max)
+        else:
+            progressbar = self.pbEpisode
+            self.pos_episode = pos
+            self.max_episode = max
+            progressbar.set_fraction( 1.0*pos/max)
+            self.pbSync.set_fraction( 1.0*(self.pos_overall+1.0*pos/max)/self.max_overall)
+
+        percent = _('%d of %d done') % ( pos, max )
+        progressbar.set_text( percent)
 
     def set_status( self, episode = None, channel = None, progressbar = None):
         if episode != None:
-            self.labelEpisode.set_text( episode)
+            self.labelEpisode.set_markup( '<i>%s</i>' % episode)
 
         if channel != None:
-            self.labelChannel.set_text( channel)
+            self.labelChannel.set_markup( '<i>%s</i>' % channel)
 
         if progressbar != None:
             self.pbSync.set_text( progressbar)
