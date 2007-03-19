@@ -865,7 +865,7 @@ class Gpodder(SimpleGladeApp):
                     message = '%s\n\n%s' % ( message, e_str, )
                 else:
                     title = _('Download %s?') % episodes_to_download[0].title
-                    message = _('A new episodes is available for download. If you want, you can download this episode to your computer now.')
+                    message = _('A new episode is available for download. If you want, you can download this episode to your computer now.')
 
                 if not self.show_confirmation( message, title):
                     return
