@@ -554,10 +554,14 @@ def channelsToModel( channels):
 
 def stripHtml( html):
     # strips html from a string (fix for <description> tags containing html)
-    dict = htmlentitydefs.entitydefs
     rexp = re.compile( "<[^>]*>")
     stripstr = rexp.sub( "", html)
+    # replaces numeric entities with entity names
+    dict = htmlentitydefs.codepoint2name
+    for key in dict.keys():
+        stripstr = stripstr.replace( '&#'+str(key)+';', '&'+unicode( dict[key], 'iso-8859-1')+';')
     # strips html entities
+    dict = htmlentitydefs.entitydefs
     for key in dict.keys():
         stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
     return stripstr
