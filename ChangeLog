@@ -1,3 +1,14 @@
+Thu, 22 Mar 2007 17:33:06 +0100 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Added support for (optional) cancelling
+          of the Podcast synchronization process; add some more support for 
+          setting status on the dialog; wait for iPod to be connected when 
+          syncing to iPod (for 30 seconds at the moment); manually write and 
+          read the episode files for FS-based MP3 player sync, so we can have 
+          a more detailed and more often updated progress bar
+        * src/gpodder/gpodder.py: Support code for new gPodderSync dialog
+          goodness (yay!)
+        * data/gpodder.glade: Add cancel button to gPodderSync dialog
+
 Thu, 22 Mar 2007 13:14:57 +0100 <thp@perli.net>
         * bin/gpodder: Bump version + release date for debian packaging
 

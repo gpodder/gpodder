@@ -117,6 +117,8 @@ class gPodderSyncMethod:
         self.callback_progress = callback_progress
         self.callback_status = callback_status
         self.callback_done = callback_done
+        self.cancelled = False
+        self.can_cancel = False
     
     def open( self):
         return False
@@ -143,16 +145,12 @@ class gPodderSyncMethod:
         self.set_progress_sub_episode( int(percentage), 100)
         self.set_status( episode = _('Converting %s (%s%%)') % ( episode, str(percentage), ))
     
-    def set_status( self, episode = None, channel = None, progressbar_text = None):
+    def set_status( self, episode = None, channel = None, progressbar_text = None, title = None, header = None, body = None):
         if self.callback_status:
-            gobject.idle_add( self.callback_status, episode, channel, progressbar_text)
-
-    def set_done( self):
-        if self.callback_done:
-            gobject.idle_add( self.callback_done)
+            gobject.idle_add( self.callback_status, episode, channel, progressbar_text, title, header, body)
 
     def sync_channel( self, channel, episodes = None):
-        if not channel.sync_to_devices and episodes == None:
+        if not channel.sync_to_devices and episodes == None or self.cancelled:
             return False
 
         if episodes == None:
@@ -162,6 +160,8 @@ class gPodderSyncMethod:
         pos = 0
 
         for episode in episodes:
+            if self.cancelled:
+                return False
             self.set_progress( pos, max)
             if channel.is_downloaded( episode):
                 self.add_episode_from_channel( channel, episode)
@@ -182,8 +182,15 @@ class gPodderSyncMethod:
         self.set_episode_status( episode.title)
         self.set_channel_status( channeltext)
 
-    def close( self):
-        self.set_done()
+    def close( self, success = True, access_error = False, cleaned = False):
+        try:
+            self.set_status( channel = _('Writing data to disk'))
+            os.system('sync')
+        except:
+            pass
+
+        if self.callback_done:
+            gobject.idle_add( self.callback_done, success, access_error, cleaned)
 
 
 class gPodder_iPodSync( gPodderSyncMethod):
@@ -203,28 +210,39 @@ class gPodder_iPodSync( gPodderSyncMethod):
     def open( self):
         if not ipod_supported():
             return False
-        if self.itdb == None:
-            self.itdb = gpod.itdb_parse( str( self.ipod_mount), None)
-            if not self.itdb:
-                return False
-            self.itdb.mountpoint = str(self.ipod_mount)
-            self.pl_master = gpod.sw_get_playlists( self.itdb)[0]
-            if not self.pl_master:
-                return False
-            self.pl_podcasts = gpod.itdb_playlist_podcasts( self.itdb)
-            if not self.pl_podcasts:
-                return False
-        return True
+        tries = 0
+        while self.itdb == None and not self.cancelled:
+            if os.path.isdir( self.ipod_mount):
+                self.itdb = gpod.itdb_parse( str( self.ipod_mount), None)
+            if self.itdb:
+                self.itdb.mountpoint = str(self.ipod_mount)
+                self.pl_master = gpod.sw_get_playlists( self.itdb)[0]
+                self.pl_podcasts = gpod.itdb_playlist_podcasts( self.itdb)
+                if not self.pl_master or not self.pl_podcasts:
+                    return False
+            else:
+                header = _('Connect your iPod')
+                body = _('To start the synchronization process, please connect your iPod to the computer.')
+                if tries > 30:
+                    return False
+                elif tries > 15:
+                    self.set_status( episode = _('Have you set up your iPod correctly?'), header = header, body = body)
+                else:
+                    self.set_status( channel = _('Please connect your iPod'), episode = _('Waiting for iPod'), header = header, body = body)
 
-    def close( self):
+                time.sleep( 1)
+                tries += 1
+
+        return self.itdb != None
+
+    def close( self, success = True, access_error = False, cleaned = False):
         if not ipod_supported():
             return False
         if self.itdb:
             self.set_status( channel = _('Saving iPod database'))
             gpod.itdb_write( self.itdb, None)
         self.itdb = None
-        time.sleep( 1)
-        gPodderSyncMethod.close( self)
+        gPodderSyncMethod.close( self, success, access_error, cleaned)
         return True
 
     def remove_from_ipod( self, track, playlists):
@@ -435,11 +453,6 @@ class gPodder_iPodSync( gPodderSyncMethod):
         status_text = 'Done: %s' % ( episode.title, )
         self.set_status( episode = status_text)
 
-        try:
-            os.system('sync')
-        except:
-            pass
-
         if local_filename != original_filename:
             log('(ipodsync) Removing temporary file: %s', local_filename)
             try:
@@ -450,10 +463,13 @@ class gPodder_iPodSync( gPodderSyncMethod):
 
 
 class gPodder_FSSync( gPodderSyncMethod):
+    BUFFER = 1024*1024*1 # 1MB
+
     def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
         gl = libgpodder.gPodderLib()
         self.destination = gl.mp3_player_folder
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
+        self.can_cancel = True
 
     def open( self):
         gpl = libgpodder.gPodderLib()
@@ -483,16 +499,32 @@ class gPodder_FSSync( gPodderSyncMethod):
 
         if not os.path.exists( to_file):
             log( 'Copying: %s => %s', os.path.basename( from_file), to_file)
-            shutil.copyfile( from_file, to_file)
-        
-        try:
-            os.system('sync')
-        except:
-            pass
+            self.copy_file_progress( from_file, to_file)
+            #shutil.copyfile( from_file, to_file)
+
+    def copy_file_progress( self, from_file, to_file):
+        out_file = open( to_file, 'wb')
+        in_file = open( from_file, 'rb')
+        in_file.seek( 0, 2)
+        bytes = in_file.tell()
+        bytes_read = 0
+        in_file.seek( 0)
+        s = in_file.read( self.BUFFER)
+        bytes_read += len(s)
+        self.set_progress_sub_episode( bytes_read, bytes)
+        while s:
+            bytes_read += len(s)
+            out_file.write( s)
+            self.set_progress_sub_episode( bytes_read, bytes)
+            s = in_file.read( self.BUFFER)
+        out_file.close()
+        in_file.close()
     
     def clean_playlist( self):
         folders = glob.glob( os.path.join( self.destination, '*'))
         for folder in range( len( folders)):
+            if self.cancelled:
+                return
             self.set_progress_overall( folder+1, len( folders))
             self.set_channel_status( os.path.basename( folders[folder]))
             self.set_status( episode = _('Removing files'))

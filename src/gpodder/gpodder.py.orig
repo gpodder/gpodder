@@ -342,6 +342,11 @@ class Gpoddersync(SimpleGladeApp):
         print "on_gPodderSync_destroy called with self.%s" % widget.get_name()
     #-- Gpoddersync.on_gPodderSync_destroy }
 
+    #-- Gpoddersync.on_cancel_button_clicked {
+    def on_cancel_button_clicked(self, widget, *args):
+        print "on_cancel_button_clicked called with self.%s" % widget.get_name()
+    #-- Gpoddersync.on_cancel_button_clicked }
+
 
 class Gpodderopmllister(SimpleGladeApp):
 

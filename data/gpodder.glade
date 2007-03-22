@@ -3830,7 +3830,7 @@ you can use the usual format of the environment variables:
 	      <property name="spacing">5</property>
 
 	      <child>
-		<widget class="GtkLabel" id="label65">
+		<widget class="GtkLabel" id="label_header">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Synchronizing Podcasts&lt;/big&gt;&lt;/b&gt;</property>
 		  <property name="use_underline">False</property>
@@ -3855,7 +3855,7 @@ you can use the usual format of the environment variables:
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label66">
+		<widget class="GtkLabel" id="label_text">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Episodes marked for synchronization are now transferred to your player device.</property>
 		  <property name="use_underline">False</property>
@@ -3888,7 +3888,7 @@ you can use the usual format of the environment variables:
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
-	  <property name="expand">True</property>
+	  <property name="expand">False</property>
 	  <property name="fill">True</property>
 	</packing>
       </child>
@@ -3971,6 +3971,41 @@ you can use the usual format of the environment variables:
 	  <property name="padding">0</property>
 	  <property name="expand">False</property>
 	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkHBox" id="hbox22">
+	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">5</property>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="cancel_button">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-cancel</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <signal name="clicked" handler="on_cancel_button_clicked" last_modification_time="Thu, 22 Mar 2007 15:11:49 GMT"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	      <property name="pack_type">GTK_PACK_END</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
     </widget>

@@ -338,10 +338,7 @@ class Gpodder(SimpleGladeApp):
     
     def sync_to_ipod_proc( self, sync, episodes = None):
         if not sync.open():
-            title = _('Cannot access device')
-            message = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
-            gobject.idle_add( self.show_message, message, title)
-            sync.close()
+            sync.close( success = False, access_error = True)
             return False
 
         if episodes == None:
@@ -355,18 +352,16 @@ class Gpodder(SimpleGladeApp):
         else:
             sync.sync_channel( self.active_channel, episodes)
 
-        sync.close()
+        sync.close( success = not sync.cancelled)
 
     def ipod_cleanup_proc( self, sync):
         if not sync.open():
-            title = _('Cannot access device')
-            message = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
             gobject.idle_add( self.show_message, message, title)
-            sync.close()
+            sync.close( success = False, access_error = True)
             return False
 
         sync.clean_playlist()
-        sync.close()
+        sync.close( success = not sync.cancelled, cleaned = True)
 
     def update_feed_cache_callback( self, label, progressbar, position, count):
         title = _('Please wait...')
@@ -592,6 +587,7 @@ class Gpodder(SimpleGladeApp):
 
             sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+            sync_win.set_sync_object( sync)
             thread_args = [ sync ]
             if widget == None:
                 thread_args.append( args[0])
@@ -633,6 +629,7 @@ class Gpodder(SimpleGladeApp):
 
             sync_win = Gpoddersync( gpodderwindow = self.gPodder)
             sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
+            sync_win.set_sync_object( sync)
             thread = Thread( target = self.ipod_cleanup_proc, args = ( sync, ))
             thread.start()
     #-- Gpodder.on_cleanup_ipod_activate }
@@ -1427,6 +1424,11 @@ class Gpoddersync(SimpleGladeApp):
         self.max_overall = 1
         self.pos_episode = 0
         self.max_episode = 1
+        self.cancel_button.set_sensitive( False)
+        self.sync = None
+        self.default_title = self.gPodderSync.get_title()
+        self.default_header = self.label_header.get_text()
+        self.default_body = self.label_text.get_text()
 
     #-- Gpoddersync.new {
     def new(self):
@@ -1434,7 +1436,13 @@ class Gpoddersync(SimpleGladeApp):
     #-- Gpoddersync.new }
 
     #-- Gpoddersync custom methods {
+    def set_sync_object( self, sync):
+        self.sync = sync
+        if self.sync.can_cancel:
+            self.cancel_button.set_sensitive( True)
+
     def set_progress( self, pos, max, is_overall = False, is_sub_episode = False):
+        pos = min(pos, max)
         if is_sub_episode:
             fraction_episode = 1.0*(self.pos_episode+1.0*pos/max)/self.max_episode
             self.pbEpisode.set_fraction( fraction_episode)
@@ -1456,7 +1464,7 @@ class Gpoddersync(SimpleGladeApp):
         percent = _('%d of %d done') % ( pos, max )
         progressbar.set_text( percent)
 
-    def set_status( self, episode = None, channel = None, progressbar = None):
+    def set_status( self, episode = None, channel = None, progressbar = None, title = None, header = None, body = None):
         if episode != None:
             self.labelEpisode.set_markup( '<i>%s</i>' % episode)
 
@@ -1466,14 +1474,71 @@ class Gpoddersync(SimpleGladeApp):
         if progressbar != None:
             self.pbSync.set_text( progressbar)
 
-    def close( self):
-        self.gPodderSync.destroy()
+        if title != None:
+            self.gPodderSync.set_title( title)
+        else:
+            self.gPodderSync.set_title( self.default_title)
+
+        if header != None:
+            self.label_header.set_markup( '<b><big>%s</big></b>' % header)
+        else:
+            self.label_header.set_markup( '<b><big>%s</big></b>' % self.default_header)
+
+        if body != None:
+            self.label_text.set_markup( body)
+        else:
+            self.label_text.set_markup( self.default_body)
+
+
+    def close( self, success = True, access_error = False, cleaned = False):
+        if self.sync:
+            self.sync.cancelled = True
+        self.cancel_button.set_label( gtk.STOCK_CLOSE)
+        self.cancel_button.set_use_stock( True)
+        self.cancel_button.set_sensitive( True)
+        self.gPodderSync.set_resizable( True)
+        self.pbSync.hide_all()
+        self.pbEpisode.hide_all()
+        self.labelChannel.hide_all()
+        self.labelEpisode.hide_all()
+        self.gPodderSync.set_resizable( False)
+        if success and not cleaned:
+            title = _('Synchronization finished')
+            header = _('Copied Podcasts')
+            body = _('The selected episodes have been copied to your device. You can now unplug the device.')
+        elif access_error:
+            title = _('Synchronization error')
+            header = _('Cannot access device')
+            body = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
+        elif cleaned:
+            title = _('Device cleaned')
+            header = _('Podcasts removed')
+            body = _('Synchronized Podcasts have been removed from your device.')
+        else:
+            title = _('Synchronization aborted')
+            header = _('Aborted')
+            body = _('The synchronization progress has been interrupted by the user. Please retry synchronization at a later time.')
+        self.gPodderSync.set_title( title)
+        self.label_header.set_markup( '<big><b>%s</b></big>' % header)
+        self.label_text.set_text( body)
     #-- Gpoddersync custom methods }
 
     #-- Gpoddersync.on_gPodderSync_destroy {
     def on_gPodderSync_destroy(self, widget, *args):
         pass
     #-- Gpoddersync.on_gPodderSync_destroy }
+
+    #-- Gpoddersync.on_cancel_button_clicked {
+    def on_cancel_button_clicked(self, widget, *args):
+        if self.sync:
+            if self.sync.cancelled:
+                self.gPodderSync.destroy()
+            else:
+                self.sync.cancelled = True
+                self.cancel_button.set_sensitive( False)
+        else:
+            self.gPodderSync.destroy()
+    #-- Gpoddersync.on_cancel_button_clicked }
 
 
 class Gpodderopmllister(SimpleGladeApp):
