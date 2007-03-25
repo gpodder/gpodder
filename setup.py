@@ -38,15 +38,26 @@ for l in languages:
 
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
-inst_icons    = [ 'data/gpodder.png' ] + glob.glob('data/gpodder-??x??.png')
-inst_share    = [ 'data/gpodder.glade', 'data/gpodder-48x48.png' ]
+inst_share    = [ 'data/gpodder.glade' ]
 inst_desktop  = [ 'data/gpodder.desktop' ]
+
+inst_icons    = [ 'data/gpodder.png' ]
+inst_icons_24 = [ 'data/icons/24/gpodder.png' ]
+inst_icons_22 = [ 'data/icons/22/gpodder.png' ]
+inst_icons_16 = [ 'data/icons/16/gpodder.png' ]
+inst_icons_svg = [ 'data/gpodder.svg' ]
 
 data_files = [
   ('share/man/man1',       inst_manpages),
   ('share/gpodder',        inst_share),
   ('share/applications',   inst_desktop),
   ('share/pixmaps',        inst_icons),
+
+  ('share/icons/hicolor/scalable/apps', inst_icons_svg),
+  ('share/icons/hicolor/48x48/apps', inst_icons),
+  ('share/icons/hicolor/24x24/apps', inst_icons_24),
+  ('share/icons/hicolor/22x22/apps', inst_icons_22),
+  ('share/icons/hicolor/16x16/apps', inst_icons_16),
 ]
 
 setup(

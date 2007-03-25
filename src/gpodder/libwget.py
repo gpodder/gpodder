@@ -78,7 +78,7 @@ class downloadThread( object):
 	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
-        command = "wget -T 15 -c -t0 \"" + self.url + "\" -O \"" + self.tempname + "\""
+        command = 'wget --timeout=120 --continue --tries=inf --output-document="%s" "%s"' % ( self.tempname, self.url )
         log( 'Command: %s', command)
         process = popen2.Popen3( command, True)
         

@@ -11,9 +11,8 @@ GLADEFILE=data/gpodder.glade
 GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gpodder.py
-LOGO=data/gpodder.png
-LOGO_48=data/gpodder-48x48.png
-LOGO_22=data/gpodder-22x22.png
+LOGO_22=data/icons/22/gpodder.png
+LOGO_24=data/icons/24/gpodder.png
 MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
@@ -69,6 +68,7 @@ release: distclean
 
 install: generators
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+	gtk-update-icon-cache -f -i $(PREFIX)/share/icons/hicolor/
 
 uninstall:
 	@echo "##########################################################################"
@@ -97,8 +97,7 @@ gen_gettext: $(MESSAGESPOT)
 	make -C data/po update
 
 gen_graphics:
-	convert $(LOGO) -resize 22x22 $(LOGO_22)
-	convert $(LOGO) -resize 48x48 $(LOGO_48)
+	convert -bordercolor Transparent -border 1x1 $(LOGO_22) $(LOGO_24)
 
 $(GLADEGETTEXT): $(GLADEFILE)
 	intltool-extract --type=gettext/glade $(GLADEFILE)

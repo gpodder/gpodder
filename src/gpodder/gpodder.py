@@ -82,6 +82,7 @@ app_website = 'http://gpodder.berlios.de/'
 # these will be filled with pathnames in bin/gpodder
 glade_dir = [ 'share', 'gpodder' ]
 icon_dir = [ 'share', 'pixmaps', 'gpodder.png' ]
+scalable_dir = [ 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg' ]
 
 class Gpodder(SimpleGladeApp):
     # Local DB
@@ -268,23 +269,6 @@ class Gpodder(SimpleGladeApp):
         
         dlg.destroy()
         return confirmation_result
-
-    def set_icon(self):
-        icon = self.get_icon('gpodder')
-        self.main_widget.set_icon(icon)
-
-    def get_icon(self, entry, size=48):
-        path = icon_dir
-        if path == None:
-            pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, size, size)
-            pb.fill(0x00000000)
-        else:
-            try:
-                pb = gtk.gdk.pixbuf_new_from_file_at_size(path, size, size)
-            except:
-                pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, size, size)
-                pb.fill(0x00000000)
-        return pb
 
     def switched_notebook( self, notebook, page, page_num):
         if page_num == 0:
@@ -743,7 +727,7 @@ class Gpodder(SimpleGladeApp):
         dlg.connect("response", self.on_aboutDialog_response)
 
         try:
-            dlg.set_logo( gtk.gdk.pixbuf_new_from_file_at_size( icon_dir, 200, 200))
+            dlg.set_logo( gtk.gdk.pixbuf_new_from_file_at_size( scalable_dir, 200, 200))
         except:
             pass
         
@@ -1621,9 +1605,9 @@ def main( __version__ = None):
     gobject.threads_init()
 
     app_version = __version__
-    g_podder = Gpodder()
+    gtk.window_set_default_icon_name( 'gpodder')
 
-    g_podder.set_icon()
+    g_podder = Gpodder()
     g_podder.run()
 
 #-- main }

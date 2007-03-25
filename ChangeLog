@@ -1,3 +1,20 @@
+Sun, 25 Mar 2007 21:51:24 +0200 <thp@perli.net>
+        * src/gpodder/libwget.py: Use a more verbose command line for wget
+        * src/gpodder/gpodder.py: Use default name-based icon for all gtk
+          windows and use installed SVG icon loaded in the AboutDialog
+        * setup.py: Install new icons in the hicolor icon theme
+        * bin/gpodder: Check if the $DISPLAY variable is set and abort if it 
+          is not; set path to the SVG icon in startup / setup code
+        * data/gpodder.svg: Added new Tango-style SVG icon for gPodder
+        * data/gpodder.png: Modified gPodder logo; 48x48 render of the Tango-
+          style SVG (see above)
+        * data/icons/*: Added new Tango-style icons for gPodder
+        * data/gpodder.desktop: Change names and comments to fit into the 
+          Gnome HIG guidelines better (descriptive name, ...); removed the 
+          filename extension from the Icon setting
+        * Makefile: Do not simple resize the icon but generate 24x24 icon out
+          of the provided 22x22 icon
+
 Thu, 22 Mar 2007 17:33:06 +0100 <thp@perli.net>
         * src/gpodder/libipodsync.py: Added support for (optional) cancelling
           of the Podcast synchronization process; add some more support for 
