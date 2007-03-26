@@ -123,7 +123,7 @@ def main( argv = sys.argv):
 
         # check if we have a X connection
         from os import environ
-        if not environ['DISPLAY']:
+        if not 'DISPLAY' in environ or not environ['DISPLAY']:
             print 'Your DISPLAY variable is not set correctly. Cannot start GUI.'
             sys.exit( -1)
 
