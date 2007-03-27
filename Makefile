@@ -68,6 +68,8 @@ release: distclean
 
 install: generators
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+
+update-icons:
 	gtk-update-icon-cache -f -i $(PREFIX)/share/icons/hicolor/
 
 uninstall:
@@ -122,7 +124,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl test release install generators gen_manpage gen_glade gen_graphics clean distclean messages help
+.PHONY: all cl test release install update-icons generators gen_manpage gen_glade gen_graphics clean distclean messages help
 
 ##########################################################################
 
