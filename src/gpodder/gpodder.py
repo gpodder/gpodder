@@ -632,7 +632,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemEditChannel_activate {
     def on_itemEditChannel_activate(self, widget, *args):
-        if not self.active_channel:
+        if self.active_channel == None:
             title = _('No channel selected')
             message = _('Please select a channel in the channels list to edit.')
             self.show_message( message, title)
@@ -749,7 +749,7 @@ class Gpodder(SimpleGladeApp):
         except:
             self.active_channel = None
 
-        if self.active_channel:
+        if self.active_channel != None:
             self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
             self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
             self.itemEditChannel.show_all()
@@ -974,7 +974,7 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel custom methods {
     def requestURL( self, channel = None):
-        if channel:
+        if channel != None:
             self.gPodderChannel.set_title( _('Channel: %s') % channel.title)
             self.entryURL.set_text( channel.url)
             self.entryTitle.set_text( channel.title)
