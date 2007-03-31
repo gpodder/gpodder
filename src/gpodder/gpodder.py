@@ -157,7 +157,7 @@ class Gpodder(SimpleGladeApp):
         
         # tooltips :)
         self.tooltips = gtk.Tooltips()
-        self.tooltips.set_tip( self.btnEditChannel, _("Channel Info"))
+        self.tooltips.set_tip( self.btnEditChannel, _("Edit channel information"))
         
         #Add Drag and Drop Support
         targets = [("text/plain", 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4)]
@@ -187,6 +187,9 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder custom methods {
     def play_or_download( self):
+        if self.wNotebook.get_current_page() > 0:
+            return
+
         is_download_button = False
         gl = gPodderLib()
 
@@ -205,14 +208,14 @@ class Gpodder(SimpleGladeApp):
             is_download_button = True
 
         if is_download_button:
-            self.btnPlay.hide_all()
-            self.btnDownload.show_all()
-            self.btnTransfer.hide_all()
+            self.toolPlay.set_sensitive( False)
+            self.toolDownload.set_sensitive( True)
+            self.toolTransfer.set_sensitive( False)
         else:
-            self.btnPlay.show_all()
-            self.btnDownload.hide_all()
+            self.toolPlay.set_sensitive( True)
+            self.toolDownload.set_sensitive( False)
             if gl.device_type != 'none':
-                self.btnTransfer.show_all()
+                self.toolTransfer.set_sensitive( True)
 
     def updateComboBox( self):
         try:
@@ -244,6 +247,7 @@ class Gpodder(SimpleGladeApp):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
 
         if title:
+            dlg.set_title( title)
             markup = '<span weight="bold" size="larger">%s</span>%s%s' % ( title, "\n\n", message, )
         else:
             markup = '<span weight="bold" size="larger">%s</span>' % message
@@ -258,6 +262,7 @@ class Gpodder(SimpleGladeApp):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
 
         if title:
+            dlg.set_title( title)
             markup = '<span weight="bold" size="larger">%s</span>%s%s' % ( title, "\n\n", message, )
         else:
             markup = '<span weight="bold" size="larger">%s</span>' % message
@@ -429,7 +434,7 @@ class Gpodder(SimpleGladeApp):
         filename = current_channel.getPodcastFilename( current_podcast.url)
 
         if widget:
-            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'btnPlay') and os.path.exists( filename):
+            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
                 # addDownloadedItem just to make sure the episode is marked correctly in localdb
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
@@ -739,7 +744,15 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_wNotebook_switch_page {
     def on_wNotebook_switch_page(self, widget, *args):
-        pass
+        page_num = args[1]
+        if page_num == 0:
+            self.toolCancel.set_sensitive( False)
+            self.play_or_download()
+        else:
+            self.toolDownload.set_sensitive( False)
+            self.toolPlay.set_sensitive( False)
+            self.toolTransfer.set_sensitive( False)
+            self.toolCancel.set_sensitive( True)
     #-- Gpodder.on_wNotebook_switch_page }
 
     #-- Gpodder.on_comboAvailable_changed {
@@ -781,7 +794,7 @@ class Gpodder(SimpleGladeApp):
                 widget_to_send = widget
                 show_message_dialog = True
 
-            if widget.get_name() == 'itemTransferSelected' or widget.get_name() == 'btnTransfer':
+            if widget.get_name() == 'itemTransferSelected' or widget.get_name() == 'toolTransfer':
                 transfer_files = True
 
             for apath in selection_tuple[1]:
@@ -858,7 +871,7 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_btnSelectAllAvailable_clicked {
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
         self.treeAvailable.get_selection().select_all()
-        self.on_treeAvailable_row_activated( self.btnDownload, args)
+        self.on_treeAvailable_row_activated( self.toolDownload, args)
         self.treeAvailable.get_selection().unselect_all()
     #-- Gpodder.on_btnSelectAllAvailable_clicked }
 
@@ -896,7 +909,7 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_btnCancelAll_clicked {
     def on_btnCancelAll_clicked(self, widget, *args):
         self.treeDownloads.get_selection().select_all()
-        self.on_treeDownloads_row_activated( self.btnCancelDownloadStatus, None)
+        self.on_treeDownloads_row_activated( self.toolCancel, None)
         self.treeDownloads.get_selection().unselect_all()
     #-- Gpodder.on_btnCancelAll_clicked }
 

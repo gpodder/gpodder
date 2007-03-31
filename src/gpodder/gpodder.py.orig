@@ -150,6 +150,11 @@ class Gpodder(SimpleGladeApp):
         print "on_itemAbout_activate called with self.%s" % widget.get_name()
     #-- Gpodder.on_itemAbout_activate }
 
+    #-- Gpodder.on_btnCancelDownloadStatus_clicked {
+    def on_btnCancelDownloadStatus_clicked(self, widget, *args):
+        print "on_btnCancelDownloadStatus_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnCancelDownloadStatus_clicked }
+
     #-- Gpodder.on_wNotebook_switch_page {
     def on_wNotebook_switch_page(self, widget, *args):
         print "on_wNotebook_switch_page called with self.%s" % widget.get_name()
@@ -179,16 +184,6 @@ class Gpodder(SimpleGladeApp):
     def on_treeDownloads_row_activated(self, widget, *args):
         print "on_treeDownloads_row_activated called with self.%s" % widget.get_name()
     #-- Gpodder.on_treeDownloads_row_activated }
-
-    #-- Gpodder.on_btnCancelDownloadStatus_clicked {
-    def on_btnCancelDownloadStatus_clicked(self, widget, *args):
-        print "on_btnCancelDownloadStatus_clicked called with self.%s" % widget.get_name()
-    #-- Gpodder.on_btnCancelDownloadStatus_clicked }
-
-    #-- Gpodder.on_btnCancelAll_clicked {
-    def on_btnCancelAll_clicked(self, widget, *args):
-        print "on_btnCancelAll_clicked called with self.%s" % widget.get_name()
-    #-- Gpodder.on_btnCancelAll_clicked }
 
 
 class Gpodderchannel(SimpleGladeApp):
