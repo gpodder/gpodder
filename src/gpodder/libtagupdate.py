@@ -59,6 +59,7 @@ def update_metadata_on_file( filename, **metadata):
         return tag_update_methods[ext]( filename, **metadata)
 
     log('Do not know how to update file extension %s :/', ext)
+    return False
 
 
 def update_tag_ogg( filename, **metadata):

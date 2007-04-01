@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-07-23 10:59+0200\n"
+"POT-Creation-Date: 2007-03-31 14:16+0200\n"
 "PO-Revision-Date: 2006-08-09 10:08+CET\n"
 "Last-Translator: Thomas Nilsson <thuben@thuben.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -16,258 +16,584 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/gpodder/console.py:85
-#, python-format
-msgid "delete channel: %s"
-msgstr "tag bort kanal: %s"
+#: src/gpodder/console.py:80
+msgid "Could not add channel."
+msgstr ""
 
-#: src/gpodder/console.py:88
-#, python-format
-msgid "%s is not a valid id"
-msgstr "%s är inte en godkänd id"
+#: src/gpodder/console.py:100
+#, fuzzy
+msgid "Could not remove channel."
+msgstr "_Ta bort kanalen"
 
-#: src/gpodder/gpodder.py:71
+#: src/gpodder/gpodder.py:73
 msgid "Contributors / patch writers:"
 msgstr "Medarbetare / patchare"
 
-#: src/gpodder/gpodder.py:75
+#: src/gpodder/gpodder.py:77
 msgid "See the AUTHORS file for all contributors"
 msgstr "Titta i AUTHORS filen för att hitta alla som bidragit"
 
-#: src/gpodder/gpodder.py:132 src/gpodder/gpodder.py:157
-#: src/gpodder/gpodder.py:163
+#: src/gpodder/gpodder.py:120 src/gpodder/gpodder.py:151
 msgid "Episode"
 msgstr "Avsnitt"
 
-#: src/gpodder/gpodder.py:137
+#: src/gpodder/gpodder.py:126
 msgid "Size"
 msgstr "Storlek"
 
-#: src/gpodder/gpodder.py:142
+#: src/gpodder/gpodder.py:131
 msgid "Released"
 msgstr "Släppt"
 
-#: src/gpodder/gpodder.py:166
+#: src/gpodder/gpodder.py:137
+#, fuzzy
+msgid "Description"
+msgstr "Beskrivning:"
+
+#: src/gpodder/gpodder.py:154
 msgid "Speed"
 msgstr "Hastighet"
 
-#: src/gpodder/gpodder.py:169
+#: src/gpodder/gpodder.py:157
 msgid "Progress"
 msgstr "Progress"
 
-#: src/gpodder/gpodder.py:193
-msgid "Channel Info"
-msgstr "Kanalinfo"
+#: src/gpodder/gpodder.py:167
+#, fuzzy
+msgid "Edit channel information"
+msgstr "Avsnittsinformation"
 
-#: src/gpodder/gpodder.py:211
-#, python-format
+#: src/gpodder/gpodder.py:299
+#, fuzzy
+msgid "Error adding channel"
+msgstr "_Redigera kanal..."
+
+#: src/gpodder/gpodder.py:300
 msgid ""
-"<b>gPodder development version %s</b>\n"
-"Use at your own risk, but also enjoy new features :)"
+"The channel could not be added. Please check the spelling of the URL or try "
+"again later."
 msgstr ""
-"<b>gPodder utvecklingsverison %s</b>\n"
-"Använd den på egen risk, men njut även av nyheterna :)"
 
-#: src/gpodder/gpodder.py:244
-msgid "No downloaded podcasts found."
-msgstr "Inga nerladdade podsändningar hittade."
+#: src/gpodder/gpodder.py:330
+msgid "URL scheme not supported"
+msgstr ""
 
-#: src/gpodder/gpodder.py:254
+#: src/gpodder/gpodder.py:331
 msgid ""
-"<b>No channels found</b>\n"
-"\n"
-"Click on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a "
-"new channel."
+"gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://"
+"</b> or <b>ftp://</b>."
 msgstr ""
-"<b>Inga kanaler hittade</b>\n"
-"\n"
-"Klicka på <b><i>Kanaler</i></b> &gt; <b><i>Lägg till kanal..</i></b> för att "
-"lägga till en ny kanal."
 
-#: src/gpodder/gpodder.py:256
-msgid "gPodder message"
-msgstr "gPodder meddelande"
-
-#: src/gpodder/gpodder.py:264
-msgid "Do you really want to do this?"
-msgstr "Vill du verkligen göra detta?"
-
-#: src/gpodder/gpodder.py:264
-msgid "gPodder confirmation"
-msgstr "gPodder bekräftelse"
-
-#: src/gpodder/gpodder.py:329
-msgid ""
-"There has been an error adding the channel.\n"
-"Maybe the URL is wrong?"
+#: src/gpodder/gpodder.py:362
+msgid "Please wait..."
 msgstr ""
-"Det har uppstått ett fel vid tillägga av kanalen.\n"
-"Kanske URL:en är fel?"
 
-#: src/gpodder/gpodder.py:340 src/gpodder/gpodder.py:522
-msgid "Fetching channel index..."
-msgstr "Hämtar kanalens index..."
-
-#: src/gpodder/gpodder.py:353
-msgid ""
-"Could not add new channel.\n"
-"Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
-msgstr ""
-"Kan inte lägga till en ny kanal.\n"
-"Endast <b>http://</b> och <b>ftp://</b> URL:er stöds för tillfället."
-
-#: src/gpodder/gpodder.py:364
-msgid ""
-"Cannot access iPod.\n"
-"Make sure your iPod is connected and mounted."
-msgstr ""
-"Kan inte komma åt din iPod.\n"
-"Säkerställ att din iPod är ansluten och monterad."
-
-#: src/gpodder/gpodder.py:377
-msgid ""
-"Cannot access iPod.\n"
-"Make sure your iPod is connected."
-msgstr ""
-"Kan inte komma åt din iPod.\n"
-" Säkerställ att din iPod är ansluten."
-
-#: src/gpodder/gpodder.py:384 src/gpodder/gpodder.py:1116
-#, python-format
-msgid "%d of %d"
-msgstr "%d av %d"
-
-#: src/gpodder/gpodder.py:389
-msgid "Updating feed cache"
+#: src/gpodder/gpodder.py:366
+#, fuzzy, python-format
+msgid "Updating %s"
 msgstr "Uppdaterar ..."
 
-#: src/gpodder/gpodder.py:394
-msgid "Please wait - gPodder is updating its feed cache..."
-msgstr "Var god vänta - gPodder uppdaterar sin lokala kopia... "
+#: src/gpodder/gpodder.py:371
+#, python-format
+msgid "%d of %d channels updated"
+msgstr ""
 
-#: src/gpodder/gpodder.py:429
+#: src/gpodder/gpodder.py:379
+#, fuzzy
+msgid "Downloading podcast feeds"
+msgstr "Nerladdade Podcastar"
+
+#: src/gpodder/gpodder.py:380
+#, fuzzy
+msgid "Downloading feeds"
+msgstr "Nerladdningar"
+
+#: src/gpodder/gpodder.py:381
 msgid ""
-"You have already downloaded this episode\n"
-"or you are currently downloading it."
+"Podcast feeds contain channel metadata and information about current "
+"episodes."
+msgstr ""
+
+#: src/gpodder/gpodder.py:384
+msgid "Reading podcast feeds"
+msgstr ""
+
+#: src/gpodder/gpodder.py:385
+msgid "Reading feeds"
+msgstr ""
+
+#: src/gpodder/gpodder.py:466
+#, fuzzy
+msgid "Episode already downloaded"
+msgstr "gPodder nerladdningar"
+
+#: src/gpodder/gpodder.py:467
+#, fuzzy
+msgid ""
+"You have already downloaded this episode. Click on the episode to play it."
 msgstr ""
 "Du har redan laddat ner detta avsnitt\n"
 "eller så håller du just på att ladda ner det."
 
-#: src/gpodder/gpodder.py:476
-msgid "Do you really want to truncate the Podcasts playlist on your iPod?"
-msgstr "Vill du verkligen korta av Podcastspellistan på din iPod?"
+#: src/gpodder/gpodder.py:470
+#, fuzzy
+msgid "Download in progress"
+msgstr "Ladda ner länk:"
 
-#: src/gpodder/gpodder.py:515
+#: src/gpodder/gpodder.py:471
 msgid ""
-"Cannot edit this channel.\n"
-"\n"
-"No channel found."
+"You are currently downloading this episode. Please check the download status "
+"tab to check when the download is finished."
 msgstr ""
-"Kan inte redigera denna kanal.\n"
-"\n"
-"Hittar ingen kanal."
 
-#: src/gpodder/gpodder.py:544
+#: src/gpodder/gpodder.py:509
+#, fuzzy
+msgid "No channels available"
+msgstr "Ingen beskrivning tillgänglig."
+
+#: src/gpodder/gpodder.py:510
+msgid ""
+"You need to subscribe to some podcast feeds before you can start downloading "
+"podcasts. Use your favorite search engine to look for interesting podcasts."
+msgstr ""
+
+#: src/gpodder/gpodder.py:538
+#, python-format
+msgid "<b>%d</b> new episodes in <b>%s</b>"
+msgstr ""
+
+#: src/gpodder/gpodder.py:541
+#, python-format
+msgid "<b>1</b> new episode in <b>%s</b>"
+msgstr ""
+
+#: src/gpodder/gpodder.py:547
+#, fuzzy
+msgid "New episodes available"
+msgstr "Ingen beskrivning tillgänglig."
+
+#: src/gpodder/gpodder.py:550
+#, fuzzy
+msgid "New episode available"
+msgstr "Ingen beskrivning tillgänglig."
+
+#: src/gpodder/gpodder.py:552
 #, python-format
 msgid ""
-"Do you really want to remove this channel?\n"
+"New episodes are available to be downloaded:\n"
 "\n"
-" %s"
+"%s\n"
+"Do you want to download these episodes now?"
 msgstr ""
-"Vill du verkligen ta bort denna kanal?\n"
-"\n"
-" %s"
 
-#: src/gpodder/gpodder.py:551
-msgid ""
-"Could not delete channel.\n"
-"Probably no channel is selected."
-msgstr ""
-"Kan inte ta bort denna kanal.\n"
-"Troligen är inte någon kanal vald."
-
-#: src/gpodder/gpodder.py:559
-msgid "Your channel list is empty. Nothing to export."
-msgstr "Din kanallista är tom. Det finns inget att exportera."
+#: src/gpodder/gpodder.py:560
+#, fuzzy
+msgid "No new episodes"
+msgstr "Inget avsnitt valt."
 
 #: src/gpodder/gpodder.py:561
+msgid ""
+"There are no new episodes to download from your podcast subscriptions. "
+"Please check for new episodes later."
+msgstr ""
+
+#: src/gpodder/gpodder.py:571 src/gpodder/gpodder.py:607
+msgid "No device configured"
+msgstr ""
+
+#: src/gpodder/gpodder.py:572 src/gpodder/gpodder.py:608
+msgid ""
+"To use the synchronization feature, please configure your device in the "
+"preferences dialog first."
+msgstr ""
+
+#: src/gpodder/gpodder.py:577 src/gpodder/gpodder.py:613
+msgid "Libraries needed: gpod, pymad"
+msgstr ""
+
+#: src/gpodder/gpodder.py:578 src/gpodder/gpodder.py:614
+msgid ""
+"To use the iPod synchronization feature, you need to install the <b>python-"
+"gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. "
+"More information about the needed libraries can be found on the gPodder "
+"website."
+msgstr ""
+
+#: src/gpodder/gpodder.py:622
+msgid "Delete podcasts from MP3 player?"
+msgstr ""
+
+#: src/gpodder/gpodder.py:623
+#, fuzzy
+msgid ""
+"Do you really want to completely remove all episodes from your MP3 player?"
+msgstr "Vill du verkligen ta bort %d avsnitt?"
+
+#: src/gpodder/gpodder.py:627
+msgid "Delete podcasts on iPod?"
+msgstr ""
+
+#: src/gpodder/gpodder.py:628
+#, fuzzy
+msgid ""
+"Do you really want to completely remove all episodes in the <b>Podcasts</b> "
+"playlist on your iPod?"
+msgstr "Vill du verkligen korta av Podcastspellistan på din iPod?"
+
+#: src/gpodder/gpodder.py:657
+#, fuzzy
+msgid "No channel selected"
+msgstr "Inget avsnitt valt."
+
+#: src/gpodder/gpodder.py:658
+msgid "Please select a channel in the channels list to edit."
+msgstr ""
+
+#: src/gpodder/gpodder.py:674
+#, fuzzy
+msgid "Remove channel and episodes?"
+msgstr "_Ta bort kanalen"
+
+#: src/gpodder/gpodder.py:675
+#, fuzzy, python-format
+msgid "Do you really want to remove <b>%s</b> and all downloaded episodes?"
+msgstr "Vill du verkligen ta bort %d avsnitt?"
+
+#: src/gpodder/gpodder.py:692
+msgid "Nothing to export"
+msgstr ""
+
+#: src/gpodder/gpodder.py:693
+msgid ""
+"Your list of channel subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+
+#: src/gpodder/gpodder.py:697
 msgid "Export to OPML"
 msgstr "Exportera till OPML"
 
-#: src/gpodder/gpodder.py:602
+#: src/gpodder/gpodder.py:747
 msgid "translator-credits"
 msgstr "Tack till följande översättare:"
 
-#: src/gpodder/gpodder.py:651
-msgid "You have not selected an episode to download."
-msgstr "Du har inte valt något avsnitt att ladda ner."
-
-#: src/gpodder/gpodder.py:682
-msgid "Do you really want to cancel this download?"
-msgstr "Vill du verkligen avbryta denna nerladdning?"
-
-#: src/gpodder/gpodder.py:684
+#: src/gpodder/gpodder.py:782
 #, python-format
-msgid "Do you really want to cancel %d downloads?"
-msgstr "Vill du verkligen avbryta %d nerladdningar?"
+msgid "Edit \"%s\""
+msgstr ""
 
-#: src/gpodder/gpodder.py:753
-msgid "No episode selected."
+#: src/gpodder/gpodder.py:783
+#, python-format
+msgid "Remove \"%s\""
+msgstr ""
+
+#: src/gpodder/gpodder.py:828
+#, fuzzy
+msgid "Nothing selected"
 msgstr "Inget avsnitt valt."
 
-#: src/gpodder/gpodder.py:779
-msgid "Do you really want to remove this episode?"
-msgstr "Vill du verkligen ta bort detta avsnitt?"
+#: src/gpodder/gpodder.py:829
+msgid ""
+"Please select an episode that you want to download and then click on the "
+"download button to start downloading the selected episode."
+msgstr ""
 
-#: src/gpodder/gpodder.py:781
+#: src/gpodder/gpodder.py:851
+#, fuzzy
+msgid "Download newest podcasts?"
+msgstr "Nerladdade Podcastar"
+
+#: src/gpodder/gpodder.py:852
 #, python-format
-msgid "Do you really want to remove %d episodes?"
+msgid "Would you like to download the three newest episodes from <b>%s</b>?"
+msgstr ""
+
+#: src/gpodder/gpodder.py:862
+#, fuzzy
+msgid "No episodes to download"
+msgstr "Du har inte valt något avsnitt att ladda ner."
+
+#: src/gpodder/gpodder.py:863
+#, fuzzy, python-format
+msgid "You have already downloaded the most recent episodes from <b>%s</b>."
+msgstr ""
+"Du har redan laddat ner detta avsnitt\n"
+"eller så håller du just på att ladda ner det."
+
+#: src/gpodder/gpodder.py:871
+#, python-format
+msgid "(...%d more episodes...)"
+msgstr ""
+
+#: src/gpodder/gpodder.py:873
+#, fuzzy
+msgid "Download new episodes?"
+msgstr "Nerladdade Podcastar"
+
+#: src/gpodder/gpodder.py:874
+msgid ""
+"New episodes are available for download. If you want, you can download these "
+"episodes to your computer now."
+msgstr ""
+
+#: src/gpodder/gpodder.py:877
+#, fuzzy, python-format
+msgid "Download %s?"
+msgstr "Nerladdningar"
+
+#: src/gpodder/gpodder.py:878
+msgid ""
+"A new episode is available for download. If you want, you can download this "
+"episode to your computer now."
+msgstr ""
+
+#: src/gpodder/gpodder.py:902
+#, fuzzy
+msgid "Cancel downloads?"
+msgstr "Avbryt alla pågående nerladdningar"
+
+#: src/gpodder/gpodder.py:903
+#, python-format
+msgid ""
+"Cancelling the download will stop the %d selected downloads and remove "
+"partially downloaded files."
+msgstr ""
+
+#: src/gpodder/gpodder.py:906
+#, fuzzy
+msgid "Cancel download?"
+msgstr "Avbryt alla pågående nerladdningar"
+
+#: src/gpodder/gpodder.py:907
+msgid ""
+"Cancelling this download will remove the partially downloaded file and stop "
+"the download."
+msgstr ""
+
+#: src/gpodder/gpodder.py:948
+#, fuzzy, python-format
+msgid "Remove %d episodes?"
 msgstr "Vill du verkligen ta bort %d avsnitt?"
 
-#: src/gpodder/gpodder.py:851 src/gpodder/gpodder.py:852
-#: src/gpodder/libpodcasts.py:355 data/gpodder.glade.h:1
+#: src/gpodder/gpodder.py:949
+msgid ""
+"If you remove these episodes, they will be deleted from your computer. If "
+"you want to listen to any of these episodes again, you will have to re-"
+"download the episodes in question."
+msgstr ""
+
+#: src/gpodder/gpodder.py:951
+#, python-format
+msgid "Remove %s?"
+msgstr ""
+
+#: src/gpodder/gpodder.py:952
+msgid ""
+"If you remove this episode, it will be deleted from your computer. If you "
+"want to listen to this episode again, you will have to re-download it."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1007
+#, fuzzy, python-format
+msgid "Channel: %s"
+msgstr "Kanal:"
+
+#: src/gpodder/gpodder.py:1026
+#, fuzzy
+msgid "Add a new channel"
+msgstr "_Lägg till kanal..."
+
+#: src/gpodder/gpodder.py:1028 src/gpodder/libpodcasts.py:458
+#: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(okänt)"
 
-#: src/gpodder/gpodder.py:1160
+#: src/gpodder/gpodder.py:1111
+msgid "needs python-eyed3"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1239
+#, fuzzy
+msgid "Select iPod mountpoint"
+msgstr "iPod monteringspunkt:"
+
+#: src/gpodder/gpodder.py:1251
+msgid "Select folder for MP3 player"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1292
+msgid "Moving downloads folder"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1298
+#, python-format
+msgid "Moving downloads from <b>%s</b> to <b>%s</b>..."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1322
+#, fuzzy, python-format
+msgid "%s of %s"
+msgstr "%d av %d"
+
+#: src/gpodder/gpodder.py:1324
+msgid "Finishing... please wait."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1385
+#, python-format
+msgid "<i>from %s</i>"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1477
+#, fuzzy, python-format
+msgid "%d of %d done"
+msgstr "%d av %d"
+
+#: src/gpodder/gpodder.py:1519
+#, fuzzy
+msgid "Synchronization finished"
+msgstr "Synkroniserar"
+
+#: src/gpodder/gpodder.py:1520
+#, fuzzy
+msgid "Copied Podcasts"
+msgstr "Nerladdade Podcastar"
+
+#: src/gpodder/gpodder.py:1521
+msgid ""
+"The selected episodes have been copied to your device. You can now unplug "
+"the device."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1523
+#, fuzzy
+msgid "Synchronization error"
+msgstr "Synkroniserar"
+
+#: src/gpodder/gpodder.py:1524
+msgid "Cannot access device"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1525
+msgid ""
+"Make sure your device is connected to your computer and mounted. Please also "
+"make sure you have set the correct path to your device in the preferences "
+"dialog."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1527
+msgid "Device cleaned"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1528
+#, fuzzy
+msgid "Podcasts removed"
+msgstr "Podcastmapp:"
+
+#: src/gpodder/gpodder.py:1529
+msgid "Synchronized Podcasts have been removed from your device."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1531
+#, fuzzy
+msgid "Synchronization aborted"
+msgstr "Synkroniserar"
+
+#: src/gpodder/gpodder.py:1532
+msgid "Aborted"
+msgstr ""
+
+#: src/gpodder/gpodder.py:1533
+msgid ""
+"The synchronization progress has been interrupted by the user. Please retry "
+"synchronization at a later time."
+msgstr ""
+
+#: src/gpodder/gpodder.py:1577
 msgid "Subscribe"
 msgstr "Prenummerera"
 
-#: src/gpodder/gpodder.py:1163
+#: src/gpodder/gpodder.py:1580
 msgid "Channel name"
 msgstr "Kanalnamn"
 
-#: src/gpodder/gpodder.py:1238
-msgid ""
-"Please do not call gpodder.py directly. Instead, call the gpodder binary."
-msgstr ""
-"Vänligen anropa inte gpodder.py direkt. Anropa istället gpodder-binären."
-
-#: src/gpodder/libgpodder.py:102
+#: src/gpodder/libgpodder.py:137
 msgid "gPodder downloads"
 msgstr "gPodder nerladdningar"
 
-#: src/gpodder/libgpodder.py:261
+#: src/gpodder/libgpodder.py:436
 msgid "Downloading channel cover..."
 msgstr "Laddar ner kanal beskrivning..."
 
-#: src/gpodder/libgpodder.py:312
+#: src/gpodder/libgpodder.py:487
 msgid "gPodder channel list"
 msgstr "gPodder kanallista"
 
-#: src/gpodder/libipodsync.py:97
-msgid "Saving iPod database..."
-msgstr "Sparar iPod databasen..."
-
-#: src/gpodder/libipodsync.py:183
+#: src/gpodder/libipodsync.py:140
 #, python-format
-msgid "Complete: %s"
+msgid "Copying %s"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:143
+#, fuzzy, python-format
+msgid "Synchronizing %s"
+msgstr "Synkroniserar"
+
+#: src/gpodder/libipodsync.py:147
+#, python-format
+msgid "Converting %s (%s%%)"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:172
+#, fuzzy, python-format
+msgid "Completed %s"
 msgstr "Färdiga: %s"
 
-#: src/gpodder/libipodsync.py:206
+#: src/gpodder/libipodsync.py:181
 #, python-format
 msgid "%s (to \"%s\")"
 msgstr "%s (till \"%s\")"
+
+#: src/gpodder/libipodsync.py:188
+msgid "Writing data to disk"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:225
+#, fuzzy
+msgid "Connect your iPod"
+msgstr "_Synkronisera iPoden"
+
+#: src/gpodder/libipodsync.py:226
+msgid ""
+"To start the synchronization process, please connect your iPod to the "
+"computer."
+msgstr ""
+
+#: src/gpodder/libipodsync.py:230
+msgid "Have you set up your iPod correctly?"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:232
+msgid "Please connect your iPod"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:232
+msgid "Waiting for iPod"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:243
+#, fuzzy
+msgid "Saving iPod database"
+msgstr "Sparar iPod databasen..."
+
+#: src/gpodder/libipodsync.py:253
+#, python-format
+msgid "Removing %s"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:531
+msgid "Removing files"
+msgstr ""
 
 #: src/gpodder/liblocdbwriter.py:42
 msgid "local download database, generated by gPodder"
@@ -277,161 +603,238 @@ msgstr "lokal nerladdningsdatabas, skapad av gPodder"
 msgid "gPodder subscription list (exported)"
 msgstr "gPodder prenumerationslista (exporterad)"
 
-#: src/gpodder/libpodcasts.py:318
-msgid "No LocalDB found or error in existing LocalDB."
-msgstr "Ingen LokalDB hittad eller fel i befintlig LokalDB"
+#: src/gpodder/libpodcasts.py:297
+#, python-format
+msgid "Error downloading %s. Using cached file instead."
+msgstr ""
 
-#: src/gpodder/libpodcasts.py:359
+#: src/gpodder/libpodcasts.py:299
+#, fuzzy, python-format
+msgid "Error downloading %s."
+msgstr "gPodder nerladdningar"
+
+#: src/gpodder/libpodcasts.py:414
+#, fuzzy
+msgid "No description available"
+msgstr "Ingen beskrivning tillgänglig."
+
+#: src/gpodder/libpodcasts.py:462
 msgid "Today"
 msgstr "Idag"
 
-#: src/gpodder/libpodcasts.py:361
+#: src/gpodder/libpodcasts.py:464
 msgid "Yesterday"
 msgstr "Igår"
 
-#: src/gpodder/libwget.py:55 src/gpodder/libwget.py:73
-#: src/gpodder/libwget.py:82
+#: src/gpodder/libwget.py:52 src/gpodder/libwget.py:61
 msgid "unknown"
 msgstr "okänd"
 
-#: src/gpodder/libwget.py:292
-msgid "Download has been cancelled."
-msgstr "Nerladdningen har avbrutits"
+#: src/gpodder/libwget.py:219
+msgid "one file"
+msgstr ""
 
-#: src/gpodder/libwget.py:294
+#: src/gpodder/libwget.py:221
 #, python-format
-msgid "Download error. Wget exit code was: %d"
-msgstr "Nerladdningsfel. Wget resultatkod var: %d"
+msgid "%d files"
+msgstr ""
+
+#: src/gpodder/libwget.py:222
+#, python-format
+msgid "%s - downloading %s (%s%%)"
+msgstr ""
 
 #: data/gpodder.glade.h:2
-msgid "<b>(unknown)</b>"
-msgstr "<b>(okänd)</b>"
+msgid "/path/to/fs-based-player"
+msgstr ""
 
 #: data/gpodder.glade.h:3
-msgid "<b>Channel:</b>"
-msgstr "<b>Kanal:</b>"
+msgid "/path/to/ipod"
+msgstr ""
 
 #: data/gpodder.glade.h:4
-msgid "<b>Episode:</b>"
-msgstr "<b>Avsnitt:</b>"
+msgid "<b><big>Synchronizing Podcasts</big></b>"
+msgstr ""
 
 #: data/gpodder.glade.h:5
+#, fuzzy
+msgid "Additional information"
+msgstr "Avsnittsinformation"
+
+#: data/gpodder.glade.h:6
 msgid "Advanced"
 msgstr "Avancerad"
 
-#: data/gpodder.glade.h:6
+#: data/gpodder.glade.h:7
+msgid "Author's wishlist"
+msgstr ""
+
+#: data/gpodder.glade.h:8
 msgid "Automatic:"
 msgstr "Automatisk:"
 
-#: data/gpodder.glade.h:7
-msgid "Autostart:"
-msgstr "Autostart:"
-
-#: data/gpodder.glade.h:8
-msgid "Available Podcasts"
-msgstr "Tillgängliga Podcastar"
-
 #: data/gpodder.glade.h:9
-msgid "Canc_el"
+#, fuzzy
+msgid "Cancel"
 msgstr "A_vbryt"
 
 #: data/gpodder.glade.h:10
-msgid "Cancel _all"
-msgstr "Avbryt _alla" 
+#, fuzzy
+msgid "Channel _list"
+msgstr "_Kanaler"
 
 #: data/gpodder.glade.h:11
-msgid "Cancels all running downloads"
-msgstr "Avbryt alla pågående nerladdningar"
+msgid "Color for already downloaded but deleted podcasts"
+msgstr ""
 
 #: data/gpodder.glade.h:12
-msgid "Cancels the selected downloads"
-msgstr "Avbryt de valda nerladdningarna"
+#, fuzzy
+msgid "Color for downloaded podcasts"
+msgstr "Inga nerladdade podsändningar hittade."
 
 #: data/gpodder.glade.h:13
-msgid "Channel:"
-msgstr "Kanal:"
+msgid "Color for podcasts currently being downloaded"
+msgstr ""
 
 #: data/gpodder.glade.h:14
+#, fuzzy
+msgid "Colors"
+msgstr "_Stäng"
+
+#: data/gpodder.glade.h:15
 msgid "Command:"
 msgstr "Kommando:"
 
-#: data/gpodder.glade.h:15
+#: data/gpodder.glade.h:16
+msgid "Copying Files To Device"
+msgstr ""
+
+#: data/gpodder.glade.h:17
 msgid "Cover"
 msgstr "Beskrivning"
 
-#: data/gpodder.glade.h:16
-msgid "Delete _all"
-msgstr "Ta bort _alla"
-
-#: data/gpodder.glade.h:17
-msgid "Deletes all downloaded episodes in this channel"
-msgstr "Ta bort alla nerladdade avsnitt för denna kanal"
-
 #: data/gpodder.glade.h:18
-msgid "Deletes the current selection"
-msgstr "Ta bort valt alternativ"
+msgid "Default color for episodes list"
+msgstr ""
 
 #: data/gpodder.glade.h:19
+msgid "Default color:"
+msgstr ""
+
+#: data/gpodder.glade.h:20
+#, fuzzy
+msgid "Delete all episodes"
+msgstr "Ta bort _alla"
+
+#: data/gpodder.glade.h:21
+#, fuzzy
+msgid "Delete selected episodes"
+msgstr "Ta bort valt alternativ"
+
+#: data/gpodder.glade.h:22
+msgid "Deleted episodes:"
+msgstr ""
+
+#: data/gpodder.glade.h:23
 msgid "Description:"
 msgstr "Beskrivning:"
 
-#: data/gpodder.glade.h:20
+#: data/gpodder.glade.h:24
 msgid "Desktop:"
 msgstr "Skrivbord:"
 
-#: data/gpodder.glade.h:21
+#: data/gpodder.glade.h:25
+msgid "Device"
+msgstr ""
+
+#: data/gpodder.glade.h:26
+#, fuzzy
+msgid "Download"
+msgstr "Nerladdningar"
+
+#: data/gpodder.glade.h:27
 msgid "Download Status"
 msgstr "Nerladdningsstatus"
 
-#: data/gpodder.glade.h:22
-msgid "Download _all"
+#: data/gpodder.glade.h:28
+#, fuzzy
+msgid "Download _all new episodes"
 msgstr "Ladda ner _allt"
 
-#: data/gpodder.glade.h:23
-msgid "Download _selected"
-msgstr "Ladda ner _valda"
+#: data/gpodder.glade.h:29
+#, fuzzy
+msgid "Download all available"
+msgstr "Ladda ner _allt"
 
-#: data/gpodder.glade.h:24
-msgid "Download link:"
+#: data/gpodder.glade.h:30
+#, fuzzy
+msgid "Download in progress:"
 msgstr "Ladda ner länk:"
 
-#: data/gpodder.glade.h:25
+#: data/gpodder.glade.h:31
+#, fuzzy
+msgid "Download new episodes"
+msgstr "Nerladdade Podcastar"
+
+#: data/gpodder.glade.h:32
+msgid "Download new episodes after updating feed cache"
+msgstr ""
+
+#: data/gpodder.glade.h:33
+#, fuzzy
+msgid "Download selected episodes"
+msgstr "Ladda ner _valda"
+
+#: data/gpodder.glade.h:34
 msgid "Download to:"
 msgstr "Ladda ner till:"
 
-#: data/gpodder.glade.h:26
-msgid "Downloaded Podcasts"
+#: data/gpodder.glade.h:35
+#, fuzzy
+msgid "Download:"
+msgstr "Nerladdningar"
+
+#: data/gpodder.glade.h:36
+#, fuzzy
+msgid "Downloaded episodes:"
 msgstr "Nerladdade Podcastar"
 
-#: data/gpodder.glade.h:27
+#: data/gpodder.glade.h:37
 msgid "Downloads"
 msgstr "Nerladdningar"
 
-#: data/gpodder.glade.h:28
-msgid "E_xport list..."
-msgstr "E_xportera listor..."
+#: data/gpodder.glade.h:38
+#, fuzzy
+msgid "E_xport to OPML"
+msgstr "Exportera till OPML"
 
-#: data/gpodder.glade.h:29
+#: data/gpodder.glade.h:39
 msgid "Episode Information"
 msgstr "Avsnittsinformation"
 
-#: data/gpodder.glade.h:30
+#: data/gpodder.glade.h:40
+msgid ""
+"Episodes marked for synchronization are now transferred to your player "
+"device."
+msgstr ""
+
+#: data/gpodder.glade.h:41
 msgid "FTP Proxy:"
 msgstr "FTP Proxy:"
 
-#: data/gpodder.glade.h:31
+#: data/gpodder.glade.h:42
 msgid "Feed URL:"
 msgstr "Matar URL:"
 
-#: data/gpodder.glade.h:32
+#: data/gpodder.glade.h:43
 msgid "General"
 msgstr "Allmänt"
 
-#: data/gpodder.glade.h:33
+#: data/gpodder.glade.h:44
 msgid "HTTP Proxy:"
 msgstr "HTTP Proxy:"
 
-#: data/gpodder.glade.h:34
+#: data/gpodder.glade.h:45
 msgid ""
 "If you have to use a HTTP or FTP proxy server,\n"
 "you can use the usual format of the environment variables:\n"
@@ -443,203 +846,451 @@ msgstr ""
 "\n"
 "<b>http://username:password@proxy_host:proxy_port/</b>"
 
-#: data/gpodder.glade.h:38
+#: data/gpodder.glade.h:49
 msgid "Initializing..."
 msgstr "Initierar..."
 
-#: data/gpodder.glade.h:39
+#: data/gpodder.glade.h:50
 msgid "No cover available."
 msgstr "Ingen beskrivning tillgänglig."
 
-#: data/gpodder.glade.h:40
+#: data/gpodder.glade.h:51
+msgid ""
+"None\n"
+"iPod\n"
+"Filesystem-based MP3 player"
+msgstr ""
+
+#: data/gpodder.glade.h:54
+#, fuzzy
+msgid "Play selected episode"
+msgstr "Spela det valda alternativet"
+
+#: data/gpodder.glade.h:55
 msgid "Player application:"
 msgstr "Spelarapplikation:"
 
-#: data/gpodder.glade.h:41
-msgid "Plays the current selection in the media player"
-msgstr "Spela de valda alternativen"
-
-#: data/gpodder.glade.h:42
+#: data/gpodder.glade.h:56
 msgid "Podcast directory:"
 msgstr "Podcastmapp:"
 
-#: data/gpodder.glade.h:43
+#: data/gpodder.glade.h:57
+#, fuzzy
+msgid "Podcasts"
+msgstr "_Podcastar"
+
+#: data/gpodder.glade.h:58
 msgid "Proxy"
 msgstr "Proxy"
 
-#: data/gpodder.glade.h:44
-msgid "Publication date:"
-msgstr "Publiceringsdatum:"
+#: data/gpodder.glade.h:59
+#, fuzzy
+msgid "Released:"
+msgstr "Släppt"
 
-#: data/gpodder.glade.h:45
+#: data/gpodder.glade.h:60
+msgid "Revert to default colors"
+msgstr ""
+
+#: data/gpodder.glade.h:61
 msgid "Save downloads in:"
 msgstr "Spara nedladdningar i:"
 
-#: data/gpodder.glade.h:46
+#: data/gpodder.glade.h:62
 msgid "Select channels to subscribe to"
 msgstr "Välj kanaler att prenummerera på"
 
-#: data/gpodder.glade.h:47
+#: data/gpodder.glade.h:63
+#, fuzzy
+msgid "Select download folder"
+msgstr "Spara nedladdningar i:"
+
+#: data/gpodder.glade.h:64
 msgid "Show \"gPodder downloads\" link"
 msgstr "Visa \"gPodder nerladdningar\" länk"
 
-#: data/gpodder.glade.h:48
-msgid "Skip this channel when syncing to the iPod"
+#: data/gpodder.glade.h:65
+#, fuzzy
+msgid "Skip this channel when syncing to my device"
 msgstr "Hoppa över denna kanal när du synkar iPoden"
 
-#: data/gpodder.glade.h:49
-msgid "Sync to Playlist:"
-msgstr "Synkronisera till spellista:"
-
-#: data/gpodder.glade.h:50
-msgid "Sync to Podcasts playlist"
+#: data/gpodder.glade.h:66
+#, fuzzy
+msgid "Sync to Podcasts playlist / Podcasts folder"
 msgstr "Synkronisera till Podcastspellistan"
 
-#: data/gpodder.glade.h:51
+#: data/gpodder.glade.h:67
+#, fuzzy
+msgid "Sync to folder:"
+msgstr "_Synkronisera iPoden"
+
+#: data/gpodder.glade.h:68
+#, fuzzy
+msgid "Sync to playlist/folder:"
+msgstr "Synkronisera till spellista:"
+
+#: data/gpodder.glade.h:69
 msgid "Synchronization"
 msgstr "Synkroniserar"
 
-#: data/gpodder.glade.h:52
+#: data/gpodder.glade.h:70
 msgid "Title:"
 msgstr "Titel:"
 
-#: data/gpodder.glade.h:53
-msgid "Update channels on startup"
+#: data/gpodder.glade.h:71
+msgid "Transfer"
+msgstr ""
+
+#: data/gpodder.glade.h:72
+#, fuzzy
+msgid "Transfer selected episodes"
+msgstr "Avbryt de valda nerladdningarna"
+
+#: data/gpodder.glade.h:73
+msgid "Type of device:"
+msgstr ""
+
+#: data/gpodder.glade.h:74
+#, fuzzy
+msgid "Update channel feed cache on startup"
 msgstr "Uppdatera kanalerna vid uppstart"
 
-#: data/gpodder.glade.h:54
+#: data/gpodder.glade.h:75
+#, fuzzy
+msgid "Update feeds"
+msgstr "Uppdaterar ..."
+
+#: data/gpodder.glade.h:76
+msgid "Update tags on audio files after downloading"
+msgstr ""
+
+#: data/gpodder.glade.h:77
 msgid "Use environment variables"
 msgstr "Använd miljövariabler"
 
-#: data/gpodder.glade.h:55
-msgid "Website link:"
+#: data/gpodder.glade.h:78
+#, fuzzy
+msgid "Website:"
 msgstr "Webplatslänk:"
 
-#: data/gpodder.glade.h:56
-msgid "_About gPodder..."
-msgstr "_Om gPodder..."
+#: data/gpodder.glade.h:79
+msgid ""
+"Writes episode and channel info to the downloaded file's tag field (ID3 for "
+"MP3, vorbis tag for OGG, etc..)"
+msgstr ""
 
-#: data/gpodder.glade.h:57
-msgid "_Add channel..."
-msgstr "_Lägg till kanal..."
-
-#: data/gpodder.glade.h:58
-msgid "_Channels"
+#: data/gpodder.glade.h:80
+#, fuzzy
+msgid "_Channel"
 msgstr "_Kanaler"
 
-#: data/gpodder.glade.h:59
+#: data/gpodder.glade.h:81
 msgid "_Check for Updates"
 msgstr "_Kontrollera om det finns uppdateringar"
 
-#: data/gpodder.glade.h:60
-msgid "_Cleanup iPod podcasts"
-msgstr "_Rensa upp iPod podcastar"
-
-#: data/gpodder.glade.h:61
+#: data/gpodder.glade.h:82
 msgid "_Close"
 msgstr "_Stäng"
 
-#: data/gpodder.glade.h:62
-msgid "_Delete"
-msgstr "_Ta bort"
-
-#: data/gpodder.glade.h:63
+#: data/gpodder.glade.h:83
 msgid "_Download"
 msgstr "Ladda _ner"
 
-#: data/gpodder.glade.h:64
-msgid "_Edit channel..."
+#: data/gpodder.glade.h:84
+#, fuzzy
+msgid "_Edit channel"
 msgstr "_Redigera kanal..."
 
-#: data/gpodder.glade.h:65
+#: data/gpodder.glade.h:85
 msgid "_Help"
 msgstr "_Hjälp"
 
-#: data/gpodder.glade.h:66
+#: data/gpodder.glade.h:86
 msgid "_Import from web"
 msgstr "_Importera från webben"
 
-#: data/gpodder.glade.h:67
-msgid "_Play"
-msgstr "_Spela"
-
-#: data/gpodder.glade.h:68
+#: data/gpodder.glade.h:87
 msgid "_Podcasts"
 msgstr "_Podcastar"
 
-#: data/gpodder.glade.h:69
+#: data/gpodder.glade.h:88
 msgid "_Preferences..."
 msgstr "_Inställningar..."
 
-#: data/gpodder.glade.h:70
+#: data/gpodder.glade.h:89
 msgid "_Remove channel"
 msgstr "_Ta bort kanalen"
 
-#: data/gpodder.glade.h:71
-msgid "_Sync to iPod"
-msgstr "_Synkronisera iPoden"
+#: data/gpodder.glade.h:90
+#, fuzzy
+msgid "_Remove podcasts"
+msgstr "_Ta bort kanalen"
 
-#: data/gpodder.glade.h:72
-msgid "gPodder - your podcast catcher."
-msgstr "gPodder - din podcast fångare."
+#: data/gpodder.glade.h:91
+#, fuzzy
+msgid "_Subscribe to new channel"
+msgstr "Prenummerera på kanalen från FEEDURL"
 
-#: data/gpodder.glade.h:73
+#: data/gpodder.glade.h:92
+#, fuzzy
+msgid "_Synchronize"
+msgstr "Synkroniserar"
+
+#: data/gpodder.glade.h:93
+#, fuzzy
+msgid "download link"
+msgstr "Ladda ner länk:"
+
+#: data/gpodder.glade.h:94
+#, fuzzy
+msgid "download to label"
+msgstr "Ladda ner till:"
+
+#: data/gpodder.glade.h:95
 msgid "gPodder Channel Editor"
 msgstr "gPodder Kanalredigerare"
 
-#: data/gpodder.glade.h:74
-msgid "gPodder properties"
+#: data/gpodder.glade.h:96
+#, fuzzy
+msgid "gPodder Preferences"
 msgstr "gPodder inställningar"
 
-#: data/gpodder.glade.h:75
-msgid "iPod"
-msgstr "iPod"
+#: data/gpodder.glade.h:97
+#, fuzzy
+msgid "gPodder mailing list"
+msgstr "gPodder kanallista"
 
-#: data/gpodder.glade.h:76
+#: data/gpodder.glade.h:98
+#, fuzzy
+msgid "gPodder website"
+msgstr "gPodder meddelande"
+
+#: data/gpodder.glade.h:99
 msgid "iPod mountpoint:"
 msgstr "iPod monteringspunkt:"
 
-#: bin/gpodder:59
-msgid "Be more verbose"
-msgstr "Var mer tydlig"
+#: data/gpodder.glade.h:100
+#, fuzzy
+msgid "website label"
+msgstr "Webplatslänk:"
 
-#: bin/gpodder:63
+#: data/gpodder.glade.h:101
+#, fuzzy
+msgid "website link"
+msgstr "Webplatslänk:"
+
+#: bin/gpodder:66
+msgid "Print debugging output to stdout"
+msgstr ""
+
+#: bin/gpodder:70
 msgid "Run local version in current directory"
 msgstr "Kör lokal version i nuvarande mapp"
 
-#: bin/gpodder:67
+#: bin/gpodder:74
 msgid "List all channel subscriptions"
 msgstr "Lista alla kanalprenummerationer"
 
-#: bin/gpodder:71
+#: bin/gpodder:78
 msgid "Update channel list, download new podcasts"
 msgstr "Uppdatera kanallistan, ladda ner nya podcastar"
 
-#: bin/gpodder:75
+#: bin/gpodder:82
 msgid "Update channel list and exit"
 msgstr "Uppdatera kanallistan och avsluta"
 
-#: bin/gpodder:78
-msgid "Subscribe to channel from FEEDURL"
+#: bin/gpodder:85
+#, fuzzy
+msgid "Subscribe to channel from URL"
 msgstr "Prenummerera på kanalen från FEEDURL"
 
-#: bin/gpodder:81
-msgid "Delete channel with ID n"
+#: bin/gpodder:88
+#, fuzzy
+msgid "Delete channel specified by URL"
 msgstr "Ta bort kanalen med ID n"
 
-#: bin/gpodder:99
+#: bin/gpodder:104
 msgid "Error: cannot find wget."
 msgstr "Fel: kan inte hitta wget."
 
-#: bin/gpodder:122
-msgid "Channel IDs may have changed, list before deleting again."
-msgstr "Kanal ID kan ha ändrats, lista ipå nytt innan du tar bort igen."
+#, fuzzy
+#~ msgid "gPodder podcasts"
+#~ msgstr "gPodder inställningar"
 
-msgid "Delete selected item"
-msgstr "Ta bort valt alternativ"
+#~ msgid "delete channel: %s"
+#~ msgstr "tag bort kanal: %s"
 
-msgid "Play selected item"
-msgstr "Spela det valda alternativet"
+#~ msgid "%s is not a valid id"
+#~ msgstr "%s är inte en godkänd id"
 
-msgid "Exclude from synchronization"
-msgstr "Synkronisera inte"
+#~ msgid "Channel Info"
+#~ msgstr "Kanalinfo"
+
+#~ msgid ""
+#~ "<b>gPodder development version %s</b>\n"
+#~ "Use at your own risk, but also enjoy new features :)"
+#~ msgstr ""
+#~ "<b>gPodder utvecklingsverison %s</b>\n"
+#~ "Använd den på egen risk, men njut även av nyheterna :)"
+
+#~ msgid ""
+#~ "<b>No channels found</b>\n"
+#~ "\n"
+#~ "Click on <b><i>Channels</i></b> &gt; <b><i>Add channel..</i></b> to add a "
+#~ "new channel."
+#~ msgstr ""
+#~ "<b>Inga kanaler hittade</b>\n"
+#~ "\n"
+#~ "Klicka på <b><i>Kanaler</i></b> &gt; <b><i>Lägg till kanal..</i></b> för "
+#~ "att lägga till en ny kanal."
+
+#~ msgid "Do you really want to do this?"
+#~ msgstr "Vill du verkligen göra detta?"
+
+#~ msgid "gPodder confirmation"
+#~ msgstr "gPodder bekräftelse"
+
+#~ msgid ""
+#~ "There has been an error adding the channel.\n"
+#~ "Maybe the URL is wrong?"
+#~ msgstr ""
+#~ "Det har uppstått ett fel vid tillägga av kanalen.\n"
+#~ "Kanske URL:en är fel?"
+
+#~ msgid "Fetching channel index..."
+#~ msgstr "Hämtar kanalens index..."
+
+#~ msgid ""
+#~ "Could not add new channel.\n"
+#~ "Only <b>http://</b> and <b>ftp://</b> URLs supported at the moment."
+#~ msgstr ""
+#~ "Kan inte lägga till en ny kanal.\n"
+#~ "Endast <b>http://</b> och <b>ftp://</b> URL:er stöds för tillfället."
+
+#~ msgid ""
+#~ "Cannot access iPod.\n"
+#~ "Make sure your iPod is connected and mounted."
+#~ msgstr ""
+#~ "Kan inte komma åt din iPod.\n"
+#~ "Säkerställ att din iPod är ansluten och monterad."
+
+#~ msgid ""
+#~ "Cannot access iPod.\n"
+#~ "Make sure your iPod is connected."
+#~ msgstr ""
+#~ "Kan inte komma åt din iPod.\n"
+#~ " Säkerställ att din iPod är ansluten."
+
+#~ msgid "Please wait - gPodder is updating its feed cache..."
+#~ msgstr "Var god vänta - gPodder uppdaterar sin lokala kopia... "
+
+#~ msgid ""
+#~ "Cannot edit this channel.\n"
+#~ "\n"
+#~ "No channel found."
+#~ msgstr ""
+#~ "Kan inte redigera denna kanal.\n"
+#~ "\n"
+#~ "Hittar ingen kanal."
+
+#~ msgid ""
+#~ "Do you really want to remove this channel?\n"
+#~ "\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Vill du verkligen ta bort denna kanal?\n"
+#~ "\n"
+#~ " %s"
+
+#~ msgid ""
+#~ "Could not delete channel.\n"
+#~ "Probably no channel is selected."
+#~ msgstr ""
+#~ "Kan inte ta bort denna kanal.\n"
+#~ "Troligen är inte någon kanal vald."
+
+#~ msgid "Your channel list is empty. Nothing to export."
+#~ msgstr "Din kanallista är tom. Det finns inget att exportera."
+
+#~ msgid "Do you really want to cancel this download?"
+#~ msgstr "Vill du verkligen avbryta denna nerladdning?"
+
+#~ msgid "Do you really want to cancel %d downloads?"
+#~ msgstr "Vill du verkligen avbryta %d nerladdningar?"
+
+#~ msgid "Do you really want to remove this episode?"
+#~ msgstr "Vill du verkligen ta bort detta avsnitt?"
+
+#~ msgid ""
+#~ "Please do not call gpodder.py directly. Instead, call the gpodder binary."
+#~ msgstr ""
+#~ "Vänligen anropa inte gpodder.py direkt. Anropa istället gpodder-binären."
+
+#~ msgid "No LocalDB found or error in existing LocalDB."
+#~ msgstr "Ingen LokalDB hittad eller fel i befintlig LokalDB"
+
+#~ msgid "Download has been cancelled."
+#~ msgstr "Nerladdningen har avbrutits"
+
+#~ msgid "Download error. Wget exit code was: %d"
+#~ msgstr "Nerladdningsfel. Wget resultatkod var: %d"
+
+#~ msgid "<b>(unknown)</b>"
+#~ msgstr "<b>(okänd)</b>"
+
+#~ msgid "<b>Channel:</b>"
+#~ msgstr "<b>Kanal:</b>"
+
+#~ msgid "<b>Episode:</b>"
+#~ msgstr "<b>Avsnitt:</b>"
+
+#~ msgid "Autostart:"
+#~ msgstr "Autostart:"
+
+#~ msgid "Available Podcasts"
+#~ msgstr "Tillgängliga Podcastar"
+
+#~ msgid "Cancel _all"
+#~ msgstr "Avbryt _alla"
+
+#~ msgid "Deletes all downloaded episodes in this channel"
+#~ msgstr "Ta bort alla nerladdade avsnitt för denna kanal"
+
+#~ msgid "Deletes the current selection"
+#~ msgstr "Ta bort valt alternativ"
+
+#~ msgid "E_xport list..."
+#~ msgstr "E_xportera listor..."
+
+#~ msgid "Plays the current selection in the media player"
+#~ msgstr "Spela de valda alternativen"
+
+#~ msgid "Publication date:"
+#~ msgstr "Publiceringsdatum:"
+
+#~ msgid "_About gPodder..."
+#~ msgstr "_Om gPodder..."
+
+#~ msgid "_Cleanup iPod podcasts"
+#~ msgstr "_Rensa upp iPod podcastar"
+
+#~ msgid "_Delete"
+#~ msgstr "_Ta bort"
+
+#~ msgid "_Play"
+#~ msgstr "_Spela"
+
+#~ msgid "gPodder - your podcast catcher."
+#~ msgstr "gPodder - din podcast fångare."
+
+#~ msgid "iPod"
+#~ msgstr "iPod"
+
+#~ msgid "Be more verbose"
+#~ msgstr "Var mer tydlig"
+
+#~ msgid "Channel IDs may have changed, list before deleting again."
+#~ msgstr "Kanal ID kan ha ändrats, lista ipå nytt innan du tar bort igen."
+
+#~ msgid "Exclude from synchronization"
+#~ msgstr "Synkronisera inte"

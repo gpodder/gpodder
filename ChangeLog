@@ -1,3 +1,24 @@
+Sun,  1 Apr 2007 19:45:28 +0200 <thp@perli.net>
+        * src/gpodder/libtagupdate.py: Return false on error
+        * src/gpodder/libpodcasts.py: Don't set the album tag to "gPodder 
+          podcasts" when tagging downloaded files
+        * src/gpodder/libgpodder.py: save/restore main window size and position
+        * src/gpodder/libipodsync.py: Update tags on converted MP3 files, so 
+          applications accessing files on the iPod without reading the meta-
+          data in the iTunesDB will be able to correctly identify the episodes;
+          do not set the track artist to "gPodder podcast" when syncing to the
+          podcasts playlist
+        * src/gpodder/gpodder.py: Fix bad behaviour of the available podcasts
+          treeview (thanks to Pieter De Decker [pdedecker gmail com] for 
+          bringing this problem to my attention); save and restore window size 
+          and position of gPodder's main window; fix some strings to ease 
+          translations
+        * data/gpodder.glade: Make certain strings in the toolbar translatable
+          thanks to Pieter De Decker for pointing that out :)
+        * data/messages.pot: Updated translation template from new code
+        * data/po/de.po: Updated German translation
+        * data/po/*.po: Updated translations from new code
+
 Sat, 31 Mar 2007 03:56:48 +0200 <thp@perli.net>
         * src/gpodder/gpodder.py: Fixed some UI changes, add support for 
           new toolbar in GUI; add title in the information and confirmation 

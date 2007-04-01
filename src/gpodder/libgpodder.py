@@ -136,6 +136,10 @@ class gPodderLibClass( object):
         self.update_tags = False
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
+        self.main_window_width = 600
+        self.main_window_height = 450
+        self.main_window_x = 0
+        self.main_window_y = 0
         self.mp3_player_folder = ""
         self.colors = {}
         for key in default_colors.keys():
@@ -214,6 +218,10 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
         self.write_to_parser( parser, 'device_type', self.device_type)
+        self.write_to_parser( parser, 'main_window_width', self.main_window_width)
+        self.write_to_parser( parser, 'main_window_height', self.main_window_height)
+        self.write_to_parser( parser, 'main_window_x', self.main_window_x)
+        self.write_to_parser( parser, 'main_window_y', self.main_window_y)
         self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
         for color in self.colors.keys():
             self.write_to_parser( parser, 'color_' + color, self.colors[color])
@@ -284,6 +292,13 @@ class gPodderLibClass( object):
         except:
             return default
 
+    def get_int_from_parser( self, parser, option, default = 0):
+        try:
+            result = int(parser.get( self.gpodderconf_section, option))
+            return result
+        except:
+            return default
+
     def get_boolean_from_parser( self, parser, option, default = False):
         try:
             result = parser.getboolean( self.gpodderconf_section, option)
@@ -328,6 +343,10 @@ class gPodderLibClass( object):
                     self.update_tags = self.get_boolean_from_parser(parser, 'update_tags', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.device_type = self.get_from_parser( parser, 'device_type', 'none')
+                    self.main_window_width = self.get_int_from_parser( parser, 'main_window_width', 600)
+                    self.main_window_height = self.get_int_from_parser( parser, 'main_window_height', 450)
+                    self.main_window_x = self.get_int_from_parser( parser, 'main_window_x', 0)
+                    self.main_window_y = self.get_int_from_parser( parser, 'main_window_y', 0)
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                     for color in self.colors.keys():
                         self.colors[color] = self.get_from_parser( parser, 'color_'+color, default_colors[color])
@@ -349,6 +368,10 @@ class gPodderLibClass( object):
             self.open_app = 'gnome-open'
             self.ipod_mount = '/media/ipod'
             self.device_type = 'none'
+            self.main_window_width = 600
+            self.main_window_height = 450
+            self.main_window_x = 0
+            self.main_window_y = 0
             self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
             self.downloaddir = expanduser('~/gpodder-downloads')

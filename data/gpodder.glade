@@ -686,7 +686,7 @@
             <child>
               <widget class="GtkToolButton" id="toolUpdate">
                 <property name="visible">True</property>
-                <property name="label">Update feeds</property>
+                <property name="label" translatable="yes">Update feeds</property>
                 <property name="stock_id">gtk-refresh</property>
                 <signal name="clicked" handler="on_itemUpdate_activate"/>
               </widget>
@@ -706,7 +706,7 @@
             <child>
               <widget class="GtkToolButton" id="toolDownload">
                 <property name="visible">True</property>
-                <property name="label">Download</property>
+                <property name="label" translatable="yes">Download</property>
                 <property name="stock_id">gtk-go-down</property>
                 <signal name="clicked" handler="on_btnDownload_clicked"/>
               </widget>
@@ -727,7 +727,7 @@
             <child>
               <widget class="GtkToolButton" id="toolTransfer">
                 <property name="visible">True</property>
-                <property name="label">Transfer</property>
+                <property name="label" translatable="yes">Transfer</property>
                 <property name="stock_id">gtk-network</property>
                 <signal name="clicked" handler="on_btnTransfer_clicked"/>
               </widget>
@@ -738,7 +738,7 @@
             <child>
               <widget class="GtkToolButton" id="toolCancel">
                 <property name="visible">True</property>
-                <property name="label">Cancel</property>
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="stock_id">gtk-stop</property>
                 <property name="sensitive">False</property>
                 <signal name="clicked" handler="on_btnCancelDownloadStatus_clicked"/>

@@ -201,7 +201,7 @@ class podcastChannel(ListType):
             if libgpodder.gPodderLib().update_tags and tagging_supported():
                 filename = self.getPodcastFilename( item.url)
                 try:
-                    update_metadata_on_file( filename, title = item.title, artist = self.title, album = _('gPodder podcasts'))
+                    update_metadata_on_file( filename, title = item.title, artist = self.title)
                 except:
                     log('Error while calling update_metadata_on_file() :(')
 

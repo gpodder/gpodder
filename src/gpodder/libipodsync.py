@@ -93,6 +93,7 @@ import liblocaldb
 import libpodcasts
 import libgpodder
 import libconverter
+import libtagupdate
 
 import gobject
 
@@ -373,6 +374,8 @@ class gPodder_iPodSync( gPodderSyncMethod):
             log('(ipodsync) Converting: %s', original_filename)
             callback_status = lambda percentage: self.set_episode_convert_status( episode.title, percentage)
             local_filename = str( libconverter.converters.convert( original_filename, callback = callback_status))
+            if not libtagupdate.update_metadata_on_file( local_filename, title = episode.title, artist = channel.title):
+                log('(ipodsync) Could not set metadata on converted file %s', local_filename)
             self.set_episode_status( episode.title)
             if not local_filename:
                 log('(ipodsync) Error while converting file %s', original_filename)
@@ -404,10 +407,8 @@ class gPodder_iPodSync( gPodderSyncMethod):
         
         track = gpod.itdb_track_new()
         
+        track.artist = str(channel.title)
         if channel.is_music_channel:
-            track.artist = str(channel.title)
-        else:
-            track.artist = 'gPodder podcast'
             self.set_podcast_flags( track)
         
         # Add release time to track if pubDate is parseable
