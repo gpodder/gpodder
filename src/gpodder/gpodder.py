@@ -191,6 +191,12 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def downloads_changed( self):
+        if self.wNotebook.get_current_page() == 0:
+            self.toolCancel.set_sensitive( False)
+        else:
+            self.toolCancel.set_sensitive( self.download_status_manager.has_items())
+
     def play_or_download( self):
         if self.wNotebook.get_current_page() > 0:
             return
@@ -200,6 +206,11 @@ class Gpodder(SimpleGladeApp):
 
         try:
             selection = self.treeAvailable.get_selection()
+            if selection.count_selected_rows() == 0:
+                self.toolPlay.set_sensitive( False)
+                self.toolDownload.set_sensitive( False)
+                self.toolTransfer.set_sensitive( False)
+                return
             selection_tuple = selection.get_selected_rows()
 
             for apath in selection_tuple[1]:
@@ -768,7 +779,7 @@ class Gpodder(SimpleGladeApp):
             self.toolDownload.set_sensitive( False)
             self.toolPlay.set_sensitive( False)
             self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( True)
+            self.toolCancel.set_sensitive( self.download_status_manager.has_items())
     #-- Gpodder.on_wNotebook_switch_page }
 
     #-- Gpodder.on_comboAvailable_changed {
@@ -828,6 +839,8 @@ class Gpodder(SimpleGladeApp):
             title = _('Nothing selected')
             message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')
             self.show_message( message, title)
+
+        self.downloads_changed()
     #-- Gpodder.on_treeAvailable_row_activated }
 
     #-- Gpodder.on_btnDownload_clicked {
@@ -915,6 +928,8 @@ class Gpodder(SimpleGladeApp):
                     self.download_status_manager.cancel_by_url( url)
             except:
                 log( 'Error while cancelling downloads.')
+
+        self.downloads_changed()
     #-- Gpodder.on_treeDownloads_row_activated }
 
     #-- Gpodder.on_btnCancelDownloadStatus_clicked {
