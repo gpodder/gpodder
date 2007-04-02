@@ -46,7 +46,7 @@ from gtk.gdk import Pixbuf
 from liblogger import log
 
 # where are the .desktop files located?
-userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/' ]
+userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '/usr/share/applications/kde/' ]
 
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
