@@ -392,12 +392,17 @@ class gPodderLibClass( object):
             return exists( symlink_path)
 
     def get_size( self, filename):
+        if dirname( filename) == '/':
+            return 0L
         if isfile( filename):
             return getsize( filename)
         elif isdir( filename):
             sum = getsize( filename)
             for item in listdir( filename):
-                sum = sum + self.get_size( join( filename, item))
+                try:
+                    sum = sum + self.get_size( join( filename, item))
+                except:
+                    return 0L
             return sum
         else:
             log( 'Cannot get size for %s' % ( filename, ))

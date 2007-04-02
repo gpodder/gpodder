@@ -641,7 +641,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemPreferences_activate {
     def on_itemPreferences_activate(self, widget, *args):
-        prop = Gpodderproperties( gpodderwindow = self.gPodder)
+        prop = Gpodderproperties( gpodderwindow = self.gPodder, showmessage = self.show_message)
         prop.set_uar( self.user_apps_reader)
         prop.set_callback_finished( self.updateTreeView)
     #-- Gpodder.on_itemPreferences_activate }
@@ -1089,6 +1089,10 @@ class Gpodderproperties(SimpleGladeApp):
             self.gPodderProperties.set_transient_for( kwargs['gpodderwindow'])
             self.gPodderProperties.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
+        self.message_callback = None
+        if 'showmessage' in kwargs:
+            self.message_callback = kwargs['showmessage']
+
     #-- Gpodderproperties.new {
     def new(self):
         self.callback_finished = None
@@ -1182,6 +1186,9 @@ class Gpodderproperties(SimpleGladeApp):
     def set_download_dir( self, new_download_dir, event = None):
         gl = gPodderLib()
         gl.downloaddir = self.chooserDownloadTo.get_filename()
+        if self.message_callback and gl.downloaddir != self.chooserDownloadTo.get_filename():
+            gobject.idle_add( self.message_callback, _('There has been an error moving your downloads to the specified location. The old download directory will be used instead.'), _('Error moving downloads'))
+            self.message_callback = None
 
         if event:
             event.set()
