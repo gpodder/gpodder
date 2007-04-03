@@ -248,10 +248,8 @@ class podcastChannel(ListType):
         for item in self.get_all_episodes():
             played_icon = None
             if self.is_downloaded( item) and want_color:
-                if libgpodder.gPodderLib().history_is_played( item.url):
+                if not libgpodder.gPodderLib().history_is_played( item.url):
                     played_icon = gtk.STOCK_YES
-                #else:
-                #    played_icon = gtk.STOCK_NO
 
                 file_type = self.get_file_type( item)
                 if file_type == 'audio':

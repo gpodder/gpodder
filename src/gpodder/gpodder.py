@@ -121,7 +121,7 @@ class Gpodder(SimpleGladeApp):
         iconcolumn.add_attribute( iconcell, "icon-name", 4)
 
         playedcell = gtk.CellRendererPixbuf()
-        playedcolumn = gtk.TreeViewColumn( _("Played"), playedcell)
+        playedcolumn = gtk.TreeViewColumn( _("New"), playedcell)
         playedcolumn.add_attribute( playedcell, "icon-name", 8)
         self.played_column = playedcolumn
 
