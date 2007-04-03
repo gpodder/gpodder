@@ -239,26 +239,37 @@ class podcastChannel(ListType):
         the URL of the episodes and returns True if the episode is currently 
         being downloaded and False otherwise.
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         gl = libgpodder.gPodderLib()
+
+        last_pubdate = self.newest_pubdate_downloaded()
 
         for item in self.get_all_episodes():
             if self.is_downloaded( item) and want_color:
-                background_color = gl.colors['downloaded']
+                file_type = self.get_file_type( item)
+                if file_type == 'audio':
+                    status_icon = 'audio-x-generic'
+                elif file_type == 'video':
+                    status_icon = 'video-x-generic'
+                else:
+                    status_icon = 'unknown'
             elif downloading_callback and downloading_callback( item.url) and want_color:
-                background_color = gl.colors['downloading']
+                status_icon = gtk.STOCK_GO_DOWN
             elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
-                background_color = gl.colors['deleted']
+                status_icon = gtk.STOCK_DELETE
+            elif last_pubdate and item.compare_pubdate( last_pubdate) >= 0:
+                status_icon = 'document-new'
             else:
-                background_color = gl.colors['default']
+                status_icon = None
             new_iter = new_model.append()
             new_model.set( new_iter, 0, item.url)
             new_model.set( new_iter, 1, item.title)
             new_model.set( new_iter, 2, item.getSize())
             new_model.set( new_iter, 3, True)
-            new_model.set( new_iter, 4, background_color)
+            new_model.set( new_iter, 4, status_icon)
             new_model.set( new_iter, 5, item.cute_pubdate())
             new_model.set( new_iter, 6, item.one_line_description())
+            new_model.set( new_iter, 7, item.description)
         
         return new_model
     
@@ -351,6 +362,19 @@ class podcastChannel(ListType):
         return os.path.join( self.save_dir, 'cover')
 
     cover_file = property(fget=get_cover_file)
+
+    def get_file_type( self, item):
+        types = {
+                'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
+                'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov' ]
+        }
+        extension = splitext( self.getPodcastFilename( item.url))[1][1:]
+
+        for type in types:
+            if extension in types[type]:
+                return type
+
+        return 'unknown'
     
     def getPodcastFilename( self, url):
         # strip question mark (and everything behind it), fix %20 errors

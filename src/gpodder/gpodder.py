@@ -113,34 +113,35 @@ class Gpodder(SimpleGladeApp):
         self.comboAvailable.pack_start( cellrenderer, True)
         self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
 
-        # See http://www.pygtk.org/pygtk2tutorial/sec-CellRenderers.html
+        # enable alternating colors hint
+        self.treeAvailable.set_rules_hint( True)
+
+        iconcell = gtk.CellRendererPixbuf()
+        iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell)
+        iconcolumn.add_attribute( iconcell, "icon-name", 4)
+
         namecell = gtk.CellRendererText()
-        namecell.set_property('cell-background', 'white')
         #namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
         namecolumn.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        namecolumn.add_attribute(namecell, "cell-background", 4)
 
         sizecell = gtk.CellRendererText()
-        sizecell.set_property('cell-background', 'white')
         sizecolumn = gtk.TreeViewColumn( _("Size"), sizecell, text=2)
-        sizecolumn.add_attribute(sizecell, "cell-background", 4)
 
         releasecell = gtk.CellRendererText()
-        releasecell.set_property('cell-background', 'white')
         releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
-        releasecolumn.add_attribute(releasecell, "cell-background", 4)
         
         desccell = gtk.CellRendererText()
-        desccell.set_property('cell-background', 'white')
         desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
         desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
-        desccolumn.add_attribute(desccell, "cell-background", 4)
 
-        for itemcolumn in ( namecolumn, sizecolumn, releasecolumn, desccolumn ):
+        for itemcolumn in ( iconcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
             itemcolumn.set_resizable( True)
             itemcolumn.set_reorderable( True)
             self.treeAvailable.append_column( itemcolumn)
+
+        # enable search in treeavailable
+        self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
 
         # enable multiple selection support
         self.treeAvailable.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
@@ -191,6 +192,23 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def treeAvailable_search_equal( self, model, column, key, iter, data = None):
+        if model == None:
+            return True
+
+        key = key.lower()
+
+        # columns, as defined in libpodcasts' get model method
+        # 1 = episode title, 7 = description
+        columns = (1, 7)
+
+        for column in columns:
+            value = model.get_value( iter, column).lower()
+            if value.find( key) != -1:
+                return False
+
+        return True
+
     def downloads_changed( self):
         if self.wNotebook.get_current_page() == 0:
             self.toolCancel.set_sensitive( False)
@@ -1129,8 +1147,6 @@ class Gpodderproperties(SimpleGladeApp):
             self.updatetags.set_sensitive( False)
             new_label = '%s (%s)' % ( self.updatetags.get_label(), _('needs python-eyed3') )
             self.updatetags.set_label( new_label)
-        # colors
-        self.reload_colors()
         # device type
         self.comboboxDeviceType.set_active( 0)
         if gl.device_type == 'ipod':
@@ -1152,22 +1168,6 @@ class Gpodderproperties(SimpleGladeApp):
     #-- Gpodderproperties.new }
 
     #-- Gpodderproperties custom methods {
-    def on_btnRevertToDefault_clicked( self, widget, *args):
-        gl = gPodderLib()
-        gl.set_default_colors()
-        self.reload_colors()
-
-    def reload_colors( self):
-        gl = gPodderLib()
-        try:
-            self.colorDefault.set_color( gtk.gdk.color_parse( gl.colors['default']))
-            self.colorDownloading.set_color( gtk.gdk.color_parse( gl.colors['downloading']))
-            self.colorDownloaded.set_color( gtk.gdk.color_parse( gl.colors['downloaded']))
-            self.colorDeleted.set_color( gtk.gdk.color_parse( gl.colors['deleted']))
-        except:
-            log( '(gPodderProperties) Could not parse color strings.')
-
-
     def update_mountpoint( self, ipod):
         if ipod == None or ipod.mount_point == None:
             self.iPodMountpoint.set_label( '')
@@ -1297,13 +1297,6 @@ class Gpodderproperties(SimpleGladeApp):
         gl.ipod_mount = self.iPodMountpoint.get_label()
         gl.mp3_player_folder = self.filesystemMountpoint.get_label()
         gl.opml_url = self.opmlURL.get_text()
-        try:
-            gl.set_color( 'default', self.colorDefault.get_color())
-            gl.set_color( 'downloading', self.colorDownloading.get_color())
-            gl.set_color( 'downloaded', self.colorDownloaded.get_color())
-            gl.set_color( 'deleted', self.colorDeleted.get_color())
-        except:
-            log('(gPodderProperties) Could not parse and save color values.')
 
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()

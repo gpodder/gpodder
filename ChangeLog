@@ -1,3 +1,20 @@
+Tue,  3 Apr 2007 08:18:28 +0200 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Remove background color code in model;
+          add icons; add new get_file_type() function to check if an episode 
+          is either audio or video; add full description to liststore model
+        * src/gpodder/libgpodder.py: Remove code related to configurable 
+          treeview row colors
+        * src/gpodder/gpodder.py: Remove code for treeview colors; add new 
+          "status" column with icon; set rules hint on treeAvailable to get 
+          alternating tree view row colors (if gtk theme supports it); add 
+          type-to-search capabilities to treeAvailable by providing the 
+          new treeAvailable_search_equal function
+        * data/gpodder.glade: Remove properties tab for colors
+        * bin/gpodder: Pushed version + release date
+	* TODO: Removing background colors is a GoodThing(tm), so we are now
+	  compatible with high contrast themes and dark gtk themes (this has 
+	  been a problem with custom cell backgrounds); mark the item as done
+
 Mon,  2 Apr 2007 16:31:46 +0200 <thp@perli.net>
         * src/gpodder/gpodder.py: Added some intelligence for enabling and 
           disabling the "cancel download" toolbar button depending on the 
