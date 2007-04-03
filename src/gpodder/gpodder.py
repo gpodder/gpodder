@@ -120,6 +120,11 @@ class Gpodder(SimpleGladeApp):
         iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell)
         iconcolumn.add_attribute( iconcell, "icon-name", 4)
 
+        playedcell = gtk.CellRendererPixbuf()
+        playedcolumn = gtk.TreeViewColumn( _("Played"), playedcell)
+        playedcolumn.add_attribute( playedcell, "icon-name", 8)
+        self.played_column = playedcolumn
+
         namecell = gtk.CellRendererText()
         #namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
@@ -135,7 +140,7 @@ class Gpodder(SimpleGladeApp):
         desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
         desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
 
-        for itemcolumn in ( iconcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
+        for itemcolumn in ( iconcolumn, playedcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
             itemcolumn.set_resizable( True)
             itemcolumn.set_reorderable( True)
             self.treeAvailable.append_column( itemcolumn)
@@ -192,6 +197,10 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def playback_episode( self, current_channel, current_podcast):
+        gPodderLib().playback_episode( current_channel, current_podcast)
+        self.updateTreeView()
+
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):
         if model == None:
             return True
@@ -264,6 +273,9 @@ class Gpodder(SimpleGladeApp):
             pass
     
     def updateTreeView( self):
+        gl = gPodderLib()
+        self.played_column.set_visible( gl.show_played)
+
         rect = self.treeAvailable.get_visible_rect()
         if self.channels:
             self.treeAvailable.set_model( self.active_channel.items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress))
@@ -377,6 +389,7 @@ class Gpodder(SimpleGladeApp):
             sync.sync_channel( self.active_channel, episodes)
 
         sync.close( success = not sync.cancelled)
+        gobject.idle_add( self.updateTreeView)
 
     def ipod_cleanup_proc( self, sync):
         if not sync.open():
@@ -386,6 +399,7 @@ class Gpodder(SimpleGladeApp):
 
         sync.clean_playlist()
         sync.close( success = not sync.cancelled, cleaned = True)
+        gobject.idle_add( self.updateTreeView)
 
     def update_feed_cache_callback( self, label, progressbar, position, count):
         title = _('Please wait...')
@@ -474,7 +488,7 @@ class Gpodder(SimpleGladeApp):
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
                 # open the file now
-                gPodderLib().openFilename( filename)
+                self.playback_episode( current_channel, current_podcast)
                 return
          
             if widget.get_name() == 'treeAvailable':
@@ -482,7 +496,7 @@ class Gpodder(SimpleGladeApp):
                 gpe.set_episode( current_podcast, current_channel)
          
                 if os.path.exists( filename):
-                    gpe.set_play_callback( lambda: gPodderLib().openFilename( filename))
+                    gpe.set_play_callback( lambda: self.playback_episode( current_channel, current_podcast))
                 else:
                     gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
          
@@ -1141,6 +1155,7 @@ class Gpodderproperties(SimpleGladeApp):
             self.chooserDownloadTo.set_filename( gl.downloaddir)
         self.updateonstartup.set_active(gl.update_on_startup)
         self.downloadnew.set_active(gl.download_after_update)
+        self.showplayed.set_active(gl.show_played)
         if tagging_supported():
             self.updatetags.set_active(gl.update_tags)
         else:
@@ -1347,6 +1362,7 @@ class Gpodderproperties(SimpleGladeApp):
 
         gl.update_on_startup = self.updateonstartup.get_active()
         gl.download_after_update = self.downloadnew.get_active()
+        gl.show_played = self.showplayed.get_active()
         gl.update_tags = self.updatetags.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:

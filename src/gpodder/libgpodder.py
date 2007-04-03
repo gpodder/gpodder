@@ -69,6 +69,7 @@ from stat import ST_MODE
 from librssreader import rssReader
 from libpodcasts import podcastChannel
 from libpodcasts import DownloadHistory
+from libpodcasts import PlaybackHistory
 from libplayers import dotdesktop_command
 
 from gtk.gdk import PixbufLoader
@@ -123,6 +124,7 @@ class gPodderLibClass( object):
         self.opml_url = ""
         self.update_on_startup = False
         self.download_after_update = False
+        self.show_played = False
         self.update_tags = False
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
@@ -132,6 +134,7 @@ class gPodderLibClass( object):
         self.main_window_y = 0
         self.mp3_player_folder = ""
         self.__download_history = DownloadHistory( self.get_download_history_filename())
+        self.__playback_history = PlaybackHistory( self.get_playback_history_filename())
         self.loadConfig()
     
     def createIfNecessary( self, path):
@@ -153,6 +156,9 @@ class gPodderLibClass( object):
 
     def get_download_history_filename( self):
         return self.gpodderdir + 'download-history.txt'
+
+    def get_playback_history_filename( self):
+        return self.gpodderdir + 'playback-history.txt'
 
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use,
@@ -192,6 +198,7 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'ipod_mount', self.ipod_mount)
         self.write_to_parser( parser, 'update_on_startup', self.update_on_startup)
         self.write_to_parser( parser, 'download_after_update', self.download_after_update)
+        self.write_to_parser( parser, 'show_played', self.show_played)
         self.write_to_parser( parser, 'update_tags', self.update_tags)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
@@ -253,13 +260,19 @@ class gPodderLibClass( object):
     downloaddir = property(fget=get_download_dir,fset=set_download_dir)
 
     def history_mark_downloaded( self, url):
-        self.__download_history.mark_downloaded( url)
+        self.__download_history.add_item( url)
+
+    def history_mark_played( self, url):
+        self.__playback_history.add_item( url)
 
     def can_write_directory( self, directory):
         return isdir( directory) and access( directory, W_OK)
 
     def history_is_downloaded( self, url):
         return (url in self.__download_history)
+
+    def history_is_played( self, url):
+        return (url in self.__playback_history)
 
     def get_from_parser( self, parser, option, default = ''):
         try:
@@ -314,6 +327,7 @@ class gPodderLibClass( object):
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)
                     self.download_after_update = self.get_boolean_from_parser(parser, 'download_after_update', default=False)
+                    self.show_played = self.get_boolean_from_parser(parser, 'show_played', default=False)
                     self.update_tags = self.get_boolean_from_parser(parser, 'update_tags', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.device_type = self.get_from_parser( parser, 'device_type', 'none')
@@ -350,7 +364,10 @@ class gPodderLibClass( object):
         if was_oldstyle:
             self.saveConfig()
 
-    def openFilename( self, filename):
+    def playback_episode( self, channel, episode):
+        self.history_mark_played( episode.url)
+        filename = channel.getPodcastFilename( episode.url)
+
         log( 'Opening %s (with %s)', filename, self.open_app)
 
         # use libplayers to create a commandline out of open_app plus filename, then exec in background ('&')

@@ -36,7 +36,9 @@ def enable_verbose():
     write_to_stdout = True
 
 
-def log( message, *args):
+def log( message, *args, **kwargs):
+    if 'sender' in kwargs:
+        message = '(%s) %s' % ( kwargs['sender'].__class__.__name__, message )
     if write_to_stdout:
         print message % args
 

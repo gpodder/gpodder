@@ -293,7 +293,16 @@ class gPodder_iPodSync( gPodderSyncMethod):
             return False
         for track in gpod.sw_get_playlist_tracks( pl):
             if episode.title == track.title and channel.title == track.album:
-                log( '(ipodsync) Already on iPod: %s (from %s)', episode.title, track.title)
+                gl = libgpodder.gPodderLib()
+
+                # Mark as played locally if played on iPod
+                if track.playcount > 0:
+                    log( 'Episode has been played %d times on iPod: %s', track.playcount, episode.title, sender = self)
+                    gl.history_mark_played( episode.url)
+
+                # Mark as played on iPod if played locally (and set podcast flags)
+                self.set_podcast_flags( track, episode)
+
                 return True
         
         return False
@@ -305,12 +314,17 @@ class gPodder_iPodSync( gPodderSyncMethod):
             log( '(ipodsync) Trying to remove: %s', track.title)
             self.remove_from_ipod( track, [ self.pl_podcasts ])
 
-    def set_podcast_flags( self, track):
+    def set_podcast_flags( self, track, episode):
         if not ipod_supported():
             return False
         try:
             # Add blue bullet next to unplayed tracks on 5G iPods
-            track.mark_unplayed = 0x02
+            # (only if the podcast has not been played locally already
+            gl = libgpodder.gPodderLib()
+            if gl.history_is_played( episode.url):
+                track.mark_unplayed = 0x01
+            else:
+                track.mark_unplayed = 0x02
 
             # Podcast flags (for new iPods?)
             track.remember_playback_position = 0x01
@@ -408,8 +422,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         track = gpod.itdb_track_new()
         
         track.artist = str(channel.title)
-        if channel.is_music_channel:
-            self.set_podcast_flags( track)
+        self.set_podcast_flags( track, episode)
         
         # Add release time to track if pubDate is parseable
         ipod_date = email.Utils.parsedate(episode.pubDate)

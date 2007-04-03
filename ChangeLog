@@ -1,3 +1,26 @@
+Tue,  3 Apr 2007 13:14:02 +0200 <thp@perli.net>
+        * src/gpodder/liblogger.py: Enhance the log() function to accept a 
+          "sender" keyword argument that contains the object tha sends the 
+          message; the message will be transformed into "(objectclass) message"
+        * src/gpodder/libpodcasts.py: Add "Played" icon to the model for 
+          played status display; use gtk.STOCK_NEW instead of "document-new" 
+          for new items; mark the latest three items as new if no episodes 
+          have been downloaded so far from this channel; generalize the 
+          DownloadHistory class and derive a PlaybackHistory class from it
+        * src/gpodder/libgpodder.py: Make use of PlaybackHistory; add config
+          option "show_played" (disable/enable "Played" column in treeview);
+          replace openFilename() function with playback_episode() function 
+          that also updates the playback history accordingly
+        * src/gpodder/libipodsync.py: Synchronize playback state ("blue dot") 
+          to iPod when syncing (also update playback state when episodes is
+          already on iPod); fixed a small bug that didn't set podcast flags
+        * src/gpodder/gpodder.py: Make use of new playback_episode function;
+          add support for the "Played" column (+config disable/enable)
+        * data/gpodder.glade: Add GtkCheckButton for displaying/hiding the 
+          "Played" column in the available episodes list
+        * TODO: Updated TODO list (display played episodes task is done now;
+          mark tag update and search box as partially implemented)
+
 Tue,  3 Apr 2007 08:18:28 +0200 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Remove background color code in model;
           add icons; add new get_file_type() function to check if an episode 

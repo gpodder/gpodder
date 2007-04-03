@@ -239,13 +239,20 @@ class podcastChannel(ListType):
         the URL of the episodes and returns True if the episode is currently 
         being downloaded and False otherwise.
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         gl = libgpodder.gPodderLib()
 
         last_pubdate = self.newest_pubdate_downloaded()
 
+        index = 1
         for item in self.get_all_episodes():
+            played_icon = None
             if self.is_downloaded( item) and want_color:
+                if libgpodder.gPodderLib().history_is_played( item.url):
+                    played_icon = gtk.STOCK_YES
+                #else:
+                #    played_icon = gtk.STOCK_NO
+
                 file_type = self.get_file_type( item)
                 if file_type == 'audio':
                     status_icon = 'audio-x-generic'
@@ -258,7 +265,9 @@ class podcastChannel(ListType):
             elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
                 status_icon = gtk.STOCK_DELETE
             elif last_pubdate and item.compare_pubdate( last_pubdate) >= 0:
-                status_icon = 'document-new'
+                status_icon = gtk.STOCK_NEW
+            elif not last_pubdate and index <= 3:
+                status_icon = gtk.STOCK_NEW
             else:
                 status_icon = None
             new_iter = new_model.append()
@@ -270,6 +279,8 @@ class podcastChannel(ListType):
             new_model.set( new_iter, 5, item.cute_pubdate())
             new_model.set( new_iter, 6, item.one_line_description())
             new_model.set( new_iter, 7, item.description)
+            new_model.set( new_iter, 8, played_icon)
+            index += 1
         
         return new_model
     
@@ -534,7 +545,7 @@ class DownloadHistory( ListType):
         try:
             self.read_from_file()
         except:
-            log( '(DownloadHistory) Creating new history list.')
+            log( 'Creating new history list.', sender = self)
 
     def read_from_file( self):
         for line in open( self.filename, 'r'):
@@ -546,17 +557,17 @@ class DownloadHistory( ListType):
             for url in self:
                 fp.write( url + "\n")
             fp.close()
-            log( '(DownloadHistory) Wrote %d history entries.', len( self))
+            log( 'Wrote %d history entries.', len( self), sender = self)
 
-    def mark_downloaded( self, data, autosave = True):
+    def add_item( self, data, autosave = True):
         affected = 0
         if data and type( data) is ListType:
             # Support passing a list of urls to this function
             for url in data:
-                affected = affected + self.mark_downloaded( url, autosave = False)
+                affected = affected + self.add_item( url, autosave = False)
         else:
             if data not in self:
-                log( '(DownloadHistory) Marking as downloaded: %s', data)
+                log( 'Adding: %s', data, sender = self)
                 self.append( data)
                 affected = affected + 1
 
@@ -564,6 +575,10 @@ class DownloadHistory( ListType):
             self.save_to_file()
 
         return affected
+
+
+class PlaybackHistory( DownloadHistory):
+    pass
 
 
 def channelsToModel( channels):
