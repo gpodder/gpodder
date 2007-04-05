@@ -87,6 +87,7 @@ import glob
 import shutil
 import sys
 import time
+import string
 import email.Utils
 
 import liblocaldb
@@ -494,20 +495,28 @@ class gPodder_FSSync( gPodderSyncMethod):
         return gpl.can_write_directory( self.destination)
     
     def add_episode_from_channel( self, channel, episode):
-        replace_chars = ( '/', '?', ':', '!', '<', '>', '&', '*', '|', '"')
+        allowed_chars = set( string.lowercase + string.uppercase + string.digits + ' _.-')
 
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
 
-        folder = channel.title
-        for ch in replace_chars:
-            folder = folder.replace( ch, '-')
+        folder_src = channel.title
+        folder = ''
+        for ch in folder_src:
+            if ch in allowed_chars:
+                folder = folder + ch
+            else:
+                folder = folder + '_'
         folder = os.path.join( self.destination, folder)
 
         from_file = channel.getPodcastFilename( episode.url)
 
-        to_file = episode.title + os.path.splitext( from_file)[1].lower()
-        for ch in replace_chars:
-            to_file = to_file.replace( ch, '-')
+        to_file_src = episode.title + os.path.splitext( from_file)[1].lower()
+        to_file = ''
+        for ch in to_file_src:
+            if ch in allowed_chars:
+                to_file = to_file + ch
+            else:
+                to_file = to_file + '_'
         to_file = os.path.join( folder, to_file)
 
         try:

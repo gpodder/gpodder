@@ -1,3 +1,10 @@
+Thu,  5 Apr 2007 09:09:01 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Only allow alphanumeric, space, dot,
+          dash and underscore characters when syncing to filesystem-based
+          MP3 players; this should get rid of a lot of problems with the 
+          restrictions of filesystems; thanks to Johann Uhrmann for bringing
+          yet another problem with the charset problem to my attention :)
+
 Thu,  5 Apr 2007 07:49:19 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: Increment playcount from zero to one
           if we've played a podcast locally, but playcount is still zero on
