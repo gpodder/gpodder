@@ -323,6 +323,10 @@ class gPodder_iPodSync( gPodderSyncMethod):
             gl = libgpodder.gPodderLib()
             if gl.history_is_played( episode.url):
                 track.mark_unplayed = 0x01
+                # Increment playcount if it's played locally
+                # but still has zero playcount on iPod
+                if track.playcount == 0:
+                    track.playcount = 1
             else:
                 track.mark_unplayed = 0x02
 
