@@ -1,3 +1,23 @@
+Fri,  6 Apr 2007 20:04:50 +0200 <thp@perli.net>
+        * src/gpodder/liblocdbwriter.py: Write the item's GUID into the 
+          localdb RSS file so we can resurrect is in case the item gets 
+          removed from the "live" RSS feed; also, only write items to localdb
+          that really have been downloaded (i.e. the downloaded item exists)
+        * src/gpodder/libpodcasts.py: re-work the get_all_episodes() method 
+          of the channel to prefer localdb episodes over "new" episodes and 
+          also keep track of GUIDs (this makes it possible to skip already-
+          downloaded episodes with a different download URL bit same GUID);
+          then, put everything together and sort by date
+        * src/gpodder/gpodder.py: Utilize get_all_episodes() function for the
+          newer episodes search function, so we skip over all episodes that
+          have the same GUID but different URL (hopefully these changes fix 
+          a problem with subscription-only podcasts that change the episodes 
+          download URL every so often, but keep the GUID the same); this 
+          problem has been reported by Jon (jon sd-6.org)
+        * bin/gpodder: oh, btw - we're developing away from 0.9.1 again, so 
+          set revision + release date to some svn-ish string again so that 
+          everyone knows we're not 0.9.1 anymore :)
+
 Fri,  6 Apr 2007 19:08:29 +0200 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Remove checking of valid url, 
           because this is now done in librssreader

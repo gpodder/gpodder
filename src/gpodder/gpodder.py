@@ -572,7 +572,7 @@ class Gpodder(SimpleGladeApp):
                     to_download.append( ( channel, episode ))
                     s = s + 1
             else:
-                for episode in channel:
+                for episode in channel.get_all_episodes():
                     if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
                         log( 'Episode "%s" is newer.', episode.title)
                         to_download.append( ( channel, episode ))
@@ -898,7 +898,7 @@ class Gpodder(SimpleGladeApp):
             if self.show_confirmation( message, title):
                 episodes_to_download = channel[0:min(len(channel),3)]
         else:
-            for episode in channel:
+            for episode in channel.get_all_episodes():
                 if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
                     log( 'Episode "%s" is newer.', episode.title)
                     episodes_to_download.append( episode)

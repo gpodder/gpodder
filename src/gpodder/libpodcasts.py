@@ -221,11 +221,26 @@ class podcastChannel(ListType):
     def get_all_episodes( self):
         episodes = []
         added_urls = []
+        added_guids = []
 
-        for item in [] + self + self.localdb_channel:
-            if item.url not in added_urls:
-                episodes.append( item)
-                added_urls.append( item.url)
+        # go through all episodes (both new and downloaded),
+        # prefer already-downloaded (in localdb)
+        for item in [] + self.localdb_channel + self:
+            # skip items with the same guid (if it has a guid)
+            if item.guid and item.guid in added_guids:
+                continue
+
+            # skip items with the same download url
+            if item.url in added_urls:
+                continue
+
+            episodes.append( item)
+
+            added_urls.append( item.url)
+            if item.guid:
+                added_guids.append( item.guid)
+
+        episodes.sort( reverse = True)
 
         return episodes
 

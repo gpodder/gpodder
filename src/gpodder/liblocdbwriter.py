@@ -52,7 +52,8 @@ class writeLocalDB( object):
         self.writeMetadata( channel)
         
         for item in channel:
-            self.addItem( item)
+            if channel.is_downloaded( item):
+                self.addItem( item)
             
         self.close()
 
@@ -80,7 +81,7 @@ class writeLocalDB( object):
         self.ofile.write( '<description><![CDATA['+item.description+']]></description>'+"\n")
         self.ofile.write( '<url>'+saxutils.escape(item.url)+'</url>'+"\n")
         self.ofile.write( '<link>'+saxutils.escape(item.link)+'</link>'+"\n")
-        self.ofile.write( '<guid>'+saxutils.escape(item.link)+'</guid>'+"\n")
+        self.ofile.write( '<guid>'+saxutils.escape(item.guid)+'</guid>'+"\n")
         self.ofile.write( '<pubDate>'+saxutils.escape(item.pubDate)+'</pubDate>'+"\n")
         self.ofile.write( '<mimeType>'+saxutils.escape(item.mimetype)+'</mimeType>' + "\n")
         self.ofile.write( '</item>'+"\n")
