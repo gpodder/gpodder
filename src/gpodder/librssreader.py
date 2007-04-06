@@ -132,7 +132,8 @@ class rssReader( DefaultHandler, ErrorHandler):
             if name == "pubDate":
                 self.current_item.pubDate = self.current_element_data
             if name == "item":
-                self.channel.append( self.current_item)
+                if self.current_item.url:
+                    self.channel.append( self.current_item)
                 self.current_item = None
     
     def characters( self, ch):

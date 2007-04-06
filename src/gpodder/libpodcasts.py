@@ -223,7 +223,7 @@ class podcastChannel(ListType):
         added_urls = []
 
         for item in [] + self + self.localdb_channel:
-            if item.url and item.url not in added_urls:
+            if item.url not in added_urls:
                 episodes.append( item)
                 added_urls.append( item.url)
 

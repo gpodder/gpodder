@@ -1,3 +1,12 @@
+Fri,  6 Apr 2007 19:08:29 +0200 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Remove checking of valid url, 
+          because this is now done in librssreader
+        * src/gpodder/librssreader.py: Only add podcastItem if it has 
+          a valid url (i.e. the "enclosure" tag exists for that item)
+          thanks to Gerrit Sangel (z0idberg gmx.de) who discovered that
+          bug when gPodder was looking for new items in the (unfiltered)
+          episode list
+
 Thu,  5 Apr 2007 09:46:36 +0200 <thp@perli.net>
         * README: ** gPodder 0.9.1 released **
         * doc/man/gpodder.1: Generated manpage for the 0.9.1 release
