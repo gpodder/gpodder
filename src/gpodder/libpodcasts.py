@@ -207,6 +207,11 @@ class podcastChannel(ListType):
 
         libgpodder.gPodderLib().history_mark_downloaded( item.url)
         
+        if self.get_file_type( item) == 'torrent':
+            torrent_filename = self.getPodcastFilename( item.url)
+            destination_filename = self.get_torrent_filename( torrent_filename)
+            libgpodder.gPodderLib().invoke_torrent( item.url, torrent_filename, destination_filename)
+            
         libgpodder.releaseLock()
         return not already_in_list
     
@@ -271,6 +276,8 @@ class podcastChannel(ListType):
                     status_icon = 'audio-x-generic'
                 elif file_type == 'video':
                     status_icon = 'video-x-generic'
+                elif file_type == 'torrent':
+                    status_icon = 'applications-internet'
                 else:
                     status_icon = 'unknown'
             elif downloading_callback and downloading_callback( item.url) and want_color:
@@ -387,17 +394,38 @@ class podcastChannel(ListType):
 
     cover_file = property(fget=get_cover_file)
 
+    def get_torrent_filename( self, torrent_file):
+        header = open( torrent_file).readline()
+        try:
+            # A crummy way to see if we really are dealing with a torrent file
+            # using index to find values like name and pieces which hopefully
+            # only show up in torrent files (else raise a ValueError)
+            testvar = header.index("6:pieces")
+            name_length_pos = int(header.index("4:name")) + 6
+            # Find the filename for fun + this will add some extra verification
+            colon_pos = int(header.find(":",name_length_pos))
+            name_length = int(header[name_length_pos:colon_pos]) + 1
+            name = header[(colon_pos + 1):(colon_pos + name_length)]
+            return name
+        except:
+            return None
+
     def get_file_type( self, item):
         types = {
                 'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
-                'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov' ]
+                'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov' ],
+                'torrent': [ 'torrent' ]
         }
         extension = splitext( self.getPodcastFilename( item.url))[1][1:]
+
+        # Torrent file detection
+        if self.get_torrent_filename( self.getPodcastFilename( item.url)) != None:
+            return 'torrent'
 
         for type in types:
             if extension in types[type]:
                 return type
-
+        
         return 'unknown'
     
     def getPodcastFilename( self, url):

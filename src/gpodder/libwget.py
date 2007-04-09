@@ -78,7 +78,11 @@ class downloadThread( object):
 	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
-        command = 'wget --timeout=120 --continue --tries=inf --output-document="%s" "%s"' % ( self.tempname, self.url )
+        limit_str = ''
+        if libgpodder.gPodderLib().limit_rate:
+            limit_str = '--limit-rate=%.1fk' % ( libgpodder.gPodderLib().limit_rate_value, )
+            libgpodder.gPodderLib().deleteFilename( self.tempname)
+        command = 'wget --timeout=120 --continue --tries=inf %s --output-document="%s" "%s"' % ( limit_str, self.tempname, self.url )
         log( 'Command: %s', command)
         process = popen2.Popen3( command, True)
         

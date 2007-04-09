@@ -229,6 +229,7 @@ class Gpodder(SimpleGladeApp):
             return
 
         is_download_button = False
+        is_torrent = False
         gl = gPodderLib()
 
         try:
@@ -247,12 +248,19 @@ class Gpodder(SimpleGladeApp):
                 if not os.path.exists( filename):
                     is_download_button = True
                     break
+                if self.active_channel.get_file_type( self.active_channel.find_episode(url)) == 'torrent':
+                    is_torrent = True
         except:
             is_download_button = True
 
         if is_download_button:
             self.toolPlay.set_sensitive( False)
             self.toolDownload.set_sensitive( True)
+            self.toolTransfer.set_sensitive( False)
+        elif is_torrent:
+            self.toolPlay.set_sensitive( False)
+            # Only enable download button when using gnome-bittorrent
+            self.toolDownload.set_sensitive( gl.use_gnome_bittorrent)
             self.toolTransfer.set_sensitive( False)
         else:
             self.toolPlay.set_sensitive( True)
@@ -488,14 +496,17 @@ class Gpodder(SimpleGladeApp):
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
                 # open the file now
-                self.playback_episode( current_channel, current_podcast)
+                if current_channel.get_file_type( current_podcast) != 'torrent':
+                    self.playback_episode( current_channel, current_podcast)
                 return
          
             if widget.get_name() == 'treeAvailable':
                 gpe = Gpodderepisode( gpodderwindow = self.gPodder)
                 gpe.set_episode( current_podcast, current_channel)
          
-                if os.path.exists( filename):
+                if os.path.exists( filename) and current_channel.get_file_type( current_podcast) == 'torrent':
+                    gpe.set_download_callback( lambda: current_channel.addDownloadedItem( current_podcast))
+                elif os.path.exists( filename):
                     gpe.set_play_callback( lambda: self.playback_episode( current_channel, current_podcast))
                 else:
                     gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
@@ -505,11 +516,11 @@ class Gpodder(SimpleGladeApp):
         if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
-            if want_message_dialog and os.path.exists( filename):
+            if want_message_dialog and os.path.exists( filename) and not current_channel.get_file_type(current_podcast) == 'torrent':
                 title = _('Episode already downloaded')
                 message = _('You have already downloaded this episode. Click on the episode to play it.')
                 self.show_message( message, title)
-            elif want_message_dialog:
+            elif want_message_dialog and not current_channel.get_file_type(current_podcast) == 'torrent':
                 title = _('Download in progress')
                 message = _('You are currently downloading this episode. Please check the download status tab to check when the download is finished.')
                 self.show_message( message, title)
@@ -1153,8 +1164,14 @@ class Gpodderproperties(SimpleGladeApp):
         self.opmlURL.set_text( gl.opml_url)
         if gl.downloaddir:
             self.chooserDownloadTo.set_filename( gl.downloaddir)
+        if gl.torrentdir:
+            self.chooserBitTorrentTo.set_filename( gl.torrentdir)
+        self.radio_copy_torrents.set_active( not gl.use_gnome_bittorrent)
+        self.radio_gnome_bittorrent.set_active( gl.use_gnome_bittorrent)
         self.updateonstartup.set_active(gl.update_on_startup)
         self.downloadnew.set_active(gl.download_after_update)
+        self.cbLimitDownloads.set_active(gl.limit_rate)
+        self.spinLimitDownloads.set_value(gl.limit_rate_value)
         self.showplayed.set_active(gl.show_played)
         if tagging_supported():
             self.updatetags.set_active(gl.update_tags)
@@ -1302,6 +1319,11 @@ class Gpodderproperties(SimpleGladeApp):
         self.ftpProxy.set_sensitive( sens)
     #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
 
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled {
+    def on_cbLimitDownloads_toggled(self, widget, *args):
+        self.spinLimitDownloads.set_sensitive( self.cbLimitDownloads.get_active())
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled }
+
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         gl = gPodderLib()
@@ -1359,9 +1381,12 @@ class Gpodderproperties(SimpleGladeApp):
 
             dlg.destroy()
 
-
+        gl.torrentdir = self.chooserBitTorrentTo.get_filename()
+        gl.use_gnome_bittorrent = self.radio_gnome_bittorrent.get_active()
         gl.update_on_startup = self.updateonstartup.get_active()
         gl.download_after_update = self.downloadnew.get_active()
+        gl.limit_rate = self.cbLimitDownloads.get_active()
+        gl.limit_rate_value = self.spinLimitDownloads.get_value()
         gl.show_played = self.showplayed.get_active()
         gl.update_tags = self.updatetags.get_active()
         device_type = self.comboboxDeviceType.get_active()

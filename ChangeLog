@@ -1,3 +1,24 @@
+Mon,  9 Apr 2007 21:31:34 +0200 <thp@perli.net>
+        ! BitTorrent support (mostly done by Nick <nikosapi gmail.com>) and
+          per-episode download bandwidth throttling (as suggested by Paul 
+          Elliot <omahns.home gmail.com>)
+        * src/gpodder/libwget.py: Support the --limit-rate option of wget to
+          enable per-download bandwidth throttling for slow connections
+        * src/gpodder/libpodcasts.py: Support torrent files, add new method
+          get_torrent_filename() by Nick (nikosapi gmail.com) that extracts
+          the "real" filename from torrent files
+        * src/gpodder/libgpodder.py: Add support for torrents and for download
+          rate limiting; add get_float_from_parser() and invoke_torrent(); 
+          BitTorrent support needs gnome-btdownload
+        * src/gpodder/gpodder.py: Add support for torrents and rate limiting
+        * data/gpodder.glade: Add configuration options for torrents and 
+          download rate limiting
+        * bin/gpodder: Pushed version + release date
+        * TODO: Added new items
+        * README: Mention additional dependency on gnome-btdownload if the 
+          user wants direct BitTorrent download support (not needed for the 
+          "copy torrent file" option)
+
 Fri,  6 Apr 2007 20:04:50 +0200 <thp@perli.net>
         * src/gpodder/liblocdbwriter.py: Write the item's GUID into the 
           localdb RSS file so we can resurrect is in case the item gets 
