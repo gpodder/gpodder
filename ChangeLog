@@ -1,3 +1,19 @@
+Sat, 21 Apr 2007 21:23:08 +0200 <thp@perli.net>
+        * src/gpodder/gpodder.py: Add support for saving podcast episodes
+          to files (in episode information dialog)
+        * data/gpodder.glade: Support for saving podcast episodes to files
+
+Sat, 21 Apr 2007 13:10:35 +0200 <thp@perli.net>
+        ! Support for "only sync not-yet-played episodes", written by Nick
+          <nikosapi gmail.com>
+        * src/gpodder/libpodcasts.py: Add is_played() function to channel
+        * src/gpodder/libgpodder.py: Add only_sync_not_played config option
+        * src/gpodder/libipodsync.py: Add support for syncing only not yet 
+          played episodes; set video podcast flags correctly (fix by Nick)
+        * src/gpodder/gpodder.py: Add support for sync only unpladed episodes
+        * data/gpodder.glade: Add check box to preferences dialog for above
+        * bin/gpodder. Pushed version + release date
+
 Wed, 11 Apr 2007 19:18:50 +0200 <thp@perli.net>
         * TODO: Updated TODO list
 

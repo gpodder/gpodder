@@ -222,6 +222,9 @@ class podcastChannel(ListType):
 
     def is_downloaded( self, item):
         return self.podcastFilenameExists( item.url)
+        
+    def is_played(self, item):
+        return libgpodder.gPodderLib().history_is_played( item.url)
 
     def get_all_episodes( self):
         episodes = []

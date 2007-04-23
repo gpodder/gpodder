@@ -314,6 +314,11 @@ class Gpodderepisode(SimpleGladeApp):
         print "on_btnPlay_clicked called with self.%s" % widget.get_name()
     #-- Gpodderepisode.on_btnPlay_clicked }
 
+    #-- Gpodderepisode.on_btnSaveFile_clicked {
+    def on_btnSaveFile_clicked(self, widget, *args):
+        print "on_btnSaveFile_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderepisode.on_btnSaveFile_clicked }
+
 
 class Gpoddersync(SimpleGladeApp):
 

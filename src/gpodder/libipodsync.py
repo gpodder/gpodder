@@ -151,7 +151,7 @@ class gPodderSyncMethod:
         if self.callback_status:
             gobject.idle_add( self.callback_status, episode, channel, progressbar_text, title, header, body)
 
-    def sync_channel( self, channel, episodes = None):
+    def sync_channel( self, channel, episodes = None, sync_played_episodes = True):
         if not channel.sync_to_devices and episodes == None or self.cancelled:
             return False
 
@@ -165,8 +165,8 @@ class gPodderSyncMethod:
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
-            if channel.is_downloaded( episode):
-                self.add_episode_from_channel( channel, episode)
+            if channel.is_downloaded( episode) and channel.get_file_type( episode) in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
+                    self.add_episode_from_channel( channel, episode)
             pos = pos + 1
         self.set_progress( pos, max)
 
@@ -340,8 +340,6 @@ class gPodder_iPodSync( gPodderSyncMethod):
             track.flag3 = 0x01
             track.flag4 = 0x01
 
-            # Podcast flags for iPod nano (thanks to José Luis Fustel)
-            track.mediatype = 0x00000004
         except:
             log( '(ipodsync) Seems like your python-gpod is out-of-date.')
     
@@ -438,26 +436,34 @@ class gPodder_iPodSync( gPodderSyncMethod):
         track.title = str(episode.title)
         track.album = str(channel.title)
         track.tracklen = int(track_length)
-        track.filetype = 'mp3' # huh?! harcoded?! well, well :) FIXME, i'd say
         track.description = str(episode.description)
         track.podcasturl = str(episode.url)
         track.podcastrss = str(channel.url)
         track.size = os.path.getsize( local_filename)
-        
+        track.filetype = 'mp3'
+        # For audio podcasts (thanks to José Luis Fustel)
+        try:
+            track.mediatype = 0x00000004
+        except:
+            log( '(ipodsync) Seems like your python-gpod is out-of-date.')
+            track.unk208 = 0x00000004
+
         gpod.itdb_track_add( self.itdb, track, -1)
         playlist = self.get_playlist_for_channel( channel)
         gpod.itdb_playlist_add_track( playlist, track, -1)
 
         self.set_cover_art( track, local_filename)
-        
+
         # dirty hack to get video working, seems to work
         for ext in video_extensions:
             if local_filename.lower().endswith( '.%s' % ext):
+                track.filetype = 'm4v' # Doesn't seem to matter if it's mp4 or m4v
                 try:
                     # documented on http://ipodlinux.org/ITunesDB
                     track.mediatype = 0x00000002
                 except:
                     # for old libgpod versions, "mediatype" is "unk208"
+                    log( '(ipodsync) Seems like your python-gpod is out-of-date.')
                     track.unk208 = 0x00000002
 
         # if it's a music channel, also sync to master playlist
@@ -468,7 +474,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
             log( '(ipodsync) Could not add %s', episode.title)
         else:
             log( '(ipodsync) Added %s', episode.title)
-        
+
         status_text = 'Done: %s' % ( episode.title, )
         self.set_status( episode = status_text)
 

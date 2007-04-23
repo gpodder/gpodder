@@ -138,6 +138,7 @@ class gPodderLibClass( object):
         self.main_window_x = 0
         self.main_window_y = 0
         self.mp3_player_folder = ""
+        self.only_sync_not_played = False
         self.__download_history = DownloadHistory( self.get_download_history_filename())
         self.__playback_history = PlaybackHistory( self.get_playback_history_filename())
         self.loadConfig()
@@ -217,6 +218,7 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'main_window_x', self.main_window_x)
         self.write_to_parser( parser, 'main_window_y', self.main_window_y)
         self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
+        self.write_to_parser( parser, 'only_sync_not_played', self.only_sync_not_played)
         fn = self.getConfigFilename()
         fp = open( fn, "w")
         parser.write( fp)
@@ -356,6 +358,7 @@ class gPodderLibClass( object):
                     self.main_window_x = self.get_int_from_parser( parser, 'main_window_x', 0)
                     self.main_window_y = self.get_int_from_parser( parser, 'main_window_y', 0)
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
+                    self.only_sync_not_played = self.get_boolean_from_parser(parser, 'only_sync_not_played', default=False)
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:

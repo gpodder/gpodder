@@ -32,6 +32,7 @@ import gtk.gdk
 import gobject
 import pango
 import sys
+import shutil
 
 from threading import Event
 from threading import Thread
@@ -390,11 +391,11 @@ class Gpodder(SimpleGladeApp):
             for channel in self.ldb.channel_list:
                 sync.set_progress_overall( i, len(self.ldb.channel_list))
                 channel.set_metadata_from_localdb()
-                sync.sync_channel( channel)
+                sync.sync_channel( channel, sync_played_episodes = not gPodderLib().only_sync_not_played)
                 i += 1
             sync.set_progress_overall( i, len(self.ldb.channel_list))
         else:
-            sync.sync_channel( self.active_channel, episodes)
+            sync.sync_channel( self.active_channel, episodes, True)
 
         sync.close( success = not sync.cancelled)
         gobject.idle_add( self.updateTreeView)
@@ -1173,6 +1174,7 @@ class Gpodderproperties(SimpleGladeApp):
         self.cbLimitDownloads.set_active(gl.limit_rate)
         self.spinLimitDownloads.set_value(gl.limit_rate_value)
         self.showplayed.set_active(gl.show_played)
+        self.only_sync_not_played.set_active(gl.only_sync_not_played)
         if tagging_supported():
             self.updatetags.set_active(gl.update_tags)
         else:
@@ -1389,6 +1391,7 @@ class Gpodderproperties(SimpleGladeApp):
         gl.limit_rate_value = self.spinLimitDownloads.get_value()
         gl.show_played = self.showplayed.get_active()
         gl.update_tags = self.updatetags.get_active()
+        gl.only_sync_not_played = self.only_sync_not_played.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
             gl.device_type = 'none'
@@ -1426,6 +1429,9 @@ class Gpodderepisode(SimpleGladeApp):
     #-- Gpodderepisode custom methods {
     #   Write your own methods here
     def set_episode( self, episode, channel = None):
+        self.episode = episode
+        self.channel = channel
+
         self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % episode.title)
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
@@ -1433,6 +1439,9 @@ class Gpodderepisode(SimpleGladeApp):
         self.LabelDownloadLink.set_text(episode.url)
         self.LabelWebsiteLink.set_text(episode.link)
         self.gPodderEpisode.set_title( episode.title)
+
+        if channel and channel.is_downloaded( episode):
+            self.btnSaveFile.show_all()
 
         if not episode.link and channel:
             self.LabelWebsiteLink.set_text( channel.link)
@@ -1477,6 +1486,31 @@ class Gpodderepisode(SimpleGladeApp):
 
         self.gPodderEpisode.destroy()
     #-- Gpodderepisode.on_btnPlay_clicked }
+
+    #-- Gpodderepisode.on_btnSaveFile_clicked {
+    def on_btnSaveFile_clicked(self, widget, *args):
+        fn = self.channel.getPodcastFilename( self.episode.url)
+        ext = os.path.splitext(fn)[1]
+        suggestion = self.channel.title + ' - ' + self.episode.title + ext
+
+        dlg = gtk.FileChooserDialog( title=_("Save episode as file"), parent = self.gPodderEpisode, action = gtk.FILE_CHOOSER_ACTION_SAVE)
+        dlg.set_current_name( suggestion)
+        dlg.set_current_folder( os.path.expanduser('~'))
+        dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            foutname = dlg.get_filename()
+            if foutname[-len(ext):] != ext:
+                foutname = foutname + ext
+            log( 'Saving episode as: %s', foutname, sender = self)
+            try:
+                shutil.copyfile( fn, foutname)
+            except:
+                log('Error saving file :/', sender = self)
+
+        dlg.destroy()
+    #-- Gpodderepisode.on_btnSaveFile_clicked }
 
 
 class Gpoddersync(SimpleGladeApp):
