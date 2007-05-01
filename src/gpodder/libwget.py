@@ -33,6 +33,7 @@ from os import system
 from os import kill
 from threading import Thread
 from threading import Lock
+from threading import Semaphore
 from shutil import move
 
 from liblogger import log
@@ -84,6 +85,9 @@ class downloadThread( object):
             libgpodder.gPodderLib().deleteFilename( self.tempname)
         command = 'wget --timeout=120 --continue --tries=inf %s --output-document="%s" "%s"' % ( limit_str, self.tempname, self.url )
         log( 'Command: %s', command)
+        if self.statusmgr:
+            self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':_('Queued'), 'progress':0, 'url':self.url})
+            self.statusmgr.s_acquire()
         process = popen2.Popen3( command, True)
         
         self.pid = process.pid
@@ -148,6 +152,9 @@ class downloadThread( object):
         
         if self.ready_event != None:
             self.ready_event.set()
+
+        if self.statusmgr:
+            self.statusmgr.s_release()
     
     def cancel( self):
         self.is_cancelled = True
@@ -165,6 +172,8 @@ class downloadStatusManager( object):
 	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
         self.smlock = Lock()
 
+        self.semaphore = Semaphore( libgpodder.gPodderLib().max_downloads)
+
         # use smlock around every tree_model usage, as seen here:
         self.smlock.acquire()
 	self.tree_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING)
@@ -174,6 +183,16 @@ class downloadStatusManager( object):
             self.default_window_title = self.main_window.get_title()
         self.change_notification = change_notification
         self.smlock.release()
+
+    def s_acquire( self, blocking = True):
+        if not libgpodder.gPodderLib().max_downloads_enabled:
+            # If we disabled the limit, don't block new downloads,
+            # even if we still have a semaphore created
+            blocking = False
+        self.semaphore.acquire( blocking)
+
+    def s_release( self):
+        self.semaphore.release()
 
     def has_items( self):
         return bool( len( self.status_list))

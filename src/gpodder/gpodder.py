@@ -1173,6 +1173,8 @@ class Gpodderproperties(SimpleGladeApp):
         self.downloadnew.set_active(gl.download_after_update)
         self.cbLimitDownloads.set_active(gl.limit_rate)
         self.spinLimitDownloads.set_value(gl.limit_rate_value)
+        self.cbMaxDownloads.set_active(gl.max_downloads_enabled)
+        self.spinMaxDownloads.set_value(gl.max_downloads)
         self.showplayed.set_active(gl.show_played)
         self.only_sync_not_played.set_active(gl.only_sync_not_played)
         if tagging_supported():
@@ -1326,6 +1328,11 @@ class Gpodderproperties(SimpleGladeApp):
         self.spinLimitDownloads.set_sensitive( self.cbLimitDownloads.get_active())
     #-- Gpodderproperties.on_cbLimitDownloads_toggled }
 
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        self.spinMaxDownloads.set_sensitive( self.cbMaxDownloads.get_active())
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
+
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         gl = gPodderLib()
@@ -1389,6 +1396,8 @@ class Gpodderproperties(SimpleGladeApp):
         gl.download_after_update = self.downloadnew.get_active()
         gl.limit_rate = self.cbLimitDownloads.get_active()
         gl.limit_rate_value = self.spinLimitDownloads.get_value()
+        gl.max_downloads_enabled = self.cbMaxDownloads.get_active()
+        gl.max_downloads = int(self.spinMaxDownloads.get_value())
         gl.show_played = self.showplayed.get_active()
         gl.update_tags = self.updatetags.get_active()
         gl.only_sync_not_played = self.only_sync_not_played.get_active()

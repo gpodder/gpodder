@@ -15,20 +15,9 @@
  * Clean up the "Downloads" tab in the preferences dialog - too much cruft
    has accumulated over the last few months .. maybe move bittorrent stuff
    to a seperate tab or group it different? --thp
-
- * Would it be possible to add some form of bandwidth throttling? I've just
-   started using gpodder and added all my feeds. It immediately marked all 
-   my new episodes and went to download them all at the same time making my 
-   (relatively slow) connection unusuable. 
-
-   Would it therefore be possible to add some throttling options, such as, 
-   limit number of concurrent downloads to 'x' and limit maximum bandwidth 
-   to 'y'? The latter could be implemented by passing the relevant parameter 
-   to wget, the former would probably require some form of download queue. 
-
-     --> partially done (limit rate to x kb/s per episode)
-
-                  (suggested by Paul Elliott <omahns.home gmail.com>)
+ 
+ * Improvements for download queue:
+   -> get rid of mandatory restarting for semaphore (x simultaneous downloads)
 
  * I think it would be nice if gPodder had a color indicator (like it 
    already has for downloaded/deleted episodes) for podcasts that haven't 

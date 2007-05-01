@@ -276,6 +276,11 @@ class Gpodderproperties(SimpleGladeApp):
         print "on_cbLimitDownloads_toggled called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_cbLimitDownloads_toggled }
 
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        print "on_cbMaxDownloads_toggled called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
+
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         print "on_btnOK_clicked called with self.%s" % widget.get_name()

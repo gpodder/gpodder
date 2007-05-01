@@ -137,6 +137,8 @@ class gPodderLibClass( object):
         self.main_window_height = 450
         self.main_window_x = 0
         self.main_window_y = 0
+        self.max_downloads = 3
+        self.max_downloads_enabled = False
         self.mp3_player_folder = ""
         self.only_sync_not_played = False
         self.__download_history = DownloadHistory( self.get_download_history_filename())
@@ -214,6 +216,8 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'use_gnome_bittorrent', self.use_gnome_bittorrent)
         self.write_to_parser( parser, 'device_type', self.device_type)
         self.write_to_parser( parser, 'main_window_width', self.main_window_width)
+        self.write_to_parser( parser, 'max_downloads', self.max_downloads)
+        self.write_to_parser( parser, 'max_downloads_enabled', self.max_downloads_enabled)
         self.write_to_parser( parser, 'main_window_height', self.main_window_height)
         self.write_to_parser( parser, 'main_window_x', self.main_window_x)
         self.write_to_parser( parser, 'main_window_y', self.main_window_y)
@@ -357,6 +361,8 @@ class gPodderLibClass( object):
                     self.main_window_height = self.get_int_from_parser( parser, 'main_window_height', 450)
                     self.main_window_x = self.get_int_from_parser( parser, 'main_window_x', 0)
                     self.main_window_y = self.get_int_from_parser( parser, 'main_window_y', 0)
+                    self.max_downloads = self.get_int_from_parser( parser, 'max_downloads', 3)
+                    self.max_downloads_enabled = self.get_boolean_from_parser(parser, 'max_downloads_enabled', default=False)
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                     self.only_sync_not_played = self.get_boolean_from_parser(parser, 'only_sync_not_played', default=False)
                 else:
