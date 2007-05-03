@@ -1,6 +1,15 @@
 
- === Todo List for gPodder ===
+ gPodder 0.9.2 release goals:
  
+ * Clean up the "Downloads" tab in the preferences dialog - too much cruft
+   has accumulated over the last few months .. maybe move bittorrent stuff
+   to a seperate tab or group it different? --thp
+ 
+ * Improvements for download queue:
+   -> get rid of mandatory restarting for semaphore (x simultaneous downloads)
+
+ === Todo List for gPodder ===
+
  * It would be great if gpodder supported (either through preferences or 
    through an addition to the device list) the ability to synchronize only 
    unplayed podcasts or the last "x" number of unplayed podcasts. This is a 
@@ -11,13 +20,6 @@
       -> partially done (unplayed podcasts as an option)
 
                    -- suggested by Stephan Buys <stephan.buys@gmail.com>
-
- * Clean up the "Downloads" tab in the preferences dialog - too much cruft
-   has accumulated over the last few months .. maybe move bittorrent stuff
-   to a seperate tab or group it different? --thp
- 
- * Improvements for download queue:
-   -> get rid of mandatory restarting for semaphore (x simultaneous downloads)
 
  * I think it would be nice if gPodder had a color indicator (like it 
    already has for downloaded/deleted episodes) for podcasts that haven't 
@@ -86,5 +88,8 @@
    - add the download progress to the same Available Podcasts tab and
      then you don't need the Download Status tab at all, this will allow
      you to see what is downloaded and what not
+
+     -> we have a icon for "download in progress" podcasts now
+
  
 
