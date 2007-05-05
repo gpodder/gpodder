@@ -251,6 +251,21 @@ class Gpodderproperties(SimpleGladeApp):
         print "on_comboPlayerApp_changed called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        print "on_cbMaxDownloads_toggled called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
+
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled {
+    def on_cbLimitDownloads_toggled(self, widget, *args):
+        print "on_cbLimitDownloads_toggled called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled }
+
+    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
+    def on_cbEnvironmentVariables_toggled(self, widget, *args):
+        print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
+    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
+
     #-- Gpodderproperties.on_comboboxDeviceType_changed {
     def on_comboboxDeviceType_changed(self, widget, *args):
         print "on_comboboxDeviceType_changed called with self.%s" % widget.get_name()
@@ -265,21 +280,6 @@ class Gpodderproperties(SimpleGladeApp):
     def on_btn_FilesystemMountpoint_clicked(self, widget, *args):
         print "on_btn_FilesystemMountpoint_clicked called with self.%s" % widget.get_name()
     #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
-
-    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
-    def on_cbEnvironmentVariables_toggled(self, widget, *args):
-        print "on_cbEnvironmentVariables_toggled called with self.%s" % widget.get_name()
-    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
-
-    #-- Gpodderproperties.on_cbLimitDownloads_toggled {
-    def on_cbLimitDownloads_toggled(self, widget, *args):
-        print "on_cbLimitDownloads_toggled called with self.%s" % widget.get_name()
-    #-- Gpodderproperties.on_cbLimitDownloads_toggled }
-
-    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
-    def on_cbMaxDownloads_toggled(self, widget, *args):
-        print "on_cbMaxDownloads_toggled called with self.%s" % widget.get_name()
-    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
 
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):

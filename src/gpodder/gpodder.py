@@ -554,6 +554,7 @@ class Gpodder(SimpleGladeApp):
         gl.propertiesChanged()
 
         self.gtk_main_quit()
+        sys.exit( 0)
     #-- Gpodder.close_gpodder }
 
     #-- Gpodder.on_itemUpdate_activate {
@@ -1191,8 +1192,6 @@ class Gpodderproperties(SimpleGladeApp):
             self.comboboxDeviceType.set_active( 2)
         # the use proxy env vars check box
         self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
-        # if the symlink exists, set the checkbox active
-        self.cbDesktopSymlink.set_active( gl.getDesktopSymlink())
         # setup cell renderers
         cellrenderer = gtk.CellRendererPixbuf()
         self.comboPlayerApp.pack_start( cellrenderer, False)
@@ -1267,6 +1266,23 @@ class Gpodderproperties(SimpleGladeApp):
             self.labelCustomCommand.hide()
     #-- Gpodderproperties.on_comboPlayerApp_changed }
 
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        self.spinMaxDownloads.set_sensitive( self.cbMaxDownloads.get_active())
+    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
+
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled {
+    def on_cbLimitDownloads_toggled(self, widget, *args):
+        self.spinLimitDownloads.set_sensitive( self.cbLimitDownloads.get_active())
+    #-- Gpodderproperties.on_cbLimitDownloads_toggled }
+
+    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
+    def on_cbEnvironmentVariables_toggled(self, widget, *args):
+         sens = not self.cbEnvironmentVariables.get_active()
+         self.httpProxy.set_sensitive( sens)
+         self.ftpProxy.set_sensitive( sens)
+    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
+
     #-- Gpodderproperties.on_comboboxDeviceType_changed {
     def on_comboboxDeviceType_changed(self, widget, *args):
         active_item = self.comboboxDeviceType.get_active()
@@ -1315,23 +1331,6 @@ class Gpodderproperties(SimpleGladeApp):
             self.filesystemMountpoint.set_label( fs.get_filename())
         fs.destroy()
     #-- Gpodderproperties.on_btn_FilesystemMountpoint_clicked }
-
-    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled {
-    def on_cbEnvironmentVariables_toggled(self, widget, *args):
-        sens = not self.cbEnvironmentVariables.get_active()
-        self.httpProxy.set_sensitive( sens)
-        self.ftpProxy.set_sensitive( sens)
-    #-- Gpodderproperties.on_cbEnvironmentVariables_toggled }
-
-    #-- Gpodderproperties.on_cbLimitDownloads_toggled {
-    def on_cbLimitDownloads_toggled(self, widget, *args):
-        self.spinLimitDownloads.set_sensitive( self.cbLimitDownloads.get_active())
-    #-- Gpodderproperties.on_cbLimitDownloads_toggled }
-
-    #-- Gpodderproperties.on_cbMaxDownloads_toggled {
-    def on_cbMaxDownloads_toggled(self, widget, *args):
-        self.spinMaxDownloads.set_sensitive( self.cbMaxDownloads.get_active())
-    #-- Gpodderproperties.on_cbMaxDownloads_toggled }
 
     #-- Gpodderproperties.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
@@ -1409,11 +1408,6 @@ class Gpodderproperties(SimpleGladeApp):
         elif device_type == 2:
             gl.device_type = 'filesystem'
         gl.propertiesChanged()
-        # create or remove symlink to download dir on desktop
-        if self.cbDesktopSymlink.get_active():
-            gl.createDesktopSymlink()
-        else:
-            gl.removeDesktopSymlink()
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()
