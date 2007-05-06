@@ -29,7 +29,7 @@ from distutils.core import setup
 gpodder_version = os.popen( "cat bin/gpodder |grep ^__version__.*=|cut -d\\\" -f2").read().strip()
 
 # translations
-languages = [ "de", "fr", "sv", "it", "pt", "es", "nl" ]
+languages = [ "de", "fr", "sv", "it", "pt", "es", "nl", "ru" ]
 translation_files = []
 
 # add translated files to translations dictionary

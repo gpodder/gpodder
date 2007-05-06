@@ -35,7 +35,7 @@ class opmlWriter( object):
     
     def __init__( self, filename):
         self.ofile = open( filename, "w")
-	self.ofile.write( '<?xml version="1.0" encoding="ISO-8859-1"?>'+"\n")
+	self.ofile.write( '<?xml version="1.0" encoding="UTF-8"?>'+"\n")
 	self.ofile.write( '<opml version="1.1">'+"\n")
 	self.ofile.write( '<head>'+"\n")
 	self.ofile.write( '<title>'+_('gPodder subscription list (exported)')+'</title>'+"\n")
