@@ -79,6 +79,7 @@ class downloadThread( object):
 	    self.statusmgr.registerId( self.statusmgr_id, self)
     
     def thread_function( self):
+        acquired = False
         limit_str = ''
         if libgpodder.gPodderLib().limit_rate:
             limit_str = '--limit-rate=%.1fk' % ( libgpodder.gPodderLib().limit_rate_value, )
@@ -87,7 +88,7 @@ class downloadThread( object):
         log( 'Command: %s', command)
         if self.statusmgr:
             self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':_('Queued'), 'progress':0, 'url':self.url})
-            self.statusmgr.s_acquire()
+            acquired = self.statusmgr.s_acquire()
         process = popen2.Popen3( command, True)
         
         self.pid = process.pid
@@ -153,7 +154,7 @@ class downloadThread( object):
         if self.ready_event != None:
             self.ready_event.set()
 
-        if self.statusmgr:
+        if self.statusmgr and acquired:
             self.statusmgr.s_release()
     
     def cancel( self):
@@ -171,8 +172,9 @@ class downloadStatusManager( object):
         self.status_list = {}
 	self.next_status_id = 0         #    Episode name         Speed             progress (100)     url of download
         self.smlock = Lock()
-
-        self.semaphore = Semaphore( libgpodder.gPodderLib().max_downloads)
+        
+        self.max_downloads = libgpodder.gPodderLib().max_downloads
+        self.semaphore = Semaphore( self.max_downloads)
 
         # use smlock around every tree_model usage, as seen here:
         self.smlock.acquire()
@@ -184,12 +186,22 @@ class downloadStatusManager( object):
         self.change_notification = change_notification
         self.smlock.release()
 
-    def s_acquire( self, blocking = True):
+
+    def s_acquire( self):
         if not libgpodder.gPodderLib().max_downloads_enabled:
-            # If we disabled the limit, don't block new downloads,
-            # even if we still have a semaphore created
-            blocking = False
-        self.semaphore.acquire( blocking)
+            return False
+
+        # Release queue slots if user has enabled more slots
+        while self.max_downloads < libgpodder.gPodderLib().max_downloads:
+            self.semaphore.release()
+            self.max_downloads += 1
+
+        # Acquire queue slots if user has decreased the slots
+        while self.max_downloads > libgpodder.gPodderLib().max_downloads:
+            self.semaphore.acquire()
+            self.max_downloads -= 1
+
+        return self.semaphore.acquire()
 
     def s_release( self):
         self.semaphore.release()
