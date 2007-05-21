@@ -240,6 +240,9 @@ class gPodderLibClass( object):
 
         return None
 
+    def escape_html( self, s):
+        return s.replace( '&', '&amp;').replace( '<', '&lt;').replace( '>', '&gt;')
+
     def get_download_dir( self):
         self.createIfNecessary( self.__download_dir)
         return self.__download_dir

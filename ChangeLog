@@ -1,3 +1,11 @@
+Mon, 21 May 2007 11:50:56 +0200 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Add escape_html() function to escape 
+          ampersands, greater-than and less-than characters
+        * src/gpodder/gpodder.py: Use escape_html() to fix a bug in
+          the episode info dialog window when the title of the episode 
+          contains one of the special HTML characters
+        * bin/gpodder: pushed version + release date
+
 Mon, 14 May 2007 21:11:32 +0200 <thp@perli.net>
         * TODO: Updated TODO list
 

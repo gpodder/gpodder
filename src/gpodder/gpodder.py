@@ -1432,10 +1432,11 @@ class Gpodderepisode(SimpleGladeApp):
     #-- Gpodderepisode custom methods {
     #   Write your own methods here
     def set_episode( self, episode, channel = None):
+        gl = gPodderLib()
         self.episode = episode
         self.channel = channel
 
-        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % episode.title)
+        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % gl.escape_html( episode.title))
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
         self.episode_description.set_buffer( b)
