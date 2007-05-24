@@ -380,7 +380,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
         
         if self.episode_is_on_ipod( channel, episode):
-            status_text = 'Already on iPod: %s' % ( episode.title, )
+            status_text = _('Already on iPod: %s') % ( episode.title, )
             self.set_status( episode = status_text)
             return True
         
@@ -475,7 +475,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         else:
             log( '(ipodsync) Added %s', episode.title)
 
-        status_text = 'Done: %s' % ( episode.title, )
+        status_text = _('Done: %s') % ( episode.title, )
         self.set_status( episode = status_text)
 
         if local_filename != original_filename:
