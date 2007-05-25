@@ -184,7 +184,6 @@ class Gpodder(SimpleGladeApp):
         # Subscribed channels
         self.active_channel = None
         self.channels = gPodderChannelReader().read( force_update = False)
-        self.update_feed_cache( force_update = gl.update_on_startup)
 
         # create a localDB object
         self.ldb = localDB()
@@ -195,6 +194,9 @@ class Gpodder(SimpleGladeApp):
 
         # Clean up old, orphaned download files
         gl.clean_up_downloads( delete_partial = True)
+
+        # Now, update the feed cache, when everything's in place
+        self.update_feed_cache( force_update = gl.update_on_startup)
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
