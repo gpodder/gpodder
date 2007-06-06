@@ -40,6 +40,7 @@ import os.path
 import os
 import glob
 import shutil
+from urllib import unquote
 
 from types import ListType
 from datetime import datetime
@@ -339,9 +340,9 @@ class podcastChannel(ListType):
                 restored = self.restore_cache_file()
                 if callback_error:
                     if restored:
-                        callback_error( _('Error downloading %s. Using cached file instead.') % ( self.url, ))
+                        callback_error( _('Error downloading %s. Using cached file instead.') % ( unquote( self.url), ))
                     else:
-                        callback_error( _('Error downloading %s.') % ( self.url, ))
+                        callback_error( _('Error downloading %s.') % ( unquote( self.url), ))
                 return restored
         
         return self.cache_file

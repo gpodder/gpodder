@@ -37,7 +37,7 @@ from os import kill
 from string import strip
 import popen2
 import signal
-
+from urllib import unquote
 
 class DownloadPool(object):
     def __init__( self, max_downloads = 1):
@@ -59,7 +59,7 @@ class DownloadPool(object):
 
 def list_channels():
     for channel in gPodderChannelReader().read():
-        msg( 'channel', channel.url)
+        msg( 'channel', unquote( channel.url))
 
 
 def add_channel( url):
@@ -75,7 +75,7 @@ def add_channel( url):
     gPodderChannelWriter().write( channels)
 
     if len( gPodderChannelReader().read( False)) == len( channels):
-        msg( 'add', url)
+        msg( 'add', unquote( url))
     else:
         msg( 'error', _('Could not add channel.'))
 
@@ -91,7 +91,7 @@ def del_channel( url):
     for i in range( len(channels)-1, -1, -1):
         if channels[i].url == url:
             channels.remove( channels[i])
-            msg( 'delete', url)
+            msg( 'delete', unquote( url))
             removed = True
 
     if removed:
@@ -101,7 +101,7 @@ def del_channel( url):
 
 
 def update():
-    urlcallback = lambda url: msg( 'update', url.replace('%','%%'))
+    urlcallback = lambda url: msg( 'update', unquote( url))
     errorcallback = lambda s: msg( 'error', s)
 
     return gPodderChannelReader().read( True, callback_url = urlcallback, callback_error = errorcallback)
@@ -118,12 +118,12 @@ def run():
 
        if not last_pubdate:
             for item in channel[0:min(len(channel),3)]:
-                msg( 'queue', item.url)
+                msg( 'queue', unquote( item.url))
                 episodes_to_download.append( item)
        else:
             for item in channel:
                 if item.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( item) and not gl.history_is_downloaded( item.url):
-                    msg( 'queue', item.url)
+                    msg( 'queue', unquote( item.url))
                     episodes_to_download.append( item)
 
        for item in episodes_to_download:
@@ -137,7 +137,7 @@ def run():
            filename = channel.getPodcastFilename( item.url)
            #thread will call pool.set() when finished
            downloadThread( item.url, filename, ready_event = pool, channelitem = channel, item = item).download()
-           msg( 'downloading', item.url)
+           msg( 'downloading', unquote( item.url))
                
     
 def testForWget():

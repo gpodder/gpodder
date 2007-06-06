@@ -1,3 +1,12 @@
+Wed,  6 Jun 2007 13:52:52 +0200 <thp@perli.net>
+        * src/gpodder/console.py: Use urllib.unquote() for URLs that are 
+          printed in the CLI interface, so we don't get a bt when there is a
+          '%'-escaped URL; thanks to Thomas Matthijs <axxo keanu.be> for 
+          testing the CLI, reporting the bug and suggesting this fix
+        * src/gpodder/libpodcasts.py: Use urllib.unquote() for error messages
+          so that there's no problem with '%' in the CLI
+        * bin/gpodder: Version + release date push
+
 Sun,  3 Jun 2007 15:41:30 +0200 <thp@perli.net>
         * src/gpodder/console.py: Fix a problem with URLs containing the "%"
           character and Python format strings; thanks go out to Thomas 
