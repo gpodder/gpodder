@@ -30,6 +30,7 @@ import gtk
 import gobject
 
 import libgpodder
+from liblogger import log
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax.handler import ErrorHandler
