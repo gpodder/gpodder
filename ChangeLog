@@ -1,3 +1,10 @@
+Mon, 11 Jun 2007 07:28:00 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Re-organized the track length detection
+          algorithm to prefer mplayer before any other method; this fixes a 
+          bug for enhanced AAC files; thanks to Götz Waschk <goetz.waschk at 
+          gmail.com> for reporting
+        * bin/gpodder: Version + release date push
+
 Wed,  6 Jun 2007 13:52:52 +0200 <thp@perli.net>
         * src/gpodder/console.py: Use urllib.unquote() for URLs that are 
           printed in the CLI interface, so we don't get a bt when there is a

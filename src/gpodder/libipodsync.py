@@ -40,26 +40,26 @@ DEFAULT_LENGTH = 60*60*1000
 # command line for mplayer
 MPLAYER_COMMAND = 'mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null'
 
-# which detection mechanism are we going to use?
-use_mechanism = 0
-
 from liblogger import log
 
 try:
     import gpod
-    try:
-        # prefer pymad
-        import mad
-        use_mechanism = MAD
-        log( '(ipodsync) Found pymad')
-    except:
-        # fallback to eyeD3
-        import eyeD3
-        use_mechanism = EYED3
-        log( '(ipodsync) Found eyeD3')
 except:
-    log( '(ipodsync) gpod and/or (mad|eyeD3) not found')
+    log( '(ipodsync) Could not find python-gpod. iPod functions will be disabled.')
+    log( '(ipodsync) Please install the "python-gpod" package if you want iPod support.')
     enable_ipod_functions = False
+
+try:
+    import mad
+    log( '(ipodsync) Found pymad')
+except:
+    log( '(ipodsync) Could not find pymad.')
+
+try:
+    import eyeD3
+    log( '(ipodsync) Found eyeD3')
+except:
+    log( '(ipodsync) Coulld not find eyeD3.')
 
 
 # are we going to use python-id3 for cover art extraction?
@@ -108,9 +108,9 @@ video_extensions = [ "mov", "mp4", "m4v" ]
 
 # is mplayer available for finding track length?
 use_mplayer = False
-if not os.system("which mplayer > /dev/null 2>&1"):
+if not os.system("which mplayer >/dev/null 2>&1"):
     use_mplayer = True
-    log('(ipodsync) Found mplayer, using it to find track length of video files')
+    log('(ipodsync) Found mplayer, using it to find track length of files')
 else:
     log('(ipodsync) mplayer not found - length of video files will be guessed')
 
@@ -400,27 +400,39 @@ class gPodder_iPodSync( gPodderSyncMethod):
 
         # if we cannot get the track length, make an educated guess (default value)
         track_length = DEFAULT_LENGTH
+        track_length_found = False
 
-        try:
-            if use_mechanism == MAD:
-                log( '(ipodsync) Using pymad to get file length')
+        if use_mplayer:
+            try:
+                log( 'Using mplayer to get file length', sender = self)
+                mplayer_output = os.popen( MPLAYER_COMMAND % local_filename).read()
+                track_length = int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
+                track_length_found = True
+            except:
+                log( 'Warning: cannot get length for %s', episode.title, sender = self)
+        else:
+            log( 'Please try installing the "mplayer" package for track length detection.', sender = self)
+
+        if not track_length_found:
+            try:
+                log( 'Using pymad to get file length', sender = self)
                 mad_info = mad.MadFile( local_filename)
                 track_length = mad_info.total_time()
-            elif use_mechanism == EYED3:
-                log( '(ipodsync) Using eyeD3 to get file length')
+                track_length_found = True
+            except:
+                log( 'Warning: cannot get length for %s', episode.title, sender = self)
+        
+        if not track_length_found:
+            try:
+                log( 'Using eyeD3 to get file length', sender = self)
                 eyed3_info = eyeD3.Mp3AudioFile( local_filename)
                 track_length = eyed3_info.getPlayTime() * 1000
-            # TODO: Find python module to get length of video (mov, mp4, m4v) files, instead of using mplayer.
-        except:
-            if use_mplayer:
-                try:
-                    log('(ipodsync) eyeD3 failed, using mplayer to get track length')
-                    mplayer_output = os.popen( MPLAYER_COMMAND % local_filename).read()
-                    track_length = int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
-                except:
-                    log('(ipodsync) Warning: cannot get length for %s', episode.title)
-            else:
-                log('(ipodsync) Warning: cannot get length for %s; try installing mplayer', episode.title)
+                track_length_found = True
+            except:
+                log( 'Warning: cannot get length for %s', episode.title, sender = self)
+
+        if not track_length_found:
+            log( 'I was not able to find a correct track length, defaulting to %d', track_length, sender = self)
         
         track = gpod.itdb_track_new()
         
