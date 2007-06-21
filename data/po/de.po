@@ -7,13 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-22 22:29+0200\n"
-"PO-Revision-Date: 2007-05-22 22:47+0100\n"
+"POT-Creation-Date: 2007-06-21 16:03+0200\n"
+"PO-Revision-Date: 2007-06-21 13:19+0000\n"
 "Last-Translator: Thomas Perl <thp@perli.net>\n"
 "Language-Team: gPodder Team <thp@perli.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Rosetta-Export-Date: 2007-06-21 13:48:14+0000\n"
 
 #: src/gpodder/console.py:80
 msgid "Could not add channel."
@@ -39,8 +40,7 @@ msgstr "Status"
 msgid "New"
 msgstr "Neu"
 
-#: src/gpodder/gpodder.py:131
-#: src/gpodder/gpodder.py:158
+#: src/gpodder/gpodder.py:131 src/gpodder/gpodder.py:158
 msgid "Episode"
 msgstr "Episode"
 
@@ -68,99 +68,123 @@ msgstr "Fortschritt"
 msgid "Edit channel information"
 msgstr "Bearbeite Channel-Informationen"
 
-#: src/gpodder/gpodder.py:349
+#: src/gpodder/gpodder.py:351
 msgid "Error adding channel"
 msgstr "Fehler beim Hinzufügen"
 
-#: src/gpodder/gpodder.py:350
-msgid "The channel could not be added. Please check the spelling of the URL or try again later."
-msgstr "Der Channel konnte nicht hinzugefügt werden. Bitte prüfen Sie die URL auf Tippfehler oder versuchen Sie es später wieder."
+#: src/gpodder/gpodder.py:352
+msgid ""
+"The channel could not be added. Please check the spelling of the URL or try "
+"again later."
+msgstr ""
+"Der Channel konnte nicht hinzugefügt werden. Bitte prüfen Sie die URL auf "
+"Tippfehler oder versuchen Sie es später wieder."
 
-#: src/gpodder/gpodder.py:380
+#: src/gpodder/gpodder.py:382
 msgid "URL scheme not supported"
 msgstr "URL-Schema nicht unterstützt"
 
-#: src/gpodder/gpodder.py:381
-msgid "gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>."
-msgstr "gPodder unterstützt im Moment nur URLs, die mit <b>http://</b>, <b>feed://</b> oder <b>ftp://</b> beginnen."
+#: src/gpodder/gpodder.py:383
+msgid ""
+"gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://"
+"</b> or <b>ftp://</b>."
+msgstr ""
+"gPodder unterstützt im Moment nur URLs, die mit <b>http://</b>, <b>feed://</"
+"b> oder <b>ftp://</b> beginnen."
 
-#: src/gpodder/gpodder.py:414
+#: src/gpodder/gpodder.py:416
 msgid "Please wait..."
 msgstr "Bitte warten..."
 
-#: src/gpodder/gpodder.py:418
+#: src/gpodder/gpodder.py:420
 #, python-format
 msgid "Updating %s"
 msgstr "Aktualisiere %s"
 
-#: src/gpodder/gpodder.py:423
+#: src/gpodder/gpodder.py:425
 #, python-format
 msgid "%d of %d channels updated"
 msgstr "%d von %d Channels aktualisiert"
 
-#: src/gpodder/gpodder.py:431
+#: src/gpodder/gpodder.py:433
 msgid "Downloading podcast feeds"
 msgstr "Lade Podcast-Feeds herunter"
 
-#: src/gpodder/gpodder.py:432
+#: src/gpodder/gpodder.py:434
 msgid "Downloading feeds"
 msgstr "Lade Feeds herunter"
 
-#: src/gpodder/gpodder.py:433
-msgid "Podcast feeds contain channel metadata and information about current episodes."
-msgstr "Podcast-Feeds enthalten Channel-Metadaten und Informationen über aktuelle Episoden."
+#: src/gpodder/gpodder.py:435
+msgid ""
+"Podcast feeds contain channel metadata and information about current "
+"episodes."
+msgstr ""
+"Podcast-Feeds enthalten Channel-Metadaten und Informationen über aktuelle "
+"Episoden."
 
-#: src/gpodder/gpodder.py:436
+#: src/gpodder/gpodder.py:438
 msgid "Reading podcast feeds"
 msgstr "Lese Podcast-Feeds"
 
-#: src/gpodder/gpodder.py:437
+#: src/gpodder/gpodder.py:439
 msgid "Reading feeds"
 msgstr "Lese Feeds"
 
-#: src/gpodder/gpodder.py:521
+#: src/gpodder/gpodder.py:523
 msgid "Episode already downloaded"
 msgstr "Episode bereits heruntergeladen"
 
-#: src/gpodder/gpodder.py:522
-msgid "You have already downloaded this episode. Click on the episode to play it."
-msgstr "Sie haben diese Episode bereits heruntergeladen. Klicken Sie auf die Episode, um sie wiederzugeben."
+#: src/gpodder/gpodder.py:524
+msgid ""
+"You have already downloaded this episode. Click on the episode to play it."
+msgstr ""
+"Sie haben diese Episode bereits heruntergeladen. Klicken Sie auf die "
+"Episode, um sie wiederzugeben."
 
-#: src/gpodder/gpodder.py:525
+#: src/gpodder/gpodder.py:527
 msgid "Download in progress"
 msgstr "Download in Arbeit"
 
-#: src/gpodder/gpodder.py:526
-msgid "You are currently downloading this episode. Please check the download status tab to check when the download is finished."
-msgstr "Sie laden diese Episode gerade herunter. Sie können im Download Status-Tab nachsehen, wann der Download fertig ist."
+#: src/gpodder/gpodder.py:528
+msgid ""
+"You are currently downloading this episode. Please check the download status "
+"tab to check when the download is finished."
+msgstr ""
+"Sie laden diese Episode gerade herunter. Sie können im Download Status-Tab "
+"nachsehen, wann der Download fertig ist."
 
-#: src/gpodder/gpodder.py:565
+#: src/gpodder/gpodder.py:567
 msgid "No channels available"
 msgstr "Keine Channels verfügbar"
 
-#: src/gpodder/gpodder.py:566
-msgid "You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts."
-msgstr "Sie müssen Podcast Feeds abbonieren, bevor Sie Podcasts herunterladen können. Benutzen Sie ihre Lieblings-Suchmaschine im Internet, um nach interessanten Podcasts zu suchen."
+#: src/gpodder/gpodder.py:568
+msgid ""
+"You need to subscribe to some podcast feeds before you can start downloading "
+"podcasts. Use your favorite search engine to look for interesting podcasts."
+msgstr ""
+"Sie müssen Podcast Feeds abbonieren, bevor Sie Podcasts herunterladen "
+"können. Benutzen Sie ihre Lieblings-Suchmaschine im Internet, um nach "
+"interessanten Podcasts zu suchen."
 
-#: src/gpodder/gpodder.py:594
+#: src/gpodder/gpodder.py:596
 #, python-format
 msgid "<b>%d</b> new episodes in <b>%s</b>"
 msgstr "<b>%d</b> neue Episoden in <b>%s</b>"
 
-#: src/gpodder/gpodder.py:597
+#: src/gpodder/gpodder.py:599
 #, python-format
 msgid "<b>1</b> new episode in <b>%s</b>"
 msgstr "<b>1</b> neue Episode in <b>%s</b>"
 
-#: src/gpodder/gpodder.py:603
+#: src/gpodder/gpodder.py:605
 msgid "New episodes available"
 msgstr "Neue Episoden verfügbar"
 
-#: src/gpodder/gpodder.py:606
+#: src/gpodder/gpodder.py:608
 msgid "New episode available"
 msgstr "Neue Episode verfügbar"
 
-#: src/gpodder/gpodder.py:608
+#: src/gpodder/gpodder.py:610
 #, python-format
 msgid ""
 "New episodes are available to be downloaded:\n"
@@ -173,296 +197,369 @@ msgstr ""
 "%s\n"
 "Wollen Sie diese Episoden jetzt herunterladen?"
 
-#: src/gpodder/gpodder.py:616
+#: src/gpodder/gpodder.py:618
 msgid "No new episodes"
 msgstr "Keine neuen Episoden"
 
-#: src/gpodder/gpodder.py:617
-msgid "There are no new episodes to download from your podcast subscriptions. Please check for new episodes later."
-msgstr "Ihre abonnierten Podcasts bieten momentan keine neuen Episoden zum Download an. Bitte versuchen Sie es später wieder."
+#: src/gpodder/gpodder.py:619
+msgid ""
+"There are no new episodes to download from your podcast subscriptions. "
+"Please check for new episodes later."
+msgstr ""
+"Ihre abonnierten Podcasts bieten momentan keine neuen Episoden zum Download "
+"an. Bitte versuchen Sie es später wieder."
 
-#: src/gpodder/gpodder.py:627
-#: src/gpodder/gpodder.py:663
+#: src/gpodder/gpodder.py:629 src/gpodder/gpodder.py:665
 msgid "No device configured"
 msgstr "Kein Gerät konfiguriert"
 
-#: src/gpodder/gpodder.py:628
-#: src/gpodder/gpodder.py:664
-msgid "To use the synchronization feature, please configure your device in the preferences dialog first."
-msgstr "Um die Sychronisierung zu benutzen, konfigurieren Sie bitte zuerst Ihr Gerät in den Einstellungen."
+#: src/gpodder/gpodder.py:630 src/gpodder/gpodder.py:666
+msgid ""
+"To use the synchronization feature, please configure your device in the "
+"preferences dialog first."
+msgstr ""
+"Um die Sychronisierung zu benutzen, konfigurieren Sie bitte zuerst Ihr Gerät "
+"in den Einstellungen."
 
-#: src/gpodder/gpodder.py:633
-#: src/gpodder/gpodder.py:669
+#: src/gpodder/gpodder.py:635 src/gpodder/gpodder.py:671
 msgid "Libraries needed: gpod, pymad"
 msgstr "Bibliotheken benötigt: gpod, pymad"
 
-#: src/gpodder/gpodder.py:634
-#: src/gpodder/gpodder.py:670
-msgid "To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website."
-msgstr "Um die iPod-Synchronisierung zu benutzen, müssen Sie die <b>python-gpod</b> und <b>python-pymad</b> Pakete von ihrem Distributions-Hersteller installieren. Weitere Informationen über die benötigten Pakete können Sie auf der gPodder-Website nachlesen."
+#: src/gpodder/gpodder.py:636 src/gpodder/gpodder.py:672
+msgid ""
+"To use the iPod synchronization feature, you need to install the <b>python-"
+"gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. "
+"More information about the needed libraries can be found on the gPodder "
+"website."
+msgstr ""
+"Um die iPod-Synchronisierung zu benutzen, müssen Sie die <b>python-gpod</b> "
+"und <b>python-pymad</b> Pakete von ihrem Distributions-Hersteller "
+"installieren. Weitere Informationen über die benötigten Pakete können Sie "
+"auf der gPodder-Website nachlesen."
 
-#: src/gpodder/gpodder.py:678
+#: src/gpodder/gpodder.py:680
 msgid "Delete podcasts from MP3 player?"
 msgstr "Podcasts vom MP3 Player löschen?"
 
-#: src/gpodder/gpodder.py:679
-msgid "Do you really want to completely remove all episodes from your MP3 player?"
-msgstr "Wollen Sie wirklich alle Episoden komplett von Ihrem MP3 Player entfernen?"
+#: src/gpodder/gpodder.py:681
+msgid ""
+"Do you really want to completely remove all episodes from your MP3 player?"
+msgstr ""
+"Wollen Sie wirklich alle Episoden komplett von Ihrem MP3 Player entfernen?"
 
-#: src/gpodder/gpodder.py:683
+#: src/gpodder/gpodder.py:685
 msgid "Delete podcasts on iPod?"
 msgstr "Podcasts auf dem iPod löschen?"
 
-#: src/gpodder/gpodder.py:684
-msgid "Do you really want to completely remove all episodes in the <b>Podcasts</b> playlist on your iPod?"
-msgstr "Wollen Sie wirklich alle Episoden in der <b>Podcasts</b> Wiedergabeliste auf Ihrem iPod löschen?"
+#: src/gpodder/gpodder.py:686
+msgid ""
+"Do you really want to completely remove all episodes in the <b>Podcasts</b> "
+"playlist on your iPod?"
+msgstr ""
+"Wollen Sie wirklich alle Episoden in der <b>Podcasts</b> Wiedergabeliste auf "
+"Ihrem iPod löschen?"
 
-#: src/gpodder/gpodder.py:713
+#: src/gpodder/gpodder.py:715
 msgid "No channel selected"
 msgstr "Kein channel ausgewählt"
 
-#: src/gpodder/gpodder.py:714
+#: src/gpodder/gpodder.py:716
 msgid "Please select a channel in the channels list to edit."
 msgstr "Bitte wählen Sie einen Channel in der Liste, um ihn zu bearbeiten."
 
-#: src/gpodder/gpodder.py:730
+#: src/gpodder/gpodder.py:732
 msgid "Remove channel and episodes?"
 msgstr "Channel und Episoden entfernen?"
 
-#: src/gpodder/gpodder.py:731
+#: src/gpodder/gpodder.py:733
 #, python-format
 msgid "Do you really want to remove <b>%s</b> and all downloaded episodes?"
-msgstr "Wollen Sie <b>%s</b> wirklich entfernen und alle heruntergeladenen Episoden löschen?"
+msgstr ""
+"Wollen Sie <b>%s</b> wirklich entfernen und alle heruntergeladenen Episoden "
+"löschen?"
 
-#: src/gpodder/gpodder.py:748
+#: src/gpodder/gpodder.py:750
 msgid "Nothing to export"
 msgstr "Nichts zu exportieren"
 
-#: src/gpodder/gpodder.py:749
-msgid "Your list of channel subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list."
-msgstr "Ihre Liste mit Channel-Abonnements ist leer. Bitte abonnieren Sie zuerst einige Podcasts, bevor Sie versuchen, Ihre Abonnement-Liste zu exportieren."
+#: src/gpodder/gpodder.py:751
+msgid ""
+"Your list of channel subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Ihre Liste mit Channel-Abonnements ist leer. Bitte abonnieren Sie zuerst "
+"einige Podcasts, bevor Sie versuchen, Ihre Abonnement-Liste zu exportieren."
 
-#: src/gpodder/gpodder.py:753
+#: src/gpodder/gpodder.py:755
 msgid "Export to OPML"
 msgstr "Als OPML-Datei exportieren"
 
-#: src/gpodder/gpodder.py:803
+#: src/gpodder/gpodder.py:805
 msgid "translator-credits"
 msgstr "Thomas Perl <thp@perli.net>"
 
-#: src/gpodder/gpodder.py:838
+#: src/gpodder/gpodder.py:840
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Bearbeite \"%s\""
 
-#: src/gpodder/gpodder.py:839
+#: src/gpodder/gpodder.py:841
 #, python-format
 msgid "Remove \"%s\""
 msgstr "Entferne \"%s\""
 
-#: src/gpodder/gpodder.py:884
+#: src/gpodder/gpodder.py:886
 msgid "Nothing selected"
 msgstr "Nichts ausgewählt"
 
-#: src/gpodder/gpodder.py:885
-msgid "Please select an episode that you want to download and then click on the download button to start downloading the selected episode."
-msgstr "Bitte wählen Sie eine Episode, die Sie herunterladen wollen und klicken Sie dann auf den Download-Button, um die gewählte Episode herunterzuladen."
+#: src/gpodder/gpodder.py:887
+msgid ""
+"Please select an episode that you want to download and then click on the "
+"download button to start downloading the selected episode."
+msgstr ""
+"Bitte wählen Sie eine Episode, die Sie herunterladen wollen und klicken Sie "
+"dann auf den Download-Button, um die gewählte Episode herunterzuladen."
 
-#: src/gpodder/gpodder.py:909
+#: src/gpodder/gpodder.py:911
 msgid "Download newest podcasts?"
 msgstr "Neueste Podcasts herunterladen?"
 
-#: src/gpodder/gpodder.py:910
+#: src/gpodder/gpodder.py:912
 #, python-format
 msgid "Would you like to download the three newest episodes from <b>%s</b>?"
 msgstr "Wollen Sie die drei neuesten Episoden von <b>%s</b> herunterladen?"
 
-#: src/gpodder/gpodder.py:920
+#: src/gpodder/gpodder.py:922
 msgid "No episodes to download"
 msgstr "Keine Episoden zum Herunterladen"
 
-#: src/gpodder/gpodder.py:921
+#: src/gpodder/gpodder.py:923
 #, python-format
 msgid "You have already downloaded the most recent episodes from <b>%s</b>."
-msgstr "You haben bereits die aktuellsten Episoden von <b>%s</b> heruntergeladen."
+msgstr ""
+"You haben bereits die aktuellsten Episoden von <b>%s</b> heruntergeladen."
 
-#: src/gpodder/gpodder.py:929
+#: src/gpodder/gpodder.py:931
 #, python-format
 msgid "(...%d more episodes...)"
 msgstr "(...%d weitere Episoden...)"
 
-#: src/gpodder/gpodder.py:931
+#: src/gpodder/gpodder.py:933
 msgid "Download new episodes?"
 msgstr "Neue Episoden herunterladen?"
 
-#: src/gpodder/gpodder.py:932
-msgid "New episodes are available for download. If you want, you can download these episodes to your computer now."
-msgstr "Neue Episoden könnten heruntergeladen werden. Sie können diese Episoden jetzt auf Ihren Computer herunterladen."
+#: src/gpodder/gpodder.py:934
+msgid ""
+"New episodes are available for download. If you want, you can download these "
+"episodes to your computer now."
+msgstr ""
+"Neue Episoden könnten heruntergeladen werden. Sie können diese Episoden "
+"jetzt auf Ihren Computer herunterladen."
 
-#: src/gpodder/gpodder.py:935
+#: src/gpodder/gpodder.py:937
 #, python-format
 msgid "Download %s?"
 msgstr "%s herunterladen?"
 
-#: src/gpodder/gpodder.py:936
-msgid "A new episode is available for download. If you want, you can download this episode to your computer now."
-msgstr "Eine neue Episode kann heruntergeladen werden. Sie können diese Episode jetzt auf Ihren Computer herunterladen."
+#: src/gpodder/gpodder.py:938
+msgid ""
+"A new episode is available for download. If you want, you can download this "
+"episode to your computer now."
+msgstr ""
+"Eine neue Episode kann heruntergeladen werden. Sie können diese Episode "
+"jetzt auf Ihren Computer herunterladen."
 
-#: src/gpodder/gpodder.py:960
+#: src/gpodder/gpodder.py:962
 msgid "Cancel downloads?"
 msgstr "Downloads abbrechen?"
 
-#: src/gpodder/gpodder.py:961
+#: src/gpodder/gpodder.py:963
 #, python-format
-msgid "Cancelling the download will stop the %d selected downloads and remove partially downloaded files."
-msgstr "Wenn Sie diesen Download abbrechen, werden die %d gewählten Downloads gestoppt und teilweise heruntergeladene Daten gelöscht."
+msgid ""
+"Cancelling the download will stop the %d selected downloads and remove "
+"partially downloaded files."
+msgstr ""
+"Wenn Sie diesen Download abbrechen, werden die %d gewählten Downloads "
+"gestoppt und teilweise heruntergeladene Daten gelöscht."
 
-#: src/gpodder/gpodder.py:964
+#: src/gpodder/gpodder.py:966
 msgid "Cancel download?"
 msgstr "Download abbrechen?"
 
-#: src/gpodder/gpodder.py:965
-msgid "Cancelling this download will remove the partially downloaded file and stop the download."
-msgstr "Wenn Sie diesen Download abbrechen, werden die teilweise heruntergeladenen Daten gelöscht und der Download gestoppt."
+#: src/gpodder/gpodder.py:967
+msgid ""
+"Cancelling this download will remove the partially downloaded file and stop "
+"the download."
+msgstr ""
+"Wenn Sie diesen Download abbrechen, werden die teilweise heruntergeladenen "
+"Daten gelöscht und der Download gestoppt."
 
-#: src/gpodder/gpodder.py:1008
+#: src/gpodder/gpodder.py:1010
 #, python-format
 msgid "Remove %d episodes?"
 msgstr "%d Episoden entfernen?"
 
-#: src/gpodder/gpodder.py:1009
-msgid "If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question."
-msgstr "Wenn Sie diese Episoden entfernen, werden sie von Ihrem Computer gelöscht. Wenn Sie eine dieser Episoden wieder hören möchten, müssen Sie diese Dateien erneut herunterladen."
-
 #: src/gpodder/gpodder.py:1011
+msgid ""
+"If you remove these episodes, they will be deleted from your computer. If "
+"you want to listen to any of these episodes again, you will have to re-"
+"download the episodes in question."
+msgstr ""
+"Wenn Sie diese Episoden entfernen, werden sie von Ihrem Computer gelöscht. "
+"Wenn Sie eine dieser Episoden wieder hören möchten, müssen Sie diese Dateien "
+"erneut herunterladen."
+
+#: src/gpodder/gpodder.py:1013
 #, python-format
 msgid "Remove %s?"
 msgstr "%s entfernen?"
 
-#: src/gpodder/gpodder.py:1012
-msgid "If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it."
-msgstr "Wenn Sie dies Episode entfernen, wir sie von Ihrem Computer gelöscht. Wenn Sie diese Episode wieder hören möchten, müssen Sie diese Datei erneut herunterladen."
+#: src/gpodder/gpodder.py:1014
+msgid ""
+"If you remove this episode, it will be deleted from your computer. If you "
+"want to listen to this episode again, you will have to re-download it."
+msgstr ""
+"Wenn Sie dies Episode entfernen, wir sie von Ihrem Computer gelöscht. Wenn "
+"Sie diese Episode wieder hören möchten, müssen Sie diese Datei erneut "
+"herunterladen."
 
-#: src/gpodder/gpodder.py:1067
+#: src/gpodder/gpodder.py:1069
 #, python-format
 msgid "Channel: %s"
 msgstr "Channel: %s"
 
-#: src/gpodder/gpodder.py:1086
+#: src/gpodder/gpodder.py:1088
 msgid "Add a new channel"
 msgstr "Neuen Channel hinzufügen"
 
-#: src/gpodder/gpodder.py:1088
-#: src/gpodder/libpodcasts.py:537
+#: src/gpodder/gpodder.py:1090 src/gpodder/libpodcasts.py:538
 #: data/gpodder.glade.h:1
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
-#: src/gpodder/gpodder.py:1185
+#: src/gpodder/gpodder.py:1187
 msgid "needs python-eyed3"
 msgstr "benötigt python-eyed3"
 
-#: src/gpodder/gpodder.py:1240
-msgid "There has been an error moving your downloads to the specified location. The old download directory will be used instead."
-msgstr "Beim Verschieben der Downloads ist ein Fehler aufgetreten. Das alte Download-Verzeichnis wird stattdessen benutzt."
+#: src/gpodder/gpodder.py:1242
+msgid ""
+"There has been an error moving your downloads to the specified location. The "
+"old download directory will be used instead."
+msgstr ""
+"Beim Verschieben der Downloads ist ein Fehler aufgetreten. Das alte Download-"
+"Verzeichnis wird stattdessen benutzt."
 
-#: src/gpodder/gpodder.py:1240
+#: src/gpodder/gpodder.py:1242
 msgid "Error moving downloads"
 msgstr "Fehler beim Verschieben"
 
-#: src/gpodder/gpodder.py:1313
+#: src/gpodder/gpodder.py:1315
 msgid "Select iPod mountpoint"
 msgstr "iPod-Einhängepunkt auswählen"
 
-#: src/gpodder/gpodder.py:1325
+#: src/gpodder/gpodder.py:1327
 msgid "Select folder for MP3 player"
 msgstr "Ordner für MP3-Player auswählen"
 
-#: src/gpodder/gpodder.py:1352
+#: src/gpodder/gpodder.py:1354
 msgid "Moving downloads folder"
 msgstr "Downloads-Ordner wird verschoben"
 
-#: src/gpodder/gpodder.py:1358
+#: src/gpodder/gpodder.py:1360
 #, python-format
 msgid "Moving downloads from <b>%s</b> to <b>%s</b>..."
 msgstr "Verschiebe Downloads von <b>%s</b> nach <b>%s</b>..."
 
-#: src/gpodder/gpodder.py:1382
+#: src/gpodder/gpodder.py:1384
 #, python-format
 msgid "%s of %s"
 msgstr "%s von %s"
 
-#: src/gpodder/gpodder.py:1384
+#: src/gpodder/gpodder.py:1386
 msgid "Finishing... please wait."
 msgstr "Abschließen... bitte warten."
 
-#: src/gpodder/gpodder.py:1454
+#: src/gpodder/gpodder.py:1456
 #, python-format
 msgid "<i>from %s</i>"
 msgstr "<i>von %s</i>"
 
-#: src/gpodder/gpodder.py:1500
+#: src/gpodder/gpodder.py:1502
 msgid "Save episode as file"
-msgstr "Episode als Datei speichern"
+msgstr "Speichere Episode als Datei"
 
-#: src/gpodder/gpodder.py:1571
+#: src/gpodder/gpodder.py:1573
 #, python-format
 msgid "%d of %d done"
 msgstr "%d von %d fertig"
 
-#: src/gpodder/gpodder.py:1613
+#: src/gpodder/gpodder.py:1615
 msgid "Synchronization finished"
 msgstr "Synchronisierung abgeschlossen"
 
-#: src/gpodder/gpodder.py:1614
+#: src/gpodder/gpodder.py:1616
 msgid "Copied Podcasts"
 msgstr "Podcasts kopiert"
 
-#: src/gpodder/gpodder.py:1615
-msgid "The selected episodes have been copied to your device. You can now unplug the device."
-msgstr "Die ausgewählten Episoden wurden auf ihr Gerät kopiert. Sie können die Verbindung zum Gerät nun trennen."
-
 #: src/gpodder/gpodder.py:1617
+msgid ""
+"The selected episodes have been copied to your device. You can now unplug "
+"the device."
+msgstr ""
+"Die ausgewählten Episoden wurden auf ihr Gerät kopiert. Sie können die "
+"Verbindung zum Gerät nun trennen."
+
+#: src/gpodder/gpodder.py:1619
 msgid "Synchronization error"
 msgstr "Synchronisierungsfehler"
 
-#: src/gpodder/gpodder.py:1618
+#: src/gpodder/gpodder.py:1620
 msgid "Cannot access device"
 msgstr "Kann nicht auf Gerät zugreifen"
 
-#: src/gpodder/gpodder.py:1619
-msgid "Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog."
-msgstr "Stellen Sie sicher, dass Ihr Gerät mit Ihrem Computer verbunden und eingebunden ist. Bitte stellen Sie auch sicher, dass Sie den korrekten Pfad zum Gerät in den Einstellungen konfiguriert haben."
-
 #: src/gpodder/gpodder.py:1621
+msgid ""
+"Make sure your device is connected to your computer and mounted. Please also "
+"make sure you have set the correct path to your device in the preferences "
+"dialog."
+msgstr ""
+"Stellen Sie sicher, dass Ihr Gerät mit Ihrem Computer verbunden und "
+"eingebunden ist. Bitte stellen Sie auch sicher, dass Sie den korrekten Pfad "
+"zum Gerät in den Einstellungen konfiguriert haben."
+
+#: src/gpodder/gpodder.py:1623
 msgid "Device cleaned"
 msgstr "Gerät aufgeräumt"
 
-#: src/gpodder/gpodder.py:1622
+#: src/gpodder/gpodder.py:1624
 msgid "Podcasts removed"
 msgstr "Podcasts entfernt"
 
-#: src/gpodder/gpodder.py:1623
+#: src/gpodder/gpodder.py:1625
 msgid "Synchronized Podcasts have been removed from your device."
 msgstr "Synchronisierte Podcasts wurden von Ihrem Gerät entfernt."
 
-#: src/gpodder/gpodder.py:1625
+#: src/gpodder/gpodder.py:1627
 msgid "Synchronization aborted"
 msgstr "Sychronisierung abgebrochen"
 
-#: src/gpodder/gpodder.py:1626
+#: src/gpodder/gpodder.py:1628
 msgid "Aborted"
 msgstr "Abgebrochen"
 
-#: src/gpodder/gpodder.py:1627
-msgid "The synchronization progress has been interrupted by the user. Please retry synchronization at a later time."
-msgstr "Die Synchronisierung wurde vom Benutzer abgebrochen. Bitte wiederholen Sie die Synchronisation zu einem späteren Zeitpunkt."
+#: src/gpodder/gpodder.py:1629
+msgid ""
+"The synchronization progress has been interrupted by the user. Please retry "
+"synchronization at a later time."
+msgstr ""
+"Die Synchronisierung wurde vom Benutzer abgebrochen. Bitte wiederholen Sie "
+"die Synchronisation zu einem späteren Zeitpunkt."
 
-#: src/gpodder/gpodder.py:1671
+#: src/gpodder/gpodder.py:1673
 msgid "Subscribe"
 msgstr "Abonnieren"
 
-#: src/gpodder/gpodder.py:1674
+#: src/gpodder/gpodder.py:1676
 msgid "Channel name"
 msgstr "Channel-Name"
 
@@ -512,8 +609,12 @@ msgid "Connect your iPod"
 msgstr "Verbinden Sie Ihren iPod"
 
 #: src/gpodder/libipodsync.py:227
-msgid "To start the synchronization process, please connect your iPod to the computer."
-msgstr "Um die Sychronisierung zu starten, verbinden Sie bitte Ihren iPod mit Ihrem Computer."
+msgid ""
+"To start the synchronization process, please connect your iPod to the "
+"computer."
+msgstr ""
+"Um die Sychronisierung zu starten, verbinden Sie bitte Ihren iPod mit Ihrem "
+"Computer."
 
 #: src/gpodder/libipodsync.py:231
 msgid "Have you set up your iPod correctly?"
@@ -536,7 +637,17 @@ msgstr "Speichere iPod-Datenbank"
 msgid "Removing %s"
 msgstr "Entferne %s"
 
-#: src/gpodder/libipodsync.py:563
+#: src/gpodder/libipodsync.py:383
+#, python-format
+msgid "Already on iPod: %s"
+msgstr ""
+
+#: src/gpodder/libipodsync.py:490
+#, fuzzy, python-format
+msgid "Done: %s"
+msgstr "Channel: %s"
+
+#: src/gpodder/libipodsync.py:575
 msgid "Removing files"
 msgstr "Entferne Dateien"
 
@@ -548,36 +659,36 @@ msgstr "lokale Download-Datenbank, generiert von gPodder"
 msgid "gPodder subscription list (exported)"
 msgstr "gPodder Abonnement-Liste (exportiert)"
 
-#: src/gpodder/libpodcasts.py:342
+#: src/gpodder/libpodcasts.py:343
 #, python-format
 msgid "Error downloading %s. Using cached file instead."
-msgstr "Fehler beim Download von %s. Benutze zwischengespeicherte Datei stattdessen."
+msgstr ""
+"Fehler beim Download von %s. Benutze zwischengespeicherte Datei stattdessen."
 
-#: src/gpodder/libpodcasts.py:344
+#: src/gpodder/libpodcasts.py:345
 #, python-format
 msgid "Error downloading %s."
 msgstr "Fehler beim Herunterladen von %s."
 
-#: src/gpodder/libpodcasts.py:493
+#: src/gpodder/libpodcasts.py:494
 msgid "No description available"
 msgstr "Keine Beschreibung verfügbar"
 
-#: src/gpodder/libpodcasts.py:541
+#: src/gpodder/libpodcasts.py:542
 msgid "Today"
 msgstr "Heute"
 
-#: src/gpodder/libpodcasts.py:543
+#: src/gpodder/libpodcasts.py:544
 msgid "Yesterday"
 msgstr "Gestern"
 
-#: src/gpodder/libwget.py:53
-#: src/gpodder/libwget.py:62
+#: src/gpodder/libwget.py:53 src/gpodder/libwget.py:62
 msgid "unknown"
 msgstr "unbekannt"
 
 #: src/gpodder/libwget.py:90
 msgid "Queued"
-msgstr "Wartet"
+msgstr "Eingereiht"
 
 #: src/gpodder/libwget.py:254
 msgid "one file"
@@ -611,7 +722,7 @@ msgstr "<b>Automatisierte Aktionen</b>"
 
 #: data/gpodder.glade.h:6
 msgid "<b>Bandwidth Throttling</b>"
-msgstr "<b>Bandbreiten-Regelung</b>"
+msgstr "<b>Bandbreiten-Beschränkung</b>"
 
 #: data/gpodder.glade.h:7
 msgid "<b>Device Configuration</b>"
@@ -631,7 +742,7 @@ msgstr "<b>Datei-Metadaten</b>"
 
 #: data/gpodder.glade.h:11
 msgid "<b>Import from Web (OPML)</b>"
-msgstr "<b>Import aus dem Web (OPML)</b>"
+msgstr "<b>Vom Web importieren (OPML)</b>"
 
 #: data/gpodder.glade.h:12
 msgid "<b>Media Player</b>"
@@ -647,11 +758,11 @@ msgstr "<b>Synchronisierungs-Optionen</b>"
 
 #: data/gpodder.glade.h:15
 msgid "<b>Table Style</b>"
-msgstr "<b>Anzeigeoptionen für Tabelle</b>"
+msgstr "<b>Tabellen-Stil</b>"
 
 #: data/gpodder.glade.h:16
 msgid "<b>Torrent Download Folder</b>"
-msgstr "<b>Torrent Download-Ordner</b>"
+msgstr "<b>Download-Ordner für Torrents</b>"
 
 #: data/gpodder.glade.h:17
 msgid "Additional information"
@@ -679,7 +790,7 @@ msgstr "Kommandozeile:"
 
 #: data/gpodder.glade.h:23
 msgid "Copy to file"
-msgstr "Speichere als Datei"
+msgstr "Kopiere zu Datei"
 
 #: data/gpodder.glade.h:24
 msgid "Copying Files To Device"
@@ -743,7 +854,7 @@ msgstr "Herunterladen nach:"
 
 #: data/gpodder.glade.h:39
 msgid "Download using gnome-bittorrent"
-msgstr "Herunterladen mit gnome-bittorrent"
+msgstr "Mit gnome-bittorrent herunterladen"
 
 #: data/gpodder.glade.h:40
 msgid "Download:"
@@ -766,8 +877,12 @@ msgid "Episode Information"
 msgstr "Informationen zur Episode"
 
 #: data/gpodder.glade.h:45
-msgid "Episodes marked for synchronization are now transferred to your player device."
-msgstr "Episoden, die zur Synchronisierung markiert sind, werden nun auf ihr Abspielgerät übertragen."
+msgid ""
+"Episodes marked for synchronization are now transferred to your player "
+"device."
+msgstr ""
+"Episoden, die zur Synchronisierung markiert sind, werden nun auf ihr "
+"Abspielgerät übertragen."
 
 #: data/gpodder.glade.h:46
 msgid "Extras"
@@ -795,11 +910,11 @@ msgstr "Initialisiere..."
 
 #: data/gpodder.glade.h:52
 msgid "Just save .torrent files in download folder"
-msgstr ".torrent-Dateien nur im Ordner speichern"
+msgstr ".torrent-Dateien einfach im Ordner speichern"
 
 #: data/gpodder.glade.h:53
 msgid "Limit download rate to"
-msgstr "Download-Rate begrenzen auf"
+msgstr "Download-Rate limitieren auf"
 
 #: data/gpodder.glade.h:54
 msgid "No cover available."
@@ -825,7 +940,7 @@ msgstr "Ausgewählte Episode abspielen"
 
 #: data/gpodder.glade.h:60
 msgid "Player"
-msgstr "MP3 Player"
+msgstr "Player"
 
 #: data/gpodder.glade.h:61
 msgid "Podcasts"
@@ -853,7 +968,7 @@ msgstr "Diesen Channel beim Synchronisieren übergehen"
 
 #: data/gpodder.glade.h:67
 msgid "Specify custom proxy server settings:"
-msgstr "Eigene Proxy-Einstellungen spezifizieren:"
+msgstr "Manuelle Proxy-Konfiguration:"
 
 #: data/gpodder.glade.h:68
 msgid "Sync to Podcasts playlist / Podcasts folder"
@@ -889,7 +1004,7 @@ msgstr "Gerät-Typ:"
 
 #: data/gpodder.glade.h:76
 msgid "URL:"
-msgstr "URL:"
+msgstr "Adresse:"
 
 #: data/gpodder.glade.h:77
 msgid "Update channel feed cache on startup"
@@ -901,19 +1016,23 @@ msgstr "Feeds aktualisieren"
 
 #: data/gpodder.glade.h:79
 msgid "Update tags on audio files after download"
-msgstr "Tags in Audio-Dateien nach Download aktualisieren"
+msgstr "Audio-Tags nach dem Download aktualisieren"
 
 #: data/gpodder.glade.h:80
 msgid "Use proxy defaults from environment variables"
-msgstr "Benutze Proxy aus den Umgebungsvariablen"
+msgstr "Standard-Proxy der Umgebungsvariablen benutzen"
 
 #: data/gpodder.glade.h:81
 msgid "Website:"
 msgstr "Webseite:"
 
 #: data/gpodder.glade.h:82
-msgid "Writes episode and channel info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)"
-msgstr "Schreibt Episoden- und Channel-Infos in den Tag der heruntergeladenen Datei (ID3 für MP3, vorbis tag für OGG, usw..)"
+msgid ""
+"Writes episode and channel info to the downloaded file's tag field (ID3 for "
+"MP3, vorbis tag for OGG, etc..)"
+msgstr ""
+"Schreibt Episoden- und Channel-Infos in den Tag der heruntergeladenen Datei "
+"(ID3 für MP3, vorbis tag für OGG, usw..)"
 
 #: data/gpodder.glade.h:83
 msgid "_Channel"
@@ -1041,10 +1160,16 @@ msgstr "Fehler: kann wget nicht finden."
 
 #~ msgid "Advanced"
 #~ msgstr "Erweitert"
+
 #~ msgid "Automatic:"
 #~ msgstr "Automatisch:"
+
+#~ msgid "Command:"
+#~ msgstr "Befehl:"
+
 #~ msgid "Desktop:"
 #~ msgstr "Desktop:"
+
 #~ msgid ""
 #~ "If you have to use a HTTP or FTP proxy server,\n"
 #~ "you can use the usual format of the environment variables:\n"
@@ -1055,104 +1180,149 @@ msgstr "Fehler: kann wget nicht finden."
 #~ "benutzen Sie bitte das übliche Format der Umgebungsvariablen:\n"
 #~ "\n"
 #~ "<b>http://benutzer:passwort@proxy_host:proxy_port/</b>"
+
 #~ msgid "Player application:"
 #~ msgstr "Abspielprogramm:"
+
 #~ msgid "Podcast directory:"
 #~ msgstr "Podcast-Webverzeichnis:"
+
 #~ msgid "Proxy"
 #~ msgstr "Proxy"
+
+#~ msgid "Save downloads in:"
+#~ msgstr "Downloads speichern in:"
+
 #~ msgid "Show \"gPodder downloads\" link"
 #~ msgstr "\"gPodder Downloads\"-Verknüpfung anzeigen"
+
+#~ msgid "Update tags on audio files after downloading"
+#~ msgstr "Aktualisiere Audio-Datei-Tags nach dem Download"
+
+#~ msgid "Use environment variables"
+#~ msgstr "Benutze Umgebungsvariablen"
+
 #~ msgid "download to label"
 #~ msgstr "Download zu Label"
+
 #~ msgid "Color for already downloaded but deleted podcasts"
 #~ msgstr "Farbe für heruntergeladene, aber gelöschte Podcasts"
+
 #~ msgid "Color for downloaded podcasts"
 #~ msgstr "Farbe für heruntergeladene Podcasts"
+
 #~ msgid "Color for podcasts currently being downloaded"
 #~ msgstr "Farbe für Podcasts, die gerade heruntergeladen werden"
+
 #~ msgid "Colors"
 #~ msgstr "Farben"
+
 #~ msgid "Default color for episodes list"
 #~ msgstr "Normale Farbe für die Episoden-Liste"
+
 #~ msgid "Default color:"
 #~ msgstr "Standardfarbe:"
+
 #~ msgid "Deleted episodes:"
 #~ msgstr "Gelöschte Episoden:"
+
 #~ msgid "Download in progress:"
 #~ msgstr "Download wird ausgeführt:"
+
 #~ msgid "Downloaded episodes:"
 #~ msgstr "Heruntergeladene Episoden:"
+
 #~ msgid "Revert to default colors"
 #~ msgstr "Farben zurücksetzen"
+
 #~ msgid "gPodder podcasts"
 #~ msgstr "gPodder Podcasts"
+
 #~ msgid ""
 #~ "%s\n"
 #~ "  <i>%s</i>"
 #~ msgstr ""
 #~ "%s\n"
 #~ " <i>%s</i>"
+
 #~ msgid "delete channel: %s"
 #~ msgstr "Channel entfernen: %s"
+
 #~ msgid "%s is not a valid id"
 #~ msgstr "%s is keine gültige ID"
+
 #~ msgid "Channel Info"
 #~ msgstr "Channel-Informationen"
+
 #~ msgid ""
 #~ "<b>gPodder development version %s</b>\n"
 #~ "Use at your own risk, but also enjoy new features :)"
 #~ msgstr ""
 #~ "<b>gPodder Entwicklungs-Version %s</b>\n"
 #~ "Benutzung auf eigene Gefahr. Viel Spaß mit neuen Features :)"
+
 #~ msgid "gPodder message"
 #~ msgstr "gPodder Nachricht"
+
 #~ msgid "Do you really want to do this?"
 #~ msgstr "Willst du das wirklich machen?"
+
 #~ msgid "gPodder confirmation"
 #~ msgstr "gPodder Bestätigung"
+
 #~ msgid ""
 #~ "There has been an error adding the channel.\n"
 #~ "Maybe the URL is wrong?"
 #~ msgstr ""
 #~ "Ein Fehler trat beim Hinzufügen des Channels auf.\n"
 #~ "Vielleicht ist die URL falsch?"
+
 #~ msgid "Fetching channel index..."
 #~ msgstr "Channel-Index wird heruntergeladen..."
+
 #~ msgid ""
 #~ "Cannot access iPod.\n"
 #~ "Make sure your iPod is connected and mounted."
 #~ msgstr ""
 #~ "Kann auf den iPod nicht zugreifen.\n"
 #~ "Bitte sicherstellen, dass der iPod angesteckt und eingebunden ist."
+
 #~ msgid ""
 #~ "Cannot write to %s.\n"
 #~ "Make sure your MP3 player is connected."
 #~ msgstr ""
 #~ "Kann nicht auf %s schreiben.\n"
 #~ "Stellen Sie sicher, dass ihr MP3-Player angeschlossen ist."
+
 #~ msgid ""
 #~ "Cannot access iPod.\n"
 #~ "Make sure your iPod is connected."
 #~ msgstr ""
 #~ "Kann auf den iPod nicht zugreifen.\n"
 #~ "Bitte sicherstellen, dass der iPod angesteckt ist."
+
 #~ msgid "Please wait - gPodder is updating its feed cache..."
 #~ msgstr "Bitte warten - gPodder aktualisiert den Feed-Cache..."
+
 #~ msgid "You have already downloaded this episode,"
 #~ msgstr "Sie haben diese Episode bereits heruntergeladen."
+
 #~ msgid "Subscribe to some channels first."
 #~ msgstr "Bitte abbonieren Sie zuerst einige Channels."
+
 #~ msgid "%d new in %s"
 #~ msgstr "%d neu in %s"
+
 #~ msgid ""
 #~ "Please install python-gpod and pymad libraries.\n"
 #~ "More information on the gPodder homepage."
 #~ msgstr ""
 #~ "Bitte installieren Sie die Pakete python-gpod und pymad.\n"
 #~ "Mehr Informationen finden Sie auf der gPodder-Webseite."
+
 #~ msgid "Your channel list is empty. Nothing to export."
 #~ msgstr "Nichts zu exportieren: Sie haben keine Abonnements."
+
 #~ msgid ""
 #~ "Do you want to download these episodes?\n"
 #~ "\n"
@@ -1161,47 +1331,69 @@ msgstr "Fehler: kann wget nicht finden."
 #~ "Wollen Sie diese Episoden herunterladen?\n"
 #~ "\n"
 #~ "%s"
+
 #~ msgid "Do you really want to cancel this download?"
 #~ msgstr "Wollen Sie diesen Download wirklich abbrechen?"
+
 #~ msgid "Do you really want to cancel %d downloads?"
 #~ msgstr "Wollen Sie wirklich %d Downloads abbrechen?"
+
 #~ msgid "Do you really want to remove this episode?"
 #~ msgstr "Wollen Sie diese Episode wirklich entfernen?"
+
 #~ msgid "Do you really want to remove %d episodes?"
 #~ msgstr "Wollen Sie wirklich %d Episoden entfernen?"
+
 #~ msgid ""
 #~ "Please do not call gpodder.py directly. Instead, call the gpodder binary."
 #~ msgstr ""
 #~ "Bitte starten Sie gPodder nie direkt über gpodder.py. Rufen Sie "
 #~ "stattdessen das \"gpodder\" Programm auf."
+
 #~ msgid "Download has been cancelled."
 #~ msgstr "Der Download wurde abgebrochen."
+
 #~ msgid "Download error. Wget exit code was: %d"
 #~ msgstr "Fehler beim Download. Wget's Exit-Status ist: %d"
+
+#~ msgid "<b>Channel:</b>"
+#~ msgstr "<b>Channel:</b>"
+
 #~ msgid "<b>Episode:</b>"
 #~ msgstr "<b>Episode:</b>"
+
 #~ msgid "Autostart:"
 #~ msgstr "Autostart:"
+
 #~ msgid "Cancel _all"
 #~ msgstr "_Alle abbrechen"
+
 #~ msgid "Cancels the selected downloads"
 #~ msgstr "Bricht die ausgewählten Downloads ab"
+
 #~ msgid "Channel:"
 #~ msgstr "Channel:"
+
 #~ msgid "_About gPodder..."
 #~ msgstr "Üb_er gPodder..."
+
 #~ msgid "gPodder configuration"
 #~ msgstr "gPodder-Konfiguration"
+
 #~ msgid "Be more verbose"
 #~ msgstr "Detailliertere Ausgabe"
+
 #~ msgid "Channel IDs may have changed, list before deleting again."
 #~ msgstr ""
 #~ "Channel IDs könnten sich verändert haben. Bitte vor dem nächsten Löschen "
 #~ "zuerst Channel-Liste anzeigen lassen."
+
 #~ msgid "Cleanup of %s currently not supported."
 #~ msgstr "Aufräumen von %s wird derzeit nicht unterstützt."
+
 #~ msgid "No downloaded podcasts found."
 #~ msgstr "Keine heruntergeladenen Podcasts gefunden."
+
 #~ msgid ""
 #~ "<b>No channels found</b>\n"
 #~ "\n"
@@ -1212,6 +1404,7 @@ msgstr "Fehler: kann wget nicht finden."
 #~ "\n"
 #~ "Klicken Sie auf <b><i>Channels</i></b> &gt; <b><i>Abbonieren...</i></b>, "
 #~ "um einen neuen Channel zu abbonieren."
+
 #~ msgid ""
 #~ "Cannot edit this channel.\n"
 #~ "\n"
@@ -1220,33 +1413,44 @@ msgstr "Fehler: kann wget nicht finden."
 #~ "Kann diesen Channel nicht editieren.\n"
 #~ "\n"
 #~ "Kein Channel gefunden."
+
 #~ msgid ""
 #~ "Could not delete channel.\n"
 #~ "Probably no channel is selected."
 #~ msgstr ""
 #~ "Konnte Channel nicht entfernen.\n"
 #~ "Wahrscheinlich ist keiner ausgewählt."
+
 #~ msgid "No LocalDB found or error in existing LocalDB."
 #~ msgstr ""
 #~ "Keine Lokale Datenbank gefunden (oder Fehler in existierender Datenbank)."
+
 #~ msgid "<b>(unknown)</b>"
 #~ msgstr "<b>(unbekannt)</b>"
+
 #~ msgid "Available Podcasts"
 #~ msgstr "Verfügbare Podcasts"
+
 #~ msgid "E_xport list..."
 #~ msgstr "Liste e_xportieren..."
+
 #~ msgid "Publication date:"
 #~ msgstr "Veröffentlichungsdatum:"
+
 #~ msgid "_Cleanup iPod podcasts"
 #~ msgstr "iP_od-Podcasts löschen"
+
 #~ msgid "gPodder - your podcast catcher."
 #~ msgstr "gPodder - dein podcast catcher."
+
 #~ msgid "iPod"
 #~ msgstr "iPod"
+
 #~ msgid "iPod connected. Do you want to sync now?"
 #~ msgstr "iPod verbunden. Jetzt synchronisieren?"
+
 #~ msgid "Exclude from synchronization"
 #~ msgstr "Von Synchronisierung ausschließen"
+
 #~ msgid "Saving iTunesDB..."
 #~ msgstr "Speichere iTunesDB..."
-
