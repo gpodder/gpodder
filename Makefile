@@ -17,6 +17,9 @@ MANPAGE=doc/man/gpodder.1
 TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
+ROSETTA_FILES=$(MESSAGESPOT) data/po/*.po
+ROSETTA_ARCHIVE=gpodder-rosetta-upload.tar.gz
+
 CHANGELOG=ChangeLog
 CHANGELOG_TMP=.ChangeLog.tmp
 CHANGELOG_EDT=.ChangeLog.edit
@@ -40,6 +43,7 @@ help:
 	@echo 'make uninstall       uninstall gpodder from "$(PREFIX)"'
 	@echo 'make generators      generate manpage, run tepache and resize logo'
 	@echo 'make messages        rebuild messages.pot from new source'
+	@echo 'make rosetta-upload  generate a tarball of all translation files'
 	@echo 'make clean           remove generated+temp+*.pyc files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo ''
@@ -108,11 +112,17 @@ $(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
 	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
 	sed -i'~' -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
+rosetta-upload: $(ROSETTA_ARCHIVE)
+	@echo 'You can now upload the archive to launchpad.net:  ' $(ROSETTA_ARCHIVE)
+
+$(ROSETTA_ARCHIVE):
+	tar czvf $(ROSETTA_ARCHIVE) $(ROSETTA_FILES)
+
 ##########################################################################
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png
+	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE)
 	rm -rf build
 	make -C data/po clean
 
