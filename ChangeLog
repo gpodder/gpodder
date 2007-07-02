@@ -1,3 +1,10 @@
+Mon, 02 Jul 2007 22:05:13 +0200 <thp@perli.net>
+        * src/gpodder/libwget.py: Set number of download retries
+          from infinite to the wget default setting, so we will 
+          finally arrive at an error in case the server has probs;
+          thanks to Mykola Nikishov (mn at mn.com.ua) for reporting
+          this bug and submitting the patch on the Debian BTS
+
 Mon, 02 Jul 2007 22:00:47 +0200 <thp@perli.net>
         * src/gpodder/librssreader.py: Patched the RSS reader to 
           set the podcast title to some sane default in case the 

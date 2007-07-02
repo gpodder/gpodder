@@ -84,7 +84,8 @@ class downloadThread( object):
         if libgpodder.gPodderLib().limit_rate:
             limit_str = '--limit-rate=%.1fk' % ( libgpodder.gPodderLib().limit_rate_value, )
             libgpodder.gPodderLib().deleteFilename( self.tempname)
-        command = 'wget --timeout=120 --continue --tries=inf %s --output-document="%s" "%s"' % ( limit_str, self.tempname, self.url )
+        # TODO use config file for number of retries (wget --tries)?
+        command = 'wget --timeout=120 --continue %s --output-document="%s" "%s"' % ( limit_str, self.tempname, self.url )
         log( 'Command: %s', command)
         if self.statusmgr:
             self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':_('Queued'), 'progress':0, 'url':self.url})
