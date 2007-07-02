@@ -133,6 +133,8 @@ class rssReader( DefaultHandler, ErrorHandler):
                 self.current_item.pubDate = self.current_element_data
             if name == "item":
                 if self.current_item.url:
+                    if not self.current_item.title:
+                        self.current_item.title = self.current_item.description.strip().split('\n')[0].strip()
                     self.channel.append( self.current_item)
                 self.current_item = None
     
