@@ -27,6 +27,7 @@
 #
 
 import gtk
+import gobject
 import thread
 import threading
 import urllib
@@ -137,8 +138,10 @@ class gPodderLibClass( object):
         self.main_window_height = 450
         self.main_window_x = 0
         self.main_window_y = 0
+        self.paned_position = 0
         self.max_downloads = 3
         self.max_downloads_enabled = False
+        self.default_new = 1
         self.mp3_player_folder = ""
         self.only_sync_not_played = False
         self.__download_history = DownloadHistory( self.get_download_history_filename())
@@ -218,9 +221,11 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'main_window_width', self.main_window_width)
         self.write_to_parser( parser, 'max_downloads', self.max_downloads)
         self.write_to_parser( parser, 'max_downloads_enabled', self.max_downloads_enabled)
+        self.write_to_parser( parser, 'default_new', self.default_new)
         self.write_to_parser( parser, 'main_window_height', self.main_window_height)
         self.write_to_parser( parser, 'main_window_x', self.main_window_x)
         self.write_to_parser( parser, 'main_window_y', self.main_window_y)
+        self.write_to_parser( parser, 'paned_position', self.paned_position)
         self.write_to_parser( parser, 'mp3_player_folder', self.mp3_player_folder)
         self.write_to_parser( parser, 'only_sync_not_played', self.only_sync_not_played)
         fn = self.getConfigFilename()
@@ -364,8 +369,10 @@ class gPodderLibClass( object):
                     self.main_window_height = self.get_int_from_parser( parser, 'main_window_height', 450)
                     self.main_window_x = self.get_int_from_parser( parser, 'main_window_x', 0)
                     self.main_window_y = self.get_int_from_parser( parser, 'main_window_y', 0)
+                    self.paned_position = self.get_int_from_parser( parser, 'paned_position', 0)
                     self.max_downloads = self.get_int_from_parser( parser, 'max_downloads', 3)
                     self.max_downloads_enabled = self.get_boolean_from_parser(parser, 'max_downloads_enabled', default=False)
+                    self.default_new = self.get_int_from_parser( parser, 'default_new', 1)
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                     self.only_sync_not_played = self.get_boolean_from_parser(parser, 'only_sync_not_played', default=False)
                 else:
@@ -390,6 +397,7 @@ class gPodderLibClass( object):
             self.main_window_height = 450
             self.main_window_x = 0
             self.main_window_y = 0
+            self.paned_position = 0
             self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
             self.downloaddir = expanduser('~/gpodder-downloads')
@@ -461,7 +469,7 @@ class gPodderLibClass( object):
 
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if callback_status != None:
-            callback_status( _('Downloading channel cover...'))
+            gobject.idle_add( callback_status, _('Downloading channel cover...'))
         pixbuf = PixbufLoader()
         
         if cover_file == None:
@@ -484,14 +492,26 @@ class gPodderLibClass( object):
             # data error, delete temp file
             self.deleteFilename( cover_file)
         
+        MAX_SIZE = 400
         if callback_pixbuf != None:
-            callback_pixbuf( pixbuf.get_pixbuf())
+            pb = pixbuf.get_pixbuf()
+            if pb:
+                if pb.get_width() > MAX_SIZE:
+                    factor = MAX_SIZE*1.0/pb.get_width()
+                    pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
+                if pb.get_height() > MAX_SIZE:
+                    factor = MAX_SIZE*1.0/pb.get_height()
+                    pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
+                gobject.idle_add( callback_pixbuf, pb)
         if callback_status != None:
-            callback_status( '')
+            gobject.idle_add( callback_status, '')
         if callback_finished != None:
-            callback_finished()
+            gobject.idle_add( callback_finished)
 
     def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
+        if not url:
+            return
+
         args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
         thread = threading.Thread( target = self.image_download_thread, args = args)
         thread.start()

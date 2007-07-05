@@ -1,3 +1,29 @@
+Thu, 05 Jul 2007 22:59:19 +0200 <thp@perli.net>
+        ! The channel navigator is here :) Suggested by Carlos. Enjoy.
+        * src/gpodder/libpodcasts.py: New function get_new_episodes() that
+          returns a list of episodes that are considered "new"; rework the 
+          channelsToModel() function to incorporate information that is 
+          needed for the new channel navigator
+        * src/gpodder/libgpodder.py: New configuration options:
+            paned_position .... width (in pixels) of channel navigator
+            default_new ....... number of episodes considered "new" for 
+                                new channels
+          also added maximum size for cover image (currently 400x400) and 
+          made the cover loading functions more thread-compatible by using
+          gobject.idle_add()
+        * src/gpodder/librssreader.py: Use channel's URL as its description
+          if there is no channel description after parsing has finished
+        * src/gpodder/gpodder.py: Full support for new channel navigator, 
+          including setup of new channel treeview, updated combobox, link 
+          for combobox<->treeview (channels), use the get_new_episodes() 
+          function wherever new episodes have to be searched and displayed;
+          escape channel and episode titles so there are no problems with 
+          ampersands (&), greater-than (>) and less-than (<) characters; 
+          fix some stupid code parts in gPodderChannel class code
+        * data/gpodder.glade: Updated main interface for channel navigator,
+          ellipsize headings in episode info window
+        * bin/gpodder: Pushed version + release date
+
 Mon, 02 Jul 2007 22:05:13 +0200 <thp@perli.net>
         * src/gpodder/libwget.py: Set number of download retries
           from infinite to the wget default setting, so we will 

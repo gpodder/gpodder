@@ -28,6 +28,7 @@
 
 import gtk
 import gobject
+import pango
 import htmlentitydefs
 
 from liblogger import log
@@ -58,6 +59,8 @@ import re
 
 from email.Utils import mktime_tz
 from email.Utils import parsedate_tz
+
+from xml.sax import saxutils
 
 import md5
 
@@ -167,6 +170,32 @@ class podcastChannel(ListType):
             pubdate = episode.newer_pubdate( pubdate)
         return pubdate
 
+    def get_new_episodes( self, download_status_manager = None):
+        last_pubdate = self.newest_pubdate_downloaded()
+        gl = libgpodder.gPodderLib()
+
+        if not last_pubdate:
+            return self[0:min(len(self),gl.default_new)]
+
+        new_episodes = []
+
+        for episode in self.get_all_episodes():
+            # episode is older than newest downloaded
+            if episode.compare_pubdate( last_pubdate) < 0:
+                continue
+
+            # episode has been downloaded before
+            if self.is_downloaded( episode) or gl.history_is_downloaded( episode.url):
+                continue
+
+            # download is currently in progress
+            if download_status_manager and download_status_manager.is_download_in_progress( episode.url):
+                continue
+
+            new_episodes.append( episode)
+
+        return new_episodes
+
     def can_sort_by_pubdate( self):
         for episode in self:
             try:
@@ -253,7 +282,7 @@ class podcastChannel(ListType):
 
         return episodes
 
-    def items_liststore( self, want_color = True, downloading_callback = None):
+    def items_liststore( self, want_color = True, downloading_callback = None, download_status_manager = None):
         """Return a gtk.ListStore containing episodes for this channel
 
         If want_color is True (the default), this will set special colors
@@ -266,7 +295,7 @@ class podcastChannel(ListType):
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         gl = libgpodder.gPodderLib()
 
-        last_pubdate = self.newest_pubdate_downloaded()
+        new_episodes = self.get_new_episodes( download_status_manager = download_status_manager)
 
         index = 1
         for item in self.get_all_episodes():
@@ -288,9 +317,7 @@ class podcastChannel(ListType):
                 status_icon = gtk.STOCK_GO_DOWN
             elif libgpodder.gPodderLib().history_is_downloaded( item.url) and want_color:
                 status_icon = gtk.STOCK_DELETE
-            elif last_pubdate and item.compare_pubdate( last_pubdate) >= 0:
-                status_icon = gtk.STOCK_NEW
-            elif not last_pubdate and index <= 3:
+            elif item.url in [ e.url for e in new_episodes ]:
                 status_icon = gtk.STOCK_NEW
             else:
                 status_icon = None
@@ -626,13 +653,48 @@ class PlaybackHistory( DownloadHistory):
     pass
 
 
-def channelsToModel( channels):
-    new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
+def channelsToModel( channels, download_status_manager = None):
+    new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gtk.gdk.Pixbuf)
+    pos = 0
     
     for channel in channels:
+        new_episodes = channel.get_new_episodes( download_status_manager = download_status_manager)
+        count = len(channel)
+        count_new = len(new_episodes)
+
         new_iter = new_model.append()
         new_model.set( new_iter, 0, channel.url)
         new_model.set( new_iter, 1, channel.title)
+
+        new_model.set( new_iter, 2, count)
+        if count_new == 0:
+            new_model.set( new_iter, 3, '')
+        elif count_new == 1:
+            new_model.set( new_iter, 3, _('New episode: %s') % ( new_episodes[-1].title ) + ' ')
+        else:
+            new_model.set( new_iter, 3, _('%s new episodes') % count_new + ' ')
+
+        if count_new:
+            new_model.set( new_iter, 4, pango.WEIGHT_BOLD)
+            new_model.set( new_iter, 5, str(count_new))
+        else:
+            new_model.set( new_iter, 4, pango.WEIGHT_NORMAL)
+            new_model.set( new_iter, 5, '')
+
+        new_model.set( new_iter, 6, pos)
+
+        new_model.set( new_iter, 7, '%s\n<small>%s</small>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description.split('\n')[0]), ))
+
+        if os.path.exists( channel.cover_file):
+            new_model.set( new_iter, 8, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
+        else:
+            iconsize = gtk.icon_size_from_name('channel-icon')
+            if not iconsize:
+                iconsize = gtk.icon_size_register('channel-icon',32,32)
+            icon_theme = gtk.icon_theme_get_default()
+            new_model.set( new_iter, 8, icon_theme.load_icon('applications-internet', iconsize, 0))
+
+        pos = pos + 1
     
     return new_model
 

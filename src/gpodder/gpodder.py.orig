@@ -160,6 +160,16 @@ class Gpodder(SimpleGladeApp):
         print "on_wNotebook_switch_page called with self.%s" % widget.get_name()
     #-- Gpodder.on_wNotebook_switch_page }
 
+    #-- Gpodder.on_treeChannels_row_activated {
+    def on_treeChannels_row_activated(self, widget, *args):
+        print "on_treeChannels_row_activated called with self.%s" % widget.get_name()
+    #-- Gpodder.on_treeChannels_row_activated }
+
+    #-- Gpodder.on_treeChannels_cursor_changed {
+    def on_treeChannels_cursor_changed(self, widget, *args):
+        print "on_treeChannels_cursor_changed called with self.%s" % widget.get_name()
+    #-- Gpodder.on_treeChannels_cursor_changed }
+
     #-- Gpodder.on_comboAvailable_changed {
     def on_comboAvailable_changed(self, widget, *args):
         print "on_comboAvailable_changed called with self.%s" % widget.get_name()

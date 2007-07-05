@@ -34,6 +34,8 @@ import pango
 import sys
 import shutil
 
+from xml.sax import saxutils
+
 from threading import Event
 from threading import Thread
 from string import strip
@@ -103,6 +105,7 @@ class Gpodder(SimpleGladeApp):
         gl = gPodderLib()
         self.gPodder.resize( gl.main_window_width, gl.main_window_height)
         self.gPodder.move( gl.main_window_x, gl.main_window_y)
+        self.channelPaned.set_position( gl.paned_position)
         while gtk.events_pending():
             gtk.main_iteration( False)
 
@@ -111,8 +114,42 @@ class Gpodder(SimpleGladeApp):
 
         # set up the rendering of the comboAvailable combobox
         cellrenderer = gtk.CellRendererText()
-        self.comboAvailable.pack_start( cellrenderer, True)
+        self.comboAvailable.pack_start( cellrenderer, False)
         self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
+        self.comboAvailable.add_attribute( cellrenderer, 'weight', 4)
+
+        # new episodes
+        cellrenderer = gtk.CellRendererText()
+        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        cellrenderer.set_property('alignment', pango.ALIGN_RIGHT)
+        cellrenderer.set_property( 'foreground', 'gray')
+        self.comboAvailable.pack_end( cellrenderer, True)
+        self.comboAvailable.add_attribute( cellrenderer, 'text', 3)
+
+        # cell renderers for channel tree
+        namecolumn = gtk.TreeViewColumn( _('Channel'))
+        namecolumn.set_resizable( True)
+        namecolumn.set_reorderable( True)
+
+        iconcell = gtk.CellRendererPixbuf()
+        namecolumn.pack_start( iconcell, False)
+        namecolumn.add_attribute( iconcell, 'pixbuf', 8)
+
+        namecell = gtk.CellRendererText()
+        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        namecolumn.pack_start( namecell, True)
+        namecolumn.add_attribute( namecell, 'markup', 7)
+        namecolumn.add_attribute( namecell, 'weight', 4)
+        namecolumn.set_expand( True)
+
+        newcell = gtk.CellRendererText()
+        namecolumn.pack_end( newcell, False)
+        namecolumn.add_attribute( newcell, 'text', 5)
+        namecolumn.add_attribute( newcell, 'weight', 4)
+        namecolumn.set_expand( False)
+
+        self.treeChannels.append_column( namecolumn)
+        self.treeChannels.set_rules_hint( True)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -166,7 +203,7 @@ class Gpodder(SimpleGladeApp):
         for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
     
-        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateTreeView)
+        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateComboBox)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # tooltips :)
@@ -278,8 +315,10 @@ class Gpodder(SimpleGladeApp):
                 old_active = 0
             elif old_active > len( self.channels)-1:
                 old_active = len(self.channels)-1
-            self.comboAvailable.set_model( channelsToModel( self.channels))
+            self.comboAvailable.set_model( channelsToModel( self.channels, download_status_manager = self.download_status_manager))
             self.comboAvailable.set_active( old_active)
+            self.treeChannels.set_model( self.comboAvailable.get_model())
+            self.treeChannels.get_selection().select_path( old_active)
         except:
             pass
     
@@ -289,7 +328,7 @@ class Gpodder(SimpleGladeApp):
 
         rect = self.treeAvailable.get_visible_rect()
         if self.channels:
-            self.treeAvailable.set_model( self.active_channel.items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress))
+            self.treeAvailable.set_model( self.active_channel.items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress, download_status_manager = self.download_status_manager))
             # now, reset the scrolling position
             self.treeAvailable.scroll_to_point( rect.x, rect.y)
             while gtk.events_pending():
@@ -300,6 +339,8 @@ class Gpodder(SimpleGladeApp):
         else:
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
+
+        self.treeChannels.get_selection().select_path( self.comboAvailable.get_active())
     
     def show_message( self, message, title = None):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -335,7 +376,7 @@ class Gpodder(SimpleGladeApp):
 
     def switched_notebook( self, notebook, page, page_num):
         if page_num == 0:
-            self.updateTreeView()
+            self.updateComboBox()
 
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
         result = sel.data
@@ -534,7 +575,7 @@ class Gpodder(SimpleGladeApp):
                     self.ldb.clear_cache()
 
         # update tree view to mark the episode as being downloaded
-        self.updateTreeView()
+        self.updateComboBox()
     #-- Gpodder custom methods }
 
     #-- Gpodder.close_gpodder {
@@ -553,6 +594,7 @@ class Gpodder(SimpleGladeApp):
         gl.main_window_height = size[1]
         gl.main_window_x = pos[0]
         gl.main_window_y = pos[1]
+        gl.paned_position = self.channelPaned.get_position()
         gl.propertiesChanged()
 
         self.gtk_main_quit()
@@ -579,27 +621,18 @@ class Gpodder(SimpleGladeApp):
         new_sum = 0
 
         for channel in self.channels:
-            s = 0
-            last_pubdate = channel.newest_pubdate_downloaded()
-            if not last_pubdate:
-                log( 'Downloading newest three episodes.')
-                for episode in channel[0:min(len(channel),3)]:
-                    to_download.append( ( channel, episode ))
-                    s = s + 1
-            else:
-                for episode in channel.get_all_episodes():
-                    if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
-                        log( 'Episode "%s" is newer.', episode.title)
-                        to_download.append( ( channel, episode ))
-                        s += 1
-            if s:
-                new_part = '  ' + _('<b>%d</b> new episodes in <b>%s</b>') % ( s, channel.title, )
+            new_episodes = channel.get_new_episodes( download_status_manager = self.download_status_manager)
+            for episode in new_episodes:
+                to_download.append( ( channel, episode ))
 
-                if s == 1:
-                    new_part = '  ' + _('<b>1</b> new episode in <b>%s</b>') % ( channel.title, )
+            if len(new_episodes):
+                if len(new_episodes) == 1:
+                    new_part = '  ' + _('<b>1</b> new episode in <b>%s</b>') % ( saxutils.escape(channel.title), )
+                else:
+                    new_part = '  ' + _('<b>%d</b> new episodes in <b>%s</b>') % ( len( new_episodes), saxutils.escape(channel.title), )
 
                 message_part += new_part + "\n"
-                new_sum += s
+                new_sum += len(new_episodes)
 
         if to_download:
             title = _('New episodes available')
@@ -619,7 +652,7 @@ class Gpodder(SimpleGladeApp):
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
             self.show_message( message, title)
 
-        self.updateTreeView()
+        self.updateComboBox()
   #-- Gpodder.on_itemDownloadAllNew_activate }
 
     #-- Gpodder.on_sync_to_ipod_activate {
@@ -701,7 +734,7 @@ class Gpodder(SimpleGladeApp):
     def on_itemPreferences_activate(self, widget, *args):
         prop = Gpodderproperties( gpodderwindow = self.gPodder, showmessage = self.show_message)
         prop.set_uar( self.user_apps_reader)
-        prop.set_callback_finished( self.updateTreeView)
+        prop.set_callback_finished( self.updateComboBox)
     #-- Gpodder.on_itemPreferences_activate }
 
     #-- Gpodder.on_itemAddChannel_activate {
@@ -829,6 +862,18 @@ class Gpodder(SimpleGladeApp):
             self.toolCancel.set_sensitive( self.download_status_manager.has_items())
     #-- Gpodder.on_wNotebook_switch_page }
 
+    #-- Gpodder.on_treeChannels_row_activated {
+    def on_treeChannels_row_activated(self, widget, *args):
+        self.on_itemEditChannel_activate( self.treeChannels)
+    #-- Gpodder.on_treeChannels_row_activated }
+
+    #-- Gpodder.on_treeChannels_cursor_changed {
+    def on_treeChannels_cursor_changed(self, widget, *args):
+        (model,iter) = self.treeChannels.get_selection().get_selected()
+        pos = model.get_value( iter, 6)
+        self.comboAvailable.set_active( pos)
+    #-- Gpodder.on_treeChannels_cursor_changed }
+
     #-- Gpodder.on_comboAvailable_changed {
     def on_comboAvailable_changed(self, widget, *args):
         try:
@@ -903,42 +948,29 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_btnDownloadNewer_clicked {
     def on_btnDownloadNewer_clicked(self, widget, *args):
         channel = self.active_channel
-        episodes_to_download = []
-        gl = gPodderLib()
+        episodes_to_download = channel.get_new_episodes( download_status_manager = self.download_status_manager)
 
-        last_pubdate = channel.newest_pubdate_downloaded()
-        if not last_pubdate:
-            title = _('Download newest podcasts?')
-            message = _('Would you like to download the three newest episodes from <b>%s</b>?') % ( channel.title, )
-            if self.show_confirmation( message, title):
-                episodes_to_download = channel[0:min(len(channel),3)]
+        if not episodes_to_download:
+            title = _('No episodes to download')
+            message = _('You have already downloaded the most recent episodes from <b>%s</b>.') % ( channel.title, )
+            self.show_message( message, title)
         else:
-            for episode in channel.get_all_episodes():
-                if episode.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( episode) and not gl.history_is_downloaded( episode.url) and not self.download_status_manager.is_download_in_progress( episode.url):
-                    log( 'Episode "%s" is newer.', episode.title)
-                    episodes_to_download.append( episode)
-
-            if not episodes_to_download:
-                title = _('No episodes to download')
-                message = _('You have already downloaded the most recent episodes from <b>%s</b>.') % ( channel.title, )
-                self.show_message( message, title)
-            else:
-                if len(episodes_to_download) > 1:
-                    if len(episodes_to_download) < 10:
-                        e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download ] )
-                    else:
-                        e_str = '\n'.join( [ '  <b>'+e.title+'</b>' for e in episodes_to_download[:7] ] )
-                        e_str_2 = _('(...%d more episodes...)') % ( len(episodes_to_download)-7, )
-                        e_str = '%s\n  <i>%s</i>' % ( e_str, e_str_2, )
-                    title = _('Download new episodes?')
-                    message = _('New episodes are available for download. If you want, you can download these episodes to your computer now.')
-                    message = '%s\n\n%s' % ( message, e_str, )
+            if len(episodes_to_download) > 1:
+                if len(episodes_to_download) < 10:
+                    e_str = '\n'.join( [ '  <b>'+saxutils.escape(e.title)+'</b>' for e in episodes_to_download ] )
                 else:
-                    title = _('Download %s?') % episodes_to_download[0].title
-                    message = _('A new episode is available for download. If you want, you can download this episode to your computer now.')
+                    e_str = '\n'.join( [ '  <b>'+saxutils.escape(e.title)+'</b>' for e in episodes_to_download[:7] ] )
+                    e_str_2 = _('(...%d more episodes...)') % ( len(episodes_to_download)-7, )
+                    e_str = '%s\n  <i>%s</i>' % ( e_str, e_str_2, )
+                title = _('Download new episodes?')
+                message = _('New episodes are available for download. If you want, you can download these episodes to your computer now.')
+                message = '%s\n\n%s' % ( message, e_str, )
+            else:
+                title = _('Download %s?') % saxutils.escape(episodes_to_download[0].title)
+                message = _('A new episode is available for download. If you want, you can download this episode to your computer now.')
 
-                if not self.show_confirmation( message, title):
-                    return
+            if not self.show_confirmation( message, title):
+                return
 
         for episode in episodes_to_download:
             self.download_podcast_by_url( episode.url, False)
@@ -1049,9 +1081,9 @@ class Gpodderchannel(SimpleGladeApp):
     def __init__(self, path="gpodder.glade",
                  root="gPodderChannel",
                  domain=app_name, **kwargs):
-        waiting = None
-        url = ""
-        result = False
+        self.waiting = None
+        self.url = ""
+        self.result = False
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
         if 'gpodderwindow' in kwargs:
@@ -1076,9 +1108,7 @@ class Gpodderchannel(SimpleGladeApp):
             self.musicPlaylist.set_text( channel.device_playlist_name)
             self.cbMusicChannel.set_active( channel.is_music_channel)
             description = channel.description
-            if channel.image != None:
-                # load image in background
-                gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
+            gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
         else:
             # Remove all tabs except for the first one
             while self.notebookChannelEditor.get_n_pages() > 1:
