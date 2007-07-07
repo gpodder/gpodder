@@ -442,8 +442,15 @@ class gPodder_iPodSync( gPodderSyncMethod):
         # Add release time to track if pubDate is parseable
         ipod_date = email.Utils.parsedate(episode.pubDate)
         if ipod_date != None:
-            # + 2082844800 for unixtime => mactime (1970 => 1904)
-            track.time_released = int(time.mktime(ipod_date) + 2082844800)
+            try:
+                # libgpod>= 0.5.x uses a new timestamp format
+                track.time_released = gpod.itdb_time_host_to_mac(int(time.mktime(ipod_date)))
+            except:
+                # old (pre-0.5.x) libgpod versions expect mactime, so
+                # we're going to manually build a good mactime timestamp here :)
+                #
+                # + 2082844800 for unixtime => mactime (1970 => 1904)
+                track.time_released = int(time.mktime(ipod_date) + 2082844800)
         
         track.title = str(episode.title)
         track.album = str(channel.title)

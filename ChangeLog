@@ -1,3 +1,12 @@
+Sat, 07 Jul 2007 17:01:59 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Added support for the new time_t 
+          type of the "track_released" field from libgpod. This adds 
+          support for libgpod >= 0.5.0 (Python bindings). Thanks to 
+          Todd Zullinger (tmz pobox.com) from the gpod-devel mailing 
+          list for suggesting this check and also thanks to Götz Waschk
+          (goetz.waschk gmail.com) for initially reporting this problem
+        * bin/gpodder: Pushed version + release date
+
 Thu, 05 Jul 2007 22:59:19 +0200 <thp@perli.net>
         ! The channel navigator is here :) Suggested by Carlos. Enjoy.
         * src/gpodder/libpodcasts.py: New function get_new_episodes() that
