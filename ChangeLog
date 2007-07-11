@@ -1,3 +1,17 @@
+Wed, 11 Jul 2007 12:59:53 +0200 <thp@perli.net>
+        * src/gpodder/libgpodder.py: New configuration defaults for new 
+          installations: Use environment for proxy, download new episodes 
+          after feed cache update, display channel navigator by default
+        * src/gpodder/gpodder.py: Fix some bugs with empty channel lists; 
+          notify user of already-added channels; adapt the "add channel" 
+          functionality for the new GUI; make editing channels work more 
+          reliably (revert to old list if new channel URL cannot be fetched);
+          huge clean-up of the Gpodderchannel class
+        * bin/gpodder: Pushed version + release date
+        * data/gpodder.glade: Slipstream the gPodderChannel UI dialog and 
+          add a channel URL adding entry + "add" button to the channel 
+          navigator, adding channels is now done using these widgets
+
 Sat, 07 Jul 2007 17:01:59 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: Added support for the new time_t 
           type of the "track_released" field from libgpod. This adds 

@@ -318,7 +318,8 @@ class Gpodder(SimpleGladeApp):
             self.comboAvailable.set_model( channelsToModel( self.channels, download_status_manager = self.download_status_manager))
             self.comboAvailable.set_active( old_active)
             self.treeChannels.set_model( self.comboAvailable.get_model())
-            self.treeChannels.get_selection().select_path( old_active)
+            if old_active > -1:
+                self.treeChannels.get_selection().select_path( old_active)
         except:
             pass
     
@@ -340,7 +341,9 @@ class Gpodder(SimpleGladeApp):
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
 
-        self.treeChannels.get_selection().select_path( self.comboAvailable.get_active())
+        index = self.comboAvailable.get_active()
+        if index > -1:
+            self.treeChannels.get_selection().select_path( index)
     
     def show_message( self, message, title = None):
         dlg = gtk.MessageDialog( self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -392,6 +395,9 @@ class Gpodder(SimpleGladeApp):
             title = _('Error adding channel')
             message = _('The channel could not be added. Please check the spelling of the URL or try again later.')
             self.show_message( message, title)
+            return False
+        
+        return True
     
     def add_new_channel( self, result = None):
         gl = gPodderLib()
@@ -399,6 +405,7 @@ class Gpodder(SimpleGladeApp):
         if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
+                    self.show_message( _('You have already subscribed to this channel: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
                     log( 'Channel already exists: %s', result)
                     # Select the existing channel in combo box
                     for i in range( len( self.channels)):
@@ -464,7 +471,8 @@ class Gpodder(SimpleGladeApp):
 
         label.set_markup( '<i>%s</i>' % title)
         progressbar.set_text( _('%d of %d channels updated') % ( position, count ))
-        progressbar.set_fraction( ((1.00*position) / (1.00*count)))
+        if count:
+            progressbar.set_fraction( ((1.00*position) / (1.00*count)))
 
     def update_feed_cache_proc( self, reader, force_update, callback_proc, callback_error, finish_proc):
         self.channels = reader.read( force_update, callback_proc = callback_proc, callback_error = callback_error)
@@ -739,7 +747,10 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemAddChannel_activate {
     def on_itemAddChannel_activate(self, widget, *args):
-        self.add_new_channel( Gpodderchannel( gpodderwindow = self.gPodder).requestURL())
+        if self.channelPaned.get_position() < 200:
+            self.channelPaned.set_position( 200)
+        self.entryAddChannel.set_text( _('Enter podcast URL'))
+        self.entryAddChannel.grab_focus()
     #-- Gpodder.on_itemAddChannel_activate }
 
     #-- Gpodder.on_itemEditChannel_activate {
@@ -750,13 +761,20 @@ class Gpodder(SimpleGladeApp):
             self.show_message( message, title)
             return
         
-        result = Gpodderchannel( gpodderwindow = self.gPodder).requestURL( self.active_channel)
+        gpc = Gpodderchannel( gpodderwindow = self.gPodder)
+        result = gpc.edit_channel( self.active_channel)
+
         self.updateComboBox()
         active = self.comboAvailable.get_active()
         if result != self.active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+            old_channels = self.channels
             log( 'Changing channel #%d from "%s" to "%s"', active, self.active_channel.url, result)
             self.channels = self.channels[0:active] + [ podcastChannel( url = result) ] + self.channels[active+1:]
-            self.refetch_channel_list()
+            if not self.refetch_channel_list():
+                # Revert to old channel list
+                self.show_message( _('I will now revert your channel list to its original state.'), _('Editing failed'))
+                self.channels = old_channels
+                self.refetch_channel_list()
     #-- Gpodder.on_itemEditChannel_activate }
 
     #-- Gpodder.on_itemRemoveChannel_activate {
@@ -873,6 +891,19 @@ class Gpodder(SimpleGladeApp):
         pos = model.get_value( iter, 6)
         self.comboAvailable.set_active( pos)
     #-- Gpodder.on_treeChannels_cursor_changed }
+
+    #-- Gpodder.on_entryAddChannel_changed {
+    def on_entryAddChannel_changed(self, widget, *args):
+        active = self.entryAddChannel.get_text() not in ('', _('Enter podcast URL'))
+        self.btnAddChannel.set_sensitive( active)
+    #-- Gpodder.on_entryAddChannel_changed }
+
+    #-- Gpodder.on_btnAddChannel_clicked {
+    def on_btnAddChannel_clicked(self, widget, *args):
+        url = self.entryAddChannel.get_text()
+        self.entryAddChannel.set_text('')
+        self.add_new_channel( url)
+    #-- Gpodder.on_btnAddChannel_clicked }
 
     #-- Gpodder.on_comboAvailable_changed {
     def on_comboAvailable_changed(self, widget, *args):
@@ -1073,19 +1104,17 @@ class Gpodder(SimpleGladeApp):
 
 
 class Gpodderchannel(SimpleGladeApp):
-    event = None
-    channel = None
-    podcast = None
-    thread = None
-
     def __init__(self, path="gpodder.glade",
                  root="gPodderChannel",
                  domain=app_name, **kwargs):
-        self.waiting = None
-        self.url = ""
-        self.result = False
+
+        self.waiting = Event()
+        self.channel = None
+        self.url = None
+
         path = os.path.join(glade_dir, path)
         SimpleGladeApp.__init__(self, path, root, domain, **kwargs)
+
         if 'gpodderwindow' in kwargs:
             self.gPodderChannel.set_transient_for( kwargs['gpodderwindow'])
             self.gPodderChannel.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
@@ -1096,54 +1125,39 @@ class Gpodderchannel(SimpleGladeApp):
     #-- Gpodderchannel.new }
 
     #-- Gpodderchannel custom methods {
-    def requestURL( self, channel = None):
-        if channel != None:
-            self.gPodderChannel.set_title( _('Channel: %s') % channel.title)
-            self.entryURL.set_text( channel.url)
-            self.entryTitle.set_text( channel.title)
-            self.LabelDownloadTo.set_text( channel.save_dir)
-            self.LabelWebsite.set_text( channel.link)
-            channel.set_metadata_from_localdb()
-            self.cbNoSync.set_active( not channel.sync_to_devices)
-            self.musicPlaylist.set_text( channel.device_playlist_name)
-            self.cbMusicChannel.set_active( channel.is_music_channel)
-            description = channel.description
-            gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
-        else:
-            # Remove all tabs except for the first one
-            while self.notebookChannelEditor.get_n_pages() > 1:
-                self.notebookChannelEditor.remove_page( -1)
-            for widget in ( self.labelDescription, self.scrolledwindow, self.expander, self.labelTitle, self.entryTitle ):
-                widget.hide_all()
-            self.gPodderChannel.set_title( _('Add a new channel'))
-            self.gPodderChannel.queue_resize()
-            description = _("(unknown)")
+    def edit_channel( self, channel):
+        self.channel = channel
+
+        self.gPodderChannel.set_title( channel.title)
+        self.entryTitle.set_text( channel.title)
+        self.entryURL.set_text( channel.url)
+
+        self.LabelDownloadTo.set_text( channel.save_dir)
+        self.LabelWebsite.set_text( channel.link)
+
+        channel.set_metadata_from_localdb()
+        self.cbNoSync.set_active( not channel.sync_to_devices)
+        self.musicPlaylist.set_text( channel.device_playlist_name)
+        self.cbMusicChannel.set_active( channel.is_music_channel)
+        gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
         
         b = gtk.TextBuffer()
-        b.set_text( description)
+        b.set_text( channel.description)
         self.channel_description.set_buffer( b)
-        
-        self.waiting = Event()
-        while self.waiting.isSet() == False:
+
+        # Wait for the user to close the window
+        while not self.waiting.isSet():
             self.waiting.wait( 0.01)
             while gtk.events_pending():
                 gtk.main_iteration( False)
         
-        if self.result == True:
-            if channel != None:
-                channel.sync_to_devices = not self.cbNoSync.get_active()
-                channel.is_music_channel = self.cbMusicChannel.get_active()
-                channel.device_playlist_name = self.musicPlaylist.get_text()
-                channel.set_custom_title( self.entryTitle.get_text())
-                channel.save_metadata_to_localdb()
-            return self.url
-        else:
-            return None
+        return self.url
     #-- Gpodderchannel custom methods }
 
     #-- Gpodderchannel.on_gPodderChannel_destroy {
     def on_gPodderChannel_destroy(self, widget, *args):
-        self.result = False
+        self.url = self.entryURL.get_text()
+        self.waiting.set()
     #-- Gpodderchannel.on_gPodderChannel_destroy }
 
     #-- Gpodderchannel.on_cbMusicChannel_toggled {
@@ -1153,21 +1167,18 @@ class Gpodderchannel(SimpleGladeApp):
 
     #-- Gpodderchannel.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
-        self.url = self.entryURL.get_text()
-        self.gPodderChannel.destroy()
-        self.result = True
+        self.channel.sync_to_devices = not self.cbNoSync.get_active()
+        self.channel.is_music_channel = self.cbMusicChannel.get_active()
+        self.channel.device_playlist_name = self.musicPlaylist.get_text()
+        self.channel.set_custom_title( self.entryTitle.get_text())
+        self.channel.save_metadata_to_localdb()
 
-        if self.waiting != None:
-            self.waiting.set()
+        self.gPodderChannel.destroy()
     #-- Gpodderchannel.on_btnOK_clicked }
 
     #-- Gpodderchannel.on_btnCancel_clicked {
-    def on_btnCancel_clicked(self, widget, *args):
+    def on_btnCancel_clicked(self, widget, *args): 
         self.gPodderChannel.destroy()
-        self.result = False
-        
-        if self.waiting != None:
-            self.waiting.set()
     #-- Gpodderchannel.on_btnCancel_clicked }
 
 

@@ -170,6 +170,16 @@ class Gpodder(SimpleGladeApp):
         print "on_treeChannels_cursor_changed called with self.%s" % widget.get_name()
     #-- Gpodder.on_treeChannels_cursor_changed }
 
+    #-- Gpodder.on_entryAddChannel_changed {
+    def on_entryAddChannel_changed(self, widget, *args):
+        print "on_entryAddChannel_changed called with self.%s" % widget.get_name()
+    #-- Gpodder.on_entryAddChannel_changed }
+
+    #-- Gpodder.on_btnAddChannel_clicked {
+    def on_btnAddChannel_clicked(self, widget, *args):
+        print "on_btnAddChannel_clicked called with self.%s" % widget.get_name()
+    #-- Gpodder.on_btnAddChannel_clicked }
+
     #-- Gpodder.on_comboAvailable_changed {
     def on_comboAvailable_changed(self, widget, *args):
         print "on_comboAvailable_changed called with self.%s" % widget.get_name()

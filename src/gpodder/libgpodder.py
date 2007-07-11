@@ -120,12 +120,12 @@ class gPodderLibClass( object):
             self.ftp_proxy = environ['ftp_proxy']
         except:
             self.ftp_proxy = ''
-        self.proxy_use_environment = False
+        self.proxy_use_environment = True 
         self.open_app = ""
         self.ipod_mount = ""
         self.opml_url = ""
         self.update_on_startup = False
-        self.download_after_update = False
+        self.download_after_update = True
         self.torrentdir = expanduser('~/gpodder-downloads/torrents')
         self.use_gnome_bittorrent = True
         self.limit_rate = False
@@ -138,7 +138,7 @@ class gPodderLibClass( object):
         self.main_window_height = 450
         self.main_window_x = 0
         self.main_window_y = 0
-        self.paned_position = 0
+        self.paned_position = 150
         self.max_downloads = 3
         self.max_downloads_enabled = False
         self.default_new = 1
@@ -397,7 +397,7 @@ class gPodderLibClass( object):
             self.main_window_height = 450
             self.main_window_x = 0
             self.main_window_y = 0
-            self.paned_position = 0
+            self.paned_position = 150
             self.mp3_player_folder = '/media/usbdisk'
             self.opml_url = default_opml_directory
             self.downloaddir = expanduser('~/gpodder-downloads')
