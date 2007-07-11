@@ -761,15 +761,17 @@ class Gpodder(SimpleGladeApp):
             message = _('Please select a channel in the channels list to edit.')
             self.show_message( message, title)
             return
+
+        active_channel = self.active_channel
+        active = self.comboAvailable.get_active()
         
         gpc = Gpodderchannel( gpodderwindow = self.gPodder)
-        result = gpc.edit_channel( self.active_channel)
+        result = gpc.edit_channel( active_channel)
 
         self.updateComboBox()
-        active = self.comboAvailable.get_active()
-        if result != self.active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
+        if result != active_channel.url and result != None and result != "" and (result[:4] == "http" or result[:3] == "ftp"):
             old_channels = self.channels
-            log( 'Changing channel #%d from "%s" to "%s"', active, self.active_channel.url, result)
+            log( 'Changing channel #%d from "%s" to "%s"', active, active_channel.url, result)
             self.channels = self.channels[0:active] + [ podcastChannel( url = result) ] + self.channels[active+1:]
             if not self.refetch_channel_list():
                 # Revert to old channel list

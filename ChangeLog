@@ -1,3 +1,8 @@
+Wed, 11 Jul 2007 20:27:21 +0200 <thp@perli.net>
+        * src/gpodder/gpodder.py: Fix some race condition but that could 
+          possibly overwrite existing channels
+        * data/gpodder.glade: Make the gPodderChannel editor dialog modal
+
 Wed, 11 Jul 2007 20:09:03 +0200 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Add description field to opmlChannel
         * src/gpodder/libgpodder.py: Default OPML directory URL changed from
