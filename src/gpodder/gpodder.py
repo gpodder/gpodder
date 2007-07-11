@@ -399,7 +399,7 @@ class Gpodder(SimpleGladeApp):
         
         return True
     
-    def add_new_channel( self, result = None):
+    def add_new_channel( self, result = None, ask_download_new = True):
         gl = gPodderLib()
         result = gl.sanitize_feed_url( result)
         if result:
@@ -424,7 +424,8 @@ class Gpodder(SimpleGladeApp):
             if num_channels_before < len(self.channels):
                 # ask user to download some new episodes
                 self.comboAvailable.set_active( len( self.channels)-1)
-                self.on_btnDownloadNewer_clicked( None)
+                if ask_download_new:
+                    self.on_btnDownloadNewer_clicked( None)
         else:
             if result:
                 title = _('URL scheme not supported')
@@ -822,7 +823,7 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_itemImportChannels_activate {
     def on_itemImportChannels_activate(self, widget, *args):
-        Gpodderopmllister( gpodderwindow = self.gPodder).get_channels_from_url( gPodderLib().opml_url, self.add_new_channel)
+        Gpodderopmllister( gpodderwindow = self.gPodder).get_channels_from_url( gPodderLib().opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate( self.gPodder))
     #-- Gpodder.on_itemImportChannels_activate }
 
     #-- Gpodder.on_btnTransfer_clicked {
@@ -1707,14 +1708,15 @@ class Gpodderopmllister(SimpleGladeApp):
         # initiate channels list
         self.channels = []
         self.callback_for_channel = None
+        self.callback_finished = None
 
         togglecell = gtk.CellRendererToggle()
         togglecell.set_property( 'activatable', True)
         togglecell.connect( 'toggled', self.callback_edited)
-        togglecolumn = gtk.TreeViewColumn( _("Subscribe"), togglecell, active=0)
+        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=0)
         
         titlecell = gtk.CellRendererText()
-        titlecolumn = gtk.TreeViewColumn( _("Channel name"), titlecell, text=1)
+        titlecolumn = gtk.TreeViewColumn( _('Channel'), titlecell, markup=1)
 
         for itemcolumn in ( togglecolumn, titlecolumn ):
             self.treeviewChannelChooser.append_column( itemcolumn)
@@ -1724,23 +1726,39 @@ class Gpodderopmllister(SimpleGladeApp):
     #   Write your own methods here
     def callback_edited( self, cell, path):
         model = self.treeviewChannelChooser.get_model()
-        activated = not model[path][0]
+
         url = model[path][2]
 
-        model[path][0] = activated
-
-        if activated:
+        model[path][0] = not model[path][0]
+        if model[path][0]:
             self.channels.append( url)
         else:
             self.channels.remove( url)
 
-        log( 'Edited: %s', url)
-    
-    def get_channels_from_url( self, url, callback):
+        self.btnOK.set_sensitive( bool(len(self.channels)))
+
+    def thread_func( self):
         reader = opmlReader()
-        reader.parseXML( url)
-        self.treeviewChannelChooser.set_model( reader.get_model())
-        self.callback_for_channel = callback
+        reader.parseXML( self.entryURL.get_text())
+        gobject.idle_add( self.treeviewChannelChooser.set_model, reader.get_model())
+        gobject.idle_add( self.labelStatus.set_label, '')
+        gobject.idle_add( self.btnDownloadOpml.set_sensitive, True)
+        gobject.idle_add( self.entryURL.set_sensitive, True)
+        gobject.idle_add( self.treeviewChannelChooser.set_sensitive, True)
+        self.channels = []
+    
+    def get_channels_from_url( self, url, callback_for_channel = None, callback_finished = None):
+        if callback_for_channel:
+            self.callback_for_channel = callback_for_channel
+        if callback_finished:
+            self.callback_finished = callback_finished
+        self.labelStatus.set_label( _('Downloading, please wait...'))
+        self.entryURL.set_text( url)
+        self.btnDownloadOpml.set_sensitive( False)
+        self.entryURL.set_sensitive( False)
+        self.btnOK.set_sensitive( False)
+        self.treeviewChannelChooser.set_sensitive( False)
+        Thread( target = self.thread_func).start()
     #-- Gpodderopmllister custom methods }
 
     #-- Gpodderopmllister.on_gPodderOpmlLister_destroy {
@@ -1748,13 +1766,22 @@ class Gpodderopmllister(SimpleGladeApp):
         pass
     #-- Gpodderopmllister.on_gPodderOpmlLister_destroy }
 
+    #-- Gpodderopmllister.on_btnDownloadOpml_clicked {
+    def on_btnDownloadOpml_clicked(self, widget, *args):
+        self.get_channels_from_url( self.entryURL.get_text())
+    #-- Gpodderopmllister.on_btnDownloadOpml_clicked }
+
     #-- Gpodderopmllister.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         self.gPodderOpmlLister.destroy()
+
         # add channels that have been selected
         for url in self.channels:
-            if self.callback_for_channel != None:
-                self.callback_for_channel (url)
+            if self.callback_for_channel:
+                self.callback_for_channel( url)
+
+        if self.callback_finished:
+            self.callback_finished()
     #-- Gpodderopmllister.on_btnOK_clicked }
 
     #-- Gpodderopmllister.on_btnCancel_clicked {

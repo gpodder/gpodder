@@ -88,7 +88,7 @@ globalLock = threading.RLock()
 g_podder_lib = None
 
 # default url to use for opml directory on the web
-default_opml_directory = 'http://share.opml.org/opml/topPodcasts.opml'
+default_opml_directory = 'http://gpodder.berlios.de/directory.opml'
 
 def getLock():
     globalLock.acquire()
@@ -353,6 +353,8 @@ class gPodderLibClass( object):
                     ftp = self.get_from_parser( parser, 'ftp_proxy')
                     app = self.get_from_parser( parser, 'player', 'gnome-open')
                     opml_url = self.get_from_parser( parser, 'opml_url', default_opml_directory)
+                    if opml_url == 'http://share.opml.org/opml/topPodcasts.opml':
+                        opml_url = 'http://gpodder.berlios.de/directory.opml'
                     self.proxy_use_environment = self.get_boolean_from_parser( parser, 'proxy_use_env', True)
                     self.ipod_mount = self.get_from_parser( parser, 'ipod_mount', '/media/ipod')
                     self.update_on_startup = self.get_boolean_from_parser(parser, 'update_on_startup', default=False)

@@ -35,6 +35,7 @@ from liblogger import log
 from xml.sax.saxutils import DefaultHandler
 from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
+from xml.sax import saxutils
 from string import strip
 
 from urllib import unquote_plus
@@ -65,7 +66,7 @@ class opmlReader( DefaultHandler, ErrorHandler):
         for channel in self.channels:
             new_iter = new_model.append()
             new_model.set( new_iter, 0, False)
-            new_model.set( new_iter, 1, channel.title)
+            new_model.set( new_iter, 1, '<b>%s</b>\n<span size="small">%s</span>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description), ))
             new_model.set( new_iter, 2, channel.xmlurl)
         
         return new_model
@@ -97,9 +98,13 @@ class opmlReader( DefaultHandler, ErrorHandler):
             if title == '':
                 title = 'Unknown (%s)' % ( xmlurl )
 
+        description = attrs.get( 'text', xmlurl)
+        if description == title:
+            description = xmlurl
+
         # otype = 'link' to support odeo.com feeds
         if name == 'outline' and (otype == 'rss' or otype == 'link') and xmlurl != '':
-            self.channels.append( opmlChannel( xmlurl, title))
+            self.channels.append( opmlChannel( xmlurl, title, description))
     
     def endElement( self, name):
         if name == 'title':

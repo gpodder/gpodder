@@ -606,9 +606,10 @@ class podcastItem(object):
 
 
 class opmlChannel(object):
-    def __init__( self, xmlurl, title = 'Unknown OPML Channel'):
+    def __init__( self, xmlurl, title = 'Unknown OPML Channel', description = ''):
         self.title = title
         self.xmlurl = xmlurl
+        self.description = description
 
 
 class DownloadHistory( ListType):

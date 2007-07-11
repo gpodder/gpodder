@@ -1,3 +1,17 @@
+Wed, 11 Jul 2007 20:09:03 +0200 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Add description field to opmlChannel
+        * src/gpodder/libgpodder.py: Default OPML directory URL changed from
+          Opml.org's top Podcasts to gPodder's own podcast directory :)
+        * src/gpodder/libopmlreader.py: Add description of channel to the 
+          data model if possible, so we can display it in the new chooser
+        * src/gpodder/gpodder.py: Improved the OPML channel importer and 
+          added the ability to directly load another OPML URL into the 
+          importer; make the OPML URL reading threaded, so we have a non-
+          blocking GUI; only ask for new episodes once (after all OPML channels 
+          have been added)
+        * data/gpodder.glade: Re-designed the OPML import dialog and moved 
+          around the "Import OPML from web" menu item
+
 Wed, 11 Jul 2007 12:59:53 +0200 <thp@perli.net>
         * src/gpodder/libgpodder.py: New configuration defaults for new 
           installations: Use environment for proxy, download new episodes 

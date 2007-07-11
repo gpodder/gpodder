@@ -395,6 +395,11 @@ class Gpodderopmllister(SimpleGladeApp):
         print "on_gPodderOpmlLister_destroy called with self.%s" % widget.get_name()
     #-- Gpodderopmllister.on_gPodderOpmlLister_destroy }
 
+    #-- Gpodderopmllister.on_btnDownloadOpml_clicked {
+    def on_btnDownloadOpml_clicked(self, widget, *args):
+        print "on_btnDownloadOpml_clicked called with self.%s" % widget.get_name()
+    #-- Gpodderopmllister.on_btnDownloadOpml_clicked }
+
     #-- Gpodderopmllister.on_btnOK_clicked {
     def on_btnOK_clicked(self, widget, *args):
         print "on_btnOK_clicked called with self.%s" % widget.get_name()
