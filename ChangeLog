@@ -1,3 +1,14 @@
+Thu, 12 Jul 2007 15:49:21 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: Add support for error reporting by 
+          adding a "errors" list to gPodderSyncMethod; make errors in the 
+          file copying method cancel the sync process; this fixes an error
+          when the output file cannot be acessed or a disk full error
+          happens; thanks to Mykola Nikishov <mn mn.com.ua> for reporting 
+          this error via the Debian BTS (fixes Debian bug #432805)
+        * src/gpodder/gpodder.py: GUI support for displaying error messages
+          after a sync error happened
+        * bin/gpodder: Pushed version + release date
+
 Thu, 12 Jul 2007 15:02:26 +0200 <thp@perli.net>
         * src/gpodder/gpodder.py.orig: Re-generated from tepache so we don't
           get an error when doing "make generators"

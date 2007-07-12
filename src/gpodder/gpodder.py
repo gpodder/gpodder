@@ -1643,7 +1643,7 @@ class Gpoddersync(SimpleGladeApp):
             self.label_text.set_markup( self.default_body)
 
 
-    def close( self, success = True, access_error = False, cleaned = False):
+    def close( self, success = True, access_error = False, cleaned = False, error_messages = []):
         if self.sync:
             self.sync.cancelled = True
         self.cancel_button.set_label( gtk.STOCK_CLOSE)
@@ -1667,6 +1667,10 @@ class Gpoddersync(SimpleGladeApp):
             title = _('Device cleaned')
             header = _('Podcasts removed')
             body = _('Synchronized Podcasts have been removed from your device.')
+        elif len(error_messages):
+            title = _('Synchronization error')
+            header = _('An error has occurred')
+            body = '\n'.join( error_messages)
         else:
             title = _('Synchronization aborted')
             header = _('Aborted')

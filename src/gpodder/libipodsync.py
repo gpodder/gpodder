@@ -121,6 +121,7 @@ class gPodderSyncMethod:
         self.callback_done = callback_done
         self.cancelled = False
         self.can_cancel = False
+        self.errors = []
     
     def open( self):
         return False
@@ -166,7 +167,8 @@ class gPodderSyncMethod:
                 return False
             self.set_progress( pos, max)
             if channel.is_downloaded( episode) and channel.get_file_type( episode) in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
-                    self.add_episode_from_channel( channel, episode)
+                if not self.add_episode_from_channel( channel, episode):
+                    return False
             pos = pos + 1
         self.set_progress( pos, max)
 
@@ -184,6 +186,8 @@ class gPodderSyncMethod:
         self.set_episode_status( episode.title)
         self.set_channel_status( channeltext)
 
+        return True
+
     def close( self, success = True, access_error = False, cleaned = False):
         try:
             self.set_status( channel = _('Writing data to disk'))
@@ -192,7 +196,7 @@ class gPodderSyncMethod:
             pass
 
         if self.callback_done:
-            gobject.idle_add( self.callback_done, success, access_error, cleaned)
+            gobject.idle_add( self.callback_done, success, access_error, cleaned, self.errors)
 
 
 class gPodder_iPodSync( gPodderSyncMethod):
@@ -551,12 +555,25 @@ class gPodder_FSSync( gPodderSyncMethod):
 
         if not os.path.exists( to_file):
             log( 'Copying: %s => %s', os.path.basename( from_file), to_file)
-            self.copy_file_progress( from_file, to_file)
-            #shutil.copyfile( from_file, to_file)
+            if not self.copy_file_progress( from_file, to_file):
+                return False
+
+        return True
 
     def copy_file_progress( self, from_file, to_file):
-        out_file = open( to_file, 'wb')
-        in_file = open( from_file, 'rb')
+        try:
+            out_file = open( to_file, 'wb')
+        except IOError, ioerror:
+            self.errors.append( _('Error opening %s: %s') % ( ioerror.filename, ioerror.strerror, ))
+            self.cancelled = True
+            return False
+        try:
+            in_file = open( from_file, 'rb')
+        except IOError, ioerror:
+            self.errors.append( _('Error opening %s: %s') % ( ioerror.filename, ioerror.strerror, ))
+            self.cancelled = True
+            return False
+
         in_file.seek( 0, 2)
         bytes = in_file.tell()
         bytes_read = 0
@@ -566,11 +583,28 @@ class gPodder_FSSync( gPodderSyncMethod):
         self.set_progress_sub_episode( bytes_read, bytes)
         while s:
             bytes_read += len(s)
-            out_file.write( s)
+            try:
+                out_file.write( s)
+            except IOError, ioerror:
+                self.errors.append( ioerror.strerror)
+                try:
+                    out_file.close()
+                except:
+                    pass
+                try:
+                    log( 'Trying to remove partially copied file: %s' % ( to_file, ), sender = self)
+                    os.unlink( to_file)
+                    log( 'Yeah! Unlinked %s at least..'  % ( to_file, ), sender = self)
+                except:
+                    log( 'Error while trying to unlink %s. OH MY!' % ( to_file, ), sender = self)
+                self.cancelled = True
+                return False
             self.set_progress_sub_episode( bytes_read, bytes)
             s = in_file.read( self.BUFFER)
         out_file.close()
         in_file.close()
+
+        return True
     
     def clean_playlist( self):
         folders = glob.glob( os.path.join( self.destination, '*'))
