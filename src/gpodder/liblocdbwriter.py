@@ -64,6 +64,9 @@ class writeLocalDB( object):
         self.ofile.write( ' playlist="%s"' % (channel.device_playlist_name))
         if channel.override_title:
             self.ofile.write( ' title="%s"' % (channel.override_title))
+        if channel.username or channel.password:
+            self.ofile.write( ' username="%s"' % (channel.username))
+            self.ofile.write( ' password="%s"' % (channel.obfuscate_password(channel.password)))
         self.ofile.write( '/>'+"\n")
 
     def writeEpisodeMetadata( self, episode):

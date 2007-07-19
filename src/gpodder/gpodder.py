@@ -402,6 +402,7 @@ class Gpodder(SimpleGladeApp):
     def add_new_channel( self, result = None, ask_download_new = True):
         gl = gPodderLib()
         result = gl.sanitize_feed_url( result)
+
         if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
@@ -422,6 +423,13 @@ class Gpodder(SimpleGladeApp):
             self.refetch_channel_list()
 
             if num_channels_before < len(self.channels):
+                (username,password) = gl.get_auth_data(result)
+                if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
+                    channel.username = username
+                    channel.password = password
+                    log('Saving authentication data for episode downloads..', sender = self)
+                    channel.save_metadata_to_localdb()
+
                 # ask user to download some new episodes
                 self.comboAvailable.set_active( len( self.channels)-1)
                 if ask_download_new:
@@ -1142,6 +1150,10 @@ class Gpodderchannel(SimpleGladeApp):
         self.cbNoSync.set_active( not channel.sync_to_devices)
         self.musicPlaylist.set_text( channel.device_playlist_name)
         self.cbMusicChannel.set_active( channel.is_music_channel)
+        if channel.username:
+            self.FeedUsername.set_text( channel.username)
+        if channel.password:
+            self.FeedPassword.set_text( channel.password)
         gPodderLib().get_image_from_url( channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, channel.cover_file)
         
         b = gtk.TextBuffer()
@@ -1174,6 +1186,8 @@ class Gpodderchannel(SimpleGladeApp):
         self.channel.is_music_channel = self.cbMusicChannel.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
         self.channel.set_custom_title( self.entryTitle.get_text())
+        self.channel.username = self.FeedUsername.get_text().strip()
+        self.channel.password = self.FeedPassword.get_text()
         self.channel.save_metadata_to_localdb()
 
         self.gPodderChannel.destroy()

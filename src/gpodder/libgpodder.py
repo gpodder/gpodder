@@ -80,6 +80,7 @@ from ConfigParser import ConfigParser
 
 from xml.sax import saxutils
 
+from urlparse import urlparse
 
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
@@ -244,6 +245,18 @@ class gPodderLibClass( object):
             return url
 
         return None
+
+    def get_auth_data( self, url):
+        (username, password) = (None, None)
+
+        (scheme, netloc, path, params, query, fragment) = urlparse(url)
+
+        if '@' in netloc:
+            (username, password) = netloc.split('@',1)[0].split(':',1)
+            username = urllib.unquote(username)
+            password = urllib.unquote(password)
+
+        return (username, password)
 
     def escape_html( self, s):
         return s.replace( '&', '&amp;').replace( '<', '&lt;').replace( '>', '&gt;')

@@ -64,6 +64,7 @@ from xml.sax import saxutils
 
 import md5
 
+import string
 
 class podcastChannel(ListType):
     """holds data for a complete channel"""
@@ -87,6 +88,11 @@ class podcastChannel(ListType):
         self.device_playlist_name = 'gPodder'
         # if set, this overrides the channel-provided title
         self.override_title = ''
+        self.username = ''
+        self.password = ''
+        # mapping table for maketrans
+        self.map_from = 'abcdefghijklmnopqrstuvwxyz0123456789'
+        self.map_to =   'qazwsxedcrfvtgbyhnujmikolp9514738062'
         
     def get_filename( self):
         """Return the MD5 sum of the channel URL"""
@@ -155,6 +161,8 @@ class podcastChannel(ListType):
         self.is_music_channel = ch.is_music_channel
         self.device_playlist_name = ch.device_playlist_name
         self.override_title = ch.override_title
+        self.username = ch.username
+        self.password = ch.password
 
     def newest_pubdate_downloaded( self):
         gl = libgpodder.gPodderLib()
@@ -493,6 +501,17 @@ class podcastChannel(ListType):
 
         libgpodder.releaseLock()
 
+    def obfuscate_password(self, password, unobfuscate = False):
+        if unobfuscate:
+            translation_table = string.maketrans(self.map_to + self.map_to.upper(), self.map_from + self.map_from.upper())
+        else:
+            translation_table = string.maketrans(self.map_from + self.map_from.upper(), self.map_to + self.map_to.upper())
+        try:
+            # For now at least, only ascii passwords will work, non-ascii passwords will be stored in plaintext :-(
+            return string.translate(password.encode('ascii'), translation_table)
+        except:
+            return password
+        
 class podcastItem(object):
     """holds data for one object in a channel"""
     def __init__( self,
@@ -686,7 +705,7 @@ def channelsToModel( channels, download_status_manager = None):
 
         new_model.set( new_iter, 7, '%s\n<small>%s</small>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description.split('\n')[0]), ))
 
-        if os.path.exists( channel.cover_file):
+        if os.path.exists( channel.cover_file) and os.path.getsize(channel.cover_file) > 0:
             new_model.set( new_iter, 8, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
         else:
             iconsize = gtk.icon_size_from_name('channel-icon')

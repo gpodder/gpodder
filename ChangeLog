@@ -1,3 +1,24 @@
+Thu, 19 Jul 2007 14:38:19 +0200 <thp@perli.net>
+        ! Support for HTTP/FTP username/password authentication, mostly 
+          written by Nick <nikosapi gmail.com> with some corrections from thp
+        * src/gpodder/libwget.py: Refactor wget command line
+          generation and add support for HTTP/FTP authentication
+        * src/gpodder/liblocdbreader.py: Add support for HTTP/FTP
+          authentication by reading username/password from localdb
+        * src/gpodder/libpodcasts.py: Password obfuscation, loading
+          and saving of passwords; bugfix from Nick (nikosapi gmail.com)
+          for zero-length channel cover files
+        * src/gpodder/liblocdbwriter.py: Save username/password from 
+          channel in localdb file
+        * src/gpodder/libgpodder.py: Add "get_auth_data" function that 
+          extracts the username/password pair from a URL (or None, None 
+          when there is no authentication data in the URL)
+        * src/gpodder/gpodder.py: On channel add, ask if the user wants 
+          to save username/password for downloading episodes if there is 
+          authentication data in the added URL; added support code for 
+          username/password in gPodderChannel dialog handling code
+        * data/gpodder.glade: Username/password entry boxes for channel
+
 Sun, 15 Jul 2007 15:05:52 +0200 <thp@perli.net>
         * data/po/nl.po: Updated Dutch translation from Roel
 	  Groeneveld <roel roelgroeneveld.com>

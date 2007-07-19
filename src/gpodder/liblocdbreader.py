@@ -85,6 +85,8 @@ class readLocalDB( DefaultHandler):
             if attrs.get('nosync', 'false').lower() == 'true':
                 self.channel.sync_to_devices = False
             self.channel.override_title = attrs.get('title','')
+            self.channel.username = attrs.get('username', '')
+            self.channel.password = self.channel.obfuscate_password(attrs.get('password', ''), unobfuscate = True)
     
     def endElement( self, name):
         if self.current_item == None:

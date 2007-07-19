@@ -80,12 +80,22 @@ class downloadThread( object):
     
     def thread_function( self):
         acquired = False
-        limit_str = ''
-        if libgpodder.gPodderLib().limit_rate:
-            limit_str = '--limit-rate=%.1fk' % ( libgpodder.gPodderLib().limit_rate_value, )
-            libgpodder.gPodderLib().deleteFilename( self.tempname)
-        # TODO use config file for number of retries (wget --tries)?
-        command = 'wget --timeout=120 --continue %s --output-document="%s" "%s"' % ( limit_str, self.tempname, self.url )
+
+        gl = libgpodder.gPodderLib()
+        gl.deleteFilename( self.tempname)
+
+        command = [ 'wget', '--timeout=120', '--continue', '--output-document="%s"' % self.tempname ]
+
+        if self.channelitem and (self.channelitem.username or self.channelitem.password):
+            command.append( '--user="%s"' % self.channelitem.username)
+            command.append( '--password="%s"' % self.channelitem.password)
+
+        if gl.limit_rate:
+            command.append( '--limit-rate=%.1fk' % gl.limit_rate_value)
+
+        command.append( '"%s"' % self.url)
+        command = ' '.join( command)
+
         log( 'Command: %s', command)
         if self.statusmgr:
             self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':_('Queued'), 'progress':0, 'url':self.url})
@@ -99,7 +109,7 @@ class downloadThread( object):
             msg = stderr.readline( 80)
             msg = msg.strip()
             #log( 'wget> %s', msg)
-            
+
             if msg.find("%") != -1:
                 try:
                     self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0
