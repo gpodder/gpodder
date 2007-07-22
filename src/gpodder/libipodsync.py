@@ -67,18 +67,11 @@ use_pyid3 = False
 
 try:
     # try to load PyID3
-    import ID3
+    import id3
     use_pyid3 = True
     log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
 except:
-    try:
-        # If you build PyID3 from source it's lowercase (??)
-        import id3
-        ID3 = id3
-        use_pyid3 = True
-        log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
-    except:
-        log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
+    log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
 
 
 import os
@@ -360,7 +353,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         if use_pyid3:
             try:
                 cover_filename = local_filename + '.cover.jpg'
-                id3v2_tags = ID3.ID3v2( local_filename )
+                id3v2_tags = id3.ID3v2( local_filename )
                 for frame in id3v2_tags.frames:
                     if frame.id == 'APIC':
                         cover_file = file(cover_filename, 'w')
