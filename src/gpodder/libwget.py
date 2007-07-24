@@ -100,6 +100,17 @@ class downloadThread( object):
         if self.statusmgr:
             self.statusmgr.updateInfo( self.statusmgr_id, { 'episode':self.cutename, 'speed':_('Queued'), 'progress':0, 'url':self.url})
             acquired = self.statusmgr.s_acquire()
+
+            # if after acquiring the lock, we are already cancelled,
+            # the user has cancelled this download while it was queued
+            if self.is_cancelled:
+	        self.statusmgr.unregisterId( self.statusmgr_id)
+                if self.ready_event != None:
+                    self.ready_event.set()
+             
+                if acquired:
+                    self.statusmgr.s_release()
+                return
         process = popen2.Popen3( command, True)
         
         self.pid = process.pid

@@ -1,3 +1,11 @@
+Tue, 24 Jul 2007 21:02:01 +0200 <thp@perli.net>
+        * src/gpodder/libwget.py: Fix a bug in the download queue code that 
+          would block the slots in the download queue when a currently-queued 
+          download is cancelled before it has a chance to start the download; 
+          this is fixed by simply aborting and de-registering the thread in 
+          case the download is cancelled after acquiring the download queue 
+          semaphore (should work now without problems :)
+
 Tue, 24 Jul 2007 20:40:35 +0200 <thp@perli.net>
         * src/gpodder/libwget.py: Add count() function to downloadStatusManager
         * src/gpodder/gpodder.py: New download_status_updated callback 
