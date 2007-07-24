@@ -203,7 +203,7 @@ class Gpodder(SimpleGladeApp):
         for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
     
-        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.updateComboBox)
+        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.download_status_updated)
         self.treeDownloads.set_model( self.download_status_manager.getModel())
         
         # tooltips :)
@@ -307,6 +307,15 @@ class Gpodder(SimpleGladeApp):
             self.toolDownload.set_sensitive( False)
             if gl.device_type != 'none':
                 self.toolTransfer.set_sensitive( True)
+
+    def download_status_updated( self):
+        count = self.download_status_manager.count()
+        if count:
+            self.labelDownloads.set_text( _('Downloads (%d)') % count)
+        else:
+            self.labelDownloads.set_text( _('Downloads'))
+
+        self.updateComboBox()
 
     def updateComboBox( self):
         try:

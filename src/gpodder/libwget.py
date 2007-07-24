@@ -252,6 +252,9 @@ class downloadStatusManager( object):
         if self.change_notification:
             gobject.idle_add( self.change_notification)
 
+    def count( self):
+        return len(self.status_list)
+
     def updateInfo( self, id, new_status = { 'episode':"unknown", 'speed':"0b/s", 'progress':0, 'url':"unknown" }):
         if not id in self.status_list:
             return

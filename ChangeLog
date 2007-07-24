@@ -1,3 +1,10 @@
+Tue, 24 Jul 2007 20:40:35 +0200 <thp@perli.net>
+        * src/gpodder/libwget.py: Add count() function to downloadStatusManager
+        * src/gpodder/gpodder.py: New download_status_updated callback 
+          function that updates the caption for the downloads tab to include 
+          the number of files currently being downloaded (i.e. "Downloads (2)")
+        * data/gpodder.glade: Update label for downloads tab for above changes
+
 Sun, 22 Jul 2007 23:39:50 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: Apply patch from Nick (nikosapi) 
           to fix an issue with the wrong python-id3 library being used
