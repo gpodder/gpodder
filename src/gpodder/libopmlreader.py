@@ -41,7 +41,6 @@ from string import strip
 from urllib import unquote_plus
 
 from libpodcasts import opmlChannel
-from libpodcasts import stripHtml
 
 
 class opmlReader( DefaultHandler, ErrorHandler):

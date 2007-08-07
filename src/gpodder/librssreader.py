@@ -28,6 +28,8 @@
 
 import libgpodder
 
+from gpodder import util
+
 from xml.sax.saxutils import DefaultHandler
 from xml.sax.handler import ErrorHandler
 from xml.sax import make_parser
@@ -35,7 +37,6 @@ from string import strip
 
 from libpodcasts import podcastChannel
 from libpodcasts import podcastItem
-from libpodcasts import stripHtml
 
 from liblogger import log
 
@@ -113,7 +114,7 @@ class rssReader( DefaultHandler, ErrorHandler):
             if name == "link":
                 self.channel.link = self.current_element_data
             if name == "description":
-                self.channel.description = stripHtml( self.current_element_data)
+                self.channel.description = util.remove_html_tags( self.current_element_data)
             if name == "pubDate":
                 self.channel.pubDate = self.current_element_data
             if name == "language":
@@ -129,7 +130,7 @@ class rssReader( DefaultHandler, ErrorHandler):
             if name == "link":
                 self.current_item.link = self.current_element_data
             if name == "description":
-                self.current_item.description = stripHtml( self.current_element_data)
+                self.current_item.description = util.remove_html_tags( self.current_element_data)
             if name == "guid":
                 self.current_item.guid = self.current_element_data
             if name == "pubDate":

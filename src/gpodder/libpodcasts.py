@@ -29,7 +29,8 @@
 import gtk
 import gobject
 import pango
-import htmlentitydefs
+
+from gpodder import util
 
 from liblogger import log
 import libgpodder
@@ -73,7 +74,7 @@ class podcastChannel(ListType):
         self.url = url
         self.title = title
         self.link = link
-        self.description = stripHtml( description)
+        self.description = util.remove_html_tags( description)
         self.image = None
         self.pubDate = datetime.now().ctime()
         self.language = ''
@@ -386,7 +387,7 @@ class podcastChannel(ListType):
         save_dir = os.path.join( libgpodder.gPodderLib().downloaddir, self.filename ) + '/'
 
         # Create save_dir if it does not yet exist
-        if libgpodder.gPodderLib().createIfNecessary( save_dir) == False:
+        if not util.make_directory( save_dir):
             log( '(libpodcasts) Could not create: %s', save_dir)
 
         return save_dir
@@ -407,7 +408,7 @@ class podcastChannel(ListType):
         if exists( self.cache_file):
             shutil.copyfile( self.cache_file, self.cache_backup_file)
 
-        libgpodder.gPodderLib().deleteFilename( self.cache_file)
+        util.delete_file( self.cache_file)
 
     def restore_cache_file( self):
         if exists( self.cache_backup_file):
@@ -497,7 +498,7 @@ class podcastChannel(ListType):
         # clean-up downloaded file
         if self.podcastFilenameExists( url):
             episode_filename = self.getPodcastFilename( url)
-            libgpodder.gPodderLib().deleteFilename( episode_filename)
+            util.delete_file( episode_filename)
 
         libgpodder.releaseLock()
 
@@ -528,7 +529,7 @@ class podcastItem(object):
         self.length = length
         self.mimetype = mimetype
         self.guid = guid
-        self.description = stripHtml( description)
+        self.description = util.remove_html_tags( description)
         self.link = ""
         self.pubDate = pubDate
         if pubDate == None:
@@ -620,7 +621,7 @@ class podcastItem(object):
         except ValueError:
             return '-'
 
-        return libgpodder.gPodderLib().size_to_string( size)
+        return util.format_filesize( size)
         
 
 
@@ -717,19 +718,4 @@ def channelsToModel( channels, download_status_manager = None):
         pos = pos + 1
     
     return new_model
-
-def stripHtml( html):
-    # strips html from a string (fix for <description> tags containing html)
-    rexp = re.compile( "<[^>]*>")
-    stripstr = rexp.sub( "", html)
-    # replaces numeric entities with entity names
-    dict = htmlentitydefs.codepoint2name
-    for key in dict.keys():
-        stripstr = stripstr.replace( '&#'+str(key)+';', '&'+unicode( dict[key], 'iso-8859-1')+';')
-    # strips html entities
-    dict = htmlentitydefs.entitydefs
-    for key in dict.keys():
-        stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
-    return stripstr
-
 

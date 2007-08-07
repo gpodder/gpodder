@@ -40,6 +40,8 @@ DEFAULT_LENGTH = 60*60*1000
 # command line for mplayer
 MPLAYER_COMMAND = 'mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null'
 
+from gpodder import util
+
 from liblogger import log
 
 try:
@@ -514,7 +516,7 @@ class gPodder_FSSync( gPodderSyncMethod):
 
     def open( self):
         gpl = libgpodder.gPodderLib()
-        return gpl.can_write_directory( self.destination)
+        return util.directory_is_writable( self.destination)
     
     def add_episode_from_channel( self, channel, episode):
         allowed_chars = set( string.lowercase + string.uppercase + string.digits + ' _.-')

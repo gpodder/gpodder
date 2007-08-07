@@ -1,3 +1,20 @@
+Tue, 07 Aug 2007 20:06:49 +0200 <thp@perli.net>
+        * src/gpodder/util.py: New "misc utility functions" module that 
+          combines all utility functions that are independend of the rest of 
+          gPodder; includes full documentation strings and renamed, fixed 
+          function code to be better maintainable; new utility functions 
+          should be placed in this module in the future
+        * src/gpodder/lib*.py: Clean-up files to use the new "gpodder.util" 
+          module where appropriate, remove unnecessary functions
+        * src/gpodder/console.py: Utilize new gpodder.util module
+        * src/gpodder/gpodder.py: Renamed to "gui.py" to fix ambigous imports 
+          (relative vs. absolute imports; module shouldn't be named like the
+          package it resides in)
+        * src/gpodder/gui.py: This is the new module name for gPodder's GUI
+        * bin/gpodder: Use "gpodder.gui" instead of "gpodder.gpodder"; 
+          pushed svn release version + date
+        * Makefile: Generate gui.py instead of gpodder.py with tepache
+
 Tue, 24 Jul 2007 21:02:01 +0200 <thp@perli.net>
         * src/gpodder/libwget.py: Fix a bug in the download queue code that 
           would block the slots in the download queue when a currently-queued 

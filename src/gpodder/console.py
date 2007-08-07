@@ -24,6 +24,8 @@
 import os
 import time
 
+from gpodder import util
+
 from libgpodder import gPodderChannelReader
 from libgpodder import gPodderChannelWriter
 from libgpodder import gPodderLib
@@ -67,7 +69,7 @@ def add_channel( url):
 
     channels = gPodderChannelReader().read()
 
-    url = gl.sanitize_feed_url( url)
+    url = util.normalize_feed_url( url)
     channel = podcastChannel( url = url)
     channel.remove_cache_file()
     channels.append( channel)
@@ -87,7 +89,7 @@ def del_channel( url):
 
     removed = False
 
-    url = gl.sanitize_feed_url( url)
+    url = util.normalize_feed_url( url)
     for i in range( len(channels)-1, -1, -1):
         if channels[i].url == url:
             channels.remove( channels[i])

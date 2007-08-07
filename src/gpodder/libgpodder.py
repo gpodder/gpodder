@@ -33,6 +33,8 @@ import threading
 import urllib
 import shutil
 
+from gpodder import util
+
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
 from string import strip
@@ -58,8 +60,6 @@ from os import environ
 from os import system
 from os import unlink
 from os import listdir
-from os import access
-from os import W_OK
 from glob import glob
 
 # for the desktop symlink stuff:
@@ -109,10 +109,10 @@ class gPodderLibClass( object):
     
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
-        self.createIfNecessary( self.gpodderdir)
+        util.make_directory( self.gpodderdir)
         self.__download_dir = None
         self.cachedir = self.gpodderdir + "cache/"
-        self.createIfNecessary( self.cachedir)
+        util.make_directory( self.cachedir)
         try:
             self.http_proxy = environ['http_proxy']
         except:
@@ -149,17 +149,6 @@ class gPodderLibClass( object):
         self.__playback_history = PlaybackHistory( self.get_playback_history_filename())
         self.loadConfig()
     
-    def createIfNecessary( self, path):
-        if not exists( path):
-            try:
-                makedirs( path)
-                return True
-            except:
-                log( 'Could not create %s', path)
-                return False
-        
-        return True
-    
     def getConfigFilename( self):
         return self.gpodderdir + "gpodder.conf"
 
@@ -186,7 +175,7 @@ class gPodderLibClass( object):
         if delete_partial:
             temporary_files = glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
             for tempfile in temporary_files:
-                self.deleteFilename( tempfile)
+                util.delete_file( tempfile)
 
         # Clean up empty download folders
         download_dirs = glob( '%s/*' % ( self.downloaddir, ))
@@ -234,35 +223,8 @@ class gPodderLibClass( object):
         parser.write( fp)
         fp.close()
 
-    def sanitize_feed_url( self, url):
-        if not url or len(url) < 7:
-            return None
-
-        if url[:4] == 'feed':
-            url = 'http' + url[4:]
-        
-        if url[:4] == 'http' or result[:3] == 'ftp':
-            return url
-
-        return None
-
-    def get_auth_data( self, url):
-        (username, password) = (None, None)
-
-        (scheme, netloc, path, params, query, fragment) = urlparse(url)
-
-        if '@' in netloc:
-            (username, password) = netloc.split('@',1)[0].split(':',1)
-            username = urllib.unquote(username)
-            password = urllib.unquote(password)
-
-        return (username, password)
-
-    def escape_html( self, s):
-        return s.replace( '&', '&amp;').replace( '<', '&lt;').replace( '>', '&gt;')
-
     def get_download_dir( self):
-        self.createIfNecessary( self.__download_dir)
+        util.make_directory( self.__download_dir)
         return self.__download_dir
 
     def set_download_dir( self, new_downloaddir):
@@ -300,9 +262,6 @@ class gPodderLibClass( object):
 
     def history_mark_played( self, url):
         self.__playback_history.add_item( url)
-
-    def can_write_directory( self, directory):
-        return isdir( directory) and access( directory, W_OK)
 
     def history_is_downloaded( self, url):
         return (url in self.__download_history)
@@ -437,45 +396,10 @@ class gPodderLibClass( object):
         except:
             return exists( symlink_path)
 
-    def get_size( self, filename):
-        if dirname( filename) == '/':
-            return 0L
-        if isfile( filename):
-            return getsize( filename)
-        elif isdir( filename):
-            sum = getsize( filename)
-            for item in listdir( filename):
-                try:
-                    sum = sum + self.get_size( join( filename, item))
-                except:
-                    return 0L
-            return sum
-        else:
-            log( 'Cannot get size for %s' % ( filename, ))
-            return 0L
-
-    def size_to_string( self, size, method = None):
-        methods = {
-            'GB': 1073741824.0,
-            'MB': 1048576.0,
-            'KB': 1024.0,
-            'B': 1.0,
-        }
-
-        size = float(size)
-
-        if method not in methods:
-            method = 'B'
-            for trying in ( 'KB', 'MB', 'GB'):
-                if size >= methods[trying]:
-                    method = trying
-
-        return '%.2f %s' % ( size / methods[method], method, )
-
     def createDesktopSymlink( self):
         if not self.getDesktopSymlink():
             downloads_path = expanduser( "~/Desktop/")
-            self.createIfNecessary( downloads_path)
+            util.make_directory( downloads_path)
             symlink( self.downloaddir, "%s%s" % (downloads_path, self.desktop_link))
     
     def removeDesktopSymlink( self):
@@ -505,7 +429,7 @@ class gPodderLibClass( object):
             pixbuf.close()
         except:
             # data error, delete temp file
-            self.deleteFilename( cover_file)
+            util.delete_file( cover_file)
         
         MAX_SIZE = 400
         if callback_pixbuf != None:
@@ -531,18 +455,6 @@ class gPodderLibClass( object):
         thread = threading.Thread( target = self.image_download_thread, args = args)
         thread.start()
 
-    def deleteFilename( self, filename):
-        log( 'deleteFilename: %s', filename)
-        try:
-            unlink( filename)
-            # if libipodsync extracted the cover file, remove it here
-            cover_filename = filename + '.cover.jpg'
-            if isfile( cover_filename):
-                unlink( cover_filename)
-        except:
-            # silently ignore 
-            pass
-            
     def invoke_torrent( self, url, torrent_filename, target_filename):
         self.history_mark_played( url)
 

@@ -36,6 +36,8 @@ from threading import Lock
 from threading import Semaphore
 from shutil import move
 
+from gpodder import util
+
 from liblogger import log
 
 import libgpodder
@@ -82,7 +84,7 @@ class downloadThread( object):
         acquired = False
 
         gl = libgpodder.gPodderLib()
-        gl.deleteFilename( self.tempname)
+        util.delete_file( self.tempname)
 
         command = [ 'wget', '--timeout=120', '--continue', '--output-document="%s"' % self.tempname ]
 
@@ -156,7 +158,7 @@ class downloadThread( object):
                 raise
         else:
             # Delete partially downloaded file
-            libgpodder.gPodderLib().deleteFilename( self.tempname)
+            util.delete_file( self.tempname)
         
         self.result = process.poll()
         self.pid = -1

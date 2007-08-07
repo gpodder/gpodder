@@ -40,6 +40,7 @@ from threading import Event
 from threading import Thread
 from string import strip
 
+from gpodder import util
 
 from SimpleGladeApp import SimpleGladeApp
 
@@ -410,7 +411,7 @@ class Gpodder(SimpleGladeApp):
     
     def add_new_channel( self, result = None, ask_download_new = True):
         gl = gPodderLib()
-        result = gl.sanitize_feed_url( result)
+        result = util.normalize_feed_url( result)
 
         if result:
             for old_channel in self.channels:
@@ -432,7 +433,7 @@ class Gpodder(SimpleGladeApp):
             self.refetch_channel_list()
 
             if num_channels_before < len(self.channels):
-                (username,password) = gl.get_auth_data(result)
+                (username, password) = util.username_password_from_url( result)
                 if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
                     channel.username = username
                     channel.password = password
@@ -1414,8 +1415,8 @@ class Gpodderproperties(SimpleGladeApp):
 
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()
-            download_dir_size = gl.get_size( gl.downloaddir)
-            download_dir_size_string = gl.size_to_string( download_dir_size, 'MB')
+            download_dir_size = util.calculate_size( gl.downloaddir)
+            download_dir_size_string = util.format_filesize( download_dir_size, 'MB')
             event = Event()
 
             dlg = gtk.Dialog( _('Moving downloads folder'), self.gPodderProperties)
@@ -1445,10 +1446,10 @@ class Gpodderproperties(SimpleGladeApp):
             thread.start()
 
             while not event.isSet():
-                new_download_dir_size = gl.get_size( new_download_dir)
+                new_download_dir_size = util.calculate_size( new_download_dir)
                 fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
                 if fract < 0.99:
-                    myprogressbar.set_text( _('%s of %s') % ( gl.size_to_string( new_download_dir_size, 'MB'), download_dir_size_string, ))
+                    myprogressbar.set_text( _('%s of %s') % ( util.format_filesize( new_download_dir_size, 'MB'), download_dir_size_string, ))
                 else:
                     myprogressbar.set_text( _('Finishing... please wait.'))
                 myprogressbar.set_fraction( fract)
@@ -1505,7 +1506,7 @@ class Gpodderepisode(SimpleGladeApp):
         self.episode = episode
         self.channel = channel
 
-        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % gl.escape_html( episode.title))
+        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % saxutils.escape( episode.title))
         b = gtk.TextBuffer()
         b.set_text( strip( episode.description))
         self.episode_description.set_buffer( b)
