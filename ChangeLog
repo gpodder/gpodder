@@ -1,3 +1,9 @@
+Thu, 09 Aug 2007 13:27:18 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: I shouldn't write code with my brain 
+          switched off. (Added return statement for add_episode_from_channel()
+          to libipodsync to fix a stupid error with only one episode being 
+          synchronized during a sync run. Thanks to nikosapi for reporting.)
+
 Tue, 07 Aug 2007 20:06:49 +0200 <thp@perli.net>
         * src/gpodder/util.py: New "misc utility functions" module that 
           combines all utility functions that are independend of the rest of 

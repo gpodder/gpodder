@@ -503,6 +503,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
             except:
                 log('(ipodsync) Could not remove temporary file %s', local_filename)
 
+        return True
 
 
 class gPodder_FSSync( gPodderSyncMethod):
