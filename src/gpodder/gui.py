@@ -122,7 +122,10 @@ class Gpodder(SimpleGladeApp):
         # new episodes
         cellrenderer = gtk.CellRendererText()
         cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        cellrenderer.set_property('alignment', pango.ALIGN_RIGHT)
+        try:
+            cellrenderer.set_property('alignment', pango.ALIGN_RIGHT)
+        except:
+            log('Failed to set alignment property for CellRendererText - using old PyGTK?', sender = self)
         cellrenderer.set_property( 'foreground', 'gray')
         self.comboAvailable.pack_end( cellrenderer, True)
         self.comboAvailable.add_attribute( cellrenderer, 'text', 3)

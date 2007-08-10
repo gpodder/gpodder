@@ -1,3 +1,13 @@
+Fri, 10 Aug 2007 14:57:47 +0200 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Catch error when the
+          "applications-internet" icon is not available in the default icon 
+          theme and use no icon instead if it's not available; this fixes 
+          an error with a broken channel list; thanks to Richard Voigt
+          (richardvoigt gmail com) for reporting this bug and help tracking
+          down the problem
+        * src/gpodder/gui.py: Catch error when using an older PyGTK version 
+          that doesn't support the "alignment" property of CellRendererText
+
 Thu, 09 Aug 2007 13:27:18 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: I shouldn't write code with my brain 
           switched off. (Added return statement for add_episode_from_channel()

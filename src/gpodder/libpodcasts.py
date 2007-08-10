@@ -713,7 +713,12 @@ def channelsToModel( channels, download_status_manager = None):
             if not iconsize:
                 iconsize = gtk.icon_size_register('channel-icon',32,32)
             icon_theme = gtk.icon_theme_get_default()
-            new_model.set( new_iter, 8, icon_theme.load_icon('applications-internet', iconsize, 0))
+            globe_icon_name = 'applications-internet'
+            try:
+                new_model.set( new_iter, 8, icon_theme.load_icon(globe_icon_name, iconsize, 0))
+            except:
+                log( 'Cannot load "%s" icon (using an old or incomplete icon theme?)', globe_icon_name)
+                new_model.set( new_iter, 8, None)
 
         pos = pos + 1
     
