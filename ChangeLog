@@ -1,3 +1,12 @@
+Mon, 13 Aug 2007 22:55:29 +0200 <thp@perli.net>
+        * src/gpodder/libipodsync.py: If episode titles are bad (empty or 
+          plainly consisting of not allowed chars), we are using a hashed 
+          filename, based on the URL (this is the same as the filename in the 
+          gPodder download directory); this fixes a bug with BUGGY(!!) RSS 
+          feeds that don't have episode titles in their feeds
+	  Thanks to Wilfred van Rooijen <wvanrooijen yahoo.com> for reporting
+	  this bug!
+
 Fri, 10 Aug 2007 14:57:47 +0200 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Catch error when the
           "applications-internet" icon is not available in the default icon 

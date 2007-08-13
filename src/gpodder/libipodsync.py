@@ -542,6 +542,13 @@ class gPodder_FSSync( gPodderSyncMethod):
                 to_file = to_file + ch
             else:
                 to_file = to_file + '_'
+
+        # dirty workaround: on bad (empty) episode titles,
+        # we simply use the from_file basename
+        # (please, podcast authors, FIX YOUR RSS FEEDS!)
+        if to_file == '':
+            to_file = os.path.basename( from_file)
+
         to_file = os.path.join( folder, to_file)
 
         try:
