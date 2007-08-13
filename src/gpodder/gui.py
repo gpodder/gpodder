@@ -242,7 +242,9 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder custom methods {
     def playback_episode( self, current_channel, current_podcast):
-        gPodderLib().playback_episode( current_channel, current_podcast)
+        ( success, application ) = gPodderLib().playback_episode( current_channel, current_podcast)
+        if not success:
+            self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
         self.updateTreeView()
 
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):

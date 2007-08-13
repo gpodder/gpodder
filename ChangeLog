@@ -1,3 +1,12 @@
+Mon, 13 Aug 2007 23:51:40 +0200 <thp@perli.net>
+        * src/gpodder/libgpodder.py: Use new subprocess module for opening 
+          episodes for playback (media player), add error reporting to 
+          playback_episode() function so we can detect not available players,
+          like "gnome-open" in the inital config (thanks to Richard Voigt 
+          <richardvoigt gmail.com> for reporting this error + suggestions)
+        * src/gpodder/gui.py: Add GUI support for error reporting on episode 
+          playback error (when command is not available, etc..)
+
 Mon, 13 Aug 2007 22:55:29 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: If episode titles are bad (empty or 
           plainly consisting of not allowed chars), we are using a hashed 

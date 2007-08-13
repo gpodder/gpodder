@@ -82,6 +82,9 @@ from xml.sax import saxutils
 
 from urlparse import urlparse
 
+from subprocess import Popen
+import shlex
+
 # global recursive lock for thread exclusion
 globalLock = threading.RLock()
 
@@ -384,10 +387,13 @@ class gPodderLibClass( object):
         self.history_mark_played( episode.url)
         filename = channel.getPodcastFilename( episode.url)
 
-        log( 'Opening %s (with %s)', filename, self.open_app)
-
-        # use libplayers to create a commandline out of open_app plus filename, then exec in background ('&')
-        system( '%s &' % dotdesktop_command( self.open_app, filename))
+        command_line = shlex.split( dotdesktop_command( self.open_app, filename).encode('utf-8'))
+        log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
+        try:
+            Popen( command_line)
+        except:
+            return ( False, command_line[0] )
+       return ( True, command_line[0] )
 
     def getDesktopSymlink( self):
         symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
