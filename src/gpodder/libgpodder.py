@@ -393,7 +393,7 @@ class gPodderLibClass( object):
             Popen( command_line)
         except:
             return ( False, command_line[0] )
-       return ( True, command_line[0] )
+        return ( True, command_line[0] )
 
     def getDesktopSymlink( self):
         symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
