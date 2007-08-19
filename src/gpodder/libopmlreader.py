@@ -40,8 +40,6 @@ from string import strip
 
 from urllib import unquote_plus
 
-from libpodcasts import opmlChannel
-
 
 class opmlReader( DefaultHandler, ErrorHandler):
     def __init__( self):
@@ -65,8 +63,8 @@ class opmlReader( DefaultHandler, ErrorHandler):
         for channel in self.channels:
             new_iter = new_model.append()
             new_model.set( new_iter, 0, False)
-            new_model.set( new_iter, 1, '<b>%s</b>\n<span size="small">%s</span>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description), ))
-            new_model.set( new_iter, 2, channel.xmlurl)
+            new_model.set( new_iter, 1, '<b>%s</b>\n<span size="small">%s</span>' % ( saxutils.escape( channel['title']), saxutils.escape( channel['description']), ))
+            new_model.set( new_iter, 2, channel['url'])
         
         return new_model
     
@@ -103,7 +101,7 @@ class opmlReader( DefaultHandler, ErrorHandler):
 
         # otype = 'link' to support odeo.com feeds
         if name == 'outline' and (otype == 'rss' or otype == 'link') and xmlurl != '':
-            self.channels.append( opmlChannel( xmlurl, title, description))
+            self.channels.append( { 'title': title, 'description': description, 'url': xmlurl })
     
     def endElement( self, name):
         if name == 'title':

@@ -45,7 +45,6 @@ from gpodder import util
 from SimpleGladeApp import SimpleGladeApp
 
 from libpodcasts import podcastChannel
-from libpodcasts import podcastItem
 
 from libpodcasts import channelsToModel
 

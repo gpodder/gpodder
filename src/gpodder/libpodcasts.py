@@ -334,7 +334,7 @@ class podcastChannel(ListType):
             new_iter = new_model.append()
             new_model.set( new_iter, 0, item.url)
             new_model.set( new_iter, 1, item.title)
-            new_model.set( new_iter, 2, item.getSize())
+            new_model.set( new_iter, 2, util.format_filesize( item.length))
             new_model.set( new_iter, 3, True)
             new_model.set( new_iter, 4, status_icon)
             new_model.set( new_iter, 5, item.cute_pubdate())
@@ -516,25 +516,15 @@ class podcastChannel(ListType):
         
 class podcastItem(object):
     """holds data for one object in a channel"""
-    def __init__( self,
-                  url = "",
-                  title = "",
-                  length = "0",
-                  mimetype = "",
-                  guid = "",
-                  description = "",
-                  link = "",
-                  pubDate = None):
-        self.url = url
-        self.title = title
-        self.length = length
-        self.mimetype = mimetype
-        self.guid = guid
-        self.description = util.remove_html_tags( description)
-        self.link = ""
-        self.pubDate = pubDate
-        if pubDate == None:
-            self.pubDate = datetime.now().ctime()
+    def __init__( self):
+        self.url = ''
+        self.title = ''
+        self.length = 0
+        self.mimetype = ''
+        self.guid = ''
+        self.description = ''
+        self.link = ''
+        self.pubDate = datetime.now().ctime()
 
     def one_line_description( self):
         lines = self.description.strip().splitlines()
@@ -577,7 +567,7 @@ class podcastItem(object):
             return self.pubDate
         else:
             return pubdate
-    
+
     def cute_pubdate( self):
         seconds_in_a_day = 86400
         try:
@@ -615,22 +605,7 @@ class podcastItem(object):
 
     title = property(fget=get_title,
                      fset=set_title)
-    
-    def getSize( self):
-        try:
-            size = int( self.length)
-        except ValueError:
-            return '-'
-
-        return util.format_filesize( size)
         
-
-
-class opmlChannel(object):
-    def __init__( self, xmlurl, title = 'Unknown OPML Channel', description = ''):
-        self.title = title
-        self.xmlurl = xmlurl
-        self.description = description
 
 
 class DownloadHistory( ListType):

@@ -1,3 +1,11 @@
+Sun, 19 Aug 2007 14:57:50 +0200 <thp@perli.net>
+        ! Some re-factoring to simplify our codebase: podcastChannel and OPML
+        * src/gpodder/libpodcasts.py: Remove unnecessary constructor params 
+          in podcastItem (not used right now); replace getSize() with a call 
+          to util.format_filesize(); remove opmlChannel class
+        * src/gpodder/libopmlreader.py: use a dict instead of opmlChannel
+        * src/gpodder/gui.py: remove import statement for podcastItem
+
 Sun, 19 Aug 2007 09:21:44 +0200 <thp@perli.net>
         * src/gpodder/libpodcasts.py: Submit modified patch from Richard 
           Voigt (richardvoigt gmail com) to fix an error with invalid data 
