@@ -42,6 +42,7 @@ import os.path
 import os
 import glob
 import shutil
+import sys
 from urllib import unquote
 
 from types import ListType
@@ -706,9 +707,16 @@ def channelsToModel( channels, download_status_manager = None):
 
         new_model.set( new_iter, 7, '%s\n<small>%s</small>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description.split('\n')[0]), ))
 
+        channel_cover_found = False
         if os.path.exists( channel.cover_file) and os.path.getsize(channel.cover_file) > 0:
-            new_model.set( new_iter, 8, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
-        else:
+            try:
+                new_model.set( new_iter, 8, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
+                channel_cover_found = True
+            except: 
+                exctype, value = sys.exc_info()[:2]
+                log( 'Could not convert icon file "%s", error was "%s"', channel.cover_file, value )
+
+        if not channel_cover_found:
             iconsize = gtk.icon_size_from_name('channel-icon')
             if not iconsize:
                 iconsize = gtk.icon_size_register('channel-icon',32,32)

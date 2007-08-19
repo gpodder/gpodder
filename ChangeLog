@@ -1,3 +1,10 @@
+Sun, 19 Aug 2007 09:21:44 +0200 <thp@perli.net>
+        * src/gpodder/libpodcasts.py: Submit modified patch from Richard 
+          Voigt (richardvoigt gmail com) to fix an error with invalid data 
+          channel covers (e.g. a 404 HTML page at the URL of the real image)
+          Will now fall back to the "globe" icon when channel icon fails to 
+          load
+
 Sun, 19 Aug 2007 08:46:27 +0200 <thp@perli.net>
         * src/gpodder/libipodsync.py: Fix error with empty episode title 
           detection, thanks to Wilfred van Rooijen (wvanrooijen yahoo.com) 
