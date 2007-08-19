@@ -1,3 +1,9 @@
+Sun, 19 Aug 2007 17:14:10 +0200 <thp@perli.net>
+        + doc/dev/svncl.sed: Add script to convert "svn status" output to 
+          a ChangeLog entry, this is to move the sed code from the Makefile
+        * Makefile: Remove inline sed script and refer to svncl.sed from
+          the "make cl" target
+
 Sun, 19 Aug 2007 16:24:39 +0200 <thp@perli.net>
         ! New "opml" module that introduces shiny DOM-based OPML support
         * Makefile: Very cool "make cl" improvements with support for file 
