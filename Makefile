@@ -52,7 +52,7 @@ help:
 ##########################################################################
 
 cl:
-	(echo "`822-date` <$(EMAIL)>"; svn status | grep '^[MA]' | sed -e 's/^[MA] *\(.*\)/        * \1: /'; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
+	(echo "`date -R` <$(EMAIL)>"; svn status | grep '^[MAD]' | sed -e 's/^M *\(.*\)/        * \1: /' -e 's/^A *\(.*\)/        + \1: /' -e 's/^D *\(.*\)/        - \1: /'| sort; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
 	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
 	$(EDITOR) $(CHANGELOG_EDT)
 	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)

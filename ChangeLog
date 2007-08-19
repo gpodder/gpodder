@@ -1,3 +1,15 @@
+Sun, 19 Aug 2007 16:24:39 +0200 <thp@perli.net>
+        ! New "opml" module that introduces shiny DOM-based OPML support
+        * Makefile: Very cool "make cl" improvements with support for file 
+          additions, deletions and sorting of the resulting file list :)
+        * src/gpodder/gui.py: Use the new "opml" module instead of the old 
+          libopml* modules when importing and exporting OPML files
+        - src/gpodder/libopmlreader.py: Removed (replaced by opml.py)
+        - src/gpodder/libopmlwriter.py: Removed (replaced by opml.py)
+        + src/gpodder/opml.py: New OPML support module that uses DOM for 
+          reading and writing OPML (1.1) files; this should improve stability
+          and performance and also make room for more improvements later on
+
 Sun, 19 Aug 2007 14:57:50 +0200 <thp@perli.net>
         ! Some re-factoring to simplify our codebase: podcastChannel and OPML
         * src/gpodder/libpodcasts.py: Remove unnecessary constructor params 

@@ -41,6 +41,7 @@ from threading import Thread
 from string import strip
 
 from gpodder import util
+from gpodder import opml
 
 from SimpleGladeApp import SimpleGladeApp
 
@@ -49,8 +50,6 @@ from libpodcasts import podcastChannel
 from libpodcasts import channelsToModel
 
 from librssreader import rssReader
-from libopmlwriter import opmlWriter
-from libopmlreader import opmlReader
 from libwget import downloadThread
 from libwget import downloadStatusManager
 
@@ -833,14 +832,10 @@ class Gpodder(SimpleGladeApp):
         dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            foutname = dlg.get_filename()
-            if foutname[-5:] != ".opml" and foutname[-4:] != ".xml":
-                foutname = foutname + ".opml"
-            log( 'Exporting channel list to: %s', foutname)
-            w = opmlWriter( foutname)
-            for ch in self.channels:
-                w.addChannel( ch)
-            w.close()
+            filename = dlg.get_filename()
+            exporter = opml.Exporter( filename)
+            if not exporter.write( self.channels):
+                self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'))
 
         dlg.destroy()
     #-- Gpodder.on_itemExportChannels_activate }
@@ -1772,9 +1767,10 @@ class Gpodderopmllister(SimpleGladeApp):
         self.btnOK.set_sensitive( bool(len(self.channels)))
 
     def thread_func( self):
-        reader = opmlReader()
-        reader.parseXML( self.entryURL.get_text())
-        gobject.idle_add( self.treeviewChannelChooser.set_model, reader.get_model())
+        url = self.entryURL.get_text()
+        importer = opml.Importer( url)
+        model = importer.get_model()
+        gobject.idle_add( self.treeviewChannelChooser.set_model, model)
         gobject.idle_add( self.labelStatus.set_label, '')
         gobject.idle_add( self.btnDownloadOpml.set_sensitive, True)
         gobject.idle_add( self.entryURL.set_sensitive, True)
