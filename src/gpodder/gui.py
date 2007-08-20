@@ -46,16 +46,14 @@ from gpodder import opml
 from SimpleGladeApp import SimpleGladeApp
 
 from libpodcasts import podcastChannel
-
 from libpodcasts import channelsToModel
+from libpodcasts import load_channels
+from libpodcasts import save_channels
 
-from librssreader import rssReader
 from libwget import downloadThread
 from libwget import downloadStatusManager
 
 from libgpodder import gPodderLib
-from libgpodder import gPodderChannelReader
-from libgpodder import gPodderChannelWriter
 from liblogger import log
 
 from liblocaldb import localDB
@@ -222,7 +220,7 @@ class Gpodder(SimpleGladeApp):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = gPodderChannelReader().read( force_update = False)
+        self.channels = load_channels( load_items = False)
 
         # create a localDB object
         self.ldb = localDB()
@@ -243,7 +241,7 @@ class Gpodder(SimpleGladeApp):
         ( success, application ) = gPodderLib().playback_episode( current_channel, current_podcast)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
-        self.updateTreeView()
+        self.download_status_updated()
 
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):
         if model == None:
@@ -292,7 +290,7 @@ class Gpodder(SimpleGladeApp):
                 if not os.path.exists( filename):
                     is_download_button = True
                     break
-                if self.active_channel.get_file_type( self.active_channel.find_episode(url)) == 'torrent':
+                if self.active_channel.get_file_type( url) == 'torrent':
                     is_torrent = True
         except:
             is_download_button = True
@@ -319,6 +317,9 @@ class Gpodder(SimpleGladeApp):
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
+        for channel in self.channels:
+            channel.update_model( downloading_callback = self.download_status_manager.is_download_in_progress, download_status_manager = self.download_status_manager)
+
         self.updateComboBox()
 
     def updateComboBox( self):
@@ -342,7 +343,7 @@ class Gpodder(SimpleGladeApp):
 
         rect = self.treeAvailable.get_visible_rect()
         if self.channels:
-            self.treeAvailable.set_model( self.active_channel.items_liststore( downloading_callback = self.download_status_manager.is_download_in_progress, download_status_manager = self.download_status_manager))
+            self.treeAvailable.set_model( self.active_channel.tree_model)
             # now, reset the scrolling position
             self.treeAvailable.scroll_to_point( rect.x, rect.y)
             while gtk.events_pending():
@@ -400,8 +401,8 @@ class Gpodder(SimpleGladeApp):
 
     def refetch_channel_list( self):
         channels_should_be = len( self.channels)
-        
-        gPodderChannelWriter().write( self.channels)
+
+        save_channels( self.channels)
         self.update_feed_cache( force_update = False)
         
         if channels_should_be > len( self.channels):
@@ -413,7 +414,6 @@ class Gpodder(SimpleGladeApp):
         return True
     
     def add_new_channel( self, result = None, ask_download_new = True):
-        gl = gPodderLib()
         result = util.normalize_feed_url( result)
 
         if result:
@@ -427,26 +427,32 @@ class Gpodder(SimpleGladeApp):
                             self.comboAvailable.set_active( i)
                     return
             log( 'Adding new channel: %s', result)
-            channel = podcastChannel( url = result)
-            channel.remove_cache_file()
-            num_channels_before = len(self.channels)
-            self.channels.append( channel)
-            
-            # download changed channels
-            self.refetch_channel_list()
+            try:
+                channel = podcastChannel.get_by_url( url = result, force_update = True)
+            except:
+                channel = None
 
-            if num_channels_before < len(self.channels):
+            if channel:
+                self.channels.append( channel)
+                save_channels( self.channels)
+                # download changed channels
+                self.update_feed_cache( force_update = False)
+
                 (username, password) = util.username_password_from_url( result)
                 if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
                     channel.username = username
                     channel.password = password
                     log('Saving authentication data for episode downloads..', sender = self)
-                    channel.save_metadata_to_localdb()
+                    channel.save_settings()
 
                 # ask user to download some new episodes
                 self.comboAvailable.set_active( len( self.channels)-1)
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
+            else:
+                title = _('Error adding channel')
+                message = _('The channel could not be added. Please check the spelling of the URL or try again later.')
+                self.show_message( message, title)
         else:
             if result:
                 title = _('URL scheme not supported')
@@ -462,7 +468,7 @@ class Gpodder(SimpleGladeApp):
             i = 0
             for channel in self.ldb.channel_list:
                 sync.set_progress_overall( i, len(self.ldb.channel_list))
-                channel.set_metadata_from_localdb()
+                channel.load_settings()
                 sync.sync_channel( channel, sync_played_episodes = not gPodderLib().only_sync_not_played)
                 i += 1
             sync.set_progress_overall( i, len(self.ldb.channel_list))
@@ -483,76 +489,71 @@ class Gpodder(SimpleGladeApp):
         gobject.idle_add( self.updateTreeView)
 
     def update_feed_cache_callback( self, label, progressbar, position, count):
-        title = _('Please wait...')
-
         if len(self.channels) > position:
-            try:
-                title = _('Updating %s') % self.channels[position].title
-            except:
-                pass
+            title = _('Updating %s') % saxutils.escape( self.channels[position].title)
+        else:
+            title = _('Please wait...')
 
         label.set_markup( '<i>%s</i>' % title)
+
         progressbar.set_text( _('%d of %d channels updated') % ( position, count ))
         if count:
             progressbar.set_fraction( ((1.00*position) / (1.00*count)))
 
-    def update_feed_cache_proc( self, reader, force_update, callback_proc, callback_error, finish_proc):
-        self.channels = reader.read( force_update, callback_proc = callback_proc, callback_error = callback_error)
-        finish_proc()
+    def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
+        self.channels = load_channels( force_update = force_update, callback_proc = callback_proc, callback_error = callback_error)
+        if finish_proc:
+            finish_proc()
 
     def update_feed_cache(self, force_update = True):
         title = _('Downloading podcast feeds')
         heading = _('Downloading feeds')
         body = _('Podcast feeds contain channel metadata and information about current episodes.')
-
-        if not force_update:
-            title = _('Reading podcast feeds')
-            heading = _('Reading feeds')
-
+        
         please_wait = gtk.Dialog( title, self.gPodder, gtk.DIALOG_MODAL, ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, ))
         please_wait.set_transient_for( self.gPodder)
         please_wait.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
         please_wait.vbox.set_spacing( 5)
         please_wait.set_border_width( 10)
         please_wait.set_resizable( False)
-
+        
         label_heading = gtk.Label()
         label_heading.set_alignment( 0.0, 0.5)
         label_heading.set_markup( '<span weight="bold" size="larger">%s</span>' % heading)
-
+        
         label_body = gtk.Label()
         label_body.set_text( body)
         label_body.set_alignment( 0.0, 0.5)
         label_body.set_line_wrap( True)
-
+        
         myprogressbar = gtk.ProgressBar()
-
+        
         mylabel = gtk.Label()
         mylabel.set_alignment( 0.0, 0.5)
         mylabel.set_ellipsize( pango.ELLIPSIZE_END)
-
+        
         # put it all together
         please_wait.vbox.pack_start( label_heading)
         please_wait.vbox.pack_start( label_body)
         please_wait.vbox.pack_start( myprogressbar)
         please_wait.vbox.pack_end( mylabel)
         please_wait.show_all()
-
+        
         # hide separator line
         please_wait.set_has_separator( False)
-
+        
         # let's get down to business..
         callback_proc = lambda pos, count: gobject.idle_add( self.update_feed_cache_callback, mylabel, myprogressbar, pos, count)
         callback_error = lambda x: gobject.idle_add( self.show_message, x)
         finish_proc = lambda: gobject.idle_add( please_wait.destroy)
-        reader = gPodderChannelReader()
 
-        args = ( reader, force_update, callback_proc, callback_error, finish_proc, )
+        args = ( force_update, callback_proc, callback_error, finish_proc, )
 
         thread = Thread( target = self.update_feed_cache_proc, args = args)
         thread.start()
-        if please_wait.run() == gtk.RESPONSE_CANCEL:
-            reader.cancel()
+
+        please_wait.run()
+
         self.updateComboBox()
         
         # download all new?
@@ -570,7 +571,7 @@ class Gpodder(SimpleGladeApp):
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
                 # open the file now
-                if current_channel.get_file_type( current_podcast) != 'torrent':
+                if current_channel.get_file_type( url) != 'torrent':
                     self.playback_episode( current_channel, current_podcast)
                 return
          
@@ -578,7 +579,7 @@ class Gpodder(SimpleGladeApp):
                 gpe = Gpodderepisode( gpodderwindow = self.gPodder)
                 gpe.set_episode( current_podcast, current_channel)
          
-                if os.path.exists( filename) and current_channel.get_file_type( current_podcast) == 'torrent':
+                if os.path.exists( filename) and current_channel.get_file_type( url) == 'torrent':
                     gpe.set_download_callback( lambda: current_channel.addDownloadedItem( current_podcast))
                 elif os.path.exists( filename):
                     gpe.set_play_callback( lambda: self.playback_episode( current_channel, current_podcast))
@@ -590,11 +591,11 @@ class Gpodder(SimpleGladeApp):
         if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
-            if want_message_dialog and os.path.exists( filename) and not current_channel.get_file_type(current_podcast) == 'torrent':
+            if want_message_dialog and os.path.exists( filename) and not current_channel.get_file_type(url) == 'torrent':
                 title = _('Episode already downloaded')
                 message = _('You have already downloaded this episode. Click on the episode to play it.')
                 self.show_message( message, title)
-            elif want_message_dialog and not current_channel.get_file_type(current_podcast) == 'torrent':
+            elif want_message_dialog and not current_channel.get_file_type(url) == 'torrent':
                 title = _('Download in progress')
                 message = _('You are currently downloading this episode. Please check the download status tab to check when the download is finished.')
                 self.show_message( message, title)
@@ -611,7 +612,7 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.close_gpodder {
     def close_gpodder(self, widget, *args):
         if self.channels:
-            gPodderChannelWriter().write( self.channels)
+            save_channels( self.channels)
 
         if self.download_status_manager:
             self.download_status_manager.cancelAll()
@@ -807,13 +808,12 @@ class Gpodder(SimpleGladeApp):
             title = _('Remove channel and episodes?')
             message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % ( self.active_channel.title, )
             if self.show_confirmation( message, title):
-                self.active_channel.remove_cache_file()
                 self.active_channel.remove_downloaded()
                 # only delete partial files if we do not have any downloads in progress
                 delete_partial = not self.download_status_manager.has_items()
                 gPodderLib().clean_up_downloads( delete_partial)
                 self.channels.remove( self.active_channel)
-                gPodderChannelWriter().write( self.channels)
+                save_channels( self.channels)
                 self.update_feed_cache( force_update = False)
         except:
             pass
@@ -1113,6 +1113,8 @@ class Gpodder(SimpleGladeApp):
         # only delete partial files if we do not have any downloads in progress
         delete_partial = not self.download_status_manager.has_items()
         gPodderLib().clean_up_downloads( delete_partial)
+        self.active_channel.force_update_tree_model()
+        self.updateTreeView()
     #-- Gpodder.on_btnDownloadedDelete_clicked }
 
     #-- Gpodder.on_btnDeleteAll_clicked {
@@ -1155,7 +1157,7 @@ class Gpodderchannel(SimpleGladeApp):
         self.LabelDownloadTo.set_text( channel.save_dir)
         self.LabelWebsite.set_text( channel.link)
 
-        channel.set_metadata_from_localdb()
+        channel.load_settings()
         self.cbNoSync.set_active( not channel.sync_to_devices)
         self.musicPlaylist.set_text( channel.device_playlist_name)
         self.cbMusicChannel.set_active( channel.is_music_channel)
@@ -1197,7 +1199,7 @@ class Gpodderchannel(SimpleGladeApp):
         self.channel.set_custom_title( self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
         self.channel.password = self.FeedPassword.get_text()
-        self.channel.save_metadata_to_localdb()
+        self.channel.save_settings()
 
         self.gPodderChannel.destroy()
     #-- Gpodderchannel.on_btnOK_clicked }

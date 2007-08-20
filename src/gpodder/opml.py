@@ -69,7 +69,12 @@ class Importer(object):
         """
         self.items = []
         try:
-            doc = xml.dom.minidom.parseString( urllib2.urlopen( url).read())
+            if url.startswith('/'):
+                # assume local filename
+                doc = xml.dom.minidom.parse( url)
+            else:
+                doc = xml.dom.minidom.parseString( urllib2.urlopen( url).read())
+
             for outline in doc.getElementsByTagName('outline'):
                 if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl'):
                     channel = {
@@ -150,8 +155,8 @@ class Exporter(object):
         document for the supplied channel.
         """
         outline = doc.createElement( 'outline')
-        outline.setAttribute( 'text', channel.title)
         outline.setAttribute( 'title', channel.title)
+        outline.setAttribute( 'text', channel.description)
         outline.setAttribute( 'xmlUrl', channel.url)
         outline.setAttribute( 'type', self.FEED_TYPE)
         return outline

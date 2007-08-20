@@ -60,7 +60,7 @@ class downloadThread( object):
         
         self.ready_event = ready_event
         self.pid= -1
-        self.percentage = "0"
+        self.percentage = 0.0
         self.speed = _("unknown")
         
         self.thread = None
@@ -127,7 +127,7 @@ class downloadThread( object):
                 try:
                     self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0
                 except:
-                    self.percentage = '0'
+                    pass
                
                 # Fedora/RedHat seem to have changed the output format of "wget", so we
                 # first try to "detect" the speed in the Fedora/RedHat format and if we 

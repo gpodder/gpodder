@@ -26,11 +26,8 @@
 #
 #
 
-import gtk
-import gobject
-
 from libgpodder import gPodderLib
-from libgpodder import gPodderChannelReader
+from libpodcasts import load_channels
 from liblogger import log
 
 class localDB( object):
@@ -42,7 +39,7 @@ class localDB( object):
             return self.__channel_list
 
         self.__channel_list = []
-        self.available_channels = gPodderChannelReader().read()
+        self.available_channels = load_channels( load_items = False)
 
         for channel in self.available_channels:
             local = channel.localdb_channel
@@ -69,28 +66,6 @@ class localDB( object):
         
         return None
     
-
-    def get_tree_model( self, url):
-        # Try to add downloaded items (TODO: remove at some point in the future)
-        to_be_added = []
-        for episode in self.get_channel( url):
-            to_be_added.append( episode.url)
-        if to_be_added:
-            gPodderLib().history_mark_downloaded( to_be_added)
-
-        return self.get_channel( url).items_liststore( False)
-
-    def get_model( self):
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
-        
-        for channel in self.channel_list:
-            new_iter = new_model.append()
-            new_model.set( new_iter, 0, channel.url)
-            new_model.set( new_iter, 1, channel.title)
-        
-        return new_model
-    
-
     def get_filename_by_podcast( self, url, podcast_url):
         ch = self.get_channel( url)
 

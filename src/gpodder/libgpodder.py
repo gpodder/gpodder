@@ -34,10 +34,8 @@ import urllib
 import shutil
 
 from gpodder import util
+from gpodder import opml
 
-from xml.sax.saxutils import DefaultHandler
-from xml.sax import make_parser
-from string import strip
 from os.path import expanduser
 from os.path import exists
 from os.path import splitext
@@ -53,6 +51,7 @@ from os.path import isdir
 from os.path import islink
 from os.path import getsize
 from os.path import join
+import os.path
 from os import mkdir
 from os import rmdir
 from os import makedirs
@@ -68,11 +67,9 @@ from os import stat
 from stat import S_ISLNK
 from stat import ST_MODE
 
-from librssreader import rssReader
-from libpodcasts import podcastChannel
-from libpodcasts import DownloadHistory
-from libpodcasts import PlaybackHistory
 from libplayers import dotdesktop_command
+
+from types import ListType
 
 from gtk.gdk import PixbufLoader
 
@@ -113,9 +110,10 @@ class gPodderLibClass( object):
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         util.make_directory( self.gpodderdir)
+        self.feed_cache_file = os.path.join( self.gpodderdir, 'feedcache.db')
+        self.channel_settings_file = os.path.join( self.gpodderdir, 'channelsettings.db')
+        self.channel_opml_file = os.path.join( self.gpodderdir, 'channels.opml')
         self.__download_dir = None
-        self.cachedir = self.gpodderdir + "cache/"
-        util.make_directory( self.cachedir)
         try:
             self.http_proxy = environ['http_proxy']
         except:
@@ -355,14 +353,14 @@ class gPodderLibClass( object):
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:
-                self.http_proxy = strip( http)
-                self.ftp_proxy = strip( ftp)
-            if strip( app) != '':
-                self.open_app = strip( app)
+                self.http_proxy = http.strip()
+                self.ftp_proxy = ftp.strip()
+            if app.strip():
+                self.open_app = app.strip()
             else:
                 self.open_app = 'gnome-open'
-            if strip( opml_url) != '':
-                self.opml_url = strip( opml_url)
+            if opml_url.strip():
+                self.opml_url = opml_url.strip()
             else:
                 self.opml_url = default_opml_directory
         except:
@@ -476,106 +474,45 @@ class gPodderLibClass( object):
             except:
                 log( 'Torrent copy failed: %s => %s.', torrent_filename, target_filename)
 
-class gPodderChannelWriter( object):
-    def write( self, channels):
-        filename = gPodderLib().getChannelsFilename()
-        fd = open( filename, "w")
-        print >> fd, '<!-- '+_('gPodder channel list')+' -->'
-        print >> fd, '<channels>'
-        for chan in channels:
-            try:
-                print >> fd, "  <channel>\n    <url>%s</url>\n  </channel>\n" % saxutils.escape( chan.url)
-            except:
-                log( 'Could not write channels to file.')
-        print >> fd, '</channels>'
-        fd.close()
 
-class gPodderChannelReader( DefaultHandler):
-    def __init__( self):
-        self.channels = []
-        self.current_item = None
-        self.current_element_data = ''
-        self.is_cancelled = False
+class DownloadHistory( ListType):
+    def __init__( self, filename):
+        self.filename = filename
+        try:
+            self.read_from_file()
+        except:
+            log( 'Creating new history list.', sender = self)
 
-    def cancel( self):
-        self.is_cancelled = True
+    def read_from_file( self):
+        for line in open( self.filename, 'r'):
+            self.append( line.strip())
 
-    def callback_is_cancelled( self):
-        return self.is_cancelled
-    
-    def read( self, force_update = False, callback_proc = None, callback_url = None, callback_error = None):
-        """Read channels from a file into gPodder's cache
+    def save_to_file( self):
+        if len( self):
+            fp = open( self.filename, 'w')
+            for url in self:
+                fp.write( url + "\n")
+            fp.close()
+            log( 'Wrote %d history entries.', len( self), sender = self)
 
-        force_update:   When true, re-download even if the cache file 
-                        already exists locally
-
-        callback_proc:  A function that takes two integer parameters, 
-                        the first being the number of the currently 
-                        processed item and the second being the count 
-                        of the items that will be read/updated.
-
-        callback_url:   A function that takes one string parameter
-                        that contains the URL of the channel that 
-                        is being updated at the moment. Will be 
-                        called for every channel to be updated.
-
-        callback_error: A function that takes one string parameter 
-                        that contains a error message to be displayed.
-        """
-
-        self.channels = []
-
-        parser = make_parser()
-        parser.setContentHandler( self)
-
-        if exists( gPodderLib().getChannelsFilename()):
-            parser.parse( gPodderLib().getChannelsFilename())
+    def add_item( self, data, autosave = True):
+        affected = 0
+        if data and type( data) is ListType:
+            # Support passing a list of urls to this function
+            for url in data:
+                affected = affected + self.add_item( url, autosave = False)
         else:
-            return []
+            if data not in self:
+                log( 'Adding: %s', data, sender = self)
+                self.append( data)
+                affected = affected + 1
 
-        reader = rssReader()
-        input_channels = []
-        
-        channel_count = len( self.channels)
-        position = 0
-        for channel in self.channels:
-            if callback_proc:
-                callback_proc( position, channel_count)
+        if affected and autosave:
+            self.save_to_file()
 
-            if callback_url:
-                callback_url( channel.url)
+        return affected
 
-            cachefile = channel.downloadRss( force_update, callback_error = callback_error, callback_is_cancelled = self.callback_is_cancelled)
-            # check if download was a success
-            if cachefile != None:
-                reader.parseXML( channel.url, cachefile)
-                if reader.channel != None:
-                    reader.channel.set_metadata_from_localdb()
-                    input_channels.append( reader.channel)
 
-            position = position + 1
-
-        # the last call sets everything to 100% (hopefully ;)
-        if callback_proc != None:
-            callback_proc( position, channel_count)
-        
-        return input_channels
-    
-    def startElement( self, name, attrs):
-        self.current_element_data = ""
-        
-        if name == 'channel':
-            self.current_item = podcastChannel()
-    
-    def endElement( self, name):
-        if self.current_item != None:
-            if name == 'url':
-                self.current_item.url = self.current_element_data
-            if name == 'channel':
-                self.channels.append( self.current_item)
-                self.current_item = None
-    
-    def characters( self, ch):
-        self.current_element_data = self.current_element_data + ch
-
+class PlaybackHistory( DownloadHistory):
+    pass
 

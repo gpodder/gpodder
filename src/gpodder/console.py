@@ -26,12 +26,11 @@ import time
 
 from gpodder import util
 
-from libgpodder import gPodderChannelReader
-from libgpodder import gPodderChannelWriter
+from libpodcasts import load_channels
+from libpodcasts import save_channels
 from libgpodder import gPodderLib
 from libpodcasts import podcastChannel
 
-from librssreader import rssReader
 from libwget import downloadThread
 from liblogger import msg
 
@@ -60,53 +59,48 @@ class DownloadPool(object):
 
 
 def list_channels():
-    for channel in gPodderChannelReader().read():
+    for channel in load_channels( load_items = False):
         msg( 'channel', unquote( channel.url))
 
 
 def add_channel( url):
-    gl = gPodderLib()
-
-    channels = gPodderChannelReader().read()
+    callback_error = lambda s: msg( 'error', s)
 
     url = util.normalize_feed_url( url)
-    channel = podcastChannel( url = url)
-    channel.remove_cache_file()
-    channels.append( channel)
+    try:
+        channel = podcastChannel.get_by_url( url, force_update = True)
+    except:
+        msg( 'error', _('Could not load feed from URL: %s'), url)
+        return
 
-    gPodderChannelWriter().write( channels)
-
-    if len( gPodderChannelReader().read( False)) == len( channels):
+    if channel:
+        channels = load_channels( load_items = False)
+        channels.append( channel)
+        save_channels( channels)
         msg( 'add', unquote( url))
     else:
         msg( 'error', _('Could not add channel.'))
 
 
 def del_channel( url):
-    gl = gPodderLib()
-    
-    channels = gPodderChannelReader().read()
-
-    removed = False
-
     url = util.normalize_feed_url( url)
+
+    channels = load_channels( load_items = False)
     for i in range( len(channels)-1, -1, -1):
         if channels[i].url == url:
             channels.remove( channels[i])
             msg( 'delete', unquote( url))
-            removed = True
+            save_channels( channels)
+            return
 
-    if removed:
-        gPodderChannelWriter().write( channels)
-    else:
-        msg( 'error', _('Could not remove channel.'))
+    msg( 'error', _('Could not remove channel.'))
 
 
 def update():
-    urlcallback = lambda url: msg( 'update', unquote( url))
-    errorcallback = lambda s: msg( 'error', s)
+    callback_url = lambda url: msg( 'update', unquote( url))
+    callback_error = lambda s: msg( 'error', s)
 
-    return gPodderChannelReader().read( True, callback_url = urlcallback, callback_error = errorcallback)
+    channels = load_channels( force_update = True, callback_url = callback_url, callback_error = callback_error)
 
 
 def run():
