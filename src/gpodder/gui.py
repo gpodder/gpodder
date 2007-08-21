@@ -286,11 +286,12 @@ class Gpodder(SimpleGladeApp):
             for apath in selection_tuple[1]:
                 selection_iter = self.treeAvailable.get_model().get_iter( apath)
                 url = self.treeAvailable.get_model().get_value( selection_iter, 0)
-                filename = self.active_channel.getPodcastFilename( url)
+                episode = self.active_channel.find_episode( url)
+                filename = episode.local_filename()
                 if not os.path.exists( filename):
                     is_download_button = True
                     break
-                if self.active_channel.get_file_type( url) == 'torrent':
+                if episode.file_type() == 'torrent':
                     is_torrent = True
         except:
             is_download_button = True
@@ -563,7 +564,7 @@ class Gpodder(SimpleGladeApp):
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
         current_channel = self.active_channel
         current_podcast = current_channel.find_episode( url)
-        filename = current_channel.getPodcastFilename( current_podcast.url)
+        filename = current_podcast.local_filename()
 
         if widget:
             if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
@@ -571,7 +572,7 @@ class Gpodder(SimpleGladeApp):
                 if current_channel.addDownloadedItem( current_podcast):
                     self.ldb.clear_cache()
                 # open the file now
-                if current_channel.get_file_type( url) != 'torrent':
+                if current_podcast.file_type() != 'torrent':
                     self.playback_episode( current_channel, current_podcast)
                 return
          
@@ -579,7 +580,7 @@ class Gpodder(SimpleGladeApp):
                 gpe = Gpodderepisode( gpodderwindow = self.gPodder)
                 gpe.set_episode( current_podcast, current_channel)
          
-                if os.path.exists( filename) and current_channel.get_file_type( url) == 'torrent':
+                if os.path.exists( filename) and current_podcast.file_type() == 'torrent':
                     gpe.set_download_callback( lambda: current_channel.addDownloadedItem( current_podcast))
                 elif os.path.exists( filename):
                     gpe.set_play_callback( lambda: self.playback_episode( current_channel, current_podcast))
@@ -591,11 +592,11 @@ class Gpodder(SimpleGladeApp):
         if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
             downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
-            if want_message_dialog and os.path.exists( filename) and not current_channel.get_file_type(url) == 'torrent':
+            if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
                 title = _('Episode already downloaded')
                 message = _('You have already downloaded this episode. Click on the episode to play it.')
                 self.show_message( message, title)
-            elif want_message_dialog and not current_channel.get_file_type(url) == 'torrent':
+            elif want_message_dialog and not current_podcast.file_type() == 'torrent':
                 title = _('Download in progress')
                 message = _('You are currently downloading this episode. Please check the download status tab to check when the download is finished.')
                 self.show_message( message, title)
@@ -675,7 +676,7 @@ class Gpodder(SimpleGladeApp):
 
             if self.show_confirmation( message, title):
                 for channel, episode in to_download:
-                    filename = channel.getPodcastFilename( episode.url)
+                    filename = episode.local_filename()
                     if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( episode.url):
                         downloadThread( episode.url, filename, None, self.download_status_manager, episode.title, channel, episode, self.ldb).download()
         else:
@@ -1515,7 +1516,7 @@ class Gpodderepisode(SimpleGladeApp):
         self.LabelWebsiteLink.set_text(episode.link)
         self.gPodderEpisode.set_title( episode.title)
 
-        if channel and channel.is_downloaded( episode):
+        if episode.is_downloaded():
             self.btnSaveFile.show_all()
 
         if not episode.link and channel:
@@ -1564,7 +1565,7 @@ class Gpodderepisode(SimpleGladeApp):
 
     #-- Gpodderepisode.on_btnSaveFile_clicked {
     def on_btnSaveFile_clicked(self, widget, *args):
-        fn = self.channel.getPodcastFilename( self.episode.url)
+        fn = self.episode.local_filename()
         ext = os.path.splitext(fn)[1]
         suggestion = self.channel.title + ' - ' + self.episode.title + ext
 

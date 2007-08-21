@@ -383,7 +383,7 @@ class gPodderLibClass( object):
 
     def playback_episode( self, channel, episode):
         self.history_mark_played( episode.url)
-        filename = channel.getPodcastFilename( episode.url)
+        filename = episode.local_filename()
 
         command_line = shlex.split( dotdesktop_command( self.open_app, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)

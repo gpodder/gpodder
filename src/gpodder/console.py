@@ -118,19 +118,19 @@ def run():
                 episodes_to_download.append( item)
        else:
             for item in channel:
-                if item.compare_pubdate( last_pubdate) >= 0 and not channel.is_downloaded( item) and not gl.history_is_downloaded( item.url):
+                if item.compare_pubdate( last_pubdate) >= 0 and not item.is_downloaded() and not gl.history_is_downloaded( item.url):
                     msg( 'queue', unquote( item.url))
                     episodes_to_download.append( item)
 
        for item in episodes_to_download:
-           if channel.is_downloaded( item) or gl.history_is_downloaded( item.url):
+           if item.is_downloaded() or gl.history_is_downloaded( item.url):
                break
 
            while not pool.has_free_slot():
                time.sleep( 3)
 
            pool.add()
-           filename = channel.getPodcastFilename( item.url)
+           filename = item.local_filename()
            #thread will call pool.set() when finished
            downloadThread( item.url, filename, ready_event = pool, channelitem = channel, item = item).download()
            msg( 'downloading', unquote( item.url))

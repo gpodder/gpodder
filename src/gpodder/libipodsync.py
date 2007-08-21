@@ -161,7 +161,7 @@ class gPodderSyncMethod:
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
-            if channel.is_downloaded( episode) and channel.get_file_type( episode) in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
+            if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
                 if not self.add_episode_from_channel( channel, episode):
                     return False
             pos = pos + 1
@@ -384,7 +384,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
             return True
         
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
-        original_filename = str(channel.getPodcastFilename( episode.url))
+        original_filename = str( episode.local_filename())
         local_filename = original_filename
         if libconverter.converters.has_converter( os.path.splitext( original_filename)[1][1:]):
             log('(ipodsync) Converting: %s', original_filename)
@@ -533,7 +533,7 @@ class gPodder_FSSync( gPodderSyncMethod):
                 folder = folder + '_'
         folder = os.path.join( self.destination, folder)
 
-        from_file = channel.getPodcastFilename( episode.url)
+        from_file = episode.local_filename()
 
         to_file_src = episode.title + os.path.splitext( from_file)[1].lower()
         to_file = ''

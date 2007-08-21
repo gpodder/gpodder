@@ -77,7 +77,7 @@ class readLocalDB( DefaultHandler):
         if name == "channel":
             self.channel = libpodcasts.podcastChannel( url = self.url)
         if name == "item":
-            self.current_item = libpodcasts.podcastItem()
+            self.current_item = libpodcasts.podcastItem( self.channel)
         if name == "gpodder:info" and self.channel != None and self.current_item == None:
             self.channel.device_playlist_name = attrs.get('playlist', 'gPodder')
             if attrs.get('music', 'false').lower() == 'true':
@@ -98,8 +98,6 @@ class readLocalDB( DefaultHandler):
                 self.channel.description = self.current_element_data
             if name == "pubDate":
                 self.channel.pubDate = self.current_element_data
-            if name == "language":
-                self.channel.language = self.current_element_data
             if name == "copyright":
                 self.channel.copyright = self.current_element_data
             if name == "webMaster":
@@ -121,7 +119,7 @@ class readLocalDB( DefaultHandler):
             if name == "mimeType":
                 self.current_item.mimetype = self.current_element_data
             if name == "item":
-                self.current_item.calculate_filesize( self.channel)
+                self.current_item.calculate_filesize()
                 self.channel.append( self.current_item)
                 self.current_item = None
     

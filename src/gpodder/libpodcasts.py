@@ -39,13 +39,13 @@ import libgpodder
 
 from os.path import exists
 from os.path import basename
-from os.path import splitext
 import os.path
 import os
 import glob
 import shutil
 import sys
-from urllib import unquote
+import urllib
+import urlparse
 
 from datetime import datetime
 from time import time
@@ -120,8 +120,6 @@ class podcastChannel(ListType):
 
         if hasattr( c.feed, 'updated'):
             channel.pubDate = c.feed.updated
-        if hasattr( c.feed, 'language'):
-            channel.language = c.feed.language
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
                 channel.image = c.feed.image.href
@@ -131,7 +129,7 @@ class podcastChannel(ListType):
                 log('Skipping entry: %s', entry)
                 continue
 
-            episode = podcastItem.from_feedparser_entry( entry)
+            episode = podcastItem.from_feedparser_entry( entry, channel)
             if episode:
                 channel.append( episode)
         
@@ -161,7 +159,6 @@ class podcastChannel(ListType):
         self.description = util.remove_html_tags( description)
         self.image = None
         self.pubDate = datetime.now().ctime()
-        self.language = ''
         self.downloaded = None
 
         # should this channel be synced to devices? (ex: iPod)
@@ -267,7 +264,7 @@ class podcastChannel(ListType):
                 continue
 
             # episode has been downloaded before
-            if self.is_downloaded( episode) or gl.history_is_downloaded( episode.url):
+            if episode.is_downloaded() or gl.history_is_downloaded( episode.url):
                 continue
 
             # download is currently in progress
@@ -285,7 +282,6 @@ class podcastChannel(ListType):
             except:
                 log('Episode %s has non-parseable pubDate. Sorting disabled.', episode.title)
                 return False
-                can_sort = False
 
         return True
     
@@ -311,7 +307,7 @@ class podcastChannel(ListType):
 
             # Update metadata on file (if possible and wanted)
             if libgpodder.gPodderLib().update_tags and tagging_supported():
-                filename = self.getPodcastFilename( item.url)
+                filename = item.local_filename()
                 try:
                     update_metadata_on_file( filename, title = item.title, artist = self.title)
                 except:
@@ -319,25 +315,14 @@ class podcastChannel(ListType):
 
         libgpodder.gPodderLib().history_mark_downloaded( item.url)
         
-        if self.get_file_type( item.url) == 'torrent':
-            torrent_filename = self.getPodcastFilename( item.url)
-            destination_filename = self.get_torrent_filename( torrent_filename)
+        if item.file_type() == 'torrent':
+            torrent_filename = item.local_filename()
+            destination_filename = util.torrent_filename( torrent_filename)
             libgpodder.gPodderLib().invoke_torrent( item.url, torrent_filename, destination_filename)
             
         libgpodder.releaseLock()
         return not already_in_list
     
-    def printChannel( self):
-        print '- Channel: "' + self.title + '"'
-        for item in self:
-            print '-- Item: "' + item.title + '"'
-
-    def is_downloaded( self, item):
-        return self.is_downloaded_url( item.url)
-
-    def is_downloaded_url( self, url):
-        return self.podcastFilenameExists( url)
-        
     def is_played(self, item):
         return libgpodder.gPodderLib().history_is_played( item.url)
 
@@ -388,13 +373,14 @@ class podcastChannel(ListType):
 
     def iter_set_downloading_columns( self, model, iter, downloading_callback = None, download_status_manager = None, new_episodes = []):
         url = model.get_value( iter, 0)
+        local_filename = model.get_value( iter, 9)
 
         played_icon = None
-        if self.is_downloaded_url( url):
+        if os.path.exists( local_filename):
             if not libgpodder.gPodderLib().history_is_played( url):
                 played_icon = gtk.STOCK_YES
 
-            file_type = self.get_file_type( url)
+            file_type = util.file_type_by_extension( util.file_extension_from_url( url))
             if file_type == 'audio':
                 status_icon = 'audio-x-generic'
             elif file_type == 'video':
@@ -422,11 +408,11 @@ class podcastChannel(ListType):
         the URL of the episodes and returns True if the episode is currently 
         being downloaded and False otherwise.
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         new_episodes = self.get_new_episodes( download_status_manager = download_status_manager)
 
         for item in self.get_all_episodes():
-            new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, None ))
+            new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, None, item.local_filename() ))
             self.iter_set_downloading_columns( new_model, new_iter, downloading_callback, download_status_manager, new_episodes)
         
         return new_model
@@ -439,11 +425,11 @@ class podcastChannel(ListType):
         return None
 
     def get_save_dir(self):
-        save_dir = os.path.join( libgpodder.gPodderLib().downloaddir, self.filename ) + '/'
+        save_dir = os.path.join( libgpodder.gPodderLib().downloaddir, self.filename, '')
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):
-            log( '(libpodcasts) Could not create: %s', save_dir)
+            log( 'Could not create save_dir: %s', save_dir, sender = self)
 
         return save_dir
     
@@ -464,54 +450,6 @@ class podcastChannel(ListType):
 
     cover_file = property(fget=get_cover_file)
 
-    def get_torrent_filename( self, torrent_file):
-        header = open( torrent_file).readline()
-        try:
-            # A crummy way to see if we really are dealing with a torrent file
-            # using index to find values like name and pieces which hopefully
-            # only show up in torrent files (else raise a ValueError)
-            testvar = header.index("6:pieces")
-            name_length_pos = int(header.index("4:name")) + 6
-            # Find the filename for fun + this will add some extra verification
-            colon_pos = int(header.find(":",name_length_pos))
-            name_length = int(header[name_length_pos:colon_pos]) + 1
-            name = header[(colon_pos + 1):(colon_pos + name_length)]
-            return name
-        except:
-            return None
-
-    def get_file_type( self, url):
-        types = {
-                'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
-                'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov' ],
-                'torrent': [ 'torrent' ]
-        }
-        extension = splitext( self.getPodcastFilename( url))[1][1:]
-
-        # Torrent file detection
-        if self.get_torrent_filename( self.getPodcastFilename( url)) != None:
-            return 'torrent'
-
-        for type in types:
-            if extension in types[type]:
-                return type
-        
-        return 'unknown'
-    
-    def getPodcastFilename( self, url):
-        # strip question mark (and everything behind it), fix %20 errors
-        filename = basename( url).replace( '%20', ' ')
-	indexOfQuestionMark = filename.rfind( '?')
-	if indexOfQuestionMark != -1:
-	    filename = filename[:indexOfQuestionMark]
-	# end strip questionmark
-        extension = splitext( filename)[1].lower()
-
-        return self.save_dir + md5.new(url).hexdigest() + extension
-    
-    def podcastFilenameExists( self, url):
-        return exists( self.getPodcastFilename( url))
-    
     def delete_episode_by_url(self, url):
         log( 'Delete %s', url)
         # no multithreaded access
@@ -526,9 +464,8 @@ class podcastChannel(ListType):
         self.localdb_channel = new_localdb
 
         # clean-up downloaded file
-        if self.podcastFilenameExists( url):
-            episode_filename = self.getPodcastFilename( url)
-            util.delete_file( episode_filename)
+        episode = self.find_episode( url)
+        util.delete_file( episode.local_filename())
 
         libgpodder.releaseLock()
 
@@ -547,8 +484,8 @@ class podcastItem(object):
     """holds data for one object in a channel"""
 
     @staticmethod
-    def from_feedparser_entry( entry):
-        episode = podcastItem()
+    def from_feedparser_entry( entry, channel):
+        episode = podcastItem( channel)
 
         episode.title = entry.title
         if hasattr( entry, 'link'):
@@ -568,7 +505,7 @@ class podcastItem(object):
         return episode
 
 
-    def __init__( self):
+    def __init__( self, channel):
         self.url = ''
         self.title = ''
         self.length = 0
@@ -576,6 +513,7 @@ class podcastItem(object):
         self.guid = ''
         self.description = ''
         self.link = ''
+        self.channel = channel
         self.pubDate = datetime.now().ctime()
 
     def one_line_description( self):
@@ -589,6 +527,16 @@ class podcastItem(object):
             else:
                 return desc
 
+    def is_downloaded( self):
+        return os.path.exists( self.local_filename())
+
+    def local_filename( self):
+        extension = util.file_extension_from_url( self.url)
+        return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
+
+    def file_type( self):
+        return util.file_type_by_extension( util.file_extension_from_url( self.url))
+    
     def __cmp__( self, other):
         try:
             timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
@@ -637,9 +585,9 @@ class podcastItem(object):
         
         return str(datetime.fromtimestamp( timestamp).strftime( "%x"))
 
-    def calculate_filesize( self, channel):
+    def calculate_filesize( self):
         try:
-            self.length = str(os.path.getsize( channel.getPodcastFilename( self.url)))
+            self.length = str(os.path.getsize( self.local_filename()))
         except:
             log( 'Could not get filesize for %s.', self.url)
     
@@ -648,16 +596,6 @@ class podcastItem(object):
             return False
         
         return self.url == other_item.url
-
-    def get_title( self):
-        return self.__title
-
-    def set_title( self, value):
-        self.__title = value.strip()
-
-    title = property(fget=get_title,
-                     fset=set_title)
-        
 
 
 

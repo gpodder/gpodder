@@ -47,12 +47,11 @@ class writeLocalDB( object):
         self.ofile.write( '<title>'+saxutils.escape(channel.title)+'</title>'+"\n")
         self.ofile.write( '<description><![CDATA['+channel.description+']]></description>'+"\n")
         self.ofile.write( '<link>'+channel.link+'</link>'+"\n")
-        self.ofile.write( '<language>'+channel.language+'</language>'+"\n")
         self.ofile.write( '<webMaster>'+channel.webMaster+'</webMaster>'+"\n")
         self.writeMetadata( channel)
         
         for item in channel:
-            if channel.is_downloaded( item):
+            if item.is_downloaded():
                 self.addItem( item)
             
         self.close()

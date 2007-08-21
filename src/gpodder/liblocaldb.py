@@ -72,7 +72,7 @@ class localDB( object):
         if not ch:
             return None
 
-        return ch.getPodcastFilename( podcast_url)
+        return ch.find_episode( podcast_url).local_filename()
     
     def clear_cache( self):
         self.__channel_list = None

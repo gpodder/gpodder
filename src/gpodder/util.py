@@ -195,3 +195,61 @@ def remove_html_tags( html):
     return stripstr
 
 
+def torrent_filename( filename):
+    """
+    Checks if a file is a ".torrent" file by examining its 
+    contents and searching for the file name of the file 
+    to be downloaded.
+
+    Returns the name of the file the ".torrent" will download 
+    or None if no filename is found (the file is no ".torrent")
+    """
+    if not os.path.exists( filename):
+        return None
+
+    header = open( filename).readline()
+    try:
+        header.index( '6:pieces')
+        name_length_pos = header.index('4:name') + 6
+
+        colon_pos = header.find( ':', name_length_pos)
+        name_length = int(header[name_length_pos:colon_pos]) + 1
+        name = header[(colon_pos + 1):(colon_pos + name_length)]
+        return name
+    except:
+        return None
+
+
+def file_extension_from_url( url):
+    """
+    Extracts the (lowercase) file name extension (with dot)
+    from a URL, e.g. http://server.com/file.MP3?download=yes
+    will result in the string ".mp3" being returned.
+    """
+    path = urlparse.urlparse( url)[2]
+    filename = urllib.unquote( os.path.basename( path))
+    return os.path.splitext( filename)[1].lower()
+
+
+def file_type_by_extension( extension):
+    """
+    Tries to guess the file type by looking up the filename 
+    extension from a table of known file types. Will return 
+    the type as string ("audio", "video" or "torrent") or 
+    None if the file type cannot be determined.
+    """
+    types = {
+            'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
+            'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx' ],
+            'torrent': [ 'torrent' ],
+    }
+
+    if extension[0] == '.':
+        extension = extension[1:]
+
+    for type in types:
+        if extension in types[type]:
+            return type
+    
+    return None
+
