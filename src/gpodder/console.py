@@ -85,15 +85,17 @@ def del_channel( url):
     url = util.normalize_feed_url( url)
 
     channels = load_channels( load_items = False)
-    search_list = [ c for c in channels ]
-    for channel in search_list:
+    keep_channels = []
+    for channel in channels:
         if channel.url == url:
             msg( 'delete', urllib.unquote( channel.url))
-            channels.remove( channel)
-            save_channels( channels)
-            return
+        else:
+            keep_channels.append( channel)
 
-    msg( 'error', _('Could not remove channel.'))
+    if len(keep_channels) < len(channels):
+        save_channels( keep_channels)
+    else:
+        msg( 'error', _('Could not remove channel.'))
 
 
 def update():
