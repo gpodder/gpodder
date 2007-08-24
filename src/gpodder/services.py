@@ -22,7 +22,7 @@
 
 #
 #  services.py -- Core Services for gPodder
-#  Thomas Perl <thp@perli.net>   2007-ß8-24
+#  Thomas Perl <thp@perli.net>   2007-08-24
 #
 #
 

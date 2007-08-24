@@ -21,24 +21,20 @@
 # MA  02110-1301, USA.
 #
 
-import os
-import time
-
 from gpodder import util
+from gpodder.liblogger import msg
 
 from libpodcasts import load_channels
 from libpodcasts import save_channels
-from libgpodder import gPodderLib
 from libpodcasts import podcastChannel
 
 from libwget import downloadThread
-from liblogger import msg
 
-from os import kill
-from string import strip
+import time
+
 import popen2
-import signal
-from urllib import unquote
+import urllib
+
 
 class DownloadPool(object):
     def __init__( self, max_downloads = 1):
@@ -60,7 +56,7 @@ class DownloadPool(object):
 
 def list_channels():
     for channel in load_channels( load_items = False):
-        msg( 'channel', unquote( channel.url))
+        msg( 'channel', urllib.unquote( channel.url))
 
 
 def add_channel( url):
@@ -70,14 +66,17 @@ def add_channel( url):
     try:
         channel = podcastChannel.get_by_url( url, force_update = True)
     except:
-        msg( 'error', _('Could not load feed from URL: %s'), url)
+        msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return
 
     if channel:
         channels = load_channels( load_items = False)
+        if channel.url in ( c.url for c in channels ):
+            msg( 'error', _('Already added: %s'), urllib.unquote( url))
+            return
         channels.append( channel)
         save_channels( channels)
-        msg( 'add', unquote( url))
+        msg( 'add', urllib.unquote( url))
     else:
         msg( 'error', _('Could not add channel.'))
 
@@ -86,10 +85,11 @@ def del_channel( url):
     url = util.normalize_feed_url( url)
 
     channels = load_channels( load_items = False)
-    for i in range( len(channels)-1, -1, -1):
-        if channels[i].url == url:
-            channels.remove( channels[i])
-            msg( 'delete', unquote( url))
+    search_list = [ c for c in channels ]
+    for channel in search_list:
+        if channel.url == url:
+            msg( 'delete', urllib.unquote( channel.url))
+            channels.remove( channel)
             save_channels( channels)
             return
 
@@ -97,49 +97,33 @@ def del_channel( url):
 
 
 def update():
-    callback_url = lambda url: msg( 'update', unquote( url))
+    callback_url = lambda url: msg( 'update', urllib.unquote( url))
     callback_error = lambda s: msg( 'error', s)
 
-    channels = load_channels( force_update = True, callback_url = callback_url, callback_error = callback_error)
+    return load_channels( force_update = True, callback_url = callback_url, callback_error = callback_error)
 
 
 def run():
-    gl = gPodderLib()
     channels = update()
 
     pool = DownloadPool()
     for channel in channels:
-       episodes_to_download = []
-       last_pubdate = channel.newest_pubdate_downloaded()
+       episodes_to_download = channel.get_new_episodes()
 
-       if not last_pubdate:
-            for item in channel[0:min(len(channel),3)]:
-                msg( 'queue', unquote( item.url))
-                episodes_to_download.append( item)
-       else:
-            for item in channel:
-                if item.compare_pubdate( last_pubdate) >= 0 and not item.is_downloaded() and not gl.history_is_downloaded( item.url):
-                    msg( 'queue', unquote( item.url))
-                    episodes_to_download.append( item)
+       for episode in episodes_to_download:
+           msg( 'queue', urllib.unquote( episode.url))
 
-       for item in episodes_to_download:
-           if item.is_downloaded() or gl.history_is_downloaded( item.url):
-               break
-
+       for episode in episodes_to_download:
            while not pool.has_free_slot():
                time.sleep( 3)
 
            pool.add()
-           filename = item.local_filename()
+           filename = episode.local_filename()
            #thread will call pool.set() when finished
-           downloadThread( item.url, filename, ready_event = pool, channelitem = channel, item = item).download()
-           msg( 'downloading', unquote( item.url))
+           downloadThread( episode.url, filename, ready_event = pool, channelitem = channel, item = episode).download()
+           msg( 'downloading', urllib.unquote( episode.url))
                
     
-def testForWget():
-        command = 'wget --version'
-        # get stdout, read all, split by line, strip whitespace
-        version = popen2.Popen3( command, True).fromchild.read().split('\n')[0].strip()
-	return version
-# end testForWget()
+def wget_version():
+    return popen2.Popen3( 'wget --version', True).fromchild.read().split('\n')[0].strip()
 

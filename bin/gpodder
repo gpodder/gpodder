@@ -99,7 +99,7 @@ def main( argv = sys.argv):
 
     # wget installation detection
     from gpodder import console
-    which_wget = console.testForWget()
+    which_wget = console.wget_version()
     if which_wget == "":
         print _("Error: cannot find wget.")
 	return 20
