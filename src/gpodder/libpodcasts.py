@@ -33,6 +33,7 @@ import pango
 from gpodder import util
 from gpodder import opml
 from gpodder import cache
+from gpodder import services
 
 from liblogger import log
 import libgpodder
@@ -249,7 +250,7 @@ class podcastChannel(ListType):
             pubdate = episode.newer_pubdate( pubdate)
         return pubdate
 
-    def get_new_episodes( self, download_status_manager = None):
+    def get_new_episodes( self):
         last_pubdate = self.newest_pubdate_downloaded()
         gl = libgpodder.gPodderLib()
 
@@ -268,7 +269,7 @@ class podcastChannel(ListType):
                 continue
 
             # download is currently in progress
-            if download_status_manager and download_status_manager.is_download_in_progress( episode.url):
+            if services.download_status_manager.is_download_in_progress( episode.url):
                 continue
 
             new_episodes.append( episode)
@@ -355,12 +356,12 @@ class podcastChannel(ListType):
     def force_update_tree_model( self):
         self.__tree_model = None
 
-    def update_model( self, downloading_callback = None, download_status_manager = None):
-        new_episodes = self.get_new_episodes( download_status_manager = download_status_manager)
+    def update_model( self):
+        new_episodes = self.get_new_episodes()
 
         iter = self.tree_model.get_iter_first()
         while iter != None:
-            self.iter_set_downloading_columns( self.tree_model, iter, downloading_callback, download_status_manager, new_episodes)
+            self.iter_set_downloading_columns( self.tree_model, iter, new_episodes)
             iter = self.tree_model.iter_next( iter)
 
     @property
@@ -371,7 +372,7 @@ class podcastChannel(ListType):
 
         return self.__tree_model
 
-    def iter_set_downloading_columns( self, model, iter, downloading_callback = None, download_status_manager = None, new_episodes = []):
+    def iter_set_downloading_columns( self, model, iter, new_episodes = []):
         url = model.get_value( iter, 0)
         local_filename = model.get_value( iter, 9)
 
@@ -389,7 +390,7 @@ class podcastChannel(ListType):
                 status_icon = 'applications-internet'
             else:
                 status_icon = 'unknown'
-        elif downloading_callback and downloading_callback( url):
+        elif services.download_status_manager.is_download_in_progress( url):
             status_icon = gtk.STOCK_GO_DOWN
         elif libgpodder.gPodderLib().history_is_downloaded( url):
             status_icon = gtk.STOCK_DELETE
@@ -401,19 +402,16 @@ class podcastChannel(ListType):
         model.set( iter, 4, status_icon)
         model.set( iter, 8, played_icon)
 
-    def items_liststore( self, downloading_callback = None, download_status_manager = None):
-        """Return a gtk.ListStore containing episodes for this channel
-
-        If downloading_callback is set, this should be a function that takes 
-        the URL of the episodes and returns True if the episode is currently 
-        being downloaded and False otherwise.
+    def items_liststore( self):
+        """
+        Return a gtk.ListStore containing episodes for this channel
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
-        new_episodes = self.get_new_episodes( download_status_manager = download_status_manager)
+        new_episodes = self.get_new_episodes()
 
         for item in self.get_all_episodes():
             new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, None, item.local_filename() ))
-            self.iter_set_downloading_columns( new_model, new_iter, downloading_callback, download_status_manager, new_episodes)
+            self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
         return new_model
     
@@ -599,12 +597,12 @@ class podcastItem(object):
 
 
 
-def channelsToModel( channels, download_status_manager = None):
+def channelsToModel( channels):
     new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gtk.gdk.Pixbuf)
     pos = 0
     
     for channel in channels:
-        new_episodes = channel.get_new_episodes( download_status_manager = download_status_manager)
+        new_episodes = channel.get_new_episodes()
         count = len(channel)
         count_new = len(new_episodes)
 

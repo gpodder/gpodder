@@ -42,6 +42,7 @@ from string import strip
 
 from gpodder import util
 from gpodder import opml
+from gpodder import services
 
 from SimpleGladeApp import SimpleGladeApp
 
@@ -51,7 +52,6 @@ from libpodcasts import load_channels
 from libpodcasts import save_channels
 
 from libwget import downloadThread
-from libwget import downloadStatusManager
 
 from libgpodder import gPodderLib
 from liblogger import log
@@ -107,7 +107,8 @@ class Gpodder(SimpleGladeApp):
             gtk.main_iteration( False)
 
         if app_version.rfind( "svn") != -1:
-            self.gPodder.set_title( 'gPodder %s' % ( app_version, ))
+            self.default_title = 'gPodder %s' % ( app_version, )
+            self.gPodder.set_title( self.default_title)
 
         # set up the rendering of the comboAvailable combobox
         cellrenderer = gtk.CellRendererText()
@@ -202,9 +203,11 @@ class Gpodder(SimpleGladeApp):
         
         for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
-    
-        self.download_status_manager = downloadStatusManager( main_window = self.gPodder, change_notification = self.download_status_updated)
-        self.treeDownloads.set_model( self.download_status_manager.getModel())
+
+        services.download_status_manager.register( 'list-changed', self.download_status_updated)
+        services.download_status_manager.register( 'progress-changed', self.download_progress_updated)
+
+        self.treeDownloads.set_model( services.download_status_manager.tree_model)
         
         # tooltips :)
         self.tooltips = gtk.Tooltips()
@@ -237,6 +240,19 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def download_progress_updated( self, count, percentage):
+        title = [ self.default_title ]
+
+        if count == 1:
+            title.append( _('downloading one file'))
+        elif count > 1:
+            title.append( _('downloading %d files') % count)
+
+        if len(title) == 2:
+            title[1] = ''.join( [ title[1], ' (%d%%)' % ( percentage, ) ])
+
+        self.gPodder.set_title( ' - '.join( title))
+
     def playback_episode( self, current_channel, current_podcast):
         ( success, application ) = gPodderLib().playback_episode( current_channel, current_podcast)
         if not success:
@@ -264,7 +280,7 @@ class Gpodder(SimpleGladeApp):
         if self.wNotebook.get_current_page() == 0:
             self.toolCancel.set_sensitive( False)
         else:
-            self.toolCancel.set_sensitive( self.download_status_manager.has_items())
+            self.toolCancel.set_sensitive( services.download_status_manager.has_items())
 
     def play_or_download( self):
         if self.wNotebook.get_current_page() > 0:
@@ -312,14 +328,14 @@ class Gpodder(SimpleGladeApp):
                 self.toolTransfer.set_sensitive( True)
 
     def download_status_updated( self):
-        count = self.download_status_manager.count()
+        count = services.download_status_manager.count()
         if count:
             self.labelDownloads.set_text( _('Downloads (%d)') % count)
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
         for channel in self.channels:
-            channel.update_model( downloading_callback = self.download_status_manager.is_download_in_progress, download_status_manager = self.download_status_manager)
+            channel.update_model()
 
         self.updateComboBox()
 
@@ -330,7 +346,7 @@ class Gpodder(SimpleGladeApp):
                 old_active = 0
             elif old_active > len( self.channels)-1:
                 old_active = len(self.channels)-1
-            self.comboAvailable.set_model( channelsToModel( self.channels, download_status_manager = self.download_status_manager))
+            self.comboAvailable.set_model( channelsToModel( self.channels))
             self.comboAvailable.set_active( old_active)
             self.treeChannels.set_model( self.comboAvailable.get_model())
             if old_active > -1:
@@ -589,8 +605,8 @@ class Gpodder(SimpleGladeApp):
          
                 return
         
-        if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( current_podcast.url):
-            downloadThread( current_podcast.url, filename, None, self.download_status_manager, current_podcast.title, current_channel, current_podcast, self.ldb).download()
+        if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
+            downloadThread( current_podcast.url, filename, None, current_podcast.title, current_channel, current_podcast, self.ldb).download()
         else:
             if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
                 title = _('Episode already downloaded')
@@ -615,8 +631,7 @@ class Gpodder(SimpleGladeApp):
         if self.channels:
             save_channels( self.channels)
 
-        if self.download_status_manager:
-            self.download_status_manager.cancelAll()
+        services.download_status_manager.cancel_all()
 
         gl = gPodderLib()
 
@@ -653,7 +668,7 @@ class Gpodder(SimpleGladeApp):
         new_sum = 0
 
         for channel in self.channels:
-            new_episodes = channel.get_new_episodes( download_status_manager = self.download_status_manager)
+            new_episodes = channel.get_new_episodes()
             for episode in new_episodes:
                 to_download.append( ( channel, episode ))
 
@@ -677,8 +692,8 @@ class Gpodder(SimpleGladeApp):
             if self.show_confirmation( message, title):
                 for channel, episode in to_download:
                     filename = episode.local_filename()
-                    if not os.path.exists( filename) and not self.download_status_manager.is_download_in_progress( episode.url):
-                        downloadThread( episode.url, filename, None, self.download_status_manager, episode.title, channel, episode, self.ldb).download()
+                    if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
+                        downloadThread( episode.url, filename, None, episode.title, channel, episode, self.ldb).download()
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
@@ -811,7 +826,7 @@ class Gpodder(SimpleGladeApp):
             if self.show_confirmation( message, title):
                 self.active_channel.remove_downloaded()
                 # only delete partial files if we do not have any downloads in progress
-                delete_partial = not self.download_status_manager.has_items()
+                delete_partial = not services.download_status_manager.has_items()
                 gPodderLib().clean_up_downloads( delete_partial)
                 self.channels.remove( self.active_channel)
                 save_channels( self.channels)
@@ -898,7 +913,7 @@ class Gpodder(SimpleGladeApp):
             self.toolDownload.set_sensitive( False)
             self.toolPlay.set_sensitive( False)
             self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( self.download_status_manager.has_items())
+            self.toolCancel.set_sensitive( services.download_status_manager.has_items())
     #-- Gpodder.on_wNotebook_switch_page }
 
     #-- Gpodder.on_treeChannels_row_activated {
@@ -1000,7 +1015,7 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.on_btnDownloadNewer_clicked {
     def on_btnDownloadNewer_clicked(self, widget, *args):
         channel = self.active_channel
-        episodes_to_download = channel.get_new_episodes( download_status_manager = self.download_status_manager)
+        episodes_to_download = channel.get_new_episodes()
 
         if not episodes_to_download:
             title = _('No episodes to download')
@@ -1055,8 +1070,8 @@ class Gpodder(SimpleGladeApp):
             try:
                 for apath in selection_tuple[1]:
                     selection_iter = self.treeDownloads.get_model().get_iter( apath)
-                    url = self.download_status_manager.get_url_by_iter( selection_iter)
-                    self.download_status_manager.cancel_by_url( url)
+                    url = services.download_status_manager.get_url_by_iter( selection_iter)
+                    services.download_status_manager.cancel_by_url( url)
             except:
                 log( 'Error while cancelling downloads.')
 
@@ -1112,7 +1127,7 @@ class Gpodder(SimpleGladeApp):
             except:
                 log( 'Error while deleting (some) downloads.')
         # only delete partial files if we do not have any downloads in progress
-        delete_partial = not self.download_status_manager.has_items()
+        delete_partial = not services.download_status_manager.has_items()
         gPodderLib().clean_up_downloads( delete_partial)
         self.active_channel.force_update_tree_model()
         self.updateTreeView()
