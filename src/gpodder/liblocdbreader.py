@@ -100,8 +100,6 @@ class readLocalDB( DefaultHandler):
                 self.channel.pubDate = self.current_element_data
             if name == "copyright":
                 self.channel.copyright = self.current_element_data
-            if name == "webMaster":
-                self.channel.webMaster = self.current_element_data
         
         if self.current_item != None:
             if name == "title":

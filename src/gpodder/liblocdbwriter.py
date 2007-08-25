@@ -47,7 +47,6 @@ class writeLocalDB( object):
         self.ofile.write( '<title>'+saxutils.escape(channel.title)+'</title>'+"\n")
         self.ofile.write( '<description><![CDATA['+channel.description+']]></description>'+"\n")
         self.ofile.write( '<link>'+channel.link+'</link>'+"\n")
-        self.ofile.write( '<webMaster>'+channel.webMaster+'</webMaster>'+"\n")
         self.writeMetadata( channel)
         
         for item in channel:
