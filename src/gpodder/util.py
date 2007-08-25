@@ -35,6 +35,8 @@ are not tied to any specific part of gPodder.
 
 from gpodder.liblogger import log
 
+import gtk
+
 import os
 import os.path
 
@@ -252,4 +254,38 @@ def file_type_by_extension( extension):
             return type
     
     return None
+
+
+def get_tree_icon( icon_name, add_bullet = False, icon_cache = None):
+    """
+    Loads an icon from the current icon theme at the specified
+    size, suitable for display in a gtk.TreeView.
+
+    Optionally adds a green bullet (the GTK Stock "Yes" icon)
+    to the Pixbuf returned.
+
+    If an icon_cache parameter is supplied, it has to be a
+    dictionary and will be used to store generated icons. 
+
+    On subsequent calls, icons will be loaded from cache if 
+    the cache is supplied again and the icon is found in 
+    the cache.
+    """
+
+    if icon_cache != None and (icon_name,add_bullet) in icon_cache:
+        return icon_cache[(icon_name,add_bullet)]
+    
+    icon_theme = gtk.icon_theme_get_default()
+    icon = icon_theme.load_icon( icon_name, 16, 0)
+    
+    if add_bullet:
+        emblem = icon_theme.load_icon( gtk.STOCK_YES, 10, 0)
+        size = emblem.get_width()
+        pos = icon.get_width() - size
+        emblem.composite( icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+
+    if icon_cache != None:
+        icon_cache[(icon_name,add_bullet)] = icon
+
+    return icon
 

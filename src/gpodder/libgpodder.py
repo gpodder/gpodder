@@ -132,7 +132,6 @@ class gPodderLibClass( object):
         self.use_gnome_bittorrent = True
         self.limit_rate = False
         self.limit_rate_value = 4.0
-        self.show_played = False
         self.update_tags = False
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
@@ -202,7 +201,6 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'download_after_update', self.download_after_update)
         self.write_to_parser( parser, 'limit_rate', self.limit_rate)
         self.write_to_parser( parser, 'limit_rate_value', self.limit_rate_value)
-        self.write_to_parser( parser, 'show_played', self.show_played)
         self.write_to_parser( parser, 'update_tags', self.update_tags)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
@@ -334,7 +332,6 @@ class gPodderLibClass( object):
                     self.download_after_update = self.get_boolean_from_parser(parser, 'download_after_update', default=False)
                     self.limit_rate = self.get_boolean_from_parser(parser, 'limit_rate', default=False)
                     self.limit_rate_value = self.get_float_from_parser(parser, 'limit_rate_value', default=4.0)
-                    self.show_played = self.get_boolean_from_parser(parser, 'show_played', default=False)
                     self.update_tags = self.get_boolean_from_parser(parser, 'update_tags', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.torrentdir = self.get_from_parser( parser, 'bittorrent_dir', expanduser('~/gpodder-downloads/torrents'))

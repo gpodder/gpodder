@@ -156,17 +156,11 @@ class Gpodder(SimpleGladeApp):
         self.treeAvailable.set_rules_hint( True)
 
         iconcell = gtk.CellRendererPixbuf()
-        iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell)
-        iconcolumn.add_attribute( iconcell, "icon-name", 4)
-
-        playedcell = gtk.CellRendererPixbuf()
-        playedcolumn = gtk.TreeViewColumn( _("New"), playedcell)
-        playedcolumn.add_attribute( playedcell, "icon-name", 8)
-        self.played_column = playedcolumn
+        iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell, pixbuf = 4)
 
         namecell = gtk.CellRendererText()
         #namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text=1)
+        namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text = 1)
         namecolumn.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE)
 
         sizecell = gtk.CellRendererText()
@@ -179,7 +173,7 @@ class Gpodder(SimpleGladeApp):
         desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
         desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
 
-        for itemcolumn in ( iconcolumn, playedcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
+        for itemcolumn in ( iconcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
             itemcolumn.set_resizable( True)
             itemcolumn.set_reorderable( True)
             self.treeAvailable.append_column( itemcolumn)
@@ -356,7 +350,6 @@ class Gpodder(SimpleGladeApp):
     
     def updateTreeView( self):
         gl = gPodderLib()
-        self.played_column.set_visible( gl.show_played)
 
         rect = self.treeAvailable.get_visible_rect()
         if self.channels:
@@ -1263,7 +1256,6 @@ class Gpodderproperties(SimpleGladeApp):
         self.spinLimitDownloads.set_value(gl.limit_rate_value)
         self.cbMaxDownloads.set_active(gl.max_downloads_enabled)
         self.spinMaxDownloads.set_value(gl.max_downloads)
-        self.showplayed.set_active(gl.show_played)
         self.only_sync_not_played.set_active(gl.only_sync_not_played)
         if tagging_supported():
             self.updatetags.set_active(gl.update_tags)
@@ -1484,7 +1476,6 @@ class Gpodderproperties(SimpleGladeApp):
         gl.limit_rate_value = self.spinLimitDownloads.get_value()
         gl.max_downloads_enabled = self.cbMaxDownloads.get_active()
         gl.max_downloads = int(self.spinMaxDownloads.get_value())
-        gl.show_played = self.showplayed.get_active()
         gl.update_tags = self.updatetags.get_active()
         gl.only_sync_not_played = self.only_sync_not_played.get_active()
         device_type = self.comboboxDeviceType.get_active()

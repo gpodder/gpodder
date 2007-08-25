@@ -102,6 +102,7 @@ class podcastChannel(ListType):
     MAP_FROM = 'abcdefghijklmnopqrstuvwxyz0123456789'
     MAP_TO   = 'qazwsxedcrfvtgbyhnujmikolp9514738062'
     SETTINGS = ('sync_to_devices', 'is_music_channel', 'device_playlist_name','override_title','username','password')
+    icon_cache = {}
 
     storage = shelve.open( libgpodder.gPodderLib().feed_cache_file)
     fc = cache.Cache( storage)
@@ -133,6 +134,8 @@ class podcastChannel(ListType):
             episode = podcastItem.from_feedparser_entry( entry, channel)
             if episode:
                 channel.append( episode)
+
+        channel.sort( reverse = True)
         
         cls.storage.sync()
         return channel
@@ -374,43 +377,39 @@ class podcastChannel(ListType):
 
     def iter_set_downloading_columns( self, model, iter, new_episodes = []):
         url = model.get_value( iter, 0)
-        local_filename = model.get_value( iter, 9)
+        local_filename = model.get_value( iter, 8)
+        played = not libgpodder.gPodderLib().history_is_played( url)
 
-        played_icon = None
         if os.path.exists( local_filename):
-            if not libgpodder.gPodderLib().history_is_played( url):
-                played_icon = gtk.STOCK_YES
-
             file_type = util.file_type_by_extension( util.file_extension_from_url( url))
             if file_type == 'audio':
-                status_icon = 'audio-x-generic'
+                status_icon = util.get_tree_icon( 'audio-x-generic', played, self.icon_cache)
             elif file_type == 'video':
-                status_icon = 'video-x-generic'
+                status_icon = util.get_tree_icon( 'video-x-generic', played, self.icon_cache)
             elif file_type == 'torrent':
-                status_icon = 'applications-internet'
+                status_icon = util.get_tree_icon( 'applications-internet', played, self.icon_cache)
             else:
-                status_icon = 'unknown'
+                status_icon = util.get_tree_icon( 'unknown', played, self.icon_cache)
         elif services.download_status_manager.is_download_in_progress( url):
-            status_icon = gtk.STOCK_GO_DOWN
+            status_icon = util.get_tree_icon( gtk.STOCK_GO_DOWN, icon_cache = self.icon_cache)
         elif libgpodder.gPodderLib().history_is_downloaded( url):
-            status_icon = gtk.STOCK_DELETE
+            status_icon = util.get_tree_icon( gtk.STOCK_DELETE, icon_cache = self.icon_cache)
         elif url in [ e.url for e in new_episodes ]:
-            status_icon = gtk.STOCK_NEW
+            status_icon = util.get_tree_icon( gtk.STOCK_NEW, icon_cache = self.icon_cache)
         else:
             status_icon = None
 
         model.set( iter, 4, status_icon)
-        model.set( iter, 8, played_icon)
 
     def items_liststore( self):
         """
         Return a gtk.ListStore containing episodes for this channel
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         new_episodes = self.get_new_episodes()
 
         for item in self.get_all_episodes():
-            new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, None, item.local_filename() ))
+            new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, item.local_filename() ))
             self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
         return new_model
