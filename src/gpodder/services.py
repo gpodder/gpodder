@@ -171,10 +171,6 @@ class DownloadStatusManager( object):
         # clear the tree model after cancelling
         gobject.idle_add( self.tree_model.clear)
 
-    def get_url_by_iter( self, iter):
-        result = self.tree_model.get_value( iter, 3)
-        return result
-
     def cancel_by_url( self, url):
         for element in self.status_list:
 	    thread = self.status_list[element]['thread']

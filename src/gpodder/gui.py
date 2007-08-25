@@ -213,7 +213,6 @@ class Gpodder(SimpleGladeApp):
                         gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY | \
                         gtk.gdk.ACTION_DEFAULT)
         self.main_widget.connect("drag_data_received", self.drag_data_received)
-        self.wNotebook.connect("switch-page", self.switched_notebook)
 
         # Subscribed channels
         self.active_channel = None
@@ -270,17 +269,12 @@ class Gpodder(SimpleGladeApp):
 
         return True
 
-    def downloads_changed( self):
-        if self.wNotebook.get_current_page() == 0:
-            self.toolCancel.set_sensitive( False)
-        else:
-            self.toolCancel.set_sensitive( services.download_status_manager.has_items())
-
     def play_or_download( self):
         if self.wNotebook.get_current_page() > 0:
             return
 
         is_download_button = False
+        is_cancel_button = False
         is_torrent = False
         gl = gPodderLib()
 
@@ -300,26 +294,36 @@ class Gpodder(SimpleGladeApp):
                 filename = episode.local_filename()
                 if not os.path.exists( filename):
                     is_download_button = True
+                    if services.download_status_manager.is_download_in_progress( url):
+                        is_cancel_button = True
                     break
                 if episode.file_type() == 'torrent':
                     is_torrent = True
         except:
             is_download_button = True
 
-        if is_download_button:
+        if is_cancel_button:
+            self.toolPlay.set_sensitive( False)
+            self.toolDownload.set_sensitive( False)
+            self.toolTransfer.set_sensitive( False)
+            self.toolCancel.set_sensitive( True)
+        elif is_download_button:
             self.toolPlay.set_sensitive( False)
             self.toolDownload.set_sensitive( True)
             self.toolTransfer.set_sensitive( False)
+            self.toolCancel.set_sensitive( False)
         elif is_torrent:
             self.toolPlay.set_sensitive( False)
             # Only enable download button when using gnome-bittorrent
             self.toolDownload.set_sensitive( gl.use_gnome_bittorrent)
             self.toolTransfer.set_sensitive( False)
+            self.toolCancel.set_sensitive( False)
         else:
             self.toolPlay.set_sensitive( True)
             self.toolDownload.set_sensitive( False)
             if gl.device_type != 'none':
                 self.toolTransfer.set_sensitive( True)
+            self.toolCancel.set_sensitive( False)
 
     def download_status_updated( self):
         count = services.download_status_manager.count()
@@ -400,10 +404,6 @@ class Gpodder(SimpleGladeApp):
         
         dlg.destroy()
         return confirmation_result
-
-    def switched_notebook( self, notebook, page, page_num):
-        if page_num == 0:
-            self.updateComboBox()
 
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
         result = sel.data
@@ -900,7 +900,7 @@ class Gpodder(SimpleGladeApp):
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
         if page_num == 0:
-            self.toolCancel.set_sensitive( False)
+            self.updateComboBox()
             self.play_or_download()
         else:
             self.toolDownload.set_sensitive( False)
@@ -991,8 +991,6 @@ class Gpodder(SimpleGladeApp):
             title = _('Nothing selected')
             message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')
             self.show_message( message, title)
-
-        self.downloads_changed()
     #-- Gpodder.on_treeAvailable_row_activated }
 
     #-- Gpodder.on_btnDownload_clicked {
@@ -1045,30 +1043,34 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_treeDownloads_row_activated {
     def on_treeDownloads_row_activated(self, widget, *args):
-        selection = self.treeDownloads.get_selection()
-        selection_tuple = selection.get_selected_rows()
-        if selection.count_selected_rows() == 0:
-            log( 'Nothing selected to cancel.')
+        cancel_urls = []
+
+        if self.wNotebook.get_current_page() > 0:
+            # Use the download list treeview + model
+            ( tree, column ) = ( self.treeDownloads, 3 )
+        else:
+            # Use the available podcasts treeview + model
+            ( tree, column ) = ( self.treeAvailable, 0 )
+
+        (model, paths) = tree.get_selection().get_selected_rows()
+        for path in paths:
+            url = model.get_value( model.get_iter( path), column)
+            cancel_urls.append( url)
+
+        if len( cancel_urls) == 0:
+            log('Nothing selected.', sender = self)
             return
 
-        title = _('Cancel downloads?')
-        message = _("Cancelling the download will stop the %d selected downloads and remove partially downloaded files.") % selection.count_selected_rows()
-
-        if selection.count_selected_rows() == 1:
+        if len( cancel_urls) == 1:
             title = _('Cancel download?')
             message = _("Cancelling this download will remove the partially downloaded file and stop the download.")
+        else:
+            title = _('Cancel downloads?')
+            message = _("Cancelling the download will stop the %d selected downloads and remove partially downloaded files.") % selection.count_selected_rows()
 
         if self.show_confirmation( message, title):
-            # cancel downloads one by one
-            try:
-                for apath in selection_tuple[1]:
-                    selection_iter = self.treeDownloads.get_model().get_iter( apath)
-                    url = services.download_status_manager.get_url_by_iter( selection_iter)
-                    services.download_status_manager.cancel_by_url( url)
-            except:
-                log( 'Error while cancelling downloads.')
-
-        self.downloads_changed()
+            for url in cancel_urls:
+                services.download_status_manager.cancel_by_url( url)
     #-- Gpodder.on_treeDownloads_row_activated }
 
     #-- Gpodder.on_btnCancelDownloadStatus_clicked {
