@@ -131,7 +131,13 @@ class podcastChannel(ListType):
                 log('Skipping entry: %s', entry)
                 continue
 
-            episode = podcastItem.from_feedparser_entry( entry, channel)
+            episode = None
+
+            try:
+                episode = podcastItem.from_feedparser_entry( entry, channel)
+            except:
+                log( 'Cannot instantiate episode for %s. Skipping.', entry.enclosures[0].href, sender = channel)
+
             if episode:
                 channel.append( episode)
 
@@ -487,7 +493,12 @@ class podcastItem(object):
         episode.title = entry.title
         if hasattr( entry, 'link'):
             episode.link = entry.link
-        episode.description = util.remove_html_tags( entry.summary)
+        if hasattr( entry, 'summary'):
+            episode.description = util.remove_html_tags( entry.summary)
+        elif hasattr( entry, 'link'):
+            episode.description = entry.link
+        else:
+            episode.description = entry.title
         episode.guid = entry.id
         episode.pubDate = entry.updated
 
