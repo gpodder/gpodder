@@ -275,6 +275,10 @@ class Gpodder(SimpleGladeApp):
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append( item)
+                item = gtk.ImageMenuItem( _('_Remove'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', self.on_btnDownloadedDelete_clicked)
+                menu.append( item)
 
             if can_download:
                 item = gtk.ImageMenuItem( _('_Download'))
