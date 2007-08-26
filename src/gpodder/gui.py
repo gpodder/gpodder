@@ -155,6 +155,9 @@ class Gpodder(SimpleGladeApp):
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
 
+        # Add our context menu to treeAvailable
+        self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
+
         iconcell = gtk.CellRendererPixbuf()
         iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell, pixbuf = 4)
 
@@ -233,6 +236,69 @@ class Gpodder(SimpleGladeApp):
     #-- Gpodder.new }
 
     #-- Gpodder custom methods {
+    def treeview_button_pressed( self, treeview, event):
+        if event.button == 3:
+            ( x, y ) = ( int(event.x), int(event.y) )
+            ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
+
+            paths = []
+
+            # Did the user right-click into a selection?
+            selection = self.treeAvailable.get_selection()
+            if selection.count_selected_rows() and path:
+                ( model, paths ) = selection.get_selected_rows()
+                if path not in paths:
+                    # We have right-clicked, but not into the 
+                    # selection, assume we don't want to operate
+                    # on the selection
+                    paths = []
+
+            # No selection or right click not in selection:
+            # Select the single item where we clicked
+            if not len( paths) and path:
+                treeview.grab_focus()
+                treeview.set_cursor( path, column, 0)
+
+                ( model, paths ) = ( treeview.get_model(), [ path ] )
+
+            # We did not find a selection, and the user didn't
+            # click on an item to select -- don't show the menu
+            if not len( paths):
+                return True
+
+            menu = gtk.Menu()
+
+            ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
+
+            if can_play:
+                item = gtk.ImageMenuItem( _('_Play'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
+                menu.append( item)
+
+            if can_download:
+                item = gtk.ImageMenuItem( _('_Download'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
+                menu.append( item)
+
+            if can_transfer:
+                item = gtk.ImageMenuItem( _('_Transfer to %s') % gPodderLib().get_device_name())
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_NETWORK, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolTransfer))
+                menu.append( item)
+
+            if can_cancel:
+                item = gtk.ImageMenuItem( _('_Cancel download'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeDownloads_row_activated( self.toolCancel))
+                menu.append( item)
+
+            menu.show_all()
+            menu.popup( None, None, None, event.button, event.time)
+
+            return True
+
     def download_progress_updated( self, count, percentage):
         title = [ self.default_title ]
 
@@ -273,57 +339,37 @@ class Gpodder(SimpleGladeApp):
         if self.wNotebook.get_current_page() > 0:
             return
 
-        is_download_button = False
-        is_cancel_button = False
-        is_torrent = False
-        gl = gPodderLib()
+        ( can_play, can_download, can_transfer, can_cancel ) = (False,)*4
 
-        try:
-            selection = self.treeAvailable.get_selection()
-            if selection.count_selected_rows() == 0:
-                self.toolPlay.set_sensitive( False)
-                self.toolDownload.set_sensitive( False)
-                self.toolTransfer.set_sensitive( False)
-                return
-            selection_tuple = selection.get_selected_rows()
+        selection = self.treeAvailable.get_selection()
+        if selection.count_selected_rows() > 0:
+            (model, paths) = selection.get_selected_rows()
+         
+            for path in paths:
+                url = model.get_value( model.get_iter( path), 0)
+                local_filename = model.get_value( model.get_iter( path), 8)
 
-            for apath in selection_tuple[1]:
-                selection_iter = self.treeAvailable.get_model().get_iter( apath)
-                url = self.treeAvailable.get_model().get_value( selection_iter, 0)
-                episode = self.active_channel.find_episode( url)
-                filename = episode.local_filename()
-                if not os.path.exists( filename):
-                    is_download_button = True
+                if os.path.exists( local_filename):
+                    can_play = True
+                else:
                     if services.download_status_manager.is_download_in_progress( url):
-                        is_cancel_button = True
-                    break
-                if episode.file_type() == 'torrent':
-                    is_torrent = True
-        except:
-            is_download_button = True
+                        can_cancel = True
+                    else:
+                        can_download = True
 
-        if is_cancel_button:
-            self.toolPlay.set_sensitive( False)
-            self.toolDownload.set_sensitive( False)
-            self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( True)
-        elif is_download_button:
-            self.toolPlay.set_sensitive( False)
-            self.toolDownload.set_sensitive( True)
-            self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( False)
-        elif is_torrent:
-            self.toolPlay.set_sensitive( False)
-            # Only enable download button when using gnome-bittorrent
-            self.toolDownload.set_sensitive( gl.use_gnome_bittorrent)
-            self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( False)
-        else:
-            self.toolPlay.set_sensitive( True)
-            self.toolDownload.set_sensitive( False)
-            if gl.device_type != 'none':
-                self.toolTransfer.set_sensitive( True)
-            self.toolCancel.set_sensitive( False)
+                if util.file_type_by_extension( util.file_extension_from_url( url)) == 'torrent':
+                    can_download = can_download or gPodderLib().use_gnome_bittorrent
+
+        can_download = can_download and not can_cancel
+        can_play = can_play and not can_cancel and not can_download
+        can_transfer = can_play and gPodderLib().device_type != 'none'
+
+        self.toolPlay.set_sensitive( can_play)
+        self.toolDownload.set_sensitive( can_download)
+        self.toolTransfer.set_sensitive( can_transfer)
+        self.toolCancel.set_sensitive( can_cancel)
+
+        return ( can_play, can_download, can_transfer, can_cancel )
 
     def download_status_updated( self):
         count = services.download_status_manager.count()
@@ -571,6 +617,9 @@ class Gpodder(SimpleGladeApp):
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
+        if self.active_channel == None:
+            return
+
         current_channel = self.active_channel
         current_podcast = current_channel.find_episode( url)
         filename = current_podcast.local_filename()
@@ -1052,7 +1101,8 @@ class Gpodder(SimpleGladeApp):
             # Use the available podcasts treeview + model
             ( tree, column ) = ( self.treeAvailable, 0 )
 
-        (model, paths) = tree.get_selection().get_selected_rows()
+        selection = tree.get_selection()
+        (model, paths) = selection.get_selected_rows()
         for path in paths:
             url = model.get_value( model.get_iter( path), column)
             cancel_urls.append( url)
@@ -1092,6 +1142,9 @@ class Gpodder(SimpleGladeApp):
 
     #-- Gpodder.on_btnDownloadedDelete_clicked {
     def on_btnDownloadedDelete_clicked(self, widget, *args):
+        if self.active_channel == None:
+            return
+
         channel_url = self.active_channel.url
         selection = self.treeAvailable.get_selection()
         selection_tuple = selection.get_selected_rows()

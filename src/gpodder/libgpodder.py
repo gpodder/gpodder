@@ -161,6 +161,15 @@ class gPodderLibClass( object):
     def get_playback_history_filename( self):
         return self.gpodderdir + 'playback-history.txt'
 
+    def get_device_name( self):
+        if self.device_type == 'ipod':
+            return _('iPod')
+        elif self.device_type == 'filesystem':
+            return _('MP3 player')
+        else:
+            log( 'Warning: Called get_device_name() when no device was selected.', sender = self)
+            return '(unknown device)'
+
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use,
         # but only if we are not told to passthru the env vars
