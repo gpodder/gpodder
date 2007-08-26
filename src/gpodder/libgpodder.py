@@ -34,6 +34,7 @@ import urllib
 import shutil
 
 from gpodder import util
+from gpodder import opml
 
 from xml.sax.saxutils import DefaultHandler
 from xml.sax import make_parser
@@ -489,6 +490,9 @@ class gPodderChannelWriter( object):
                 log( 'Could not write channels to file.')
         print >> fd, '</channels>'
         fd.close()
+        filename_opml = join( dirname( filename), 'channels.opml')
+        exporter = opml.Exporter( filename_opml)
+        exporter.write( channels)
 
 class gPodderChannelReader( DefaultHandler):
     def __init__( self):
