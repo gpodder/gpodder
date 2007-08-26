@@ -299,3 +299,11 @@ def get_tree_icon( icon_name, add_bullet = False, icon_cache = None):
 
     return icon
 
+
+def get_first_line( s):
+    """
+    Returns only the first line of a string, stripped so
+    that it doesn't have whitespace before or after.
+    """
+    return s.strip().split('\n')[0].strip()
+

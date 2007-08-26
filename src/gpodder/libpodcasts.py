@@ -490,17 +490,14 @@ class podcastItem(object):
     def from_feedparser_entry( entry, channel):
         episode = podcastItem( channel)
 
-        episode.title = entry.title
-        if hasattr( entry, 'link'):
-            episode.link = entry.link
-        if hasattr( entry, 'summary'):
-            episode.description = util.remove_html_tags( entry.summary)
-        elif hasattr( entry, 'link'):
-            episode.description = entry.link
-        else:
-            episode.description = entry.title
+        episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
+        episode.link = entry.get( 'link', '')
+        episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
         episode.guid = entry.id
         episode.pubDate = entry.updated
+
+        if episode.title == '':
+            log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
 
         if len(entry.enclosures) > 1:
             log( 'Warning: More than one enclosure found in feed, only using first', sender = episode)
