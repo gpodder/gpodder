@@ -141,6 +141,9 @@ def format_filesize( bytesize, method = None):
     Formats the given size in bytes to be human-readable, 
     either the most appropriate form (B, KB, MB, GB) or 
     a form specified as optional second parameter (e.g. "MB").
+
+    Returns a localized "(unknown)" string when the bytesize
+    has a negative value.
     """
     methods = {
         'GB': 1024.0 * 1024.0 * 1024.0,
@@ -150,6 +153,9 @@ def format_filesize( bytesize, method = None):
     }
 
     bytesize = float( bytesize)
+
+    if bytesize < 0:
+        return _('(unknown)')
 
     if method not in methods:
         method = 'B'

@@ -507,6 +507,10 @@ class podcastItem(object):
         episode.length = enclosure.length
         episode.mimetype = enclosure.type
 
+        if episode.title == '':
+            ( filename, extension ) = os.path.splitext( os.path.basename( episode.url))
+            episode.title = filename
+
         return episode
 
 
