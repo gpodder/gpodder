@@ -276,13 +276,23 @@ def get_tree_icon( icon_name, add_bullet = False, icon_cache = None):
         return icon_cache[(icon_name,add_bullet)]
     
     icon_theme = gtk.icon_theme_get_default()
-    icon = icon_theme.load_icon( icon_name, 16, 0)
-    
-    if add_bullet:
-        emblem = icon_theme.load_icon( gtk.STOCK_YES, 10, 0)
-        size = emblem.get_width()
-        pos = icon.get_width() - size
-        emblem.composite( icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+
+    try:
+        icon = icon_theme.load_icon( icon_name, 16, 0)
+    except:
+        log( '(get_tree_icon) Warning: Cannot load icon with name "%s", will use  default icon.', icon_name)
+        icon = icon_theme.load_icon( gtk.STOCK_DIALOG_QUESTION, 16, 0)
+
+    if add_bullet and icon:
+        # We'll modify the icon, so use .copy()
+        try:
+            icon = icon.copy()
+            emblem = icon_theme.load_icon( gtk.STOCK_YES, 10, 0)
+            size = emblem.get_width()
+            pos = icon.get_width() - size
+            emblem.composite( icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+        except:
+            log( '(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
 
     if icon_cache != None:
         icon_cache[(icon_name,add_bullet)] = icon
