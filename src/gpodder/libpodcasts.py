@@ -493,8 +493,8 @@ class podcastItem(object):
         episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
         episode.link = entry.get( 'link', '')
         episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
-        episode.guid = entry.id
-        episode.pubDate = entry.updated
+        episode.guid = entry.get( 'id', '')
+        episode.pubDate = entry.get( 'updated', '')
 
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
