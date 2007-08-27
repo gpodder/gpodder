@@ -1262,7 +1262,7 @@
 		<widget class="GtkEntry" id="entryURL">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="editable">True</property>
+		  <property name="editable">False</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
 		  <property name="text" translatable="yes"></property>
@@ -3975,6 +3975,7 @@ Filesystem-based MP3 player</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
+  <signal name="destroy" handler="on_gPodderEpisode_destroy" last_modification_time="Mon, 27 Aug 2007 21:49:24 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vboxEpisodeInfo">
