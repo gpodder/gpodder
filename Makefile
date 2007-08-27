@@ -14,7 +14,6 @@ GUIFILE=src/gpodder/gui.py
 LOGO_22=data/icons/22/gpodder.png
 LOGO_24=data/icons/24/gpodder.png
 MANPAGE=doc/man/gpodder.1
-TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
 ROSETTA_FILES=$(MESSAGESPOT) data/po/*.po
@@ -86,17 +85,13 @@ uninstall:
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_glade gen_graphics
+generators: $(MANPAGE) gen_graphics
 	make -C data/po update
 
 messages: gen_gettext
 
 $(MANPAGE): $(BINFILE)
 	help2man --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
-
-gen_glade: $(GLADEFILE)
-	$(TEPACHE) --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)
-	chmod -x $(GUIFILE) $(GUIFILE).orig
 
 gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
@@ -134,7 +129,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl test release install update-icons generators gen_manpage gen_glade gen_graphics clean distclean messages help
+.PHONY: all cl test release install update-icons generators gen_manpage gen_graphics clean distclean messages help
 
 ##########################################################################
 
