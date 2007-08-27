@@ -97,7 +97,7 @@ class downloadThread( object):
         command = ' '.join( command)
 
         log( 'Command: %s', command)
-        services.download_status_manager.update_status( self.download_id, episode = self.cutename, speed = _('Queued'), url = self.url)
+        services.download_status_manager.update_status( self.download_id, episode = self.cutename, speed = _('Queued'), progress = 0.0, url = self.url)
         acquired = services.download_status_manager.s_acquire()
 
         # if after acquiring the lock, we are already cancelled,
@@ -123,7 +123,7 @@ class downloadThread( object):
 
             if msg.find("%") != -1:
                 try:
-                    self.percentage = (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0
+                    self.percentage = max( self.percentage, (int(msg[(msg.find("%") - 2)] + msg[(msg.find("%") - 1)])+0.001)/100.0)
                 except:
                     pass
                

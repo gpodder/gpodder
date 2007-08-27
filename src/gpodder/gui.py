@@ -270,24 +270,39 @@ class Gpodder(SimpleGladeApp):
 
             ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
 
+            if len(paths) == 1:
+                # Single item, add episode information menu item
+                episode_title = model.get_value( model.get_iter( paths[0]), 1)
+                if len(episode_title) > 30:
+                    episode_title = episode_title[:27] + '...'
+                item = gtk.ImageMenuItem('')
+                ( label, image ) = item.get_children()
+                label.set_text( _('Episode information: %s') % episode_title)
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
+                menu.append( item)
+                menu.append( gtk.SeparatorMenuItem())
+            else:
+                episode_title = _('%d selected episodes') % len(paths)
+
             if can_play:
-                item = gtk.ImageMenuItem( _('_Play'))
+                item = gtk.ImageMenuItem( _('Play %s') % episode_title)
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append( item)
-                item = gtk.ImageMenuItem( _('_Remove'))
+                item = gtk.ImageMenuItem( _('Remove %s') % episode_title)
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', self.on_btnDownloadedDelete_clicked)
                 menu.append( item)
 
             if can_download:
-                item = gtk.ImageMenuItem( _('_Download'))
+                item = gtk.ImageMenuItem( _('Download %s') % episode_title)
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
                 menu.append( item)
 
             if can_transfer:
-                item = gtk.ImageMenuItem( _('_Transfer to %s') % gPodderLib().get_device_name())
+                item = gtk.ImageMenuItem( _('Transfer %s to %s') % ( episode_title, gPodderLib().get_device_name() ))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_NETWORK, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolTransfer))
                 menu.append( item)
@@ -640,15 +655,9 @@ class Gpodder(SimpleGladeApp):
          
             if widget.get_name() == 'treeAvailable':
                 gpe = Gpodderepisode( gpodderwindow = self.gPodder)
-                gpe.set_episode( current_podcast, current_channel)
-         
-                if os.path.exists( filename) and current_podcast.file_type() == 'torrent':
-                    gpe.set_download_callback( lambda: current_channel.addDownloadedItem( current_podcast))
-                elif os.path.exists( filename):
-                    gpe.set_play_callback( lambda: self.playback_episode( current_channel, current_podcast))
-                else:
-                    gpe.set_download_callback( lambda: self.download_podcast_by_url( url, want_message_dialog, None))
-         
+                play_callback = lambda: self.playback_episode( current_channel, current_podcast)
+                download_callback = lambda: self.download_podcast_by_url( url, want_message_dialog, None)
+                gpe.set_episode( current_podcast, current_channel, play_callback, download_callback)
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
@@ -1560,6 +1569,9 @@ class Gpodderepisode(SimpleGladeApp):
         if 'gpodderwindow' in kwargs:
             self.gPodderEpisode.set_transient_for( kwargs['gpodderwindow'])
             self.gPodderEpisode.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+            services.download_status_manager.register( 'list-changed', self.on_download_status_changed)
+            services.download_status_manager.register( 'progress-detail', self.on_download_status_progress)
+            self.gPodderEpisode.connect( 'destroy', self.on_gPodderEpisode_destroy)
 
     #-- Gpodderepisode.new {
     def new(self):
@@ -1567,8 +1579,37 @@ class Gpodderepisode(SimpleGladeApp):
     #-- Gpodderepisode.new }
 
     #-- Gpodderepisode custom methods {
-    #   Write your own methods here
-    def set_episode( self, episode, channel = None):
+    def on_btnCancel_clicked( self, widget):
+        services.download_status_manager.cancel_by_url( self.episode.url)
+
+    def on_gPodderEpisode_destroy( self, widget):
+        services.download_status_manager.unregister( 'list-changed', self.on_download_status_changed)
+        services.download_status_manager.unregister( 'progress-detail', self.on_download_status_progress)
+
+    def on_download_status_changed( self):
+        self.hide_show_widgets()
+
+    def on_download_status_progress( self, url, progress, speed):
+        if url == self.episode.url:
+            self.progress_bar.set_fraction( 1.0*progress/100.0)
+            self.progress_bar.set_text( 'Downloading: %d%% (%s)' % ( progress, speed, ))
+
+    def hide_show_widgets( self):
+        is_downloading = services.download_status_manager.is_download_in_progress( self.episode.url)
+        if is_downloading:
+            self.progress_bar.show_all()
+            self.btnCancel.show_all()
+            self.btnPlay.hide_all()
+            self.btnDownload.hide_all()
+        else:
+            self.progress_bar.hide_all()
+            self.btnCancel.hide_all()
+            if os.path.exists( self.episode.local_filename()):
+                self.btnPlay.show_all()
+            else:
+                self.btnDownload.show_all()
+
+    def set_episode( self, episode, channel, play_callback, download_callback):
         gl = gPodderLib()
         self.episode = episode
         self.channel = channel
@@ -1592,18 +1633,11 @@ class Gpodderepisode(SimpleGladeApp):
             self.channel_title.set_markup( smalltext)
 
         self.labelPubDate.set_markup( episode.pubDate)
-        self.download_callback = None
-        self.play_callback = None
+        self.download_callback = download_callback
+        self.play_callback = play_callback
 
-    def set_download_callback( self, callback = None):
-        self.download_callback = callback
-        if callback:
-            self.btnDownload.show_all()
-
-    def set_play_callback( self, callback = None):
-        self.play_callback = callback
-        if callback:
-            self.btnPlay.show_all()
+        self.hide_show_widgets()
+        services.download_status_manager.request_progress_detail( self.episode.url)
     #-- Gpodderepisode custom methods }
 
     #-- Gpodderepisode.on_btnCloseWindow_clicked {
@@ -1616,8 +1650,6 @@ class Gpodderepisode(SimpleGladeApp):
         # if we have a callback, .. well.. call it back! ;)
         if self.download_callback:
             self.download_callback()
-
-        self.gPodderEpisode.destroy()
     #-- Gpodderepisode.on_btnDownload_clicked }
 
     #-- Gpodderepisode.on_btnPlay_clicked {

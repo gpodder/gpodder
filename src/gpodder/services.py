@@ -52,7 +52,7 @@ class DownloadStatusManager( object):
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
         self.tree_model_lock = threading.Lock()
 
-        self.observers = { 'list-changed': [], 'progress-changed': [] }
+        self.observers = { 'list-changed': [], 'progress-changed': [], 'progress-detail': [], }
 
 
     def register( self, signal_name, observer):
@@ -63,6 +63,15 @@ class DownloadStatusManager( object):
                 log( 'Observer already added to signal "%s".', signal_name, sender = self)
         else:
             log( 'Signal "%s" is not available for registration.', signal_name, sender = self)
+
+    def unregister( self, signal_name, observer):
+        if signal_name in self.observers:
+            if observer in self.observers[signal_name]:
+                self.observers[signal_name].remove( observer)
+            else:
+                log( 'Observer could not be removed from signal "%s".', signal_name, sender = self)
+        else:
+            log( 'Signal "%s" is not available for un-registration.', signal_name, sender = self)
 
     def notify( self, signal_name, *args):
         if signal_name in self.observers:
@@ -143,18 +152,24 @@ class DownloadStatusManager( object):
         if not id in self.status_list:
             return
 
-        if 'progress' in kwargs:
-            self.status_list[id]['progress'] = kwargs['progress']
-
-        self.notify_progress()
-
         iter = self.status_list[id]['iter']
         if iter:
             self.tree_model_lock.acquire()
             for ( column, key ) in self.COLUMN_NAMES.items():
                 if key in kwargs:
                     gobject.idle_add( self.tree_model.set, iter, column, kwargs[key])
+                    self.status_list[id][key] = kwargs[key]
             self.tree_model_lock.release()
+
+        if 'progress' in kwargs and 'speed' in kwargs and 'url' in self.status_list[id]:
+            self.notify( 'progress-detail', self.status_list[id]['url'], kwargs['progress'], kwargs['speed'])
+
+        self.notify_progress()
+
+    def request_progress_detail( self, url):
+        for status in self.status_list.values():
+            if 'url' in status and status['url'] == url and 'progress' in status and 'speed' in status:
+                self.notify( 'progress-detail', url, status['progress'], status['speed'])
 
     def is_download_in_progress( self, url):
         for element in self.status_list:
