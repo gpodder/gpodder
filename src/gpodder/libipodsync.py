@@ -99,7 +99,7 @@ def ipod_supported():
     return enable_ipod_functions
 
 # file extensions that are handled as video
-video_extensions = [ "mov", "mp4", "m4v" ]
+video_extensions = [ "mov", "mp4", "m4v", "divx" ]
 
 # is mplayer available for finding track length?
 use_mplayer = False
