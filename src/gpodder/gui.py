@@ -100,7 +100,6 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         dlg.run()
         dlg.destroy()
 
-    @staticmethod
     def show_confirmation( self, message, title = None):
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
 
