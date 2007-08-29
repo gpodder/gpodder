@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# 
+# python-feedcache (customized by Thomas Perl for use in gPodder)
 #
 # Copyright 2007 Doug Hellmann.
 #

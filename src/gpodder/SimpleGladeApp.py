@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  SimpleGladeApp.py
  Module that provides an object oriented abstraction to pygtk and libglade.
