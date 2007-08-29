@@ -6,6 +6,6 @@
 # Released under the terms of the GPL v2 or later
 #
 /^[^MAD].*$/d
-s/^M *\(.*\)$/        * \1: /
-s/^A *\(.*\)$/        + \1: /
-s/^D *\(.*\)$/        - \1: /
+s/^M *\(.*\)$/\t* \1: /
+s/^A *\(.*\)$/\t+ \1: /
+s/^D *\(.*\)$/\t- \1: /

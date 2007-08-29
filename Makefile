@@ -22,6 +22,7 @@ ROSETTA_ARCHIVE=gpodder-rosetta-upload.tar.gz
 CHANGELOG=ChangeLog
 CHANGELOG_TMP=.ChangeLog.tmp
 CHANGELOG_EDT=.ChangeLog.edit
+CHANGELOG_BKP=.ChangeLog.backup
 EMAIL ?= $$USER@`hostname -f`
 
 DESTDIR ?= /
@@ -51,11 +52,12 @@ help:
 ##########################################################################
 
 cl:
-	(echo "`date -R` <$(EMAIL)>" ; svn status | sed -f doc/dev/svncl.sed | sort ; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
-	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
-	$(EDITOR) $(CHANGELOG_EDT)
-	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)
-	rm -f $(CHANGELOG_TMP) $(CHANGELOG_EDT)
+	cp $(CHANGELOG) $(CHANGELOG_BKP)
+	(echo "`date -R` <$(EMAIL)>" ; svn status | sed -f doc/dev/svncl.sed | sort ; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_EDT)
+	cp $(CHANGELOG_EDT) $(CHANGELOG)
+	$(EDITOR) $(CHANGELOG)
+	diff -q $(CHANGELOG) $(CHANGELOG_EDT) && mv $(CHANGELOG_BKP) $(CHANGELOG) || true
+	rm -f $(CHANGELOG_BKP) $(CHANGELOG_EDT)
 
 
 ##########################################################################
