@@ -1,7 +1,20 @@
 #
-# Makefile for gPodder
-# Copyright 2005-2007 Thomas Perl <thp at perli net>
-# License: see COPYING file
+# gPodder - A media aggregator and podcast client
+# Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 #
 
 ##########################################################################
@@ -14,7 +27,6 @@ GUIFILE=src/gpodder/gui.py
 LOGO_22=data/icons/22/gpodder.png
 LOGO_24=data/icons/24/gpodder.png
 MANPAGE=doc/man/gpodder.1
-TEPACHE=./doc/dev/tepache
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
 ROSETTA_FILES=$(MESSAGESPOT) data/po/*.po
@@ -23,6 +35,7 @@ ROSETTA_ARCHIVE=gpodder-rosetta-upload.tar.gz
 CHANGELOG=ChangeLog
 CHANGELOG_TMP=.ChangeLog.tmp
 CHANGELOG_EDT=.ChangeLog.edit
+CHANGELOG_BKP=.ChangeLog.backup
 EMAIL ?= $$USER@`hostname -f`
 
 DESTDIR ?= /
@@ -52,11 +65,12 @@ help:
 ##########################################################################
 
 cl:
-	(echo "`date -R` <$(EMAIL)>" ; svn status | sed -f doc/dev/svncl.sed | sort ; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_TMP)
-	cp $(CHANGELOG_TMP) $(CHANGELOG_EDT)
-	$(EDITOR) $(CHANGELOG_EDT)
-	diff -q $(CHANGELOG_TMP) $(CHANGELOG_EDT) || mv $(CHANGELOG_EDT) $(CHANGELOG)
-	rm -f $(CHANGELOG_TMP) $(CHANGELOG_EDT)
+	cp $(CHANGELOG) $(CHANGELOG_BKP)
+	(echo "`date -R` <$(EMAIL)>" ; svn status | sed -f doc/dev/svncl.sed | sort ; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_EDT)
+	cp $(CHANGELOG_EDT) $(CHANGELOG)
+	$(EDITOR) $(CHANGELOG)
+	diff -q $(CHANGELOG) $(CHANGELOG_EDT) && mv $(CHANGELOG_BKP) $(CHANGELOG) || true
+	rm -f $(CHANGELOG_BKP) $(CHANGELOG_EDT)
 
 
 ##########################################################################
@@ -86,17 +100,13 @@ uninstall:
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_glade gen_graphics
+generators: $(MANPAGE) gen_graphics
 	make -C data/po update
 
 messages: gen_gettext
 
 $(MANPAGE): $(BINFILE)
 	help2man --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
-
-gen_glade: $(GLADEFILE)
-	$(TEPACHE) --no-helper --glade=$(GLADEFILE) --output=$(GUIFILE)
-	chmod -x $(GUIFILE) $(GUIFILE).orig
 
 gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
@@ -134,7 +144,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl test release install update-icons generators gen_manpage gen_glade gen_graphics clean distclean messages help
+.PHONY: all cl test release install update-icons generators gen_manpage gen_graphics clean distclean messages help
 
 ##########################################################################
 

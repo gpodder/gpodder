@@ -1,23 +1,20 @@
-
-
+# -*- coding: utf-8 -*-
 #
-# gPodder (a media aggregator / podcast client)
+# gPodder - A media aggregator and podcast client
 # Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# gPodder is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
@@ -35,11 +32,15 @@ are not tied to any specific part of gPodder.
 
 from gpodder.liblogger import log
 
+import gtk
+
 import os
 import os.path
 
 import re
 import htmlentitydefs
+import time
+import locale
 
 import urlparse
 import urllib
@@ -139,6 +140,9 @@ def format_filesize( bytesize, method = None):
     Formats the given size in bytes to be human-readable, 
     either the most appropriate form (B, KB, MB, GB) or 
     a form specified as optional second parameter (e.g. "MB").
+
+    Returns a localized "(unknown)" string when the bytesize
+    has a negative value.
     """
     methods = {
         'GB': 1024.0 * 1024.0 * 1024.0,
@@ -148,6 +152,9 @@ def format_filesize( bytesize, method = None):
     }
 
     bytesize = float( bytesize)
+
+    if bytesize < 0:
+        return _('(unknown)')
 
     if method not in methods:
         method = 'B'
@@ -194,4 +201,126 @@ def remove_html_tags( html):
         stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
     return stripstr
 
+
+def torrent_filename( filename):
+    """
+    Checks if a file is a ".torrent" file by examining its 
+    contents and searching for the file name of the file 
+    to be downloaded.
+
+    Returns the name of the file the ".torrent" will download 
+    or None if no filename is found (the file is no ".torrent")
+    """
+    if not os.path.exists( filename):
+        return None
+
+    header = open( filename).readline()
+    try:
+        header.index( '6:pieces')
+        name_length_pos = header.index('4:name') + 6
+
+        colon_pos = header.find( ':', name_length_pos)
+        name_length = int(header[name_length_pos:colon_pos]) + 1
+        name = header[(colon_pos + 1):(colon_pos + name_length)]
+        return name
+    except:
+        return None
+
+
+def file_extension_from_url( url):
+    """
+    Extracts the (lowercase) file name extension (with dot)
+    from a URL, e.g. http://server.com/file.MP3?download=yes
+    will result in the string ".mp3" being returned.
+    """
+    path = urlparse.urlparse( url)[2]
+    filename = urllib.unquote( os.path.basename( path))
+    return os.path.splitext( filename)[1].lower()
+
+
+def file_type_by_extension( extension):
+    """
+    Tries to guess the file type by looking up the filename 
+    extension from a table of known file types. Will return 
+    the type as string ("audio", "video" or "torrent") or 
+    None if the file type cannot be determined.
+    """
+    types = {
+            'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
+            'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx' ],
+            'torrent': [ 'torrent' ],
+    }
+
+    if extension[0] == '.':
+        extension = extension[1:]
+
+    for type in types:
+        if extension in types[type]:
+            return type
+    
+    return None
+
+
+def get_tree_icon( icon_name, add_bullet = False, icon_cache = None):
+    """
+    Loads an icon from the current icon theme at the specified
+    size, suitable for display in a gtk.TreeView.
+
+    Optionally adds a green bullet (the GTK Stock "Yes" icon)
+    to the Pixbuf returned.
+
+    If an icon_cache parameter is supplied, it has to be a
+    dictionary and will be used to store generated icons. 
+
+    On subsequent calls, icons will be loaded from cache if 
+    the cache is supplied again and the icon is found in 
+    the cache.
+    """
+
+    if icon_cache != None and (icon_name,add_bullet) in icon_cache:
+        return icon_cache[(icon_name,add_bullet)]
+    
+    icon_theme = gtk.icon_theme_get_default()
+
+    try:
+        icon = icon_theme.load_icon( icon_name, 16, 0)
+    except:
+        log( '(get_tree_icon) Warning: Cannot load icon with name "%s", will use  default icon.', icon_name)
+        icon = icon_theme.load_icon( gtk.STOCK_DIALOG_QUESTION, 16, 0)
+
+    if add_bullet and icon:
+        # We'll modify the icon, so use .copy()
+        try:
+            icon = icon.copy()
+            emblem = icon_theme.load_icon( gtk.STOCK_YES, 10, 0)
+            size = emblem.get_width()
+            pos = icon.get_width() - size
+            emblem.composite( icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+        except:
+            log( '(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
+
+    if icon_cache != None:
+        icon_cache[(icon_name,add_bullet)] = icon
+
+    return icon
+
+
+def get_first_line( s):
+    """
+    Returns only the first line of a string, stripped so
+    that it doesn't have whitespace before or after.
+    """
+    return s.strip().split('\n')[0].strip()
+
+
+def updated_parsed_to_rfc2822( updated_parsed):
+    """
+    Converts a 9-tuple from feedparser's updated_parsed 
+    field to a C-locale string suitable for further use.
+    """
+    old_locale = locale.getlocale( locale.LC_TIME)
+    locale.setlocale( locale.LC_TIME, 'C')
+    result = time.strftime( '%a, %d %b %Y %H:%M:%S GMT', updated_parsed)
+    locale.setlocale( locale.LC_TIME, old_locale)
+    return result
 

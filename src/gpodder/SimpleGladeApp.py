@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
 """
  SimpleGladeApp.py
  Module that provides an object oriented abstraction to pygtk and libglade.
  Copyright (C) 2004 Sandino Flores Moreno
+
+ Modifications by Thomas Perl <thp@perli.net> for gPodder:
+ 
+   2007-08-27: Remove weakrefs for *kwargs -> attributes in __init__
+
 """
 
 # This library is free software; you can redistribute it and/or
@@ -26,7 +32,6 @@ import re
 import tokenize
 import gtk
 import gtk.glade
-import weakref
 import inspect
 
 __version__ = "1.0"
@@ -92,10 +97,7 @@ class SimpleGladeApp:
             glade_dir = os.path.dirname( sys.argv[0] )
             self.glade_path = os.path.join(glade_dir, path)
         for key, value in kwargs.items():
-            try:
-                setattr(self, key, weakref.proxy(value) )
-            except TypeError:
-                setattr(self, key, value)
+            setattr( self, key, value)
         self.glade = None
         self.install_custom_handler(self.custom_handler)
         self.glade = self.create_glade(self.glade_path, root, domain)

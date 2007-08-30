@@ -1,23 +1,20 @@
-
-
+# -*- coding: utf-8 -*-
 #
-# gPodder (a media aggregator / podcast client)
+# gPodder - A media aggregator and podcast client
 # Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# gPodder is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
@@ -36,9 +33,6 @@ import shutil
 from gpodder import util
 from gpodder import opml
 
-from xml.sax.saxutils import DefaultHandler
-from xml.sax import make_parser
-from string import strip
 from os.path import expanduser
 from os.path import exists
 from os.path import splitext
@@ -54,6 +48,7 @@ from os.path import isdir
 from os.path import islink
 from os.path import getsize
 from os.path import join
+import os.path
 from os import mkdir
 from os import rmdir
 from os import makedirs
@@ -69,11 +64,9 @@ from os import stat
 from stat import S_ISLNK
 from stat import ST_MODE
 
-from librssreader import rssReader
-from libpodcasts import podcastChannel
-from libpodcasts import DownloadHistory
-from libpodcasts import PlaybackHistory
 from libplayers import dotdesktop_command
+
+from types import ListType
 
 from gtk.gdk import PixbufLoader
 
@@ -114,9 +107,10 @@ class gPodderLibClass( object):
     def __init__( self):
         self.gpodderdir = expanduser( "~/.config/gpodder/")
         util.make_directory( self.gpodderdir)
+        self.feed_cache_file = os.path.join( self.gpodderdir, 'feedcache.db')
+        self.channel_settings_file = os.path.join( self.gpodderdir, 'channelsettings.db')
+        self.channel_opml_file = os.path.join( self.gpodderdir, 'channels.opml')
         self.__download_dir = None
-        self.cachedir = self.gpodderdir + "cache/"
-        util.make_directory( self.cachedir)
         try:
             self.http_proxy = environ['http_proxy']
         except:
@@ -135,7 +129,6 @@ class gPodderLibClass( object):
         self.use_gnome_bittorrent = True
         self.limit_rate = False
         self.limit_rate_value = 4.0
-        self.show_played = False
         self.update_tags = False
         self.desktop_link = _("gPodder downloads")
         self.device_type = None
@@ -164,6 +157,15 @@ class gPodderLibClass( object):
 
     def get_playback_history_filename( self):
         return self.gpodderdir + 'playback-history.txt'
+
+    def get_device_name( self):
+        if self.device_type == 'ipod':
+            return _('iPod')
+        elif self.device_type == 'filesystem':
+            return _('MP3 player')
+        else:
+            log( 'Warning: Called get_device_name() when no device was selected.', sender = self)
+            return '(unknown device)'
 
     def propertiesChanged( self):
         # set new environment variables for subprocesses to use,
@@ -205,7 +207,6 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'download_after_update', self.download_after_update)
         self.write_to_parser( parser, 'limit_rate', self.limit_rate)
         self.write_to_parser( parser, 'limit_rate_value', self.limit_rate_value)
-        self.write_to_parser( parser, 'show_played', self.show_played)
         self.write_to_parser( parser, 'update_tags', self.update_tags)
         self.write_to_parser( parser, 'opml_url', self.opml_url)
         self.write_to_parser( parser, 'download_dir', self.downloaddir)
@@ -261,11 +262,17 @@ class gPodderLibClass( object):
 
     downloaddir = property(fget=get_download_dir,fset=set_download_dir)
 
-    def history_mark_downloaded( self, url):
-        self.__download_history.add_item( url)
+    def history_mark_downloaded( self, url, add_item = True):
+        if add_item:
+            self.__download_history.add_item( url)
+        else:
+            self.__download_history.del_item( url)
 
-    def history_mark_played( self, url):
-        self.__playback_history.add_item( url)
+    def history_mark_played( self, url, add_item = True):
+        if add_item:
+            self.__playback_history.add_item( url)
+        else:
+            self.__playback_history.del_item( url)
 
     def history_is_downloaded( self, url):
         return (url in self.__download_history)
@@ -337,7 +344,6 @@ class gPodderLibClass( object):
                     self.download_after_update = self.get_boolean_from_parser(parser, 'download_after_update', default=False)
                     self.limit_rate = self.get_boolean_from_parser(parser, 'limit_rate', default=False)
                     self.limit_rate_value = self.get_float_from_parser(parser, 'limit_rate_value', default=4.0)
-                    self.show_played = self.get_boolean_from_parser(parser, 'show_played', default=False)
                     self.update_tags = self.get_boolean_from_parser(parser, 'update_tags', default=False)
                     self.downloaddir = self.get_from_parser( parser, 'download_dir', expanduser('~/gpodder-downloads'))
                     self.torrentdir = self.get_from_parser( parser, 'bittorrent_dir', expanduser('~/gpodder-downloads/torrents'))
@@ -356,14 +362,14 @@ class gPodderLibClass( object):
                 else:
                     log( 'config file %s has no section %s', fn, gpodderconf_section)
             if not self.proxy_use_environment:
-                self.http_proxy = strip( http)
-                self.ftp_proxy = strip( ftp)
-            if strip( app) != '':
-                self.open_app = strip( app)
+                self.http_proxy = http.strip()
+                self.ftp_proxy = ftp.strip()
+            if app.strip():
+                self.open_app = app.strip()
             else:
                 self.open_app = 'gnome-open'
-            if strip( opml_url) != '':
-                self.opml_url = strip( opml_url)
+            if opml_url.strip():
+                self.opml_url = opml_url.strip()
             else:
                 self.opml_url = default_opml_directory
         except:
@@ -386,7 +392,7 @@ class gPodderLibClass( object):
 
     def playback_episode( self, channel, episode):
         self.history_mark_played( episode.url)
-        filename = channel.getPodcastFilename( episode.url)
+        filename = episode.local_filename()
 
         command_line = shlex.split( dotdesktop_command( self.open_app, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
@@ -477,109 +483,62 @@ class gPodderLibClass( object):
             except:
                 log( 'Torrent copy failed: %s => %s.', torrent_filename, target_filename)
 
-class gPodderChannelWriter( object):
-    def write( self, channels):
-        filename = gPodderLib().getChannelsFilename()
-        fd = open( filename, "w")
-        print >> fd, '<!-- '+_('gPodder channel list')+' -->'
-        print >> fd, '<channels>'
-        for chan in channels:
-            try:
-                print >> fd, "  <channel>\n    <url>%s</url>\n  </channel>\n" % saxutils.escape( chan.url)
-            except:
-                log( 'Could not write channels to file.')
-        print >> fd, '</channels>'
-        fd.close()
-        filename_opml = join( dirname( filename), 'channels.opml')
-        exporter = opml.Exporter( filename_opml)
-        exporter.write( channels)
 
-class gPodderChannelReader( DefaultHandler):
-    def __init__( self):
-        self.channels = []
-        self.current_item = None
-        self.current_element_data = ''
-        self.is_cancelled = False
+class DownloadHistory( ListType):
+    def __init__( self, filename):
+        self.filename = filename
+        try:
+            self.read_from_file()
+        except:
+            log( 'Creating new history list.', sender = self)
 
-    def cancel( self):
-        self.is_cancelled = True
+    def read_from_file( self):
+        for line in open( self.filename, 'r'):
+            self.append( line.strip())
 
-    def callback_is_cancelled( self):
-        return self.is_cancelled
-    
-    def read( self, force_update = False, callback_proc = None, callback_url = None, callback_error = None):
-        """Read channels from a file into gPodder's cache
+    def save_to_file( self):
+        if len( self):
+            fp = open( self.filename, 'w')
+            for url in self:
+                fp.write( url + "\n")
+            fp.close()
+            log( 'Wrote %d history entries.', len( self), sender = self)
 
-        force_update:   When true, re-download even if the cache file 
-                        already exists locally
-
-        callback_proc:  A function that takes two integer parameters, 
-                        the first being the number of the currently 
-                        processed item and the second being the count 
-                        of the items that will be read/updated.
-
-        callback_url:   A function that takes one string parameter
-                        that contains the URL of the channel that 
-                        is being updated at the moment. Will be 
-                        called for every channel to be updated.
-
-        callback_error: A function that takes one string parameter 
-                        that contains a error message to be displayed.
-        """
-
-        self.channels = []
-
-        parser = make_parser()
-        parser.setContentHandler( self)
-
-        if exists( gPodderLib().getChannelsFilename()):
-            parser.parse( gPodderLib().getChannelsFilename())
+    def add_item( self, data, autosave = True):
+        affected = 0
+        if data and type( data) is ListType:
+            # Support passing a list of urls to this function
+            for url in data:
+                affected = affected + self.add_item( url, autosave = False)
         else:
-            return []
+            if data not in self:
+                log( 'Adding: %s', data, sender = self)
+                self.append( data)
+                affected = affected + 1
 
-        reader = rssReader()
-        input_channels = []
-        
-        channel_count = len( self.channels)
-        position = 0
-        for channel in self.channels:
-            if callback_proc:
-                callback_proc( position, channel_count)
+        if affected and autosave:
+            self.save_to_file()
 
-            if callback_url:
-                callback_url( channel.url)
+        return affected
 
-            cachefile = channel.downloadRss( force_update, callback_error = callback_error, callback_is_cancelled = self.callback_is_cancelled)
-            # check if download was a success
-            if cachefile != None:
-                reader.parseXML( channel.url, cachefile)
-                if reader.channel != None:
-                    reader.channel.set_metadata_from_localdb()
-                    input_channels.append( reader.channel)
+    def del_item( self, data, autosave = True):
+        affected = 0
+        if data and type( data) is ListType:
+            # Support passing a list of urls to this function
+            for url in data:
+                affected = affected + self.del_item( url, autosave = False)
+        else:
+            if data in self:
+                log( 'Removing: %s', data, sender = self)
+                self.remove( data)
+                affected = affected + 1
 
-            position = position + 1
+        if affected and autosave:
+            self.save_to_file()
 
-        # the last call sets everything to 100% (hopefully ;)
-        if callback_proc != None:
-            callback_proc( position, channel_count)
-        
-        return input_channels
-    
-    def startElement( self, name, attrs):
-        self.current_element_data = ""
-        
-        if name == 'channel':
-            self.current_item = podcastChannel()
-    
-    def endElement( self, name):
-        if self.current_item != None:
-            if name == 'url':
-                self.current_item.url = self.current_element_data
-            if name == 'channel':
-                self.channels.append( self.current_item)
-                self.current_item = None
-    
-    def characters( self, ch):
-        self.current_element_data = self.current_element_data + ch
+        return affected
 
+
+class PlaybackHistory( DownloadHistory):
+    pass
 

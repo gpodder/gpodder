@@ -1,22 +1,20 @@
-
+# -*- coding: utf-8 -*-
 #
-# gPodder (a media aggregator / podcast client)
+# gPodder - A media aggregator and podcast client
 # Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# gPodder is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 
@@ -69,7 +67,12 @@ class Importer(object):
         """
         self.items = []
         try:
-            doc = xml.dom.minidom.parseString( urllib2.urlopen( url).read())
+            if url.startswith('/'):
+                # assume local filename
+                doc = xml.dom.minidom.parse( url)
+            else:
+                doc = xml.dom.minidom.parseString( urllib2.urlopen( url).read())
+
             for outline in doc.getElementsByTagName('outline'):
                 if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl'):
                     channel = {
@@ -150,8 +153,8 @@ class Exporter(object):
         document for the supplied channel.
         """
         outline = doc.createElement( 'outline')
-        outline.setAttribute( 'text', channel.title)
         outline.setAttribute( 'title', channel.title)
+        outline.setAttribute( 'text', channel.description)
         outline.setAttribute( 'xmlUrl', channel.url)
         outline.setAttribute( 'type', self.FEED_TYPE)
         return outline

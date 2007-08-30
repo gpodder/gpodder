@@ -1,23 +1,20 @@
-
-
+# -*- coding: utf-8 -*-
 #
-# gPodder (a media aggregator / podcast client)
+# gPodder - A media aggregator and podcast client
 # Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# gPodder is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
@@ -26,11 +23,8 @@
 #
 #
 
-import gtk
-import gobject
-
 from libgpodder import gPodderLib
-from libgpodder import gPodderChannelReader
+from libpodcasts import load_channels
 from liblogger import log
 
 class localDB( object):
@@ -42,7 +36,7 @@ class localDB( object):
             return self.__channel_list
 
         self.__channel_list = []
-        self.available_channels = gPodderChannelReader().read()
+        self.available_channels = load_channels( load_items = False)
 
         for channel in self.available_channels:
             local = channel.localdb_channel
@@ -69,35 +63,13 @@ class localDB( object):
         
         return None
     
-
-    def get_tree_model( self, url):
-        # Try to add downloaded items (TODO: remove at some point in the future)
-        to_be_added = []
-        for episode in self.get_channel( url):
-            to_be_added.append( episode.url)
-        if to_be_added:
-            gPodderLib().history_mark_downloaded( to_be_added)
-
-        return self.get_channel( url).items_liststore( False)
-
-    def get_model( self):
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING)
-        
-        for channel in self.channel_list:
-            new_iter = new_model.append()
-            new_model.set( new_iter, 0, channel.url)
-            new_model.set( new_iter, 1, channel.title)
-        
-        return new_model
-    
-
     def get_filename_by_podcast( self, url, podcast_url):
         ch = self.get_channel( url)
 
         if not ch:
             return None
 
-        return ch.getPodcastFilename( podcast_url)
+        return ch.find_episode( podcast_url).local_filename()
     
     def clear_cache( self):
         self.__channel_list = None

@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-
 #
-# gPodder (a media aggregator / podcast client)
+# gPodder - A media aggregator and podcast client
 # Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# gPodder is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA  02110-1301, USA.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 #
@@ -99,7 +96,7 @@ def ipod_supported():
     return enable_ipod_functions
 
 # file extensions that are handled as video
-video_extensions = [ "mov", "mp4", "m4v" ]
+video_extensions = [ "mov", "mp4", "m4v", "divx" ]
 
 # is mplayer available for finding track length?
 use_mplayer = False
@@ -161,7 +158,7 @@ class gPodderSyncMethod:
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
-            if channel.is_downloaded( episode) and channel.get_file_type( episode) in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
+            if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
                 if not self.add_episode_from_channel( channel, episode):
                     return False
             pos = pos + 1
@@ -384,7 +381,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
             return True
         
         log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
-        original_filename = str(channel.getPodcastFilename( episode.url))
+        original_filename = str( episode.local_filename())
         local_filename = original_filename
         if libconverter.converters.has_converter( os.path.splitext( original_filename)[1][1:]):
             log('(ipodsync) Converting: %s', original_filename)
@@ -533,7 +530,7 @@ class gPodder_FSSync( gPodderSyncMethod):
                 folder = folder + '_'
         folder = os.path.join( self.destination, folder)
 
-        from_file = channel.getPodcastFilename( episode.url)
+        from_file = episode.local_filename()
 
         to_file_src = episode.title + os.path.splitext( from_file)[1].lower()
         to_file = ''
