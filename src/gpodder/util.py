@@ -39,6 +39,8 @@ import os.path
 
 import re
 import htmlentitydefs
+import time
+import locale
 
 import urlparse
 import urllib
@@ -309,4 +311,16 @@ def get_first_line( s):
     that it doesn't have whitespace before or after.
     """
     return s.strip().split('\n')[0].strip()
+
+
+def updated_parsed_to_rfc2822( updated_parsed):
+    """
+    Converts a 9-tuple from feedparser's updated_parsed 
+    field to a C-locale string suitable for further use.
+    """
+    old_locale = locale.getlocale( locale.LC_TIME)
+    locale.setlocale( locale.LC_TIME, 'C')
+    result = time.strftime( '%a, %d %b %Y %H:%M:%S GMT', updated_parsed)
+    locale.setlocale( locale.LC_TIME, old_locale)
+    return result
 

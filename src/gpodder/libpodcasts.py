@@ -45,9 +45,9 @@ import shutil
 import sys
 import urllib
 import urlparse
+import time
 
 from datetime import datetime
-from time import time
 
 from liblocdbwriter import writeLocalDB
 from liblocdbreader import readLocalDB
@@ -118,8 +118,8 @@ class podcastChannel(ListType):
         if hasattr( c.feed, 'subtitle'):
             channel.description = util.remove_html_tags( c.feed.subtitle)
 
-        if hasattr( c.feed, 'updated'):
-            channel.pubDate = c.feed.updated
+        if hasattr( c.feed, 'updated_parsed'):
+            channel.pubDate = util.updated_parsed_to_rfc2822( c.feed.updated_parsed)
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
                 channel.image = c.feed.image.href
@@ -166,7 +166,7 @@ class podcastChannel(ListType):
         self.link = link
         self.description = util.remove_html_tags( description)
         self.image = None
-        self.pubDate = datetime.now().ctime()
+        self.pubDate = ''
         self.downloaded = None
 
         # should this channel be synced to devices? (ex: iPod)
@@ -460,13 +460,13 @@ class podcastChannel(ListType):
 
         for item in new_localdb:
             if item.url == url:
+                local_filename = item.local_filename()
                 new_localdb.remove(item)
 
         self.localdb_channel = new_localdb
 
         # clean-up downloaded file
-        episode = self.find_episode( url)
-        util.delete_file( episode.local_filename())
+        util.delete_file( local_filename)
 
         libgpodder.releaseLock()
 
@@ -492,7 +492,8 @@ class podcastItem(object):
         episode.link = entry.get( 'link', '')
         episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
         episode.guid = entry.get( 'id', '')
-        episode.pubDate = entry.get( 'updated', '')
+        if entry.get( 'updated_parsed', None):
+            episode.pubDate = util.updated_parsed_to_rfc2822( entry.updated_parsed)
 
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
@@ -521,7 +522,7 @@ class podcastItem(object):
         self.description = ''
         self.link = ''
         self.channel = channel
-        self.pubDate = datetime.now().ctime()
+        self.pubDate = ''
 
     def one_line_description( self):
         lines = self.description.strip().splitlines()
@@ -581,7 +582,7 @@ class podcastItem(object):
             timestamp = int(mktime_tz( parsedate_tz( self.pubDate)))
         except:
             return _("(unknown)")
-        diff = int((time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
+        diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
         
         if diff == 0:
            return _("Today")

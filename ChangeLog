@@ -1,3 +1,13 @@
+Thu, 30 Aug 2007 20:46:48 +0200 <thp@perli.net>
+Improved pubDate parsing; episode delete bugfix
+
+	* src/gpodder/libpodcasts.py: Let feedparser parse the pubDate field
+	of episodes and use new function in gpodder.util to convert the parsed
+	pubDate to a string; bugfix for remove downloaded episode by URL
+	* src/gpodder/util.py: Add updated_parsed_to_rfc2822() function that
+	converts the "updated_parsed" field from feedparser to a RFC2822
+	string
+
 Thu, 30 Aug 2007 12:03:24 +0200 <thp@perli.net>
 Remove obsolete documentation in doc/dev; cosmetic changes
 
