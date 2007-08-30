@@ -1,3 +1,13 @@
+Thu, 30 Aug 2007 20:51:46 +0200 <thp@perli.net>
+Support for modifying DownloadHistory and PlaybackHistory in GUI
+
+	* data/gpodder.glade: Added menu items in gPodder main window
+	* src/gpodder/gui.py: Add menu items to treeAvailable's context menu
+	to toggle/set downloaded and played status on selected episodes
+	* src/gpodder/libgpodder.py: Add del_item() function to
+	DownloadHistory to support removing items from the history list;
+	enhance history_mark_{played,downloaded}() functions for add/delete
+
 Thu, 30 Aug 2007 20:46:48 +0200 <thp@perli.net>
 Improved pubDate parsing; episode delete bugfix
 

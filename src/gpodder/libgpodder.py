@@ -262,11 +262,17 @@ class gPodderLibClass( object):
 
     downloaddir = property(fget=get_download_dir,fset=set_download_dir)
 
-    def history_mark_downloaded( self, url):
-        self.__download_history.add_item( url)
+    def history_mark_downloaded( self, url, add_item = True):
+        if add_item:
+            self.__download_history.add_item( url)
+        else:
+            self.__download_history.del_item( url)
 
-    def history_mark_played( self, url):
-        self.__playback_history.add_item( url)
+    def history_mark_played( self, url, add_item = True):
+        if add_item:
+            self.__playback_history.add_item( url)
+        else:
+            self.__playback_history.del_item( url)
 
     def history_is_downloaded( self, url):
         return (url in self.__download_history)
@@ -508,6 +514,23 @@ class DownloadHistory( ListType):
             if data not in self:
                 log( 'Adding: %s', data, sender = self)
                 self.append( data)
+                affected = affected + 1
+
+        if affected and autosave:
+            self.save_to_file()
+
+        return affected
+
+    def del_item( self, data, autosave = True):
+        affected = 0
+        if data and type( data) is ListType:
+            # Support passing a list of urls to this function
+            for url in data:
+                affected = affected + self.del_item( url, autosave = False)
+        else:
+            if data in self:
+                log( 'Removing: %s', data, sender = self)
+                self.remove( data)
                 affected = affected + 1
 
         if affected and autosave:

@@ -283,6 +283,8 @@ class gPodder(GladeWidget):
             if not len( paths):
                 return True
 
+            first_url = model.get_value( model.get_iter( paths[0]), 0)
+
             menu = gtk.Menu()
 
             ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
@@ -318,11 +320,38 @@ class gPodder(GladeWidget):
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
                 menu.append( item)
 
+                menu.append( gtk.SeparatorMenuItem())
+                is_downloaded = gPodderLib().history_is_downloaded( first_url)
+                if is_downloaded:
+                    item = gtk.ImageMenuItem( _('Mark %s as not downloaded') % episode_title)
+                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_UNDELETE, gtk.ICON_SIZE_MENU))
+                    item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, False))
+                    menu.append( item)
+                else:
+                    item = gtk.ImageMenuItem( _('Mark %s as downloaded') % episode_title)
+                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                    item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, True))
+                    menu.append( item)
+
             if can_transfer:
                 item = gtk.ImageMenuItem( _('Transfer %s to %s') % ( episode_title, gPodderLib().get_device_name() ))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_NETWORK, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolTransfer))
                 menu.append( item)
+
+            if can_play:
+                menu.append( gtk.SeparatorMenuItem())
+                is_played = gPodderLib().history_is_played( first_url)
+                if is_played:
+                    item = gtk.ImageMenuItem( _('Mark %s as unplayed') % episode_title)
+                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
+                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, False))
+                    menu.append( item)
+                else:
+                    item = gtk.ImageMenuItem( _('Mark %s as played') % episode_title)
+                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU))
+                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
+                    menu.append( item)
 
             if can_cancel:
                 item = gtk.ImageMenuItem( _('_Cancel download'))
@@ -683,6 +712,33 @@ class gPodder(GladeWidget):
 
         self.gtk_main_quit()
         sys.exit( 0)
+
+    def for_each_selected_episode_url( self, callback):
+        ( model, paths ) = self.treeAvailable.get_selection().get_selected_rows()
+        for path in paths:
+            url = model.get_value( model.get_iter( path), 0)
+            try:
+                callback( url)
+            except:
+                log( 'Warning: Error in for_each_selected_episode_url for URL %s', url, sender = self)
+        self.active_channel.update_model()
+        self.updateComboBox()
+
+    def on_item_toggle_downloaded_activate( self, widget, toggle = True, new_value = False):
+        if toggle:
+            callback = lambda url: gPodderLib().history_mark_downloaded( url, not gPodderLib().history_is_downloaded( url))
+        else:
+            callback = lambda url: gPodderLib().history_mark_downloaded( url, new_value)
+
+        self.for_each_selected_episode_url( callback)
+
+    def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
+        if toggle:
+            callback = lambda url: gPodderLib().history_mark_played( url, not gPodderLib().history_is_played( url))
+        else:
+            callback = lambda url: gPodderLib().history_mark_played( url, new_value)
+
+        self.for_each_selected_episode_url( callback)
 
     def on_itemUpdate_activate(self, widget, *args):
         if self.channels:
