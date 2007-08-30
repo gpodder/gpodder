@@ -44,6 +44,13 @@ import gettext
 
 from optparse import OptionParser
 
+try:
+    import feedparser
+except:
+    print 'Warning: Module "feedparser" not found. Please install "python-feedparser".'
+    print '         The feedparser module can also be downloaded from www.feedparser.org'
+    sys.exit( -1)
+
 def main( argv = sys.argv):
     prefix = os.path.abspath( os.path.normpath( os.path.join( os.path.dirname( argv[0]), '..')))
     locale_dir = os.path.join( prefix, 'share', 'locale')
