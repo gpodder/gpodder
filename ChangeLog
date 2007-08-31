@@ -1,3 +1,12 @@
+Fri, 31 Aug 2007 20:03:03 +0200 <thp@perli.net>
+Use Python's webbrowser module for URL opening; channel dialog clean-up
+
+	* bin/gpodder: Set version to 0.9.5+svn (this is where we are now)
+	* data/gpodder.glade: Remove "cancel" button from gPodderChannel
+	* src/gpodder/gui.py: Use "webbrowser" module for URL opening instead
+	of relying on "gnome-open" to be available; remove event handler for
+	gPodderChannel's "cancel" button
+
 Thu, 30 Aug 2007 21:06:28 +0200 <thp@perli.net>
 Dependency check for python-feedparser in bin/gpodder
 

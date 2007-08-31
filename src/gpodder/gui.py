@@ -24,6 +24,7 @@ import gobject
 import pango
 import sys
 import shutil
+import webbrowser
 
 from xml.sax import saxutils
 
@@ -922,13 +923,13 @@ class gPodder(GladeWidget):
         self.on_treeAvailable_row_activated( widget, args)
 
     def on_homepage_activate(self, widget, *args):
-        os.system( 'gnome-open ' + app_website)
+        Thread( target = webbrowser.open, args = ( app_website, )).start()
 
     def on_wishlist_activate(self, widget, *args):
-        os.system( 'gnome-open http://www.amazon.de/gp/registry/2PD2MYGHE6857')
+        Thread( target = webbrowser.open, args = ( 'http://www.amazon.de/gp/registry/2PD2MYGHE6857', )).start()
 
     def on_mailinglist_activate(self, widget, *args):
-        os.system( 'gnome-open http://lists.berlios.de/mailman/listinfo/gpodder-devel')
+        Thread( target = webbrowser.open, args = ( 'http://lists.berlios.de/mailman/listinfo/gpodder-devel', )).start()
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
@@ -1193,9 +1194,6 @@ class gPodderChannel(GladeWidget):
         self.channel.password = self.FeedPassword.get_text()
         self.channel.save_settings()
 
-        self.gPodderChannel.destroy()
-
-    def on_btnCancel_clicked(self, widget, *args): 
         self.gPodderChannel.destroy()
 
 
