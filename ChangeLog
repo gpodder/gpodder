@@ -1,3 +1,13 @@
+Fri, 31 Aug 2007 23:38:01 +0200 <thp@perli.net>
+Handle enclosures (or lack thereof) better if fields are missing
+
+	* src/gpodder/gui.py: Remove refetch_channel_list() function, as this
+	is not called anywhere from the code (uh, how did i miss that?)
+	* src/gpodder/libpodcasts.py: Be more liberal to enclosure tags
+	without length or mime type; ignore episodes without enclosures (it's
+	not len(enclosures) == 0, but the enclosures attribute doesn't even
+	exist on entries without enclosures, so make sure to check for that
+
 Fri, 31 Aug 2007 20:03:03 +0200 <thp@perli.net>
 Use Python's webbrowser module for URL opening; channel dialog clean-up
 

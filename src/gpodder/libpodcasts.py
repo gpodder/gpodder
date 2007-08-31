@@ -125,8 +125,8 @@ class podcastChannel(ListType):
                 channel.image = c.feed.image.href
 
         for entry in c.entries:
-            if not len(entry.enclosures):
-                log('Skipping entry: %s', entry)
+            if not hasattr( entry, 'enclosures'):
+                log('Skipping entry: %s', entry.get( 'id', '(no id available)'))
                 continue
 
             episode = None
@@ -503,8 +503,10 @@ class podcastItem(object):
 
         enclosure = entry.enclosures[0]
         episode.url = enclosure.href
-        episode.length = enclosure.length
-        episode.mimetype = enclosure.type
+        if hasattr( enclosure, 'length'):
+            episode.length = enclosure.length
+        if hasattr( enclosure, 'type'):
+            episode.mimetype = enclosure.type
 
         if episode.title == '':
             ( filename, extension ) = os.path.splitext( os.path.basename( episode.url))
@@ -517,7 +519,7 @@ class podcastItem(object):
         self.url = ''
         self.title = ''
         self.length = 0
-        self.mimetype = ''
+        self.mimetype = 'application/octet-stream'
         self.guid = ''
         self.description = ''
         self.link = ''

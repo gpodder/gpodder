@@ -489,20 +489,6 @@ class gPodder(GladeWidget):
         result = sel.data
         self.add_new_channel( result)
 
-    def refetch_channel_list( self):
-        channels_should_be = len( self.channels)
-
-        save_channels( self.channels)
-        self.update_feed_cache( force_update = False)
-        
-        if channels_should_be > len( self.channels):
-            title = _('Error adding channel')
-            message = _('The channel could not be added. Please check the spelling of the URL or try again later.')
-            self.show_message( message, title)
-            return False
-        
-        return True
-    
     def add_new_channel( self, result = None, ask_download_new = True):
         result = util.normalize_feed_url( result)
 
