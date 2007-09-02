@@ -126,7 +126,7 @@ class podcastChannel(ListType):
 
         for entry in c.entries:
             if not hasattr( entry, 'enclosures'):
-                log('Skipping entry: %s', entry.get( 'id', '(no id available)'))
+                log('Skipping entry: %s', entry.get( 'id', '(no id available)'), sender = channel)
                 continue
 
             episode = None
@@ -134,7 +134,7 @@ class podcastChannel(ListType):
             try:
                 episode = podcastItem.from_feedparser_entry( entry, channel)
             except:
-                log( 'Cannot instantiate episode for %s. Skipping.', entry.enclosures[0].href, sender = channel)
+                log( 'Cannot instantiate episode: %s. Skipping.', entry.get( 'id', '(no id available)'), sender = channel)
 
             if episode:
                 channel.append( episode)
@@ -498,11 +498,19 @@ class podcastItem(object):
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
 
-        if len(entry.enclosures) > 1:
-            log( 'Warning: More than one enclosure found in feed, only using first', sender = episode)
-
         enclosure = entry.enclosures[0]
-        episode.url = enclosure.href
+        if len(entry.enclosures) > 1:
+            for e in entry.enclosures:
+                if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/')):
+                    if util.normalize_feed_url( e.href) != None:
+                        log( 'Selected enclosure: %s', e.href, sender = episode)
+                        enclosure = e
+                        break
+
+        episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
+        if not episode.url:
+            raise ValueError( 'Episode has an invalid URL')
+
         if hasattr( enclosure, 'length'):
             episode.length = enclosure.length
         if hasattr( enclosure, 'type'):

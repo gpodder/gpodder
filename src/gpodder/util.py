@@ -151,7 +151,10 @@ def format_filesize( bytesize, method = None):
         'B':  1.0
     }
 
-    bytesize = float( bytesize)
+    try:
+        bytesize = float( bytesize)
+    except:
+        return _('(unknown)')
 
     if bytesize < 0:
         return _('(unknown)')
@@ -250,6 +253,9 @@ def file_type_by_extension( extension):
             'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx' ],
             'torrent': [ 'torrent' ],
     }
+
+    if extension == '':
+        return None
 
     if extension[0] == '.':
         extension = extension[1:]
