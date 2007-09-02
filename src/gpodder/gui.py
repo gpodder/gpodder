@@ -127,8 +127,9 @@ class gPodder(GladeWidget):
             gtk.main_iteration( False)
 
         if app_version.rfind( "svn") != -1:
-            self.default_title = 'gPodder %s' % ( app_version, )
-            self.gPodder.set_title( self.default_title)
+            self.gPodder.set_title( 'gPodder %s' % app_version)
+
+        self.default_title = self.gPodder.get_title()
 
         # set up the rendering of the comboAvailable combobox
         cellrenderer = gtk.CellRendererText()
