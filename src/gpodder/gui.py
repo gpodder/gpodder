@@ -1206,6 +1206,9 @@ class gPodderProperties(GladeWidget):
         self.cbLimitDownloads.set_active(gl.limit_rate)
         self.spinLimitDownloads.set_value(gl.limit_rate_value)
         self.cbMaxDownloads.set_active(gl.max_downloads_enabled)
+        self.cbCustomSyncName.set_active(gl.custom_sync_name_enabled)
+        self.entryCustomSyncName.set_text(gl.custom_sync_name)
+        self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
         self.spinMaxDownloads.set_value(gl.max_downloads)
         self.only_sync_not_played.set_active(gl.only_sync_not_played)
         if tagging_supported():
@@ -1266,6 +1269,24 @@ class gPodderProperties(GladeWidget):
 
         if event:
             event.set()
+
+    def on_cbCustomSyncName_toggled( self, widget, *args):
+        self.entryCustomSyncName.set_sensitive( widget.get_active())
+
+    def on_btnCustomSyncNameHelp_clicked( self, widget):
+        examples = [
+                _('<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>'),
+                _('<i>{episode.basename}</i> -&gt; <b>70908-interview-rms</b>'),
+                _('<i>{episode.published}</i> -&gt; <b>20070908</b>')
+        ]
+
+        info = [
+                _('You can specify a custom format string for the file names on your MP3 player here.'),
+                _('The format string will be used to generate a file name on your device. The file extension (e.g. ".mp3") will be added automatically.'),
+                '\n'.join( [ '   %s' % s for s in examples ])
+        ]
+
+        self.show_message( '\n\n'.join( info), _('Custom format strings'))
 
     def on_gPodderProperties_destroy(self, widget, *args):
         self.on_btnOK_clicked( widget, *args)
@@ -1403,6 +1424,8 @@ class gPodderProperties(GladeWidget):
         gl.limit_rate_value = self.spinLimitDownloads.get_value()
         gl.max_downloads_enabled = self.cbMaxDownloads.get_active()
         gl.max_downloads = int(self.spinMaxDownloads.get_value())
+        gl.custom_sync_name = self.entryCustomSyncName.get_text()
+        gl.custom_sync_name_enabled = self.cbCustomSyncName.get_active()
         gl.update_tags = self.updatetags.get_active()
         gl.only_sync_not_played = self.only_sync_not_played.get_active()
         device_type = self.comboboxDeviceType.get_active()

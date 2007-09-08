@@ -532,7 +532,13 @@ class gPodder_FSSync( gPodderSyncMethod):
 
         from_file = episode.local_filename()
 
-        to_file_src = episode.title + os.path.splitext( from_file)[1].lower()
+        if libgpodder.gPodderLib().custom_sync_name_enabled:
+            filename_base = util.object_string_formatter( libgpodder.gPodderLib().custom_sync_name, episode = episode, channel = channel)
+            log( 'Custom sync name: "%s" ==> "%s"', libgpodder.gPodderLib().custom_sync_name, filename_base, sender = self)
+        else:
+            filename_base = episode.title
+
+        to_file_src = filename_base + os.path.splitext( from_file)[1].lower()
         to_file = ''
         for ch in to_file_src:
             if ch in allowed_chars:

@@ -1,3 +1,23 @@
+Sat, 08 Sep 2007 16:45:21 +0200 <thp@perli.net>
+Support for customized file names in MP3 player sync code
+
+	* src/gpodder/gui.py: Add supporting code for reading/setting
+	configuration options for the preferences dialog and a help display
+	code that displays a guide on how to write custom sync name strings
+	* src/gpodder/libgpodder.py: New configuration options:
+	custom_sync_name (holds format string) and
+	custom_sync_name_enabled (boolean, if the above string should be used)
+	* src/gpodder/libipodsync.py: Use custom sync name format string and
+	util's object_string_formatter() function to obtain a file name for
+	the synchronized episode (or default to episode.title if disabled)
+	* src/gpodder/libpodcasts.py: Add new property methods to podcastItem:
+	basename (returns the basename of the URL, without extension) and
+	published (returns the pubDate of the episode in YYYYMMDD format)
+	* src/gpodder/util.py: New object_string_formatter() method that
+	replaces {OBJECTNAME.ATTRNAME} substrings in a string with the
+	corresponding values of passed-in keyword argument objects
+	* data/gpodder.glade: Added preferences GUI elements
+
 Wed, 05 Sep 2007 10:14:09 +0200 <thp@perli.net>
 Check for installed python-xml package on startup (hard dependency)
 

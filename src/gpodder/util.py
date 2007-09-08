@@ -330,3 +330,35 @@ def updated_parsed_to_rfc2822( updated_parsed):
     locale.setlocale( locale.LC_TIME, old_locale)
     return result
 
+
+def object_string_formatter( s, **kwargs):
+    """
+    Makes attributes of object passed in as keyword 
+    arguments available as {OBJECTNAME.ATTRNAME} in 
+    the passed-in string and returns a string with 
+    the above arguments replaced with the attribute 
+    values of the corresponding object.
+
+    Example:
+
+    e = Episode()
+    e.title = 'Hello'
+    s = '{episode.title} World'
+    
+    print object_string_formatter( s, episode = e)
+          => 'Hello World'
+    """
+    result = s
+    for ( key, o ) in kwargs.items():
+        matches = re.findall( r'\{%s\.([^\}]+)\}' % key, s)
+        for attr in matches:
+            if hasattr( o, attr):
+                try:
+                    from_s = '{%s.%s}' % ( key, attr )
+                    to_s = getattr( o, attr)
+                    result = result.replace( from_s, to_s)
+                except:
+                    log( 'Could not replace attribute "%s" in string "%s".', attr, s)
+
+    return result
+

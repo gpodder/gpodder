@@ -139,6 +139,8 @@ class gPodderLibClass( object):
         self.paned_position = 150
         self.max_downloads = 3
         self.max_downloads_enabled = False
+        self.custom_sync_name_enabled = False
+        self.custom_sync_name = '{episode.title}'
         self.default_new = 1
         self.mp3_player_folder = ""
         self.only_sync_not_played = False
@@ -216,6 +218,8 @@ class gPodderLibClass( object):
         self.write_to_parser( parser, 'main_window_width', self.main_window_width)
         self.write_to_parser( parser, 'max_downloads', self.max_downloads)
         self.write_to_parser( parser, 'max_downloads_enabled', self.max_downloads_enabled)
+        self.write_to_parser( parser, 'custom_sync_name', self.custom_sync_name)
+        self.write_to_parser( parser, 'custom_sync_name_enabled', self.custom_sync_name_enabled)
         self.write_to_parser( parser, 'default_new', self.default_new)
         self.write_to_parser( parser, 'main_window_height', self.main_window_height)
         self.write_to_parser( parser, 'main_window_x', self.main_window_x)
@@ -356,6 +360,8 @@ class gPodderLibClass( object):
                     self.paned_position = self.get_int_from_parser( parser, 'paned_position', 0)
                     self.max_downloads = self.get_int_from_parser( parser, 'max_downloads', 3)
                     self.max_downloads_enabled = self.get_boolean_from_parser(parser, 'max_downloads_enabled', default=False)
+                    self.custom_sync_name = self.get_from_parser( parser, 'custom_sync_name', '')
+                    self.custom_sync_name_enabled = self.get_boolean_from_parser(parser, 'custom_sync_name_enabled', default=False)
                     self.default_new = self.get_int_from_parser( parser, 'default_new', 1)
                     self.mp3_player_folder = self.get_from_parser( parser, 'mp3_player_folder', '/media/usbdisk')
                     self.only_sync_not_played = self.get_boolean_from_parser(parser, 'only_sync_not_played', default=False)

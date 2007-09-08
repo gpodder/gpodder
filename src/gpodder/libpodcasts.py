@@ -554,6 +554,18 @@ class podcastItem(object):
 
     def file_type( self):
         return util.file_type_by_extension( util.file_extension_from_url( self.url))
+
+    @property
+    def basename( self):
+        return os.path.splitext( os.path.basename( self.url))[0]
+    
+    @property
+    def published( self):
+        try:
+            return datetime.fromtimestamp( mktime_tz( parsedate_tz( self.pubDate))).strftime('%Y%m%d')
+        except:
+            log( 'Cannot format pubDate for "%s".', self.title, sender = self)
+            return '00000000'
     
     def __cmp__( self, other):
         try:
