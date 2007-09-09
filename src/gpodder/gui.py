@@ -330,7 +330,7 @@ class gPodder(GladeWidget):
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, False))
                     menu.append( item)
                 else:
-                    item = gtk.ImageMenuItem( _('Mark %s as downloaded') % episode_title)
+                    item = gtk.ImageMenuItem( _('Mark %s as deleted') % episode_title)
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, True))
                     menu.append( item)
@@ -1104,33 +1104,34 @@ class gPodder(GladeWidget):
 
         channel_url = self.active_channel.url
         selection = self.treeAvailable.get_selection()
-        selection_tuple = selection.get_selected_rows()
-        model = self.treeAvailable.get_model()
+        ( model, paths ) = selection.get_selected_rows()
         
         if selection.count_selected_rows() == 0:
             log( 'Nothing selected - will not remove any downloaded episode.')
             return
 
-        title = _('Remove %d episodes?') % selection.count_selected_rows()
-        message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
         if selection.count_selected_rows() == 1:
-            title = _('Remove %s?')  % model.get_value( model.get_iter( selection_tuple[1][0]), 1)
+            title = _('Remove %s?')  % model.get_value( model.get_iter( paths[0]), 1)
             message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
+        else:
+            title = _('Remove %d episodes?') % selection.count_selected_rows()
+            message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
         
         # if user confirms deletion, let's remove some stuff ;)
         if self.show_confirmation( message, title):
             try:
                 # iterate over the selection, see also on_treeDownloads_row_activated
-                for apath in selection_tuple[1]:
-                    selection_iter = model.get_iter( apath)
-                    url = model.get_value( selection_iter, 0)
+                for path in paths:
+                    url = model.get_value( model.get_iter( path), 0)
                     self.active_channel.delete_episode_by_url( url)
+                    gPodderLib().history_mark_downloaded( url)
       
                 # now, clear local db cache so we can re-read it
                 self.ldb.clear_cache()
                 self.updateComboBox()
             except:
                 log( 'Error while deleting (some) downloads.')
+
         # only delete partial files if we do not have any downloads in progress
         delete_partial = not services.download_status_manager.has_items()
         gPodderLib().clean_up_downloads( delete_partial)

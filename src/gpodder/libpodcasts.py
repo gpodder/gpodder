@@ -457,6 +457,7 @@ class podcastChannel(ListType):
         libgpodder.getLock()
 
         new_localdb = self.localdb_channel
+        local_filename = None
 
         for item in new_localdb:
             if item.url == url:
@@ -465,8 +466,8 @@ class podcastChannel(ListType):
 
         self.localdb_channel = new_localdb
 
-        # clean-up downloaded file
-        util.delete_file( local_filename)
+        if local_filename:
+            util.delete_file( local_filename)
 
         libgpodder.releaseLock()
 

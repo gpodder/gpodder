@@ -1,3 +1,13 @@
+Sun, 09 Sep 2007 18:47:20 +0200 <thp@perli.net>
+Mark episodes as downloaded/deleted when deleting episodes
+
+	* src/gpodder/gui.py: Rename "Mark [...] as downloaded" to "Mark [...]
+	as deleted" and mark episodes as downloaded when removing selected
+	episodes that have not been downloaded yet, as suggested by Holger
+	Leskien <holger leskien.com>
+	* src/gpodder/libpodcasts.py: Fix problem when trying to delete
+	episodes that have not been downloaded
+
 Sat, 08 Sep 2007 16:45:21 +0200 <thp@perli.net>
 Support for customized file names in MP3 player sync code
 
