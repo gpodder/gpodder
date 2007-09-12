@@ -1,3 +1,12 @@
+Wed, 12 Sep 2007 23:07:23 +0200 <thp@perli.net>
+Fix a bug when traversing directories with loop symlinks
+
+	* src/gpodder/util.py: Don't dive into subdirectories that are
+	symbolic links, this is to avoid a situation where looping symlinks
+	result in the function dead-locking in a endless recursive loop,
+	thanks to Bjørn Rasmussen <bjoernr@sensewave.com> for pointing that
+	out and providing the necessary bug report to fix this issue
+
 Sun, 09 Sep 2007 18:47:20 +0200 <thp@perli.net>
 Mark episodes as downloaded/deleted when deleting episodes
 

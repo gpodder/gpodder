@@ -121,7 +121,7 @@ def calculate_size( path):
     if os.path.isfile( path):
         return os.path.getsize( path)
 
-    if os.path.isdir( path):
+    if os.path.isdir( path) and not os.path.islink( path):
         sum = os.path.getsize( path)
 
         for item in os.listdir( path):
