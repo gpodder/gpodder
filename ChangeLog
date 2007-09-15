@@ -1,3 +1,22 @@
+Sat, 15 Sep 2007 16:22:28 +0200 <thp@perli.net>
+New LocalDB using DOM (removes python-xml dependency); channel context menu
+
+	* bin/gpodder: Don't check for xml.sax package and modules anymore, as
+	the dependency on python-xml has been removed with this release
+	* data/gpodder.glade: Remove the "info" button for the current channel
+	* src/gpodder/gui.py: Remove localdb-related code and adopt code for
+	new LocalDB code; add context menu to channel navigator (edit/delete)
+	* src/gpodder/libipodsync.py: Don't import "liblocaldb" module
+	* src/gpodder/liblocaldb.py: Removed
+	* src/gpodder/liblocdbreader.py: Removed
+	* src/gpodder/liblocdbwriter.py: Removed
+	* src/gpodder/liblogger.py: Add "traceback" keyword argument to the
+	log() function; if "True" and in debugging mode, print traceback
+	* src/gpodder/libpodcasts.py: Merge code from old liblocaldb and
+	liblocdbreader/liblocdbwriter to this module as LocalDBWriter and
+	LocalDBReader; customize podcastChannel to new LocalDB code
+	* src/gpodder/libwget.py: Remove localdb-specific code (now obsolete)
+
 Wed, 12 Sep 2007 23:07:23 +0200 <thp@perli.net>
 Fix a bug when traversing directories with loop symlinks
 

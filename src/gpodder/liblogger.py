@@ -23,7 +23,7 @@
 #
 #
 
-
+import traceback
 
 write_to_stdout = False
 
@@ -38,6 +38,10 @@ def log( message, *args, **kwargs):
         message = '(%s) %s' % ( kwargs['sender'].__class__.__name__, message )
     if write_to_stdout:
         print message % args
+        if kwargs.get( 'traceback', False):
+            error = traceback.format_exc()
+            if error.strip() != 'None':
+                print error
 
 
 def msg( type, message, *args):

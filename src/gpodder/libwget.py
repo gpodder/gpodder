@@ -51,7 +51,7 @@ import gtk
 import gobject
 
 class downloadThread( object):
-    def __init__( self, url, filename, ready_event = None, cutename = _("unknown"), channelitem = None, item = None, localdb = None):
+    def __init__( self, url, filename, ready_event = None, cutename = _("unknown"), channelitem = None, item = None):
         self.url = url.replace( "%20", " ")
         
         self.filename = filename
@@ -69,7 +69,6 @@ class downloadThread( object):
 
         self.channelitem = channelitem
         self.item = item
-        self.localdb = localdb
 
         self.is_cancelled = False
 
@@ -162,10 +161,6 @@ class downloadThread( object):
         if self.result == 0 and self.channelitem and self.item:
             log( 'Download thread finished: Adding downloaded item to local database')
             self.channelitem.addDownloadedItem( self.item)
-            
-            # if we have received a localDB, clear its cache
-            if self.localdb != None:
-                self.localdb.clear_cache()
         
         if self.ready_event != None:
             self.ready_event.set()

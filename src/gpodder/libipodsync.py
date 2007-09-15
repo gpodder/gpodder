@@ -82,7 +82,6 @@ import time
 import string
 import email.Utils
 
-import liblocaldb
 import libpodcasts
 import libgpodder
 import libconverter

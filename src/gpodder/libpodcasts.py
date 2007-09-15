@@ -22,7 +22,11 @@
 #  libpodcasts.py -- data classes for gpodder
 #  thomas perl <thp@perli.net>   20051029
 #
+#  Contains code based on:
+#            liblocdbwriter.py (2006-01-09)
+#            liblocdbreader.py (2006-01-10)
 #
+
 
 import gtk
 import gobject
@@ -32,6 +36,7 @@ from gpodder import util
 from gpodder import opml
 from gpodder import cache
 from gpodder import services
+
 
 from liblogger import log
 import libgpodder
@@ -49,9 +54,6 @@ import time
 
 from datetime import datetime
 
-from liblocdbwriter import writeLocalDB
-from liblocdbreader import readLocalDB
-
 from libtagupdate import update_metadata_on_file
 from libtagupdate import tagging_supported
 
@@ -65,7 +67,7 @@ from email.Utils import parsedate_tz
 
 from xml.sax import saxutils
 
-from xml.sax import make_parser
+import xml.dom.minidom
 
 import md5
 
@@ -97,8 +99,6 @@ class ChannelSettings(object):
 
 class podcastChannel(ListType):
     """holds data for a complete channel"""
-    MAP_FROM = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    MAP_TO   = 'qazwsxedcrfvtgbyhnujmikolp9514738062'
     SETTINGS = ('sync_to_devices', 'is_music_channel', 'device_playlist_name','override_title','username','password')
     icon_cache = {}
 
@@ -167,7 +167,6 @@ class podcastChannel(ListType):
         self.description = util.remove_html_tags( description)
         self.image = None
         self.pubDate = ''
-        self.downloaded = None
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
@@ -210,24 +209,19 @@ class podcastChannel(ListType):
         else:
             self.override_title = ''
     
-    def get_localdb_channel( self):
+    def load_downloaded_episodes( self):
+        log( 'Loading downloaded episodes for %s', self.url, sender = self, traceback = True)
         try:
-            locdb_reader = readLocalDB( self.url)
-            locdb_reader.parseXML( self.index_file)
-            return locdb_reader.channel
+            return LocalDBReader( self.url).read( self.index_file)
         except:
             return podcastChannel( self.url, self.title, self.link, self.description)
 
-    def set_localdb_channel( self, channel):
-        if channel != None:
-            try:
-                log( 'Setting localdb channel data')
-                writeLocalDB( self.index_file, channel)
-            except:
-                log( 'Cannot save channel in set_localdb_channel( %s)', channel.title)
-
-    localdb_channel = property(fget=get_localdb_channel,
-                               fset=set_localdb_channel)
+    def save_downloaded_episodes( self, channel):
+        try:
+            log( 'Setting localdb channel data => %s', self.index_file, sender = self)
+            LocalDBWriter( self.index_file).write( channel)
+        except:
+            log( 'Error writing to localdb: %s', self.index_file, sender = self, traceback = True)
     
     def load_settings( self):
         settings = ChannelSettings.get_settings_by_url( self.url)
@@ -253,7 +247,7 @@ class podcastChannel(ListType):
 
         # If nothing found, do pubDate comparison
         pubdate = None
-        for episode in self.localdb_channel:
+        for episode in self.load_downloaded_episodes():
             pubdate = episode.newer_pubdate( pubdate)
         return pubdate
 
@@ -296,22 +290,14 @@ class podcastChannel(ListType):
     def addDownloadedItem( self, item):
         # no multithreaded access
         libgpodder.getLock()
-        localdb = self.index_file
-        log( 'Local database: %s', localdb)
 
-        self.downloaded = self.localdb_channel
-
-        already_in_list = False
-        # try to find the new item in the list
-        for it in self.downloaded:
-            if it.equals( item):
-                already_in_list = True
-                break
+        downloaded_episodes = self.load_downloaded_episodes()
+        already_in_list = item.url in [ episode.url for episode in downloaded_episodes ]
 
         # only append if not already in list
         if not already_in_list:
-            self.downloaded.append( item)
-            writeLocalDB( localdb, self.downloaded)
+            downloaded_episodes.append( item)
+            self.save_downloaded_episodes( downloaded_episodes)
 
             # Update metadata on file (if possible and wanted)
             if libgpodder.gPodderLib().update_tags and tagging_supported():
@@ -341,7 +327,7 @@ class podcastChannel(ListType):
 
         # go through all episodes (both new and downloaded),
         # prefer already-downloaded (in localdb)
-        for item in [] + self.localdb_channel + self:
+        for item in [] + self.load_downloaded_episodes() + self:
             # skip items with the same guid (if it has a guid)
             if item.guid and item.guid in added_guids:
                 continue
@@ -452,36 +438,18 @@ class podcastChannel(ListType):
     cover_file = property(fget=get_cover_file)
 
     def delete_episode_by_url(self, url):
-        log( 'Delete %s', url)
-        # no multithreaded access
         libgpodder.getLock()
+        downloaded_episodes = self.load_downloaded_episodes()
 
-        new_localdb = self.localdb_channel
-        local_filename = None
+        for episode in self.get_all_episodes():
+            if episode.url == url:
+                util.delete_file( episode.local_filename())
+                if episode in downloaded_episodes:
+                    downloaded_episodes.remove( episode)
 
-        for item in new_localdb:
-            if item.url == url:
-                local_filename = item.local_filename()
-                new_localdb.remove(item)
-
-        self.localdb_channel = new_localdb
-
-        if local_filename:
-            util.delete_file( local_filename)
-
+        self.save_downloaded_episodes( downloaded_episodes)
         libgpodder.releaseLock()
 
-    def obfuscate_password(self, password, unobfuscate = False):
-        if unobfuscate:
-            translation_table = string.maketrans(self.MAP_TO + self.MAP_TO.upper(), self.MAP_FROM + self.MAP_FROM.upper())
-        else:
-            translation_table = string.maketrans(self.MAP_FROM + self.MAP_FROM.upper(), self.MAP_TO + self.MAP_TO.upper())
-        try:
-            # For now at least, only ascii passwords will work, non-ascii passwords will be stored in plaintext :-(
-            return string.translate(password.encode('ascii'), translation_table)
-        except:
-            return password
-        
 class podcastItem(object):
     """holds data for one object in a channel"""
 
@@ -704,4 +672,108 @@ def save_channels( channels):
     exporter = opml.Exporter( libgpodder.gPodderLib().channel_opml_file)
     exporter.write( channels)
 
+
+
+class LocalDBReader( object):
+    def __init__( self, url):
+        self.url = url
+
+    def get_text( self, nodelist):
+        return ''.join( [ node.data for node in nodelist if node.nodeType == node.TEXT_NODE ])
+
+    def get_text_by_first_node( self, element, name):
+        return self.get_text( element.getElementsByTagName( name)[0].childNodes)
+    
+    def get_episode_from_element( self, channel, element):
+        episode = podcastItem( channel)
+        episode.title = self.get_text_by_first_node( element, 'title')
+        episode.description = self.get_text_by_first_node( element, 'description')
+        episode.url = self.get_text_by_first_node( element, 'url')
+        episode.link = self.get_text_by_first_node( element, 'link')
+        episode.guid = self.get_text_by_first_node( element, 'guid')
+        episode.pubDate = self.get_text_by_first_node( element, 'pubDate')
+        episode.calculate_filesize()
+        return episode
+
+    def load_and_clean( self, filename):
+        """
+        Clean-up a LocalDB XML file that could potentially contain
+        "unbound prefix" XML elements (generated by the old print-based
+        LocalDB code). The code removes those lines to make the new 
+        DOM parser happy.
+
+        This should be removed in a future version.
+        """
+        lines = []
+        for line in open(filename).read().split('\n'):
+            if not line.startswith('<gpodder:info'):
+                lines.append( line)
+
+        return '\n'.join( lines)
+    
+    def read( self, filename):
+        doc = xml.dom.minidom.parseString( self.load_and_clean( filename))
+        rss = doc.getElementsByTagName('rss')[0]
+        
+        channel_element = rss.getElementsByTagName('channel')[0]
+
+        channel = podcastChannel( url = self.url)
+        channel.title = self.get_text_by_first_node( channel_element, 'title')
+        channel.description = self.get_text_by_first_node( channel_element, 'description')
+        channel.link = self.get_text_by_first_node( channel_element, 'link')
+        channel.load_settings()
+
+        for episode_element in rss.getElementsByTagName('item'):
+            episode = self.get_episode_from_element( channel, episode_element)
+            channel.append( episode)
+
+        return channel
+
+
+
+class LocalDBWriter(object):
+    def __init__( self, filename):
+        self.filename = filename
+
+    def create_node( self, doc, name, content):
+        node = doc.createElement( name)
+        node.appendChild( doc.createTextNode( content))
+        return node
+
+    def create_item( self, doc, episode):
+        item = doc.createElement( 'item')
+        item.appendChild( self.create_node( doc, 'title', episode.title))
+        item.appendChild( self.create_node( doc, 'description', episode.description))
+        item.appendChild( self.create_node( doc, 'url', episode.url))
+        item.appendChild( self.create_node( doc, 'link', episode.link))
+        item.appendChild( self.create_node( doc, 'guid', episode.guid))
+        item.appendChild( self.create_node( doc, 'pubDate', episode.pubDate))
+        return item
+
+    def write( self, channel):
+        doc = xml.dom.minidom.Document()
+
+        rss = doc.createElement( 'rss')
+        rss.setAttribute( 'version', '1.0')
+        doc.appendChild( rss)
+
+        channele = doc.createElement( 'channel')
+        channele.appendChild( self.create_node( doc, 'title', channel.title))
+        channele.appendChild( self.create_node( doc, 'description', channel.description))
+        channele.appendChild( self.create_node( doc, 'link', channel.link))
+        rss.appendChild( channele)
+
+        for episode in channel:
+            if episode.is_downloaded():
+                rss.appendChild( self.create_item( doc, episode))
+
+        try:
+            fp = open( self.filename, 'w')
+            fp.write( doc.toxml( encoding = 'utf-8'))
+            fp.close()
+        except:
+            log( 'Could not open file for writing: %s', self.filename, sender = self)
+            return False
+        
+        return True
 

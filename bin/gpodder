@@ -51,12 +51,6 @@ except:
     print '         The feedparser module can also be downloaded from www.feedparser.org'
     sys.exit( -1)
 
-try:
-    from xml.sax.saxutils import DefaultHandler
-except:
-    print 'Warning: XML SAX modules not found. Please install "python-xml".'
-    print '         The pyxml module can also be downloaded from pyxml.sourceforge.net'
-    sys.exit( -1)
 
 def main( argv = sys.argv):
     prefix = os.path.abspath( os.path.normpath( os.path.join( os.path.dirname( argv[0]), '..')))

@@ -47,8 +47,6 @@ from libwget import downloadThread
 from libgpodder import gPodderLib
 from liblogger import log
 
-from liblocaldb import localDB
-
 from libplayers import UserAppsReader
 
 from libipodsync import gPodder_iPodSync
@@ -116,7 +114,6 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 class gPodder(GladeWidget):
     def new(self):
-        self.ldb = None
         self.uar = None
 
         gl = gPodderLib()
@@ -178,6 +175,7 @@ class gPodder(GladeWidget):
 
         # Add our context menu to treeAvailable
         self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
+        self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell, pixbuf = 4)
@@ -227,10 +225,6 @@ class gPodder(GladeWidget):
 
         self.treeDownloads.set_model( services.download_status_manager.tree_model)
         
-        # tooltips :)
-        self.tooltips = gtk.Tooltips()
-        self.tooltips.set_tip( self.btnEditChannel, _("Edit channel information"))
-        
         #Add Drag and Drop Support
         targets = [("text/plain", 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4)]
         self.main_widget.drag_dest_set(gtk.DEST_DEFAULT_ALL, targets, \
@@ -242,9 +236,6 @@ class gPodder(GladeWidget):
         self.active_channel = None
         self.channels = load_channels( load_items = False)
 
-        # create a localDB object
-        self.ldb = localDB()
-
         # load list of user applications
         self.user_apps_reader = UserAppsReader()
         self.user_apps_reader.read()
@@ -254,6 +245,56 @@ class gPodder(GladeWidget):
 
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.update_on_startup)
+
+    def treeview_channels_button_pressed( self, treeview, event):
+        if event.button == 3:
+            ( x, y ) = ( int(event.x), int(event.y) )
+            ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
+
+            paths = []
+
+            # Did the user right-click into a selection?
+            selection = treeview.get_selection()
+            if selection.count_selected_rows() and path:
+                ( model, paths ) = selection.get_selected_rows()
+                if path not in paths:
+                    # We have right-clicked, but not into the 
+                    # selection, assume we don't want to operate
+                    # on the selection
+                    paths = []
+
+            # No selection or right click not in selection:
+            # Select the single item where we clicked
+            if not len( paths) and path:
+                treeview.grab_focus()
+                treeview.set_cursor( path, column, 0)
+
+                ( model, paths ) = ( treeview.get_model(), [ path ] )
+
+            # We did not find a selection, and the user didn't
+            # click on an item to select -- don't show the menu
+            if not len( paths):
+                return True
+
+            menu = gtk.Menu()
+
+            channel_title = model.get_value( model.get_iter( paths[0]), 1)
+            item = gtk.ImageMenuItem('')
+            ( label, image ) = item.get_children()
+            label.set_text( _('Edit %s') % channel_title)
+            item.set_image( gtk.image_new_from_stock( gtk.STOCK_EDIT, gtk.ICON_SIZE_MENU))
+            item.connect( 'activate', self.on_itemEditChannel_activate)
+            menu.append( item)
+
+            item = gtk.ImageMenuItem( _('Remove %s') % ( channel_title, ))
+            item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+            item.connect( 'activate', self.on_itemRemoveChannel_activate)
+            menu.append( item)
+
+            menu.show_all()
+            menu.popup( None, None, None, event.button, event.time)
+
+            return True
 
     def treeview_button_pressed( self, treeview, event):
         if event.button == 3:
@@ -543,12 +584,14 @@ class gPodder(GladeWidget):
 
         if episodes == None:
             i = 0
-            for channel in self.ldb.channel_list:
-                sync.set_progress_overall( i, len(self.ldb.channel_list))
+            available_channels = [ c.load_downloaded_episodes() for c in self.channels ]
+            downloaded_channels = [ c for c in available_channels if len(c) ]
+            for channel in downloaded_channels:
+                sync.set_progress_overall( i, len(downloaded_channels))
                 channel.load_settings()
                 sync.sync_channel( channel, sync_played_episodes = not gPodderLib().only_sync_not_played)
                 i += 1
-            sync.set_progress_overall( i, len(self.ldb.channel_list))
+            sync.set_progress_overall( i, len(downloaded_channels))
         else:
             sync.sync_channel( self.active_channel, episodes, True)
 
@@ -648,8 +691,7 @@ class gPodder(GladeWidget):
         if widget:
             if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
                 # addDownloadedItem just to make sure the episode is marked correctly in localdb
-                if current_channel.addDownloadedItem( current_podcast):
-                    self.ldb.clear_cache()
+                current_channel.addDownloadedItem( current_podcast)
                 # open the file now
                 if current_podcast.file_type() != 'torrent':
                     self.playback_episode( current_channel, current_podcast)
@@ -662,7 +704,7 @@ class gPodder(GladeWidget):
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
-            downloadThread( current_podcast.url, filename, None, current_podcast.title, current_channel, current_podcast, self.ldb).download()
+            downloadThread( current_podcast.url, filename, None, current_podcast.title, current_channel, current_podcast).download()
         else:
             if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
                 title = _('Episode already downloaded')
@@ -675,8 +717,7 @@ class gPodder(GladeWidget):
 
             if os.path.exists( filename):
                 log( 'Episode has already been downloaded.')
-                if current_channel.addDownloadedItem( current_podcast):
-                    self.ldb.clear_cache()
+                current_channel.addDownloadedItem( current_podcast)
 
         # update tree view to mark the episode as being downloaded
         self.updateComboBox()
@@ -770,7 +811,7 @@ class gPodder(GladeWidget):
                 for channel, episode in to_download:
                     filename = episode.local_filename()
                     if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
-                        downloadThread( episode.url, filename, None, episode.title, channel, episode, self.ldb).download()
+                        downloadThread( episode.url, filename, None, episode.title, channel, episode).download()
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
@@ -1127,7 +1168,6 @@ class gPodder(GladeWidget):
                     gPodderLib().history_mark_downloaded( url)
       
                 # now, clear local db cache so we can re-read it
-                self.ldb.clear_cache()
                 self.updateComboBox()
             except:
                 log( 'Error while deleting (some) downloads.')
