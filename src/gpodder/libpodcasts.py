@@ -58,7 +58,6 @@ from libtagupdate import update_metadata_on_file
 from libtagupdate import tagging_supported
 
 from threading import Event
-from libwget import downloadThread
 import re
 
 from types import ListType
@@ -106,11 +105,11 @@ class podcastChannel(ListType):
     fc = cache.Cache( storage)
 
     @classmethod
-    def get_by_url( cls, url, force_update = False):
+    def get_by_url( cls, url, force_update = False, offline = False):
         if isinstance( url, unicode):
             url = url.encode('utf-8')
 
-        c = cls.fc.fetch( url, force_update)
+        c = cls.fc.fetch( url, force_update, offline)
         channel = podcastChannel( url)
         channel.title = c.feed.title
         if hasattr( c.feed, 'link'):
@@ -145,10 +144,10 @@ class podcastChannel(ListType):
         return channel
 
     @staticmethod
-    def create_from_dict( d, load_items = True, force_update = False, callback_error = None):
+    def create_from_dict( d, load_items = True, force_update = False, callback_error = None, offline = False):
         if load_items:
             try:
-                return podcastChannel.get_by_url( d['url'], force_update = force_update)
+                return podcastChannel.get_by_url( d['url'], force_update = force_update, offline= offline)
             except:
                 callback_error and callback_error( _('Could not load channel feed from URL: %s') % d['url'])
                 log( 'Cannot load podcastChannel from URL: %s', d['url'])
@@ -657,14 +656,14 @@ def channelsToModel( channels):
 
 
 
-def load_channels( load_items = True, force_update = False, callback_proc = None, callback_url = None, callback_error = None):
+def load_channels( load_items = True, force_update = False, callback_proc = None, callback_url = None, callback_error = None, offline = False):
     importer = opml.Importer( libgpodder.gPodderLib().channel_opml_file)
     result = []
     count = 0
     for item in importer.items:
         callback_proc and callback_proc( count, len( importer.items))
         callback_url and callback_url( item['url'])
-        result.append( podcastChannel.create_from_dict( item, load_items = load_items, force_update = force_update, callback_error = callback_error))
+        result.append( podcastChannel.create_from_dict( item, load_items = load_items, force_update = force_update, callback_error = callback_error, offline = offline))
         count += 1
     return result
 

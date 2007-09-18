@@ -84,7 +84,7 @@ class Cache:
         self.user_agent = userAgent
         return
 
-    def fetch(self, url, force_update = False):
+    def fetch(self, url, force_update = False, offline = False):
         "Return the feed at url."
         logger.debug('url="%s"' % url)
 
@@ -93,6 +93,9 @@ class Cache:
         now = time.time()
 
         cached_time, cached_content = self.storage.get(url, (None, None))
+
+        if offline and cached_time is not None:
+            return cached_content
 
         # Does the storage contain a version of the data
         # which is older than the time-to-live?

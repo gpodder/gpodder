@@ -1,3 +1,13 @@
+Tue, 18 Sep 2007 02:14:19 +0200 <thp@perli.net>
+Offline support for feedcache, faster startup, code simplification
+
+	* src/gpodder/cache.py: Add support for "offline" keyword argument
+	* src/gpodder/gui.py: Make intelligent use of "offline" keyword
+	argument when passed to load_channels(); simplify code for selecting
+	the active channel in updateComboBox()
+	* src/gpodder/libpodcasts.py: Pass-through of "offline" keyword
+	argument in all relevant function calls
+
 Sat, 15 Sep 2007 16:22:28 +0200 <thp@perli.net>
 New LocalDB using DOM (removes python-xml dependency); channel context menu
 

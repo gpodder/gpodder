@@ -234,11 +234,11 @@ class gPodder(GladeWidget):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = load_channels( load_items = False)
+        self.channels = load_channels( load_items = False, offline = True)
 
         # load list of user applications
         self.user_apps_reader = UserAppsReader()
-        self.user_apps_reader.read()
+        Thread( target = self.user_apps_reader.read).start()
 
         # Clean up old, orphaned download files
         gl.clean_up_downloads( delete_partial = True)
@@ -493,16 +493,11 @@ class gPodder(GladeWidget):
 
     def updateComboBox( self):
         try:
-            old_active = self.comboAvailable.get_active()
-            if old_active < 0:
-                old_active = 0
-            elif old_active > len( self.channels)-1:
-                old_active = len(self.channels)-1
+            old_active = max( 0, min( self.comboAvailable.get_active(), len( self.channels)-1))
             self.comboAvailable.set_model( channelsToModel( self.channels))
             self.comboAvailable.set_active( old_active)
             self.treeChannels.set_model( self.comboAvailable.get_model())
-            if old_active > -1:
-                self.treeChannels.get_selection().select_path( old_active)
+            self.treeChannels.get_selection().select_path( old_active)
         except:
             pass
     
@@ -621,7 +616,7 @@ class gPodder(GladeWidget):
             progressbar.set_fraction( ((1.00*position) / (1.00*count)))
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
-        self.channels = load_channels( force_update = force_update, callback_proc = callback_proc, callback_error = callback_error)
+        self.channels = load_channels( force_update = force_update, callback_proc = callback_proc, callback_error = callback_error, offline = not force_update)
         if finish_proc:
             finish_proc()
 
