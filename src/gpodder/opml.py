@@ -46,6 +46,7 @@ import urllib
 import urllib2
 
 import datetime
+import gpodder
 
 
 class Importer(object):
@@ -60,6 +61,10 @@ class Importer(object):
 
     VALID_TYPES = ( 'rss', 'link' )
 
+    def read_url( self, url):
+        request = urllib2.Request( url, headers = {'User-agent': gpodder.user_agent})
+        return urllib2.urlopen( request).read()
+
     def __init__( self, url):
         """
         Parses the OPML feed from the given URL into 
@@ -71,7 +76,7 @@ class Importer(object):
                 # assume local filename
                 doc = xml.dom.minidom.parse( url)
             else:
-                doc = xml.dom.minidom.parseString( urllib2.urlopen( url).read())
+                doc = xml.dom.minidom.parseString( self.read_url( url))
 
             for outline in doc.getElementsByTagName('outline'):
                 if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl'):

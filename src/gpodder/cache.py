@@ -25,36 +25,14 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-"""
 
-"""
-
-__module_id__ = "$Id: cache.py 863 2007-08-12 15:02:16Z dhellmann $"
-
-#
-# Import system modules
-#
 import feedparser
 
-import logging
 import time
+import gpodder
 
-#
-# Import local modules
-#
+from gpodder.liblogger import log
 
-
-#
-# Module
-#
-
-class dummylogger(object):
-    def debug(self,s):
-        pass
-    def warning(self,s):
-        pass
-
-logger = dummylogger()
 
 class Cache:
     """A class to wrap Mark Pilgrim's Universal Feed Parser module
@@ -64,7 +42,7 @@ class Cache:
     caching.
     """
 
-    def __init__(self, storage, timeToLiveSeconds=3600, userAgent='feedcache'):
+    def __init__(self, storage, timeToLiveSeconds=3600):
         """
         Arguments:
 
@@ -74,19 +52,14 @@ class Cache:
 
           timeToLiveSeconds=300 -- The length of time content should
           live in the cache before an update is attempted.
-
-          userAgent='feedcache' -- User agent string to be used when
-          fetching feed contents.
-
         """
         self.storage = storage
         self.time_to_live = timeToLiveSeconds
-        self.user_agent = userAgent
+        self.user_agent = gpodder.user_agent
         return
 
     def fetch(self, url, force_update = False, offline = False):
         "Return the feed at url."
-        logger.debug('url="%s"' % url)
 
         modified = None
         etag = None
@@ -99,30 +72,19 @@ class Cache:
 
         # Does the storage contain a version of the data
         # which is older than the time-to-live?
-        logger.debug('cache modified time: %s' % str(cached_time))
         if cached_time is not None and not force_update:
             if self.time_to_live:
                 age = now - cached_time
                 if age <= self.time_to_live:
-                    logger.debug('cache contents still valid')
                     return cached_content
-                else:
-                    logger.debug('cache contents older than TTL')
-            else:
-                logger.debug('no TTL value')
             
             # The cache is out of date, but we have
             # something.  Try to use the etag and modified_time
             # values from the cached content.
             etag = cached_content.get('etag')
             modified = cached_content.get('modified')
-            logger.debug('cached etag=%s' % etag)
-            logger.debug('cached modified=%s' % str(modified))
-        else:
-            logger.debug('nothing in the cache')
 
         # We know we need to fetch, so go ahead and do it.
-        logger.debug('fetching...')
         parsed_result = feedparser.parse(url,
                                          agent=self.user_agent,
                                          modified=modified,
@@ -130,7 +92,6 @@ class Cache:
                                          )
 
         status = parsed_result.get('status', None)
-        logger.debug('status=%s' % status)
         if status == 304:
             # No new data, based on the etag or modified values.
             # We need to update the modified time in the
@@ -145,10 +106,9 @@ class Cache:
             # There is new content, so store it unless there was an error.
             error = parsed_result.get('bozo_exception')
             if not error:
-                logger.debug('Updating stored data for %s' % url)
                 self.storage[url] = (now, parsed_result)
             else:
-                logger.warning('Not storing data with exception: %s' % str(error))
+                log( 'Not storing result: %s', str( error), sender = self)
 
         return parsed_result
 

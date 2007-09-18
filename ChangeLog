@@ -1,3 +1,30 @@
+Tue, 18 Sep 2007 20:15:56 +0200 <thp@perli.net>
+Replace wget with new gpodder.download module; User-agent support
+
+	* bin/gpodder: Set "gpodder.user_agent" field on startup; remove check
+	for wget, as this is not needed anymore
+	* src/gpodder/cache.py: Clean-up; remove old logging code; add support
+	for gpodder.user_agent; log info when there is an error in parsing the
+	feed, so the user knows why this feed is not cached
+	* src/gpodder/console.py: Remove DownloadPool, Use new
+	gpodder.download module for carrying out downloads, remove
+	wget_version() tester, as this is not needed anymore =)
+	* src/gpodder/download.py: Added new downloader module that uses
+	urllib and some custom classes and functions to provide the equivalent
+	functionality of the obsolete "libwget", but without the wget
+	dependency and with better accuracy (progress reporting, etc..)
+	* src/gpodder/gui.py: Utilize new gpodder.download module instead of
+	libwget
+	* src/gpodder/__init__.py: Add "user_agent" variable to the gpodder
+	module that holds the value of the "User-agent" header to send to web
+	servers when requesting OPMLs, Feeds or download data
+	* src/gpodder/opml.py: Add support for sending the User-agent header
+	* src/gpodder/services.py: Make the progress column a float column to
+	have smoother progress indicuation; add the "acquired" keyword
+	argument to s_release(); default 'speed' to a translated "Queued"
+	* src/gpodder/libwget.py: Removed
+	* doc/dev/redhat-wget-output.txt: Removed
+
 Tue, 18 Sep 2007 02:30:04 +0200 <thp@perli.net>
 Refreshed pot files and po templates; updated German translation
 

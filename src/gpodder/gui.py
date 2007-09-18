@@ -35,14 +35,13 @@ from string import strip
 from gpodder import util
 from gpodder import opml
 from gpodder import services
+from gpodder import download
 from gpodder import SimpleGladeApp
 
 from libpodcasts import podcastChannel
 from libpodcasts import channelsToModel
 from libpodcasts import load_channels
 from libpodcasts import save_channels
-
-from libwget import downloadThread
 
 from libgpodder import gPodderLib
 from liblogger import log
@@ -699,7 +698,7 @@ class gPodder(GladeWidget):
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
-            downloadThread( current_podcast.url, filename, None, current_podcast.title, current_channel, current_podcast).download()
+            download.DownloadThread( current_channel, current_podcast).start()
         else:
             if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
                 title = _('Episode already downloaded')
@@ -806,7 +805,7 @@ class gPodder(GladeWidget):
                 for channel, episode in to_download:
                     filename = episode.local_filename()
                     if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
-                        downloadThread( episode.url, filename, None, episode.title, channel, episode).download()
+                        download.DownloadThread( channel, episode).start()
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')

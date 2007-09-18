@@ -18,36 +18,17 @@
 #
 
 from gpodder import util
+from gpodder import download
 from gpodder.liblogger import msg
 
 from libpodcasts import load_channels
 from libpodcasts import save_channels
 from libpodcasts import podcastChannel
 
-from libwget import downloadThread
-
 import time
 
 import popen2
 import urllib
-
-
-class DownloadPool(object):
-    def __init__( self, max_downloads = 1):
-        self.max_downloads = max_downloads
-        self.cur_downloads = 0
-
-    def add( self):
-        self.cur_downloads += 1
-
-    def set( self):
-        if self.cur_downloads < 1:
-            self.cur_downloads = 1
-
-        self.cur_downloads -= 1
-    
-    def has_free_slot( self):
-        return self.cur_downloads < self.max_downloads
 
 
 def list_channels():
@@ -104,24 +85,9 @@ def update():
 def run():
     channels = update()
 
-    pool = DownloadPool()
     for channel in channels:
-       episodes_to_download = channel.get_new_episodes()
-
-       for episode in episodes_to_download:
-           msg( 'queue', urllib.unquote( episode.url))
-
-       for episode in episodes_to_download:
-           while not pool.has_free_slot():
-               time.sleep( 3)
-
-           pool.add()
-           filename = episode.local_filename()
-           #thread will call pool.set() when finished
-           downloadThread( episode.url, filename, ready_event = pool, channelitem = channel, item = episode).download()
+       for episode in channel.get_new_episodes():
            msg( 'downloading', urllib.unquote( episode.url))
-               
-    
-def wget_version():
-    return popen2.Popen3( 'wget --version', True).fromchild.read().split('\n')[0].strip()
+           # Calling run() calls the code in the current thread
+           download.DownloadThread( channel, episode).run()
 

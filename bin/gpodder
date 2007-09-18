@@ -99,18 +99,14 @@ def main( argv = sys.argv):
     if options.local:
         sys.path = [ os.path.join( prefix, 'src') ] + sys.path
 
+    import gpodder
+    gpodder.user_agent = 'gPodder/%s (+http://gpodder.berlios.de/)' % __version__
+
     if options.verbose:
         from gpodder.liblogger import enable_verbose
         enable_verbose()
 
-    # wget installation detection
     from gpodder import console
-    which_wget = console.wget_version()
-    if which_wget == "":
-        print _("Error: cannot find wget.")
-	return 20
-    # which_wget
-    
     if options.list:
         console.list_channels()
     elif options.run:

@@ -36,7 +36,7 @@ import threading
 
 class DownloadStatusManager( object):
     COLUMN_NAMES = { 0: 'episode', 1: 'speed', 2: 'progress', 3: 'url' }
-    COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING )
+    COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_STRING )
 
     def __init__( self):
         self.status_list = {}
@@ -102,8 +102,9 @@ class DownloadStatusManager( object):
 
         return self.semaphore.acquire()
 
-    def s_release( self):
-        self.semaphore.release()
+    def s_release( self, acquired = True):
+        if acquired:
+            self.semaphore.release()
 
     def reserve_download_id( self):
         id = self.next_status_id
@@ -116,7 +117,7 @@ class DownloadStatusManager( object):
 
     def register_download_id( self, id, thread):
         self.tree_model_lock.acquire()
-        self.status_list[id] = { 'iter': self.tree_model.append(), 'thread': thread, 'progress': 0 }
+        self.status_list[id] = { 'iter': self.tree_model.append(), 'thread': thread, 'progress': 0.0, 'speed': _('Queued'), }
         self.notify( 'list-changed')
         self.tree_model_lock.release()
 
