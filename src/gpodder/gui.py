@@ -223,7 +223,6 @@ class gPodder(GladeWidget):
 
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.update_on_startup)
-        self.on_treeChannels_cursor_changed( self.treeChannels)
 
     def treeview_channels_button_pressed( self, treeview, event):
         if event.button == 3:
@@ -489,6 +488,7 @@ class gPodder(GladeWidget):
             self.treeChannels.get_selection().select_path( selected)
         except:
             log( 'Cannot set selection on treeChannels', sender = self)
+        self.on_treeChannels_cursor_changed( self.treeChannels)
     
     def updateTreeView( self):
         gl = gPodderLib()
