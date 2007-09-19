@@ -495,7 +495,13 @@ class gPodder(GladeWidget):
             old_active = max( 0, min( self.comboAvailable.get_active(), len( self.channels)-1))
             self.comboAvailable.set_model( channelsToModel( self.channels))
             self.comboAvailable.set_active( old_active)
+
+            rect = self.treeChannels.get_visible_rect()
             self.treeChannels.set_model( self.comboAvailable.get_model())
+            self.treeChannels.scroll_to_point( rect.x, rect.y)
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            self.treeChannels.scroll_to_point( rect.x, rect.y)
             self.treeChannels.get_selection().select_path( old_active)
         except:
             pass
@@ -503,14 +509,8 @@ class gPodder(GladeWidget):
     def updateTreeView( self):
         gl = gPodderLib()
 
-        rect = self.treeAvailable.get_visible_rect()
         if self.channels:
             self.treeAvailable.set_model( self.active_channel.tree_model)
-            # now, reset the scrolling position
-            self.treeAvailable.scroll_to_point( rect.x, rect.y)
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            self.treeAvailable.scroll_to_point( rect.x, rect.y)
             self.treeAvailable.columns_autosize()
             self.play_or_download()
         else:
@@ -652,6 +652,12 @@ class gPodder(GladeWidget):
         please_wait.vbox.pack_start( myprogressbar)
         please_wait.vbox.pack_end( mylabel)
         please_wait.show_all()
+
+        # center the dialog on the gPodder main window
+        ( x, y ) = self.gPodder.get_position()
+        ( w, h ) = self.gPodder.get_size()
+        ( pw, ph ) = please_wait.get_size()
+        please_wait.move( x + w/2 - pw/2, y + h/2 - ph/2)
         
         # hide separator line
         please_wait.set_has_separator( False)

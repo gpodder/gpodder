@@ -1,3 +1,13 @@
+Wed, 19 Sep 2007 14:23:40 +0200 <thp@perli.net>
+Center feed update dialog on main window; scroll reset in chan.navigator
+	* src/gpodder/gui.py: Reset the current scroll position of the channel
+	navigator when re-loading the channel list; this fixes an annoyance
+	that Alistair Sutton <alistair.sutton@gmail.com> reported when dealing
+	with a HUGE channel list (more than 50 channels); also removed the
+	scroll position reset code from treeAvailable, as we already managed
+	to only edit the model instead of re-loading it every time; added code
+	to really center the feed update dialog on gPodder's main window
+
 Tue, 18 Sep 2007 20:15:56 +0200 <thp@perli.net>
 Replace wget with new gpodder.download module; User-agent support
 
