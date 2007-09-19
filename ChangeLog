@@ -1,3 +1,23 @@
+Wed, 19 Sep 2007 16:57:41 +0200 <thp@perli.net>
+Removed channel combobox, drag'n'drop improvements + new channel cover editor
+
+	* data/gpodder.glade: Remove comboAvailable in gPodder (main window);
+	add download+clear button in gPodderChannel, rename some items that
+	are now used in code; make the channel navigator non-shrinkable (so
+	it is always visible, because we don't have comboAvailable anymore)
+	* src/gpodder/gui.py: Remove support for the channel combo box,
+	also known as comboAvailable; clean-up DND code and make treeChannels
+	the only DND target in the main window; remove some unnecessary
+	updating of the channel list (calls to updateComboBox);
+	Changes for the gPodderChannel dialog: Don't automatically download
+	channel cover when dialog pops up; add "Download" and "Clear" buttons
+	to the cover editor; add DND support for dropping local files or
+	images from the web browser to the cover editor (for setting custom
+	covers on channels with bad or no cover)
+	* src/gpodder/libgpodder.py: Don't abort get_image_from_url() if the
+	URL is invalid, but the image has already been downloaded (because we
+	read the downloaded image in the code when it exists, without URL)
+
 Wed, 19 Sep 2007 14:23:40 +0200 <thp@perli.net>
 Center feed update dialog on main window; scroll reset in chan.navigator
 	* src/gpodder/gui.py: Reset the current scroll position of the channel

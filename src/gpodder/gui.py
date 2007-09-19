@@ -127,27 +127,8 @@ class gPodder(GladeWidget):
 
         self.default_title = self.gPodder.get_title()
 
-        # set up the rendering of the comboAvailable combobox
-        cellrenderer = gtk.CellRendererText()
-        self.comboAvailable.pack_start( cellrenderer, False)
-        self.comboAvailable.add_attribute( cellrenderer, 'text', 1)
-        self.comboAvailable.add_attribute( cellrenderer, 'weight', 4)
-
-        # new episodes
-        cellrenderer = gtk.CellRendererText()
-        cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        try:
-            cellrenderer.set_property('alignment', pango.ALIGN_RIGHT)
-        except:
-            log('Failed to set alignment property for CellRendererText - using old PyGTK?', sender = self)
-        cellrenderer.set_property( 'foreground', 'gray')
-        self.comboAvailable.pack_end( cellrenderer, True)
-        self.comboAvailable.add_attribute( cellrenderer, 'text', 3)
-
         # cell renderers for channel tree
         namecolumn = gtk.TreeViewColumn( _('Channel'))
-        namecolumn.set_resizable( True)
-        namecolumn.set_reorderable( True)
 
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
@@ -158,19 +139,17 @@ class gPodder(GladeWidget):
         namecolumn.pack_start( namecell, True)
         namecolumn.add_attribute( namecell, 'markup', 7)
         namecolumn.add_attribute( namecell, 'weight', 4)
-        namecolumn.set_expand( True)
 
         newcell = gtk.CellRendererText()
         namecolumn.pack_end( newcell, False)
         namecolumn.add_attribute( newcell, 'text', 5)
         namecolumn.add_attribute( newcell, 'weight', 4)
-        namecolumn.set_expand( False)
 
         self.treeChannels.append_column( namecolumn)
-        self.treeChannels.set_rules_hint( True)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
+        self.treeChannels.set_rules_hint( True)
 
         # Add our context menu to treeAvailable
         self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
@@ -225,11 +204,11 @@ class gPodder(GladeWidget):
         self.treeDownloads.set_model( services.download_status_manager.tree_model)
         
         #Add Drag and Drop Support
-        targets = [("text/plain", 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4)]
-        self.main_widget.drag_dest_set(gtk.DEST_DEFAULT_ALL, targets, \
-                        gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY | \
-                        gtk.gdk.ACTION_DEFAULT)
-        self.main_widget.connect("drag_data_received", self.drag_data_received)
+        flags = gtk.DEST_DEFAULT_ALL
+        targets = [ ('text/plain', 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4) ]
+        actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
+        self.treeChannels.drag_dest_set( flags, targets, actions)
+        self.treeChannels.connect( 'drag_data_received', self.drag_data_received)
 
         # Subscribed channels
         self.active_channel = None
@@ -244,6 +223,7 @@ class gPodder(GladeWidget):
 
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.update_on_startup)
+        self.on_treeChannels_cursor_changed( self.treeChannels)
 
     def treeview_channels_button_pressed( self, treeview, event):
         if event.button == 3:
@@ -491,20 +471,24 @@ class gPodder(GladeWidget):
         self.updateComboBox()
 
     def updateComboBox( self):
-        try:
-            old_active = max( 0, min( self.comboAvailable.get_active(), len( self.channels)-1))
-            self.comboAvailable.set_model( channelsToModel( self.channels))
-            self.comboAvailable.set_active( old_active)
+        ( model, iter ) = self.treeChannels.get_selection().get_selected()
 
-            rect = self.treeChannels.get_visible_rect()
-            self.treeChannels.set_model( self.comboAvailable.get_model())
-            self.treeChannels.scroll_to_point( rect.x, rect.y)
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            self.treeChannels.scroll_to_point( rect.x, rect.y)
-            self.treeChannels.get_selection().select_path( old_active)
+        if model and iter:
+            selected = model.get_path( iter)
+        else:
+            selected = (0,)
+
+        rect = self.treeChannels.get_visible_rect()
+        self.treeChannels.set_model( channelsToModel( self.channels))
+        self.treeChannels.scroll_to_point( rect.x, rect.y)
+        while gtk.events_pending():
+            gtk.main_iteration( False)
+        self.treeChannels.scroll_to_point( rect.x, rect.y)
+
+        try:
+            self.treeChannels.get_selection().select_path( selected)
         except:
-            pass
+            log( 'Cannot set selection on treeChannels', sender = self)
     
     def updateTreeView( self):
         gl = gPodderLib()
@@ -516,10 +500,6 @@ class gPodder(GladeWidget):
         else:
             if self.treeAvailable.get_model():
                 self.treeAvailable.get_model().clear()
-
-        index = self.comboAvailable.get_active()
-        if index > -1:
-            self.treeChannels.get_selection().select_path( index)
     
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
         result = sel.data
@@ -536,7 +516,7 @@ class gPodder(GladeWidget):
                     # Select the existing channel in combo box
                     for i in range( len( self.channels)):
                         if self.channels[i] == old_channel:
-                            self.comboAvailable.set_active( i)
+                            self.treeChannels.get_selection().set_selected( (i,))
                     return
             log( 'Adding new channel: %s', result)
             try:
@@ -558,7 +538,7 @@ class gPodder(GladeWidget):
                     channel.save_settings()
 
                 # ask user to download some new episodes
-                self.comboAvailable.set_active( len( self.channels)-1)
+                self.treeChannels.get_selection().set_selected( (len( self.channels)-1,))
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
             else:
@@ -718,9 +698,7 @@ class gPodder(GladeWidget):
             if os.path.exists( filename):
                 log( 'Episode has already been downloaded.')
                 current_channel.addDownloadedItem( current_podcast)
-
-        # update tree view to mark the episode as being downloaded
-        self.updateComboBox()
+                self.updateComboBox()
 
     def close_gpodder(self, widget, *args):
         if self.channels:
@@ -778,8 +756,6 @@ class gPodder(GladeWidget):
             self.show_message( message, title)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
-        gl = gPodderLib()
-
         to_download = []
 
         message_part = ''
@@ -816,8 +792,6 @@ class gPodder(GladeWidget):
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
             self.show_message( message, title)
-
-        self.updateComboBox()
 
     def on_sync_to_ipod_activate(self, widget, *args):
         gl = gPodderLib()
@@ -979,7 +953,6 @@ class gPodder(GladeWidget):
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
         if page_num == 0:
-            self.updateComboBox()
             self.play_or_download()
         else:
             self.toolDownload.set_sensitive( False)
@@ -991,9 +964,22 @@ class gPodder(GladeWidget):
         self.on_itemEditChannel_activate( self.treeChannels)
 
     def on_treeChannels_cursor_changed(self, widget, *args):
-        (model,iter) = self.treeChannels.get_selection().get_selected()
-        pos = model.get_value( iter, 6)
-        self.comboAvailable.set_active( pos)
+        ( model, iter ) = self.treeChannels.get_selection().get_selected()
+
+        if model != None and iter != None:
+            id = model.get_path( iter)[0]
+            self.active_channel = self.channels[id]
+
+            self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
+            self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
+            self.itemEditChannel.show_all()
+            self.itemRemoveChannel.show_all()
+        else:
+            self.active_channel = None
+            self.itemEditChannel.hide_all()
+            self.itemRemoveChannel.hide_all()
+
+        self.updateTreeView()
 
     def on_entryAddChannel_changed(self, widget, *args):
         active = self.entryAddChannel.get_text() not in ('', _('Enter podcast URL'))
@@ -1003,23 +989,6 @@ class gPodder(GladeWidget):
         url = self.entryAddChannel.get_text()
         self.entryAddChannel.set_text('')
         self.add_new_channel( url)
-
-    def on_comboAvailable_changed(self, widget, *args):
-        try:
-            self.active_channel = self.channels[self.comboAvailable.get_active()]
-        except:
-            self.active_channel = None
-
-        if self.active_channel != None:
-            self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
-            self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
-            self.itemEditChannel.show_all()
-            self.itemRemoveChannel.show_all()
-        else:
-            self.itemEditChannel.hide_all()
-            self.itemRemoveChannel.hide_all()
-
-        self.updateTreeView()
 
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
@@ -1201,11 +1170,62 @@ class gPodderChannel(GladeWidget):
             self.FeedUsername.set_text( self.channel.username)
         if self.channel.password:
             self.FeedPassword.set_text( self.channel.password)
-        gPodderLib().get_image_from_url( self.channel.image, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.labelCoverStatus.hide, self.channel.cover_file)
+
+        self.on_btnClearCover_clicked( self.btnClearCover, delete_file = False)
+        self.on_btnDownloadCover_clicked( self.btnDownloadCover, url = False)
         
         b = gtk.TextBuffer()
         b.set_text( self.channel.description)
         self.channel_description.set_buffer( b)
+
+        #Add Drag and Drop Support
+        flags = gtk.DEST_DEFAULT_ALL
+        targets = [ ('text/uri-list', 0, 2), ('text/plain', 0, 4) ]
+        actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
+        self.vboxCoverEditor.drag_dest_set( flags, targets, actions)
+        self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
+
+    def on_btnClearCover_clicked( self, widget, delete_file = True):
+        self.imgCover.clear()
+        if delete_file:
+            util.delete_file( self.channel.cover_file)
+        self.btnClearCover.set_sensitive( os.path.exists( self.channel.cover_file))
+        self.btnDownloadCover.set_sensitive( not os.path.exists( self.channel.cover_file) and bool(self.channel.image))
+        self.labelCoverStatus.set_text( _('You can drag a cover file here.'))
+        self.labelCoverStatus.show()
+
+    def on_btnDownloadCover_clicked( self, widget, url = None):
+        if url == None:
+            url = self.channel.image
+
+        if url != False:
+            self.btnDownloadCover.set_sensitive( False)
+
+        self.labelCoverStatus.show()
+        gPodderLib().get_image_from_url( url, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.cover_download_finished, self.channel.cover_file)
+
+    def cover_download_finished( self):
+        self.labelCoverStatus.hide()
+        self.btnClearCover.set_sensitive( os.path.exists( self.channel.cover_file))
+        self.btnDownloadCover.set_sensitive( not os.path.exists( self.channel.cover_file) and bool(self.channel.image))
+
+    def drag_data_received( self, widget, content, x, y, sel, ttype, time):
+        files = sel.data.strip().split('\n')
+        if len(files) != 1:
+            self.show_message( _('You can only drop a single image or URL here.'), _('Drag and drop'))
+            return
+
+        file = files[0]
+
+        if file.startswith( 'file://') or file.startswith( 'http://'):
+            self.on_btnClearCover_clicked( self.btnClearCover)
+            if file.startswith( 'file://'):
+                filename = file[len('file://'):]
+                shutil.copyfile( filename, self.channel.cover_file)
+            self.on_btnDownloadCover_clicked( self.btnDownloadCover, url = file)
+            return
+        
+        self.show_message( _('You can only drop local files and http:// URLs here.'), _('Drag and drop'))
 
     def on_gPodderChannel_destroy(self, widget, *args):
         self.callback_closed()

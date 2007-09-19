@@ -467,7 +467,7 @@ class gPodderLibClass( object):
             gobject.idle_add( callback_finished)
 
     def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
-        if not url:
+        if not url and not os.path.exists( cover_file):
             return
 
         args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
