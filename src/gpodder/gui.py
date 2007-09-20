@@ -680,7 +680,7 @@ class gPodder(GladeWidget):
             if widget.get_name() == 'treeAvailable':
                 play_callback = lambda: self.playback_episode( current_channel, current_podcast)
                 download_callback = lambda: self.download_podcast_by_url( url, want_message_dialog, None)
-                gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback)
+                gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback, center_on_widget = self.treeAvailable)
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
@@ -1522,6 +1522,14 @@ class gPodderEpisode(GladeWidget):
 
         self.hide_show_widgets()
         services.download_status_manager.request_progress_detail( self.episode.url)
+
+        if hasattr( self, 'center_on_widget'):
+            ( x, y ) = self.gpodder_main_window.get_position()
+            a = self.center_on_widget.allocation
+            ( x, y ) = ( x + a.x, y + a.y )
+            ( w, h ) = ( a.width, a.height )
+            ( pw, ph ) = self.gPodderEpisode.get_size()
+            self.gPodderEpisode.move( x + w/2 - pw/2, y + h/2 - ph/2)
 
     def on_btnCancel_clicked( self, widget):
         services.download_status_manager.cancel_by_url( self.episode.url)
