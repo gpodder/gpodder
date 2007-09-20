@@ -516,7 +516,7 @@ class gPodder(GladeWidget):
                     # Select the existing channel in combo box
                     for i in range( len( self.channels)):
                         if self.channels[i] == old_channel:
-                            self.treeChannels.get_selection().set_selected( (i,))
+                            self.treeChannels.get_selection().select_path( (i,))
                     return
             log( 'Adding new channel: %s', result)
             try:
@@ -538,7 +538,7 @@ class gPodder(GladeWidget):
                     channel.save_settings()
 
                 # ask user to download some new episodes
-                self.treeChannels.get_selection().set_selected( (len( self.channels)-1,))
+                self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
             else:
