@@ -1336,9 +1336,9 @@ class gPodderProperties(GladeWidget):
 
     def on_btnCustomSyncNameHelp_clicked( self, widget):
         examples = [
-                _('<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>'),
-                _('<i>{episode.basename}</i> -&gt; <b>70908-interview-rms</b>'),
-                _('<i>{episode.published}</i> -&gt; <b>20070908</b>')
+                '<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>',
+                '<i>{episode.basename}</i> -&gt; <b>70908-interview-rms</b>',
+                '<i>{episode.published}</i> -&gt; <b>20070908</b>'
         ]
 
         info = [
