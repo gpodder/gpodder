@@ -539,6 +539,7 @@ class gPodder(GladeWidget):
 
                 # ask user to download some new episodes
                 self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
+                self.active_channel = channel
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
             else:
@@ -895,6 +896,9 @@ class gPodder(GladeWidget):
                 gPodderLib().clean_up_downloads( delete_partial)
                 self.channels.remove( self.active_channel)
                 save_channels( self.channels)
+                if len(self.channels) > 0:
+                    self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
+                    self.active_channel = self.channels[len( self.channels)-1]
                 self.update_feed_cache( force_update = False)
         except:
             pass
