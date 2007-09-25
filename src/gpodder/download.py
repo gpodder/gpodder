@@ -109,7 +109,10 @@ class DownloadThread(threading.Thread):
             now = time.time()
             if self.start_time > 0:
                 passed = now - self.start_time
-                speed = (count*blockSize)/passed
+                if passed > 0:
+                    speed = (count*blockSize)/passed
+                else:
+                    speed = 0
             else:
                 self.start_time = now
                 passed = now - self.start_time

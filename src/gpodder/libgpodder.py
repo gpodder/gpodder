@@ -58,12 +58,6 @@ from os import unlink
 from os import listdir
 from glob import glob
 
-# for the desktop symlink stuff:
-from os import symlink
-from os import stat
-from stat import S_ISLNK
-from stat import ST_MODE
-
 from libplayers import dotdesktop_command
 
 from types import ListType
@@ -240,24 +234,11 @@ class gPodderLibClass( object):
         if self.__download_dir and self.__download_dir != new_downloaddir:
             log( 'Moving downloads from %s to %s', self.__download_dir, new_downloaddir)
             try:
-                # Save state of Symlink on Desktop
-                generate_symlink = False
-                if self.getDesktopSymlink():
-                    log( 'Desktop symlink exists before move.')
-                    generate_symlink = True
-
                 # Fix error when moving over disk boundaries
                 if isdir( new_downloaddir) and not listdir( new_downloaddir):
                     rmdir( new_downloaddir)
 
                 shutil.move( self.__download_dir, new_downloaddir)
-
-                if generate_symlink:
-                    # Re-generate Symlink on Desktop
-                    log( 'Will re-generate desktop symlink to %s.', new_downloaddir)
-                    self.removeDesktopSymlink()
-                    self.__download_dir = new_downloaddir
-                    self.createDesktopSymlink()
             except:
                 log( 'Error while moving %s to %s.', self.__download_dir, new_downloaddir)
                 return
@@ -407,23 +388,6 @@ class gPodderLibClass( object):
         except:
             return ( False, command_line[0] )
         return ( True, command_line[0] )
-
-    def getDesktopSymlink( self):
-        symlink_path = expanduser( "~/Desktop/%s" % self.desktop_link)
-        try:
-            return lexists( symlink_path)
-        except:
-            return exists( symlink_path)
-
-    def createDesktopSymlink( self):
-        if not self.getDesktopSymlink():
-            downloads_path = expanduser( "~/Desktop/")
-            util.make_directory( downloads_path)
-            symlink( self.downloaddir, "%s%s" % (downloads_path, self.desktop_link))
-    
-    def removeDesktopSymlink( self):
-        if self.getDesktopSymlink():
-            unlink( expanduser( "~/Desktop/%s" % self.desktop_link))
 
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if callback_status != None:

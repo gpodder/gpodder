@@ -1,3 +1,17 @@
+Tue, 25 Sep 2007 22:02:19 +0200 <thp@perli.net>
+Finally remove Desktop symlink code; several compatibility fixes
+
+	* src/gpodder/download.py: Prevent divide-by-zero errors when
+	calculating download speed
+	* src/gpodder/gui.py: Prevent divide-by-zero errors when calculating
+	percentage done in code for moving the downloaded items folder
+	* src/gpodder/libgpodder.py: Remove the "Symlink on Desktop" code,
+	because it's not GUI-accessible anymore and we didn't use it anyway
+	* src/gpodder/opml.py: Better local filename detection by using
+	os.path.exists() instead of .startswith('/'); this is also good for
+	cross-platform compatibility where parts don't usually start with a
+	forward slash (i.e. Win32)
+
 Mon, 24 Sep 2007 00:09:44 +0200 <thp@perli.net>
 Channel list selection bug fixes
 

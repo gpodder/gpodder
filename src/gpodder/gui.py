@@ -1469,7 +1469,10 @@ class gPodderProperties(GladeWidget):
 
             while not event.isSet():
                 new_download_dir_size = util.calculate_size( new_download_dir)
-                fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
+                if download_dir_size > 0:
+                    fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
+                else:
+                    fract = 0.0
                 if fract < 0.99:
                     myprogressbar.set_text( _('%s of %s') % ( util.format_filesize( new_download_dir_size, 'MB'), download_dir_size_string, ))
                 else:

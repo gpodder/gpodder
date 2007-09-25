@@ -44,6 +44,7 @@ import xml.sax.saxutils
 
 import urllib
 import urllib2
+import os.path
 
 import datetime
 import gpodder
@@ -72,7 +73,7 @@ class Importer(object):
         """
         self.items = []
         try:
-            if url.startswith('/'):
+            if os.path.exists( url):
                 # assume local filename
                 doc = xml.dom.minidom.parse( url)
             else:
