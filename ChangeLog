@@ -1,3 +1,12 @@
+Sat, 29 Sep 2007 14:12:15 +0200 <thp@perli.net>
+Fix loading of channel metadata (load auth data and settings)
+
+	* src/gpodder/libpodcasts.py: Load channel metadata when loading a
+	podcastChannel object from OPML/LocalDB. This fixes a problem with
+	authentication data being not loaded and also fixes a bug when the
+	custom-set channel title was not correctly used throughout the GUI.
+	Thanks to Nick (nikosapi) for reporting and providing a patch
+
 Tue, 25 Sep 2007 22:02:19 +0200 <thp@perli.net>
 Finally remove Desktop symlink code; several compatibility fixes
 

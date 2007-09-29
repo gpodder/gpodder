@@ -111,6 +111,7 @@ class podcastChannel(ListType):
 
         c = cls.fc.fetch( url, force_update, offline)
         channel = podcastChannel( url)
+        channel.load_settings()
         channel.title = c.feed.title
         if hasattr( c.feed, 'link'):
             channel.link = c.feed.link
@@ -156,6 +157,7 @@ class podcastChannel(ListType):
         for key in ( 'url', 'title', 'description' ):
             if key in d:
                 setattr( c, key, d[key])
+        c.load_settings()
 
         return c
 
