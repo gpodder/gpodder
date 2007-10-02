@@ -1,3 +1,10 @@
+Tue, 02 Oct 2007 17:59:29 +0200 <thp@perli.net>
+Update channel models (icons) after iPod synchronization
+
+	* src/gpodder/gui.py: Call update_model() on each channel after an
+	iPod sync, so we can update the played state on the available episodes
+	lists when played state was changed by the iPod sync
+
 Sat, 29 Sep 2007 14:12:15 +0200 <thp@perli.net>
 Fix loading of channel metadata (load auth data and settings)
 
