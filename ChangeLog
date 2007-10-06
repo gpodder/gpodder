@@ -1,3 +1,11 @@
+Sat, 06 Oct 2007 12:39:57 +0200 <thp@perli.net>
+Limit download progress status updates to reduce CPU load
+
+	* src/gpodder/download.py: Limit the amount of status updates the
+	download threads send to the DownloadStatusManager to one per second;
+	this should make gPodder less CPU-intensive with many parallel
+	downloads; thanks to Wilfred van Rooijen for reporting and testing
+
 Tue, 02 Oct 2007 17:59:29 +0200 <thp@perli.net>
 Update channel models (icons) after iPod synchronization
 

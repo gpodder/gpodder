@@ -67,6 +67,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
 
 class DownloadThread(threading.Thread):
+    MAX_UPDATES_PER_SEC = 1
+
     def __init__( self, channel, episode):
         threading.Thread.__init__( self)
         self.setDaemon( True)
@@ -87,6 +89,7 @@ class DownloadThread(threading.Thread):
         self.speed = _('Queued')
         self.progress = 0.0
         self.downloader = DownloadURLOpener( self.channel)
+        self.last_update = 0.0
 
     def cancel( self):
         self.cancelled = True
@@ -98,7 +101,9 @@ class DownloadThread(threading.Thread):
             self.progress = 100.0
 
         self.calculate_speed( count, blockSize)
-        services.download_status_manager.update_status( self.download_id, speed = self.speed, progress = self.progress)
+        if self.last_update < time.time() - (1.0 / self.MAX_UPDATES_PER_SEC):
+            services.download_status_manager.update_status( self.download_id, speed = self.speed, progress = self.progress)
+            self.last_update = time.time()
 
         if self.cancelled:
             util.delete_file( self.tempname)
