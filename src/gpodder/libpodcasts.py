@@ -522,6 +522,12 @@ class podcastItem(object):
         extension = util.file_extension_from_url( self.url)
         return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
 
+    def sync_filename( self):
+        if libgpodder.gPodderLib().custom_sync_name_enabled:
+            return util.object_string_formatter( libgpodder.gPodderLib().custom_sync_name, episode = self, channel = self.channel)
+        else:
+            return self.title
+
     def file_type( self):
         return util.file_type_by_extension( util.file_extension_from_url( self.url))
 

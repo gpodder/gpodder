@@ -1,3 +1,16 @@
+Tue, 23 Oct 2007 09:24:52 +0200 <thp@perli.net>a
+sync_filename in podcastItem; cleanup; hide extra progressbar on transfer
+
+	* src/gpodder/gui.py: Use podcastItem's sync_filename(); hide the
+	unnecessary second progressbar when only syncing one channel (i.e.
+	when clicking on the "transfer" button in the main window
+	* src/gpodder/libgpodder.py: Remove unneeded lexists import and
+	warning; clean-up
+	* src/gpodder/libipodsync.py: Use podcastItem's sync_filename()
+	* src/gpodder/libpodcasts.py: Add sync_filename() to podcastItem,
+	returns the custom_sync_name or the title of the episode, based on the
+	user's configuration settings for FS-based MP3 player sync
+
 Sun, 07 Oct 2007 14:38:31 +0200 <thp@perli.net>
 Add wishlist items to TODO list from Paul and Wilfred
 

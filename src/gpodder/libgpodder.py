@@ -37,10 +37,6 @@ from os.path import expanduser
 from os.path import exists
 from os.path import splitext
 from liblogger import log
-try:
-    from os.path import lexists
-except:
-    log( 'lexists() not found in module os.path - (using Python < 2.4?) - will fallback to exists()')
 from os.path import dirname
 from os.path import basename
 from os.path import isfile

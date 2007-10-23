@@ -552,7 +552,7 @@ class gPodder(GladeWidget):
                 message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
                 self.show_message( message, title)
     
-    def sync_to_ipod_proc( self, sync, episodes = None):
+    def sync_to_ipod_proc( self, sync, sync_win, episodes = None):
         if not sync.open():
             sync.close( success = False, access_error = True)
             return False
@@ -568,6 +568,7 @@ class gPodder(GladeWidget):
                 i += 1
             sync.set_progress_overall( i, len(downloaded_channels))
         else:
+            sync_win.pbSync.hide_all()
             sync.sync_channel( self.active_channel, episodes, True)
 
         sync.close( success = not sync.cancelled)
@@ -825,7 +826,7 @@ class gPodder(GladeWidget):
             sync_win = gPodderSync()
             sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
             sync_win.set_sync_object( sync)
-            thread_args = [ sync ]
+            thread_args = [ sync, sync_win ]
             if widget == None:
                 thread_args.append( args[0])
             thread = Thread( target = self.sync_to_ipod_proc, args = thread_args)
@@ -1590,9 +1591,9 @@ class gPodderEpisode(GladeWidget):
         self.gPodderEpisode.destroy()
 
     def on_btnSaveFile_clicked(self, widget, *args):
-        fn = self.episode.local_filename()
-        ext = os.path.splitext(fn)[1]
-        suggestion = self.channel.title + ' - ' + self.episode.title + ext
+        sync_name = self.episode.sync_filename()
+        ( name, extension ) = os.path.splitext( self.episode.local_filename())
+        suggestion = ''.join( [ sync_name, extension])
 
         dlg = gtk.FileChooserDialog( title=_("Save episode as file"), parent = self.gPodderEpisode, action = gtk.FILE_CHOOSER_ACTION_SAVE)
         dlg.set_current_name( suggestion)
