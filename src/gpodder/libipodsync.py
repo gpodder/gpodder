@@ -474,11 +474,11 @@ class gPodder_iPodSync( gPodderSyncMethod):
                 track.filetype = 'm4v' # Doesn't seem to matter if it's mp4 or m4v
                 try:
                     # documented on http://ipodlinux.org/ITunesDB
-                    track.mediatype = 0x00000002
+                    track.mediatype = 0x00000006
                 except:
                     # for old libgpod versions, "mediatype" is "unk208"
                     log( '(ipodsync) Seems like your python-gpod is out-of-date.')
-                    track.unk208 = 0x00000002
+                    track.unk208 = 0x00000006
 
         # if it's a music channel, also sync to master playlist
         if channel.is_music_channel:
