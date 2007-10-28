@@ -73,7 +73,7 @@ def normalize_feed_url( url):
     if not url or len( url) < 8:
         return None
     
-    if url.startswith( 'http://') or url.startswith( 'ftp://'):
+    if url.startswith( 'http://') or url.startswith( 'https://') or url.startswith( 'ftp://'):
         return url
 
     if url.startswith( 'feed://'):
