@@ -109,6 +109,41 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         
         return response == gtk.RESPONSE_YES
 
+    def show_copy_dialog( self, src_filename, dst_filename = None, dst_directory = None, title = _('Select destination')):
+        if dst_filename == None:
+            dst_filename = src_filename
+
+        if dst_directory == None:
+            dst_directory = os.path.expanduser( '~')
+
+        ( base, extension ) = os.path.splitext( src_filename)
+
+        if not dst_filename.endswith( extension):
+            dst_filename += extension
+
+        dlg = gtk.FileChooserDialog( title = title, parent = GladeWidget.gpodder_main_window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
+        dlg.set_do_overwrite_confirmation( True)
+
+        dlg.set_current_name( os.path.basename( dst_filename))
+        dlg.set_current_folder( dst_directory)
+
+        dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+
+        if dlg.run() == gtk.RESPONSE_OK:
+            dst_filename = dlg.get_filename()
+            if not dst_filename.endswith( extension):
+                dst_filename += extension
+
+            log( 'Copying %s => %s', src_filename, dst_filename, sender = self)
+
+            try:
+                shutil.copyfile( src_filename, dst_filename)
+            except:
+                log( 'Error copying file.', sender = self, traceback = True)
+
+        dlg.destroy()
+
 
 
 class gPodder(GladeWidget):
@@ -274,6 +309,11 @@ class gPodder(GladeWidget):
 
             return True
 
+    def save_episode_as_file( self, url, *args):
+        episode = self.active_channel.find_episode( url)
+
+        self.show_copy_dialog( src_filename = episode.local_filename(), dst_filename = episode.sync_filename())
+
     def treeview_button_pressed( self, treeview, event):
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
@@ -313,6 +353,7 @@ class gPodder(GladeWidget):
             if len(paths) == 1:
                 # Single item, add episode information menu item
                 episode_title = model.get_value( model.get_iter( paths[0]), 1)
+                episode_url = model.get_value( model.get_iter( paths[0]), 0)
                 if len(episode_title) > 30:
                     episode_title = episode_title[:27] + '...'
                 item = gtk.ImageMenuItem('')
@@ -321,6 +362,11 @@ class gPodder(GladeWidget):
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
                 menu.append( item)
+                if can_play:
+                    item = gtk.ImageMenuItem( _('Save %s to folder...') % episode_title)
+                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
+                    item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
+                    menu.append( item)
                 menu.append( gtk.SeparatorMenuItem())
             else:
                 episode_title = _('%d selected episodes') % len(paths)
@@ -1591,27 +1637,7 @@ class gPodderEpisode(GladeWidget):
         self.gPodderEpisode.destroy()
 
     def on_btnSaveFile_clicked(self, widget, *args):
-        sync_name = self.episode.sync_filename()
-        ( name, extension ) = os.path.splitext( self.episode.local_filename())
-        suggestion = ''.join( [ sync_name, extension])
-
-        dlg = gtk.FileChooserDialog( title=_("Save episode as file"), parent = self.gPodderEpisode, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.set_current_name( suggestion)
-        dlg.set_current_folder( os.path.expanduser('~'))
-        dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        response = dlg.run()
-        if response == gtk.RESPONSE_OK:
-            foutname = dlg.get_filename()
-            if foutname[-len(ext):] != ext:
-                foutname = foutname + ext
-            log( 'Saving episode as: %s', foutname, sender = self)
-            try:
-                shutil.copyfile( fn, foutname)
-            except:
-                log('Error saving file :/', sender = self)
-
-        dlg.destroy()
+        self.show_copy_dialog( src_filename = self.episode.local_filename(), dst_filename = self.episode.sync_filename())
 
 
 class gPodderSync(GladeWidget):

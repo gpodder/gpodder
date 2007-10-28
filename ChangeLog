@@ -1,3 +1,15 @@
+Sun, 28 Oct 2007 15:25:56 +0100 <thp@perli.net>
+Add "Save episode to file" handling to episode list context menu
+
+	* data/gpodder.glade: Use a stock "Save As" button for the "Copy
+	episode to file" button
+	* src/gpodder/gui.py: Add new show_copy_dialog() method to GladeWidget
+	that shows a copy dialog where a user can copy a file to a selected
+	destination (this is used for "Save episode to file"); use
+	show_copy_dialog in "Save As" in gPodderEpisode; add "Save episode to
+	folder" menu item in episode list context menu and use
+	show_copy_dialog to carry out the user interaction
+
 Sun, 28 Oct 2007 13:30:40 +0100 <thp@perli.net>
 Allow "https://" URLs for episode URLs, as we can handle these, too
 
