@@ -1497,7 +1497,7 @@ class gPodderProperties(GladeWidget):
          
             label = gtk.Label()
             label.set_line_wrap( True)
-            label.set_markup( _('Moving downloads from <b>%s</b> to <b>%s</b>...') % ( gl.downloaddir, new_download_dir, ))
+            label.set_markup( _('Moving downloads from <b>%s</b> to <b>%s</b>...') % ( saxutils.escape( gl.downloaddir), saxutils.escape( new_download_dir), ))
             myprogressbar = gtk.ProgressBar()
          
             # put it all together
@@ -1573,9 +1573,9 @@ class gPodderEpisode(GladeWidget):
         self.gPodderEpisode.set_title( self.episode.title)
         self.LabelDownloadLink.set_text( self.episode.url)
         self.LabelWebsiteLink.set_text( self.episode.link)
-        self.labelPubDate.set_markup( self.episode.pubDate)
+        self.labelPubDate.set_text( self.episode.pubDate)
 
-        self.channel_title.set_markup( _('<i>from %s</i>') % self.channel.title)
+        self.channel_title.set_markup( _('<i>from %s</i>') % saxutils.escape( self.channel.title))
 
         self.hide_show_widgets()
         services.download_status_manager.request_progress_detail( self.episode.url)
@@ -1684,10 +1684,10 @@ class gPodderSync(GladeWidget):
 
     def set_status( self, episode = None, channel = None, progressbar = None, title = None, header = None, body = None):
         if episode != None:
-            self.labelEpisode.set_markup( '<i>%s</i>' % episode)
+            self.labelEpisode.set_markup( '<i>%s</i>' % saxutils.escape( episode))
 
         if channel != None:
-            self.labelChannel.set_markup( '<i>%s</i>' % channel)
+            self.labelChannel.set_markup( '<i>%s</i>' % saxutils.escape( channel))
 
         if progressbar != None:
             self.pbSync.set_text( progressbar)
@@ -1698,14 +1698,14 @@ class gPodderSync(GladeWidget):
             self.gPodderSync.set_title( self.default_title)
 
         if header != None:
-            self.label_header.set_markup( '<b><big>%s</big></b>' % header)
+            self.label_header.set_markup( '<b><big>%s</big></b>' % saxutils.escape( header))
         else:
-            self.label_header.set_markup( '<b><big>%s</big></b>' % self.default_header)
+            self.label_header.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.default_header))
 
         if body != None:
-            self.label_text.set_markup( body)
+            self.label_text.set_text( body)
         else:
-            self.label_text.set_markup( self.default_body)
+            self.label_text.set_text( self.default_body)
 
 
     def close( self, success = True, access_error = False, cleaned = False, error_messages = []):
@@ -1741,7 +1741,7 @@ class gPodderSync(GladeWidget):
             header = _('Aborted')
             body = _('The synchronization progress has been interrupted by the user. Please retry synchronization at a later time.')
         self.gPodderSync.set_title( title)
-        self.label_header.set_markup( '<big><b>%s</b></big>' % header)
+        self.label_header.set_markup( '<big><b>%s</b></big>' % saxutils.escape( header))
         self.label_text.set_text( body)
 
     def on_gPodderSync_destroy(self, widget, *args):
