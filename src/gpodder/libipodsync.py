@@ -533,6 +533,11 @@ class gPodder_FSSync( gPodderSyncMethod):
 
         filename_base = episode.sync_filename()
 
+        # don't allow extremely long file names: cut the
+        # filename at 50 chars (to make FAT-based drives happy)
+        if len(filename_base) > 50:
+            filename_base = filename_base[:50]
+
         to_file_src = filename_base + os.path.splitext( from_file)[1].lower()
         to_file = ''
         for ch in to_file_src:
