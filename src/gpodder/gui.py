@@ -292,6 +292,14 @@ class gPodder(GladeWidget):
             menu = gtk.Menu()
 
             channel_title = model.get_value( model.get_iter( paths[0]), 1)
+
+            item = gtk.ImageMenuItem( _('Open download folder'))
+            item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
+            item.connect( 'activate', lambda x: gPodderLib().open_folder( self.active_channel.save_dir))
+            menu.append( item)
+
+            menu.append( gtk.SeparatorMenuItem())
+
             item = gtk.ImageMenuItem('')
             ( label, image ) = item.get_children()
             label.set_text( _('Edit %s') % channel_title)

@@ -385,6 +385,14 @@ class gPodderLibClass( object):
             return ( False, command_line[0] )
         return ( True, command_line[0] )
 
+    def open_folder( self, folder):
+        try:
+            Popen( [ 'xdg-open', folder ])
+            # FIXME: Win32-specific "open" code needed here
+            # as fallback when xdg-open not available
+        except:
+            log( 'Cannot open folder: "%s"', folder, sender = self)
+
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if callback_status != None:
             gobject.idle_add( callback_status, _('Downloading channel cover...'))

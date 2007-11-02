@@ -1,3 +1,11 @@
+Fri, 02 Nov 2007 07:49:38 +0100 <thp@perli.net>
+Add ability to open download folder from channel's context menu
+
+	* src/gpodder/gui.py: Add "Open download folder" menu item to channel
+	navigator context menu
+	* src/gpodder/libgpodder.py: Add open_folder() method that will open
+	the DE's default folder browser via "xdg-open"
+
 Thu, 01 Nov 2007 15:29:00 +0100 <thp@perli.net>
 Limit filename on FS-based sync to 50 characters
 
