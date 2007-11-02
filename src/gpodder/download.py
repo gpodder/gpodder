@@ -45,14 +45,14 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
     def __init__( self, channel):
         gl = libgpodder.gPodderLib()
-        if gl.proxy_use_environment:
+        if gl.config.proxy_use_environment:
             proxies = None
         else:
             proxies = {}
-            if gl.http_proxy:
-                proxies['http'] = gl.http_proxy
-            if gl.ftp_proxy:
-                proxies['ftp'] = gl.ftp_proxy
+            if gl.config.http_proxy:
+                proxies['http'] = gl.config.http_proxy
+            if gl.config.ftp_proxy:
+                proxies['ftp'] = gl.config.ftp_proxy
 
         self.channel = channel
         urllib.FancyURLopener.__init__( self, proxies)
@@ -81,8 +81,8 @@ class DownloadThread(threading.Thread):
         self.tempname = os.path.join( os.path.dirname( self.filename), '.tmp-' + os.path.basename( self.filename))
 
         gl = libgpodder.gPodderLib()
-        self.limit_rate = gl.limit_rate
-        self.limit_rate_value = gl.limit_rate_value
+        self.limit_rate = gl.config.limit_rate
+        self.limit_rate_value = gl.config.limit_rate_value
 
         self.cancelled = False
         self.start_time = 0.0

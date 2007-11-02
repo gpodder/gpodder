@@ -151,9 +151,10 @@ class gPodder(GladeWidget):
         self.uar = None
 
         gl = gPodderLib()
-        self.gPodder.resize( gl.main_window_width, gl.main_window_height)
-        self.gPodder.move( gl.main_window_x, gl.main_window_y)
-        self.channelPaned.set_position( gl.paned_position)
+
+        gl.config.connect_gtk_window( self.gPodder)
+        gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
+
         while gtk.events_pending():
             gtk.main_iteration( False)
 
@@ -257,7 +258,7 @@ class gPodder(GladeWidget):
         gl.clean_up_downloads( delete_partial = True)
 
         # Now, update the feed cache, when everything's in place
-        self.update_feed_cache( force_update = gl.update_on_startup)
+        self.update_feed_cache( force_update = gl.config.update_on_startup)
 
     def treeview_channels_button_pressed( self, treeview, event):
         if event.button == 3:
@@ -498,11 +499,11 @@ class gPodder(GladeWidget):
                         can_download = True
 
                 if util.file_type_by_extension( util.file_extension_from_url( url)) == 'torrent':
-                    can_download = can_download or gPodderLib().use_gnome_bittorrent
+                    can_download = can_download or gPodderLib().config.use_gnome_bittorrent
 
         can_download = can_download and not can_cancel
         can_play = can_play and not can_cancel and not can_download
-        can_transfer = can_play and gPodderLib().device_type != 'none'
+        can_transfer = can_play and gPodderLib().config.device_type != 'none'
 
         self.toolPlay.set_sensitive( can_play)
         self.toolDownload.set_sensitive( can_download)
@@ -618,7 +619,7 @@ class gPodder(GladeWidget):
             for channel in downloaded_channels:
                 sync.set_progress_overall( i, len(downloaded_channels))
                 channel.load_settings()
-                sync.sync_channel( channel, sync_played_episodes = not gPodderLib().only_sync_not_played)
+                sync.sync_channel( channel, sync_played_episodes = not gPodderLib().config.only_sync_not_played)
                 i += 1
             sync.set_progress_overall( i, len(downloaded_channels))
         else:
@@ -716,7 +717,7 @@ class gPodder(GladeWidget):
         self.updateComboBox()
         
         # download all new?
-        if force_update and gPodderLib().download_after_update:
+        if force_update and gPodderLib().config.download_after_update:
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
@@ -766,15 +767,6 @@ class gPodder(GladeWidget):
         services.download_status_manager.cancel_all()
 
         gl = gPodderLib()
-
-        size = self.gPodder.get_size()
-        pos = self.gPodder.get_position()
-        gl.main_window_width = size[0]
-        gl.main_window_height = size[1]
-        gl.main_window_x = pos[0]
-        gl.main_window_y = pos[1]
-        gl.paned_position = self.channelPaned.get_position()
-        gl.propertiesChanged()
 
         self.gtk_main_quit()
         sys.exit( 0)
@@ -854,24 +846,24 @@ class gPodder(GladeWidget):
 
     def on_sync_to_ipod_activate(self, widget, *args):
         gl = gPodderLib()
-        if gl.device_type == 'none':
+        if gl.config.device_type == 'none':
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
             self.show_message( message, title)
             return
 
-        if gl.device_type == 'ipod' and not ipod_supported():
+        if gl.config.device_type == 'ipod' and not ipod_supported():
             title = _('Libraries needed: gpod, pymad')
             message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
             self.show_message( message, title)
             return
         
-        if gl.device_type in [ 'ipod', 'filesystem' ]:
+        if gl.config.device_type in [ 'ipod', 'filesystem' ]:
             sync_class = None
 
-            if gl.device_type == 'filesystem':
+            if gl.config.device_type == 'filesystem':
                 sync_class = gPodder_FSSync
-            elif gl.device_type == 'ipod':
+            elif gl.config.device_type == 'ipod':
                 sync_class = gPodder_iPodSync
 
             if not sync_class:
@@ -888,27 +880,27 @@ class gPodder(GladeWidget):
 
     def on_cleanup_ipod_activate(self, widget, *args):
         gl = gPodderLib()
-        if gl.device_type == 'none':
+        if gl.config.device_type == 'none':
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
             self.show_message( message, title)
             return
 
-        if gl.device_type == 'ipod' and not ipod_supported():
+        if gl.config.device_type == 'ipod' and not ipod_supported():
             title = _('Libraries needed: gpod, pymad')
             message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
             self.show_message( message, title)
             return
         
-        if gl.device_type in [ 'ipod', 'filesystem' ]:
+        if gl.config.device_type in [ 'ipod', 'filesystem' ]:
             sync_class = None
 
-            if gl.device_type == 'filesystem':
+            if gl.config.device_type == 'filesystem':
                 title = _('Delete podcasts from MP3 player?')
                 message = _('Do you really want to completely remove all episodes from your MP3 player?')
                 if self.show_confirmation( message, title):
                     sync_class = gPodder_FSSync
-            elif gl.device_type == 'ipod':
+            elif gl.config.device_type == 'ipod':
                 title = _('Delete podcasts on iPod?')
                 message = _('Do you really want to completely remove all episodes in the <b>Podcasts</b> playlist on your iPod?')
                 if self.show_confirmation( message, title):
@@ -981,7 +973,7 @@ class gPodder(GladeWidget):
         dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        gPodderOpmlLister().get_channels_from_url( gPodderLib().opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate( self.gPodder))
+        gPodderOpmlLister().get_channels_from_url( gPodderLib().config.opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate( self.gPodder))
 
     def on_btnTransfer_clicked(self, widget, *args):
         self.on_treeAvailable_row_activated( widget, args)
@@ -1311,43 +1303,45 @@ class gPodderProperties(GladeWidget):
     def new(self):
         self.callback_finished = None
         gl = gPodderLib()
-        self.httpProxy.set_text( gl.http_proxy)
-        self.ftpProxy.set_text( gl.ftp_proxy)
-        self.openApp.set_text( gl.open_app)
-        self.iPodMountpoint.set_label( gl.ipod_mount)
-        self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
-        self.filesystemMountpoint.set_label( gl.mp3_player_folder)
-        self.opmlURL.set_text( gl.opml_url)
-        if gl.downloaddir:
-            self.chooserDownloadTo.set_filename( gl.downloaddir)
-        if gl.torrentdir:
-            self.chooserBitTorrentTo.set_filename( gl.torrentdir)
-        self.radio_copy_torrents.set_active( not gl.use_gnome_bittorrent)
-        self.radio_gnome_bittorrent.set_active( gl.use_gnome_bittorrent)
-        self.updateonstartup.set_active(gl.update_on_startup)
-        self.downloadnew.set_active(gl.download_after_update)
-        self.cbLimitDownloads.set_active(gl.limit_rate)
-        self.spinLimitDownloads.set_value(gl.limit_rate_value)
-        self.cbMaxDownloads.set_active(gl.max_downloads_enabled)
-        self.cbCustomSyncName.set_active(gl.custom_sync_name_enabled)
-        self.entryCustomSyncName.set_text(gl.custom_sync_name)
+
+        gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
+        gl.config.connect_gtk_editable( 'ftp_proxy', self.ftpProxy)
+        gl.config.connect_gtk_editable( 'player', self.openApp)
+        gl.config.connect_gtk_editable( 'opml_url', self.opmlURL)
+        gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
+        gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
+        gl.config.connect_gtk_togglebutton( 'download_after_update', self.downloadnew)
+        gl.config.connect_gtk_togglebutton( 'use_gnome_bittorrent', self.radio_gnome_bittorrent)
+        gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
+        gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
+        gl.config.connect_gtk_spinbutton( 'max_downloads', self.spinMaxDownloads)
+        gl.config.connect_gtk_togglebutton( 'max_downloads_enabled', self.cbMaxDownloads)
+        gl.config.connect_gtk_spinbutton( 'limit_rate_value', self.spinLimitDownloads)
+        gl.config.connect_gtk_togglebutton( 'limit_rate', self.cbLimitDownloads)
+        gl.config.connect_gtk_togglebutton( 'proxy_use_environment', self.cbEnvironmentVariables)
+        gl.config.connect_gtk_filechooser( 'bittorrent_dir', self.chooserBitTorrentTo)
+
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
-        self.spinMaxDownloads.set_value(gl.max_downloads)
-        self.only_sync_not_played.set_active(gl.only_sync_not_played)
+        self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())
+
+        self.iPodMountpoint.set_label( gl.config.ipod_mount)
+        self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
+        self.chooserDownloadTo.set_filename( gl.downloaddir)
+
         if tagging_supported():
-            self.updatetags.set_active(gl.update_tags)
+            gl.config.connect_gtk_togglebutton( 'update_tags', self.updatetags)
         else:
             self.updatetags.set_sensitive( False)
             new_label = '%s (%s)' % ( self.updatetags.get_label(), _('needs python-eyed3') )
             self.updatetags.set_label( new_label)
+
         # device type
         self.comboboxDeviceType.set_active( 0)
-        if gl.device_type == 'ipod':
+        if gl.config.device_type == 'ipod':
             self.comboboxDeviceType.set_active( 1)
-        elif gl.device_type == 'filesystem':
+        elif gl.config.device_type == 'filesystem':
             self.comboboxDeviceType.set_active( 2)
-        # the use proxy env vars check box
-        self.cbEnvironmentVariables.set_active( gl.proxy_use_environment)
+
         # setup cell renderers
         cellrenderer = gtk.CellRendererPixbuf()
         self.comboPlayerApp.pack_start( cellrenderer, False)
@@ -1355,6 +1349,8 @@ class gPodderProperties(GladeWidget):
         cellrenderer = gtk.CellRendererText()
         self.comboPlayerApp.pack_start( cellrenderer, True)
         self.comboPlayerApp.add_attribute( cellrenderer, 'markup', 0)
+
+        self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
     def update_mountpoint( self, ipod):
         if ipod == None or ipod.mount_point == None:
@@ -1485,13 +1481,8 @@ class gPodderProperties(GladeWidget):
 
     def on_btnOK_clicked(self, widget, *args):
         gl = gPodderLib()
-        gl.http_proxy = self.httpProxy.get_text()
-        gl.ftp_proxy = self.ftpProxy.get_text()
-        gl.open_app = self.openApp.get_text()
-        gl.proxy_use_environment = self.cbEnvironmentVariables.get_active()
-        gl.ipod_mount = self.iPodMountpoint.get_label()
-        gl.mp3_player_folder = self.filesystemMountpoint.get_label()
-        gl.opml_url = self.opmlURL.get_text()
+        gl.config.ipod_mount = self.iPodMountpoint.get_label()
+        gl.config.mp3_player_folder = self.filesystemMountpoint.get_label()
 
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()
@@ -1542,26 +1533,13 @@ class gPodderProperties(GladeWidget):
 
             dlg.destroy()
 
-        gl.torrentdir = self.chooserBitTorrentTo.get_filename()
-        gl.use_gnome_bittorrent = self.radio_gnome_bittorrent.get_active()
-        gl.update_on_startup = self.updateonstartup.get_active()
-        gl.download_after_update = self.downloadnew.get_active()
-        gl.limit_rate = self.cbLimitDownloads.get_active()
-        gl.limit_rate_value = self.spinLimitDownloads.get_value()
-        gl.max_downloads_enabled = self.cbMaxDownloads.get_active()
-        gl.max_downloads = int(self.spinMaxDownloads.get_value())
-        gl.custom_sync_name = self.entryCustomSyncName.get_text()
-        gl.custom_sync_name_enabled = self.cbCustomSyncName.get_active()
-        gl.update_tags = self.updatetags.get_active()
-        gl.only_sync_not_played = self.only_sync_not_played.get_active()
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
-            gl.device_type = 'none'
+            gl.config.device_type = 'none'
         elif device_type == 1:
-            gl.device_type = 'ipod'
+            gl.config.device_type = 'ipod'
         elif device_type == 2:
-            gl.device_type = 'filesystem'
-        gl.propertiesChanged()
+            gl.config.device_type = 'filesystem'
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()

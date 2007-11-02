@@ -109,25 +109,3 @@ class UserAppsReader(object):
         return result
 # end of UserAppsReader
 
-
-def dotdesktop_command( command, filename):
-    # the following flags are specified in the FDO standards for ".desktop" files:
-    # http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-0.9.4.html
-    if command.find( '%U') != -1:
-        # A list of URLs. (we only need one, anyway..)
-        return command.replace( '%U', ( '"file://%s"' % (filename) ) )
-    if command.find( '%u') != -1:
-        # A single URL.
-        return command.replace( '%u', ( '"file://%s"' % (filename) ) )
-    if command.find( '%F') != -1:
-        # A list of files. (we only need one...)
-        return command.replace( '%F', filename )
-    if command.find( '%f') != -1:
-        # A single file name, even if multiple files are selected.
-        return command.replace( '%f', filename )
-
-    # default known-good variant: 1st parameter = filename
-    return '%s "%s"' % ( command, filename )
-# end dotdesktop_command
-
-

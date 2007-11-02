@@ -51,6 +51,7 @@ import sys
 import urllib
 import urlparse
 import time
+import threading
 
 from datetime import datetime
 
@@ -73,6 +74,8 @@ import md5
 import string
 
 import shelve
+
+global_lock = threading.RLock()
 
 class ChannelSettings(object):
     storage = shelve.open( libgpodder.gPodderLib().channel_settings_file)
@@ -257,7 +260,7 @@ class podcastChannel(ListType):
         gl = libgpodder.gPodderLib()
 
         if not last_pubdate:
-            return self[0:min(len(self),gl.default_new)]
+            return self[0:min(len(self),gl.config.default_new)]
 
         new_episodes = []
 
@@ -290,7 +293,7 @@ class podcastChannel(ListType):
     
     def addDownloadedItem( self, item):
         # no multithreaded access
-        libgpodder.getLock()
+        global_lock.acquire()
 
         downloaded_episodes = self.load_downloaded_episodes()
         already_in_list = item.url in [ episode.url for episode in downloaded_episodes ]
@@ -301,7 +304,7 @@ class podcastChannel(ListType):
             self.save_downloaded_episodes( downloaded_episodes)
 
             # Update metadata on file (if possible and wanted)
-            if libgpodder.gPodderLib().update_tags and tagging_supported():
+            if libgpodder.gPodderLib().config.update_tags and tagging_supported():
                 filename = item.local_filename()
                 try:
                     update_metadata_on_file( filename, title = item.title, artist = self.title)
@@ -315,7 +318,7 @@ class podcastChannel(ListType):
             destination_filename = util.torrent_filename( torrent_filename)
             libgpodder.gPodderLib().invoke_torrent( item.url, torrent_filename, destination_filename)
             
-        libgpodder.releaseLock()
+        global_lock.release()
         return not already_in_list
     
     def is_played(self, item):
@@ -439,7 +442,7 @@ class podcastChannel(ListType):
     cover_file = property(fget=get_cover_file)
 
     def delete_episode_by_url(self, url):
-        libgpodder.getLock()
+        global_lock.acquire()
         downloaded_episodes = self.load_downloaded_episodes()
 
         for episode in self.get_all_episodes():
@@ -449,7 +452,7 @@ class podcastChannel(ListType):
                     downloaded_episodes.remove( episode)
 
         self.save_downloaded_episodes( downloaded_episodes)
-        libgpodder.releaseLock()
+        global_lock.release()
 
 class podcastItem(object):
     """holds data for one object in a channel"""
@@ -523,8 +526,8 @@ class podcastItem(object):
         return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
 
     def sync_filename( self):
-        if libgpodder.gPodderLib().custom_sync_name_enabled:
-            return util.object_string_formatter( libgpodder.gPodderLib().custom_sync_name, episode = self, channel = self.channel)
+        if libgpodder.gPodderLib().config.custom_sync_name_enabled:
+            return util.object_string_formatter( libgpodder.gPodderLib().config.custom_sync_name, episode = self, channel = self.channel)
         else:
             return self.title
 

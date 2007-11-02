@@ -44,7 +44,7 @@ class DownloadStatusManager( object):
 
         self.last_progress_status  = ( 0, 0 )
         
-        self.max_downloads = libgpodder.gPodderLib().max_downloads
+        self.max_downloads = libgpodder.gPodderLib().config.max_downloads
         self.semaphore = threading.Semaphore( self.max_downloads)
 
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
@@ -87,16 +87,16 @@ class DownloadStatusManager( object):
             self.last_progress_status = now
 
     def s_acquire( self):
-        if not libgpodder.gPodderLib().max_downloads_enabled:
+        if not libgpodder.gPodderLib().config.max_downloads_enabled:
             return False
 
         # Release queue slots if user has enabled more slots
-        while self.max_downloads < libgpodder.gPodderLib().max_downloads:
+        while self.max_downloads < libgpodder.gPodderLib().config.max_downloads:
             self.semaphore.release()
             self.max_downloads += 1
 
         # Acquire queue slots if user has decreased the slots
-        while self.max_downloads > libgpodder.gPodderLib().max_downloads:
+        while self.max_downloads > libgpodder.gPodderLib().config.max_downloads:
             self.semaphore.acquire()
             self.max_downloads -= 1
 

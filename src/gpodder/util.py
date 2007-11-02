@@ -362,3 +362,27 @@ def object_string_formatter( s, **kwargs):
 
     return result
 
+
+def format_desktop_command( command, filename):
+    """
+    Formats a command template from the "Exec=" line of a .desktop
+    file to a string that can be invoked in a shell.
+
+    Handled format strings: %U, %u, %F, %f and a fallback that
+    appends the filename as first parameter of the command.
+
+    See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
+    """
+    items = {
+            '%U': 'file://%s' % filename,
+            '%u': 'file://%s' % filename,
+            '%F': filename,
+            '%f': filename,
+    }
+
+    for key, value in items.items():
+        if command.find( key) >= 0:
+            return command.replace( key, value)
+
+    return '%s "%s"' % ( command, filename )
+

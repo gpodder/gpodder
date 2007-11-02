@@ -1,3 +1,29 @@
+Fri, 02 Nov 2007 17:28:05 +0100 <thp@perli.net>
+New Configuration/Settings Manager; massive code clean-ups
+
+	* src/gpodder/config.py: Added new Configuration Manager that
+	automatically keeps track of saving changed values and is also able to
+	watch GTK widgets for changes; this should simplify our settings
+	management and give us a single place for maintaining settings
+	* src/gpodder/download.py: Access settings from new config manager
+	* src/gpodder/gui.py: Make use of new config manager to connect
+	widgets and settings from the GUI directly to the config manager;
+	remove manual loading and saving of settings; auto-connect as much as
+	possible in the gPodderProperties dialog to get real-time automatic
+	configuration saving; fix the other code to use new config manager
+	* src/gpodder/libgpodder.py: MASSIVE code clean-up; removed lots of
+	old cruft and dead code that has been lying around in libgpodder for
+	some time now; remove configuration code; utilize config manager;
+	unify DownloadHistory+PlaybackHistory in new HistoryStore class;
+	reduce number of import statements
+	* src/gpodder/libipodsync.py: Access settings from new config manager
+	* src/gpodder/libplayers.py: Removed dotdesktop_command()
+	* src/gpodder/libpodcasts.py: Move locking functionality into this
+	module, as locking is only used here; access config from new manager
+	* src/gpodder/services.py: Use config manager to get settings
+	* src/gpodder/util.py: Add format_desktop_command() function, based on
+	the dotdesktop_command() function from libplayers
+
 Fri, 02 Nov 2007 07:49:38 +0100 <thp@perli.net>
 Add ability to open download folder from channel's context menu
 

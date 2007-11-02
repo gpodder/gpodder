@@ -201,7 +201,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
         if not ipod_supported():
             log( '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)')
         gl = libgpodder.gPodderLib()
-        self.ipod_mount = gl.ipod_mount
+        self.ipod_mount = gl.config.ipod_mount
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def open( self):
@@ -507,7 +507,7 @@ class gPodder_FSSync( gPodderSyncMethod):
 
     def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
         gl = libgpodder.gPodderLib()
-        self.destination = gl.mp3_player_folder
+        self.destination = gl.config.mp3_player_folder
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
         self.can_cancel = True
 
