@@ -403,7 +403,7 @@ class podcastChannel(ListType):
         new_episodes = self.get_new_episodes()
 
         for item in self.get_all_episodes():
-            new_iter = new_model.append( ( item.url, item.title, util.format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, item.local_filename() ))
+            new_iter = new_model.append( ( item.url, item.title, libgpodder.gPodderLib().format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, item.local_filename() ))
             self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
         return new_model

@@ -122,7 +122,7 @@ class DownloadThread(threading.Thread):
                 self.start_time = now
                 passed = now - self.start_time
                 speed = count*blockSize
-            self.speed = '%s/s' % util.format_filesize( speed)
+            self.speed = '%s/s' % libgpodder.gPodderLib().format_filesize( speed)
 
             if self.limit_rate and speed > self.limit_rate_value:
                 # calculate the time that should have passed to reach

@@ -65,6 +65,7 @@ gPodderSettings = {
 
     # Special settings (not in preferences)
     'default_new': ( int, 1 ),
+    'use_si_units': ( bool, False ),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),

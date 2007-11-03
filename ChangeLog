@@ -1,3 +1,19 @@
+Sat, 03 Nov 2007 14:14:09 +0100 <thp@perli.net>
+Fix format_filesize() function to be standards-conformant (unit prefixes)
+
+	* src/gpodder/config.py: Add "use_si_units" configuration option; if
+	True, the user will see SI units (MB, kB, ...); if False (the
+	default); the user will see binary-prefix units (MiB, KiB, ..)
+	* src/gpodder/libgpodder.py: Add pass-through function
+	"format_filesize()" to gPodderLib that combines the
+	util.format_filesize function with the gPodder-specific config option
+	* src/gpodder/util.py: Apply a modified patch from Gerrit Sangel
+	<z0idberg@gmx.de> to add support for SI units and binary prefixes to
+	format_filesize(); this makes the function standards-compliant
+	* src/gpodder/download.py: Updated to use new format_filesize
+	* src/gpodder/gui.py: Updated to use new format_filesize
+	* src/gpodder/libpodcasts.py: Updated to use new format_filesize
+
 Fri, 02 Nov 2007 17:28:05 +0100 <thp@perli.net>
 New Configuration/Settings Manager; massive code clean-ups
 

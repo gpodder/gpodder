@@ -135,21 +135,24 @@ def calculate_size( path):
     return 0L
 
 
-def format_filesize( bytesize, method = None):
+def format_filesize( bytesize, use_si_units = False):
     """
     Formats the given size in bytes to be human-readable, 
-    either the most appropriate form (B, KB, MB, GB) or 
-    a form specified as optional second parameter (e.g. "MB").
 
     Returns a localized "(unknown)" string when the bytesize
     has a negative value.
     """
-    methods = {
-        'GB': 1024.0 * 1024.0 * 1024.0,
-        'MB': 1024.0 * 1024.0,
-        'KB': 1024.0,
-        'B':  1.0
-    }
+    si_units = (
+            ( 'kB', 10**3 ),
+            ( 'MB', 10**6 ),
+            ( 'GB', 10**9 ),
+    )
+
+    binary_units = (
+            ( 'KiB', 2**10 ),
+            ( 'MiB', 2**20 ),
+            ( 'GiB', 2**30 ),
+    )
 
     try:
         bytesize = float( bytesize)
@@ -159,13 +162,19 @@ def format_filesize( bytesize, method = None):
     if bytesize < 0:
         return _('(unknown)')
 
-    if method not in methods:
-        method = 'B'
-        for trying in ( 'KB', 'MB', 'GB' ):
-            if bytesize >= methods[trying]:
-                method = trying
+    if use_si_units:
+        units = si_units
+    else:
+        units = binary_units
 
-    return '%.2f %s' % ( bytesize / methods[method], method, )
+    ( used_unit, used_value ) = ( 'B', bytesize )
+
+    for ( unit, value ) in units:
+        if bytesize >= value:
+            used_value = bytesize / float(value)
+            used_unit = unit
+
+    return '%.2f %s' % ( used_value, used_unit )
 
 
 def delete_file( path):

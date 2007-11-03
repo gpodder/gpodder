@@ -1487,7 +1487,7 @@ class gPodderProperties(GladeWidget):
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()
             download_dir_size = util.calculate_size( gl.downloaddir)
-            download_dir_size_string = util.format_filesize( download_dir_size, 'MB')
+            download_dir_size_string = gl.format_filesize( download_dir_size)
             event = Event()
 
             dlg = gtk.Dialog( _('Moving downloads folder'), self.gPodderProperties)
@@ -1523,7 +1523,7 @@ class gPodderProperties(GladeWidget):
                 else:
                     fract = 0.0
                 if fract < 0.99:
-                    myprogressbar.set_text( _('%s of %s') % ( util.format_filesize( new_download_dir_size, 'MB'), download_dir_size_string, ))
+                    myprogressbar.set_text( _('%s of %s') % ( gl.format_filesize( new_download_dir_size), download_dir_size_string, ))
                 else:
                     myprogressbar.set_text( _('Finishing... please wait.'))
                 myprogressbar.set_fraction( fract)
