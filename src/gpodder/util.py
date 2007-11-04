@@ -36,6 +36,7 @@ import gtk
 
 import os
 import os.path
+import glob
 
 import re
 import htmlentitydefs
@@ -186,10 +187,10 @@ def delete_file( path):
     log( 'Trying to delete: %s', path)
     try:
         os.unlink( path)
-        # if libipodsync extracted the cover file, remove it here
-        cover_path = path + '.cover.jpg'
-        if os.path.isfile( cover_path):
-            os.unlink( cover_path)
+        # Remove any extracted cover art that might exist
+        for cover_file in glob.glob( '%s.cover.*' % ( path, )):
+            os.unlink( cover_file)
+
     except:
         pass
 
