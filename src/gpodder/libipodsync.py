@@ -54,24 +54,15 @@ try:
 except:
     log( '(ipodsync) Could not find pymad.')
 
+# are we going to use eyeD3 for cover art extraction?
+get_coverart = False
+
 try:
     import eyeD3
-    log( '(ipodsync) Found eyeD3')
+    get_coverart = True
+    log( '(ipodsync) Found eyeD3, will try to extract cover art from mp3 metadata')
 except:
-    log( '(ipodsync) Coulld not find eyeD3.')
-
-
-# are we going to use python-id3 for cover art extraction?
-use_pyid3 = False
-
-try:
-    # try to load PyID3
-    import id3
-    use_pyid3 = True
-    log('(ipodsync) Found PyID3, will try to extract cover art from mp3 metadata')
-except:
-    log('(ipodsync) PyID3 not found - falling back to channel cover for iPod cover art')
-
+    log( '(ipodsync) Could not find eyeD3 - falling back to channel cover for iPod cover art')
 
 import os
 import os.path
@@ -345,23 +336,25 @@ class gPodder_iPodSync( gPodderSyncMethod):
             return True
         return False
             
-    def set_cover_art(self, track, local_filename):
+    def set_cover_art( self, track, local_filename):
         if not ipod_supported():
             return False
-        if use_pyid3:
-            try:
-                cover_filename = local_filename + '.cover.jpg'
-                id3v2_tags = id3.ID3v2( local_filename )
-                for frame in id3v2_tags.frames:
-                    if frame.id == 'APIC':
-                        cover_file = file(cover_filename, 'w')
-                        cover_file.write(frame.image)
-                        cover_file.close()
-                if os.path.isfile( cover_filename):
+        if get_coverart:
+            tag = eyeD3.Tag()
+            if tag.link( local_filename):
+                if 'APIC' in tag.frames and len( tag.frames['APIC']) > 0:
+                    # Try to guess the file extension (default to jpg)
+                    extension = 'jpg'
+                    if tag.frames['APIC'][0].mimeType == 'image/png':
+                        extension = 'png'
+                    cover_filename = '%s.cover.%s' ( local_filename, extension )
+                    cover_file = open( cover_filename, 'w')
+                    cover_file.write( tag.frames['APIC'][0].imageData)
+                    cover_file.close()
                     gpod.itdb_track_set_thumbnails( track, cover_filename)
                     return True
-            except:
-                log( '(ipodsync) Error reading ID3v2 information for %s' % ( local_filename, ))
+            else:
+                log( '(ipodsync) Error reading cover art for %s' % ( local_filename, ))
         # If we haven't yet found cover art, fall back to channel cover
         return self.set_channel_art( track, local_filename)
 
@@ -466,7 +459,10 @@ class gPodder_iPodSync( gPodderSyncMethod):
         playlist = self.get_playlist_for_channel( channel)
         gpod.itdb_playlist_add_track( playlist, track, -1)
 
-        self.set_cover_art( track, local_filename)
+        try:
+            self.set_cover_art( track, local_filename)
+        except:
+            log( 'Error setting cover art for "%s".', episode.title, sender = self)
 
         # dirty hack to get video working, seems to work
         for ext in video_extensions:

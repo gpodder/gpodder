@@ -1,3 +1,12 @@
+Mon, 05 Nov 2007 00:17:12 +0100 <thp@perli.net>
+Patch from Nick (nikosapi) to support eyeD3 cover art extraction
+
+	* src/gpodder/libipodsync.py: Apply modified version of a patch from
+	Nick (nikosapi.org) to utilize eyeD3 for cover art extraction in iPod
+	sync code; remove dependency on PyID3
+	* README: PyID3 is not a dependency anymore, as we can now use eyeD3
+	for the same purpose (cover art extraction)
+
 Sat, 03 Nov 2007 14:14:09 +0100 <thp@perli.net>
 Fix format_filesize() function to be standards-conformant (unit prefixes)
 
