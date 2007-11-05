@@ -29,13 +29,17 @@ import re
 import popen2
 import os
 import os.path
+import types
+
+from gpodder import util
+from gpodder.liblogger import log
 
 class FileConverter:
     percentage_match = re.compile('(\d+)%')
 
-    def __init__( self, decoder_command):
+    def __init__( self, decoder_command, decoder_arguments):
         self.encoder_command = 'lame --nohist /dev/stdin "%s"'
-        self.decoder_command = decoder_command
+        self.decoder_command = ' '.join( ( decoder_command, decoder_arguments ))
 
     def convert( self, input_filename, output_filename, callback = None):
         input_command = self.decoder_command % input_filename
@@ -54,25 +58,30 @@ class FileConverter:
 
         return process.wait() == 0
 
-class ConverterCollection:
-    def __init__( self):
-        self.dict = {}
-
-    def add_converter( self, extension, command):
-        self.dict[extension.lower()] = FileConverter( command)
+class ConverterCollection( types.DictType):
+    def add_converter( self, extension, command, arguments):
+        if util.find_command( command) != None:
+            log( 'Found "%s", will try to convert ".%s" files.' % ( command, extension ), sender = self)
+            self[extension.lower()] = FileConverter( command, arguments)
+        else:
+            log( 'Could not find "%s", ".%s" files cannot be converted.' % ( command, extension ), sender = self)
 
     def has_converter( self, extension):
-        return self.dict.has_key( extension.lower())
+        if util.find_command( 'lame') != None:
+            return self.has_key( extension.lower())
+        else:
+            log( 'Please install the "lame" package to convert files.', sender = self)
+            return False
 
     def convert( self, input_filename, output_filename = None, callback = None):
         extension = os.path.splitext( input_filename)[1][1:]
-        if extension.lower() not in self.dict:
+        if extension.lower() not in self:
             return None
 
         if not output_filename:
             output_filename = os.path.splitext( input_filename)[0]+'.mp3'
         
-        if not self.dict[extension.lower()].convert( input_filename, output_filename, callback):
+        if not self[extension.lower()].convert( input_filename, output_filename, callback):
             return None
 
         return output_filename
@@ -81,5 +90,5 @@ class ConverterCollection:
 converters = ConverterCollection()
 
 # Add known converter applications
-converters.add_converter( 'ogg', 'oggdec --quiet --output=/dev/stdout "%s"')
+converters.add_converter( 'ogg', 'oggdec', '--quiet --output=/dev/stdout "%s"')
 

@@ -396,3 +396,22 @@ def format_desktop_command( command, filename):
 
     return '%s "%s"' % ( command, filename )
 
+
+def find_command( command):
+    """
+    Searches the system's PATH for a specific command that is
+    executable by the user. Returns the first occurence of an
+    executable binary in the PATH, or None if the command is 
+    not available.
+    """
+
+    if 'PATH' not in os.environ:
+        return None
+
+    for path in os.environ['PATH'].split( os.pathsep):
+        command_file = os.path.join( path, command)
+        if os.path.isfile( command_file) and os.access( command_file, os.X_OK):
+            return command_file
+        
+    return None
+

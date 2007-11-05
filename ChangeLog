@@ -1,3 +1,12 @@
+Mon, 05 Nov 2007 01:12:15 +0100 <thp@perli.net>
+Better command detection for the converter library
+
+	* src/gpodder/libconverter.py: Detect existence of commands before
+	invoking them for converting files; based on a patch by
+	Nick (nikosapi.org); ConverterCollection is now a dict itself :)
+	* src/gpodder/util.py: Add new find_command() function that will
+	search the system's PATH for a specific executable command
+
 Mon, 05 Nov 2007 00:21:39 +0100 <thp@perli.net>
 Remove extracted cover art when deleting episode files
 
