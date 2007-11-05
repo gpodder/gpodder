@@ -90,7 +90,7 @@ video_extensions = [ "mov", "mp4", "m4v", "divx" ]
 
 # is mplayer available for finding track length?
 use_mplayer = False
-if not os.system("which mplayer >/dev/null 2>&1"):
+if util.find_command( 'mplayer') != None:
     use_mplayer = True
     log('(ipodsync) Found mplayer, using it to find track length of files')
 else:

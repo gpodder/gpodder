@@ -213,16 +213,24 @@ class gPodderLibClass( object):
         self.history_mark_played( url)
 
         if self.config.use_gnome_bittorrent:
+            if util.find_command( 'gnome-btdownload') == None:
+                log( 'Cannot find "gnome-btdownload". Please install gnome-bittorrent.', sender = self)
+                return False
+
             command = 'gnome-btdownload "%s" --saveas "%s"' % ( torrent_filename, os.path.join( self.config.bittorrent_dir, target_filename))
             log( command, sender = self)
             os.system( '%s &' % command)
+            return True
         else:
             # Simply copy the .torrent with a suitable name
             try:
                 target_filename = os.path.join( self.config.bittorrent_dir, os.path.splitext( target_filename)[0] + '.torrent')
                 shutil.copyfile( torrent_filename, target_filename)
+                return True
             except:
                 log( 'Torrent copy failed: %s => %s.', torrent_filename, target_filename)
+
+        return False
 
 
 class HistoryStore( types.ListType):

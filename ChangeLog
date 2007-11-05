@@ -1,3 +1,12 @@
+Mon, 05 Nov 2007 12:54:35 +0100 <thp@perli.net>
+Use util.find_command in more places (mplayer detection, ...)
+
+	* src/gpodder/libgpodder.py: Use util.find_command to detect the
+	existence of the "gnome-btdownload" command and spit out a warning log
+	message when the command is not available
+	* src/gpodder/libipodsync.py: Use util.find_command to check for an
+	installed mplayer binary (instead of relying on os.system("which...")
+
 Mon, 05 Nov 2007 01:12:15 +0100 <thp@perli.net>
 Better command detection for the converter library
 
