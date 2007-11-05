@@ -37,6 +37,8 @@ import shutil
 import os.path
 import time
 
+from xml.sax import saxutils
+
 class DownloadCancelledException(Exception): pass
 
 
@@ -69,12 +71,14 @@ class DownloadURLOpener(urllib.FancyURLopener):
 class DownloadThread(threading.Thread):
     MAX_UPDATES_PER_SEC = 1
 
-    def __init__( self, channel, episode):
+    def __init__( self, channel, episode, notification = None):
         threading.Thread.__init__( self)
         self.setDaemon( True)
 
         self.channel = channel
         self.episode = episode
+
+        self.notification = notification
 
         self.url = self.episode.url
         self.filename = self.episode.local_filename()
@@ -155,6 +159,12 @@ class DownloadThread(threading.Thread):
                 services.download_status_manager.s_release( acquired)
         except DownloadCancelledException:
             log( 'Download has been cancelled: %s', self.episode.title, sender = self)
+        except IOError, ioe:
+            if self.notification != None:
+                title = ioe.strerror
+                message = _('An error happened while trying to download <b>%s</b>.') % ( saxutils.escape( self.episode.title), )
+                self.notification( message, title)
+            log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.episode.title, ioe.filename, sender = self)
         except:
             log( 'Error while downloading "%s".', self.episode.title, sender = self, traceback = True)
 

@@ -1,3 +1,14 @@
+Mon, 05 Nov 2007 13:51:26 +0100 <thp@perli.net>
+Add error reporting when download fails because of an I/O error
+
+	* src/gpodder/download.py: Catch and handle I/O errors in
+	DownloadThread and format and pass on messages to GUI code when
+	required; thanks to Florian Richter <Florian_Richter@gmx.de> for
+	suggesting this feature after having a full disk
+	* src/gpodder/gui.py: Update tree view when adding a new episode;
+	add new notification() method and pass this method through to
+	DownloadThread, so it can present messages to the user (i.e. errors)
+
 Mon, 05 Nov 2007 12:54:35 +0100 <thp@perli.net>
 Use util.find_command in more places (mplayer detection, ...)
 

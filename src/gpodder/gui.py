@@ -83,6 +83,9 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             getattr( self, root).set_transient_for( GladeWidget.gpodder_main_window)
             getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
+    def notification( self, message, title = None):
+        gobject.idle_add( self.show_message, message, title)
+
     def show_message( self, message, title = None):
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
 
@@ -595,6 +598,7 @@ class gPodder(GladeWidget):
                 # ask user to download some new episodes
                 self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
                 self.active_channel = channel
+                self.updateTreeView()
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
             else:
@@ -744,7 +748,7 @@ class gPodder(GladeWidget):
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
-            download.DownloadThread( current_channel, current_podcast).start()
+            download.DownloadThread( current_channel, current_podcast, self.notification).start()
         else:
             if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
                 title = _('Episode already downloaded')
@@ -838,7 +842,7 @@ class gPodder(GladeWidget):
                 for channel, episode in to_download:
                     filename = episode.local_filename()
                     if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
-                        download.DownloadThread( channel, episode).start()
+                        download.DownloadThread( channel, episode, self.notification).start()
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
