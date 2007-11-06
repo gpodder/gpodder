@@ -1,3 +1,12 @@
+Tue, 06 Nov 2007 12:37:41 +0100 <thp@perli.net>
+Process events before connecting Config to gtk windows
+
+	* data/gpodder.glade: Remove default size for main gPodder window, as
+	this is now handled by the config manager
+	* src/gpodder/config.py: Process GTK events in the event queue before
+	connecting to the "configure-event" signal, so we won't get two
+	configure events for the window for the initial size change
+
 Mon, 05 Nov 2007 13:51:26 +0100 <thp@perli.net>
 Add error reporting when download fails because of an I/O error
 

@@ -146,6 +146,8 @@ class Config(dict):
         if set( ( x, y, width, height )).issubset( set( self.Settings)):
             window.resize( getattr( self, width), getattr( self, height))
             window.move( getattr( self, x), getattr( self, y))
+            while gtk.events_pending():
+                gtk.main_iteration( block = False)
             window.connect( 'configure-event', self.receive_configure_event, config_prefix)
         else:
             raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))
