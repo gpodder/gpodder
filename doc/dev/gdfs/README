@@ -1,0 +1,72 @@
+gdfs -- The so-called "gPodder download folder synchronizer"
+============================================================
+
+When using a filesystem that supports hard links (ext2/ext3, reiserfs,
+...), and you have your download directory on the same filesystem 
+(partition) as the folder where you want your downloads to appear, 
+you can use these scripts to create a hard-linked mirror of your 
+downloads with easy-to-use, human-readable names.
+
+These scripts are not yet incorporated into gPodder, as they are mostly
+untested (although they "work for me"(tm)). If there are any problems, 
+suggestions, bug reports (basically anything at all), just mail our 
+mailing list:
+
+     gpodder-devel@lists.berlios.de
+
+To use these scripts with SVN versions of gPodder, you have to set the
+$PYTHONPATH variable according to the text below ("src/" subdir of 
+your working tree).
+
+                          -- Thomas Perl <thp@perli.net>, 2007-11-08
+
+============================================================
+
+  Here is the original mail with instructions, from
+  https://lists.berlios.de/pipermail/gpodder-devel/2007-November/001140.html
+
+============================================================
+
+I've been working on a compatible hard-linking system that will
+preserve the download folder structure, generate a new structure that
+(given it resides on the same filesystem as the download folder and it
+supports hard links) will not use any additional hard disk space and is
+even compatible with renames.
+
+Save the two attached scripts somewhere in your $PATH and don't forget
+to set the PYTHONPATH variable to the "src/" subfolder of your SVN
+checkout, so the scripts will find the gPodder libraries.
+
+    Usage: gdfs-init.py [--yes] [Podcasts dir]
+
+        Populates "Podcasts dir" with hard links from gPodder's
+        downloads folder. "Podcasts dir" should be on the same
+        filesystem as the downloads folder, and the filesystem
+        has to support hard links.
+
+        If "Podcasts dir" already exists, the script will ask 
+        to overwrite its contents and re-build the mirror.
+
+        The optional "--yes" parameter will skip the overwrite
+        question and foribly re-build the folder if it exists.
+
+    Usage: gdfs-check.py [from-gpodder|from-podcasts] [Podcasts dir]
+
+        If you have deleted episodes from your Podcast mirror
+        folder, use "from-podcasts" to get a list of files 
+        that you have to delete from gPodder's download
+        folder to "sync" with your podcast mirror.
+
+        If you have deleted episodes in gPodder, you can use
+        "from-gpodder" to get a list of files that are still 
+        available in your podcasts dir, but not in gPodder's
+        download directory.
+
+So, basically, to get things going, download the two scripts to your
+Desktop, run "python gdfs-init.py --yes Podcasts" and you should have
+your podcasts in human-readable folder and file names on your Desktop.
+
+You can always refresh this "mirror" of your download directory by
+running the same command again, which will overwrite the old "Podcasts"
+folder.
+
