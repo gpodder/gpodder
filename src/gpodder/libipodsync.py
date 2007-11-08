@@ -516,14 +516,20 @@ class gPodder_FSSync( gPodderSyncMethod):
 
         gPodderSyncMethod.add_episode_from_channel( self, channel, episode)
 
-        folder_src = channel.title
-        folder = ''
-        for ch in folder_src:
-            if ch in allowed_chars:
-                folder = folder + ch
-            else:
-                folder = folder + '_'
-        folder = os.path.join( self.destination, folder)
+        gl = libgpodder.gPodderLib()
+
+        if gl.config.fssync_channel_subfolders:
+            # Add channel title as subfolder
+            folder_src = channel.title
+            folder = ''
+            for ch in folder_src:
+                if ch in allowed_chars:
+                    folder = folder + ch
+                else:
+                    folder = folder + '_'
+            folder = os.path.join( self.destination, folder)
+        else:
+            folder = self.destination
 
         from_file = episode.local_filename()
 

@@ -2861,7 +2861,7 @@
 	    <widget class="GtkTable" id="table5">
 	      <property name="border_width">10</property>
 	      <property name="visible">True</property>
-	      <property name="n_rows">9</property>
+	      <property name="n_rows">10</property>
 	      <property name="n_columns">4</property>
 	      <property name="homogeneous">False</property>
 	      <property name="row_spacing">5</property>
@@ -2973,27 +2973,6 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkImage" id="image2425">
-		  <property name="visible">True</property>
-		  <property name="icon_size">6</property>
-		  <property name="icon_name">palm-pilot-sync</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">0</property>
-		  <property name="right_attach">1</property>
-		  <property name="top_attach">6</property>
-		  <property name="bottom_attach">8</property>
-		  <property name="x_padding">6</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options">fill</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkCheckButton" id="cbCustomSyncName">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
@@ -3038,7 +3017,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkHSeparator" id="hseparator6">
+		<widget class="GtkHSeparator" id="separatorSyncOptions">
 		  <property name="visible">True</property>
 		</widget>
 		<packing>
@@ -3286,7 +3265,7 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label90">
+		<widget class="GtkLabel" id="labelSyncOptions">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">&lt;b&gt;Synchronization Options&lt;/b&gt;</property>
 		  <property name="use_underline">False</property>
@@ -3338,6 +3317,50 @@ Filesystem-based MP3 player</property>
 		  <property name="right_attach">4</property>
 		  <property name="top_attach">7</property>
 		  <property name="bottom_attach">8</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="imageSyncOptions">
+		  <property name="visible">True</property>
+		  <property name="icon_size">6</property>
+		  <property name="icon_name">palm-pilot-sync</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">1</property>
+		  <property name="top_attach">6</property>
+		  <property name="bottom_attach">9</property>
+		  <property name="x_padding">6</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="cbChannelSubfolder">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">If checked, a subfolder will be created for each channel synchronized. If not checked, all episodes will be copied directly to the folder specified by &quot;Sync to folder:&quot;.</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Create a subfolder for each channel</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>

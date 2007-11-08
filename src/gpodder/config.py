@@ -56,6 +56,7 @@ gPodderSettings = {
     'only_sync_not_played': ( bool, False ),
     'proxy_use_environment': ( bool, True ),
     'update_tags': ( bool, False ),
+    'fssync_channel_subfolders': ( bool, True ),
 
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod' ),

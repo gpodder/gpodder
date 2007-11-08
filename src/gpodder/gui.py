@@ -1318,6 +1318,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton( 'use_gnome_bittorrent', self.radio_gnome_bittorrent)
         gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
+        gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self. cbChannelSubfolder)
         gl.config.connect_gtk_spinbutton( 'max_downloads', self.spinMaxDownloads)
         gl.config.connect_gtk_togglebutton( 'max_downloads_enabled', self.cbMaxDownloads)
         gl.config.connect_gtk_spinbutton( 'limit_rate_value', self.spinLimitDownloads)
@@ -1443,25 +1444,32 @@ class gPodderProperties(GladeWidget):
     def on_comboboxDeviceType_changed(self, widget, *args):
         active_item = self.comboboxDeviceType.get_active()
 
+        # None
+        sync_widgets = ( self.only_sync_not_played, self.labelSyncOptions,
+                         self.imageSyncOptions, self. separatorSyncOptions )
+        for widget in sync_widgets:
+            if active_item == 0:
+                widget.hide_all()
+            else:
+                widget.show_all()
+
         # iPod
-        if active_item == 1:
-            self.ipodLabel.show()
-            self.btn_iPodMountpoint.set_sensitive( True)
-            self.btn_iPodMountpoint.show_all()
-        else:
-            self.ipodLabel.hide()
-            self.btn_iPodMountpoint.set_sensitive( False)
-            self.btn_iPodMountpoint.hide()
+        ipod_widgets = ( self.ipodLabel, self.btn_iPodMountpoint )
+        for widget in ipod_widgets:
+            if active_item == 1:
+                widget.show_all()
+            else:
+                widget.hide_all()
 
         # filesystem-based MP3 player
-        if active_item == 2:
-            self.filesystemLabel.show()
-            self.btn_filesystemMountpoint.set_sensitive( True)
-            self.btn_filesystemMountpoint.show_all()
-        else:
-            self.filesystemLabel.hide()
-            self.btn_filesystemMountpoint.set_sensitive( False)
-            self.btn_filesystemMountpoint.hide()
+        fs_widgets = ( self.filesystemLabel, self.btn_filesystemMountpoint,
+                       self.cbChannelSubfolder, self.cbCustomSyncName,
+                       self.entryCustomSyncName, self.btnCustomSyncNameHelp )
+        for widget in fs_widgets:
+            if active_item == 2:
+                widget.show_all()
+            else:
+                widget.hide_all()
 
     def on_btn_iPodMountpoint_clicked(self, widget, *args):
         fs = gtk.FileChooserDialog( title = _('Select iPod mountpoint'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)

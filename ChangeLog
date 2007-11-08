@@ -1,3 +1,17 @@
+Thu, 08 Nov 2007 12:07:30 +0100 <thp@perli.net>
+Support syncing to FS-based MP3 players without subfolders
+
+	* data/gpodder.glade: Add checkbox "Create a subfolder for each
+	channel" to preferences dialog and rename some widgets
+	* src/gpodder/config.py: Add boolean "fssync_channel_subfolders"
+	option that defaults to True (create subfolder for each channel)
+	* src/gpodder/gui.py: Hook up config option fssync_channel_subfolders
+	to preferences dialog; do more intelligent widget hiding for the
+	"Player" tab in the preferences dialog (only show relevant widgets)
+	* src/gpodder/libipodsync.py: Only append channel name as subfolder to
+	destination folder name when the "fssync_channel_subfolders" option is
+	True
+
 Thu, 08 Nov 2007 11:28:17 +0100 <thp@perli.net>
 Fix offline cache behaviour when time is not set
 
