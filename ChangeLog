@@ -1,3 +1,31 @@
+Thu, 08 Nov 2007 20:01:13 +0100 <thp@perli.net>
+The mighty episode selector dialog and some menu re-arrangements
+
+	* src/gpodder/gui.py: Move the "center_on_widget" keyword-based window
+	positioning code to GladeWidget to be universally usable; update
+	"Device" menu item on startup; new functions: delete_episode_list()
+	and download_episode_list() that both operate on lists of episodes;
+	add code for invoking gPodderEpisodeSelector for deleting old
+	episodes; re-work on_itemDownloadAllNew_activate to use the episode
+	selector instead of hand-crafting a message dialog text; add
+	update_item_device() function that will handle the hiding, showing and
+	renaming of the "Device" menu in the menubar; clean-up
+	gPodderProperties with callback_finished setting (now kwarg-based);
+	new, might, fancy, customizable and uber-sexy gPodderEpisodeSelector
+	that will prove to be useful in some places in our codebase: it
+	basically allows the user to select a subset of episodes from a given
+	list in a quite sophisticated way; new "delete old episodes" menu item
+	added for cleaning up gPodder's downloads
+	* src/gpodder/libpodcasts.py: Add delete_from_disk() convenience
+	method to podcastItem; other convenience properties and functions
+	needed for the new episode selector dialog: pubdate_prop,
+	get_filesize_string(), filesize_prop, get_channel_title(),
+	channel_prop, get_played_string(), played_prop
+	* data/gpodder.glade: new gPodderEpisode dialog; re-structuring of
+	gPodder's main menu to be more usable and more compact; also added the
+	Ctrl+K "Remove old episodes" menu item; also use the correct
+	"multimedia-player" icon name of a not really representative icon
+
 Thu, 08 Nov 2007 12:07:30 +0100 <thp@perli.net>
 Support syncing to FS-based MP3 players without subfolders
 

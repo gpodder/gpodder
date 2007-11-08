@@ -521,6 +521,9 @@ class podcastItem(object):
     def is_downloaded( self):
         return os.path.exists( self.local_filename())
 
+    def delete_from_disk( self):
+        self.channel.delete_episode_by_url( self.url)
+
     def local_filename( self):
         extension = util.file_extension_from_url( self.url)
         return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
@@ -593,12 +596,32 @@ class podcastItem(object):
             return str(datetime.fromtimestamp( timestamp).strftime( "%A"))
         
         return str(datetime.fromtimestamp( timestamp).strftime( "%x"))
+    
+    pubdate_prop = property(fget=cute_pubdate)
 
     def calculate_filesize( self):
         try:
             self.length = str(os.path.getsize( self.local_filename()))
         except:
             log( 'Could not get filesize for %s.', self.url)
+
+    def get_filesize_string( self):
+        return util.format_filesize( self.length)
+
+    filesize_prop = property(fget=get_filesize_string)
+
+    def get_channel_title( self):
+        return self.channel.title
+
+    channel_prop = property(fget=get_channel_title)
+
+    def get_played_string( self):
+        if not self.channel.is_played( self):
+            return _('Unplayed')
+        
+        return ''
+
+    played_prop = property(fget=get_played_string)
     
     def equals( self, other_item):
         if other_item == None:

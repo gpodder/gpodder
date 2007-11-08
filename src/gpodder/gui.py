@@ -81,7 +81,16 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         else:
             # If we have a child window, set it transient for our main window
             getattr( self, root).set_transient_for( GladeWidget.gpodder_main_window)
-            getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+
+            if hasattr( self, 'center_on_widget'):
+                ( x, y ) = self.gpodder_main_window.get_position()
+                a = self.center_on_widget.allocation
+                ( x, y ) = ( x + a.x, y + a.y )
+                ( w, h ) = ( a.width, a.height )
+                ( pw, ph ) = getattr( self, root).get_size()
+                getattr( self, root).move( x + w/2 - pw/2, y + h/2 - ph/2)
+            else:
+                getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     def notification( self, message, title = None):
         gobject.idle_add( self.show_message, message, title)
@@ -259,6 +268,9 @@ class gPodder(GladeWidget):
 
         # Clean up old, orphaned download files
         gl.clean_up_downloads( delete_partial = True)
+
+        # Set the "Device" menu item for the first time
+        self.update_item_device()
 
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.config.update_on_startup)
@@ -786,6 +798,52 @@ class gPodder(GladeWidget):
         self.active_channel.update_model()
         self.updateComboBox()
 
+    def delete_episode_list( self, episodes, confirm = True):
+        if len(episodes) == 0:
+            return
+        
+        if len(episodes) == 1:
+            message = _('Do you really want to delete this episode?')
+        else:
+            message = _('Do you really want to delete %d episodes?') % len(episodes)
+
+        if confirm and self.show_confirmation( message, _('Delete episodes')) == False:
+            return
+
+        for episode in episodes:
+            log('Deleting episode: %s', episode.title, sender = self)
+            episode.delete_from_disk()
+
+        self.download_status_updated()
+
+    def on_itemRemoveOldEpisodes_activate( self, widget):
+        columns = (
+                ('title', _('Episode')),
+                ('channel_prop', _('Channel')),
+                ('filesize_prop', _('Size')),
+                ('pubdate_prop', _('Released')),
+                ('played_prop', _('Status')),
+        )
+
+        selection_buttons = {
+                _('Select played'): lambda episode: episode.channel.is_played( episode),
+        }
+
+        instructions = _('Select the episodes you want to delete from your hard disk.')
+
+        episodes = []
+        selected = []
+        for channel in self.channels:
+            for episode in channel:
+                if episode.is_downloaded():
+                    episodes.append( episode)
+                    selected.append( channel.is_played( episode))
+
+        gPodderEpisodeSelector( title = _('Remove old episodes'), instructions = instructions, \
+                                episodes = episodes, selected = selected, columns = columns, \
+                                stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
+                                selection_buttons = selection_buttons)
+
     def on_item_toggle_downloaded_activate( self, widget, toggle = True, new_value = False):
         if toggle:
             callback = lambda url: gPodderLib().history_mark_downloaded( url, not gPodderLib().history_is_downloaded( url))
@@ -810,39 +868,33 @@ class gPodder(GladeWidget):
             message = _('You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts.')
             self.show_message( message, title)
 
+    def download_episode_list( self, episodes):
+        for episode in episodes:
+            log('Downloading episode: %s', episode.title, sender = self)
+            filename = episode.local_filename()
+            if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
+                download.DownloadThread( episode.channel, episode, self.notification).start()
+
     def on_itemDownloadAllNew_activate(self, widget, *args):
-        to_download = []
+        columns = (
+                ('title', _('Episode')),
+                ('channel_prop', _('Channel')),
+                ('filesize_prop', _('Size')),
+                ('pubdate_prop', _('Released')),
+        )
 
-        message_part = ''
-        new_sum = 0
-
+        episodes = []
+        
         for channel in self.channels:
-            new_episodes = channel.get_new_episodes()
-            for episode in new_episodes:
-                to_download.append( ( channel, episode ))
+            for episode in channel.get_new_episodes():
+                episodes.append( episode)
 
-            if len(new_episodes):
-                if len(new_episodes) == 1:
-                    new_part = '  ' + _('<b>1</b> new episode in <b>%s</b>') % ( saxutils.escape(channel.title), )
-                else:
-                    new_part = '  ' + _('<b>%d</b> new episodes in <b>%s</b>') % ( len( new_episodes), saxutils.escape(channel.title), )
+        if len(episodes) > 0:
+            instructions = _('Select the episodes you want to download now.')
 
-                message_part += new_part + "\n"
-                new_sum += len(new_episodes)
-
-        if to_download:
-            title = _('New episodes available')
-
-            if new_sum == 1:
-                title = _('New episode available')
-
-            message = _('New episodes are available to be downloaded:\n\n%s\nDo you want to download these episodes now?') % ( message_part, )
-
-            if self.show_confirmation( message, title):
-                for channel, episode in to_download:
-                    filename = episode.local_filename()
-                    if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
-                        download.DownloadThread( channel, episode, self.notification).start()
+            gPodderEpisodeSelector( title = _('New episodes available'), instructions = instructions, \
+                                    episodes = episodes, columns = columns, selected_default = True, \
+                                    callback = self.download_episode_list)
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
@@ -919,10 +971,23 @@ class gPodder(GladeWidget):
             thread = Thread( target = self.ipod_cleanup_proc, args = ( sync, ))
             thread.start()
 
+    def update_item_device( self):
+        gl = gPodderLib()
+
+        if gl.config.device_type != 'none':
+            self.itemDevice.show_all()
+            ( label, image ) = self.itemDevice.get_children()
+            label.set_text( gl.get_device_name())
+        else:
+            self.itemDevice.hide_all()
+
+    def properties_closed( self):
+        self.update_item_device()
+        self.updateComboBox()
+
     def on_itemPreferences_activate(self, widget, *args):
-        prop = gPodderProperties()
+        prop = gPodderProperties( callback_finished = self.properties_closed)
         prop.set_uar( self.user_apps_reader)
-        prop.set_callback_finished( self.updateComboBox)
 
     def on_itemAddChannel_activate(self, widget, *args):
         if self.channelPaned.get_position() < 200:
@@ -1305,7 +1370,9 @@ class gPodderChannel(GladeWidget):
 
 class gPodderProperties(GladeWidget):
     def new(self):
-        self.callback_finished = None
+        if not hasattr( self, 'callback_finished'):
+            self.callback_finished = None
+
         gl = gPodderLib()
 
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
@@ -1368,9 +1435,6 @@ class gPodderProperties(GladeWidget):
         # try to activate an item
         index = self.find_active()
         self.comboPlayerApp.set_active( index)
-    
-    def set_callback_finished( self, cb):
-        self.callback_finished = cb
     
     def find_active( self):
         model = self.comboPlayerApp.get_model()
@@ -1577,14 +1641,6 @@ class gPodderEpisode(GladeWidget):
 
         self.hide_show_widgets()
         services.download_status_manager.request_progress_detail( self.episode.url)
-
-        if hasattr( self, 'center_on_widget'):
-            ( x, y ) = self.gpodder_main_window.get_position()
-            a = self.center_on_widget.allocation
-            ( x, y ) = ( x + a.x, y + a.y )
-            ( w, h ) = ( a.width, a.height )
-            ( pw, ph ) = self.gPodderEpisode.get_size()
-            self.gPodderEpisode.move( x + w/2 - pw/2, y + h/2 - ph/2)
 
     def on_btnCancel_clicked( self, widget):
         services.download_status_manager.cancel_by_url( self.episode.url)
@@ -1831,6 +1887,189 @@ class gPodderOpmlLister(GladeWidget):
     def on_btnCancel_clicked(self, widget, *args):
         self.gPodderOpmlLister.destroy()
 
+
+class gPodderEpisodeSelector( GladeWidget):
+    """Episode selection dialog
+
+    Optional keyword arguments that modify the behaviour of this dialog:
+
+      - callback: Function that takes 1 parameter which is a list of
+                  the selected episodes (or empty list when none selected)
+      - episodes: List of episodes that are presented for selection
+      - selected: (optional) List of boolean variables that define the
+                  default checked state for the given episodes
+      - selected_default: (optional) The default boolean value for the
+                          checked state if no other value is set
+                          (default is False)
+      - columns: List of (name,caption) pairs for the columns, the name
+                 is the attribute name of the episode to be read from 
+                 each episode object and the caption attribute is the
+                 text that appear as column caption
+                 (default is [('title','Episode'),])
+      - title: (optional) The title of the window + heading
+      - instructions: (optional) A one-line text describing what the 
+                      user should select / what the selection is for
+      - stock_ok_button: (optional) Will replace the "OK" button with
+                         another GTK+ stock item to be used for the
+                         affirmative button of the dialog (e.g. can 
+                         be gtk.STOCK_DELETE when the episodes to be
+                         selected will be deleted after closing the 
+                         dialog)
+      - selection_buttons: (optional) A dictionary with labels as 
+                           keys and callbacks as values; for each
+                           key a button will be generated, and when
+                           the button is clicked, the callback will
+                           be called for each episode and the return
+                           value of the callback (True or False) will
+                           be the new selected state of the episode
+      - size_attribute: (optional) The name of an attribute of the 
+                        supplied episode objects that can be used to
+                        calculate the size of an episode; set this to
+                        None if no total size calculation should be
+                        done (in cases where total size is useless)
+                        (default is 'length')
+                           
+    """
+    COLUMN_TOGGLE = 0
+    COLUMN_ADDITIONAL = 1
+
+    def new( self):
+        if not hasattr( self, 'callback'):
+            self.callback = None
+
+        if not hasattr( self, 'episodes'):
+            self.episodes = []
+
+        if not hasattr( self, 'size_attribute'):
+            self.size_attribute = 'length'
+
+        if not hasattr( self, 'selection_buttons'):
+            self.selection_buttons = {}
+
+        if not hasattr( self, 'selected_default'):
+            self.selected_default = False
+
+        if not hasattr( self, 'selected'):
+            self.selected = [self.selected_default]*len(self.episodes)
+
+        if len(self.selected) < len(self.episodes):
+            self.selected += [self.selected_default]*(len(self.episodes)-len(self.selected))
+
+        if not hasattr( self, 'columns'):
+            self.columns = ( ('title', _('Episode')), )
+
+        if hasattr( self, 'title'):
+            self.gPodderEpisodeSelector.set_title( self.title)
+            self.labelHeading.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.title))
+
+        if hasattr( self, 'instructions'):
+            self.labelInstructions.set_text( self.instructions)
+            self.labelInstructions.show_all()
+
+        if hasattr( self, 'stock_ok_button'):
+            self.btnOK.set_label( self.stock_ok_button)
+            self.btnOK.set_use_stock( True)
+
+        toggle_cell = gtk.CellRendererToggle()
+        toggle_cell.connect( 'toggled', self.toggle_cell_handler)
+
+        self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
+
+        next_column = self.COLUMN_ADDITIONAL
+        for name, caption in self.columns:
+            renderer = gtk.CellRendererText()
+            if next_column > self.COLUMN_ADDITIONAL:
+                renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
+            column = gtk.TreeViewColumn( caption, renderer, text=next_column)
+            column.set_resizable( True)
+            column.set_expand( True)
+            self.treeviewEpisodes.append_column( column)
+            next_column += 1
+
+        column_types = [ gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
+        self.model = gtk.ListStore( *column_types)
+
+        for index, episode in enumerate( self.episodes):
+            row = [ self.selected[index] ]
+            for name, caption in self.columns:
+                row.append( getattr( episode, name))
+            self.model.append( row)
+
+        for label in self.selection_buttons:
+            button = gtk.Button( label)
+            button.connect( 'clicked', self.custom_selection_button_clicked)
+            self.hboxButtons.pack_start( button, expand = False)
+            button.show_all()
+
+        self.treeviewEpisodes.set_rules_hint( True)
+        self.treeviewEpisodes.set_model( self.model)
+        self.treeviewEpisodes.columns_autosize()
+        self.calculate_total_size()
+
+    def calculate_total_size( self):
+        if self.size_attribute is not None:
+            total_size = 0
+            for index, row in enumerate( self.model):
+                if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
+                    try:
+                        total_size += int(getattr( self.episodes[index], self.size_attribute))
+                    except:
+                        log( 'Cannot get size for %s', self.episodes[index].title, sender = self)
+            
+            if total_size > 0:
+                self.labelTotalSize.set_text( _('Total size: %s') % util.format_filesize( total_size))
+            else:
+                self.labelTotalSize.set_text( '')
+            self.labelTotalSize.show_all()
+        else:
+            self.labelTotalSize.hide_all()
+
+    def toggle_cell_handler( self, cell, path):
+        model = self.treeviewEpisodes.get_model()
+        model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
+
+        if self.size_attribute is not None:
+            self.calculate_total_size()
+
+    def custom_selection_button_clicked( self, button):
+        label = button.get_label()
+        callback = self.selection_buttons[label]
+
+        for index, row in enumerate( self.model):
+            new_value = callback( self.episodes[index])
+            self.model.set_value( row.iter, self.COLUMN_TOGGLE, new_value)
+
+        self.calculate_total_size()
+
+    def on_btnCheckAll_clicked( self, widget):
+        for row in self.model:
+            self.model.set_value( row.iter, self.COLUMN_TOGGLE, True)
+
+        self.calculate_total_size()
+
+    def on_btnCheckNone_clicked( self, widget):
+        for row in self.model:
+            self.model.set_value( row.iter, self.COLUMN_TOGGLE, False)
+
+        self.calculate_total_size()
+
+    def get_selected_episodes( self):
+        selected_episodes = []
+
+        for index, row in enumerate( self.model):
+            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
+                selected_episodes.append( self.episodes[index])
+
+        return selected_episodes
+
+    def on_btnOK_clicked( self, widget):
+        self.gPodderEpisodeSelector.destroy()
+        if self.callback is not None:
+            self.callback( self.get_selected_episodes())
+
+    def on_btnCancel_clicked( self, widget):
+        self.gPodderEpisodeSelector.destroy()
+ 
 
 def main():
     gobject.threads_init()
