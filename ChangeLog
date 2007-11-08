@@ -1,3 +1,9 @@
+Thu, 08 Nov 2007 11:28:17 +0100 <thp@perli.net>
+Fix offline cache behaviour when time is not set
+
+	* src/gpodder/cache.py: Return cached_content in offline mode when
+	cached_content "is not None" (instead of cached_time "is not None")
+
 Tue, 06 Nov 2007 12:37:41 +0100 <thp@perli.net>
 Process events before connecting Config to gtk windows
 

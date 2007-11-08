@@ -67,7 +67,7 @@ class Cache:
 
         cached_time, cached_content = self.storage.get(url, (None, None))
 
-        if offline and cached_time is not None:
+        if offline and cached_content is not None:
             return cached_content
 
         # Does the storage contain a version of the data
