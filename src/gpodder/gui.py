@@ -2007,6 +2007,7 @@ class gPodderEpisodeSelector( GladeWidget):
         self.calculate_total_size()
 
     def calculate_total_size( self):
+        gl = gPodderLib()
         if self.size_attribute is not None:
             total_size = 0
             for index, row in enumerate( self.model):
@@ -2017,7 +2018,7 @@ class gPodderEpisodeSelector( GladeWidget):
                         log( 'Cannot get size for %s', self.episodes[index].title, sender = self)
             
             if total_size > 0:
-                self.labelTotalSize.set_text( _('Total size: %s') % util.format_filesize( total_size))
+                self.labelTotalSize.set_text( _('Total size: %s') % gl.format_filesize( total_size))
             else:
                 self.labelTotalSize.set_text( '')
             self.labelTotalSize.show_all()

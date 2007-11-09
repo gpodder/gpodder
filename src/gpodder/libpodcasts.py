@@ -606,7 +606,8 @@ class podcastItem(object):
             log( 'Could not get filesize for %s.', self.url)
 
     def get_filesize_string( self):
-        return util.format_filesize( self.length)
+        gl = libgpodder.gPodderLib()
+        return gl.format_filesize( self.length)
 
     filesize_prop = property(fget=get_filesize_string)
 

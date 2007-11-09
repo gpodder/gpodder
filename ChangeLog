@@ -1,3 +1,15 @@
+Fri, 09 Nov 2007 10:05:36 +0100 <thp@perli.net>
+Fix format_filesize() usage in episodes selector and podcastItem
+
+	* src/gpodder/gui.py: Use the correct (config-using) format_filesize()
+	function to generate the total size string in the episode selector
+	* src/gpodder/libpodcasts.py: Use the correct (config-usig
+	format_filesize() function to generate the total size string in
+	podcastItem; thanks to Pieter De Decker <pdedecker@gmail.com> for
+	pointing that out
+	* data/gpodder.glade: Use "Preferences" instead of "Preferences..."
+	which feels a bit better in the GUI
+
 Thu, 08 Nov 2007 21:25:19 +0100 <thp@perli.net>
 Add "gPodder download folder synchronizer" scripts to repository
 
