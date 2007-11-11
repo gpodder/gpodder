@@ -1,3 +1,12 @@
+Sun, 11 Nov 2007 14:24:17 +0100 <thp@perli.net>
+Better file extension guessing for URLs
+
+	* src/gpodder/util.py: Improve file_extension_from_url() by adding
+	additional checks for known good extensions and recurse into the query
+	string if it looks like an URL; this should fix compatibility problems
+	for feeds with strange URLs; should provide more reliable guessing;
+	thanks to Nicolas Quienot <niqooo@gmail.com> for the bug report
+
 Fri, 09 Nov 2007 10:05:36 +0100 <thp@perli.net>
 Fix format_filesize() usage in episodes selector and podcastItem
 

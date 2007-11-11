@@ -245,10 +245,34 @@ def file_extension_from_url( url):
     Extracts the (lowercase) file name extension (with dot)
     from a URL, e.g. http://server.com/file.MP3?download=yes
     will result in the string ".mp3" being returned.
+
+    This function will also try to best-guess the "real" 
+    extension for a media file (audio, video, torrent) by 
+    trying to match an extension to these types and recurse
+    into the query string to find better matches, if the 
+    original extension does not resolve to a known type.
+
+    http://my.net/redirect.php?my.net/file.ogg => ".ogg"
+    http://server/get.jsp?file=/episode0815.MOV => ".mov"
     """
-    path = urlparse.urlparse( url)[2]
-    filename = urllib.unquote( os.path.basename( path))
-    return os.path.splitext( filename)[1].lower()
+    (scheme, netloc, path, para, query, fragid) = urlparse.urlparse(url)
+    filename = os.path.basename( urllib.unquote(path))
+    (filename, extension) = os.path.splitext(filename)
+
+    if file_type_by_extension(extension) != None:
+        # We have found a valid extension (audio, video, torrent)
+        return extension.lower()
+    
+    # If the query string looks like a possible URL, try that first
+    if len(query.strip()) > 0 and query.find('/') != -1:
+        query_url = '://'.join((scheme, urllib.unquote(query)))
+        query_extension = file_extension_from_url(query_url)
+
+        if file_type_by_extension(query_extension) != None:
+            return query_extension
+
+    # No exact match found, simply return the original extension
+    return extension.lower()
 
 
 def file_type_by_extension( extension):
@@ -269,6 +293,8 @@ def file_type_by_extension( extension):
 
     if extension[0] == '.':
         extension = extension[1:]
+
+    extension = extension.lower()
 
     for type in types:
         if extension in types[type]:
