@@ -1,3 +1,13 @@
+Mon, 12 Nov 2007 20:25:39 +0100 <thp@perli.net>
+Improve caching for HTTP redirects and minor errors; cache clean-up
+
+	* src/gpodder/cache.py: Cache content when it comes from a HTTP
+	redirect (301, 302, 307); cache feeds even with parsing errors, so we
+	can "fill" our cache and not download on every startup
+	* src/gpodder/libpodcasts.py: Add cache clean-up code after loading
+	channels; this should keep the feedcache.db file smaller for users
+	that like to try out new channels (or have used gPodder for a while)
+
 Sun, 11 Nov 2007 14:24:17 +0100 <thp@perli.net>
 Better file extension guessing for URLs
 

@@ -108,6 +108,13 @@ class podcastChannel(ListType):
     fc = cache.Cache( storage)
 
     @classmethod
+    def clear_cache(cls, urls_to_keep):
+        for url in cls.storage.keys():
+            if url not in urls_to_keep:
+                log('(podcastChannel) Removing old feed from cache: %s', url)
+                del cls.storage[url]
+
+    @classmethod
     def get_by_url( cls, url, force_update = False, offline = False):
         if isinstance( url, unicode):
             url = url.encode('utf-8')
@@ -694,12 +701,17 @@ def channelsToModel( channels):
 def load_channels( load_items = True, force_update = False, callback_proc = None, callback_url = None, callback_error = None, offline = False):
     importer = opml.Importer( libgpodder.gPodderLib().channel_opml_file)
     result = []
+
+    urls_to_keep = []
     count = 0
     for item in importer.items:
         callback_proc and callback_proc( count, len( importer.items))
         callback_url and callback_url( item['url'])
+        urls_to_keep.append(item['url'])
         result.append( podcastChannel.create_from_dict( item, load_items = load_items, force_update = force_update, callback_error = callback_error, offline = offline))
         count += 1
+
+    podcastChannel.clear_cache(urls_to_keep)
     return result
 
 def save_channels( channels):

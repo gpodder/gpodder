@@ -102,13 +102,16 @@ class Cache:
             # Return the data from the cache, since
             # the parsed data will be empty.
             parsed_result = cached_content
-        elif status == 200:
+        elif status in (200, 301, 302, 307):
             # There is new content, so store it unless there was an error.
+            # Store it regardless of errors when we don't have anything yet
             error = parsed_result.get('bozo_exception')
-            if not error:
-                self.storage[url] = (now, parsed_result)
-            else:
-                log( 'Not storing result: %s', str( error), sender = self)
+            if error:
+                log('Warning: %s (%s)', url, str(error), sender = self)
+
+            self.storage[url] = (now, parsed_result)
+        else:
+            log('Strange status code: %s ("%s")', url, status, sender = self)
 
         return parsed_result
 
