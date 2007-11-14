@@ -84,6 +84,7 @@ class Config(dict):
         self.__save_thread = None
         self.__filename = filename
         self.__section = 'gpodder-conf-1'
+        self.__ignore_window_events = False
 
         atexit.register( self.__atexit)
 
@@ -137,18 +138,25 @@ class Config(dict):
         ( x, y, width, height ) = map( lambda x: config_prefix + '_' + x, [ 'x', 'y', 'width', 'height' ])
         ( x_pos, y_pos ) = widget.get_position()
         ( width_size, height_size ) = widget.get_size()
-        setattr( self, x, x_pos)
-        setattr( self, y, y_pos)
-        setattr( self, width, width_size)
-        setattr( self, height, height_size)
+        if not self.__ignore_window_events:
+            setattr( self, x, x_pos)
+            setattr( self, y, y_pos)
+            setattr( self, width, width_size)
+            setattr( self, height, height_size)
+
+    def enable_window_events(self):
+        self.__ignore_window_events = False
+
+    def disable_window_events(self):
+        self.__ignore_window_events = True
 
     def connect_gtk_window( self, window, config_prefix = 'main_window'):
         ( x, y, width, height ) = map( lambda x: config_prefix + '_' + x, [ 'x', 'y', 'width', 'height' ])
         if set( ( x, y, width, height )).issubset( set( self.Settings)):
             window.resize( getattr( self, width), getattr( self, height))
             window.move( getattr( self, x), getattr( self, y))
-            while gtk.events_pending():
-                gtk.main_iteration( block = False)
+            self.disable_window_events()
+            gobject.idle_add(self.enable_window_events)
             window.connect( 'configure-event', self.receive_configure_event, config_prefix)
         else:
             raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))

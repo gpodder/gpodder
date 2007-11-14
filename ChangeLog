@@ -1,3 +1,10 @@
+Wed, 14 Nov 2007 19:17:51 +0100 <thp@perli.net>
+Ignore initial window events from GtkWindow in Config
+
+	* src/gpodder/config.py: Add a flag to config manager to ignore window
+	events until the window has been realized; then, start taking position
+	and size updates
+
 Mon, 12 Nov 2007 20:25:39 +0100 <thp@perli.net>
 Improve caching for HTTP redirects and minor errors; cache clean-up
 
