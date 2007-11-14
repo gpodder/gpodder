@@ -190,7 +190,12 @@ class podcastChannel(ListType):
         self.username = ''
         self.password = ''
 
+        self.update_save_dir_size()
+
         self.__tree_model = None
+
+    def update_save_dir_size(self):
+        self.save_dir_size = util.calculate_size(self.save_dir)
         
     def get_filename( self):
         """Return the MD5 sum of the channel URL"""
@@ -362,6 +367,7 @@ class podcastChannel(ListType):
 
     def update_model( self):
         new_episodes = self.get_new_episodes()
+        self.update_save_dir_size()
 
         iter = self.tree_model.get_iter_first()
         while iter != None:
@@ -413,6 +419,7 @@ class podcastChannel(ListType):
             new_iter = new_model.append( ( item.url, item.title, libgpodder.gPodderLib().format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, item.local_filename() ))
             self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
+        self.update_save_dir_size()
         return new_model
     
     def find_episode( self, url):
@@ -447,6 +454,16 @@ class podcastChannel(ListType):
         return os.path.join( self.save_dir, 'cover')
 
     cover_file = property(fget=get_cover_file)
+
+    def get_cover_pixbuf(self, size=128):
+        fn = self.cover_file
+        if os.path.exists(fn) and os.path.getsize(fn) > 0:
+            try:
+                return gtk.gdk.pixbuf_new_from_file_at_size(fn, size, size)
+            except:
+                pass
+
+        return None
 
     def delete_episode_by_url(self, url):
         global_lock.acquire()

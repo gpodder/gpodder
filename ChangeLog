@@ -1,3 +1,15 @@
+Wed, 14 Nov 2007 21:55:18 +0100 <thp@perli.net>
+Add informative tooltips to channel navigator
+
+	* src/gpodder/gui.py: Add tooltips to channel navigator that show a
+	bigger cover image, the title, description, url and used disk space
+	* src/gpodder/libpodcasts.py: Add save_dir_size property to
+	podcastChannel that contains the disk usage of the channel's save_dir;
+	this can be manually updated by calling update_save_dir_size() and
+	will automatically be updated when the GUI code hooks into the
+	channel; also add get_cover_pixbuf() that returns a pixbuf of the
+	cover for a given size or None if there is no valid cover file
+
 Wed, 14 Nov 2007 19:19:11 +0100 <thp@perli.net>
 Slipstream code (enumerate instead of simple position tracking)
 	* src/gpodder/libipodsync.py: Use enumerate() to iterate over a list

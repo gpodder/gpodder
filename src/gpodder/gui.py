@@ -199,6 +199,11 @@ class gPodder(GladeWidget):
         self.treeAvailable.set_rules_hint( True)
         self.treeChannels.set_rules_hint( True)
 
+        # connect to tooltip signals
+        self.treeChannels.set_property('has-tooltip', True)
+        self.treeChannels.connect('query-tooltip', self.treeview_channels_query_tooltip)
+        self.last_tooltip_channel = None
+
         # Add our context menu to treeAvailable
         self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
         self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
@@ -274,6 +279,29 @@ class gPodder(GladeWidget):
 
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.config.update_on_startup)
+
+    def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
+        # FIXME: Do not hardcode treeview header height
+        HEADER_HEIGHT = 25
+        (path, column, rx, ry) = treeview.get_path_at_pos( x, y-HEADER_HEIGHT) or (None,)*4
+
+        if path is not None:
+            model = treeview.get_model()
+            iter = model.get_iter(path)
+            url = model.get_value(iter, 0)
+            for channel in self.channels:
+                if channel.url == url:
+                    if self.last_tooltip_channel is not None and self.last_tooltip_channel != channel:
+                        self.last_tooltip_channel = None
+                        return False
+                    self.last_tooltip_channel = channel
+                    tooltip.set_icon(channel.get_cover_pixbuf())
+                    diskspace_str = _('Used disk space: %s') % util.format_filesize(channel.save_dir_size)
+                    tooltip.set_markup( '<b>%s</b>\n<small><i>%s</i></small>\n%s\n\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url), saxutils.escape(channel.description), diskspace_str))
+                    return True
+
+        self.last_tooltip_channel = None
+        return False
 
     def treeview_channels_button_pressed( self, treeview, event):
         if event.button == 3:
