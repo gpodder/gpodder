@@ -141,17 +141,14 @@ class gPodderSyncMethod:
         if episodes == None:
             episodes = channel
 
-        max = len( episodes)
-        pos = 0
-
-        for episode in episodes:
+        max = len(episodes)
+        for pos, episode in enumerate(episodes):
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
             if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
                 if not self.add_episode_from_channel( channel, episode):
                     return False
-            pos = pos + 1
         self.set_progress( pos, max)
 
         self.set_status( channel = _('Completed %s') % channel.title)
