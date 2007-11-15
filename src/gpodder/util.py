@@ -136,6 +136,16 @@ def calculate_size( path):
     return 0L
 
 
+def get_free_disk_space(path):
+    """
+    Calculates the free disk space available to the current user
+    on the file system that contains the given path.
+    """
+    s = os.statvfs(path)
+
+    return s.f_bavail * s.f_bsize
+
+
 def format_filesize( bytesize, use_si_units = False):
     """
     Formats the given size in bytes to be human-readable, 

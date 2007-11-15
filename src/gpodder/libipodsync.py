@@ -368,10 +368,22 @@ class gPodder_iPodSync( gPodderSyncMethod):
             status_text = _('Already on iPod: %s') % ( episode.title, )
             self.set_status( episode = status_text)
             return True
-        
-        log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
+
         original_filename = str( episode.local_filename())
         local_filename = original_filename
+
+        # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
+        RESERVED_FOR_ITDB = 1024*1024*10
+        space_for_track = util.get_free_disk_space(self.ipod_mount) - RESERVED_FOR_ITDB
+        needed = util.calculate_size(local_filename)
+
+        if needed > space_for_track:
+            log('Not enough space on %s: %s available, but need at least %s', self.ipod_mount, util.format_filesize(space_for_track), util.format_filesize(needed), sender = self)
+            self.errors.append( _('Error copying %s: Not enough free disk space on %s') % (episode.title, self.ipod_mount))
+            self.cancelled = True
+            return False
+        
+        log( '(ipodsync) Adding item: %s from %s', episode.title, channel.title)
         if libconverter.converters.has_converter( os.path.splitext( original_filename)[1][1:]):
             log('(ipodsync) Converting: %s', original_filename)
             callback_status = lambda percentage: self.set_episode_convert_status( episode.title, percentage)

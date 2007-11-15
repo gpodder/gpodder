@@ -1,3 +1,13 @@
+Thu, 15 Nov 2007 11:07:42 +0100 <thp@perli.net>
+Check free disk space before copying files to iPod
+
+	* src/gpodder/libipodsync.py: Check if the iPod's filesystem has
+	enough free disk space before copying files over to it, as to not
+	corrupt the iTunesDB in certain situations and fail when disk is full;
+	thanks to Nicolas Quienot <niqooo@gmail.com> for the bug report
+	* src/gpodder/util.py: Add get_free_disk_space() function that
+	calculates the free (user-available) disk space on a given path
+
 Wed, 14 Nov 2007 21:55:18 +0100 <thp@perli.net>
 Add informative tooltips to channel navigator
 
