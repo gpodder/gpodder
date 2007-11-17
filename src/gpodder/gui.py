@@ -200,8 +200,11 @@ class gPodder(GladeWidget):
         self.treeChannels.set_rules_hint( True)
 
         # connect to tooltip signals
-        self.treeChannels.set_property('has-tooltip', True)
-        self.treeChannels.connect('query-tooltip', self.treeview_channels_query_tooltip)
+        try:
+            self.treeChannels.set_property('has-tooltip', True)
+            self.treeChannels.connect('query-tooltip', self.treeview_channels_query_tooltip)
+        except:
+            log('No tooltips for channel navigator (need at least PyGTK 2.12)', sender = self)
         self.last_tooltip_channel = None
 
         # Add our context menu to treeAvailable
