@@ -1,3 +1,12 @@
+Thu, 22 Nov 2007 21:52:35 +0100 <thp@perli.net>
+Don't send Referer header when downloading episodes
+
+	* src/gpodder/download.py: Some podcasts now implement an
+	"anti-bandwidth-theft" code that should provide other websites from
+	not linking to the episodes; as we have sent a Referer header
+	containing the RSS feed URL, this causes problems; Referer header
+	sending is therefore disabled now
+
 Sun, 18 Nov 2007 15:33:50 +0100 <thp@perli.net>
 TODO items from Katy G. B.
 

@@ -58,7 +58,6 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         self.channel = channel
         urllib.FancyURLopener.__init__( self, proxies)
-        self.addheader( 'Referer', self.channel.url)
 
     def prompt_user_passwd( self, host, realm):
         if self.channel.username or self.channel.password:
