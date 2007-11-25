@@ -733,7 +733,7 @@ def load_channels( load_items = True, force_update = False, callback_proc = None
 
 def save_channels( channels):
     exporter = opml.Exporter( libgpodder.gPodderLib().channel_opml_file)
-    exporter.write( channels)
+    return exporter.write(channels)
 
 
 

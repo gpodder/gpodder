@@ -1,3 +1,15 @@
+Sun, 25 Nov 2007 11:50:46 +0100 <thp@perli.net>
+Make sure there is enough free disk space when saving OPML channel list
+
+	* src/gpodder/gui.py: Notify user that there's some problem saving the
+	current channel list when save_channels() return False
+	* src/gpodder/libpodcasts.py: Pass-through the return value of
+	gpodder.opml.Exporter.write so calling code knows if saving the
+	channel list was successful or not
+	* src/gpodder/opml.py: Check free disk space before saving OPML
+	channels in Exporter.write; thanks to Jens Thiele <karme@berlios.de>
+	for reporting this bug on the Debian BTS (Closes: Debian Bug #452490)
+
 Thu, 22 Nov 2007 21:52:35 +0100 <thp@perli.net>
 Don't send Referer header when downloading episodes
 

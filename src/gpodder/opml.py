@@ -36,6 +36,8 @@ or distribute gPodder's channel subscriptions.
 
 from gpodder.liblogger import log
 
+from gpodder import util
+
 import gtk
 import gobject
 
@@ -191,8 +193,17 @@ class Exporter(object):
         opml.appendChild( body)
 
         try:
+            data = doc.toxml(encoding='utf-8')
+            # We want to have at least 512 KiB free disk space after
+            # saving the opml data, if this is not possible, don't 
+            # try to save the new file, but keep the old one so we
+            # don't end up with a clobbed, empty opml file.
+            FREE_DISK_SPACE_AFTER = 1024*512
+            if util.get_free_disk_space(self.filename) < len(data)+FREE_DISK_SPACE_AFTER:
+                log('Not enough free disk space to save channel list to %s', self.filename, sender = self)
+                return False
             fp = open( self.filename, 'w')
-            fp.write( doc.toxml( encoding = 'utf-8'))
+            fp.write(data)
             fp.close()
         except:
             log( 'Could not open file for writing: %s', self.filename, sender = self)

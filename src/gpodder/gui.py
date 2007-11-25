@@ -809,7 +809,8 @@ class gPodder(GladeWidget):
 
     def close_gpodder(self, widget, *args):
         if self.channels:
-            save_channels( self.channels)
+            if not save_channels(self.channels):
+                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving channel list'))
 
         services.download_status_manager.cancel_all()
 
