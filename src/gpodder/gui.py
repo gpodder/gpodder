@@ -39,7 +39,7 @@ from gpodder import download
 from gpodder import SimpleGladeApp
 
 from libpodcasts import podcastChannel
-from libpodcasts import channelsToModel
+from libpodcasts import channels_to_model
 from libpodcasts import load_channels
 from libpodcasts import save_channels
 
@@ -180,18 +180,17 @@ class gPodder(GladeWidget):
 
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
-        namecolumn.add_attribute( iconcell, 'pixbuf', 8)
+        namecolumn.add_attribute( iconcell, 'pixbuf', 5)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn.pack_start( namecell, True)
-        namecolumn.add_attribute( namecell, 'markup', 7)
+        namecolumn.add_attribute( namecell, 'markup', 2)
         namecolumn.add_attribute( namecell, 'weight', 4)
 
-        newcell = gtk.CellRendererText()
-        namecolumn.pack_end( newcell, False)
-        namecolumn.add_attribute( newcell, 'text', 5)
-        namecolumn.add_attribute( newcell, 'weight', 4)
+        iconcell = gtk.CellRendererPixbuf()
+        namecolumn.pack_start( iconcell, False)
+        namecolumn.add_attribute( iconcell, 'pixbuf', 3)
 
         self.treeChannels.append_column( namecolumn)
 
@@ -579,7 +578,7 @@ class gPodder(GladeWidget):
             selected = (0,)
 
         rect = self.treeChannels.get_visible_rect()
-        self.treeChannels.set_model( channelsToModel( self.channels))
+        self.treeChannels.set_model(channels_to_model(self.channels))
         self.treeChannels.scroll_to_point( rect.x, rect.y)
         while gtk.events_pending():
             gtk.main_iteration( False)

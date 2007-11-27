@@ -1,3 +1,17 @@
+Tue, 27 Nov 2007 22:59:26 +0100 <thp@perli.net>
+Draw channel stats (unplayed, downloaded) on channel navigator
+
+	* bin/gpodder: We're in development again, so add "+svn"
+	* src/gpodder/draw.py: Added
+	* src/gpodder/gui.py: Fix import of renamed "channels_to_model";
+	re-assign new column numbers for treeChannels' data model; add
+	cell renderer for pill pixbuf and remove cell renderer for status text
+	* src/gpodder/libpodcasts.py: Add episode_is_new() function to
+	podcastChannel to check if an episode can be considered "new"; use the
+	episode_is_new function in get_new_episodes; add get_episode_stats()
+	after an idea from Paul Rudkin <paul@thegithouse.com>; re-factor
+	channels_to_model and clean out old, unused code and columns
+
 Mon, 26 Nov 2007 08:57:04 +0100 <thp@perli.net>
 gPodder 0.10.2 "Ein schweineschnauzen Sandwich, bitte!" released
 

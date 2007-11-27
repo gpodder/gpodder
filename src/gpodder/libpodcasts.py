@@ -36,7 +36,7 @@ from gpodder import util
 from gpodder import opml
 from gpodder import cache
 from gpodder import services
-
+from gpodder import draw
 
 from liblogger import log
 import libgpodder
@@ -266,7 +266,26 @@ class podcastChannel(ListType):
         for episode in self.load_downloaded_episodes():
             pubdate = episode.newer_pubdate( pubdate)
         return pubdate
+    
+    def episode_is_new(self, episode, last_pubdate = None):
+        gl = libgpodder.gPodderLib()
+        if last_pubdate is None:
+            last_pubdate = self.newest_pubdate_downloaded()
 
+        # episode is older than newest downloaded
+        if episode.compare_pubdate(last_pubdate) < 0:
+            return False
+
+        # episode has been downloaded before
+        if episode.is_downloaded() or gl.history_is_downloaded(episode.url):
+            return False
+
+        # download is currently in progress
+        if services.download_status_manager.is_download_in_progress(episode.url):
+            return False
+
+        return True
+    
     def get_new_episodes( self):
         last_pubdate = self.newest_pubdate_downloaded()
         gl = libgpodder.gPodderLib()
@@ -275,21 +294,9 @@ class podcastChannel(ListType):
             return self[0:min(len(self),gl.config.default_new)]
 
         new_episodes = []
-
         for episode in self.get_all_episodes():
-            # episode is older than newest downloaded
-            if episode.compare_pubdate( last_pubdate) < 0:
-                continue
-
-            # episode has been downloaded before
-            if episode.is_downloaded() or gl.history_is_downloaded( episode.url):
-                continue
-
-            # download is currently in progress
-            if services.download_status_manager.is_download_in_progress( episode.url):
-                continue
-
-            new_episodes.append( episode)
+            if self.episode_is_new(episode, last_pubdate):
+                new_episodes.append(episode)
 
         return new_episodes
 
@@ -361,7 +368,24 @@ class podcastChannel(ListType):
         episodes.sort( reverse = True)
 
         return episodes
+    
 
+    def get_episode_stats( self):
+        (available, downloaded, newer, unplayed) = (0, 0, 0, 0)
+        last_pubdate = self.newest_pubdate_downloaded()
+
+        for episode in self.get_all_episodes():
+            available += 1
+            if self.episode_is_new(episode, last_pubdate):
+                newer += 1
+            if episode.is_downloaded():
+                downloaded += 1
+                if not self.is_played(episode):
+                    unplayed += 1
+
+        return (available, downloaded, newer, unplayed)
+
+        
     def force_update_tree_model( self):
         self.__tree_model = None
 
@@ -656,42 +680,32 @@ class podcastItem(object):
 
 
 
-def channelsToModel( channels):
-    new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_INT, gobject.TYPE_STRING, gtk.gdk.Pixbuf)
-    pos = 0
+def channels_to_model(channels):
+    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf)
     
     for channel in channels:
-        new_episodes = channel.get_new_episodes()
-        count = len(channel)
-        count_new = len(new_episodes)
-
+        (count_available, count_downloaded, count_new, count_unplayed) = channel.get_episode_stats()
+        
         new_iter = new_model.append()
-        new_model.set( new_iter, 0, channel.url)
-        new_model.set( new_iter, 1, channel.title)
+        new_model.set(new_iter, 0, channel.url)
+        new_model.set(new_iter, 1, channel.title)
 
-        new_model.set( new_iter, 2, count)
-        if count_new == 0:
-            new_model.set( new_iter, 3, '')
-        elif count_new == 1:
-            new_model.set( new_iter, 3, _('New episode: %s') % ( new_episodes[-1].title ) + ' ')
-        else:
-            new_model.set( new_iter, 3, _('%s new episodes') % count_new + ' ')
+        title_markup = saxutils.escape(channel.title)
+        description_markup = saxutils.escape(util.get_first_line(channel.description))
+        new_model.set(new_iter, 2, '%s\n<small>%s</small>' % (title_markup, description_markup))
 
-        if count_new:
+        if count_unplayed > 0 or count_downloaded > 0:
+            new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
+
+        if count_new > 0:
             new_model.set( new_iter, 4, pango.WEIGHT_BOLD)
-            new_model.set( new_iter, 5, str(count_new))
         else:
             new_model.set( new_iter, 4, pango.WEIGHT_NORMAL)
-            new_model.set( new_iter, 5, '')
-
-        new_model.set( new_iter, 6, pos)
-
-        new_model.set( new_iter, 7, '%s\n<small>%s</small>' % ( saxutils.escape( channel.title), saxutils.escape( channel.description.split('\n')[0]), ))
 
         channel_cover_found = False
         if os.path.exists( channel.cover_file) and os.path.getsize(channel.cover_file) > 0:
             try:
-                new_model.set( new_iter, 8, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
+                new_model.set( new_iter, 5, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
                 channel_cover_found = True
             except: 
                 exctype, value = sys.exc_info()[:2]
@@ -704,12 +718,10 @@ def channelsToModel( channels):
             icon_theme = gtk.icon_theme_get_default()
             globe_icon_name = 'applications-internet'
             try:
-                new_model.set( new_iter, 8, icon_theme.load_icon(globe_icon_name, iconsize, 0))
+                new_model.set( new_iter, 5, icon_theme.load_icon(globe_icon_name, iconsize, 0))
             except:
                 log( 'Cannot load "%s" icon (using an old or incomplete icon theme?)', globe_icon_name)
-                new_model.set( new_iter, 8, None)
-
-        pos = pos + 1
+                new_model.set( new_iter, 5, None)
     
     return new_model
 
