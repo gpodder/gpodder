@@ -70,6 +70,8 @@ def normalize_feed_url( url):
     Converts any URL to http:// or ftp:// so that it can be 
     used with "wget". If the URL cannot be converted (invalid
     or unknown scheme), "None" is returned.
+
+    This will also normalize feed:// and itpc:// to http://
     """
     if not url or len( url) < 8:
         return None
@@ -77,7 +79,7 @@ def normalize_feed_url( url):
     if url.startswith( 'http://') or url.startswith( 'https://') or url.startswith( 'ftp://'):
         return url
 
-    if url.startswith( 'feed://'):
+    if url.startswith('feed://') or url.startswith('itpc://'):
         return 'http://' + url[7:]
 
     return None
