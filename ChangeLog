@@ -1,3 +1,10 @@
+Sat, 01 Dec 2007 15:19:29 +0100 <thp@perli.net>
+Fix a fatal bug with first-run that prevents channel list saving
+
+	* src/gpodder/util.py: Always use a file's parent directory to get the
+	free disk space and return zero free disk space when the parent
+	directory does not exist
+
 Thu, 29 Nov 2007 08:53:36 +0100 <thp@perli.net>
 Support for itpc:// URLs
 
