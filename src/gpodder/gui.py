@@ -676,7 +676,7 @@ class gPodder(GladeWidget):
         # update model for played state updates after sync
         for channel in self.channels:
             gobject.idle_add( channel.update_model)
-        gobject.idle_add( self.updateTreeView)
+        gobject.idle_add( self.updateComboBox)
 
     def ipod_cleanup_proc( self, sync):
         if not sync.open():
