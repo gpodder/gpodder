@@ -1,3 +1,14 @@
+Mon, 03 Dec 2007 21:24:17 +0100 <thp@perli.net>
+Add option to mark episodes as played after transfer to device
+
+	* data/gpodder.glade: Option added to preferences dialog
+	* src/gpodder/config.py: Add option "on_sync_mark_played"; will mark
+	an episode as played when it gets transferred to a device
+	* src/gpodder/gui.py: Glue code for GUI + gpodder.config
+	* src/gpodder/libipodsync.py: On sync, mark episode as played if the
+	user has selected the "on_sync_mark_played" option
+	* TODO: Remove implemented/integrated items
+
 Sat, 01 Dec 2007 15:19:29 +0100 <thp@perli.net>
 Fix a fatal bug with first-run that prevents channel list saving
 

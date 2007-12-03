@@ -161,6 +161,11 @@ class gPodderSyncMethod:
 
         if channel.is_music_channel:
             channeltext = _('%s (to "%s")') % ( channel.title, channel.device_playlist_name )
+        
+        gl = libgpodder.gPodderLib()
+        if gl.config.on_sync_mark_played:
+            log('Marking as played on transfer: %s', episode.url, sender = self)
+            gl.history_mark_played(episode.url)
 
         self.set_episode_status( episode.title)
         self.set_channel_status( channeltext)

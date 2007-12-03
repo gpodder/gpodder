@@ -2877,7 +2877,7 @@
 	    <widget class="GtkTable" id="table5">
 	      <property name="border_width">10</property>
 	      <property name="visible">True</property>
-	      <property name="n_rows">10</property>
+	      <property name="n_rows">11</property>
 	      <property name="n_columns">4</property>
 	      <property name="homogeneous">False</property>
 	      <property name="row_spacing">5</property>
@@ -2985,50 +2985,6 @@
 		  <property name="x_padding">6</property>
 		  <property name="x_options"></property>
 		  <property name="y_options">fill</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkCheckButton" id="cbCustomSyncName">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Custom filename:</property>
-		  <property name="use_underline">True</property>
-		  <property name="relief">GTK_RELIEF_NORMAL</property>
-		  <property name="focus_on_click">True</property>
-		  <property name="active">False</property>
-		  <property name="inconsistent">False</property>
-		  <property name="draw_indicator">True</property>
-		  <signal name="toggled" handler="on_cbCustomSyncName_toggled" last_modification_time="Sat, 08 Sep 2007 13:58:49 GMT"/>
-		</widget>
-		<packing>
-		  <property name="left_attach">1</property>
-		  <property name="right_attach">2</property>
-		  <property name="top_attach">7</property>
-		  <property name="bottom_attach">8</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options"></property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkEntry" id="entryCustomSyncName">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="editable">True</property>
-		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes"></property>
-		  <property name="has_frame">True</property>
-		  <property name="invisible_char">●</property>
-		  <property name="activates_default">False</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">2</property>
-		  <property name="right_attach">3</property>
-		  <property name="top_attach">7</property>
-		  <property name="bottom_attach">8</property>
-		  <property name="y_options"></property>
 		</packing>
 	      </child>
 
@@ -3259,28 +3215,6 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkCheckButton" id="only_sync_not_played">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Only sync tracks that have not been played</property>
-		  <property name="use_underline">True</property>
-		  <property name="relief">GTK_RELIEF_NORMAL</property>
-		  <property name="focus_on_click">True</property>
-		  <property name="active">False</property>
-		  <property name="inconsistent">False</property>
-		  <property name="draw_indicator">True</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">1</property>
-		  <property name="right_attach">4</property>
-		  <property name="top_attach">6</property>
-		  <property name="bottom_attach">7</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options"></property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkLabel" id="labelSyncOptions">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">&lt;b&gt;Synchronization Options&lt;/b&gt;</property>
@@ -3309,6 +3243,73 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
+		<widget class="GtkCheckButton" id="cbChannelSubfolder">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">If checked, a subfolder will be created for each channel synchronized. If not checked, all episodes will be copied directly to the folder specified by &quot;Sync to folder:&quot;.</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Create a subfolder for each channel</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">9</property>
+		  <property name="bottom_attach">10</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="cbCustomSyncName">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Custom filename:</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		  <signal name="toggled" handler="on_cbCustomSyncName_toggled" last_modification_time="Sat, 08 Sep 2007 13:58:49 GMT"/>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkEntry" id="entryCustomSyncName">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">0</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">True</property>
+		  <property name="invisible_char">●</property>
+		  <property name="activates_default">False</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">2</property>
+		  <property name="right_attach">3</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkButton" id="btnCustomSyncNameHelp">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
@@ -3331,8 +3332,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">3</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">7</property>
-		  <property name="bottom_attach">8</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -3352,7 +3353,7 @@ Filesystem-based MP3 player</property>
 		  <property name="left_attach">0</property>
 		  <property name="right_attach">1</property>
 		  <property name="top_attach">6</property>
-		  <property name="bottom_attach">9</property>
+		  <property name="bottom_attach">10</property>
 		  <property name="x_padding">6</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options">fill</property>
@@ -3360,11 +3361,10 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkCheckButton" id="cbChannelSubfolder">
+		<widget class="GtkCheckButton" id="only_sync_not_played">
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">If checked, a subfolder will be created for each channel synchronized. If not checked, all episodes will be copied directly to the folder specified by &quot;Sync to folder:&quot;.</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Create a subfolder for each channel</property>
+		  <property name="label" translatable="yes">Only sync tracks that have not been played</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -3375,8 +3375,31 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">1</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">8</property>
-		  <property name="bottom_attach">9</property>
+		  <property name="top_attach">6</property>
+		  <property name="bottom_attach">7</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="on_sync_mark_played">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">If checked, gPodder will update the status of the episode as if it has been played locally after copying it to your device</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Mark episodes as played after synchronization</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">7</property>
+		  <property name="bottom_attach">8</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>

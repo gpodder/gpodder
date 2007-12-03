@@ -1416,7 +1416,8 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton( 'use_gnome_bittorrent', self.radio_gnome_bittorrent)
         gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
-        gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self. cbChannelSubfolder)
+        gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
+        gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
         gl.config.connect_gtk_spinbutton( 'max_downloads', self.spinMaxDownloads)
         gl.config.connect_gtk_togglebutton( 'max_downloads_enabled', self.cbMaxDownloads)
         gl.config.connect_gtk_spinbutton( 'limit_rate_value', self.spinLimitDownloads)
@@ -1541,7 +1542,8 @@ class gPodderProperties(GladeWidget):
 
         # None
         sync_widgets = ( self.only_sync_not_played, self.labelSyncOptions,
-                         self.imageSyncOptions, self. separatorSyncOptions )
+                         self.imageSyncOptions, self. separatorSyncOptions,
+                         self.on_sync_mark_played )
         for widget in sync_widgets:
             if active_item == 0:
                 widget.hide_all()
