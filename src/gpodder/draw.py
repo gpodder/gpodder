@@ -60,14 +60,6 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
         ctx.line_to(x+left_side_width, y+h)
 
 
-def set_gtk_color(ctx, col, opacity=1.0, invert=False):
-    # Convert color values 0..65535 -> 0.0..1.0
-    (r, g, b) = map(lambda c: c/65535.0, (col.red, col.green, col.blue))
-    if invert == True:
-        (r, g, b) = (1.0-r, 1.0-g, 1.0-b)
-    ctx.set_source_rgba( r, g, b, opacity)
-
-
 def draw_text_pill(left_text, right_text, x=0, y=0, border=3, radius=11):
     # Create temporary context to calculate the text size
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
@@ -75,9 +67,6 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=3, radius=11):
     # Use GTK+ style of a normal Button
     widget = gtk.ProgressBar()
     style = widget.rc_get_style()
-
-    bg_color = style.bg[gtk.STATE_SELECTED]
-    text_color = style.text[gtk.STATE_SELECTED]
 
     font_desc = style.font_desc
     font_size = float(font_desc.get_size())/float(pango.SCALE)
@@ -110,26 +99,26 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=3, radius=11):
     rect_height = text_height + border*2
     if left_text is not None:
         draw_rounded_rectangle(ctx,x,y,rect_width,rect_height,radius, left_side_width, RRECT_LEFT_SIDE)
-        set_gtk_color(ctx, bg_color, 0.5)
+        ctx.set_source_rgba( 0, 0, 0, 0.5)
         ctx.fill()
 
         ctx.move_to(x+1+border-left_text_e.x_bearing, y+1+border+text_height)
-        set_gtk_color(ctx, text_color, invert=True)
+        ctx.set_source_rgba( 0, 0, 0, 1)
         ctx.show_text(left_text)
         ctx.move_to(x+border-left_text_e.x_bearing, y+border+text_height)
-        set_gtk_color(ctx, text_color)
+        ctx.set_source_rgba( 1, 1, 1, 1)
         ctx.show_text(left_text)
 
     if right_text is not None:
         draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE)
-        set_gtk_color(ctx, bg_color)
+        ctx.set_source_rgba( 0, 0, 0, 0.7)
         ctx.fill()
 
         ctx.move_to(x+1+border*3+left_text_e.width-right_text_e.x_bearing, y+1+border+text_height)
-        set_gtk_color(ctx, text_color, invert=True)
+        ctx.set_source_rgba( 0, 0, 0, 1)
         ctx.show_text(right_text)
         ctx.move_to(x+border*3+left_text_e.width-right_text_e.x_bearing, y+border+text_height)
-        set_gtk_color(ctx, text_color)
+        ctx.set_source_rgba( 1, 1, 1, 1)
         ctx.show_text(right_text)
 
     return surface
