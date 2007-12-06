@@ -1,3 +1,13 @@
+Thu, 06 Dec 2007 08:35:12 +0100 <thp@perli.net>
+Sort channel list (finally ;)
+
+	* src/gpodder/libpodcasts.py: Sort channels by lowercase title before
+	returning the channel list in load_channels(); this automagically
+	makes gPodder's channel list always sorted :)
+	Thanks to FriedBunny <friedbunny@kulturny.com> for suggesting this and
+	sending in an intial patch that led to this patch =)
+	* TODO: Remove implemented item: Sort channel list
+
 Tue, 04 Dec 2007 23:28:27 +0100 <thp@perli.net>
 Do grayscale "pill" instead of theme-based colors (for bad themes)
 

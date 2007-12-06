@@ -741,6 +741,7 @@ def load_channels( load_items = True, force_update = False, callback_proc = None
         count += 1
 
     podcastChannel.clear_cache(urls_to_keep)
+    result.sort(key=lambda x:x.title.lower())
     return result
 
 def save_channels( channels):
