@@ -77,11 +77,17 @@ def normalize_feed_url( url):
     or unknown scheme), "None" is returned.
 
     This will also normalize feed:// and itpc:// to http://
+    Also supported are phobos.apple.com links (iTunes podcast)
+    and itms:// links (iTunes podcast direct link).
     """
 
     if not url or len( url) < 8:
         return None
 
+    if url.startswith('itms://'):
+        url = parse_itunes_xml(url)
+
+    # Links to "phobos.apple.com"
     url = itunes_discover_rss(url)
     if url is None:
         return None
@@ -472,10 +478,10 @@ def find_command( command):
     return None
 
 
-def parse_itunes_xml(doc):
+def parse_itunes_xml(url):
     """
-    Parses an XML document in the "doc" parameter (this has to be
-    a string containing the XML document) and searches all "<dict>"
+    Parses an XML document in the "url" parameter (this has to be
+    a itms:// or http:// URL to a XML doc) and searches all "<dict>"
     elements for the first occurence of a "<key>feedURL</key>"
     element and then continues the search for the string value of
     this key.
@@ -483,6 +489,8 @@ def parse_itunes_xml(doc):
     This returns the RSS feed URL for Apple iTunes Podcast XML
     documents that are retrieved by itunes_discover_rss().
     """
+    url = url.replace('itms://', 'http://')
+    doc = http_get_and_gunzip(url)
     d = xml.dom.minidom.parseString(doc)
     last_key = None
     for pairs in d.getElementsByTagName('dict'):
@@ -539,9 +547,7 @@ def itunes_discover_rss(url):
     try:
         data = http_get_and_gunzip(url)
         (url,) = re.findall("itmsOpen\('([^']*)", data)
-        url = url.replace('itms://', 'http://')
-        feed_data = http_get_and_gunzip(url)
-        return parse_itunes_xml(feed_data)
+        return parse_itunes_xml(url)
     except:
         return None
 

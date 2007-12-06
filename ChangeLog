@@ -1,3 +1,11 @@
+Thu, 06 Dec 2007 09:37:57 +0100 <thp@perli.net>
+Support for itms:// links (direct links to the Apple iTunes Music Store)
+
+	* src/gpodder/util.py: Support direct itms:// links by splitting out
+	the iTunes Podcast links parsing routines. This should put us in for
+	some nice iTunes podcast link support that will automagically
+	translate iTunes podcast links to the correct RSS feed URL
+
 Thu, 06 Dec 2007 09:29:09 +0100 <thp@perli.net>
 Support for iTunes Podcast links (http://phobos.apple.com/...)
 
