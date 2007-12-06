@@ -42,9 +42,14 @@ import re
 import htmlentitydefs
 import time
 import locale
+import gzip
 
 import urlparse
 import urllib
+import urllib2
+
+import StringIO
+import xml.dom.minidom
 
 
 def make_directory( path):
@@ -73,7 +78,12 @@ def normalize_feed_url( url):
 
     This will also normalize feed:// and itpc:// to http://
     """
+
     if not url or len( url) < 8:
+        return None
+
+    url = itunes_discover_rss(url)
+    if url is None:
         return None
     
     if url.startswith( 'http://') or url.startswith( 'https://') or url.startswith( 'ftp://'):
@@ -460,4 +470,79 @@ def find_command( command):
             return command_file
         
     return None
+
+
+def parse_itunes_xml(doc):
+    """
+    Parses an XML document in the "doc" parameter (this has to be
+    a string containing the XML document) and searches all "<dict>"
+    elements for the first occurence of a "<key>feedURL</key>"
+    element and then continues the search for the string value of
+    this key.
+
+    This returns the RSS feed URL for Apple iTunes Podcast XML
+    documents that are retrieved by itunes_discover_rss().
+    """
+    d = xml.dom.minidom.parseString(doc)
+    last_key = None
+    for pairs in d.getElementsByTagName('dict'):
+        for node in pairs.childNodes:
+            if node.nodeType != node.ELEMENT_NODE:
+                continue
+
+            if node.tagName == 'key' and node.childNodes.length > 0:
+                if node.firstChild.nodeType == node.TEXT_NODE:
+                    last_key = node.firstChild.data
+
+            if last_key != 'feedURL':
+                continue
+
+            if node.tagName == 'string' and node.childNodes.length > 0:
+                if node.firstChild.nodeType == node.TEXT_NODE:
+                    return node.firstChild.data
+
+    return None
+
+
+def http_get_and_gunzip(uri):
+    """
+    Does a HTTP GET request and tells the server that we accept
+    gzip-encoded data. This is necessary, because the Apple iTunes
+    server will always return gzip-encoded data, regardless of what
+    we really request.
+
+    Returns the uncompressed document at the given URI.
+    """
+    request = urllib2.Request(uri)
+    request.add_header("Accept-encoding", "gzip")
+    usock = urllib2.urlopen(request)
+    data = usock.read()
+    if usock.headers.get('content-encoding', None) == 'gzip':
+        data = gzip.GzipFile(fileobj=StringIO.StringIO(data)).read()
+    return data
+
+
+def itunes_discover_rss(url):
+    """
+    Takes an iTunes-specific podcast URL and turns it
+    into a "normal" RSS feed URL. If the given URL is
+    not a phobos.apple.com URL, we will simply return
+    the URL and assume it's already an RSS feed URL.
+
+    Idea from Andrew Clarke's itunes-url-decoder.py
+    """
+
+    if not 'phobos.apple.com' in url.lower():
+        # This doesn't look like an iTunes URL
+        return url
+
+    try:
+        data = http_get_and_gunzip(url)
+        (url,) = re.findall("itmsOpen\('([^']*)", data)
+        url = url.replace('itms://', 'http://')
+        feed_data = http_get_and_gunzip(url)
+        return parse_itunes_xml(feed_data)
+    except:
+        return None
+
 
