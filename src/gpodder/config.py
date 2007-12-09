@@ -130,7 +130,7 @@ class Config(dict):
 
     def connect_gtk_filechooser( self, name, filechooser):
         if name in self.Settings:
-            filechooser.set_filename( getattr( self, name))
+            filechooser.set_current_folder(getattr( self, name))
             filechooser.connect( 'selection-changed', lambda filechooser: setattr( self, name, filechooser.get_filename()))
         else:
             raise ValueError( '%s is not a setting' % name)

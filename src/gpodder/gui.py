@@ -1430,7 +1430,7 @@ class gPodderProperties(GladeWidget):
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
-        self.chooserDownloadTo.set_filename( gl.downloaddir)
+        self.chooserDownloadTo.set_current_folder(gl.downloaddir)
 
         if tagging_supported():
             gl.config.connect_gtk_togglebutton( 'update_tags', self.updatetags)
@@ -1573,7 +1573,7 @@ class gPodderProperties(GladeWidget):
         fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
         gl = gPodderLib()
-        fs.set_filename( self.iPodMountpoint.get_label())
+        fs.set_current_folder(self.iPodMountpoint.get_label())
         if fs.run() == gtk.RESPONSE_OK:
             self.iPodMountpoint.set_label( fs.get_filename())
         fs.destroy()
@@ -1583,7 +1583,7 @@ class gPodderProperties(GladeWidget):
         fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
         gl = gPodderLib()
-        fs.set_filename( self.filesystemMountpoint.get_label())
+        fs.set_current_folder(self.filesystemMountpoint.get_label())
         if fs.run() == gtk.RESPONSE_OK:
             self.filesystemMountpoint.set_label( fs.get_filename())
         fs.destroy()
