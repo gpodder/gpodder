@@ -1,3 +1,11 @@
+Sun, 09 Dec 2007 16:45:11 +0100 <thp@perli.net>
+Make has_converter() a bit more intelligent in detecting extensions
+
+	* src/gpodder/libconverter.py: Convert given extension to lowercase
+	and strip a leading "." from the extension, so calling code can also
+	give the second value of the os.path.splitext() result directly to
+	has_converter()
+
 Sun, 09 Dec 2007 13:20:49 +0100 <thp@perli.net>
 Fix pre-setting code for filechooser buttons; Patch by Paul Rudkin
 

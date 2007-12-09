@@ -66,11 +66,14 @@ class ConverterCollection( types.DictType):
         else:
             log( 'Could not find "%s", ".%s" files cannot be converted.' % ( command, extension ), sender = self)
 
-    def has_converter( self, extension):
-        if util.find_command( 'lame') != None:
-            return self.has_key( extension.lower())
+    def has_converter(self, extension):
+        if util.find_command('lame') is not None:
+            extension = extension.lower()
+            if extension[0] == '.':
+                extension = extension[1:]
+            return self.has_key(extension)
         else:
-            log( 'Please install the "lame" package to convert files.', sender = self)
+            log('Please install the "lame" package to convert files.', sender=self)
             return False
 
     def convert( self, input_filename, output_filename = None, callback = None):
