@@ -48,6 +48,7 @@ gPodderSettings = {
     'limit_rate': ( bool, False ),
     'limit_rate_value': ( float, 500.0 ),
     'bittorrent_dir': ( str, os.path.expanduser( '~/gpodder-downloads/torrents') ),
+    'episode_old_age': ( int, 7 ),
 
     # Boolean config flags
     'update_on_startup': ( bool, False ),

@@ -37,12 +37,14 @@ import gtk
 import os
 import os.path
 import glob
+import stat
 
 import re
 import htmlentitydefs
 import time
 import locale
 import gzip
+import datetime
 
 import urlparse
 import urllib
@@ -152,6 +154,24 @@ def calculate_size( path):
         return sum
 
     return 0L
+
+
+def file_modification_datetime(filename):
+    """
+    Returns the modification date of the specified file
+    as a datetime.datetime object or None if the modification
+    date cannot be determined.
+    """
+    if not os.access(filename, os.R_OK):
+        return None
+
+    try:
+        s = os.stat(filename)
+        timestamp = s[stat.ST_MTIME]
+        return datetime.datetime.fromtimestamp(timestamp)
+    except:
+        log('Cannot get modification timestamp for %s', filename)
+        return None
 
 
 def get_free_disk_space(path):

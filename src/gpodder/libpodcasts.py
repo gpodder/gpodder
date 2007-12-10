@@ -339,9 +339,6 @@ class podcastChannel(ListType):
             
         global_lock.release()
         return not already_in_list
-    
-    def is_played(self, item):
-        return libgpodder.gPodderLib().history_is_played( item.url)
 
     def get_all_episodes( self):
         episodes = []
@@ -380,7 +377,7 @@ class podcastChannel(ListType):
                 newer += 1
             if episode.is_downloaded():
                 downloaded += 1
-                if not self.is_played(episode):
+                if not episode.is_played():
                     unplayed += 1
 
         return (available, downloaded, newer, unplayed)
@@ -555,6 +552,32 @@ class podcastItem(object):
         self.channel = channel
         self.pubDate = ''
 
+    def is_played(self):
+        gl = libgpodder.gPodderLib()
+        return gl.history_is_played(self.url)
+
+    def age_in_days(self):
+        dt = util.file_modification_datetime(self.local_filename())
+        if dt is None:
+            return 0
+        else:
+            return (datetime.now()-dt).days
+
+    def is_old(self):
+        gl = libgpodder.gPodderLib()
+        return self.age_in_days() > gl.config.episode_old_age
+    
+    def get_age_string(self):
+        age = self.age_in_days()
+        if age == 1:
+            return _('one day ago')
+        elif age > 1:
+            return _('%d days ago') % age
+        else:
+            return ''
+
+    age_prop = property(fget=get_age_string)
+
     def one_line_description( self):
         lines = self.description.strip().splitlines()
         if not lines or lines[0] == '':
@@ -665,7 +688,7 @@ class podcastItem(object):
     channel_prop = property(fget=get_channel_title)
 
     def get_played_string( self):
-        if not self.channel.is_played( self):
+        if not self.is_played():
             return _('Unplayed')
         
         return ''

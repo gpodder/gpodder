@@ -1,3 +1,29 @@
+Mon, 10 Dec 2007 09:33:26 +0100 <thp@perli.net>
+Selective iPod episode clean-up; "delete older than X days"
+
+	* src/gpodder/config.py: Add episode_old_age configuration variable;
+	is an integer, defaults to 7. This is the number of days after which
+	an episode will be considered "old"
+	* src/gpodder/gui.py: iPod cleanup is now done selectively using the
+	episode selector dialog; the code has been split, because we do not
+	yet have an episode selector dialog for FS-based sync; add "Downloaded
+	x days ago" column to "Delete old episodes" dialog and a corresponding
+	button; call the callback even when no episodes are selected in
+	gPodderEpisodeSelector
+	* src/gpodder/libipodsync.py: Class variables of gPodder_iPodSync
+	moved to __init__ to be instance variables (this should fix a bug that
+	crops up now that we can selectively delete episodes); remove_tracks()
+	and clean_playlist() have been modified/added to support new episode
+	selector deletion code
+	* src/gpodder/libpodcasts.py: Move is_played() to podcastItem from
+	podcastChannel (it really belongs to the item; this makes code more
+	readable in other parts of the codebase); add age_in_days(), is_old(),
+	get_age_string() and age_prop to podcastItem
+	* src/gpodder/util.py: New function: file_modification_datetime();
+	returns a datetime.datetime instance of the MTIME (modification
+	timestamp) of the filename given as parameter or None if the filename
+	cannot be determined; this is used for the "old episodes" feature
+
 Sun, 09 Dec 2007 16:45:11 +0100 <thp@perli.net>
 Make has_converter() a bit more intelligent in detecting extensions
 

@@ -146,7 +146,7 @@ class gPodderSyncMethod:
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
-            if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not channel.is_played( episode)):
+            if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not episode.is_played()):
                 if not self.add_episode_from_channel( channel, episode):
                     return False
         self.set_progress( pos, max)
@@ -184,17 +184,15 @@ class gPodderSyncMethod:
 
 
 class gPodder_iPodSync( gPodderSyncMethod):
-    itdb = None
-    ipod_mount = '' # mountpoint for ipod
-    playlist_name = 'gpodder' # name of playlist to sync to
-    pl_master = None
-    pl_podcasts = None
-
     def __init__( self, callback_progress = None, callback_status = None, callback_done = None):
         if not ipod_supported():
             log( '(ipodsync) iPod functions not supported. (libgpod + eyed3 needed)')
         gl = libgpodder.gPodderLib()
         self.ipod_mount = gl.config.ipod_mount
+        self.itdb = None
+        self.playlist_name = 'gpodder' # name of playlist to sync to
+        self.pl_master = None
+        self.pl_podcasts = None
         gPodderSyncMethod.__init__( self, callback_progress, callback_status, callback_done)
     
     def open( self):
@@ -295,13 +293,17 @@ class gPodder_iPodSync( gPodderSyncMethod):
                 return True
         
         return False
+    
+    def remove_tracks(self, tracklist=[]):
+        for track in tracklist:
+            log( '(ipodsync) Trying to remove: %s', track.title)
+            self.remove_from_ipod(track, [self.pl_podcasts])
 
     def clean_playlist( self):
         if not ipod_supported():
             return False
-        for track in gpod.sw_get_playlist_tracks( self.pl_podcasts):
-            log( '(ipodsync) Trying to remove: %s', track.title)
-            self.remove_from_ipod( track, [ self.pl_podcasts ])
+
+        return gpod.sw_get_playlist_tracks(self.pl_podcasts)
 
     def set_podcast_flags( self, track, episode):
         if not ipod_supported():
