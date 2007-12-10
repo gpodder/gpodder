@@ -1,3 +1,12 @@
+Mon, 10 Dec 2007 09:42:06 +0100 <thp@perli.net>
+Move observer code out of DownloadStatusManager into ObservableService
+
+	* src/gpodder/services.py: Move out all observer-related code like
+	registration, unregistration and notification to a new
+	ObservableService class; subclass ObservableService in
+	DownloadStatusManager; this makes the observer code in
+	DownloadStatusManager re-usable (will be needed for new sync code)
+
 Mon, 10 Dec 2007 09:33:26 +0100 <thp@perli.net>
 Selective iPod episode clean-up; "delete older than X days"
 

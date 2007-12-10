@@ -34,7 +34,39 @@ import gobject
 import threading
 
 
-class DownloadStatusManager( object):
+class ObservableService(object):
+    def __init__(self, signal_names=[]):
+        self.observers = {}
+        for signal in signal_names:
+            self.observers[signal] = []
+
+    def register(self, signal_name, observer):
+        if signal_name in self.observers:
+            if not observer in self.observers[signal_name]:
+                self.observers[signal_name].append(observer)
+            else:
+                log('Observer already added to signal "%s".', signal_name, sender=self)
+        else:
+            log('Signal "%s" is not available for registration.', signal_name, sender=self)
+
+    def unregister(self, signal_name, observer):
+        if signal_name in self.observers:
+            if observer in self.observers[signal_name]:
+                self.observers[signal_name].remove(observer)
+            else:
+                log('Observer could not be removed from signal "%s".', signal_name, sender=self)
+        else:
+            log('Signal "%s" is not available for un-registration.', signal_name, sender=self)
+
+    def notify(self, signal_name, *args):
+        if signal_name in self.observers:
+            for observer in self.observers[signal_name]:
+                gobject.idle_add(observer, *args)
+        else:
+            log('Signal "%s" is not available for notification.', signal_name, sender=self)
+
+
+class DownloadStatusManager(ObservableService):
     COLUMN_NAMES = { 0: 'episode', 1: 'speed', 2: 'progress', 3: 'url' }
     COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_STRING )
 
@@ -49,35 +81,9 @@ class DownloadStatusManager( object):
 
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
         self.tree_model_lock = threading.Lock()
-
-        self.observers = { 'list-changed': [], 'progress-changed': [], 'progress-detail': [], }
-
-
-    def register( self, signal_name, observer):
-        if signal_name in self.observers:
-            if not observer in self.observers[signal_name]:
-                self.observers[signal_name].append( observer)
-            else:
-                log( 'Observer already added to signal "%s".', signal_name, sender = self)
-        else:
-            log( 'Signal "%s" is not available for registration.', signal_name, sender = self)
-
-    def unregister( self, signal_name, observer):
-        if signal_name in self.observers:
-            if observer in self.observers[signal_name]:
-                self.observers[signal_name].remove( observer)
-            else:
-                log( 'Observer could not be removed from signal "%s".', signal_name, sender = self)
-        else:
-            log( 'Signal "%s" is not available for un-registration.', signal_name, sender = self)
-
-    def notify( self, signal_name, *args):
-        if signal_name in self.observers:
-            for observer in self.observers[signal_name]:
-                gobject.idle_add( observer, *args)
-        else:
-            log( 'Signal "%s" is not available for notification.', signal_name, sender = self)
-
+        
+        signal_names = ['list-changed', 'progress-changed', 'progress-detail']
+        ObservableService.__init__(self, signal_names)
 
     def notify_progress( self):
         now = ( self.count(), self.average_progress() )
