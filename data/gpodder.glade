@@ -576,14 +576,14 @@
 		    </widget>
 		  </child>
 
-                  <child>
-                    <widget class="GtkMenuItem" id="item_toggle_lock">
-                      <property name="visible">True</property>
-                      <property name="label" translatable="yes">Toggle lock status for selection</property>
-                      <property name="use_underline">True</property>
-                      <signal name="activate" handler="on_item_toggle_lock_activate"/>
-                    </widget>
-                  </child>
+		  <child>
+		    <widget class="GtkMenuItem" id="item_toggle_lock">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Toggle lock status for selection</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_item_toggle_lock_activate"/>
+		    </widget>
+		  </child>
 
 		  <child>
 		    <widget class="GtkSeparatorMenuItem" id="separator11">
@@ -2298,7 +2298,7 @@
 		  <property name="right_attach">3</property>
 		  <property name="top_attach">3</property>
 		  <property name="bottom_attach">4</property>
-		  <property name="y_padding">6</property>
+		  <property name="y_padding">3</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -2367,10 +2367,10 @@
 	    <widget class="GtkTable" id="tableDownloadsProperties">
 	      <property name="border_width">10</property>
 	      <property name="visible">True</property>
-	      <property name="n_rows">9</property>
+	      <property name="n_rows">11</property>
 	      <property name="n_columns">4</property>
 	      <property name="homogeneous">False</property>
-	      <property name="row_spacing">5</property>
+	      <property name="row_spacing">3</property>
 	      <property name="column_spacing">5</property>
 
 	      <child>
@@ -2628,8 +2628,8 @@
 		  <property name="n_rows">2</property>
 		  <property name="n_columns">3</property>
 		  <property name="homogeneous">False</property>
-		  <property name="row_spacing">6</property>
-		  <property name="column_spacing">6</property>
+		  <property name="row_spacing">3</property>
+		  <property name="column_spacing">4</property>
 
 		  <child>
 		    <widget class="GtkEntry" id="httpProxy">
@@ -2789,21 +2789,6 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkHSeparator" id="hseparator8">
-		  <property name="visible">True</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">0</property>
-		  <property name="right_attach">4</property>
-		  <property name="top_attach">4</property>
-		  <property name="bottom_attach">5</property>
-		  <property name="y_padding">6</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options"></property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkImage" id="image2410">
 		  <property name="visible">True</property>
 		  <property name="icon_size">6</property>
@@ -2820,6 +2805,160 @@
 		  <property name="bottom_attach">8</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label108">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Clean-up&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">9</property>
+		  <property name="bottom_attach">10</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label110">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">days</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">3</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">10</property>
+		  <property name="bottom_attach">11</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkSpinButton" id="episode_old_age">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="climb_rate">1</property>
+		  <property name="digits">0</property>
+		  <property name="numeric">False</property>
+		  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
+		  <property name="snap_to_ticks">False</property>
+		  <property name="wrap">False</property>
+		  <property name="adjustment">7 1 60 1 10 10</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">2</property>
+		  <property name="right_attach">3</property>
+		  <property name="top_attach">10</property>
+		  <property name="bottom_attach">11</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label109">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Consider episodes old after</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">10</property>
+		  <property name="bottom_attach">11</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkHSeparator" id="hseparator16">
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
+		  <property name="y_padding">3</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkHSeparator" id="hseparator8">
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">4</property>
+		  <property name="bottom_attach">5</property>
+		  <property name="y_padding">3</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="image2872">
+		  <property name="visible">True</property>
+		  <property name="icon_size">6</property>
+		  <property name="icon_name">gtk-clear</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">1</property>
+		  <property name="top_attach">10</property>
+		  <property name="bottom_attach">11</property>
+		  <property name="x_options">fill</property>
 		</packing>
 	      </child>
 	    </widget>
@@ -2994,21 +3133,6 @@
 		  <property name="x_padding">6</property>
 		  <property name="x_options"></property>
 		  <property name="y_options">fill</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkHSeparator" id="separatorSyncOptions">
-		  <property name="visible">True</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">0</property>
-		  <property name="right_attach">4</property>
-		  <property name="top_attach">4</property>
-		  <property name="bottom_attach">5</property>
-		  <property name="y_padding">6</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options"></property>
 		</packing>
 	      </child>
 
@@ -3413,6 +3537,21 @@ Filesystem-based MP3 player</property>
 		  <property name="y_options"></property>
 		</packing>
 	      </child>
+
+	      <child>
+		<widget class="GtkHSeparator" id="separatorSyncOptions">
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">4</property>
+		  <property name="bottom_attach">5</property>
+		  <property name="y_padding">3</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="tab_expand">False</property>
@@ -3578,21 +3717,6 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkHSeparator" id="hseparator11">
-		  <property name="visible">True</property>
-		</widget>
-		<packing>
-		  <property name="left_attach">0</property>
-		  <property name="right_attach">2</property>
-		  <property name="top_attach">3</property>
-		  <property name="bottom_attach">4</property>
-		  <property name="y_padding">6</property>
-		  <property name="x_options">fill</property>
-		  <property name="y_options"></property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkLabel" id="label82">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">&lt;b&gt;Torrent Download Folder&lt;/b&gt;</property>
@@ -3657,6 +3781,21 @@ Filesystem-based MP3 player</property>
 		  <property name="x_padding">6</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkHSeparator" id="hseparator11">
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">3</property>
+		  <property name="bottom_attach">4</property>
+		  <property name="y_padding">3</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
 		</packing>
 	      </child>
 	    </widget>
@@ -3729,7 +3868,7 @@ Filesystem-based MP3 player</property>
 	      <child>
 		<widget class="GtkTable" id="table9">
 		  <property name="visible">True</property>
-		  <property name="n_rows">12</property>
+		  <property name="n_rows">13</property>
 		  <property name="n_columns">3</property>
 		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">2</property>
@@ -3780,45 +3919,9 @@ Filesystem-based MP3 player</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImage" id="image2420">
+		    <widget class="GtkLabel" id="label88">
 		      <property name="visible">True</property>
-		      <property name="icon_size">6</property>
-		      <property name="icon_name">config-date</property>
-		      <property name="xalign">0.5</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">3</property>
-		      <property name="x_padding">6</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options">fill</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkHSeparator" id="hseparator2">
-		      <property name="visible">True</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">3</property>
-		      <property name="bottom_attach">4</property>
-		      <property name="y_padding">6</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkLabel" id="label85">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">&lt;b&gt;File Metadata&lt;/b&gt;</property>
+		      <property name="label" translatable="yes">&lt;b&gt;Automated Actions&lt;/b&gt;</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">True</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -3836,41 +3939,46 @@ Filesystem-based MP3 player</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">4</property>
-		      <property name="bottom_attach">5</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="updatetags">
+		    <widget class="GtkLabel" id="label87">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Writes episode and channel info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Update tags on audio files after download</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
+		      <property name="label" translatable="yes">&lt;b&gt;Import from Web (OPML)&lt;/b&gt;</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">True</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">1</property>
+		      <property name="left_attach">0</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">5</property>
-		      <property name="bottom_attach">6</property>
+		      <property name="top_attach">10</property>
+		      <property name="bottom_attach">11</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImage" id="image2421">
+		    <widget class="GtkImage" id="image2423">
 		      <property name="visible">True</property>
 		      <property name="icon_size">6</property>
-		      <property name="icon_name">editpaste</property>
+		      <property name="icon_name">applications-internet</property>
 		      <property name="xalign">0.5</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -3879,8 +3987,8 @@ Filesystem-based MP3 player</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">5</property>
-		      <property name="bottom_attach">6</property>
+		      <property name="top_attach">11</property>
+		      <property name="bottom_attach">12</property>
 		      <property name="x_padding">6</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options">fill</property>
@@ -3937,38 +4045,48 @@ Filesystem-based MP3 player</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label87">
+		    <widget class="GtkHSeparator" id="hseparator3">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">&lt;b&gt;Import from Web (OPML)&lt;/b&gt;</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">True</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		      <property name="width_chars">-1</property>
-		      <property name="single_line_mode">False</property>
-		      <property name="angle">0</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">10</property>
-		      <property name="bottom_attach">11</property>
+		      <property name="top_attach">7</property>
+		      <property name="bottom_attach">8</property>
+		      <property name="y_padding">3</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImage" id="image2423">
+		    <widget class="GtkCheckButton" id="updatetags">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Writes episode and channel info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">Update tags on audio files after download</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">6</property>
+		      <property name="bottom_attach">7</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImage" id="image2421">
 		      <property name="visible">True</property>
 		      <property name="icon_size">6</property>
-		      <property name="icon_name">applications-internet</property>
+		      <property name="icon_name">editpaste</property>
 		      <property name="xalign">0.5</property>
 		      <property name="yalign">0.5</property>
 		      <property name="xpad">0</property>
@@ -3977,8 +4095,8 @@ Filesystem-based MP3 player</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">11</property>
-		      <property name="bottom_attach">12</property>
+		      <property name="top_attach">6</property>
+		      <property name="bottom_attach">7</property>
 		      <property name="x_padding">6</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options">fill</property>
@@ -3986,9 +4104,9 @@ Filesystem-based MP3 player</property>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label88">
+		    <widget class="GtkLabel" id="label85">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">&lt;b&gt;Automated Actions&lt;/b&gt;</property>
+		      <property name="label" translatable="yes">&lt;b&gt;File Metadata&lt;/b&gt;</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">True</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -4006,23 +4124,67 @@ Filesystem-based MP3 player</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
+		      <property name="top_attach">5</property>
+		      <property name="bottom_attach">6</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkHSeparator" id="hseparator3">
+		    <widget class="GtkHSeparator" id="hseparator2">
 		      <property name="visible">True</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">6</property>
-		      <property name="bottom_attach">7</property>
-		      <property name="y_padding">6</property>
+		      <property name="top_attach">4</property>
+		      <property name="bottom_attach">5</property>
+		      <property name="y_padding">3</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImage" id="image2420">
+		      <property name="visible">True</property>
+		      <property name="icon_size">6</property>
+		      <property name="icon_name">config-date</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_padding">6</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="auto_remove_old_episodes">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">If checked, gPodder will delete played episodes that are older than the specified amout of days (in the Downloads tab) on every startup.</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">Delete played old episodes on startup</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">False</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -4033,10 +4195,6 @@ Filesystem-based MP3 player</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
 		</packing>
-	      </child>
-
-	      <child>
-		<placeholder/>
 	      </child>
 	    </widget>
 	    <packing>

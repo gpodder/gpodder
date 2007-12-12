@@ -282,6 +282,14 @@ class gPodder(GladeWidget):
         # Now, update the feed cache, when everything's in place
         self.update_feed_cache( force_update = gl.config.update_on_startup)
 
+        # Delete old episodes if the user wishes to
+        if gl.config.auto_remove_old_episodes:
+            old_episodes = self.get_old_episodes()
+            if len(old_episodes) > 0:
+                self.delete_episode_list(old_episodes, confirm=False)
+                self.updateComboBox()
+
+
     def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # FIXME: Do not hardcode treeview header height
         HEADER_HEIGHT = 25
@@ -857,6 +865,14 @@ class gPodder(GladeWidget):
 
         self.gtk_main_quit()
         sys.exit( 0)
+
+    def get_old_episodes(self):
+        episodes = []
+        for channel in self.channels:
+            for episode in channel:
+                if episode.is_downloaded() and episode.is_old() and not episode.is_locked() and episode.is_played():
+                    episodes.append(episode)
+        return episodes
 
     def for_each_selected_episode_url( self, callback):
         ( model, paths ) = self.treeAvailable.get_selection().get_selected_rows()
@@ -1488,6 +1504,8 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton( 'limit_rate', self.cbLimitDownloads)
         gl.config.connect_gtk_togglebutton( 'proxy_use_environment', self.cbEnvironmentVariables)
         gl.config.connect_gtk_filechooser( 'bittorrent_dir', self.chooserBitTorrentTo)
+        gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
+        gl.config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
 
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
         self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())

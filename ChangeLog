@@ -1,3 +1,15 @@
+Wed, 12 Dec 2007 20:55:00 +0100 <thp@perli.net>
+Configuration for "old" episodes; automatically remove old episodes
+
+	* src/gpodder/config.py: New boolean auto_remove_old_episodes
+	configuration option that defaults to False (remove on startup)
+	* src/gpodder/gui.py: Add code to automatically remove old, unplayed
+	episodes on startup if the specific configuration options have been
+	set; connect config manager to GUI items for the preferences dialog
+	* data/gpodder.glade: Add checkbox for automatically removing old,
+	unplayed episodes from gPodder on startup and a spinbutton to set the
+	amount of days after which an episode is considered "old"
+
 Wed, 12 Dec 2007 19:44:15 +0100 <thp@perli.net>
 Merged episode locking patch from Paul Rudkin
 
