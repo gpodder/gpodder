@@ -1,3 +1,15 @@
+Wed, 12 Dec 2007 19:44:15 +0100 <thp@perli.net>
+Merged episode locking patch from Paul Rudkin
+
+	* src/gpodder/gui.py: Merged "lock episodes" patch to mark episodes as
+	locked, patch by Paul Rudkin <paul@thegithouse.com>
+	* data/gpodder.glade: Add menu item for toggle locked status
+	* src/gpodder/libgpodder.py: Add "locked" history
+	* src/gpodder/libpodcasts.py: When requesting a status icon, also draw
+	the "Locked" status; is_locked() in podcastItem
+	* src/gpodder/util.py: Added code for drawing a padlock icon on top of
+	another (file type) icon; this is used for the "lock episodes" feature
+
 Tue, 11 Dec 2007 22:10:03 +0100 <thp@perli.net>
 Updated TODO list
 

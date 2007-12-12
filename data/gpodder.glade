@@ -576,6 +576,15 @@
 		    </widget>
 		  </child>
 
+                  <child>
+                    <widget class="GtkMenuItem" id="item_toggle_lock">
+                      <property name="visible">True</property>
+                      <property name="label" translatable="yes">Toggle lock status for selection</property>
+                      <property name="use_underline">True</property>
+                      <signal name="activate" handler="on_item_toggle_lock_activate"/>
+                    </widget>
+                  </child>
+
 		  <child>
 		    <widget class="GtkSeparatorMenuItem" id="separator11">
 		      <property name="visible">True</property>

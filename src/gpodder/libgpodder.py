@@ -68,7 +68,8 @@ class gPodderLibClass( object):
 
         self.__download_history = HistoryStore( os.path.join( gpodder_dir, 'download-history.txt'))
         self.__playback_history = HistoryStore( os.path.join( gpodder_dir, 'playback-history.txt'))
-    
+        self.__locked_history = HistoryStore( os.path.join( gpodder_dir, 'lock-history.txt'))
+        
     def get_device_name( self):
         if self.config.device_type == 'ipod':
             return _('iPod')
@@ -134,11 +135,20 @@ class gPodderLibClass( object):
         else:
             self.__playback_history.del_item( url)
 
+    def history_mark_locked( self, url, add_item = True):
+        if add_item:
+            self.__locked_history.add_item( url)
+        else:
+            self.__locked_history.del_item( url)
+
     def history_is_downloaded( self, url):
         return (url in self.__download_history)
 
     def history_is_played( self, url):
         return (url in self.__playback_history)
+
+    def history_is_locked( self, url):
+        return (url in self.__locked_history)
 
     def playback_episode( self, channel, episode):
         self.history_mark_played( episode.url)

@@ -407,17 +407,19 @@ class podcastChannel(ListType):
         url = model.get_value( iter, 0)
         local_filename = model.get_value( iter, 8)
         played = not libgpodder.gPodderLib().history_is_played( url)
+        locked = libgpodder.gPodderLib().history_is_locked(url)
 
         if os.path.exists( local_filename):
             file_type = util.file_type_by_extension( util.file_extension_from_url( url))
             if file_type == 'audio':
-                status_icon = util.get_tree_icon( 'audio-x-generic', played, self.icon_cache)
+                status_icon = util.get_tree_icon('audio-x-generic', played, locked, self.icon_cache)
             elif file_type == 'video':
-                status_icon = util.get_tree_icon( 'video-x-generic', played, self.icon_cache)
+                status_icon = util.get_tree_icon('video-x-generic', played, locked, self.icon_cache)
             elif file_type == 'torrent':
-                status_icon = util.get_tree_icon( 'applications-internet', played, self.icon_cache)
+                status_icon = util.get_tree_icon('applications-internet', played, locked, self.icon_cache)
             else:
-                status_icon = util.get_tree_icon( 'unknown', played, self.icon_cache)
+                status_icon = util.get_tree_icon('unknown', played, locked, self.icon_cache)
+            
         elif services.download_status_manager.is_download_in_progress( url):
             status_icon = util.get_tree_icon( gtk.STOCK_GO_DOWN, icon_cache = self.icon_cache)
         elif libgpodder.gPodderLib().history_is_downloaded( url):
@@ -591,6 +593,9 @@ class podcastItem(object):
 
     def is_downloaded( self):
         return os.path.exists( self.local_filename())
+
+    def is_locked(self):
+        return libgpodder.gPodderLib().history_is_locked(self.url)
 
     def delete_from_disk( self):
         self.channel.delete_episode_by_url( self.url)

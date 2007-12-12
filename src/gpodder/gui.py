@@ -430,10 +430,13 @@ class gPodder(GladeWidget):
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append( item)
-                item = gtk.ImageMenuItem( _('Remove %s') % episode_title)
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', self.on_btnDownloadedDelete_clicked)
-                menu.append( item)
+                
+                is_locked = gPodderLib().history_is_locked(first_url)
+                if not is_locked:
+                    item = gtk.ImageMenuItem(_('Remove %s') % episode_title)
+                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                    item.connect('activate', self.on_btnDownloadedDelete_clicked)
+                    menu.append(item)
 
             if can_download:
                 item = gtk.ImageMenuItem( _('Download %s') % episode_title)
@@ -474,6 +477,19 @@ class gPodder(GladeWidget):
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
                     menu.append( item)
 
+                menu.append(gtk.SeparatorMenuItem())
+                is_locked = gPodderLib().history_is_locked(first_url)
+                if is_locked:
+                    item = gtk.ImageMenuItem(_('Unlock %s') % episode_title)
+                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
+                    item.connect('activate', self.on_item_toggle_lock_activate)
+                    menu.append(item)
+                else:
+                    item = gtk.ImageMenuItem(_('Lock %s') % episode_title) 
+                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
+                    item.connect('activate', self.on_item_toggle_lock_activate)
+                    menu.append(item)
+                    
             if can_cancel:
                 item = gtk.ImageMenuItem( _('_Cancel download'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
@@ -622,6 +638,7 @@ class gPodder(GladeWidget):
             try:
                 channel = podcastChannel.get_by_url( url = result, force_update = True)
             except:
+                log('Error in podcastChannel.get_by_url(%s)', result, sender=self)
                 channel = None
 
             if channel:
@@ -892,7 +909,7 @@ class gPodder(GladeWidget):
         selected = []
         for channel in self.channels:
             for episode in channel:
-                if episode.is_downloaded():
+                if episode.is_downloaded() and not episode.is_locked():
                     episodes.append( episode)
                     selected.append( episode.is_played())
 
@@ -916,6 +933,14 @@ class gPodder(GladeWidget):
             callback = lambda url: gPodderLib().history_mark_played( url, new_value)
 
         self.for_each_selected_episode_url( callback)
+
+    def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+        if toggle:
+            callback = lambda url: gPodderLib().history_mark_locked(url, not gPodderLib().history_is_locked(url))
+        else:
+            callback = lambda url: gPodderLib().history_mark_locked(url, new_value)
+
+        self.for_each_selected_episode_url(callback)
 
     def on_itemUpdate_activate(self, widget, *args):
         if self.channels:
@@ -1290,12 +1315,36 @@ class gPodder(GladeWidget):
             return
 
         if selection.count_selected_rows() == 1:
-            title = _('Remove %s?')  % model.get_value( model.get_iter( paths[0]), 1)
+            episode_title = saxutils.escape(model.get_value(model.get_iter(paths[0]), 1))
+
+            locked = gPodderLib().history_is_locked(model.get_value(model.get_iter(paths[0]), 0))
+            if locked:
+                title = _('%s is locked') % episode_title
+                message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
+                self.notification(message, title)
+                return
+
+            title = _('Remove %s?') % episode_title
             message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
         else:
             title = _('Remove %d episodes?') % selection.count_selected_rows()
             message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
-        
+
+        locked_count = 0
+        for path in paths:
+            url = model.get_value(model.get_iter(path), 0)
+            if gPodderLib().history_is_locked(url):
+                locked_count += 1
+
+        if selection.count_selected_rows() == locked_count:
+            title = _('Episodes are locked')
+            message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+            self.notification(message, title)
+            return
+        elif locked_count > 0:
+            title = _('Remove %d out of %d episodes?') % (selection.count_selected_rows() - locked_count, selection.count_selected_rows())
+            message = _('The selection contains locked episodes. These will not be deleted. If you want to listen to any of these episodes again, then you will have to re-download them.')
+            
         # if user confirms deletion, let's remove some stuff ;)
         if self.show_confirmation( message, title):
             try:
