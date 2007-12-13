@@ -1140,8 +1140,8 @@ class gPodder(GladeWidget):
     def on_wishlist_activate(self, widget, *args):
         Thread( target = webbrowser.open, args = ( 'http://www.amazon.de/gp/registry/2PD2MYGHE6857', )).start()
 
-    def on_mailinglist_activate(self, widget, *args):
-        Thread( target = webbrowser.open, args = ( 'http://lists.berlios.de/mailman/listinfo/gpodder-devel', )).start()
+    def on_wiki_activate(self, widget, *args):
+        Thread(target=webbrowser.open, args=('http://gpodderwiki.jottit.com/',)).start()
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
