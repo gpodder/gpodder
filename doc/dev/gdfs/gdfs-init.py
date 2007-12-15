@@ -3,6 +3,8 @@
 # gPodder download folder sync (gdfs-init.py)
 # Copyright 2007 Thomas Perl <thp@perli.net>
 #
+# Support for native language encodings by Leonid Ponomarev
+#
 # This file is distributed under the same terms
 # as the gPodder program itself (GPLv3 or later).
 #
@@ -15,6 +17,16 @@ import gpodder.libpodcasts
 import os.path
 import shutil
 import sys
+import re
+
+# Try to detect OS encoding (by Leonid Ponomarev)
+if 'LANG' in os.environ and '.' in os.environ['LANG']:
+    lang = os.environ['LANG']
+    enc = lang.split('.')[-1]
+else:
+    print >>sys.stderr, 'Warning: No encoding detected in environment ($LANG).'
+    print >>sys.stderr, 'Warning: Defaulting to iso-8859-1 encoding.'
+    enc = 'iso-8859-1'
 
 def cb_url( url):
     print 'Loading %s...' % url
@@ -51,11 +63,13 @@ for channel in gpodder.libpodcasts.load_channels( callback_url = cb_url, offline
         episode_file = os.path.join( channel_dir, os.path.basename( episode.title))
         filename = episode.local_filename()
         episode_file += os.path.splitext( os.path.basename( filename))[1]
+        episode_file = re.sub('[|?*<>:+\[\]\"\\\]*', '', episode_file.encode(enc, 'ignore'))
         if os.path.exists( filename):
+            channel_dir = re.sub('[|?*<>:+\[\]\"\\\]*', '', channel_dir.encode(enc, 'ignore'))
             if not os.path.exists( channel_dir):
                 os.makedirs( channel_dir)
             os.link( filename, episode_file)
-            print '     Linking: ' + episode.title
+            print '     Linking: ' + episode.title.encode(enc, 'ignore')
 
 print """
     Yay, finished linking episodes :)
