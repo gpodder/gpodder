@@ -738,6 +738,7 @@ def channels_to_model(channels):
             except: 
                 exctype, value = sys.exc_info()[:2]
                 log( 'Could not convert icon file "%s", error was "%s"', channel.cover_file, value )
+                util.delete_file(channel.cover_file)
 
         if not channel_cover_found:
             iconsize = gtk.icon_size_from_name('channel-icon')

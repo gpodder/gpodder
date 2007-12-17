@@ -1,3 +1,10 @@
+Mon, 17 Dec 2007 16:26:43 +0100 <thp@perli.net>
+Remove invalid channel cover images when loading fails
+
+	* src/gpodder/libpodcasts.py: Remove the cover_file of a channel when
+	it cannot be loaded (assume something went wrong when downloading the
+	cover file); re-downloading the cover manually can solve the problem
+
 Mon, 17 Dec 2007 15:00:17 +0100 <thp@perli.net>
 Fix typo in last commit
 
