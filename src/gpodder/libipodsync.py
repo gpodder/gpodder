@@ -312,13 +312,13 @@ class gPodder_iPodSync( gPodderSyncMethod):
             # Add blue bullet next to unplayed tracks on 5G iPods
             # (only if the podcast has not been played locally already
             gl = libgpodder.gPodderLib()
-            if gl.history_is_played( episode.url):
+            if gl.history_is_played(episode.url) and not gl.config.on_sync_mark_played:
                 track.mark_unplayed = 0x01
                 # Increment playcount if it's played locally
                 # but still has zero playcount on iPod
                 if track.playcount == 0:
                     track.playcount = 1
-            else:
+            else if track.playcount == 0:
                 track.mark_unplayed = 0x02
 
             # Podcast flags (for new iPods?)
