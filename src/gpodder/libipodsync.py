@@ -318,7 +318,7 @@ class gPodder_iPodSync( gPodderSyncMethod):
                 # but still has zero playcount on iPod
                 if track.playcount == 0:
                     track.playcount = 1
-            else if track.playcount == 0:
+            elif track.playcount == 0:
                 track.mark_unplayed = 0x02
 
             # Podcast flags (for new iPods?)
