@@ -141,13 +141,19 @@ class gPodderSyncMethod:
         if episodes == None:
             episodes = channel
 
+        gl = libgpodder.gPodderLib()
         max = len(episodes)
         for pos, episode in enumerate(episodes):
             if self.cancelled:
                 return False
             self.set_progress( pos, max)
             if episode.is_downloaded() and episode.file_type() in ( 'audio', 'video' ) and (sync_played_episodes or not episode.is_played()):
-                if not self.add_episode_from_channel( channel, episode):
+                added = self.add_episode_from_channel(channel, episode)
+                if added:
+                    if gl.config.on_sync_delete:
+                        log('Removing episode after transfer: %s', episode.title, sender=self)
+                        episode.delete_from_disk()
+                else:
                     return False
         self.set_progress( pos, max)
 

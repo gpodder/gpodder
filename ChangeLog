@@ -1,3 +1,17 @@
+Tue, 18 Dec 2007 10:13:44 +0100 <thp@perli.net>
+Merge "delete episode after sync" patch from Jérôme Chabod
+
+	* data/gpodder.glade: Add GUI elements in preferences dialog to select
+	what to do after episode sync (nothing, delete or mark played)
+	* src/gpodder/config.py: Add "on_sync_delete" configuration option
+	* src/gpodder/gui.py: Glue "on_sync_delete" config and GUI together
+	* src/gpodder/libipodsync.py: If the configuration option
+	on_sync_delete is set, remove the episode after successfully copying
+	it to the iPod or MP3 player (the whole patch has been initially done
+	by Jérôme Chabod <jerome.chabod@france.com> with some modifications)
+	* src/gpodder/libpodcasts.py: Make delete_from_disk() a bit more
+	robust, so it doesn't disturb libipodsync's functionality
+
 Mon, 17 Dec 2007 16:26:43 +0100 <thp@perli.net>
 Remove invalid channel cover images when loading fails
 

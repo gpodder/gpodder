@@ -1498,6 +1498,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
         gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
         gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
+        gl.config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
         gl.config.connect_gtk_spinbutton( 'max_downloads', self.spinMaxDownloads)
         gl.config.connect_gtk_togglebutton( 'max_downloads_enabled', self.cbMaxDownloads)
         gl.config.connect_gtk_spinbutton( 'limit_rate_value', self.spinLimitDownloads)
@@ -1625,7 +1626,8 @@ class gPodderProperties(GladeWidget):
         # None
         sync_widgets = ( self.only_sync_not_played, self.labelSyncOptions,
                          self.imageSyncOptions, self. separatorSyncOptions,
-                         self.on_sync_mark_played )
+                         self.on_sync_mark_played, self.on_sync_delete,
+                         self.on_sync_leave, self.label_after_sync, )
         for widget in sync_widgets:
             if active_item == 0:
                 widget.hide_all()

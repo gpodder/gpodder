@@ -597,8 +597,11 @@ class podcastItem(object):
     def is_locked(self):
         return libgpodder.gPodderLib().history_is_locked(self.url)
 
-    def delete_from_disk( self):
-        self.channel.delete_episode_by_url( self.url)
+    def delete_from_disk(self):
+        try:
+            self.channel.delete_episode_by_url(self.url)
+        except:
+            log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
     def local_filename( self):
         extension = util.file_extension_from_url( self.url)
