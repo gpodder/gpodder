@@ -807,6 +807,7 @@ class gPodder(GladeWidget):
         thread.start()
 
         please_wait.run()
+        please_wait.destroy()
 
         self.updateComboBox()
         

@@ -127,7 +127,15 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=3, radius=11):
 def draw_pill_pixbuf(left_text, right_text):
     s = draw_text_pill(left_text, right_text)
     sio = StringIO.StringIO()
-    s.write_to_png(sio)
+    try:
+        s.write_to_png(sio)
+    except:
+        # Write an empty PNG file to the StringIO, so
+        # in case of an error we have "something" to
+        # load. This happens in PyCairo < 1.1.6, see:
+        # http://webcvs.cairographics.org/pycairo/NEWS?view=markup
+        # Thanks to Chris Arnold for reporting this bug
+        sio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
 
     pbl = gtk.gdk.PixbufLoader()
     pbl.write(sio.getvalue())

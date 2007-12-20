@@ -1,3 +1,13 @@
+Thu, 20 Dec 2007 01:33:15 +0100 <thp@perli.net>
+Stability updates: Feed cache update, old PyCairo versions
+
+	* src/gpodder/draw.py: Add a workaround for pycairo versions less than
+	1.1.6. Thanks to Chris Arnold for reporting this bug on the
+	gpodder-devel mailing list and taking the time to test the patch and
+	report back and provide useful information for debugging this error
+	* src/gpodder/gui.py: Close the feed cache update dialog even when the
+	user clicks on "cancel" (would have stayed there otherwise)
+
 Tue, 18 Dec 2007 10:13:44 +0100 <thp@perli.net>
 Merge "delete episode after sync" patch from Jérôme Chabod
 
