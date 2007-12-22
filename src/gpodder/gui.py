@@ -870,7 +870,7 @@ class gPodder(GladeWidget):
     def get_old_episodes(self):
         episodes = []
         for channel in self.channels:
-            for episode in channel:
+            for episode in channel.get_all_episodes():
                 if episode.is_downloaded() and episode.is_old() and not episode.is_locked() and episode.is_played():
                     episodes.append(episode)
         return episodes

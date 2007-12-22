@@ -1,3 +1,11 @@
+Sat, 22 Dec 2007 11:44:41 +0100 <thp@perli.net>
+Also delete old episodes that have disappeared from the feed
+
+	* src/gpodder/gui.py: When deleting old episodes automatically, also
+	delete episodes that have disappeared from the RSS feed and are only
+	available locally; thanks to Pieter De Decker <pdedecker@gmail.com>
+	for the very detailed and helpful bug report :)
+
 Thu, 20 Dec 2007 01:33:15 +0100 <thp@perli.net>
 Stability updates: Feed cache update, old PyCairo versions
 
