@@ -114,9 +114,13 @@ def username_password_from_url( url):
     (scheme, netloc, path, params, query, fragment) = urlparse.urlparse( url)
 
     if '@' in netloc:
-        (username, password) = netloc.split( '@', 1)[0].split( ':', 1)
-        username = urllib.unquote( username)
-        password = urllib.unquote( password)
+        (authentication, netloc) = netloc.rsplit('@', 1)
+        if ':' in authentication:
+            (username, password) = authentication.split(':', 1)
+            username = urllib.unquote(username)
+            password = urllib.unquote(password)
+        else:
+            username = urllib.unquote(authentication)
 
     return (username, password)
 
