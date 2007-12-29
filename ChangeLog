@@ -1,3 +1,13 @@
+Sat, 29 Dec 2007 14:21:51 +0100 <thp@perli.net>
+Patch the feedparser module to correctly process democracynow.org
+
+	* src/gpodder/cache.py: Add a patch_feedparser() method that checks of
+	the feedparser module correctly maps the "plain" content-type to the
+	correct "text/plain" content-type and if not, replace the
+	mapContentType method with a fixed one; this should make the audio
+	podcast on democracynow.org working (thanks to Clark Burbidge for the
+	bug report)
+
 Sun, 23 Dec 2007 12:20:25 +0100 <thp@perli.net>
 Better username/password extraction from URLs
 

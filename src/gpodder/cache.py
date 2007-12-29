@@ -34,6 +34,37 @@ import gpodder
 from gpodder.liblogger import log
 
 
+def patch_feedparser():
+    """Fix a bug in feedparser 4.1
+    This replaces the mapContentType method of the
+    _FeedParserMixin class to correctly detect the
+    "plain" content type as "text/plain".
+
+    See also:
+    http://code.google.com/p/feedparser/issues/detail?id=80
+
+    Added by Thomas Perl for gPodder 2007-12-29
+    """
+    def mapContentType2(self, contentType):
+        contentType = contentType.lower()
+        if contentType == 'text' or contentType == 'plain':
+            contentType = 'text/plain'
+        elif contentType == 'html':
+            contentType = 'text/html'
+        elif contentType == 'xhtml':
+            contentType = 'application/xhtml+xml'
+        return contentType
+
+    try:
+        if feedparser._FeedParserMixin().mapContentType('plain') == 'plain':
+            log('Patching feedparser module... (mapContentType bugfix)')
+            feedparser._FeedParserMixin.mapContentType = mapContentType2
+    except:
+        log('Warning: feedparser unpatched - might be broken!')
+
+patch_feedparser()
+
+
 class Cache:
     """A class to wrap Mark Pilgrim's Universal Feed Parser module
     (http://www.feedparser.org) so that parameters can be used to
