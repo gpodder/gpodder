@@ -82,7 +82,7 @@ class DownloadStatusManager(ObservableService):
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
         self.tree_model_lock = threading.Lock()
         
-        signal_names = ['list-changed', 'progress-changed', 'progress-detail']
+        signal_names = ['list-changed', 'progress-changed', 'progress-detail', 'download-complete']
         ObservableService.__init__(self, signal_names)
 
     def notify_progress( self):
@@ -170,6 +170,10 @@ class DownloadStatusManager(ObservableService):
             self.notify( 'progress-detail', self.status_list[id]['url'], kwargs['progress'], kwargs['speed'])
 
         self.notify_progress()
+        
+    def download_completed(self, id):
+        if id in self.status_list:
+            self.notify('download-complete', self.status_list[id]['episode'])
 
     def request_progress_detail( self, url):
         for status in self.status_list.values():

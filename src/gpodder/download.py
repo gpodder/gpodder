@@ -153,6 +153,7 @@ class DownloadThread(threading.Thread):
                 self.downloader.retrieve( self.episode.url, self.tempname, reporthook = self.status_updated)
                 shutil.move( self.tempname, self.filename)
                 self.channel.addDownloadedItem( self.episode)
+                services.download_status_manager.download_completed(self.download_id)
             finally:
                 services.download_status_manager.remove_download_id( self.download_id)
                 services.download_status_manager.s_release( acquired)
