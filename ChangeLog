@@ -1,3 +1,12 @@
+Wed, 02 Jan 2008 15:39:04 +0100 <thp@perli.net>
+Migrate from channels.xml (from 0.9.4) to channels.opml if needed
+
+	* src/gpodder/libgpodder.py: Add code to check if channels.xml exists
+	but channels.opml doesn't and if so, try to convert from channels.xml
+	to channels.opml, so users upgrading from 0.9.4 directly will have
+	their channel list automatically converted;
+	thanks to Tim Michelsen for the bug report and helpful Ubuntu info
+
 Tue, 01 Jan 2008 23:32:50 +0100 <thp@perli.net>
 Add download completion notification support
 

@@ -30,6 +30,7 @@ import thread
 import threading
 import urllib
 import shutil
+import xml.dom.minidom
 
 from gpodder import util
 from gpodder import opml
@@ -62,13 +63,54 @@ class gPodderLibClass( object):
 
         self.feed_cache_file = os.path.join( gpodder_dir, 'feedcache.db')
         self.channel_settings_file = os.path.join( gpodder_dir, 'channelsettings.db')
-        self.channel_opml_file = os.path.join( gpodder_dir, 'channels.opml')
+
+        self.channel_opml_file = os.path.join(gpodder_dir, 'channels.opml')
+        self.channel_xml_file = os.path.join(gpodder_dir, 'channels.xml')
+
+        if os.path.exists(self.channel_xml_file) and not os.path.exists(self.channel_opml_file):
+            log('Trying to migrate channel list (channels.xml => channels.opml)', sender=self)
+            self.migrate_channels_xml()
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
 
         self.__download_history = HistoryStore( os.path.join( gpodder_dir, 'download-history.txt'))
         self.__playback_history = HistoryStore( os.path.join( gpodder_dir, 'playback-history.txt'))
         self.__locked_history = HistoryStore( os.path.join( gpodder_dir, 'lock-history.txt'))
+
+    def migrate_channels_xml(self):
+        """Migrate old (gPodder < 0.9.5) channels.xml to channels.opml
+
+        This function does a one-time conversion of the old
+        channels.xml file format to the new (supported by
+        0.9.5, the default on 0.10.0) channels.opml format.
+        """
+        def channels_xml_iter(filename='channels.xml'):
+            for e in xml.dom.minidom.parse(filename).getElementsByTagName('url'):
+                yield ''.join(n.data for n in e.childNodes if n.nodeType==n.TEXT_NODE)
+        
+        def create_outline(doc, url):
+            outline = doc.createElement('outline')
+            for w in (('title', ''), ('text', ''), ('xmlUrl', url), ('type', 'rss')):
+                outline.setAttribute(*w)
+            return outline
+        
+        def export_opml(urls, filename='channels.opml'):
+            doc = xml.dom.minidom.Document()
+            opml = doc.createElement('opml')
+            opml.setAttribute('version', '1.1')
+            doc.appendChild(opml)
+            body = doc.createElement('body')
+            for url in urls:
+                body.appendChild(create_outline(doc, url))
+            opml.appendChild(body)
+            open(filename,'w').write(doc.toxml(encoding='utf-8'))
+        
+        try:
+            export_opml(channels_xml_iter(self.channel_xml_file), self.channel_opml_file)
+            shutil.move(self.channel_xml_file, self.channel_xml_file+'.converted')
+            log('Successfully converted channels.xml to channels.opml', sender=self)
+        except:
+            log('Cannot convert old channels.xml to channels.opml', traceback=True, sender=self)
         
     def get_device_name( self):
         if self.config.device_type == 'ipod':
