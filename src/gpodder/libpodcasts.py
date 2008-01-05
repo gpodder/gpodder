@@ -84,7 +84,6 @@ class ChannelSettings(object):
     def get_settings_by_url( cls, url):
         if isinstance( url, unicode):
             url = url.encode('utf-8')
-        log( 'Trying to get settings for %s', url)
         if cls.storage.has_key( url):
             return cls.storage[url]
         else:
@@ -226,7 +225,6 @@ class podcastChannel(ListType):
             self.override_title = ''
     
     def load_downloaded_episodes( self):
-        log( 'Loading downloaded episodes for %s', self.url, sender = self, traceback = True)
         try:
             return LocalDBReader( self.url).read( self.index_file)
         except:
