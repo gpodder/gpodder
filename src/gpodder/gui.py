@@ -35,6 +35,7 @@ from string import strip
 from gpodder import util
 from gpodder import opml
 from gpodder import services
+from gpodder import sync
 from gpodder import download
 from gpodder import SimpleGladeApp
 from gpodder import trayicon
@@ -48,10 +49,6 @@ from libgpodder import gPodderLib
 from liblogger import log
 
 from libplayers import UserAppsReader
-
-from libipodsync import gPodder_iPodSync
-from libipodsync import gPodder_FSSync
-from libipodsync import ipod_supported
 
 from libtagupdate import tagging_supported
 
@@ -1096,19 +1093,19 @@ class gPodder(GladeWidget):
             self.show_message( message, title)
 
     def on_sync_to_ipod_activate(self, widget, *args):
-        gl = gPodderLib()
-        if gl.config.device_type == 'none':
+        device = sync.open_device()
+
+        if device is None:
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
             self.show_message( message, title)
             return
 
-        if gl.config.device_type == 'ipod' and not ipod_supported():
-            title = _('Libraries needed: gpod, pymad')
-            message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
-            self.show_message( message, title)
-            return
-        
+        if not device.open():
+            title = _('Cannot open device')
+#FIXME FIXME
+
+
         if gl.config.device_type in [ 'ipod', 'filesystem' ]:
             sync_class = None
 

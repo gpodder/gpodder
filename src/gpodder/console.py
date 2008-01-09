@@ -19,6 +19,7 @@
 
 from gpodder import util
 from gpodder import download
+from gpodder import sync
 from gpodder.liblogger import msg
 
 from libpodcasts import load_channels
@@ -90,4 +91,30 @@ def run():
            msg( 'downloading', urllib.unquote( episode.url))
            # Calling run() calls the code in the current thread
            download.DownloadThread( channel, episode).run()
+
+def sync_device():
+    device = sync.open_device()
+    if device is None:
+        msg('error', _('No device configured. Please use the GUI.'))
+        return False
+
+    callback_status = lambda s: msg('status', s)
+    device.register('status', callback_status)
+
+    if not device.open():
+        msg('error', _('Cannot open device.'))
+        return False
+
+    for channel in load_channels():
+        if not channel.sync_to_devices:
+            msg('info', _('Skipping channel: %s') % channel.title)
+            continue
+
+        for episode in channel.get_all_episodes():
+            if episode.is_downloaded():
+                device.add_track(episode)
+
+    if not device.close():
+        msg('error', _('Cannot close device.'))
+        return False
 
