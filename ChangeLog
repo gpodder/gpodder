@@ -1,3 +1,13 @@
+Wed, 09 Jan 2008 11:52:23 +0100 <thp@perli.net>
+Use os.rename to make channel list saving atomic
+
+	* src/gpodder/opml.py: Make the saving of the channel list atomic by
+	first saving it to a temporary file and then using os.rename to really
+	move the file in place (this should make the channel list saving very
+	stable and protect against certain bad system conditions where the
+	channel list is emptied); thanks to Jens Thiele <karme@berlios.de> for
+	the suggestion and pointers to improve the channel saving code
+
 Sat, 05 Jan 2008 15:34:23 +0100 <thp@perli.net>
 Make logging in libpodcasts less verbose
 

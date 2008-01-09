@@ -47,6 +47,7 @@ import xml.sax.saxutils
 import urllib
 import urllib2
 import os.path
+import os
 
 import datetime
 import gpodder
@@ -199,12 +200,13 @@ class Exporter(object):
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512
-            if util.get_free_disk_space(self.filename) < len(data)+FREE_DISK_SPACE_AFTER:
+            if util.get_free_disk_space(self.filename) < 2*len(data)+FREE_DISK_SPACE_AFTER:
                 log('Not enough free disk space to save channel list to %s', self.filename, sender = self)
                 return False
-            fp = open( self.filename, 'w')
+            fp = open(self.filename+'.tmp', 'w')
             fp.write(data)
             fp.close()
+            os.rename(self.filename+'.tmp', self.filename)
         except:
             log( 'Could not open file for writing: %s', self.filename, sender = self)
             return False
