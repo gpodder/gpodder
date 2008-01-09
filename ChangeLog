@@ -1,3 +1,17 @@
+Wed, 09 Jan 2008 23:43:56 +0100 <thp@perli.net>
+Merge tray icon and notification patch by Jérôme Chabod
+
+	* data/gpodder.glade: UI support for tray icon settings and
+	configuration options for auto update feeds (auto update based on a
+	patch by Nick (nikosapi.org)
+	* src/gpodder/config.py: Add configuration options that support the
+	tray icon, notification bubble and automatic update/close functions
+	* src/gpodder/gui.py: Support the tray icon in the GUI; link the
+	configuration options with the preferences dialog; re-work the channel
+	update dialog to be more slipstreamed
+	* src/gpodder/trayicon.py: Added new tray icon module by
+	Jérôme Chabod <jerome.chabod@ifrance.com>
+
 Wed, 09 Jan 2008 23:09:54 +0100 <thp@perli.net>
 Updated Swedish translation by Anders Kvist
 

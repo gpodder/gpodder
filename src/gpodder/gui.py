@@ -37,6 +37,7 @@ from gpodder import opml
 from gpodder import services
 from gpodder import download
 from gpodder import SimpleGladeApp
+from gpodder import trayicon
 
 from libpodcasts import podcastChannel
 from libpodcasts import channels_to_model
@@ -99,7 +100,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
 
         if title:
-            dlg.set_title( title)
+            dlg.set_title(str(title))
             dlg.set_markup( '<span weight="bold" size="larger">%s</span>\n\n%s' % ( title, message ))
         else:
             dlg.set_markup( '<span weight="bold" size="larger">%s</span>' % ( message ))
@@ -163,6 +164,18 @@ class gPodder(GladeWidget):
         self.uar = None
 
         gl = gPodderLib()
+        
+        self.minimized = False
+        self.gPodder.connect('window-state-event', self.window_state_event)
+        
+        self.tray_icon = None
+        self.show_hide_tray_icon()
+                   
+        if self.tray_icon:
+            if gl.config.start_iconified: 
+                self.iconify_main_window()
+            elif gl.config.minimize_to_tray:
+                self.tray_icon.set_visible(False)
 
         gl.config.connect_gtk_window( self.gPodder)
         gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
@@ -280,7 +293,10 @@ class gPodder(GladeWidget):
         self.update_item_device()
 
         # Now, update the feed cache, when everything's in place
-        self.update_feed_cache( force_update = gl.config.update_on_startup)
+        self.update_feed_cache(force_update=gl.config.update_on_startup)
+
+        # Start the auto-update procedure
+        self.auto_update_procedure(first_run=True)
 
         # Delete old episodes if the user wishes to
         if gl.config.auto_remove_old_episodes:
@@ -653,7 +669,7 @@ class gPodder(GladeWidget):
                 self.channels.append( channel)
                 save_channels( self.channels)
                 # download changed channels
-                self.update_feed_cache( force_update = False)
+                self.update_feed_cache(force_update=False)
 
                 (username, password) = util.username_password_from_url( result)
                 if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
@@ -736,85 +752,114 @@ class gPodder(GladeWidget):
         sync.close(success = not sync.cancelled, cleaned = True)
         gobject.idle_add(self.updateTreeView)
 
-    def update_feed_cache_callback( self, label, progressbar, position, count):
-        if len(self.channels) > position:
-            title = _('Updating %s') % saxutils.escape( self.channels[position].title)
-        else:
-            title = _('Please wait...')
+    def update_feed_cache_callback(self, progressbar, position, count):
+        title = self.channels[position].title
+        progressbar.set_text(_('Updating %s (%d/%d)')%(title, position+1, count))
 
-        label.set_markup( '<i>%s</i>' % title)
+        if count > 0:
+            progressbar.set_fraction(float(position)/float(count))
 
-        progressbar.set_text( _('%d of %d channels updated') % ( position, count ))
-        if count:
-            progressbar.set_fraction( ((1.00*position) / (1.00*count)))
+    def update_feed_cache_finish_callback(self, force_update=False, please_wait_dialog=None):
+        if please_wait_dialog is not None:
+            please_wait_dialog.destroy()
+
+        self.updateComboBox()
+
+        gl = gPodderLib()
+
+        if self.tray_icon:
+            self.tray_icon.set_status(None)
+
+            if self.minimized and force_update and gl.config.download_after_update:
+                new_episodes = []
+                for channel in self.channels:
+                    for episode in channel.get_new_episodes():
+                        new_episodes.append(episode.title)
+                if len(new_episodes) > 0:
+                    title = _('gPodder has found ')
+                    if len(new_episodes) == 1:
+                        title += (_('one new episode:'))
+                    else:    
+                        title += (_('%i new episodes:') % len(new_episodes))
+                    message = self.tray_icon.format_episode_list(new_episodes)
+                    actions=[self.tray_icon.ACTION_SHOW, self.tray_icon.ACTION_START_DOWNLOAD]
+                    self.tray_icon.send_notification(message, title, actions)
+                    return
+
+        # download all new?
+        if force_update and gl.config.download_after_update:
+            self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
         self.channels = load_channels( force_update = force_update, callback_proc = callback_proc, callback_error = callback_error, offline = not force_update)
         if finish_proc:
             finish_proc()
 
-    def update_feed_cache(self, force_update = True):
-        title = _('Downloading podcast feeds')
-        heading = _('Downloading feeds')
-        body = _('Podcast feeds contain channel metadata and information about current episodes.')
-        
-        please_wait = gtk.Dialog( title, self.gPodder, gtk.DIALOG_MODAL, ( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, ))
-        please_wait.set_transient_for( self.gPodder)
-        please_wait.set_position( gtk.WIN_POS_CENTER_ON_PARENT)
-        please_wait.vbox.set_spacing( 5)
-        please_wait.set_border_width( 10)
-        please_wait.set_resizable( False)
-        
-        label_heading = gtk.Label()
-        label_heading.set_alignment( 0.0, 0.5)
-        label_heading.set_markup( '<span weight="bold" size="larger">%s</span>' % heading)
-        
-        label_body = gtk.Label()
-        label_body.set_text( body)
-        label_body.set_alignment( 0.0, 0.5)
-        label_body.set_line_wrap( True)
-        
-        myprogressbar = gtk.ProgressBar()
-        
-        mylabel = gtk.Label()
-        mylabel.set_alignment( 0.0, 0.5)
-        mylabel.set_ellipsize( pango.ELLIPSIZE_END)
-        
-        # put it all together
-        please_wait.vbox.pack_start( label_heading)
-        please_wait.vbox.pack_start( label_body)
-        please_wait.vbox.pack_start( myprogressbar)
-        please_wait.vbox.pack_end( mylabel)
-        please_wait.show_all()
+    def update_feed_cache(self, force_update=True):
+        if self.tray_icon:
+            self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
-        # center the dialog on the gPodder main window
-        ( x, y ) = self.gPodder.get_position()
-        ( w, h ) = self.gPodder.get_size()
-        ( pw, ph ) = please_wait.get_size()
-        please_wait.move( x + w/2 - pw/2, y + h/2 - ph/2)
-        
-        # hide separator line
-        please_wait.set_has_separator( False)
-        
+        # skip dialog if the window is not active and tray icon is displayed
+        if self.minimized and self.tray_icon:
+            show_update_dialog = False
+        else:
+            show_update_dialog = True
+
+        please_wait = None
+        if show_update_dialog:
+            title = _('Downloading podcast feeds')
+            heading = _('Downloading feeds')
+            body = _('Podcast feeds contain channel metadata and information about current episodes.')
+    
+            please_wait = gtk.Dialog(title, self.gPodder, gtk.DIALOG_MODAL, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            please_wait.set_transient_for(self.gPodder)
+            please_wait.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+            please_wait.vbox.set_spacing(5)
+            please_wait.set_border_width(5)
+            please_wait.set_resizable(False)
+    
+            label_heading = gtk.Label()
+            label_heading.set_alignment(0.0, 0.5)
+            label_heading.set_markup('<span weight="bold" size="larger">%s</span>'%heading)
+    
+            label_body = gtk.Label(body)
+            label_body.set_alignment(0.0, 0.5)
+            label_body.set_line_wrap(True)
+    
+            progressbar = gtk.ProgressBar()
+            progressbar.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
+    
+            # put it all together
+            for widget in (label_heading, label_body, progressbar):
+                please_wait.vbox.pack_start(widget)
+            please_wait.show_all()
+    
+            # center the dialog on the gPodder main window
+            (x, y) = self.gPodder.get_position()
+            (w, h) = self.gPodder.get_size()
+            (pw, ph) = please_wait.get_size()
+            please_wait.move(int(x+w/2-pw/2), int(y+h/2-ph/2))
+    
+            # hide separator line
+            please_wait.set_has_separator(False)
+
         # let's get down to business..
-        callback_proc = lambda pos, count: gobject.idle_add( self.update_feed_cache_callback, mylabel, myprogressbar, pos, count)
+        if show_update_dialog:
+            callback_proc = lambda pos, count: gobject.idle_add(self.update_feed_cache_callback, progressbar, pos, count)
+        else:
+            callback_proc = None
         callback_error = lambda x: gobject.idle_add( self.show_message, x)
-        finish_proc = lambda: gobject.idle_add( please_wait.destroy)
+        finish_proc = lambda: gobject.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait)
 
         args = ( force_update, callback_proc, callback_error, finish_proc, )
 
         thread = Thread( target = self.update_feed_cache_proc, args = args)
         thread.start()
 
-        please_wait.run()
-        please_wait.destroy()
-
-        self.updateComboBox()
-        
-        # download all new?
-        if force_update and gPodderLib().config.download_after_update:
-            self.on_itemDownloadAllNew_activate( self.gPodder)
-
+        if please_wait is not None:
+            please_wait.run()
+            please_wait.destroy()
+            
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
         if self.active_channel == None:
             return
@@ -854,15 +899,66 @@ class gPodder(GladeWidget):
                 log( 'Episode has already been downloaded.')
                 current_channel.addDownloadedItem( current_podcast)
                 self.updateComboBox()
+                
+    def on_gPodder_delete_event(self, widget, *args):
+        """Called when the GUI wants to close the window
+        Displays a confirmation dialog (and closes/hides gPodder)
+        """
 
-    def close_gpodder(self, widget, *args):
+        gl = gPodderLib()
+        downloading = services.download_status_manager.has_items()
+
+        if gl.config.on_quit_ask or downloading:
+            dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
+            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            if self.tray_icon:
+                dialog.add_button(_('Hide gPodder'), gtk.RESPONSE_YES)
+            dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
+
+            title = _('Quit gPodder')
+            if downloading:
+                message = _('You are downloading episodes. If you close gPodder now, the downloads will be aborted.')
+            elif self.tray_icon:
+                message = _('If you hide gPodder, it will continue to run in the system tray notification area.')
+            else:
+                message = _('Do you really want to quit gPodder now?')
+
+            dialog.set_title(title)
+            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+            if not downloading:
+                cb_ask = gtk.CheckButton(_("Don't ask me again"))
+                dialog.vbox.pack_start(cb_ask)
+                cb_ask.show_all()
+
+            result = dialog.run()
+            dialog.destroy()
+
+            if result == gtk.RESPONSE_CLOSE:
+                if not downloading and cb_ask.get_active() == True:
+                    gl.config.on_quit_ask = False
+                    gl.config.on_quit_systray = False
+                self.close_gpodder()
+            elif result == gtk.RESPONSE_YES:
+                if not downloading and cb_ask.get_active() == True:
+                    gl.config.on_quit_ask = False
+                    gl.config.on_quit_systray = True
+                self.iconify_main_window()
+
+        elif gl.config.on_quit_systray and self.tray_icon:
+            self.iconify_main_window()
+        else:
+            self.close_gpodder()
+
+        return True
+
+    def close_gpodder(self):
+        """ clean everything and exit properly
+        """
         if self.channels:
             if not save_channels(self.channels):
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving channel list'))
 
         services.download_status_manager.cancel_all()
-
-        gl = gPodderLib()
 
         self.gtk_main_quit()
         sys.exit( 0)
@@ -983,7 +1079,7 @@ class gPodder(GladeWidget):
         )
 
         episodes = []
-        
+
         for channel in self.channels:
             for episode in channel.get_new_episodes():
                 episodes.append( episode)
@@ -1059,6 +1155,21 @@ class gPodder(GladeWidget):
             thread = Thread(target=self.ipod_cleanup_proc, args=(sync,))
             thread.start()
 
+    def show_hide_tray_icon(self):
+        gl = gPodderLib()
+
+        if gl.config.display_tray_icon and self.tray_icon is None:
+            self.tray_icon = trayicon.GPodderStatusIcon(self, scalable_dir)
+        elif not gl.config.display_tray_icon and self.tray_icon is not None:
+            self.tray_icon.set_visible(False)
+            del self.tray_icon
+            self.tray_icon = None
+
+        if gl.config.minimize_to_tray and self.tray_icon:
+            self.tray_icon.set_visible(self.minimized)
+        elif self.tray_icon:
+            self.tray_icon.set_visible(True)
+
     def update_item_device( self):
         gl = gPodderLib()
 
@@ -1070,6 +1181,7 @@ class gPodder(GladeWidget):
             self.itemDevice.hide_all()
 
     def properties_closed( self):
+        self.show_hide_tray_icon()
         self.update_item_device()
         self.updateComboBox()
 
@@ -1276,6 +1388,15 @@ class gPodder(GladeWidget):
         self.treeAvailable.get_selection().select_all()
         self.on_treeAvailable_row_activated( self.toolDownload, args)
         self.treeAvailable.get_selection().unselect_all()
+        
+    def auto_update_procedure(self, first_run=False):
+        log('auto_update_procedure() got called', sender=self)
+        gl = gPodderLib()
+        if not first_run and gl.config.auto_update_feeds:
+            self.update_feed_cache()
+
+        next_update = 60*1000*gl.config.auto_update_frequency
+        gobject.timeout_add(next_update, self.auto_update_procedure)
 
     def on_treeDownloads_row_activated(self, widget, *args):
         cancel_urls = []
@@ -1386,7 +1507,31 @@ class gPodder(GladeWidget):
         self.treeAvailable.get_selection().select_all()
         self.on_btnDownloadedDelete_clicked( widget, args)
         self.treeAvailable.get_selection().unselect_all()
+        
+    def window_state_event(self, widget, event):
+        old_minimized = self.minimized
 
+        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+            self.minimized = True
+        else:
+            self.minimized = False
+
+        if old_minimized != self.minimized and self.tray_icon:
+            self.gPodder.set_skip_taskbar_hint(self.minimized)
+        elif not self.tray_icon:
+            self.gPodder.set_skip_taskbar_hint(False)
+
+        gl = gPodderLib()
+        if gl.config.minimize_to_tray and self.tray_icon:
+            self.tray_icon.set_visible(self.minimized)
+    
+    def uniconify_main_window(self):
+        if self.minimized:
+            self.gPodder.present()
+ 
+    def iconify_main_window(self):
+        if not self.minimized:
+            self.gPodder.iconify()           
 
 class gPodderChannel(GladeWidget):
     def new(self):
@@ -1508,7 +1653,14 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_filechooser( 'bittorrent_dir', self.chooserBitTorrentTo)
         gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
         gl.config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
-
+        gl.config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
+        gl.config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
+        gl.config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
+        gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
+        gl.config.connect_gtk_togglebutton('disable_notifications', self.disable_notifications)
+        gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
+        gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
+        
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
         self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())
 
@@ -1573,7 +1725,10 @@ class gPodderProperties(GladeWidget):
 
         if event:
             event.set()
-
+            
+    def on_auto_update_feeds_toggled( self, widget, *args):
+        self.auto_update_frequency.set_sensitive(widget.get_active())
+        
     def on_cbCustomSyncName_toggled( self, widget, *args):
         self.entryCustomSyncName.set_sensitive( widget.get_active())
 
@@ -1772,7 +1927,8 @@ class gPodderEpisode(GladeWidget):
 
     def on_download_status_progress( self, url, progress, speed):
         if url == self.episode.url:
-            self.progress_bar.set_fraction( 1.0*progress/100.0)
+            progress = float(min(100.0,max(0.0,progress)))
+            self.progress_bar.set_fraction(progress/100.0)
             self.progress_bar.set_text( 'Downloading: %d%% (%s)' % ( progress, speed, ))
 
     def hide_show_widgets( self):

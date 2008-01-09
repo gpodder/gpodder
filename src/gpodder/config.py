@@ -61,6 +61,15 @@ gPodderSettings = {
     'on_sync_mark_played': ( bool, False ),
     'on_sync_delete': ( bool, False ),
     'auto_remove_old_episodes': ( bool, False ),
+    'auto_update_feeds': (bool, False),
+    'auto_update_frequency': (int, 20),
+    
+    # Tray icon and notification settings
+    'display_tray_icon': (bool, False),
+    'minimize_to_tray': (bool, False),  
+    'start_iconified': (bool, False),
+    'disable_notifications': (bool, False),
+    'on_quit_ask': (bool, True),
 
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod' ),
@@ -71,6 +80,7 @@ gPodderSettings = {
     # Special settings (not in preferences)
     'default_new': ( int, 1 ),
     'use_si_units': ( bool, False ),
+    'on_quit_systray': (bool, False),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),
