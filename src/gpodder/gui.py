@@ -1206,21 +1206,41 @@ class gPodder(GladeWidget):
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
+            dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
+            dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
+            dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
+
             title = _('Remove channel and episodes?')
-            message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % ( self.active_channel.title, )
-            if self.show_confirmation( message, title):
-                self.active_channel.remove_downloaded()
+            message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
+
+            dialog.set_title(title)
+            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+
+            cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
+            dialog.vbox.pack_start(cb_ask)
+            cb_ask.show_all()
+
+            result = dialog.run()
+            dialog.destroy()
+
+            if result == gtk.RESPONSE_YES:
+                # delete downloaded episodes only if checkbox is unchecked
+                if cb_ask.get_active() == False:
+                    self.active_channel.remove_downloaded()
+                else:
+                    log('Not removing downloaded episodes', sender=self)
+
                 # only delete partial files if we do not have any downloads in progress
                 delete_partial = not services.download_status_manager.has_items()
-                gPodderLib().clean_up_downloads( delete_partial)
-                self.channels.remove( self.active_channel)
-                save_channels( self.channels)
+                gPodderLib().clean_up_downloads(delete_partial)
+                self.channels.remove(self.active_channel)
+                save_channels(self.channels)
                 if len(self.channels) > 0:
-                    self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
-                    self.active_channel = self.channels[len( self.channels)-1]
-                self.update_feed_cache( force_update = False)
+                    self.treeChannels.get_selection().select_path((len(self.channels)-1,))
+                    self.active_channel = self.channels[len(self.channels)-1]
+                self.update_feed_cache(force_update=False)
         except:
-            pass
+            log('There has been an error removing the channel.', traceback=True, sender=self)
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
