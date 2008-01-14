@@ -1276,6 +1276,9 @@ class gPodder(GladeWidget):
     def on_wiki_activate(self, widget, *args):
         Thread(target=webbrowser.open, args=('http://gpodderwiki.jottit.com/',)).start()
 
+    def on_bug_tracker_activate(self, widget, *args):
+        Thread(target=webbrowser.open, args=('http://gpodder.thegithouse.com/',)).start()
+
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
         dlg.set_name( app_name)
