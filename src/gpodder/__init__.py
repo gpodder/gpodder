@@ -17,5 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# The User-Agent string for downloads
 user_agent = 'gPodder'
+
+# Are we running in GUI or console mode?
+interface_is_gui = False
 

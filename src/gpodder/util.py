@@ -29,10 +29,11 @@ are not tied to any specific part of gPodder.
 
 """
 
-
+import gpodder
 from gpodder.liblogger import log
 
 import gtk
+import gobject
 
 import os
 import os.path
@@ -584,4 +585,23 @@ def itunes_discover_rss(url):
     except:
         return None
 
+
+def idle_add(func, *args):
+    """
+    This is a wrapper function that does the Right
+    Thing depending on if we are running a GTK+ GUI or
+    not. If not, we're simply calling the function.
+
+    If we are a GUI app, we use gobject.idle_add() to
+    call the function later - this is needed for
+    threads to be able to modify GTK+ widget data.
+    """
+    if gpodder.interface_is_gui:
+        def x(f, *a):
+            f(*a)
+            return False
+
+        gobject.idle_add(func, *args)
+    else:
+        func(*args)
 

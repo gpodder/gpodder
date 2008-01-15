@@ -23,7 +23,6 @@
 
 
 import gtk
-import gobject
 
 from gpodder.liblogger import log
 
@@ -36,6 +35,7 @@ except:
     have_pynotify = False
 
 from gpodder import services
+from gpodder import util
 
 from libgpodder import gPodderLib
 
@@ -235,7 +235,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if action=='show': 
             self.__gpodder.uniconify_main_window()
         elif action=='quit':
-            gobject.idle_add(self.__gpodder.close_gpodder)
+            util.idle_add(self.__gpodder.close_gpodder)
         elif action=='ignore':
             pass
         elif action=='keep_dowloading':

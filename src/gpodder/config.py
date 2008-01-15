@@ -25,8 +25,8 @@
 
 
 import gtk
-import gobject
 
+from gpodder import util
 from gpodder.liblogger import log
 
 import atexit
@@ -170,7 +170,7 @@ class Config(dict):
             window.resize( getattr( self, width), getattr( self, height))
             window.move( getattr( self, x), getattr( self, y))
             self.disable_window_events()
-            gobject.idle_add(self.enable_window_events)
+            util.idle_add(self.enable_window_events)
             window.connect( 'configure-event', self.receive_configure_event, config_prefix)
         else:
             raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))

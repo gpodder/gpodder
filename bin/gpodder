@@ -119,6 +119,7 @@ def main( argv = sys.argv):
         console.del_channel( options.delete)
     else:
         #default run gui
+        gpodder.interface_is_gui = True
         from gpodder import gui
         from gpodder.SimpleGladeApp import bindtextdomain
         import gtk.glade

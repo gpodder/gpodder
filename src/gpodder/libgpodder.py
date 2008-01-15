@@ -25,7 +25,6 @@
 
 import gtk
 import gtk.gdk
-import gobject
 import thread
 import threading
 import urllib
@@ -214,7 +213,7 @@ class gPodderLibClass( object):
 
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if callback_status != None:
-            gobject.idle_add( callback_status, _('Downloading channel cover...'))
+            util.idle_add(callback_status, _('Downloading channel cover...'))
         pixbuf = gtk.gdk.PixbufLoader()
         
         if cover_file == None:
@@ -247,11 +246,11 @@ class gPodderLibClass( object):
                 if pb.get_height() > MAX_SIZE:
                     factor = MAX_SIZE*1.0/pb.get_height()
                     pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
-                gobject.idle_add( callback_pixbuf, pb)
+                util.idle_add(callback_pixbuf, pb)
         if callback_status != None:
-            gobject.idle_add( callback_status, '')
+            util.idle_add(callback_status, '')
         if callback_finished != None:
-            gobject.idle_add( callback_finished)
+            util.idle_add(callback_finished)
 
     def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if not url and not os.path.exists( cover_file):

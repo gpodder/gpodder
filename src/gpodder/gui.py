@@ -93,8 +93,8 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             else:
                 getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
-    def notification( self, message, title = None):
-        gobject.idle_add( self.show_message, message, title)
+    def notification(self, message, title=None):
+        util.idle_add(self.show_message, message, title)
 
     def show_message( self, message, title = None):
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -716,8 +716,8 @@ class gPodder(GladeWidget):
         sync.close( success = not sync.cancelled)
         # update model for played state updates after sync
         for channel in self.channels:
-            gobject.idle_add( channel.update_model)
-        gobject.idle_add( self.updateComboBox)
+            util.idle_add(channel.update_model)
+        util.idle_add(self.updateComboBox)
 
     def ipod_cleanup_callback(self, sync, tracks):
         title = _('Delete podcasts on iPod?')
@@ -725,7 +725,7 @@ class gPodder(GladeWidget):
         if len(tracks) > 0 and self.show_confirmation(message, title):
             sync.remove_tracks(tracks)
         sync.close(success=not sync.cancelled, cleaned=True)
-        gobject.idle_add(self.updateTreeView)
+        util.idle_add(self.updateTreeView)
 
     def ipod_cleanup_proc( self, sync):
         if not sync.open():
@@ -741,7 +741,7 @@ class gPodder(GladeWidget):
                                     stock_ok_button = gtk.STOCK_DELETE, callback = remove_tracks_callback)
         else:
             sync.close(success = not sync.cancelled, cleaned = True)
-            gobject.idle_add(self.updateTreeView)
+            util.idle_add(self.updateTreeView)
 
     def mp3player_cleanup_proc( self, sync):
         if not sync.open():
@@ -750,7 +750,7 @@ class gPodder(GladeWidget):
 
         sync.clean_playlist()
         sync.close(success = not sync.cancelled, cleaned = True)
-        gobject.idle_add(self.updateTreeView)
+        util.idle_add(self.updateTreeView)
 
     def update_feed_cache_callback(self, progressbar, position, count):
         title = self.channels[position].title
@@ -845,13 +845,12 @@ class gPodder(GladeWidget):
 
         # let's get down to business..
         if show_update_dialog:
-            callback_proc = lambda pos, count: gobject.idle_add(self.update_feed_cache_callback, progressbar, pos, count)
+            callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, progressbar, pos, count)
         else:
             callback_proc = None
-        callback_error = lambda x: gobject.idle_add( self.show_message, x)
-        finish_proc = lambda: gobject.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait)
+        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait)
 
-        args = ( force_update, callback_proc, callback_error, finish_proc, )
+        args = (force_update, callback_proc, self.notification, finish_proc)
 
         thread = Thread( target = self.update_feed_cache_proc, args = args)
         thread.start()
@@ -1744,7 +1743,7 @@ class gPodderProperties(GladeWidget):
         gl = gPodderLib()
         gl.downloaddir = self.chooserDownloadTo.get_filename()
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
-            gobject.idle_add( self.show_message, _('There has been an error moving your downloads to the specified location. The old download directory will be used instead.'), _('Error moving downloads'))
+            self.notification(_('There has been an error moving your downloads to the specified location. The old download directory will be used instead.'), _('Error moving downloads'))
 
         if event:
             event.set()
@@ -2140,16 +2139,19 @@ class gPodderOpmlLister(GladeWidget):
 
         self.btnOK.set_sensitive( bool(len(self.channels)))
 
-    def thread_func( self):
-        url = self.entryURL.get_text()
-        importer = opml.Importer( url)
-        model = importer.get_model()
-        gobject.idle_add( self.treeviewChannelChooser.set_model, model)
-        gobject.idle_add( self.labelStatus.set_label, '')
-        gobject.idle_add( self.btnDownloadOpml.set_sensitive, True)
-        gobject.idle_add( self.entryURL.set_sensitive, True)
-        gobject.idle_add( self.treeviewChannelChooser.set_sensitive, True)
+    def thread_finished(self, model):
+        self.treeviewChannelChooser.set_model(model)
+        self.labelStatus.set_label('')
+        self.btnDownloadOpml.set_sensitive(True)
+        self.entryURL.set_sensitive(True)
+        self.treeviewChannelChooser.set_sensitive(True)
         self.channels = []
+
+    def thread_func(self):
+        url = self.entryURL.get_text()
+        importer = opml.Importer(url)
+        model = importer.get_model()
+        util.idle_add(self.thread_finished, model)
     
     def get_channels_from_url( self, url, callback_for_channel = None, callback_finished = None):
         if callback_for_channel:

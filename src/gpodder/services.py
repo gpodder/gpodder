@@ -27,6 +27,7 @@
 from gpodder.liblogger import log
 
 from gpodder import libgpodder
+from gpodder import util
 
 import gtk
 import gobject
@@ -61,7 +62,7 @@ class ObservableService(object):
     def notify(self, signal_name, *args):
         if signal_name in self.observers:
             for observer in self.observers[signal_name]:
-                gobject.idle_add(observer, *args)
+                util.idle_add(observer, *args)
         else:
             log('Signal "%s" is not available for notification.', signal_name, sender=self)
 
@@ -133,7 +134,7 @@ class DownloadStatusManager(ObservableService):
         iter = self.status_list[id]['iter']
 	if iter != None:
             self.tree_model_lock.acquire()
-            gobject.idle_add( self.remove_iter, iter)
+            util.idle_add(self.remove_iter, iter)
             self.tree_model_lock.release()
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
@@ -162,7 +163,7 @@ class DownloadStatusManager(ObservableService):
             self.tree_model_lock.acquire()
             for ( column, key ) in self.COLUMN_NAMES.items():
                 if key in kwargs:
-                    gobject.idle_add( self.tree_model.set, iter, column, kwargs[key])
+                    util.idle_add(self.tree_model.set, iter, column, kwargs[key])
                     self.status_list[id][key] = kwargs[key]
             self.tree_model_lock.release()
 
@@ -193,7 +194,7 @@ class DownloadStatusManager(ObservableService):
 	    self.status_list[element]['iter'] = None
 	    self.status_list[element]['thread'].cancel()
         # clear the tree model after cancelling
-        gobject.idle_add( self.tree_model.clear)
+        util.idle_add(self.tree_model.clear)
 
     def cancel_by_url( self, url):
         for element in self.status_list:

@@ -78,7 +78,6 @@ import libgpodder
 import libconverter
 import libtagupdate
 
-import gobject
 
 # do we provide iPod functions to the user?
 def ipod_supported():
@@ -110,15 +109,15 @@ class gPodderSyncMethod:
 
     def set_progress( self, pos, max):
         if self.callback_progress:
-            gobject.idle_add( self.callback_progress, pos, max)
+            util.idle_add(self.callback_progress, pos, max)
 
     def set_progress_overall( self, pos, max):
         if self.callback_progress:
-            gobject.idle_add( self.callback_progress, pos, max, True)
+            util.idle_add(self.callback_progress, pos, max, True)
 
     def set_progress_sub_episode( self, pos, max):
         if self.callback_progress:
-            gobject.idle_add( self.callback_progress, pos, max, False, True)
+            util.idle_add(self.callback_progress, pos, max, False, True)
 
     def set_episode_status( self, episode):
         self.set_status( episode = _('Copying %s') % episode)
@@ -132,7 +131,7 @@ class gPodderSyncMethod:
     
     def set_status( self, episode = None, channel = None, progressbar_text = None, title = None, header = None, body = None):
         if self.callback_status:
-            gobject.idle_add( self.callback_status, episode, channel, progressbar_text, title, header, body)
+            util.idle_add(self.callback_status, episode, channel, progressbar_text, title, header, body)
 
     def sync_channel( self, channel, episodes = None, sync_played_episodes = True):
         if not channel.sync_to_devices and episodes == None or self.cancelled:
@@ -186,7 +185,7 @@ class gPodderSyncMethod:
             pass
 
         if self.callback_done:
-            gobject.idle_add( self.callback_done, success, access_error, cleaned, self.errors)
+            util.idle_add(self.callback_done, success, access_error, cleaned, self.errors)
 
 
 class gPodder_iPodSync( gPodderSyncMethod):

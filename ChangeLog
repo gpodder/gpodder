@@ -1,3 +1,19 @@
+Tue, 15 Jan 2008 14:50:13 +0100 <thp@perli.net>
+Modularize calls to gobject.idle_add (for non-GTK support)
+
+	* bin/gpodder: Set interface_is_gui to True when running the GUI
+	* src/gpodder/*.py: Use util.idle_add instead of gobject.idle_add
+	* src/gpodder/gui.py: Simplify some idle_add calls, code clean-up
+	* src/gpodder/__init__.py: Add "interface_is_gui" boolean variable
+	that tells us if we are running in GUI or CLI mode (this is needed for
+	util.idle_add to determine if it's going to use the gobject module or
+	not)
+	* src/gpodder/util.py: Add new function idle_add() that acts as a
+	wrapper to gobject.idle_add(); this will only use gobject.idle_add if
+	we are in GUI mode, and will call the callback directly when we are in
+	command-line mode (because we don't have to watch out for threading
+	race conditions there, compared to what GTK+ gives us)
+
 Mon, 14 Jan 2008 20:23:02 +0100 <thp@perli.net>
 Add menu item that links to gPodder's new bug tracker
 
