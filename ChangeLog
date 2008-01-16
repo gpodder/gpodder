@@ -1,3 +1,10 @@
+Wed, 16 Jan 2008 08:36:12 +0100 <thp@perli.net>
+Remove the "Ignore" button in tray icon notifications
+
+	* src/gpodder/trayicon.py: Remove the "ignore" action and button when
+	a download has finished; the "ignore" button is redundant, as the same
+	functionality can be achieved by clicking on the "x" of the bubble
+
 Tue, 15 Jan 2008 14:50:13 +0100 <thp@perli.net>
 Modularize calls to gobject.idle_add (for non-GTK support)
 

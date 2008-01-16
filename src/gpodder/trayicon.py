@@ -60,7 +60,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
     # actions: buttons within the notify bubble
     ACTION_SHOW = ('show', _('Show'))
     ACTION_QUIT = ('quit', _('Quit gPodder'))
-    ACTION_IGNORE = ('ignore', _('Ignore'))
     ACTION_FORCE_EXIT = ('force_quit', _('Quit anyway'))
     ACTION_KEEP_DOWLOADING = ('keep_dowloading', _('Keep dowloading'))
     ACTION_START_DOWNLOAD = ('download', _('Download'))
@@ -206,7 +205,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 return
 
             message = self.format_episode_list(self.__finished_downloads, title)
-            self.send_notification(message, _('gPodder downloads finished'), [self.ACTION_SHOW, self.ACTION_QUIT, self.ACTION_IGNORE])
+            self.send_notification(message, _('gPodder downloads finished'), [self.ACTION_SHOW, self.ACTION_QUIT])
  
             self.__finished_downloads = []
  
@@ -236,8 +235,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.__gpodder.uniconify_main_window()
         elif action=='quit':
             util.idle_add(self.__gpodder.close_gpodder)
-        elif action=='ignore':
-            pass
         elif action=='keep_dowloading':
             pass
         elif action=='force_quit':
