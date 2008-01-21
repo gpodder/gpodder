@@ -60,6 +60,7 @@ class gPodderLibClass( object):
         gpodder_dir = os.path.expanduser( '~/.config/gpodder/')
         util.make_directory( gpodder_dir)
 
+        self.tempdir = gpodder_dir
         self.feed_cache_file = os.path.join( gpodder_dir, 'feedcache.db')
         self.channel_settings_file = os.path.join( gpodder_dir, 'channelsettings.db')
 

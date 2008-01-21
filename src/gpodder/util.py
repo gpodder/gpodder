@@ -41,6 +41,7 @@ import glob
 import stat
 
 import re
+import subprocess
 import htmlentitydefs
 import time
 import locale
@@ -604,4 +605,63 @@ def idle_add(func, *args):
         gobject.idle_add(func, *args)
     else:
         func(*args)
+
+
+def discover_bluetooth_devices():
+    """
+    This is a generator function that returns
+    (address, name) tuples of all nearby bluetooth
+    devices found.
+
+    If the user has python-bluez installed, it will
+    be used. If not, we're trying to use "hcitool".
+
+    If neither python-bluez or hcitool are available,
+    this function is the empty generator.
+    """
+    try:
+        # If the user has python-bluez installed
+        import bluetooth
+        log('Using python-bluez to find nearby bluetooth devices')
+        for name, addr in bluetooth.discover_devices(lookup_names=True):
+            yield (name, addr)
+    except:
+        if find_command('hcitool') is not None:
+            log('Using hcitool to find nearby bluetooth devices')
+            # If the user has "hcitool" installed
+            p = subprocess.Popen(['hcitool', 'scan'], stdout=subprocess.PIPE)
+            for line in p.stdout:
+                match = re.match('^\t([^\t]+)\t([^\t]+)\n$', line)
+                if match is not None:
+                    (addr, name) = match.groups()
+                    yield (name, addr)
+        else:
+            log('Cannot find either python-bluez or hcitool - no bluetooth?')
+            return # <= empty generator
+
+
+def bluetooth_send_file(filename, device=None, callback_finished=None):
+    """
+    Sends a file via bluetooth using gnome-obex send.
+    Optional parameter device is the bluetooth address
+    of the device; optional parameter callback_finished
+    is a callback function that will be called when the
+    sending process has finished - it gets one parameter
+    that is either True (when sending succeeded) or False
+    when there was some error.
+    """
+    if find_command('gnome-obex-send'):
+        command_line = ['gnome-obex-send']
+        if device is not None:
+            command_line += ['--dest', device]
+        command_line.append(filename)
+        result = (subprocess.Popen(command_line).wait() == 0)
+        if callback_finished is not None:
+            callback_finished(result)
+        return result
+    else:
+        log('Cannot send file. Please install "gnome-obex-send".')
+        if callback_finished is not None:
+            callback_finished(False)
+        return False
 

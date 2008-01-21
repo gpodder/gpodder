@@ -72,6 +72,15 @@ gPodderSettings = {
     'disable_notifications': (bool, False),
     'on_quit_ask': (bool, True),
 
+    # Bluetooth-related settings
+    'bluetooth_enabled': (bool, False),
+    'bluetooth_ask_always': (bool, True),
+    'bluetooth_ask_never': (bool, False),
+    'bluetooth_device_name': (str, 'No device'),
+    'bluetooth_device_address': (str, '00:00:00:00:00:00'),
+    'bluetooth_use_converter': (bool, False),
+    'bluetooth_converter': (str, ''),
+
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod' ),
     'mp3_player_folder': ( str, '/media/usbdisk' ),
@@ -142,12 +151,17 @@ class Config(dict):
         else:
             raise ValueError( '%s is not a setting' % name)
 
-    def connect_gtk_filechooser( self, name, filechooser):
+    def connect_gtk_filechooser(self, name, filechooser, is_for_files=False):
         if name in self.Settings:
-            filechooser.set_current_folder(getattr( self, name))
-            filechooser.connect( 'selection-changed', lambda filechooser: setattr( self, name, filechooser.get_filename()))
+            if is_for_files:
+                # A FileChooser for a single file
+                filechooser.set_filename(getattr(self, name))
+            else:
+                # A FileChooser for a folder
+                filechooser.set_current_folder(getattr(self, name))
+            filechooser.connect('selection-changed', lambda filechooser: setattr(self, name, filechooser.get_filename()))
         else:
-            raise ValueError( '%s is not a setting' % name)
+            raise ValueError('%s is not a setting'%name)
 
     def receive_configure_event( self, widget, event, config_prefix):
         ( x, y, width, height ) = map( lambda x: config_prefix + '_' + x, [ 'x', 'y', 'width', 'height' ])

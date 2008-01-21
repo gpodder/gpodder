@@ -25,6 +25,7 @@ import pango
 import sys
 import shutil
 import webbrowser
+import subprocess
 
 from xml.sax import saxutils
 
@@ -396,6 +397,43 @@ class gPodder(GladeWidget):
 
         self.show_copy_dialog( src_filename = episode.local_filename(), dst_filename = episode.sync_filename())
 
+    def copy_episode_bluetooth(self, url, *args):
+        episode = self.active_channel.find_episode(url)
+        filename = episode.local_filename()
+
+        gl = gPodderLib()
+        if gl.config.bluetooth_ask_always:
+            device = None
+        else:
+            device = gl.config.bluetooth_device_address
+
+        if gl.config.bluetooth_use_converter:
+            destfile = os.path.join(gl.tempdir, episode.sync_filename())
+            (base, ext) = os.path.splitext(filename)
+            if not destfile.endswith(ext):
+                destfile += ext
+
+            title = _('Converting file')
+            message = _('Please wait while gPodder converts your media file for bluetooth file transfer.')
+            dlg = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+            dlg.set_title(title)
+            dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+            dlg.show_all()
+
+            def convert_and_send_thread(filename, destfile, device, dialog, notify):
+                p = subprocess.Popen([gl.config.bluetooth_converter, filename, destfile], stdout=sys.stdout, stderr=sys.stderr)
+                result = p.wait()
+                dialog.destroy()
+                if result == 0 or not os.path.exists(destfile):
+                    util.bluetooth_send_file(destfile, device)
+                else:
+                    notify(_('Error converting file.'), _('Bluetooth file transfer'))
+                util.delete_file(destfile)
+
+            Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
+        else:
+            Thread(target=util.bluetooth_send_file, args=[filename, device]).start()
+
     def treeview_button_pressed( self, treeview, event):
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
@@ -429,6 +467,7 @@ class gPodder(GladeWidget):
             first_url = model.get_value( model.get_iter( paths[0]), 0)
 
             menu = gtk.Menu()
+            gl = gPodderLib()
 
             ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
 
@@ -448,6 +487,15 @@ class gPodder(GladeWidget):
                     item = gtk.ImageMenuItem( _('Save %s to folder...') % episode_title)
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
+                    menu.append( item)
+                if gl.config.bluetooth_enabled:
+                    if gl.config.bluetooth_ask_always:
+                        bt_device_name = _('bluetooth device')
+                    else:
+                        bt_device_name = _('%s via bluetooth')%gl.config.bluetooth_device_name
+                    item = gtk.ImageMenuItem(_('Send to %s') % bt_device_name)
+                    item.set_image(gtk.image_new_from_icon_name('stock_bluetooth', gtk.ICON_SIZE_MENU))
+                    item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
                     menu.append( item)
                 menu.append( gtk.SeparatorMenuItem())
             else:
@@ -1688,12 +1736,18 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('disable_notifications', self.disable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
         gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
+        gl.config.connect_gtk_togglebutton('bluetooth_enabled', self.bluetooth_enabled)
+        gl.config.connect_gtk_togglebutton('bluetooth_ask_always', self.bluetooth_ask_always)
+        gl.config.connect_gtk_togglebutton('bluetooth_ask_never', self.bluetooth_ask_never)
+        gl.config.connect_gtk_togglebutton('bluetooth_use_converter', self.bluetooth_use_converter)
+        gl.config.connect_gtk_filechooser( 'bluetooth_converter', self.bluetooth_converter, is_for_files=True)
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
         self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
+        self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
         self.chooserDownloadTo.set_current_folder(gl.downloaddir)
 
         if tagging_supported():
@@ -1732,6 +1786,20 @@ class gPodderProperties(GladeWidget):
             self.iPodMountpoint.set_label( '')
         else:
             self.iPodMountpoint.set_label( ipod.mount_point)
+
+    def on_bluetooth_select_device_clicked(self, widget):
+        gl = gPodderLib()
+        self.bluetooth_select_device.set_sensitive(False)
+        gtk.main_iteration(False)
+        for name, address in util.discover_bluetooth_devices():
+            if self.show_confirmation('Use this device as your bluetooth device?', name):
+                gl.config.bluetooth_device_name = name
+                gl.config.bluetooth_device_address = address
+                self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
+                self.bluetooth_select_device.set_sensitive(True)
+                return
+        self.show_message('No more devices found', 'Scan finished')
+        self.bluetooth_select_device.set_sensitive(True)
     
     def set_uar(self, uar):
         self.comboAudioPlayerApp.set_model(uar.get_applications_as_model())
