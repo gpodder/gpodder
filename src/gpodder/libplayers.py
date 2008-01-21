@@ -72,15 +72,16 @@ class UserApplication(object):
 
 
 class UserAppsReader(object):
-    def __init__( self):
+    def __init__(self, mimetype):
         self.apps = []
+        self.mimetype = mimetype
 
     def read( self):
         for dir in userappsdirs:
             if exists( dir):
                 for file in glob( dir+'/*.desktop'):
                     self.parse_and_append( file)
-        self.apps.append( UserApplication( 'Shell command', '', 'audio/*', gtk.STOCK_EXECUTE))
+        self.apps.append(UserApplication('Shell command', '', self.mimetype+'/*', gtk.STOCK_EXECUTE))
 
     def parse_and_append( self, filename):
         try:
@@ -93,8 +94,8 @@ class UserAppsReader(object):
             app_cmd = parser.get( sect, 'Exec')
             app_mime = parser.get( sect, 'MimeType')
             app_icon = parser.get( sect, 'Icon')
-            if app_mime.find( 'audio/') != -1:
-                log( 'Player found: %s (%s)', app_name, filename)
+            if app_mime.find(self.mimetype+'/') != -1:
+                log('Player found (%s): %s (%s)', self.mimetype, app_name, filename)
                 self.apps.append( UserApplication( app_name, app_cmd, app_mime, app_icon))
         except:
             return

@@ -282,9 +282,13 @@ class gPodder(GladeWidget):
         self.active_channel = None
         self.channels = load_channels( load_items = False, offline = True)
 
-        # load list of user applications
-        self.user_apps_reader = UserAppsReader()
-        Thread( target = self.user_apps_reader.read).start()
+        # load list of user applications for audio playback
+        self.user_apps_reader = UserAppsReader('audio')
+        Thread(target = self.user_apps_reader.read).start()
+
+        # load list of user applications for video playback
+        self.user_video_apps_reader = UserAppsReader('video')
+        Thread(target = self.user_video_apps_reader.read).start()
 
         # Clean up old, orphaned download files
         gl.clean_up_downloads( delete_partial = True)
@@ -1187,6 +1191,7 @@ class gPodder(GladeWidget):
     def on_itemPreferences_activate(self, widget, *args):
         prop = gPodderProperties( callback_finished = self.properties_closed)
         prop.set_uar( self.user_apps_reader)
+        prop.set_video_uar(self.user_video_apps_reader)
 
     def on_itemAddChannel_activate(self, widget, *args):
         if self.channelPaned.get_position() < 200:
@@ -1657,6 +1662,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
         gl.config.connect_gtk_editable( 'ftp_proxy', self.ftpProxy)
         gl.config.connect_gtk_editable( 'player', self.openApp)
+        gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
         gl.config.connect_gtk_editable( 'opml_url', self.opmlURL)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
@@ -1706,11 +1712,18 @@ class gPodderProperties(GladeWidget):
 
         # setup cell renderers
         cellrenderer = gtk.CellRendererPixbuf()
-        self.comboPlayerApp.pack_start( cellrenderer, False)
-        self.comboPlayerApp.add_attribute( cellrenderer, 'pixbuf', 2)
+        self.comboAudioPlayerApp.pack_start(cellrenderer, False)
+        self.comboAudioPlayerApp.add_attribute(cellrenderer, 'pixbuf', 2)
         cellrenderer = gtk.CellRendererText()
-        self.comboPlayerApp.pack_start( cellrenderer, True)
-        self.comboPlayerApp.add_attribute( cellrenderer, 'markup', 0)
+        self.comboAudioPlayerApp.pack_start(cellrenderer, True)
+        self.comboAudioPlayerApp.add_attribute(cellrenderer, 'markup', 0)
+
+        cellrenderer = gtk.CellRendererPixbuf()
+        self.comboVideoPlayerApp.pack_start(cellrenderer, False)
+        self.comboVideoPlayerApp.add_attribute(cellrenderer, 'pixbuf', 2)
+        cellrenderer = gtk.CellRendererText()
+        self.comboVideoPlayerApp.pack_start(cellrenderer, True)
+        self.comboVideoPlayerApp.add_attribute(cellrenderer, 'markup', 0)
 
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
@@ -1720,22 +1733,39 @@ class gPodderProperties(GladeWidget):
         else:
             self.iPodMountpoint.set_label( ipod.mount_point)
     
-    def set_uar( self, uar):
-        self.comboPlayerApp.set_model( uar.get_applications_as_model())
-        # try to activate an item
-        index = self.find_active()
-        self.comboPlayerApp.set_active( index)
+    def set_uar(self, uar):
+        self.comboAudioPlayerApp.set_model(uar.get_applications_as_model())
+        index = self.find_active_audio_app()
+        self.comboAudioPlayerApp.set_active(index)
+
+    def set_video_uar(self, uar):
+        self.comboVideoPlayerApp.set_model(uar.get_applications_as_model())
+        index = self.find_active_video_app()
+        self.comboVideoPlayerApp.set_active(index)
     
-    def find_active( self):
-        model = self.comboPlayerApp.get_model()
+    def find_active_audio_app(self):
+        model = self.comboAudioPlayerApp.get_model()
         iter = model.get_iter_first()
         index = 0
-        while iter != None:
-            command = model.get_value( iter, 1)
+        while iter is not None:
+            command = model.get_value(iter, 1)
             if command == self.openApp.get_text():
                 return index
-            iter = model.iter_next( iter)
-            index = index + 1
+            iter = model.iter_next(iter)
+            index += 1
+        # return last item = custom command
+        return index-1
+
+    def find_active_video_app( self):
+        model = self.comboVideoPlayerApp.get_model()
+        iter = model.get_iter_first()
+        index = 0
+        while iter is not None:
+            command = model.get_value(iter, 1)
+            if command == self.openVideoApp.get_text():
+                return index
+            iter = model.iter_next(iter)
+            index += 1
         # return last item = custom command
         return index-1
     
@@ -1772,10 +1802,10 @@ class gPodderProperties(GladeWidget):
     def on_gPodderProperties_destroy(self, widget, *args):
         self.on_btnOK_clicked( widget, *args)
 
-    def on_comboPlayerApp_changed(self, widget, *args):
+    def on_comboAudioPlayerApp_changed(self, widget, *args):
         # find out which one
-        iter = self.comboPlayerApp.get_active_iter()
-        model = self.comboPlayerApp.get_model()
+        iter = self.comboAudioPlayerApp.get_active_iter()
+        model = self.comboAudioPlayerApp.get_model()
         command = model.get_value( iter, 1)
         if command == '':
             self.openApp.set_sensitive( True)
@@ -1785,6 +1815,21 @@ class gPodderProperties(GladeWidget):
             self.openApp.set_text( command)
             self.openApp.set_sensitive( False)
             self.openApp.hide()
+            self.labelCustomCommand.hide()
+
+    def on_comboVideoPlayerApp_changed(self, widget, *args):
+        # find out which one
+        iter = self.comboVideoPlayerApp.get_active_iter()
+        model = self.comboVideoPlayerApp.get_model()
+        command = model.get_value(iter, 1)
+        if command == '':
+            self.openVideoApp.set_sensitive(True)
+            self.openVideoApp.show()
+            self.labelCustomCommand.show()
+        else:
+            self.openVideoApp.set_text(command)
+            self.openVideoApp.set_sensitive(False)
+            self.openVideoApp.hide()
             self.labelCustomCommand.hide()
 
     def on_cbMaxDownloads_toggled(self, widget, *args):

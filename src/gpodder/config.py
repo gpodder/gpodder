@@ -38,6 +38,7 @@ import ConfigParser
 gPodderSettings = {
     # General settings
     'player': ( str, 'xdg-open' ),
+    'videoplayer': (str, 'unspecified'),
     'opml_url': ( str, 'http://gpodder.berlios.de/directory.opml' ),
     'http_proxy': ( str, '' ),
     'ftp_proxy': ( str, '' ),

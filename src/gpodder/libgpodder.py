@@ -72,6 +72,13 @@ class gPodderLibClass( object):
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
 
+        # We need to make a seamless upgrade, so by default the video player is not specified
+        # so the first time this application is run it will detect this and set it to the same 
+        # as the audio player.  This keeps gPodder functionality identical to that prior to the 
+        # upgrade.   The user can then set a specific video player if they so wish.	
+        if self.config.videoplayer == 'unspecified':
+            self.config.videoplayer = self.config.player	
+
         self.__download_history = HistoryStore( os.path.join( gpodder_dir, 'download-history.txt'))
         self.__playback_history = HistoryStore( os.path.join( gpodder_dir, 'playback-history.txt'))
         self.__locked_history = HistoryStore( os.path.join( gpodder_dir, 'lock-history.txt'))
@@ -195,7 +202,15 @@ class gPodderLibClass( object):
         self.history_mark_played( episode.url)
         filename = episode.local_filename()
 
-        command_line = shlex.split( util.format_desktop_command( self.config.player, filename).encode('utf-8'))
+        # Determine the file type and set the player accordingly.  
+        file_type = util.file_type_by_extension(util.file_extension_from_url(episode.url))
+
+        if file_type == 'video':
+            player = self.config.videoplayer
+        else:
+            player = self.config.player
+ 
+        command_line = shlex.split(util.format_desktop_command(player, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
         try:
             subprocess.Popen( command_line)
