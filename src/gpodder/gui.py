@@ -1121,7 +1121,7 @@ class gPodder(GladeWidget):
             if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
                 download.DownloadThread( episode.channel, episode, self.notification).start()
 
-    def on_itemDownloadAllNew_activate(self, widget, *args):
+    def new_episodes_show(self, episodes):
         columns = (
                 ('title', _('Episode')),
                 ('channel_prop', _('Channel')),
@@ -1129,22 +1129,23 @@ class gPodder(GladeWidget):
                 ('pubdate_prop', _('Released')),
         )
 
-        episodes = []
-
-        for channel in self.channels:
-            for episode in channel.get_new_episodes():
-                episodes.append( episode)
-
         if len(episodes) > 0:
             instructions = _('Select the episodes you want to download now.')
 
-            gPodderEpisodeSelector( title = _('New episodes available'), instructions = instructions, \
-                                    episodes = episodes, columns = columns, selected_default = True, \
-                                    callback = self.download_episode_list)
+            gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
+                                   episodes=episodes, columns=columns, selected_default=True, \
+                                   callback=self.download_episode_list)
         else:
             title = _('No new episodes')
             message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
-            self.show_message( message, title)
+            self.show_message(message, title)
+
+    def on_itemDownloadAllNew_activate(self, widget, *args):
+        episodes = []
+        for channel in self.channels:
+            for episode in channel.get_new_episodes():
+                episodes.append(episode)
+        self.new_episodes_show(episodes)
 
     def on_sync_to_ipod_activate(self, widget, *args):
         gl = gPodderLib()
@@ -1431,33 +1432,7 @@ class gPodder(GladeWidget):
         self.play_or_download()
 
     def on_btnDownloadNewer_clicked(self, widget, *args):
-        channel = self.active_channel
-        episodes_to_download = channel.get_new_episodes()
-
-        if not episodes_to_download:
-            title = _('No episodes to download')
-            message = _('You have already downloaded the most recent episodes from <b>%s</b>.') % ( channel.title, )
-            self.show_message( message, title)
-        else:
-            if len(episodes_to_download) > 1:
-                if len(episodes_to_download) < 10:
-                    e_str = '\n'.join( [ '  <b>'+saxutils.escape(e.title)+'</b>' for e in episodes_to_download ] )
-                else:
-                    e_str = '\n'.join( [ '  <b>'+saxutils.escape(e.title)+'</b>' for e in episodes_to_download[:7] ] )
-                    e_str_2 = _('(...%d more episodes...)') % ( len(episodes_to_download)-7, )
-                    e_str = '%s\n  <i>%s</i>' % ( e_str, e_str_2, )
-                title = _('Download new episodes?')
-                message = _('New episodes are available for download. If you want, you can download these episodes to your computer now.')
-                message = '%s\n\n%s' % ( message, e_str, )
-            else:
-                title = _('Download %s?') % saxutils.escape(episodes_to_download[0].title)
-                message = _('A new episode is available for download. If you want, you can download this episode to your computer now.')
-
-            if not self.show_confirmation( message, title):
-                return
-
-        for episode in episodes_to_download:
-            self.download_podcast_by_url( episode.url, False)
+        self.new_episodes_show(self.active_channel.get_new_episodes())
 
     def on_btnSelectAllAvailable_clicked(self, widget, *args):
         self.treeAvailable.get_selection().select_all()
