@@ -72,6 +72,7 @@ class gPodderLibClass( object):
             self.migrate_channels_xml()
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
+        util.make_directory(self.config.bittorrent_dir)
 
         self.__download_history = HistoryStore( os.path.join( gpodder_dir, 'download-history.txt'))
         self.__playback_history = HistoryStore( os.path.join( gpodder_dir, 'playback-history.txt'))
