@@ -72,6 +72,7 @@ class gPodderLibClass( object):
             self.migrate_channels_xml()
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
+        util.make_directory(self.config.bittorrent_dir)
 
         # We need to make a seamless upgrade, so by default the video player is not specified
         # so the first time this application is run it will detect this and set it to the same 
