@@ -52,6 +52,7 @@ help:
 	@echo 'make test            run gpodder in local directory'
 	@echo 'make cl              make new changelog entry (1)'
 	@echo 'make release         create source tarball in "dist/"'
+	@echo 'make releasetest     run some tests before the release'
 	@echo 'make install         install gpodder into "$(PREFIX)"'
 	@echo 'make uninstall       uninstall gpodder from "$(PREFIX)"'
 	@echo 'make generators      generate manpage, run tepache and resize logo'
@@ -83,6 +84,10 @@ deb:
 
 release: distclean
 	python setup.py sdist
+
+releasetest:
+	if grep -q '^__version__.*=.*+svn' $(BINFILE); then echo "Version is still '+svn'."; exit 1; fi
+	desktop-file-validate data/gpodder.desktop
 
 install: generators
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
@@ -144,7 +149,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl test release install update-icons generators gen_manpage gen_graphics clean distclean messages help
+.PHONY: all cl test release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
 
 ##########################################################################
 
