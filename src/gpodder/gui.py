@@ -98,6 +98,12 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         util.idle_add(self.show_message, message, title)
 
     def show_message( self, message, title = None):
+        if self.tray_icon and self.minimized:
+            if title is None:
+                title = 'gPodder'
+            self.tray_icon.send_notification(message, title, [self.tray_icon.ACTION_SHOW])            
+            return
+
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
 
         if title:
@@ -836,7 +842,7 @@ class gPodder(GladeWidget):
                     message = self.tray_icon.format_episode_list(new_episodes)
                     actions=[self.tray_icon.ACTION_SHOW, self.tray_icon.ACTION_START_DOWNLOAD]
                     self.tray_icon.send_notification(message, title, actions)
-                    return
+                return
 
         # download all new?
         if force_update and gl.config.download_after_update:
