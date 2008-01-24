@@ -98,7 +98,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         util.idle_add(self.show_message, message, title)
 
     def show_message( self, message, title = None):
-        if self.tray_icon and self.minimized:
+        if hasattr(self, 'tray_icon') and hasattr(self, 'minimized') and self.tray_icon and self.minimized:
             if title is None:
                 title = 'gPodder'
             self.tray_icon.send_notification(message, title, [self.tray_icon.ACTION_SHOW])            

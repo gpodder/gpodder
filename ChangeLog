@@ -1,3 +1,9 @@
+Thu, 24 Jan 2008 14:51:48 +0100 <thp@perli.net>
+Fix a bug for show_message and tray_icon/minimized
+
+	* src/gpodder/gui.py: Fix a bug when messages are shown for
+	non-gPodderMainWindow windows (that don't have tray_icon)
+
 Wed, 23 Jan 2008 11:55:35 +0100 <thp@perli.net>
 Make gpodder.desktop pass desktop-file-validate tests
 
