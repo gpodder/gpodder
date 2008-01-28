@@ -1446,43 +1446,28 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkRadioButton" id="cbSyncToPodcastPlaylist">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Sync to Podcasts playlist / Podcasts folder</property>
-		  <property name="use_underline">True</property>
-		  <property name="relief">GTK_RELIEF_NORMAL</property>
-		  <property name="focus_on_click">True</property>
-		  <property name="active">False</property>
-		  <property name="inconsistent">False</property>
-		  <property name="draw_indicator">True</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkHBox" id="hboxiPodPlaylistName">
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">5</property>
 
 		  <child>
-		    <widget class="GtkRadioButton" id="cbMusicChannel">
+		    <widget class="GtkLabel" id="label119">
 		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Sync to playlist/folder:</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
-		      <property name="active">False</property>
-		      <property name="inconsistent">False</property>
-		      <property name="draw_indicator">True</property>
-		      <property name="group">cbSyncToPodcastPlaylist</property>
-		      <signal name="toggled" handler="on_cbMusicChannel_toggled" last_modification_time="Sat, 08 Apr 2006 07:51:10 GMT"/>
+		      <property name="label" translatable="yes">Playlist name:</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -1494,7 +1479,6 @@
 		  <child>
 		    <widget class="GtkEntry" id="musicPlaylist">
 		      <property name="visible">True</property>
-		      <property name="sensitive">False</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>
 		      <property name="visibility">True</property>
@@ -3839,403 +3823,403 @@ Filesystem-based MP3 player</property>
 	    </packing>
 	  </child>
 
-  	  <child>
- 	    <widget class="GtkTable" id="table13">
- 	      <property name="border_width">10</property>
- 	      <property name="visible">True</property>
- 	      <property name="n_rows">8</property>
- 	      <property name="n_columns">4</property>
- 	      <property name="homogeneous">False</property>
- 	      <property name="row_spacing">6</property>
- 	      <property name="column_spacing">6</property>
- 
- 	      <child>
- 		<widget class="GtkImage" id="image2929">
- 		  <property name="visible">True</property>
- 		  <property name="icon_size">6</property>
- 		  <property name="icon_name">stock_bluetooth</property>
- 		  <property name="xalign">0.5</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">0</property>
- 		  <property name="right_attach">1</property>
- 		  <property name="top_attach">1</property>
- 		  <property name="bottom_attach">4</property>
- 		  <property name="x_padding">6</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options">fill</property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkLabel" id="label115">
- 		  <property name="visible">True</property>
- 		  <property name="label" translatable="yes">&lt;b&gt;Bluetooth Support&lt;/b&gt;</property>
- 		  <property name="use_underline">False</property>
- 		  <property name="use_markup">True</property>
- 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
- 		  <property name="wrap">False</property>
- 		  <property name="selectable">False</property>
- 		  <property name="xalign">0</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
- 		  <property name="width_chars">-1</property>
- 		  <property name="single_line_mode">False</property>
- 		  <property name="angle">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">0</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">0</property>
- 		  <property name="bottom_attach">1</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkCheckButton" id="bluetooth_enabled">
- 		  <property name="visible">True</property>
- 		  <property name="can_focus">True</property>
- 		  <property name="label" translatable="yes">Enable Bluetooth support</property>
- 		  <property name="use_underline">True</property>
- 		  <property name="relief">GTK_RELIEF_NORMAL</property>
- 		  <property name="focus_on_click">True</property>
- 		  <property name="active">False</property>
- 		  <property name="inconsistent">False</property>
- 		  <property name="draw_indicator">True</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">1</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">1</property>
- 		  <property name="bottom_attach">2</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkRadioButton" id="bluetooth_ask_always">
- 		  <property name="visible">True</property>
- 		  <property name="can_focus">True</property>
- 		  <property name="label" translatable="yes">Ask for device when sending</property>
- 		  <property name="use_underline">True</property>
- 		  <property name="relief">GTK_RELIEF_NORMAL</property>
- 		  <property name="focus_on_click">True</property>
- 		  <property name="active">False</property>
- 		  <property name="inconsistent">False</property>
- 		  <property name="draw_indicator">True</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">1</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">2</property>
- 		  <property name="bottom_attach">3</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkHSeparator" id="hseparator17">
- 		  <property name="visible">True</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">0</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">4</property>
- 		  <property name="bottom_attach">5</property>
- 		  <property name="y_padding">3</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkRadioButton" id="bluetooth_ask_never">
- 		  <property name="visible">True</property>
- 		  <property name="can_focus">True</property>
- 		  <property name="label" translatable="yes">Always send to</property>
- 		  <property name="use_underline">True</property>
- 		  <property name="relief">GTK_RELIEF_NORMAL</property>
- 		  <property name="focus_on_click">True</property>
- 		  <property name="active">False</property>
- 		  <property name="inconsistent">False</property>
- 		  <property name="draw_indicator">True</property>
- 		  <property name="group">bluetooth_ask_always</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">1</property>
- 		  <property name="right_attach">2</property>
- 		  <property name="top_attach">3</property>
- 		  <property name="bottom_attach">4</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkLabel" id="bluetooth_device_name">
- 		  <property name="visible">True</property>
- 		  <property name="label" translatable="yes">&lt;b&gt;Nokia N800&lt;/b&gt;</property>
- 		  <property name="use_underline">False</property>
- 		  <property name="use_markup">True</property>
- 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
- 		  <property name="wrap">False</property>
- 		  <property name="selectable">False</property>
- 		  <property name="xalign">0</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
- 		  <property name="width_chars">-1</property>
- 		  <property name="single_line_mode">False</property>
- 		  <property name="angle">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">2</property>
- 		  <property name="right_attach">3</property>
- 		  <property name="top_attach">3</property>
- 		  <property name="bottom_attach">4</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkButton" id="bluetooth_select_device">
- 		  <property name="visible">True</property>
- 		  <property name="can_focus">True</property>
- 		  <property name="relief">GTK_RELIEF_NORMAL</property>
- 		  <property name="focus_on_click">True</property>
- 		  <signal name="clicked" handler="on_bluetooth_select_device_clicked" last_modification_time="Wed, 16 Jan 2008 12:24:17 GMT"/>
- 
- 		  <child>
- 		    <widget class="GtkAlignment" id="alignment23">
- 		      <property name="visible">True</property>
- 		      <property name="xalign">0.5</property>
- 		      <property name="yalign">0.5</property>
- 		      <property name="xscale">0</property>
- 		      <property name="yscale">0</property>
- 		      <property name="top_padding">0</property>
- 		      <property name="bottom_padding">0</property>
- 		      <property name="left_padding">0</property>
- 		      <property name="right_padding">0</property>
- 
- 		      <child>
- 			<widget class="GtkHBox" id="hbox36">
- 			  <property name="visible">True</property>
- 			  <property name="homogeneous">False</property>
- 			  <property name="spacing">2</property>
- 
- 			  <child>
- 			    <widget class="GtkImage" id="image2930">
- 			      <property name="visible">True</property>
- 			      <property name="stock">gtk-find</property>
- 			      <property name="icon_size">4</property>
- 			      <property name="xalign">0.5</property>
- 			      <property name="yalign">0.5</property>
- 			      <property name="xpad">0</property>
- 			      <property name="ypad">0</property>
- 			    </widget>
- 			    <packing>
- 			      <property name="padding">0</property>
- 			      <property name="expand">False</property>
- 			      <property name="fill">False</property>
- 			    </packing>
- 			  </child>
- 
- 			  <child>
- 			    <widget class="GtkLabel" id="label118">
- 			      <property name="visible">True</property>
- 			      <property name="label" translatable="yes">Select device</property>
- 			      <property name="use_underline">True</property>
- 			      <property name="use_markup">False</property>
- 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
- 			      <property name="wrap">False</property>
- 			      <property name="selectable">False</property>
- 			      <property name="xalign">0.5</property>
- 			      <property name="yalign">0.5</property>
- 			      <property name="xpad">0</property>
- 			      <property name="ypad">0</property>
- 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
- 			      <property name="width_chars">-1</property>
- 			      <property name="single_line_mode">False</property>
- 			      <property name="angle">0</property>
- 			    </widget>
- 			    <packing>
- 			      <property name="padding">0</property>
- 			      <property name="expand">False</property>
- 			      <property name="fill">False</property>
- 			    </packing>
- 			  </child>
- 			</widget>
- 		      </child>
- 		    </widget>
- 		  </child>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">3</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">3</property>
- 		  <property name="bottom_attach">4</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkLabel" id="label116">
- 		  <property name="visible">True</property>
- 		  <property name="label" translatable="yes">&lt;b&gt;File Conversion Script&lt;/b&gt;</property>
- 		  <property name="use_underline">False</property>
- 		  <property name="use_markup">True</property>
- 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
- 		  <property name="wrap">False</property>
- 		  <property name="selectable">False</property>
- 		  <property name="xalign">0</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
- 		  <property name="width_chars">-1</property>
- 		  <property name="single_line_mode">False</property>
- 		  <property name="angle">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">0</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">5</property>
- 		  <property name="bottom_attach">6</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkCheckButton" id="bluetooth_use_converter">
- 		  <property name="visible">True</property>
- 		  <property name="can_focus">True</property>
- 		  <property name="label" translatable="yes">Use converter:</property>
- 		  <property name="use_underline">True</property>
- 		  <property name="relief">GTK_RELIEF_NORMAL</property>
- 		  <property name="focus_on_click">True</property>
- 		  <property name="active">False</property>
- 		  <property name="inconsistent">False</property>
- 		  <property name="draw_indicator">True</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">1</property>
- 		  <property name="right_attach">2</property>
- 		  <property name="top_attach">6</property>
- 		  <property name="bottom_attach">7</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkFileChooserButton" id="bluetooth_converter">
- 		  <property name="visible">True</property>
- 		  <property name="title" translatable="yes">Select A Converter Script</property>
- 		  <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
- 		  <property name="local_only">True</property>
- 		  <property name="show_hidden">False</property>
- 		  <property name="do_overwrite_confirmation">False</property>
- 		  <property name="width_chars">-1</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">2</property>
- 		  <property name="right_attach">4</property>
- 		  <property name="top_attach">6</property>
- 		  <property name="bottom_attach">7</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options"></property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkImage" id="image2931">
- 		  <property name="visible">True</property>
- 		  <property name="icon_size">6</property>
- 		  <property name="icon_name">text-x-script</property>
- 		  <property name="xalign">0.5</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="left_attach">0</property>
- 		  <property name="right_attach">1</property>
- 		  <property name="top_attach">6</property>
- 		  <property name="bottom_attach">7</property>
- 		  <property name="x_options">fill</property>
- 		  <property name="y_options">fill</property>
- 		</packing>
- 	      </child>
- 	    </widget>
- 	    <packing>
- 	      <property name="tab_expand">False</property>
- 	      <property name="tab_fill">True</property>
- 	    </packing>
- 	  </child>
- 
- 	  <child>
- 	    <widget class="GtkVBox" id="vbox12">
- 	      <property name="visible">True</property>
- 	      <property name="homogeneous">False</property>
- 	      <property name="spacing">0</property>
- 
- 	      <child>
- 		<widget class="GtkImage" id="image2928">
- 		  <property name="visible">True</property>
- 		  <property name="icon_size">3</property>
- 		  <property name="icon_name">stock_bluetooth</property>
- 		  <property name="xalign">0.5</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="padding">0</property>
- 		  <property name="expand">True</property>
- 		  <property name="fill">True</property>
- 		</packing>
- 	      </child>
- 
- 	      <child>
- 		<widget class="GtkLabel" id="label114">
- 		  <property name="visible">True</property>
- 		  <property name="label" translatable="yes">Bluetooth</property>
- 		  <property name="use_underline">False</property>
- 		  <property name="use_markup">False</property>
- 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
- 		  <property name="wrap">False</property>
- 		  <property name="selectable">False</property>
- 		  <property name="xalign">0.5</property>
- 		  <property name="yalign">0.5</property>
- 		  <property name="xpad">0</property>
- 		  <property name="ypad">0</property>
- 		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
- 		  <property name="width_chars">-1</property>
- 		  <property name="single_line_mode">False</property>
- 		  <property name="angle">0</property>
- 		</widget>
- 		<packing>
- 		  <property name="padding">0</property>
- 		  <property name="expand">False</property>
- 		  <property name="fill">False</property>
- 		</packing>
- 	      </child>
- 	    </widget>
- 	    <packing>
- 	      <property name="type">tab</property>
- 	    </packing>
- 	  </child>
- 
+	  <child>
+	    <widget class="GtkTable" id="table13">
+	      <property name="border_width">10</property>
+	      <property name="visible">True</property>
+	      <property name="n_rows">8</property>
+	      <property name="n_columns">4</property>
+	      <property name="homogeneous">False</property>
+	      <property name="row_spacing">6</property>
+	      <property name="column_spacing">6</property>
+
+	      <child>
+		<widget class="GtkImage" id="image2929">
+		  <property name="visible">True</property>
+		  <property name="icon_size">6</property>
+		  <property name="icon_name">stock_bluetooth</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">1</property>
+		  <property name="top_attach">1</property>
+		  <property name="bottom_attach">4</property>
+		  <property name="x_padding">6</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label115">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Bluetooth Support&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">0</property>
+		  <property name="bottom_attach">1</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="bluetooth_enabled">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Enable Bluetooth support</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">1</property>
+		  <property name="bottom_attach">2</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkRadioButton" id="bluetooth_ask_always">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Ask for device when sending</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">2</property>
+		  <property name="bottom_attach">3</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkHSeparator" id="hseparator17">
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">4</property>
+		  <property name="bottom_attach">5</property>
+		  <property name="y_padding">3</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkRadioButton" id="bluetooth_ask_never">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Always send to</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		  <property name="group">bluetooth_ask_always</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">3</property>
+		  <property name="bottom_attach">4</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="bluetooth_device_name">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;Nokia N800&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">2</property>
+		  <property name="right_attach">3</property>
+		  <property name="top_attach">3</property>
+		  <property name="bottom_attach">4</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkButton" id="bluetooth_select_device">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <signal name="clicked" handler="on_bluetooth_select_device_clicked" last_modification_time="Wed, 16 Jan 2008 12:24:17 GMT"/>
+
+		  <child>
+		    <widget class="GtkAlignment" id="alignment23">
+		      <property name="visible">True</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xscale">0</property>
+		      <property name="yscale">0</property>
+		      <property name="top_padding">0</property>
+		      <property name="bottom_padding">0</property>
+		      <property name="left_padding">0</property>
+		      <property name="right_padding">0</property>
+
+		      <child>
+			<widget class="GtkHBox" id="hbox36">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">2</property>
+
+			  <child>
+			    <widget class="GtkImage" id="image2930">
+			      <property name="visible">True</property>
+			      <property name="stock">gtk-find</property>
+			      <property name="icon_size">4</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="label118">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">Select device</property>
+			      <property name="use_underline">True</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="left_attach">3</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">3</property>
+		  <property name="bottom_attach">4</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label116">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">&lt;b&gt;File Conversion Script&lt;/b&gt;</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">True</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">5</property>
+		  <property name="bottom_attach">6</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="bluetooth_use_converter">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Use converter:</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">6</property>
+		  <property name="bottom_attach">7</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkFileChooserButton" id="bluetooth_converter">
+		  <property name="visible">True</property>
+		  <property name="title" translatable="yes">Select A Converter Script</property>
+		  <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
+		  <property name="local_only">True</property>
+		  <property name="show_hidden">False</property>
+		  <property name="do_overwrite_confirmation">False</property>
+		  <property name="width_chars">-1</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">2</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">6</property>
+		  <property name="bottom_attach">7</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="image2931">
+		  <property name="visible">True</property>
+		  <property name="icon_size">6</property>
+		  <property name="icon_name">text-x-script</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">0</property>
+		  <property name="right_attach">1</property>
+		  <property name="top_attach">6</property>
+		  <property name="bottom_attach">7</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="tab_expand">False</property>
+	      <property name="tab_fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVBox" id="vbox12">
+	      <property name="visible">True</property>
+	      <property name="homogeneous">False</property>
+	      <property name="spacing">0</property>
+
+	      <child>
+		<widget class="GtkImage" id="image2928">
+		  <property name="visible">True</property>
+		  <property name="icon_size">3</property>
+		  <property name="icon_name">stock_bluetooth</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">True</property>
+		  <property name="fill">True</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label114">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Bluetooth</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+
 	  <child>
 	    <widget class="GtkTable" id="table6">
 	      <property name="border_width">10</property>
@@ -5887,7 +5871,7 @@ Filesystem-based MP3 player</property>
       </child>
 
       <child>
-	<widget class="GtkProgressBar" id="pbSync">
+	<widget class="GtkProgressBar" id="progressbar">
 	  <property name="visible">True</property>
 	  <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
 	  <property name="fraction">0</property>
@@ -5903,47 +5887,7 @@ Filesystem-based MP3 player</property>
       </child>
 
       <child>
-	<widget class="GtkLabel" id="labelChannel">
-	  <property name="visible">True</property>
-	  <property name="label" translatable="yes">Initializing...</property>
-	  <property name="use_underline">False</property>
-	  <property name="use_markup">False</property>
-	  <property name="justify">GTK_JUSTIFY_LEFT</property>
-	  <property name="wrap">False</property>
-	  <property name="selectable">False</property>
-	  <property name="xalign">0</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	  <property name="width_chars">-1</property>
-	  <property name="single_line_mode">False</property>
-	  <property name="angle">0</property>
-	</widget>
-	<packing>
-	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
-	</packing>
-      </child>
-
-      <child>
-	<widget class="GtkProgressBar" id="pbEpisode">
-	  <property name="visible">True</property>
-	  <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
-	  <property name="fraction">0</property>
-	  <property name="pulse_step">0.10000000149</property>
-	  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	</widget>
-	<packing>
-	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
-	</packing>
-      </child>
-
-      <child>
-	<widget class="GtkLabel" id="labelEpisode">
+	<widget class="GtkLabel" id="status_label">
 	  <property name="visible">True</property>
 	  <property name="label" translatable="yes">Initializing...</property>
 	  <property name="use_underline">False</property>

@@ -557,24 +557,14 @@ class podcastItem(object):
         return gl.history_is_played(self.url)
 
     def age_in_days(self):
-        dt = util.file_modification_datetime(self.local_filename())
-        if dt is None:
-            return 0
-        else:
-            return (datetime.now()-dt).days
+        return util.file_age_in_days(self.local_filename())
 
     def is_old(self):
         gl = libgpodder.gPodderLib()
         return self.age_in_days() > gl.config.episode_old_age
     
     def get_age_string(self):
-        age = self.age_in_days()
-        if age == 1:
-            return _('one day ago')
-        elif age > 1:
-            return _('%d days ago') % age
-        else:
-            return ''
+        return util.file_age_to_string(self.age_in_days())
 
     age_prop = property(fget=get_age_string)
 

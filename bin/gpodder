@@ -87,6 +87,10 @@ def main( argv = sys.argv):
                       action="store_true", dest="update", default=False,
                       help=_("Update channel list and exit"))
     
+    parser.add_option("-s", "--sync",
+                      action="store_true", dest="sync", default=False,
+                      help=_("Synchronize channels to configured device"))
+
     parser.add_option("-a", "--add", dest="add",
                       help=_("Subscribe to channel from URL"), metavar="URL")
     
@@ -113,6 +117,8 @@ def main( argv = sys.argv):
         console.run()
     elif options.update:
         console.update()
+    elif options.sync:
+        console.sync_device()
     elif options.add:
         console.add_channel( options.add)
     elif options.delete:

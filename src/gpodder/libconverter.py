@@ -52,8 +52,11 @@ class FileConverter:
         s = stdout.read( 80)
         while s:
             if callback:
-                for str in self.percentage_match.finditer( s):
-                    callback( str.group( 1).strip())
+                for result in self.percentage_match.finditer(s):
+                    try:
+                        callback(result.group(1).strip())
+                    except:
+                        log('Cannot call callback for status percentage.', sender=self)
             s = stdout.read( 80)
 
         return process.wait() == 0

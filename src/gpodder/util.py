@@ -180,6 +180,38 @@ def file_modification_datetime(filename):
         return None
 
 
+def file_age_in_days(filename):
+    """
+    Returns the age of the specified filename in days or
+    zero if the modification date cannot be determined.
+    """
+    dt = file_modification_datetime(filename)
+    if dt is None:
+        return 0
+    else:
+        return (datetime.datetime.now()-dt).days
+
+
+def file_age_to_string(days):
+    """
+    Converts a "number of days" value to a string that
+    can be used in the UI to display the file age.
+
+    >>> file_age_to_string(0)
+    ''
+    >>> file_age_to_string(1)
+    'one day ago'
+    >>> file_age_to_String(2)
+    '2 days ago'
+    """
+    if days == 1:
+        return _('one day ago')
+    elif days > 1:
+        return _('%d days ago') % days
+    else:
+        return ''
+
+
 def get_free_disk_space(path):
     """
     Calculates the free disk space available to the current user

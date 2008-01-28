@@ -1,3 +1,28 @@
+Mon, 28 Jan 2008 12:33:13 +0100 <thp@perli.net>
+Merge new sync code from thp's private branch
+
+	* bin/gpodder: Add "--sync"/"-s" command-line option to start the
+	device synchronization process from the CLI interface - syncing can
+	now be scripted, baby :) (you still have to configure the sync device
+	via the GUI first, though)
+	* data/gpodder.glade: Simplify gPodderSync dialog and remove some
+	obsolete options from the channel dialog
+	* src/gpodder/console.py: Add code for command-line sync support
+	* src/gpodder/gui.py: Remove obsolete code for libipodsync and import
+	the new "sync" module; simplify Sync<->GUI interface; clean-up
+	gPodderSync dialog code to interface with new sync code; remove some
+	config glue code for the channel properties dialog
+	* src/gpodder/libconverter.py: Make libconverter work even if the
+	percentage callback would fail in certain conditions (try..except)
+	* src/gpodder/libipodsync.py: Removed
+	* src/gpodder/libpodcasts.py: Refactor age_in_days() and
+	get_age_string() to simple calls to utility functions and move the
+	code to gpodder.util
+	* src/gpodder/sync.py: Added new sync module :) Very modular, yesaya!
+	* src/gpodder/util.py: Add file_age_in_days() and file_age_to_string()
+	helper functions that use code from libpodcasts and return the age of
+	a file in the filesystem
+
 Thu, 24 Jan 2008 14:51:48 +0100 <thp@perli.net>
 Fix a bug for show_message and tray_icon/minimized
 

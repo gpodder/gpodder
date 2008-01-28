@@ -36,6 +36,7 @@ from string import strip
 from gpodder import util
 from gpodder import opml
 from gpodder import services
+from gpodder import sync
 from gpodder import download
 from gpodder import SimpleGladeApp
 from gpodder import trayicon
@@ -49,10 +50,6 @@ from libgpodder import gPodderLib
 from liblogger import log
 
 from libplayers import UserAppsReader
-
-from libipodsync import gPodder_iPodSync
-from libipodsync import gPodder_FSSync
-from libipodsync import ipod_supported
 
 from libtagupdate import tagging_supported
 
@@ -752,64 +749,6 @@ class gPodder(GladeWidget):
                 message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
                 self.show_message( message, title)
     
-    def sync_to_ipod_proc( self, sync, sync_win, episodes = None):
-        if not sync.open():
-            sync.close( success = False, access_error = True)
-            return False
-
-        if episodes == None:
-            i = 0
-            available_channels = [ c.load_downloaded_episodes() for c in self.channels ]
-            downloaded_channels = [ c for c in available_channels if len(c) ]
-            for channel in downloaded_channels:
-                sync.set_progress_overall( i, len(downloaded_channels))
-                channel.load_settings()
-                sync.sync_channel( channel, sync_played_episodes = not gPodderLib().config.only_sync_not_played)
-                i += 1
-            sync.set_progress_overall( i, len(downloaded_channels))
-        else:
-            sync_win.pbSync.hide_all()
-            sync.sync_channel( self.active_channel, episodes, True)
-
-        sync.close( success = not sync.cancelled)
-        # update model for played state updates after sync
-        for channel in self.channels:
-            util.idle_add(channel.update_model)
-        util.idle_add(self.updateComboBox)
-
-    def ipod_cleanup_callback(self, sync, tracks):
-        title = _('Delete podcasts on iPod?')
-        message = _('Do you really want to completely remove the selected episodes?')
-        if len(tracks) > 0 and self.show_confirmation(message, title):
-            sync.remove_tracks(tracks)
-        sync.close(success=not sync.cancelled, cleaned=True)
-        util.idle_add(self.updateTreeView)
-
-    def ipod_cleanup_proc( self, sync):
-        if not sync.open():
-            sync.close(success = False, access_error = True)
-            return False
-
-        tracklist = sync.clean_playlist()
-        if tracklist is not None:
-            remove_tracks_callback = lambda tracks: self.ipod_cleanup_callback(sync, tracks)
-            title = _('Remove podcasts from iPod')
-            instructions = _('Select the podcast episodes you want to remove from your iPod.')
-            gPodderEpisodeSelector( title = title, instructions = instructions, episodes = tracklist, \
-                                    stock_ok_button = gtk.STOCK_DELETE, callback = remove_tracks_callback)
-        else:
-            sync.close(success = not sync.cancelled, cleaned = True)
-            util.idle_add(self.updateTreeView)
-
-    def mp3player_cleanup_proc( self, sync):
-        if not sync.open():
-            sync.close(success = False, access_error = True)
-            return False
-
-        sync.clean_playlist()
-        sync.close(success = not sync.cancelled, cleaned = True)
-        util.idle_add(self.updateTreeView)
-
     def update_feed_cache_callback(self, progressbar, position, count):
         title = self.channels[position].title
         progressbar.set_text(_('Updating %s (%d/%d)')%(title, position+1, count))
@@ -1153,65 +1092,97 @@ class gPodder(GladeWidget):
                 episodes.append(episode)
         self.new_episodes_show(episodes)
 
-    def on_sync_to_ipod_activate(self, widget, *args):
-        gl = gPodderLib()
-        if gl.config.device_type == 'none':
+    def on_sync_to_ipod_activate(self, widget, episodes=None):
+        Thread(target=self.sync_to_ipod_thread, args=(widget, episodes)).start()
+    
+    def sync_to_ipod_thread(self, widget, episodes=None):
+        device = sync.open_device()
+
+        if device is None:
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.show_message( message, title)
+            self.notification(message, title)
             return
 
-        if gl.config.device_type == 'ipod' and not ipod_supported():
-            title = _('Libraries needed: gpod, pymad')
-            message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
-            self.show_message( message, title)
+        if not device.open():
+            title = _('Cannot open device')
+            message = _('There has been an error opening your device.')
+            self.notification(message, title)
             return
-        
-        if gl.config.device_type in [ 'ipod', 'filesystem' ]:
-            sync_class = None
 
-            if gl.config.device_type == 'filesystem':
-                sync_class = gPodder_FSSync
-            elif gl.config.device_type == 'ipod':
-                sync_class = gPodder_iPodSync
+        gPodderSync(device=device)
 
-            if not sync_class:
-                return
+        if episodes is None:
+            episodes_to_sync = []
+            for channel in self.channels:
+                if not channel.sync_to_devices:
+                    log('Skipping channel: %s', channel.title, sender=self)
+                    continue
+                
+                for episode in channel.get_all_episodes():
+                    if episode.is_downloaded():
+                        episodes_to_sync.append(episode)
+            device.add_tracks(episodes_to_sync)
+        else:
+            device.add_tracks(episodes, force_played=True)
+ 
+        if not device.close():
+            title = _('Error closing device')
+            message = _('There has been an error closing your device.')
+            self.notification(message, title)
+            return
 
-            sync_win = gPodderSync()
-            sync = sync_class( callback_status = sync_win.set_status, callback_progress = sync_win.set_progress, callback_done = sync_win.close)
-            sync_win.set_sync_object( sync)
-            thread_args = [ sync, sync_win ]
-            if widget == None:
-                thread_args.append( args[0])
-            thread = Thread( target = self.sync_to_ipod_proc, args = thread_args)
-            thread.start()
+        # update model for played state updates after sync
+        for channel in self.channels:
+            util.idle_add(channel.update_model)
+        util.idle_add(self.updateComboBox)
+
+    def ipod_cleanup_callback(self, device, tracks):
+        title = _('Delete podcasts from device?')
+        message = _('Do you really want to completely remove the selected episodes?')
+        if len(tracks) > 0 and self.show_confirmation(message, title):
+            device.remove_tracks(tracks)
+ 
+        if not device.close():
+            title = _('Error closing device')
+            message = _('There has been an error closing your device.')
+            self.show_message(message, title)
+            return
 
     def on_cleanup_ipod_activate(self, widget, *args):
-        gl = gPodderLib()
-        if gl.config.device_type == 'none':
+        columns = (
+                ('title', _('Episode')),
+                ('filesize', _('Size')),
+                ('modified', _('Copied')),
+        )
+
+        device = sync.open_device()
+
+        if device is None:
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.show_message( message, title)
+            self.show_message(message, title)
             return
-        elif gl.config.device_type == 'ipod' and not ipod_supported():
-            title = _('Libraries needed: gpod, pymad')
-            message = _('To use the iPod synchronization feature, you need to install the <b>python-gpod</b> and <b>python-pymad</b> libraries from your distribution vendor. More information about the needed libraries can be found on the gPodder website.')
-            self.show_message( message, title)
+
+        if not device.open():
+            title = _('Cannot open device')
+            message = _('There has been an error opening your device.')
+            self.show_message(message, title)
             return
-        elif gl.config.device_type == 'filesystem':
-            title = _('Delete podcasts from MP3 player?')
-            message = _('Do you really want to completely remove all episodes from your MP3 player?')
-            if self.show_confirmation( message, title):
-                sync_win = gPodderSync()
-                sync = gPodder_FSSync(callback_status=sync_win.set_status, callback_progress=sync_win.set_progress, callback_done=sync_win.close)
-                sync_win.set_sync_object(sync)
-                thread = Thread(target=self.mp3player_cleanup_proc, args=(sync,))
-                thread.start()
-        elif gl.config.device_type == 'ipod':
-            sync = gPodder_iPodSync()
-            thread = Thread(target=self.ipod_cleanup_proc, args=(sync,))
-            thread.start()
+
+        gPodderSync(device=device)
+
+        tracks = device.get_all_tracks()
+        if len(tracks) > 0:
+            remove_tracks_callback = lambda tracks: self.ipod_cleanup_callback(device, tracks)
+            title = _('Remove podcasts from device')
+            instructions = _('Select the podcast episodes you want to remove from your device.')
+            gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=columns, \
+                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback)
+        else:
+            title = _('No files on device')
+            message = _('The devices contains no files to be removed.')
+            self.show_message(message, title)
 
     def show_hide_tray_icon(self):
         gl = gPodderLib()
@@ -1425,7 +1396,7 @@ class gPodder(GladeWidget):
                     self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
 
             if transfer_files and len(episodes):
-                self.on_sync_to_ipod_activate( None, episodes)
+                self.on_sync_to_ipod_activate(None, episodes)
         except:
             title = _('Nothing selected')
             message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')
@@ -1600,8 +1571,7 @@ class gPodderChannel(GladeWidget):
 
         self.channel.load_settings()
         self.cbNoSync.set_active( not self.channel.sync_to_devices)
-        self.musicPlaylist.set_text( self.channel.device_playlist_name)
-        self.cbMusicChannel.set_active( self.channel.is_music_channel)
+        self.musicPlaylist.set_text(self.channel.device_playlist_name)
         if self.channel.username:
             self.FeedUsername.set_text( self.channel.username)
         if self.channel.password:
@@ -1666,12 +1636,8 @@ class gPodderChannel(GladeWidget):
     def on_gPodderChannel_destroy(self, widget, *args):
         self.callback_closed()
 
-    def on_cbMusicChannel_toggled(self, widget, *args):
-        self.musicPlaylist.set_sensitive( self.cbMusicChannel.get_active())
-
     def on_btnOK_clicked(self, widget, *args):
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
-        self.channel.is_music_channel = self.cbMusicChannel.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
         self.channel.set_custom_title( self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
@@ -2086,120 +2052,36 @@ class gPodderEpisode(GladeWidget):
 
 class gPodderSync(GladeWidget):
     def new(self):
-        self.pos_overall = 0
-        self.max_overall = 1
-        self.pos_episode = 0
-        self.max_episode = 1
-        self.cancel_button.set_sensitive( False)
-        self.sync = None
-        self.default_title = self.gPodderSync.get_title()
-        self.default_header = self.label_header.get_text()
-        self.default_body = self.label_text.get_text()
+        util.idle_add(self.imageSync.set_from_icon_name, 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
 
-        self.imageSync.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
+        self.device.register('progress', self.on_progress)
+        self.device.register('sub-progress', self.on_sub_progress)
+        self.device.register('status', self.on_status)
+        self.device.register('done', self.on_done)
+    
+    def on_progress(self, pos, max):
+        util.idle_add(self.progressbar.set_fraction, float(pos)/float(max))
+        util.idle_add(self.progressbar.set_text, _('%d of %d done') % (pos, max))
 
-    def set_sync_object( self, sync):
-        self.sync = sync
-        if self.sync.can_cancel:
-            self.cancel_button.set_sensitive( True)
+    def on_sub_progress(self, percentage):
+        util.idle_add(self.progressbar.set_text, _('Processing (%d%%)') % (percentage))
 
-    def set_progress( self, pos, max, is_overall = False, is_sub_episode = False):
-        pos = min(pos, max)
-        if is_sub_episode:
-            fraction_episode = 1.0*(self.pos_episode+1.0*pos/max)/self.max_episode
-            self.pbEpisode.set_fraction( fraction_episode)
-            self.pbSync.set_fraction( 1.0*(self.pos_overall+fraction_episode)/self.max_overall)
-            return
+    def on_status(self, status):
+        util.idle_add(self.status_label.set_markup, '<i>%s</i>' % saxutils.escape(status))
 
-        if is_overall:
-            progressbar = self.pbSync
-            self.pos_overall = pos
-            self.max_overall = max
-            progressbar.set_fraction( 1.0*pos/max)
-        else:
-            progressbar = self.pbEpisode
-            self.pos_episode = pos
-            self.max_episode = max
-            progressbar.set_fraction( 1.0*pos/max)
-            self.pbSync.set_fraction( 1.0*(self.pos_overall+1.0*pos/max)/self.max_overall)
-
-        percent = _('%d of %d done') % ( pos, max )
-        progressbar.set_text( percent)
-
-    def set_status( self, episode = None, channel = None, progressbar = None, title = None, header = None, body = None):
-        if episode != None:
-            self.labelEpisode.set_markup( '<i>%s</i>' % saxutils.escape( episode))
-
-        if channel != None:
-            self.labelChannel.set_markup( '<i>%s</i>' % saxutils.escape( channel))
-
-        if progressbar != None:
-            self.pbSync.set_text( progressbar)
-
-        if title != None:
-            self.gPodderSync.set_title( title)
-        else:
-            self.gPodderSync.set_title( self.default_title)
-
-        if header != None:
-            self.label_header.set_markup( '<b><big>%s</big></b>' % saxutils.escape( header))
-        else:
-            self.label_header.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.default_header))
-
-        if body != None:
-            self.label_text.set_text( body)
-        else:
-            self.label_text.set_text( self.default_body)
-
-
-    def close( self, success = True, access_error = False, cleaned = False, error_messages = []):
-        if self.sync:
-            self.sync.cancelled = True
-        self.cancel_button.set_label( gtk.STOCK_CLOSE)
-        self.cancel_button.set_use_stock( True)
-        self.cancel_button.set_sensitive( True)
-        self.gPodderSync.set_resizable( True)
-        self.pbSync.hide_all()
-        self.pbEpisode.hide_all()
-        self.labelChannel.hide_all()
-        self.labelEpisode.hide_all()
-        self.gPodderSync.set_resizable( False)
-        if success and not cleaned:
-            title = _('Synchronization finished')
-            header = _('Copied Podcasts')
-            body = _('The selected episodes have been copied to your device. You can now unplug the device.')
-        elif access_error:
-            title = _('Synchronization error')
-            header = _('Cannot access device')
-            body = _('Make sure your device is connected to your computer and mounted. Please also make sure you have set the correct path to your device in the preferences dialog.')
-        elif cleaned:
-            title = _('Device cleaned')
-            header = _('Podcasts removed')
-            body = _('Synchronized Podcasts have been removed from your device.')
-        elif len(error_messages):
-            title = _('Synchronization error')
-            header = _('An error has occurred')
-            body = '\n'.join( error_messages)
-        else:
-            title = _('Synchronization aborted')
-            header = _('Aborted')
-            body = _('The synchronization progress has been interrupted by the user. Please retry synchronization at a later time.')
-        self.gPodderSync.set_title( title)
-        self.label_header.set_markup( '<big><b>%s</b></big>' % saxutils.escape( header))
-        self.label_text.set_text( body)
+    def on_done(self):
+        util.idle_add(self.gPodderSync.destroy)
+        util.idle_add(self.notification, _('Your device has been updated by gPodder.'), _('Operation finished'))
 
     def on_gPodderSync_destroy(self, widget, *args):
-        pass
+        self.device.unregister('progress', self.on_progress)
+        self.device.unregister('sub-progress', self.on_sub_progress)
+        self.device.unregister('status', self.on_status)
+        self.device.unregister('done', self.on_done)
+        self.device.cancel()
 
     def on_cancel_button_clicked(self, widget, *args):
-        if self.sync:
-            if self.sync.cancelled:
-                self.gPodderSync.destroy()
-            else:
-                self.sync.cancelled = True
-                self.cancel_button.set_sensitive( False)
-        else:
-            self.gPodderSync.destroy()
+        self.device.cancel()
 
 
 class gPodderOpmlLister(GladeWidget):
