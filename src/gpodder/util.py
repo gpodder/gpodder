@@ -171,6 +171,9 @@ def file_modification_datetime(filename):
     as a datetime.datetime object or None if the modification
     date cannot be determined.
     """
+    if filename is None:
+        return None
+
     if not os.access(filename, os.R_OK):
         return None
 
