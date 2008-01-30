@@ -142,6 +142,9 @@ def calculate_size( path):
     correct if the user doesn't have appropriate permissions 
     to list all subdirectories of the given path.
     """
+    if path is None:
+        return 0L
+
     if os.path.dirname( path) == '/':
         return 0L
 
