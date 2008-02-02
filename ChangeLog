@@ -1,3 +1,12 @@
+Sat, 02 Feb 2008 11:36:35 +0100 <thp@perli.net>
+Make feed update display "Loading" titles, only run auto update when minimized
+
+	* src/gpodder/gui.py: Usability patch from NIkosapi <nikosapi.org>:
+	Make the feed update dialog display "Loading feeds" instead of
+	"Downloading feeds" when its loading the feeds from the local cache;
+	only run the automatic, periodic update when gPodder is minimized,
+	because it would pop up a dialog while gPodder is in use otherwise
+
 Sat, 02 Feb 2008 11:33:48 +0100 <thp@perli.net>
 Pressing Enter in the add channel entry adds the channel
 

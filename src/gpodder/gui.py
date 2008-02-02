@@ -804,8 +804,12 @@ class gPodder(GladeWidget):
 
         please_wait = None
         if show_update_dialog:
-            title = _('Downloading podcast feeds')
-            heading = _('Downloading feeds')
+            if force_update:
+                title = _('Downloading podcast feeds')
+                heading = _('Downloading feeds')
+            else:
+                title = _('Loading podcast feeds')
+                heading = _('Loading feeds')
             body = _('Podcast feeds contain channel metadata and information about current episodes.')
     
             please_wait = gtk.Dialog(title, self.gPodder, gtk.DIALOG_MODAL, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -1419,7 +1423,7 @@ class gPodder(GladeWidget):
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
         gl = gPodderLib()
-        if not first_run and gl.config.auto_update_feeds:
+        if not first_run and gl.config.auto_update_feeds and self.minimized:
             self.update_feed_cache()
 
         next_update = 60*1000*gl.config.auto_update_frequency
