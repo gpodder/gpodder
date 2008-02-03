@@ -306,7 +306,7 @@ class iPodDevice(Device):
         if episode.file_type() == 'audio':
             track.filetype = 'mp3'
             track.mediatype = 0x00000004
-        elif episode.file_type == 'video':
+        elif episode.file_type() == 'video':
             track.filetype = 'm4v'
             track.mediatype = 0x00000006
 
