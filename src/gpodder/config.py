@@ -53,7 +53,7 @@ gPodderSettings = {
 
     # Boolean config flags
     'update_on_startup': ( bool, False ),
-    'download_after_update': ( bool, False ),
+    'auto_download_when_minimized': (bool, False),
     'use_gnome_bittorrent': ( bool, True ),
     'only_sync_not_played': ( bool, False ),
     'proxy_use_environment': ( bool, True ),
@@ -69,7 +69,7 @@ gPodderSettings = {
     'display_tray_icon': (bool, False),
     'minimize_to_tray': (bool, False),  
     'start_iconified': (bool, False),
-    'disable_notifications': (bool, False),
+    'enable_notifications': (bool, True),
     'on_quit_ask': (bool, True),
 
     # Bluetooth-related settings

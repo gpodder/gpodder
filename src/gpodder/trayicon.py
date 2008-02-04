@@ -25,6 +25,7 @@
 import gtk
 
 from gpodder.liblogger import log
+from gpodder.libpodcasts import podcastItem
 
 try:
     import pynotify
@@ -46,7 +47,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
     gPodder functionalities
 
     author: Jérôme Chabod <jerome.chabod at ifrance.com>
-    01/01/2008
     """
 
     DEFAULT_TOOLTIP = _('gPodder media aggregator')
@@ -77,10 +77,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         self.__previous_notification = []
 
-        self.__is_downloading = False
-        # this list store url successfully downloaded for notification
-        self.__url_successfully_downloaded = []
-
         # try getting the icon
         try:
             self.__icon = gtk.gdk.pixbuf_new_from_file(self.__icon_filename)
@@ -101,7 +97,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
         menuItem.connect('activate',  self.__gpodder.on_itemDownloadAllNew_activate)
         menu.append(menuItem)
-        menuItem = gtk.ImageMenuItem(_("Synchronize to ipod/player"))
+        menuItem = gtk.ImageMenuItem(_("Synchronize to iPod/player"))
         menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
         menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
         menu.append(menuItem)
@@ -205,7 +201,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 return
 
             message = self.format_episode_list(self.__finished_downloads, title)
-            self.send_notification(message, _('gPodder downloads finished'), [self.ACTION_SHOW, self.ACTION_QUIT])
+            self.send_notification(message, _('gPodder downloads finished'))
  
             self.__finished_downloads = []
  
@@ -247,7 +243,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
     def __is_notification_on(self):
         gl = gPodderLib()
         # tray icon not visible or notifications disabled
-        if not self.get_visible() or gl.config.disable_notifications:
+        if not self.get_visible() or not gl.config.enable_notifications:
             return False
         return True
     
@@ -297,22 +293,28 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.set_tooltip(tooltip)
 
     def format_episode_list(self, episode_list, caption=''):
-        """ format a list of episodes for displaying
-            in tooltip or notification.
-            return the formated string
+        """Format a list of episodes for tooltips and notifications
+        The parameter "episode_list" can either be a list containing
+        podcastItem objects or a list of strings.
+
+        A formatted list of episodes is returned.
         """
         MAX_EPISODES = 10
         MAX_TITLE_LENGTH = 100
 
         result = []
-        result.append('\n%s'%caption)
+        result.append('\n%s' % caption)
         for episode in episode_list[:min(len(episode_list),MAX_EPISODES)]:
-            if len(episode) < MAX_TITLE_LENGTH:
-                title = episode
+            if isinstance(episode, podcastItem): 
+                episode_title = episode.title
+            else:
+                episode_title = episode
+            if len(episode_title) < MAX_TITLE_LENGTH:
+                title = episode_title
             else:
                 middle = (MAX_TITLE_LENGTH/2)-2
-                title = '%s...%s'%( episode[0:middle], episode[-middle:])
-            result.append('\n%s'%title)
+                title = '%s...%s' % (episode_title[0:middle], episode_title[-middle:])
+            result.append('\n%s' % title)
  
         more_episodes = len(episode_list) - MAX_EPISODES
         if more_episodes > 0:

@@ -4515,6 +4515,7 @@ Filesystem-based MP3 player</property>
 		  <property name="active">False</property>
 		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
+		  <signal name="toggled" handler="on_display_tray_icon_toggled" last_modification_time="Wed, 02 Jan 2008 15:31:37 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">1</property>
@@ -4568,10 +4569,10 @@ Filesystem-based MP3 player</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkCheckButton" id="disable_notifications">
+		<widget class="GtkCheckButton" id="enable_notifications">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Disable notification bubbles</property>
+		  <property name="label" translatable="yes">Enable notification bubbles</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -4718,7 +4719,7 @@ Filesystem-based MP3 player</property>
 		    <widget class="GtkCheckButton" id="downloadnew">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Download new episodes after updating feed cache</property>
+		      <property name="label" translatable="yes">Auto download new episodes when gPodder is minimized</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>

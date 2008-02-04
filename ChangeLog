@@ -1,3 +1,17 @@
+Mon, 04 Feb 2008 11:26:14 +0100 <thp@perli.net>
+Apply patchset from Jérôme Chabod to fix tray icon behaviour
+
+	* data/gpodder.glade: Change behaviour of the "display tray icon"
+	checkbox, rename and retitle some configuration options
+	* src/gpodder/config.py: Rename "download_after_update" to
+	"auto_download_when_minimized" and rename "disable_notifications" to
+	"enable_notifications".
+	* src/gpodder/gui.py: Add glue code for config and GUI, change
+	behaviour as described in http://bugs.gpodder.org/show_bug.cgi?id=3
+	* src/gpodder/trayicon.py: Clean-up and fix behaviour as described in
+	our Bugzilla Bug #3 (see above); thanks to Jérôme Chabod for
+	implementing all these changes and the patch
+
 Mon, 04 Feb 2008 09:32:56 +0100 <thp@perli.net>
 Output pretty-printed OPML when saving channels list
 

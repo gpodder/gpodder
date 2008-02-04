@@ -98,7 +98,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         if hasattr(self, 'tray_icon') and hasattr(self, 'minimized') and self.tray_icon and self.minimized:
             if title is None:
                 title = 'gPodder'
-            self.tray_icon.send_notification(message, title, [self.tray_icon.ACTION_SHOW])            
+            self.tray_icon.send_notification(message, title)            
             return
 
         dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -174,6 +174,7 @@ class gPodder(GladeWidget):
         
         self.tray_icon = None
         self.show_hide_tray_icon()
+        self.already_notified_new_episodes = []
                    
         if self.tray_icon:
             if gl.config.start_iconified: 
@@ -766,25 +767,31 @@ class gPodder(GladeWidget):
 
         if self.tray_icon:
             self.tray_icon.set_status(None)
-
-            if self.minimized and force_update and gl.config.download_after_update:
+            if self.minimized and force_update:
                 new_episodes = []
+                # look for new episodes to notify
                 for channel in self.channels:
                     for episode in channel.get_new_episodes():
-                        new_episodes.append(episode.title)
+                        if not episode.url in self.already_notified_new_episodes:
+                            new_episodes.append(episode)
+                            self.already_notified_new_episodes.append(episode.url)
+                # notify new episodes
                 if len(new_episodes) > 0:
-                    title = _('gPodder has found ')
                     if len(new_episodes) == 1:
-                        title += (_('one new episode:'))
+                        title = _('gPodder has found %s') % (_('one new episode:'),)
                     else:    
-                        title += (_('%i new episodes:') % len(new_episodes))
+                        title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
                     message = self.tray_icon.format_episode_list(new_episodes)
-                    actions=[self.tray_icon.ACTION_SHOW, self.tray_icon.ACTION_START_DOWNLOAD]
-                    self.tray_icon.send_notification(message, title, actions)
+
+                    #auto download new episodes
+                    if gl.config.auto_download_when_minimized:
+                        message += '\n<i>(%s...)</i>' % _('downloading')
+                        self.download_episode_list(new_episodes)
+                    self.tray_icon.send_notification(message, title)
                 return
 
-        # download all new?
-        if force_update and gl.config.download_after_update:
+        # open the episodes selection dialog
+        if force_update:
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
@@ -1665,7 +1672,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_editable( 'opml_url', self.opmlURL)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
-        gl.config.connect_gtk_togglebutton( 'download_after_update', self.downloadnew)
+        gl.config.connect_gtk_togglebutton( 'auto_download_when_minimized', self.downloadnew)
         gl.config.connect_gtk_togglebutton( 'use_gnome_bittorrent', self.radio_gnome_bittorrent)
         gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
@@ -1684,7 +1691,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
         gl.config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
         gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
-        gl.config.connect_gtk_togglebutton('disable_notifications', self.disable_notifications)
+        gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
         gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
         gl.config.connect_gtk_togglebutton('bluetooth_enabled', self.bluetooth_enabled)
@@ -1692,6 +1699,9 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('bluetooth_ask_never', self.bluetooth_ask_never)
         gl.config.connect_gtk_togglebutton('bluetooth_use_converter', self.bluetooth_use_converter)
         gl.config.connect_gtk_filechooser( 'bluetooth_converter', self.bluetooth_converter, is_for_files=True)
+        
+        self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
+        self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
         self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())
@@ -1799,6 +1809,10 @@ class gPodderProperties(GladeWidget):
             
     def on_auto_update_feeds_toggled( self, widget, *args):
         self.auto_update_frequency.set_sensitive(widget.get_active())
+        
+    def on_display_tray_icon_toggled( self, widget, *args):
+        self.enable_notifications.set_sensitive(widget.get_active())    
+        self.minimize_to_tray.set_sensitive(widget.get_active())    
         
     def on_cbCustomSyncName_toggled( self, widget, *args):
         self.entryCustomSyncName.set_sensitive( widget.get_active())
