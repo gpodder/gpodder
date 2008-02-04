@@ -194,7 +194,7 @@ class Exporter(object):
         opml.appendChild( body)
 
         try:
-            data = doc.toxml(encoding='utf-8')
+            data = doc.toprettyxml(encoding='utf-8', indent='    ', newl=os.linesep)
             # We want to have at least 512 KiB free disk space after
             # saving the opml data, if this is not possible, don't 
             # try to save the new file, but keep the old one so we
