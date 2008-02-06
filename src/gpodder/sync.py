@@ -71,7 +71,7 @@ def open_device():
 def get_track_length(filename):
     if util.find_command('mplayer') is not None:
         try:
-            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % local_filename).read()
+            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
             return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:])*1000)
         except:
             pass
@@ -79,18 +79,18 @@ def get_track_length(filename):
         log('Please install MPlayer for track length detection.')
 
     try:
-        mad_info = mad.MadFile(local_filename)
+        mad_info = mad.MadFile(filename)
         return int(mad_info.total_time())
     except:
         pass
     
     try:
-        eyed3_info = eyeD3.Mp3AudioFile(local_filename)
+        eyed3_info = eyeD3.Mp3AudioFile(filename)
         return int(eyed3_info.getPlayTime()*1000)
     except:
         pass
 
-    return int(60*60*1000) # Default is one hour
+    return int(60*60*1000*3) # Default is three hours (to be on the safe side)
 
 
 class SyncTrack(object):
