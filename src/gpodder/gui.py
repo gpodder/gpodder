@@ -175,6 +175,11 @@ class gPodder(GladeWidget):
         self.tray_icon = None
         self.show_hide_tray_icon()
         self.already_notified_new_episodes = []
+
+        self.episode_description_shown = gl.config.episode_list_descriptions
+        self.itemShowToolbar.set_active(gl.config.show_toolbar)
+        self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
+        self.update_view_settings()
                    
         if self.tray_icon:
             if gl.config.start_iconified: 
@@ -232,9 +237,10 @@ class gPodder(GladeWidget):
         iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell, pixbuf = 4)
 
         namecell = gtk.CellRendererText()
-        #namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn = gtk.TreeViewColumn( _("Episode"), namecell, text = 1)
-        namecolumn.set_sizing( gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        namecolumn = gtk.TreeViewColumn(_("Episode"), namecell, markup=6)
+        namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        namecolumn.set_expand(True)
 
         sizecell = gtk.CellRendererText()
         sizecolumn = gtk.TreeViewColumn( _("Size"), sizecell, text=2)
@@ -242,14 +248,9 @@ class gPodder(GladeWidget):
         releasecell = gtk.CellRendererText()
         releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
         
-        desccell = gtk.CellRendererText()
-        desccell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        desccolumn = gtk.TreeViewColumn( _("Description"), desccell, text=6)
-
-        for itemcolumn in ( iconcolumn, namecolumn, sizecolumn, releasecolumn, desccolumn ):
-            itemcolumn.set_resizable( True)
-            itemcolumn.set_reorderable( True)
-            self.treeAvailable.append_column( itemcolumn)
+        for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
+            itemcolumn.set_reorderable(True)
+            self.treeAvailable.append_column(itemcolumn)
 
         # enable search in treeavailable
         self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
@@ -1209,6 +1210,30 @@ class gPodder(GladeWidget):
             self.tray_icon.set_visible(self.minimized)
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
+
+    def update_view_settings(self):
+        gl = gPodderLib()
+
+        if gl.config.show_toolbar:
+            self.toolbar.show_all()
+        else:
+            self.toolbar.hide_all()
+
+        if self.episode_description_shown != gl.config.episode_list_descriptions:
+            for channel in self.channels:
+                channel.force_update_tree_model()
+            self.updateTreeView()
+            self.episode_description_shown = gl.config.episode_list_descriptions
+    
+    def on_itemShowToolbar_activate(self, widget):
+        gl = gPodderLib()
+        gl.config.show_toolbar = self.itemShowToolbar.get_active()
+        self.update_view_settings()
+
+    def on_itemShowDescription_activate(self, widget):
+        gl = gPodderLib()
+        gl.config.episode_list_descriptions = self.itemShowDescription.get_active()
+        self.update_view_settings()
 
     def update_item_device( self):
         gl = gPodderLib()

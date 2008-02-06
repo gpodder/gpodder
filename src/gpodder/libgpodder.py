@@ -129,8 +129,8 @@ class gPodderLibClass( object):
             log( 'Warning: Called get_device_name() when no device was selected.', sender = self)
             return '(unknown device)'
 
-    def format_filesize( self, bytesize):
-        return util.format_filesize( bytesize, self.config.use_si_units)
+    def format_filesize(self, bytesize, digits=2):
+        return util.format_filesize(bytesize, self.config.use_si_units, digits)
 
     def clean_up_downloads( self, delete_partial = False):
         # Clean up temporary files left behind by old gPodder versions

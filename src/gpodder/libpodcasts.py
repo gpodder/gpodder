@@ -406,24 +406,30 @@ class podcastChannel(ListType):
         local_filename = model.get_value( iter, 8)
         played = not libgpodder.gPodderLib().history_is_played( url)
         locked = libgpodder.gPodderLib().history_is_locked(url)
+        gl = libgpodder.gPodderLib()
+
+        if gl.config.episode_list_descriptions:
+            icon_size = 32
+        else:
+            icon_size = 16
 
         if os.path.exists( local_filename):
-            file_type = util.file_type_by_extension( util.file_extension_from_url( url))
+            file_type = util.file_type_by_extension( util.file_extension_from_url(url))
             if file_type == 'audio':
-                status_icon = util.get_tree_icon('audio-x-generic', played, locked, self.icon_cache)
+                status_icon = util.get_tree_icon('audio-x-generic', played, locked, self.icon_cache, icon_size)
             elif file_type == 'video':
-                status_icon = util.get_tree_icon('video-x-generic', played, locked, self.icon_cache)
+                status_icon = util.get_tree_icon('video-x-generic', played, locked, self.icon_cache, icon_size)
             elif file_type == 'torrent':
-                status_icon = util.get_tree_icon('applications-internet', played, locked, self.icon_cache)
+                status_icon = util.get_tree_icon('applications-internet', played, locked, self.icon_cache, icon_size)
             else:
-                status_icon = util.get_tree_icon('unknown', played, locked, self.icon_cache)
+                status_icon = util.get_tree_icon('unknown', played, locked, self.icon_cache, icon_size)
             
-        elif services.download_status_manager.is_download_in_progress( url):
-            status_icon = util.get_tree_icon( gtk.STOCK_GO_DOWN, icon_cache = self.icon_cache)
-        elif libgpodder.gPodderLib().history_is_downloaded( url):
-            status_icon = util.get_tree_icon( gtk.STOCK_DELETE, icon_cache = self.icon_cache)
-        elif url in [ e.url for e in new_episodes ]:
-            status_icon = util.get_tree_icon( gtk.STOCK_NEW, icon_cache = self.icon_cache)
+        elif services.download_status_manager.is_download_in_progress(url):
+            status_icon = util.get_tree_icon(gtk.STOCK_GO_DOWN, icon_cache=self.icon_cache, icon_size=icon_size)
+        elif gl.history_is_downloaded(url):
+            status_icon = util.get_tree_icon(gtk.STOCK_DELETE, icon_cache=self.icon_cache, icon_size=icon_size)
+        elif url in [e.url for e in new_episodes]:
+            status_icon = util.get_tree_icon(gtk.STOCK_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
             status_icon = None
 
@@ -435,9 +441,14 @@ class podcastChannel(ListType):
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         new_episodes = self.get_new_episodes()
+        gl = libgpodder.gPodderLib()
 
         for item in self.get_all_episodes():
-            new_iter = new_model.append( ( item.url, item.title, libgpodder.gPodderLib().format_filesize( item.length), True, None, item.cute_pubdate(), item.one_line_description(), item.description, item.local_filename() ))
+            if gl.config.episode_list_descriptions:
+                description = '%s\n<small>%s</small>' % (saxutils.escape(item.title), saxutils.escape(item.one_line_description()))
+            else:
+                description = saxutils.escape(item.title)
+            new_iter = new_model.append((item.url, item.title, libgpodder.gPodderLib().format_filesize(item.length, 1), True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
             self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
         self.update_save_dir_size()

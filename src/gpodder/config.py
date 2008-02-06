@@ -64,6 +64,8 @@ gPodderSettings = {
     'auto_remove_old_episodes': ( bool, False ),
     'auto_update_feeds': (bool, False),
     'auto_update_frequency': (int, 20),
+    'episode_list_descriptions': (bool, True),
+    'show_toolbar': (bool, True),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False),

@@ -1,3 +1,51 @@
+Wed, 06 Feb 2008 10:18:30 +0100 <thp@perli.net>
+Usability GUI update (after Rafael Proença's proposal)
+
+	* data/gpodder.glade: Add "Ctrl+L" hotkey to Add new channel; add
+	"View" menu with show/hide Toolbar (Ctrl+T) and show/hide episode
+	descriptions (Ctrl+D); remove "Update Feeds" button from toolbar and
+	add Check for updates button below channel navigator; move the add
+	episodes entry and buttons above the channel navigator; thanks to the
+	following people who shared their opinions on the mailing list: Rafael
+	Proença, Paul Rudkin, Ondrej Vesely, Leonid Ponomarev, Shane Donohoe,
+	Jérôme Chabod, Nick (nikosapi); the GUI mockups and the initial idea
+	were posted by Rafael Proença
+	* src/gpodder/config.py: Add "episode_list_descriptions" and
+	"show_toolbar" configuration options that modify the look of the main
+	window (both default to "True")
+	* src/gpodder/gui.py: Show feed description in seperate line (this
+	feature was suggested by narf@inode.at); make the episode list
+	treeview widget use the space more efficient; show/hide toolbar and
+	show/hide episode description GUI glue code
+	* src/gpodder/libgpodder.py: Add "digits" keyword argument to
+	format_filesize() (defaults to 2), this is a pass-thru function for
+	gpodder.util.format_filesize() (see below)
+	* src/gpodder/libpodcasts.py: Support for small- and large-sized
+	icons,modify liststore creation code to add description to the title
+	column
+	* src/gpodder/util.py: Add "digits" keyword argument to
+	format_filesize() (defaults to 2), this is used to define the format
+	of the filesize; add "icon_size" keyword argument (defaults to 32) to
+	get_tree_icon() and modify the function so that it dynamically
+	generates the correct icon with the correct sizes
+
+Wed, 30 Jan 2008 19:16:27 +0100 <thp@perli.net>
+
+
+####- Show feed description in seperate line (by narf at inode dot at)
+In feeds where the description is crucial to decide whether to watch an
+episode or not, it find it cumbersome to always scroll between the feed
+details and the description. It would be nice if the description would be
+shown directly beneath episode/size/published.
+
+	* data/gpodder.glade: 
+	* src/gpodder/gui.py: 
+	* src/gpodder/libgpodder.py: 
+	* src/gpodder/libpodcasts.py: 
+	* src/gpodder/util.py: 
+
+
+
 Mon, 04 Feb 2008 11:26:14 +0100 <thp@perli.net>
 Apply patchset from Jérôme Chabod to fix tray icon behaviour
 

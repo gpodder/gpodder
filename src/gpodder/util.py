@@ -236,7 +236,7 @@ def get_free_disk_space(path):
     return s.f_bavail * s.f_bsize
 
 
-def format_filesize( bytesize, use_si_units = False):
+def format_filesize(bytesize, use_si_units=False, digits=2):
     """
     Formats the given size in bytes to be human-readable, 
 
@@ -275,7 +275,7 @@ def format_filesize( bytesize, use_si_units = False):
             used_value = bytesize / float(value)
             used_unit = unit
 
-    return '%.2f %s' % ( used_value, used_unit )
+    return ('%.'+str(digits)+'f %s') % (used_value, used_unit)
 
 
 def delete_file( path):
@@ -403,7 +403,7 @@ def file_type_by_extension( extension):
     return None
 
 
-def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=None):
+def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=None, icon_size=32):
     """
     Loads an icon from the current icon theme at the specified
     size, suitable for display in a gtk.TreeView.
@@ -419,23 +419,23 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
     the cache.
     """
 
-    if icon_cache != None and (icon_name,add_bullet,add_padlock) in icon_cache:
-        return icon_cache[(icon_name,add_bullet,add_padlock)]
+    if icon_cache != None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
+        return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
     
     icon_theme = gtk.icon_theme_get_default()
 
     try:
-        icon = icon_theme.load_icon( icon_name, 16, 0)
+        icon = icon_theme.load_icon(icon_name, icon_size, 0)
     except:
         log( '(get_tree_icon) Warning: Cannot load icon with name "%s", will use  default icon.', icon_name)
-        icon = icon_theme.load_icon( gtk.STOCK_DIALOG_QUESTION, 16, 0)
+        icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
 
     if icon and (add_bullet or add_padlock):
         # We'll modify the icon, so use .copy()
         if add_bullet:
             try:
                 icon = icon.copy()
-                emblem = icon_theme.load_icon(gtk.STOCK_YES, 10, 0)
+                emblem = icon_theme.load_icon(gtk.STOCK_YES, int(float(icon_size)*1.2/3.0), 0)
                 size = emblem.get_width()
                 pos = icon.get_width() - size
                 emblem.composite(icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
@@ -444,14 +444,14 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
         if add_padlock:
             try:
                 icon = icon.copy()
-                emblem = icon_theme.load_icon('emblem-nowrite', 8, 0)
+                emblem = icon_theme.load_icon('emblem-nowrite', int(float(icon_size)/2.0), 0)
                 size = emblem.get_width()
                 emblem.composite(icon, 0, 0, size, size, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
             except:
                 log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
 
     if icon_cache != None:
-        icon_cache[(icon_name,add_bullet,add_padlock)] = icon
+        icon_cache[(icon_name,add_bullet,add_padlock,icon_size)] = icon
 
     return icon
 
