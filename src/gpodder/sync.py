@@ -55,6 +55,7 @@ import sys
 import time
 import string
 import email.Utils
+import re
 
 
 def open_device():
@@ -379,6 +380,19 @@ class MP3PlayerDevice(Device):
     def __init__(self):
         Device.__init__(self)
 
+        # Try to detect OS encoding (by Leonid Ponomarev)
+        if 'LANG' in os.environ and '.' in os.environ['LANG']:
+            lang = os.environ['LANG']
+            (language, encoding) = lang.rsplit('.', 1)
+            log('Detected encoding: %s', encoding, sender=self)
+            self.enc = encoding
+        else:
+            # Using iso-8859-15 here as (hopefully) sane default
+            # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
+            log('Using ISO-8859-15 as encoding. If this', sender=self)
+            log('is incorrect, please set your $LANG variable.', sender=self)
+            self.enc = 'iso-8859-15'
+
         gl = libgpodder.gPodderLib()
         self.destination = gl.config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
@@ -393,18 +407,11 @@ class MP3PlayerDevice(Device):
     
     def add_track(self, episode):
         self.notify('status', _('Adding %s') % episode.title)
-        allowed_chars = set(string.lowercase+string.uppercase+string.digits+' _.-')
         gl = libgpodder.gPodderLib()
 
         if gl.config.fssync_channel_subfolders:
             # Add channel title as subfolder
-            folder_src = episode.channel.title
-            folder = ''
-            for ch in folder_src:
-                if ch in allowed_chars:
-                    folder = folder + ch
-                else:
-                    folder = folder + '_'
+            folder = episode.channel.title
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
@@ -418,13 +425,13 @@ class MP3PlayerDevice(Device):
         if len(filename_base) > 50:
             filename_base = filename_base[:50]
 
-        to_file_src = filename_base + os.path.splitext( from_file)[1].lower()
-        to_file = ''
-        for ch in to_file_src:
-            if ch in allowed_chars:
-                to_file = to_file + ch
-            else:
-                to_file = to_file + '_'
+        to_file = filename_base + os.path.splitext(from_file)[1].lower()
+
+        # Encode the file and folder names to our system's
+        # encoding and remove the characters that are invalid
+        # for FAT-based drives (replace with the empty string)
+        folder = re.sub('[|?*<>:+\[\]\"\\\]*', '', folder.encode(self.enc, 'ignore'))
+        to_file = re.sub('[|?*<>:+\[\]\"\\\]*', '', to_file.encode(self.enc, 'ignore'))
 
         # dirty workaround: on bad (empty) episode titles,
         # we simply use the from_file basename
