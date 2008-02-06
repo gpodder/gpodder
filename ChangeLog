@@ -1,3 +1,11 @@
+Wed, 06 Feb 2008 10:43:47 +0100 <thp@perli.net>
+Hide to systray on exit during download
+
+	* src/gpodder/gui.py: Apply patch from Jérôme Chabod
+	<jerome.chabod@ifrance.com> to fix a bug: When closing gPodder during
+	a download, and "on_quit_hide" is on, gPodder asks for a confirmation
+	It should hide gPodder without asking. This patch fix that.
+
 Wed, 06 Feb 2008 10:18:30 +0100 <thp@perli.net>
 Usability GUI update (after Rafael Proença's proposal)
 

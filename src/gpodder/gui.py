@@ -916,7 +916,9 @@ class gPodder(GladeWidget):
         gl = gPodderLib()
         downloading = services.download_status_manager.has_items()
 
-        if gl.config.on_quit_ask or downloading:
+        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon:
+            self.iconify_main_window()
+        elif gl.config.on_quit_ask or downloading:
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             if self.tray_icon:
@@ -951,9 +953,6 @@ class gPodder(GladeWidget):
                     gl.config.on_quit_ask = False
                     gl.config.on_quit_systray = True
                 self.iconify_main_window()
-
-        elif gl.config.on_quit_systray and self.tray_icon:
-            self.iconify_main_window()
         else:
             self.close_gpodder()
 
