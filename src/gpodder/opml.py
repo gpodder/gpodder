@@ -83,11 +83,11 @@ class Importer(object):
                 doc = xml.dom.minidom.parseString( self.read_url( url))
 
             for outline in doc.getElementsByTagName('outline'):
-                if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl'):
+                if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
                     channel = {
-                        'url': outline.getAttribute('xmlUrl'),
-                        'title': outline.getAttribute('title') or outline.getAttribute('text') or outline.getAttribute('xmlUrl'),
-                        'description': outline.getAttribute('text') or outline.getAttribute('xmlUrl'),
+                        'url': outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
+                        'title': outline.getAttribute('title') or outline.getAttribute('text') or outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
+                        'description': outline.getAttribute('text') or outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
                     }
 
                     if channel['description'] == channel['title']:

@@ -2169,6 +2169,8 @@ class gPodderOpmlLister(GladeWidget):
         url = self.entryURL.get_text()
         importer = opml.Importer(url)
         model = importer.get_model()
+        if len(model) == 0:
+            self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         util.idle_add(self.thread_finished, model)
     
     def get_channels_from_url( self, url, callback_for_channel = None, callback_finished = None):

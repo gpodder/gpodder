@@ -1,3 +1,11 @@
+Thu, 07 Feb 2008 20:22:08 +0100 <thp@perli.net>
+Support buggy OPML feeds, notify user on OPML import
+
+	* src/gpodder/gui.py: Notify user when no items were found when trying
+	to import OPML feeds
+	* src/gpodder/opml.py: Make the OPML importer a bit more relaxed, and
+	make it accept "url" instead of "xmlUrl", too (for buggy OPML feeds)
+
 Wed, 06 Feb 2008 17:34:56 +0100 <thp@perli.net>
 Fix the track length detection
 
