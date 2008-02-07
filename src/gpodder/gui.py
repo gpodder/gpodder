@@ -1859,6 +1859,10 @@ class gPodderProperties(GladeWidget):
     def on_gPodderProperties_destroy(self, widget, *args):
         self.on_btnOK_clicked( widget, *args)
 
+    def on_btnConfigEditor_clicked(self, widget, *args):
+        self.on_btnOK_clicked(widget, *args)
+        gPodderConfigEditor()
+
     def on_comboAudioPlayerApp_changed(self, widget, *args):
         # find out which one
         iter = self.comboAudioPlayerApp.get_active_iter()
@@ -2391,7 +2395,81 @@ class gPodderEpisodeSelector( GladeWidget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
             self.callback([])
- 
+
+class gPodderConfigEditor(GladeWidget):
+    def new(self):
+        name_column = gtk.TreeViewColumn(_('Variable'))
+        name_renderer = gtk.CellRendererText()
+        name_column.pack_start(name_renderer)
+        name_column.add_attribute(name_renderer, 'text', 0)
+        name_column.add_attribute(name_renderer, 'weight', 5)
+        self.configeditor.append_column(name_column)
+
+        type_column = gtk.TreeViewColumn(_('Type'))
+        type_renderer = gtk.CellRendererText()
+        type_column.pack_start(type_renderer)
+        type_column.add_attribute(type_renderer, 'text', 1)
+        type_column.add_attribute(type_renderer, 'weight', 5)
+        self.configeditor.append_column(type_column)
+
+        value_column = gtk.TreeViewColumn(_('Value'))
+        value_renderer = gtk.CellRendererText()
+        value_column.pack_start(value_renderer)
+        value_column.add_attribute(value_renderer, 'text', 2)
+        value_column.add_attribute(value_renderer, 'editable', 4)
+        value_column.add_attribute(value_renderer, 'weight', 5)
+        value_renderer.connect('edited', self.value_edited)
+        self.configeditor.append_column(value_column)
+
+        gl = gPodderLib()
+        self.model = gl.config.model()
+        self.filter = self.model.filter_new()
+        self.filter.set_visible_func(self.visible_func)
+
+        self.configeditor.set_model(self.filter)
+        self.configeditor.set_rules_hint(True)
+
+    def visible_func(self, model, iter, user_data=None):
+        text = self.entryFilter.get_text().lower()
+        if text == '':
+            return True
+        else:
+            # either the variable name or its value
+            return (text in model.get_value(iter, 0).lower() or
+                    text in model.get_value(iter, 2).lower())
+
+    def value_edited(self, renderer, path, new_text):
+        gl = gPodderLib()
+        
+        model = self.configeditor.get_model()
+        iter = model.get_iter(path)
+        name = model.get_value(iter, 0)
+        type_cute = model.get_value(iter, 1)
+
+        if not gl.config.update_field(name, new_text):
+            self.notification(_('Cannot set value of <b>%s</b> to <i>%s</i>.\n\nNeeded data type: %s') % (saxutils.escape(name), saxutils.escape(new_text), saxutils.escape(type_cute)), _('Error updating %s') % saxutils.escape(name))
+    
+    def on_entryFilter_changed(self, widget):
+        self.filter.refilter()
+
+    def on_btnShowAll_clicked(self, widget):
+        self.entryFilter.set_text('')
+        self.entryFilter.grab_focus()
+
+    def on_configeditor_row_activated(self, treeview, path, view_column):
+        model = treeview.get_model()
+        it = model.get_iter(path)
+        field_name = model.get_value(it, 0)
+        field_type = model.get_value(it, 3)
+
+        # Flip the boolean config flag
+        if field_type == bool:
+            gl = gPodderLib()
+            gl.config.toggle_flag(field_name)
+
+    def on_btnClose_clicked(self, widget):
+        self.gPodderConfigEditor.destroy()
+
 
 def main():
     gobject.threads_init()

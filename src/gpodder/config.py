@@ -25,6 +25,7 @@
 
 
 import gtk
+import pango
 
 from gpodder import util
 from gpodder.liblogger import log
@@ -111,6 +112,8 @@ class Config(dict):
         self.__filename = filename
         self.__section = 'gpodder-conf-1'
         self.__ignore_window_events = False
+        # Name, Type, Value, Type(python type), Editable?, Font weight
+        self.__model = gtk.ListStore(str, str, str, object, bool, int)
 
         atexit.register( self.__atexit)
 
@@ -231,13 +234,16 @@ class Config(dict):
         if filename != None:
             self.__filename = filename
 
+        self.__model.clear()
+
         parser = ConfigParser.RawConfigParser()
         try:
             parser.read( self.__filename)
         except:
             pass
 
-        for ( key, ( fieldtype, default ) ) in self.Settings.items():
+        for key in sorted(self.Settings):
+            (fieldtype, default) = self.Settings[key]
             try:
                 if fieldtype == int:
                     value = parser.getint( self.__section, key)
@@ -251,6 +257,48 @@ class Config(dict):
                 value = default
 
             self[key] = value
+            if value == default:
+                weight = pango.WEIGHT_NORMAL
+            else:
+                weight = pango.WEIGHT_BOLD
+            self.__model.append([key, self.type_as_string(fieldtype), str(value), fieldtype, fieldtype is not bool, weight])
+
+    def model(self):
+        return self.__model
+
+    def toggle_flag(self, name):
+        if name in self.Settings:
+            (fieldtype, default) = self.Settings[name]
+            if fieldtype == bool:
+                setattr(self, name, not getattr(self, name))
+            else:
+                log('Cannot toggle value: %s (not boolean)', name, sender=self)
+        else:
+            log('Invalid setting name: %s', name, sender=self)
+
+    def update_field(self, name, new_value):
+        if name in self.Settings:
+            (fieldtype, default) = self.Settings[name]
+            try:
+                new_value = fieldtype(new_value)
+            except:
+                log('Cannot convert "%s" to %s. Ignoring.', str(new_value), fieldtype.__name__, sender=self)
+                return False
+            setattr(self, name, new_value)
+            return True
+        else:
+            log('Invalid setting name: %s', name, sender=self)
+            return False
+
+    def type_as_string(self, type):
+        if type == int:
+            return _('Integer')
+        elif type == float:
+            return _('Float')
+        elif type == bool:
+            return _('Boolean')
+        else:
+            return _('String')
 
     def __setattr__( self, name, value):
         if name in self.Settings:
@@ -259,6 +307,14 @@ class Config(dict):
                 if self[name] != fieldtype(value):
                     log( 'Update: %s = %s', name, value, sender = self)
                     self[name] = fieldtype(value)
+                    for row in self.__model:
+                        if row[0] == name:
+                            row[2] = str(fieldtype(value))
+                            if self[name] == default:
+                                weight = pango.WEIGHT_NORMAL
+                            else:
+                                weight = pango.WEIGHT_BOLD
+                            row[5] = weight
                     self.schedule_save()
             except:
                 raise ValueError( '%s has to be of type %s' % ( name, fieldtype.__name__ ))

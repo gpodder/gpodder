@@ -1,3 +1,17 @@
+Thu, 07 Feb 2008 22:15:40 +0100 <thp@perli.net>
+Hello, new "expert" configuration editor (about:config-like)
+
+	* data/gpodder.glade: Add gPodderConfigEditor window and add an
+	"Advanced..." button to the preferences dialog
+	* src/gpodder/config.py: Add a gtk.ListStore tree model to the
+	configuration manager and update it when configuration variables
+	change; add toggle_flag() and update_field() methods for easy updating
+	of fields from the new config editor
+	* src/gpodder/gui.py: Add glue code for opening the advanced
+	configuration editor from the preferences dialog; add code for the
+	gPodder configuration editor (including filtering and field updating);
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=10)
+
 Thu, 07 Feb 2008 20:22:08 +0100 <thp@perli.net>
 Support buggy OPML feeds, notify user on OPML import
 
