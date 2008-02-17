@@ -77,6 +77,9 @@ class DownloadStatusManager(ObservableService):
 
         self.last_progress_status  = ( 0, 0 )
         
+        # use to correctly calculate percentage done
+        self.downloads_done_count = 0
+        
         self.max_downloads = libgpodder.gPodderLib().config.max_downloads
         self.semaphore = threading.Semaphore( self.max_downloads)
 
@@ -139,6 +142,11 @@ class DownloadStatusManager(ObservableService):
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
             del self.status_list[id]
+            if self.has_items():
+                self.downloads_done_count += 1
+            else:
+                # Reset the counter now
+                self.downloads_done_count = 0
         self.notify( 'list-changed')
         self.notify_progress()
 
@@ -152,7 +160,8 @@ class DownloadStatusManager(ObservableService):
         if not len(self.status_list):
             return 0
 
-        return sum( [ status['progress'] for status in self.status_list.values() ]) / len( self.status_list)
+        done = self.downloads_done_count*100 + sum([status['progress'] for status in self.status_list.values()])
+        return done / (len(self.status_list) + self.downloads_done_count)
 
     def update_status( self, id, **kwargs):
         if not id in self.status_list:
@@ -195,6 +204,7 @@ class DownloadStatusManager(ObservableService):
 	    self.status_list[element]['thread'].cancel()
         # clear the tree model after cancelling
         util.idle_add(self.tree_model.clear)
+        self.downloads_done_count = 0
 
     def cancel_by_url( self, url):
         for element in self.status_list:
