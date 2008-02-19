@@ -412,6 +412,7 @@ class MP3PlayerDevice(Device):
         if gl.config.fssync_channel_subfolders:
             # Add channel title as subfolder
             folder = episode.channel.title
+            folder = re.sub('[/|?*<>:+\[\]\"\\\]', '_', folder.encode(self.enc, 'ignore'))
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
@@ -427,11 +428,10 @@ class MP3PlayerDevice(Device):
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
-        # Encode the file and folder names to our system's
+        # Encode the file name to our system's
         # encoding and remove the characters that are invalid
         # for FAT-based drives (replace with the empty string)
-        folder = re.sub('[|?*<>:+\[\]\"\\\]*', '', folder.encode(self.enc, 'ignore'))
-        to_file = re.sub('[|?*<>:+\[\]\"\\\]*', '', to_file.encode(self.enc, 'ignore'))
+        to_file = re.sub('[/|?*<>:+\[\]\"\\\]', '_', to_file.encode(self.enc, 'ignore'))
 
         # dirty workaround: on bad (empty) episode titles,
         # we simply use the from_file basename
@@ -449,7 +449,7 @@ class MP3PlayerDevice(Device):
                 return False
 
         if not os.path.exists(to_file):
-            log('Copying %s => %s', os.path.basename(from_file), to_file, sender=self)
+            log('Copying %s => %s', os.path.basename(from_file), to_file.decode(self.enc), sender=self)
             return self.copy_file_progress(from_file, to_file)
 
         return True
