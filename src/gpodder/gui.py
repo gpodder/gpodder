@@ -753,10 +753,7 @@ class gPodder(GladeWidget):
     
     def update_feed_cache_callback(self, progressbar, position, count):
         title = self.channels[position].title
-        progression = _('Updating %s (%d/%d)')%(title, position+1, count)
-        progressbar.set_text(progression)
-        if self.tray_icon:
-            self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
+        progressbar.set_text(_('Updating %s (%d/%d)')%(title, position+1, count))
 
         if count > 0:
             progressbar.set_fraction(float(position)/float(count))
@@ -1124,9 +1121,7 @@ class gPodder(GladeWidget):
             self.notification(message, title)
             return
 
-        gPodderSync(device=device, gPodder=self)
-        if self.tray_icon:
-            self.tray_icon.set_synchronisation_device(device)
+        gPodderSync(device=device)
 
         if episodes is None:
             episodes_to_sync = []
@@ -1147,9 +1142,6 @@ class gPodder(GladeWidget):
             message = _('There has been an error closing your device.')
             self.notification(message, title)
             return
- 
-        if self.tray_icon:
-            self.tray_icon.release_synchronisation_device()
 
         # update model for played state updates after sync
         for channel in self.channels:
@@ -1189,7 +1181,7 @@ class gPodder(GladeWidget):
             self.show_message(message, title)
             return
 
-        gPodderSync(device=device, gPodder=self)
+        gPodderSync(device=device)
 
         tracks = device.get_all_tracks()
         if len(tracks) > 0:
@@ -2125,8 +2117,7 @@ class gPodderSync(GladeWidget):
 
     def on_done(self):
         util.idle_add(self.gPodderSync.destroy)
-        if not self.gPodder.minimized:
-            util.idle_add(self.notification, _('Your device has been updated by gPodder.'), _('Operation finished'))
+        util.idle_add(self.notification, _('Your device has been updated by gPodder.'), _('Operation finished'))
 
     def on_gPodderSync_destroy(self, widget, *args):
         self.device.unregister('progress', self.on_progress)
@@ -2485,6 +2476,4 @@ def main():
     gtk.window_set_default_icon_name( 'gpodder')
 
     gPodder().run()
-
-
 
