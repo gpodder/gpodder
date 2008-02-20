@@ -702,4 +702,49 @@ def bluetooth_send_file(filename, device=None, callback_finished=None):
         if callback_finished is not None:
             callback_finished(False)
         return False
+        
+        
+def format_seconds_to_hour_min_sec(seconds):
+    """
+    Take the number of seconds and format it into a
+    human-readable string (duration).
+
+    >>> format_seconds_to_hour_min_sec(3834)
+    '1 hour, 3 minutes and 54 seconds'
+    >>> format_seconds_to_hour_min_sec(2600)
+    '1 hour'
+    >>> format_seconds_to_hour_min_sec(62)
+    '1 minute and 2 seconds'
+    """
+
+    if seconds < 1:
+        return _('0 seconds')
+
+    result = []
+
+    hours = seconds/3600
+    seconds = seconds%3600
+
+    minutes = seconds/60
+    seconds = seconds%60
+
+    if hours == 1:
+        result.append(_('1 hour'))
+    elif hours > 1:
+        result.append(_('%i hours') % hours)
+
+    if minutes == 1:
+        result.append(_('1 minute'))
+    elif minutes > 1:
+        result.append(_('%i minutes') % minutes)
+
+    if seconds == 1:
+        result.append(_('1 second'))
+    elif seconds > 1:
+        result.append(_('%i seconds') % seconds)
+
+    if len(result) > 1:
+        return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))
+    else:
+        return result[0]
 

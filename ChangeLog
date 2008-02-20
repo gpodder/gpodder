@@ -1,3 +1,16 @@
+Wed, 20 Feb 2008 13:38:58 +0100 <thp@perli.net>
+Estimated time left and synchronization support for tray icon by Jérôme Chabod
+
+	* src/gpodder/gui.py: Send update status information to the tray icon
+	on update; add glue code for synchronization device and tray icon
+	* src/gpodder/trayicon.py: Add status and tooltip during device
+	synchronization; add estimated download time to tooltip during
+	download; set the correct caption for the synchronization menu item in
+	the tray icon (and don't add a synchronize menu item when not needed);
+	some small code-cleanups and fixes
+	* src/gpodder/util.py: Add format_seconds_to_hour_min_sec() function
+	that converts a numeric amount of seconds into a human-readable string
+
 Tue, 19 Feb 2008 07:46:28 +0100 <thp@perli.net>
 Fix bug with MP3 player synchronization file name encodings
 

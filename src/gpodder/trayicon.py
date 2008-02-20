@@ -23,6 +23,7 @@
 
 
 import gtk
+import datetime
 
 from gpodder.liblogger import log
 from gpodder.libpodcasts import podcastItem
@@ -74,6 +75,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.__icon_filename = icon_filename
         self.__current_icon = -1
         self.__is_downloading = False
+        self.__synchronisation_device = None
+        self.__download_start_time = None
 
         self.__previous_notification = []
 
@@ -87,39 +90,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         # Reset trayicon (default icon, default tooltip)
         self.set_status()
 
-        # build and connect the popup menu
-        menu = gtk.Menu()
-        menuItem = gtk.ImageMenuItem(_("Check for new episodes"))
-        menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU))
-        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate)
-        menu.append(menuItem)
-        menuItem = gtk.ImageMenuItem(_("Download all new episodes"))
-        menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
-        menuItem.connect('activate',  self.__gpodder.on_itemDownloadAllNew_activate)
-        menu.append(menuItem)
-        menuItem = gtk.ImageMenuItem(_("Synchronize to iPod/player"))
-        menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
-        menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
-        menu.append(menuItem)
-        menu.append( gtk.SeparatorMenuItem())
-        self.menuItem_previous_msg = gtk.ImageMenuItem(_('Show previous message again'))
-        self.menuItem_previous_msg.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))       
-        self.menuItem_previous_msg.connect('activate',  self.__on_show_previous_message_callback)
-        self.menuItem_previous_msg.set_sensitive(False)
-        menu.append(self.menuItem_previous_msg)
-        menu.append( gtk.SeparatorMenuItem())
-        menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
-        menuItem.connect('activate',  self.__gpodder.on_itemPreferences_activate)
-        menu.append(menuItem)
-        menuItem = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
-        menuItem.connect('activate',  self.__gpodder.on_itemAbout_activate)
-        menu.append(menuItem)
-        menu.append( gtk.SeparatorMenuItem())
-        menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-        menuItem.connect('activate',  self.__on_exit_callback)
-        menu.append(menuItem)
-
         self.connect('activate', self.__on_left_click)
+        menu = self.__create_context_menu()
         self.connect('popup-menu', self.__on_right_click, menu)
         self.set_visible(True)
 
@@ -129,8 +101,56 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 log('Error: unable to initialise pynotify', sender=self)
 
         # Register with the download status manager
-        services.download_status_manager.register('progress-changed', self.__download_progress_changed)
-        services.download_status_manager.register('download-complete', self.__download_complete)
+        dl_man = services.download_status_manager
+        dl_man.register('progress-changed', self.__on_download_progress_changed)
+        dl_man.register('download-complete', self.__on_download_complete)
+        
+    def __create_context_menu(self):
+        # build and connect the popup menu
+        menu = gtk.Menu()
+        menuItem = gtk.ImageMenuItem(_("Check for new episodes"))
+        menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU))
+        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate)
+        menu.append(menuItem)
+        
+        menuItem = gtk.ImageMenuItem(_("Download all new episodes"))
+        menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+        menuItem.connect('activate',  self.__gpodder.on_itemDownloadAllNew_activate)
+        menu.append(menuItem)
+
+        # menus's label will adapt to the synchronisation device name
+        gl = gPodderLib()
+        if gl.config.device_type != 'none':
+            sync_label = _('Synchronize to %s') % (gl.get_device_name(),)
+            menuItem = gtk.ImageMenuItem(sync_label)
+            menuItem.set_sensitive(gl.config.device_type != 'none')
+            menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
+            menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
+            menu.append(menuItem)
+            menu.append( gtk.SeparatorMenuItem())
+        
+        self.menuItem_previous_msg = gtk.ImageMenuItem(_('Show previous message again'))
+        self.menuItem_previous_msg.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))       
+        self.menuItem_previous_msg.connect('activate',  self.__on_show_previous_message_callback)
+        self.menuItem_previous_msg.set_sensitive(False)
+        menu.append(self.menuItem_previous_msg)
+        
+        menu.append( gtk.SeparatorMenuItem())
+        
+        menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
+        menuItem.connect('activate',  self.__gpodder.on_itemPreferences_activate)
+        menu.append(menuItem)
+        
+        menuItem = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+        menuItem.connect('activate',  self.__gpodder.on_itemAbout_activate)
+        menu.append(menuItem)
+        menu.append( gtk.SeparatorMenuItem())
+        
+        menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+        menuItem.connect('activate',  self.__on_exit_callback)
+        menu.append(menuItem)
+        
+        return menu        
 
     def __on_exit_callback(self, widget, *args):
         gl = gPodderLib()
@@ -162,13 +182,12 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:            
                 self.__gpodder.iconify_main_window()
 
-
-    def __download_complete(self, episode):
+    def __on_download_complete(self, episode):
         """Remember finished downloads
         """
         self.__finished_downloads.append(episode)
 
-    def __download_progress_changed( self, count, percentage):
+    def __on_download_progress_changed( self, count, percentage):
         """ callback by download manager during dowloading.
         It updates the tooltip with information on how many
         files are dowloaded and the percentage of dowload
@@ -177,6 +196,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         tooltip = []
         if count > 0:
             self.__is_downloading = True
+            if not self.__download_start_time:
+                self.__download_start_time = datetime.datetime.now()
             if count == 1:
                 tooltip.append(_('downloading one episode'))
             else:
@@ -184,12 +205,19 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
             tooltip.append(' (%d%%)'%percentage)
 
+            if percentage <> 0:
+                date_diff = datetime.datetime.now() - self.__download_start_time
+                estim = date_diff.seconds * 100 // percentage - date_diff.seconds
+                tooltip.append('\n' + _('estimated remaining time: '))
+                tooltip.append(util.format_seconds_to_hour_min_sec(estim))
+                
             if len(self.__finished_downloads) > 0:
                 tooltip.append(self.format_episode_list(self.__finished_downloads, _('Finished downloads:')))
 
             self.set_status(self.STATUS_DOWNLOAD_IN_PROGRESS, ''.join(tooltip))
         else:
             self.__is_downloading = False
+            self.__download_start_time = None
             self.set_status()
             num = len(self.__finished_downloads)
             if num == 1:
@@ -204,7 +232,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.send_notification(message, _('gPodder downloads finished'))
  
             self.__finished_downloads = []
- 
+
     def __get_status_icon(self, icon):
         if icon in self.__icon_cache:
             return self.__icon_cache[icon]
@@ -249,7 +277,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
     
     def destroy(self, n=None, action=None):
         gtk.main_quit()
-        
+ 
     def send_notification( self, message, title = "gPodder", actions = [], is_error=False):
         if not self.__is_notification_on(): return
 
@@ -272,7 +300,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             gtk.main()
         
     def set_status(self, status=None, tooltip=None):
-        #TODO: add a stack for icons (an update can occure while dowloading and ending before)
         if status is None:
             if tooltip is None:
                 tooltip = self.DEFAULT_TOOLTIP
@@ -327,3 +354,35 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         return ''.join(result)
     
+    def set_synchronisation_device(self, synchronisation_device):
+        assert not self.__synchronisation_device, "a device was already set without have been released"
+        
+        self.__synchronisation_device = synchronisation_device
+        self.__synchronisation_device.register('progress', self.__on_synchronisation_progress)
+        self.__synchronisation_device.register('status', self.__on_synchronisation_status)
+        self.__synchronisation_device.register('done', self.__on_synchronisation_done)
+        
+    def release_synchronisation_device(self):
+        assert self.__synchronisation_device, "request for releasing a device which was never set"
+        
+        self.__synchronisation_device.unregister('progress', self.__on_synchronisation_progress)
+        self.__synchronisation_device.unregister('status', self.__on_synchronisation_status)
+        self.__synchronisation_device.unregister('done', self.__on_synchronisation_done)        
+        self.__synchronisation_device = None
+        
+    def __on_synchronisation_progress(self, pos, max):
+        self.__sync_progress = _('%d of %d done') % (pos, max)
+
+    def __on_synchronisation_status(self, status):
+        tooltip = _('%s\n%s') % (status, self.__sync_progress)
+        self.set_status(self.STATUS_SYNCHRONIZING, tooltip)
+        log("tooltip: %s", tooltip, sender=self) 
+
+    def __on_synchronisation_done(self):
+        if self.__gpodder.minimized:
+            # this might propably never appends so long gPodder synchronizes in a modal windows
+            self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
+        self.set_status()
+        
+
+        
