@@ -77,8 +77,8 @@ cl:
 ##########################################################################
 
 test:
-	# set xterm title to know what this window does ;)
-	@echo -e '\033]0;gPodder console (make test)\007'
+	@# set xterm title to know what this window does ;)
+	@echo -ne '\033]0;gPodder console (make test)\007'
 	$(BINFILE) --local --verbose
 
 deb:
