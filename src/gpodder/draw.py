@@ -125,7 +125,14 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=3, radius=11):
 
 
 def draw_pill_pixbuf(left_text, right_text):
-    s = draw_text_pill(left_text, right_text)
+    return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text))
+
+
+def cairo_surface_to_pixbuf(s):
+    """
+    Converts a Cairo surface to a Gtk Pixbuf by
+    encoding it as PNG and using the PixbufLoader.
+    """
     sio = StringIO.StringIO()
     try:
         s.write_to_png(sio)
@@ -143,4 +150,40 @@ def draw_pill_pixbuf(left_text, right_text):
 
     pixbuf = pbl.get_pixbuf()
     return pixbuf
+
+
+def progressbar_pixbuf(width, height, percentage):
+    COLOR_BG = (.4, .4, .4, .4)
+    COLOR_FG = (.2, .9, .2, 1.)
+    COLOR_FG_HIGH = (1., 1., 1., .5)
+    COLOR_BORDER = (0., 0., 0., 1.)
+
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    ctx = cairo.Context(surface)
+
+    padding = int(float(width)/8.0)
+    bar_width = 2*padding
+    bar_height = height - 2*padding
+    bar_height_fill = bar_height*percentage
+
+    # Background
+    ctx.rectangle(padding, padding, bar_width, bar_height)
+    ctx.set_source_rgba(*COLOR_BG)
+    ctx.fill()
+
+    # Foreground
+    ctx.rectangle(padding, padding+bar_height-bar_height_fill, bar_width, bar_height_fill)
+    ctx.set_source_rgba(*COLOR_FG)
+    ctx.fill()
+    ctx.rectangle(padding+bar_width/3, padding+bar_height-bar_height_fill, bar_width/4, bar_height_fill)
+    ctx.set_source_rgba(*COLOR_FG_HIGH)
+    ctx.fill()
+
+    # Border
+    ctx.rectangle(padding-.5, padding-.5, bar_width+1, bar_height+1)
+    ctx.set_source_rgba(*COLOR_BORDER)
+    ctx.set_line_width(1.)
+    ctx.stroke()
+
+    return cairo_surface_to_pixbuf(surface)
 

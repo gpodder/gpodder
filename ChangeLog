@@ -1,3 +1,13 @@
+Sun, 24 Feb 2008 13:55:42 +0100 <thp@perli.net>
+Cairo-based progress bar on system tray icon
+
+	* src/gpodder/draw.py: Add Cairo-based drawing code for generating a
+	nice, transparent progress bar icon
+	* src/gpodder/services.py: Fix a problem with the wrong download done
+	percentage (i.e. when cancelling downloads instead of finishing them)
+	* src/gpodder/trayicon.py: Add code to draw the progress bar on the
+	tray icon; initial idea and most parts of this patch by Jérôme Chabod
+
 Sat, 23 Feb 2008 14:18:53 +0100 <thp@perli.net>
 Set the xterm title when running "make test"
 

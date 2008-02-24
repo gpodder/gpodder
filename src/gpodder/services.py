@@ -142,9 +142,7 @@ class DownloadStatusManager(ObservableService):
             self.status_list[id]['iter'] = None
             self.status_list[id]['thread'].cancel()
             del self.status_list[id]
-            if self.has_items():
-                self.downloads_done_count += 1
-            else:
+            if not self.has_items():
                 # Reset the counter now
                 self.downloads_done_count = 0
         self.notify( 'list-changed')
@@ -184,6 +182,7 @@ class DownloadStatusManager(ObservableService):
     def download_completed(self, id):
         if id in self.status_list:
             self.notify('download-complete', self.status_list[id]['episode'])
+            self.downloads_done_count += 1
 
     def request_progress_detail( self, url):
         for status in self.status_list.values():

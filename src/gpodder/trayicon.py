@@ -38,6 +38,7 @@ except:
 
 from gpodder import services
 from gpodder import util
+from gpodder import draw
 
 from libgpodder import gPodderLib
 
@@ -88,6 +89,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.__icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_DIALOG_QUESTION, 30, 30)
 
         # Reset trayicon (default icon, default tooltip)
+        self.__current_pixbuf = None
+        self.__last_ratio = 1.0
         self.set_status()
 
         self.connect('activate', self.__on_left_click)
@@ -215,6 +218,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 tooltip.append(self.format_episode_list(self.__finished_downloads, _('Finished downloads:')))
 
             self.set_status(self.STATUS_DOWNLOAD_IN_PROGRESS, ''.join(tooltip))
+            
+            self.progress_bar(float(percentage)/100.)
         else:
             self.__is_downloading = False
             self.__download_start_time = None
@@ -306,7 +311,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:
                 tooltip = 'gPodder - %s' % tooltip
             if self.__current_icon is not None:
-                self.set_from_pixbuf(self.__icon)
+                self.__current_pixbuf = self.__icon
+                self.set_from_pixbuf(self.__current_pixbuf)
                 self.__current_icon = None
         else:
             (status_tooltip, icon) = status
@@ -315,17 +321,26 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:
                 tooltip = 'gPodder - %s' % tooltip
             if self.__current_icon != icon:
-                self.set_from_pixbuf(self.__get_status_icon(icon))
+                self.__current_pixbuf = self.__get_status_icon(icon)
+                self.set_from_pixbuf(self.__current_pixbuf)
                 self.__current_icon = icon
         self.set_tooltip(tooltip)
 
     def format_episode_list(self, episode_list, caption=''):
-        """Format a list of episodes for tooltips and notifications
-        The parameter "episode_list" can either be a list containing
-        podcastItem objects or a list of strings.
-
-        A formatted list of episodes is returned.
         """
+        Format a list of episodes for tooltips and notifications
+        Return a listing of episodes title separated by a line break.
+        Long title are troncated: "xxxx...xxxx"
+        If the list is too long, it is cut and the string "x others episodes" is append
+        
+        episode_list
+            can be either a list containing podcastItem objects 
+            or a list of strings of episode's title.
+
+        return
+            the formatted list of episodes as a string
+        """
+        
         MAX_EPISODES = 10
         MAX_TITLE_LENGTH = 100
 
@@ -384,5 +399,26 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
         self.set_status()
         
+    def progress_bar(self, ratio):
+        """
+        draw a progress bar on top of the tray icon.
+        Be sure to call this method the first time with ratio=0
+        in order to initialise background image
+            
+        ratio
+            value between 0 and 1 (inclusive) indicating the ratio 
+            of the progress bar to be drawn
+                
+        """
 
+        # Only update in 3-percent-steps to save some resources
+        if abs(ratio-self.__last_ratio) < 0.03 and ratio > self.__last_ratio:
+            return
+
+        icon = self.__current_pixbuf.copy()
+        progressbar = draw.progressbar_pixbuf(icon.get_width(), icon.get_height(), ratio)
+        progressbar.composite(icon, 0, 0, icon.get_width(), icon.get_height(), 0, 0, 1, 1, gtk.gdk.INTERP_NEAREST, 255)
         
+        self.set_from_pixbuf(icon)
+        self.__last_ratio = ratio
+
