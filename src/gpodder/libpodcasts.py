@@ -584,11 +584,7 @@ class podcastItem(object):
         if not lines or lines[0] == '':
             return _('No description available')
         else:
-            desc = lines[0].strip()
-            if len( desc) > 84:
-                return desc[:80] + '...'
-            else:
-                return desc
+            return ' '.join((l.strip() for l in lines if l.strip() != ''))
 
     def is_downloaded( self):
         return os.path.exists( self.local_filename())
