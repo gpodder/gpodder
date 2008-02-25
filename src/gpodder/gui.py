@@ -55,7 +55,7 @@ from libtagupdate import tagging_supported
 
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
-app_authors = [ 'Thomas Perl <thp@perli.net' ]
+app_authors = [ 'Thomas Perl <thp@perli.net>' ]
 app_copyright = 'Copyright (c) 2005-2007 Thomas Perl'
 app_website = 'http://gpodder.berlios.de/'
 
