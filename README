@@ -6,7 +6,7 @@
                          ._/ http://gpodder.berlios.de/
 
            - -- == === ================================= === == -- -
-              Copyright (c) 2005-2007 Thomas Perl <thp@perli.net>
+              Copyright (c) 2005-2008 Thomas Perl <thp@perli.net>
 
  ==========================
  License (see COPYING file)
@@ -55,6 +55,11 @@
  Additional dependencies if you want direct BitTorrent download support:
 
    * gnome-btdownload
+ 
+ Additional dependencies if you want Bluetooth file send support:
+
+   * python-bluez OR hcitool (for detecting nearby devices)
+   * gnome-obex-send (for the file send operation)
 
  Additional dependencies if you want to install from source:
  
@@ -70,8 +75,8 @@
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
-   tar xzvf gpodder-0.10.4.tar.gz
-   cd gpodder-0.10.4/
+   tar xzvf gpodder-0.11.0.tar.gz
+   cd gpodder-0.11.0/
    make install
 
  If you have any problems, please visit the gPodder website or mail the 
@@ -81,14 +86,18 @@
  Feature requests, bug reports and patches
  =========================================
 
- Feature requests should be added to the Wiki.
- Bug reports should be sent to the gpodder-devel mailing list.
- Patches should also be sent to the mailing list.
- For everything else, please have a look into the Wiki.
+ Feature requests, bug report and patches should all be filed in our
+ Bugzilla at http://bugs.gpodder.org - for general discussion and questions,
+ please send a message to gpodder-devel (this is a subscriber-only list, so
+ you have to subscribe first before sending mail there).
 
-   Homepage:       http://gpodder.berlios.de/
-   Wiki:           http://gpodderwiki.jottit.com/
-   Bugzilla:       http://gpodder.thegithouse.com/
+ For up to date information about gPodder, see the website and Wiki.
+
+   Homepage:       http://www.gpodder.org/
+   Wiki:           http://wiki.gpodder.org/
+   Bugzilla:       http://bugs.gpodder.org/
+
+   FAQs:           http://wiki.gpodder.org/faq
    Mailing List:   gpodder-devel@berlios.de
    IRC Channel:    #gpodder on FreeNode (irc.freenode.net)
 
