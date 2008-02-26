@@ -1,3 +1,13 @@
+Tue, 26 Feb 2008 16:30:56 +0100 <thp@perli.net>
+Add support for new "bluetooth-sendto" utility
+
+	* README: Ask for either "gnome-obex-send" or "bluetooth-sendto",
+	which are needed for the Bluetooth file transfer
+	* src/gpodder/util.py: Add support for "bluetooth-sendto" as an
+	alternative to "gnome-obex-send"; initial bug report and patch by
+	Leonid Ponomarev (this probably adds bluez-gnome as an optional
+	dependency if you want bluetooth send support)
+
 Mon, 25 Feb 2008 15:51:16 +0100 <thp@perli.net>
 Show more description text in episode list
 

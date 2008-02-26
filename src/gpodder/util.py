@@ -687,9 +687,18 @@ def bluetooth_send_file(filename, device=None, callback_finished=None):
     sending process has finished - it gets one parameter
     that is either True (when sending succeeded) or False
     when there was some error.
+
+    This function tries to use "bluetooth-sendto", and if
+    it is not available, it also tries "gnome-obex-send".
     """
-    if find_command('gnome-obex-send'):
+    command_line = None
+
+    if find_command('bluetooth-sendto'):
+        command_line = ['bluetooth-sendto']
+    elif find_command('gnome-obex-send'):
         command_line = ['gnome-obex-send']
+
+    if command_line is not None:
         if device is not None:
             command_line += ['--dest', device]
         command_line.append(filename)
@@ -698,7 +707,7 @@ def bluetooth_send_file(filename, device=None, callback_finished=None):
             callback_finished(result)
         return result
     else:
-        log('Cannot send file. Please install "gnome-obex-send".')
+        log('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         if callback_finished is not None:
             callback_finished(False)
         return False
