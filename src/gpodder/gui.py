@@ -127,10 +127,10 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         return response == gtk.RESPONSE_YES
 
     def show_copy_dialog( self, src_filename, dst_filename = None, dst_directory = None, title = _('Select destination')):
-        if dst_filename == None:
+        if dst_filename is None:
             dst_filename = src_filename
 
-        if dst_directory == None:
+        if dst_directory is None:
             dst_directory = os.path.expanduser( '~')
 
         ( base, extension ) = os.path.splitext( src_filename)
@@ -602,7 +602,7 @@ class gPodder(GladeWidget):
         self.download_status_updated()
 
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):
-        if model == None:
+        if model is None:
             return True
 
         key = key.lower()
@@ -872,7 +872,7 @@ class gPodder(GladeWidget):
             please_wait.destroy()
             
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
-        if self.active_channel == None:
+        if self.active_channel is None:
             return
 
         current_channel = self.active_channel
@@ -1269,7 +1269,7 @@ class gPodder(GladeWidget):
         self.entryAddChannel.grab_focus()
 
     def on_itemEditChannel_activate(self, widget, *args):
-        if self.active_channel == None:
+        if self.active_channel is None:
             title = _('No channel selected')
             message = _('Please select a channel in the channels list to edit.')
             self.show_message( message, title)
@@ -1511,7 +1511,7 @@ class gPodder(GladeWidget):
         self.on_treeAvailable_row_activated( widget, args)
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        if self.active_channel == None:
+        if self.active_channel is None:
             return
 
         channel_url = self.active_channel.url
@@ -1644,7 +1644,7 @@ class gPodderChannel(GladeWidget):
         self.labelCoverStatus.show()
 
     def on_btnDownloadCover_clicked( self, widget, url = None):
-        if url == None:
+        if url is None:
             url = self.channel.image
 
         if url != False:
@@ -1775,7 +1775,7 @@ class gPodderProperties(GladeWidget):
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
     def update_mountpoint( self, ipod):
-        if ipod == None or ipod.mount_point == None:
+        if ipod is None or ipod.mount_point is None:
             self.iPodMountpoint.set_label( '')
         else:
             self.iPodMountpoint.set_label( ipod.mount_point)

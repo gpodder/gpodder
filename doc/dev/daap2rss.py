@@ -21,7 +21,7 @@ class DAAPProxy(object):
             if str( d.id) == str( id):
                 self.database = d
 
-        if self.database == None:
+        if self.database is None:
             self.database = d
 
         self.tracks = self.database.tracks()

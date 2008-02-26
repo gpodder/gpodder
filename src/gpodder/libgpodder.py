@@ -51,7 +51,7 @@ g_podder_lib = None
 # some awkward kind of "singleton" ;)
 def gPodderLib():
     global g_podder_lib
-    if g_podder_lib == None:
+    if g_podder_lib is None:
         g_podder_lib = gPodderLibClass()
     return g_podder_lib
 
@@ -233,7 +233,7 @@ class gPodderLibClass( object):
             util.idle_add(callback_status, _('Downloading channel cover...'))
         pixbuf = gtk.gdk.PixbufLoader()
         
-        if cover_file == None:
+        if cover_file is None:
             log( 'Downloading %s', url)
             pixbuf.write( urllib.urlopen(url).read())
         
@@ -281,7 +281,7 @@ class gPodderLibClass( object):
         self.history_mark_played( url)
 
         if self.config.use_gnome_bittorrent:
-            if util.find_command( 'gnome-btdownload') == None:
+            if util.find_command('gnome-btdownload') is None:
                 log( 'Cannot find "gnome-btdownload". Please install gnome-bittorrent.', sender = self)
                 return False
 

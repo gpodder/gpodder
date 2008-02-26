@@ -699,7 +699,7 @@ class podcastItem(object):
     played_prop = property(fget=get_played_string)
     
     def equals( self, other_item):
-        if other_item == None:
+        if other_item is None:
             return False
         
         return self.url == other_item.url

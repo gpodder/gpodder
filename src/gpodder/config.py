@@ -196,7 +196,7 @@ class Config(dict):
             raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))
 
     def schedule_save( self):
-        if self.__save_thread == None:
+        if self.__save_thread is None:
             self.__save_thread = threading.Thread( target = self.save_thread_proc)
             self.__save_thread.start()
 
