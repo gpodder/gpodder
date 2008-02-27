@@ -1,3 +1,10 @@
+Wed, 27 Feb 2008 09:52:14 +0100 <thp@perli.net>
+Use xdg-open for files that we don't know the file type of
+
+	* src/gpodder/libgpodder.py: If the file we want to open/play is not
+	an audio or video file, we use "xdg-open" to open the file (this is
+	used for things like PDF files and the like, e.g. in Chaos TV)
+
 Wed, 27 Feb 2008 09:46:55 +0100 <thp@perli.net>
 Add Flash Video (flv) and Windows Media Video (wmv) to file detection
 

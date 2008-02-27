@@ -209,8 +209,11 @@ class gPodderLibClass( object):
 
         if file_type == 'video':
             player = self.config.videoplayer
-        else:
+        elif file_type == 'audio':
             player = self.config.player
+        else:
+            log('Non-audio or video file type, using xdg-open for %s', filename, sender=self)
+            player = 'xdg-open'
  
         command_line = shlex.split(util.format_desktop_command(player, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
