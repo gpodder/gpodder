@@ -113,7 +113,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menu = gtk.Menu()
         menuItem = gtk.ImageMenuItem(_("Check for new episodes"))
         menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU))
-        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate)
+        # connect the "on_itemUpdate_activate" with the parameter notify_no_new_episodes set to True
+        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate, True)
         menu.append(menuItem)
         
         menuItem = gtk.ImageMenuItem(_("Download all new episodes"))

@@ -771,7 +771,7 @@ class gPodder(GladeWidget):
         if count > 0:
             progressbar.set_fraction(float(position)/float(count))
 
-    def update_feed_cache_finish_callback(self, force_update=False, please_wait_dialog=None):
+    def update_feed_cache_finish_callback(self, force_update=False, please_wait_dialog=None, notify_no_new_episodes=False):
         if please_wait_dialog is not None:
             please_wait_dialog.destroy()
 
@@ -790,18 +790,23 @@ class gPodder(GladeWidget):
                             new_episodes.append(episode)
                             self.already_notified_new_episodes.append(episode.url)
                 # notify new episodes
-                if len(new_episodes) > 0:
-                    if len(new_episodes) == 1:
-                        title = _('gPodder has found %s') % (_('one new episode:'),)
-                    else:    
-                        title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
-                    message = self.tray_icon.format_episode_list(new_episodes)
+                                
+                if len(new_episodes) == 0:
+                    if notify_no_new_episodes and self.tray_icon is not None:
+                        msg = _('No new episodes available for download')
+                        self.tray_icon.send_notification(msg)                        
+                    return
+                elif len(new_episodes) == 1:
+                    title = _('gPodder has found %s') % (_('one new episode:'),)
+                else:    
+                    title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
+                message = self.tray_icon.format_episode_list(new_episodes)
 
-                    #auto download new episodes
-                    if gl.config.auto_download_when_minimized:
-                        message += '\n<i>(%s...)</i>' % _('downloading')
-                        self.download_episode_list(new_episodes)
-                    self.tray_icon.send_notification(message, title)
+                #auto download new episodes
+                if gl.config.auto_download_when_minimized:
+                    message += '\n<i>(%s...)</i>' % _('downloading')
+                    self.download_episode_list(new_episodes)
+                self.tray_icon.send_notification(message, title)
                 return
 
         # open the episodes selection dialog
@@ -813,7 +818,7 @@ class gPodder(GladeWidget):
         if finish_proc:
             finish_proc()
 
-    def update_feed_cache(self, force_update=True):
+    def update_feed_cache(self, force_update=True, notify_no_new_episodes=False):
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
@@ -870,7 +875,7 @@ class gPodder(GladeWidget):
             callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, progressbar, pos, count)
         else:
             callback_proc = None
-        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait)
+        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait, notify_no_new_episodes)
 
         args = (force_update, callback_proc, self.notification, finish_proc)
 
@@ -1075,9 +1080,9 @@ class gPodder(GladeWidget):
 
         self.for_each_selected_episode_url(callback)
 
-    def on_itemUpdate_activate(self, widget, *args):
+    def on_itemUpdate_activate(self, widget, notify_no_new_episodes=False):
         if self.channels:
-            self.update_feed_cache()
+            self.update_feed_cache(notify_no_new_episodes=notify_no_new_episodes)
         else:
             title = _('No channels available')
             message = _('You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts.')
