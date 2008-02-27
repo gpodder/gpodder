@@ -384,7 +384,7 @@ def file_type_by_extension( extension):
     """
     types = {
             'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
-            'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx' ],
+            'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx', 'flv', 'wmv' ],
             'torrent': [ 'torrent' ],
     }
 
