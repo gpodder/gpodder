@@ -412,32 +412,42 @@ class gPodder(GladeWidget):
         else:
             device = gl.config.bluetooth_device_address
 
-        if gl.config.bluetooth_use_converter:
-            destfile = os.path.join(gl.tempdir, episode.sync_filename())
-            (base, ext) = os.path.splitext(filename)
-            if not destfile.endswith(ext):
-                destfile += ext
+        destfile = os.path.join(gl.tempdir, episode.sync_filename())
+        (base, ext) = os.path.splitext(filename)
+        if not destfile.endswith(ext):
+            destfile += ext
 
+        if gl.config.bluetooth_use_converter:
             title = _('Converting file')
             message = _('Please wait while gPodder converts your media file for bluetooth file transfer.')
             dlg = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
             dlg.set_title(title)
             dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
             dlg.show_all()
+        else:
+            dlg = None
 
-            def convert_and_send_thread(filename, destfile, device, dialog, notify):
+        def convert_and_send_thread(filename, destfile, device, dialog, notify):
+            if gl.config.bluetooth_use_converter:
                 p = subprocess.Popen([gl.config.bluetooth_converter, filename, destfile], stdout=sys.stdout, stderr=sys.stderr)
                 result = p.wait()
-                dialog.destroy()
-                if result == 0 or not os.path.exists(destfile):
-                    util.bluetooth_send_file(destfile, device)
-                else:
-                    notify(_('Error converting file.'), _('Bluetooth file transfer'))
-                util.delete_file(destfile)
+                if dialog is not None:
+                    dialog.destroy()
+            else:
+                try:
+                    shutil.copyfile(filename, destfile)
+                    result = 0
+                except:
+                    log('Cannot copy "%s" to "%s".', sender=self)
+                    result = 1
 
-            Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
-        else:
-            Thread(target=util.bluetooth_send_file, args=[filename, device]).start()
+            if result == 0 or not os.path.exists(destfile):
+                util.bluetooth_send_file(destfile, device)
+            else:
+                notify(_('Error converting file.'), _('Bluetooth file transfer'))
+            util.delete_file(destfile)
+
+        Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
 
     def treeview_button_pressed( self, treeview, event):
         if event.button == 3:

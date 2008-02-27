@@ -1,3 +1,15 @@
+Wed, 27 Feb 2008 09:39:42 +0100 <thp@perli.net>
+When sending via Bluetooth, always rename/copy the file
+
+	* src/gpodder/gui.py: When sending files via Bluetooth, and the file
+	converter script is not enabled, we are simply copying the file to the
+	sync_filename of the episode, therefore creating a nice name. We have
+	to copy the file, because neither gnome-obex-send nor bluetooth-sendto
+	let us specify the destination filename when sending the file, these
+	utilities always take the input filename (thanks to Chris
+	<gpodder@noreply.org.uk> for the bug report)
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=49)
+
 Tue, 26 Feb 2008 16:49:06 +0100 <thp@perli.net>
 Python code fixup: Compare "None" with "is" instead of "=="
 
