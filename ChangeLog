@@ -1,3 +1,21 @@
+Sun, 02 Mar 2008 13:52:42 +0100 <thp@perli.net>
+Pickle-based storage method (dumbshelve); HTTP HEAD requests; buggy feed fixes
+
+	* src/gpodder/dumbshelve.py: Added (replacement for "shelve" using
+	pickle)
+	* src/gpodder/libgpodder.py: Rename *.db files to *.pickle.db, so we
+	don't clash with old-style shelve .db files
+	* src/gpodder/libpodcasts.py: Use dumbshelve as a replacement for
+	shelve; add EpisodeURLMetainfo that keeps track of metainfo downloaded
+	via HTTP HEAD requests; make getting episode length and pubDate a bit
+	more intelligent by trying to find correct values via HTTP HEAD;
+	improve episode sorting by falling back to episode titles when no
+	pubDate has been found (or pubDate is equal); 
+	* src/gpodder/util.py: Add get_episode_info_from_url() function that
+	tries to find out the length and pubDate of an episode by looking at
+	the data from the HTTP HEAD; also support HTTP proxys via an optional
+	"proxy" keyword argument
+
 Wed, 27 Feb 2008 10:44:48 +0100 <thp@perli.net>
 Notify user about no new episodes when updating from tray icon
 

@@ -73,12 +73,12 @@ import md5
 
 import string
 
-import shelve
+from gpodder import dumbshelve
 
 global_lock = threading.RLock()
 
 class ChannelSettings(object):
-    storage = shelve.open( libgpodder.gPodderLib().channel_settings_file)
+    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().channel_settings_file)
 
     @classmethod
     def get_settings_by_url( cls, url):
@@ -98,12 +98,29 @@ class ChannelSettings(object):
         cls.storage.sync()
 
 
+class EpisodeURLMetainfo(object):
+    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().episode_metainfo_file)
+
+    @classmethod
+    def get_metadata_by_url(cls, url):
+        if isinstance(url, unicode):
+            url = url.encode('utf-8')
+        if cls.storage.has_key(url):
+            return cls.storage[url]
+        else:
+            log('Trying to download metainfo for %s', url)
+            result = util.get_episode_info_from_url(url, libgpodder.gPodderLib().config.http_proxy)
+            cls.storage[url] = result
+            cls.storage.sync()
+            return result
+
+
 class podcastChannel(ListType):
     """holds data for a complete channel"""
     SETTINGS = ('sync_to_devices', 'is_music_channel', 'device_playlist_name','override_title','username','password')
     icon_cache = {}
 
-    storage = shelve.open( libgpodder.gPodderLib().feed_cache_file)
+    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().feed_cache_file)
     fc = cache.Cache( storage)
 
     @classmethod
@@ -289,7 +306,7 @@ class podcastChannel(ListType):
         gl = libgpodder.gPodderLib()
 
         if not last_pubdate:
-            return self[0:min(len(self),gl.config.default_new)]
+            return [episode for episode in self[0:min(len(self),gl.config.default_new)] if self.episode_is_new(episode)]
 
         new_episodes = []
         for episode in self.get_all_episodes():
@@ -540,8 +557,24 @@ class podcastItem(object):
         if not episode.url:
             raise ValueError( 'Episode has an invalid URL')
 
+        if not episode.pubDate:
+            metainfo = episode.get_metainfo()
+            if 'pubdate' in metainfo:
+                log('Patching pubdate in from metainfo :)')
+                episode.pubDate = metainfo['pubdate']
+
         if hasattr( enclosure, 'length'):
-            episode.length = enclosure.length
+            try:
+                episode.length = int(enclosure.length)
+            except:
+                episode.length = -1
+
+        if episode.length <= 0:
+            metainfo = episode.get_metainfo()
+            if 'length' in metainfo:
+                log('Patching length in from metainfo :)')
+                episode.length = metainfo['length']
+
         if hasattr( enclosure, 'type'):
             episode.mimetype = enclosure.type
 
@@ -562,6 +595,9 @@ class podcastItem(object):
         self.link = ''
         self.channel = channel
         self.pubDate = ''
+
+    def get_metainfo(self):
+        return EpisodeURLMetainfo.get_metadata_by_url(self.url)
 
     def is_played(self):
         gl = libgpodder.gPodderLib()
@@ -624,6 +660,10 @@ class podcastItem(object):
             return '00000000'
     
     def __cmp__( self, other):
+        if self.pubDate == other.pubDate:
+            log('pubDate equal, comparing titles (buggy feed?)', sender=self)
+            return cmp(self.title, other.title)
+
         try:
             timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
             timestamp_other = int(mktime_tz( parsedate_tz( other.pubDate)))
@@ -675,7 +715,7 @@ class podcastItem(object):
 
     def calculate_filesize( self):
         try:
-            self.length = str(os.path.getsize( self.local_filename()))
+            self.length = os.path.getsize(self.local_filename())
         except:
             log( 'Could not get filesize for %s.', self.url)
 

@@ -61,8 +61,9 @@ class gPodderLibClass( object):
         util.make_directory( gpodder_dir)
 
         self.tempdir = gpodder_dir
-        self.feed_cache_file = os.path.join( gpodder_dir, 'feedcache.db')
-        self.channel_settings_file = os.path.join( gpodder_dir, 'channelsettings.db')
+        self.feed_cache_file = os.path.join(gpodder_dir, 'feedcache.pickle.db')
+        self.channel_settings_file = os.path.join(gpodder_dir, 'channelsettings.pickle.db')
+        self.episode_metainfo_file = os.path.join(gpodder_dir, 'episodemetainfo.pickle.db')
 
         self.channel_opml_file = os.path.join(gpodder_dir, 'channels.opml')
         self.channel_xml_file = os.path.join(gpodder_dir, 'channels.xml')

@@ -51,6 +51,9 @@ import datetime
 import urlparse
 import urllib
 import urllib2
+import httplib
+
+import feedparser
 
 import StringIO
 import xml.dom.minidom
@@ -756,4 +759,57 @@ def format_seconds_to_hour_min_sec(seconds):
         return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))
     else:
         return result[0]
+
+
+def get_episode_info_from_url(url, proxy=None):
+    """
+    Try to get information about a podcast episode by sending
+    a HEAD request to the HTTP server and parsing the result.
+
+    The return value is a dict containing all fields that 
+    could be parsed from the URL. This currently contains:
+    
+      "length": The size of the file in bytes
+      "pubdate": A formatted representation of the pubDate
+
+    If the "proxy" parameter is used, it has to be the URL 
+    of the HTTP proxy server to use, e.g. http://proxy:8080/
+    
+    If there is an error, this function returns {}. This will
+    only function with http:// and https:// URLs.
+    """
+    if not (url.startswith('http://') or url.startswith('https://')):
+        return {}
+
+    if proxy is None or proxy.strip() == '':
+        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
+        conn = httplib.HTTPConnection(netloc)
+        start = len(scheme) + len('://') + len(netloc)
+        conn.request('HEAD', url[start:])
+    else:
+        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(proxy)
+        conn = httplib.HTTPConnection(netloc)
+        conn.request('HEAD', url)
+
+    r = conn.getresponse()
+    result = {}
+
+    log('Trying to get metainfo for %s', url)
+
+    if 'content-length' in r.msg:
+        try:
+            length = int(r.msg['content-length'])
+            result['length'] = length
+        except ValueError, e:
+            log('Error converting content-length header.')
+
+    if 'last-modified' in r.msg:
+        try:
+            parsed_date = feedparser._parse_date(r.msg['last-modified'])
+            pubdate = updated_parsed_to_rfc2822(parsed_date)
+            result['pubdate'] = pubdate
+        except:
+            log('Error converting last-modified header.')
+
+    return result
 
