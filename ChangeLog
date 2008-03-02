@@ -1,3 +1,11 @@
+Sun, 02 Mar 2008 14:03:40 +0100 <thp@perli.net>
+Move gPodderLib().open_folder to util.gui_open
+
+	* src/gpodder/gui.py: Use util.gui_open instead of gl.open_folder
+	* src/gpodder/libgpodder.py: Remove open_folder (move to gpodder.util)
+	* src/gpodder/util.py: Add gui_open function that uses xdg_open to
+	open files and folders with their default application in the GUI
+
 Sun, 02 Mar 2008 13:52:42 +0100 <thp@perli.net>
 Pickle-based storage method (dumbshelve); HTTP HEAD requests; buggy feed fixes
 

@@ -375,7 +375,7 @@ class gPodder(GladeWidget):
 
             item = gtk.ImageMenuItem( _('Open download folder'))
             item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
-            item.connect( 'activate', lambda x: gPodderLib().open_folder( self.active_channel.save_dir))
+            item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
             menu.append( item)
 
             menu.append( gtk.SeparatorMenuItem())

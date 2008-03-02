@@ -813,3 +813,16 @@ def get_episode_info_from_url(url, proxy=None):
 
     return result
 
+
+def gui_open(filename):
+    """
+    Open a file or folder with the default application set
+    by the Desktop environment. This uses "xdg-open".
+    """
+    try:
+        subprocess.Popen(['xdg-open', filename])
+        # FIXME: Win32-specific "open" code needed here
+        # as fallback when xdg-open not available
+    except:
+        log('Cannot open file/folder: "%s"', folder, sender=self, traceback=True)
+
