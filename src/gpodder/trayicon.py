@@ -26,6 +26,7 @@ import gtk
 import datetime
 
 from gpodder.liblogger import log
+from gpodder.libgpodder import gl
 from gpodder.libpodcasts import podcastItem
 
 try:
@@ -39,8 +40,6 @@ except:
 from gpodder import services
 from gpodder import util
 from gpodder import draw
-
-from libgpodder import gPodderLib
 
 class GPodderStatusIcon(gtk.StatusIcon):
     """ this class display a status icon in the system tray
@@ -123,7 +122,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menu.append(menuItem)
 
         # menus's label will adapt to the synchronisation device name
-        gl = gPodderLib()
         if gl.config.device_type != 'none':
             sync_label = _('Synchronize to %s') % (gl.get_device_name(),)
             menuItem = gtk.ImageMenuItem(sync_label)
@@ -157,7 +155,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         return menu        
 
     def __on_exit_callback(self, widget, *args):
-        gl = gPodderLib()
         if  self.__is_downloading and self.__is_notification_on():
             self.send_notification(_("gPodder is downloading episodes\ndo you want to exit anyway?"""), "gPodder",[self.ACTION_FORCE_EXIT, self.ACTION_KEEP_DOWLOADING])
         else:
@@ -275,7 +272,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             log("don't know what to do with action %s" % action, sender = self)
             
     def __is_notification_on(self):
-        gl = gPodderLib()
         # tray icon not visible or notifications disabled
         if not self.get_visible() or not gl.config.enable_notifications:
             return False

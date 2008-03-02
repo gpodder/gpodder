@@ -26,7 +26,7 @@
 #
 
 from gpodder.liblogger import log
-from gpodder import libgpodder
+from gpodder.libgpodder import gl
 from gpodder import util
 from gpodder import services
 import gpodder
@@ -46,7 +46,6 @@ class DownloadURLOpener(urllib.FancyURLopener):
     version = gpodder.user_agent
 
     def __init__( self, channel):
-        gl = libgpodder.gPodderLib()
         if gl.config.proxy_use_environment:
             proxies = None
         else:
@@ -83,7 +82,6 @@ class DownloadThread(threading.Thread):
         self.filename = self.episode.local_filename()
         self.tempname = os.path.join( os.path.dirname( self.filename), '.tmp-' + os.path.basename( self.filename))
 
-        gl = libgpodder.gPodderLib()
         self.limit_rate = gl.config.limit_rate
         self.limit_rate_value = gl.config.limit_rate_value
 
@@ -125,7 +123,7 @@ class DownloadThread(threading.Thread):
                 self.start_time = now
                 passed = now - self.start_time
                 speed = count*blockSize
-            self.speed = '%s/s' % libgpodder.gPodderLib().format_filesize( speed)
+            self.speed = '%s/s' % gl.format_filesize(speed)
 
             if self.limit_rate and speed > self.limit_rate_value:
                 # calculate the time that should have passed to reach

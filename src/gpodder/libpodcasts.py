@@ -38,8 +38,8 @@ from gpodder import cache
 from gpodder import services
 from gpodder import draw
 
-from liblogger import log
-import libgpodder
+from gpodder.liblogger import log
+from gpodder.libgpodder import gl
 
 from os.path import exists
 from os.path import basename
@@ -78,7 +78,7 @@ from gpodder import dumbshelve
 global_lock = threading.RLock()
 
 class ChannelSettings(object):
-    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().channel_settings_file)
+    storage = dumbshelve.open_shelve(gl.channel_settings_file)
 
     @classmethod
     def get_settings_by_url( cls, url):
@@ -99,7 +99,7 @@ class ChannelSettings(object):
 
 
 class EpisodeURLMetainfo(object):
-    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().episode_metainfo_file)
+    storage = dumbshelve.open_shelve(gl.episode_metainfo_file)
 
     @classmethod
     def get_metadata_by_url(cls, url):
@@ -109,7 +109,7 @@ class EpisodeURLMetainfo(object):
             return cls.storage[url]
         else:
             log('Trying to download metainfo for %s', url)
-            result = util.get_episode_info_from_url(url, libgpodder.gPodderLib().config.http_proxy)
+            result = util.get_episode_info_from_url(url, gl.config.http_proxy)
             cls.storage[url] = result
             cls.storage.sync()
             return result
@@ -120,7 +120,7 @@ class podcastChannel(ListType):
     SETTINGS = ('sync_to_devices', 'is_music_channel', 'device_playlist_name','override_title','username','password')
     icon_cache = {}
 
-    storage = dumbshelve.open_shelve(libgpodder.gPodderLib().feed_cache_file)
+    storage = dumbshelve.open_shelve(gl.feed_cache_file)
     fc = cache.Cache( storage)
 
     @classmethod
@@ -269,8 +269,6 @@ class podcastChannel(ListType):
         ChannelSettings.set_settings_by_url( self.url, settings)
 
     def newest_pubdate_downloaded( self):
-        gl = libgpodder.gPodderLib()
-
         # Try DownloadHistory's entries first
         for episode in self:
             if gl.history_is_downloaded( episode.url):
@@ -283,7 +281,6 @@ class podcastChannel(ListType):
         return pubdate
     
     def episode_is_new(self, episode, last_pubdate = None):
-        gl = libgpodder.gPodderLib()
         if last_pubdate is None:
             last_pubdate = self.newest_pubdate_downloaded()
 
@@ -303,7 +300,6 @@ class podcastChannel(ListType):
     
     def get_new_episodes( self):
         last_pubdate = self.newest_pubdate_downloaded()
-        gl = libgpodder.gPodderLib()
 
         if not last_pubdate:
             return [episode for episode in self[0:min(len(self),gl.config.default_new)] if self.episode_is_new(episode)]
@@ -338,19 +334,19 @@ class podcastChannel(ListType):
             self.save_downloaded_episodes( downloaded_episodes)
 
             # Update metadata on file (if possible and wanted)
-            if libgpodder.gPodderLib().config.update_tags and tagging_supported():
+            if gl.config.update_tags and tagging_supported():
                 filename = item.local_filename()
                 try:
                     update_metadata_on_file( filename, title = item.title, artist = self.title)
                 except:
                     log('Error while calling update_metadata_on_file() :(')
 
-        libgpodder.gPodderLib().history_mark_downloaded( item.url)
+        gl.history_mark_downloaded(item.url)
         
         if item.file_type() == 'torrent':
             torrent_filename = item.local_filename()
             destination_filename = util.torrent_filename( torrent_filename)
-            libgpodder.gPodderLib().invoke_torrent( item.url, torrent_filename, destination_filename)
+            gl.invoke_torrent(item.url, torrent_filename, destination_filename)
             
         global_lock.release()
         return not already_in_list
@@ -421,9 +417,8 @@ class podcastChannel(ListType):
     def iter_set_downloading_columns( self, model, iter, new_episodes = []):
         url = model.get_value( iter, 0)
         local_filename = model.get_value( iter, 8)
-        played = not libgpodder.gPodderLib().history_is_played( url)
-        locked = libgpodder.gPodderLib().history_is_locked(url)
-        gl = libgpodder.gPodderLib()
+        played = not gl.history_is_played(url)
+        locked = gl.history_is_locked(url)
 
         if gl.config.episode_list_descriptions:
             icon_size = 32
@@ -458,14 +453,13 @@ class podcastChannel(ListType):
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         new_episodes = self.get_new_episodes()
-        gl = libgpodder.gPodderLib()
 
         for item in self.get_all_episodes():
             if gl.config.episode_list_descriptions:
                 description = '%s\n<small>%s</small>' % (saxutils.escape(item.title), saxutils.escape(item.one_line_description()))
             else:
                 description = saxutils.escape(item.title)
-            new_iter = new_model.append((item.url, item.title, libgpodder.gPodderLib().format_filesize(item.length, 1), True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
+            new_iter = new_model.append((item.url, item.title, gl.format_filesize(item.length, 1), True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
             self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
         
         self.update_save_dir_size()
@@ -479,7 +473,7 @@ class podcastChannel(ListType):
         return None
 
     def get_save_dir(self):
-        save_dir = os.path.join( libgpodder.gPodderLib().downloaddir, self.filename, '')
+        save_dir = os.path.join(gl.downloaddir, self.filename, '')
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):
@@ -600,14 +594,12 @@ class podcastItem(object):
         return EpisodeURLMetainfo.get_metadata_by_url(self.url)
 
     def is_played(self):
-        gl = libgpodder.gPodderLib()
         return gl.history_is_played(self.url)
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename())
 
     def is_old(self):
-        gl = libgpodder.gPodderLib()
         return self.age_in_days() > gl.config.episode_old_age
     
     def get_age_string(self):
@@ -626,7 +618,7 @@ class podcastItem(object):
         return os.path.exists( self.local_filename())
 
     def is_locked(self):
-        return libgpodder.gPodderLib().history_is_locked(self.url)
+        return gl.history_is_locked(self.url)
 
     def delete_from_disk(self):
         try:
@@ -639,8 +631,8 @@ class podcastItem(object):
         return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
 
     def sync_filename( self):
-        if libgpodder.gPodderLib().config.custom_sync_name_enabled:
-            return util.object_string_formatter( libgpodder.gPodderLib().config.custom_sync_name, episode = self, channel = self.channel)
+        if gl.config.custom_sync_name_enabled:
+            return util.object_string_formatter(gl.config.custom_sync_name, episode=self, channel=self.channel)
         else:
             return self.title
 
@@ -720,7 +712,6 @@ class podcastItem(object):
             log( 'Could not get filesize for %s.', self.url)
 
     def get_filesize_string( self):
-        gl = libgpodder.gPodderLib()
         return gl.format_filesize( self.length)
 
     filesize_prop = property(fget=get_filesize_string)
@@ -795,7 +786,7 @@ def channels_to_model(channels):
 
 
 def load_channels( load_items = True, force_update = False, callback_proc = None, callback_url = None, callback_error = None, offline = False):
-    importer = opml.Importer( libgpodder.gPodderLib().channel_opml_file)
+    importer = opml.Importer(gl.channel_opml_file)
     result = []
 
     urls_to_keep = []
@@ -812,7 +803,7 @@ def load_channels( load_items = True, force_update = False, callback_proc = None
     return result
 
 def save_channels( channels):
-    exporter = opml.Exporter( libgpodder.gPodderLib().channel_opml_file)
+    exporter = opml.Exporter(gl.channel_opml_file)
     return exporter.write(channels)
 
 

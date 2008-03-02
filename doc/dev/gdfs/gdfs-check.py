@@ -10,7 +10,7 @@
 import gettext
 gettext.install('')
 
-from gpodder import libgpodder
+from gpodder.libgpodder import gl
 
 import sys
 import os
@@ -66,7 +66,7 @@ if len(sys.argv) != 3:
     usage()
     sys.exit( -1)
 
-files_in_dir1 = get_files_from( libgpodder.gPodderLib().downloaddir)
+files_in_dir1 = get_files_from(gl.downloaddir)
 files_in_dir2 = get_files_from( sys.argv[-1])
 
 files_missing_in_dir2 = filter_gpodder_metadata( filter_dict( files_in_dir1, files_in_dir2.keys())).values()

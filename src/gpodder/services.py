@@ -25,8 +25,8 @@
 #
 
 from gpodder.liblogger import log
+from gpodder.libgpodder import gl
 
-from gpodder import libgpodder
 from gpodder import util
 
 import gtk
@@ -80,7 +80,7 @@ class DownloadStatusManager(ObservableService):
         # use to correctly calculate percentage done
         self.downloads_done_count = 0
         
-        self.max_downloads = libgpodder.gPodderLib().config.max_downloads
+        self.max_downloads = gl.config.max_downloads
         self.semaphore = threading.Semaphore( self.max_downloads)
 
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
@@ -97,16 +97,16 @@ class DownloadStatusManager(ObservableService):
             self.last_progress_status = now
 
     def s_acquire( self):
-        if not libgpodder.gPodderLib().config.max_downloads_enabled:
+        if not gl.config.max_downloads_enabled:
             return False
 
         # Release queue slots if user has enabled more slots
-        while self.max_downloads < libgpodder.gPodderLib().config.max_downloads:
+        while self.max_downloads < gl.config.max_downloads:
             self.semaphore.release()
             self.max_downloads += 1
 
         # Acquire queue slots if user has decreased the slots
-        while self.max_downloads > libgpodder.gPodderLib().config.max_downloads:
+        while self.max_downloads > gl.config.max_downloads:
             self.semaphore.acquire()
             self.max_downloads -= 1
 

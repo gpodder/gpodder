@@ -1,3 +1,15 @@
+Sun, 02 Mar 2008 14:20:56 +0100 <thp@perli.net>
+Make "gl" a global-accessible object in libgpodder
+
+	* doc/dev/gdfs/gdfs-check.py: Adapt to new structure of gPodderLib
+	* src/gpodder/*.py: Use "gl" instead of all incarnations of
+	"gPodderLib()" or "libgpodder.gPodderLib()", and weed out all "gl =
+	gPodderLib() lines, because it makes the code look unnecessarily
+	bloated ;)
+	* src/gpodder/libgpodder.py: Make "gl" a global instance of the
+	gPodderLib() object, and rename gPodderLibClass to gPodderLib and do
+	some more cleaning-up
+
 Sun, 02 Mar 2008 14:03:40 +0100 <thp@perli.net>
 Move gPodderLib().open_folder to util.gui_open
 

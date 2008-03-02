@@ -25,11 +25,11 @@
 
 from gpodder import util
 from gpodder import services
-from gpodder import libgpodder
 from gpodder import libconverter
 from gpodder import libtagupdate
 
 from gpodder.liblogger import log
+from gpodder.libgpodder import gl
 
 try:
     import gpod
@@ -59,7 +59,6 @@ import re
 
 
 def open_device():
-    gl = libgpodder.gPodderLib()
     device_type = gl.config.device_type
     if device_type == 'ipod':
         return iPodDevice()
@@ -97,7 +96,6 @@ class SyncTrack(object):
     def __init__(self, title, length, modified, **kwargs):
         self.title = title
         self.length = length
-        gl = libgpodder.gPodderLib()
         self.filesize = util.format_filesize(length, gl.config.use_si_units)
         self.modified = modified
         self.__dict__.update(kwargs)
@@ -125,7 +123,6 @@ class Device(services.ObservableService):
         return True
 
     def add_tracks(self, tracklist=[], force_played=False):
-        gl = libgpodder.gPodderLib()
         for id, track in enumerate(tracklist):
             if self.cancelled:
                 return False
@@ -174,7 +171,6 @@ class iPodDevice(Device):
     def __init__(self):
         Device.__init__(self)
 
-        gl = libgpodder.gPodderLib()
         self.mountpoint = str(gl.config.ipod_mount)
 
         self.itdb = None
@@ -208,7 +204,6 @@ class iPodDevice(Device):
 
     def get_all_tracks(self):
         tracks = []
-        gl = libgpodder.gPodderLib()
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             filename = gpod.itdb_filename_on_ipod(track)
             length = util.calculate_size(filename)
@@ -235,7 +230,6 @@ class iPodDevice(Device):
 
     def add_track(self, episode):
         self.notify('status', _('Adding %s') % episode.title)
-        gl = libgpodder.gPodderLib()
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             if episode.url == track.podcasturl:
                 if track.playcount > 0:
@@ -327,7 +321,6 @@ class iPodDevice(Device):
     def set_podcast_flags(self, track):
         try:
             # Set blue bullet for unplayed tracks on 5G iPods
-            gl = libgpodder.gPodderLib()
             if gl.history_is_played(track.podcasturl):
                 track.mark_unplayed = 0x01
                 if track.playcount == 0:
@@ -393,7 +386,6 @@ class MP3PlayerDevice(Device):
             log('is incorrect, please set your $LANG variable.', sender=self)
             self.enc = 'iso-8859-15'
 
-        gl = libgpodder.gPodderLib()
         self.destination = gl.config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
 
@@ -407,7 +399,6 @@ class MP3PlayerDevice(Device):
     
     def add_track(self, episode):
         self.notify('status', _('Adding %s') % episode.title)
-        gl = libgpodder.gPodderLib()
 
         if gl.config.fssync_channel_subfolders:
             # Add channel title as subfolder
@@ -503,7 +494,6 @@ class MP3PlayerDevice(Device):
     
     def get_all_tracks(self):
         tracks = []
-        gl = libgpodder.gPodderLib()
 
         if gl.config.fssync_channel_subfolders:
             files = glob.glob(os.path.join(self.destination, '*', '*'))
@@ -525,7 +515,6 @@ class MP3PlayerDevice(Device):
         self.notify('status', _('Removing %s') % track.title)
         util.delete_file(track.filename)
         directory = os.path.dirname(track.filename)
-        gl = libgpodder.gPodderLib()
         if self.directory_is_empty(directory) and gl.config.fssync_channel_subfolders:
             try:
                 os.rmdir(directory)

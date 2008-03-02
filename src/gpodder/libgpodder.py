@@ -45,18 +45,9 @@ from liblogger import log
 
 import shlex
 
-# my gpodderlib variable
-g_podder_lib = None
-
-# some awkward kind of "singleton" ;)
-def gPodderLib():
-    global g_podder_lib
-    if g_podder_lib is None:
-        g_podder_lib = gPodderLibClass()
-    return g_podder_lib
-
-class gPodderLibClass( object):
+class gPodderLib(object):
     def __init__( self):
+        log('Creating gPodderLib()', sender=self)
         gpodder_dir = os.path.expanduser( '~/.config/gpodder/')
         util.make_directory( gpodder_dir)
 
@@ -351,4 +342,7 @@ class HistoryStore( types.ListType):
 
         return affected
 
+
+# Global, singleton gPodderLib object
+gl = gPodderLib()
 
