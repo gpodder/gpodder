@@ -1,3 +1,12 @@
+Mon, 03 Mar 2008 20:53:15 +0100 <thp@perli.net>
+Add "Go to website" buttons to episode and channel (bug #43)
+
+	* data/gpodder.glade: Add "Go to website" buttons to episode and
+	channel info dialogs
+	* src/gpodder/gui.py: Add code to open website URL or hide the "Go to
+	website" button when there is no valid website link for an episode or
+	channel
+
 Mon, 03 Mar 2008 20:37:02 +0100 <thp@perli.net>
 Move webbrowser code to util.open_website; fix URLs to gpodder.org
 

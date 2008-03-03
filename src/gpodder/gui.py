@@ -1616,6 +1616,10 @@ class gPodderChannel(GladeWidget):
 
         self.on_btnClearCover_clicked( self.btnClearCover, delete_file = False)
         self.on_btnDownloadCover_clicked( self.btnDownloadCover, url = False)
+
+        # Hide the website button if we don't have a valid URL
+        if not self.channel.link:
+            self.btn_website.hide_all()
         
         b = gtk.TextBuffer()
         b.set_text( self.channel.description)
@@ -1627,6 +1631,9 @@ class gPodderChannel(GladeWidget):
         actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
         self.vboxCoverEditor.drag_dest_set( flags, targets, actions)
         self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
+
+    def on_btn_website_clicked(self, widget):
+        util.open_website(self.channel.link)
 
     def on_btnClearCover_clicked( self, widget, delete_file = True):
         self.imgCover.clear()
@@ -2033,6 +2040,10 @@ class gPodderEpisode(GladeWidget):
         self.LabelWebsiteLink.set_text( self.episode.link)
         self.labelPubDate.set_text( self.episode.pubDate)
 
+        # Hide the "Go to website" button if we don't have a valid URL
+        if self.episode.link == self.episode.url or not self.episode.link:
+            self.btn_website.hide_all()
+
         self.channel_title.set_markup( _('<i>from %s</i>') % saxutils.escape( self.channel.title))
 
         self.hide_show_widgets()
@@ -2047,6 +2058,9 @@ class gPodderEpisode(GladeWidget):
 
     def on_download_status_changed( self):
         self.hide_show_widgets()
+
+    def on_btn_website_clicked(self, widget):
+        util.open_website(self.episode.link)
 
     def on_download_status_progress( self, url, progress, speed):
         if url == self.episode.url:
