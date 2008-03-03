@@ -24,7 +24,6 @@ import gobject
 import pango
 import sys
 import shutil
-import webbrowser
 import subprocess
 
 from xml.sax import saxutils
@@ -57,7 +56,7 @@ app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
 app_authors = [ 'Thomas Perl <thp@perli.net>' ]
 app_copyright = 'Copyright (c) 2005-2007 Thomas Perl'
-app_website = 'http://gpodder.berlios.de/'
+app_website = 'http://www.gpodder.org/'
 
 # these will be filled with pathnames in bin/gpodder
 glade_dir = [ 'share', 'gpodder' ]
@@ -1338,16 +1337,16 @@ class gPodder(GladeWidget):
         self.on_treeAvailable_row_activated( widget, args)
 
     def on_homepage_activate(self, widget, *args):
-        Thread( target = webbrowser.open, args = ( app_website, )).start()
+        util.open_website(app_website)
 
     def on_wishlist_activate(self, widget, *args):
-        Thread( target = webbrowser.open, args = ( 'http://www.amazon.de/gp/registry/2PD2MYGHE6857', )).start()
+        util.open_website('http://www.amazon.de/gp/registry/2PD2MYGHE6857')
 
     def on_wiki_activate(self, widget, *args):
-        Thread(target=webbrowser.open, args=('http://gpodderwiki.jottit.com/',)).start()
+        util.open_website('http://wiki.gpodder.org/')
 
     def on_bug_tracker_activate(self, widget, *args):
-        Thread(target=webbrowser.open, args=('http://gpodder.thegithouse.com/',)).start()
+        util.open_website('http://bugs.gpodder.org/')
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()

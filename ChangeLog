@@ -1,3 +1,12 @@
+Mon, 03 Mar 2008 20:37:02 +0100 <thp@perli.net>
+Move webbrowser code to util.open_website; fix URLs to gpodder.org
+
+	* src/gpodder/gui.py: Use new gpodder.org URLs; use
+	util.open_website() instead of directly interfacing with threads and
+	the "webbrowser" module
+	* src/gpodder/util.py: New function open_website() that takes care of
+	opening the system's default web browser and opening the specified URL
+
 Sun, 02 Mar 2008 14:20:56 +0100 <thp@perli.net>
 Make "gl" a global-accessible object in libgpodder
 

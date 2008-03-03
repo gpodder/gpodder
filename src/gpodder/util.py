@@ -47,11 +47,13 @@ import time
 import locale
 import gzip
 import datetime
+import threading
 
 import urlparse
 import urllib
 import urllib2
 import httplib
+import webbrowser
 
 import feedparser
 
@@ -825,4 +827,13 @@ def gui_open(filename):
         # as fallback when xdg-open not available
     except:
         log('Cannot open file/folder: "%s"', folder, sender=self, traceback=True)
+
+
+def open_website(url):
+    """
+    Opens the specified URL using the default system web
+    browser. This uses Python's "webbrowser" module, so
+    make sure your system is set up correctly.
+    """
+    threading.Thread(target=webbrowser.open, args=(url,)).start()
 
