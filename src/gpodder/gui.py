@@ -25,6 +25,7 @@ import pango
 import sys
 import shutil
 import subprocess
+import glob
 
 from xml.sax import saxutils
 
@@ -1271,7 +1272,39 @@ class gPodder(GladeWidget):
             self.show_message( message, title)
             return
 
-        gPodderChannel( channel = self.active_channel, callback_closed = self.updateComboBox)
+        gPodderChannel(channel=self.active_channel, callback_closed=self.updateComboBox, callback_change_url=self.change_channel_url)
+
+    def change_channel_url(self, old_url, new_url):
+        channel = None
+        try:
+            channel = podcastChannel.get_by_url(url=new_url, force_update=True)
+        except:
+            channel = None
+
+        if channel is None:
+            self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
+            return
+
+        for channel in self.channels:
+            if channel.url == old_url:
+                log('=> change channel url from %s to %s', old_url, new_url)
+                old_save_dir = channel.save_dir
+                channel.url = new_url
+                new_save_dir = channel.save_dir
+                log('old save dir=%s', old_save_dir, sender=self)
+                log('new save dir=%s', new_save_dir, sender=self)
+                files = glob.glob(os.path.join(old_save_dir, '*'))
+                log('moving %d files to %s', len(files), new_save_dir, sender=self)
+                for file in files:
+                    log('moving %s', file, sender=self)
+                    shutil.move(file, new_save_dir)
+                try:
+                    os.rmdir(old_save_dir)
+                except:
+                    log('Warning: cannot delete %s', old_save_dir, sender=self)
+
+        save_channels(self.channels)
+        self.update_feed_cache(force_update=False)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
@@ -1681,6 +1714,15 @@ class gPodderChannel(GladeWidget):
         self.callback_closed()
 
     def on_btnOK_clicked(self, widget, *args):
+        entered_url = self.entryURL.get_text()
+        channel_url = self.channel.url
+
+        if entered_url != channel_url:
+            if self.show_confirmation(_('Do you really want to move this channel to <b>%s</b>?') % (saxutils.escape(entered_url),), _('Really change URL?')):
+                if hasattr(self, 'callback_change_url'):
+                    self.gPodderChannel.hide_all()
+                    self.callback_change_url(channel_url, entered_url)
+
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
         self.channel.set_custom_title( self.entryTitle.get_text())
@@ -1996,7 +2038,10 @@ class gPodderProperties(GladeWidget):
             thread.start()
 
             while not event.isSet():
-                new_download_dir_size = util.calculate_size( new_download_dir)
+                try:
+                    new_download_dir_size = util.calculate_size( new_download_dir)
+                except:
+                    new_download_dir_size = 0
                 if download_dir_size > 0:
                     fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
                 else:

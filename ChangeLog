@@ -1,3 +1,16 @@
+Mon, 03 Mar 2008 23:06:30 +0100 <thp@perli.net>
+Add support for changing the URL of a subscribed channel (bug #42)
+
+	* data/gpodder.glade: Make the URL entry in the channel dialog
+	editable
+	* src/gpodder/gui.py: Add support for changing the URL of a subscribed
+	channel (i.e. move from the "latest" RSS feed to the "complete" RSS
+	feed, as is the case with Chaosradio podcasts, for example); ask user
+	if she really wants to move; handle case where the new URL is wrong
+	by reverting to old URL; Improve code for moving the download
+	directory; thanks to Steve Garcia <sgarcia@bak.rr.com> for the bug
+	report
+
 Mon, 03 Mar 2008 21:14:55 +0100 <thp@perli.net>
 Small fix for moving downloads progress bar
 
