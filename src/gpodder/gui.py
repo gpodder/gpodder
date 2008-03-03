@@ -2005,7 +2005,7 @@ class gPodderProperties(GladeWidget):
                     myprogressbar.set_text( _('%s of %s') % ( gl.format_filesize( new_download_dir_size), download_dir_size_string, ))
                 else:
                     myprogressbar.set_text( _('Finishing... please wait.'))
-                myprogressbar.set_fraction( fract)
+                myprogressbar.set_fraction(max(0.0,min(1.0,fract)))
                 event.wait( 0.1)
                 while gtk.events_pending():
                     gtk.main_iteration( False)
