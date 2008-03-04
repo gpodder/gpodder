@@ -1,3 +1,12 @@
+Tue, 04 Mar 2008 12:15:53 +0100 <thp@perli.net>
+Fix KeyError bug in custom_selection_button_clicked (from LP)
+
+	* src/gpodder/gui.py: Fix problem with localized strings on the custom
+	selection buttons, i.e. pass the label to the function directly
+	instead of relying on the gtk.Button to have the label in the correct
+	encoding (LP: #192918); thanks to Pavel Mlčoch for reporting this bug
+	on Launchpad
+
 Tue, 04 Mar 2008 12:05:23 +0100 <thp@perli.net>
 Fix AttributeError bug in updateTreeView (from LP)
 

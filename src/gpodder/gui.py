@@ -2375,7 +2375,7 @@ class gPodderEpisodeSelector( GladeWidget):
 
         for label in self.selection_buttons:
             button = gtk.Button( label)
-            button.connect( 'clicked', self.custom_selection_button_clicked)
+            button.connect('clicked', self.custom_selection_button_clicked, label)
             self.hboxButtons.pack_start( button, expand = False)
             button.show_all()
 
@@ -2409,8 +2409,7 @@ class gPodderEpisodeSelector( GladeWidget):
         if self.size_attribute is not None:
             self.calculate_total_size()
 
-    def custom_selection_button_clicked( self, button):
-        label = button.get_label()
+    def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
 
         for index, row in enumerate( self.model):
