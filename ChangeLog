@@ -1,3 +1,10 @@
+Tue, 04 Mar 2008 12:05:23 +0100 <thp@perli.net>
+Fix AttributeError bug in updateTreeView (from LP)
+
+	* src/gpodder/gui.py: Make sure that we have a valid "active_channel"
+	when updating the tree view (LP: #183667); thanks to red26wings for
+	reporting this bug on Launchpad
+
 Mon, 03 Mar 2008 23:06:30 +0100 <thp@perli.net>
 Add support for changing the URL of a subscribed channel (bug #42)
 
