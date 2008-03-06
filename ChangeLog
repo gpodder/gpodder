@@ -1,3 +1,13 @@
+Thu, 06 Mar 2008 17:46:21 +0100 <thp@perli.net>
+Be less verbose, consider episodes with length<=100 to have invalid length
+
+	* src/gpodder/libpodcasts.py: Remove verbose logging for episode
+	metadata (seems to work now); consider episodes with a small length
+	value to have invalid length, i.e. try to find the length of the
+	episode by looking at the HTTP header; thanks to Bernd
+	<schlaber@gmail.com> for sending in the feed URL with which this bug
+	happens (length was 1) during the gPodder workflow survey :)
+
 Tue, 04 Mar 2008 12:15:53 +0100 <thp@perli.net>
 Fix KeyError bug in custom_selection_button_clicked (from LP)
 

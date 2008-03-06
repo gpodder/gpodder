@@ -554,7 +554,6 @@ class podcastItem(object):
         if not episode.pubDate:
             metainfo = episode.get_metainfo()
             if 'pubdate' in metainfo:
-                log('Patching pubdate in from metainfo :)')
                 episode.pubDate = metainfo['pubdate']
 
         if hasattr( enclosure, 'length'):
@@ -563,10 +562,10 @@ class podcastItem(object):
             except:
                 episode.length = -1
 
-        if episode.length <= 0:
+        # For episodes with a small length amount, try to find it via HTTP HEAD
+        if episode.length <= 100:
             metainfo = episode.get_metainfo()
             if 'length' in metainfo:
-                log('Patching length in from metainfo :)')
                 episode.length = metainfo['length']
 
         if hasattr( enclosure, 'type'):
