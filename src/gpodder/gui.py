@@ -337,6 +337,10 @@ class gPodder(GladeWidget):
         self.last_tooltip_channel = None
         return False
 
+    def update_m3u_playlist_clicked(self, widget):
+        self.active_channel.update_m3u_playlist()
+        self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'))
+
     def treeview_channels_button_pressed( self, treeview, event):
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
@@ -375,6 +379,12 @@ class gPodder(GladeWidget):
             item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
             item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
             menu.append( item)
+
+            if gl.config.create_m3u_playlists:
+                item = gtk.ImageMenuItem(_('Update M3U playlist'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
+                item.connect('activate', self.update_m3u_playlist_clicked)
+                menu.append(item)
 
             menu.append( gtk.SeparatorMenuItem())
 

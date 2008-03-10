@@ -837,3 +837,25 @@ def open_website(url):
     """
     threading.Thread(target=webbrowser.open, args=(url,)).start()
 
+
+def sanitize_filename(filename):
+    """
+    Generate a sanitized version of a filename that can
+    be written on disk (i.e. remove/replace invalid 
+    characters and encode in the native language)
+    """
+    # Try to detect OS encoding (by Leonid Ponomarev)
+    if 'LANG' in os.environ and '.' in os.environ['LANG']:
+        lang = os.environ['LANG']
+        (language, encoding) = lang.rsplit('.', 1)
+        log('Detected encoding: %s', encoding)
+        enc = encoding
+    else:
+        # Using iso-8859-15 here as (hopefully) sane default
+        # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
+        log('Using ISO-8859-15 as encoding. If this')
+        log('is incorrect, please set your $LANG variable.')
+        enc = 'iso-8859-15'
+
+    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(enc, 'ignore'))
+

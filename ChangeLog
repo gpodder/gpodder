@@ -1,3 +1,19 @@
+Mon, 10 Mar 2008 16:37:38 +0100 <thp@perli.net>
+Add support for creating M3U playlist files in download folders
+
+	* src/gpodder/config.py: Add "create_m3u_playlists" boolean
+	configuration option (default False) that controls if we want to
+	generate per-channel M3U playlists in our download folders
+	* src/gpodder/gui.py: Add context menu entry for manually updating an
+	M3U playlist for the channel navigator (only visible when updating m3u
+	playlists is enabled
+	* src/gpodder/libpodcasts.py: Add update_m3u_playlist() function to
+	podcastChannel and call it when removing and adding downloaded
+	episodes
+	* src/gpodder/util.py: Add sanitize_filename() function that tries to
+	encode a file name in the system's encoding, stripping all chars that
+	are invalid on FAT32 and other systems (e.g. slash, etc..)
+
 Thu, 06 Mar 2008 17:46:21 +0100 <thp@perli.net>
 Be less verbose, consider episodes with length<=100 to have invalid length
 

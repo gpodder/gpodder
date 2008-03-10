@@ -321,13 +321,32 @@ class podcastChannel(ListType):
 
         return True
     
+    def update_m3u_playlist(self, downloaded_episodes=None):
+        if gl.config.create_m3u_playlists:
+            if downloaded_episodes is None:
+                downloaded_episodes = self.load_downloaded_episodes()
+            fn = util.sanitize_filename(self.title)
+            if len(fn) == 0:
+                fn = os.path.basename(self.save_dir)
+            m3u_filename = os.path.join(gl.downloaddir, fn+'.m3u')
+            log('Writing playlist to %s', m3u_filename, sender=self)
+            f = open(m3u_filename, 'w')
+            f.write('#EXTM3U\n')
+            for episode in sorted(downloaded_episodes):
+                filename = episode.local_filename()
+                if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
+                    filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
+                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.pubDate+')\n')
+                f.write(filename+'\n')
+            f.close()
+    
     def addDownloadedItem( self, item):
         # no multithreaded access
         global_lock.acquire()
 
         downloaded_episodes = self.load_downloaded_episodes()
         already_in_list = item.url in [ episode.url for episode in downloaded_episodes ]
-
+        
         # only append if not already in list
         if not already_in_list:
             downloaded_episodes.append( item)
@@ -342,6 +361,7 @@ class podcastChannel(ListType):
                     log('Error while calling update_metadata_on_file() :(')
 
         gl.history_mark_downloaded(item.url)
+        self.update_m3u_playlist(downloaded_episodes)
         
         if item.file_type() == 'torrent':
             torrent_filename = item.local_filename()
@@ -519,6 +539,7 @@ class podcastChannel(ListType):
                     downloaded_episodes.remove( episode)
 
         self.save_downloaded_episodes( downloaded_episodes)
+        self.update_m3u_playlist(downloaded_episodes)
         global_lock.release()
 
 class podcastItem(object):

@@ -94,6 +94,7 @@ gPodderSettings = {
     'default_new': ( int, 1 ),
     'use_si_units': ( bool, False ),
     'on_quit_systray': (bool, False),
+    'create_m3u_playlists': (bool, False),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),
