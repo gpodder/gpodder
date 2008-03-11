@@ -67,6 +67,7 @@ gPodderSettings = {
     'auto_update_frequency': (int, 20),
     'episode_list_descriptions': (bool, True),
     'show_toolbar': (bool, True),
+    'ipod_write_gtkpod_extended': (bool, False),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False),

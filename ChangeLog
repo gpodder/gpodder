@@ -1,3 +1,15 @@
+Tue, 11 Mar 2008 18:53:25 +0100 <thp@perli.net>
+Add option to write gtkpod extended database on sync
+
+	* data/gpodder.glade: Add a check box for the new config option
+	* src/gpodder/config.py: Add ipod_write_gtkpod_extended boolean
+	configuration variable that controls if we want to write iTunesDB.ext
+	after synchronization (defaults to False)
+	* src/gpodder/gui.py: Glue code for UI<->Config manager
+	* src/gpodder/sync.py: Use libgpod's "gtkpod" module to write the
+	extended gtkpod database (iTunesDB.ext) to the iPod after sync - this
+	has to be enabled via an option
+
 Tue, 11 Mar 2008 18:44:19 +0100 <thp@perli.net>
 Fix problem with old PyGTK versions when importing gpodder.trayicon
 

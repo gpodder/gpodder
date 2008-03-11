@@ -1789,6 +1789,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('bluetooth_ask_never', self.bluetooth_ask_never)
         gl.config.connect_gtk_togglebutton('bluetooth_use_converter', self.bluetooth_use_converter)
         gl.config.connect_gtk_filechooser( 'bluetooth_converter', self.bluetooth_converter, is_for_files=True)
+        gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
         
         self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
@@ -1983,7 +1984,8 @@ class gPodderProperties(GladeWidget):
                 widget.show_all()
 
         # iPod
-        ipod_widgets = ( self.ipodLabel, self.btn_iPodMountpoint )
+        ipod_widgets = (self.ipodLabel, self.btn_iPodMountpoint,
+                        self.ipod_write_gtkpod_extended)
         for widget in ipod_widgets:
             if active_item == 1:
                 widget.show_all()
