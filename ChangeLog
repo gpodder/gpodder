@@ -1,3 +1,11 @@
+Tue, 11 Mar 2008 18:44:19 +0100 <thp@perli.net>
+Fix problem with old PyGTK versions when importing gpodder.trayicon
+
+	* src/gpodder/gui.py: Apply patch from Bill Barnard
+	<bill@barnard-engineering.com>, based on a patch from Jérôme Chabod
+	<jerome.chabod@ifrance.com> that makes sure we can import the tray
+	icon module. If not, we disable the tray icon functionality
+
 Mon, 10 Mar 2008 16:37:38 +0100 <thp@perli.net>
 Add support for creating M3U playlist files in download folders
 

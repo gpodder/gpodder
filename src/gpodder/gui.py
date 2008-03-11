@@ -39,14 +39,21 @@ from gpodder import services
 from gpodder import sync
 from gpodder import download
 from gpodder import SimpleGladeApp
-from gpodder import trayicon
+from gpodder.liblogger import log
+
+try:
+    from gpodder import trayicon
+    have_trayicon = True
+except Exception, exc:
+    log('Warning: Could not import gpodder.trayicon.')
+    log('Warning: This probably means your PyGTK installation is too old!')
+    have_trayicon = False
 
 from libpodcasts import podcastChannel
 from libpodcasts import channels_to_model
 from libpodcasts import load_channels
 from libpodcasts import save_channels
 
-from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
 from libplayers import UserAppsReader
@@ -1219,7 +1226,7 @@ class gPodder(GladeWidget):
             self.show_message(message, title)
 
     def show_hide_tray_icon(self):
-        if gl.config.display_tray_icon and self.tray_icon is None:
+        if gl.config.display_tray_icon and have_trayicon and self.tray_icon is None:
             self.tray_icon = trayicon.GPodderStatusIcon(self, scalable_dir)
         elif not gl.config.display_tray_icon and self.tray_icon is not None:
             self.tray_icon.set_visible(False)
