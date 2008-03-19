@@ -1,3 +1,12 @@
+Wed, 19 Mar 2008 15:45:15 +0100 <thp@perli.net>
+Patch from Nikosapi to fix MP3 player sync progress
+
+	* src/gpodder/sync.py: Patch from Nick (nikosapi.org) to fix MP3
+	player sync problems: "Instead of displaying the proper percentage of
+	the copied file in the FS-based sync dialog, gPodder would initially
+	report 100% and near the end of the copy it would report percentages
+	>100%."
+
 Wed, 19 Mar 2008 15:02:10 +0100 <thp@perli.net>
 Various Bluetooth-related fixes
 

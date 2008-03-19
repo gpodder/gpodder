@@ -486,7 +486,6 @@ class MP3PlayerDevice(Device):
 
         bytes_read = 0
         s = in_file.read(self.buffer_size)
-        bytes_read += len(s)
         while s:
             bytes_read += len(s)
             try:
@@ -505,7 +504,7 @@ class MP3PlayerDevice(Device):
                     log('Error while trying to unlink %s. OH MY!' % to_file, sender=self)
                 self.cancel()
                 return False
-            self.notify('sub-progress', int(max(100, 100*float(bytes_read)/float(bytes))))
+            self.notify('sub-progress', int(min(100, 100*float(bytes_read)/float(bytes))))
             s = in_file.read(self.buffer_size)
         out_file.close()
         in_file.close()
