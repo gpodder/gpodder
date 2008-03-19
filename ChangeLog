@@ -1,3 +1,16 @@
+Wed, 19 Mar 2008 15:02:10 +0100 <thp@perli.net>
+Various Bluetooth-related fixes
+
+	* data/gpodder.glade: Use the "bluetooth" icon instead of the (old?)
+	"stock_bluetooth" icon; in Gnome 2.22, the "bluetooth" icon is nicer,
+	i.e. more Tango-ish than the "stock_bluetooth" icon
+	* src/gpodder/gui.py: Fix a logging error; Only show "Send to [...]
+	via bluetooth"/"Send to bluetooth device" when we have already
+	downloaded the episodes (won't obviously work otherwise..)
+	* src/gpodder/util.py: Fix bluetooth_send_file to work with both
+	bluetooth-sendto and gnome-obex-send (different command line argument
+	format for both)
+
 Sun, 16 Mar 2008 12:55:49 +0100 <thp@perli.net>
 Python-feedparser is a dependency, so mention it in the README
 

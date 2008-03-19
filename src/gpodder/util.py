@@ -700,12 +700,14 @@ def bluetooth_send_file(filename, device=None, callback_finished=None):
 
     if find_command('bluetooth-sendto'):
         command_line = ['bluetooth-sendto']
+        if device is not None:
+            command_line.append('--device=%s' % device)
     elif find_command('gnome-obex-send'):
         command_line = ['gnome-obex-send']
-
-    if command_line is not None:
         if device is not None:
             command_line += ['--dest', device]
+
+    if command_line is not None:
         command_line.append(filename)
         result = (subprocess.Popen(command_line).wait() == 0)
         if callback_finished is not None:

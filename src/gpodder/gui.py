@@ -452,7 +452,7 @@ class gPodder(GladeWidget):
                     shutil.copyfile(filename, destfile)
                     result = 0
                 except:
-                    log('Cannot copy "%s" to "%s".', sender=self)
+                    log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
                     result = 1
 
             if result == 0 or not os.path.exists(destfile):
@@ -516,15 +516,15 @@ class gPodder(GladeWidget):
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
                     menu.append( item)
-                if gl.config.bluetooth_enabled:
-                    if gl.config.bluetooth_ask_always:
-                        bt_device_name = _('bluetooth device')
-                    else:
-                        bt_device_name = _('%s via bluetooth')%gl.config.bluetooth_device_name
-                    item = gtk.ImageMenuItem(_('Send to %s') % bt_device_name)
-                    item.set_image(gtk.image_new_from_icon_name('stock_bluetooth', gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
-                    menu.append( item)
+                    if gl.config.bluetooth_enabled:
+                        if gl.config.bluetooth_ask_always:
+                            bt_device_name = _('bluetooth device')
+                        else:
+                            bt_device_name = _('%s via bluetooth')%gl.config.bluetooth_device_name
+                        item = gtk.ImageMenuItem(_('Send to %s') % bt_device_name)
+                        item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
+                        item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
+                        menu.append( item)
                 menu.append( gtk.SeparatorMenuItem())
             else:
                 episode_title = _('%d selected episodes') % len(paths)
@@ -1840,17 +1840,22 @@ class gPodderProperties(GladeWidget):
             self.iPodMountpoint.set_label( ipod.mount_point)
 
     def on_bluetooth_select_device_clicked(self, widget):
+        label_old = self.bluetooth_select_device.get_label()
         self.bluetooth_select_device.set_sensitive(False)
+        self.bluetooth_select_device.set_label(_('Searching...'))
         gtk.main_iteration(False)
+        found = False
         for name, address in util.discover_bluetooth_devices():
             if self.show_confirmation('Use this device as your bluetooth device?', name):
                 gl.config.bluetooth_device_name = name
                 gl.config.bluetooth_device_address = address
                 self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
-                self.bluetooth_select_device.set_sensitive(True)
-                return
-        self.show_message('No more devices found', 'Scan finished')
+                found = True
+                break
+        if not found:
+            self.show_message('No more devices found', 'Scan finished')
         self.bluetooth_select_device.set_sensitive(True)
+        self.bluetooth_select_device.set_label(label_old)
     
     def set_uar(self, uar):
         self.comboAudioPlayerApp.set_model(uar.get_applications_as_model())
