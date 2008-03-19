@@ -499,105 +499,92 @@ class gPodder(GladeWidget):
 
             ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
 
-            if len(paths) == 1:
-                # Single item, add episode information menu item
-                episode_title = model.get_value( model.get_iter( paths[0]), 1)
-                episode_url = model.get_value( model.get_iter( paths[0]), 0)
-                if len(episode_title) > 30:
-                    episode_title = episode_title[:27] + '...'
-                item = gtk.ImageMenuItem('')
-                ( label, image ) = item.get_children()
-                label.set_text( _('Episode information: %s') % episode_title)
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
-                menu.append( item)
-                if can_play:
-                    item = gtk.ImageMenuItem( _('Save %s to folder...') % episode_title)
-                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
-                    item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
-                    menu.append( item)
-                    if gl.config.bluetooth_enabled:
-                        if gl.config.bluetooth_ask_always:
-                            bt_device_name = _('bluetooth device')
-                        else:
-                            bt_device_name = _('%s via bluetooth')%gl.config.bluetooth_device_name
-                        item = gtk.ImageMenuItem(_('Send to %s') % bt_device_name)
-                        item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
-                        item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
-                        menu.append( item)
-                menu.append( gtk.SeparatorMenuItem())
-            else:
-                episode_title = _('%d selected episodes') % len(paths)
-
             if can_play:
-                item = gtk.ImageMenuItem( _('Play %s') % episode_title)
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
+                item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append( item)
                 
                 is_locked = gl.history_is_locked(first_url)
                 if not is_locked:
-                    item = gtk.ImageMenuItem(_('Remove %s') % episode_title)
-                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                    item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
                     item.connect('activate', self.on_btnDownloadedDelete_clicked)
                     menu.append(item)
+                    
+            if can_cancel:
+                item = gtk.ImageMenuItem( _('Cancel download'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeDownloads_row_activated( self.toolCancel))
+                menu.append( item)
 
             if can_download:
-                item = gtk.ImageMenuItem( _('Download %s') % episode_title)
+                item = gtk.ImageMenuItem(_('Download'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
                 menu.append( item)
 
-                menu.append( gtk.SeparatorMenuItem())
                 is_downloaded = gl.history_is_downloaded(first_url)
                 if is_downloaded:
-                    item = gtk.ImageMenuItem( _('Mark %s as not downloaded') % episode_title)
+                    item = gtk.ImageMenuItem(_('Mark as not downloaded'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_UNDELETE, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, False))
                     menu.append( item)
                 else:
-                    item = gtk.ImageMenuItem( _('Mark %s as deleted') % episode_title)
-                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                    # FIXME: foreach episode go and delete/toggle downloaded episode
+                    # ++ unify into a single menu item (with "Delete" from above)
+                    item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, True))
                     menu.append( item)
 
-            if can_transfer:
-                item = gtk.ImageMenuItem(_('Transfer %s to %s') % (episode_title, gl.get_device_name()))
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_NETWORK, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolTransfer))
+            if can_play:
+                menu.append( gtk.SeparatorMenuItem())
+                item = gtk.ImageMenuItem(_('Save to disk'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
                 menu.append( item)
+                if gl.config.bluetooth_enabled:
+                    item = gtk.ImageMenuItem(_('Send via bluetooth'))
+                    item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
+                    item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
+                    menu.append( item)
+                if can_transfer:
+                    item = gtk.ImageMenuItem(_('Transfer to %s') % gl.get_device_name())
+                    item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
+                    item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolTransfer))
+                    menu.append(item)
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
                 is_played = gl.history_is_played(first_url)
                 if is_played:
-                    item = gtk.ImageMenuItem( _('Mark %s as unplayed') % episode_title)
+                    item = gtk.ImageMenuItem(_('Mark as unplayed'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, False))
                     menu.append( item)
                 else:
-                    item = gtk.ImageMenuItem( _('Mark %s as played') % episode_title)
+                    item = gtk.ImageMenuItem(_('Mark as played'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
                     menu.append( item)
 
-                menu.append(gtk.SeparatorMenuItem())
                 is_locked = gl.history_is_locked(first_url)
                 if is_locked:
-                    item = gtk.ImageMenuItem(_('Unlock %s') % episode_title)
+                    item = gtk.ImageMenuItem(_('Allow deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_item_toggle_lock_activate)
                     menu.append(item)
                 else:
-                    item = gtk.ImageMenuItem(_('Lock %s') % episode_title) 
+                    item = gtk.ImageMenuItem(_('Prohibit deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_item_toggle_lock_activate)
                     menu.append(item)
-                    
-            if can_cancel:
-                item = gtk.ImageMenuItem( _('_Cancel download'))
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeDownloads_row_activated( self.toolCancel))
+
+            if len(paths) == 1:
+                menu.append(gtk.SeparatorMenuItem())
+                # Single item, add episode information menu item
+                episode_url = model.get_value( model.get_iter( paths[0]), 0)
+                item = gtk.ImageMenuItem(_('Episode details'))
+                item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
+                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
                 menu.append( item)
 
             menu.show_all()
