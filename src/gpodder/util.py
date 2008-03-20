@@ -42,7 +42,7 @@ import stat
 
 import re
 import subprocess
-import htmlentitydefs
+from htmlentitydefs import entitydefs
 import time
 import locale
 import gzip
@@ -300,24 +300,28 @@ def delete_file( path):
         pass
 
 
-def remove_html_tags( html):
+
+def remove_html_tags(html):
     """
     Remove HTML tags from a string and replace numeric and
     named entities with the corresponding character, so the 
     HTML text can be displayed in a simple text view.
     """
-    # strips html from a string (fix for <description> tags containing html)
-    rexp = re.compile( "<[^>]*>")
-    stripstr = rexp.sub( '', html)
-    # replaces numeric entities with entity names
-    dict = htmlentitydefs.codepoint2name
-    for key in dict.keys():
-        stripstr = stripstr.replace( '&#'+str(key)+';', '&'+unicode( dict[key], 'iso-8859-1')+';')
-    # strips html entities
-    dict = htmlentitydefs.entitydefs
-    for key in dict.keys():
-        stripstr = stripstr.replace( '&'+unicode(key,'iso-8859-1')+';', unicode(dict[key], 'iso-8859-1'))
-    return stripstr
+    # If we would want more speed, we could make these global
+    re_strip_tags = re.compile('<[^>]*>')
+    re_unicode_entities = re.compile('&#(\d{2,4});')
+    re_html_entities = re.compile('&(.{2,8});')
+
+    # Remove all HTML/XML tags from the string
+    result = re_strip_tags.sub('', html)
+
+    # Convert numeric XML entities to their unicode character
+    result = re_unicode_entities.sub(lambda x: unichr(int(x.group(1))), result)
+
+    # Convert named HTML entities to their unicode character
+    result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
+
+    return result
 
 
 def torrent_filename( filename):
@@ -700,12 +704,14 @@ def bluetooth_send_file(filename, device=None, callback_finished=None):
 
     if find_command('bluetooth-sendto'):
         command_line = ['bluetooth-sendto']
+        if device is not None:
+            command_line.append('--device=%s' % device)
     elif find_command('gnome-obex-send'):
         command_line = ['gnome-obex-send']
-
-    if command_line is not None:
         if device is not None:
             command_line += ['--dest', device]
+
+    if command_line is not None:
         command_line.append(filename)
         result = (subprocess.Popen(command_line).wait() == 0)
         if callback_finished is not None:

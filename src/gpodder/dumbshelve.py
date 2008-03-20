@@ -33,16 +33,29 @@ class DumbShelve(UserDict.UserDict):
     def __init__(self, filename=None):
         UserDict.UserDict.__init__(self)
         self.__filename = filename
+        self.__dirty = False
 
     def sync(self, filename=None):
+        if not self.__dirty:
+            return True
+
         if filename is not None:
             self.__filename = filename
         try:
+            self.__dirty = False
             pickle.dump(self, open(self.__filename, 'w'))
             return True
         except:
             log('Cannot pickle me to %s', self.__filename, sender=self, traceback=True)
             return False
+
+    def __setitem__(self, key, item):
+        self.__dirty = True
+        UserDict.UserDict.__setitem__(self, key, item)
+
+    def __delitem__(self, key):
+        self.__dirty = True
+        UserDict.UserDict.__delitem__(self, key)
 
 def open_shelve(filename):
     if not os.path.exists(filename):

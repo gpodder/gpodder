@@ -4,8 +4,53 @@ Fix bug with unneeded download directory being created
 	* src/gpodder/libpodcasts.py: Fix bug when an unneeded download
 	directory would be created on every gPodder startup
 
-Sun, 16 Mar 2008 12:54:48 +0100 <thp@perli.net>
-Python-feedparser is a dependency for us
+Thu, 20 Mar 2008 11:11:18 +0100 <thp@perli.net>
+Only serialize DumbShelve to disk when we have changed/deleted items in it
+
+	* src/gpodder/dumbshelve.py: Add a "__dirty" flag to DumbShelve to
+	know if we have to write the DumbShelve to the disk or if nothing has
+	changed since the last write (and therefore no need to run the
+	time-consuming serialization code again); this speeds up initial
+	loading time and probably also speeds up other parts of the code
+
+Thu, 20 Mar 2008 11:07:48 +0100 <thp@perli.net>
+Performance-improving patch from Nick (nikosapi) to html entity replacement
+
+	* src/gpodder/util.py: Merge patch from Nick (nikosapi.org) to really
+	improve performance of the HTML tag stripper/entity replacement code
+	by using regular expressions and some more intelligent code for
+	converting numeric entities to Unicode characters
+
+Thu, 20 Mar 2008 10:04:14 +0100 <thp@perli.net>
+Filter "None" filenames from GtkFileChooser widgets
+
+	* src/gpodder/config.py: Make sure we don't receive a "None" filename
+	from GtkFileChooser widgets when connecting to the config manager
+
+Wed, 19 Mar 2008 15:45:15 +0100 <thp@perli.net>
+Patch from Nikosapi to fix MP3 player sync progress
+
+	* src/gpodder/sync.py: Patch from Nick (nikosapi.org) to fix MP3
+	player sync problems: "Instead of displaying the proper percentage of
+	the copied file in the FS-based sync dialog, gPodder would initially
+	report 100% and near the end of the copy it would report percentages
+	>100%."
+
+Wed, 19 Mar 2008 15:02:10 +0100 <thp@perli.net>
+Various Bluetooth-related fixes
+
+	* data/gpodder.glade: Use the "bluetooth" icon instead of the (old?)
+	"stock_bluetooth" icon; in Gnome 2.22, the "bluetooth" icon is nicer,
+	i.e. more Tango-ish than the "stock_bluetooth" icon
+	* src/gpodder/gui.py: Fix a logging error; Only show "Send to [...]
+	via bluetooth"/"Send to bluetooth device" when we have already
+	downloaded the episodes (won't obviously work otherwise..)
+	* src/gpodder/util.py: Fix bluetooth_send_file to work with both
+	bluetooth-sendto and gnome-obex-send (different command line argument
+	format for both)
+
+Sun, 16 Mar 2008 12:55:49 +0100 <thp@perli.net>
+Python-feedparser is a dependency, so mention it in the README
 
 	* README: Add python-feedparser as a dependency (thanks Alain Tauch)
 

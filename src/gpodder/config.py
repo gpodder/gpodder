@@ -157,6 +157,11 @@ class Config(dict):
             togglebutton.connect( 'toggled', lambda togglebutton: setattr( self, name, togglebutton.get_active()))
         else:
             raise ValueError( '%s is not a setting' % name)
+    
+    def filechooser_selection_changed(self, name, filechooser):
+        filename = filechooser.get_filename()
+        if filename is not None:
+            setattr(self, name, filename)
 
     def connect_gtk_filechooser(self, name, filechooser, is_for_files=False):
         if name in self.Settings:
@@ -166,7 +171,7 @@ class Config(dict):
             else:
                 # A FileChooser for a folder
                 filechooser.set_current_folder(getattr(self, name))
-            filechooser.connect('selection-changed', lambda filechooser: setattr(self, name, filechooser.get_filename()))
+            filechooser.connect('selection-changed', lambda filechooser: self.filechooser_selection_changed(name, filechooser))
         else:
             raise ValueError('%s is not a setting'%name)
 
