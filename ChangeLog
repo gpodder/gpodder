@@ -1,3 +1,14 @@
+Thu, 20 Mar 2008 11:18:51 +0100 <thp@perli.net>
+Add option to limit the maximum number of episodes per feed
+
+	* src/gpodder/config.py: Add "max_episodes_per_feed" configuration
+	option (int, defaults to 200) that determines the maximum number of
+	episodes that are parsed per channel/feed; if there are more episodes,
+	they are ignored. This value can be adjusted via the extended
+	configuration editor if you need more episodes
+	* src/gpodder/libpodcasts.py: Add support for the
+	max_episodes_per_feed configuration option above
+
 Thu, 20 Mar 2008 11:13:16 +0100 <thp@perli.net>
 Fix bug with unneeded download directory being created
 

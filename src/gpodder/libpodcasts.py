@@ -27,7 +27,6 @@
 #            liblocdbreader.py (2006-01-10)
 #
 
-
 import gtk
 import gobject
 import pango
@@ -150,7 +149,11 @@ class podcastChannel(ListType):
             if c.feed.image.href:
                 channel.image = c.feed.image.href
 
-        for entry in c.entries:
+        # We can limit the maximum number of entries that gPodder will parse
+        # via the "max_episodes_per_feed" configuration option.
+        if len(c.entries) > gl.config.max_episodes_per_feed:
+            log('Limiting number of episodes for %s to %d', channel.title, gl.config.max_episodes_per_feed)
+        for entry in c.entries[:min(gl.config.max_episodes_per_feed, len(c.entries))]:
             if not hasattr( entry, 'enclosures'):
                 log('Skipping entry: %s', entry.get( 'id', '(no id available)'), sender = channel)
                 continue
