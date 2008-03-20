@@ -206,7 +206,7 @@ class podcastChannel(ListType):
         self.username = ''
         self.password = ''
 
-        self.update_save_dir_size()
+        self.save_dir_size = 0
 
         self.__tree_model = None
 
