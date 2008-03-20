@@ -1,3 +1,11 @@
+Thu, 20 Mar 2008 11:07:48 +0100 <thp@perli.net>
+Performance-improving patch from Nick (nikosapi) to html entity replacement
+
+	* src/gpodder/util.py: Merge patch from Nick (nikosapi.org) to really
+	improve performance of the HTML tag stripper/entity replacement code
+	by using regular expressions and some more intelligent code for
+	converting numeric entities to Unicode characters
+
 Thu, 20 Mar 2008 11:06:32 +0100 <thp@perli.net>
 Add demo code for displaying a splash screen
 
