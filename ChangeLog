@@ -1,3 +1,12 @@
+Thu, 20 Mar 2008 11:11:18 +0100 <thp@perli.net>
+Only serialize DumbShelve to disk when we have changed/deleted items in it
+
+	* src/gpodder/dumbshelve.py: Add a "__dirty" flag to DumbShelve to
+	know if we have to write the DumbShelve to the disk or if nothing has
+	changed since the last write (and therefore no need to run the
+	time-consuming serialization code again); this speeds up initial
+	loading time and probably also speeds up other parts of the code
+
 Thu, 20 Mar 2008 11:09:27 +0100 <thp@perli.net>
 Timestamp and benchmark functions for logger
 
