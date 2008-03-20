@@ -1,3 +1,11 @@
+Thu, 20 Mar 2008 11:09:27 +0100 <thp@perli.net>
+Timestamp and benchmark functions for logger
+
+	* src/gpodder/liblogger.py: Add support for timestamping and benchmark
+	functions to liblogger, so we see the microtime since gPodder startup
+	and can also use the logging module to benchmark the speed of certain
+	code parts; this is helpful for our performance patches :)
+
 Thu, 20 Mar 2008 11:07:48 +0100 <thp@perli.net>
 Performance-improving patch from Nick (nikosapi) to html entity replacement
 
