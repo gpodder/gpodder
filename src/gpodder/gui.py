@@ -26,6 +26,7 @@ import sys
 import shutil
 import subprocess
 import glob
+import time
 
 from xml.sax import saxutils
 
@@ -173,11 +174,11 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 class gPodder(GladeWidget):
     def new(self):
         self.uar = None
+        self.tray_icon = None
 
         self.minimized = False
         self.gPodder.connect('window-state-event', self.window_state_event)
         
-        self.tray_icon = None
         self.show_hide_tray_icon()
         self.already_notified_new_episodes = []
 
@@ -294,12 +295,8 @@ class gPodder(GladeWidget):
         self.channels = load_channels( load_items = False, offline = True)
 
         # load list of user applications for audio playback
-        self.user_apps_reader = UserAppsReader('audio')
-        Thread(target = self.user_apps_reader.read).start()
-
-        # load list of user applications for video playback
-        self.user_video_apps_reader = UserAppsReader('video')
-        Thread(target = self.user_video_apps_reader.read).start()
+        self.user_apps_reader = UserAppsReader(['audio', 'video'])
+        Thread(target=self.read_apps).start()
 
         # Clean up old, orphaned download files
         gl.clean_up_downloads( delete_partial = True)
@@ -320,6 +317,11 @@ class gPodder(GladeWidget):
                 self.delete_episode_list(old_episodes, confirm=False)
                 self.updateComboBox()
 
+    def read_apps(self):
+        time.sleep(3) # give other parts of gpodder a chance to start up
+        self.user_apps_reader.read()
+        util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
+        util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
 
     def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # FIXME: Do not hardcode treeview header height
@@ -1259,9 +1261,7 @@ class gPodder(GladeWidget):
         self.updateComboBox()
 
     def on_itemPreferences_activate(self, widget, *args):
-        prop = gPodderProperties( callback_finished = self.properties_closed)
-        prop.set_uar( self.user_apps_reader)
-        prop.set_video_uar(self.user_video_apps_reader)
+        gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
 
     def on_itemAddChannel_activate(self, widget, *args):
         if self.channelPaned.get_position() < 200:
@@ -1818,6 +1818,17 @@ class gPodderProperties(GladeWidget):
         self.comboVideoPlayerApp.pack_start(cellrenderer, True)
         self.comboVideoPlayerApp.add_attribute(cellrenderer, 'markup', 0)
 
+        if not hasattr(self, 'user_apps_reader'):
+            self.user_apps_reader = UserAppsReader(['audio', 'video'])
+
+        self.user_apps_reader.read()
+        self.comboAudioPlayerApp.set_model(self.user_apps_reader.get_applications_as_model('audio'))
+        index = self.find_active_audio_app()
+        self.comboAudioPlayerApp.set_active(index)
+        self.comboVideoPlayerApp.set_model(self.user_apps_reader.get_applications_as_model('video'))
+        index = self.find_active_video_app()
+        self.comboVideoPlayerApp.set_active(index)
+
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
     def update_mountpoint( self, ipod):
@@ -1843,16 +1854,6 @@ class gPodderProperties(GladeWidget):
             self.show_message('No more devices found', 'Scan finished')
         self.bluetooth_select_device.set_sensitive(True)
         self.bluetooth_select_device.set_label(label_old)
-    
-    def set_uar(self, uar):
-        self.comboAudioPlayerApp.set_model(uar.get_applications_as_model())
-        index = self.find_active_audio_app()
-        self.comboAudioPlayerApp.set_active(index)
-
-    def set_video_uar(self, uar):
-        self.comboVideoPlayerApp.set_model(uar.get_applications_as_model())
-        index = self.find_active_video_app()
-        self.comboVideoPlayerApp.set_active(index)
     
     def find_active_audio_app(self):
         model = self.comboAudioPlayerApp.get_model()

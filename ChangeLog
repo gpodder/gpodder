@@ -1,3 +1,22 @@
+Thu, 20 Mar 2008 11:21:06 +0100 <thp@perli.net>
+Delay loading of UserAppsReader and improve libplayers
+
+	* src/gpodder/gui.py: Only load UserAppsReader's database three
+	seconds after gPodder start (because we only need it when the user
+	opens the preferences dialog, and if she opens it before these three
+	seconds, the UserAppsReader data is loaded on demand); because we load
+	the database (and generate the model) before we display the
+	preferences dialog, the preferences dialog usually comes up faster
+	than before (except for the situation where it is opened right after
+	gPodder startup); have only one UserAppsReader for audio/video and not
+	both (would duplicate the amount of work needed to read desktop
+	files); cleanup some UserAppsReader-related code in the prefs dialog
+	* src/gpodder/libplayers.py: Improve the reading code and make it
+	possible to support multiple mime types per-UserAppsReader (i.e. both
+	audio and video types are read by a single UAR instance); clean up the
+	imports for this module and do other related changes to make the code
+	nicer to read and understand
+
 Thu, 20 Mar 2008 11:18:51 +0100 <thp@perli.net>
 Add option to limit the maximum number of episodes per feed
 
