@@ -382,8 +382,6 @@ class gPodder(GladeWidget):
 
             menu = gtk.Menu()
 
-            channel_title = model.get_value( model.get_iter( paths[0]), 1)
-
             item = gtk.ImageMenuItem( _('Open download folder'))
             item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
             item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
@@ -395,17 +393,19 @@ class gPodder(GladeWidget):
                 item.connect('activate', self.update_m3u_playlist_clicked)
                 menu.append(item)
 
+            if self.active_channel.link:
+                item = gtk.ImageMenuItem(_('Visit website'))
+                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                item.connect('activate', lambda w: util.open_website(self.active_channel.link))
+                menu.append(item)
+
             menu.append( gtk.SeparatorMenuItem())
 
-            item = gtk.ImageMenuItem('')
-            ( label, image ) = item.get_children()
-            label.set_text( _('Edit %s') % channel_title)
-            item.set_image( gtk.image_new_from_stock( gtk.STOCK_EDIT, gtk.ICON_SIZE_MENU))
+            item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
             item.connect( 'activate', self.on_itemEditChannel_activate)
             menu.append( item)
 
-            item = gtk.ImageMenuItem( _('Remove %s') % ( channel_title, ))
-            item.set_image( gtk.image_new_from_stock( gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+            item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
 
@@ -588,6 +588,13 @@ class gPodder(GladeWidget):
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
                 menu.append( item)
+                episode = self.active_channel.find_episode(episode_url)
+                # If we have it, also add episode website link
+                if episode and episode.link and episode.link != episode.url:
+                    item = gtk.ImageMenuItem(_('Visit website'))
+                    item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                    item.connect('activate', lambda w: util.open_website(episode.link))
+                    menu.append(item)
 
             menu.show_all()
             menu.popup( None, None, None, event.button, event.time)
