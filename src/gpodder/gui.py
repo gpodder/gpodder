@@ -1845,10 +1845,22 @@ class gPodderProperties(GladeWidget):
             self.iPodMountpoint.set_label( ipod.mount_point)
 
     def on_bluetooth_select_device_clicked(self, widget):
-        label_old = self.bluetooth_select_device.get_label()
+        # Stupid GTK doesn't provide us with a method to directly
+        # edit the text of a gtk.Button without "destroying" the
+        # image on it, so we dig into the button's widget tree and
+        # get the gtk.Image and gtk.Label and edit the label directly.
+        alignment = self.bluetooth_select_device.get_child()
+        hbox = alignment.get_child()
+        (image, label) = hbox.get_children()
+
+        old_text = label.get_text()
+        label.set_text(_('Searching...'))
         self.bluetooth_select_device.set_sensitive(False)
-        self.bluetooth_select_device.set_label(_('Searching...'))
-        gtk.main_iteration(False)
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+
+        # FIXME: Make bluetooth device discovery threaded, so
+        # the GUI doesn't freeze while we are searching for devices
         found = False
         for name, address in util.discover_bluetooth_devices():
             if self.show_confirmation('Use this device as your bluetooth device?', name):
@@ -1860,7 +1872,7 @@ class gPodderProperties(GladeWidget):
         if not found:
             self.show_message('No more devices found', 'Scan finished')
         self.bluetooth_select_device.set_sensitive(True)
-        self.bluetooth_select_device.set_label(label_old)
+        label.set_text(old_text)
     
     def find_active_audio_app(self):
         model = self.comboAudioPlayerApp.get_model()
