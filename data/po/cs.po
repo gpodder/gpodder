@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Czech Gpodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-03-12 12:38+0100\n"
-"PO-Revision-Date: 2008-02-10 20:06+0100\n"
+"PO-Revision-Date: 2008-03-19 22:47+0100\n"
 "Last-Translator: Ondrej Vesely <xorwen@gmail.com>\n"
 "Language-Team: Xorwen <xorwen@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -73,7 +73,8 @@ msgstr "Vynechávám kanál: %s"
 msgid "Cannot close device."
 msgstr "Není možné odpojit zařízení."
 
-#: src/gpodder/download.py:90 src/gpodder/services.py:130
+#: src/gpodder/download.py:90
+#: src/gpodder/services.py:130
 msgid "Queued"
 msgstr "Zařazeno do fronty"
 
@@ -86,26 +87,37 @@ msgstr "Vyskytla se chyba při pokusu o stažení <b>%s</b>."
 msgid "Select destination"
 msgstr "Výběr umístění"
 
-#: src/gpodder/gui.py:207 src/gpodder/gui.py:1039 src/gpodder/gui.py:1108
+#: src/gpodder/gui.py:207
+#: src/gpodder/gui.py:1039
+#: src/gpodder/gui.py:1108
 #: src/gpodder/gui.py:2220
 msgid "Channel"
 msgstr "Kanál"
 
-#: src/gpodder/gui.py:242 src/gpodder/gui.py:1042
+#: src/gpodder/gui.py:242
+#: src/gpodder/gui.py:1042
 msgid "Status"
 msgstr "Stav"
 
-#: src/gpodder/gui.py:246 src/gpodder/gui.py:269 src/gpodder/gui.py:1038
-#: src/gpodder/gui.py:1107 src/gpodder/gui.py:1195 src/gpodder/gui.py:2356
+#: src/gpodder/gui.py:246
+#: src/gpodder/gui.py:269
+#: src/gpodder/gui.py:1038
+#: src/gpodder/gui.py:1107
+#: src/gpodder/gui.py:1195
+#: src/gpodder/gui.py:2356
 msgid "Episode"
 msgstr "Epizoda"
 
-#: src/gpodder/gui.py:251 src/gpodder/gui.py:1040 src/gpodder/gui.py:1109
+#: src/gpodder/gui.py:251
+#: src/gpodder/gui.py:1040
+#: src/gpodder/gui.py:1109
 #: src/gpodder/gui.py:1196
 msgid "Size"
 msgstr "Velikost"
 
-#: src/gpodder/gui.py:254 src/gpodder/gui.py:1041 src/gpodder/gui.py:1110
+#: src/gpodder/gui.py:254
+#: src/gpodder/gui.py:1041
+#: src/gpodder/gui.py:1110
 msgid "Released"
 msgstr "Vyšlo"
 
@@ -123,13 +135,12 @@ msgid "Used disk space: %s"
 msgstr "Využití diskového prostoru: %s"
 
 #: src/gpodder/gui.py:349
-#, fuzzy
 msgid "Updated M3U playlist in download folder."
-msgstr "Otevřít adresář pro stahování"
+msgstr "Aktualizovaný M3U playlist v adresáři pro stahování."
 
 #: src/gpodder/gui.py:349
 msgid "Updated playlist"
-msgstr ""
+msgstr "Aktualizovaný playlist"
 
 #: src/gpodder/gui.py:385
 msgid "Open download folder"
@@ -137,14 +148,15 @@ msgstr "Otevřít adresář pro stahování"
 
 #: src/gpodder/gui.py:391
 msgid "Update M3U playlist"
-msgstr ""
+msgstr "Aktualizovat M3U playlist"
 
 #: src/gpodder/gui.py:400
 #, python-format
 msgid "Edit %s"
 msgstr "Editovat %s"
 
-#: src/gpodder/gui.py:405 src/gpodder/gui.py:540
+#: src/gpodder/gui.py:405
+#: src/gpodder/gui.py:540
 #, python-format
 msgid "Remove %s"
 msgstr "Odstranit %s"
@@ -154,9 +166,7 @@ msgid "Converting file"
 msgstr "Konverze souboru"
 
 #: src/gpodder/gui.py:436
-msgid ""
-"Please wait while gPodder converts your media file for bluetooth file "
-"transfer."
+msgid "Please wait while gPodder converts your media file for bluetooth file transfer."
 msgstr "Prosím, počkejte dokud gPodder nepřipraví soubor pro bluetooth přenos."
 
 #: src/gpodder/gui.py:461
@@ -255,12 +265,8 @@ msgid "downloading %d files"
 msgstr "stahování %d souborů"
 
 #: src/gpodder/gui.py:624
-msgid ""
-"The selected player application cannot be found. Please check your media "
-"player settings in the preferences dialog."
-msgstr ""
-"Vybraný přehrávač nebyl nalezen. Zkontrolujte prosím zvolený přehrávač v "
-"nastavení programu."
+msgid "The selected player application cannot be found. Please check your media player settings in the preferences dialog."
+msgstr "Vybraný přehrávač nebyl nalezen. Zkontrolujte prosím zvolený přehrávač v nastavení programu."
 
 #: src/gpodder/gui.py:624
 #, python-format
@@ -270,9 +276,10 @@ msgstr "Chyba spouštění přehrávače: %s"
 #: src/gpodder/gui.py:683
 #, python-format
 msgid "Downloads (%d)"
-msgstr "Staženo (%d)"
+msgstr "Stahuji (%d)"
 
-#: src/gpodder/gui.py:685 data/gpodder.glade.h:61
+#: src/gpodder/gui.py:685
+#: data/gpodder.glade.h:61
 msgid "Downloads"
 msgstr "Stahování"
 
@@ -287,12 +294,8 @@ msgstr "Dříve přidáno"
 
 #: src/gpodder/gui.py:753
 #, python-format
-msgid ""
-"You have supplied <b>%s</b> as username and a password for this feed. Would "
-"you like to use the same authentication data for downloading episodes?"
-msgstr ""
-"Poskytli jste přihlašovací údaje <b>%s</b> pro tento zdroj. Přejete si je "
-"použít také ke stahování epizod?"
+msgid "You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?"
+msgstr "Poskytli jste přihlašovací údaje <b>%s</b> pro tento zdroj. Přejete si je použít také ke stahování epizod?"
 
 #: src/gpodder/gui.py:753
 msgid "Password authentication"
@@ -303,23 +306,16 @@ msgid "Error adding channel"
 msgstr "Chyba v přidávání kanálu"
 
 #: src/gpodder/gui.py:767
-msgid ""
-"The channel could not be added. Please check the spelling of the URL or try "
-"again later."
-msgstr ""
-"Kanál nemohl být přidán. Zkontroluje prosím URL nebo opakujte akci později."
+msgid "The channel could not be added. Please check the spelling of the URL or try again later."
+msgstr "Kanál nemohl být přidán. Zkontroluje prosím URL nebo opakujte akci později."
 
 #: src/gpodder/gui.py:771
 msgid "URL scheme not supported"
 msgstr "Schéma URL není podporováno"
 
 #: src/gpodder/gui.py:772
-msgid ""
-"gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://"
-"</b> or <b>ftp://</b>."
-msgstr ""
-"gPodder nyní podporuje URL začínající:  <b>http://</b>, <b>feed://</b> nebo "
-"<b>ftp://</b>."
+msgid "gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>."
+msgstr "gPodder nyní podporuje URL začínající:  <b>http://</b>, <b>feed://</b> nebo <b>ftp://</b>."
 
 #: src/gpodder/gui.py:777
 #, python-format
@@ -327,11 +323,11 @@ msgid "Updating %s (%d/%d)"
 msgstr "Aktualizuji %s (%d/%d)"
 
 #: src/gpodder/gui.py:805
-#, fuzzy
 msgid "No new episodes available for download"
-msgstr "Jsou dostupné nové epizody"
+msgstr "Nejsou dostupné nové epizody pro stažení"
 
-#: src/gpodder/gui.py:809 src/gpodder/gui.py:811
+#: src/gpodder/gui.py:809
+#: src/gpodder/gui.py:811
 #, python-format
 msgid "gPodder has found %s"
 msgstr "gPodder nalezl %s"
@@ -366,19 +362,15 @@ msgid "Loading feeds"
 msgstr "Stahuji zdroje"
 
 #: src/gpodder/gui.py:848
-msgid ""
-"Podcast feeds contain channel metadata and information about current "
-"episodes."
-msgstr ""
-"Zdroje podcastu obsahují metadata kanálu a informace o aktuálních epizodách."
+msgid "Podcast feeds contain channel metadata and information about current episodes."
+msgstr "Zdroje podcastu obsahují metadata kanálu a informace o aktuálních epizodách."
 
 #: src/gpodder/gui.py:925
 msgid "Episode already downloaded"
 msgstr "Epizody už jsou stažené"
 
 #: src/gpodder/gui.py:926
-msgid ""
-"You have already downloaded this episode. Click on the episode to play it."
+msgid "You have already downloaded this episode. Click on the episode to play it."
 msgstr "Tato epizoda už je stažená. Kliknutím spustíte její přehrávání."
 
 #: src/gpodder/gui.py:929
@@ -386,31 +378,24 @@ msgid "Download in progress"
 msgstr "Probíhá stahování"
 
 #: src/gpodder/gui.py:930
-msgid ""
-"You are currently downloading this episode. Please check the download status "
-"tab to check when the download is finished."
-msgstr ""
-"tato epizoda je zrovna stahována. Zkontroluje prosím záložku stahování."
+msgid "You are currently downloading this episode. Please check the download status tab to check when the download is finished."
+msgstr "tato epizoda je zrovna stahována. Zkontroluje prosím záložku stahování."
 
 #: src/gpodder/gui.py:951
 msgid "Hide gPodder"
 msgstr "Skrýt gPodder"
 
-#: src/gpodder/gui.py:954 src/gpodder/trayicon.py:63
+#: src/gpodder/gui.py:954
+#: src/gpodder/trayicon.py:63
 msgid "Quit gPodder"
 msgstr "Ukončit gPodder"
 
 #: src/gpodder/gui.py:956
-msgid ""
-"You are downloading episodes. If you close gPodder now, the downloads will "
-"be aborted."
-msgstr ""
-"Jsou stahovány epizody. Pokud teď ukončíte gPodder, stahování bude přerušeno."
+msgid "You are downloading episodes. If you close gPodder now, the downloads will be aborted."
+msgstr "Jsou stahovány epizody. Pokud teď ukončíte gPodder, stahování bude přerušeno."
 
 #: src/gpodder/gui.py:958
-msgid ""
-"If you hide gPodder, it will continue to run in the system tray notification "
-"area."
+msgid "If you hide gPodder, it will continue to run in the system tray notification area."
 msgstr "Pokud skryjete gPodder, bude dostupný pod ikonou v oznamovací oblasti."
 
 #: src/gpodder/gui.py:960
@@ -468,12 +453,8 @@ msgid "No channels available"
 msgstr "Žádné kanály nejsou k dispozici."
 
 #: src/gpodder/gui.py:1095
-msgid ""
-"You need to subscribe to some podcast feeds before you can start downloading "
-"podcasts. Use your favorite search engine to look for interesting podcasts."
-msgstr ""
-"Ke stahování epizod se nejprve musíte přihlásit ke zdrojům podcastu. Najděte "
-"si nějaké pomocí svého oblíbeného vyhledávače."
+msgid "You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts."
+msgstr "Ke stahování epizod se nejprve musíte přihlásit ke zdrojům podcastu. Najděte si nějaké pomocí svého oblíbeného vyhledávače."
 
 #: src/gpodder/gui.py:1114
 msgid "Select the episodes you want to download now."
@@ -488,38 +469,36 @@ msgid "No new episodes"
 msgstr "Žádné nové epizody"
 
 #: src/gpodder/gui.py:1121
-msgid ""
-"There are no new episodes to download from your podcast subscriptions. "
-"Please check for new episodes later."
-msgstr ""
-"Momentálně nejsou z přihlášených zdrojů dostupné žádné nové epizody. Zkuste "
-"to později."
+msgid "There are no new episodes to download from your podcast subscriptions. Please check for new episodes later."
+msgstr "Momentálně nejsou z přihlášených zdrojů dostupné žádné nové epizody. Zkuste to později."
 
-#: src/gpodder/gui.py:1138 src/gpodder/gui.py:1203
+#: src/gpodder/gui.py:1138
+#: src/gpodder/gui.py:1203
 msgid "No device configured"
 msgstr "Není nastavené žádné zařízení"
 
-#: src/gpodder/gui.py:1139 src/gpodder/gui.py:1204
-msgid ""
-"To use the synchronization feature, please configure your device in the "
-"preferences dialog first."
-msgstr ""
-"Pro využití synchronizace je potřeba nejprve nakonfigurovat zařízení v "
-"nastavení aplikace."
+#: src/gpodder/gui.py:1139
+#: src/gpodder/gui.py:1204
+msgid "To use the synchronization feature, please configure your device in the preferences dialog first."
+msgstr "Pro využití synchronizace je potřeba nejprve nakonfigurovat zařízení v nastavení aplikace."
 
-#: src/gpodder/gui.py:1144 src/gpodder/gui.py:1209
+#: src/gpodder/gui.py:1144
+#: src/gpodder/gui.py:1209
 msgid "Cannot open device"
 msgstr "Není možné připojit zařízení"
 
-#: src/gpodder/gui.py:1145 src/gpodder/gui.py:1210
+#: src/gpodder/gui.py:1145
+#: src/gpodder/gui.py:1210
 msgid "There has been an error opening your device."
 msgstr "Vyskytla se chyba při připojování zařízení."
 
-#: src/gpodder/gui.py:1168 src/gpodder/gui.py:1188
+#: src/gpodder/gui.py:1168
+#: src/gpodder/gui.py:1188
 msgid "Error closing device"
 msgstr "Chyba při odpojování zařízení"
 
-#: src/gpodder/gui.py:1169 src/gpodder/gui.py:1189
+#: src/gpodder/gui.py:1169
+#: src/gpodder/gui.py:1189
 msgid "There has been an error closing your device."
 msgstr "Vyskytla se chyba při odpojování zařízení."
 
@@ -551,7 +530,8 @@ msgstr "Žádné soubory na zařízení"
 msgid "The devices contains no files to be removed."
 msgstr "Na zařízení nejsou žádné soubory k odstranění."
 
-#: src/gpodder/gui.py:1282 src/gpodder/gui.py:1450
+#: src/gpodder/gui.py:1282
+#: src/gpodder/gui.py:1450
 msgid "Enter podcast URL"
 msgstr "Zadejte URL podcastu"
 
@@ -565,11 +545,11 @@ msgstr "Vyberte si prosím ze seznamu kanál k úpravám."
 
 #: src/gpodder/gui.py:1302
 msgid "The specified URL is invalid. The old URL has been used instead."
-msgstr ""
+msgstr "Zadaná adresa je neplatná; bude použita původní."
 
 #: src/gpodder/gui.py:1302
 msgid "Invalid URL"
-msgstr ""
+msgstr "Neplatná URL adresa"
 
 #: src/gpodder/gui.py:1332
 msgid "Remove channel and episodes?"
@@ -589,12 +569,8 @@ msgid "Nothing to export"
 msgstr "Není co exportovat"
 
 #: src/gpodder/gui.py:1367
-msgid ""
-"Your list of channel subscriptions is empty. Please subscribe to some "
-"podcasts first before trying to export your subscription list."
-msgstr ""
-"Váš seznam přihlášených kanálů je prázdný. Přihlaste se prosím k nějakému "
-"zdroji podcastu abyste mohli svůj seznam exportovat."
+msgid "Your list of channel subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list."
+msgstr "Váš seznam přihlášených kanálů je prázdný. Přihlaste se prosím k nějakému zdroji podcastu abyste mohli svůj seznam exportovat."
 
 #: src/gpodder/gui.py:1371
 msgid "Export to OPML"
@@ -602,9 +578,7 @@ msgstr "Export do OPML"
 
 #: src/gpodder/gui.py:1379
 msgid "Could not export OPML to file. Please check your permissions."
-msgstr ""
-"Není možné exportovat OPML do souboru. Zkontrolujte prosím svá přístupová "
-"práva."
+msgstr "Není možné exportovat OPML do souboru. Zkontrolujte prosím svá přístupová práva."
 
 #: src/gpodder/gui.py:1379
 msgid "OPML export failed"
@@ -629,24 +603,16 @@ msgid "Nothing selected"
 msgstr "Není nic vybráno"
 
 #: src/gpodder/gui.py:1491
-msgid ""
-"Please select an episode that you want to download and then click on the "
-"download button to start downloading the selected episode."
-msgstr ""
-"Prosím označte epizodu kterou chcete stáhnout a stiskněte tlačítko pro "
-"zahájení stahování."
+msgid "Please select an episode that you want to download and then click on the download button to start downloading the selected episode."
+msgstr "Prosím označte epizodu kterou chcete stáhnout a stiskněte tlačítko pro zahájení stahování."
 
 #: src/gpodder/gui.py:1537
 msgid "Cancel download?"
 msgstr "Zrušit stahování?"
 
 #: src/gpodder/gui.py:1538
-msgid ""
-"Cancelling this download will remove the partially downloaded file and stop "
-"the download."
-msgstr ""
-"Zrušení stahování povede k odstranění částečně stažených částí souboru a "
-"ukončení stahování."
+msgid "Cancelling this download will remove the partially downloaded file and stop the download."
+msgstr "Zrušení stahování povede k odstranění částečně stažených částí souboru a ukončení stahování."
 
 #: src/gpodder/gui.py:1540
 msgid "Cancel downloads?"
@@ -654,12 +620,8 @@ msgstr "Zrušit stahování?"
 
 #: src/gpodder/gui.py:1541
 #, python-format
-msgid ""
-"Cancelling the download will stop the %d selected downloads and remove "
-"partially downloaded files."
-msgstr ""
-"Zrušení stahování povede k odstranění %d částečně stažených částí souboru a "
-"ukončení stahování."
+msgid "Cancelling the download will stop the %d selected downloads and remove partially downloaded files."
+msgstr "Zrušení stahování povede k odstranění %d částečně stažených částí souboru a ukončení stahování."
 
 #: src/gpodder/gui.py:1575
 #, python-format
@@ -667,9 +629,7 @@ msgid "%s is locked"
 msgstr "%s je uzamčeno"
 
 #: src/gpodder/gui.py:1576
-msgid ""
-"You cannot delete this locked episode. You must unlock it before you can "
-"delete it."
+msgid "You cannot delete this locked episode. You must unlock it before you can delete it."
 msgstr "K odstranění epizody ji musíte nejprve odemknout."
 
 #: src/gpodder/gui.py:1580
@@ -678,12 +638,8 @@ msgid "Remove %s?"
 msgstr "Odstranit %s?"
 
 #: src/gpodder/gui.py:1581
-msgid ""
-"If you remove this episode, it will be deleted from your computer. If you "
-"want to listen to this episode again, you will have to re-download it."
-msgstr ""
-"Pokud odstraníte tuto epizodu, bude smazána z počítače. Pro jejich přehrání "
-"je pak budete muset znovu stáhnout."
+msgid "If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it."
+msgstr "Pokud odstraníte tuto epizodu, bude smazána z počítače. Pro jejich přehrání je pak budete muset znovu stáhnout."
 
 #: src/gpodder/gui.py:1583
 #, python-format
@@ -691,25 +647,16 @@ msgid "Remove %d episodes?"
 msgstr "Odstranit %d epizod?"
 
 #: src/gpodder/gui.py:1584
-msgid ""
-"If you remove these episodes, they will be deleted from your computer. If "
-"you want to listen to any of these episodes again, you will have to re-"
-"download the episodes in question."
-msgstr ""
-"Pokud odstraníte tyto epizody, budou smazány z počítače. Pro jejich přehrání "
-"je pak budete muset znovu stáhnout."
+msgid "If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question."
+msgstr "Pokud odstraníte tyto epizody, budou smazány z počítače. Pro jejich přehrání je pak budete muset znovu stáhnout."
 
 #: src/gpodder/gui.py:1593
 msgid "Episodes are locked"
 msgstr "Epizody jsou uzamčeny"
 
 #: src/gpodder/gui.py:1594
-msgid ""
-"The selected episodes are locked. Please unlock the episodes that you want "
-"to delete before trying to delete them."
-msgstr ""
-"Označené epizody jsou uzamčené. Pro jejich smazání je potřeba je nejprve "
-"odemčít."
+msgid "The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them."
+msgstr "Označené epizody jsou uzamčené. Pro jejich smazání je potřeba je nejprve odemčít."
 
 #: src/gpodder/gui.py:1598
 #, python-format
@@ -717,14 +664,8 @@ msgid "Remove %d out of %d episodes?"
 msgstr "Odstranit %d z %d epizod?"
 
 #: src/gpodder/gui.py:1599
-msgid ""
-"The selection contains locked episodes. These will not be deleted. If you "
-"want to listen to any of these episodes again, then you will have to re-"
-"download them."
-msgstr ""
-"Některé z označených epizod jsou zamčené. Ty nebudou smazány. Pokud si "
-"budete chtít poslechnout některé ze smazaných epizod, budete je muset znovu "
-"stáhnout."
+msgid "The selection contains locked episodes. These will not be deleted. If you want to listen to any of these episodes again, then you will have to re-download them."
+msgstr "Některé z označených epizod jsou zamčené. Ty nebudou smazány. Pokud si budete chtít poslechnout některé ze smazaných epizod, budete je muset znovu stáhnout."
 
 #: src/gpodder/gui.py:1694
 msgid "You can drag a cover file here."
@@ -734,7 +675,8 @@ msgstr "Sem můžete přetáhnout soubor s potiskem."
 msgid "You can only drop a single image or URL here."
 msgstr "Sem patří pouze jediný obrázek nebo URL adresa."
 
-#: src/gpodder/gui.py:1715 src/gpodder/gui.py:1728
+#: src/gpodder/gui.py:1715
+#: src/gpodder/gui.py:1728
 msgid "Drag and drop"
 msgstr "Táhni a pusť"
 
@@ -743,45 +685,33 @@ msgid "You can only drop local files and http:// URLs here."
 msgstr "Sem můžete přetáhnout pouze místní soubory a http:// adresy."
 
 #: src/gpodder/gui.py:1738
-#, fuzzy, python-format
+#, python-format
 msgid "Do you really want to move this channel to <b>%s</b>?"
-msgstr "Skutečně chcete smazat tuto epizodu?"
+msgstr "Skutečně chcete přesunout tento kanál do <b>%s</b>?"
 
 #: src/gpodder/gui.py:1738
 msgid "Really change URL?"
-msgstr ""
+msgstr "Opravdu změnit URL adresu?"
 
 #: src/gpodder/gui.py:1809
 msgid "needs python-eyed3"
 msgstr "je potřeba python-eyed3"
 
 #: src/gpodder/gui.py:1894
-msgid ""
-"There has been an error moving your downloads to the specified location. The "
-"old download directory will be used instead."
-msgstr ""
-"Nastala chyba během přesunu vašich stažených souborů. Bude použit původní "
-"adresář pro stahování."
+msgid "There has been an error moving your downloads to the specified location. The old download directory will be used instead."
+msgstr "Nastala chyba během přesunu vašich stažených souborů. Bude použit původní adresář pro stahování."
 
 #: src/gpodder/gui.py:1894
 msgid "Error moving downloads"
 msgstr "Chyba v přesunu stažených souborů"
 
 #: src/gpodder/gui.py:1917
-msgid ""
-"You can specify a custom format string for the file names on your MP3 player "
-"here."
-msgstr ""
-"Zde si můžete zvolit vlastní formátovací řetězec pro pojmenovávání souborů "
-"na vašem MP3 přehrávači."
+msgid "You can specify a custom format string for the file names on your MP3 player here."
+msgstr "Zde si můžete zvolit vlastní formátovací řetězec pro pojmenovávání souborů na vašem MP3 přehrávači."
 
 #: src/gpodder/gui.py:1918
-msgid ""
-"The format string will be used to generate a file name on your device. The "
-"file extension (e.g. \".mp3\") will be added automatically."
-msgstr ""
-"Formátovací řetězec bude použit při pojmenovávání souborů na vašem zařízení. "
-"Přípona (např. \".mp3\") bude připojena automaticky."
+msgid "The format string will be used to generate a file name on your device. The file extension (e.g. \".mp3\") will be added automatically."
+msgstr "Formátovací řetězec bude použit při pojmenovávání souborů na vašem zařízení. Přípona (např. \".mp3\") bude připojena automaticky."
 
 #: src/gpodder/gui.py:1922
 msgid "Custom format strings"
@@ -818,7 +748,8 @@ msgstr "Dokončuji... prosím počkejte."
 msgid "<i>from %s</i>"
 msgstr "<i>z %s</i>"
 
-#: src/gpodder/gui.py:2183 src/gpodder/trayicon.py:386
+#: src/gpodder/gui.py:2183
+#: src/gpodder/trayicon.py:386
 #, python-format
 msgid "%d of %d done"
 msgstr "hotovo %d z %d"
@@ -828,11 +759,13 @@ msgstr "hotovo %d z %d"
 msgid "Processing (%d%%)"
 msgstr "Probíhá zpracování (%d%%)"
 
-#: src/gpodder/gui.py:2194 src/gpodder/trayicon.py:396
+#: src/gpodder/gui.py:2194
+#: src/gpodder/trayicon.py:396
 msgid "Your device has been updated by gPodder."
 msgstr "Obsah vašeho zařízení byl aktualizován."
 
-#: src/gpodder/gui.py:2194 src/gpodder/trayicon.py:396
+#: src/gpodder/gui.py:2194
+#: src/gpodder/trayicon.py:396
 msgid "Operation finished"
 msgstr "Operace dokončena"
 
@@ -902,7 +835,8 @@ msgstr "Není možné načíst zdroj kanálu z URL: %s"
 msgid "No description available"
 msgstr "Popis není dostupný"
 
-#: src/gpodder/libpodcasts.py:714 src/gpodder/util.py:266
+#: src/gpodder/libpodcasts.py:714
+#: src/gpodder/util.py:266
 #: src/gpodder/util.py:269
 msgid "(unknown)"
 msgstr "(neznámý)"
@@ -941,14 +875,16 @@ msgstr "Ukládám databázi iPodu"
 
 #: src/gpodder/sync.py:206
 msgid "Writing extended gtkpod database"
-msgstr ""
+msgstr "Ukládám rozšířenou databázi gtkpod"
 
-#: src/gpodder/sync.py:239 src/gpodder/sync.py:535
+#: src/gpodder/sync.py:239
+#: src/gpodder/sync.py:535
 #, python-format
 msgid "Removing %s"
 msgstr "Odstraňuji %s"
 
-#: src/gpodder/sync.py:252 src/gpodder/sync.py:421
+#: src/gpodder/sync.py:252
+#: src/gpodder/sync.py:421
 #, python-format
 msgid "Adding %s"
 msgstr "Přidávání %s"
@@ -966,7 +902,8 @@ msgstr "Připojování MP3 přehrávače"
 msgid "MP3 player opened"
 msgstr "MP3 přehrávač připojen"
 
-#: src/gpodder/sync.py:472 src/gpodder/sync.py:479
+#: src/gpodder/sync.py:472
+#: src/gpodder/sync.py:479
 #, python-format
 msgid "Error opening %s: %s"
 msgstr "Chyba otevírání %s: %s"
@@ -1003,7 +940,8 @@ msgstr "Opravdu skončit"
 msgid "Keep dowloading"
 msgstr "Dál stahovat"
 
-#: src/gpodder/trayicon.py:66 data/gpodder.glade.h:53
+#: src/gpodder/trayicon.py:66
+#: data/gpodder.glade.h:53
 msgid "Download"
 msgstr "Stáhnout"
 
@@ -1016,9 +954,9 @@ msgid "Download all new episodes"
 msgstr "Stáhnout nové epizody"
 
 #: src/gpodder/trayicon.py:126
-#, fuzzy, python-format
+#, python-format
 msgid "Synchronize to %s"
-msgstr "_Synchronizace"
+msgstr "Synchronizovat s %s"
 
 #: src/gpodder/trayicon.py:134
 msgid "Show previous message again"
@@ -1043,7 +981,7 @@ msgstr "stahování %d epizod"
 
 #: src/gpodder/trayicon.py:212
 msgid "estimated remaining time: "
-msgstr ""
+msgstr "Odhad zbývajícího času:"
 
 #: src/gpodder/trayicon.py:216
 msgid "Finished downloads:"
@@ -1072,11 +1010,13 @@ msgid "%d more episodes"
 msgstr "%d epizod"
 
 #: src/gpodder/trayicon.py:389
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%s\n"
 "%s"
-msgstr "%s z %s"
+msgstr ""
+"%s\n"
+"%s"
 
 #: src/gpodder/util.py:219
 msgid "one day ago"
@@ -1089,39 +1029,38 @@ msgstr "před %d dny"
 
 #: src/gpodder/util.py:735
 msgid "0 seconds"
-msgstr ""
+msgstr "0 vteřin"
 
 #: src/gpodder/util.py:746
 msgid "1 hour"
-msgstr ""
+msgstr "1 hodina"
 
 #: src/gpodder/util.py:748
 #, python-format
 msgid "%i hours"
-msgstr ""
+msgstr "%i hodiny"
 
 #: src/gpodder/util.py:751
-#, fuzzy
 msgid "1 minute"
-msgstr "minut"
+msgstr "1 minuta"
 
 #: src/gpodder/util.py:753
-#, fuzzy, python-format
+#, python-format
 msgid "%i minutes"
-msgstr "minut"
+msgstr "%i minuty"
 
 #: src/gpodder/util.py:756
 msgid "1 second"
-msgstr ""
+msgstr "1 vteřina"
 
 #: src/gpodder/util.py:758
 #, python-format
 msgid "%i seconds"
-msgstr ""
+msgstr "%i sekund"
 
 #: src/gpodder/util.py:761
 msgid "and"
-msgstr ""
+msgstr "a"
 
 #: data/gpodder.glade.h:1
 msgid "/path/to/fs-based-player"
@@ -1380,9 +1319,7 @@ msgid "Episode Information"
 msgstr "Informace o epizodě"
 
 #: data/gpodder.glade.h:67
-msgid ""
-"Episodes marked for synchronization are now transferred to your player "
-"device."
+msgid "Episodes marked for synchronization are now transferred to your player device."
 msgstr "Epizody označené k synchronizaci jsou právě přenášeny do přehrávače."
 
 #: data/gpodder.glade.h:68
@@ -1411,37 +1348,23 @@ msgstr "Zjišťování stavu stahování..."
 
 #: data/gpodder.glade.h:74
 msgid "Go to website"
-msgstr ""
+msgstr "Navštívit webovou stránku"
 
 #: data/gpodder.glade.h:75
 msgid "HTTP Proxy:"
 msgstr "HTTP Proxy:"
 
 #: data/gpodder.glade.h:76
-msgid ""
-"If checked, a subfolder will be created for each channel synchronized. If "
-"not checked, all episodes will be copied directly to the folder specified by "
-"\"Sync to folder:\"."
-msgstr ""
-"Je-li zaškrtnuto, pro každý stahovaný kanál bude vytvořen podadresář. Není-"
-"li zaškrtnuto, všechny epizody budou zkopírovány přímo do adresáře "
-"nastaveného k synchronizaci."
+msgid "If checked, a subfolder will be created for each channel synchronized. If not checked, all episodes will be copied directly to the folder specified by \"Sync to folder:\"."
+msgstr "Je-li zaškrtnuto, pro každý stahovaný kanál bude vytvořen podadresář. Není-li zaškrtnuto, všechny epizody budou zkopírovány přímo do adresáře nastaveného k synchronizaci."
 
 #: data/gpodder.glade.h:77
-msgid ""
-"If checked, gPodder will delete played episodes that are older than the "
-"specified amout of days (in the Downloads tab) on every startup."
-msgstr ""
-"Je-li zatrženo, budou při každém startu smazány epizody starší než je "
-"nastavený počet dní v sekci stahování."
+msgid "If checked, gPodder will delete played episodes that are older than the specified amout of days (in the Downloads tab) on every startup."
+msgstr "Je-li zatrženo, budou při každém startu smazány epizody starší než je nastavený počet dní v sekci stahování."
 
 #: data/gpodder.glade.h:78
-msgid ""
-"If checked, gPodder will update the status of the episode as if it has been "
-"played locally after copying it to your device"
-msgstr ""
-"Je-li zatrženo, bude u epizod, které byly lokálně přehrány až po "
-"synchronizaci s přehrávačem, aktualizován jejich stav."
+msgid "If checked, gPodder will update the status of the episode as if it has been played locally after copying it to your device"
+msgstr "Je-li zatrženo, bude u epizod, které byly lokálně přehrány až po synchronizaci s přehrávačem, aktualizován jejich stav."
 
 #: data/gpodder.glade.h:79
 msgid "Import channels from web"
@@ -1457,7 +1380,7 @@ msgstr "Pouze uložit .torrent souboru do stahovacího adresáře."
 
 #: data/gpodder.glade.h:82
 msgid "Limit download rate to"
-msgstr "Limit rychlosti stahování na"
+msgstr "Limit rychlosti stahování"
 
 #: data/gpodder.glade.h:83
 msgid "Mark episode as played"
@@ -1595,7 +1518,7 @@ msgstr "Přenos"
 
 #: data/gpodder.glade.h:117
 msgid "Transfer selected episodes"
-msgstr "Zkopíruje vybrané epizody na přehrávací zařízení"
+msgstr "Zkopírovat vybrané epizody na přehrávací zařízení"
 
 #: data/gpodder.glade.h:118
 msgid "Tray Icon"
@@ -1615,7 +1538,7 @@ msgstr "Při startu aktualizovat ze zdrojů podcastu"
 
 #: data/gpodder.glade.h:122
 msgid "Update gtkpod extended database after synchronization"
-msgstr ""
+msgstr "Po synchronizaci aktualizovat rozšířenou databázi gtkpod"
 
 #: data/gpodder.glade.h:123
 msgid "Update tags on audio files after download"
@@ -1638,12 +1561,8 @@ msgid "Website:"
 msgstr "Webová stránka:"
 
 #: data/gpodder.glade.h:128
-msgid ""
-"Writes episode and channel info to the downloaded file's tag field (ID3 for "
-"MP3, vorbis tag for OGG, etc..)"
-msgstr ""
-"Zapsat informace o epizodě a kanálu jako metainformace stahovaného souboru "
-"(ID3 u MP3, vorbis tag u OGG, atd...)"
+msgid "Writes episode and channel info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)"
+msgstr "Zapsat informace o epizodě a kanálu jako metainformace stahovaného souboru (ID3 u MP3, vorbis tag u OGG, atd...)"
 
 #: data/gpodder.glade.h:129
 msgid "_Channel"
@@ -1783,17 +1702,14 @@ msgstr "Smazat kanál podle URL"
 
 #~ msgid "Synchronize to iPod/player"
 #~ msgstr "Synchronizuji iPod/přehrávač"
-
 #~ msgid "Description"
 #~ msgstr "Popis"
 
 #, fuzzy
 #~ msgid "Please wait..."
 #~ msgstr "Stahuji, prosím počkejte..."
-
 #~ msgid "Libraries needed: gpod, pymad"
 #~ msgstr "Potřebné knihovny: gpod, pymad"
-
 #~ msgid ""
 #~ "To use the iPod synchronization feature, you need to install the "
 #~ "<b>python-gpod</b> and <b>python-pymad</b> libraries from your "
@@ -1803,43 +1719,34 @@ msgstr "Smazat kanál podle URL"
 #~ "Aby bylo možné použít synchronizaci, je nutné nejprve nainstalovat "
 #~ "knihovny<b>python-gpod</b> a <b>python-pymad</b>. Více informací najdete "
 #~ "na webových stránkách této aplikace."
-
 #~ msgid "Delete podcasts from MP3 player?"
 #~ msgstr "Smazat podcasty z MP3 přehrávače?"
-
 #~ msgid ""
 #~ "Do you really want to completely remove all episodes from your MP3 player?"
 #~ msgstr ""
 #~ "Opravdu chcete úplně odstranit všechny epizody ze svého MP3 přehrávače?"
-
 #~ msgid "You have already downloaded the most recent episodes from <b>%s</b>."
 #~ msgstr "Nejnovější epizody už jsou staženy z <b>%s</b>."
-
 #~ msgid ""
 #~ "New episodes are available for download. If you want, you can download "
 #~ "these episodes to your computer now."
 #~ msgstr ""
 #~ "Jsou k dispozici nové epizody ke stažení. Pokud chcete, stáhněte si je "
 #~ "rovnou teď."
-
 #~ msgid "Download %s?"
 #~ msgstr "Stáhnout %s?"
-
 #~ msgid ""
 #~ "A new episode is available for download. If you want, you can download "
 #~ "this episode to your computer now."
 #~ msgstr ""
 #~ "Jsou k dispozici nové epizody ke stažení. Pokud chcete, stáhněte si je "
 #~ "rovnou teď."
-
 #~ msgid "Copied Podcasts"
 #~ msgstr "Zkopírované podcasty"
-
 #~ msgid ""
 #~ "The selected episodes have been copied to your device. You can now unplug "
 #~ "the device."
 #~ msgstr "Označené epizody byly zkopírovány. Nyní je možno zařízení odpojit."
-
 #~ msgid ""
 #~ "Make sure your device is connected to your computer and mounted. Please "
 #~ "also make sure you have set the correct path to your device in the "
@@ -1847,22 +1754,18 @@ msgstr "Smazat kanál podle URL"
 #~ msgstr ""
 #~ "Ověřte zda je zařízení připojeno k počítači. Ujistěte se také prosím, že "
 #~ "byla vybrána správná cesta k vašemu zařízení v nastavení programu."
-
 #~ msgid "Device cleaned"
 #~ msgstr "Zařízení vyčištěno"
-
 #~ msgid "Podcasts removed"
 #~ msgstr "Podcasty odstraněny"
-
 #~ msgid "An error has occurred"
 #~ msgstr "Vyskytla se chyba"
-
 #~ msgid "Aborted"
 #~ msgstr "Přerušeno"
-
 #~ msgid ""
 #~ "The synchronization progress has been interrupted by the user. Please "
 #~ "retry synchronization at a later time."
 #~ msgstr ""
 #~ "Synchronizace byla přerušena uživatelem. Pokuste se prosím o "
 #~ "synchronizaci znovu později."
+
