@@ -138,11 +138,11 @@ class Device(services.ObservableService):
             if track.file_type() not in self.allowed_types:
                 continue
 
+            added = self.add_track(track)
+
             if gl.config.on_sync_mark_played:
                 log('Marking as played on transfer: %s', track.url, sender=self)
                 gl.history_mark_played(track.url)
-
-            added = self.add_track(track)
 
             if added and gl.config.on_sync_delete:
                 log('Removing episode after transfer: %s', track.url, sender=self)

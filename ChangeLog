@@ -1,3 +1,11 @@
+Sat, 22 Mar 2008 18:41:30 +0100 <thp@perli.net>
+Fix "Podcasts not being marked as new when synced to iPod" (#70)
+
+	* src/gpodder/sync.py: Fix bug when podcasts were not marked as new
+	when synced to iPod and "on_sync_mark_played" was enabled;
+	Bug URL: http://bugs.gpodder.org/show_bug.cgi?id=70
+	Thanks to defrex (defrex0 gmail com) for report this bug in Bugzilla
+
 Thu, 20 Mar 2008 11:21:06 +0100 <thp@perli.net>
 Delay loading of UserAppsReader and improve libplayers
 
