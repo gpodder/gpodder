@@ -1,3 +1,11 @@
+Mon, 24 Mar 2008 10:42:19 +0100 <thp@perli.net>
+Add "3gp" to the list of video file extensions, so we detect these files
+
+	* src/gpodder/util.py: Add the .3gp video file extension to the list
+	of known video file extensions, so we can detect that these are video
+	files and act accordingly (in the UI and on sync); thanks to Atte
+	André Jensen for reporting this bug on the gpodder-devel mailing list
+
 Sat, 22 Mar 2008 18:41:30 +0100 <thp@perli.net>
 Fix "Podcasts not being marked as new when synced to iPod" (#70)
 
