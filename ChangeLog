@@ -1,3 +1,10 @@
+Thu, 27 Mar 2008 11:52:35 +0100 <thp@perli.net>
+Use cPickle for dumbshelve - it's compatible and faster
+
+	* src/gpodder/dumbshelve.py: Improve saving of channel cache and
+	metadata (and basically all that currently depends on dumbshelve) by
+	using cPickle as a drop-in replacement for pickle
+
 Thu, 27 Mar 2008 11:28:31 +0100 <thp@perli.net>
 Fix problem with pickle when there is a feed parsing exception
 

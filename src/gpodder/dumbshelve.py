@@ -23,7 +23,7 @@
 from gpodder.liblogger import log
 
 import UserDict
-import pickle
+import cPickle
 import os.path
 
 class DumbShelve(UserDict.UserDict):
@@ -43,7 +43,7 @@ class DumbShelve(UserDict.UserDict):
             self.__filename = filename
         try:
             self.__dirty = False
-            pickle.dump(self, open(self.__filename, 'w'))
+            cPickle.dump(self, open(self.__filename, 'w'))
             return True
         except:
             log('Cannot pickle me to %s', self.__filename, sender=self, traceback=True)
@@ -62,7 +62,7 @@ def open_shelve(filename):
         return DumbShelve(filename)
     else:
         try:
-            return pickle.load(open(filename, 'r'))
+            return cPickle.load(open(filename, 'r'))
         except:
             log('Error loading %s. Creating new DumbShelve.', filename, traceback=True)
             return DumbShelve(filename)
