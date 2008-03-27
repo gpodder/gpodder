@@ -232,7 +232,12 @@ class gPodderLib(object):
         
         if cover_file != None:
             log( 'Reading cover from %s', cover_file)
-            pixbuf.write( open( cover_file, "r").read())
+            try:
+                pixbuf.write( open( cover_file, "r").read())
+            except:
+                # Probably a data error, delete temp file
+                log('Data error while reading pixbuf. Deleting %s', cover_file, sender=self)
+                util.delete_file(cover_file)
         
         try:
             pixbuf.close()

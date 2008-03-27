@@ -14,6 +14,13 @@ Add "3gp" to the list of video file extensions, so we detect these files
 	files and act accordingly (in the UI and on sync); thanks to Atte
 	André Jensen for reporting this bug on the gpodder-devel mailing list
 
+Sun, 23 Mar 2008 10:39:24 +0100 <thp@perli.net>
+Fix a bug when loading invalid image data (delete cover file then)
+
+	* src/gpodder/libgpodder.py: Fix a bug when gPodder is unable to load
+	an invalid cover image (i.e. when dragging a linked image from the
+	browser to the gPodder window, the link is sent, not the image)
+
 Sat, 22 Mar 2008 18:41:30 +0100 <thp@perli.net>
 Fix "Podcasts not being marked as new when synced to iPod" (#70)
 
