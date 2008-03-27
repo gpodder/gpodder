@@ -139,6 +139,8 @@ class Cache:
             error = parsed_result.get('bozo_exception')
             if error:
                 log('Warning: %s (%s)', url, str(error), sender = self)
+                # Convert the exception to a string, so we can pickle it
+                parsed_result['bozo_exception'] = str(error)
 
             self.storage[url] = (now, parsed_result)
         else:
