@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-12 12:38+0100\n"
+"POT-Creation-Date: 2008-03-27 12:53+0100\n"
 "PO-Revision-Date: 2007-08-31 11:40+0000\n"
 "Last-Translator: FFranci72 <FabiusFranci@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
@@ -19,19 +19,19 @@ msgstr ""
 "X-Poedit-Basepath: /home/test/gpodder\n"
 "X-Rosetta-Export-Date: 2007-09-18 00:08:27+0000\n"
 
-#: src/gpodder/config.py:297
+#: src/gpodder/config.py:302
 msgid "Integer"
 msgstr ""
 
-#: src/gpodder/config.py:299
+#: src/gpodder/config.py:304
 msgid "Float"
 msgstr ""
 
-#: src/gpodder/config.py:301
+#: src/gpodder/config.py:306
 msgid "Boolean"
 msgstr ""
 
-#: src/gpodder/config.py:303
+#: src/gpodder/config.py:308
 msgid "String"
 msgstr ""
 
@@ -96,7 +96,7 @@ msgid "Select destination"
 msgstr "Mountpoint  dell'iPod:"
 
 #: src/gpodder/gui.py:207 src/gpodder/gui.py:1039 src/gpodder/gui.py:1108
-#: src/gpodder/gui.py:2220
+#: src/gpodder/gui.py:2225
 #, fuzzy
 msgid "Channel"
 msgstr "_Feed sorgenti"
@@ -106,7 +106,7 @@ msgid "Status"
 msgstr "Stato"
 
 #: src/gpodder/gui.py:246 src/gpodder/gui.py:269 src/gpodder/gui.py:1038
-#: src/gpodder/gui.py:1107 src/gpodder/gui.py:1195 src/gpodder/gui.py:2356
+#: src/gpodder/gui.py:1107 src/gpodder/gui.py:1195 src/gpodder/gui.py:2361
 msgid "Episode"
 msgstr "Episodio"
 
@@ -791,115 +791,119 @@ msgstr ""
 msgid "needs python-eyed3"
 msgstr ""
 
-#: src/gpodder/gui.py:1894
+#: src/gpodder/gui.py:1845
+msgid "Searching..."
+msgstr ""
+
+#: src/gpodder/gui.py:1899
 msgid ""
 "There has been an error moving your downloads to the specified location. The "
 "old download directory will be used instead."
 msgstr ""
 
-#: src/gpodder/gui.py:1894
+#: src/gpodder/gui.py:1899
 #, fuzzy
 msgid "Error moving downloads"
 msgstr "Download"
 
-#: src/gpodder/gui.py:1917
+#: src/gpodder/gui.py:1922
 msgid ""
 "You can specify a custom format string for the file names on your MP3 player "
 "here."
 msgstr ""
 
-#: src/gpodder/gui.py:1918
+#: src/gpodder/gui.py:1923
 msgid ""
 "The format string will be used to generate a file name on your device. The "
 "file extension (e.g. \".mp3\") will be added automatically."
 msgstr ""
 
-#: src/gpodder/gui.py:1922
+#: src/gpodder/gui.py:1927
 msgid "Custom format strings"
 msgstr ""
 
-#: src/gpodder/gui.py:2006
+#: src/gpodder/gui.py:2011
 #, fuzzy
 msgid "Select iPod mountpoint"
 msgstr "Mountpoint  dell'iPod:"
 
-#: src/gpodder/gui.py:2015
+#: src/gpodder/gui.py:2020
 msgid "Select folder for MP3 player"
 msgstr ""
 
-#: src/gpodder/gui.py:2033
+#: src/gpodder/gui.py:2038
 msgid "Moving downloads folder"
 msgstr ""
 
-#: src/gpodder/gui.py:2039
+#: src/gpodder/gui.py:2044
 #, python-format
 msgid "Moving downloads from <b>%s</b> to <b>%s</b>..."
 msgstr ""
 
-#: src/gpodder/gui.py:2069
+#: src/gpodder/gui.py:2074
 #, python-format
 msgid "%s of %s"
 msgstr ""
 
-#: src/gpodder/gui.py:2071
+#: src/gpodder/gui.py:2076
 msgid "Finishing... please wait."
 msgstr ""
 
-#: src/gpodder/gui.py:2111
+#: src/gpodder/gui.py:2116
 #, python-format
 msgid "<i>from %s</i>"
 msgstr ""
 
-#: src/gpodder/gui.py:2183 src/gpodder/trayicon.py:386
+#: src/gpodder/gui.py:2188 src/gpodder/trayicon.py:386
 #, fuzzy, python-format
 msgid "%d of %d done"
 msgstr "%d di %d"
 
-#: src/gpodder/gui.py:2186
+#: src/gpodder/gui.py:2191
 #, python-format
 msgid "Processing (%d%%)"
 msgstr ""
 
-#: src/gpodder/gui.py:2194 src/gpodder/trayicon.py:396
+#: src/gpodder/gui.py:2199 src/gpodder/trayicon.py:396
 msgid "Your device has been updated by gPodder."
 msgstr ""
 
-#: src/gpodder/gui.py:2194 src/gpodder/trayicon.py:396
+#: src/gpodder/gui.py:2199 src/gpodder/trayicon.py:396
 #, fuzzy
 msgid "Operation finished"
 msgstr "Sincronizzazione"
 
-#: src/gpodder/gui.py:2251
+#: src/gpodder/gui.py:2256
 msgid "The specified URL does not provide any valid OPML podcast items."
 msgstr ""
 
-#: src/gpodder/gui.py:2251
+#: src/gpodder/gui.py:2256
 msgid "No feeds found"
 msgstr ""
 
-#: src/gpodder/gui.py:2259
+#: src/gpodder/gui.py:2264
 #, fuzzy
 msgid "Downloading, please wait..."
 msgstr "Sto scaricando la Cover del Feed sorgente"
 
-#: src/gpodder/gui.py:2417
+#: src/gpodder/gui.py:2422
 #, python-format
 msgid "Total size: %s"
 msgstr ""
 
-#: src/gpodder/gui.py:2473
+#: src/gpodder/gui.py:2478
 msgid "Variable"
 msgstr ""
 
-#: src/gpodder/gui.py:2480
+#: src/gpodder/gui.py:2485
 msgid "Type"
 msgstr ""
 
-#: src/gpodder/gui.py:2487
+#: src/gpodder/gui.py:2492
 msgid "Value"
 msgstr ""
 
-#: src/gpodder/gui.py:2519
+#: src/gpodder/gui.py:2524
 #, python-format
 msgid ""
 "Cannot set value of <b>%s</b> to <i>%s</i>.\n"
@@ -907,7 +911,7 @@ msgid ""
 "Needed data type: %s"
 msgstr ""
 
-#: src/gpodder/gui.py:2519
+#: src/gpodder/gui.py:2524
 #, fuzzy, python-format
 msgid "Error updating %s"
 msgstr "Aggiornamento di %s in corso"
@@ -977,7 +981,7 @@ msgstr "Sto salvando il database dell'iPod..."
 msgid "Writing extended gtkpod database"
 msgstr ""
 
-#: src/gpodder/sync.py:239 src/gpodder/sync.py:535
+#: src/gpodder/sync.py:239 src/gpodder/sync.py:534
 #, python-format
 msgid "Removing %s"
 msgstr ""
@@ -1133,38 +1137,38 @@ msgstr ""
 msgid "%d days ago"
 msgstr ""
 
-#: src/gpodder/util.py:735
+#: src/gpodder/util.py:741
 msgid "0 seconds"
 msgstr ""
 
-#: src/gpodder/util.py:746
+#: src/gpodder/util.py:752
 msgid "1 hour"
 msgstr ""
 
-#: src/gpodder/util.py:748
+#: src/gpodder/util.py:754
 #, python-format
 msgid "%i hours"
 msgstr ""
 
-#: src/gpodder/util.py:751
+#: src/gpodder/util.py:757
 msgid "1 minute"
 msgstr ""
 
-#: src/gpodder/util.py:753
+#: src/gpodder/util.py:759
 #, python-format
 msgid "%i minutes"
 msgstr ""
 
-#: src/gpodder/util.py:756
+#: src/gpodder/util.py:762
 msgid "1 second"
 msgstr ""
 
-#: src/gpodder/util.py:758
+#: src/gpodder/util.py:764
 #, python-format
 msgid "%i seconds"
 msgstr ""
 
-#: src/gpodder/util.py:761
+#: src/gpodder/util.py:767
 msgid "and"
 msgstr ""
 

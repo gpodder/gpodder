@@ -1191,6 +1191,7 @@ class gPodder(GladeWidget):
                 ('title', _('Episode')),
                 ('filesize', _('Size')),
                 ('modified', _('Copied')),
+                ('playcount', _('Play count')),
         )
 
         device = sync.open_device()

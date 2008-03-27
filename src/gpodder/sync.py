@@ -231,7 +231,7 @@ class iPodDevice(Device):
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
 
-            t = SyncTrack(track.title, length, modified, libgpodtrack=track)
+            t = SyncTrack(track.title, length, modified, libgpodtrack=track, playcount=track.playcount)
             tracks.append(t)
         return tracks
 
