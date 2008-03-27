@@ -1,3 +1,11 @@
+Thu, 27 Mar 2008 11:28:31 +0100 <thp@perli.net>
+Fix problem with pickle when there is a feed parsing exception
+
+	* src/gpodder/cache.py: When the feedparser returns an exception, this
+	will be stored as object in bozo_exception. Convert this to a string,
+	so the pickle module doesn't complain; thanks to VladDrac in #python
+	on FreeNode for pointing me to the right direction to fix this bug
+
 Mon, 24 Mar 2008 10:42:19 +0100 <thp@perli.net>
 Add "3gp" to the list of video file extensions, so we detect these files
 
