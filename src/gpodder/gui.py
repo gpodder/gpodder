@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (C) 2005-2007 Thomas Perl <thp at perli.net>
+# Copyright (c) 2005-2008 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,8 +63,33 @@ from libtagupdate import tagging_supported
 
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
-app_authors = [ 'Thomas Perl <thp@perli.net>' ]
-app_copyright = 'Copyright (c) 2005-2007 Thomas Perl'
+app_authors = [
+    _('Current maintainer:'), 'Thomas Perl <thpinfo.com>',
+    '',
+    _('Patches, bug reports and donations by:'), 'Adrien Beaucreux',
+    'Alain Tauch', 'Alistair Sutton', 'Anders Kvist', 'Andy Busch',
+    'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 
+    'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
+    'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'FFranci72',
+    'Florian Richter', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
+    'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
+    'Jérôme Chabod', 'Jessica Henline', 'Joel Calado', 'John Ferguson', 
+    'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña',
+    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Michael Salim', 
+    'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
+    'Nick (nikosapi.org)', 'Nicolas Quienot', 'Ondrej Vesely', 
+    'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
+    'Pavel Mlčoch', 'Peter Hoffmann', 'Pieter de Decker',
+    'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
+    'Robert Young', 'Roel Groeneveld', 'Seth Remington', 'Shane Donohoe', 
+    'Stephan Buys', 'Stylianos Papanastasiou', 'Teo Ramirez', 
+    'Thomas Matthijs', 'Thomas Mills Hinkle', 'Thomas Nilsson', 
+    'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'VladDrac', 
+    'Vladimir Zemlyakov', 'Wilfred van Rooijen',
+    '',
+    'List may be incomplete - please contact me.'
+]
+app_copyright = '© 2005-2008 Thomas Perl and the gPodder Team'
 app_website = 'http://www.gpodder.org/'
 
 # these will be filled with pathnames in bin/gpodder
@@ -203,6 +228,7 @@ class gPodder(GladeWidget):
             self.gPodder.set_title( 'gPodder %s' % app_version)
 
         self.default_title = self.gPodder.get_title()
+        gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         # cell renderers for channel tree
         namecolumn = gtk.TreeViewColumn( _('Channel'))
@@ -1399,7 +1425,7 @@ class gPodder(GladeWidget):
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
-        dlg.set_name( app_name)
+        dlg.set_name(app_name.replace('p', 'P')) # gpodder->gPodder
         dlg.set_version( app_version)
         dlg.set_authors( app_authors)
         dlg.set_copyright( app_copyright)
