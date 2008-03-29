@@ -130,18 +130,24 @@ class podcastChannel(ListType):
                 del cls.storage[url]
 
     @classmethod
-    def get_by_url( cls, url, force_update = False, offline = False):
+    def get_by_url(cls, url, force_update=False, offline=False, default_title=None):
         if isinstance( url, unicode):
             url = url.encode('utf-8')
 
         c = cls.fc.fetch( url, force_update, offline)
         channel = podcastChannel( url)
+        channel.parse_error = c.get('bozo_exception', None)
         channel.load_settings()
-        channel.title = c.feed.title
+        if hasattr(c.feed, 'title'):
+            channel.title = c.feed.title
+        elif default_title is not None:
+            channel.title = default_title
+        else:
+            channel.title = url
         if hasattr( c.feed, 'link'):
             channel.link = c.feed.link
         if hasattr( c.feed, 'subtitle'):
-            channel.description = util.remove_html_tags( c.feed.subtitle)
+            channel.description = util.remove_html_tags(c.feed.subtitle)
 
         if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
             channel.pubDate = util.updated_parsed_to_rfc2822(c.feed.updated_parsed)
@@ -177,10 +183,13 @@ class podcastChannel(ListType):
     def create_from_dict( d, load_items = True, force_update = False, callback_error = None, offline = False):
         if load_items:
             try:
-                return podcastChannel.get_by_url( d['url'], force_update = force_update, offline= offline)
+                default_title = None
+                if 'title' in d:
+                    default_title = d['title']
+                return podcastChannel.get_by_url(d['url'], force_update=force_update, offline=offline, default_title=default_title)
             except:
                 callback_error and callback_error( _('Could not load channel feed from URL: %s') % d['url'])
-                log( 'Cannot load podcastChannel from URL: %s', d['url'])
+                log( 'Cannot load podcastChannel from URL: %s', d['url'], traceback=True)
 
         c = podcastChannel()
         for key in ( 'url', 'title', 'description' ):
@@ -197,6 +206,7 @@ class podcastChannel(ListType):
         self.description = util.remove_html_tags( description)
         self.image = None
         self.pubDate = ''
+        self.parse_error = None
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
@@ -761,7 +771,7 @@ class podcastItem(object):
 
 
 def channels_to_model(channels):
-    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf)
+    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str)
     
     for channel in channels:
         (count_available, count_downloaded, count_new, count_unplayed) = channel.get_episode_stats()
@@ -772,7 +782,14 @@ def channels_to_model(channels):
 
         title_markup = saxutils.escape(channel.title)
         description_markup = saxutils.escape(util.get_first_line(channel.description))
-        new_model.set(new_iter, 2, '%s\n<small>%s</small>' % (title_markup, description_markup))
+        description = '%s\n<small>%s</small>' % (title_markup, description_markup)
+        if channel.parse_error is not None:
+            description = '<span foreground="#ff0000">%s</span>' % description
+            new_model.set(new_iter, 6, channel.parse_error)
+        else:
+            new_model.set(new_iter, 6, '')
+        
+        new_model.set(new_iter, 2, description)
 
         if count_unplayed > 0 or count_downloaded > 0:
             new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))

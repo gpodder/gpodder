@@ -340,7 +340,11 @@ class gPodder(GladeWidget):
                     self.last_tooltip_channel = channel
                     tooltip.set_icon(channel.get_cover_pixbuf())
                     diskspace_str = _('Used disk space: %s') % util.format_filesize(channel.save_dir_size)
-                    tooltip.set_markup( '<b>%s</b>\n<small><i>%s</i></small>\n%s\n\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url), saxutils.escape(channel.description), diskspace_str))
+                    error_str = model.get_value(iter, 6)
+                    if error_str:
+                        error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
+                        error_str = '<span foreground="#ff0000">%s</span>\n' % error_str
+                    tooltip.set_markup( '<b>%s</b>\n<small><i>%s</i></small>\n%s%s\n\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url), error_str, saxutils.escape(channel.description), diskspace_str))
                     return True
 
         self.last_tooltip_channel = None

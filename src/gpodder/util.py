@@ -321,7 +321,7 @@ def remove_html_tags(html):
     # Convert named HTML entities to their unicode character
     result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
 
-    return result
+    return result.strip()
 
 
 def torrent_filename( filename):

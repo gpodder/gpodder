@@ -1,3 +1,17 @@
+Sat, 29 Mar 2008 16:30:02 +0100 <thp@perli.net>
+Report errors in parsing/loading an already-added channel in the navigator
+
+	* src/gpodder/gui.py: Show the error from feedparser in the channel's
+	tooltip if there has been an error loading the channel
+	* src/gpodder/libpodcasts.py: Make sure we can load a default title
+	when using get_by_url(); save the parse_error variable for each
+	channel (it defaults to None if there is no error); mark the
+	description text for the channel navigator in red color if there has
+	been a parser error and add the parse_error variable to the liststore
+	model
+	* src/gpodder/util.py: Strip whitespace before and after the string in
+	remove_html_tags()
+
 Sat, 29 Mar 2008 16:18:59 +0100 <thp@perli.net>
 Add support for Rockbox' AudioScrobbler logfile to update played status
 
