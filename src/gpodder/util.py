@@ -871,3 +871,20 @@ def sanitize_filename(filename):
 
     return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(enc, 'ignore'))
 
+
+def find_mount_point(directory):
+    """
+    Try to find the mount point for a given directory.
+    If the directory is itself a mount point, return
+    it. If not, remove the last part of the path and
+    re-check if it's a mount point. If the directory
+    resides on your root filesystem, "/" is returned.
+    """
+    while os.path.split(directory)[0] != '/':
+        if os.path.ismount(directory):
+            return directory
+        else:
+            (directory, tail_data) = os.path.split(directory)
+
+    return '/'
+

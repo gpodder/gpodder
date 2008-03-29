@@ -97,6 +97,7 @@ gPodderSettings = {
     'on_quit_systray': (bool, False),
     'create_m3u_playlists': (bool, False),
     'max_episodes_per_feed': (int, 200),
+    'mp3_player_use_scrobbler_log': (bool, False),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),

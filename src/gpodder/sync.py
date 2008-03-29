@@ -390,6 +390,10 @@ class iPodDevice(Device):
 
 
 class MP3PlayerDevice(Device):
+    # if different players use other filenames besides
+    # .scrobbler.log, add them to this list
+    scrobbler_log_filenames = ['.scrobbler.log']
+
     def __init__(self):
         Device.__init__(self)
 
@@ -408,15 +412,25 @@ class MP3PlayerDevice(Device):
 
         self.destination = gl.config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
+        self.scrobbler_log = []
 
     def open(self):
         self.notify('status', _('Opening MP3 player'))
         if util.directory_is_writable(self.destination):
             self.notify('status', _('MP3 player opened'))
+            if gl.config.mp3_player_use_scrobbler_log:
+                mp3_player_mount_point = util.find_mount_point(self.destination)
+                # If a moint point cannot be found look inside self.destination for scrobbler_log_filenames
+                # this prevents us from os.walk()'ing the entire / filesystem
+                if mp3_player_mount_point == '/':
+                    mp3_player_mount_point = self.destination
+                log_location = self.find_scrobbler_log(mp3_player_mount_point)
+                if log_location is not None and self.load_audioscrobbler_log(log_location):
+                    log('Using Audioscrobbler log data to mark tracks as played', sender=self)
             return True
         else:
             return False
-    
+
     def add_track(self, episode):
         self.notify('status', _('Adding %s') % episode.title)
 
@@ -458,6 +472,11 @@ class MP3PlayerDevice(Device):
             except:
                 log('Cannot create folder on MP3 player: %s', folder, sender=self)
                 return False
+
+        if (gl.config.mp3_player_use_scrobbler_log and not episode.is_played()
+                and [episode.channel.title, episode.title] in self.scrobbler_log):
+            log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
+            gl.history_mark_played(episode.url)
 
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(self.enc), sender=self)
@@ -545,3 +564,40 @@ class MP3PlayerDevice(Device):
         dotfiles = glob.glob(os.path.join(directory, '.*'))
         return len(files+dotfiles) == 0
 
+    def find_scrobbler_log(self, mount_point):
+        """ find an audioscrobbler log file from log_filenames in the mount_point dir """
+        for dirpath, dirnames, filenames in os.walk(mount_point):
+            for log_file in self.scrobbler_log_filenames:
+                filename = os.path.join(dirpath, log_file)
+                if os.path.isfile(filename):
+                    return filename
+
+        # No scrobbler log on that device
+        return None
+
+    def load_audioscrobbler_log(self, log_file):
+        """ Retrive track title and artist info for all the entries
+            in an audioscrobbler portable player format logfile
+            http://www.audioscrobbler.net/wiki/Portable_Player_Logging """
+        try:
+            log('Opening "%s" as AudioScrobbler log.', log_file, sender=self)
+            f = open(log_file, 'r')
+            entries = f.readlines()
+            f.close()
+        except IOError, ioerror:
+            log('Error: "%s" cannot be read.', log_file, sender=self)
+            return False
+
+        try:
+            # regex that can be used to get all the data from a scrobbler.log entry
+            entry_re = re.compile('^(.*)\t(.*)\t(.*)\t(.*)\t(.*)\t(.*)\t(.*)$')
+            for entry in entries:
+                match_obj = re.match(entry_re, entry)
+                # L means at least 50% of the track was listened to (S means < 50%)
+                if match_obj and match_obj.group(6).strip().lower() == 'l':
+                    # append [artist_name, track_name]
+                    self.scrobbler_log.append([match_obj.group(1), match_obj.group(3)])
+        except:
+            log('Error while parsing "%s".', log_file, sender=self)
+
+        return True

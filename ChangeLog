@@ -1,3 +1,20 @@
+Sat, 29 Mar 2008 16:18:59 +0100 <thp@perli.net>
+Add support for Rockbox' AudioScrobbler logfile to update played status
+
+	* src/gpodder/config.py: Add "mp3_player_use_scrobbler_log"
+	configuration option (defaulting to False) which controls if we are
+	going to try and find a ".scrobbler.log" file that contains
+	information on which tracks have been played; for this to work, you
+	also have to enable the "Updated tags after download" option
+	* src/gpodder/sync.py: Support for finding the .scrobbler.log file and
+	updating the played status of episodes in the MP3 player sync code
+	* src/gpodder/util.py: Add "find_mount_point()" function that tries to
+	determine the mount point on which the given directory (or file) lies
+	and returns the mount point or "/" if the directory/file resides on
+	the root filesystem.
+
+	This whole patch has been contributed by Nick <nikosapi.org> - thanks!
+
 Sat, 29 Mar 2008 16:16:06 +0100 <thp@perli.net>
 Merge sv.po translation from 0.11.1 release tarball
 
