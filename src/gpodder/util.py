@@ -477,7 +477,13 @@ def updated_parsed_to_rfc2822( updated_parsed):
     """
     Converts a 9-tuple from feedparser's updated_parsed 
     field to a C-locale string suitable for further use.
+
+    If the updated_parsed field is None or not a 9-tuple,
+    this function returns None.
     """
+    if updated_parsed is None or len(updated_parsed) != 9:
+        return None
+
     old_locale = locale.getlocale( locale.LC_TIME)
     locale.setlocale( locale.LC_TIME, 'C')
     result = time.strftime( '%a, %d %b %Y %H:%M:%S GMT', updated_parsed)

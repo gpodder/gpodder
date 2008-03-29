@@ -143,8 +143,8 @@ class podcastChannel(ListType):
         if hasattr( c.feed, 'subtitle'):
             channel.description = util.remove_html_tags( c.feed.subtitle)
 
-        if hasattr( c.feed, 'updated_parsed'):
-            channel.pubDate = util.updated_parsed_to_rfc2822( c.feed.updated_parsed)
+        if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
+            channel.pubDate = util.updated_parsed_to_rfc2822(c.feed.updated_parsed)
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
                 channel.image = c.feed.image.href

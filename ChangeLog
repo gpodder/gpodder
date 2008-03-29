@@ -1,3 +1,14 @@
+Sat, 29 Mar 2008 01:20:46 +0100 <thp@perli.net>
+Make sure we ignore the updated_parsed of a channel if it's None
+
+	* src/gpodder/libpodcasts.py: Only try to convert the "updated_parsed"
+	field if it's not "None"
+	* src/gpodder/util.py: Make sure we receive a valid 9-tuple when
+	converting dates from updated_parsed; if we receive a None value or
+	some value that isn't "9" in length, return None
+	Thanks to Chris Arnold <carnold@electrichendrix.com> for reporting
+	this bug on the gpodder-devel mailing list
+
 Thu, 27 Mar 2008 13:10:58 +0100 <thp@perli.net>
 This is trunk, so set version to 0.11.1+svn
 
