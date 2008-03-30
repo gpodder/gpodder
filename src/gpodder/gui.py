@@ -77,7 +77,7 @@ app_authors = [
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña',
     'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Michael Salim', 
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
-    'Nick (nikosapi.org)', 'Nicolas Quienot', 'Ondrej Vesely', 
+    'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
     'Pavel Mlčoch', 'Peter Hoffmann', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
@@ -968,7 +968,9 @@ class gPodder(GladeWidget):
 
         downloading = services.download_status_manager.has_items()
 
-        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon:
+        # Only iconify if we are using the window's "X" button,
+        # but not when we are using "Quit" in the menu or toolbar
+        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.name not in ('toolQuit', 'itemClose'):
             self.iconify_main_window()
         elif gl.config.on_quit_ask or downloading:
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
