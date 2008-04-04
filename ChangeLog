@@ -1,3 +1,11 @@
+Fri, 04 Apr 2008 09:48:25 +0200 <thp@perli.net>
+Fix gPodder freeze with open notifications on quit
+
+	* src/gpodder/trayicon.py: Fix a bug when gPodder would freeze when
+	a notification bubble was still open while closing the main
+	application; thanks to Jérôme Chabod for reporting this issue
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=55)
+
 Fri, 04 Apr 2008 09:46:23 +0200 <thp@perli.net>
 Increase filename size limitation from 50 to 100 chars in MP3 player sync
 

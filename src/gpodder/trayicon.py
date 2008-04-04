@@ -277,9 +277,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             return False
         return True
     
-    def destroy(self, n=None, action=None):
-        gtk.main_quit()
- 
     def send_notification( self, message, title = "gPodder", actions = [], is_error=False):
         if not self.__is_notification_on(): return
 
@@ -292,14 +289,12 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 notification.attach_to_status_icon(self)
             except:
                 log('Warning: Cannot attach notification to status icon.', sender=self)
-            notification.connect('closed', self.destroy)
             for action in actions:
                 notification.add_action(action[0], action[1], self.__action_callback)
             if not notification.show():
                 log("Error: enable to send notification %s", message)
             self.__previous_notification=[message, title, actions, is_error]
             self.menuItem_previous_msg.set_sensitive(True)
-            gtk.main()
         
     def set_status(self, status=None, tooltip=None):
         if status is None:
