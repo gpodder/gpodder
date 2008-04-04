@@ -394,6 +394,11 @@ class MP3PlayerDevice(Device):
     # .scrobbler.log, add them to this list
     scrobbler_log_filenames = ['.scrobbler.log']
 
+    # This is the maximum length of a file name that is
+    # created on the MP3 player, because FAT32 has a
+    # 255-character limit for the whole path
+    MAX_FILENAME_LENGTH = 100
+
     def __init__(self):
         Device.__init__(self)
 
@@ -437,6 +442,10 @@ class MP3PlayerDevice(Device):
         if gl.config.fssync_channel_subfolders:
             # Add channel title as subfolder
             folder = episode.channel.title
+            # Don't allow extremely long folder names (filesystem limitations)
+            if len(folder) > self.MAX_FILENAME_LENGTH:
+                log('Limiting folder "%s" to %d characters.', folder, self.MAX_FILENAME_LENGTH, sender=self)
+                folder = folder[:self.MAX_FILENAME_LENGTH]
             folder = re.sub('[/|?*<>:+\[\]\"\\\]', '_', folder.encode(self.enc, 'ignore'))
             folder = os.path.join(self.destination, folder)
         else:
@@ -446,10 +455,10 @@ class MP3PlayerDevice(Device):
 
         filename_base = episode.sync_filename()
 
-        # don't allow extremely long file names: cut the
-        # filename at 50 chars (to make FAT-based drives happy)
-        if len(filename_base) > 50:
-            filename_base = filename_base[:50]
+        # don't allow extremely long file names (filesystem limitations)
+        if len(filename_base) > self.MAX_FILENAME_LENGTH:
+            log('Limiting filename "%s" to %d characters.', filename_base, self.MAX_FILENAME_LENGTH, sender=self)
+            filename_base = filename_base[:self.MAX_FILENAME_LENGTH]
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
