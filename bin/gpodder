@@ -60,7 +60,7 @@ def main( argv = sys.argv):
     domain = 'gpodder'
     gettext.bindtextdomain( domain, locale_dir)
     gettext.textdomain( domain)
-    gettext.install( domain)
+    gettext.install(domain, locale_dir, unicode=True)
 
     s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
     s_version = '%%prog %s' % ( __version__ )
