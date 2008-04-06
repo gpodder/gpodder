@@ -1,3 +1,42 @@
+Sun, 06 Apr 2008 02:05:34 +0200 <thp@perli.net>
+Initial upstream support for the Maemo platform (Nokia Internet Tablets)
+
+	* bin/gpodder: Add "--maemo/-m" option to enable running as a Maemo
+	application (this is only useful on Nokia Internet Tablets or in the
+	Maemo SDK environment); determine interface type and set the correct
+	variables on startup (gpodder.interface)
+	* data/gpodder.glade: Increase the default size of some widgets to
+	better fit the screens on Maemo (it won't do any harm on the "big"
+	Desktop screen
+	* data/icons/26/gpodder.png: Added
+	* data/icons/40/gpodder.png: Added
+	* data/maemo/gpodder.desktop: Added
+	* Makefile: Help2man variable; new "make mtest" target that runs
+	gPodder in Maemo scratchbox (probably useless for all other things);
+	update the command descriptions; don't run the "generators" target
+	from the "install" target; don't run "gen_graphics" from the
+	"generators" target, but make it depend on the 24-pixel logo, which
+	itself depends on the 22-pixel logo; this way, all should work out
+	well when trying to install on systems without ImageMagick installed;
+	remove *.pyo files on "make clean"
+	* setup.py: Support for build targets; use "TARGET=maemo" to enable
+	Maemo-specific installation options and files
+	* src/gpodder/config.py: Increase the WRITE_TO_DISK_TIMEOUT to 60
+	seconds, so we don't unnecessarily stress memory cards (on ITs);
+	modify default path variables on Maemo (/media/mmc2)
+	* src/gpodder/gui.py: Maemo-specific changes; clean-up the main window
+	a bit and make message and confirmation dialogs Hildon-compatible
+	* src/gpodder/__init__.py: Add enums for interface types: CLI, GUI and
+	MAEMO; remove the "interface_is_gui" variable and replace with
+	"interface", which is now used to determine where we are running
+	* src/gpodder/libgpodder.py: Use /media/mmc2/gpodder/ as configuration
+	folder on Maemo; use Nokia's Media player to playback files on Maemo
+	* src/gpodder/libpodcasts.py: Icon name changes (Maemo-specific)
+	* src/gpodder/trayicon.py: Maemo support; swap popup menu on Maemo;
+	Add support for hildon banners instead of pynotify on Maemo
+	* src/gpodder/util.py: Icon name changes (Maemo-specific); use new
+	gpodder.interface variable in idle_add
+
 Sat, 05 Apr 2008 21:06:14 +0200 <thp@perli.net>
 Make i18n help text work in the console help (gpodder --help)
 

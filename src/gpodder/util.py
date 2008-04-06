@@ -61,6 +61,13 @@ import StringIO
 import xml.dom.minidom
 
 
+if gpodder.interface == gpodder.GUI:
+    ICON_UNPLAYED = gtk.STOCK_YES
+    ICON_LOCKED = 'emblem-nowrite'
+elif gpodder.interface == gpodder.MAEMO:
+    ICON_UNPLAYED = 'qgn_list_gene_favor'
+    ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
+
 def make_directory( path):
     """
     Tries to create a directory if it does not exist already.
@@ -427,6 +434,7 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
     the cache is supplied again and the icon is found in 
     the cache.
     """
+    global ICON_UNPLAYED, ICON_LOCKED
 
     if icon_cache != None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
         return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
@@ -444,18 +452,19 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
         if add_bullet:
             try:
                 icon = icon.copy()
-                emblem = icon_theme.load_icon(gtk.STOCK_YES, int(float(icon_size)*1.2/3.0), 0)
-                size = emblem.get_width()
-                pos = icon.get_width() - size
-                emblem.composite(icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+                emblem = icon_theme.load_icon(ICON_UNPLAYED, int(float(icon_size)*1.2/3.0), 0)
+                (width, height) = (emblem.get_width(), emblem.get_height())
+                xpos = icon.get_width() - width
+                ypos = icon.get_height() - height
+                emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
             except:
                 log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
         if add_padlock:
             try:
                 icon = icon.copy()
-                emblem = icon_theme.load_icon('emblem-nowrite', int(float(icon_size)/2.0), 0)
-                size = emblem.get_width()
-                emblem.composite(icon, 0, 0, size, size, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+                emblem = icon_theme.load_icon(ICON_LOCKED, int(float(icon_size)/2.0), 0)
+                (width, height) = (emblem.get_width(), emblem.get_height())
+                emblem.composite(icon, 0, 0, width, height, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
             except:
                 log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
 
@@ -650,7 +659,7 @@ def idle_add(func, *args):
     call the function later - this is needed for
     threads to be able to modify GTK+ widget data.
     """
-    if gpodder.interface_is_gui:
+    if gpodder.interface in (gpodder.GUI, gpodder.MAEMO):
         def x(f, *a):
             f(*a)
             return False

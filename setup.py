@@ -22,6 +22,8 @@ import glob
 import os
 from distutils.core import setup
 
+# build targets
+(DEFAULT, MAEMO) = range(2)
 
 # read the version from the gpodder main program
 gpodder_version = os.popen( "cat bin/gpodder |grep ^__version__.*=|cut -d\\\" -f2").read().strip()
@@ -29,6 +31,13 @@ gpodder_version = os.popen( "cat bin/gpodder |grep ^__version__.*=|cut -d\\\" -f
 # translations
 languages = [ "de", "fr", "sv", "it", "pt", "es", "nl", "ru", "uk", "gl", "cs" ]
 translation_files = []
+
+# build target
+if 'TARGET' in os.environ:
+    if os.environ['TARGET'].strip().lower() == 'maemo':
+        target = MAEMO
+else:
+    target = DEFAULT
 
 # add translated files to translations dictionary
 for l in languages:
@@ -38,8 +47,11 @@ for l in languages:
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share    = [ 'data/gpodder.glade' ]
 inst_desktop  = [ 'data/gpodder.desktop' ]
+inst_desktop_maemo  = [ 'data/maemo/gpodder.desktop' ]
 
 inst_icons    = [ 'data/gpodder.png' ]
+inst_icons_40 = [ 'data/icons/40/gpodder.png' ]
+inst_icons_26 = [ 'data/icons/26/gpodder.png' ]
 inst_icons_24 = [ 'data/icons/24/gpodder.png' ]
 inst_icons_22 = [ 'data/icons/22/gpodder.png' ]
 inst_icons_16 = [ 'data/icons/16/gpodder.png' ]
@@ -48,15 +60,27 @@ inst_icons_svg = [ 'data/gpodder.svg' ]
 data_files = [
   ('share/man/man1',       inst_manpages),
   ('share/gpodder',        inst_share),
-  ('share/applications',   inst_desktop),
-  ('share/pixmaps',        inst_icons),
-
-  ('share/icons/hicolor/scalable/apps', inst_icons_svg),
-  ('share/icons/hicolor/48x48/apps', inst_icons),
-  ('share/icons/hicolor/24x24/apps', inst_icons_24),
-  ('share/icons/hicolor/22x22/apps', inst_icons_22),
-  ('share/icons/hicolor/16x16/apps', inst_icons_16),
 ]
+
+# target-specific installation data files
+if target == DEFAULT:
+    data_files += [
+      ('share/applications', inst_desktop),
+      ('share/icons/hicolor/scalable/apps', inst_icons_svg),
+      ('share/icons/hicolor/48x48/apps', inst_icons),
+      ('share/icons/hicolor/24x24/apps', inst_icons_24),
+      ('share/icons/hicolor/22x22/apps', inst_icons_22),
+      ('share/icons/hicolor/16x16/apps', inst_icons_16),
+      ('share/pixmaps', inst_icons),
+    ]
+elif target == MAEMO:
+    data_files += [
+      ('share/applications/hildon', inst_desktop_maemo),
+      ('share/icons/hicolor/scalable/apps', inst_icons),
+      ('share/icons/hicolor/40x40/apps', inst_icons_40),
+      ('share/icons/hicolor/26x26/apps', inst_icons_26),
+    ]
+
 
 setup(
   name         = 'gpodder',

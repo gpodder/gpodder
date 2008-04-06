@@ -75,6 +75,10 @@ def main( argv = sys.argv):
                       action="store_true", dest="local", default=False,
                       help=_("Run local version in current directory"))
     
+    parser.add_option("-m", "--maemo",
+                      action="store_true", dest="maemo", default=False,
+                      help=_("Start the Maemo user interface of gPodder"))
+    
     parser.add_option("-l", "--list",
                       action="store_true", dest="list", default=False,
                       help=_("List all channel subscriptions"))
@@ -105,6 +109,14 @@ def main( argv = sys.argv):
 
     import gpodder
     gpodder.user_agent = 'gPodder/%s (+http://gpodder.berlios.de/)' % __version__
+    
+    if options.maemo:
+        gpodder.interface = gpodder.MAEMO
+    elif options.list or options.run or options.update or \
+            options.sync or options.add or options.delete:
+        gpodder.interface = gpodder.CLI
+    else:
+        gpodder.interface = gpodder.GUI
 
     if options.verbose:
         from gpodder.liblogger import enable_verbose
@@ -125,7 +137,6 @@ def main( argv = sys.argv):
         console.del_channel( options.delete)
     else:
         #default run gui
-        gpodder.interface_is_gui = True
         from gpodder import gui
         from gpodder.SimpleGladeApp import bindtextdomain
         import gtk.glade

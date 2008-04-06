@@ -34,6 +34,7 @@ from threading import Event
 from threading import Thread
 from string import strip
 
+import gpodder
 from gpodder import util
 from gpodder import opml
 from gpodder import services
@@ -60,6 +61,12 @@ from gpodder.libgpodder import gl
 from libplayers import UserAppsReader
 
 from libtagupdate import tagging_supported
+
+if gpodder.interface == gpodder.GUI:
+    WEB_BROWSER_ICON = 'web-browser'
+elif gpodder.interface == gpodder.MAEMO:
+    import hildon
+    WEB_BROWSER_ICON = 'qgn_toolb_browser_web'
 
 app_name = "gpodder"
 app_version = "unknown" # will be set in main() call
@@ -114,15 +121,16 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             # If we have a child window, set it transient for our main window
             getattr( self, root).set_transient_for( GladeWidget.gpodder_main_window)
 
-            if hasattr( self, 'center_on_widget'):
-                ( x, y ) = self.gpodder_main_window.get_position()
-                a = self.center_on_widget.allocation
-                ( x, y ) = ( x + a.x, y + a.y )
-                ( w, h ) = ( a.width, a.height )
-                ( pw, ph ) = getattr( self, root).get_size()
-                getattr( self, root).move( x + w/2 - pw/2, y + h/2 - ph/2)
-            else:
-                getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+            if gpodder.interface == gpodder.GUI:
+                if hasattr( self, 'center_on_widget'):
+                    ( x, y ) = self.gpodder_main_window.get_position()
+                    a = self.center_on_widget.allocation
+                    ( x, y ) = ( x + a.x, y + a.y )
+                    ( w, h ) = ( a.width, a.height )
+                    ( pw, ph ) = getattr( self, root).get_size()
+                    getattr( self, root).move( x + w/2 - pw/2, y + h/2 - ph/2)
+                else:
+                    getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
 
     def notification(self, message, title=None):
         util.idle_add(self.show_message, message, title)
@@ -133,31 +141,37 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
                 title = 'gPodder'
             self.tray_icon.send_notification(message, title)            
             return
-
-        dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-
-        if title:
-            dlg.set_title(str(title))
-            dlg.set_markup( '<span weight="bold" size="larger">%s</span>\n\n%s' % ( title, message ))
-        else:
-            dlg.set_markup( '<span weight="bold" size="larger">%s</span>' % ( message ))
+        
+        if gpodder.interface == gpodder.GUI:
+            dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+            if title:
+                dlg.set_title(str(title))
+                dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+            else:
+                dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+        elif gpodder.interface == gpodder.MAEMO:
+            dlg = hildon.Note('information', (GladeWidget.gpodder_main_window, message))
         
         dlg.run()
         dlg.destroy()
 
     def show_confirmation( self, message, title = None):
-        dlg = gtk.MessageDialog( GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
-
-        if title:
-            dlg.set_title( title)
-            dlg.set_markup( '<span weight="bold" size="larger">%s</span>\n\n%s' % ( title, message ))
-        else:
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % message)
+        if gpodder.interface == gpodder.GUI:
+            affirmative = gtk.RESPONSE_YES
+            dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
+            if title:
+                dlg.set_title(str(title))
+                dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+            else:
+                dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+        elif gpodder.interface == gpodder.MAEMO:
+            affirmative = gtk.RESPONSE_OK
+            dlg = hildon.Note('confirmation', (GladeWidget.gpodder_main_window, message))
 
         response = dlg.run()
         dlg.destroy()
         
-        return response == gtk.RESPONSE_YES
+        return response == affirmative
 
     def show_copy_dialog( self, src_filename, dst_filename = None, dst_directory = None, title = _('Select destination')):
         if dst_filename is None:
@@ -198,9 +212,52 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 class gPodder(GladeWidget):
     def new(self):
+        if gpodder.interface == gpodder.MAEMO:
+            # Maemo-specific changes to the UI
+            global scalable_dir
+            scalable_dir = scalable_dir.replace('.svg', '.png')
+            
+            self.app = hildon.Program()
+            gtk.set_application_name('gPodder')
+            self.window = hildon.Window()
+            self.window.connect('delete-event', self.on_gPodder_delete_event)
+            self.window.connect('window-state-event', self.window_state_event)
+            self.window.connect('key-press-event', self.on_key_press)
+            
+            # Give toolbar to the hildon window
+            self.toolbar.parent.remove(self.toolbar)
+            self.toolbar.set_style(gtk.TOOLBAR_ICONS)
+            self.window.add_toolbar(self.toolbar)
+         
+            self.app.add_window(self.window)
+            self.vMain.reparent(self.window)
+            self.gPodder.destroy()
+            self.gPodder = self.window
+
+            self.set_title(_('Podcasts'))
+            
+            # Reparent the main menu
+            menu = gtk.Menu()
+            for child in self.mainMenu.get_children():
+                child.reparent(menu)
+            self.itemClose.reparent(menu)
+            self.trennlinie3.parent.remove(self.trennlinie3)
+            self.window.set_menu(menu)
+         
+            self.mainMenu.destroy()
+            self.window.show_all()
+            
+            # do some widget hiding
+            self.toolbar.remove(self.toolTransfer)
+            self.itemTransferSelected.hide_all()
+            self.separator11.hide_all()
+            self.label120.set_text(_('Update feeds'))
+            self.label120.set_padding(0, 10)
+        
         self.uar = None
         self.tray_icon = None
 
+        self.fullscreen = False
         self.minimized = False
         self.gPodder.connect('window-state-event', self.window_state_event)
         
@@ -224,10 +281,12 @@ class gPodder(GladeWidget):
         while gtk.events_pending():
             gtk.main_iteration( False)
 
-        if app_version.rfind( "svn") != -1:
-            self.gPodder.set_title( 'gPodder %s' % app_version)
+        self.default_title = None
+        if app_version.rfind('svn') != -1:
+            self.set_title('gPodder %s' % app_version)
+        else:
+            self.set_title(self.gPodder.get_title())
 
-        self.default_title = self.gPodder.get_title()
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         # cell renderers for channel tree
@@ -248,6 +307,7 @@ class gPodder(GladeWidget):
         namecolumn.add_attribute( iconcell, 'pixbuf', 3)
 
         self.treeChannels.append_column( namecolumn)
+        self.treeChannels.set_headers_visible(False)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -262,11 +322,18 @@ class gPodder(GladeWidget):
         self.last_tooltip_channel = None
 
         # Add our context menu to treeAvailable
-        self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
+        if gpodder.interface == gpodder.MAEMO:
+            self.treeAvailable.connect('button-release-event', self.treeview_button_pressed)
+        else:
+            self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
         self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
 
         iconcell = gtk.CellRendererPixbuf()
-        iconcolumn = gtk.TreeViewColumn( _("Status"), iconcell, pixbuf = 4)
+        if gpodder.interface == gpodder.MAEMO:
+            status_column_label = ''
+        else:
+            status_column_label = _('Status')
+        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=4)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
@@ -284,6 +351,14 @@ class gPodder(GladeWidget):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
 
+        if gpodder.interface == gpodder.MAEMO:
+            # Due to screen space contraints, we
+            # hide these columns here by default
+            self.column_size = sizecolumn
+            self.column_released = releasecolumn
+            self.column_released.set_visible(False)
+            self.column_size.set_visible(False)
+
         # enable search in treeavailable
         self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
 
@@ -293,13 +368,17 @@ class gPodder(GladeWidget):
         
         # columns and renderers for "download progress" tab
         episodecell = gtk.CellRendererText()
+        episodecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         episodecolumn = gtk.TreeViewColumn( _("Episode"), episodecell, text=0)
+        episodecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        episodecolumn.set_expand(True)
         
         speedcell = gtk.CellRendererText()
         speedcolumn = gtk.TreeViewColumn( _("Speed"), speedcell, text=1)
         
         progresscell = gtk.CellRendererProgress()
         progresscolumn = gtk.TreeViewColumn( _("Progress"), progresscell, value=2)
+        progresscolumn.set_expand(True)
         
         for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
@@ -381,6 +460,8 @@ class gPodder(GladeWidget):
         self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'))
 
     def treeview_channels_button_pressed( self, treeview, event):
+        global WEB_BROWSER_ICON
+
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
             ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
@@ -425,7 +506,7 @@ class gPodder(GladeWidget):
 
             if self.active_channel.link:
                 item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: util.open_website(self.active_channel.link))
                 menu.append(item)
 
@@ -496,7 +577,11 @@ class gPodder(GladeWidget):
         Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
 
     def treeview_button_pressed( self, treeview, event):
-        if event.button == 3:
+        global WEB_BROWSER_ICON
+
+        # Use right-click for the Desktop version and left-click for Maemo
+        if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
+           (event.button == 3 and gpodder.interface == gpodder.GUI):
             ( x, y ) = ( int(event.x), int(event.y) )
             ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
 
@@ -622,14 +707,26 @@ class gPodder(GladeWidget):
                 # If we have it, also add episode website link
                 if episode and episode.link and episode.link != episode.url:
                     item = gtk.ImageMenuItem(_('Visit website'))
-                    item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                    item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: util.open_website(episode.link))
                     menu.append(item)
+            
+            if gpodder.interface == gpodder.MAEMO:
+                # Because we open the popup on left-click for Maemo,
+                # we also include a non-action to close the menu
+                menu.append(gtk.SeparatorMenuItem())
+                item = gtk.ImageMenuItem(_('Close this menu'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
+                menu.append(item)
 
             menu.show_all()
             menu.popup( None, None, None, event.button, event.time)
 
             return True
+
+    def set_title(self, new_title):
+        self.default_title = new_title
+        self.gPodder.set_title(new_title)
 
     def download_progress_updated( self, count, percentage):
         title = [ self.default_title ]
@@ -973,6 +1070,12 @@ class gPodder(GladeWidget):
         if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.name not in ('toolQuit', 'itemClose'):
             self.iconify_main_window()
         elif gl.config.on_quit_ask or downloading:
+            if gpodder.interface == gpodder.MAEMO:
+                result = self.show_confirmation(_('Do you really want to quit gPodder now?'))
+                if result:
+                    self.close_gpodder()
+                else:
+                    return True
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             if self.tray_icon:
@@ -1146,7 +1249,7 @@ class gPodder(GladeWidget):
                                    callback=self.download_episode_list)
         else:
             title = _('No new episodes')
-            message = _('There are no new episodes to download from your podcast subscriptions. Please check for new episodes later.')
+            message = _('No new episodes to download.\nPlease check for new episodes later.')
             self.show_message(message, title)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
@@ -1352,24 +1455,30 @@ class gPodder(GladeWidget):
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
-            dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
-            dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
-            dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
+            if gpodder.interface == gpodder.GUI:
+                dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
+                dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
+                dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
 
-            title = _('Remove channel and episodes?')
-            message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
-
-            dialog.set_title(title)
-            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-
-            cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
-            dialog.vbox.pack_start(cb_ask)
-            cb_ask.show_all()
+                title = _('Remove channel and episodes?')
+                message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
+             
+                dialog.set_title(title)
+                dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+            
+                cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
+                dialog.vbox.pack_start(cb_ask)
+                cb_ask.show_all()
+                affirmative = gtk.RESPONSE_YES
+            elif gpodder.interface == gpodder.MAEMO:
+                cb_ask = gtk.CheckButton('') # dummy check button
+                dialog = hildon.Note('confirmation', (self.gPodder, _('Do you really want to remove this channel and all downloaded episodes?')))
+                affirmative = gtk.RESPONSE_OK
 
             result = dialog.run()
             dialog.destroy()
 
-            if result == gtk.RESPONSE_YES:
+            if result == affirmative:
                 # delete downloaded episodes only if checkbox is unchecked
                 if cb_ask.get_active() == False:
                     self.active_channel.remove_downloaded()
@@ -1429,21 +1538,27 @@ class gPodder(GladeWidget):
         dlg = gtk.AboutDialog()
         dlg.set_name(app_name.replace('p', 'P')) # gpodder->gPodder
         dlg.set_version( app_version)
-        dlg.set_authors( app_authors)
         dlg.set_copyright( app_copyright)
         dlg.set_website( app_website)
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect( 'response', lambda dlg, response: dlg.destroy())
 
-        try:
-            dlg.set_logo( gtk.gdk.pixbuf_new_from_file_at_size( scalable_dir, 200, 200))
-        except:
-            pass
+        if gpodder.interface == gpodder.GUI:
+            # For the "GUI" version, we add some more
+            # items to the about dialog (credits and logo)
+            dlg.set_authors(app_authors)
+            try:
+                dlg.set_logo(gtk.gdk.pixbuf_new_from_file_at_size(scalable_dir, 200, 200))
+            except:
+                pass
         
         dlg.run()
 
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
+        if gpodder.interface == gpodder.MAEMO:
+            page = self.wNotebook.get_nth_page(page_num)
+            self.set_title(self.wNotebook.get_tab_label(page).get_text())
         if page_num == 0:
             self.play_or_download()
         else:
@@ -1464,6 +1579,9 @@ class gPodder(GladeWidget):
 
             self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
             self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
+            if gpodder.interface == gpodder.MAEMO:
+                self.label2.set_text(self.active_channel.title)
+                self.set_title(self.active_channel.title)
             self.itemEditChannel.show_all()
             self.itemRemoveChannel.show_all()
         else:
@@ -1649,8 +1767,42 @@ class gPodder(GladeWidget):
         self.treeAvailable.get_selection().select_all()
         self.on_btnDownloadedDelete_clicked( widget, args)
         self.treeAvailable.get_selection().unselect_all()
+
+    def on_key_press(self, widget, event):
+        # Currently, we only handle Maemo hardware keys here,
+        # so if we are not a Maemo app, we don't do anything!
+        if gpodder.interface != gpodder.MAEMO:
+            return
+        
+        if event.keyval == gtk.keysyms.F6:
+            if self.fullscreen:
+                self.window.unfullscreen()
+            else:
+                self.window.fullscreen()
+        if event.keyval == gtk.keysyms.Escape:
+            new_visibility = not self.vboxChannelNavigator.get_property('visible')
+            self.vboxChannelNavigator.set_property('visible', new_visibility)
+            self.column_size.set_visible(not new_visibility)
+            self.column_released.set_visible(not new_visibility)
+        
+        diff = 0
+        if event.keyval == gtk.keysyms.F7: #plus
+            diff = 1
+        elif event.keyval == gtk.keysyms.F8: #minus
+            diff = -1
+
+        if diff != 0:
+            selection = self.treeChannels.get_selection()
+            (model, iter) = selection.get_selected()
+            selection.select_path(((model.get_path(iter)[0]+diff)%len(model),))
+            self.on_treeChannels_cursor_changed(self.treeChannels)
         
     def window_state_event(self, widget, event):
+        if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
+            self.fullscreen = True
+        else:
+            self.fullscreen = False
+            
         old_minimized = self.minimized
 
         if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
@@ -1676,6 +1828,8 @@ class gPodder(GladeWidget):
 
 class gPodderChannel(GladeWidget):
     def new(self):
+        global WEB_BROWSER_ICON
+        self.image3167.set_property('icon-name', WEB_BROWSER_ICON)
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
         self.entryURL.set_text( self.channel.url)
@@ -1782,6 +1936,18 @@ class gPodderProperties(GladeWidget):
         if not hasattr( self, 'callback_finished'):
             self.callback_finished = None
 
+        if gpodder.interface == gpodder.MAEMO:
+            self.table13.hide_all() # bluetooth
+            self.table5.hide_all() # player
+            self.table6.hide_all() # bittorrent
+            # start from web importer
+            self.hseparator3.hide_all()
+            self.label87.hide_all()
+            self.image2423.hide_all()
+            self.opmlURL.hide_all()
+            # end from web importer
+            self.gPodderProperties.fullscreen()
+
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
         gl.config.connect_gtk_editable( 'ftp_proxy', self.ftpProxy)
         gl.config.connect_gtk_editable( 'player', self.openApp)
@@ -1861,7 +2027,9 @@ class gPodderProperties(GladeWidget):
         if not hasattr(self, 'user_apps_reader'):
             self.user_apps_reader = UserAppsReader(['audio', 'video'])
 
-        self.user_apps_reader.read()
+        if gpodder.interface == gpodder.GUI:
+            self.user_apps_reader.read()
+
         self.comboAudioPlayerApp.set_model(self.user_apps_reader.get_applications_as_model('audio'))
         index = self.find_active_audio_app()
         self.comboAudioPlayerApp.set_active(index)
@@ -2135,10 +2303,16 @@ class gPodderProperties(GladeWidget):
 
 class gPodderEpisode(GladeWidget):
     def new(self):
+        global WEB_BROWSER_ICON
+        self.image3166.set_property('icon-name', WEB_BROWSER_ICON)
         services.download_status_manager.register( 'list-changed', self.on_download_status_changed)
         services.download_status_manager.register( 'progress-detail', self.on_download_status_progress)
 
         self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % saxutils.escape( self.episode.title))
+
+        if gpodder.interface == gpodder.MAEMO:
+            # Hide the advanced prefs expander
+            self.expander1.hide_all()
 
         b = gtk.TextBuffer()
         b.set_text( strip( self.episode.description))

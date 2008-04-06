@@ -37,6 +37,7 @@ from gpodder import cache
 from gpodder import services
 from gpodder import draw
 
+import gpodder
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
@@ -75,6 +76,23 @@ import string
 from gpodder import dumbshelve
 
 global_lock = threading.RLock()
+
+
+if gpodder.interface == gpodder.GUI:
+    ICON_AUDIO_FILE = 'audio-x-generic'
+    ICON_VIDEO_FILE = 'video-x-generic'
+    ICON_BITTORRENT = 'applications-internet'
+    ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
+    ICON_DELETED = gtk.STOCK_DELETE
+    ICON_NEW = gtk.STOCK_NEW
+elif gpodder.interface == gpodder.MAEMO:
+    ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
+    ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
+    ICON_BITTORRENT = 'qgn_toolb_browser_web'
+    ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
+    ICON_DELETED = 'qgn_toolb_gene_deletebutton'
+    ICON_NEW = 'qgn_list_gene_favor'
+
 
 class ChannelSettings(object):
     storage = dumbshelve.open_shelve(gl.channel_settings_file)
@@ -448,6 +466,9 @@ class podcastChannel(ListType):
         return self.__tree_model
 
     def iter_set_downloading_columns( self, model, iter, new_episodes = []):
+        global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_BITTORRENT
+        global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
+        
         url = model.get_value( iter, 0)
         local_filename = model.get_value( iter, 8)
         played = not gl.history_is_played(url)
@@ -461,20 +482,20 @@ class podcastChannel(ListType):
         if os.path.exists( local_filename):
             file_type = util.file_type_by_extension( util.file_extension_from_url(url))
             if file_type == 'audio':
-                status_icon = util.get_tree_icon('audio-x-generic', played, locked, self.icon_cache, icon_size)
+                status_icon = util.get_tree_icon(ICON_AUDIO_FILE, played, locked, self.icon_cache, icon_size)
             elif file_type == 'video':
-                status_icon = util.get_tree_icon('video-x-generic', played, locked, self.icon_cache, icon_size)
+                status_icon = util.get_tree_icon(ICON_VIDEO_FILE, played, locked, self.icon_cache, icon_size)
             elif file_type == 'torrent':
-                status_icon = util.get_tree_icon('applications-internet', played, locked, self.icon_cache, icon_size)
+                status_icon = util.get_tree_icon(ICON_BITTORRENT, played, locked, self.icon_cache, icon_size)
             else:
                 status_icon = util.get_tree_icon('unknown', played, locked, self.icon_cache, icon_size)
             
         elif services.download_status_manager.is_download_in_progress(url):
-            status_icon = util.get_tree_icon(gtk.STOCK_GO_DOWN, icon_cache=self.icon_cache, icon_size=icon_size)
+            status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
         elif gl.history_is_downloaded(url):
-            status_icon = util.get_tree_icon(gtk.STOCK_DELETE, icon_cache=self.icon_cache, icon_size=icon_size)
+            status_icon = util.get_tree_icon(ICON_DELETED, icon_cache=self.icon_cache, icon_size=icon_size)
         elif url in [e.url for e in new_episodes]:
-            status_icon = util.get_tree_icon(gtk.STOCK_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
+            status_icon = util.get_tree_icon(ICON_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
             status_icon = None
 

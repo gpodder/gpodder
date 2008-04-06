@@ -26,6 +26,7 @@ MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gui.py
 LOGO_22=data/icons/22/gpodder.png
 LOGO_24=data/icons/24/gpodder.png
+HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
@@ -50,16 +51,17 @@ all: help
 
 help:
 	@echo 'make test            run gpodder in local directory'
+	@echo 'make mtest           run gpodder (for maemo scratchbox)'
 	@echo 'make cl              make new changelog entry (1)'
 	@echo 'make ci              format a commit message from the changelog'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
 	@echo 'make install         install gpodder into "$(PREFIX)"'
 	@echo 'make uninstall       uninstall gpodder from "$(PREFIX)"'
-	@echo 'make generators      generate manpage, run tepache and resize logo'
+	@echo 'make generators      generate manpage and icons (if needed)'
 	@echo 'make messages        rebuild messages.pot from new source'
 	@echo 'make rosetta-upload  generate a tarball of all translation files'
-	@echo 'make clean           remove generated+temp+*.pyc files'
+	@echo 'make clean           remove generated+temp+*.py{c,o} files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo ''
 	@echo '(1) Please set environment variable "EMAIL" to your e-mail address'
@@ -86,6 +88,10 @@ test:
 	@echo -ne '\033]0;gPodder console (make test)\007'
 	$(BINFILE) --local --verbose
 
+mtest:
+	@# in maemo scratchbox, we need this for osso/hildon
+	run-standalone.sh $(BINFILE) --local --maemo --verbose
+
 deb:
 	debuild
 
@@ -96,7 +102,7 @@ releasetest:
 	if grep -q '^__version__.*=.*+svn' $(BINFILE); then echo "Version is still '+svn'."; exit 1; fi
 	desktop-file-validate data/gpodder.desktop
 
-install: generators
+install:
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 update-icons:
@@ -112,19 +118,22 @@ uninstall:
 
 ##########################################################################
 
-generators: $(MANPAGE) gen_graphics
+generators: $(MANPAGE) $(LOGO_24)
 	make -C data/po update
 
 messages: gen_gettext
 
 $(MANPAGE): $(BINFILE)
-	help2man --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
+	$(HELP2MAN) --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
+
+data/maemo/gpodder.desktop: data/gpodder.desktop
+	sed -e 's/^Exec=gpodder$$/Exec=gpodder --maemo/g' <data/gpodder.desktop >data/maemo/gpodder.desktop
 
 gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
 	make -C data/po update
 
-gen_graphics:
+$(LOGO_24): $(LOGO_22)
 	convert -bordercolor Transparent -border 1x1 $(LOGO_22) $(LOGO_24)
 
 $(GLADEGETTEXT): $(GLADEFILE)
@@ -144,7 +153,7 @@ $(ROSETTA_ARCHIVE):
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE)
+	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE)
 	rm -rf build
 	make -C data/po clean
 

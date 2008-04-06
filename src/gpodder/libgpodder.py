@@ -31,6 +31,7 @@ import urllib
 import shutil
 import xml.dom.minidom
 
+import gpodder
 from gpodder import util
 from gpodder import opml
 from gpodder import config
@@ -45,10 +46,17 @@ from liblogger import log
 
 import shlex
 
+if gpodder.interface == gpodder.MAEMO:
+    import osso
+
 class gPodderLib(object):
     def __init__( self):
         log('Creating gPodderLib()', sender=self)
-        gpodder_dir = os.path.expanduser( '~/.config/gpodder/')
+        if gpodder.interface == gpodder.MAEMO:
+            gpodder_dir = '/media/mmc2/gpodder/'
+            self.osso_c = osso.Context('gpodder_osso_sender', '1.0', False)
+        else:
+            gpodder_dir = os.path.expanduser('~/.config/gpodder/')
         util.make_directory( gpodder_dir)
 
         self.tempdir = gpodder_dir
@@ -195,6 +203,15 @@ class gPodderLib(object):
     def playback_episode( self, channel, episode):
         self.history_mark_played( episode.url)
         filename = episode.local_filename()
+
+        if gpodder.interface == gpodder.MAEMO:
+            # Use the built-in Nokia Mediaplayer here
+            filename = filename.encode('utf-8')
+            osso_rpc = osso.Rpc(self.osso_c)
+            service = 'com.nokia.mediaplayer'
+            path = '/com/nokia/mediaplayer'
+            osso_rpc.rpc_run(service, path, service, 'mime_open', ('file://'+filename,))
+            return (True, service)
 
         # Determine the file type and set the player accordingly.  
         file_type = util.file_type_by_extension(util.file_extension_from_url(episode.url))

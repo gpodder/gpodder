@@ -20,6 +20,9 @@
 # The User-Agent string for downloads
 user_agent = 'gPodder'
 
-# Are we running in GUI or console mode?
-interface_is_gui = False
+# Interface type enums
+(CLI, GUI, MAEMO) = range(3)
+
+# Are we running in GUI, Maemo or console mode?
+interface = CLI
 

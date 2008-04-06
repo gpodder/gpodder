@@ -27,6 +27,7 @@
 import gtk
 import pango
 
+import gpodder
 from gpodder import util
 from gpodder.liblogger import log
 
@@ -35,6 +36,13 @@ import os.path
 import time
 import threading
 import ConfigParser
+
+if gpodder.interface == gpodder.GUI:
+    default_bittorrent_dir = os.path.expanduser('~/gpodder-downloads/torrents')
+    default_download_dir = os.path.expanduser('~/gpodder-downloads')
+elif gpodder.interface == gpodder.MAEMO:
+    default_bittorrent_dir = '/media/mmc2/gpodder/torrents'
+    default_download_dir = '/media/mmc2/gpodder/downloads'
 
 gPodderSettings = {
     # General settings
@@ -49,7 +57,7 @@ gPodderSettings = {
     'max_downloads_enabled': ( bool, False ), 
     'limit_rate': ( bool, False ),
     'limit_rate_value': ( float, 500.0 ),
-    'bittorrent_dir': ( str, os.path.expanduser( '~/gpodder-downloads/torrents') ),
+    'bittorrent_dir': (str, default_bittorrent_dir),
     'episode_old_age': ( int, 7 ),
 
     # Boolean config flags
@@ -89,7 +97,7 @@ gPodderSettings = {
     'ipod_mount': ( str, '/media/ipod' ),
     'mp3_player_folder': ( str, '/media/usbdisk' ),
     'device_type': ( str, 'none' ),
-    'download_dir': ( str, os.path.expanduser( '~/gpodder-downloads') ),
+    'download_dir': (str, default_download_dir),
 
     # Special settings (not in preferences)
     'default_new': ( int, 1 ),
@@ -109,6 +117,9 @@ gPodderSettings = {
 
 class Config(dict):
     Settings = gPodderSettings
+    
+    # Number of seconds after which settings are auto-saved
+    WRITE_TO_DISK_TIMEOUT = 60
 
     def __init__( self, filename = 'gpodder.conf'):
         dict.__init__( self)
@@ -210,7 +221,7 @@ class Config(dict):
             self.__save_thread.start()
 
     def save_thread_proc( self):
-        for i in range( 100):
+        for i in range(self.WRITE_TO_DISK_TIMEOUT*10):
             if self.__save_thread != None:
                 time.sleep( .1)
         if self.__save_thread != None:
