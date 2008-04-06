@@ -102,7 +102,7 @@ releasetest:
 	if grep -q '^__version__.*=.*+svn' $(BINFILE); then echo "Version is still '+svn'."; exit 1; fi
 	desktop-file-validate data/gpodder.desktop
 
-install:
+install: generators
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 update-icons:

@@ -82,7 +82,7 @@ app_authors = [
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jessica Henline', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña',
-    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Michael Salim', 
+    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Mark Alford', 'Michael Salim', 
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
@@ -429,9 +429,7 @@ class gPodder(GladeWidget):
         util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
 
     def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
-        # FIXME: Do not hardcode treeview header height
-        HEADER_HEIGHT = 25
-        (path, column, rx, ry) = treeview.get_path_at_pos( x, y-HEADER_HEIGHT) or (None,)*4
+        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
         if path is not None:
             model = treeview.get_model()

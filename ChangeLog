@@ -1,3 +1,13 @@
+Sun, 06 Apr 2008 17:22:11 +0200 <thp@perli.net>
+Fix install Makefile bug; add donator; fix treeview header height
+
+	* Makefile: Add "generators" dependency for the "install" target
+	* src/gpodder/gui.py: Add Mark Alford (donator) to contributors list;
+	remove the hard-coded header height offset for the treeview, because
+	we don't need it anymore, because we hide the header (this is a good
+	thing, because we don't need to rely on a theme-specific header
+	height compared to what we did previously - one FIXME less :)
+
 Sun, 06 Apr 2008 02:05:34 +0200 <thp@perli.net>
 Initial upstream support for the Maemo platform (Nokia Internet Tablets)
 
