@@ -50,6 +50,7 @@ inst_desktop  = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo  = [ 'data/maemo/gpodder.desktop' ]
 
 inst_icons    = [ 'data/gpodder.png' ]
+inst_icons_64 = [ 'data/icons/64/gpodder.png' ]
 inst_icons_40 = [ 'data/icons/40/gpodder.png' ]
 inst_icons_26 = [ 'data/icons/26/gpodder.png' ]
 inst_icons_24 = [ 'data/icons/24/gpodder.png' ]
@@ -76,7 +77,7 @@ if target == DEFAULT:
 elif target == MAEMO:
     data_files += [
       ('share/applications/hildon', inst_desktop_maemo),
-      ('share/icons/hicolor/scalable/apps', inst_icons),
+      ('share/icons/hicolor/scalable/apps', inst_icons_64),
       ('share/icons/hicolor/40x40/apps', inst_icons_40),
       ('share/icons/hicolor/26x26/apps', inst_icons_26),
     ]
