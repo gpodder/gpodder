@@ -496,7 +496,12 @@ def updated_parsed_to_rfc2822( updated_parsed):
     old_locale = locale.getlocale( locale.LC_TIME)
     locale.setlocale( locale.LC_TIME, 'C')
     result = time.strftime( '%a, %d %b %Y %H:%M:%S GMT', updated_parsed)
-    locale.setlocale( locale.LC_TIME, old_locale)
+    if old_locale != (None, None):
+        try:
+            locale.setlocale( locale.LC_TIME, old_locale)
+        except:
+            log('Cannot revert locale to (%s, %s)', *old_locale)
+            pass
     return result
 
 

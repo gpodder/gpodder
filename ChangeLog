@@ -1,3 +1,10 @@
+Mon, 07 Apr 2008 23:06:53 +0200 <thp@perli.net>
+Makre sure we can re-set the locale after changing it
+
+	* src/gpodder/util.py: Make sure we can re-set the locale after
+	changing it, and if we cannot, only print a warning, but don't throw
+	the exception outside of the function
+
 Mon, 07 Apr 2008 23:05:05 +0200 <thp@perli.net>
 Add 64x64 icon for Maemo's main menu and install it
 
