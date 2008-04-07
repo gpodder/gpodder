@@ -58,8 +58,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
     # status: they are displayed as tooltip and add a small icon to the main icon
     STATUS_DOWNLOAD_IN_PROGRESS = (_('Downloading episodes'), gtk.STOCK_GO_DOWN)
-    STATUS_UPDATING_FEED_CACHE = (_('Looking for new episodes'), gtk.STOCK_FIND)
-    STATUS_SYNCHRONIZING = (_('Synchronizing to player'), gtk.STOCK_REFRESH)
+    STATUS_UPDATING_FEED_CACHE = (_('Looking for new episodes'), gtk.STOCK_REFRESH)
+    STATUS_SYNCHRONIZING = (_('Synchronizing to player'), 'multimedia-player')
     STATUS_DELETING = (_('Cleaning files'), gtk.STOCK_DELETE)
 
     # actions: buttons within the notify bubble
@@ -267,9 +267,10 @@ class GPodderStatusIcon(gtk.StatusIcon):
         try:
             new_icon = self.__icon.copy()
             emblem = gtk.icon_theme_get_default().load_icon(icon, int(new_icon.get_width()/1.5), 0)
-            size = emblem.get_width()
-            pos = new_icon.get_width()-size
-            emblem.composite(new_icon, pos, pos, size, size, pos, pos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+            (width, height) = (emblem.get_width(), emblem.get_height())
+            xpos = new_icon.get_width()-width
+            ypos = new_icon.get_height()-height
+            emblem.composite(new_icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
             self.__icon_cache[icon] = new_icon
             return new_icon
         except Exception, exc:
