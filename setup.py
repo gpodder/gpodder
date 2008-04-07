@@ -60,6 +60,7 @@ inst_icons_svg = [ 'data/gpodder.svg' ]
 data_files = [
   ('share/man/man1',       inst_manpages),
   ('share/gpodder',        inst_share),
+  ('share/pixmaps',        inst_icons),
 ]
 
 # target-specific installation data files
@@ -71,7 +72,6 @@ if target == DEFAULT:
       ('share/icons/hicolor/24x24/apps', inst_icons_24),
       ('share/icons/hicolor/22x22/apps', inst_icons_22),
       ('share/icons/hicolor/16x16/apps', inst_icons_16),
-      ('share/pixmaps', inst_icons),
     ]
 elif target == MAEMO:
     data_files += [
