@@ -178,16 +178,12 @@ class podcastChannel(ListType):
         if len(c.entries) > gl.config.max_episodes_per_feed:
             log('Limiting number of episodes for %s to %d', channel.title, gl.config.max_episodes_per_feed)
         for entry in c.entries[:min(gl.config.max_episodes_per_feed, len(c.entries))]:
-            if not hasattr( entry, 'enclosures'):
-                log('Skipping entry: %s', entry.get( 'id', '(no id available)'), sender = channel)
-                continue
-
             episode = None
 
             try:
                 episode = podcastItem.from_feedparser_entry( entry, channel)
             except:
-                log( 'Cannot instantiate episode: %s. Skipping.', entry.get( 'id', '(no id available)'), sender = channel)
+                log( 'Cannot instantiate episode: %s. Skipping.', entry.get( 'id', '(no id available)'), sender = channel, traceback=True)
 
             if episode:
                 channel.append( episode)
@@ -593,16 +589,24 @@ class podcastItem(object):
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
 
-        enclosure = entry.enclosures[0]
-        if len(entry.enclosures) > 1:
-            for e in entry.enclosures:
-                if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/')):
-                    if util.normalize_feed_url( e.href) != None:
-                        log( 'Selected enclosure: %s', e.href, sender = episode)
-                        enclosure = e
-                        break
+        enclosure = None
+        if hasattr(entry, 'enclosures') and len(entry.enclosures) > 0:
+            enclosure = entry.enclosures[0]
+            if len(entry.enclosures) > 1:
+                for e in entry.enclosures:
+                    if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/')):
+                        if util.normalize_feed_url( e.href) != None:
+                            log( 'Selected enclosure: %s', e.href, sender = episode)
+                            enclosure = e
+                            break
+            episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
+        elif hasattr(entry, 'link'):
+            extension = util.file_extension_from_url(entry.link)
+            file_type = util.file_type_by_extension(extension)
+            if file_type is not None:
+                log('Adding episode with link to file type "%s".', file_type, sender=episode)
+                episode.url = entry.link
 
-        episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
         if not episode.url:
             raise ValueError( 'Episode has an invalid URL')
 

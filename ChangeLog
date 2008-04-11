@@ -1,3 +1,13 @@
+Fri, 11 Apr 2008 10:11:33 +0200 <thp@perli.net>
+Make RSS .torrent feeds from different Torrent sites work
+
+	* src/gpodder/libpodcasts.py: If an episode doesn't have an enclosure,
+	but its link looks like it's a media/torrent file, we are going do
+	interpret that as the enclosure URL; this makes feeds from different
+	torrent sites work with gPodder; thanks to Josh Gardner
+	<mellowcellofellow@gmail.com> for reporting this bug on Bugzilla
+	(http://bugs.gpodder.org/show_bug.cgi?id=74)
+
 Tue, 08 Apr 2008 10:54:01 +0200 <thp@perli.net>
 Updated Spanish translation
 
