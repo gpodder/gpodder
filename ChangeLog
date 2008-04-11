@@ -1,3 +1,16 @@
+Fri, 11 Apr 2008 10:26:50 +0200 <thp@perli.net>
+Correct "Close" and "Quit" behaviour
+
+	* data/gpodder.glade: Add a "Close" menu item to the podcasts menu and
+	rename the quit item to "Quit" (from "Close) to make the interface
+	more consistent and to support both Ctrl+W and Ctrl+Q
+	* src/gpodder/gui.py: Correct "Close" and "Quit" behaviour and make
+	Close be the "minimize to tray" function when the tray icon is
+	enabled; when not enabled, "Close" acts the same way as "Quit" (but is
+	left visible, so the Ctrl+W shortcut also works to close gPodder);
+	thanks to Harley Laue for the suggestion and initial patch
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=89)
+
 Fri, 11 Apr 2008 10:11:33 +0200 <thp@perli.net>
 Make RSS .torrent feeds from different Torrent sites work
 

@@ -240,7 +240,7 @@ class gPodder(GladeWidget):
             menu = gtk.Menu()
             for child in self.mainMenu.get_children():
                 child.reparent(menu)
-            self.itemClose.reparent(menu)
+            self.itemQuit.reparent(menu)
             self.trennlinie3.parent.remove(self.trennlinie3)
             self.window.set_menu(menu)
          
@@ -522,6 +522,12 @@ class gPodder(GladeWidget):
             menu.popup( None, None, None, event.button, event.time)
 
             return True
+
+    def on_itemClose_activate(self, widget):
+        if self.tray_icon is not None:
+            self.iconify_main_window()
+        else:
+            self.on_gPodder_delete_event(widget)
 
     def save_episode_as_file( self, url, *args):
         episode = self.active_channel.find_episode( url)
@@ -1065,7 +1071,7 @@ class gPodder(GladeWidget):
 
         # Only iconify if we are using the window's "X" button,
         # but not when we are using "Quit" in the menu or toolbar
-        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.name not in ('toolQuit', 'itemClose'):
+        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.name not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
         elif gl.config.on_quit_ask or downloading:
             if gpodder.interface == gpodder.MAEMO:
@@ -1076,15 +1082,11 @@ class gPodder(GladeWidget):
                     return True
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            if self.tray_icon:
-                dialog.add_button(_('Hide gPodder'), gtk.RESPONSE_YES)
             dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
 
             title = _('Quit gPodder')
             if downloading:
                 message = _('You are downloading episodes. If you close gPodder now, the downloads will be aborted.')
-            elif self.tray_icon:
-                message = _('If you hide gPodder, it will continue to run in the system tray notification area.')
             else:
                 message = _('Do you really want to quit gPodder now?')
 
@@ -1101,13 +1103,7 @@ class gPodder(GladeWidget):
             if result == gtk.RESPONSE_CLOSE:
                 if not downloading and cb_ask.get_active() == True:
                     gl.config.on_quit_ask = False
-                    gl.config.on_quit_systray = False
                 self.close_gpodder()
-            elif result == gtk.RESPONSE_YES:
-                if not downloading and cb_ask.get_active() == True:
-                    gl.config.on_quit_ask = False
-                    gl.config.on_quit_systray = True
-                self.iconify_main_window()
         else:
             self.close_gpodder()
 
