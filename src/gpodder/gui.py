@@ -91,7 +91,7 @@ app_authors = [
     'Robert Young', 'Roel Groeneveld', 'Seth Remington', 'Shane Donohoe', 
     'Stephan Buys', 'Stylianos Papanastasiou', 'Teo Ramirez', 
     'Thomas Matthijs', 'Thomas Mills Hinkle', 'Thomas Nilsson', 
-    'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'VladDrac', 
+    'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'Tomas Matheson', 'VladDrac', 
     'Vladimir Zemlyakov', 'Wilfred van Rooijen',
     '',
     'List may be incomplete - please contact me.'
