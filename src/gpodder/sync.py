@@ -554,7 +554,7 @@ class MP3PlayerDevice(Device):
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
          
-            t = SyncTrack(title, length, modified, filename=filename)
+            t = SyncTrack(title, length, modified, filename=filename, playcount=0)
             tracks.append(t)
         return tracks
 

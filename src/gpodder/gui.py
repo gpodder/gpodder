@@ -86,7 +86,7 @@ app_authors = [
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
-    'Pavel Mlčoch', 'Peter Hoffmann', 'Pieter de Decker',
+    'Pavel Mlčoch', 'Peter Hoffmann', 'Philippe Gouaillier', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
     'Robert Young', 'Roel Groeneveld', 'Seth Remington', 'Shane Donohoe', 
     'Stephan Buys', 'Stylianos Papanastasiou', 'Teo Ramirez', 
@@ -2602,7 +2602,11 @@ class gPodderEpisodeSelector( GladeWidget):
         for index, episode in enumerate( self.episodes):
             row = [ self.selected[index] ]
             for name, caption in self.columns:
-                row.append( getattr( episode, name))
+                if not hasattr(episode, name):
+                    log('Warning: Missing attribute "%s"', name, sender=self)
+                    row.append(None)
+                else:
+                    row.append(getattr( episode, name))
             self.model.append( row)
 
         for label in self.selection_buttons:
