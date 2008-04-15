@@ -47,7 +47,7 @@ try:
     from gpodder import trayicon
     have_trayicon = True
 except Exception, exc:
-    log('Warning: Could not import gpodder.trayicon.')
+    log('Warning: Could not import gpodder.trayicon.', traceback=True)
     log('Warning: This probably means your PyGTK installation is too old!')
     have_trayicon = False
 
@@ -261,8 +261,8 @@ class gPodder(GladeWidget):
         self.minimized = False
         self.gPodder.connect('window-state-event', self.window_state_event)
         
-        self.show_hide_tray_icon()
         self.already_notified_new_episodes = []
+        self.show_hide_tray_icon()
 
         self.episode_description_shown = gl.config.episode_list_descriptions
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
@@ -922,9 +922,9 @@ class gPodder(GladeWidget):
                 # look for new episodes to notify
                 for channel in self.channels:
                     for episode in channel.get_new_episodes():
-                        if not episode.url in self.already_notified_new_episodes:
+                        if not episode in self.already_notified_new_episodes:
                             new_episodes.append(episode)
-                            self.already_notified_new_episodes.append(episode.url)
+                            self.already_notified_new_episodes.append(episode)
                 # notify new episodes
                                 
                 if len(new_episodes) == 0:

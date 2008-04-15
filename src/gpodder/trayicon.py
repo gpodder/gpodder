@@ -228,17 +228,21 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:
                 tooltip.append(_('downloading %d episodes')%count)
 
-            tooltip.append(' (%d%%)'%percentage)
+            tooltip.append(' (%d%%) :'%percentage)
+
+            downloading = []
+            for episode in self.__finished_downloads:
+                downloading.append(_("%s (completed)") % episode)
+            for status in services.download_status_manager.status_list.values():
+                downloading.append(status['thread'].episode.title + " (%d%% - %s)" % (status['progress'], status['speed']))
+            tooltip.append(self.format_episode_list(downloading))
 
             if percentage <> 0:
                 date_diff = datetime.datetime.now() - self.__download_start_time
                 estim = date_diff.seconds * 100 // percentage - date_diff.seconds
-                tooltip.append('\n' + _('estimated remaining time: '))
+                tooltip.append('\n' + _('Estimated remaining time: '))
                 tooltip.append(util.format_seconds_to_hour_min_sec(estim))
                 
-            if len(self.__finished_downloads) > 0:
-                tooltip.append(self.format_episode_list(self.__finished_downloads, _('Finished downloads:')))
-
             self.set_status(self.STATUS_DOWNLOAD_IN_PROGRESS, ''.join(tooltip))
             
             self.progress_bar(float(percentage)/100.)
@@ -335,6 +339,11 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if status is None:
             if tooltip is None:
                 tooltip = self.DEFAULT_TOOLTIP
+                if len(self.__gpodder.already_notified_new_episodes) > 0:
+                    tooltip += "\n" + _("New episodes:") 
+                    for episode in self.__gpodder.already_notified_new_episodes:
+                        tooltip += "\n" + episode.title
+                        if episode.is_downloaded(): tooltip +=  _(" (downloaded)")
             else:
                 tooltip = 'gPodder - %s' % tooltip
             if self.__current_icon is not None:
@@ -353,7 +362,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 self.__current_icon = icon
         self.set_tooltip(tooltip)
 
-    def format_episode_list(self, episode_list, caption=''):
+    def format_episode_list(self, episode_list, caption=None):
         """
         Format a list of episodes for tooltips and notifications
         Return a listing of episodes title separated by a line break.
@@ -372,7 +381,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         MAX_TITLE_LENGTH = 100
 
         result = []
-        result.append('\n%s' % caption)
+        if caption is not None:
+            result.append('\n%s' % caption)
         for episode in episode_list[:min(len(episode_list),MAX_EPISODES)]:
             if isinstance(episode, podcastItem): 
                 episode_title = episode.title
