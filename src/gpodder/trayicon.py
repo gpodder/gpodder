@@ -286,7 +286,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if action=='show': 
             self.__gpodder.uniconify_main_window()
         elif action=='quit':
-            util.idle_add(self.__gpodder.close_gpodder)
+            self.__gpodder.close_gpodder()
         elif action=='keep_dowloading':
             pass
         elif action=='force_quit':
@@ -295,6 +295,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.__gpodder.on_itemDownloadAllNew_activate(self.__gpodder)
         else:
             log("don't know what to do with action %s" % action, sender = self)
+        gtk.main_quit()
             
     def __is_notification_on(self):
         # tray icon not visible or notifications disabled
@@ -321,6 +322,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 notification.add_action(action[0], action[1], self.__action_callback)
             if not notification.show():
                 log("Error: enable to send notification %s", message)
+            if len(actions) > 0:
+                gtk.main() # needed for action callback to be triggered
         else:
             return
         

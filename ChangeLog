@@ -1,3 +1,45 @@
+Tue, 15 Apr 2008 21:01:19 +0200 <thp@perli.net>
+Updated French translation by Jérôme Chabod
+
+	* data/po/fr.po: Updated French translation by Jérôme Chabod
+
+Mon, 14 Apr 2008 13:51:23 +0200 <thp@perli.net>
+Add bug reporter to list of contributors
+
+	* src/gpodder/gui.py: Bug #95 was reported by Tomas Matheson, so add
+	him to the list of contributors
+
+Mon, 14 Apr 2008 13:45:34 +0200 <thp@perli.net>
+Set Close and cancel buttons to the default on most dialogs
+
+	* data/gpodder.glade: Apply patch from Jerome Chabod that sets the
+	close and cancel buttons on most dialogs of gPodder to the default and
+	give them focus; this makes keyboard navigation possible and should
+	make it easier for keyboard fans to use gPodder UI :) This partially
+	fixes bug #95, but there are still some things to do for this bug.
+
+Mon, 14 Apr 2008 13:40:32 +0200 <thp@perli.net>
+Merge patch from Jerome Chabod to fix Remove podcasts for MP3 players
+
+	* src/gpodder/gui.py: Add warning message when we can't find a needed
+	attribute; add "Philippe Gouaillier" to list of contributors (bug
+	reporter for this bug)
+	* src/gpodder/sync.py: Add playcount attribute to MP3 player sync code
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=96)
+
+Mon, 14 Apr 2008 13:37:03 +0200 <thp@perli.net>
+Updated Russian translation by Leonid Ponomarev
+
+	* data/po/ru.po: Updated Russian translation by Leonid Ponomarev
+
+Mon, 14 Apr 2008 13:33:44 +0200 <thp@perli.net>
+Merge patch from Jerome Chabod to fix tray icon freeze (bug #55)
+
+	* src/gpodder/trayicon.py: Merge patch from Jerome Chabod to fix the
+	problem with the tray icon actions reported in bug #55; this is
+	basically attachment #33 with some cosmetic fixes
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=55)
+
 Sun, 13 Apr 2008 22:27:28 +0200 <thp@perli.net>
 Updating message files from source code for 0.11.2 freeze
 
