@@ -278,6 +278,16 @@ class gPodder(GladeWidget):
         gl.config.connect_gtk_window( self.gPodder)
         gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
 
+        gl.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
+        gl.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
+        gl.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
+        gl.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+
+        # Make sure we free/close the download queue when we
+        # update the "max downloads" spin button
+        changed_cb = lambda spinbutton: services.download_status_manager.update_max_downloads()
+        self.spinMaxDownloads.connect('value-changed', changed_cb)
+
         while gtk.events_pending():
             gtk.main_iteration( False)
 
@@ -815,6 +825,12 @@ class gPodder(GladeWidget):
             channel.update_model()
 
         self.updateComboBox()
+
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
+        
+    def on_cbLimitDownloads_toggled(self, widget, *args):
+        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())    
 
     def updateComboBox( self):
         ( model, iter ) = self.treeChannels.get_selection().get_selected()
@@ -1934,19 +1950,12 @@ class gPodderProperties(GladeWidget):
             self.table13.hide_all() # bluetooth
             self.table5.hide_all() # player
             self.table6.hide_all() # bittorrent
-            # start from web importer
-            self.hseparator3.hide_all()
-            self.label87.hide_all()
-            self.image2423.hide_all()
-            self.opmlURL.hide_all()
-            # end from web importer
             self.gPodderProperties.fullscreen()
 
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
         gl.config.connect_gtk_editable( 'ftp_proxy', self.ftpProxy)
         gl.config.connect_gtk_editable( 'player', self.openApp)
         gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
-        gl.config.connect_gtk_editable( 'opml_url', self.opmlURL)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'auto_download_when_minimized', self.downloadnew)
@@ -1956,10 +1965,6 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
         gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
         gl.config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
-        gl.config.connect_gtk_spinbutton( 'max_downloads', self.spinMaxDownloads)
-        gl.config.connect_gtk_togglebutton( 'max_downloads_enabled', self.cbMaxDownloads)
-        gl.config.connect_gtk_spinbutton( 'limit_rate_value', self.spinLimitDownloads)
-        gl.config.connect_gtk_togglebutton( 'limit_rate', self.cbLimitDownloads)
         gl.config.connect_gtk_togglebutton( 'proxy_use_environment', self.cbEnvironmentVariables)
         gl.config.connect_gtk_filechooser( 'bittorrent_dir', self.chooserBitTorrentTo)
         gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
@@ -1970,7 +1975,6 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
         gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
-        gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
         gl.config.connect_gtk_togglebutton('bluetooth_enabled', self.bluetooth_enabled)
         gl.config.connect_gtk_togglebutton('bluetooth_ask_always', self.bluetooth_ask_always)
         gl.config.connect_gtk_togglebutton('bluetooth_ask_never', self.bluetooth_ask_never)
@@ -2158,18 +2162,12 @@ class gPodderProperties(GladeWidget):
         if command == '':
             self.openVideoApp.set_sensitive(True)
             self.openVideoApp.show()
-            self.labelCustomCommand.show()
+            self.label115.show()
         else:
             self.openVideoApp.set_text(command)
             self.openVideoApp.set_sensitive(False)
             self.openVideoApp.hide()
-            self.labelCustomCommand.hide()
-
-    def on_cbMaxDownloads_toggled(self, widget, *args):
-        self.spinMaxDownloads.set_sensitive( self.cbMaxDownloads.get_active())
-
-    def on_cbLimitDownloads_toggled(self, widget, *args):
-        self.spinLimitDownloads.set_sensitive( self.cbLimitDownloads.get_active())
+            self.label115.hide()
 
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
          sens = not self.cbEnvironmentVariables.get_active()

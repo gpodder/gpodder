@@ -1,3 +1,19 @@
+Thu, 17 Apr 2008 17:42:31 +0200 <thp@perli.net>
+Clean up preferences dialog + Move download settings to downloads tab
+
+	* data/gpodder.glade: UI-related changes to the preferences dialog
+	clean-up and the moving of the download settings to the downloads tab;
+	thanks to Paul Rudking for the download settings to downloads tab
+	patch
+	* src/gpodder/download.py: Better rate limiting, implemented by Paul
+	Rudkin
+	* src/gpodder/gui.py: UI-related changes to the preferences dialog
+	clean-up; the download settings changes are by Paul Rudkin
+	* src/gpodder/services.py: Improve the waiting/locking for the maximum
+	number of simultaneous downloads using a threading.Event
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=69)
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=83)
+
 Tue, 15 Apr 2008 21:01:19 +0200 <thp@perli.net>
 Updated French translation by Jérôme Chabod
 
