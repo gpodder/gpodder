@@ -1,3 +1,15 @@
+Thu, 17 Apr 2008 17:54:48 +0200 <thp@perli.net>
+Calculate total percentage based on byte size instead of percentage
+
+	* src/gpodder/download.py: Make sure we save the right size of a
+	currently in-progress download of an episode
+	* src/gpodder/services.py: Calculate the total percentage for all
+	episodes based on their file size instead of their percentage done;
+	this is especially important when downloading small files mixed with
+	large files; this makes the estimated download time more reliable;
+	thanks to Jérôme Chabod, who has done this patch
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=46)
+
 Thu, 17 Apr 2008 17:42:31 +0200 <thp@perli.net>
 Clean up preferences dialog + Move download settings to downloads tab
 

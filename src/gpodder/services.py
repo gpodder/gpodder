@@ -78,7 +78,7 @@ class DownloadStatusManager(ObservableService):
         self.last_progress_status  = ( 0, 0 )
         
         # use to correctly calculate percentage done
-        self.downloads_done_count = 0
+        self.downloads_done_bytes = 0
         
         self.max_downloads = gl.config.max_downloads
         self.semaphore = threading.Semaphore( self.max_downloads)
@@ -172,7 +172,7 @@ class DownloadStatusManager(ObservableService):
             del self.status_list[id]
             if not self.has_items():
                 # Reset the counter now
-                self.downloads_done_count = 0
+                self.downloads_done_bytes = 0
         self.notify( 'list-changed')
         self.notify_progress()
 
@@ -186,8 +186,9 @@ class DownloadStatusManager(ObservableService):
         if not len(self.status_list):
             return 0
 
-        done = self.downloads_done_count*100 + sum([status['progress'] for status in self.status_list.values()])
-        return done / (len(self.status_list) + self.downloads_done_count)
+        done = sum(status['progress']/100. * status['thread'].total_size for status in self.status_list.values())
+        total = sum(status['thread'].total_size for status in self.status_list.values())
+        return float(done + self.downloads_done_bytes) / float(total + self.downloads_done_bytes) * 100
 
     def update_status( self, id, **kwargs):
         if not id in self.status_list:
@@ -210,7 +211,7 @@ class DownloadStatusManager(ObservableService):
     def download_completed(self, id):
         if id in self.status_list:
             self.notify('download-complete', self.status_list[id]['episode'])
-            self.downloads_done_count += 1
+            self.downloads_done_bytes += self.status_list[id]['thread'].total_size
 
     def request_progress_detail( self, url):
         for status in self.status_list.values():
@@ -231,7 +232,7 @@ class DownloadStatusManager(ObservableService):
 	    self.status_list[element]['thread'].cancel()
         # clear the tree model after cancelling
         util.idle_add(self.tree_model.clear)
-        self.downloads_done_count = 0
+        self.downloads_done_bytes = 0
 
     def cancel_by_url( self, url):
         for element in self.status_list:

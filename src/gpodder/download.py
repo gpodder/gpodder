@@ -82,6 +82,9 @@ class DownloadThread(threading.Thread):
         self.filename = self.episode.local_filename()
         self.tempname = os.path.join( os.path.dirname( self.filename), '.tmp-' + os.path.basename( self.filename))
 
+        # Make an educated guess about the total file size
+        self.total_size = self.episode.length
+
         self.cancelled = False
         self.start_time = 0.0
         self.speed = _('Queued')
@@ -100,6 +103,11 @@ class DownloadThread(threading.Thread):
     def status_updated( self, count, blockSize, totalSize):
         if totalSize:
             self.progress = 100.0*float(count*blockSize)/float(totalSize)
+            # We see a different "total size" while downloading,
+            # so correct the total size variable in the thread
+            if totalSize != self.total_size:
+                log('Correcting file size for %s from %d to %d while downloading.', self.url, self.total_size, totalSize, sender=self)
+                self.total_size = totalSize
         else:
             self.progress = 100.0
 
