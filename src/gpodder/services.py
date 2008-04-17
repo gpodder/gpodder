@@ -85,6 +85,11 @@ class DownloadStatusManager(ObservableService):
 
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
         self.tree_model_lock = threading.Lock()
+
+        # Used to notify all threads that they should
+        # re-check if they can acquire the lock
+        self.notification_event = threading.Event()
+        self.notification_event_waiters = 0
         
         signal_names = ['list-changed', 'progress-changed', 'progress-detail', 'download-complete']
         ObservableService.__init__(self, signal_names)
@@ -99,18 +104,41 @@ class DownloadStatusManager(ObservableService):
     def s_acquire( self):
         if not gl.config.max_downloads_enabled:
             return False
-
-        # Release queue slots if user has enabled more slots
-        while self.max_downloads < gl.config.max_downloads:
-            self.semaphore.release()
-            self.max_downloads += 1
-
+        
         # Acquire queue slots if user has decreased the slots
         while self.max_downloads > gl.config.max_downloads:
             self.semaphore.acquire()
             self.max_downloads -= 1
 
-        return self.semaphore.acquire()
+        # Make sure we update the maximum number of downloads
+        self.update_max_downloads()
+
+        while self.semaphore.acquire(False) == False:
+            self.notification_event_waiters += 1
+            self.notification_event.wait(2.)
+            self.notification_event_waiters -= 1
+
+            # If we are the last thread that woke up from
+            # the notification_event, clear the flag here
+            if self.notification_event_waiters == 0:
+                self.notification_event.clear()
+                
+            # If the user has change the config option since the
+            # last time we checked, return false and start download
+            if not gl.config.max_downloads_enabled:
+                return False
+
+        # If we land here, we've acquired exactly the one we need
+        return True
+    
+    def update_max_downloads(self):
+        # Release queue slots if user has enabled more slots
+        while self.max_downloads < gl.config.max_downloads:
+            self.semaphore.release()
+            self.max_downloads += 1
+
+        # Notify all threads that the limit might have been changed
+        self.notification_event.set()
 
     def s_release( self, acquired = True):
         if acquired:

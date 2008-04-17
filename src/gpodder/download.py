@@ -82,15 +82,17 @@ class DownloadThread(threading.Thread):
         self.filename = self.episode.local_filename()
         self.tempname = os.path.join( os.path.dirname( self.filename), '.tmp-' + os.path.basename( self.filename))
 
-        self.limit_rate = gl.config.limit_rate
-        self.limit_rate_value = gl.config.limit_rate_value
-
         self.cancelled = False
         self.start_time = 0.0
         self.speed = _('Queued')
         self.progress = 0.0
         self.downloader = DownloadURLOpener( self.channel)
         self.last_update = 0.0
+
+        # Keep a copy of these global variables for comparison later        
+        self.limit_rate_value = gl.config.limit_rate_value
+        self.limit_rate = gl.config.limit_rate
+        self.start_blocks = 0
 
     def cancel( self):
         self.cancelled = True
@@ -114,21 +116,38 @@ class DownloadThread(threading.Thread):
         if count % 5 == 0:
             now = time.time()
             if self.start_time > 0:
+                
+                # Has rate limiting been enabled or disabled?                
+                if self.limit_rate != gl.config.limit_rate: 
+                    # If it has been enabled then reset base time and block count                    
+                    if gl.config.limit_rate:
+                        self.start_time = now
+                        self.start_blocks = count
+                    self.limit_rate = gl.config.limit_rate
+                    
+                # Has the rate been changed and are we currently limiting?            
+                if self.limit_rate_value != gl.config.limit_rate_value and self.limit_rate: 
+                    self.start_time = now
+                    self.start_blocks = count
+                    self.limit_rate_value = gl.config.limit_rate_value
+
                 passed = now - self.start_time
                 if passed > 0:
-                    speed = (count*blockSize)/passed
+                    speed = ((count-self.start_blocks)*blockSize)/passed
                 else:
                     speed = 0
             else:
                 self.start_time = now
+                self.start_blocks = count
                 passed = now - self.start_time
                 speed = count*blockSize
+
             self.speed = '%s/s' % gl.format_filesize(speed)
 
-            if self.limit_rate and speed > self.limit_rate_value:
+            if gl.config.limit_rate and speed > gl.config.limit_rate_value:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = float(count*blockSize)/(self.limit_rate_value*1024.0)
+                should_have_passed = float((count-self.start_blocks)*blockSize)/(gl.config.limit_rate_value*1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min( 10.0, float(should_have_passed-passed))
