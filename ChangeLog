@@ -1,3 +1,24 @@
+Sat, 19 Apr 2008 18:46:30 +0200 <thp@perli.net>
+Additional fields for the device remove episodes dialog; refactoring
+
+	* src/gpodder/gui.py: Add "Podcast" and "Released" columns to the
+	episode selector; hide all columns in our "delete from device" episode
+	selector that have all rows set to "None"; make the first text column
+	of the gPodderEpisodeSelector bigger, so the episode selector is
+	easier to read when there are many columns
+	* src/gpodder/libpodcasts.py: Use util.format_date() for
+	cute_pubdate() in podcastItem
+	* src/gpodder/sync.py: Document SyncTrack a bit better, add
+	needed/possible keyword arguments that are used in the UI; default
+	some values to None in case they are not provided; get "released" date
+	from iPod's iTunesDB and get podcast name from MP3 player's sync
+	folder (if this feature has been activated)
+	* src/gpodder/util.py: Add format_date() function that converts a Unix
+	timestamp to a good representation for a date (either Today,
+	Yesterday, a weekday or the locale's appropriate representation); the
+	code has been re-factored from podcastItem's cute_pubdate() function
+	in gpodder.libpodcasts and is now used from there
+
 Thu, 17 Apr 2008 17:54:48 +0200 <thp@perli.net>
 Calculate total percentage based on byte size instead of percentage
 

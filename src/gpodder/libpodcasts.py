@@ -745,21 +745,16 @@ class podcastItem(object):
             return pubdate
 
     def cute_pubdate( self):
-        seconds_in_a_day = 86400
         try:
-            timestamp = int(mktime_tz( parsedate_tz( self.pubDate)))
+            timestamp = int(mktime_tz(parsedate_tz(self.pubDate)))
         except:
-            return _("(unknown)")
-        diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
+            timestamp = None
         
-        if diff == 0:
-           return _("Today")
-        if diff == 1:
-           return _("Yesterday")
-        if diff < 7:
-            return str(datetime.fromtimestamp( timestamp).strftime( "%A"))
-        
-        return str(datetime.fromtimestamp( timestamp).strftime( "%x"))
+        result = util.format_date(timestamp)
+        if result is None:
+            return '(%s)' % _('unknown')
+        else:
+            return result
     
     pubdate_prop = property(fget=cute_pubdate)
 

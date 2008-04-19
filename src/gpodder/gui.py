@@ -1334,9 +1334,11 @@ class gPodder(GladeWidget):
     def on_cleanup_ipod_activate(self, widget, *args):
         columns = (
                 ('title', _('Episode')),
+                ('podcast', _('Podcast')),
                 ('filesize', _('Size')),
                 ('modified', _('Copied')),
                 ('playcount', _('Play count')),
+                ('released', _('Released')),
         )
 
         device = sync.open_device()
@@ -1358,9 +1360,19 @@ class gPodder(GladeWidget):
         tracks = device.get_all_tracks()
         if len(tracks) > 0:
             remove_tracks_callback = lambda tracks: self.ipod_cleanup_callback(device, tracks)
+            wanted_columns = []
+            for key, caption in columns:
+                want_this_column = False
+                for track in tracks:
+                    if getattr(track, key) is not None:
+                        want_this_column = True
+                        break
+
+                if want_this_column:
+                    wanted_columns.append((key, caption))
             title = _('Remove podcasts from device')
             instructions = _('Select the podcast episodes you want to remove from your device.')
-            gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=columns, \
+            gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
                                    stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback)
         else:
             title = _('No files on device')
@@ -2586,11 +2598,11 @@ class gPodderEpisodeSelector( GladeWidget):
         next_column = self.COLUMN_ADDITIONAL
         for name, caption in self.columns:
             renderer = gtk.CellRendererText()
-            if next_column > self.COLUMN_ADDITIONAL:
-                renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
+            renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
             column = gtk.TreeViewColumn( caption, renderer, text=next_column)
             column.set_resizable( True)
-            column.set_expand( True)
+            # Only set "expand" on the first column (so more text is displayed there)
+            column.set_expand(next_column == self.COLUMN_ADDITIONAL)
             self.treeviewEpisodes.append_column( column)
             next_column += 1
 
