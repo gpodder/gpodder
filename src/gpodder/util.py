@@ -248,6 +248,35 @@ def get_free_disk_space(path):
     return s.f_bavail * s.f_bsize
 
 
+def format_date(timestamp):
+    """
+    Converts a UNIX timestamp to a date representation. This
+    function returns "Today", "Yesterday", a weekday name or
+    the date in %x format, which (according to the Python docs)
+    is the "Locale's appropriate date representation".
+
+    Returns None if there has been an error converting the
+    timestamp to a string representation.
+    """
+    seconds_in_a_day = 60*60*24
+    try:
+        diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
+    except:
+        log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
+        return None
+    
+    if diff == 0:
+       return _('Today')
+    elif diff == 1:
+       return _('Yesterday')
+    elif diff < 7:
+        # Weekday name
+        return str(datetime.datetime.fromtimestamp(timestamp).strftime('%A'))
+    else:
+        # Locale's appropriate date representation
+        return str(datetime.datetime.fromtimestamp(timestamp).strftime('%x'))
+
+
 def format_filesize(bytesize, use_si_units=False, digits=2):
     """
     Formats the given size in bytes to be human-readable, 

@@ -93,11 +93,35 @@ def get_track_length(filename):
 
 
 class SyncTrack(object):
+    """
+    This represents a track that is on a device. You need
+    to specify at least the following keyword arguments, 
+    because these will be used to display the track in the
+    GUI. All other keyword arguments are optional and can
+    be used to reference internal objects, etc... See the
+    iPod synchronization code for examples.
+
+    Keyword arguments needed:
+        playcount (How often has the track been played?)
+        podcast (Which podcast is this track from? Or: Folder name)
+        released (The release date of the episode)
+
+    If any of these fields is unknown, it should not be
+    passed to the function (the values will default to None
+    for all required fields).
+    """
     def __init__(self, title, length, modified, **kwargs):
         self.title = title
         self.length = length
         self.filesize = util.format_filesize(length, gl.config.use_si_units)
         self.modified = modified
+
+        # Set some (possible) keyword arguments to default values
+        self.playcount = None
+        self.podcast = None
+        self.released = None
+
+        # Convert keyword arguments to object attributes
         self.__dict__.update(kwargs)
 
 
@@ -230,8 +254,10 @@ class iPodDevice(Device):
 
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
+            released = gpod.itdb_time_mac_to_host(track.time_released)
+            released = util.format_date(released)
 
-            t = SyncTrack(track.title, length, modified, libgpodtrack=track, playcount=track.playcount)
+            t = SyncTrack(track.title, length, modified, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
             tracks.append(t)
         return tracks
 
@@ -553,8 +579,12 @@ class MP3PlayerDevice(Device):
          
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
+            if gl.config.fssync_channel_subfolders:
+                podcast_name = os.path.basename(os.path.dirname(filename))
+            else:
+                podcast_name = None
          
-            t = SyncTrack(title, length, modified, filename=filename, playcount=0)
+            t = SyncTrack(title, length, modified, filename=filename, podcast=podcast_name)
             tracks.append(t)
         return tracks
 
