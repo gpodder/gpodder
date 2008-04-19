@@ -163,16 +163,29 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if gpodder.interface == gpodder.MAEMO:
             # On Maemo, we map the left-click to the popup-menu,
             # so add a menu item to do the left-click action
-            menuItem = gtk.ImageMenuItem(_('Show gPodder'))
-            menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_MENU))
-            menuItem.connect('activate',  self.__on_left_click)
+            menuItem = gtk.ImageMenuItem(_('Hide gPodder'))
+            self.item_showhide = menuItem
+
+            def show_hide_gpodder_maemo(menu_item):
+                visible = self.__gpodder.gPodder.get_property('visible')
+                (label, image) = menu_item.get_children()
+                if visible:
+                    label.set_text(_('Show gPodder'))
+                    menu_item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_MENU))
+                else:
+                    label.set_text(_('Hide gPodder'))
+                    menu_item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+                self.__gpodder.gPodder.set_property('visible', not visible)
+                
+            menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+            menuItem.connect('activate', lambda widget: show_hide_gpodder_maemo(self.item_showhide))
             menu.append(menuItem)
         
         menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         menuItem.connect('activate',  self.__on_exit_callback)
         menu.append(menuItem)
         
-        return menu        
+        return menu
 
     def __on_exit_callback(self, widget, *args):
         if  self.__is_downloading and self.__is_notification_on():
