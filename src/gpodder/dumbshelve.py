@@ -46,7 +46,7 @@ class DumbShelve(UserDict.UserDict):
             cPickle.dump(self, open(self.__filename, 'w'))
             return True
         except:
-            log('Cannot pickle me to %s', self.__filename, sender=self)
+            log('Cannot pickle me to %s', self.__filename, sender=self, traceback=True)
             return False
 
     def __setitem__(self, key, item):
@@ -64,6 +64,6 @@ def open_shelve(filename):
         try:
             return cPickle.load(open(filename, 'r'))
         except:
-            log('Error loading %s. Creating new DumbShelve.', filename)
+            log('Error loading %s. Creating new DumbShelve.', filename, traceback=True)
             return DumbShelve(filename)
 

@@ -191,5 +191,5 @@ class DownloadThread(threading.Thread):
                 self.notification( message, title)
             log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.episode.title, ioe.filename, sender = self)
         except:
-            log('Error while downloading "%s".', self.episode.title, sender=self)
+            log( 'Error while downloading "%s".', self.episode.title, sender = self, traceback = True)
 

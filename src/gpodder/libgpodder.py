@@ -118,7 +118,7 @@ class gPodderLib(object):
             shutil.move(self.channel_xml_file, self.channel_xml_file+'.converted')
             log('Successfully converted channels.xml to channels.opml', sender=self)
         except:
-            log('Cannot convert old channels.xml to channels.opml', sender=self)
+            log('Cannot convert old channels.xml to channels.opml', traceback=True, sender=self)
         
     def get_device_name( self):
         if self.config.device_type == 'ipod':

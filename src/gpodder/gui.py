@@ -47,7 +47,7 @@ try:
     from gpodder import trayicon
     have_trayicon = True
 except Exception, exc:
-    log('Warning: Could not import gpodder.trayicon.')
+    log('Warning: Could not import gpodder.trayicon.', traceback=True)
     log('Warning: This probably means your PyGTK installation is too old!')
     have_trayicon = False
 
@@ -205,7 +205,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             try:
                 shutil.copyfile( src_filename, dst_filename)
             except:
-                log('Error copying file.', sender=self)
+                log( 'Error copying file.', sender = self, traceback = True)
 
         dlg.destroy()
 
@@ -1477,7 +1477,7 @@ class gPodder(GladeWidget):
                     self.active_channel = self.channels[len(self.channels)-1]
                 self.update_feed_cache(force_update=False)
         except:
-            log('There has been an error removing the channel.', sender=self)
+            log('There has been an error removing the channel.', traceback=True, sender=self)
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:

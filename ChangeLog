@@ -30,15 +30,6 @@ Python code fixup: Compare "None" with "is not" instead of "!="
 	* src/gpodder/services.py: "!= None" => "is not None"
 	* src/gpodder/util.py: "!= None" => "is not None"
 
-Tue, 22 Apr 2008 21:07:28 +0200 <thp@perli.net>
-Logging traceback is enabled by default (needs to be disabled on demand)
-
-	* src/gpodder/*.py: Remove "traceback=True" from logging calls
-	* src/gpodder/liblogger.py: Always print a traceback if it's
-	available; if not, do not print it out; this can be disabled by
-	passing "traceback=False" to the log() function
-	* src/gpodder/sync.py: Also add "traceback=False" for optional imports
-
 Tue, 22 Apr 2008 20:30:28 +0200 <thp@perli.net>
 Non-modal feed cache updates
 

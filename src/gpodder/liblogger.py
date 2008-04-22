@@ -45,10 +45,9 @@ def log( message, *args, **kwargs):
         last_times.append(time.time())
     if 'bench_end' in kwargs and len(last_times) > 0:
         message += (' (benchmark: %.4f seconds)' % (time.time()-(last_times.pop())))
-    message = (('[%8.3f] ' % (time.time()-first_time)) + message) % args
     if write_to_stdout:
-        print message
-        if kwargs.get('traceback', True):
+        print (('[%8.3f] ' % (time.time()-first_time)) + message) % args
+        if kwargs.get( 'traceback', False):
             error = traceback.format_exc()
             if error.strip() != 'None':
                 print error

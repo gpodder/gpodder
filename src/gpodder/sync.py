@@ -34,17 +34,17 @@ from gpodder.libgpodder import gl
 try:
     import gpod
 except:
-    log('(gpodder.sync) Could not find gpod', traceback=False)
+    log('(gpodder.sync) Could not find gpod')
 
 try:
     import mad
 except:
-    log('(gpodder.sync) Could not find pymad', traceback=False)
+    log('(gpodder.sync) Could not find pymad')
 
 try:
     import eyeD3
 except:
-    log( '(gpodder.sync) Could not find eyeD3', traceback=False)
+    log( '(gpodder.sync) Could not find eyeD3')
 
 
 import os
@@ -237,7 +237,7 @@ class iPodDevice(Device):
                         gpod.gtkpod.write(ext_filename, db, idb_filename)
                         db.close()
                     except:
-                        log('Error when writing iTunesDB.ext', sender=self)
+                        log('Error when writing iTunesDB.ext', sender=self, traceback=True)
                 else:
                     log('I could not find %s or %s. Will not update extended gtkpod DB.', ext_filename, idb_filename, sender=self)
             else:

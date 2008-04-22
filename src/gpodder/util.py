@@ -262,7 +262,7 @@ def format_date(timestamp):
     try:
         diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
     except:
-        log('Warning: Cannot convert "%s" to date.', timestamp)
+        log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
         return None
     
     if diff == 0:
@@ -881,7 +881,7 @@ def gui_open(filename):
         # FIXME: Win32-specific "open" code needed here
         # as fallback when xdg-open not available
     except:
-        log('Cannot open file/folder: "%s"', folder, sender=self)
+        log('Cannot open file/folder: "%s"', folder, sender=self, traceback=True)
 
 
 def open_website(url):

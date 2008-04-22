@@ -169,7 +169,7 @@ class podcastChannel(list):
             try:
                 episode = podcastItem.from_feedparser_entry( entry, channel)
             except:
-                log('Cannot instantiate episode: %s. Skipping.', entry.get('id', '(no id available)'), sender=channel)
+                log( 'Cannot instantiate episode: %s. Skipping.', entry.get( 'id', '(no id available)'), sender = channel, traceback=True)
 
             if episode:
                 channel.append( episode)
@@ -189,7 +189,7 @@ class podcastChannel(list):
                 return podcastChannel.get_by_url(d['url'], force_update=force_update, offline=offline, default_title=default_title)
             except:
                 callback_error and callback_error( _('Could not load channel feed from URL: %s') % d['url'])
-                log('Cannot load podcastChannel from URL: %s', d['url'])
+                log( 'Cannot load podcastChannel from URL: %s', d['url'], traceback=True)
 
         c = podcastChannel()
         for key in ( 'url', 'title', 'description' ):
@@ -263,7 +263,7 @@ class podcastChannel(list):
             log( 'Setting localdb channel data => %s', self.index_file, sender = self)
             LocalDBWriter( self.index_file).write( channel)
         except:
-            log('Error writing to localdb: %s', self.index_file, sender=self)
+            log( 'Error writing to localdb: %s', self.index_file, sender = self, traceback = True)
     
     def load_settings( self):
         settings = ChannelSettings.get_settings_by_url( self.url)
@@ -666,7 +666,7 @@ class podcastItem(object):
         try:
             self.channel.delete_episode_by_url(self.url)
         except:
-            log('Cannot delete episode from disk: %s', self.title, sender=self)
+            log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
     def local_filename( self):
         extension = util.file_extension_from_url( self.url)
