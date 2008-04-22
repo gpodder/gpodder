@@ -845,13 +845,19 @@ def channels_to_model(channels):
 
 
 
-def load_channels( load_items = True, force_update = False, callback_proc = None, callback_url = None, callback_error = None, offline = False):
+def load_channels(load_items=True, force_update=False, callback_proc=None, callback_url=None, callback_error=None, offline=False, is_cancelled_cb=None):
     importer = opml.Importer(gl.channel_opml_file)
     result = []
 
     urls_to_keep = []
     count = 0
     for item in importer.items:
+        if is_cancelled_cb is not None:
+            cancelled = is_cancelled_cb()
+            if cancelled:
+                # We don't force updates for all upcoming episodes
+                force_update = False
+                offline = True
         callback_proc and callback_proc( count, len( importer.items))
         callback_url and callback_url( item['url'])
         urls_to_keep.append(item['url'])

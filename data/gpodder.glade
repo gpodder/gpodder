@@ -1077,75 +1077,139 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="btnUpdateFeeds">
+			<widget class="GtkVBox" id="vbox42">
 			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="relief">GTK_RELIEF_NORMAL</property>
-			  <property name="focus_on_click">True</property>
-			  <signal name="clicked" handler="on_itemUpdate_activate" last_modification_time="Sat, 02 Feb 2008 13:24:51 GMT"/>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
 
 			  <child>
-			    <widget class="GtkAlignment" id="alignment24">
-			      <property name="visible">True</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xscale">0</property>
-			      <property name="yscale">0</property>
-			      <property name="top_padding">0</property>
-			      <property name="bottom_padding">0</property>
-			      <property name="left_padding">0</property>
-			      <property name="right_padding">0</property>
+			    <widget class="GtkButton" id="btnUpdateFeeds">
+			      <property name="can_focus">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <signal name="clicked" handler="on_itemUpdate_activate" last_modification_time="Sat, 02 Feb 2008 13:24:51 GMT"/>
 
 			      <child>
-				<widget class="GtkHBox" id="hbox37">
+				<widget class="GtkAlignment" id="alignment24">
 				  <property name="visible">True</property>
-				  <property name="homogeneous">False</property>
-				  <property name="spacing">2</property>
+				  <property name="xalign">0.5</property>
+				  <property name="yalign">0.5</property>
+				  <property name="xscale">0</property>
+				  <property name="yscale">0</property>
+				  <property name="top_padding">0</property>
+				  <property name="bottom_padding">0</property>
+				  <property name="left_padding">0</property>
+				  <property name="right_padding">0</property>
 
 				  <child>
-				    <widget class="GtkImage" id="image2982">
+				    <widget class="GtkHBox" id="hbox37">
 				      <property name="visible">True</property>
-				      <property name="stock">gtk-refresh</property>
+				      <property name="homogeneous">False</property>
+				      <property name="spacing">2</property>
+
+				      <child>
+					<widget class="GtkImage" id="image2982">
+					  <property name="visible">True</property>
+					  <property name="stock">gtk-refresh</property>
+					  <property name="icon_size">4</property>
+					  <property name="xalign">0.5</property>
+					  <property name="yalign">0.5</property>
+					  <property name="xpad">0</property>
+					  <property name="ypad">0</property>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkLabel" id="label120">
+					  <property name="visible">True</property>
+					  <property name="label" translatable="yes">Check for Updates</property>
+					  <property name="use_underline">True</property>
+					  <property name="use_markup">False</property>
+					  <property name="justify">GTK_JUSTIFY_LEFT</property>
+					  <property name="wrap">False</property>
+					  <property name="selectable">False</property>
+					  <property name="xalign">0.5</property>
+					  <property name="yalign">0.5</property>
+					  <property name="xpad">0</property>
+					  <property name="ypad">0</property>
+					  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					  <property name="width_chars">-1</property>
+					  <property name="single_line_mode">False</property>
+					  <property name="angle">0</property>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">False</property>
+					  <property name="fill">False</property>
+					</packing>
+				      </child>
+				    </widget>
+				  </child>
+				</widget>
+			      </child>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkHBox" id="hboxUpdateFeeds">
+			      <property name="homogeneous">False</property>
+			      <property name="spacing">6</property>
+
+			      <child>
+				<widget class="GtkProgressBar" id="pbFeedUpdate">
+				  <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
+				  <property name="fraction">0</property>
+				  <property name="pulse_step">0.10000000149</property>
+				  <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="btnCancelFeedUpdate">
+				  <property name="can_focus">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">True</property>
+				  <signal name="clicked" handler="on_btnCancelFeedUpdate_clicked" last_modification_time="Sat, 19 Apr 2008 17:42:17 GMT"/>
+
+				  <child>
+				    <widget class="GtkImage" id="image3209">
+				      <property name="visible">True</property>
+				      <property name="stock">gtk-cancel</property>
 				      <property name="icon_size">4</property>
 				      <property name="xalign">0.5</property>
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">0</property>
 				      <property name="ypad">0</property>
 				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkLabel" id="label120">
-				      <property name="visible">True</property>
-				      <property name="label" translatable="yes">Check for Updates</property>
-				      <property name="use_underline">True</property>
-				      <property name="use_markup">False</property>
-				      <property name="justify">GTK_JUSTIFY_LEFT</property>
-				      <property name="wrap">False</property>
-				      <property name="selectable">False</property>
-				      <property name="xalign">0.5</property>
-				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
-				      <property name="ypad">0</property>
-				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">-1</property>
-				      <property name="single_line_mode">False</property>
-				      <property name="angle">0</property>
-				    </widget>
-				    <packing>
-				      <property name="padding">0</property>
-				      <property name="expand">False</property>
-				      <property name="fill">False</property>
-				    </packing>
 				  </child>
 				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">False</property>
+				  <property name="fill">False</property>
+				</packing>
 			      </child>
 			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
+			    </packing>
 			  </child>
 			</widget>
 			<packing>

@@ -1,3 +1,22 @@
+Tue, 22 Apr 2008 20:30:28 +0200 <thp@perli.net>
+Non-modal feed cache updates
+
+	* data/gpodder.glade: Feed cache update UI changes
+	* src/gpodder/gui.py: Fix problem with maemo window showing all
+	widgets on start; feed cache update changes; update list of
+	contributor (bug reporter for the cancel/skip button feature request
+	* src/gpodder/libpodcasts.py: Support cancelling a running feed cache
+	update by switching to offline mode when the cancel button is pressed
+	in load_channels(); idea by Paul Elliot, Pieter De Decker, Jürgen
+	Schinker and others, see the bug report page for more information
+	(Partly fixes: http://bugs.gpodder.org/show_bug.cgi?id=16)
+
+Sat, 19 Apr 2008 20:16:11 +0200 <thp@perli.net>
+Better tray icon menu item on Maemo-based platforms
+
+	* src/gpodder/trayicon.py: Better tray icon integration (show/hide
+	gPodder via tray icon) on Maemo
+
 Sat, 19 Apr 2008 18:46:30 +0200 <thp@perli.net>
 Additional fields for the device remove episodes dialog; refactoring
 
