@@ -64,7 +64,7 @@ from xml.sax import saxutils
 global_lock = threading.RLock()
 
 
-elif gpodder.interface == gpodder.MAEMO:
+if gpodder.interface == gpodder.MAEMO:
     ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
     ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
     ICON_BITTORRENT = 'qgn_toolb_browser_web'
