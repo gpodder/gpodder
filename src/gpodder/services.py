@@ -163,7 +163,7 @@ class DownloadStatusManager(ObservableService):
         if not id in self.status_list:
             return
         iter = self.status_list[id]['iter']
-	if iter != None:
+	if iter is not None:
             self.tree_model_lock.acquire()
             util.idle_add(self.remove_iter, iter)
             self.tree_model_lock.release()
@@ -221,7 +221,7 @@ class DownloadStatusManager(ObservableService):
     def is_download_in_progress( self, url):
         for element in self.status_list:
 	    thread = self.status_list[element]['thread']
-	    if thread != None and thread.url == url:
+	    if thread is not None and thread.url == url:
 	        return True
 	
 	return False
@@ -237,7 +237,7 @@ class DownloadStatusManager(ObservableService):
     def cancel_by_url( self, url):
         for element in self.status_list:
 	    thread = self.status_list[element]['thread']
-	    if thread != None and thread.url == url:
+	    if thread is not None and thread.url == url:
                 self.remove_download_id( element)
 		return True
         

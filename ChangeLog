@@ -1,3 +1,15 @@
+Tue, 22 Apr 2008 21:15:40 +0200 <thp@perli.net>
+Python code fixup: Compare "None" with "is not" instead of "!="
+
+	* src/gpodder/config.py: "!= None" => "is not None"
+	* src/gpodder/download.py: "!= None" => "is not None"
+	* src/gpodder/gui.py: "!= None" => "is not None"
+	* src/gpodder/libconverter.py: "!= None" => "is not None"
+	* src/gpodder/libgpodder.py: "!= None" => "is not None"
+	* src/gpodder/libpodcasts.py: "!= None" => "is not None"
+	* src/gpodder/services.py: "!= None" => "is not None"
+	* src/gpodder/util.py: "!= None" => "is not None"
+
 Tue, 22 Apr 2008 21:07:28 +0200 <thp@perli.net>
 Logging traceback is enabled by default (needs to be disabled on demand)
 

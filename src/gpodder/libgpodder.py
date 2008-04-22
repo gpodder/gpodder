@@ -233,7 +233,7 @@ class gPodderLib(object):
         return ( True, command_line[0] )
 
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
-        if callback_status != None:
+        if callback_status is not None:
             util.idle_add(callback_status, _('Downloading channel cover...'))
         pixbuf = gtk.gdk.PixbufLoader()
         
@@ -241,13 +241,13 @@ class gPodderLib(object):
             log( 'Downloading %s', url)
             pixbuf.write( urllib.urlopen(url).read())
         
-        if cover_file != None and not os.path.exists( cover_file):
+        if cover_file is not None and not os.path.exists(cover_file):
             log( 'Downloading cover to %s', cover_file)
             cachefile = open( cover_file, "w")
             cachefile.write( urllib.urlopen(url).read())
             cachefile.close()
         
-        if cover_file != None:
+        if cover_file is not None:
             log( 'Reading cover from %s', cover_file)
             try:
                 pixbuf.write( open( cover_file, "r").read())
@@ -263,7 +263,7 @@ class gPodderLib(object):
             util.delete_file( cover_file)
         
         MAX_SIZE = 400
-        if callback_pixbuf != None:
+        if callback_pixbuf is not None:
             pb = pixbuf.get_pixbuf()
             if pb:
                 if pb.get_width() > MAX_SIZE:
@@ -273,9 +273,9 @@ class gPodderLib(object):
                     factor = MAX_SIZE*1.0/pb.get_height()
                     pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
                 util.idle_add(callback_pixbuf, pb)
-        if callback_status != None:
+        if callback_status is not None:
             util.idle_add(callback_status, '')
-        if callback_finished != None:
+        if callback_finished is not None:
             util.idle_add(callback_finished)
 
     def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):

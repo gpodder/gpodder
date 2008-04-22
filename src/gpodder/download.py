@@ -185,7 +185,7 @@ class DownloadThread(threading.Thread):
         except DownloadCancelledException:
             log( 'Download has been cancelled: %s', self.episode.title, sender = self)
         except IOError, ioe:
-            if self.notification != None:
+            if self.notification is not None:
                 title = ioe.strerror
                 message = _('An error happened while trying to download <b>%s</b>.') % ( saxutils.escape( self.episode.title), )
                 self.notification( message, title)

@@ -449,7 +449,7 @@ class podcastChannel(ListType):
         self.update_save_dir_size()
 
         iter = self.tree_model.get_iter_first()
-        while iter != None:
+        while iter is not None:
             self.iter_set_downloading_columns( self.tree_model, iter, new_episodes)
             iter = self.tree_model.iter_next( iter)
 
@@ -595,7 +595,7 @@ class podcastItem(object):
             if len(entry.enclosures) > 1:
                 for e in entry.enclosures:
                     if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/')):
-                        if util.normalize_feed_url( e.href) != None:
+                        if util.normalize_feed_url(e.href) is not None:
                             log( 'Selected enclosure: %s', e.href, sender = episode)
                             enclosure = e
                             break
@@ -720,7 +720,7 @@ class podcastItem(object):
         except:
             # by default, do as if this is not the same
             # this is here so that comparisons with None 
-            # can be allowed (item != None -> True)
+            # can be allowed (item is not None -> True)
             return -1
         
         return timestamp_self - timestamp_other

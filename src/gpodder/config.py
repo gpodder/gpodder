@@ -222,17 +222,17 @@ class Config(dict):
 
     def save_thread_proc( self):
         for i in range(self.WRITE_TO_DISK_TIMEOUT*10):
-            if self.__save_thread != None:
+            if self.__save_thread is not None:
                 time.sleep( .1)
-        if self.__save_thread != None:
+        if self.__save_thread is not None:
             self.save()
 
     def __atexit( self):
-        if self.__save_thread != None:
+        if self.__save_thread is not None:
             self.save()
 
     def save( self, filename = None):
-        if filename != None:
+        if filename is not None:
             self.__filename = filename
 
         log( 'Flushing settings to disk', sender = self)
@@ -251,7 +251,7 @@ class Config(dict):
         self.__save_thread = None
 
     def load( self, filename = None):
-        if filename != None:
+        if filename is not None:
             self.__filename = filename
 
         self.__model.clear()

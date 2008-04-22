@@ -404,7 +404,7 @@ def file_extension_from_url( url):
     filename = os.path.basename( urllib.unquote(path))
     (filename, extension) = os.path.splitext(filename)
 
-    if file_type_by_extension(extension) != None:
+    if file_type_by_extension(extension) is not None:
         # We have found a valid extension (audio, video, torrent)
         return extension.lower()
     
@@ -413,7 +413,7 @@ def file_extension_from_url( url):
         query_url = '://'.join((scheme, urllib.unquote(query)))
         query_extension = file_extension_from_url(query_url)
 
-        if file_type_by_extension(query_extension) != None:
+        if file_type_by_extension(query_extension) is not None:
             return query_extension
 
     # No exact match found, simply return the original extension
@@ -465,7 +465,7 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
     """
     global ICON_UNPLAYED, ICON_LOCKED
 
-    if icon_cache != None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
+    if icon_cache is not None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
         return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
     
     icon_theme = gtk.icon_theme_get_default()
@@ -497,7 +497,7 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
             except:
                 log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
 
-    if icon_cache != None:
+    if icon_cache is not None:
         icon_cache[(icon_name,add_bullet,add_padlock,icon_size)] = icon
 
     return icon

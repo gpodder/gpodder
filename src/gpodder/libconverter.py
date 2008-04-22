@@ -63,7 +63,7 @@ class FileConverter:
 
 class ConverterCollection( types.DictType):
     def add_converter( self, extension, command, arguments):
-        if util.find_command( command) != None:
+        if util.find_command(command) is not None:
             log( 'Found "%s", will try to convert ".%s" files.' % ( command, extension ), sender = self)
             self[extension.lower()] = FileConverter( command, arguments)
         else:

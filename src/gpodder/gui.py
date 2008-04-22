@@ -1554,7 +1554,7 @@ class gPodder(GladeWidget):
     def on_treeChannels_cursor_changed(self, widget, *args):
         ( model, iter ) = self.treeChannels.get_selection().get_selected()
 
-        if model != None and iter != None:
+        if model is not None and iter != None:
             id = model.get_path( iter)[0]
             self.active_channel = self.channels[id]
 
