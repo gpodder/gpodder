@@ -183,7 +183,7 @@ class DownloadThread(threading.Thread):
                 services.download_status_manager.remove_download_id( self.download_id)
                 services.download_status_manager.s_release( acquired)
         except DownloadCancelledException:
-            log( 'Download has been cancelled: %s', self.episode.title, sender = self)
+            log('Download has been cancelled: %s', self.episode.title, traceback=None, sender=self)
         except IOError, ioe:
             if self.notification is not None:
                 title = ioe.strerror

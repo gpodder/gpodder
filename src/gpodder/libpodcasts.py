@@ -31,18 +31,18 @@ import gtk
 import gobject
 import pango
 
+import gpodder
 from gpodder import util
 from gpodder import opml
 from gpodder import cache
 from gpodder import services
 from gpodder import draw
+from gpodder import libtagupdate
+from gpodder import dumbshelve
 
-import gpodder
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
-from os.path import exists
-from os.path import basename
 import os.path
 import os
 import glob
@@ -52,39 +52,18 @@ import urllib
 import urlparse
 import time
 import threading
-
-from datetime import datetime
-
-from libtagupdate import update_metadata_on_file
-from libtagupdate import tagging_supported
-
-from threading import Event
-import re
-
-from types import ListType
-from email.Utils import mktime_tz
-from email.Utils import parsedate_tz
-
-from xml.sax import saxutils
-
+import datetime
+import md5
 import xml.dom.minidom
 
-import md5
+from email.Utils import mktime_tz
+from email.Utils import parsedate_tz
+from xml.sax import saxutils
 
-import string
-
-from gpodder import dumbshelve
 
 global_lock = threading.RLock()
 
 
-if gpodder.interface == gpodder.GUI:
-    ICON_AUDIO_FILE = 'audio-x-generic'
-    ICON_VIDEO_FILE = 'video-x-generic'
-    ICON_BITTORRENT = 'applications-internet'
-    ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-    ICON_DELETED = gtk.STOCK_DELETE
-    ICON_NEW = gtk.STOCK_NEW
 elif gpodder.interface == gpodder.MAEMO:
     ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
     ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
@@ -92,6 +71,13 @@ elif gpodder.interface == gpodder.MAEMO:
     ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
     ICON_DELETED = 'qgn_toolb_gene_deletebutton'
     ICON_NEW = 'qgn_list_gene_favor'
+else:
+    ICON_AUDIO_FILE = 'audio-x-generic'
+    ICON_VIDEO_FILE = 'video-x-generic'
+    ICON_BITTORRENT = 'applications-internet'
+    ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
+    ICON_DELETED = gtk.STOCK_DELETE
+    ICON_NEW = gtk.STOCK_NEW
 
 
 class ChannelSettings(object):
@@ -132,9 +118,9 @@ class EpisodeURLMetainfo(object):
             return result
 
 
-class podcastChannel(ListType):
+class podcastChannel(list):
     """holds data for a complete channel"""
-    SETTINGS = ('sync_to_devices', 'is_music_channel', 'device_playlist_name','override_title','username','password')
+    SETTINGS = ('sync_to_devices', 'device_playlist_name','override_title','username','password')
     icon_cache = {}
 
     storage = dumbshelve.open_shelve(gl.feed_cache_file)
@@ -224,9 +210,7 @@ class podcastChannel(ListType):
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
-        # if this is set to true, device syncing (ex: iPod) should treat this as music, not as podcast)
-        self.is_music_channel = False
-        # to which playlist should be synced when "is_music_channel" is true?
+        # to which playlist should be synced
         self.device_playlist_name = 'gPodder'
         # if set, this overrides the channel-provided title
         self.override_title = ''
@@ -380,10 +364,10 @@ class podcastChannel(ListType):
             self.save_downloaded_episodes( downloaded_episodes)
 
             # Update metadata on file (if possible and wanted)
-            if gl.config.update_tags and tagging_supported():
+            if gl.config.update_tags and libtagupdate.tagging_supported():
                 filename = item.local_filename()
                 try:
-                    update_metadata_on_file( filename, title = item.title, artist = self.title)
+                    libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title)
                 except:
                     log('Error while calling update_metadata_on_file() :(')
 
@@ -704,7 +688,7 @@ class podcastItem(object):
     @property
     def published( self):
         try:
-            return datetime.fromtimestamp( mktime_tz( parsedate_tz( self.pubDate))).strftime('%Y%m%d')
+            return datetime.datetime.fromtimestamp( mktime_tz( parsedate_tz( self.pubDate))).strftime('%Y%m%d')
         except:
             log( 'Cannot format pubDate for "%s".', self.title, sender = self)
             return '00000000'

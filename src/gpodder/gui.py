@@ -77,7 +77,8 @@ app_authors = [
     'Alain Tauch', 'Alistair Sutton', 'Anders Kvist', 'Andy Busch',
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 
     'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
-    'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'FFranci72',
+    'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge',
+    'Doug Hellmann', 'FFranci72',
     'Florian Richter', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jessica Henline', 'Joel Calado', 'John Ferguson', 
@@ -1017,7 +1018,7 @@ class gPodder(GladeWidget):
             if widget.get_name() == 'treeAvailable':
                 play_callback = lambda: self.playback_episode( current_channel, current_podcast)
                 download_callback = lambda: self.download_podcast_by_url( url, want_message_dialog, None)
-                gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback, center_on_widget = self.treeAvailable)
+                gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback)
                 return
         
         if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):

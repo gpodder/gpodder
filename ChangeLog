@@ -1,3 +1,18 @@
+Tue, 22 Apr 2008 21:54:01 +0200 <thp@perli.net>
+Diverse changes, code clean-ups and other small annoyances
+
+	* src/gpodder/config.py: Make sure we can load a default set of
+	configuration options, even if we are in CLI mode
+	* src/gpodder/download.py: Don't display a traceback when logging a
+	cancelled download
+	* src/gpodder/gui.py: Add Doug Hellmann to contributors/coders list in
+	the about dialog (Doug Hellmann has done the feed cache code); do not
+	center the gPodderEpisode dialog on the treeAvailable widget (this
+	looks ugly ;)
+	* src/gpodder/libpodcasts.py: Clean up import statements; Make sure we
+	always have icon names, even in CLI mode; Remove "is_music_channel"
+	property of podcastChannel (not needed anymore); 
+
 Tue, 22 Apr 2008 21:15:40 +0200 <thp@perli.net>
 Python code fixup: Compare "None" with "is not" instead of "!="
 
