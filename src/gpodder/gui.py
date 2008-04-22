@@ -81,7 +81,7 @@ app_authors = [
     'Florian Richter', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jessica Henline', 'Joel Calado', 'John Ferguson', 
-    'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña',
+    'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Jürgen Schinker',
     'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Mark Alford', 'Michael Salim', 
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
@@ -245,14 +245,18 @@ class gPodder(GladeWidget):
             self.window.set_menu(menu)
          
             self.mainMenu.destroy()
-            self.window.show_all()
+            self.window.show()
             
             # do some widget hiding
             self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
             self.separator11.hide_all()
+
+            # Feed cache update button
             self.label120.set_text(_('Update feeds'))
             self.label120.set_padding(0, 10)
+            # Feed cache cancel button
+            self.image3209.set_padding(10, 10)
         
         self.uar = None
         self.tray_icon = None
@@ -420,6 +424,7 @@ class gPodder(GladeWidget):
         self.update_item_device()
 
         # Now, update the feed cache, when everything's in place
+        self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
 
         # Start the auto-update procedure
@@ -925,9 +930,9 @@ class gPodder(GladeWidget):
         if count > 0:
             progressbar.set_fraction(float(position)/float(count))
 
-    def update_feed_cache_finish_callback(self, force_update=False, please_wait_dialog=None, notify_no_new_episodes=False):
-        if please_wait_dialog is not None:
-            please_wait_dialog.destroy()
+    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False):
+        self.hboxUpdateFeeds.hide_all()
+        self.btnUpdateFeeds.show_all()
 
         self.updateComboBox()
 
@@ -966,78 +971,32 @@ class gPodder(GladeWidget):
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
-        self.channels = load_channels( force_update = force_update, callback_proc = callback_proc, callback_error = callback_error, offline = not force_update)
+        is_cancelled_cb = lambda: self.feed_cache_update_cancelled
+        self.channels = load_channels(force_update=force_update, callback_proc=callback_proc, callback_error=callback_error, offline=not force_update, is_cancelled_cb=is_cancelled_cb)
         if finish_proc:
             finish_proc()
+
+    def on_btnCancelFeedUpdate_clicked(self, widget):
+        self.pbFeedUpdate.set_text(_('Cancelling...'))
+        self.feed_cache_update_cancelled = True
 
     def update_feed_cache(self, force_update=True, notify_no_new_episodes=False):
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
-        # skip dialog if the window is not active and tray icon is displayed
-        if self.minimized and self.tray_icon:
-            show_update_dialog = False
-        else:
-            show_update_dialog = True
-
-        please_wait = None
-        if show_update_dialog:
-            if force_update:
-                title = _('Downloading podcast feeds')
-                heading = _('Downloading feeds')
-            else:
-                title = _('Loading podcast feeds')
-                heading = _('Loading feeds')
-            body = _('Podcast feeds contain channel metadata and information about current episodes.')
-    
-            please_wait = gtk.Dialog(title, self.gPodder, gtk.DIALOG_MODAL, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            please_wait.set_transient_for(self.gPodder)
-            please_wait.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
-            please_wait.vbox.set_spacing(5)
-            please_wait.set_border_width(5)
-            please_wait.set_resizable(False)
-    
-            label_heading = gtk.Label()
-            label_heading.set_alignment(0.0, 0.5)
-            label_heading.set_markup('<span weight="bold" size="larger">%s</span>'%heading)
-    
-            label_body = gtk.Label(body)
-            label_body.set_alignment(0.0, 0.5)
-            label_body.set_line_wrap(True)
-    
-            progressbar = gtk.ProgressBar()
-            progressbar.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
-    
-            # put it all together
-            for widget in (label_heading, label_body, progressbar):
-                please_wait.vbox.pack_start(widget)
-            please_wait.show_all()
-    
-            # center the dialog on the gPodder main window
-            (x, y) = self.gPodder.get_position()
-            (w, h) = self.gPodder.get_size()
-            (pw, ph) = please_wait.get_size()
-            please_wait.move(int(x+w/2-pw/2), int(y+h/2-ph/2))
-    
-            # hide separator line
-            please_wait.set_has_separator(False)
-
         # let's get down to business..
-        if show_update_dialog:
-            callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, progressbar, pos, count)
-        else:
-            callback_proc = None
-        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, please_wait, notify_no_new_episodes)
+        callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, self.pbFeedUpdate, pos, count)
+        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, notify_no_new_episodes)
+
+        self.feed_cache_update_cancelled = False
+        self.btnUpdateFeeds.hide_all()
+        self.hboxUpdateFeeds.show_all()
 
         args = (force_update, callback_proc, self.notification, finish_proc)
 
         thread = Thread( target = self.update_feed_cache_proc, args = args)
         thread.start()
-
-        if please_wait is not None:
-            please_wait.run()
-            please_wait.destroy()
-            
+        
     def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
         if self.active_channel is None:
             return
