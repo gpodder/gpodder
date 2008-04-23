@@ -1,3 +1,11 @@
+Wed, 23 Apr 2008 22:31:42 +0200 <thp@perli.net>
+Merge patch from Junio C Hamano to fix problems with zero-length in feeds
+
+	* src/gpodder/gui.py: Update list of contributors/patch writers
+	* src/gpodder/services.py: Patch from Junio C Hamano to fix a problem
+	when a feed has zero length, which would otherwise result in a
+	divide-by-zero error
+
 Tue, 22 Apr 2008 21:57:31 +0200 <thp@perli.net>
 Typo from previous commit
 

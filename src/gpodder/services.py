@@ -188,6 +188,8 @@ class DownloadStatusManager(ObservableService):
 
         done = sum(status['progress']/100. * status['thread'].total_size for status in self.status_list.values())
         total = sum(status['thread'].total_size for status in self.status_list.values())
+        if total + self.downloads_done_bytes == 0:
+            return 0
         return float(done + self.downloads_done_bytes) / float(total + self.downloads_done_bytes) * 100
 
     def update_status( self, id, **kwargs):
