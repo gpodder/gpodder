@@ -109,6 +109,7 @@ scalable_dir = [ 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg' 
 
 class GladeWidget(SimpleGladeApp.SimpleGladeApp):
     gpodder_main_window = None
+    finger_friendly_widgets = []
 
     def __init__( self, **kwargs):
         path = os.path.join( glade_dir, '%s.glade' % app_name)
@@ -116,6 +117,10 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         domain = app_name
 
         SimpleGladeApp.SimpleGladeApp.__init__( self, path, root, domain, **kwargs)
+
+        # Set widgets to finger-friendly mode if on Maemo
+        for widget_name in self.finger_friendly_widgets:
+            self.set_finger_friendly(getattr(self, widget_name))
 
         if root == 'gPodder':
             GladeWidget.gpodder_main_window = self.gPodder
@@ -156,6 +161,35 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         
         dlg.run()
         dlg.destroy()
+
+    def set_finger_friendly(self, widget):
+        """
+        If we are on Maemo, we carry out the necessary
+        operations to turn a widget into a finger-friendly
+        one, depending on which type of widget it is (i.e.
+        buttons will have more padding, TreeViews a thick
+        scrollbar, etc..)
+        """
+        if gpodder.interface == gpodder.MAEMO:
+            if isinstance(widget, gtk.Misc):
+                widget.set_padding(0, 5)
+            elif isinstance(widget, gtk.Button):
+                for child in widget.get_children():
+                    if isinstance(child, gtk.Alignment):
+                        child.set_padding(10, 10, 5, 5)
+                    else:
+                        child.set_padding(10, 10)
+            elif isinstance(widget, gtk.TreeView) or isinstance(widget, gtk.TextView):
+                parent = widget.get_parent()
+                if isinstance(parent, gtk.ScrolledWindow):
+                    hildon.hildon_helper_set_thumb_scrollbar(parent, True)
+            elif isinstance(widget, gtk.MenuItem):
+                for child in widget.get_children():
+                    self.set_finger_friendly(child)
+            else:
+                log('Cannot set widget finger-friendly: %s', widget, sender=self)
+                
+        return widget
 
     def show_confirmation( self, message, title = None):
         if gpodder.interface == gpodder.GUI:
@@ -213,6 +247,8 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 
 class gPodder(GladeWidget):
+    finger_friendly_widgets = ['btnUpdateFeeds', 'btnCancelFeedUpdate', 'treeAvailable', 'label2', 'labelDownloads']
+    
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
             # Maemo-specific changes to the UI
@@ -256,9 +292,9 @@ class gPodder(GladeWidget):
 
             # Feed cache update button
             self.label120.set_text(_('Update feeds'))
-            self.label120.set_padding(0, 10)
-            # Feed cache cancel button
-            self.image3209.set_padding(10, 10)
+            
+            # get screen real estate
+            self.hboxContainer.set_border_width(0)
         
         self.uar = None
         self.tray_icon = None
@@ -640,55 +676,55 @@ class gPodder(GladeWidget):
             if can_play:
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
-                menu.append( item)
+                menu.append(self.set_finger_friendly(item))
                 
                 is_locked = gl.history_is_locked(first_url)
                 if not is_locked:
                     item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
                     item.connect('activate', self.on_btnDownloadedDelete_clicked)
-                    menu.append(item)
+                    menu.append(self.set_finger_friendly(item))
                     
             if can_cancel:
                 item = gtk.ImageMenuItem( _('Cancel download'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeDownloads_row_activated( self.toolCancel))
-                menu.append( item)
+                menu.append(self.set_finger_friendly(item))
 
             if can_download:
                 item = gtk.ImageMenuItem(_('Download'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
-                menu.append( item)
+                menu.append(self.set_finger_friendly(item))
 
                 is_downloaded = gl.history_is_downloaded(first_url)
                 if is_downloaded:
                     item = gtk.ImageMenuItem(_('Mark as not downloaded'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_UNDELETE, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, False))
-                    menu.append( item)
+                    menu.append(self.set_finger_friendly(item))
                 else:
                     # FIXME: foreach episode go and delete/toggle downloaded episode
                     # ++ unify into a single menu item (with "Delete" from above)
                     item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
                     item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, True))
-                    menu.append( item)
+                    menu.append(self.set_finger_friendly(item))
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
-                menu.append( item)
+                menu.append(self.set_finger_friendly(item))
                 if gl.config.bluetooth_enabled:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
-                    menu.append( item)
+                    menu.append(self.set_finger_friendly(item))
                 if can_transfer:
                     item = gtk.ImageMenuItem(_('Transfer to %s') % gl.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolTransfer))
-                    menu.append(item)
+                    menu.append(self.set_finger_friendly(item))
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
@@ -697,24 +733,24 @@ class gPodder(GladeWidget):
                     item = gtk.ImageMenuItem(_('Mark as unplayed'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, False))
-                    menu.append( item)
+                    menu.append(self.set_finger_friendly(item))
                 else:
                     item = gtk.ImageMenuItem(_('Mark as played'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
-                    menu.append( item)
+                    menu.append(self.set_finger_friendly(item))
 
                 is_locked = gl.history_is_locked(first_url)
                 if is_locked:
                     item = gtk.ImageMenuItem(_('Allow deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_item_toggle_lock_activate)
-                    menu.append(item)
+                    menu.append(self.set_finger_friendly(item))
                 else:
                     item = gtk.ImageMenuItem(_('Prohibit deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_item_toggle_lock_activate)
-                    menu.append(item)
+                    menu.append(self.set_finger_friendly(item))
 
             if len(paths) == 1:
                 menu.append(gtk.SeparatorMenuItem())
@@ -723,14 +759,14 @@ class gPodder(GladeWidget):
                 item = gtk.ImageMenuItem(_('Episode details'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
-                menu.append( item)
+                menu.append(self.set_finger_friendly(item))
                 episode = self.active_channel.find_episode(episode_url)
                 # If we have it, also add episode website link
                 if episode and episode.link and episode.link != episode.url:
                     item = gtk.ImageMenuItem(_('Visit website'))
                     item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: util.open_website(episode.link))
-                    menu.append(item)
+                    menu.append(self.set_finger_friendly(item))
             
             if gpodder.interface == gpodder.MAEMO:
                 # Because we open the popup on left-click for Maemo,
@@ -738,7 +774,7 @@ class gPodder(GladeWidget):
                 menu.append(gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Close this menu'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
-                menu.append(item)
+                menu.append(self.set_finger_friendly(item))
 
             menu.show_all()
             menu.popup( None, None, None, event.button, event.time)
@@ -922,9 +958,12 @@ class gPodder(GladeWidget):
                 message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
                 self.show_message( message, title)
     
-    def update_feed_cache_callback(self, progressbar, position, count):
+    def update_feed_cache_callback(self, progressbar, position, count, force_update):
         title = self.channels[position].title
-        progression = _('Updating %s (%d/%d)')%(title, position+1, count)
+        if force_update:
+            progression = _('Updating %s (%d/%d)')%(title, position+1, count)
+        else:
+            progression = _('Loading %s (%d/%d)')%(title, position+1, count)
         progressbar.set_text(progression)
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
@@ -987,7 +1026,7 @@ class gPodder(GladeWidget):
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
         # let's get down to business..
-        callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, self.pbFeedUpdate, pos, count)
+        callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, self.pbFeedUpdate, pos, count, force_update)
         finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, notify_no_new_episodes)
 
         self.feed_cache_update_cancelled = False
@@ -1541,7 +1580,11 @@ class gPodder(GladeWidget):
         page_num = args[1]
         if gpodder.interface == gpodder.MAEMO:
             page = self.wNotebook.get_nth_page(page_num)
-            self.set_title(self.wNotebook.get_tab_label(page).get_text())
+            tab_label = self.wNotebook.get_tab_label(page).get_text()
+            if page_num == 0 and self.active_channel is not None:
+                self.set_title(self.active_channel.title)
+            else:
+                self.set_title(tab_label)
         if page_num == 0:
             self.play_or_download()
         else:
@@ -1563,7 +1606,6 @@ class gPodder(GladeWidget):
             self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
             self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
             if gpodder.interface == gpodder.MAEMO:
-                self.label2.set_text(self.active_channel.title)
                 self.set_title(self.active_channel.title)
             self.itemEditChannel.show_all()
             self.itemRemoveChannel.show_all()
@@ -1810,6 +1852,8 @@ class gPodder(GladeWidget):
             self.gPodder.iconify()           
 
 class gPodderChannel(GladeWidget):
+    finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description']
+    
     def new(self):
         global WEB_BROWSER_ICON
         self.image3167.set_property('icon-name', WEB_BROWSER_ICON)
@@ -2267,6 +2311,9 @@ class gPodderProperties(GladeWidget):
 
 
 class gPodderEpisode(GladeWidget):
+    finger_friendly_widgets = ['episode_description', 'btnCloseWindow', 'btnDownload', 
+    'btnCancel', 'btnSaveFile', 'btnPlay', 'btn_website']
+    
     def new(self):
         global WEB_BROWSER_ICON
         self.image3166.set_property('icon-name', WEB_BROWSER_ICON)
@@ -2389,6 +2436,8 @@ class gPodderSync(GladeWidget):
 
 
 class gPodderOpmlLister(GladeWidget):
+    finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
+    
     def new(self):
         # initiate channels list
         self.channels = []
@@ -2511,6 +2560,8 @@ class gPodderEpisodeSelector( GladeWidget):
                         (default is 'length')
                            
     """
+    finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
+    
     COLUMN_TOGGLE = 0
     COLUMN_ADDITIONAL = 1
 
@@ -2542,6 +2593,9 @@ class gPodderEpisodeSelector( GladeWidget):
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
             self.labelHeading.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.title))
+
+        if gpodder.interface == gpodder.MAEMO:
+            self.labelHeading.hide()
 
         if hasattr( self, 'instructions'):
             self.labelInstructions.set_text( self.instructions)
@@ -2657,6 +2711,8 @@ class gPodderEpisodeSelector( GladeWidget):
             self.callback([])
 
 class gPodderConfigEditor(GladeWidget):
+    finger_friendly_widgets = ['btnShowAll', 'btnClose', 'configeditor']
+    
     def new(self):
         name_column = gtk.TreeViewColumn(_('Variable'))
         name_renderer = gtk.CellRendererText()
