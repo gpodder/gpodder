@@ -289,9 +289,11 @@ class gPodder(GladeWidget):
             self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
             self.separator11.hide_all()
+            self.hboxAddChannel.hide_all()
 
             # Feed cache update button
-            self.label120.set_text(_('Update feeds'))
+            self.label120.set_text(_('Update'))
+            self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
@@ -347,6 +349,7 @@ class gPodder(GladeWidget):
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
         namecolumn.add_attribute( iconcell, 'pixbuf', 5)
+        self.cell_channel_icon = iconcell
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
@@ -357,6 +360,7 @@ class gPodder(GladeWidget):
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
         namecolumn.add_attribute( iconcell, 'pixbuf', 3)
+        self.cell_channel_pill = iconcell
 
         self.treeChannels.append_column( namecolumn)
         self.treeChannels.set_headers_visible(False)
@@ -474,6 +478,13 @@ class gPodder(GladeWidget):
             if len(old_episodes) > 0:
                 self.delete_episode_list(old_episodes, confirm=False)
                 self.updateComboBox()
+
+    def on_tree_channels_resize(self, widget, allocation):
+        window_allocation = self.gPodder.get_allocation()
+        percentage = 100. * float(allocation.width) / float(window_allocation.width)
+        print percentage
+        self.cell_channel_icon.set_property('visible', bool(percentage > 24.))
+        self.cell_channel_pill.set_property('visible', bool(percentage > 28.))
 
     def read_apps(self):
         time.sleep(3) # give other parts of gpodder a chance to start up
@@ -1426,13 +1437,19 @@ class gPodder(GladeWidget):
         self.updateComboBox()
 
     def on_itemPreferences_activate(self, widget, *args):
-        gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
+        if gpodder.interface == gpodder.GUI:
+            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
+        else:
+            gPodderMaemoPreferences()
 
     def on_itemAddChannel_activate(self, widget, *args):
-        if self.channelPaned.get_position() < 200:
-            self.channelPaned.set_position( 200)
-        self.entryAddChannel.set_text( _('Enter podcast URL'))
-        self.entryAddChannel.grab_focus()
+        if gpodder.interface == gpodder.MAEMO:
+            gPodderAddPodcastDialog(url_callback=self.add_new_channel)
+        else:
+            if self.channelPaned.get_position() < 200:
+                self.channelPaned.set_position( 200)
+            self.entryAddChannel.set_text( _('Enter podcast URL'))
+            self.entryAddChannel.grab_focus()
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
@@ -1956,6 +1973,51 @@ class gPodderChannel(GladeWidget):
         self.channel.save_settings()
 
         self.gPodderChannel.destroy()
+
+class gPodderAddPodcastDialog(GladeWidget):
+    finger_friendly_widgets = ['btn_close', 'btn_add']
+
+    def new(self):
+        if not hasattr(self, 'url_callback'):
+            log('No url callback set', sender=self)
+            self.url_callback = None
+
+    def on_btn_close_clicked(self, widget):
+        self.gPodderAddPodcastDialog.destroy()
+
+    def on_entry_url_changed(self, widget):
+        self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
+
+    def on_btn_add_clicked(self, widget):
+        url = self.entry_url.get_text()
+        self.on_btn_close_clicked(widget)
+        if self.url_callback is not None:
+            self.url_callback(url)
+        
+
+class gPodderMaemoPreferences(GladeWidget):
+    finger_friendly_widgets = ['btn_close', 'label128', 'label129', 'btn_advanced']
+    
+    def new(self):
+        gl.config.connect_gtk_togglebutton('update_on_startup', self.update_on_startup)
+        gl.config.connect_gtk_togglebutton('display_tray_icon', self.show_tray_icon)
+        gl.config.connect_gtk_togglebutton('enable_notifications', self.show_notifications)
+
+        self.restart_required = False
+        self.show_tray_icon.connect('clicked', self.on_restart_required)
+        self.show_notifications.connect('clicked', self.on_restart_required)
+
+    def on_restart_required(self, widget):
+        self.restart_required = True
+
+    def on_btn_advanced_clicked(self, widget):
+        self.gPodderMaemoPreferences.destroy()
+        gPodderConfigEditor()
+
+    def on_btn_close_clicked(self, widget):
+        self.gPodderMaemoPreferences.destroy()
+        if self.restart_required:
+            self.show_message(_('Please restart gPodder for the changes to take effect.'))
 
 
 class gPodderProperties(GladeWidget):
