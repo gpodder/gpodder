@@ -1,3 +1,27 @@
+Thu, 24 Apr 2008 19:40:55 +0200 <thp@perli.net>
+Maemo-specific dialogs and UI improvements
+
+	* data/gpodder.glade: Maemo-specific "Add Podcast" dialog and
+	Maemo-specific, stripped-down "Preferences" dialog added
+	* src/gpodder/gui.py: Hide channel add UI from main window; make label
+	for update button even shorter; hide cover and pill cells in the
+	channel list if it gets too small; Maemo-specific dialogs for both
+	adding channels and editing preferences
+
+Thu, 24 Apr 2008 18:19:02 +0200 <thp@perli.net>
+Maemo finger-friendly updates; minor UI changes
+
+	* data/gpodder.glade: Ellipsize the feed update progressbar in the
+	middle instead of the end (to show progress)
+	* src/gpodder/gui.py: Add support for finger-friendly widget (buttons,
+	scroll areas, popup menus, etc..); text is "Loading [...]" when
+	loading feed cache and "Updating [...]" when updating feeds; on Maemo,
+	don't set the tab title to the current episode title; hide the heading
+	in gPodderEpisodeSelector on Maemo (to save screen space); add
+	finger_friendly_widgets class attribute to several gPodder windows;
+	make the tabs in the main window a bit taller, but remove the border
+	around the main window to gain some space on the screen
+
 Thu, 24 Apr 2008 15:48:58 +0200 <thp@perli.net>
 Updated Swedish translation by Anders Kvist
 
