@@ -482,9 +482,10 @@ class gPodder(GladeWidget):
     def on_tree_channels_resize(self, widget, allocation):
         window_allocation = self.gPodder.get_allocation()
         percentage = 100. * float(allocation.width) / float(window_allocation.width)
-        print percentage
-        self.cell_channel_icon.set_property('visible', bool(percentage > 24.))
-        self.cell_channel_pill.set_property('visible', bool(percentage > 28.))
+        if hasattr(self, 'cell_channel_icon'):
+            self.cell_channel_icon.set_property('visible', bool(percentage > 24.))
+        if hasattr(self, 'cell_channel_pill'):
+            self.cell_channel_pill.set_property('visible', bool(percentage > 28.))
 
     def read_apps(self):
         time.sleep(3) # give other parts of gpodder a chance to start up
