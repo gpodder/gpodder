@@ -81,7 +81,7 @@ app_authors = [
     'Doug Hellmann', 'FFranci72',
     'Florian Richter', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
-    'Jérôme Chabod', 'Jessica Henline', 'Joel Calado', 'John Ferguson', 
+    'Jérôme Chabod', 'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
     'Jürgen Schinker',
     'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Mark Alford', 'Michael Salim', 
