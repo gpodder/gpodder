@@ -282,7 +282,6 @@ class gPodder(GladeWidget):
             for child in self.mainMenu.get_children():
                 child.reparent(menu)
             self.itemQuit.reparent(menu)
-            self.trennlinie3.parent.remove(self.trennlinie3)
             self.window.set_menu(menu)
          
             self.mainMenu.destroy()
@@ -292,6 +291,7 @@ class gPodder(GladeWidget):
             self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
             self.item_show_url_entry.hide_all()
+            self.item_email_subscriptions.hide_all()
 
             # Feed cache update button
             self.label120.set_text(_('Update'))
@@ -2107,6 +2107,7 @@ class gPodderMaemoPreferences(GladeWidget):
         gl.config.connect_gtk_togglebutton('update_on_startup', self.update_on_startup)
         gl.config.connect_gtk_togglebutton('display_tray_icon', self.show_tray_icon)
         gl.config.connect_gtk_togglebutton('enable_notifications', self.show_notifications)
+        gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
 
         self.restart_required = False
         self.show_tray_icon.connect('clicked', self.on_restart_required)
@@ -2622,6 +2623,7 @@ class gPodderOpmlLister(GladeWidget):
         togglecolumn = gtk.TreeViewColumn( '', togglecell, active=0)
         
         titlecell = gtk.CellRendererText()
+        titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=1)
 
         for itemcolumn in ( togglecolumn, titlecolumn ):

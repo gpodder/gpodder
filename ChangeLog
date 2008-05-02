@@ -1,3 +1,16 @@
+Fri, 02 May 2008 17:42:54 +0200 <thp@perli.net>
+Maemo-related changes; allow custom player on Maemo (optional)
+
+	* data/gpodder.glade: gPodder maemo preferences window should be
+	modal; Add "Ask before closing gPodder" checkbox to Maemo preferences
+	* src/gpodder/config.py: Add option "maemo_allow_custom_player" that
+	allows setting the "player" and "videoplayer" variables to a command
+	that will be called, like on the Desktop version (instead of always
+	opening Nokia's Media Player with all files)
+	* src/gpodder/gui.py: Maemo-specific UI tweaks
+	* src/gpodder/libgpodder.py: Only call Nokia's Mediaplayer when we are
+	on Maemo and when "maemo_allow_custom_player" is set to False
+
 Fri, 02 May 2008 17:28:22 +0200 <thp@perli.net>
 Change "Channel" to "Podcast"; new main menu; URL entry updated; +niceties
 

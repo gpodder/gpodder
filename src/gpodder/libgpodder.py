@@ -213,7 +213,7 @@ class gPodderLib(object):
         self.history_mark_played( episode.url)
         filename = episode.local_filename()
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.interface == gpodder.MAEMO and not self.config.maemo_allow_custom_player:
             # Use the built-in Nokia Mediaplayer here
             filename = filename.encode('utf-8')
             osso_rpc = osso.Rpc(self.osso_c)

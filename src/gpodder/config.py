@@ -107,6 +107,7 @@ gPodderSettings = {
     'max_episodes_per_feed': (int, 200),
     'mp3_player_use_scrobbler_log': (bool, False),
     'show_podcast_url_entry': (bool, True),
+    'maemo_allow_custom_player': (bool, False),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),
