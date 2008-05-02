@@ -33,8 +33,8 @@ import urllib
 
 
 def list_channels():
-    for channel in load_channels( load_items = False):
-        msg( 'channel', urllib.unquote( channel.url))
+    for channel in load_channels(load_items=False):
+        msg('podcast', urllib.unquote(channel.url))
 
 
 def add_channel( url):
@@ -56,7 +56,7 @@ def add_channel( url):
         save_channels( channels)
         msg( 'add', urllib.unquote( url))
     else:
-        msg( 'error', _('Could not add channel.'))
+        msg('error', _('Could not add podcast.'))
 
 
 def del_channel( url):
@@ -73,7 +73,7 @@ def del_channel( url):
     if len(keep_channels) < len(channels):
         save_channels( keep_channels)
     else:
-        msg( 'error', _('Could not remove channel.'))
+        msg('error', _('Could not remove podcast.'))
 
 
 def update():
@@ -111,7 +111,7 @@ def sync_device():
 
     for channel in load_channels():
         if not channel.sync_to_devices:
-            msg('info', _('Skipping channel: %s') % channel.title)
+            msg('info', _('Skipping podcast: %s') % channel.title)
             continue
         
         episodes_to_sync = []

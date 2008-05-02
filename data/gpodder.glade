@@ -33,22 +33,10 @@
 	  <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="menuPodcasts">
+	    <widget class="GtkMenuItem" id="menuPodcasts">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Podcasts</property>
+	      <property name="label" translatable="yes">Podcasts</property>
 	      <property name="use_underline">True</property>
-
-	      <child internal-child="image">
-		<widget class="GtkImage" id="image2845">
-		  <property name="visible">True</property>
-		  <property name="stock">gtk-cdrom</property>
-		  <property name="icon_size">1</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-	      </child>
 
 	      <child>
 		<widget class="GtkMenu" id="menuPodcasts_menu">
@@ -56,13 +44,13 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemUpdate">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">_Check for Updates</property>
+		      <property name="label" translatable="yes">Check for new episodes</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_itemUpdate_activate" last_modification_time="Sat, 29 Oct 2005 11:28:10 GMT"/>
 		      <accelerator key="R" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2846">
+			<widget class="GtkImage" id="image4578">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
@@ -78,15 +66,15 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemDownloadAllNew">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Download _all new episodes</property>
+		      <property name="label" translatable="yes">Download new episodes</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_itemDownloadAllNew_activate" last_modification_time="Sat, 09 Dec 2006 18:13:48 GMT"/>
 		      <accelerator key="N" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2847">
+			<widget class="GtkImage" id="image4579">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-about</property>
+			  <property name="stock">gtk-goto-bottom</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -100,13 +88,13 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemRemoveOldEpisodes">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Remove _old episodes</property>
+		      <property name="label" translatable="yes">Remove old episodes</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_itemRemoveOldEpisodes_activate" last_modification_time="Thu, 08 Nov 2007 12:22:07 GMT"/>
 		      <accelerator key="K" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2848">
+			<widget class="GtkImage" id="image4580">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-delete</property>
 			  <property name="icon_size">1</property>
@@ -126,226 +114,15 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="advanced1">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Channel _list</property>
-		      <property name="use_underline">True</property>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2849">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-justify-left</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenu" id="advanced1_menu">
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="itemAddChannel">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Subscribe to new channel</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_itemAddChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:33:59 GMT"/>
-			      <accelerator key="L" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image3014">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-add</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="itemEditChannel">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Edit channel</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_itemEditChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:34:38 GMT"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2851">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-edit</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="itemRemoveChannel">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Remove channel</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_itemRemoveChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:35:16 GMT"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2852">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-remove</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkSeparatorMenuItem" id="separator13">
-			      <property name="visible">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="itemImportChannels">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Import channels from web</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_itemImportChannels_activate" last_modification_time="Tue, 13 Jun 2006 19:39:42 GMT"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2853">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-redo</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="itemExportChannels">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">E_xport to OPML</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_itemExportChannels_activate" last_modification_time="Sat, 29 Oct 2005 11:37:45 GMT"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2854">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-save-as</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="itemDevice">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Device</property>
-		      <property name="use_underline">True</property>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2855">
-			  <property name="visible">True</property>
-			  <property name="icon_size">1</property>
-			  <property name="icon_name">multimedia-player</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-
-		      <child>
-			<widget class="GtkMenu" id="itemDevice_menu">
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="sync_to_ipod">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Synchronize</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_sync_to_ipod_activate" last_modification_time="Wed, 05 Apr 2006 21:49:38 GMT"/>
-			      <accelerator key="S" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2856">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-refresh</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkImageMenuItem" id="cleanup_ipod">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">_Remove podcasts</property>
-			      <property name="use_underline">True</property>
-			      <signal name="activate" handler="on_cleanup_ipod_activate" last_modification_time="Wed, 05 Apr 2006 22:14:51 GMT"/>
-
-			      <child internal-child="image">
-				<widget class="GtkImage" id="image2857">
-				  <property name="visible">True</property>
-				  <property name="stock">gtk-delete</property>
-				  <property name="icon_size">1</property>
-				  <property name="xalign">0.5</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator12">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
 		    <widget class="GtkImageMenuItem" id="itemPreferences">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">_Preferences</property>
+		      <property name="label" translatable="yes">Preferences</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_itemPreferences_activate" last_modification_time="Sat, 29 Oct 2005 11:29:01 GMT"/>
 		      <accelerator key="P" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2858">
+			<widget class="GtkImage" id="image4581">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-preferences</property>
 			  <property name="icon_size">1</property>
@@ -373,7 +150,7 @@
 		      <accelerator key="W" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image3207">
+			<widget class="GtkImage" id="image4582">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-close</property>
 			  <property name="icon_size">1</property>
@@ -395,7 +172,7 @@
 		      <accelerator key="Q" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2859">
+			<widget class="GtkImage" id="image4583">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-quit</property>
 			  <property name="icon_size">1</property>
@@ -413,38 +190,26 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="menuChannels">
+	    <widget class="GtkMenuItem" id="advanced1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Channel</property>
+	      <property name="label" translatable="yes">Subscriptions</property>
 	      <property name="use_underline">True</property>
 
-	      <child internal-child="image">
-		<widget class="GtkImage" id="image2860">
-		  <property name="visible">True</property>
-		  <property name="stock">gtk-justify-left</property>
-		  <property name="icon_size">1</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-	      </child>
-
 	      <child>
-		<widget class="GtkMenu" id="menuChannels_menu">
+		<widget class="GtkMenu" id="advanced1_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="itemDownloadNew">
+		    <widget class="GtkImageMenuItem" id="itemAddChannel">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Download new episodes</property>
+		      <property name="label" translatable="yes">Subscribe to new podcast</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownloadNewer_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
-		      <accelerator key="N" modifiers="GDK_CONTROL_MASK | GDK_MOD1_MASK" signal="activate"/>
+		      <signal name="activate" handler="on_itemAddChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:33:59 GMT"/>
+		      <accelerator key="L" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2861">
+			<widget class="GtkImage" id="image4584">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-about</property>
+			  <property name="stock">gtk-add</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -456,16 +221,144 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="itemDownloadAll">
+		    <widget class="GtkImageMenuItem" id="itemEditChannel">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Download all available</property>
+		      <property name="label" translatable="yes">Edit selected podcast</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnSelectAllAvailable_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+		      <signal name="activate" handler="on_itemEditChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:34:38 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2862">
+			<widget class="GtkImage" id="image4585">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-sort-ascending</property>
+			  <property name="stock">gtk-edit</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="itemRemoveChannel">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Unsubscribe from selected podcast</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_itemRemoveChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:35:16 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4586">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-remove</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator14">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="item_import_from_file">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Import podcasts from OPML file</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_item_import_from_file_activate" last_modification_time="Mon, 28 Apr 2008 17:48:04 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4587">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-open</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="itemExportChannels">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Export podcasts to OPML file</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_itemExportChannels_activate" last_modification_time="Sat, 29 Oct 2005 11:37:45 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4588">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-save-as</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator13">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="itemImportChannels">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Add podcasts from OPML on the web</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_itemImportChannels_activate" last_modification_time="Tue, 13 Jun 2006 19:39:42 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="item_email_subscriptions">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Send subscription list via e-mail</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_item_email_subscriptions_activate" last_modification_time="Mon, 28 Apr 2008 17:50:23 GMT"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="menuChannels">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Episodes</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="menuChannels_menu">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="itemPlaySelected">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Play</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_btnDownloadedExecute_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+		      <accelerator key="Return" modifiers="GDK_SHIFT_MASK" signal="activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4589">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-media-play</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -479,12 +372,12 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemDownloadSelected">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Download selected episodes</property>
+		      <property name="label" translatable="yes">Download</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_btnDownload_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2863">
+			<widget class="GtkImage" id="image4590">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-goto-bottom</property>
 			  <property name="icon_size">1</property>
@@ -498,23 +391,16 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator4">
+		    <widget class="GtkImageMenuItem" id="item_cancel_download">
 		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="itemDeleteAll">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Delete all episodes</property>
+		      <property name="label" translatable="yes">Cancel download</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDeleteAll_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
-		      <accelerator key="Delete" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+		      <signal name="activate" handler="on_treeDownloads_row_activated" last_modification_time="Mon, 28 Apr 2008 18:10:05 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2864">
+			<widget class="GtkImage" id="image4591">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-clear</property>
+			  <property name="stock">gtk-stop</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -528,43 +414,15 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="itemDeleteSelected">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Delete selected episodes</property>
+		      <property name="label" translatable="yes">Delete</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_btnDownloadedDelete_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
 		      <accelerator key="Delete" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2865">
+			<widget class="GtkImage" id="image4592">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-delete</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator8">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="itemPlaySelected">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Play selected episode</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownloadedExecute_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
-		      <accelerator key="Return" modifiers="GDK_SHIFT_MASK" signal="activate"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2866">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-media-play</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -582,49 +440,16 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkMenuItem" id="item_toggle_downloaded">
+		    <widget class="GtkImageMenuItem" id="item_toggle_played">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Toggle downloaded status for selection</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_item_toggle_downloaded_activate" last_modification_time="Thu, 30 Aug 2007 15:20:35 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkMenuItem" id="item_toggle_played">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Toggle played status for selection</property>
+		      <property name="label" translatable="yes">Mark as played</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_item_toggle_played_activate" last_modification_time="Thu, 30 Aug 2007 15:20:35 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkMenuItem" id="item_toggle_lock">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Toggle lock status for selection</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_item_toggle_lock_activate"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator11">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="itemTransferSelected">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Transfer selected episodes</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnTransfer_clicked" last_modification_time="Sat, 17 Mar 2007 12:59:55 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2867">
+			<widget class="GtkImage" id="image4593">
 			  <property name="visible">True</property>
-			  <property name="icon_name">multimedia-player</property>
+			  <property name="stock">gtk-apply</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -634,29 +459,144 @@
 		      </child>
 		    </widget>
 		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="item_toggle_lock">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Prohibit deletion</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_item_toggle_lock_activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4594">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-cancel</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator16">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="item_episode_details">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Episode details</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_treeAvailable_row_activated" last_modification_time="Mon, 28 Apr 2008 18:36:07 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4595">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-info</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="no_episode_selected">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">No episode selected</property>
+		      <property name="use_underline">True</property>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 	    </widget>
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="menuView">
+	    <widget class="GtkMenuItem" id="itemDevice">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_View</property>
+	      <property name="label" translatable="yes">Device</property>
 	      <property name="use_underline">True</property>
-	      <signal name="activate" handler="on_menuView_activate" last_modification_time="Sat, 02 Feb 2008 13:03:07 GMT"/>
 
-	      <child internal-child="image">
-		<widget class="GtkImage" id="image3031">
-		  <property name="visible">True</property>
-		  <property name="stock">gtk-zoom-fit</property>
-		  <property name="icon_size">1</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
+	      <child>
+		<widget class="GtkMenu" id="itemDevice_menu">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="sync_to_ipod">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Copy episodes to device</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_sync_to_ipod_activate" last_modification_time="Wed, 05 Apr 2006 21:49:38 GMT"/>
+		      <accelerator key="S" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4596">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-refresh</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="cleanup_ipod">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Remove episodes from device</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_cleanup_ipod_activate" last_modification_time="Wed, 05 Apr 2006 22:14:51 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4597">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-delete</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator15">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="itemTransferSelected">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Copy selected episodes to device</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_btnTransfer_clicked" last_modification_time="Sat, 17 Mar 2007 12:59:55 GMT"/>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="menuView">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">View</property>
+	      <property name="use_underline">True</property>
+	      <signal name="activate" handler="on_menuView_activate" last_modification_time="Sat, 02 Feb 2008 13:03:07 GMT"/>
 
 	      <child>
 		<widget class="GtkMenu" id="menuView_menu">
@@ -682,43 +622,41 @@
 		      <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
+
+		  <child>
+		    <widget class="GtkCheckMenuItem" id="item_show_url_entry">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Show URL entry box</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <signal name="activate" handler="on_item_show_url_entry_activate" last_modification_time="Mon, 28 Apr 2008 17:37:46 GMT"/>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 	    </widget>
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="menuHelp">
+	    <widget class="GtkMenuItem" id="menuHelp">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">_Help</property>
 	      <property name="use_underline">True</property>
-
-	      <child internal-child="image">
-		<widget class="GtkImage" id="image3032">
-		  <property name="visible">True</property>
-		  <property name="stock">gtk-help</property>
-		  <property name="icon_size">1</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-	      </child>
 
 	      <child>
 		<widget class="GtkMenu" id="menuHelp_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="homepage">
+		    <widget class="GtkImageMenuItem" id="wiki">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">gPodder Homepage</property>
+		      <property name="label" translatable="yes">User manual</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_homepage_activate" last_modification_time="Mon, 04 Dec 2006 12:08:55 GMT"/>
+		      <signal name="activate" handler="on_wiki_activate" last_modification_time="Thu, 13 Dec 2007 08:01:04 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image2869">
+			<widget class="GtkImage" id="image4598">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-home</property>
+			  <property name="stock">gtk-help</property>
 			  <property name="icon_size">1</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -736,65 +674,20 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="wishlist">
+		    <widget class="GtkMenuItem" id="homepage">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Amazon Wishlist</property>
+		      <property name="label" translatable="yes">Go to gpodder.org</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_wishlist_activate" last_modification_time="Mon, 04 Dec 2006 12:06:32 GMT"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2870">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-edit</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <signal name="activate" handler="on_homepage_activate" last_modification_time="Mon, 04 Dec 2006 12:08:55 GMT"/>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="wiki">
+		    <widget class="GtkMenuItem" id="bug_tracker">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Documentation Wiki</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_wiki_activate" last_modification_time="Thu, 13 Dec 2007 08:01:04 GMT"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2871">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-find</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="bug_tracker">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Bug Tracker</property>
+		      <property name="label" translatable="yes">Report a problem</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_bug_tracker_activate" last_modification_time="Mon, 14 Jan 2008 19:20:31 GMT"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image2927">
-			  <property name="visible">True</property>
-			  <property name="icon_size">1</property>
-			  <property name="icon_name">bug-buddy</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
 		    </widget>
 		  </child>
 
@@ -887,7 +780,7 @@
 	      <property name="sensitive">False</property>
 	      <property name="label" translatable="yes">Cancel</property>
 	      <property name="use_underline">True</property>
-	      <property name="stock_id">gtk-stop</property>
+	      <property name="stock_id">gtk-cancel</property>
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
 	      <property name="is_important">False</property>
@@ -1537,7 +1430,7 @@
 <widget class="GtkWindow" id="gPodderChannel">
   <property name="border_width">10</property>
   <property name="visible">True</property>
-  <property name="title" translatable="yes">gPodder Channel Editor</property>
+  <property name="title" translatable="yes">gPodder Podcast Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
   <property name="modal">True</property>
@@ -1779,7 +1672,7 @@
 		<widget class="GtkCheckButton" id="cbNoSync">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Skip this channel when syncing to my device</property>
+		  <property name="label" translatable="yes">Skip this podcast when syncing to my device</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -2972,7 +2865,7 @@
 	      <child>
 		<widget class="GtkCheckButton" id="updatetags">
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">Writes episode and channel info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)</property>
+		  <property name="tooltip" translatable="yes">Writes episode and podcast info to the downloaded file's tag field (ID3 for MP3, vorbis tag for OGG, etc..)</property>
 		  <property name="can_focus">True</property>
 		  <property name="label" translatable="yes">Update tags on audio files after download</property>
 		  <property name="use_underline">True</property>
@@ -3962,9 +3855,9 @@ Filesystem-based MP3 player</property>
 	      <child>
 		<widget class="GtkCheckButton" id="cbChannelSubfolder">
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">If checked, a subfolder will be created for each channel synchronized. If not checked, all episodes will be copied directly to the folder specified by &quot;Sync to folder:&quot;.</property>
+		  <property name="tooltip" translatable="yes">If checked, a subfolder will be created for each podcast synchronized. If not checked, all episodes will be copied directly to the folder specified by &quot;Sync to folder:&quot;.</property>
 		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">Create a subfolder for each channel</property>
+		  <property name="label" translatable="yes">Create a subfolder for each podcast</property>
 		  <property name="use_underline">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
@@ -5423,7 +5316,7 @@ Filesystem-based MP3 player</property>
 	  <child>
 	    <widget class="GtkLabel" id="channel_title">
 	      <property name="visible">True</property>
-	      <property name="label">from the gPodder Channel title</property>
+	      <property name="label">from the gPodder Podcast title</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">True</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -6187,7 +6080,7 @@ Filesystem-based MP3 player</property>
 
 <widget class="GtkWindow" id="gPodderOpmlLister">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Import channels from web</property>
+  <property name="title" translatable="yes">Import podcasts from web</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
   <property name="modal">False</property>
@@ -6885,6 +6778,7 @@ Filesystem-based MP3 player</property>
 	    <widget class="GtkEntry" id="entryFilter">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
+	      <property name="has_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">0</property>
@@ -6968,7 +6862,6 @@ Filesystem-based MP3 player</property>
 	      <property name="can_default">True</property>
 	      <property name="has_default">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="has_focus">True</property>
 	      <property name="label">gtk-close</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>

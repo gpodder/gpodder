@@ -106,6 +106,7 @@ gPodderSettings = {
     'create_m3u_playlists': (bool, False),
     'max_episodes_per_feed': (int, 200),
     'mp3_player_use_scrobbler_log': (bool, False),
+    'show_podcast_url_entry': (bool, True),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),
@@ -127,6 +128,7 @@ class Config(dict):
         self.__filename = filename
         self.__section = 'gpodder-conf-1'
         self.__ignore_window_events = False
+        self.__observers = []
         # Name, Type, Value, Type(python type), Editable?, Font weight
         self.__model = gtk.ListStore(str, str, str, object, bool, int)
 
@@ -140,6 +142,22 @@ class Config(dict):
             return self[name]
         else:
             raise AttributeError
+
+    def add_observer(self, callback):
+        """
+        Add a callback function as observer. This callback
+        will be called when a setting changes. It should 
+        have this signature:
+
+            observer(name, old_value, new_value)
+
+        The "name" is the setting name, the "old_value" is
+        the value that has been overwritten with "new_value".
+        """
+        if callback not in self.__observers:
+            self.__observers.append(callback)
+        else:
+            log('Observer already added: %s', repr(callback), sender=self)
 
     def connect_gtk_editable( self, name, editable):
         if name in self.Settings:
@@ -326,7 +344,14 @@ class Config(dict):
             try:
                 if self[name] != fieldtype(value):
                     log( 'Update: %s = %s', name, value, sender = self)
+                    old_value = self[name]
                     self[name] = fieldtype(value)
+                    for observer in self.__observers:
+                        try:
+                            # Notify observer about config change
+                            observer(name, old_value, self[name])
+                        except:
+                            log('Error while calling observer: %s', repr(observer), sender=self)
                     for row in self.__model:
                         if row[0] == name:
                             row[2] = str(fieldtype(value))

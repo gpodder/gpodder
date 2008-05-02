@@ -78,8 +78,8 @@ app_authors = [
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 
     'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
     'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge',
-    'Doug Hellmann', 'FFranci72',
-    'Florian Richter', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
+    'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
+    'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
@@ -221,14 +221,16 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         if not dst_filename.endswith( extension):
             dst_filename += extension
 
-        dlg = gtk.FileChooserDialog( title = title, parent = GladeWidget.gpodder_main_window, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.set_do_overwrite_confirmation( True)
+        if gpodder.interface == gpodder.GUI:
+            dlg = gtk.FileChooserDialog(title=title, parent=GladeWidget.gpodder_main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        elif gpodder.interface == gpodder.MAEMO:
+            dlg = hildon.FileChooserDialog(GladeWidget.gpodder_main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
+        dlg.set_do_overwrite_confirmation( True)
         dlg.set_current_name( os.path.basename( dst_filename))
         dlg.set_current_folder( dst_directory)
-
-        dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
 
         if dlg.run() == gtk.RESPONSE_OK:
             dst_filename = dlg.get_filename()
@@ -248,6 +250,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 class gPodder(GladeWidget):
     finger_friendly_widgets = ['btnUpdateFeeds', 'btnCancelFeedUpdate', 'treeAvailable', 'label2', 'labelDownloads']
+    ENTER_URL_TEXT = _('Enter podcast URL...')
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
@@ -288,15 +291,27 @@ class gPodder(GladeWidget):
             # do some widget hiding
             self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
-            self.separator11.hide_all()
-            self.hboxAddChannel.hide_all()
+            self.item_show_url_entry.hide_all()
 
             # Feed cache update button
             self.label120.set_text(_('Update'))
-            self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
+
+        self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
+
+        if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
+            self.hboxAddChannel.hide_all()
+
+        if not gl.config.show_toolbar:
+            self.toolbar.hide_all()
+
+        gl.config.add_observer(self.on_config_changed)
+        self.default_entry_text_color = self.entryAddChannel.get_style().text[gtk.STATE_NORMAL]
+        self.entryAddChannel.connect('focus-in-event', self.entry_add_channel_focus)
+        self.entryAddChannel.connect('focus-out-event', self.entry_add_channel_unfocus)
+        self.entry_add_channel_unfocus(self.entryAddChannel, None)
         
         self.uar = None
         self.tray_icon = None
@@ -307,11 +322,11 @@ class gPodder(GladeWidget):
         
         self.already_notified_new_episodes = []
         self.show_hide_tray_icon()
+        self.no_episode_selected.set_sensitive(False)
 
-        self.episode_description_shown = gl.config.episode_list_descriptions
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
         self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
-        self.update_view_settings()
+        self.item_show_url_entry.set_active(gl.config.show_podcast_url_entry)
                    
         if self.tray_icon:
             if gl.config.start_iconified: 
@@ -344,7 +359,7 @@ class gPodder(GladeWidget):
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         # cell renderers for channel tree
-        namecolumn = gtk.TreeViewColumn( _('Channel'))
+        namecolumn = gtk.TreeViewColumn( _('Podcast'))
 
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
@@ -479,13 +494,43 @@ class gPodder(GladeWidget):
                 self.delete_episode_list(old_episodes, confirm=False)
                 self.updateComboBox()
 
+        # First-time users should be asked if they want to see the OPML
+        if len(self.channels) == 0:
+            util.idle_add(self.on_itemUpdate_activate, None)
+
     def on_tree_channels_resize(self, widget, allocation):
         window_allocation = self.gPodder.get_allocation()
         percentage = 100. * float(allocation.width) / float(window_allocation.width)
         if hasattr(self, 'cell_channel_icon'):
-            self.cell_channel_icon.set_property('visible', bool(percentage > 24.))
+            self.cell_channel_icon.set_property('visible', bool(percentage > 22.))
         if hasattr(self, 'cell_channel_pill'):
-            self.cell_channel_pill.set_property('visible', bool(percentage > 28.))
+            self.cell_channel_pill.set_property('visible', bool(percentage > 25.))
+
+    def entry_add_channel_focus(self, widget, event):
+        widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
+        if widget.get_text() == self.ENTER_URL_TEXT:
+            widget.set_text('')
+
+    def entry_add_channel_unfocus(self, widget, event):
+        if widget.get_text() == '':
+            widget.set_text(self.ENTER_URL_TEXT)
+            widget.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
+
+    def on_config_changed(self, name, old_value, new_value):
+        if name == 'show_toolbar':
+            if new_value:
+                self.toolbar.show_all()
+            else:
+                self.toolbar.hide_all()
+        elif name == 'episode_list_descriptions':
+            for channel in self.channels:
+                channel.force_update_tree_model()
+            self.updateTreeView()
+        elif name == 'show_podcast_url_entry' and gpodder.interface != gpodder.MAEMO:
+            if new_value:
+                self.hboxAddChannel.show_all()
+            else:
+                self.hboxAddChannel.hide_all()
 
     def read_apps(self):
         time.sleep(3) # give other parts of gpodder a chance to start up
@@ -590,7 +635,10 @@ class gPodder(GladeWidget):
 
     def on_itemClose_activate(self, widget):
         if self.tray_icon is not None:
-            self.iconify_main_window()
+            if gpodder.interface == gpodder.MAEMO:
+                self.gPodder.set_property('visible', False)
+            else:
+                self.iconify_main_window()
         else:
             self.on_gPodder_delete_event(widget)
 
@@ -832,12 +880,20 @@ class gPodder(GladeWidget):
                 return False
 
         return True
+    
+    def change_menu_item(self, menuitem, icon=None, label=None):
+        (label_widget, icon_widget) = menuitem.get_children()
+        if icon is not None:
+            icon_widget.set_from_icon_name(icon, gtk.ICON_SIZE_MENU)
+        if label is not None:
+            label_widget.set_text(label)
 
     def play_or_download( self):
         if self.wNotebook.get_current_page() > 0:
             return
 
         ( can_play, can_download, can_transfer, can_cancel ) = (False,)*4
+        (is_played, is_locked) = (False,)*2
 
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
@@ -849,6 +905,8 @@ class gPodder(GladeWidget):
 
                 if os.path.exists( local_filename):
                     can_play = True
+                    is_played = gl.history_is_played(url)
+                    is_locked = gl.history_is_locked(url)
                 else:
                     if services.download_status_manager.is_download_in_progress( url):
                         can_cancel = True
@@ -866,6 +924,43 @@ class gPodder(GladeWidget):
         self.toolDownload.set_sensitive( can_download)
         self.toolTransfer.set_sensitive( can_transfer)
         self.toolCancel.set_sensitive( can_cancel)
+
+        if can_cancel:
+            self.item_cancel_download.show_all()
+        else:
+            self.item_cancel_download.hide_all()
+        if can_download:
+            self.itemDownloadSelected.show_all()
+        else:
+            self.itemDownloadSelected.hide_all()
+        if can_play:
+            self.itemPlaySelected.show_all()
+            self.itemDeleteSelected.show_all()
+            self.item_toggle_played.show_all()
+            self.item_toggle_lock.show_all()
+            self.separator9.show_all()
+            if is_played:
+                self.change_menu_item(self.item_toggle_played, gtk.STOCK_CANCEL, _('Mark as unplayed'))
+            else:
+                self.change_menu_item(self.item_toggle_played, gtk.STOCK_APPLY, _('Mark as played'))
+            if is_locked:
+                self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion'))
+            else:
+                self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion'))
+        else:
+            self.itemPlaySelected.hide_all()
+            self.itemDeleteSelected.hide_all()
+            self.item_toggle_played.hide_all()
+            self.item_toggle_lock.hide_all()
+            self.separator9.hide_all()
+        if can_play or can_download or can_cancel:
+            self.item_episode_details.show_all()
+            self.separator16.show_all()
+            self.no_episode_selected.hide_all()
+        else:
+            self.item_episode_details.hide_all()
+            self.separator16.hide_all()
+            self.no_episode_selected.show_all()
 
         return ( can_play, can_download, can_transfer, can_cancel )
 
@@ -927,7 +1022,7 @@ class gPodder(GladeWidget):
         if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
-                    self.show_message( _('You have already subscribed to this channel: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
+                    self.show_message( _('You have already subscribed to this podcast: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
                     log( 'Channel already exists: %s', result)
                     # Select the existing channel in combo box
                     for i in range( len( self.channels)):
@@ -961,8 +1056,8 @@ class gPodder(GladeWidget):
                 if ask_download_new:
                     self.on_btnDownloadNewer_clicked( None)
             else:
-                title = _('Error adding channel')
-                message = _('The channel could not be added. Please check the spelling of the URL or try again later.')
+                title = _('Error adding podcast')
+                message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
                 self.show_message( message, title)
         else:
             if result:
@@ -1067,7 +1162,7 @@ class gPodder(GladeWidget):
                     self.playback_episode( current_channel, current_podcast)
                 return
          
-            if widget.get_name() == 'treeAvailable':
+            if widget.get_name() == 'treeAvailable' or widget.get_name() == 'item_episode_details':
                 play_callback = lambda: self.playback_episode( current_channel, current_podcast)
                 download_callback = lambda: self.download_podcast_by_url( url, want_message_dialog, None)
                 gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback)
@@ -1142,7 +1237,7 @@ class gPodder(GladeWidget):
         """
         if self.channels:
             if not save_channels(self.channels):
-                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving channel list'))
+                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
         services.download_status_manager.cancel_all()
 
@@ -1189,7 +1284,7 @@ class gPodder(GladeWidget):
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
                 ('title', _('Episode')),
-                ('channel_prop', _('Channel')),
+                ('channel_prop', _('Podcast')),
                 ('filesize_prop', _('Size')),
                 ('pubdate_prop', _('Released')),
                 ('played_prop', _('Status')),
@@ -1240,13 +1335,23 @@ class gPodder(GladeWidget):
 
         self.for_each_selected_episode_url(callback)
 
+    def on_item_email_subscriptions_activate(self, widget):
+        if not self.channels:
+            self.show_message(_('Your subscription list is empty.'), _('Could not send list'))
+        elif not gl.send_subscriptions():
+            self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'))
+
+    def on_item_show_url_entry_activate(self, widget):
+        gl.config.show_podcast_url_entry = self.item_show_url_entry.get_active()
+
     def on_itemUpdate_activate(self, widget, notify_no_new_episodes=False):
         if self.channels:
             self.update_feed_cache(notify_no_new_episodes=notify_no_new_episodes)
         else:
-            title = _('No channels available')
-            message = _('You need to subscribe to some podcast feeds before you can start downloading podcasts. Use your favorite search engine to look for interesting podcasts.')
-            self.show_message( message, title)
+            title = _('Import podcasts from the web')
+            message = _('Your podcast list is empty. Do you want to see a list of example podcasts you can subscribe to?')
+            if self.show_confirmation(message, title):
+                self.on_itemImportChannels_activate(self, widget)
 
     def download_episode_list( self, episodes):
         for episode in episodes:
@@ -1258,7 +1363,7 @@ class gPodder(GladeWidget):
     def new_episodes_show(self, episodes):
         columns = (
                 ('title', _('Episode')),
-                ('channel_prop', _('Channel')),
+                ('channel_prop', _('Podcast')),
                 ('filesize_prop', _('Size')),
                 ('pubdate_prop', _('Released')),
         )
@@ -1404,31 +1509,17 @@ class gPodder(GladeWidget):
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
 
-    def update_view_settings(self):
-        if gl.config.show_toolbar:
-            self.toolbar.show_all()
-        else:
-            self.toolbar.hide_all()
-
-        if self.episode_description_shown != gl.config.episode_list_descriptions:
-            for channel in self.channels:
-                channel.force_update_tree_model()
-            self.updateTreeView()
-            self.episode_description_shown = gl.config.episode_list_descriptions
-    
     def on_itemShowToolbar_activate(self, widget):
         gl.config.show_toolbar = self.itemShowToolbar.get_active()
-        self.update_view_settings()
 
     def on_itemShowDescription_activate(self, widget):
         gl.config.episode_list_descriptions = self.itemShowDescription.get_active()
-        self.update_view_settings()
 
     def update_item_device( self):
         if gl.config.device_type != 'none':
             self.itemDevice.show_all()
-            ( label, image ) = self.itemDevice.get_children()
-            label.set_text( gl.get_device_name())
+            (label,) = self.itemDevice.get_children()
+            label.set_text(gl.get_device_name())
         else:
             self.itemDevice.hide_all()
 
@@ -1444,18 +1535,17 @@ class gPodder(GladeWidget):
             gPodderMaemoPreferences()
 
     def on_itemAddChannel_activate(self, widget, *args):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
             gPodderAddPodcastDialog(url_callback=self.add_new_channel)
         else:
             if self.channelPaned.get_position() < 200:
                 self.channelPaned.set_position( 200)
-            self.entryAddChannel.set_text( _('Enter podcast URL'))
             self.entryAddChannel.grab_focus()
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
-            title = _('No channel selected')
-            message = _('Please select a channel in the channels list to edit.')
+            title = _('No podcast selected')
+            message = _('Please select a podcast in the podcasts list to edit.')
             self.show_message( message, title)
             return
 
@@ -1500,7 +1590,7 @@ class gPodder(GladeWidget):
                 dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
                 dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
 
-                title = _('Remove channel and episodes?')
+                title = _('Remove podcast and episodes?')
                 message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
              
                 dialog.set_title(title)
@@ -1512,7 +1602,7 @@ class gPodder(GladeWidget):
                 affirmative = gtk.RESPONSE_YES
             elif gpodder.interface == gpodder.MAEMO:
                 cb_ask = gtk.CheckButton('') # dummy check button
-                dialog = hildon.Note('confirmation', (self.gPodder, _('Do you really want to remove this channel and all downloaded episodes?')))
+                dialog = hildon.Note('confirmation', (self.gPodder, _('Do you really want to remove this podcast and all downloaded episodes?')))
                 affirmative = gtk.RESPONSE_OK
 
             result = dialog.run()
@@ -1537,16 +1627,43 @@ class gPodder(GladeWidget):
         except:
             log('There has been an error removing the channel.', traceback=True, sender=self)
 
+    def get_opml_filter(self):
+        filter = gtk.FileFilter()
+        filter.add_pattern('*.opml')
+        filter.add_pattern('*.xml')
+        filter.set_name(_('OPML files')+' (*.opml, *.xml)')
+        return filter
+
+    def on_item_import_from_file_activate(self, widget):
+        if gpodder.interface == gpodder.GUI:
+            dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        elif gpodder.interface == gpodder.MAEMO:
+            dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_OPEN)
+        dlg.set_filter(self.get_opml_filter())
+        response = dlg.run()
+        filename = None
+        if response == gtk.RESPONSE_OK:
+            filename = dlg.get_filename()
+        dlg.destroy()
+        if filename is not None:
+            gPodderOpmlLister(custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
             title = _('Nothing to export')
-            message = _('Your list of channel subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list.')
+            message = _('Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list.')
             self.show_message( message, title)
             return
 
-        dlg = gtk.FileChooserDialog( title=_("Export to OPML"), parent = None, action = gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button( gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        if gpodder.interface == gpodder.GUI:
+            dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        elif gpodder.interface == gpodder.MAEMO:
+            dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_SAVE)
+        dlg.set_filter(self.get_opml_filter())
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             filename = dlg.get_filename()
@@ -1564,9 +1681,6 @@ class gPodder(GladeWidget):
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(app_website)
-
-    def on_wishlist_activate(self, widget, *args):
-        util.open_website('http://www.amazon.de/gp/registry/2PD2MYGHE6857')
 
     def on_wiki_activate(self, widget, *args):
         util.open_website('http://wiki.gpodder.org/')
@@ -1635,7 +1749,7 @@ class gPodder(GladeWidget):
         self.updateTreeView()
 
     def on_entryAddChannel_changed(self, widget, *args):
-        active = self.entryAddChannel.get_text() not in ('', _('Enter podcast URL'))
+        active = self.entryAddChannel.get_text() not in ('', self.ENTER_URL_TEXT)
         self.btnAddChannel.set_sensitive( active)
 
     def on_btnAddChannel_clicked(self, widget, *args):
@@ -1688,11 +1802,6 @@ class gPodder(GladeWidget):
     def on_btnDownloadNewer_clicked(self, widget, *args):
         self.new_episodes_show(self.active_channel.get_new_episodes())
 
-    def on_btnSelectAllAvailable_clicked(self, widget, *args):
-        self.treeAvailable.get_selection().select_all()
-        self.on_treeAvailable_row_activated( self.toolDownload, args)
-        self.treeAvailable.get_selection().unselect_all()
-        
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
         if not first_run and gl.config.auto_update_feeds and self.minimized:
@@ -1805,11 +1914,6 @@ class gPodder(GladeWidget):
         gl.clean_up_downloads(delete_partial)
         self.active_channel.force_update_tree_model()
         self.updateTreeView()
-
-    def on_btnDeleteAll_clicked(self, widget, *args):
-        self.treeAvailable.get_selection().select_all()
-        self.on_btnDownloadedDelete_clicked( widget, args)
-        self.treeAvailable.get_selection().unselect_all()
 
     def on_key_press(self, widget, event):
         # Currently, we only handle Maemo hardware keys here,
@@ -1961,7 +2065,7 @@ class gPodderChannel(GladeWidget):
         channel_url = self.channel.url
 
         if entered_url != channel_url:
-            if self.show_confirmation(_('Do you really want to move this channel to <b>%s</b>?') % (saxutils.escape(entered_url),), _('Really change URL?')):
+            if self.show_confirmation(_('Do you really want to move this podcast to <b>%s</b>?') % (saxutils.escape(entered_url),), _('Really change URL?')):
                 if hasattr(self, 'callback_change_url'):
                     self.gPodderChannel.hide_all()
                     self.callback_change_url(channel_url, entered_url)
@@ -2507,13 +2611,18 @@ class gPodderOpmlLister(GladeWidget):
         self.callback_for_channel = None
         self.callback_finished = None
 
+        if hasattr(self, 'custom_title'):
+            self.gPodderOpmlLister.set_title(self.custom_title)
+        if hasattr(self, 'hide_url_entry'):
+            self.hbox25.hide_all()
+
         togglecell = gtk.CellRendererToggle()
         togglecell.set_property( 'activatable', True)
         togglecell.connect( 'toggled', self.callback_edited)
         togglecolumn = gtk.TreeViewColumn( '', togglecell, active=0)
         
         titlecell = gtk.CellRendererText()
-        titlecolumn = gtk.TreeViewColumn( _('Channel'), titlecell, markup=1)
+        titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=1)
 
         for itemcolumn in ( togglecolumn, titlecolumn ):
             self.treeviewChannelChooser.append_column( itemcolumn)

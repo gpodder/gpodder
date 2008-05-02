@@ -199,6 +199,15 @@ class gPodderLib(object):
 
     def history_is_locked( self, url):
         return (url in self.__locked_history)
+    
+    def send_subscriptions(self):
+        try:
+            subprocess.Popen(['xdg-email', '--subject', _('My podcast subscriptions'),
+                                           '--attach', self.channel_opml_file])
+        except:
+            return False
+        
+        return True
 
     def playback_episode( self, channel, episode):
         self.history_mark_played( episode.url)
@@ -234,7 +243,7 @@ class gPodderLib(object):
 
     def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
         if callback_status is not None:
-            util.idle_add(callback_status, _('Downloading channel cover...'))
+            util.idle_add(callback_status, _('Downloading podcast cover...'))
         pixbuf = gtk.gdk.PixbufLoader()
         
         if cover_file is None:

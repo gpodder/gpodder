@@ -1,3 +1,31 @@
+Fri, 02 May 2008 17:28:22 +0200 <thp@perli.net>
+Change "Channel" to "Podcast"; new main menu; URL entry updated; +niceties
+
+	* data/gpodder.glade: Change "Channel" to "Podcast"; re-structure main
+	menu in gPodder window
+	* src/gpodder/config.py: Add "show_podcast_url_entry" configuration
+	option that controls whether the podcast url entry box is shown in the
+	main window or not; add observer functionality to the configuration
+	manager, so UI elements can "watch" the configuration manager for
+	changes of UI-related configuration options
+	* src/gpodder/console.py: Change "Channel" to "Podcast"
+	* src/gpodder/gui.py: Hildon-specific file open/save dialogs; default
+	"Enter podcast URL..." test for the URL entry box; size-dependent
+	showing and hiding of podcast icon and downloaded count pixmap also
+	for the Desktop version; change "Channel" to "Podcast"; offer
+	first-time users to see a list of example podcasts to subscribe to;
+	dynamic main menu; code supporting the main menu changes; add code for
+	sending the subscription list via e-mail; import from OPML file in
+	addition to import from OPML URL; remove unneeded callbacks (wishlist,
+	select all, ...); optionally set title and hide url entry in the
+	gPodderOpmlLister (OPML import GUI); Add Frank Harper to list of
+	contributors (initial reporter of bug #82)
+	* src/gpodder/libgpodder.py: Add "send_subscriptions" function that
+	sends the user's channels.opml file via E-Mail (using xdg-email);
+	rename "Channel" to "Podcast"
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=82)
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=103)
+
 Fri, 02 May 2008 15:52:31 +0200 <thp@perli.net>
 Updated Portuguese translation by João Trindade
 
