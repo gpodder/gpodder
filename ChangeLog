@@ -1,3 +1,11 @@
+Mon, 05 May 2008 15:52:49 +0200 <thp@perli.net>
+Make sure we have a valid channel on which to call get_new_episodes()
+
+	* src/gpodder/gui.py: Refactor on_btnDownloadNewer_clicked into the
+	single calling code and remove the callback; this should really fix
+	the problem described in LP bug 217113
+	(Closes: https://bugs.launchpad.net/ubuntu/+source/gpodder/+bug/217113)
+
 Fri, 02 May 2008 17:42:54 +0200 <thp@perli.net>
 Maemo-related changes; allow custom player on Maemo (optional)
 

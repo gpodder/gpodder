@@ -1054,7 +1054,7 @@ class gPodder(GladeWidget):
                 self.active_channel = channel
                 self.updateTreeView()
                 if ask_download_new:
-                    self.on_btnDownloadNewer_clicked( None)
+                    self.new_episodes_show(channel.get_new_episodes())
             else:
                 title = _('Error adding podcast')
                 message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
@@ -1798,9 +1798,6 @@ class gPodder(GladeWidget):
 
     def on_treeAvailable_button_release_event(self, widget, *args):
         self.play_or_download()
-
-    def on_btnDownloadNewer_clicked(self, widget, *args):
-        self.new_episodes_show(self.active_channel.get_new_episodes())
 
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
