@@ -1736,8 +1736,6 @@ class gPodder(GladeWidget):
             id = model.get_path( iter)[0]
             self.active_channel = self.channels[id]
 
-            self.itemEditChannel.get_child().set_text( _('Edit "%s"') % ( self.active_channel.title,))
-            self.itemRemoveChannel.get_child().set_text( _('Remove "%s"') % ( self.active_channel.title,))
             if gpodder.interface == gpodder.MAEMO:
                 self.set_title(self.active_channel.title)
             self.itemEditChannel.show_all()
