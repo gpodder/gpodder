@@ -43,6 +43,7 @@ def add_channel( url):
     url = util.normalize_feed_url( url)
     try:
         channel = podcastChannel.get_by_url( url, force_update = True)
+        podcastChannel.sync_cache()
     except:
         msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return

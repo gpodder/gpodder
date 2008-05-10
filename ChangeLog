@@ -1,3 +1,23 @@
+Sat, 10 May 2008 13:38:34 +0200 <thp@perli.net>
+Improve feed cache update speed, thanks to the users at ITT
+
+	* src/gpodder/cache.py: fetch() now returns an (updated, feed) tuple,
+	where "updated" is a boolean value telling if the feed has been
+	updated since the last run and "feed" is the feedparser feed data; fix
+	a bug where the etag and the last-modified time were never used in a
+	conditional download of not-changed feeds (my fault ;)
+	* src/gpodder/console.py: Sync the feed cache to disk after adding a
+	new podcast to the subscription list
+	* src/gpodder/gui.py: Pass the list of old channels to the
+	load_channels() function call, so we can save some CPU cycles when the
+	feed has not changed and we are allowed to re-use the old, parsed one
+	* src/gpodder/libpodcasts.py: Don't auto-sync the feed cache when
+	getting the podcastChannel for a feed; add podcastChannel.sync_cache()
+	function that saves the feed cache to disk; make it possible to pass a
+	list of old channels to load_channels() and use the old channel
+	objects in case the new one hasn't changed since the last run
+	(see http://www.internettablettalk.com/forums/showpost.php?p=179261&postcount=62)
+
 Sat, 10 May 2008 13:33:49 +0200 <thp@perli.net>
 Fix problem on Maemo when window open sound occurs twice on start
 

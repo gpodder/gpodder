@@ -134,11 +134,21 @@ class podcastChannel(list):
                 del cls.storage[url]
 
     @classmethod
-    def get_by_url(cls, url, force_update=False, offline=False, default_title=None):
+    def sync_cache(cls):
+        cls.storage.sync()
+
+    @classmethod
+    def get_by_url(cls, url, force_update=False, offline=False, default_title=None, old_channel=None):
         if isinstance( url, unicode):
             url = url.encode('utf-8')
 
-        c = cls.fc.fetch( url, force_update, offline)
+        (updated, c) = cls.fc.fetch( url, force_update, offline)
+        # If we have an old instance of this channel, and
+        # feedcache says the feed hasn't changed, return old
+        if not updated and old_channel:
+            log('using old channel for %s', url)
+            return old_channel
+
         channel = podcastChannel( url)
         channel.parse_error = c.get('bozo_exception', None)
         channel.load_settings()
@@ -176,17 +186,16 @@ class podcastChannel(list):
 
         channel.sort( reverse = True)
         
-        cls.storage.sync()
         return channel
 
     @staticmethod
-    def create_from_dict( d, load_items = True, force_update = False, callback_error = None, offline = False):
+    def create_from_dict(d, load_items=True, force_update=False, callback_error=None, offline=False, old_channel=None):
         if load_items:
             try:
                 default_title = None
                 if 'title' in d:
                     default_title = d['title']
-                return podcastChannel.get_by_url(d['url'], force_update=force_update, offline=offline, default_title=default_title)
+                return podcastChannel.get_by_url(d['url'], force_update, offline, default_title, old_channel)
             except:
                 callback_error and callback_error( _('Could not load channel feed from URL: %s') % d['url'])
                 log( 'Cannot load podcastChannel from URL: %s', d['url'], traceback=True)
@@ -829,9 +838,14 @@ def channels_to_model(channels):
 
 
 
-def load_channels(load_items=True, force_update=False, callback_proc=None, callback_url=None, callback_error=None, offline=False, is_cancelled_cb=None):
+def load_channels(load_items=True, force_update=False, callback_proc=None, callback_url=None, callback_error=None, offline=False, is_cancelled_cb=None, old_channels=None):
     importer = opml.Importer(gl.channel_opml_file)
     result = []
+    if old_channels is None:
+        old_channels = {}
+    else:
+        # Convert list of channels to a dict with URLs as keys
+        old_channels = dict(map(lambda c: (c.url, c), old_channels))
 
     urls_to_keep = []
     count = 0
@@ -845,10 +859,16 @@ def load_channels(load_items=True, force_update=False, callback_proc=None, callb
         callback_proc and callback_proc( count, len( importer.items))
         callback_url and callback_url( item['url'])
         urls_to_keep.append(item['url'])
-        result.append( podcastChannel.create_from_dict( item, load_items = load_items, force_update = force_update, callback_error = callback_error, offline = offline))
+        if item['url'] not in old_channels:
+            old_channel = None
+        else:
+            old_channel = old_channels[item['url']]
+        channel = podcastChannel.create_from_dict(item, load_items, force_update, callback_error, offline, old_channel)
+        result.append(channel)
         count += 1
 
     podcastChannel.clear_cache(urls_to_keep)
+    podcastChannel.sync_cache()
     result.sort(key=lambda x:x.title.lower())
     return result
 

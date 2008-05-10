@@ -1119,7 +1119,7 @@ class gPodder(GladeWidget):
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
         is_cancelled_cb = lambda: self.feed_cache_update_cancelled
-        self.channels = load_channels(force_update=force_update, callback_proc=callback_proc, callback_error=callback_error, offline=not force_update, is_cancelled_cb=is_cancelled_cb)
+        self.channels = load_channels(force_update=force_update, callback_proc=callback_proc, callback_error=callback_error, offline=not force_update, is_cancelled_cb=is_cancelled_cb, old_channels=self.channels)
         if finish_proc:
             finish_proc()
 

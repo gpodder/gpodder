@@ -90,7 +90,11 @@ class Cache:
         return
 
     def fetch(self, url, force_update = False, offline = False):
-        "Return the feed at url."
+        """
+        Returns an (updated, feed) tuple for the feed at the specified
+        URL. If the feed hasn't updated since the last run, updated
+        will be False. If it has been updated, updated will be True.
+        """
 
         modified = None
         etag = None
@@ -99,15 +103,15 @@ class Cache:
         cached_time, cached_content = self.storage.get(url, (None, None))
 
         if offline and cached_content is not None:
-            return cached_content
+            return (False, cached_content)
 
         # Does the storage contain a version of the data
         # which is older than the time-to-live?
-        if cached_time is not None and not force_update:
+        if cached_time is not None:
             if self.time_to_live:
                 age = now - cached_time
-                if age <= self.time_to_live:
-                    return cached_content
+                if age <= self.time_to_live and not force_update:
+                    return (False, cached_content)
             
             # The cache is out of date, but we have
             # something.  Try to use the etag and modified_time
@@ -122,6 +126,7 @@ class Cache:
                                          etag=etag,
                                          )
 
+        updated = False
         status = parsed_result.get('status', None)
         if status == 304:
             # No new data, based on the etag or modified values.
@@ -129,11 +134,13 @@ class Cache:
             # storage, though, so we know that what we have
             # stored is up to date.
             self.storage[url] = (now, cached_content)
+            log('Using cached feed: %s', url, sender=self)
 
             # Return the data from the cache, since
             # the parsed data will be empty.
             parsed_result = cached_content
         elif status in (200, 301, 302, 307):
+            updated = True
             # There is new content, so store it unless there was an error.
             # Store it regardless of errors when we don't have anything yet
             error = parsed_result.get('bozo_exception')
@@ -146,5 +153,5 @@ class Cache:
         else:
             log('Strange status code: %s ("%s")', url, status, sender = self)
 
-        return parsed_result
+        return (updated, parsed_result)
 
