@@ -1,3 +1,11 @@
+Sat, 10 May 2008 13:33:49 +0200 <thp@perli.net>
+Fix problem on Maemo when window open sound occurs twice on start
+
+	* data/gpodder.glade: Don't show gPodder main window initially
+	* src/gpodder/gui.py: Show gPodder main window only after the UI
+	elements have been set up (on Desktop) and don't destroy old main
+	window after re-parenting the vbox to the hildonized window (on Maemo)
+
 Sat, 10 May 2008 13:24:19 +0200 <thp@perli.net>
 Don't change the menu item text for subscription remove and edit
 

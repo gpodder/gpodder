@@ -273,10 +273,7 @@ class gPodder(GladeWidget):
          
             self.app.add_window(self.window)
             self.vMain.reparent(self.window)
-            self.gPodder.destroy()
             self.gPodder = self.window
-
-            self.set_title(_('Podcasts'))
             
             # Reparent the main menu
             menu = gtk.Menu()
@@ -347,9 +344,6 @@ class gPodder(GladeWidget):
         # update the "max downloads" spin button
         changed_cb = lambda spinbutton: services.download_status_manager.update_max_downloads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
-
-        while gtk.events_pending():
-            gtk.main_iteration( False)
 
         self.default_title = None
         if app_version.rfind('svn') != -1:
@@ -454,6 +448,10 @@ class gPodder(GladeWidget):
         
         for itemcolumn in ( episodecolumn, speedcolumn, progresscolumn ):
             self.treeDownloads.append_column( itemcolumn)
+
+        # After we've set up most of the window, show it :)
+        if not gpodder.interface == gpodder.MAEMO:
+            self.gPodder.show()
 
         services.download_status_manager.register( 'list-changed', self.download_status_updated)
         services.download_status_manager.register( 'progress-changed', self.download_progress_updated)
