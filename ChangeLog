@@ -1,3 +1,13 @@
+Sat, 10 May 2008 16:45:36 +0200 <thp@perli.net>
+Make gPodder respect the user's GNOME toolbar style settings
+
+	* src/gpodder/gui.py: Add Stefan Lohmaier to list of bug reporters
+	* data/gpodder.glade: Remove the preset toolbar style (use user's
+	configured toolbar style) and set the episode-related toolbar buttons
+	to be "important" (so the text is displayed in the mixed mode); thanks
+	to Stefan Lohmaier on gPodder Bugzilla for reporting this bug
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=105)
+
 Sat, 10 May 2008 13:38:34 +0200 <thp@perli.net>
 Improve feed cache update speed, thanks to the users at ITT
 

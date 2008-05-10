@@ -721,7 +721,6 @@
 	<widget class="GtkToolbar" id="toolbar">
 	  <property name="visible">True</property>
 	  <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
-	  <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
 	  <property name="tooltips">True</property>
 	  <property name="show_arrow">True</property>
 
@@ -733,7 +732,7 @@
 	      <property name="stock_id">gtk-go-down</property>
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
+	      <property name="is_important">True</property>
 	      <signal name="clicked" handler="on_btnDownload_clicked"/>
 	    </widget>
 	    <packing>
@@ -748,7 +747,7 @@
 	      <property name="stock_id">gtk-media-play</property>
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
+	      <property name="is_important">True</property>
 	      <signal name="clicked" handler="on_btnDownloadedExecute_clicked"/>
 	    </widget>
 	    <packing>
@@ -765,7 +764,7 @@
 	      <property name="icon_name">multimedia-player</property>
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
+	      <property name="is_important">True</property>
 	      <signal name="clicked" handler="on_btnTransfer_clicked"/>
 	    </widget>
 	    <packing>
@@ -783,7 +782,7 @@
 	      <property name="stock_id">gtk-cancel</property>
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
+	      <property name="is_important">True</property>
 	      <signal name="clicked" handler="on_btnCancelDownloadStatus_clicked"/>
 	    </widget>
 	    <packing>
@@ -6944,6 +6943,7 @@ Filesystem-based MP3 player</property>
 		  <property name="y_options">expand</property>
 		</packing>
 	      </child>
+
 	      <child>
 		<widget class="GtkCheckButton" id="on_quit_ask">
 		  <property name="visible">True</property>
