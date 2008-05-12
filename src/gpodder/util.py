@@ -625,7 +625,11 @@ def parse_itunes_xml(url):
     """
     url = url.replace('itms://', 'http://')
     doc = http_get_and_gunzip(url)
-    d = xml.dom.minidom.parseString(doc)
+    try:
+        d = xml.dom.minidom.parseString(doc)
+    except Exception, e:
+        log('Error parsing document from itms:// URL: %s', e)
+        return None
     last_key = None
     for pairs in d.getElementsByTagName('dict'):
         for node in pairs.childNodes:
@@ -673,6 +677,9 @@ def itunes_discover_rss(url):
 
     Idea from Andrew Clarke's itunes-url-decoder.py
     """
+
+    if url is None:
+        return url
 
     if not 'phobos.apple.com' in url.lower():
         # This doesn't look like an iTunes URL

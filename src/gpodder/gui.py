@@ -1064,6 +1064,8 @@ class gPodder(GladeWidget):
                 title = _('URL scheme not supported')
                 message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
                 self.show_message( message, title)
+            else:
+                self.show_message(_('There has been an error adding this podcast. Please see the log output for more information.'), _('Error adding podcast'))
     
     def update_feed_cache_callback(self, progressbar, position, count, force_update):
         title = self.channels[position].title

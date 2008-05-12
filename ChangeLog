@@ -1,3 +1,13 @@
+Mon, 12 May 2008 11:38:55 +0200 <thp@perli.net>
+Fix a crasher with ExpatError when trying to parse an invalid itms:// URL
+
+	* src/gpodder/gui.py: Give an error message when adding a channel that
+	doesn't result in a valid URL being returned
+	* src/gpodder/util.py: Improve handling of itms:// URLs that are not
+	valid iTunes Podcast links, so they don't crash; thanks to Ralph on
+	Launchpad for reporting this bug
+	(Closes: https://bugs.launchpad.net/ubuntu/+source/gpodder/+bug/214113)
+
 Mon, 12 May 2008 11:26:43 +0200 <thp@perli.net>
 Fix race condition in is_download_in_progress()
 
