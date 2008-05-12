@@ -1,3 +1,12 @@
+Mon, 12 May 2008 11:26:43 +0200 <thp@perli.net>
+Fix race condition in is_download_in_progress()
+
+	* src/gpodder/services.py: Make sure we behave correctly when items in
+	the download list disappear while we are iterating over the list of
+	downloads when trying to find out if a download is already in progress
+	* src/gpodder/gui.py: Add SPGoetze to list of bug reporters
+	(Closes: https://bugs.launchpad.net/ubuntu/+source/gpodder/+bug/208964)
+
 Mon, 12 May 2008 11:04:53 +0200 <thp@perli.net>
 Fix bugs in the calculate_size utility function
 

@@ -221,12 +221,18 @@ class DownloadStatusManager(ObservableService):
                 self.notify( 'progress-detail', url, status['progress'], status['speed'])
 
     def is_download_in_progress( self, url):
-        for element in self.status_list:
-	    thread = self.status_list[element]['thread']
-	    if thread is not None and thread.url == url:
-	        return True
-	
-	return False
+        for element in self.status_list.keys():
+            # We need this, because status_list is modified from other threads
+            if element in self.status_list:
+                try:
+                    thread = self.status_list[element]['thread']
+                except:
+                    thread = None
+
+                if thread is not None and thread.url == url:
+                    return True
+        
+        return False
 
     def cancel_all( self):
         for element in self.status_list:

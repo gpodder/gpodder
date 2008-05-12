@@ -92,7 +92,7 @@ app_authors = [
     'Pavel Mlčoch', 'Peter Hoffmann', 'Philippe Gouaillier', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
     'Robert Young', 'Roel Groeneveld',
-    'Scott Wegner', 'Seth Remington', 'Shane Donohoe', 
+    'Scott Wegner', 'Seth Remington', 'Shane Donohoe', 'SPGoetze',
     'Stefan Lohmaier', 'Stephan Buys', 'Stylianos Papanastasiou', 'Teo Ramirez', 
     'Thomas Matthijs', 'Thomas Mills Hinkle', 'Thomas Nilsson', 
     'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'Tomas Matheson', 'VladDrac', 
