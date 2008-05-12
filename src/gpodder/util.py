@@ -166,11 +166,14 @@ def calculate_size( path):
     if os.path.isdir( path) and not os.path.islink( path):
         sum = os.path.getsize( path)
 
-        for item in os.listdir( path):
-            try:
-                sum += calculate_size( os.path.join( path, item))
-            except:
-                pass
+        try:
+            for item in os.listdir(path):
+                try:
+                    sum += calculate_size(os.path.join(path, item))
+                except:
+                    log('Cannot get size for %s', path)
+        except:
+            log('Cannot access: %s', path)
 
         return sum
 
