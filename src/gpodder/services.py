@@ -86,6 +86,11 @@ class DownloadStatusManager(ObservableService):
         self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
         self.tree_model_lock = threading.Lock()
 
+        # batch add in progress?
+        self.batch_mode_enabled = False
+        # we set this flag if we would notify inside batch mode
+        self.batch_mode_notify_flag = False
+
         # Used to notify all threads that they should
         # re-check if they can acquire the lock
         self.notification_event = threading.Event()
@@ -93,6 +98,29 @@ class DownloadStatusManager(ObservableService):
         
         signal_names = ['list-changed', 'progress-changed', 'progress-detail', 'download-complete']
         ObservableService.__init__(self, signal_names)
+
+    def start_batch_mode(self):
+        """
+        This is called when we are going to add multiple
+        episodes to our download list, and do not want to
+        notify the GUI for every single episode.
+
+        After all episodes have been added, you MUST call
+        the end_batch_mode() method to trigger a notification.
+        """
+        self.batch_mode_enabled = True
+
+    def end_batch_mode(self):
+        """
+        This is called after multiple episodes have been
+        added when start_batch_mode() has been called before.
+
+        This sends out a notification that the list has changed.
+        """
+        self.batch_mode_enabled = False
+        if self.batch_mode_notify_flag:
+            self.notify('list-changed')
+        self.batch_mode_notify_flag = False
 
     def notify_progress( self):
         now = ( self.count(), self.average_progress() )
@@ -156,7 +184,10 @@ class DownloadStatusManager(ObservableService):
     def register_download_id( self, id, thread):
         self.tree_model_lock.acquire()
         self.status_list[id] = { 'iter': self.tree_model.append(), 'thread': thread, 'progress': 0.0, 'speed': _('Queued'), }
-        self.notify( 'list-changed')
+        if self.batch_mode_enabled:
+            self.batch_mode_notify_flag = True
+        else:
+            self.notify('list-changed')
         self.tree_model_lock.release()
 
     def remove_download_id( self, id):
@@ -173,7 +204,10 @@ class DownloadStatusManager(ObservableService):
             if not self.has_items():
                 # Reset the counter now
                 self.downloads_done_bytes = 0
-        self.notify( 'list-changed')
+        if self.batch_mode_enabled:
+            self.batch_mode_notify_flag = True
+        else:
+            self.notify('list-changed')
         self.notify_progress()
 
     def count( self):

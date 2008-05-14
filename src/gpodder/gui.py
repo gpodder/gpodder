@@ -558,6 +558,7 @@ class gPodder(GladeWidget):
                         error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
                         error_str = '<span foreground="#ff0000">%s</span>\n' % error_str
                     tooltip.set_markup( '<b>%s</b>\n<small><i>%s</i></small>\n%s%s\n\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url), error_str, saxutils.escape(channel.description), diskspace_str))
+
                     return True
 
         self.last_tooltip_channel = None
@@ -982,23 +983,32 @@ class gPodder(GladeWidget):
     def on_cbLimitDownloads_toggled(self, widget, *args):
         self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())    
 
-    def updateComboBox( self):
-        ( model, iter ) = self.treeChannels.get_selection().get_selected()
+    def updateComboBox(self, selected_url=None):
+        (model, iter) = self.treeChannels.get_selection().get_selected()
 
-        if model and iter:
-            selected = model.get_path( iter)
-        else:
-            selected = (0,)
+        if model and iter and selected_url is None:
+            # Get the URL of the currently-selected podcast
+            selected_url = model.get_value(iter, 0)
 
         rect = self.treeChannels.get_visible_rect()
         self.treeChannels.set_model(channels_to_model(self.channels))
-        self.treeChannels.scroll_to_point( rect.x, rect.y)
-        while gtk.events_pending():
-            gtk.main_iteration( False)
-        self.treeChannels.scroll_to_point( rect.x, rect.y)
+        util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
 
         try:
-            self.treeChannels.get_selection().select_path( selected)
+            selected_path = (0,)
+            # Find the previously-selected URL in the new
+            # model if we have an URL (else select first)
+            if selected_url is not None:
+                model = self.treeChannels.get_model()
+                pos = model.get_iter_first()
+                while pos is not None:
+                    url = model.get_value(pos, 0)
+                    if url == selected_url:
+                        selected_path = model.get_path(pos)
+                        break
+                    pos = model.iter_next(pos)
+
+            self.treeChannels.get_selection().select_path(selected_path)
         except:
             log( 'Cannot set selection on treeChannels', sender = self)
         self.on_treeChannels_cursor_changed( self.treeChannels)
@@ -1016,18 +1026,20 @@ class gPodder(GladeWidget):
         result = sel.data
         self.add_new_channel( result)
 
-    def add_new_channel( self, result = None, ask_download_new = True):
+    def add_new_channel(self, result=None, ask_download_new=True):
         result = util.normalize_feed_url( result)
 
         if result:
             for old_channel in self.channels:
                 if old_channel.url == result:
-                    self.show_message( _('You have already subscribed to this podcast: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
                     log( 'Channel already exists: %s', result)
                     # Select the existing channel in combo box
                     for i in range( len( self.channels)):
                         if self.channels[i] == old_channel:
                             self.treeChannels.get_selection().select_path( (i,))
+                            self.on_treeChannels_cursor_changed(self.treeChannels)
+                            break
+                    self.show_message( _('You have already subscribed to this podcast: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
                     return
             log( 'Adding new channel: %s', result)
             try:
@@ -1039,8 +1051,8 @@ class gPodder(GladeWidget):
             if channel:
                 self.channels.append( channel)
                 save_channels( self.channels)
-                # download changed channels
-                self.update_feed_cache(force_update=False)
+                # download changed channels and select the new episode in the UI afterwards
+                self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
 
                 (username, password) = util.username_password_from_url( result)
                 if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
@@ -1049,12 +1061,10 @@ class gPodder(GladeWidget):
                     log('Saving authentication data for episode downloads..', sender = self)
                     channel.save_settings()
 
-                # ask user to download some new episodes
-                self.treeChannels.get_selection().select_path( (len( self.channels)-1,))
-                self.active_channel = channel
-                self.updateTreeView()
                 if ask_download_new:
-                    self.new_episodes_show(channel.get_new_episodes())
+                    new_episodes = channel.get_new_episodes()
+                    if len(new_episodes):
+                        self.new_episodes_show(new_episodes)
             else:
                 title = _('Error adding podcast')
                 message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
@@ -1080,11 +1090,14 @@ class gPodder(GladeWidget):
         if count > 0:
             progressbar.set_fraction(float(position)/float(count))
 
-    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False):
+    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False, select_url_afterwards=None):
         self.hboxUpdateFeeds.hide_all()
         self.btnUpdateFeeds.show_all()
 
-        self.updateComboBox()
+        # If we want to select a specific podcast (via its URL)
+        # after the update, we give it to updateComboBox here to
+        # select exactly this podcast after updating the view
+        self.updateComboBox(selected_url=select_url_afterwards)
 
         if self.tray_icon:
             self.tray_icon.set_status(None)
@@ -1130,13 +1143,13 @@ class gPodder(GladeWidget):
         self.pbFeedUpdate.set_text(_('Cancelling...'))
         self.feed_cache_update_cancelled = True
 
-    def update_feed_cache(self, force_update=True, notify_no_new_episodes=False):
+    def update_feed_cache(self, force_update=True, notify_no_new_episodes=False, select_url_afterwards=None):
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
         # let's get down to business..
         callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, self.pbFeedUpdate, pos, count, force_update)
-        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, notify_no_new_episodes)
+        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, notify_no_new_episodes, select_url_afterwards)
 
         self.feed_cache_update_cancelled = False
         self.btnUpdateFeeds.hide_all()
@@ -1356,11 +1369,13 @@ class gPodder(GladeWidget):
                 self.on_itemImportChannels_activate(self, widget)
 
     def download_episode_list( self, episodes):
+        services.download_status_manager.start_batch_mode()
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
             filename = episode.local_filename()
             if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
                 download.DownloadThread( episode.channel, episode, self.notification).start()
+        services.download_status_manager.end_batch_mode()
 
     def new_episodes_show(self, episodes):
         columns = (
@@ -1583,7 +1598,8 @@ class gPodder(GladeWidget):
                     log('Warning: cannot delete %s', old_save_dir, sender=self)
 
         save_channels(self.channels)
-        self.update_feed_cache(force_update=False)
+        # update feed cache and select the podcast with the new URL afterwards
+        self.update_feed_cache(force_update=False, select_url_afterwards=new_url)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
@@ -1620,12 +1636,24 @@ class gPodder(GladeWidget):
                 # only delete partial files if we do not have any downloads in progress
                 delete_partial = not services.download_status_manager.has_items()
                 gl.clean_up_downloads(delete_partial)
+
+                # get the URL of the podcast we want to select next
+                position = self.channels.index(self.active_channel)
+                if position == len(self.channels)-1:
+                    # this is the last podcast, so select the URL
+                    # of the item before this one (i.e. the "new last")
+                    select_url = self.channels[position-1].url
+                else:
+                    # there is a podcast after the deleted one, so
+                    # we simply select the one that comes after it
+                    select_url = self.channels[position+1].url
+                
+                # Remove the channel
                 self.channels.remove(self.active_channel)
                 save_channels(self.channels)
-                if len(self.channels) > 0:
-                    self.treeChannels.get_selection().select_path((len(self.channels)-1,))
-                    self.active_channel = self.channels[len(self.channels)-1]
-                self.update_feed_cache(force_update=False)
+
+                # Re-load the channels and select the desired new channel
+                self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
         except:
             log('There has been an error removing the channel.', traceback=True, sender=self)
 
@@ -1777,6 +1805,7 @@ class gPodder(GladeWidget):
             if widget.get_name() == 'itemTransferSelected' or widget.get_name() == 'toolTransfer':
                 transfer_files = True
 
+            services.download_status_manager.start_batch_mode()
             for apath in selection_tuple[1]:
                 selection_iter = self.treeAvailable.get_model().get_iter( apath)
                 url = self.treeAvailable.get_model().get_value( selection_iter, 0)
@@ -1785,6 +1814,7 @@ class gPodder(GladeWidget):
                     episodes.append( self.active_channel.find_episode( url))
                 else:
                     self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
+            services.download_status_manager.end_batch_mode()
 
             if transfer_files and len(episodes):
                 self.on_sync_to_ipod_activate(None, episodes)
@@ -1835,8 +1865,10 @@ class gPodder(GladeWidget):
             message = _("Cancelling the download will stop the %d selected downloads and remove partially downloaded files.") % selection.count_selected_rows()
 
         if self.show_confirmation( message, title):
+            services.download_status_manager.start_batch_mode()
             for url in cancel_urls:
                 services.download_status_manager.cancel_by_url( url)
+            services.download_status_manager.end_batch_mode()
 
     def on_btnCancelDownloadStatus_clicked(self, widget, *args):
         self.on_treeDownloads_row_activated( widget, None)

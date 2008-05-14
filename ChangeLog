@@ -1,3 +1,19 @@
+Wed, 14 May 2008 15:34:25 +0200 <thp@perli.net>
+Download start performance improvements; fix podcast list handling
+
+	* data/gpodder.glade: Convert the gPodderAddPodcastDialog from a
+	GtkWindow to a real GtkDialog to make Escape key work and set the URL
+	entry box to activate the "Add" button when Enter is pressed in it
+	* src/gpodder/gui.py: Fix podcast selection in updateComboBox, so the
+	currect podcast is selected when removing/adding podcasts; allow to
+	pass a URL which should be selected after the update; use
+	DownloadStatusManager's new batch mode to speed up starting many
+	downloads at once (very visible speed improvement); adding podcasts
+	has also been improved a bit with the new code
+	* src/gpodder/services.py: Support batch mode (i.e. only notify after
+	all episodes have been added to th download list); this speeds up the
+	UI when multiple episodes are downloaded at once
+
 Wed, 14 May 2008 11:59:20 +0200 <thp@perli.net>
 Updated Russian translation by Vladimir Zemlyakov
 
