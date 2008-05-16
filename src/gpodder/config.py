@@ -109,6 +109,9 @@ gPodderSettings = {
     'show_podcast_url_entry': (bool, True),
     'maemo_allow_custom_player': (bool, False),
 
+    # Hide the cover/pill from the podcast sidebar when it gets too small
+    'podcast_sidebar_save_space': (bool, True),
+
     # Window and paned positions
     'main_window_x': ( int, 100 ),
     'main_window_y': ( int, 100 ),

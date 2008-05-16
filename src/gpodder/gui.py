@@ -499,6 +499,9 @@ class gPodder(GladeWidget):
             util.idle_add(self.on_itemUpdate_activate, None)
 
     def on_tree_channels_resize(self, widget, allocation):
+        if not gl.config.podcast_sidebar_save_space:
+            return
+
         window_allocation = self.gPodder.get_allocation()
         percentage = 100. * float(allocation.width) / float(window_allocation.width)
         if hasattr(self, 'cell_channel_icon'):
