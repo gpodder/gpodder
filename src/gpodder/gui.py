@@ -2203,7 +2203,9 @@ class gPodderProperties(GladeWidget):
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
-        self.radio_copy_torrents.set_active( not self.radio_gnome_bittorrent.get_active())
+
+        self.radio_gnome_bittorrent.set_active(gl.config.use_gnome_bittorrent)
+        self.radio_copy_torrents.set_active(not gl.config.use_gnome_bittorrent)
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
