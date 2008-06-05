@@ -554,13 +554,47 @@ class gPodder(GladeWidget):
                         self.last_tooltip_channel = None
                         return False
                     self.last_tooltip_channel = channel
-                    tooltip.set_icon(channel.get_cover_pixbuf())
-                    diskspace_str = _('Used disk space: %s') % util.format_filesize(channel.save_dir_size)
+                    channel.request_save_dir_size()
+                    diskspace_str = gl.format_filesize(channel.save_dir_size, 0)
                     error_str = model.get_value(iter, 6)
                     if error_str:
                         error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
-                        error_str = '<span foreground="#ff0000">%s</span>\n' % error_str
-                    tooltip.set_markup( '<b>%s</b>\n<small><i>%s</i></small>\n%s%s\n\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url), error_str, saxutils.escape(channel.description), diskspace_str))
+                        error_str = '<span foreground="#ff0000">%s</span>' % error_str
+                    table = gtk.Table(rows=3, columns=3)
+                    table.set_row_spacings(5)
+                    table.set_col_spacings(5)
+                    table.set_border_width(5)
+
+                    heading = gtk.Label()
+                    heading.set_alignment(0, 1)
+                    heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
+                    table.attach(heading, 0, 1, 0, 1)
+                    size_info = gtk.Label()
+                    size_info.set_alignment(1, 1)
+                    size_info.set_justify(gtk.JUSTIFY_RIGHT)
+                    size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
+                    table.attach(size_info, 2, 3, 0, 1)
+
+                    table.attach(gtk.HSeparator(), 0, 3, 1, 2)
+
+                    if len(channel.description) < 500:
+                        description = channel.description
+                    else:
+                        pos = channel.description.find('\n\n')
+                        if pos == -1 or pos > 500:
+                            description = channel.description[:498]+'[...]'
+                        else:
+                            description = channel.description[:pos]
+
+                    description = gtk.Label(description)
+                    if error_str:
+                        description.set_markup(error_str)
+                    description.set_alignment(0, 0)
+                    description.set_line_wrap(True)
+                    table.attach(description, 0, 3, 2, 3)
+
+                    table.show_all()
+                    tooltip.set_custom(table)
 
                     return True
 

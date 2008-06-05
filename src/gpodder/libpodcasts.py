@@ -227,8 +227,14 @@ class podcastChannel(list):
         self.password = ''
 
         self.save_dir_size = 0
+        self.__save_dir_size_set = False
 
         self.__tree_model = None
+
+    def request_save_dir_size(self):
+        if not self.__save_dir_size_set:
+            self.update_save_dir_size()
+        self.__save_dir_size_set = True
 
     def update_save_dir_size(self):
         self.save_dir_size = util.calculate_size(self.save_dir)
