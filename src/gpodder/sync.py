@@ -46,6 +46,10 @@ try:
 except:
     log( '(gpodder.sync) Could not find eyeD3')
 
+try:
+    import Image
+except:
+    log('(gpodder.sync) Could not find Python Imaging Library (PIL)')
 
 import os
 import os.path
@@ -513,6 +517,10 @@ class MP3PlayerDevice(Device):
             log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
             gl.history_mark_played(episode.url)
 
+        if gl.config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
+            log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)
+            self.copy_rockbox_cover_art(folder, from_file)
+
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(self.enc), sender=self)
             return self.copy_file_progress(from_file, to_file)
@@ -613,6 +621,35 @@ class MP3PlayerDevice(Device):
 
         # No scrobbler log on that device
         return None
+
+    def copy_rockbox_cover_art(self, destination, local_filename):
+        """
+        Try to copy the channel cover to "cover.bmp" in the podcast
+        folder on the MP3 player. This makes Rockbox (rockbox.org) display
+        the cover art in its interface.
+
+        You need the Python Imaging Library (PIL) installed to be able to
+        convert the cover file to a Bitmap file, which Rockbox needs.
+        """
+        try:
+            cover_loc = os.path.join(os.path.dirname(local_filename), 'cover')
+            cover_dst = os.path.join(destination, 'cover.bmp')
+            if os.path.isfile(cover_loc):
+                size = (gl.config.rockbox_coverart_size, gl.config.rockbox_coverart_size)
+                try:
+                    cover = Image.open(cover_loc)
+                    cover.thumbnail(size)
+                    cover.save(cover_dst, 'BMP')
+                except IOError:
+                    log('Cannot create %s (PIL?)', cover_dst, traceback=True, sender=self)
+                return True
+            else:
+                log('No cover available to set as Rockbox cover', sender=self)
+                return True
+        except:
+            log('Error getting cover using channel cover', sender=self)
+        return False
+
 
     def load_audioscrobbler_log(self, log_file):
         """ Retrive track title and artist info for all the entries

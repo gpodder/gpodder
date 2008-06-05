@@ -108,6 +108,8 @@ gPodderSettings = {
     'mp3_player_use_scrobbler_log': (bool, False),
     'show_podcast_url_entry': (bool, True),
     'maemo_allow_custom_player': (bool, False),
+    'rockbox_copy_coverart' : (bool, False),
+    'rockbox_coverart_size' : (int, 100),
 
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, True),
