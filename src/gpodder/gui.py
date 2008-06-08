@@ -327,12 +327,6 @@ class gPodder(GladeWidget):
         self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
         self.item_show_url_entry.set_active(gl.config.show_podcast_url_entry)
                    
-        if self.tray_icon:
-            if gl.config.start_iconified: 
-                self.iconify_main_window()
-            elif gl.config.minimize_to_tray:
-                self.tray_icon.set_visible(False)
-
         gl.config.connect_gtk_window( self.gPodder)
         gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
 
@@ -453,6 +447,12 @@ class gPodder(GladeWidget):
         # After we've set up most of the window, show it :)
         if not gpodder.interface == gpodder.MAEMO:
             self.gPodder.show()
+
+        if self.tray_icon:
+            if gl.config.start_iconified: 
+                self.iconify_main_window()
+            elif gl.config.minimize_to_tray:
+                self.tray_icon.set_visible(False)
 
         services.download_status_manager.register( 'list-changed', self.download_status_updated)
         services.download_status_manager.register( 'progress-changed', self.download_progress_updated)
