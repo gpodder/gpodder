@@ -216,6 +216,7 @@ class podcastChannel(list):
         self.image = None
         self.pubDate = ''
         self.parse_error = None
+        self.newest_pubdate_cached = None
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
@@ -294,17 +295,43 @@ class podcastChannel(list):
 
         ChannelSettings.set_settings_by_url( self.url, settings)
 
-    def newest_pubdate_downloaded( self):
-        # Try DownloadHistory's entries first
-        for episode in self:
-            if gl.history_is_downloaded( episode.url):
-                return episode.pubDate
+    def reset_pubdate_cache(self):
+        self.newest_pubdate_cached = None
 
-        # If nothing found, do pubDate comparison
-        pubdate = None
-        for episode in self.load_downloaded_episodes():
-            pubdate = episode.newer_pubdate( pubdate)
-        return pubdate
+    def newest_pubdate_downloaded(self):
+        """
+        Returns the most recent pubDate value of all downloaded episodes, or 
+        None if the pubDate cannot be determined.
+
+        This value is cached for speedup. You can call reset_pubdate_cache()
+        to clear the cached value and re-calculate the newest pubDate.
+        """
+
+        if self.newest_pubdate_cached == 0:
+            return None
+
+        elif self.newest_pubdate_cached is None:
+            # Try DownloadHistory's entries first
+            for episode in self:
+                if gl.history_is_downloaded( episode.url):
+                    self.newest_pubdate_cached = episode.pubDate
+                    return episode.pubDate
+
+            # If nothing found, do pubDate comparison
+            pubdate = None
+            for episode in self.load_downloaded_episodes():
+                pubdate = episode.newer_pubdate( pubdate)
+
+            if pubdate is None:
+                # Zero value is used when there are episodes in the channel,
+                # but none of them are downloaded.
+                self.newest_pubdate_cached = 0
+            else:
+                self.newest_pubdate_cached = pubdate
+
+            return pubdate
+
+        return self.newest_pubdate_cached
     
     def episode_is_new(self, episode, last_pubdate = None):
         if last_pubdate is None:
@@ -385,6 +412,13 @@ class podcastChannel(list):
                     libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title)
                 except:
                     log('Error while calling update_metadata_on_file() :(')
+
+        # Update the cached newest_pubdate_downloaded() result.
+        newest = self.newest_pubdate_downloaded()
+        if newest is None:
+            self.newest_pubdate_cached = item.pubDate
+        else:
+            self.newest_pubdate_cached = item.newer_pubdate(newest)
 
         gl.history_mark_downloaded(item.url)
         self.update_m3u_playlist(downloaded_episodes)

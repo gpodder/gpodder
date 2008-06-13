@@ -1,3 +1,13 @@
+Fri, 13 Jun 2008 14:27:30 +0200 <thp@perli.net>
+Merge patch from Justin Forest to speed up pubDate detection
+
+	* src/gpodder/gui.py: Add Justin Forest to the list of contributors
+	and make sure we clear the pubDate cache in the channel when changing
+	episode downloaded status manually
+	* src/gpodder/libpodcasts.py: Merge patch from Justin Forest to speed
+	up the newest_pubdate_downloaded() function by caching its value
+	instead of re-calculating it on every call
+
 Fri, 13 Jun 2008 09:37:45 +0200 <thp@perli.net>
 Merge patch from Nick to add support for deleting played files on sync
 

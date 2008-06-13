@@ -84,7 +84,7 @@ app_authors = [
     'Jérôme Chabod', 'Jerry Moss',
     'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
-    'Jürgen Schinker',
+    'Jürgen Schinker', 'Justin Forest',
     'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Marcos Hernández', 'Mark Alford', 'Michael Salim', 
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
@@ -1370,6 +1370,10 @@ class gPodder(GladeWidget):
             callback = lambda url: gl.history_mark_downloaded(url, new_value)
 
         self.for_each_selected_episode_url( callback)
+
+        if self.active_channel:
+            # Reset the cache for newest_pubdate_downloaded
+            self.active_channel.reset_pubdate_cache()
 
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
         if toggle:
