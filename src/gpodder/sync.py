@@ -431,7 +431,6 @@ class MP3PlayerDevice(Device):
 
     def __init__(self):
         Device.__init__(self)
-        self.enc = util.detect_os_encoding()
         self.destination = gl.config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
         self.scrobbler_log = []
@@ -495,7 +494,7 @@ class MP3PlayerDevice(Device):
             self.copy_rockbox_cover_art(folder, from_file)
 
         if not os.path.exists(to_file):
-            log('Copying %s => %s', os.path.basename(from_file), to_file.decode(self.enc), sender=self)
+            log('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding), sender=self)
             return self.copy_file_progress(from_file, to_file)
 
         return True

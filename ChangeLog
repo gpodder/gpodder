@@ -1,3 +1,24 @@
+Fri, 13 Jun 2008 16:08:16 +0200 <thp@perli.net>
+Merge patch to add experimental support for "normal" file naming
+
+	* src/gpodder/config.py: New option "experimental_file_naming" that
+	defaults to False and enables the new (but experimental!) normal file
+	naming mode in which the downloaded podcast episodes get their name
+	not from the md5sum of the download URL, but from the basename of the
+	download URL, which makes filenames more human-readable
+	* src/gpodder/libpodcasts.py: Change local_filename() in podcastItem
+	to decide if we use md5sums or the "new" file naming mode for creating
+	the local file name of an episode
+	* src/gpodder/sync.py: Change usage of the "encoding" detection in
+	gpodder.util (from detect_os_encoding() to simply encoding)
+	* src/gpodder/util.py: Only detect the filename encoding once (at
+	program start) and then make it accessible via a global "encoding"
+	variable in the gpodder.util module; add improvements to
+	file_extension_from_url() to be able to return the complete filename
+	and to support more creative URL schemes as implemented by podcast
+	feed authors (this hopefully makes more feeds work in a proper way)
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=57)
+
 Fri, 13 Jun 2008 14:27:30 +0200 <thp@perli.net>
 Merge patch from Justin Forest to speed up pubDate detection
 
@@ -7,6 +28,7 @@ Merge patch from Justin Forest to speed up pubDate detection
 	* src/gpodder/libpodcasts.py: Merge patch from Justin Forest to speed
 	up the newest_pubdate_downloaded() function by caching its value
 	instead of re-calculating it on every call
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=124)
 
 Fri, 13 Jun 2008 09:37:45 +0200 <thp@perli.net>
 Merge patch from Nick to add support for deleting played files on sync

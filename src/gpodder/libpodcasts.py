@@ -721,8 +721,25 @@ class podcastItem(object):
             log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
     def local_filename( self):
-        extension = util.file_extension_from_url( self.url)
-        return os.path.join( self.channel.save_dir, md5.new( self.url).hexdigest() + extension)
+        ext = util.file_extension_from_url(self.url)
+        
+        # For compatibility with already-downloaded episodes,
+        # we accept md5 filenames if they are downloaded now.
+        md5_filename = os.path.join(self.channel.save_dir, md5.new(self.url).hexdigest()+ext)
+        if os.path.exists(md5_filename) or not gl.config.experimental_file_naming:
+            return md5_filename
+
+        # If the md5 filename does not exist, 
+        episode = util.file_extension_from_url(self.url, complete_filename=True)
+        episode = util.sanitize_filename(episode)
+
+        # If the episode filename looks suspicious,
+        # we still return the md5 filename to be on
+        # the safe side of the fence ;)
+        if len(episode) == 0 or episode.startswith('redirect.'):
+            return md5_filename
+        filename = os.path.join(self.channel.save_dir, episode)
+        return filename
 
     def sync_filename( self):
         if gl.config.custom_sync_name_enabled:

@@ -61,6 +61,20 @@ import StringIO
 import xml.dom.minidom
 
 
+# Try to detect OS encoding (by Leonid Ponomarev)
+encoding = 'iso-8859-15'
+if 'LANG' in os.environ and '.' in os.environ['LANG']:
+    lang = os.environ['LANG']
+    (language, encoding) = lang.rsplit('.', 1)
+    log('Detected encoding: %s', encoding)
+    enc = encoding
+else:
+    # Using iso-8859-15 here as (hopefully) sane default
+    # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
+    log('Using ISO-8859-15 as encoding. If this')
+    log('is incorrect, please set your $LANG variable.')
+
+
 if gpodder.interface == gpodder.GUI:
     ICON_UNPLAYED = gtk.STOCK_YES
     ICON_LOCKED = 'emblem-nowrite'
@@ -388,7 +402,7 @@ def torrent_filename( filename):
         return None
 
 
-def file_extension_from_url( url):
+def file_extension_from_url(url, complete_filename=False):
     """
     Extracts the (lowercase) file name extension (with dot)
     from a URL, e.g. http://server.com/file.MP3?download=yes
@@ -400,16 +414,26 @@ def file_extension_from_url( url):
     into the query string to find better matches, if the 
     original extension does not resolve to a known type.
 
+    If the optional parameter "complete_filename" is set to
+    True, this will not return the extension, but the 
+    complete filename (basename) of the found media file.
+
     http://my.net/redirect.php?my.net/file.ogg => ".ogg"
     http://server/get.jsp?file=/episode0815.MOV => ".mov"
+    http://s/redirect.mp4?http://serv2/test.mp4 => ".mp4"
     """
     (scheme, netloc, path, para, query, fragid) = urlparse.urlparse(url)
     filename = os.path.basename( urllib.unquote(path))
-    (filename, extension) = os.path.splitext(filename)
+    (tmp, extension) = os.path.splitext(filename)
 
-    if file_type_by_extension(extension) is not None:
+    if file_type_by_extension(extension) is not None and not \
+        query.startswith(scheme+'://'):
         # We have found a valid extension (audio, video, torrent)
-        return extension.lower()
+        # and the query string doesn't look like a URL
+        if complete_filename:
+            return filename
+        else:
+            return extension.lower()
     
     # If the query string looks like a possible URL, try that first
     if len(query.strip()) > 0 and query.find('/') != -1:
@@ -417,10 +441,16 @@ def file_extension_from_url( url):
         query_extension = file_extension_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
-            return query_extension
+            if complete_filename:
+                return os.path.basename(query_url)
+            else:
+                return query_extension
 
     # No exact match found, simply return the original extension
-    return extension.lower()
+    if complete_filename:
+        return filename
+    else:
+        return extension.lower()
 
 
 def file_type_by_extension( extension):
@@ -891,7 +921,7 @@ def gui_open(filename):
         # FIXME: Win32-specific "open" code needed here
         # as fallback when xdg-open not available
     except:
-        log('Cannot open file/folder: "%s"', folder, sender=self, traceback=True)
+        log('Cannot open file/folder: "%s"', filename, sender=self, traceback=True)
 
 
 def open_website(url):
@@ -902,20 +932,6 @@ def open_website(url):
     """
     threading.Thread(target=webbrowser.open, args=(url,)).start()
 
-def detect_os_encoding():
-    # Try to detect OS encoding (by Leonid Ponomarev)
-    if 'LANG' in os.environ and '.' in os.environ['LANG']:
-        lang = os.environ['LANG']
-        (language, encoding) = lang.rsplit('.', 1)
-        log('Detected encoding: %s', encoding)
-        enc = encoding
-    else:
-        # Using iso-8859-15 here as (hopefully) sane default
-        # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
-        log('Using ISO-8859-15 as encoding. If this')
-        log('is incorrect, please set your $LANG variable.')
-        enc = 'iso-8859-15'
-    return enc
 
 def sanitize_filename(filename, max_length=0):
     """
@@ -928,7 +944,8 @@ def sanitize_filename(filename, max_length=0):
         log('Limiting file/folder name "%s" to %d characters.', filename, max_length, sender=self)
         filename = filename[:max_length]
 
-    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(detect_os_encoding(), 'ignore'))
+    global encoding
+    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(encoding, 'ignore'))
 
 
 def find_mount_point(directory):
