@@ -76,6 +76,7 @@ gPodderSettings = {
     'episode_list_descriptions': (bool, True),
     'show_toolbar': (bool, True),
     'ipod_write_gtkpod_extended': (bool, False),
+    'mp3_player_delete_played': (bool, False),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False),
@@ -106,6 +107,7 @@ gPodderSettings = {
     'create_m3u_playlists': (bool, False),
     'max_episodes_per_feed': (int, 200),
     'mp3_player_use_scrobbler_log': (bool, False),
+    'mp3_player_max_filename_length': (int, 100),
     'show_podcast_url_entry': (bool, True),
     'maemo_allow_custom_player': (bool, False),
     'rockbox_copy_coverart' : (bool, False),

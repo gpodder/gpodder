@@ -653,6 +653,9 @@ class podcastItem(object):
     def is_played(self):
         return gl.history_is_played(self.url)
 
+    def is_deleted(self):
+        return gl.history_is_downloaded(self.url) and not self.is_downloaded()
+
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename())
 

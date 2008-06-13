@@ -1,3 +1,21 @@
+Fri, 13 Jun 2008 09:37:45 +0200 <thp@perli.net>
+Merge patch from Nick to add support for deleting played files on sync
+
+	* data/gpodder.glade: Add check button for "Delete episodes on device
+	that have been marked played in gPodder"
+	* src/gpodder/config.py: Add two new config options:
+	"mp3_player_delete_played" and "mp3_player_max_filename_length"
+	* src/gpodder/gui.py: 
+	* src/gpodder/libpodcasts.py: Add "is_deleted()" convenience function
+	for a podcast episode
+	* src/gpodder/sync.py: Clean-up and simplify parts of the code to make
+	it better-structured and avoid code duplication; use the configuration
+	variable for the MAX_FILENAME_LENGTH instead of hard-coding it to 100
+	* src/gpodder/util.py: Split sanitize_filename() into two functions,
+	detect_os_encoding() and sanitize_filename() for better code re-use
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=56; code written by
+	Nick (nikosapi) and initial idea by Shane Donohoe, see the bug page)
+
 Sun, 08 Jun 2008 20:08:58 +0200 <thp@perli.net>
 Patch from Jérôme Chabod to fix "minimize on start" bug (#123)
 

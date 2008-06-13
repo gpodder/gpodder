@@ -3501,7 +3501,7 @@
 	    <widget class="GtkTable" id="table5">
 	      <property name="border_width">10</property>
 	      <property name="visible">True</property>
-	      <property name="n_rows">12</property>
+	      <property name="n_rows">13</property>
 	      <property name="n_columns">4</property>
 	      <property name="homogeneous">False</property>
 	      <property name="row_spacing">5</property>
@@ -3867,8 +3867,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">1</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">9</property>
-		  <property name="bottom_attach">10</property>
+		  <property name="top_attach">10</property>
+		  <property name="bottom_attach">11</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -3890,8 +3890,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">1</property>
 		  <property name="right_attach">2</property>
-		  <property name="top_attach">8</property>
-		  <property name="bottom_attach">9</property>
+		  <property name="top_attach">9</property>
+		  <property name="bottom_attach">10</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -3912,8 +3912,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">2</property>
 		  <property name="right_attach">3</property>
-		  <property name="top_attach">8</property>
-		  <property name="bottom_attach">9</property>
+		  <property name="top_attach">9</property>
+		  <property name="bottom_attach">10</property>
 		  <property name="y_options"></property>
 		</packing>
 	      </child>
@@ -3941,8 +3941,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">3</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">8</property>
-		  <property name="bottom_attach">9</property>
+		  <property name="top_attach">9</property>
+		  <property name="bottom_attach">10</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -3959,6 +3959,7 @@ Filesystem-based MP3 player</property>
 		  <property name="active">False</property>
 		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
+		  <signal name="toggled" handler="on_only_sync_not_played_toggled" last_modification_time="Thu, 22 May 2008 15:17:47 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">1</property>
@@ -4094,8 +4095,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">1</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">7</property>
-		  <property name="bottom_attach">8</property>
+		  <property name="top_attach">8</property>
+		  <property name="bottom_attach">9</property>
 		  <property name="y_padding">2</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options">fill</property>
@@ -4117,8 +4118,8 @@ Filesystem-based MP3 player</property>
 		<packing>
 		  <property name="left_attach">1</property>
 		  <property name="right_attach">4</property>
-		  <property name="top_attach">10</property>
-		  <property name="bottom_attach">11</property>
+		  <property name="top_attach">11</property>
+		  <property name="bottom_attach">12</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options"></property>
 		</packing>
@@ -4142,6 +4143,30 @@ Filesystem-based MP3 player</property>
 		  <property name="x_padding">6</property>
 		  <property name="x_options">fill</property>
 		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkCheckButton" id="delete_episodes_marked_played">
+		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Delete episodes on device that have been marked played in gPodder</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">False</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		  <signal name="toggled" handler="on_delete_episodes_marked_played_toggled" last_modification_time="Thu, 22 May 2008 17:18:39 GMT"/>
+		</widget>
+		<packing>
+		  <property name="left_attach">1</property>
+		  <property name="right_attach">4</property>
+		  <property name="top_attach">7</property>
+		  <property name="bottom_attach">8</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
 		</packing>
 	      </child>
 	    </widget>

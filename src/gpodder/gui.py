@@ -1440,6 +1440,34 @@ class gPodder(GladeWidget):
                 episodes.append(episode)
         self.new_episodes_show(episodes)
 
+    def get_all_episodes(self, exclude_nonsignificant=True ):
+        """'exclude_nonsignificant' will exclude non-downloaded episodes
+            and all episodes from channels that are set to skip when syncing"""
+        episode_list = []
+        for channel in self.channels:
+            if not channel.sync_to_devices and exclude_nonsignificant:
+                log('Skipping channel: %s', channel.title, sender=self)
+                continue
+            for episode in channel.get_all_episodes():
+                if episode.is_downloaded() or not exclude_nonsignificant:
+                    episode_list.append(episode)
+        return episode_list
+
+    def ipod_delete_played(self, device):
+        all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
+        episodes_on_device = device.get_all_tracks()
+        for local_episode in all_episodes:
+            if local_episode.is_played() and not local_episode.is_locked() or local_episode.is_deleted():
+                if gl.config.device_type == 'filesystem':
+                    local_episode_name = util.sanitize_filename(local_episode.sync_filename(), gl.config.mp3_player_max_filename_length)
+                else:
+                    local_episode_name = local_episode.sync_filename()
+                for device_episode in episodes_on_device:
+                    if device_episode.title == local_episode_name:
+                        log("mp3_player_delete_played: removing %s" % device_episode.title)
+                        device.remove_track(device_episode)
+                        break
+
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         Thread(target=self.sync_to_ipod_thread, args=(widget, episodes)).start()
     
@@ -1463,16 +1491,12 @@ class gPodder(GladeWidget):
             self.tray_icon.set_synchronisation_device(device)
 
         if episodes is None:
-            episodes_to_sync = []
-            for channel in self.channels:
-                if not channel.sync_to_devices:
-                    log('Skipping channel: %s', channel.title, sender=self)
-                    continue
-                
-                for episode in channel.get_all_episodes():
-                    if episode.is_downloaded():
-                        episodes_to_sync.append(episode)
+            episodes_to_sync = self.get_all_episodes()
             device.add_tracks(episodes_to_sync)
+            # 'only_sync_not_played' must be used or else all the played
+            #  tracks will be copied then immediately deleted
+            if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
+                self.ipod_delete_played(device)
         else:
             device.add_tracks(episodes, force_played=True)
  
@@ -2232,6 +2256,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('bluetooth_use_converter', self.bluetooth_use_converter)
         gl.config.connect_gtk_filechooser( 'bluetooth_converter', self.bluetooth_converter, is_for_files=True)
         gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
+        gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         
         self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
@@ -2246,6 +2271,9 @@ class gPodderProperties(GladeWidget):
         self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
         self.chooserDownloadTo.set_current_folder(gl.downloaddir)
 
+        self.on_sync_delete.set_sensitive(not self.delete_episodes_marked_played.get_active())
+        self.on_sync_mark_played.set_sensitive(not self.delete_episodes_marked_played.get_active())
+        
         if tagging_supported():
             gl.config.connect_gtk_togglebutton( 'update_tags', self.updatetags)
         else:
@@ -2370,6 +2398,17 @@ class gPodderProperties(GladeWidget):
     def on_cbCustomSyncName_toggled( self, widget, *args):
         self.entryCustomSyncName.set_sensitive( widget.get_active())
 
+    def on_only_sync_not_played_toggled( self, widget, *args):
+        self.delete_episodes_marked_played.set_sensitive( widget.get_active())
+        if not widget.get_active():
+            self.delete_episodes_marked_played.set_active(False)
+
+    def on_delete_episodes_marked_played_toggled( self, widget, *args):
+        if widget.get_active() and self.only_sync_not_played.get_active():
+            self.on_sync_leave.set_active(True)
+        self.on_sync_delete.set_sensitive(not widget.get_active())
+        self.on_sync_mark_played.set_sensitive(not widget.get_active())
+
     def on_btnCustomSyncNameHelp_clicked( self, widget):
         examples = [
                 '<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>',
@@ -2434,7 +2473,7 @@ class gPodderProperties(GladeWidget):
         sync_widgets = ( self.only_sync_not_played, self.labelSyncOptions,
                          self.imageSyncOptions, self. separatorSyncOptions,
                          self.on_sync_mark_played, self.on_sync_delete,
-                         self.on_sync_leave, self.label_after_sync, )
+                         self.on_sync_leave, self.label_after_sync, self.delete_episodes_marked_played)
         for widget in sync_widgets:
             if active_item == 0:
                 widget.hide_all()

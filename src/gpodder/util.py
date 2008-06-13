@@ -902,13 +902,7 @@ def open_website(url):
     """
     threading.Thread(target=webbrowser.open, args=(url,)).start()
 
-
-def sanitize_filename(filename):
-    """
-    Generate a sanitized version of a filename that can
-    be written on disk (i.e. remove/replace invalid 
-    characters and encode in the native language)
-    """
+def detect_os_encoding():
     # Try to detect OS encoding (by Leonid Ponomarev)
     if 'LANG' in os.environ and '.' in os.environ['LANG']:
         lang = os.environ['LANG']
@@ -921,8 +915,20 @@ def sanitize_filename(filename):
         log('Using ISO-8859-15 as encoding. If this')
         log('is incorrect, please set your $LANG variable.')
         enc = 'iso-8859-15'
+    return enc
 
-    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(enc, 'ignore'))
+def sanitize_filename(filename, max_length=0):
+    """
+    Generate a sanitized version of a filename that can
+    be written on disk (i.e. remove/replace invalid
+    characters and encode in the native language) and
+    trim filename if greater than max_length (0 = no limit).
+    """
+    if not max_length and len(filename) > max_length:
+        log('Limiting file/folder name "%s" to %d characters.', filename, max_length, sender=self)
+        filename = filename[:max_length]
+
+    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(detect_os_encoding(), 'ignore'))
 
 
 def find_mount_point(directory):

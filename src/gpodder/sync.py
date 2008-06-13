@@ -427,24 +427,11 @@ class MP3PlayerDevice(Device):
     # This is the maximum length of a file name that is
     # created on the MP3 player, because FAT32 has a
     # 255-character limit for the whole path
-    MAX_FILENAME_LENGTH = 100
+    MAX_FILENAME_LENGTH = gl.config.mp3_player_max_filename_length
 
     def __init__(self):
         Device.__init__(self)
-
-        # Try to detect OS encoding (by Leonid Ponomarev)
-        if 'LANG' in os.environ and '.' in os.environ['LANG']:
-            lang = os.environ['LANG']
-            (language, encoding) = lang.rsplit('.', 1)
-            log('Detected encoding: %s', encoding, sender=self)
-            self.enc = encoding
-        else:
-            # Using iso-8859-15 here as (hopefully) sane default
-            # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
-            log('Using ISO-8859-15 as encoding. If this', sender=self)
-            log('is incorrect, please set your $LANG variable.', sender=self)
-            self.enc = 'iso-8859-15'
-
+        self.enc = util.detect_os_encoding()
         self.destination = gl.config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
         self.scrobbler_log = []
@@ -472,30 +459,16 @@ class MP3PlayerDevice(Device):
         if gl.config.fssync_channel_subfolders:
             # Add channel title as subfolder
             folder = episode.channel.title
-            # Don't allow extremely long folder names (filesystem limitations)
-            if len(folder) > self.MAX_FILENAME_LENGTH:
-                log('Limiting folder "%s" to %d characters.', folder, self.MAX_FILENAME_LENGTH, sender=self)
-                folder = folder[:self.MAX_FILENAME_LENGTH]
-            folder = re.sub('[/|?*<>:+\[\]\"\\\]', '_', folder.encode(self.enc, 'ignore'))
+            # Clean up the folder name for use on limited devices
+            folder = util.sanitize_filename(folder, self.MAX_FILENAME_LENGTH)
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
 
         from_file = episode.local_filename()
-
-        filename_base = episode.sync_filename()
-
-        # don't allow extremely long file names (filesystem limitations)
-        if len(filename_base) > self.MAX_FILENAME_LENGTH:
-            log('Limiting filename "%s" to %d characters.', filename_base, self.MAX_FILENAME_LENGTH, sender=self)
-            filename_base = filename_base[:self.MAX_FILENAME_LENGTH]
+        filename_base = util.sanitize_filename(episode.sync_filename(), self.MAX_FILENAME_LENGTH)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
-
-        # Encode the file name to our system's
-        # encoding and remove the characters that are invalid
-        # for FAT-based drives (replace with the empty string)
-        to_file = re.sub('[/|?*<>:+\[\]\"\\\]', '_', to_file.encode(self.enc, 'ignore'))
 
         # dirty workaround: on bad (empty) episode titles,
         # we simply use the from_file basename
