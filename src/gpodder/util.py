@@ -940,8 +940,8 @@ def sanitize_filename(filename, max_length=0):
     characters and encode in the native language) and
     trim filename if greater than max_length (0 = no limit).
     """
-    if not max_length and len(filename) > max_length:
-        log('Limiting file/folder name "%s" to %d characters.', filename, max_length, sender=self)
+    if max_length > 0 and len(filename) > max_length:
+        log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
         filename = filename[:max_length]
 
     global encoding
@@ -963,4 +963,47 @@ def find_mount_point(directory):
             (directory, tail_data) = os.path.split(directory)
 
     return '/'
+
+
+def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None):
+    """
+    Resizes a GTK Pixbuf but keeps its aspect ratio.
+    
+    Returns None if the pixbuf does not need to be
+    resized or the newly resized pixbuf if it does.
+
+    The optional parameter "key" is used to identify
+    the image in the "cache", which is a dict-object
+    that holds already-resized pixbufs to access.
+    """
+    changed = False
+
+    if cache is not None:
+        if (key, max_width, max_height) in cache:
+            log('Loading from cache: %s', key)
+            return cache[(key, max_width, max_height)]
+
+    # Resize if too wide
+    if pixbuf.get_width() > max_width:
+        f = float(max_width)/pixbuf.get_width()
+        (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+        pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        changed = True
+
+    # Resize if too high
+    if pixbuf.get_height() > max_height:
+        f = float(max_height)/pixbuf.get_height()
+        (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+        pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        changed = True
+
+    if changed:
+        result = pixbuf
+        if cache is not None:
+            log('Storing in cache: %s', key)
+            cache[(key, max_width, max_height)] = result
+    else:
+        result = None
+
+    return result
 

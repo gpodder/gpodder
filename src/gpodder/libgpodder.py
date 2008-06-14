@@ -241,60 +241,6 @@ class gPodderLib(object):
             return ( False, command_line[0] )
         return ( True, command_line[0] )
 
-    def image_download_thread( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
-        if callback_status is not None:
-            util.idle_add(callback_status, _('Downloading podcast cover...'))
-        pixbuf = gtk.gdk.PixbufLoader()
-        
-        if cover_file is None:
-            log( 'Downloading %s', url)
-            pixbuf.write( urllib.urlopen(url).read())
-        
-        if cover_file is not None and not os.path.exists(cover_file):
-            log( 'Downloading cover to %s', cover_file)
-            cachefile = open( cover_file, "w")
-            cachefile.write( urllib.urlopen(url).read())
-            cachefile.close()
-        
-        if cover_file is not None:
-            log( 'Reading cover from %s', cover_file)
-            try:
-                pixbuf.write( open( cover_file, "r").read())
-            except:
-                # Probably a data error, delete temp file
-                log('Data error while reading pixbuf. Deleting %s', cover_file, sender=self)
-                util.delete_file(cover_file)
-        
-        try:
-            pixbuf.close()
-        except:
-            # data error, delete temp file
-            util.delete_file( cover_file)
-        
-        MAX_SIZE = 400
-        if callback_pixbuf is not None:
-            pb = pixbuf.get_pixbuf()
-            if pb:
-                if pb.get_width() > MAX_SIZE:
-                    factor = MAX_SIZE*1.0/pb.get_width()
-                    pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
-                if pb.get_height() > MAX_SIZE:
-                    factor = MAX_SIZE*1.0/pb.get_height()
-                    pb = pb.scale_simple( int(pb.get_width()*factor), int(pb.get_height()*factor), gtk.gdk.INTERP_BILINEAR)
-                util.idle_add(callback_pixbuf, pb)
-        if callback_status is not None:
-            util.idle_add(callback_status, '')
-        if callback_finished is not None:
-            util.idle_add(callback_finished)
-
-    def get_image_from_url( self, url, callback_pixbuf = None, callback_status = None, callback_finished = None, cover_file = None):
-        if not url and not os.path.exists( cover_file):
-            return
-
-        args = ( url, callback_pixbuf, callback_status, callback_finished, cover_file )
-        thread = threading.Thread( target = self.image_download_thread, args = args)
-        thread.start()
-
     def invoke_torrent( self, url, torrent_filename, target_filename):
         self.history_mark_played( url)
 

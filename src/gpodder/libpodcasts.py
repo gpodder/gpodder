@@ -581,16 +581,6 @@ class podcastChannel(list):
 
     cover_file = property(fget=get_cover_file)
 
-    def get_cover_pixbuf(self, size=128):
-        fn = self.cover_file
-        if os.path.exists(fn) and os.path.getsize(fn) > 0:
-            try:
-                return gtk.gdk.pixbuf_new_from_file_at_size(fn, size, size)
-            except:
-                pass
-
-        return None
-
     def delete_episode_by_url(self, url):
         global_lock.acquire()
         downloaded_episodes = self.load_downloaded_episodes()
@@ -843,7 +833,7 @@ class podcastItem(object):
 
 
 
-def channels_to_model(channels):
+def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str)
     
     for channel in channels:
@@ -872,27 +862,13 @@ def channels_to_model(channels):
         else:
             new_model.set( new_iter, 4, pango.WEIGHT_NORMAL)
 
-        channel_cover_found = False
-        if os.path.exists( channel.cover_file) and os.path.getsize(channel.cover_file) > 0:
-            try:
-                new_model.set( new_iter, 5, gtk.gdk.pixbuf_new_from_file_at_size( channel.cover_file, 32, 32))
-                channel_cover_found = True
-            except: 
-                exctype, value = sys.exc_info()[:2]
-                log( 'Could not convert icon file "%s", error was "%s"', channel.cover_file, value )
-                util.delete_file(channel.cover_file)
-
-        if not channel_cover_found:
-            iconsize = gtk.icon_size_from_name('channel-icon')
-            if not iconsize:
-                iconsize = gtk.icon_size_register('channel-icon',32,32)
-            icon_theme = gtk.icon_theme_get_default()
-            globe_icon_name = 'applications-internet'
-            try:
-                new_model.set( new_iter, 5, icon_theme.load_icon(globe_icon_name, iconsize, 0))
-            except:
-                log( 'Cannot load "%s" icon (using an old or incomplete icon theme?)', globe_icon_name)
-                new_model.set( new_iter, 5, None)
+        # Load the cover if we have it, but don't download
+        # it if it's not available (to avoid blocking here)
+        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+        new_pixbuf = None
+        if pixbuf is not None:
+            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
+        new_model.set(new_iter, 5, new_pixbuf or pixbuf)
     
     return new_model
 

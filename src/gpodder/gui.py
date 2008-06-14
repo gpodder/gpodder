@@ -456,6 +456,9 @@ class gPodder(GladeWidget):
 
         services.download_status_manager.register( 'list-changed', self.download_status_updated)
         services.download_status_manager.register( 'progress-changed', self.download_progress_updated)
+        services.cover_downloader.register('cover-available', self.cover_download_finished)
+        services.cover_downloader.register('cover-removed', self.cover_file_removed)
+        self.cover_cache = {}
 
         self.treeDownloads.set_model( services.download_status_manager.tree_model)
         
@@ -679,6 +682,33 @@ class gPodder(GladeWidget):
                 self.iconify_main_window()
         else:
             self.on_gPodder_delete_event(widget)
+
+    def cover_file_removed(self, channel_url):
+        """
+        The Cover Downloader calls this when a previously-
+        available cover has been removed from the disk. We
+        have to update our cache to reflect this change.
+        """
+        (COLUMN_URL, COLUMN_PIXBUF) = (0, 5)
+        for row in self.treeChannels.get_model():
+            if row[COLUMN_URL] == channel_url:
+                row[COLUMN_PIXBUF] = None
+                del self.cover_cache[(channel_url, gl.config.podcast_list_icon_size, \
+                        gl.config.podcast_list_icon_size)]
+        
+    
+    def cover_download_finished(self, channel_url, pixbuf):
+        """
+        The Cover Downloader calls this when it has finished
+        downloading (or registering, if already downloaded)
+        a new channel cover, which is ready for displaying.
+        """
+        if pixbuf is not None:
+            (COLUMN_URL, COLUMN_PIXBUF) = (0, 5)
+            for row in self.treeChannels.get_model():
+                if row[COLUMN_URL] == channel_url and row[COLUMN_PIXBUF] is None:
+                    new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size, channel_url, self.cover_cache)
+                    row[COLUMN_PIXBUF] = new_pixbuf or pixbuf
 
     def save_episode_as_file( self, url, *args):
         episode = self.active_channel.find_episode( url)
@@ -1028,8 +1058,10 @@ class gPodder(GladeWidget):
             selected_url = model.get_value(iter, 0)
 
         rect = self.treeChannels.get_visible_rect()
-        self.treeChannels.set_model(channels_to_model(self.channels))
+        self.treeChannels.set_model(channels_to_model(self.channels, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
         util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
+        for channel in self.channels:
+            services.cover_downloader.request_cover(channel)
 
         try:
             selected_path = (0,)
@@ -1060,8 +1092,24 @@ class gPodder(GladeWidget):
                 self.treeAvailable.get_model().clear()
     
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
+        (path, column, rx, ry) = self.treeChannels.get_path_at_pos( x, y) or (None,)*4
+
+        dnd_channel = None
+        if path is not None:
+            model = self.treeChannels.get_model()
+            iter = model.get_iter(path)
+            url = model.get_value(iter, 0)
+            for channel in self.channels:
+                if channel.url == url:
+                    dnd_channel = channel
+                    break
+
         result = sel.data
-        self.add_new_channel( result)
+        rl = result.strip().lower()
+        if (rl.endswith('.jpg') or rl.endswith('.png') or rl.endswith('.gif') or rl.endswith('.svg')) and dnd_channel is not None:
+            services.cover_downloader.replace_cover(dnd_channel, result)
+        else:
+            self.add_new_channel(result)
 
     def add_new_channel(self, result=None, ask_download_new=True):
         result = util.normalize_feed_url( result)
@@ -2072,6 +2120,7 @@ class gPodderChannel(GladeWidget):
     
     def new(self):
         global WEB_BROWSER_ICON
+        self.changed = False
         self.image3167.set_property('icon-name', WEB_BROWSER_ICON)
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
@@ -2088,8 +2137,8 @@ class gPodderChannel(GladeWidget):
         if self.channel.password:
             self.FeedPassword.set_text( self.channel.password)
 
-        self.on_btnClearCover_clicked( self.btnClearCover, delete_file = False)
-        self.on_btnDownloadCover_clicked( self.btnDownloadCover, url = False)
+        services.cover_downloader.register('cover-available', self.cover_download_finished)
+        services.cover_downloader.request_cover(self.channel)
 
         # Hide the website button if we don't have a valid URL
         if not self.channel.link:
@@ -2109,29 +2158,27 @@ class gPodderChannel(GladeWidget):
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)
 
-    def on_btnClearCover_clicked( self, widget, delete_file = True):
-        self.imgCover.clear()
-        if delete_file:
-            util.delete_file( self.channel.cover_file)
-        self.btnClearCover.set_sensitive( os.path.exists( self.channel.cover_file))
-        self.btnDownloadCover.set_sensitive( not os.path.exists( self.channel.cover_file) and bool(self.channel.image))
-        self.labelCoverStatus.set_text( _('You can drag a cover file here.'))
-        self.labelCoverStatus.show()
+    def on_btnDownloadCover_clicked(self, widget):
+        if gpodder.interface == gpodder.GUI:
+            dlg = gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        elif gpodder.interface == gpodder.MAEMO:
+            dlg = hildon.FileChooserDialog(self.gPodderChannel, gtk.FILE_CHOOSER_ACTION_OPEN)
 
-    def on_btnDownloadCover_clicked( self, widget, url = None):
-        if url is None:
-            url = self.channel.image
+        if dlg.run() == gtk.RESPONSE_OK:
+            url = dlg.get_uri()
+            services.cover_downloader.replace_cover(self.channel, url)
 
-        if url != False:
-            self.btnDownloadCover.set_sensitive( False)
+        dlg.destroy()
 
-        self.labelCoverStatus.show()
-        gl.get_image_from_url(url, self.imgCover.set_from_pixbuf, self.labelCoverStatus.set_text, self.cover_download_finished, self.channel.cover_file)
+    def on_btnClearCover_clicked(self, widget):
+        services.cover_downloader.replace_cover(self.channel)
 
-    def cover_download_finished( self):
-        self.labelCoverStatus.hide()
-        self.btnClearCover.set_sensitive( os.path.exists( self.channel.cover_file))
-        self.btnDownloadCover.set_sensitive( not os.path.exists( self.channel.cover_file) and bool(self.channel.image))
+    def cover_download_finished(self, channel_url, pixbuf):
+        if pixbuf is not None:
+            self.imgCover.set_from_pixbuf(pixbuf)
+        self.gPodderChannel.show()
 
     def drag_data_received( self, widget, content, x, y, sel, ttype, time):
         files = sel.data.strip().split('\n')
@@ -2141,12 +2188,8 @@ class gPodderChannel(GladeWidget):
 
         file = files[0]
 
-        if file.startswith( 'file://') or file.startswith( 'http://'):
-            self.on_btnClearCover_clicked( self.btnClearCover)
-            if file.startswith( 'file://'):
-                filename = file[len('file://'):]
-                shutil.copyfile( filename, self.channel.cover_file)
-            self.on_btnDownloadCover_clicked( self.btnDownloadCover, url = file)
+        if file.startswith('file://') or file.startswith('http://'):
+            services.cover_downloader.replace_cover(self.channel, file)
             return
         
         self.show_message( _('You can only drop local files and http:// URLs here.'), _('Drag and drop'))
@@ -2171,6 +2214,7 @@ class gPodderChannel(GladeWidget):
         self.channel.password = self.FeedPassword.get_text()
         self.channel.save_settings()
 
+        services.cover_downloader.unregister('cover-available', self.cover_download_finished)
         self.gPodderChannel.destroy()
 
 class gPodderAddPodcastDialog(GladeWidget):

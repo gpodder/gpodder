@@ -1,3 +1,37 @@
+Fri, 13 Jun 2008 21:32:57 +0200 <thp@perli.net>
+Automatically download channel cover file; improve channel cover handling
+
+	* data/gpodder.glade: Simplify and clean-up the podcast editor dialog,
+	especially with respect to the cover art stuff
+	* src/gpodder/config.py: Add configuration option
+	"podcast_list_icon_size" that determines the pixel size of the cover
+	art displayed in the podcast list
+	* src/gpodder/gui.py: Add cover cache, register with the cover
+	downloader service in the main window, handle messages from the cover
+	downloader (removed and download finished); request covers for
+	channels when refreshing the channel list; make sure drag'n'drop of
+	image files to the channel list works directly and sets the
+	corresponding channel cover; Rework cover download handling and add an
+	open dialog as suggested by the May 2008 Usability Evaluation
+	* src/gpodder/libgpodder.py: Remove old, attic image downloading code
+	from gPodderLib, because it now has its own service class
+	* src/gpodder/libpodcasts.py: Remove unneeded get_cover_pixbuf helper
+	function for podcastChannel; improve channels_to_model to take
+	advantage of the new cover downloader service
+	* src/gpodder/services.py: Add CoverDownloader service that acts as a
+	central hub for all downloading and modifying of channel cover art,
+	including notification of observers (through ObservableService)
+	* src/gpodder/util.py: Add resize_pixbuf_keep_ratio helper function to
+	resize a gtk pixbuf while keeping the aspect radio (with optional
+	caching support through a dictionary parameter)
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=88)
+
+Fri, 13 Jun 2008 20:10:13 +0200 <thp@perli.net>
+Fix a bug in the experimental file naming support
+
+	* src/gpodder/util.py: Fix bug that stopped the experimental file
+	naming patch from working; thanks to Shane Donohoe for reporting
+
 Fri, 13 Jun 2008 16:08:16 +0200 <thp@perli.net>
 Merge patch to add experimental support for "normal" file naming
 
