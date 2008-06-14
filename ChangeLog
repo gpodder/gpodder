@@ -1,3 +1,13 @@
+Sat, 14 Jun 2008 15:16:09 +0200 <thp@perli.net>
+Detect HTML and OPML content when adding a podcast subscription
+
+	* src/gpodder/gui.py: Detect HTML and OPML content when adding a
+	podcast feed that is not parseable by feedparser; when the content
+	suggests the file is an OPML file, open the OPML dialog, when it looks
+	like an HTML file, ask the user if she wants to browse the content
+	with the web browser and look for a suitable XML/feed URL
+	(This fixes the first suggestion in the May 2008 Usability Evaluation)
+
 Fri, 13 Jun 2008 21:32:57 +0200 <thp@perli.net>
 Automatically download channel cover file; improve channel cover handling
 

@@ -27,6 +27,7 @@ import shutil
 import subprocess
 import glob
 import time
+import urllib2
 
 from xml.sax import saxutils
 
@@ -1151,6 +1152,24 @@ class gPodder(GladeWidget):
                     if len(new_episodes):
                         self.new_episodes_show(new_episodes)
             else:
+                # Ok, the URL is not a channel, or there is some other
+                # error - let's see if it's a web page or OPML file...
+                try:
+                    data = urllib2.urlopen(result).read().lower()
+                    if '</opml>' in data:
+                        # This looks like an OPML feed
+                        self.on_item_import_from_file_activate(None, result)
+                        return
+                    elif '</html>' in data:
+                        # This looks like a web page
+                        title = _('The URL is a website')
+                        message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
+                        if self.show_confirmation(message, title):
+                            util.open_website(result)
+                        return
+                except:
+                    log('Error trying to handle the URL as OPML or web page: %s', result, traceback=True, sender=self)
+
                 title = _('Error adding podcast')
                 message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
                 self.show_message( message, title)
@@ -1777,19 +1796,21 @@ class gPodder(GladeWidget):
         filter.set_name(_('OPML files')+' (*.opml, *.xml)')
         return filter
 
-    def on_item_import_from_file_activate(self, widget):
-        if gpodder.interface == gpodder.GUI:
-            dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
-            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-        elif gpodder.interface == gpodder.MAEMO:
-            dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_OPEN)
-        dlg.set_filter(self.get_opml_filter())
-        response = dlg.run()
-        filename = None
-        if response == gtk.RESPONSE_OK:
-            filename = dlg.get_filename()
-        dlg.destroy()
+    def on_item_import_from_file_activate(self, widget, filename=None):
+        if filename is None:
+            if gpodder.interface == gpodder.GUI:
+                dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+                dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+                dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+            elif gpodder.interface == gpodder.MAEMO:
+                dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_OPEN)
+            dlg.set_filter(self.get_opml_filter())
+            response = dlg.run()
+            filename = None
+            if response == gtk.RESPONSE_OK:
+                filename = dlg.get_filename()
+            dlg.destroy()
+
         if filename is not None:
             gPodderOpmlLister(custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
