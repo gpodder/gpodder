@@ -898,6 +898,7 @@ class LocalDBReader( object):
             log('Looks like you have an old pubDate in your LocalDB')
             episode.pubDate = self.get_text_by_first_node( element, 'pubDate')
             episode.pubDate = time.mktime(feedparser._parse_date(episode.pubDate))
+        episode.mimetype = self.get_text_by_first_node( element, 'mimetype')
         episode.calculate_filesize()
         return episode
 
@@ -954,6 +955,7 @@ class LocalDBWriter(object):
         item.appendChild( self.create_node( doc, 'link', episode.link))
         item.appendChild( self.create_node( doc, 'guid', episode.guid))
         item.appendChild( self.create_node( doc, 'pubDate', str(episode.pubDate)))
+        item.appendChild( self.create_node( doc, 'mimetype', episode.mimetype))
         return item
 
     def write( self, channel):

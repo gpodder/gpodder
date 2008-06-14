@@ -1,3 +1,9 @@
+Sat, 14 Jun 2008 12:29:11 -0400 <me@nikosapi.org>
+	* src/gpodder/libpodcasts.py: make LocalDBReader and LocalDBWriter
+	read/save the episode mimetype attribute in the LocalDB. This 
+	prevents the mimetype attribute from being set to 
+	'application/octet-stream' after a file is downloaded.
+
 Sat, 14 Jun 2008 18:50:29 +0200 <thp@perli.net>
 Improve performance related to pubDate parsing; Download button; update feeds
 
