@@ -544,29 +544,6 @@ def get_first_line( s):
     return s.strip().split('\n')[0].strip()
 
 
-def updated_parsed_to_rfc2822( updated_parsed):
-    """
-    Converts a 9-tuple from feedparser's updated_parsed 
-    field to a C-locale string suitable for further use.
-
-    If the updated_parsed field is None or not a 9-tuple,
-    this function returns None.
-    """
-    if updated_parsed is None or len(updated_parsed) != 9:
-        return None
-
-    old_locale = locale.getlocale( locale.LC_TIME)
-    locale.setlocale( locale.LC_TIME, 'C')
-    result = time.strftime( '%a, %d %b %Y %H:%M:%S GMT', updated_parsed)
-    if old_locale != (None, None):
-        try:
-            locale.setlocale( locale.LC_TIME, old_locale)
-        except:
-            log('Cannot revert locale to (%s, %s)', *old_locale)
-            pass
-    return result
-
-
 def object_string_formatter( s, **kwargs):
     """
     Makes attributes of object passed in as keyword 
@@ -867,7 +844,7 @@ def get_episode_info_from_url(url, proxy=None):
     could be parsed from the URL. This currently contains:
     
       "length": The size of the file in bytes
-      "pubdate": A formatted representation of the pubDate
+      "pubdate": The unix timestamp for the pubdate
 
     If the "proxy" parameter is used, it has to be the URL 
     of the HTTP proxy server to use, e.g. http://proxy:8080/
@@ -903,7 +880,7 @@ def get_episode_info_from_url(url, proxy=None):
     if 'last-modified' in r.msg:
         try:
             parsed_date = feedparser._parse_date(r.msg['last-modified'])
-            pubdate = updated_parsed_to_rfc2822(parsed_date)
+            pubdate = time.mktime(parsed_date)
             result['pubdate'] = pubdate
         except:
             log('Error converting last-modified header.')

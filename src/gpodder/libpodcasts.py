@@ -56,8 +56,6 @@ import datetime
 import md5
 import xml.dom.minidom
 
-from email.Utils import mktime_tz
-from email.Utils import parsedate_tz
 from xml.sax import saxutils
 
 
@@ -163,7 +161,7 @@ class podcastChannel(list):
             channel.description = util.remove_html_tags(c.feed.subtitle)
 
         if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
-            channel.pubDate = util.updated_parsed_to_rfc2822(c.feed.updated_parsed)
+            channel.pubDate = time.mktime(c.feed.updated_parsed)
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
                 channel.image = c.feed.image.href
@@ -213,7 +211,7 @@ class podcastChannel(list):
         self.link = link
         self.description = util.remove_html_tags( description)
         self.image = None
-        self.pubDate = ''
+        self.pubDate = 0
         self.parse_error = None
         self.newest_pubdate_cached = None
 
@@ -307,7 +305,7 @@ class podcastChannel(list):
         """
 
         if self.newest_pubdate_cached == 0:
-            return None
+            return 0
 
         elif self.newest_pubdate_cached is None:
             # Try DownloadHistory's entries first
@@ -317,23 +315,16 @@ class podcastChannel(list):
                     return episode.pubDate
 
             # If nothing found, do pubDate comparison
-            pubdate = None
+            pubdate = 0
             for episode in self.load_downloaded_episodes():
                 pubdate = episode.newer_pubdate( pubdate)
 
-            if pubdate is None:
-                # Zero value is used when there are episodes in the channel,
-                # but none of them are downloaded.
-                self.newest_pubdate_cached = 0
-            else:
-                self.newest_pubdate_cached = pubdate
-
-            return pubdate
+            self.newest_pubdate_cached = pubdate
 
         return self.newest_pubdate_cached
     
-    def episode_is_new(self, episode, last_pubdate = None):
-        if last_pubdate is None:
+    def episode_is_new(self, episode, last_pubdate=0):
+        if last_pubdate == 0:
             last_pubdate = self.newest_pubdate_downloaded()
 
         # episode is older than newest downloaded
@@ -365,9 +356,7 @@ class podcastChannel(list):
 
     def can_sort_by_pubdate( self):
         for episode in self:
-            try:
-                mktime_tz(parsedate_tz( episode.pubDate))
-            except:
+            if episode.pubDate == 0:
                 log('Episode %s has non-parseable pubDate. Sorting disabled.', episode.title)
                 return False
 
@@ -388,7 +377,7 @@ class podcastChannel(list):
                 filename = episode.local_filename()
                 if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
                     filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.pubDate+')\n')
+                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
                 f.write(filename+'\n')
             f.close()
     
@@ -458,19 +447,17 @@ class podcastChannel(list):
     
 
     def get_episode_stats( self):
-        (available, downloaded, newer, unplayed) = (0, 0, 0, 0)
-        last_pubdate = self.newest_pubdate_downloaded()
-
+        (downloaded, has_new, unplayed) = (0, False, 0)
+        
         for episode in self.get_all_episodes():
-            available += 1
-            if self.episode_is_new(episode, last_pubdate):
-                newer += 1
             if episode.is_downloaded():
                 downloaded += 1
                 if not episode.is_played():
                     unplayed += 1
+            if not has_new and self.episode_is_new(episode):
+                has_new = True
 
-        return (available, downloaded, newer, unplayed)
+        return (downloaded, has_new, unplayed)
 
         
     def force_update_tree_model( self):
@@ -606,7 +593,7 @@ class podcastItem(object):
         episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
         episode.guid = entry.get( 'id', '')
         if entry.get( 'updated_parsed', None):
-            episode.pubDate = util.updated_parsed_to_rfc2822( entry.updated_parsed)
+            episode.pubDate = time.mktime(entry.updated_parsed)
 
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
@@ -669,7 +656,7 @@ class podcastItem(object):
         self.description = ''
         self.link = ''
         self.channel = channel
-        self.pubDate = ''
+        self.pubDate = 0
 
     def get_metainfo(self):
         return EpisodeURLMetainfo.get_metadata_by_url(self.url)
@@ -747,7 +734,7 @@ class podcastItem(object):
     @property
     def published( self):
         try:
-            return datetime.datetime.fromtimestamp( mktime_tz( parsedate_tz( self.pubDate))).strftime('%Y%m%d')
+            return datetime.datetime.fromtimestamp(self.pubDate).strftime('%Y%m%d')
         except:
             log( 'Cannot format pubDate for "%s".', self.title, sender = self)
             return '00000000'
@@ -755,44 +742,20 @@ class podcastItem(object):
     def __cmp__( self, other):
         if self.pubDate == other.pubDate:
             return cmp(self.title, other.title)
-
-        try:
-            timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
-            timestamp_other = int(mktime_tz( parsedate_tz( other.pubDate)))
-        except:
-            # by default, do as if this is not the same
-            # this is here so that comparisons with None 
-            # can be allowed (item is not None -> True)
-            return -1
         
-        return timestamp_self - timestamp_other
+        return self.pubDate - other.pubDate
 
-    def compare_pubdate( self, pubdate):
-        try:
-            timestamp_self = int(mktime_tz( parsedate_tz( self.pubDate)))
-        except:
-            return -1
+    def compare_pubdate(self, pubdate):
+        return self.pubDate - pubdate
 
-        try:
-            timestamp_other = int(mktime_tz( parsedate_tz( pubdate)))
-        except:
-            return 1
-
-        return timestamp_self - timestamp_other
-
-    def newer_pubdate( self, pubdate = None):
-        if self.compare_pubdate( pubdate) > 0:
+    def newer_pubdate(self, pubdate=0):
+        if self.compare_pubdate(pubdate) > 0:
             return self.pubDate
         else:
             return pubdate
 
     def cute_pubdate( self):
-        try:
-            timestamp = int(mktime_tz(parsedate_tz(self.pubDate)))
-        except:
-            timestamp = None
-        
-        result = util.format_date(timestamp)
+        result = util.format_date(self.pubDate)
         if result is None:
             return '(%s)' % _('unknown')
         else:
@@ -836,7 +799,7 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str)
     
     for channel in channels:
-        (count_available, count_downloaded, count_new, count_unplayed) = channel.get_episode_stats()
+        (count_downloaded, has_new, count_unplayed) = channel.get_episode_stats()
         
         new_iter = new_model.append()
         new_model.set(new_iter, 0, channel.url)
@@ -844,30 +807,29 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
 
         title_markup = saxutils.escape(channel.title)
         description_markup = saxutils.escape(util.get_first_line(channel.description))
-        description = '%s\n<small>%s</small>' % (title_markup, description_markup)
+        d = []
+        if has_new:
+            d.append('<span weight="bold">')
+        d.append(title_markup)
+        if has_new:
+            d.append('</span>')
+        description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
         if channel.parse_error is not None:
-            description = '<span foreground="#ff0000">%s</span>' % description
+            description = ''.join(['<span foreground="#ff0000">', description, '</span>'])
             new_model.set(new_iter, 6, channel.parse_error)
-        else:
-            new_model.set(new_iter, 6, '')
         
         new_model.set(new_iter, 2, description)
 
         if count_unplayed > 0 or count_downloaded > 0:
             new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
 
-        if count_new > 0:
-            new_model.set( new_iter, 4, pango.WEIGHT_BOLD)
-        else:
-            new_model.set( new_iter, 4, pango.WEIGHT_NORMAL)
-
         # Load the cover if we have it, but don't download
         # it if it's not available (to avoid blocking here)
-        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-        new_pixbuf = None
-        if pixbuf is not None:
-            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
-        new_model.set(new_iter, 5, new_pixbuf or pixbuf)
+        #pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+        #new_pixbuf = None
+        #if pixbuf is not None:
+        #    new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
+        #new_model.set(new_iter, 5, new_pixbuf or pixbuf)
     
     return new_model
 
@@ -930,7 +892,12 @@ class LocalDBReader( object):
         episode.url = self.get_text_by_first_node( element, 'url')
         episode.link = self.get_text_by_first_node( element, 'link')
         episode.guid = self.get_text_by_first_node( element, 'guid')
-        episode.pubDate = self.get_text_by_first_node( element, 'pubDate')
+        try:
+            episode.pubDate = int(self.get_text_by_first_node( element, 'pubDate'))
+        except:
+            log('Looks like you have an old pubDate in your LocalDB')
+            episode.pubDate = self.get_text_by_first_node( element, 'pubDate')
+            episode.pubDate = time.mktime(feedparser._parse_date(episode.pubDate))
         episode.calculate_filesize()
         return episode
 
@@ -986,7 +953,7 @@ class LocalDBWriter(object):
         item.appendChild( self.create_node( doc, 'url', episode.url))
         item.appendChild( self.create_node( doc, 'link', episode.link))
         item.appendChild( self.create_node( doc, 'guid', episode.guid))
-        item.appendChild( self.create_node( doc, 'pubDate', episode.pubDate))
+        item.appendChild( self.create_node( doc, 'pubDate', str(episode.pubDate)))
         return item
 
     def write( self, channel):

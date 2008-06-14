@@ -361,7 +361,6 @@ class gPodder(GladeWidget):
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn.pack_start( namecell, True)
         namecolumn.add_attribute( namecell, 'markup', 2)
-        namecolumn.add_attribute( namecell, 'weight', 4)
 
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
@@ -1242,6 +1241,7 @@ class gPodder(GladeWidget):
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
         is_cancelled_cb = lambda: self.feed_cache_update_cancelled
         self.channels = load_channels(force_update=force_update, callback_proc=callback_proc, callback_error=callback_error, offline=not force_update, is_cancelled_cb=is_cancelled_cb, old_channels=self.channels)
+        self.pbFeedUpdate.set_text(_('Building list...'))
         if finish_proc:
             finish_proc()
 
@@ -1500,6 +1500,7 @@ class gPodder(GladeWidget):
 
             gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
                                    episodes=episodes, columns=columns, selected_default=True, \
+                                   stock_ok_button = 'gpodder-download', \
                                    callback=self.download_episode_list)
         else:
             title = _('No new episodes')
@@ -2679,7 +2680,7 @@ class gPodderEpisode(GladeWidget):
         self.gPodderEpisode.set_title( self.episode.title)
         self.LabelDownloadLink.set_text( self.episode.url)
         self.LabelWebsiteLink.set_text( self.episode.link)
-        self.labelPubDate.set_text( self.episode.pubDate)
+        self.labelPubDate.set_text(self.episode.cute_pubdate())
 
         # Hide the "Go to website" button if we don't have a valid URL
         if self.episode.link == self.episode.url or not self.episode.link:
@@ -2953,9 +2954,13 @@ class gPodderEpisodeSelector( GladeWidget):
             self.labelInstructions.set_text( self.instructions)
             self.labelInstructions.show_all()
 
-        if hasattr( self, 'stock_ok_button'):
-            self.btnOK.set_label( self.stock_ok_button)
-            self.btnOK.set_use_stock( True)
+        if hasattr(self, 'stock_ok_button'):
+            if self.stock_ok_button == 'gpodder-download':
+                self.btnOK.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
+                self.btnOK.set_label(_('Download'))
+            else:
+                self.btnOK.set_label(self.stock_ok_button)
+                self.btnOK.set_use_stock(True)
 
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect( 'toggled', self.toggle_cell_handler)

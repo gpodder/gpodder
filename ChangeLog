@@ -1,3 +1,17 @@
+Sat, 14 Jun 2008 18:50:29 +0200 <thp@perli.net>
+Improve performance related to pubDate parsing; Download button; update feeds
+
+	* src/gpodder/gui.py: Notify user when we are building the list of
+	channels instead of staying at "updating [last feed]".; Make the "OK"
+	button of the gPodderEpisodeSelector a "Downlaod" button, because
+	that's what the button does when clicking it - downloading episodes
+	* src/gpodder/libpodcasts.py: pubDate is now an Unix timestamp
+	everywhere and not a string, which has to be parsed quite often; Fix
+	up and improve the creation of the channel list model
+	* src/gpodder/sync.py: Customizations for the new pubDate code
+	* src/gpodder/util.py: Remove updated_parsed_to_rfc2822, because we
+	don't need it anymore with the new pubDate code
+
 Sat, 14 Jun 2008 15:56:53 +0200 <thp@perli.net>
 Make things less verbose and fix a problem with cover art handling
 
