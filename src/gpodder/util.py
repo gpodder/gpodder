@@ -980,7 +980,6 @@ def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None
 
     if cache is not None:
         if (key, max_width, max_height) in cache:
-            log('Loading from cache: %s', key)
             return cache[(key, max_width, max_height)]
 
     # Resize if too wide
@@ -1000,7 +999,6 @@ def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None
     if changed:
         result = pixbuf
         if cache is not None:
-            log('Storing in cache: %s', key)
             cache[(key, max_width, max_height)] = result
     else:
         result = None

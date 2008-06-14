@@ -176,7 +176,7 @@ class CoverDownloader(ObservableService):
             try:
                 loader.close()
             except:
-                log('Cannot load channel from %s', url, sender=self)
+                pass
 
         if pixbuf is not None:
             new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, self.MAX_SIZE, self.MAX_SIZE)

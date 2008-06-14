@@ -146,7 +146,6 @@ class podcastChannel(list):
         # If we have an old instance of this channel, and
         # feedcache says the feed hasn't changed, return old
         if not updated and old_channel:
-            log('using old channel for %s', url)
             return old_channel
 
         channel = podcastChannel( url)
@@ -631,7 +630,8 @@ class podcastItem(object):
                 episode.url = entry.link
 
         if not episode.url:
-            raise ValueError( 'Episode has an invalid URL')
+            # This item in the feed has no downloadable enclosure
+            return None
 
         if not episode.pubDate:
             metainfo = episode.get_metainfo()
@@ -754,7 +754,6 @@ class podcastItem(object):
     
     def __cmp__( self, other):
         if self.pubDate == other.pubDate:
-            log('pubDate equal, comparing titles (buggy feed?)', sender=self)
             return cmp(self.title, other.title)
 
         try:

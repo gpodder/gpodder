@@ -100,7 +100,7 @@ class Importer(object):
             if not len(self.items):
                 log( 'OPML import finished, but no items found: %s', url, sender = self)
         except:
-            log( 'Cannot import OPML from URL: %s', url, sender = self)
+            log( 'Cannot import OPML from URL: %s', url, traceback=True, sender = self)
 
     def format_channel( self, channel):
         """

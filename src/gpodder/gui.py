@@ -694,8 +694,10 @@ class gPodder(GladeWidget):
         for row in self.treeChannels.get_model():
             if row[COLUMN_URL] == channel_url:
                 row[COLUMN_PIXBUF] = None
-                del self.cover_cache[(channel_url, gl.config.podcast_list_icon_size, \
-                        gl.config.podcast_list_icon_size)]
+                key = (channel_url, gl.config.podcast_list_icon_size, \
+                        gl.config.podcast_list_icon_size)
+                if key in self.cover_cache:
+                    del self.cover_cache[key]
         
     
     def cover_download_finished(self, channel_url, pixbuf):
