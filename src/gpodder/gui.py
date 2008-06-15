@@ -93,7 +93,7 @@ app_authors = [
     'Pavel Mlčoch', 'Peter Hoffmann', 'Philippe Gouaillier', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
     'Robert Young', 'Roel Groeneveld',
-    'Scott Wegner', 'Seth Remington', 'Shane Donohoe', 'SPGoetze',
+    'Scott Wegner', 'Sebastian Krause', 'Seth Remington', 'Shane Donohoe', 'SPGoetze',
     'Stefan Lohmaier', 'Stephan Buys', 'Stylianos Papanastasiou', 'Teo Ramirez', 
     'Thomas Matthijs', 'Thomas Mills Hinkle', 'Thomas Nilsson', 
     'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'Tomas Matheson', 'VladDrac', 
@@ -378,9 +378,14 @@ class gPodder(GladeWidget):
         try:
             self.treeChannels.set_property('has-tooltip', True)
             self.treeChannels.connect('query-tooltip', self.treeview_channels_query_tooltip)
+            self.treeAvailable.set_property('has-tooltip', True)
+            self.treeAvailable.connect('query-tooltip', self.treeview_episodes_query_tooltip)
         except:
-            log('No tooltips for channel navigator (need at least PyGTK 2.12)', sender = self)
+            log('I cannot set has-tooltip/query-tooltip (need at least PyGTK 2.12)', sender = self)
         self.last_tooltip_channel = None
+        self.last_tooltip_episode = None
+        self.podcast_list_can_tooltip = True
+        self.episode_list_can_tooltip = True
 
         # Add our context menu to treeAvailable
         if gpodder.interface == gpodder.MAEMO:
@@ -544,8 +549,48 @@ class gPodder(GladeWidget):
         util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
         util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
 
+    def treeview_episodes_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
+        # With get_bin_window, we get the window that contains the rows without
+        # the header. The Y coordinate of this window will be the height of the
+        # treeview header. This is the amount we have to subtract from the
+        # event's Y coordinate to get the coordinate to pass to get_path_at_pos
+        (x_bin, y_bin) = treeview.get_bin_window().get_position()
+        y -= x_bin
+        y -= y_bin
+        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
+
+        if not self.episode_list_can_tooltip:
+            self.last_tooltip_episode = None
+            return False
+
+        if path is not None:
+            model = treeview.get_model()
+            iter = model.get_iter(path)
+            url = model.get_value(iter, 0)
+            description = model.get_value(iter, 7)
+            if self.last_tooltip_episode is not None and self.last_tooltip_episode != url:
+                self.last_tooltip_episode = None
+                return False
+            self.last_tooltip_episode = url
+
+            tooltip.set_text(description)
+            return True
+
+        self.last_tooltip_episode = None
+        return False
+
+    def podcast_list_allow_tooltips(self):
+        self.podcast_list_can_tooltip = True
+
+    def episode_list_allow_tooltips(self):
+        self.episode_list_can_tooltip = True
+
     def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
+
+        if not self.podcast_list_can_tooltip:
+            self.last_tooltip_channel = None
+            return False
 
         if path is not None:
             model = treeview.get_model()
@@ -670,6 +715,10 @@ class gPodder(GladeWidget):
             menu.append( item)
 
             menu.show_all()
+            # Disable tooltips while we are showing the menu, so 
+            # the tooltip will not appear over the menu
+            self.podcast_list_can_tooltip = False
+            menu.connect('deactivate', lambda menushell: self.podcast_list_allow_tooltips())
             menu.popup( None, None, None, event.button, event.time)
 
             return True
@@ -907,6 +956,10 @@ class gPodder(GladeWidget):
                 menu.append(self.set_finger_friendly(item))
 
             menu.show_all()
+            # Disable tooltips while we are showing the menu, so 
+            # the tooltip will not appear over the menu
+            self.episode_list_can_tooltip = False
+            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
             menu.popup( None, None, None, event.button, event.time)
 
             return True

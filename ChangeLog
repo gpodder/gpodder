@@ -1,3 +1,16 @@
+Sun, 15 Jun 2008 14:23:40 +0200 <thp@perli.net>
+Support tooltips for the episode list; improve tooltip appearance
+
+	* src/gpodder/gui.py: Add tooltips to treeAvailable (episode list);
+	avoid showing tooltips while the context menu of the treeChannels and
+	treeAvailable is open, so the tooltip doesn't appear over the context
+	menu; add Sebastian Krause to list of bug reporters
+	* src/gpodder/util.py: Try to convert some HTML tags to text-only
+	characters (<br> to newline, <li> to a "*", etc..) so the description
+	of an episode is easier to read and looks more structured; also,
+	convert more than two subsequent newlines to maximum two newlines
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=126)
+
 Sat, 14 Jun 2008 12:29:11 -0400 <me@nikosapi.org>
 	* src/gpodder/libpodcasts.py: make LocalDBReader and LocalDBWriter
 	read/save the episode mimetype attribute in the LocalDB. This 
