@@ -35,6 +35,7 @@ import threading
 import urllib
 import shutil
 import os.path
+import os
 import time
 
 from xml.sax import saxutils
@@ -179,6 +180,17 @@ class DownloadThread(threading.Thread):
                 shutil.move( self.tempname, self.filename)
                 self.channel.addDownloadedItem( self.episode)
                 services.download_status_manager.download_completed(self.download_id)
+                
+                # If a user command has been defined, execute the command setting some environment variables
+                if len(gl.config.cmd_download_complete) > 0:
+                    os.environ["GPODDER_EPISODE_URL"]=self.episode.url or ''
+                    os.environ["GPODDER_EPISODE_TITLE"]=self.episode.title or ''
+                    os.environ["GPODDER_EPISODE_FILENAME"]=self.filename or ''
+                    os.environ["GPODDER_EPISODE_PUBDATE"]=str(int(self.episode.pubDate))
+                    os.environ["GPODDER_EPISODE_LINK"]=self.episode.link or ''
+                    os.environ["GPODDER_EPISODE_DESC"]=self.episode.description or ''
+                    threading.Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_download_complete)).start()
+
             finally:
                 services.download_status_manager.remove_download_id( self.download_id)
                 services.download_status_manager.s_release( acquired)

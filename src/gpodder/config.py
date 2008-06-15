@@ -114,7 +114,9 @@ gPodderSettings = {
     'rockbox_coverart_size' : (int, 100),
     'experimental_file_naming': (bool, False),
     'podcast_list_icon_size': (int, 32),
-
+    'cmd_all_downloads_complete': (str, ''),
+    'cmd_download_complete': (str, ''),
+    
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, True),
 

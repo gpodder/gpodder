@@ -1,3 +1,16 @@
+Sun, 15 Jun 2008 14:44:29 +0200 <thp@perli.net>
+Merge "Allows user command execution after certain events" from Paul Rudkin
+
+	* src/gpodder/config.py: Add two new configuration options:
+	cmd_all_downloads_complete and cmd_download_complete
+	* src/gpodder/download.py: Call the user-specific command when a
+	download finishes (if configured)
+	* src/gpodder/gui.py: If all downloads have been completed, execute
+	the user-specific command (if configured)
+	* src/gpodder/libgpodder.py: Add ext_command_thread function that
+	handles calling an external command
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=4)
+
 Sun, 15 Jun 2008 14:23:40 +0200 <thp@perli.net>
 Support tooltips for the episode list; improve tooltip appearance
 

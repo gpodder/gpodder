@@ -41,6 +41,7 @@ import os.path
 import glob
 import types
 import subprocess
+import sys
 
 from liblogger import log
 
@@ -263,6 +264,37 @@ class gPodderLib(object):
                 log( 'Torrent copy failed: %s => %s.', torrent_filename, target_filename)
 
         return False
+
+    def ext_command_thread(self, notification, command_line):
+        """
+        This is the function that will be called in a separate
+        thread that will call an external command (specified by
+        command_line). In case of problem (i.e. the command has
+        not been found or there has been another error), we will
+        call the notification function with two arguments - the
+        first being the error message and the second being the
+        title to be used for the error message.
+        """
+ 
+        log("(ExtCommandThread) Excuting command Line [%s]", command_line)
+    
+        p = subprocess.Popen(command_line, shell=True, stdout=sys.stdout, stderr=sys.stderr)
+        result = p.wait()
+ 
+        if result == 127:
+            title = _('User command not found')
+            message = _('The user command [%s] was not found.\nPlease check your user command settings in the preferences dialog.' % command_line)
+            notification(message, title)
+        elif result == 126:
+            title = _('User command permission denied')
+            message = _('Permission denied when trying to execute user command [%s].\nPlease check that you have permissions to execute this command.' % command_line)
+            notification(message, title)
+        elif result > 0 :
+            title = _('User command returned an error')
+            message = _('The user command [%s] returned an error code of [%d]' % (command_line,result))
+            notification(message, title)
+
+        log("(ExtCommandThread) Finished command line [%s] result [%d]",command_line,result)
 
 
 class HistoryStore( types.ListType):

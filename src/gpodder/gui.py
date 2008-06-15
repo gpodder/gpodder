@@ -981,6 +981,12 @@ class gPodder(GladeWidget):
 
         self.gPodder.set_title( ' - '.join( title))
 
+        # Have all the downloads completed?
+        # If so execute user command if defined, else do nothing
+        if count == 0:
+            if len(gl.config.cmd_all_downloads_complete) > 0:
+                Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_all_downloads_complete)).start()
+ 
     def playback_episode( self, current_channel, current_podcast):
         (success, application) = gl.playback_episode(current_channel, current_podcast)
         if not success:
