@@ -78,7 +78,7 @@ app_authors = [
     'Alain Tauch', 'Alistair Sutton', 'Anders Kvist', 'Andy Busch',
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 
     'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
-    'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge',
+    'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'Daniel Ramos',
     'David Spreen', 'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
     'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',

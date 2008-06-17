@@ -55,6 +55,7 @@ import threading
 import datetime
 import md5
 import xml.dom.minidom
+import feedparser
 
 from xml.sax import saxutils
 
@@ -623,7 +624,10 @@ class podcastItem(object):
         if not episode.pubDate:
             metainfo = episode.get_metainfo()
             if 'pubdate' in metainfo:
-                episode.pubDate = metainfo['pubdate']
+                try:
+                    episode.pubDate = int(metainfo['pubdate'])
+                except:
+                    log('Cannot convert pubDate "%s" in from_feedparser_entry.', str(metainfo['pubdate']), traceback=True)
 
         if hasattr( enclosure, 'length'):
             try:
@@ -743,7 +747,11 @@ class podcastItem(object):
         if self.pubDate == other.pubDate:
             return cmp(self.title, other.title)
         
-        return self.pubDate - other.pubDate
+        try:
+            return self.pubDate - other.pubDate
+        except:
+            log('Warning: pubDates are not comparable: "%s" <> "%s"', self.pubDate, other.pubDate, sender=self)
+            return -1
 
     def compare_pubdate(self, pubdate):
         return self.pubDate - pubdate
@@ -895,8 +903,8 @@ class LocalDBReader( object):
         try:
             episode.pubDate = int(self.get_text_by_first_node( element, 'pubDate'))
         except:
-            log('Looks like you have an old pubDate in your LocalDB')
-            episode.pubDate = self.get_text_by_first_node( element, 'pubDate')
+            log('Looks like you have an old pubDate in your LocalDB -> converting it')
+            episode.pubDate = self.get_text_by_first_node(element, 'pubDate')
             episode.pubDate = time.mktime(feedparser._parse_date(episode.pubDate))
         episode.mimetype = self.get_text_by_first_node( element, 'mimetype')
         episode.calculate_filesize()
