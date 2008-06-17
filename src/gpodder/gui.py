@@ -2909,11 +2909,24 @@ class gPodderOpmlLister(GladeWidget):
         self.treeviewChannelChooser.set_sensitive( False)
         Thread( target = self.thread_func).start()
 
+    def select_all( self, value ):
+        self.channels = []
+        for row in self.treeviewChannelChooser.get_model():
+            row[0] = value
+            if value:
+                self.channels.append(row[2])
+
     def on_gPodderOpmlLister_destroy(self, widget, *args):
         pass
 
     def on_btnDownloadOpml_clicked(self, widget, *args):
         self.get_channels_from_url( self.entryURL.get_text())
+
+    def on_btnSelectAll_clicked(self, widget, *args):
+        self.select_all(True)
+    
+    def on_btnSelectNone_clicked(self, widget, *args):
+        self.select_all(False)
 
     def on_btnOK_clicked(self, widget, *args):
         self.gPodderOpmlLister.destroy()
