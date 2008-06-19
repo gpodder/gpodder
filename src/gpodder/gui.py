@@ -365,6 +365,7 @@ class gPodder(GladeWidget):
         iconcell = gtk.CellRendererPixbuf()
         namecolumn.pack_start( iconcell, False)
         namecolumn.add_attribute( iconcell, 'pixbuf', 3)
+        namecolumn.add_attribute(iconcell, 'visible', 7)
         self.cell_channel_pill = iconcell
 
         self.treeChannels.append_column( namecolumn)

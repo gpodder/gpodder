@@ -1,3 +1,12 @@
+Thu, 19 Jun 2008 09:30:53 +0200 <thp@perli.net>
+Use as much space as possible for podcast title and description
+
+	* src/gpodder/gui.py: Hide the "pill" pixbuf cell when we don't have a
+	value to display, so we can show more of the channel title +
+	description
+	* src/gpodder/libpodcasts.py: Add a new boolean value to tell the
+	treeview column if we need to show the "pill" cell or not
+
 Tue, 17 Jun 2008 19:41:33 -0400 <me@nikosapi.org>
 Add 'Select All' and 'Select None' buttons to gPodderOpmlLister
 

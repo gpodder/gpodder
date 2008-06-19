@@ -804,7 +804,7 @@ class podcastItem(object):
 
 
 def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
-    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str)
+    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str, bool)
     
     for channel in channels:
         (count_downloaded, has_new, count_unplayed) = channel.get_episode_stats()
@@ -814,7 +814,7 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
         new_model.set(new_iter, 1, channel.title)
 
         title_markup = saxutils.escape(channel.title)
-        description_markup = saxutils.escape(util.get_first_line(channel.description))
+        description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
         d = []
         if has_new:
             d.append('<span weight="bold">')
@@ -830,6 +830,9 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
 
         if count_unplayed > 0 or count_downloaded > 0:
             new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
+            new_model.set(new_iter, 7, True)
+        else:
+            new_model.set(new_iter, 7, False)
 
         # Load the cover if we have it, but don't download
         # it if it's not available (to avoid blocking here)
