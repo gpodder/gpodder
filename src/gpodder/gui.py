@@ -2917,6 +2917,7 @@ class gPodderOpmlLister(GladeWidget):
             row[0] = value
             if value:
                 self.channels.append(row[2])
+        self.btnOK.set_sensitive(bool(len(self.channels)))
 
     def on_gPodderOpmlLister_destroy(self, widget, *args):
         pass
@@ -3078,28 +3079,40 @@ class gPodderEpisodeSelector( GladeWidget):
 
     def calculate_total_size( self):
         if self.size_attribute is not None:
-            total_size = 0
+            (total_size, count) = (0, 0)
             for index, row in enumerate( self.model):
                 if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
                     try:
                         total_size += int(getattr( self.episodes[index], self.size_attribute))
+                        count += 1
                     except:
                         log( 'Cannot get size for %s', self.episodes[index].title, sender = self)
             
             if total_size > 0:
-                self.labelTotalSize.set_text( _('Total size: %s') % gl.format_filesize( total_size))
+                text = []
+                if count == 1:
+                    text.append(_('One episodes selected'))
+                else:
+                    text.append(_('%d episodes selected') % count)
+                text.append(_('total size: %s') % gl.format_filesize(total_size))
+                self.labelTotalSize.set_text(', '.join(text))
+                self.btnOK.set_sensitive(True)
             else:
-                self.labelTotalSize.set_text( '')
-            self.labelTotalSize.show_all()
+                self.labelTotalSize.set_text(_('Nothing selected'))
+                self.btnOK.set_sensitive(False)
         else:
-            self.labelTotalSize.hide_all()
+            self.btnOK.set_sensitive(False)
+            for index, row in enumerate(self.model):
+                if self.model.get_value(row.iter, self.COLUMN_TOGGLE) == True:
+                    self.btnOK.set_sensitive(True)
+                    break
+            self.labelTotalSize.set_text('')
 
     def toggle_cell_handler( self, cell, path):
         model = self.treeviewEpisodes.get_model()
         model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
 
-        if self.size_attribute is not None:
-            self.calculate_total_size()
+        self.calculate_total_size()
 
     def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
