@@ -363,6 +363,7 @@ class gPodder(GladeWidget):
         namecolumn.add_attribute( namecell, 'markup', 2)
 
         iconcell = gtk.CellRendererPixbuf()
+        iconcell.set_property('xalign', 1.0)
         namecolumn.pack_start( iconcell, False)
         namecolumn.add_attribute( iconcell, 'pixbuf', 3)
         namecolumn.add_attribute(iconcell, 'visible', 7)
