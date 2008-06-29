@@ -166,8 +166,14 @@ class gPodderLib(object):
                     os.rmdir( new_downloaddir)
 
                 shutil.move( self.config.download_dir, new_downloaddir)
-            except:
-                log( 'Error while moving %s to %s.', self.config.download_dir, new_downloaddir)
+            except NameError:
+                log( 'Fixing a bug in shutil. See http://bugs.python.org/issue2549')
+                errno = subprocess.call(["rm", "-rf", self.config.download_dir])
+                if errno <> 0:
+                    log( 'Error while deleting %s: rm returned error %i', self.config.download_dir, errno) 
+                    return
+            except Exception, exc:
+                log( 'Error while moving %s to %s: %s',self.config.download_dir, new_downloaddir, exc)
                 return
 
         self.config.download_dir = new_downloaddir
