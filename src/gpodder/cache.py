@@ -73,7 +73,7 @@ class Cache:
     caching.
     """
 
-    def __init__(self, storage, timeToLiveSeconds=3600):
+    def __init__(self, timeToLiveSeconds=3600):
         """
         Arguments:
 
@@ -84,40 +84,26 @@ class Cache:
           timeToLiveSeconds=300 -- The length of time content should
           live in the cache before an update is attempted.
         """
-        self.storage = storage
         self.time_to_live = timeToLiveSeconds
         self.user_agent = gpodder.user_agent
         return
 
-    def fetch(self, url, force_update = False, offline = False):
+    def fetch(self, url, old_channel=None):
         """
         Returns an (updated, feed) tuple for the feed at the specified
         URL. If the feed hasn't updated since the last run, updated
         will be False. If it has been updated, updated will be True.
+
+        If updated is False, the feed value is None and you have to use
+        the old channel which you passed to this function.
         """
 
-        modified = None
-        etag = None
-        now = time.time()
-
-        cached_time, cached_content = self.storage.get(url, (None, None))
-
-        if offline and cached_content is not None:
-            return (False, cached_content)
-
-        # Does the storage contain a version of the data
-        # which is older than the time-to-live?
-        if cached_time is not None:
-            if self.time_to_live:
-                age = now - cached_time
-                if age <= self.time_to_live and not force_update:
-                    return (False, cached_content)
-            
-            # The cache is out of date, but we have
-            # something.  Try to use the etag and modified_time
-            # values from the cached content.
-            etag = cached_content.get('etag')
-            modified = cached_content.get('modified')
+        if old_channel is not None:
+            etag = old_channel.etag
+            modified = feedparser._parse_date(old_channel.last_modified)
+        else:
+            etag = None
+            modified = None
 
         # We know we need to fetch, so go ahead and do it.
         parsed_result = feedparser.parse(url,
@@ -128,30 +114,31 @@ class Cache:
 
         updated = False
         status = parsed_result.get('status', None)
+
         if status == 304:
             # No new data, based on the etag or modified values.
             # We need to update the modified time in the
             # storage, though, so we know that what we have
             # stored is up to date.
-            self.storage[url] = (now, cached_content)
             log('Using cached feed: %s', url, sender=self)
-
-            # Return the data from the cache, since
-            # the parsed data will be empty.
-            parsed_result = cached_content
         elif status in (200, 301, 302, 307):
+            # log('===============')
+            # log('[%s]', url)
+            # log('LM old: %s', old_channel.last_modified)
+            # log('LM new: %s', parsed_result.headers.get('last-modified'))
+            # log('=======')
+            # log('ET old: %s', old_channel.etag)
+            # log('ET new: %s', parsed_result.headers.get('etag'))
+            # log('===============')
             updated = True
             # There is new content, so store it unless there was an error.
             # Store it regardless of errors when we don't have anything yet
             error = parsed_result.get('bozo_exception')
             if error:
-                log('Warning: %s (%s)', url, str(error), sender = self)
-                # Convert the exception to a string, so we can pickle it
+                log('Warning: %s (%s)', url, str(error), sender=self)
                 parsed_result['bozo_exception'] = str(error)
-
-            self.storage[url] = (now, parsed_result)
         else:
-            log('Strange status code: %s ("%s")', url, status, sender = self)
+            log('Strange status code: %s (%s)', url, status, sender=self)
 
         return (updated, parsed_result)
 

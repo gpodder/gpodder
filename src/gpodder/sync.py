@@ -30,6 +30,7 @@ from gpodder import libtagupdate
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
+from gpodder.dbsqlite import db
 
 try:
     import gpod
@@ -157,10 +158,10 @@ class Device(services.ObservableService):
 
             self.notify('progress', id+1, len(tracklist))
 
-            if not track.is_downloaded():
+            if not track.was_downloaded(and_exists=True):
                 continue
 
-            if track.is_played() and gl.config.only_sync_not_played and not force_played:
+            if track.is_played and gl.config.only_sync_not_played and not force_played:
                 continue
 
             if track.file_type() not in self.allowed_types:
@@ -170,7 +171,7 @@ class Device(services.ObservableService):
 
             if gl.config.on_sync_mark_played:
                 log('Marking as played on transfer: %s', track.url, sender=self)
-                gl.history_mark_played(track.url)
+                db.mark_episode(track.url, is_played=True)
 
             if added and gl.config.on_sync_delete:
                 log('Removing episode after transfer: %s', track.url, sender=self)
@@ -283,7 +284,7 @@ class iPodDevice(Device):
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             if episode.url == track.podcasturl:
                 if track.playcount > 0:
-                    gl.history_mark_played(track.podcasturl)
+                    db.mark_episode(track.podcasturl, is_played=True)
                 # Mark as played on iPod if played locally (and set podcast flags)
                 self.set_podcast_flags(track)
                 return True
@@ -370,7 +371,8 @@ class iPodDevice(Device):
     def set_podcast_flags(self, track):
         try:
             # Set blue bullet for unplayed tracks on 5G iPods
-            if gl.history_is_played(track.podcasturl):
+            episode = db.load_episode(track.podcasturl)
+            if episode['is_played']:
                 track.mark_unplayed = 0x01
                 if track.playcount == 0:
                     track.playcount = 1
@@ -483,10 +485,10 @@ class MP3PlayerDevice(Device):
                 log('Cannot create folder on MP3 player: %s', folder, sender=self)
                 return False
 
-        if (gl.config.mp3_player_use_scrobbler_log and not episode.is_played()
+        if (gl.config.mp3_player_use_scrobbler_log and not episode.is_played
                 and [episode.channel.title, episode.title] in self.scrobbler_log):
             log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
-            gl.history_mark_played(episode.url)
+            db.mark_episode(episode.url, is_played=True)
 
         if gl.config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
             log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)

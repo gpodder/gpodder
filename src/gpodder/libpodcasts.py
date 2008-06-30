@@ -42,6 +42,7 @@ from gpodder import dumbshelve
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
+from gpodder.dbsqlite import db
 
 import os.path
 import os
@@ -51,16 +52,12 @@ import sys
 import urllib
 import urlparse
 import time
-import threading
 import datetime
 import md5
 import xml.dom.minidom
 import feedparser
 
 from xml.sax import saxutils
-
-
-global_lock = threading.RLock()
 
 
 if gpodder.interface == gpodder.MAEMO:
@@ -76,137 +73,106 @@ else:
     ICON_BITTORRENT = 'applications-internet'
     ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
     ICON_DELETED = gtk.STOCK_DELETE
-    ICON_NEW = gtk.STOCK_NEW
+    ICON_NEW = gtk.STOCK_ABOUT
 
 
-class ChannelSettings(object):
-    storage = dumbshelve.open_shelve(gl.channel_settings_file)
 
-    @classmethod
-    def get_settings_by_url( cls, url):
-        if isinstance( url, unicode):
-            url = url.encode('utf-8')
-        if cls.storage.has_key( url):
-            return cls.storage[url]
-        else:
-            return {}
-
-    @classmethod
-    def set_settings_by_url( cls, url, settings):
-        if isinstance( url, unicode):
-            url = url.encode('utf-8')
-        log( 'Saving settings for %s', url)
-        cls.storage[url] = settings
-        cls.storage.sync()
-
-
-class EpisodeURLMetainfo(object):
-    storage = dumbshelve.open_shelve(gl.episode_metainfo_file)
-
-    @classmethod
-    def get_metadata_by_url(cls, url):
-        if isinstance(url, unicode):
-            url = url.encode('utf-8')
-        if cls.storage.has_key(url):
-            return cls.storage[url]
-        else:
-            log('Trying to download metainfo for %s', url)
-            result = util.get_episode_info_from_url(url, gl.config.http_proxy)
-            cls.storage[url] = result
-            cls.storage.sync()
-            return result
-
-
-class podcastChannel(list):
+class podcastChannel(object):
     """holds data for a complete channel"""
     SETTINGS = ('sync_to_devices', 'device_playlist_name','override_title','username','password')
     icon_cache = {}
 
-    storage = dumbshelve.open_shelve(gl.feed_cache_file)
-    fc = cache.Cache( storage)
+    fc = cache.Cache()
 
     @classmethod
-    def clear_cache(cls, urls_to_keep):
-        for url in cls.storage.keys():
-            if url not in urls_to_keep:
-                log('(podcastChannel) Removing old feed from cache: %s', url)
-                del cls.storage[url]
-
-    @classmethod
-    def sync_cache(cls):
-        cls.storage.sync()
-
-    @classmethod
-    def get_by_url(cls, url, force_update=False, offline=False, default_title=None, old_channel=None):
-        if isinstance( url, unicode):
+    def load(cls, url, create=True):
+        if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        (updated, c) = cls.fc.fetch( url, force_update, offline)
+        tmp = db.load_channels(factory=lambda d: cls.create_from_dict(d), url=url)
+        if len(tmp):
+            return tmp[0]
+        elif create:
+            tmp = podcastChannel(url)
+            tmp.update()
+            tmp.save()
+            db.force_last_new(tmp)
+            return tmp
+
+    @staticmethod
+    def create_from_dict(d):
+        c = podcastChannel()
+        for key in d:
+            if hasattr(c, key):
+                setattr(c, key, d[key])
+        return c
+
+    def update(self):
+        (updated, c) = self.fc.fetch(self.url, self)
+
         # If we have an old instance of this channel, and
         # feedcache says the feed hasn't changed, return old
-        if not updated and old_channel:
-            return old_channel
+        if not updated:
+            log('Channel %s is up to date', self.url)
+            return
 
-        channel = podcastChannel( url)
-        channel.parse_error = c.get('bozo_exception', None)
-        channel.load_settings()
+        # Save etag and last-modified for later reuse
+        if c.headers.get('etag'):
+            self.etag = c.headers.get('etag')
+        if c.headers.get('last-modified'):
+            self.last_modified = c.headers.get('last-modified')
+
+        self.parse_error = c.get('bozo_exception', None)
+
         if hasattr(c.feed, 'title'):
-            channel.title = c.feed.title
-        elif default_title is not None:
-            channel.title = default_title
+            self.title = c.feed.title
         else:
-            channel.title = url
+            self.title = self.url
         if hasattr( c.feed, 'link'):
-            channel.link = c.feed.link
+            self.link = c.feed.link
         if hasattr( c.feed, 'subtitle'):
-            channel.description = util.remove_html_tags(c.feed.subtitle)
+            self.description = util.remove_html_tags(c.feed.subtitle)
 
         if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
-            channel.pubDate = time.mktime(c.feed.updated_parsed)
+            self.pubDate = time.mktime(c.feed.updated_parsed)
+        else:
+            self.pubDate = time.time()
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
-                channel.image = c.feed.image.href
+                self.image = c.feed.image.href
+
+        # Marked as bulk because we commit after importing episodes.
+        db.save_channel(self, bulk=True)
 
         # We can limit the maximum number of entries that gPodder will parse
         # via the "max_episodes_per_feed" configuration option.
         if len(c.entries) > gl.config.max_episodes_per_feed:
-            log('Limiting number of episodes for %s to %d', channel.title, gl.config.max_episodes_per_feed)
+            log('Limiting number of episodes for %s to %d', self.title, gl.config.max_episodes_per_feed)
         for entry in c.entries[:min(gl.config.max_episodes_per_feed, len(c.entries))]:
             episode = None
 
             try:
-                episode = podcastItem.from_feedparser_entry( entry, channel)
-            except:
-                log( 'Cannot instantiate episode: %s. Skipping.', entry.get( 'id', '(no id available)'), sender = channel, traceback=True)
+                episode = podcastItem.from_feedparser_entry(entry, self)
+            except Exception, e:
+                log('Cannot instantiate episode "%s": %s. Skipping.', entry.get('id', '(no id available)'), e, sender=self, traceback=True)
 
             if episode:
-                channel.append( episode)
+                episode.save(bulk=True)
 
-        channel.sort( reverse = True)
-        
-        return channel
+        # Now we can flush the updates.
+        db.commit()
 
-    @staticmethod
-    def create_from_dict(d, load_items=True, force_update=False, callback_error=None, offline=False, old_channel=None):
-        if load_items:
-            try:
-                default_title = None
-                if 'title' in d:
-                    default_title = d['title']
-                return podcastChannel.get_by_url(d['url'], force_update, offline, default_title, old_channel)
-            except:
-                callback_error and callback_error( _('Could not load channel feed from URL: %s') % d['url'])
-                log( 'Cannot load podcastChannel from URL: %s', d['url'], traceback=True)
+    def delete(self):
+        db.delete_channel(self)
 
-        c = podcastChannel()
-        for key in ( 'url', 'title', 'description' ):
-            if key in d:
-                setattr( c, key, d[key])
-        c.load_settings()
+    def save(self):
+        db.save_channel(self)
 
-        return c
+    def stat(self, state=None, is_played=None, is_locked=None):
+        return db.get_channel_stat(self.url, state=state, is_played=is_played, is_locked=is_locked)
 
     def __init__( self, url = "", title = "", link = "", description = ""):
+        self.id = None
         self.url = url
         self.title = title
         self.link = link
@@ -224,6 +190,9 @@ class podcastChannel(list):
         self.override_title = ''
         self.username = ''
         self.password = ''
+
+        self.last_modified = None
+        self.etag = None
 
         self.save_dir_size = 0
         self.__save_dir_size_set = False
@@ -265,108 +234,19 @@ class podcastChannel(list):
             self.override_title = custom_title
         else:
             self.override_title = ''
+
+    def get_downloaded_episodes(self):
+        return db.load_episodes(self, factory=lambda c: podcastItem.create_from_dict(c, self), state=db.STATE_DOWNLOADED)
     
-    def load_downloaded_episodes( self):
-        try:
-            return LocalDBReader( self.url).read( self.index_file)
-        except:
-            return podcastChannel( self.url, self.title, self.link, self.description)
-
-    def save_downloaded_episodes( self, channel):
-        try:
-            log( 'Setting localdb channel data => %s', self.index_file, sender = self)
-            LocalDBWriter( self.index_file).write( channel)
-        except:
-            log( 'Error writing to localdb: %s', self.index_file, sender = self, traceback = True)
-    
-    def load_settings( self):
-        settings = ChannelSettings.get_settings_by_url( self.url)
-
-        for key in self.SETTINGS:
-            if settings.has_key( key):
-                setattr( self, key, settings[key])
-
-    def save_settings( self):
-        settings = {}
-        for key in self.SETTINGS:
-            settings[key] = getattr( self, key)
-
-        ChannelSettings.set_settings_by_url( self.url, settings)
-
-    def reset_pubdate_cache(self):
-        self.newest_pubdate_cached = None
-
-    def newest_pubdate_downloaded(self):
-        """
-        Returns the most recent pubDate value of all downloaded episodes, or 
-        None if the pubDate cannot be determined.
-
-        This value is cached for speedup. You can call reset_pubdate_cache()
-        to clear the cached value and re-calculate the newest pubDate.
-        """
-
-        if self.newest_pubdate_cached == 0:
-            return 0
-
-        elif self.newest_pubdate_cached is None:
-            # Try DownloadHistory's entries first
-            for episode in self:
-                if gl.history_is_downloaded( episode.url):
-                    self.newest_pubdate_cached = episode.pubDate
-                    return episode.pubDate
-
-            # If nothing found, do pubDate comparison
-            pubdate = 0
-            for episode in self.load_downloaded_episodes():
-                pubdate = episode.newer_pubdate( pubdate)
-
-            self.newest_pubdate_cached = pubdate
-
-        return self.newest_pubdate_cached
-    
-    def episode_is_new(self, episode, last_pubdate=0):
-        if last_pubdate == 0:
-            last_pubdate = self.newest_pubdate_downloaded()
-
-        # episode is older than newest downloaded
-        if episode.compare_pubdate(last_pubdate) < 0:
-            return False
-
-        # episode has been downloaded before
-        if episode.is_downloaded() or gl.history_is_downloaded(episode.url):
-            return False
-
-        # download is currently in progress
-        if services.download_status_manager.is_download_in_progress(episode.url):
-            return False
-
-        return True
+    def save_settings(self):
+        db.save_channel(self)
     
     def get_new_episodes( self):
-        last_pubdate = self.newest_pubdate_downloaded()
+        return [episode for episode in db.load_episodes(self, factory=lambda x: podcastItem.create_from_dict(x, self)) if episode.state == db.STATE_NORMAL and not episode.is_played]
 
-        if not last_pubdate:
-            return [episode for episode in self[0:min(len(self),gl.config.default_new)] if self.episode_is_new(episode)]
-
-        new_episodes = []
-        for episode in self.get_all_episodes():
-            if self.episode_is_new(episode, last_pubdate):
-                new_episodes.append(episode)
-
-        return new_episodes
-
-    def can_sort_by_pubdate( self):
-        for episode in self:
-            if episode.pubDate == 0:
-                log('Episode %s has non-parseable pubDate. Sorting disabled.', episode.title)
-                return False
-
-        return True
-    
-    def update_m3u_playlist(self, downloaded_episodes=None):
+    def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:
-            if downloaded_episodes is None:
-                downloaded_episodes = self.load_downloaded_episodes()
+            downloaded_episodes = self.get_downloaded_episodes()
             fn = util.sanitize_filename(self.title)
             if len(fn) == 0:
                 fn = os.path.basename(self.save_dir)
@@ -374,103 +254,48 @@ class podcastChannel(list):
             log('Writing playlist to %s', m3u_filename, sender=self)
             f = open(m3u_filename, 'w')
             f.write('#EXTM3U\n')
-            for episode in sorted(downloaded_episodes):
+
+            for episode in downloaded_episodes:
                 filename = episode.local_filename()
                 if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
                     filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
                 f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
                 f.write(filename+'\n')
             f.close()
-    
-    def addDownloadedItem( self, item):
-        # no multithreaded access
-        global_lock.acquire()
 
-        downloaded_episodes = self.load_downloaded_episodes()
-        already_in_list = item.url in [ episode.url for episode in downloaded_episodes ]
-        
-        # only append if not already in list
-        if not already_in_list:
-            downloaded_episodes.append( item)
-            self.save_downloaded_episodes( downloaded_episodes)
+    def addDownloadedItem(self, item):
+        log('addDownloadedItem(%s)', item.url)
+
+        if not item.was_downloaded():
+            item.mark(is_played=False, state=db.STATE_DOWNLOADED)
 
             # Update metadata on file (if possible and wanted)
             if gl.config.update_tags and libtagupdate.tagging_supported():
                 filename = item.local_filename()
                 try:
                     libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title)
-                except:
-                    log('Error while calling update_metadata_on_file() :(')
+                except Exception, e:
+                    log('Error while calling update_metadata_on_file(): %s', e)
 
-        # Update the cached newest_pubdate_downloaded() result.
-        newest = self.newest_pubdate_downloaded()
-        if newest is None:
-            self.newest_pubdate_cached = item.pubDate
-        else:
-            self.newest_pubdate_cached = item.newer_pubdate(newest)
-
-        gl.history_mark_downloaded(item.url)
-        self.update_m3u_playlist(downloaded_episodes)
-        
-        if item.file_type() == 'torrent':
-            torrent_filename = item.local_filename()
-            destination_filename = util.torrent_filename( torrent_filename)
-            gl.invoke_torrent(item.url, torrent_filename, destination_filename)
+            self.update_m3u_playlist()
             
-        global_lock.release()
-        return not already_in_list
+            if item.file_type() == 'torrent':
+                torrent_filename = item.local_filename()
+                destination_filename = util.torrent_filename( torrent_filename)
+                gl.invoke_torrent(item.url, torrent_filename, destination_filename)
 
-    def get_all_episodes( self):
-        episodes = []
-        added_urls = []
-        added_guids = []
+    def get_all_episodes(self):
+        return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self), limit=gl.config.max_episodes_per_feed)
 
-        # go through all episodes (both new and downloaded),
-        # prefer already-downloaded (in localdb)
-        for item in [] + self.load_downloaded_episodes() + self:
-            # skip items with the same guid (if it has a guid)
-            if item.guid and item.guid in added_guids:
-                continue
-
-            # skip items with the same download url
-            if item.url in added_urls:
-                continue
-
-            episodes.append( item)
-
-            added_urls.append( item.url)
-            if item.guid:
-                added_guids.append( item.guid)
-
-        episodes.sort( reverse = True)
-
-        return episodes
-    
-
-    def get_episode_stats( self):
-        (downloaded, has_new, unplayed) = (0, False, 0)
-        
-        for episode in self.get_all_episodes():
-            if episode.is_downloaded():
-                downloaded += 1
-                if not episode.is_played():
-                    unplayed += 1
-            if not has_new and self.episode_is_new(episode):
-                has_new = True
-
-        return (downloaded, has_new, unplayed)
-
-        
     def force_update_tree_model( self):
         self.__tree_model = None
 
     def update_model( self):
-        new_episodes = self.get_new_episodes()
         self.update_save_dir_size()
 
         iter = self.tree_model.get_iter_first()
         while iter is not None:
-            self.iter_set_downloading_columns( self.tree_model, iter, new_episodes)
+            self.iter_set_downloading_columns( self.tree_model, iter)
             iter = self.tree_model.iter_next( iter)
 
     @property
@@ -481,39 +306,52 @@ class podcastChannel(list):
 
         return self.__tree_model
 
-    def iter_set_downloading_columns( self, model, iter, new_episodes = []):
+    def iter_set_downloading_columns( self, model, iter):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_BITTORRENT
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
         url = model.get_value( iter, 0)
-        local_filename = model.get_value( iter, 8)
-        played = not gl.history_is_played(url)
-        locked = gl.history_is_locked(url)
+        episode = db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
 
         if gl.config.episode_list_descriptions:
             icon_size = 32
         else:
             icon_size = 16
 
-        if os.path.exists( local_filename):
-            file_type = util.file_type_by_extension( util.file_extension_from_url(url))
-            if file_type == 'audio':
-                status_icon = util.get_tree_icon(ICON_AUDIO_FILE, played, locked, self.icon_cache, icon_size)
-            elif file_type == 'video':
-                status_icon = util.get_tree_icon(ICON_VIDEO_FILE, played, locked, self.icon_cache, icon_size)
-            elif file_type == 'torrent':
-                status_icon = util.get_tree_icon(ICON_BITTORRENT, played, locked, self.icon_cache, icon_size)
-            else:
-                status_icon = util.get_tree_icon('unknown', played, locked, self.icon_cache, icon_size)
-            
-        elif services.download_status_manager.is_download_in_progress(url):
+        if services.download_status_manager.is_download_in_progress(url):
             status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
-        elif gl.history_is_downloaded(url):
-            status_icon = util.get_tree_icon(ICON_DELETED, icon_cache=self.icon_cache, icon_size=icon_size)
-        elif url in [e.url for e in new_episodes]:
-            status_icon = util.get_tree_icon(ICON_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
-            status_icon = None
+            if episode.state != db.STATE_DOWNLOADED and episode.file_exists():
+                episode.mark(state=db.STATE_DOWNLOADED)
+                log('Resurrected episode %s', episode.guid)
+            elif episode.state == db.STATE_DOWNLOADED and not episode.file_exists():
+                episode.mark(state=db.STATE_DELETED)
+                log('Burried episode %s', episode.guid)
+            if episode.state == db.STATE_NORMAL:
+                if episode.is_played:
+                    status_icon = None
+                else:
+                    status_icon = util.get_tree_icon(ICON_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
+            elif episode.was_downloaded(and_exists=True):
+                missing = not episode.file_exists()
+
+                if missing:
+                    log('Episode missing: %s (before drawing an icon)', episode.url, sender=self)
+
+                file_type = util.file_type_by_extension( util.file_extension_from_url(url))
+                if file_type == 'audio':
+                    status_icon = util.get_tree_icon(ICON_AUDIO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
+                elif file_type == 'video':
+                    status_icon = util.get_tree_icon(ICON_VIDEO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
+                elif file_type == 'torrent':
+                    status_icon = util.get_tree_icon(ICON_BITTORRENT, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
+                else:
+                    status_icon = util.get_tree_icon('unknown', not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
+            elif episode.state == db.STATE_DELETED or episode.state == db.STATE_DOWNLOADED:
+                status_icon = util.get_tree_icon(ICON_DELETED, icon_cache=self.icon_cache, icon_size=icon_size)
+            else:
+                log('Warning: Cannot determine status icon.', sender=self)
+                status_icon = None
 
         model.set( iter, 4, status_icon)
 
@@ -522,25 +360,26 @@ class podcastChannel(list):
         Return a gtk.ListStore containing episodes for this channel
         """
         new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
-        new_episodes = self.get_new_episodes()
 
         for item in self.get_all_episodes():
             if gl.config.episode_list_descriptions:
                 description = '%s\n<small>%s</small>' % (saxutils.escape(item.title), saxutils.escape(item.one_line_description()))
             else:
                 description = saxutils.escape(item.title)
-            new_iter = new_model.append((item.url, item.title, gl.format_filesize(item.length, 1), True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
-            self.iter_set_downloading_columns( new_model, new_iter, new_episodes)
+
+            if item.length:
+                filelength = gl.format_filesize(item.length, 1)
+            else:
+                filelength = None
+
+            new_iter = new_model.append((item.url, item.title, filelength, True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
+            self.iter_set_downloading_columns( new_model, new_iter)
         
         self.update_save_dir_size()
         return new_model
     
     def find_episode( self, url):
-        for item in self.get_all_episodes():
-            if url == item.url:
-                return item
-
-        return None
+        return db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
 
     def get_save_dir(self):
         save_dir = os.path.join(gl.downloaddir, self.filename, '')
@@ -569,21 +408,27 @@ class podcastChannel(list):
     cover_file = property(fget=get_cover_file)
 
     def delete_episode_by_url(self, url):
-        global_lock.acquire()
-        downloaded_episodes = self.load_downloaded_episodes()
+        episode = db.load_episode(url, lambda c: podcastItem.create_from_dict(c, self))
 
-        for episode in self.get_all_episodes():
-            if episode.url == url:
-                util.delete_file( episode.local_filename())
-                if episode in downloaded_episodes:
-                    downloaded_episodes.remove( episode)
+        if episode is not None:
+            util.delete_file(episode.local_filename())
+            episode.set_state(db.STATE_DELETED)
 
-        self.save_downloaded_episodes( downloaded_episodes)
-        self.update_m3u_playlist(downloaded_episodes)
-        global_lock.release()
+        self.update_m3u_playlist()
+
 
 class podcastItem(object):
     """holds data for one object in a channel"""
+
+    @staticmethod
+    def load(url, channel):
+        e = podcastItem(channel)
+        d = db.load_episode(url)
+        if d is not None:
+            for k, v in d.iteritems():
+                if hasattr(e, k):
+                    setattr(e, k, v)
+        return e
 
     @staticmethod
     def from_feedparser_entry( entry, channel):
@@ -622,10 +467,10 @@ class podcastItem(object):
             return None
 
         if not episode.pubDate:
-            metainfo = episode.get_metainfo()
+            metainfo = util.get_episode_info_from_url(episode.url)
             if 'pubdate' in metainfo:
                 try:
-                    episode.pubDate = int(metainfo['pubdate'])
+                    episode.pubDate = int(float(metainfo['pubdate']))
                 except:
                     log('Cannot convert pubDate "%s" in from_feedparser_entry.', str(metainfo['pubdate']), traceback=True)
 
@@ -634,12 +479,6 @@ class podcastItem(object):
                 episode.length = int(enclosure.length)
             except:
                 episode.length = -1
-
-        # For episodes with a small length amount, try to find it via HTTP HEAD
-        if episode.length <= 100:
-            metainfo = episode.get_metainfo()
-            if 'length' in metainfo:
-                episode.length = metainfo['length']
 
         if hasattr( enclosure, 'type'):
             episode.mimetype = enclosure.type
@@ -652,6 +491,8 @@ class podcastItem(object):
 
 
     def __init__( self, channel):
+        # Used by Storage for faster saving
+        self.id = None
         self.url = ''
         self.title = ''
         self.length = 0
@@ -660,16 +501,37 @@ class podcastItem(object):
         self.description = ''
         self.link = ''
         self.channel = channel
-        self.pubDate = 0
+        self.pubDate = None
 
-    def get_metainfo(self):
-        return EpisodeURLMetainfo.get_metadata_by_url(self.url)
+        self.state = db.STATE_NORMAL
+        self.is_played = False
+        self.is_locked = False
 
-    def is_played(self):
-        return gl.history_is_played(self.url)
+    def save(self, bulk=False):
+        if self.state != db.STATE_DOWNLOADED and self.file_exists():
+            self.state = db.STATE_DOWNLOADED
+        db.save_episode(self, bulk=bulk)
 
-    def is_deleted(self):
-        return gl.history_is_downloaded(self.url) and not self.is_downloaded()
+    def set_state(self, state):
+        self.state = state
+        db.mark_episode(self.url, state=self.state, is_played=self.is_played, is_locked=self.is_locked)
+
+    def mark(self, state=None, is_played=None, is_locked=None):
+        if state is not None:
+            self.state = state
+        if is_played is not None:
+            self.is_played = is_played
+        if is_locked is not None:
+            self.is_locked = is_locked
+        db.mark_episode(self.url, state=state, is_played=is_played, is_locked=is_locked)
+
+    @staticmethod
+    def create_from_dict(d, channel):
+        e = podcastItem(channel)
+        for key in d:
+            if hasattr(e, key):
+                setattr(e, key, d[key])
+        return e
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename())
@@ -688,12 +550,6 @@ class podcastItem(object):
             return _('No description available')
         else:
             return ' '.join((l.strip() for l in lines if l.strip() != ''))
-
-    def is_downloaded( self):
-        return os.path.exists( self.local_filename())
-
-    def is_locked(self):
-        return gl.history_is_locked(self.url)
 
     def delete_from_disk(self):
         try:
@@ -722,6 +578,25 @@ class podcastItem(object):
         filename = os.path.join(self.channel.save_dir, episode)
         return filename
 
+    def mark_new(self):
+        self.state = db.STATE_NORMAL
+        self.is_played = False
+        db.mark_episode(self.url, state=self.state, is_played=self.is_played)
+
+    def mark_old(self):
+        self.is_played = True
+        db.mark_episode(self.url, is_played=True)
+
+    def file_exists(self):
+        return os.path.exists(self.local_filename())
+
+    def was_downloaded(self, and_exists=False):
+        if self.state != db.STATE_DOWNLOADED:
+            return False
+        if and_exists and not self.file_exists():
+            return False
+        return True
+
     def sync_filename( self):
         if gl.config.custom_sync_name_enabled:
             return util.object_string_formatter(gl.config.custom_sync_name, episode=self, channel=self.channel)
@@ -743,26 +618,7 @@ class podcastItem(object):
             log( 'Cannot format pubDate for "%s".', self.title, sender = self)
             return '00000000'
     
-    def __cmp__( self, other):
-        if self.pubDate == other.pubDate:
-            return cmp(self.title, other.title)
-        
-        try:
-            return self.pubDate - other.pubDate
-        except:
-            log('Warning: pubDates are not comparable: "%s" <> "%s"', self.pubDate, other.pubDate, sender=self)
-            return -1
-
-    def compare_pubdate(self, pubdate):
-        return self.pubDate - pubdate
-
-    def newer_pubdate(self, pubdate=0):
-        if self.compare_pubdate(pubdate) > 0:
-            return self.pubDate
-        else:
-            return pubdate
-
-    def cute_pubdate( self):
+    def cute_pubdate(self):
         result = util.format_date(self.pubDate)
         if result is None:
             return '(%s)' % _('unknown')
@@ -788,27 +644,24 @@ class podcastItem(object):
     channel_prop = property(fget=get_channel_title)
 
     def get_played_string( self):
-        if not self.is_played():
+        if not self.is_played:
             return _('Unplayed')
         
         return ''
 
     played_prop = property(fget=get_played_string)
     
-    def equals( self, other_item):
-        if other_item is None:
-            return False
-        
-        return self.url == other_item.url
 
 
 
 def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str, bool)
-    
+
     for channel in channels:
-        (count_downloaded, has_new, count_unplayed) = channel.get_episode_stats()
-        
+        count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
+        count_new = channel.stat(state=db.STATE_NORMAL, is_played=False)
+        count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
+
         new_iter = new_model.append()
         new_model.set(new_iter, 0, channel.url)
         new_model.set(new_iter, 1, channel.title)
@@ -816,10 +669,10 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
         title_markup = saxutils.escape(channel.title)
         description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
         d = []
-        if has_new:
+        if count_new:
             d.append('<span weight="bold">')
         d.append(title_markup)
-        if has_new:
+        if count_new:
             d.append('</span>')
         description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
         if channel.parse_error is not None:
@@ -845,48 +698,41 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
     return new_model
 
 
+def load_channels():
+    return db.load_channels(lambda d: podcastChannel.create_from_dict(d))
 
-def load_channels(load_items=True, force_update=False, callback_proc=None, callback_url=None, callback_error=None, offline=False, is_cancelled_cb=None, old_channels=None):
-    importer = opml.Importer(gl.channel_opml_file)
-    result = []
-    if old_channels is None:
-        old_channels = {}
-    else:
-        # Convert list of channels to a dict with URLs as keys
-        old_channels = dict(map(lambda c: (c.url, c), old_channels))
+def update_channels(callback_proc=None, callback_error=None, is_cancelled_cb=None):
+    log('Updating channels....')
 
-    urls_to_keep = []
+    channels = load_channels()
     count = 0
-    for item in importer.items:
-        if is_cancelled_cb is not None:
-            cancelled = is_cancelled_cb()
-            if cancelled:
-                # We don't force updates for all upcoming episodes
-                force_update = False
-                offline = True
-        callback_proc and callback_proc( count, len( importer.items))
-        callback_url and callback_url( item['url'])
-        urls_to_keep.append(item['url'])
-        if item['url'] not in old_channels:
-            old_channel = None
-        else:
-            old_channel = old_channels[item['url']]
-        channel = podcastChannel.create_from_dict(item, load_items, force_update, callback_error, offline, old_channel)
-        result.append(channel)
+
+    for channel in channels:
+        if is_cancelled_cb is not None and is_cancelled_cb():
+            return channels
+        callback_proc and callback_proc(count, len(channels))
+        channel.update()
         count += 1
 
-    podcastChannel.clear_cache(urls_to_keep)
-    podcastChannel.sync_cache()
-    result.sort(key=lambda x:x.title.lower())
-    return result
+    return channels
 
 def save_channels( channels):
     exporter = opml.Exporter(gl.channel_opml_file)
     return exporter.write(channels)
 
+def can_restore_from_opml():
+    try:
+        if len(opml.Importer(gl.channel_opml_file).items):
+            return gl.channel_opml_file
+    except:
+        return None
+
 
 
 class LocalDBReader( object):
+    """
+    DEPRECATED - Only used for migration to SQLite
+    """
     def __init__( self, url):
         self.url = url
 
@@ -904,12 +750,22 @@ class LocalDBReader( object):
         episode.link = self.get_text_by_first_node( element, 'link')
         episode.guid = self.get_text_by_first_node( element, 'guid')
         try:
-            episode.pubDate = int(self.get_text_by_first_node( element, 'pubDate'))
+            episode.pubDate = float(self.get_text_by_first_node(element, 'pubDate'))
         except:
             log('Looks like you have an old pubDate in your LocalDB -> converting it')
             episode.pubDate = self.get_text_by_first_node(element, 'pubDate')
-            episode.pubDate = time.mktime(feedparser._parse_date(episode.pubDate))
-        episode.mimetype = self.get_text_by_first_node( element, 'mimetype')
+            log('FYI: pubDate value is: "%s"', episode.pubDate, sender=self)
+            pubdate = feedparser._parse_date(episode.pubDate)
+            if pubdate is None:
+                log('Error converting the old pubDate - sorry!', sender=self)
+                episode.pubDate = 0
+            else:
+                log('PubDate converted successfully - yay!', sender=self)
+                episode.pubDate = time.mktime(pubdate)
+        try:
+            episode.mimetype = self.get_text_by_first_node( element, 'mimetype')
+        except:
+            log('No mimetype info for %s', episode.url, sender=self)
         episode.calculate_filesize()
         return episode
 
@@ -939,60 +795,11 @@ class LocalDBReader( object):
         channel.title = self.get_text_by_first_node( channel_element, 'title')
         channel.description = self.get_text_by_first_node( channel_element, 'description')
         channel.link = self.get_text_by_first_node( channel_element, 'link')
-        channel.load_settings()
 
+        episodes = []
         for episode_element in rss.getElementsByTagName('item'):
             episode = self.get_episode_from_element( channel, episode_element)
-            channel.append( episode)
+            episodes.append(episode)
 
-        return channel
-
-
-
-class LocalDBWriter(object):
-    def __init__( self, filename):
-        self.filename = filename
-
-    def create_node( self, doc, name, content):
-        node = doc.createElement( name)
-        node.appendChild( doc.createTextNode( content))
-        return node
-
-    def create_item( self, doc, episode):
-        item = doc.createElement( 'item')
-        item.appendChild( self.create_node( doc, 'title', episode.title))
-        item.appendChild( self.create_node( doc, 'description', episode.description))
-        item.appendChild( self.create_node( doc, 'url', episode.url))
-        item.appendChild( self.create_node( doc, 'link', episode.link))
-        item.appendChild( self.create_node( doc, 'guid', episode.guid))
-        item.appendChild( self.create_node( doc, 'pubDate', str(episode.pubDate)))
-        item.appendChild( self.create_node( doc, 'mimetype', episode.mimetype))
-        return item
-
-    def write( self, channel):
-        doc = xml.dom.minidom.Document()
-
-        rss = doc.createElement( 'rss')
-        rss.setAttribute( 'version', '1.0')
-        doc.appendChild( rss)
-
-        channele = doc.createElement( 'channel')
-        channele.appendChild( self.create_node( doc, 'title', channel.title))
-        channele.appendChild( self.create_node( doc, 'description', channel.description))
-        channele.appendChild( self.create_node( doc, 'link', channel.link))
-        rss.appendChild( channele)
-
-        for episode in channel:
-            if episode.is_downloaded():
-                rss.appendChild( self.create_item( doc, episode))
-
-        try:
-            fp = open( self.filename, 'w')
-            fp.write( doc.toxml( encoding = 'utf-8'))
-            fp.close()
-        except:
-            log( 'Could not open file for writing: %s', self.filename, sender = self)
-            return False
-        
-        return True
+        return episodes
 

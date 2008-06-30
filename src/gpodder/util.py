@@ -78,9 +78,11 @@ else:
 if gpodder.interface == gpodder.GUI:
     ICON_UNPLAYED = gtk.STOCK_YES
     ICON_LOCKED = 'emblem-nowrite'
+    ICON_MISSING = gtk.STOCK_STOP
 elif gpodder.interface == gpodder.MAEMO:
     ICON_UNPLAYED = 'qgn_list_gene_favor'
     ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
+    ICON_MISSING = gtk.STOCK_STOP # FIXME!
 
 def make_directory( path):
     """
@@ -493,7 +495,7 @@ def file_type_by_extension( extension):
     return None
 
 
-def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=None, icon_size=32):
+def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, add_missing=False, icon_cache=None, icon_size=32):
     """
     Loads an icon from the current icon theme at the specified
     size, suitable for display in a gtk.TreeView.
@@ -508,7 +510,7 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
     the cache is supplied again and the icon is found in 
     the cache.
     """
-    global ICON_UNPLAYED, ICON_LOCKED
+    global ICON_UNPLAYED, ICON_LOCKED, ICON_MISSING
 
     if icon_cache is not None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
         return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
@@ -521,9 +523,20 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, icon_cache=Non
         log( '(get_tree_icon) Warning: Cannot load icon with name "%s", will use  default icon.', icon_name)
         icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
 
-    if icon and (add_bullet or add_padlock):
+    if icon and (add_bullet or add_padlock or add_missing):
         # We'll modify the icon, so use .copy()
-        if add_bullet:
+        if add_missing:
+            log('lalala')
+            try:
+                icon = icon.copy()
+                emblem = icon_theme.load_icon(ICON_MISSING, int(float(icon_size)*1.2/3.0), 0)
+                (width, height) = (emblem.get_width(), emblem.get_height())
+                xpos = icon.get_width() - width
+                ypos = icon.get_height() - height
+                emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+            except:
+                log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
+        elif add_bullet:
             try:
                 icon = icon.copy()
                 emblem = icon_theme.load_icon(ICON_UNPLAYED, int(float(icon_size)*1.2/3.0), 0)

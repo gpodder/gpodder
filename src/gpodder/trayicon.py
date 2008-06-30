@@ -356,7 +356,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
                     tooltip += "\n" + _("New episodes:") 
                     for episode in self.__gpodder.already_notified_new_episodes:
                         tooltip += "\n" + episode.title
-                        if episode.is_downloaded(): tooltip +=  _(" (downloaded)")
+                        if episode.was_downloaded(): tooltip +=  _(" (downloaded)")
             else:
                 tooltip = 'gPodder - %s' % tooltip
             if self.__current_icon is not None:

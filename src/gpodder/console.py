@@ -23,6 +23,7 @@ from gpodder import sync
 from gpodder.liblogger import msg
 
 from libpodcasts import load_channels
+from libpodcasts import update_channels
 from libpodcasts import save_channels
 from libpodcasts import podcastChannel
 
@@ -33,7 +34,7 @@ import urllib
 
 
 def list_channels():
-    for channel in load_channels(load_items=False):
+    for channel in load_channels():
         msg('podcast', urllib.unquote(channel.url))
 
 
@@ -42,14 +43,13 @@ def add_channel( url):
 
     url = util.normalize_feed_url( url)
     try:
-        channel = podcastChannel.get_by_url( url, force_update = True)
-        podcastChannel.sync_cache()
+        channel = podcastChannel.load(url, create=True)
     except:
         msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return
 
     if channel:
-        channels = load_channels( load_items = False)
+        channels = load_channels()
         if channel.url in ( c.url for c in channels ):
             msg( 'error', _('Already added: %s'), urllib.unquote( url))
             return
@@ -63,7 +63,7 @@ def add_channel( url):
 def del_channel( url):
     url = util.normalize_feed_url( url)
 
-    channels = load_channels( load_items = False)
+    channels = load_channels()
     keep_channels = []
     for channel in channels:
         if channel.url == url:
@@ -78,11 +78,10 @@ def del_channel( url):
 
 
 def update():
-    callback_url = lambda url: msg( 'update', urllib.unquote( url))
-    callback_error = lambda s: msg( 'error', s)
+    callback_url = lambda url: msg('update', urllib.unquote( url))
+    callback_error = lambda s: msg('error', s)
 
-    return load_channels( force_update = True, callback_url = callback_url, callback_error = callback_error)
-
+    return update_channels(callback_url = callback_url, callback_error = callback_error)
 
 def run():
     channels = update()
@@ -117,7 +116,7 @@ def sync_device():
         
         episodes_to_sync = []
         for episode in channel.get_all_episodes():
-            if episode.is_downloaded():
+            if episode.was_downloaded(and_exists=True):
                 episodes_to_sync.append(episode)
         device.add_tracks(episodes_to_sync)
 

@@ -1,11 +1,30 @@
+Sun, 29 Jun 2008 16:59:30 -0400 <me@nikosapi.org>
+Merge patch from Justin Forest and Thomas Perl:
+- Use SQLite instead of cPickle to store all data, including feed summary
+and entries, download and play history. 
+- Migration assistant to import the old cPickle files in to the SQLite DB
+	* src/gpodder/cache.py: SQLite-related accomodations 
+	* src/gpodder/console.py: SQLite-related accomodations
+	* src/gpodder/dbsqlite.py: New file, SQLite interface for gPodder
+	* src/gpodder/gui.py: Lots of changes to accomodate the new SQLite
+	DB + new migration assistant code
+	* src/gpodder/libgpodder.py: Added gPodderLib.migrate_to_sqlite().
+	HistoryStore and ChannelSettings are marked as DEPRECATED
+	* src/gpodder/libpodcasts.py: SQLite-related accomodations and new 
+	code for setting/determining episode state
+	* src/gpodder/sync.py: SQLite-related accomodations
+	* src/gpodder/trayicon.py: Use episode.was_downloaded() instead
+	of episode.is_downloaded()
+	* src/gpodder/util.py: SQLite-related accomodations
+
 Sun, 29 Jun 2008 16:15:54 +0200 <jerome.chabod@ifrance.com>
 Fix a bug in shutil when moving the download directory bug (#8)
 
 	* src/gpodder/libgpodder.py: When the shutil.move() bug is detected 
-    (an NameError is thrown when moving from an ext file sytem to a 
-    fat or ntfs filesystem, see http://bugs.python.org/issue2549), 
-    the error is ignored, then the previous directory is removed 
-    by a system call to "rm"
+	(an NameError is thrown when moving from an ext file sytem to a 
+	fat or ntfs filesystem, see http://bugs.python.org/issue2549), 
+	the error is ignored, then the previous directory is removed 
+	by a system call to "rm"
 
 Thu, 19 Jun 2008 10:50:11 +0200 <thp@perli.net>
 Fix OPML dialog button sensitivity; sensitivity+totals for Episode Selector

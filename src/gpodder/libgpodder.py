@@ -35,6 +35,8 @@ import gpodder
 from gpodder import util
 from gpodder import opml
 from gpodder import config
+from gpodder import dumbshelve
+from gpodder.dbsqlite import db
 
 import os
 import os.path
@@ -61,9 +63,7 @@ class gPodderLib(object):
         util.make_directory( gpodder_dir)
 
         self.tempdir = gpodder_dir
-        self.feed_cache_file = os.path.join(gpodder_dir, 'feedcache.pickle.db')
         self.channel_settings_file = os.path.join(gpodder_dir, 'channelsettings.pickle.db')
-        self.episode_metainfo_file = os.path.join(gpodder_dir, 'episodemetainfo.pickle.db')
 
         self.channel_opml_file = os.path.join(gpodder_dir, 'channels.opml')
         self.channel_xml_file = os.path.join(gpodder_dir, 'channels.xml')
@@ -82,9 +82,127 @@ class gPodderLib(object):
         if self.config.videoplayer == 'unspecified':
             self.config.videoplayer = self.config.player	
 
-        self.__download_history = HistoryStore( os.path.join( gpodder_dir, 'download-history.txt'))
-        self.__playback_history = HistoryStore( os.path.join( gpodder_dir, 'playback-history.txt'))
-        self.__locked_history = HistoryStore( os.path.join( gpodder_dir, 'lock-history.txt'))
+        self.gpodder_dir = gpodder_dir
+        not db.setup({ 'database': os.path.join(gpodder_dir, 'database.sqlite') })
+
+    def migrate_to_sqlite(self, add_callback, status_callback, load_channels, get_localdb):
+        """
+        Migrates from the 0.11.3 data storage format
+        to the new SQLite-based storage format.
+
+        add_callback should accept one parameter:
+            + url (the url for a channel to be added)
+
+        status_callback should accept two parameters:
+            + percentage (a float, 0..100)
+            + message (current status message, a string)
+
+        load_channels should return the channel list
+
+        get_localdb should accept one parameter:
+            + channel (a channel object)
+            and should return a list of episodes
+        """
+        if os.path.exists(self.channel_opml_file):
+            channels = opml.Importer(gl.channel_opml_file).items
+        else:
+            channels = []
+
+        p = 0.0
+
+        # 0..40% -> import channels
+        if len(channels):
+            p_step = 40.0/len(channels)
+            for c in channels:
+                log('Importing %s', c['url'], sender=self)
+                status_callback(p, _('Adding podcast: %s') % c['title'])
+                add_callback(c['url'])
+                p += p_step
+        else:
+            p = 40.0
+
+        # 40..50% -> import localdb
+        channels = load_channels()
+        if len(channels):
+            p_step = 10.0/len(channels)
+            for channel in channels:
+                status_callback(p, _('Loading LocalDB for %s') % channel.title)
+                if os.path.exists(channel.index_file):
+                    episodes = get_localdb(channel)
+                else:
+                    episodes = []
+                if len(episodes):
+                    p_step_2 = p_step/len(episodes)
+                    for episode in episodes:
+                        ### status_callback(p, _('Adding episode: %s') % episode.title)
+                        # This, or all episodes will be marked as new after import.
+                        episode.is_played = True
+                        if (episode.file_exists()):
+                            episode.mark(state=db.STATE_DOWNLOADED)
+                        episode.save(bulk=True)
+                        p += p_step_2
+                    # flush the localdb updates for this channel
+                    status_callback(p, _('Writing changes to database'))
+                    db.commit()
+                else:
+                    p += p_step
+        else:
+            p += 10.0
+            
+        # 50..65% -> import download history
+        download_history = HistoryStore(os.path.join(self.gpodder_dir, 'download-history.txt'))
+        if len(download_history):
+            p_step = 15.0/len(download_history)
+            for url in download_history:
+                ### status_callback(p, _('Adding to history: %s') % url)
+                db.mark_episode(url, state=db.STATE_DELETED)
+                p += p_step
+        else:
+            p += 15.0
+
+        # 65..90% -> fix up all episode statuses
+        channels = load_channels()
+        if len(channels):
+            p_step = 25.0/len(channels)
+            for channel in channels:
+                status_callback(p, _('Migrating settings for %s') % channel.title)
+                ChannelSettings.migrate_settings(channel)
+                status_callback(p, _('Fixing episodes in %s') % channel.title)
+                all_episodes = channel.get_all_episodes()
+                if len(all_episodes):
+                    p_step_2 = p_step/len(all_episodes)
+                    for episode in all_episodes:
+                        ### status_callback(p, _('Checking episode: %s') % episode.title)
+                        if episode.state == db.STATE_DELETED and episode.file_exists():
+                            episode.mark(state=db.STATE_DOWNLOADED, is_played=False)
+                        # episode.fix_corrupted_state()
+                        p += p_step_2
+                else:
+                    p += p_step
+        else:
+            p += 25.0
+
+        # 90..95% -> import playback history
+        playback_history = HistoryStore(os.path.join(self.gpodder_dir, 'playback-history.txt'))
+        if len(playback_history):
+            p_step = 5.0/len(playback_history)
+            for url in playback_history:
+                ### status_callback(p, _('Playback history: %s') % url)
+                db.mark_episode(url, is_played=True)
+                p += p_step
+        else:
+            p += 5.0
+            
+        # 95..100% -> import locked history
+        locked_history = HistoryStore(os.path.join(self.gpodder_dir, 'lock-history.txt'))
+        if len(locked_history):
+            p_step = 5.0/len(locked_history)
+            for url in locked_history:
+                ### status_callback(p, _('Locked history: %s') % url)
+                db.mark_episode(url, is_locked=True)
+                p += p_step
+        else:
+            p += 5.0
 
     def migrate_channels_xml(self):
         """Migrate old (gPodder < 0.9.5) channels.xml to channels.opml
@@ -179,33 +297,6 @@ class gPodderLib(object):
         self.config.download_dir = new_downloaddir
 
     downloaddir = property(fget=get_download_dir,fset=set_download_dir)
-
-    def history_mark_downloaded( self, url, add_item = True):
-        if add_item:
-            self.__download_history.add_item( url)
-        else:
-            self.__download_history.del_item( url)
-
-    def history_mark_played( self, url, add_item = True):
-        if add_item:
-            self.__playback_history.add_item( url)
-        else:
-            self.__playback_history.del_item( url)
-
-    def history_mark_locked( self, url, add_item = True):
-        if add_item:
-            self.__locked_history.add_item( url)
-        else:
-            self.__locked_history.del_item( url)
-
-    def history_is_downloaded( self, url):
-        return (url in self.__download_history)
-
-    def history_is_played( self, url):
-        return (url in self.__playback_history)
-
-    def history_is_locked( self, url):
-        return (url in self.__locked_history)
     
     def send_subscriptions(self):
         try:
@@ -217,7 +308,7 @@ class gPodderLib(object):
         return True
 
     def playback_episode( self, channel, episode):
-        self.history_mark_played( episode.url)
+        db.mark_episode(episode.url, is_played=True)
         filename = episode.local_filename()
 
         if gpodder.interface == gpodder.MAEMO and not self.config.maemo_allow_custom_player:
@@ -249,7 +340,7 @@ class gPodderLib(object):
         return ( True, command_line[0] )
 
     def invoke_torrent( self, url, torrent_filename, target_filename):
-        self.history_mark_played( url)
+        db.mark_episode(url, is_played=True)
 
         if self.config.use_gnome_bittorrent:
             if util.find_command('gnome-btdownload') is None:
@@ -304,6 +395,10 @@ class gPodderLib(object):
 
 
 class HistoryStore( types.ListType):
+    """
+    DEPRECATED - Only used for migration to SQLite
+    """
+
     def __init__( self, filename):
         self.filename = filename
         try:
@@ -358,6 +453,40 @@ class HistoryStore( types.ListType):
         return affected
 
 
+class ChannelSettings(object):
+    """
+    DEPRECATED - Only used for migration to SQLite
+    """
+    SETTINGS_TO_MIGRATE = ('sync_to_devices', 'override_title', 'username', 'password')
+    storage = None
+
+    @classmethod
+    def migrate_settings(cls, channel):
+        url = channel.url
+        settings = {}
+
+        if cls.storage is None:
+            if os.path.exists(gl.channel_settings_file):
+                cls.storage = dumbshelve.open_shelve(gl.channel_settings_file)
+
+        # We might have failed to open the shelve if we didn't have a settings
+        # file in the first place (e.g., the user just deleted the database and
+        # reimports everything from channels.opml).
+        if cls.storage is not None:
+            if isinstance(url, unicode):
+                url = url.encode('utf-8')
+            if cls.storage.has_key(url):
+                settings = cls.storage[url]
+
+            if settings:
+                log('Migrating settings for %s', url)
+            for key in cls.SETTINGS_TO_MIGRATE:
+                if settings.has_key(key):
+                    log('Migrating key %s', key)
+                    setattr(channel, key, settings[key])
+
+
 # Global, singleton gPodderLib object
 gl = gPodderLib()
+
 

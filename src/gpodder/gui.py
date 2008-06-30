@@ -28,6 +28,7 @@ import subprocess
 import glob
 import time
 import urllib2
+import datetime
 
 from xml.sax import saxutils
 
@@ -43,6 +44,7 @@ from gpodder import sync
 from gpodder import download
 from gpodder import SimpleGladeApp
 from gpodder.liblogger import log
+from gpodder.dbsqlite import db
 
 try:
     from gpodder import trayicon
@@ -53,9 +55,13 @@ except Exception, exc:
     have_trayicon = False
 
 from libpodcasts import podcastChannel
+from libpodcasts import LocalDBReader
+from libpodcasts import podcastItem
 from libpodcasts import channels_to_model
 from libpodcasts import load_channels
+from libpodcasts import update_channels
 from libpodcasts import save_channels
+from libpodcasts import can_restore_from_opml
 
 from gpodder.libgpodder import gl
 
@@ -478,7 +484,12 @@ class gPodder(GladeWidget):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = load_channels( load_items = False, offline = True)
+        self.channels = load_channels()
+
+        if len(self.channels):
+            self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
+        else:
+            self.label2.set_text(_('Podcasts'))
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -849,22 +860,22 @@ class gPodder(GladeWidget):
                 return True
 
             first_url = model.get_value( model.get_iter( paths[0]), 0)
+            episode = db.load_episode(first_url)
 
             menu = gtk.Menu()
 
-            ( can_play, can_download, can_transfer, can_cancel ) = self.play_or_download()
+            ( can_play, can_download, can_transfer, can_cancel, can_delete ) = self.play_or_download()
 
             if can_play:
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append(self.set_finger_friendly(item))
                 
-                is_locked = gl.history_is_locked(first_url)
-                if not is_locked:
-                    item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
-                    item.connect('activate', self.on_btnDownloadedDelete_clicked)
-                    menu.append(self.set_finger_friendly(item))
-                    
+            if not episode['is_locked'] and can_delete:
+                item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
+                item.connect('activate', self.on_btnDownloadedDelete_clicked)
+                menu.append(self.set_finger_friendly(item))
+
             if can_cancel:
                 item = gtk.ImageMenuItem( _('Cancel download'))
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
@@ -876,19 +887,17 @@ class gPodder(GladeWidget):
                 item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
                 menu.append(self.set_finger_friendly(item))
-
-                is_downloaded = gl.history_is_downloaded(first_url)
-                if is_downloaded:
-                    item = gtk.ImageMenuItem(_('Mark as not downloaded'))
-                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_UNDELETE, gtk.ICON_SIZE_MENU))
-                    item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, False))
-                    menu.append(self.set_finger_friendly(item))
-                else:
-                    # FIXME: foreach episode go and delete/toggle downloaded episode
-                    # ++ unify into a single menu item (with "Delete" from above)
-                    item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
-                    item.connect( 'activate', lambda w: self.on_item_toggle_downloaded_activate( w, False, True))
-                    menu.append(self.set_finger_friendly(item))
+                
+            if episode['state'] == db.STATE_NORMAL and not episode['is_played']: # can_download:
+                item = gtk.ImageMenuItem(_('Do not download'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+                item.connect('activate', lambda w: self.mark_selected_episodes_old())
+                menu.append(self.set_finger_friendly(item))
+            elif episode['state'] != db.STATE_NORMAL and can_download:
+                item = gtk.ImageMenuItem(_('Mark as new'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_ABOUT, gtk.ICON_SIZE_MENU))
+                item.connect('activate', lambda w: self.mark_selected_episodes_new())
+                menu.append(self.set_finger_friendly(item))
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
@@ -909,7 +918,7 @@ class gPodder(GladeWidget):
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
-                is_played = gl.history_is_played(first_url)
+                is_played = episode['is_played']
                 if is_played:
                     item = gtk.ImageMenuItem(_('Mark as unplayed'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
@@ -921,7 +930,7 @@ class gPodder(GladeWidget):
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
                     menu.append(self.set_finger_friendly(item))
 
-                is_locked = gl.history_is_locked(first_url)
+                is_locked = episode['is_locked']
                 if is_locked:
                     item = gtk.ImageMenuItem(_('Allow deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
@@ -1019,12 +1028,12 @@ class gPodder(GladeWidget):
         if label is not None:
             label_widget.set_text(label)
 
-    def play_or_download( self):
+    def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
             return
 
-        ( can_play, can_download, can_transfer, can_cancel ) = (False,)*4
-        (is_played, is_locked) = (False,)*2
+        ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
+        ( is_played, is_locked ) = (False,)*2
 
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
@@ -1034,17 +1043,20 @@ class gPodder(GladeWidget):
                 url = model.get_value( model.get_iter( path), 0)
                 local_filename = model.get_value( model.get_iter( path), 8)
 
-                if os.path.exists( local_filename):
+                episode = podcastItem.load(url, self.active_channel)
+
+                if episode.was_downloaded(and_exists=True):
                     can_play = True
-                    is_played = gl.history_is_played(url)
-                    is_locked = gl.history_is_locked(url)
+                    can_delete = True
+                    is_played = episode.is_played
+                    is_locked = episode.is_locked
                 else:
-                    if services.download_status_manager.is_download_in_progress( url):
+                    if services.download_status_manager.is_download_in_progress(url):
                         can_cancel = True
                     else:
                         can_download = True
 
-                if util.file_type_by_extension( util.file_extension_from_url( url)) == 'torrent':
+                if util.file_type_by_extension(util.file_extension_from_url(url)) == 'torrent':
                     can_download = can_download or gl.config.use_gnome_bittorrent
 
         can_download = can_download and not can_cancel
@@ -1093,7 +1105,7 @@ class gPodder(GladeWidget):
             self.separator16.hide_all()
             self.no_episode_selected.show_all()
 
-        return ( can_play, can_download, can_transfer, can_cancel )
+        return ( can_play, can_download, can_transfer, can_cancel, can_delete )
 
     def download_status_updated( self):
         count = services.download_status_manager.count()
@@ -1123,6 +1135,7 @@ class gPodder(GladeWidget):
         rect = self.treeChannels.get_visible_rect()
         self.treeChannels.set_model(channels_to_model(self.channels, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
         util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
+
         for channel in self.channels:
             services.cover_downloader.request_cover(channel)
 
@@ -1174,7 +1187,7 @@ class gPodder(GladeWidget):
         else:
             self.add_new_channel(result)
 
-    def add_new_channel(self, result=None, ask_download_new=True):
+    def add_new_channel(self, result=None, ask_download_new=True, quiet=False):
         result = util.normalize_feed_url( result)
 
         if result:
@@ -1191,23 +1204,24 @@ class gPodder(GladeWidget):
                     return
             log( 'Adding new channel: %s', result)
             try:
-                channel = podcastChannel.get_by_url( url = result, force_update = True)
-            except:
-                log('Error in podcastChannel.get_by_url(%s)', result, sender=self)
+                channel = podcastChannel.load(url=result, create=True)
+            except Exception, e:
+                log('Error in podcastChannel.load(%s): %s', result, e, backtrace=True, sender=self)
                 channel = None
 
-            if channel:
+            if channel is not None:
                 self.channels.append( channel)
                 save_channels( self.channels)
-                # download changed channels and select the new episode in the UI afterwards
-                self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
+                if not quiet:
+                    # download changed channels and select the new episode in the UI afterwards
+                    self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
 
                 (username, password) = util.username_password_from_url( result)
                 if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
                     channel.username = username
                     channel.password = password
                     log('Saving authentication data for episode downloads..', sender = self)
-                    channel.save_settings()
+                    channel.save()
 
                 if ask_download_new:
                     new_episodes = channel.get_new_episodes()
@@ -1229,8 +1243,8 @@ class gPodder(GladeWidget):
                         if self.show_confirmation(message, title):
                             util.open_website(result)
                         return
-                except:
-                    log('Error trying to handle the URL as OPML or web page: %s', result, traceback=True, sender=self)
+                except Exception, e:
+                    log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
 
                 title = _('Error adding podcast')
                 message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
@@ -1244,17 +1258,18 @@ class gPodder(GladeWidget):
                 self.show_message(_('There has been an error adding this podcast. Please see the log output for more information.'), _('Error adding podcast'))
     
     def update_feed_cache_callback(self, progressbar, position, count, force_update):
-        title = self.channels[position].title
-        if force_update:
-            progression = _('Updating %s (%d/%d)')%(title, position+1, count)
-        else:
-            progression = _('Loading %s (%d/%d)')%(title, position+1, count)
-        progressbar.set_text(progression)
-        if self.tray_icon:
-            self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
+        if position < len(self.channels):
+            title = self.channels[position].title
+            if force_update:
+                progression = _('Updating %s (%d/%d)')%(title, position+1, count)
+            else:
+                progression = _('Loading %s (%d/%d)')%(title, position+1, count)
+            progressbar.set_text(progression)
+            if self.tray_icon:
+                self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
 
-        if count > 0:
-            progressbar.set_fraction(float(position)/float(count))
+            if count > 0:
+                progressbar.set_fraction(float(position)/float(count))
 
     def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False, select_url_afterwards=None):
         self.hboxUpdateFeeds.hide_all()
@@ -1300,8 +1315,12 @@ class gPodder(GladeWidget):
             self.on_itemDownloadAllNew_activate( self.gPodder)
 
     def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
-        is_cancelled_cb = lambda: self.feed_cache_update_cancelled
-        self.channels = load_channels(force_update=force_update, callback_proc=callback_proc, callback_error=callback_error, offline=not force_update, is_cancelled_cb=is_cancelled_cb, old_channels=self.channels)
+        if not force_update:
+            self.channels = load_channels()
+        else:
+            is_cancelled_cb = lambda: self.feed_cache_update_cancelled
+            self.channels = update_channels(callback_proc=callback_proc, callback_error=callback_error, is_cancelled_cb=is_cancelled_cb)
+
         self.pbFeedUpdate.set_text(_('Building list...'))
         if finish_proc:
             finish_proc()
@@ -1429,8 +1448,8 @@ class gPodder(GladeWidget):
     def get_old_episodes(self):
         episodes = []
         for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                if episode.is_downloaded() and episode.is_old() and not episode.is_locked() and episode.is_played():
+            for episode in channel.get_downloaded_episodes():
+                if episode.is_old() and not episode.is_locked and episode.is_played:
                     episodes.append(episode)
         return episodes
 
@@ -1440,8 +1459,8 @@ class gPodder(GladeWidget):
             url = model.get_value( model.get_iter( path), 0)
             try:
                 callback( url)
-            except:
-                log( 'Warning: Error in for_each_selected_episode_url for URL %s', url, sender = self)
+            except Exception, e:
+                log( 'Warning: Error in for_each_selected_episode_url for URL %s: %s', url, e, sender = self)
         self.active_channel.update_model()
         self.updateComboBox()
 
@@ -1474,7 +1493,7 @@ class gPodder(GladeWidget):
         )
 
         selection_buttons = {
-                _('Select played'): lambda episode: episode.is_played(),
+                _('Select played'): lambda episode: episode.is_played,
                 _('Select older than %d days') % gl.config.episode_old_age: lambda episode: episode.is_old(),
         }
 
@@ -1483,41 +1502,37 @@ class gPodder(GladeWidget):
         episodes = []
         selected = []
         for channel in self.channels:
-            for episode in channel:
-                if episode.is_downloaded() and not episode.is_locked():
-                    episodes.append( episode)
-                    selected.append( episode.is_played())
+            for episode in channel.get_downloaded_episodes():
+                if not episode.is_locked:
+                    episodes.append(episode)
+                    selected.append(episode.is_played)
 
         gPodderEpisodeSelector( title = _('Remove old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons)
 
-    def on_item_toggle_downloaded_activate( self, widget, toggle = True, new_value = False):
-        if toggle:
-            callback = lambda url: gl.history_mark_downloaded(url, not gl.history_is_downloaded(url))
-        else:
-            callback = lambda url: gl.history_mark_downloaded(url, new_value)
+    def mark_selected_episodes_new(self):
+        callback = lambda url: self.active_channel.find_episode(url).mark_new()
+        self.for_each_selected_episode_url(callback)
 
-        self.for_each_selected_episode_url( callback)
-
-        if self.active_channel:
-            # Reset the cache for newest_pubdate_downloaded
-            self.active_channel.reset_pubdate_cache()
+    def mark_selected_episodes_old(self):
+        callback = lambda url: self.active_channel.find_episode(url).mark_old()
+        self.for_each_selected_episode_url(callback)
 
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
         if toggle:
-            callback = lambda url: gl.history_mark_played(url, not gl.history_is_played(url))
+            callback = lambda url: db.mark_episode(url, is_played=True, toggle=True)
         else:
-            callback = lambda url: gl.history_mark_played(url, new_value)
+            callback = lambda url: db.mark_episode(url, is_played=new_value)
 
-        self.for_each_selected_episode_url( callback)
+        self.for_each_selected_episode_url(callback)
 
     def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
         if toggle:
-            callback = lambda url: gl.history_mark_locked(url, not gl.history_is_locked(url))
+            callback = lambda url: db.mark_episode(url, is_locked=True, toggle=True)
         else:
-            callback = lambda url: gl.history_mark_locked(url, new_value)
+            callback = lambda url: db.mark_episode(url, is_locked=new_value)
 
         self.for_each_selected_episode_url(callback)
 
@@ -1531,8 +1546,57 @@ class gPodder(GladeWidget):
         gl.config.show_podcast_url_entry = self.item_show_url_entry.get_active()
 
     def on_itemUpdate_activate(self, widget, notify_no_new_episodes=False):
+        restore_from = can_restore_from_opml()
+
         if self.channels:
             self.update_feed_cache(notify_no_new_episodes=notify_no_new_episodes)
+        elif restore_from is not None:
+            title = _('Database upgrade required')
+            message = _('gPodder is now using a new (much faster) database backend and needs to convert your current data. This can take some time. Start the conversion now?')
+            if self.show_confirmation(message, title):
+                add_callback = lambda url: self.add_new_channel(url, False, True)
+                w = gtk.Dialog(_('Migrating to SQLite'), self.gPodder, 0, (gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
+                w.set_has_separator(False)
+                w.set_response_sensitive(gtk.RESPONSE_ACCEPT, False)
+                w.set_default_size(500, -1)
+                pb = gtk.ProgressBar()
+                l = gtk.Label()
+                l.set_padding(6, 3)
+                l.set_markup('<b><big>%s</big></b>' % _('SQLite migration'))
+                l.set_alignment(0.0, 0.5)
+                w.vbox.pack_start(l)
+                l = gtk.Label()
+                l.set_padding(6, 3)
+                l.set_alignment(0.0, 0.5)
+                l.set_text(_('Please wait while your settings are converted.'))
+                w.vbox.pack_start(l)
+                w.vbox.pack_start(pb)
+                lb = gtk.Label()
+                lb.set_ellipsize(pango.ELLIPSIZE_END)
+                lb.set_alignment(0.0, 0.5)
+                lb.set_padding(6, 6)
+                w.vbox.pack_start(lb)
+
+                def set_pb_status(pb, lb, fraction, text):
+                    pb.set_fraction(float(fraction)/100.0)
+                    pb.set_text('%.0f %%' % fraction)
+                    lb.set_markup('<i>%s</i>' % saxutils.escape(text))
+                    while gtk.events_pending():
+                        gtk.main_iteration(False)
+                status_callback = lambda fraction, text: set_pb_status(pb, lb, fraction, text)
+                get_localdb = lambda channel: LocalDBReader(channel.url).read(channel.index_file)
+                w.show_all()
+                start = datetime.datetime.now()
+                gl.migrate_to_sqlite(add_callback, status_callback, load_channels, get_localdb)
+                # Refresh the view with the updated episodes
+                for channel in self.channels:
+                    channel.force_update_tree_model()
+                self.updateComboBox()
+                time_taken = str(datetime.datetime.now()-start)
+                status_callback(100.0, _('Migration finished in %s') % time_taken)
+                w.set_response_sensitive(gtk.RESPONSE_ACCEPT, True)
+                w.run()
+                w.destroy()
         else:
             title = _('Import podcasts from the web')
             message = _('Your podcast list is empty. Do you want to see a list of example podcasts you can subscribe to?')
@@ -1584,7 +1648,7 @@ class gPodder(GladeWidget):
                 log('Skipping channel: %s', channel.title, sender=self)
                 continue
             for episode in channel.get_all_episodes():
-                if episode.is_downloaded() or not exclude_nonsignificant:
+                if episode.was_downloaded(and_exists=True) or not exclude_nonsignificant:
                     episode_list.append(episode)
         return episode_list
 
@@ -1592,7 +1656,7 @@ class gPodder(GladeWidget):
         all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
         episodes_on_device = device.get_all_tracks()
         for local_episode in all_episodes:
-            if local_episode.is_played() and not local_episode.is_locked() or local_episode.is_deleted():
+            if local_episode.is_played and not local_episode.is_locked or local_episode.is_deleted:
                 if gl.config.device_type == 'filesystem':
                     local_episode_name = util.sanitize_filename(local_episode.sync_filename(), gl.config.mp3_player_max_filename_length)
                 else:
@@ -1767,7 +1831,7 @@ class gPodder(GladeWidget):
     def change_channel_url(self, old_url, new_url):
         channel = None
         try:
-            channel = podcastChannel.get_by_url(url=new_url, force_update=True)
+            channel = podcastChannel.load(url=new_url, create=True)
         except:
             channel = None
 
@@ -1845,6 +1909,7 @@ class gPodder(GladeWidget):
                     select_url = self.channels[position+1].url
                 
                 # Remove the channel
+                self.active_channel.delete()
                 self.channels.remove(self.active_channel)
                 save_channels(self.channels)
 
@@ -2030,7 +2095,7 @@ class gPodder(GladeWidget):
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
         if not first_run and gl.config.auto_update_feeds and self.minimized:
-            self.update_feed_cache()
+            self.update_feed_cache(force_update=True)
 
         next_update = 60*1000*gl.config.auto_update_frequency
         gobject.timeout_add(next_update, self.auto_update_procedure)
@@ -2086,7 +2151,7 @@ class gPodder(GladeWidget):
         channel_url = self.active_channel.url
         selection = self.treeAvailable.get_selection()
         ( model, paths ) = selection.get_selected_rows()
-        
+
         if selection.count_selected_rows() == 0:
             log( 'Nothing selected - will not remove any downloaded episode.')
             return
@@ -2094,8 +2159,8 @@ class gPodder(GladeWidget):
         if selection.count_selected_rows() == 1:
             episode_title = saxutils.escape(model.get_value(model.get_iter(paths[0]), 1))
 
-            locked = gl.history_is_locked(model.get_value(model.get_iter(paths[0]), 0))
-            if locked:
+            episode = db.load_episode(model.get_value(model.get_iter(paths[0]), 0))
+            if episode['is_locked']:
                 title = _('%s is locked') % episode_title
                 message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
                 self.notification(message, title)
@@ -2109,8 +2174,8 @@ class gPodder(GladeWidget):
 
         locked_count = 0
         for path in paths:
-            url = model.get_value(model.get_iter(path), 0)
-            if gl.history_is_locked(url):
+            episode = db.load_episode(model.get_value(model.get_iter(path), 0))
+            if episode['is_locked']:
                 locked_count += 1
 
         if selection.count_selected_rows() == locked_count:
@@ -2129,7 +2194,6 @@ class gPodder(GladeWidget):
                 for path in paths:
                     url = model.get_value( model.get_iter( path), 0)
                     self.active_channel.delete_episode_by_url( url)
-                    gl.history_mark_downloaded(url)
       
                 # now, clear local db cache so we can re-read it
                 self.updateComboBox()
@@ -2214,7 +2278,6 @@ class gPodderChannel(GladeWidget):
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
 
-        self.channel.load_settings()
         self.cbNoSync.set_active( not self.channel.sync_to_devices)
         self.musicPlaylist.set_text(self.channel.device_playlist_name)
         if self.channel.username:
@@ -2280,6 +2343,7 @@ class gPodderChannel(GladeWidget):
         self.show_message( _('You can only drop local files and http:// URLs here.'), _('Drag and drop'))
 
     def on_gPodderChannel_destroy(self, widget, *args):
+        services.cover_downloader.unregister('cover-available', self.cover_download_finished)
         self.callback_closed()
 
     def on_btnOK_clicked(self, widget, *args):
@@ -2297,9 +2361,8 @@ class gPodderChannel(GladeWidget):
         self.channel.set_custom_title( self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
         self.channel.password = self.FeedPassword.get_text()
-        self.channel.save_settings()
+        self.channel.save()
 
-        services.cover_downloader.unregister('cover-available', self.cover_download_finished)
         self.gPodderChannel.destroy()
 
 class gPodderAddPodcastDialog(GladeWidget):
