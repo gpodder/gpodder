@@ -1,3 +1,10 @@
+Mon, 30 Jun 2008 17:39:36 +0200 <thp@perli.net>
+Do not update podcast list when closing channel window (patch by Justin Forest)
+
+	* src/gpodder/gui.py: Do not update podcast list when closing the
+	channel window, saves some CPU cycles. Patch by Justin Forest
+	(Closes: http://bugs.gpodder.org/show_bug.cgi?id=135)
+
 Sun, 29 Jun 2008 16:59:30 -0400 <me@nikosapi.org>
 Merge patch from Justin Forest and Thomas Perl:
 - Use SQLite instead of cPickle to store all data, including feed summary

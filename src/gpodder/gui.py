@@ -2344,7 +2344,6 @@ class gPodderChannel(GladeWidget):
 
     def on_gPodderChannel_destroy(self, widget, *args):
         services.cover_downloader.unregister('cover-available', self.cover_download_finished)
-        self.callback_closed()
 
     def on_btnOK_clicked(self, widget, *args):
         entered_url = self.entryURL.get_text()
@@ -2364,6 +2363,7 @@ class gPodderChannel(GladeWidget):
         self.channel.save()
 
         self.gPodderChannel.destroy()
+        self.callback_closed()
 
 class gPodderAddPodcastDialog(GladeWidget):
     finger_friendly_widgets = ['btn_close', 'btn_add']
