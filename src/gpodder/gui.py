@@ -1056,7 +1056,7 @@ class gPodder(GladeWidget):
                     else:
                         can_download = True
 
-                if util.file_type_by_extension(util.file_extension_from_url(url)) == 'torrent':
+                if self.active_channel.find_episode(url).file_type() == 'torrent':
                     can_download = can_download or gl.config.use_gnome_bittorrent
 
         can_download = can_download and not can_cancel

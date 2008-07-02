@@ -54,6 +54,7 @@ import urllib
 import urllib2
 import httplib
 import webbrowser
+import mimetypes
 
 import feedparser
 
@@ -415,12 +416,17 @@ def torrent_filename( filename):
     except:
         return None
 
-
-def file_extension_from_url(url, complete_filename=False):
+def extension_from_mimetype(mimetype):
     """
-    Extracts the (lowercase) file name extension (with dot)
+    Simply guesses what the file extension should be from the mimetype
+    """
+    return mimetypes.guess_extension(mimetype) or ''
+
+def filename_from_url(url):
+    """
+    Extracts the filename and (lowercase) extension (with dot)
     from a URL, e.g. http://server.com/file.MP3?download=yes
-    will result in the string ".mp3" being returned.
+    will result in the string ("file", ".mp3") being returned.
 
     This function will also try to best-guess the "real" 
     extension for a media file (audio, video, torrent) by 
@@ -428,43 +434,29 @@ def file_extension_from_url(url, complete_filename=False):
     into the query string to find better matches, if the 
     original extension does not resolve to a known type.
 
-    If the optional parameter "complete_filename" is set to
-    True, this will not return the extension, but the 
-    complete filename (basename) of the found media file.
-
-    http://my.net/redirect.php?my.net/file.ogg => ".ogg"
-    http://server/get.jsp?file=/episode0815.MOV => ".mov"
-    http://s/redirect.mp4?http://serv2/test.mp4 => ".mp4"
+    http://my.net/redirect.php?my.net/file.ogg => ("file", ".ogg")
+    http://server/get.jsp?file=/episode0815.MOV => ("episode0815", ".mov")
+    http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
     (scheme, netloc, path, para, query, fragid) = urlparse.urlparse(url)
-    filename = os.path.basename( urllib.unquote(path))
-    (tmp, extension) = os.path.splitext(filename)
+    (filename, extension) = os.path.splitext(os.path.basename( urllib.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
         query.startswith(scheme+'://'):
         # We have found a valid extension (audio, video, torrent)
         # and the query string doesn't look like a URL
-        if complete_filename:
-            return filename
-        else:
-            return extension.lower()
-    
+        return ( filename, extension.lower() )
+
     # If the query string looks like a possible URL, try that first
     if len(query.strip()) > 0 and query.find('/') != -1:
         query_url = '://'.join((scheme, urllib.unquote(query)))
-        query_extension = file_extension_from_url(query_url)
+        (query_filename, query_extension) = filename_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
-            if complete_filename:
-                return os.path.basename(query_url)
-            else:
-                return query_extension
+            return os.path.splitext(os.path.basename(query_url))
 
-    # No exact match found, simply return the original extension
-    if complete_filename:
-        return filename
-    else:
-        return extension.lower()
+    # No exact match found, simply return the original filename & extension
+    return ( filename, extension.lower() )
 
 
 def file_type_by_extension( extension):

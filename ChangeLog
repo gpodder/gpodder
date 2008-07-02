@@ -1,3 +1,18 @@
+Tue, 01 Jul 2008 22:46:52 -0400 <me@nikosapi.org>
+Better file extension detection using feed items' mimetypes
+
+	* src/gpodder/gui.py: Use episode.file_type() instead of 
+	util.file_type_by_extension(util.file_extension_from_url(url))
+	* src/gpodder/libgpodder.py: Use episode.file_type() instead of          
+	util.file_type_by_extension(util.file_extension_from_url(url))
+	* src/gpodder/libpodcasts.py: Add new column to the channel list
+	gtk.ListStore for holding the file extension. Add extension()
+	function to podcastItem which makes use mimetype in the event that
+	filename_from_url()[1] returns None
+	* src/gpodder/util.py: file_extension_from_url is renamed to 
+	filename_from_url and returns (filename, extension)
+	Added extension_from_mimetype(mimetype)
+
 Mon, 30 Jun 2008 17:39:36 +0200 <thp@perli.net>
 Do not update podcast list when closing channel window (patch by Justin Forest)
 

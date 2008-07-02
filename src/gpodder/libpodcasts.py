@@ -338,7 +338,7 @@ class podcastChannel(object):
                 if missing:
                     log('Episode missing: %s (before drawing an icon)', episode.url, sender=self)
 
-                file_type = util.file_type_by_extension( util.file_extension_from_url(url))
+                file_type = util.file_type_by_extension( model.get_value( iter, 9))
                 if file_type == 'audio':
                     status_icon = util.get_tree_icon(ICON_AUDIO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
                 elif file_type == 'video':
@@ -359,7 +359,9 @@ class podcastChannel(object):
         """
         Return a gtk.ListStore containing episodes for this channel
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, 
+            gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, 
+            gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
 
         for item in self.get_all_episodes():
             if gl.config.episode_list_descriptions:
@@ -372,7 +374,9 @@ class podcastChannel(object):
             else:
                 filelength = None
 
-            new_iter = new_model.append((item.url, item.title, filelength, True, None, item.cute_pubdate(), description, item.description, item.local_filename()))
+            new_iter = new_model.append((item.url, item.title, filelength, 
+                True, None, item.cute_pubdate(), description, item.description, 
+                item.local_filename(), item.extension()))
             self.iter_set_downloading_columns( new_model, new_iter)
         
         self.update_save_dir_size()
@@ -456,7 +460,9 @@ class podcastItem(object):
                             break
             episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
         elif hasattr(entry, 'link'):
-            extension = util.file_extension_from_url(entry.link)
+            (filename, extension) = util.filename_from_url(entry.link)
+            if extension == '' and hasattr( entry, 'type'):
+                extension = util.extension_from_mimetype(e.type)
             file_type = util.file_type_by_extension(extension)
             if file_type is not None:
                 log('Adding episode with link to file type "%s".', file_type, sender=episode)
@@ -558,8 +564,8 @@ class podcastItem(object):
             log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
     def local_filename( self):
-        ext = util.file_extension_from_url(self.url)
-        
+        ext = self.extension()
+
         # For compatibility with already-downloaded episodes,
         # we accept md5 filenames if they are downloaded now.
         md5_filename = os.path.join(self.channel.save_dir, md5.new(self.url).hexdigest()+ext)
@@ -567,8 +573,8 @@ class podcastItem(object):
             return md5_filename
 
         # If the md5 filename does not exist, 
-        episode = util.file_extension_from_url(self.url, complete_filename=True)
-        episode = util.sanitize_filename(episode)
+        ( episode, e ) = util.filename_from_url(self.url)
+        episode = util.sanitize_filename(episode) + ext
 
         # If the episode filename looks suspicious,
         # we still return the md5 filename to be on
@@ -577,6 +583,14 @@ class podcastItem(object):
             return md5_filename
         filename = os.path.join(self.channel.save_dir, episode)
         return filename
+
+    def extension( self):
+         ( filename, ext ) = util.filename_from_url(self.url)
+         # if we can't detect the extension from the url fallback on the mimetype
+         if ext == '' or util.file_type_by_extension(ext) is None:
+             ext = util.extension_from_mimetype(self.mimetype)
+             log('Getting extension from mimetype for: %s  (mimetype: %s)' % (self.title, ext), sender=self)
+         return ext
 
     def mark_new(self):
         self.state = db.STATE_NORMAL
@@ -604,7 +618,7 @@ class podcastItem(object):
             return self.title
 
     def file_type( self):
-        return util.file_type_by_extension( util.file_extension_from_url( self.url))
+        return util.file_type_by_extension( self.extension() )
 
     @property
     def basename( self):

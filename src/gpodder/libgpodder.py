@@ -321,7 +321,7 @@ class gPodderLib(object):
             return (True, service)
 
         # Determine the file type and set the player accordingly.  
-        file_type = util.file_type_by_extension(util.file_extension_from_url(episode.url))
+        file_type = episode.file_type()
 
         if file_type == 'video':
             player = self.config.videoplayer
