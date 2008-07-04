@@ -1656,7 +1656,7 @@ class gPodder(GladeWidget):
         all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
         episodes_on_device = device.get_all_tracks()
         for local_episode in all_episodes:
-            if local_episode.is_played and not local_episode.is_locked or local_episode.is_deleted:
+            if local_episode.is_played and not local_episode.is_locked or local_episode.state == db.STATE_DELETED:
                 if gl.config.device_type == 'filesystem':
                     local_episode_name = util.sanitize_filename(local_episode.sync_filename(), gl.config.mp3_player_max_filename_length)
                 else:
