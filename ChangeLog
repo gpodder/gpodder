@@ -1,3 +1,11 @@
+Thu, 03 Jul 2008 20:09:18 -0400 <me@nikosapi.org>
+Display message if user tries to sync to iPod without gpod installed
+
+	* src/gpodder/gui.py: Add an informative self.notification() if the user
+	attempts to sync an iPod without the libgpod python bindings installed
+	* src/gpodder/sync.py: Add sync.gpod_available, Add Device.errors to
+	prevent a crash in the event of an error
+
 Thu, 03 Jul 2008 20:26:50 +0200 <thp@perli.net>
 Update list of book donators
 

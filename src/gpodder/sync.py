@@ -32,9 +32,11 @@ from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 from gpodder.dbsqlite import db
 
+gpod_available = True
 try:
     import gpod
 except:
+    gpod_available = False
     log('(gpodder.sync) Could not find gpod')
 
 try:
@@ -134,7 +136,7 @@ class Device(services.ObservableService):
     def __init__(self):
         self.cancelled = False
         self.allowed_types = ['audio', 'video']
-
+        self.errors = []
         signals = ['progress', 'sub-progress', 'status', 'done']
         services.ObservableService.__init__(self, signals)
 

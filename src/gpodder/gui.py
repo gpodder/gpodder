@@ -1668,7 +1668,13 @@ class gPodder(GladeWidget):
                         break
 
     def on_sync_to_ipod_activate(self, widget, episodes=None):
-        Thread(target=self.sync_to_ipod_thread, args=(widget, episodes)).start()
+        # make sure gpod is available before even trying to sync
+        if gl.config.device_type == 'ipod' and not sync.gpod_available:
+            title = _('Cannot Sync To iPod')
+            message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
+            self.notification( message, title )
+        else:
+            Thread(target=self.sync_to_ipod_thread, args=(widget, episodes)).start()
     
     def sync_to_ipod_thread(self, widget, episodes=None):
         device = sync.open_device()
