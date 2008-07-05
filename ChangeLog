@@ -1,3 +1,14 @@
+Sat, 05 Jul 2008 15:23:55 -0400 <me@nikosapi.org>
+Support episodes without a guid during migration (patch from Justin Forest)
+
+	* src/gpodder/dbsqlite.py: Don't raise an exception if an episode is
+	missing a guid
+	* src/gpodder/libpodcasts.py: Make sure that episodes from LocalDBReader
+	always contain some kind of guid
+
+Fri, 04 Jul 2008 13:25:12 -0400 <me@nikosapi.org>
+	* src/gpodder/gui.py: fix traceback when deleting episodes from device
+
 Fri, 04 Jul 2008 18:47:19 +0200 <thp@perli.net>
 New look for the "pill" pixbuf
 

@@ -310,7 +310,8 @@ class Storage(object):
 
     def save_episode(self, e, bulk=False):
         if not e.guid:
-            raise ProgrammingError("Trying to save an episode with no guid.")
+            log('Refusing to save an episode without guid: %s', e)
+            return
 
         try:
             cur = self.cursor()
@@ -410,7 +411,7 @@ class Storage(object):
         old = self.__get__("""SELECT COUNT(*) FROM episodes WHERE channel_id = ?
             AND state IN (?, ?)""", (channel.id, self.STATE_DOWNLOADED,
             self.STATE_DELETED))
-        log('old channels in (%d)%s: %d', channel.id, channel.url, old)
+        log('old episodes in (%d)%s: %d', channel.id, channel.url, old)
 
         if old > 0:
             self.cursor().execute("""

@@ -763,6 +763,13 @@ class LocalDBReader( object):
         episode.url = self.get_text_by_first_node( element, 'url')
         episode.link = self.get_text_by_first_node( element, 'link')
         episode.guid = self.get_text_by_first_node( element, 'guid')
+
+        if not episode.guid:
+            for k in ('url', 'link'):
+                if getattr(episode, k) is not None:
+                    episode.guid = getattr(episode, k)
+                    log('Notice: episode has no guid, using %s', episode.guid)
+                    break
         try:
             episode.pubDate = float(self.get_text_by_first_node(element, 'pubDate'))
         except:
