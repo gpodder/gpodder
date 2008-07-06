@@ -96,7 +96,7 @@ app_authors = [
     'Mika Leppinen', 'Mike Coulson', 'Mykola Nikishov', 'narf at inode.at',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
-    'Pavel Mlčoch', 'Peter Hoffmann', 'Philippe Gouaillier', 'Pieter de Decker',
+    'Pavel Mlčoch', 'Peter Hoffmann', 'PhilF', 'Philippe Gouaillier', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'red26wings', 'Richard Voigt', 
     'Robert Young', 'Roel Groeneveld',
     'Scott Wegner', 'Sebastian Krause', 'Seth Remington', 'Shane Donohoe', 'SPGoetze',
