@@ -259,7 +259,6 @@ def get_free_disk_space(path):
     function returns zero.
     """
 
-    path = os.path.dirname(path)
     if not os.path.exists(path):
         return 0
 

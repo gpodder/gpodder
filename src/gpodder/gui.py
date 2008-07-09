@@ -788,7 +788,7 @@ class gPodder(GladeWidget):
         else:
             device = gl.config.bluetooth_device_address
 
-        destfile = os.path.join(gl.tempdir, episode.sync_filename())
+        destfile = os.path.join(gl.tempdir, util.sanitize_filename(episode.sync_filename()))
         (base, ext) = os.path.splitext(filename)
         if not destfile.endswith(ext):
             destfile += ext

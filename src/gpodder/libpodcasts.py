@@ -589,7 +589,7 @@ class podcastItem(object):
          # if we can't detect the extension from the url fallback on the mimetype
          if ext == '' or util.file_type_by_extension(ext) is None:
              ext = util.extension_from_mimetype(self.mimetype)
-             log('Getting extension from mimetype for: %s  (mimetype: %s)' % (self.title, ext), sender=self)
+             #log('Getting extension from mimetype for: %s  (mimetype: %s)' % (self.title, ext), sender=self)
          return ext
 
     def mark_new(self):

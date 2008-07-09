@@ -1,3 +1,15 @@
+Tue, 08 Jul 2008 21:10:48 -0400 <me@nikosapi.org>
+Small bugfixes
+
+	* src/gpodder/gui.py: for bluetooth file transfer make sure
+	episode.sync_filename()	doesn't contain any troublesome characters
+	eg. some episodes include / in the title
+	* src/gpodder/libpodcasts.py: comment out mimetype logging, it gets
+	annoying after a while...
+	* src/gpodder/util.py: remove "path = os.path.dirname(path)" from
+	get_free_disk_space(path), this prevented the real free disk space
+	from being reported
+
 Sun, 06 Jul 2008 23:11:33 +0200 <thp@perli.net>
 Update book donators list
 
