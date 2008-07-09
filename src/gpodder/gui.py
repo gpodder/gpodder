@@ -3239,26 +3239,27 @@ class gPodderConfigEditor(GladeWidget):
     finger_friendly_widgets = ['btnShowAll', 'btnClose', 'configeditor']
     
     def new(self):
-        name_column = gtk.TreeViewColumn(_('Variable'))
+        name_column = gtk.TreeViewColumn(_('Setting'))
         name_renderer = gtk.CellRendererText()
         name_column.pack_start(name_renderer)
         name_column.add_attribute(name_renderer, 'text', 0)
-        name_column.add_attribute(name_renderer, 'weight', 5)
+        name_column.add_attribute(name_renderer, 'style', 5)
         self.configeditor.append_column(name_column)
 
-        type_column = gtk.TreeViewColumn(_('Type'))
-        type_renderer = gtk.CellRendererText()
-        type_column.pack_start(type_renderer)
-        type_column.add_attribute(type_renderer, 'text', 1)
-        type_column.add_attribute(type_renderer, 'weight', 5)
-        self.configeditor.append_column(type_column)
+        value_column = gtk.TreeViewColumn(_('Set to'))
+        value_check_renderer = gtk.CellRendererToggle()
+        value_column.pack_start(value_check_renderer, expand=False)
+        value_column.add_attribute(value_check_renderer, 'active', 7)
+        value_column.add_attribute(value_check_renderer, 'visible', 6)
+        value_column.add_attribute(value_check_renderer, 'activatable', 6)
+        value_check_renderer.connect('toggled', self.value_toggled)
 
-        value_column = gtk.TreeViewColumn(_('Value'))
         value_renderer = gtk.CellRendererText()
         value_column.pack_start(value_renderer)
         value_column.add_attribute(value_renderer, 'text', 2)
+        value_column.add_attribute(value_renderer, 'visible', 4)
         value_column.add_attribute(value_renderer, 'editable', 4)
-        value_column.add_attribute(value_renderer, 'weight', 5)
+        value_column.add_attribute(value_renderer, 'style', 5)
         value_renderer.connect('edited', self.value_edited)
         self.configeditor.append_column(value_column)
 
@@ -3287,22 +3288,22 @@ class gPodderConfigEditor(GladeWidget):
         if not gl.config.update_field(name, new_text):
             self.notification(_('Cannot set value of <b>%s</b> to <i>%s</i>.\n\nNeeded data type: %s') % (saxutils.escape(name), saxutils.escape(new_text), saxutils.escape(type_cute)), _('Error updating %s') % saxutils.escape(name))
     
+    def value_toggled(self, renderer, path):
+        model = self.configeditor.get_model()
+        iter = model.get_iter(path)
+        field_name = model.get_value(iter, 0)
+        field_type = model.get_value(iter, 3)
+
+        # Flip the boolean config flag
+        if field_type == bool:
+            gl.config.toggle_flag(field_name)
+    
     def on_entryFilter_changed(self, widget):
         self.filter.refilter()
 
     def on_btnShowAll_clicked(self, widget):
         self.entryFilter.set_text('')
         self.entryFilter.grab_focus()
-
-    def on_configeditor_row_activated(self, treeview, path, view_column):
-        model = treeview.get_model()
-        it = model.get_iter(path)
-        field_name = model.get_value(it, 0)
-        field_type = model.get_value(it, 3)
-
-        # Flip the boolean config flag
-        if field_type == bool:
-            gl.config.toggle_flag(field_name)
 
     def on_btnClose_clicked(self, widget):
         self.gPodderConfigEditor.destroy()

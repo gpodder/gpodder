@@ -141,8 +141,8 @@ class Config(dict):
         self.__section = 'gpodder-conf-1'
         self.__ignore_window_events = False
         self.__observers = []
-        # Name, Type, Value, Type(python type), Editable?, Font weight
-        self.__model = gtk.ListStore(str, str, str, object, bool, int)
+        # Name, Type, Value, Type(python type), Editable?, Font style, Boolean?, Boolean value
+        self.__model = gtk.ListStore(str, str, str, object, bool, int, bool, bool)
 
         atexit.register( self.__atexit)
 
@@ -308,10 +308,11 @@ class Config(dict):
 
             self[key] = value
             if value == default:
-                weight = pango.WEIGHT_NORMAL
+                style = pango.STYLE_NORMAL
             else:
-                weight = pango.WEIGHT_BOLD
-            self.__model.append([key, self.type_as_string(fieldtype), str(value), fieldtype, fieldtype is not bool, weight])
+                style = pango.STYLE_ITALIC
+
+            self.__model.append([key, self.type_as_string(fieldtype), str(value), fieldtype, fieldtype is not bool, style, fieldtype is bool, bool(value)])
 
     def model(self):
         return self.__model
@@ -366,12 +367,14 @@ class Config(dict):
                             log('Error while calling observer: %s', repr(observer), sender=self)
                     for row in self.__model:
                         if row[0] == name:
-                            row[2] = str(fieldtype(value))
+                            value = fieldtype(value)
+                            row[2] = str(value)
+                            row[7] = bool(value)
                             if self[name] == default:
-                                weight = pango.WEIGHT_NORMAL
+                                style = pango.STYLE_NORMAL
                             else:
-                                weight = pango.WEIGHT_BOLD
-                            row[5] = weight
+                                style = pango.STYLE_ITALIC
+                            row[5] = style
                     self.schedule_save()
             except:
                 raise ValueError( '%s has to be of type %s' % ( name, fieldtype.__name__ ))

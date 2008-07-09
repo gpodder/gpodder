@@ -1,3 +1,17 @@
+Wed, 09 Jul 2008 12:19:26 +0200 <thp@perli.net>
+Simply advanced configuration editor, implement usability suggestions
+
+	* data/gpodder.glade: Implement usability suggestions from
+	http://gpodder.org/files/user_test_2008-05.pdf: Rename "Player" tab in
+	preferences to "Device"; change "Filter:" to "Search for:" in advanced
+	configuration editor
+	* src/gpodder/config.py: Support code for changes in the advanced
+	configuration editor dialog (model)
+	* src/gpodder/gui.py: Modify the advanced configuration editor to have
+	check boxes for boolean values, remove the "Type" column and rename
+	the columns as suggested by the May 2008 user test; use italic font
+	instead of bold for values set to something other than the default
+
 Tue, 08 Jul 2008 21:25:24 -0400 <me@nikosapi.org>
 Merge check free space before syncing patch
 
