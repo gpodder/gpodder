@@ -137,6 +137,7 @@ class Device(services.ObservableService):
         self.cancelled = False
         self.allowed_types = ['audio', 'video']
         self.errors = []
+        self.tracks_list = []
         signals = ['progress', 'sub-progress', 'status', 'done']
         services.ObservableService.__init__(self, signals)
 
@@ -188,6 +189,9 @@ class Device(services.ObservableService):
             self.remove_track(track)
         return True
 
+    def episode_on_device(self, episode):
+        pass
+
     def get_all_tracks(self):
         pass
 
@@ -197,6 +201,8 @@ class Device(services.ObservableService):
     def remove_track(self, track):
         pass
 
+    def get_free_space(self):
+        pass
 
 class iPodDevice(Device):
     def __init__(self):
@@ -206,6 +212,12 @@ class iPodDevice(Device):
 
         self.itdb = None
         self.podcast_playlist = None
+        
+
+    def get_free_space(self):
+        # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
+        RESERVED_FOR_ITDB = 1024*1024*10
+        return util.get_free_disk_space(self.mountpoint) - RESERVED_FOR_ITDB
 
     def open(self):
         if not os.path.isdir(self.mountpoint):
@@ -221,6 +233,10 @@ class iPodDevice(Device):
 
         if self.podcasts_playlist:
             self.notify('status', _('iPod opened'))
+
+            # build the initial tracks_list
+            self.tracks_list = self.get_all_tracks()
+
             return True
         else:
             return False
@@ -268,6 +284,9 @@ class iPodDevice(Device):
             tracks.append(t)
         return tracks
 
+    def episode_on_device(self, episode):
+        return episode.title in [ t.title for t in self.tracks_list ]
+
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
         track = track.libgpodtrack
@@ -294,13 +313,8 @@ class iPodDevice(Device):
         original_filename = str(episode.local_filename())
         local_filename = original_filename
 
-        # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
-        RESERVED_FOR_ITDB = 1024*1024*10
-        space_for_track = util.get_free_disk_space(self.mountpoint) - RESERVED_FOR_ITDB
-        needed = util.calculate_size(local_filename)
-
-        if needed > space_for_track:
-            log('Not enough space on %s: %s available, but need at least %s', self.mountpoint, util.format_filesize(space_for_track), util.format_filesize(needed), sender = self)
+        if util.calculate_size(original_filename) > self.get_free_space():
+            log('Not enough space on %s, sync aborted...', self.mountpoint, sender = self)
             self.errors.append( _('Error copying %s: Not enough free disk space on %s') % (episode.title, self.mountpoint))
             self.cancelled = True
             return False
@@ -438,10 +452,15 @@ class MP3PlayerDevice(Device):
         self.buffer_size = 1024*1024 # 1 MiB
         self.scrobbler_log = []
 
+    def get_free_space(self):
+        return util.get_free_disk_space(self.destination)
+
     def open(self):
         self.notify('status', _('Opening MP3 player'))
         if util.directory_is_writable(self.destination):
             self.notify('status', _('MP3 player opened'))
+            # build the initial tracks_list
+            self.tracks_list = self.get_all_tracks()
             if gl.config.mp3_player_use_scrobbler_log:
                 mp3_player_mount_point = util.find_mount_point(self.destination)
                 # If a moint point cannot be found look inside self.destination for scrobbler_log_filenames
@@ -570,6 +589,10 @@ class MP3PlayerDevice(Device):
             t = SyncTrack(title, length, modified, filename=filename, podcast=podcast_name)
             tracks.append(t)
         return tracks
+
+    def episode_on_device(self, episode):
+        e = util.sanitize_filename(episode.sync_filename(), gl.config.mp3_player_max_filename_length)
+        return e in [ t.title for t in self.tracks_list ]
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)

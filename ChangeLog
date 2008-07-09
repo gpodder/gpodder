@@ -1,3 +1,14 @@
+Tue, 08 Jul 2008 21:25:24 -0400 <me@nikosapi.org>
+Merge check free space before syncing patch
+
+	* src/gpodder/gui.py: Display a dialog box informing the user in the
+	event that there is insufficient free space on their device before
+	syncing begins.
+	* src/gpodder/sync.py: Added Device.tracks_list which is populated by
+	Device.get_all_tracks() when Device.open() is called. 
+	Added Device.episode_on_device(episode)
+	Added Device.get_free_space()
+
 Tue, 08 Jul 2008 21:10:48 -0400 <me@nikosapi.org>
 Small bugfixes
 

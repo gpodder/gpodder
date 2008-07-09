@@ -1656,16 +1656,10 @@ class gPodder(GladeWidget):
         all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
         episodes_on_device = device.get_all_tracks()
         for local_episode in all_episodes:
-            if local_episode.is_played and not local_episode.is_locked or local_episode.state == db.STATE_DELETED:
-                if gl.config.device_type == 'filesystem':
-                    local_episode_name = util.sanitize_filename(local_episode.sync_filename(), gl.config.mp3_player_max_filename_length)
-                else:
-                    local_episode_name = local_episode.sync_filename()
-                for device_episode in episodes_on_device:
-                    if device_episode.title == local_episode_name:
-                        log("mp3_player_delete_played: removing %s" % device_episode.title)
-                        device.remove_track(device_episode)
-                        break
+            if (local_episode.is_played and not local_episode.is_locked and 
+                device.episode_on_device(local_episode)) or local_episode.state == db.STATE_DELETED:
+                log("mp3_player_delete_played: removing %s" % device_episode.title)
+                device.remove_track(device_episode)
 
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         # make sure gpod is available before even trying to sync
@@ -1691,28 +1685,46 @@ class gPodder(GladeWidget):
             self.notification(message, title)
             return
 
-        gPodderSync(device=device, gPodder=self)
-        if self.tray_icon:
-            self.tray_icon.set_synchronisation_device(device)
+        sync_all_episodes = not bool(episodes) or False
 
         if episodes is None:
-            episodes_to_sync = self.get_all_episodes()
-            device.add_tracks(episodes_to_sync)
-            # 'only_sync_not_played' must be used or else all the played
-            #  tracks will be copied then immediately deleted
-            if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
-                self.ipod_delete_played(device)
+            episodes = self.get_all_episodes()
+
+        # make sure we have enough space on the device
+        total_size = 0
+        free_space = device.get_free_space()
+        for episode in episodes:
+            if not device.episode_on_device(episode):
+                total_size += util.calculate_size(str(episode.local_filename()))
+
+        if total_size > free_space:
+            log('(gpodder.sync) Not enough free space. Transfer size = %d, Free space = %d', total_size, free_space)
+            title = _('Not enough space left on device.')
+            message = _('%s remaining on device.\nPlease free up %s and try again.' % (
+                util.format_filesize( free_space ), util.format_filesize( total_size - free_space )))
+            self.notification(message, title)
         else:
-            device.add_tracks(episodes, force_played=True)
+            # start syncing!
+            gPodderSync(device=device, gPodder=self)
+            if self.tray_icon:
+                self.tray_icon.set_synchronisation_device(device)
+
+            if sync_all_episodes:
+                device.add_tracks(episodes)
+                # 'only_sync_not_played' must be used or else all the played
+                #  tracks will be copied then immediately deleted
+                if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
+                    self.ipod_delete_played(device)
+            else:
+                device.add_tracks(episodes, force_played=True)
+
+            if self.tray_icon:
+                self.tray_icon.release_synchronisation_device()
  
         if not device.close():
             title = _('Error closing device')
             message = _('There has been an error closing your device.')
             self.notification(message, title)
-            return
- 
-        if self.tray_icon:
-            self.tray_icon.release_synchronisation_device()
 
         # update model for played state updates after sync
         for channel in self.channels:
