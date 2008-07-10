@@ -277,6 +277,9 @@ def format_date(timestamp):
     Returns None if there has been an error converting the
     timestamp to a string representation.
     """
+    if timestamp is None:
+        return None
+
     seconds_in_a_day = 60*60*24
     try:
         diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
