@@ -82,7 +82,7 @@ app_authors = [
     '',
     _('Patches, bug reports and donations by:'), 'Adrien Beaucreux',
     'Alain Tauch', 'Alistair Sutton', 'Anders Kvist', 'Andy Busch',
-    'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 
+    'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 'audioworld', 
     'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
     'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'Daniel Ramos',
     'David Spreen', 'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
