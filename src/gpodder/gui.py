@@ -485,11 +485,7 @@ class gPodder(GladeWidget):
         # Subscribed channels
         self.active_channel = None
         self.channels = load_channels()
-
-        if len(self.channels):
-            self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
-        else:
-            self.label2.set_text(_('Podcasts'))
+        self.update_podcasts_tab()
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -1256,6 +1252,7 @@ class gPodder(GladeWidget):
                 self.show_message( message, title)
             else:
                 self.show_message(_('There has been an error adding this podcast. Please see the log output for more information.'), _('Error adding podcast'))
+        self.update_podcasts_tab()
     
     def update_feed_cache_callback(self, progressbar, position, count, force_update):
         if position < len(self.channels):
@@ -1935,6 +1932,7 @@ class gPodder(GladeWidget):
                 self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
         except:
             log('There has been an error removing the channel.', traceback=True, sender=self)
+        self.update_podcasts_tab()
 
     def get_opml_filter(self):
         filter = gtk.FileFilter()
@@ -2280,7 +2278,13 @@ class gPodder(GladeWidget):
  
     def iconify_main_window(self):
         if not self.minimized:
-            self.gPodder.iconify()           
+            self.gPodder.iconify()          
+
+    def update_podcasts_tab(self):
+        if len(self.channels):
+            self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
+        else:
+            self.label2.set_text(_('Podcasts'))
 
 class gPodderChannel(GladeWidget):
     finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description']
