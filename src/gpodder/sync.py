@@ -189,9 +189,6 @@ class Device(services.ObservableService):
             self.remove_track(track)
         return True
 
-    def episode_on_device(self, episode):
-        pass
-
     def get_all_tracks(self):
         pass
 
@@ -203,6 +200,15 @@ class Device(services.ObservableService):
 
     def get_free_space(self):
         pass
+
+    def episode_on_device(self, episode):
+        return self.__track_on_device(episode)
+
+    def __track_on_device( self, track_name ):
+        for t in self.tracks_list:
+            if track_name == t.title:
+                return t
+        return False
 
 class iPodDevice(Device):
     def __init__(self):
@@ -282,10 +288,7 @@ class iPodDevice(Device):
 
             t = SyncTrack(track.title, length, modified, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
             tracks.append(t)
-        return tracks
-
-    def episode_on_device(self, episode):
-        return episode.title in [ t.title for t in self.tracks_list ]
+        return tracks        
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
@@ -592,7 +595,7 @@ class MP3PlayerDevice(Device):
 
     def episode_on_device(self, episode):
         e = util.sanitize_filename(episode.sync_filename(), gl.config.mp3_player_max_filename_length)
-        return e in [ t.title for t in self.tracks_list ]
+        return self.__track_on_device(e)
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)

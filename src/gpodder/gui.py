@@ -1653,8 +1653,9 @@ class gPodder(GladeWidget):
         all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
         episodes_on_device = device.get_all_tracks()
         for local_episode in all_episodes:
-            if (local_episode.is_played and not local_episode.is_locked and 
-                device.episode_on_device(local_episode)) or local_episode.state == db.STATE_DELETED:
+            device_episode = device.episode_on_device(local_episode)
+            if device_episode and ( local_episode.is_played and not local_episode.is_locked
+                or local_episode.state == db.STATE_DELETED ):
                 log("mp3_player_delete_played: removing %s" % device_episode.title)
                 device.remove_track(device_episode)
 

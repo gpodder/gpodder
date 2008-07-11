@@ -1,3 +1,11 @@
+Fri, 11 Jul 2008 14:11:08 -0400 <me@nikosapi.org>
+Merge patch to fix bug #147 (Sync doesn't work)
+
+	* src/gpodder/gui.py: Use Device.episode_on_device(episode) to retrive
+	device_episode and simplify logic to determine whether an episode is on
+	the device and eligible for removal
+	* src/gpodder/sync.py: Add Device.episode_on_device(episode)
+
 Fri, 11 Jul 2008 13:09:55 -0400 <me@nikosapi.org>
 Update podcast tab title when adding or removing channels
 
