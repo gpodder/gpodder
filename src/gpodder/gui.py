@@ -3174,13 +3174,14 @@ class gPodderEpisodeSelector( GladeWidget):
                     except:
                         log( 'Cannot get size for %s', self.episodes[index].title, sender = self)
             
-            if total_size > 0:
+            if count > 0:
                 text = []
                 if count == 1:
                     text.append(_('One episodes selected'))
                 else:
                     text.append(_('%d episodes selected') % count)
-                text.append(_('total size: %s') % gl.format_filesize(total_size))
+                if total_size > 0:
+                    text.append(_('total size: %s') % gl.format_filesize(total_size))
                 self.labelTotalSize.set_text(', '.join(text))
                 self.btnOK.set_sensitive(True)
             else:

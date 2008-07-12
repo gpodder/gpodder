@@ -1,3 +1,10 @@
+Sat, 12 Jul 2008 14:12:11 +0200 <jerome.chabod@ifrance.com>
+Merge patch to fix bug #149 (Remove Old Podcasts does not always have enabled 
+delete button)
+	* src/gpodder/gui.py: Use count of selected episodes instead of total
+    size to activate action button in episode selector (episodes with
+    unknow size have a total size of zero) 
+
 Fri, 11 Jul 2008 14:11:08 -0400 <me@nikosapi.org>
 Merge patch to fix bug #147 (Sync doesn't work)
 
