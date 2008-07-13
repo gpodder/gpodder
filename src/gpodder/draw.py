@@ -44,7 +44,8 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
         left_side_width = flw/2
     
     x = int(x)
-    offset = .5 if close else 0
+    offset = 0
+    if close: offset = 0.5
 
     if sides_to_draw & RRECT_LEFT_SIDE:
         ctx.move_to(x+int(left_side_width)-offset, y+h)
