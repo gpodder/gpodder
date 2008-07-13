@@ -204,7 +204,7 @@ class Device(services.ObservableService):
     def episode_on_device(self, episode):
         return self.__track_on_device(episode)
 
-    def __track_on_device( self, track_name ):
+    def _track_on_device( self, track_name ):
         for t in self.tracks_list:
             if track_name == t.title:
                 return t
@@ -595,7 +595,7 @@ class MP3PlayerDevice(Device):
 
     def episode_on_device(self, episode):
         e = util.sanitize_filename(episode.sync_filename(), gl.config.mp3_player_max_filename_length)
-        return self.__track_on_device(e)
+        return self._track_on_device(e)
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
