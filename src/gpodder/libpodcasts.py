@@ -53,6 +53,7 @@ import urllib
 import urlparse
 import time
 import datetime
+import rfc822
 import md5
 import xml.dom.minidom
 import feedparser
@@ -134,7 +135,7 @@ class podcastChannel(object):
             self.description = util.remove_html_tags(c.feed.subtitle)
 
         if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
-            self.pubDate = time.mktime(c.feed.updated_parsed)
+            self.pubDate = rfc822.mktime_tz(c.feed.updated_parsed+(0,))
         else:
             self.pubDate = time.time()
         if hasattr( c.feed, 'image'):
@@ -443,7 +444,7 @@ class podcastItem(object):
         episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
         episode.guid = entry.get( 'id', '')
         if entry.get( 'updated_parsed', None):
-            episode.pubDate = time.mktime(entry.updated_parsed)
+            episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
         if episode.title == '':
             log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)

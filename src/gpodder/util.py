@@ -281,17 +281,23 @@ def format_date(timestamp):
         return None
 
     seconds_in_a_day = 60*60*24
+
+    today = time.localtime()[:3]
+    yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
+    timestamp_date = time.localtime(timestamp)[:3]
+    
+    if timestamp_date == today:
+       return _('Today')
+    elif timestamp_date == yesterday:
+       return _('Yesterday')
+   
     try:
-        diff = int((time.time()+1)/seconds_in_a_day) - int(timestamp/seconds_in_a_day)
+        diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
         log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
         return None
-    
-    if diff == 0:
-       return _('Today')
-    elif diff == 1:
-       return _('Yesterday')
-    elif diff < 7:
+
+    if diff < 7:
         # Weekday name
         return str(datetime.datetime.fromtimestamp(timestamp).strftime('%A'))
     else:
