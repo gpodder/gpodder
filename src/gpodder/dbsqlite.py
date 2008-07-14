@@ -299,7 +299,12 @@ class Storage(object):
             channel.id = self.find_channel_id(channel.url)
 
         if state is None:
-            return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, limit, ))
+            return self.__read_episodes(factory = factory, where = """
+                WHERE channel_id = ? AND state = ? OR id IN
+                (SELECT id FROM episodes WHERE channel_id = ?
+                ORDER BY pubDate DESC LIMIT ?)
+                ORDER BY pubDate DESC
+                """, params = (channel.id, self.STATE_DOWNLOADED, channel.id, limit, ))
         else:
             return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, state, limit, ))
 

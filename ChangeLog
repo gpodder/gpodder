@@ -1,3 +1,11 @@
+Mon, 14 Jul 2008 15:18:04 -0400 <me@nikosapi.org>
+Always show downloaded episodes (Patch from Justin Forest)
+
+	* src/gpodder/dbsqlite.py: Include downloaded episodes even when they 
+	go beyond the episode limit.  e.g., when you have 
+	gl.max_episodes_per_feed set to 10, but there are 20 downloaded ones
+	already.  With this patch, all 20 episodes are displayed.
+
 Mon, 14 Jul 2008 12:31:15 -0400 <me@nikosapi.org>
 Merge patch to fix bug #122 (Day of week Released date not computed correctly)
 
