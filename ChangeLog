@@ -1,3 +1,10 @@
+Mon, 14 Jul 2008 12:21:37 -0400 <me@nikosapi.org>
+Merge patch to fix bug #125 (Deleting a podcast while checking for new
+episodes allows a second concurrent sync.)
+
+	* src/gpodder/gui.py: make update_feed_cache() check if the feed cache
+	is being updated before allowing an update to take place
+
 Sun, 13 Jul 2008 15:32:22 -0400 <me@nikosapi.org>
 Fix python 2.4 crash (reported by: Wilfred van Rooijen)
 

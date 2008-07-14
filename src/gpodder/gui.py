@@ -498,6 +498,7 @@ class gPodder(GladeWidget):
         self.update_item_device()
 
         # Now, update the feed cache, when everything's in place
+        self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
 
@@ -1268,9 +1269,13 @@ class gPodder(GladeWidget):
             if count > 0:
                 progressbar.set_fraction(float(position)/float(count))
 
-    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False, select_url_afterwards=None):
+    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False,
+        select_url_afterwards=None):
+        
+        self.updating_feed_cache = False
         self.hboxUpdateFeeds.hide_all()
         self.btnUpdateFeeds.show_all()
+        self.itemUpdate.set_sensitive(True)
 
         # If we want to select a specific podcast (via its URL)
         # after the update, we give it to updateComboBox here to
@@ -1327,6 +1332,11 @@ class gPodder(GladeWidget):
         self.feed_cache_update_cancelled = True
 
     def update_feed_cache(self, force_update=True, notify_no_new_episodes=False, select_url_afterwards=None):
+        if self.updating_feed_cache: 
+            return
+        
+        self.updating_feed_cache = True
+        self.itemUpdate.set_sensitive(False)
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
 
