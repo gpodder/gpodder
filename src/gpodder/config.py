@@ -118,7 +118,7 @@ gPodderSettings = {
     'cmd_download_complete': (str, ''),
     
     # Hide the cover/pill from the podcast sidebar when it gets too small
-    'podcast_sidebar_save_space': (bool, True),
+    'podcast_sidebar_save_space': (bool, False),
 
     # Window and paned positions
     'main_window_x': ( int, 100 ),
