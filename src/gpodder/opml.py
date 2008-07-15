@@ -76,9 +76,13 @@ class Importer(object):
         """
         self.items = []
         try:
-            if os.path.exists( url):
+            if url.startswith('/'):
                 # assume local filename
-                doc = xml.dom.minidom.parse( url)
+                if os.path.exists(url):
+                    doc = xml.dom.minidom.parse( url)
+                else:
+                    log('Empty/non-existing OPML file', sender=self)
+                    return
             else:
                 doc = xml.dom.minidom.parseString( self.read_url( url))
 
@@ -200,7 +204,7 @@ class Exporter(object):
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512
-            if util.get_free_disk_space(self.filename) < 2*len(data)+FREE_DISK_SPACE_AFTER:
+            if util.get_free_disk_space(os.path.dirname(self.filename)) < 2*len(data)+FREE_DISK_SPACE_AFTER:
                 log('Not enough free disk space to save channel list to %s', self.filename, sender = self)
                 return False
             fp = open(self.filename+'.tmp', 'w')

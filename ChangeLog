@@ -1,3 +1,10 @@
+Tue, 15 Jul 2008 10:08:16 +0200 <thp@perli.net>
+Fix bugs and annoyances when no channels.opml file exists
+
+	* src/gpodder/opml.py: Make sure can save a new channels.opml file
+	when no other file exists, and make sure we don't try to parse a file
+	that does not exist when opening OPML files
+
 Tue, 15 Jul 2008 10:06:19 +0200 <thp@perli.net>
 Do not hide podcast cover and pill pixbuf in podcast list by default
 
