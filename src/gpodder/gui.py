@@ -900,7 +900,7 @@ class gPodder(GladeWidget):
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.save_episode_as_file( episode_url))
+                item.connect( 'activate', lambda w: self.for_each_selected_episode_url(self.save_episode_as_file))
                 menu.append(self.set_finger_friendly(item))
                 if gl.config.bluetooth_enabled:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
