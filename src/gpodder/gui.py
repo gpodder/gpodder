@@ -1672,11 +1672,10 @@ class gPodder(GladeWidget):
             title = _('Cannot Sync To iPod')
             message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
             self.notification( message, title )
-        else:
-            Thread(target=self.sync_to_ipod_thread, args=(widget, episodes)).start()
-    
-    def sync_to_ipod_thread(self, widget, episodes=None):
+            return
+
         device = sync.open_device()
+        device.register( 'post-done', self.sync_to_ipod_completed )
 
         if device is None:
             title = _('No device configured')
@@ -1690,7 +1689,7 @@ class gPodder(GladeWidget):
             self.notification(message, title)
             return
 
-        sync_all_episodes = not bool(episodes) or False
+        sync_all_episodes = not bool(episodes)
 
         if episodes is None:
             episodes = self.get_all_episodes()
@@ -1703,6 +1702,8 @@ class gPodder(GladeWidget):
                 total_size += util.calculate_size(str(episode.local_filename()))
 
         if total_size > free_space:
+            # can be negative because of the 10 MiB for reserved for the iTunesDB
+            free_space = max( free_space, 0 )
             log('(gpodder.sync) Not enough free space. Transfer size = %d, Free space = %d', total_size, free_space)
             title = _('Not enough space left on device.')
             message = _('%s remaining on device.\nPlease free up %s and try again.' % (
@@ -1711,22 +1712,17 @@ class gPodder(GladeWidget):
         else:
             # start syncing!
             gPodderSync(device=device, gPodder=self)
+            Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
             if self.tray_icon:
                 self.tray_icon.set_synchronisation_device(device)
 
-            if sync_all_episodes:
-                device.add_tracks(episodes)
-                # 'only_sync_not_played' must be used or else all the played
-                #  tracks will be copied then immediately deleted
-                if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
-                    self.ipod_delete_played(device)
-            else:
-                device.add_tracks(episodes, force_played=True)
+    def sync_to_ipod_completed(self, device, successful_sync):
+        device.unregister( 'post-done', self.sync_to_ipod_completed )
 
-            if self.tray_icon:
-                self.tray_icon.release_synchronisation_device()
+        if self.tray_icon:
+            self.tray_icon.release_synchronisation_device()
  
-        if not device.close():
+        if not successful_sync:
             title = _('Error closing device')
             message = _('There has been an error closing your device.')
             self.notification(message, title)
@@ -1735,6 +1731,17 @@ class gPodder(GladeWidget):
         for channel in self.channels:
             util.idle_add(channel.update_model)
         util.idle_add(self.updateComboBox)
+
+    def sync_to_ipod_thread(self, widget, device, sync_all_episodes, episodes=None):
+        if sync_all_episodes:
+            device.add_tracks(episodes)
+            # 'only_sync_not_played' must be used or else all the played
+            #  tracks will be copied then immediately deleted
+            if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
+                self.ipod_delete_played(device)
+        else:
+            device.add_tracks(episodes, force_played=True)
+        device.close()
 
     def ipod_cleanup_callback(self, device, tracks):
         title = _('Delete podcasts from device?')

@@ -81,6 +81,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.__is_downloading = False
         self.__synchronisation_device = None
         self.__download_start_time = None
+        self.__sync_progress = ''
 
         self.__previous_notification = []
 
