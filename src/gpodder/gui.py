@@ -544,8 +544,6 @@ class gPodder(GladeWidget):
             else:
                 self.toolbar.hide_all()
         elif name == 'episode_list_descriptions':
-            for channel in self.channels:
-                channel.force_update_tree_model()
             self.updateTreeView()
         elif name == 'show_podcast_url_entry' and gpodder.interface != gpodder.MAEMO:
             if new_value:
@@ -1111,9 +1109,6 @@ class gPodder(GladeWidget):
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
-        for channel in self.channels:
-            channel.update_model()
-
         self.updateComboBox()
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
@@ -1465,7 +1460,6 @@ class gPodder(GladeWidget):
                 callback( url)
             except Exception, e:
                 log( 'Warning: Error in for_each_selected_episode_url for URL %s: %s', url, e, sender = self)
-        self.active_channel.update_model()
         self.updateComboBox()
 
     def delete_episode_list( self, episodes, confirm = True):
@@ -1593,8 +1587,6 @@ class gPodder(GladeWidget):
                 start = datetime.datetime.now()
                 gl.migrate_to_sqlite(add_callback, status_callback, load_channels, get_localdb)
                 # Refresh the view with the updated episodes
-                for channel in self.channels:
-                    channel.force_update_tree_model()
                 self.updateComboBox()
                 time_taken = str(datetime.datetime.now()-start)
                 status_callback(100.0, _('Migration finished in %s') % time_taken)
@@ -1732,8 +1724,6 @@ class gPodder(GladeWidget):
             self.notification(message, title)
 
         # update model for played state updates after sync
-        for channel in self.channels:
-            util.idle_add(channel.update_model)
         util.idle_add(self.updateComboBox)
 
     def ipod_cleanup_callback(self, device, tracks):
@@ -2227,7 +2217,6 @@ class gPodder(GladeWidget):
         # only delete partial files if we do not have any downloads in progress
         delete_partial = not services.download_status_manager.has_items()
         gl.clean_up_downloads(delete_partial)
-        self.active_channel.force_update_tree_model()
         self.updateTreeView()
 
     def on_key_press(self, widget, event):

@@ -1,3 +1,12 @@
+Sat, 19 Jul 2008 20:57:08 -0400 <me@nikosapi.org>
+Disable TreeModel cache for channels (Patch from Justin Forest)
+Closes feature-request #145 (http://bugs.gpodder.org/show_bug.cgi?id=145)
+
+	* src/gpodder/gui.py: don't update every channel's treemodel when only
+	one really needs to be updated
+	* src/gpodder/libpodcasts.py: don't cache channel treemodels anymore
+	generate a new one everytime podcastChannel.tree_model is requested
+
 Sat, 19 Jul 2008 20:37:10 -0400 <me@nikosapi.org>
 Request covers only when necessary (Patch from Justin Forest)
 Closes bug #144 (http://bugs.gpodder.org/show_bug.cgi?id=144)

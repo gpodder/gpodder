@@ -209,8 +209,6 @@ class podcastChannel(object):
         self.save_dir_size = 0
         self.__save_dir_size_set = False
 
-        self.__tree_model = None
-
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
             self.update_save_dir_size()
@@ -299,24 +297,20 @@ class podcastChannel(object):
     def get_all_episodes(self):
         return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self), limit=gl.config.max_episodes_per_feed)
 
-    def force_update_tree_model( self):
-        self.__tree_model = None
-
+    # not used anymore
     def update_model( self):
         self.update_save_dir_size()
+        model = self.tree_model
 
-        iter = self.tree_model.get_iter_first()
+        iter = model.get_iter_first()
         while iter is not None:
-            self.iter_set_downloading_columns( self.tree_model, iter)
-            iter = self.tree_model.iter_next( iter)
+            self.iter_set_downloading_columns(model, iter)
+            iter = model.iter_next( iter)
 
     @property
     def tree_model( self):
-        if not self.__tree_model:
-            log('Generating TreeModel for %s', self.url, sender = self)
-            self.__tree_model = self.items_liststore()
-
-        return self.__tree_model
+        log('Returning TreeModel for %s', self.url, sender = self)
+        return self.items_liststore()
 
     def iter_set_downloading_columns( self, model, iter):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_BITTORRENT
