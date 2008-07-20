@@ -3079,8 +3079,9 @@ class gPodderEpisodeSelector( GladeWidget):
     """
     finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
     
-    COLUMN_TOGGLE = 0
-    COLUMN_ADDITIONAL = 1
+    COLUMN_INDEX = 0
+    COLUMN_TOGGLE = 1
+    COLUMN_ADDITIONAL = 2
 
     def new( self):
         if not hasattr( self, 'callback'):
@@ -3126,11 +3127,16 @@ class gPodderEpisodeSelector( GladeWidget):
                 self.btnOK.set_label(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
+        # hidden column storing the row index (nedeed to retrieve the correct model row when columns are sorted)
+        index_col = gtk.TreeViewColumn('', gtk.CellRendererText())
+        index_col.set_visible(True)
+        self.treeviewEpisodes.append_column( index_col)
+
+        # check/uncheck column
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect( 'toggled', self.toggle_cell_handler)
-
         self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
-
+        
         next_column = self.COLUMN_ADDITIONAL
         for name, caption in self.columns:
             renderer = gtk.CellRendererText()
@@ -3139,14 +3145,15 @@ class gPodderEpisodeSelector( GladeWidget):
             column.set_resizable( True)
             # Only set "expand" on the first column (so more text is displayed there)
             column.set_expand(next_column == self.COLUMN_ADDITIONAL)
+            column.set_sort_column_id(next_column)
             self.treeviewEpisodes.append_column( column)
             next_column += 1
 
-        column_types = [ gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
+        column_types = [ gobject.TYPE_INT ] + [ gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
         self.model = gtk.ListStore( *column_types)
 
         for index, episode in enumerate( self.episodes):
-            row = [ self.selected[index] ]
+            row = [ index, self.selected[index] ]
             for name, caption in self.columns:
                 if not hasattr(episode, name):
                     log('Warning: Missing attribute "%s"', name, sender=self)
@@ -3169,27 +3176,24 @@ class gPodderEpisodeSelector( GladeWidget):
     def calculate_total_size( self):
         if self.size_attribute is not None:
             (total_size, count) = (0, 0)
-            for index, row in enumerate( self.model):
-                if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
-                    try:
-                        total_size += int(getattr( self.episodes[index], self.size_attribute))
-                        count += 1
-                    except:
-                        log( 'Cannot get size for %s', self.episodes[index].title, sender = self)
-            
-            if count > 0:
-                text = []
-                if count == 1:
-                    text.append(_('One episodes selected'))
-                else:
-                    text.append(_('%d episodes selected') % count)
-                if total_size > 0:
-                    text.append(_('total size: %s') % gl.format_filesize(total_size))
-                self.labelTotalSize.set_text(', '.join(text))
-                self.btnOK.set_sensitive(True)
+            for episode in self.get_selected_episodes():
+                try:
+                    total_size += int(getattr( episode, self.size_attribute))
+                    count += 1
+                except:
+                    log( 'Cannot get size for %s', episode.title, sender = self)
+
+            text = []
+            if count == 0: 
+                text.append(_('Nothing selected'))
+            elif count == 1:
+                text.append(_('One episode selected'))
             else:
-                self.labelTotalSize.set_text(_('Nothing selected'))
-                self.btnOK.set_sensitive(False)
+                text.append(_('%d episodes selected') % count)
+            if total_size > 0: 
+                text.append(_('total size: %s') % gl.format_filesize(total_size))
+            self.labelTotalSize.set_text(', '.join(text))
+            self.btnOK.set_sensitive(count>0)
         else:
             self.btnOK.set_sensitive(False)
             for index, row in enumerate(self.model):
@@ -3230,7 +3234,7 @@ class gPodderEpisodeSelector( GladeWidget):
 
         for index, row in enumerate( self.model):
             if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
-                selected_episodes.append( self.episodes[index])
+                selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
 
         return selected_episodes
 
