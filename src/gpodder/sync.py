@@ -138,7 +138,7 @@ class Device(services.ObservableService):
         self.allowed_types = ['audio', 'video']
         self.errors = []
         self.tracks_list = []
-        signals = ['progress', 'sub-progress', 'status', 'done']
+        signals = ['progress', 'sub-progress', 'status', 'done', 'post-done']
         services.ObservableService.__init__(self, signals)
 
     def open(self):
@@ -150,8 +150,9 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        os.system('sync')
+        successful_sync = not os.system('sync')
         self.notify('done')
+        self.notify('post-done', self, successful_sync)
         return True
 
     def add_tracks(self, tracklist=[], force_played=False):

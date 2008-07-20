@@ -1,3 +1,14 @@
+Sat, 19 Jul 2008 22:42:42 -0400 <me@nikosapi.org>
+Fix random segfaults when syncing
+Closes bug #150 (http://bugs.gpodder.org/show_bug.cgi?id=150)
+
+	* src/gpodder/gui.py: Don't make any gui calls from the sync thread
+	* src/gpodder/sync.py: add a post-done signal to trigger the finished
+	sync callback
+	* src/gpodder/trayicon.py: instantiate __sync_progress during
+	GPodderStatusIcon __init__ or else you'll get a traceback when
+	transfering single episodes
+
 Sat, 19 Jul 2008 20:57:08 -0400 <me@nikosapi.org>
 Disable TreeModel cache for channels (Patch from Justin Forest)
 Closes feature-request #145 (http://bugs.gpodder.org/show_bug.cgi?id=145)
