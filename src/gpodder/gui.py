@@ -1133,9 +1133,6 @@ class gPodder(GladeWidget):
         self.treeChannels.set_model(channels_to_model(self.channels, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
         util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
 
-        for channel in self.channels:
-            services.cover_downloader.request_cover(channel)
-
         try:
             selected_path = (0,)
             # Find the previously-selected URL in the new

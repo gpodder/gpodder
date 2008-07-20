@@ -100,6 +100,7 @@ class CoverDownloader(ObservableService):
         be downloaded from the specified URL and not
         taken from the channel metadata.
         """
+        log('cover download request for %s', channel.url, sender=self)
         args = [channel, custom_url, True]
         threading.Thread(target=self.__get_cover, args=args).start()
 

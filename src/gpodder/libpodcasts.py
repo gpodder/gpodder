@@ -111,6 +111,9 @@ class podcastChannel(object):
     def update(self):
         (updated, c) = self.fc.fetch(self.url, self)
 
+        # update the cover if it's not there
+        self.update_cover()
+
         # If we have an old instance of this channel, and
         # feedcache says the feed hasn't changed, return old
         if not updated:
@@ -140,7 +143,10 @@ class podcastChannel(object):
             self.pubDate = time.time()
         if hasattr( c.feed, 'image'):
             if c.feed.image.href:
+                old = self.image
                 self.image = c.feed.image.href
+                if old != self.image:
+                    self.update_cover(force=True)
 
         # Marked as bulk because we commit after importing episodes.
         db.save_channel(self, bulk=True)
@@ -162,6 +168,11 @@ class podcastChannel(object):
 
         # Now we can flush the updates.
         db.commit()
+
+    def update_cover(self, force=False):
+        if self.cover_file is None or not os.path.exists(self.cover_file) or force:
+            if self.image is not None:
+                services.cover_downloader.request_cover(self)
 
     def delete(self):
         db.delete_channel(self)
@@ -704,11 +715,11 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
 
         # Load the cover if we have it, but don't download
         # it if it's not available (to avoid blocking here)
-        #pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-        #new_pixbuf = None
-        #if pixbuf is not None:
-        #    new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
-        #new_model.set(new_iter, 5, new_pixbuf or pixbuf)
+        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+        new_pixbuf = None
+        if pixbuf is not None:
+            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
+        new_model.set(new_iter, 5, new_pixbuf or pixbuf)
     
     return new_model
 
