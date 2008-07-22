@@ -398,19 +398,19 @@ class DownloadStatusManager(ObservableService):
 
     def cancel_all( self):
         for element in self.status_list:
-	    self.status_list[element]['iter'] = None
-	    self.status_list[element]['thread'].cancel()
+            self.status_list[element]['iter'] = None
+            self.status_list[element]['thread'].cancel()
         # clear the tree model after cancelling
         util.idle_add(self.tree_model.clear)
         self.downloads_done_bytes = 0
 
     def cancel_by_url( self, url):
         for element in self.status_list:
-	    thread = self.status_list[element]['thread']
-	    if thread is not None and thread.url == url:
+            thread = self.status_list[element]['thread']
+            if thread is not None and thread.url == url:
                 self.remove_download_id( element)
-		return True
-        
+                return True
+
         return False
 
 
