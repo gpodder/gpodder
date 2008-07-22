@@ -409,7 +409,7 @@ class DownloadStatusManager(ObservableService):
             thread = self.status_list[element]['thread']
             if thread is not None and thread.url == url:
                 self.remove_download_id( element)
-    	        return True
+                return True
 
         return False
 

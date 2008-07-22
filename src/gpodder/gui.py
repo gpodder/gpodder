@@ -1920,7 +1920,7 @@ class gPodder(GladeWidget):
                 # cancel any active downloads from this channel
                 if not delete_partial:
                     for episode in self.active_channel.get_all_episodes():
-                        services.download_status_manager.cancel_by_url(episode.link)
+                        services.download_status_manager.cancel_by_url(episode.url)
 
                 # get the URL of the podcast we want to select next
                 position = self.channels.index(self.active_channel)
