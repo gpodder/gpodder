@@ -1916,6 +1916,11 @@ class gPodder(GladeWidget):
                 # only delete partial files if we do not have any downloads in progress
                 delete_partial = not services.download_status_manager.has_items()
                 gl.clean_up_downloads(delete_partial)
+                
+                # cancel any active downloads from this channel
+                if not delete_partial:
+                    for episode in self.active_channel.get_all_episodes():
+                        services.download_status_manager.cancel_by_url(episode.link)
 
                 # get the URL of the podcast we want to select next
                 position = self.channels.index(self.active_channel)
