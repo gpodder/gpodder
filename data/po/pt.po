@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-15 10:12+0200\n"
+"POT-Creation-Date: 2008-07-24 10:25+0200\n"
 "PO-Revision-Date: 2008-06-07 15:40+0100\n"
 "Last-Translator: João Trindade <trindade.joao@gmail.com>\n"
 "Language-Team:  <pt@li.org>\n"
@@ -35,50 +35,74 @@ msgstr "Boleano"
 msgid "String"
 msgstr ""
 
-#: src/gpodder/console.py:48
+#: src/gpodder/console.py:49
 #, python-format
 msgid "Could not load feed from URL: %s"
 msgstr "Não foi possível carregar a feed do URL : %s"
 
-#: src/gpodder/console.py:54
+#: src/gpodder/console.py:55
 #, python-format
 msgid "Already added: %s"
 msgstr "Já adicionado: %s"
 
-#: src/gpodder/console.py:60
+#: src/gpodder/console.py:61
 #, fuzzy
 msgid "Could not add podcast."
 msgstr "Impossível adicionar podcast"
 
-#: src/gpodder/console.py:77
+#: src/gpodder/console.py:78
 #, fuzzy
 msgid "Could not remove podcast."
 msgstr "Impossível remover podcast."
 
-#: src/gpodder/console.py:98
+#: src/gpodder/console.py:83
+#, fuzzy
+msgid "Updating podcast feeds..."
+msgstr "A descarregar feeds dos podcasts"
+
+#: src/gpodder/console.py:86
+msgid "done."
+msgstr ""
+
+#: src/gpodder/console.py:101
+#, fuzzy
+msgid "No new episodes to download."
+msgstr "Sem episódios para descarregar"
+
+#: src/gpodder/console.py:103
+#, fuzzy
+msgid "Downloaded one new episode."
+msgstr "Descarregar episódios novos"
+
+#: src/gpodder/console.py:105
+#, fuzzy, python-format
+msgid "Downloaded %d new episodes."
+msgstr "Descarregar episódios novos"
+
+#: src/gpodder/console.py:110
 msgid "No device configured. Please use the GUI."
 msgstr "Nenhum dispositivo configurado. Por favor utilize a interface gráfica."
 
-#: src/gpodder/console.py:103
+#: src/gpodder/console.py:115
 msgid "Synchronization finished."
 msgstr "Sincronização completa."
 
-#: src/gpodder/console.py:105
+#: src/gpodder/console.py:117
 #, fuzzy, python-format
 msgid "Synchronizing: %d of %d"
 msgstr "A sincronizar %s"
 
-#: src/gpodder/console.py:109
+#: src/gpodder/console.py:121
 #, fuzzy
 msgid "Cannot open device."
 msgstr "Não foi possível aceder ao dispositivo"
 
-#: src/gpodder/console.py:114
+#: src/gpodder/console.py:126
 #, fuzzy, python-format
 msgid "Skipping podcast: %s"
 msgstr "Podcast: %s"
 
-#: src/gpodder/console.py:124
+#: src/gpodder/console.py:136
 msgid "Cannot close device."
 msgstr "Não foi possível fechar o dispositivo"
 
@@ -2079,9 +2103,6 @@ msgstr "Apagar podcast especificado pelo URL"
 #~ msgid "Lock %s"
 #~ msgstr "Bloquear %s"
 
-#~ msgid "Downloading podcast feeds"
-#~ msgstr "A descarregar feeds dos podcasts"
-
 #~ msgid "Downloading feeds"
 #~ msgstr "A descarregar feeds"
 
@@ -2264,9 +2285,6 @@ msgstr "Apagar podcast especificado pelo URL"
 #~ msgid ""
 #~ "Do you really want to completely remove all episodes from your MP3 player?"
 #~ msgstr "Deseja mesmo remover todos os episódios do seu leitor de MP3?"
-
-#~ msgid "No episodes to download"
-#~ msgstr "Sem episódios para descarregar"
 
 #~ msgid "You have already downloaded the most recent episodes from <b>%s</b>."
 #~ msgstr "Já descarregou os episódios mais recentes de <b>%s</b>."

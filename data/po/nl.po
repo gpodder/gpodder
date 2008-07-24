@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-15 10:12+0200\n"
+"POT-Creation-Date: 2008-07-24 10:25+0200\n"
 "PO-Revision-Date: 2008-02-09 11:08+0100\n"
 "Last-Translator: Pieter De Decker <pdedecker@gmail.com>\n"
 "Language-Team: Nederlands <nl@li.org>\n"
@@ -35,50 +35,74 @@ msgstr "Boolean"
 msgid "String"
 msgstr "String"
 
-#: src/gpodder/console.py:48
+#: src/gpodder/console.py:49
 #, python-format
 msgid "Could not load feed from URL: %s"
 msgstr "Het feed op %s kon niet geladen worden."
 
-#: src/gpodder/console.py:54
+#: src/gpodder/console.py:55
 #, python-format
 msgid "Already added: %s"
 msgstr "%s is al toegevoegd."
 
-#: src/gpodder/console.py:60
+#: src/gpodder/console.py:61
 #, fuzzy
 msgid "Could not add podcast."
 msgstr "Het kanaal kon niet worden geïmporteerd."
 
-#: src/gpodder/console.py:77
+#: src/gpodder/console.py:78
 #, fuzzy
 msgid "Could not remove podcast."
 msgstr "Het kanaal kon niet worden verwijderd."
 
-#: src/gpodder/console.py:98
+#: src/gpodder/console.py:83
+#, fuzzy
+msgid "Updating podcast feeds..."
+msgstr "Podcastfeeds worden gedownload"
+
+#: src/gpodder/console.py:86
+msgid "done."
+msgstr ""
+
+#: src/gpodder/console.py:101
+#, fuzzy
+msgid "No new episodes to download."
+msgstr "Geen nieuwe afleveringen te downloaden"
+
+#: src/gpodder/console.py:103
+#, fuzzy
+msgid "Downloaded one new episode."
+msgstr "Download nieuwe afleveringen"
+
+#: src/gpodder/console.py:105
+#, fuzzy, python-format
+msgid "Downloaded %d new episodes."
+msgstr "Download nieuwe afleveringen"
+
+#: src/gpodder/console.py:110
 msgid "No device configured. Please use the GUI."
 msgstr "Geen apparaat geconfigureerd. Gelieve de GUI te gebruiken."
 
-#: src/gpodder/console.py:103
+#: src/gpodder/console.py:115
 msgid "Synchronization finished."
 msgstr "Synchronisatie voltooid."
 
-#: src/gpodder/console.py:105
+#: src/gpodder/console.py:117
 #, python-format
 msgid "Synchronizing: %d of %d"
 msgstr "Synchroniseren: %d van %d"
 
-#: src/gpodder/console.py:109
+#: src/gpodder/console.py:121
 #, fuzzy
 msgid "Cannot open device."
 msgstr "Kan apparaat niet openen."
 
-#: src/gpodder/console.py:114
+#: src/gpodder/console.py:126
 #, fuzzy, python-format
 msgid "Skipping podcast: %s"
 msgstr "Kanaal overslaan: %s"
 
-#: src/gpodder/console.py:124
+#: src/gpodder/console.py:136
 #, fuzzy
 msgid "Cannot close device."
 msgstr "Kan apparaat niet sluiten."
@@ -2163,9 +2187,6 @@ msgstr "Kanaal verwijderen door opgave URL"
 #~ msgid "gPodder Homepage"
 #~ msgstr "gPodder-website"
 
-#~ msgid "Downloading podcast feeds"
-#~ msgstr "Podcastfeeds worden gedownload"
-
 #~ msgid "Downloading feeds"
 #~ msgstr "Feeds worden gedownload"
 
@@ -2269,9 +2290,6 @@ msgstr "Kanaal verwijderen door opgave URL"
 #~ "Do you really want to completely remove all episodes from your MP3 player?"
 #~ msgstr ""
 #~ "Weet u zeker dat u alle afleveringen van uw MP3-speler wilt verwijderen?"
-
-#~ msgid "No episodes to download"
-#~ msgstr "Geen nieuwe afleveringen te downloaden"
 
 #~ msgid "You have already downloaded the most recent episodes from <b>%s</b>."
 #~ msgstr "U heeft al de meest recente afleveringen gedownload van <b>%s</b>."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0+svn20070122\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-15 10:12+0200\n"
+"POT-Creation-Date: 2008-07-24 10:25+0200\n"
 "PO-Revision-Date: 2008-05-24 14:34+0100\n"
 "Last-Translator: kchopein <kchopein@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
@@ -32,47 +32,71 @@ msgstr "Booleano"
 msgid "String"
 msgstr "Cadena"
 
-#: src/gpodder/console.py:48
+#: src/gpodder/console.py:49
 #, python-format
 msgid "Could not load feed from URL: %s"
 msgstr "No se puede cargar el feed del canal desde la URL: %s"
 
-#: src/gpodder/console.py:54
+#: src/gpodder/console.py:55
 #, python-format
 msgid "Already added: %s"
 msgstr "Ya ha sido añadido: %s"
 
-#: src/gpodder/console.py:60
+#: src/gpodder/console.py:61
 msgid "Could not add podcast."
 msgstr "No se pudo agregar el canal"
 
-#: src/gpodder/console.py:77
+#: src/gpodder/console.py:78
 msgid "Could not remove podcast."
 msgstr "No se pudo eliminar el canal"
 
-#: src/gpodder/console.py:98
+#: src/gpodder/console.py:83
+#, fuzzy
+msgid "Updating podcast feeds..."
+msgstr "Descargando podcast feeds"
+
+#: src/gpodder/console.py:86
+msgid "done."
+msgstr ""
+
+#: src/gpodder/console.py:101
+#, fuzzy
+msgid "No new episodes to download."
+msgstr "No ha seleccionado ningún episodio para descargar."
+
+#: src/gpodder/console.py:103
+#, fuzzy
+msgid "Downloaded one new episode."
+msgstr "Descargar episodios nuevos"
+
+#: src/gpodder/console.py:105
+#, fuzzy, python-format
+msgid "Downloaded %d new episodes."
+msgstr "Descargar episodios nuevos"
+
+#: src/gpodder/console.py:110
 msgid "No device configured. Please use the GUI."
 msgstr "Ningún dispositivo configurado. Por favor usa la GUI."
 
-#: src/gpodder/console.py:103
+#: src/gpodder/console.py:115
 msgid "Synchronization finished."
 msgstr "Sincronización finalizada"
 
-#: src/gpodder/console.py:105
+#: src/gpodder/console.py:117
 #, python-format
 msgid "Synchronizing: %d of %d"
 msgstr "Sincronizando: %d de %d"
 
-#: src/gpodder/console.py:109
+#: src/gpodder/console.py:121
 msgid "Cannot open device."
 msgstr "No se puede abrir el dispositivo."
 
-#: src/gpodder/console.py:114
+#: src/gpodder/console.py:126
 #, python-format
 msgid "Skipping podcast: %s"
 msgstr "Saltando canal: %s"
 
-#: src/gpodder/console.py:124
+#: src/gpodder/console.py:136
 msgid "Cannot close device."
 msgstr "No se puede cerrar el dispositivo"
 
@@ -2083,9 +2107,6 @@ msgstr "Eliminar canal especificado por la URL"
 #~ msgid "gPodder Homepage"
 #~ msgstr "gPodder Homepage"
 
-#~ msgid "Downloading podcast feeds"
-#~ msgstr "Descargando podcast feeds"
-
 #~ msgid "Downloading feeds"
 #~ msgstr "Descargando feeds"
 
@@ -2183,10 +2204,6 @@ msgstr "Eliminar canal especificado por la URL"
 #~ msgstr ""
 #~ "¿Realmente desea borrar completamente todos los episodios de su "
 #~ "reproductor MP3?"
-
-#, fuzzy
-#~ msgid "No episodes to download"
-#~ msgstr "No ha seleccionado ningún episodio para descargar."
 
 #, fuzzy
 #~ msgid "You have already downloaded the most recent episodes from <b>%s</b>."

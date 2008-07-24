@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Czech Gpodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-15 10:12+0200\n"
+"POT-Creation-Date: 2008-07-24 10:25+0200\n"
 "PO-Revision-Date: 2008-02-10 20:06+0100\n"
 "Last-Translator: Ondrej Vesely <xorwen@gmail.com>\n"
 "Language-Team: Xorwen <xorwen@gmail.com>\n"
@@ -29,49 +29,73 @@ msgstr "Pravdivostní hodnota"
 msgid "String"
 msgstr "Textový řetězec"
 
-#: src/gpodder/console.py:48
+#: src/gpodder/console.py:49
 #, python-format
 msgid "Could not load feed from URL: %s"
 msgstr "Nemůžu načíst zdroj z URL: %s"
 
-#: src/gpodder/console.py:54
+#: src/gpodder/console.py:55
 #, python-format
 msgid "Already added: %s"
 msgstr "Už jednou přidáno: %s"
 
-#: src/gpodder/console.py:60
+#: src/gpodder/console.py:61
 #, fuzzy
 msgid "Could not add podcast."
 msgstr "Není možné přidat kanál"
 
-#: src/gpodder/console.py:77
+#: src/gpodder/console.py:78
 #, fuzzy
 msgid "Could not remove podcast."
 msgstr "Není možné odstranit kanál"
 
-#: src/gpodder/console.py:98
+#: src/gpodder/console.py:83
+#, fuzzy
+msgid "Updating podcast feeds..."
+msgstr "Stahuji zdroje podcastu"
+
+#: src/gpodder/console.py:86
+msgid "done."
+msgstr ""
+
+#: src/gpodder/console.py:101
+#, fuzzy
+msgid "No new episodes to download."
+msgstr "jedna stažená epizoda:"
+
+#: src/gpodder/console.py:103
+#, fuzzy
+msgid "Downloaded one new episode."
+msgstr "Stáhnout nové epizody"
+
+#: src/gpodder/console.py:105
+#, fuzzy, python-format
+msgid "Downloaded %d new episodes."
+msgstr "Stáhnout nové epizody"
+
+#: src/gpodder/console.py:110
 msgid "No device configured. Please use the GUI."
 msgstr "Není nastavené žádné zařízení. Prosím, použijte GUI."
 
-#: src/gpodder/console.py:103
+#: src/gpodder/console.py:115
 msgid "Synchronization finished."
 msgstr "Synchronizace dokončena."
 
-#: src/gpodder/console.py:105
+#: src/gpodder/console.py:117
 #, python-format
 msgid "Synchronizing: %d of %d"
 msgstr "Synchronizuji: %d z %d"
 
-#: src/gpodder/console.py:109
+#: src/gpodder/console.py:121
 msgid "Cannot open device."
 msgstr "Není možné připojit zařízení."
 
-#: src/gpodder/console.py:114
+#: src/gpodder/console.py:126
 #, fuzzy, python-format
 msgid "Skipping podcast: %s"
 msgstr "Vynechávám kanál: %s"
 
-#: src/gpodder/console.py:124
+#: src/gpodder/console.py:136
 msgid "Cannot close device."
 msgstr "Není možné odpojit zařízení."
 
@@ -2110,9 +2134,6 @@ msgstr "Smazat kanál podle URL"
 
 #~ msgid "gPodder Homepage"
 #~ msgstr "Web aplikace gPodder"
-
-#~ msgid "Downloading podcast feeds"
-#~ msgstr "Stahuji zdroje podcastu"
 
 #~ msgid "Downloading feeds"
 #~ msgstr "Stahuji zdroje"
