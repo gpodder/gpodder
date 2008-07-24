@@ -31,6 +31,7 @@ import time
 
 import popen2
 import urllib
+import sys
 
 
 def list_channels():
@@ -78,19 +79,30 @@ def del_channel( url):
 
 
 def update():
-    callback_url = lambda url: msg('update', urllib.unquote( url))
     callback_error = lambda s: msg('error', s)
-
-    return update_channels(callback_url = callback_url, callback_error = callback_error)
+    sys.stdout.write(_('Updating podcast feeds...'))
+    sys.stdout.flush()
+    result = update_channels(callback_error=callback_error)
+    print _('done.')
+    return result
 
 def run():
     channels = update()
+    new_episodes = 0
 
     for channel in channels:
        for episode in channel.get_new_episodes():
            msg( 'downloading', urllib.unquote( episode.url))
            # Calling run() calls the code in the current thread
            download.DownloadThread( channel, episode).run()
+           new_episodes += 1
+
+    if new_episodes == 0:
+        print _('No new episodes to download.')
+    elif new_episodes == 1:
+        print _('Downloaded one new episode.')
+    else:
+        print _('Downloaded %d new episodes.') % new_episodes
 
 def sync_device():
     device = sync.open_device()
