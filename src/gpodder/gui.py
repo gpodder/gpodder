@@ -1195,7 +1195,7 @@ class gPodder(GladeWidget):
             try:
                 channel = podcastChannel.load(url=result, create=True)
             except Exception, e:
-                log('Error in podcastChannel.load(%s): %s', result, e, backtrace=True, sender=self)
+                log('Error in podcastChannel.load(%s): %s', result, e, traceback=True, sender=self)
                 channel = None
 
             if channel is not None:
