@@ -167,8 +167,8 @@ class CoverDownloader(ObservableService):
                     fp.close()
 
         if os.path.exists(channel.cover_file):
-            loader.write(open(channel.cover_file, 'rb').read())
             try:
+                loader.write(open(channel.cover_file, 'rb').read())
                 loader.close()
                 pixbuf = loader.get_pixbuf()
             except:
