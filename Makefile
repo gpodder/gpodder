@@ -52,8 +52,6 @@ all: help
 help:
 	@echo 'make test            run gpodder in local directory'
 	@echo 'make mtest           run gpodder (for maemo scratchbox)'
-	@echo 'make cl              make new changelog entry (1)'
-	@echo 'make ci              format a commit message from the changelog'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
 	@echo 'make install         install gpodder into "$(PREFIX)"'
@@ -65,21 +63,6 @@ help:
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo ''
 	@echo '(1) Please set environment variable "EMAIL" to your e-mail address'
-
-##########################################################################
-
-cl:
-	cp $(CHANGELOG) $(CHANGELOG_BKP)
-	(echo "`date -R` <$(EMAIL)>" ; svn status | sed -f doc/dev/svncl.sed | sort ; echo ""; cat $(CHANGELOG)) >$(CHANGELOG_EDT)
-	cp $(CHANGELOG_EDT) $(CHANGELOG)
-	$(EDITOR) $(CHANGELOG)
-	diff -q $(CHANGELOG) $(CHANGELOG_EDT) && mv $(CHANGELOG_BKP) $(CHANGELOG) || true
-	rm -f $(CHANGELOG_BKP) $(CHANGELOG_EDT)
-
-
-ci:
-	(svn diff ChangeLog | egrep '^[+]([^+].+|)$$' | sed -e 's/^[+]//')>commit_message
-	@echo 'to commit, enter "svn ci -F commit_message'
 
 ##########################################################################
 
@@ -165,7 +148,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all cl ci test release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
+.PHONY: all test release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
 
 ##########################################################################
 
