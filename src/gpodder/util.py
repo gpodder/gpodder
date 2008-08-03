@@ -934,6 +934,15 @@ def open_website(url):
     """
     threading.Thread(target=webbrowser.open, args=(url,)).start()
 
+def sanitize_encoding(filename):
+    """
+    Generate a sanitized version of a string (i.e.
+    remove invalid characters and encode in the
+    detected native language encoding)
+    """
+    global encoding
+    return filename.encode(encoding, 'ignore')
+
 
 def sanitize_filename(filename, max_length=0):
     """
