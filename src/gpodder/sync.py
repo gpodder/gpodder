@@ -490,7 +490,7 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
-        from_file = episode.local_filename()
+        from_file = util.sanitize_encoding(episode.local_filename())
         filename_base = util.sanitize_filename(episode.sync_filename(), self.MAX_FILENAME_LENGTH)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
