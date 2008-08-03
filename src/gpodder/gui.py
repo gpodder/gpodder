@@ -348,7 +348,7 @@ class gPodder(GladeWidget):
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
         self.default_title = None
-        if app_version.rfind('svn') != -1:
+        if app_version.rfind('git') != -1:
             self.set_title('gPodder %s' % app_version)
         else:
             self.set_title(self.gPodder.get_title())
