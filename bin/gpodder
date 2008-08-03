@@ -101,6 +101,9 @@ def main( argv = sys.argv):
     parser.add_option("-d", "--delete", dest="delete",
                       help=_("Delete channel specified by URL"), metavar="URL")
 
+    parser.add_option("-S", "--stats",
+			          action="store_true", dest="stats", default=False,
+                      help=_("Get sync statistics"))
 
     (options, args) = parser.parse_args(argv)
 
@@ -135,6 +138,8 @@ def main( argv = sys.argv):
         console.add_channel( options.add)
     elif options.delete:
         console.del_channel( options.delete)
+    elif options.stats:
+        console.sync_stats()
     else:
         #default run gui
         from gpodder import gui

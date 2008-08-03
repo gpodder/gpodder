@@ -20,6 +20,7 @@
 from gpodder import util
 from gpodder import download
 from gpodder import sync
+from gpodder.libgpodder import gl
 from gpodder.liblogger import msg
 
 from libpodcasts import load_channels
@@ -136,3 +137,32 @@ def sync_device():
         msg('error', _('Cannot close device.'))
         return False
 
+def sync_stats():
+    size = 0
+    device = sync.open_device()
+    if device is None:
+        msg('error', _('No device configured. Please use the GUI.'))
+        return False
+
+    for channel in load_channels():
+        if not channel.sync_to_devices:
+            continue
+        for episode in channel.get_all_episodes():
+            if episode.was_downloaded(and_exists=True):
+                episode.calculate_filesize()
+                size += episode.length
+    msg('info', _('Free space on device %s: %s') % (gl.get_device_name(), gl.format_filesize(device.get_free_space())))
+    msg('info', _('Size of episodes to sync: %s') % gl.format_filesize(size))
+
+    difference = device.get_free_space() - size
+    if difference < 0:
+        msg('error', _('Need to free at least %s more') % gl.format_filesize(abs(difference)))
+        return False
+    else:
+        msg('info', _('Free space after sync: %s') % gl.format_filesize(abs(difference)))
+
+    if not device.close():
+        msg('error', _('Cannot close device.'))
+        return False
+
+    return True
