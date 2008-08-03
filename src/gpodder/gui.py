@@ -2953,9 +2953,36 @@ class gPodderEpisode(GladeWidget):
             # Hide the advanced prefs expander
             self.expander1.hide_all()
 
-        b = gtk.TextBuffer()
-        b.set_text( strip( self.episode.description))
-        self.episode_description.set_buffer( b)
+        try:
+            import gtkhtml2
+            document = gtkhtml2.Document()
+            document.connect('link-clicked', lambda d, url: util.open_website(url))
+            def request_url(document, url, stream):
+                stream.write(urllib2.urlopen(url).read())
+                stream.close()
+            document.connect('request-url', request_url)
+            document.clear()
+            document.open_stream('text/html')
+            document.write_stream('<h2>%s</h2><small><em>from <a href="%s">%s</a>, released %s</em></small><br><hr style="border: 1px #eeeeee solid;">' % (saxutils.escape(self.episode.title), self.episode.link, saxutils.escape(self.episode.channel.title), self.episode.cute_pubdate()))
+            document.write_stream(self.episode.description)
+            document.write_stream('<br><hr style="border: 1px #eeeeee solid;"><p style="font-size: 8px;">%s</p>' % self.episode.link)
+            document.close_stream()
+            self.gPodderEpisode.resize(500, 500)
+
+            self.episode_title.hide_all()
+            self.channel_title.hide_all()
+            self.btn_website.hide_all()
+            self.expander1.hide_all()
+
+            view = gtkhtml2.View()
+            view.set_document(document)
+            self.scrolledwindow4.remove(self.scrolledwindow4.get_child())
+            self.scrolledwindow4.add(view)
+            view.show()
+        except ImportError, ie:
+            b = gtk.TextBuffer()
+            b.set_text(strip(util.remove_html_tags(self.episode.description)))
+            self.episode_description.set_buffer( b)
 
         self.gPodderEpisode.set_title( self.episode.title)
         self.LabelDownloadLink.set_text( self.episode.url)

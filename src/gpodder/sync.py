@@ -373,7 +373,7 @@ class iPodDevice(Device):
         track.title = str(episode.title)
         track.album = str(episode.channel.title)
         track.artist = str(episode.channel.title)
-        track.description = str(episode.description)
+        track.description = str(util.remove_html_tags(episode.description))
 
         track.podcasturl = str(episode.url)
         track.podcastrss = str(episode.channel.url)

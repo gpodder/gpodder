@@ -143,7 +143,7 @@ class podcastChannel(object):
         if hasattr( c.feed, 'link'):
             self.link = c.feed.link
         if hasattr( c.feed, 'subtitle'):
-            self.description = util.remove_html_tags(c.feed.subtitle)
+            self.description = c.feed.subtitle
 
         if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
             self.pubDate = rfc822.mktime_tz(c.feed.updated_parsed+(0,))
@@ -214,7 +214,7 @@ class podcastChannel(object):
         self.url = url
         self.title = title
         self.link = link
-        self.description = util.remove_html_tags( description)
+        self.description = description
         self.image = None
         self.pubDate = 0
         self.parse_error = None
@@ -407,7 +407,7 @@ class podcastChannel(object):
                 filelength = None
 
             new_iter = new_model.append((item.url, item.title, filelength, 
-                True, None, item.cute_pubdate(), description, item.description, 
+                True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
                 item.local_filename(), item.extension()))
             self.iter_set_downloading_columns( new_model, new_iter, episode=item)
         
@@ -472,7 +472,7 @@ class podcastItem(object):
 
         episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
         episode.link = entry.get( 'link', '')
-        episode.description = util.remove_html_tags( entry.get( 'summary', entry.get( 'link', entry.get( 'title', ''))))
+        episode.description = entry.get( 'summary', entry.get( 'link', entry.get( 'title', '')))
         episode.guid = entry.get( 'id', '')
         if entry.get( 'updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
@@ -601,7 +601,7 @@ class podcastItem(object):
     age_prop = property(fget=get_age_string)
 
     def one_line_description( self):
-        lines = self.description.strip().splitlines()
+        lines = util.remove_html_tags(self.description).strip().splitlines()
         if not lines or lines[0] == '':
             return _('No description available')
         else:
