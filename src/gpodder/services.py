@@ -33,6 +33,7 @@ import gtk
 import gobject
 
 import threading
+import time
 import urllib2
 import os
 import os.path
@@ -198,12 +199,14 @@ cover_downloader = CoverDownloader()
 class DownloadStatusManager(ObservableService):
     COLUMN_NAMES = { 0: 'episode', 1: 'speed', 2: 'progress', 3: 'url' }
     COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_STRING )
+    PROGRESS_HOLDDOWN_TIMEOUT = 1
 
     def __init__( self):
         self.status_list = {}
         self.next_status_id = 0
 
-        self.last_progress_status  = ( 0, 0 )
+        self.last_progress_status = (0, 0)
+        self.last_progress_update = 0
         
         # use to correctly calculate percentage done
         self.downloads_done_bytes = 0
@@ -250,12 +253,16 @@ class DownloadStatusManager(ObservableService):
             self.notify('list-changed')
         self.batch_mode_notify_flag = False
 
-    def notify_progress( self):
-        now = ( self.count(), self.average_progress() )
+    def notify_progress(self, force=False):
+        now = (self.count(), self.average_progress())
         
-        if now != self.last_progress_status:
+        next_progress_update = self.last_progress_update + self.PROGRESS_HOLDDOWN_TIMEOUT
+
+        if force or (now != self.last_progress_status and \
+                time.time() > next_progress_update):
             self.notify( 'progress-changed', *now)
             self.last_progress_status = now
+            self.last_progress_update = time.time()
 
     def s_acquire( self):
         if not gl.config.max_downloads_enabled:
@@ -336,7 +343,7 @@ class DownloadStatusManager(ObservableService):
             self.batch_mode_notify_flag = True
         else:
             self.notify('list-changed')
-        self.notify_progress()
+        self.notify_progress(force=True)
 
     def count( self):
         return len(self.status_list)
@@ -353,6 +360,12 @@ class DownloadStatusManager(ObservableService):
         if total + self.downloads_done_bytes == 0:
             return 0
         return float(done + self.downloads_done_bytes) / float(total + self.downloads_done_bytes) * 100
+
+    def total_speed(self):
+        if not len(self.status_list):
+            return 0
+
+        return sum(status['thread'].speed_value for status in self.status_list.values())
 
     def update_status( self, id, **kwargs):
         if not id in self.status_list:

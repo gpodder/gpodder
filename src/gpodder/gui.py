@@ -977,13 +977,15 @@ class gPodder(GladeWidget):
     def download_progress_updated( self, count, percentage):
         title = [ self.default_title ]
 
+        total_speed = gl.format_filesize(services.download_status_manager.total_speed())
+
         if count == 1:
             title.append( _('downloading one file'))
         elif count > 1:
             title.append( _('downloading %d files') % count)
 
         if len(title) == 2:
-            title[1] = ''.join( [ title[1], ' (%d%%)' % ( percentage, ) ])
+            title[1] = ''.join( [ title[1], ' (%d%%, %s/s)' % (percentage, total_speed) ])
 
         self.gPodder.set_title( ' - '.join( title))
 

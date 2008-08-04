@@ -89,6 +89,7 @@ class DownloadThread(threading.Thread):
         self.cancelled = False
         self.start_time = 0.0
         self.speed = _('Queued')
+        self.speed_value = 0
         self.progress = 0.0
         self.downloader = DownloadURLOpener( self.channel)
         self.last_update = 0.0
@@ -152,6 +153,7 @@ class DownloadThread(threading.Thread):
                 speed = count*blockSize
 
             self.speed = '%s/s' % gl.format_filesize(speed)
+            self.speed_value = speed
 
             if gl.config.limit_rate and speed > gl.config.limit_rate_value:
                 # calculate the time that should have passed to reach
