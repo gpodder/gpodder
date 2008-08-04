@@ -1484,7 +1484,7 @@ class gPodder(GladeWidget):
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
-                ('title', _('Episode')),
+                ('title_and_description', _('Episode')),
                 ('channel_prop', _('Podcast')),
                 ('filesize_prop', _('Size')),
                 ('pubdate_prop', _('Released')),
@@ -1612,7 +1612,7 @@ class gPodder(GladeWidget):
 
     def new_episodes_show(self, episodes):
         columns = (
-                ('title', _('Episode')),
+                ('title_and_description', _('Episode')),
                 ('channel_prop', _('Podcast')),
                 ('filesize_prop', _('Size')),
                 ('pubdate_prop', _('Released')),
@@ -1789,7 +1789,7 @@ class gPodder(GladeWidget):
             title = _('Remove podcasts from device')
             instructions = _('Select the podcast episodes you want to remove from your device.')
             gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
-                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback)
+                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback, tooltip_attribute=None)
         else:
             title = _('No files on device')
             message = _('The devices contains no files to be removed.')
@@ -3080,13 +3080,18 @@ class gPodderEpisodeSelector( GladeWidget):
                         None if no total size calculation should be
                         done (in cases where total size is useless)
                         (default is 'length')
+      - tooltip_attribute: (optional) The name of an attribute of
+                           the supplied episode objects that holds
+                           the text for the tooltips when hovering
+                           over an episode (default is 'description')
                            
     """
     finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
     
     COLUMN_INDEX = 0
-    COLUMN_TOGGLE = 1
-    COLUMN_ADDITIONAL = 2
+    COLUMN_TOOLTIP = 1
+    COLUMN_TOGGLE = 2
+    COLUMN_ADDITIONAL = 3
 
     def new( self):
         if not hasattr( self, 'callback'):
@@ -3097,6 +3102,9 @@ class gPodderEpisodeSelector( GladeWidget):
 
         if not hasattr( self, 'size_attribute'):
             self.size_attribute = 'length'
+
+        if not hasattr(self, 'tooltip_attribute'):
+            self.tooltip_attribute = 'description'
 
         if not hasattr( self, 'selection_buttons'):
             self.selection_buttons = {}
@@ -3111,7 +3119,7 @@ class gPodderEpisodeSelector( GladeWidget):
             self.selected += [self.selected_default]*(len(self.episodes)-len(self.selected))
 
         if not hasattr( self, 'columns'):
-            self.columns = ( ('title', _('Episode')), )
+            self.columns = (('title_and_description', _('Episode')),)
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
@@ -3132,11 +3140,6 @@ class gPodderEpisodeSelector( GladeWidget):
                 self.btnOK.set_label(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
-        # hidden column storing the row index (nedeed to retrieve the correct model row when columns are sorted)
-        index_col = gtk.TreeViewColumn('', gtk.CellRendererText())
-        index_col.set_visible(True)
-        self.treeviewEpisodes.append_column( index_col)
-
         # check/uncheck column
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect( 'toggled', self.toggle_cell_handler)
@@ -3146,7 +3149,7 @@ class gPodderEpisodeSelector( GladeWidget):
         for name, caption in self.columns:
             renderer = gtk.CellRendererText()
             renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
-            column = gtk.TreeViewColumn( caption, renderer, text=next_column)
+            column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_resizable( True)
             # Only set "expand" on the first column (so more text is displayed there)
             column.set_expand(next_column == self.COLUMN_ADDITIONAL)
@@ -3154,11 +3157,18 @@ class gPodderEpisodeSelector( GladeWidget):
             self.treeviewEpisodes.append_column( column)
             next_column += 1
 
-        column_types = [ gobject.TYPE_INT ] + [ gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
+        column_types = [ gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
         self.model = gtk.ListStore( *column_types)
 
+        tooltip = None
         for index, episode in enumerate( self.episodes):
-            row = [ index, self.selected[index] ]
+            if self.tooltip_attribute is not None:
+                try:
+                    tooltip = getattr(episode, self.tooltip_attribute)
+                except:
+                    log('Episode object %s does not have tooltip attribute: "%s"', episode, self.tooltip_attribute, sender=self)
+                    tooltip = None
+            row = [ index, tooltip, self.selected[index] ]
             for name, caption in self.columns:
                 if not hasattr(episode, name):
                     log('Warning: Missing attribute "%s"', name, sender=self)
@@ -3167,11 +3177,54 @@ class gPodderEpisodeSelector( GladeWidget):
                     row.append(getattr( episode, name))
             self.model.append( row)
 
+        # connect to tooltip signals
+        if self.tooltip_attribute is not None:
+            try:
+                self.treeviewEpisodes.set_property('has-tooltip', True)
+                self.treeviewEpisodes.connect('query-tooltip', self.treeview_episodes_query_tooltip)
+            except:
+                log('I cannot set has-tooltip/query-tooltip (need at least PyGTK 2.12)', sender=self)
+        self.last_tooltip_episode = None
+        self.episode_list_can_tooltip = True
+
         self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
         self.calculate_total_size()
+
+    def treeview_episodes_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
+        # With get_bin_window, we get the window that contains the rows without
+        # the header. The Y coordinate of this window will be the height of the
+        # treeview header. This is the amount we have to subtract from the
+        # event's Y coordinate to get the coordinate to pass to get_path_at_pos
+        (x_bin, y_bin) = treeview.get_bin_window().get_position()
+        y -= x_bin
+        y -= y_bin
+        (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
+
+        if not self.episode_list_can_tooltip:
+            self.last_tooltip_episode = None
+            return False
+
+        if path is not None:
+            model = treeview.get_model()
+            iter = model.get_iter(path)
+            index = model.get_value(iter, self.COLUMN_INDEX)
+            description = model.get_value(iter, self.COLUMN_TOOLTIP)
+            if self.last_tooltip_episode is not None and self.last_tooltip_episode != index:
+                self.last_tooltip_episode = None
+                return False
+            self.last_tooltip_episode = index
+
+            if description is not None:
+                tooltip.set_text(description)
+                return True
+            else:
+                return False
+
+        self.last_tooltip_episode = None
+        return False
 
     def treeview_episodes_button_pressed(self, treeview, event):
         if event.button == 3:
@@ -3193,9 +3246,16 @@ class gPodderEpisodeSelector( GladeWidget):
             menu.append(item)
 
             menu.show_all()
+            # Disable tooltips while we are showing the menu, so 
+            # the tooltip will not appear over the menu
+            self.episode_list_can_tooltip = False
+            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
             menu.popup(None, None, None, event.button, event.time)
 
             return True
+
+    def episode_list_allow_tooltips(self):
+        self.episode_list_can_tooltip = True
 
     def calculate_total_size( self):
         if self.size_attribute is not None:

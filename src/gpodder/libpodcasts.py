@@ -370,10 +370,7 @@ class podcastChannel(object):
             gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
 
         for item in self.get_all_episodes():
-            if gl.config.episode_list_descriptions:
-                description = '%s\n<small>%s</small>' % (saxutils.escape(item.title), saxutils.escape(item.one_line_description()))
-            else:
-                description = saxutils.escape(item.title)
+            description = item.title_and_description
 
             if item.length:
                 filelength = gl.format_filesize(item.length, 1)
@@ -544,6 +541,18 @@ class podcastItem(object):
             if hasattr(e, key):
                 setattr(e, key, d[key])
         return e
+
+    @property
+    def title_and_description(self):
+        """
+        Returns Pango markup for displaying in a TreeView, and
+        disables the description when the config variable
+        "episode_list_descriptions" is not set.
+        """
+        if gl.config.episode_list_descriptions:
+            return '%s\n<small>%s</small>' % (saxutils.escape(self.title), saxutils.escape(self.one_line_description()))
+        else:
+            return saxutils.escape(self.title)
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename())
