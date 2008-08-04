@@ -317,6 +317,21 @@
 		  </child>
 
 		  <child>
+		    <widget class="GtkMenuItem" id="itemAddGoogleSearch">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Add Google Video search</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_add_new_google_search"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator_specials">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkMenuItem" id="itemImportChannels">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Add podcasts from OPML on the web</property>
@@ -7157,7 +7172,7 @@ Filesystem-based MP3 player</property>
 	  <property name="spacing">5</property>
 
 	  <child>
-	    <widget class="GtkLabel" id="label130">
+	    <widget class="GtkLabel" id="label_add">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">URL:</property>
 	      <property name="use_underline">False</property>

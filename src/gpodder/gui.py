@@ -27,6 +27,7 @@ import shutil
 import subprocess
 import glob
 import time
+import urllib
 import urllib2
 import datetime
 
@@ -1833,6 +1834,12 @@ class gPodder(GladeWidget):
         else:
             gPodderMaemoPreferences()
 
+    def on_add_new_google_search(self, widget, *args):
+        def add_google_video_search(query):
+            self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
+
+        gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+
     def on_itemAddChannel_activate(self, widget, *args):
         if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
             gPodderAddPodcastDialog(url_callback=self.add_new_channel)
@@ -2405,6 +2412,10 @@ class gPodderAddPodcastDialog(GladeWidget):
         if not hasattr(self, 'url_callback'):
             log('No url callback set', sender=self)
             self.url_callback = None
+        if hasattr(self, 'custom_label'):
+            self.label_add.set_text(self.custom_label)
+        if hasattr(self, 'custom_title'):
+            self.gPodderAddPodcastDialog.set_title(self.custom_title)
 
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcastDialog.destroy()
