@@ -860,10 +860,13 @@ class gPodder(GladeWidget):
 
             menu = gtk.Menu()
 
-            ( can_play, can_download, can_transfer, can_cancel, can_delete ) = self.play_or_download()
+            (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
 
             if can_play:
-                item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
+                if open_instead_of_play:
+                    item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
+                else:
+                    item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
                 item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
                 menu.append(self.set_finger_friendly(item))
                 
@@ -1033,6 +1036,8 @@ class gPodder(GladeWidget):
         ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
         ( is_played, is_locked ) = (False,)*2
 
+        open_instead_of_play = False
+
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
             (model, paths) = selection.get_selected_rows()
@@ -1042,6 +1047,9 @@ class gPodder(GladeWidget):
                 local_filename = model.get_value( model.get_iter( path), 8)
 
                 episode = podcastItem.load(url, self.active_channel)
+
+                if episode.file_type() not in ('audio', 'video'):
+                    open_instead_of_play = True
 
                 if episode.was_downloaded(and_exists=True):
                     can_play = True
@@ -1054,12 +1062,18 @@ class gPodder(GladeWidget):
                     else:
                         can_download = True
 
-                if self.active_channel.find_episode(url).file_type() == 'torrent':
+                if episode.file_type() == 'torrent':
                     can_download = can_download or gl.config.use_gnome_bittorrent
 
         can_download = can_download and not can_cancel
         can_play = can_play and not can_cancel and not can_download
         can_transfer = can_play and gl.config.device_type != 'none'
+
+        if open_instead_of_play:
+            self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
+            can_transfer = False
+        else:
+            self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
 
         self.toolPlay.set_sensitive( can_play)
         self.toolDownload.set_sensitive( can_download)
@@ -1075,7 +1089,10 @@ class gPodder(GladeWidget):
         else:
             self.itemDownloadSelected.hide_all()
         if can_play:
-            self.itemPlaySelected.show_all()
+            if open_instead_of_play:
+                self.itemOpenSelected.show_all()
+            else:
+                self.itemPlaySelected.show_all()
             self.itemDeleteSelected.show_all()
             self.item_toggle_played.show_all()
             self.item_toggle_lock.show_all()
@@ -1090,6 +1107,7 @@ class gPodder(GladeWidget):
                 self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion'))
         else:
             self.itemPlaySelected.hide_all()
+            self.itemOpenSelected.hide_all()
             self.itemDeleteSelected.hide_all()
             self.item_toggle_played.hide_all()
             self.item_toggle_lock.hide_all()
@@ -1103,7 +1121,7 @@ class gPodder(GladeWidget):
             self.separator16.hide_all()
             self.no_episode_selected.show_all()
 
-        return ( can_play, can_download, can_transfer, can_cancel, can_delete )
+        return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
 
     def download_status_updated( self):
         count = services.download_status_manager.count()
@@ -1357,7 +1375,7 @@ class gPodder(GladeWidget):
         filename = current_podcast.local_filename()
 
         if widget:
-            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
+            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'itemOpenSelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
                 # addDownloadedItem just to make sure the episode is marked correctly in localdb
                 current_channel.addDownloadedItem( current_podcast)
                 # open the file now
@@ -2890,6 +2908,11 @@ class gPodderEpisode(GladeWidget):
             self.progress_bar.hide_all()
             self.btnCancel.hide_all()
             if os.path.exists( self.episode.local_filename()):
+                if self.episode.file_type() in ('audio', 'video'):
+                    self.btnPlay.set_label(gtk.STOCK_MEDIA_PLAY)
+                else:
+                    self.btnPlay.set_label(gtk.STOCK_OPEN)
+                self.btnPlay.set_use_stock(True)
                 self.btnPlay.show_all()
                 self.btnSaveFile.show_all()
                 self.btnDownload.hide_all()
