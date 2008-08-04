@@ -2978,7 +2978,6 @@ class gPodderOpmlLister(GladeWidget):
 
     def thread_finished(self, model):
         self.treeviewChannelChooser.set_model(model)
-        self.labelStatus.set_label('')
         self.btnDownloadOpml.set_sensitive(True)
         self.entryURL.set_sensitive(True)
         self.treeviewChannelChooser.set_sensitive(True)
@@ -2997,7 +2996,6 @@ class gPodderOpmlLister(GladeWidget):
             self.callback_for_channel = callback_for_channel
         if callback_finished:
             self.callback_finished = callback_finished
-        self.labelStatus.set_label( _('Downloading, please wait...'))
         self.entryURL.set_text( url)
         self.btnDownloadOpml.set_sensitive( False)
         self.entryURL.set_sensitive( False)
@@ -3167,16 +3165,35 @@ class gPodderEpisodeSelector( GladeWidget):
                     row.append(getattr( episode, name))
             self.model.append( row)
 
-        for label in self.selection_buttons:
-            button = gtk.Button( label)
-            button.connect('clicked', self.custom_selection_button_clicked, label)
-            self.hboxButtons.pack_start( button, expand = False)
-            button.show_all()
-
+        self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
         self.calculate_total_size()
+
+    def treeview_episodes_button_pressed(self, treeview, event):
+        if event.button == 3:
+            menu = gtk.Menu()
+
+            if len(self.selection_buttons):
+                for label in self.selection_buttons:
+                    item = gtk.MenuItem(label)
+                    item.connect('activate', self.custom_selection_button_clicked, label)
+                    menu.append(item)
+                menu.append(gtk.SeparatorMenuItem())
+
+            item = gtk.MenuItem(_('Select all'))
+            item.connect('activate', self.on_btnCheckAll_clicked)
+            menu.append(item)
+
+            item = gtk.MenuItem(_('Select none'))
+            item.connect('activate', self.on_btnCheckNone_clicked)
+            menu.append(item)
+
+            menu.show_all()
+            menu.popup(None, None, None, event.button, event.time)
+
+            return True
 
     def calculate_total_size( self):
         if self.size_attribute is not None:
