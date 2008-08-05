@@ -60,6 +60,7 @@ class Storage(object):
         t = thread.get_ident()
         if t not in self._db:
             conn = sqlite.connect(self.settings['database'])
+            conn.create_collation("unicode", lambda a, b: cmp(a.lower(), b.lower()))
             self._db[t] = conn
             log('SQLite connection for thread %d opened.', t)
         return self._db[t]
@@ -180,7 +181,7 @@ class Storage(object):
             WHERE
                 (deleted IS NULL OR deleted = 0)
             ORDER BY
-                title
+                title COLLATE unicode
                 """)
 
         result = []
