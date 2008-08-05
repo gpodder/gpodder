@@ -307,7 +307,7 @@ class gPodderLib(object):
         
         return True
 
-    def playback_episode( self, channel, episode):
+    def playback_episode(self, episode):
         db.mark_episode(episode.url, is_played=True)
         filename = episode.local_filename()
 

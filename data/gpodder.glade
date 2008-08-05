@@ -367,7 +367,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Play</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownloadedExecute_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+		      <signal name="activate" handler="on_treeAvailable_row_activated"/>
 		      <accelerator key="Return" modifiers="GDK_SHIFT_MASK" signal="activate"/>
 
 		      <child internal-child="image">
@@ -389,7 +389,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Open</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownloadedExecute_clicked"/>
+		      <signal name="activate" handler="on_treeAvailable_row_activated"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image4589">
@@ -410,7 +410,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Download</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnDownload_clicked" last_modification_time="Fri, 08 Dec 2006 23:50:54 GMT"/>
+		      <signal name="activate" handler="on_treeAvailable_row_activated"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image4590">
@@ -528,7 +528,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Episode details</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_treeAvailable_row_activated" last_modification_time="Mon, 28 Apr 2008 18:36:07 GMT"/>
+		      <signal name="activate" handler="on_treeAvailable_row_activated"/>
 
 		      <child internal-child="image">
 			<widget class="GtkImage" id="image4595">
@@ -619,7 +619,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Copy selected episodes to device</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_btnTransfer_clicked" last_modification_time="Sat, 17 Mar 2007 12:59:55 GMT"/>
+		      <signal name="activate" handler="on_treeAvailable_row_activated"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -769,7 +769,7 @@
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
 	      <property name="is_important">True</property>
-	      <signal name="clicked" handler="on_btnDownload_clicked"/>
+	      <signal name="clicked" handler="on_treeAvailable_row_activated"/>
 	    </widget>
 	    <packing>
 	      <property name="expand">False</property>
@@ -784,7 +784,7 @@
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
 	      <property name="is_important">True</property>
-	      <signal name="clicked" handler="on_btnDownloadedExecute_clicked"/>
+	      <signal name="clicked" handler="on_treeAvailable_row_activated"/>
 	    </widget>
 	    <packing>
 	      <property name="expand">False</property>
@@ -801,7 +801,7 @@
 	      <property name="visible_horizontal">True</property>
 	      <property name="visible_vertical">True</property>
 	      <property name="is_important">True</property>
-	      <signal name="clicked" handler="on_btnTransfer_clicked"/>
+	      <signal name="clicked" handler="on_treeAvailable_row_activated"/>
 	    </widget>
 	    <packing>
 	      <property name="expand">False</property>
@@ -1173,7 +1173,7 @@
 			  <property name="fixed_height_mode">False</property>
 			  <property name="hover_selection">False</property>
 			  <property name="hover_expand">False</property>
-			  <signal name="row_activated" handler="on_treeAvailable_row_activated" last_modification_time="Sat, 29 Oct 2005 11:49:26 GMT"/>
+			  <signal name="row_activated" handler="on_treeAvailable_row_activated"/>
 			  <signal name="button_release_event" handler="on_treeAvailable_button_release_event" last_modification_time="Tue, 12 Dec 2006 22:51:54 GMT"/>
 			  <signal name="key_release_event" handler="on_treeAvailable_button_release_event" last_modification_time="Tue, 12 Dec 2006 22:54:24 GMT"/>
 			</widget>

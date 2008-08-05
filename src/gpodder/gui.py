@@ -999,8 +999,8 @@ class gPodder(GladeWidget):
             if len(gl.config.cmd_all_downloads_complete) > 0:
                 Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_all_downloads_complete)).start()
  
-    def playback_episode( self, current_channel, current_podcast):
-        (success, application) = gl.playback_episode(current_channel, current_podcast)
+    def playback_episode(self, episode):
+        (success, application) = gl.playback_episode(episode)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
         self.download_status_updated()
@@ -1366,46 +1366,6 @@ class gPodder(GladeWidget):
         thread = Thread( target = self.update_feed_cache_proc, args = args)
         thread.start()
         
-    def download_podcast_by_url( self, url, want_message_dialog = True, widget = None):
-        if self.active_channel is None:
-            return
-
-        current_channel = self.active_channel
-        current_podcast = current_channel.find_episode( url)
-        filename = current_podcast.local_filename()
-
-        if widget:
-            if (widget.get_name() == 'itemPlaySelected' or widget.get_name() == 'itemOpenSelected' or widget.get_name() == 'toolPlay') and os.path.exists( filename):
-                # addDownloadedItem just to make sure the episode is marked correctly in localdb
-                current_channel.addDownloadedItem( current_podcast)
-                # open the file now
-                if current_podcast.file_type() != 'torrent':
-                    self.playback_episode( current_channel, current_podcast)
-                return
-         
-            if widget.get_name() == 'treeAvailable' or widget.get_name() == 'item_episode_details':
-                play_callback = lambda: self.playback_episode( current_channel, current_podcast)
-                download_callback = lambda: self.download_podcast_by_url( url, want_message_dialog, None)
-                gpe = gPodderEpisode( episode = current_podcast, channel = current_channel, download_callback = download_callback, play_callback = play_callback)
-                return
-        
-        if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( current_podcast.url):
-            download.DownloadThread( current_channel, current_podcast, self.notification).start()
-        else:
-            if want_message_dialog and os.path.exists( filename) and not current_podcast.file_type() == 'torrent':
-                title = _('Episode already downloaded')
-                message = _('You have already downloaded this episode. Click on the episode to play it.')
-                self.show_message( message, title)
-            elif want_message_dialog and not current_podcast.file_type() == 'torrent':
-                title = _('Download in progress')
-                message = _('You are currently downloading this episode. Please check the download status tab to check when the download is finished.')
-                self.show_message( message, title)
-
-            if os.path.exists( filename):
-                log( 'Episode has already been downloaded.')
-                current_channel.addDownloadedItem( current_podcast)
-                self.updateComboBox()
-                
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
         Displays a confirmation dialog (and closes/hides gPodder)
@@ -2022,9 +1982,6 @@ class gPodder(GladeWidget):
     def on_itemImportChannels_activate(self, widget, *args):
         gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
-    def on_btnTransfer_clicked(self, widget, *args):
-        self.on_treeAvailable_row_activated( widget, args)
-
     def on_homepage_activate(self, widget, *args):
         util.open_website(app_website)
 
@@ -2104,43 +2061,52 @@ class gPodder(GladeWidget):
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
 
-    def on_treeAvailable_row_activated(self, widget, *args):
+    def on_treeAvailable_row_activated(self, widget):
+        """
+        What this function does depends on from which widget it is called.
+        It gets the selected episodes of the current podcast and runs one
+        of the following actions on them:
+
+          * Transfer (to MP3 player, iPod, etc..)
+          * Playback/open files
+          * Show the episode info dialog
+          * Download episodes
+        """
         try:
             selection = self.treeAvailable.get_selection()
-            selection_tuple = selection.get_selected_rows()
-            transfer_files = False
+            (model, paths) = selection.get_selected_rows()
+
+            wname = widget.get_name()
+            do_transfer = (wname in ('itemTransferSelected', 'toolTransfer'))
+            do_playback = (wname in ('itemPlaySelected', 'itemOpenSelected', 'toolPlay'))
+            do_epdialog = (wname in ('treeAvailable', 'item_episode_details'))
+
             episodes = []
+            for path in paths:
+                it = model.get_iter(path)
+                url = model.get_value(it, 0)
+                episode = self.active_channel.find_episode(url)
+                episodes.append(episode)
 
-            if selection.count_selected_rows() > 1:
-                widget_to_send = None
-                show_message_dialog = False
+            if len(episodes) == 0:
+                log('No episodes selected', sender=self)
+
+            if do_transfer:
+                self.on_sync_to_ipod_activate(widget, episodes)
+            elif do_playback:
+                for episode in episodes:
+                    # Make sure to mark the episode as downloaded
+                    if os.path.exists(episode.local_filename()):
+                        episode.channel.addDownloadedItem(episode)
+                        self.playback_episode(episode)
+            elif do_epdialog:
+                play_callback = lambda: self.playback_episode(episode)
+                download_callback = lambda: self.download_episode_list([episode])
+                gPodderEpisode(episode=episode, download_callback=download_callback, play_callback=play_callback)
             else:
-                widget_to_send = widget
-                show_message_dialog = True
-
-            if widget.get_name() == 'itemTransferSelected' or widget.get_name() == 'toolTransfer':
-                transfer_files = True
-
-            services.download_status_manager.start_batch_mode()
-            for apath in selection_tuple[1]:
-                selection_iter = self.treeAvailable.get_model().get_iter( apath)
-                url = self.treeAvailable.get_model().get_value( selection_iter, 0)
-
-                if transfer_files:
-                    episodes.append( self.active_channel.find_episode( url))
-                else:
-                    self.download_podcast_by_url( url, show_message_dialog, widget_to_send)
-            services.download_status_manager.end_batch_mode()
-
-            if transfer_files and len(episodes):
-                self.on_sync_to_ipod_activate(None, episodes)
+                self.download_episode_list(episodes)
         except:
-            title = _('Nothing selected')
-            message = _('Please select an episode that you want to download and then click on the download button to start downloading the selected episode.')
-            self.show_message( message, title)
-
-    def on_btnDownload_clicked(self, widget, *args):
-        self.on_treeAvailable_row_activated( widget, args)
+            log('Error in on_treeAvailable_row_activated', traceback=True, sender=self)
 
     def on_treeAvailable_button_release_event(self, widget, *args):
         self.play_or_download()
@@ -2193,9 +2159,6 @@ class gPodder(GladeWidget):
         self.treeDownloads.get_selection().select_all()
         self.on_treeDownloads_row_activated( self.toolCancel, None)
         self.treeDownloads.get_selection().unselect_all()
-
-    def on_btnDownloadedExecute_clicked(self, widget, *args):
-        self.on_treeAvailable_row_activated( widget, args)
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         if self.active_channel is None:
@@ -2872,7 +2835,7 @@ class gPodderEpisode(GladeWidget):
         if self.episode.link == self.episode.url or not self.episode.link:
             self.btn_website.hide_all()
 
-        self.channel_title.set_markup( _('<i>from %s</i>') % saxutils.escape( self.channel.title))
+        self.channel_title.set_markup(_('<i>from %s</i>') % saxutils.escape(self.episode.channel.title))
 
         self.hide_show_widgets()
         services.download_status_manager.request_progress_detail( self.episode.url)
