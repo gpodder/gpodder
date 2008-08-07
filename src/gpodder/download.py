@@ -182,6 +182,9 @@ class DownloadThread(threading.Thread):
                 shutil.move( self.tempname, self.filename)
                 self.channel.addDownloadedItem( self.episode)
                 services.download_status_manager.download_completed(self.download_id)
+                # Get the _real_ filesize once we actually have the file
+                self.episode.length = os.path.getsize(self.filename)
+                self.episode.save()
                 
                 # If a user command has been defined, execute the command setting some environment variables
                 if len(gl.config.cmd_download_complete) > 0:
