@@ -2061,7 +2061,7 @@ class gPodder(GladeWidget):
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
 
-    def on_treeAvailable_row_activated(self, widget):
+    def on_treeAvailable_row_activated(self, widget, path=None, view_column=None):
         """
         What this function does depends on from which widget it is called.
         It gets the selected episodes of the current podcast and runs one
