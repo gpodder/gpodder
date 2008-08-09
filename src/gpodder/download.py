@@ -103,13 +103,25 @@ class DownloadThread(threading.Thread):
 
     def status_updated( self, count, blockSize, totalSize):
         if totalSize:
-            self.progress = 100.0*float(count*blockSize)/float(totalSize)
             # We see a different "total size" while downloading,
             # so correct the total size variable in the thread
-            if totalSize != self.total_size:
+            if totalSize != self.total_size and totalSize > 0:
                 log('Correcting file size for %s from %d to %d while downloading.', self.url, self.total_size, totalSize, sender=self)
                 self.total_size = totalSize
+            elif totalSize < 0:
+                # The current download has a negative value, so assume
+                # the total size given from the feed is correct
+                totalSize = self.total_size
+            self.progress = 100.0*float(count*blockSize)/float(totalSize)
         else:
+            self.progress = 100.0
+
+        # Sanity checks for "progress" in valid range (0..100)
+        if self.progress < 0.0:
+            log('Warning: Progress is lower than 0 (count=%d, blockSize=%d, totalSize=%d)', count, blockSize, totalSize, sender=self)
+            self.progress = 0.0
+        elif self.progress > 100.0:
+            log('Warning: Progress is more than 100 (count=%d, blockSize=%d, totalSize=%d)', count, blockSize, totalSize, sender=self)
             self.progress = 100.0
 
         self.calculate_speed( count, blockSize)
