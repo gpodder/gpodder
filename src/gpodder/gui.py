@@ -88,7 +88,7 @@ app_authors = [
     'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'Daniel Ramos',
     'David Spreen', 'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
     'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
-    'Haim Roitgrund', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
+    'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jerry Moss',
     'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
