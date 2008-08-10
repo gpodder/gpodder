@@ -42,6 +42,11 @@ from xml.sax import saxutils
 
 class DownloadCancelledException(Exception): pass
 
+class gPodderDownloadHTTPError(Exception):
+    def __init__(self, url, error_code, error_message):
+        self.url = url
+        self.error_code = error_code
+        self.error_message = error_message
 
 class DownloadURLOpener(urllib.FancyURLopener):
     version = gpodder.user_agent
@@ -58,6 +63,19 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         self.channel = channel
         urllib.FancyURLopener.__init__( self, proxies)
+
+    def http_error_default(self, url, fp, errcode, errmsg, headers):
+        """
+        FancyURLopener by default does not raise an exception when
+        there is some unknown HTTP error code. We want to override
+        this and provide a function to log the error and raise an
+        exception, so we don't download the HTTP error page here.
+        """
+        # The following two lines are copied from urllib.URLopener's
+        # implementation of http_error_default
+        void = fp.read()
+        fp.close()
+        raise gPodderDownloadHTTPError(url, errcode, errmsg)
 
     def prompt_user_passwd( self, host, realm):
         if self.channel.username or self.channel.password:
@@ -219,6 +237,12 @@ class DownloadThread(threading.Thread):
                 message = _('An error happened while trying to download <b>%s</b>.') % ( saxutils.escape( self.episode.title), )
                 self.notification( message, title)
             log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.episode.title, ioe.filename, sender = self)
+        except gPodderDownloadHTTPError, gdhe:
+            if self.notification is not None:
+                title = gdhe.error_message
+                message = _('An error (HTTP %d) happened while trying to download <b>%s</b>.') % ( gdhe.error_code, saxutils.escape( self.episode.title), )
+                self.notification( message, title)
+            log( 'HTTP error %s while downloading "%s": %s', gdhe.error_code, self.episode.title, gdhe.error_message, sender=self)
         except:
             log( 'Error while downloading "%s".', self.episode.title, sender = self, traceback = True)
 
