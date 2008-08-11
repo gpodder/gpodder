@@ -351,7 +351,11 @@ class gPodder(GladeWidget):
         if app_version.rfind('svn') != -1:
             self.set_title('gPodder %s' % app_version)
         else:
-            self.set_title(self.gPodder.get_title())
+            title = self.gPodder.get_title()
+            if title is not None:
+                self.set_title(title)
+            else:
+                self.set_title(_('gPodder'))
 
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
