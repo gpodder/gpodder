@@ -1467,12 +1467,12 @@ class gPodder(GladeWidget):
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
-                ('title_and_description', _('Episode')),
-                ('channel_prop', _('Podcast')),
-                ('filesize_prop', _('Size')),
-                ('pubdate_prop', _('Released')),
-                ('played_prop', _('Status')),
-                ('age_prop', _('Downloaded')),
+                ('title_and_description', None, None, _('Episode')),
+                ('channel_prop', None, None, _('Podcast')),
+                ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
+                ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
+                ('played_prop', None, None, _('Status')),
+                ('age_prop', None, None, _('Downloaded')),
         )
 
         selection_buttons = {
@@ -1595,10 +1595,10 @@ class gPodder(GladeWidget):
 
     def new_episodes_show(self, episodes):
         columns = (
-                ('title_and_description', _('Episode')),
-                ('channel_prop', _('Podcast')),
-                ('filesize_prop', _('Size')),
-                ('pubdate_prop', _('Released')),
+                ('title_and_description', None, None, _('Episode')),
+                ('channel_prop', None, None, _('Podcast')),
+                ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
+                ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
         )
 
         if len(episodes) > 0:
@@ -1737,12 +1737,12 @@ class gPodder(GladeWidget):
 
     def on_cleanup_ipod_activate(self, widget, *args):
         columns = (
-                ('title', _('Episode')),
-                ('podcast', _('Podcast')),
-                ('filesize', _('Size')),
-                ('modified', _('Copied')),
-                ('playcount', _('Play count')),
-                ('released', _('Released')),
+                ('title', None, None, _('Episode')),
+                ('podcast', None, None, _('Podcast')),
+                ('filesize', None, None, _('Size')),
+                ('modified', None, None, _('Copied')),
+                ('playcount', None, None, _('Play count')),
+                ('released', None, None, _('Released')),
         )
 
         device = sync.open_device()
@@ -1765,7 +1765,7 @@ class gPodder(GladeWidget):
         if len(tracks) > 0:
             remove_tracks_callback = lambda tracks: self.ipod_cleanup_callback(device, tracks)
             wanted_columns = []
-            for key, caption in columns:
+            for key, sort_name, sort_type, caption in columns:
                 want_this_column = False
                 for track in tracks:
                     if getattr(track, key) is not None:
@@ -1773,7 +1773,7 @@ class gPodder(GladeWidget):
                         break
 
                 if want_this_column:
-                    wanted_columns.append((key, caption))
+                    wanted_columns.append((key, sort_name, sort_type, caption))
             title = _('Remove podcasts from device')
             instructions = _('Select the podcast episodes you want to remove from your device.')
             gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
@@ -3065,11 +3065,14 @@ class gPodderEpisodeSelector( GladeWidget):
       - selected_default: (optional) The default boolean value for the
                           checked state if no other value is set
                           (default is False)
-      - columns: List of (name,caption) pairs for the columns, the name
-                 is the attribute name of the episode to be read from 
-                 each episode object and the caption attribute is the
-                 text that appear as column caption
-                 (default is [('title','Episode'),])
+      - columns: List of (name, sort_name, sort_type, caption) pairs for the
+                 columns, the name is the attribute name of the episode to be 
+                 read from each episode object.  The sort name is the 
+                 attribute name of the episode to be used to sort this column.
+                 If the sort_name is None it will use the attribute name for
+                 sorting.  The sort type is the type of the sort column.
+                 The caption attribute is the text that appear as column caption
+                 (default is [('title_and_description', None, None, 'Episode'),])
       - title: (optional) The title of the window + heading
       - instructions: (optional) A one-line text describing what the 
                       user should select / what the selection is for
@@ -3131,7 +3134,7 @@ class gPodderEpisodeSelector( GladeWidget):
             self.selected += [self.selected_default]*(len(self.episodes)-len(self.selected))
 
         if not hasattr( self, 'columns'):
-            self.columns = (('title_and_description', _('Episode')),)
+            self.columns = (('title_and_description', None, None, _('Episode')),)
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
@@ -3158,18 +3161,33 @@ class gPodderEpisodeSelector( GladeWidget):
         self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
         
         next_column = self.COLUMN_ADDITIONAL
-        for name, caption in self.columns:
+        for name, sort_name, sort_type, caption in self.columns:
             renderer = gtk.CellRendererText()
             renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
             column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_resizable( True)
             # Only set "expand" on the first column (so more text is displayed there)
             column.set_expand(next_column == self.COLUMN_ADDITIONAL)
-            column.set_sort_column_id(next_column)
+            if sort_name is not None:
+                column.set_sort_column_id(next_column+1)
+            else:
+                column.set_sort_column_id(next_column)
             self.treeviewEpisodes.append_column( column)
             next_column += 1
+            
+            if sort_name is not None:
+                # add the sort column
+                column = gtk.TreeViewColumn()
+                column.set_visible(False)
+                self.treeviewEpisodes.append_column( column)
+                next_column += 1
 
-        column_types = [ gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN ] + [ gobject.TYPE_STRING ] * len(self.columns)
+        column_types = [ gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN ]
+        # add string column type plus sort column type if it exists
+        for name, sort_name, sort_type, caption in self.columns:
+            column_types.append(gobject.TYPE_STRING)
+            if sort_name is not None:
+                column_types.append(sort_type)
         self.model = gtk.ListStore( *column_types)
 
         tooltip = None
@@ -3181,12 +3199,19 @@ class gPodderEpisodeSelector( GladeWidget):
                     log('Episode object %s does not have tooltip attribute: "%s"', episode, self.tooltip_attribute, sender=self)
                     tooltip = None
             row = [ index, tooltip, self.selected[index] ]
-            for name, caption in self.columns:
+            for name, sort_name, sort_type, caption in self.columns:
                 if not hasattr(episode, name):
                     log('Warning: Missing attribute "%s"', name, sender=self)
                     row.append(None)
                 else:
                     row.append(getattr( episode, name))
+                    
+                if sort_name is not None:
+                    if not hasattr(episode, sort_name):
+                        log('Warning: Missing attribute "%s"', sort_name, sender=self)
+                        row.append(None)
+                    else:
+                        row.append(getattr( episode, sort_name))
             self.model.append( row)
 
         # connect to tooltip signals
