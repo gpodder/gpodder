@@ -142,7 +142,7 @@ class podcastChannel(object):
         else:
             self.pubDate = time.time()
         if hasattr( c.feed, 'image'):
-            if c.feed.image.href:
+            if hasattr(c.feed.image, 'href') and c.feed.image.href:
                 old = self.image
                 self.image = c.feed.image.href
                 if old != self.image:
