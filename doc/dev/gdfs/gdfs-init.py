@@ -57,10 +57,10 @@ if os.path.exists( dest_dir):
 
 for channel in gpodder.libpodcasts.load_channels():
     print channel.title
-    channel_dir = os.path.join( dest_dir, os.path.basename( channel.title))
+    channel_dir = os.path.join( dest_dir, os.path.basename( channel.title.replace('/', '-')))
 
     for episode in channel.get_all_episodes():
-        episode_file = os.path.join( channel_dir, os.path.basename( episode.title))
+        episode_file = os.path.join( channel_dir, os.path.basename( episode.title.replace('/', '-')))
         filename = episode.local_filename()
         episode_file += os.path.splitext( os.path.basename( filename))[1]
         episode_file = re.sub('[|?*<>:+\[\]\"\\\]*', '', episode_file.encode(enc, 'ignore'))
@@ -68,8 +68,20 @@ for channel in gpodder.libpodcasts.load_channels():
             channel_dir = re.sub('[|?*<>:+\[\]\"\\\]*', '', channel_dir.encode(enc, 'ignore'))
             if not os.path.exists( channel_dir):
                 os.makedirs( channel_dir)
-            os.link( filename, episode_file)
+
+            # If the file exists, another episode already has
+            # taken that file name, so look for a better one here
+            # by appending " (2)", " (3)", etc..
+            # (based on a patch by Mel Jay)
+            _pfx = 1
+            _dirn, _fnam = os.path.split(episode_file)
+            _fnam, _ext = os.path.splitext(_fnam)
+            while os.path.exists(episode_file):
+                _pfx += 1
+                episode_file = "%s/%s (%d)%s" % (_dirn, _fnam, _pfx, _ext)
+
             print '     Linking: ' + episode.title.encode(enc, 'ignore')
+            os.link(filename, episode_file)
 
 print """
     Yay, finished linking episodes :)
