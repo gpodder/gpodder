@@ -55,7 +55,7 @@ if os.path.exists( dest_dir):
         sys.exit( -1)
     shutil.rmtree( dest_dir)
 
-for channel in gpodder.libpodcasts.load_channels( callback_url = cb_url, offline = True):
+for channel in gpodder.libpodcasts.load_channels():
     print channel.title
     channel_dir = os.path.join( dest_dir, os.path.basename( channel.title))
 
