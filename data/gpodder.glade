@@ -268,6 +268,33 @@
 		    </widget>
 		  </child>
 
+                  <child>
+                    <widget class="GtkImageMenuItem" id="itemUpdateChannel">
+                      <property name="visible">False</property>
+                      <property name="label" translatable="yes">Update selected podcast</property>
+                      <property name="use_underline">True</property>
+                      <signal name="activate" handler="on_itemUpdateChannel_activate" last_modification_time="Mon, 1 Sep 2008 15:26:55 GMT"/>
+
+                      <child internal-child="image">
+                        <widget class="GtkImage" id="image4586">
+                          <property name="visible">True</property>
+                          <property name="stock">gtk-refresh</property>
+                          <property name="icon_size">1</property>
+                          <property name="xalign">0.5</property>
+                          <property name="yalign">0.5</property>
+                          <property name="xpad">0</property>
+                          <property name="ypad">0</property>
+                        </widget>
+                      </child>
+                    </widget>
+                  </child>
+
+                  <child>
+                    <widget class="GtkSeparatorMenuItem" id="UpdateChannelSeparator">
+                      <property name="visible">False</property>
+                    </widget>
+                  </child>
+
 		  <child>
 		    <widget class="GtkImageMenuItem" id="item_import_from_file">
 		      <property name="visible">True</property>

@@ -193,6 +193,8 @@ class podcastChannel(object):
         self.pubDate = 0
         self.parse_error = None
         self.newest_pubdate_cached = None
+        self.update_flag = False # channel is updating or to be updated
+        self.iter = None
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
@@ -683,8 +685,9 @@ class podcastItem(object):
 
 
 
-def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
-    new_model = gtk.ListStore(str, str, str, gtk.gdk.Pixbuf, int, gtk.gdk.Pixbuf, str, bool)
+def channels_to_model(channels, color_dict, cover_cache=None, max_width=0, max_height=0):
+    new_model = gtk.ListStore( str, str, str, gtk.gdk.Pixbuf, int,
+        gtk.gdk.Pixbuf, str, bool, str )
 
     for channel in channels:
         count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
@@ -692,6 +695,7 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
         count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
 
         new_iter = new_model.append()
+        channel.iter = new_iter
         new_model.set(new_iter, 0, channel.url)
         new_model.set(new_iter, 1, channel.title)
 
@@ -703,12 +707,20 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
         d.append(title_markup)
         if count_new:
             d.append('</span>')
+
         description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
-        if channel.parse_error is not None:
-            description = ''.join(['<span foreground="#ff0000">', description, '</span>'])
-            new_model.set(new_iter, 6, channel.parse_error)
-        
         new_model.set(new_iter, 2, description)
+
+        if channel.parse_error is not None:
+            new_model.set(new_iter, 6, channel.parse_error)
+            color = color_dict['parse_error']
+        else:
+            color = color_dict['default']
+
+        if channel.update_flag:
+            color = color_dict['updating']
+
+        new_model.set(new_iter, 8, color)
 
         if count_unplayed > 0 or count_downloaded > 0:
             new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))

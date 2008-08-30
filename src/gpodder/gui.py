@@ -35,6 +35,7 @@ from xml.sax import saxutils
 
 from threading import Event
 from threading import Thread
+from threading import Semaphore
 from string import strip
 
 import gpodder
@@ -274,6 +275,9 @@ class gPodder(GladeWidget):
             self.window.connect('delete-event', self.on_gPodder_delete_event)
             self.window.connect('window-state-event', self.window_state_event)
             self.window.connect('key-press-event', self.on_key_press)
+    
+            self.itemUpdateChannel.show()
+            self.UpdateChannelSeparator.show()
             
             # Give toolbar to the hildon window
             self.toolbar.parent.remove(self.toolbar)
@@ -369,9 +373,11 @@ class gPodder(GladeWidget):
         self.cell_channel_icon = iconcell
 
         namecell = gtk.CellRendererText()
+        namecell.set_property('foreground-set', True)
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn.pack_start( namecell, True)
         namecolumn.add_attribute( namecell, 'markup', 2)
+        namecolumn.add_attribute( namecell, 'foreground', 8)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
@@ -502,7 +508,16 @@ class gPodder(GladeWidget):
         # Set the "Device" menu item for the first time
         self.update_item_device()
 
+        # Set up default channel colors
+        self.channel_colors = {
+            'default': None,
+            'updating': gl.config.color_updating_feeds,
+            'parse_error': '#ff0000',
+            }
+
         # Now, update the feed cache, when everything's in place
+        self.btnUpdateFeeds.show_all()
+        self.updated_feeds = 0
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
@@ -703,6 +718,12 @@ class gPodder(GladeWidget):
             item = gtk.ImageMenuItem( _('Open download folder'))
             item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
             item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
+            menu.append( item)
+
+            item = gtk.ImageMenuItem( _('Update Feed'))
+            item.set_image( gtk.image_new_from_icon_name( 'gtk-refresh', gtk.ICON_SIZE_MENU))
+            item.connect('activate', self.on_itemUpdateChannel_activate )
+            item.set_sensitive( not self.updating_feed_cache )
             menu.append( item)
 
             if gl.config.create_m3u_playlists:
@@ -1150,7 +1171,7 @@ class gPodder(GladeWidget):
             selected_url = model.get_value(iter, 0)
 
         rect = self.treeChannels.get_visible_rect()
-        self.treeChannels.set_model(channels_to_model(self.channels, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
+        self.treeChannels.set_model(channels_to_model(self.channels, self.channel_colors, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
         util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
 
         try:
@@ -1270,29 +1291,17 @@ class gPodder(GladeWidget):
                 self.show_message( message, title)
             else:
                 self.show_message(_('There has been an error adding this podcast. Please see the log output for more information.'), _('Error adding podcast'))
-        self.update_podcasts_tab()
-    
-    def update_feed_cache_callback(self, progressbar, position, count, force_update):
-        if position < len(self.channels):
-            title = self.channels[position].title
-            if force_update:
-                progression = _('Updating %s (%d/%d)')%(title, position+1, count)
-            else:
-                progression = _('Loading %s (%d/%d)')%(title, position+1, count)
-            progressbar.set_text(progression)
-            if self.tray_icon:
-                self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
+        self.update_podcasts_tab()        
 
-            if count > 0:
-                progressbar.set_fraction(float(position)/float(count))
 
-    def update_feed_cache_finish_callback(self, force_update=False, notify_no_new_episodes=False,
-        select_url_afterwards=None):
-        
+    def update_feed_cache_finish_callback(self, channels=None,
+        notify_no_new_episodes=False, select_url_afterwards=None):
+
         self.updating_feed_cache = False
         self.hboxUpdateFeeds.hide_all()
         self.btnUpdateFeeds.show_all()
         self.itemUpdate.set_sensitive(True)
+        self.itemUpdateChannel.set_sensitive(True)
 
         # If we want to select a specific podcast (via its URL)
         # after the update, we give it to updateComboBox here to
@@ -1301,7 +1310,7 @@ class gPodder(GladeWidget):
 
         if self.tray_icon:
             self.tray_icon.set_status(None)
-            if self.minimized and force_update:
+            if self.minimized:
                 new_episodes = []
                 # look for new episodes to notify
                 for channel in self.channels:
@@ -1330,46 +1339,100 @@ class gPodder(GladeWidget):
                 return
 
         # open the episodes selection dialog
-        if force_update:
-            self.on_itemDownloadAllNew_activate( self.gPodder)
+        self.channels = load_channels()
+        self.updateComboBox()
+        if not self.feed_cache_update_cancelled:
+            self.download_all_new(channels=channels)
 
-    def update_feed_cache_proc( self, force_update, callback_proc = None, callback_error = None, finish_proc = None):
-        if not force_update:
-            self.channels = load_channels()
-        else:
-            is_cancelled_cb = lambda: self.feed_cache_update_cancelled
-            self.channels = update_channels(callback_proc=callback_proc, callback_error=callback_error, is_cancelled_cb=is_cancelled_cb)
+    def update_feed_cache_callback(self, progressbar, title, position, count):
+        progression = _('Updated %s (%d/%d)')%(title, position+1, count)
+        progressbar.set_text(progression)
+        if self.tray_icon:
+            self.tray_icon.set_status(
+                self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression )
+        if count > 0:
+            progressbar.set_fraction(float(position)/float(count))
 
-        self.pbFeedUpdate.set_text(_('Building list...'))
-        if finish_proc:
+    def update_feed_cache_proc( self, channel, total_channels, semaphore,
+        callback_proc, finish_proc):
+
+        semaphore.acquire()
+        if not self.feed_cache_update_cancelled:
+            try:
+                channel.update()
+            except:
+                log('Darn SQLite LOCK!', sender=self, traceback=True)
+
+        # By the time we get here the update may have already been cancelled
+        if not self.feed_cache_update_cancelled:
+            callback_proc(channel.title, self.updated_feeds, total_channels)
+
+        self.updated_feeds += 1
+        self.treeview_channel_set_color( channel, 'default' )
+        channel.update_flag = False
+
+        semaphore.release()
+        if self.updated_feeds == total_channels:
             finish_proc()
 
     def on_btnCancelFeedUpdate_clicked(self, widget):
         self.pbFeedUpdate.set_text(_('Cancelling...'))
         self.feed_cache_update_cancelled = True
 
-    def update_feed_cache(self, force_update=True, notify_no_new_episodes=False, select_url_afterwards=None):
+    def update_feed_cache(self, channels=None, force_update=True,
+        notify_no_new_episodes=False, select_url_afterwards=None):
+
         if self.updating_feed_cache: 
+            return
+
+        if not force_update:
+            self.channels = load_channels()
+            self.updateComboBox()
             return
         
         self.updating_feed_cache = True
         self.itemUpdate.set_sensitive(False)
+        self.itemUpdateChannel.set_sensitive(False)
+
         if self.tray_icon:
             self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
+        
+        if channels is None:
+            channels = self.channels
+
+        if len(channels) == 1:
+            text = _('Updating %d feed.')
+        else:
+            text = _('Updating %d feeds.')
+        self.pbFeedUpdate.set_text( text % len(channels))
+        self.pbFeedUpdate.set_fraction(0)
 
         # let's get down to business..
-        callback_proc = lambda pos, count: util.idle_add(self.update_feed_cache_callback, self.pbFeedUpdate, pos, count, force_update)
-        finish_proc = lambda: util.idle_add(self.update_feed_cache_finish_callback, force_update, notify_no_new_episodes, select_url_afterwards)
+        callback_proc = lambda title, pos, count: util.idle_add( 
+            self.update_feed_cache_callback, self.pbFeedUpdate, title, pos, count )
+        finish_proc = lambda: util.idle_add( self.update_feed_cache_finish_callback,
+            channels, notify_no_new_episodes, select_url_afterwards )
 
+        self.updated_feeds = 0
         self.feed_cache_update_cancelled = False
         self.btnUpdateFeeds.hide_all()
         self.hboxUpdateFeeds.show_all()
+        semaphore = Semaphore(gl.config.max_simulaneous_feeds_updating)
 
-        args = (force_update, callback_proc, self.notification, finish_proc)
+        for channel in channels:
+            self.treeview_channel_set_color( channel, 'updating' )
+            channel.update_flag = True
+            args = (channel, len(channels), semaphore, callback_proc, finish_proc)
+            thread = Thread( target = self.update_feed_cache_proc, args = args)
+            thread.start()
 
-        thread = Thread( target = self.update_feed_cache_proc, args = args)
-        thread.start()
-        
+    def treeview_channel_set_color( self, channel, color ):
+        if color in self.channel_colors:
+            self.treeChannels.get_model().set(channel.iter, 8,
+                self.channel_colors[color])
+        else:
+            self.treeChannels.get_model().set(channel.iter, 8, color)
+
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
         Displays a confirmation dialog (and closes/hides gPodder)
@@ -1528,6 +1591,9 @@ class gPodder(GladeWidget):
     def on_item_show_url_entry_activate(self, widget):
         gl.config.show_podcast_url_entry = self.item_show_url_entry.get_active()
 
+    def on_itemUpdateChannel_activate(self, widget=None):
+        self.update_feed_cache(channels=[self.active_channel,])
+
     def on_itemUpdate_activate(self, widget, notify_no_new_episodes=False):
         restore_from = can_restore_from_opml()
 
@@ -1614,8 +1680,13 @@ class gPodder(GladeWidget):
             self.show_message(message, title)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
+        self.download_all_new()
+
+    def download_all_new(self, channels=None):
+        if channels is None:
+            channels = self.channels
         episodes = []
-        for channel in self.channels:
+        for channel in channels:
             for episode in channel.get_new_episodes():
                 episodes.append(episode)
         self.new_episodes_show(episodes)

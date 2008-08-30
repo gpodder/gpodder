@@ -116,6 +116,8 @@ gPodderSettings = {
     'podcast_list_icon_size': (int, 32),
     'cmd_all_downloads_complete': (str, ''),
     'cmd_download_complete': (str, ''),
+    'max_simulaneous_feeds_updating': (int, 3),
+    'color_updating_feeds': (str, '#7db023'),
     
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, False),
