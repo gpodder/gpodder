@@ -2283,10 +2283,9 @@ class gPodder(GladeWidget):
             
         old_minimized = self.minimized
 
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
-            self.minimized = True
-        else:
-            self.minimized = False
+        self.minimized = bool(event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED)
+        if gpodder.interface == gpodder.MAEMO:
+            self.minimized = bool(event.new_window_state & gtk.gdk.WINDOW_STATE_WITHDRAWN)
 
         if old_minimized != self.minimized and self.tray_icon:
             self.gPodder.set_skip_taskbar_hint(self.minimized)
