@@ -242,7 +242,7 @@ class gPodderLib(object):
     def get_device_name( self):
         if self.config.device_type == 'ipod':
             return _('iPod')
-        elif self.config.device_type == 'filesystem':
+        elif self.config.device_type in ('filesystem', 'mtp'):
             return _('MP3 player')
         else:
             log( 'Warning: Called get_device_name() when no device was selected.', sender = self)

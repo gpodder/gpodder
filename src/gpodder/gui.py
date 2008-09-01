@@ -1650,6 +1650,11 @@ class gPodder(GladeWidget):
             message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
             self.notification( message, title )
             return
+        elif gl.config.device_type == 'mtp' and not sync.pymtp_available:
+            title = _('Cannot sync to MTP device')
+            message = _('Please install the libmtp python bindings (python-pymtp) and restart gPodder to continue.')
+            self.notification( message, title )
+            return
 
         device = sync.open_device()
         device.register( 'post-done', self.sync_to_ipod_completed )
@@ -2512,6 +2517,8 @@ class gPodderProperties(GladeWidget):
             self.comboboxDeviceType.set_active( 1)
         elif gl.config.device_type == 'filesystem':
             self.comboboxDeviceType.set_active( 2)
+        elif gl.config.device_type == 'mtp':
+            self.comboboxDeviceType.set_active( 3)
 
         # setup cell renderers
         cellrenderer = gtk.CellRendererPixbuf()
@@ -2805,6 +2812,8 @@ class gPodderProperties(GladeWidget):
             gl.config.device_type = 'ipod'
         elif device_type == 2:
             gl.config.device_type = 'filesystem'
+        elif device_type == 3:
+            gl.config.device_type = 'mtp'
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()
@@ -2914,9 +2923,11 @@ class gPodderSync(GladeWidget):
         self.device.register('status', self.on_status)
         self.device.register('done', self.on_done)
     
-    def on_progress(self, pos, max):
+    def on_progress(self, pos, max, text=None):
+        if text is None:
+            text = _('%d of %d done') % (pos, max)
         util.idle_add(self.progressbar.set_fraction, float(pos)/float(max))
-        util.idle_add(self.progressbar.set_text, _('%d of %d done') % (pos, max))
+        util.idle_add(self.progressbar.set_text, text)
 
     def on_sub_progress(self, percentage):
         util.idle_add(self.progressbar.set_text, _('Processing (%d%%)') % (percentage))

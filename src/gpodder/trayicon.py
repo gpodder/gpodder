@@ -436,8 +436,10 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.__synchronisation_device.unregister('done', self.__on_synchronisation_done)        
         self.__synchronisation_device = None
         
-    def __on_synchronisation_progress(self, pos, max):
-        self.__sync_progress = _('%d of %d done') % (pos, max)
+    def __on_synchronisation_progress(self, pos, max, text=None):
+        if text is None:
+            text = _('%d of %d done') % (pos, max)
+        self.__sync_progress = text
 
     def __on_synchronisation_status(self, status):
         tooltip = _('%s\n%s') % (status, self.__sync_progress)

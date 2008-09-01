@@ -32,12 +32,22 @@ from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 from gpodder.dbsqlite import db
 
+import time
+import calendar
+
 gpod_available = True
 try:
     import gpod
 except:
     gpod_available = False
     log('(gpodder.sync) Could not find gpod')
+
+pymtp_available = True
+try:
+    import pymtp
+except:
+    pymtp_available = False
+    log('(gpodder.sync) Could not find pymtp.')
 
 try:
     import mad
@@ -71,6 +81,8 @@ def open_device():
         return iPodDevice()
     elif device_type == 'filesystem':
         return MP3PlayerDevice()
+    elif device_type == 'mtp':
+        return MTPDevice()
     else:
         return None
 
@@ -227,6 +239,7 @@ class iPodDevice(Device):
         return util.get_free_disk_space(self.mountpoint) - RESERVED_FOR_ITDB
 
     def open(self):
+        Device.open(self)
         if not os.path.isdir(self.mountpoint):
             return False
 
@@ -460,6 +473,7 @@ class MP3PlayerDevice(Device):
         return util.get_free_disk_space(self.destination)
 
     def open(self):
+        Device.open(self)
         self.notify('status', _('Opening MP3 player'))
         if util.directory_is_writable(self.destination):
             self.notify('status', _('MP3 player opened'))
@@ -679,3 +693,192 @@ class MP3PlayerDevice(Device):
             log('Error while parsing "%s".', log_file, sender=self)
 
         return True
+
+class MTPDevice(Device):
+    def __init__(self):
+        Device.__init__(self)
+        self.__model_name = None
+        self.__MTPDevice = pymtp.MTP()
+
+    def __callback(self, sent, total):
+        if self.cancelled:
+            return -1
+        percentage = round(float(sent)/float(total)*100)
+        text = ('%i%%' % percentage)
+        self.notify('progress', sent, total, text)
+
+    def __date_to_mtp(self, date):
+        """
+        this function format the given date and time to a string representation
+        according to MTP specifications: YYYYMMDDThhmmss.s
+
+        return
+            the string representation od the given date
+        """
+        if not date:
+            return ""
+        try:
+            d = time.gmtime(date)
+            return time.strftime("%Y%m%d-%H%M%S.0Z", d)
+        except Exception, exc:
+            log('ERROR: An error has happend while trying to convert date to an mtp string (%s)', exc, sender=self)
+            return None
+
+    def __mtp_to_date(self, mtp):
+        """
+        this parse the mtp's string representation for date
+        according to specifications (YYYYMMDDThhmmss.s) to
+        a python time object
+
+        """
+        if not mtp:
+            return None
+
+        try:
+            mtp = mtp.replace(" ", "0") # replace blank with 0 to fix some invalid string
+            d = time.strptime(mtp[:8] + mtp[9:13],"%Y%m%d%H%M%S")
+            _date = calendar.timegm(d)
+            if len(mtp)==20:
+                # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone
+                try:
+                    shift_direction=mtp[15]
+                    hour_shift = int(mtp[16:18])
+                    minute_shift = int(mtp[18:20])
+                    shift_in_sec = hour_shift * 3600 + minute_shift * 60
+                    if shift_direction == "+":
+                        _date += shift_in_sec
+                    elif shift_direction == "-":
+                        _date -= shift_in_sec
+                    else:
+                        raise ValueError("Expected + or -")
+                except Exception, exc:
+                    log('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc, sender=self)
+            return max( 0, _date )
+        except Exception, exc:
+            log('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)', mtp, exc, sender=self)
+            return None
+
+    def get_name(self):
+        """
+        this function try to find a nice name for the device.
+        First, it tries to find a friendly (user assigned) name
+        (this name can be set by other application and is stored on the device).
+        if no friendly name was assign, it tries to get the model name (given by the vendor).
+        If no name is found at all, a generic one is returned.
+
+        Once found, the name is cached internaly to prevent reading again the device
+
+        return
+            the name of the device
+        """
+
+        if self.__model_name:
+             return self.__model_name
+
+        self.__model_name = self.__MTPDevice.get_devicename() # actually libmtp.Get_Friendlyname
+        if not self.__model_name or self.__model_name == "?????":
+            self.__model_name = self.__MTPDevice.get_modelname()
+        if not self.__model_name:
+            self.__model_name = "MTP device"
+
+        return self.__model_name
+
+    def open(self):
+        Device.open(self)
+        log("opening the MTP device", sender=self)
+        self.notify('status', _('Opening the MTP device'), )
+
+        try:
+            self.__MTPDevice.connect()
+            # build the initial tracks_list
+            self.tracks_list = self.get_all_tracks()
+        except Exception, exc:
+            log('unable to find an MTP device (%s)', exc, sender=self, traceback=True)
+            return False
+
+        self.notify('status', _('%s opened') % self.get_name())
+        return True
+
+    def close(self):
+        log("closing %s", self.get_name(), sender=self)
+        self.notify('status', _('Closing %s') % self.get_name())
+
+        try:
+            self.__MTPDevice.disconnect()
+        except Exception, exc:
+            log('unable to close %s (%s)', self.get_name(), exc, sender=self)
+            return False
+
+        self.notify('status', _('%s closed') % self.get_name())
+        Device.close(self)
+        return True
+
+    def add_track(self, episode):
+        self.notify('status', _('Adding %s...') % episode.title)
+        log("sending " + str(episode.local_filename()) + " (" + episode.title + ").", sender=self)
+
+        try:
+            # verify free space
+            needed = util.calculate_size(episode.local_filename())
+            free = self.get_free_space()
+            if needed > free:
+                log('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed), sender=self)
+                self.cancelled = True
+                return False
+
+            # fill metadata
+            metadata = pymtp.LIBMTP_Track()
+            metadata.title = str(episode.title)
+            metadata.artist = str(episode.channel.title)
+            metadata.album = str(episode.channel.title)
+            metadata.genre = "podcast"
+            metadata.date = self.__date_to_mtp(episode.pubDate)
+            metadata.duration = get_track_length(str(episode.local_filename()))
+
+            # send the file
+            self.__MTPDevice.send_track_from_file( str(episode.local_filename()), episode.basename, metadata, 0, callback=self.__callback)
+        except:
+            log('unable to add episode %s', episode.title, sender=self, traceback=True)
+            return False
+
+        return True
+
+    def remove_track(self, sync_track):
+        self.notify('status', _('Removing %s') % sync_track.mtptrack.title)
+        log("removing %s", sync_track.mtptrack.title, sender=self)
+
+        try:
+            self.__MTPDevice.delete_object(sync_track.mtptrack.item_id)
+        except Exception, exc:
+            log('unable remove file %s (%s)', sync_track.mtptrack.filename, exc, sender=self)
+
+        log('%s removed', sync_track.mtptrack.title , sender=self)
+
+    def get_all_tracks(self):
+        try:
+            listing = self.__MTPDevice.get_tracklisting(callback=self.__callback)
+        except Exception, exc:
+            log('unable to get file listing %s (%s)', exc, sender=self)
+
+        tracks = []
+        for track in listing:
+            title = track.title
+            if not title or title=="": title=track.filename
+            if len(title) > 50: title = title[0:49] + '...'
+            artist = track.artist
+            if artist and len(artist) > 50: artist = artist[0:49] + '...'
+            length = track.filesize
+            age_in_days = 0
+            date = self.__mtp_to_date(track.date)
+            if not date:
+                modified = track.date # not a valid mtp date. Display what mtp gave anyway
+            else:
+                modified = util.format_date(date)
+
+            t = SyncTrack(title, length, modified, mtptrack=track, podcast=artist)
+            tracks.append(t)
+        return tracks
+
+    def get_free_space(self):
+        return self.__MTPDevice.get_freespace()
+
