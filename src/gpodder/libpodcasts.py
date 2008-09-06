@@ -693,58 +693,62 @@ class podcastItem(object):
     
 
 
+def update_channel_model_by_iter( model, iter, channel, color_dict,
+    cover_cache=None, max_width=0, max_height=0 ):
+
+    count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
+    count_new = channel.stat(state=db.STATE_NORMAL, is_played=False)
+    count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
+
+    channel.iter = iter
+    model.set(iter, 0, channel.url)
+    model.set(iter, 1, channel.title)
+
+    title_markup = saxutils.escape(channel.title)
+    description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
+    d = []
+    if count_new:
+        d.append('<span weight="bold">')
+    d.append(title_markup)
+    if count_new:
+        d.append('</span>')
+
+    description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
+    model.set(iter, 2, description)
+
+    if channel.parse_error is not None:
+        model.set(iter, 6, channel.parse_error)
+        color = color_dict['parse_error']
+    else:
+        color = color_dict['default']
+
+    if channel.update_flag:
+        color = color_dict['updating']
+
+    model.set(iter, 8, color)
+
+    if count_unplayed > 0 or count_downloaded > 0:
+        model.set(iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
+        model.set(iter, 7, True)
+    else:
+        model.set(iter, 7, False)
+
+    # Load the cover if we have it, but don't download
+    # it if it's not available (to avoid blocking here)
+    pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+    new_pixbuf = None
+    if pixbuf is not None:
+        new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
+    model.set(iter, 5, new_pixbuf or pixbuf)
 
 def channels_to_model(channels, color_dict, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore( str, str, str, gtk.gdk.Pixbuf, int,
         gtk.gdk.Pixbuf, str, bool, str )
 
     for channel in channels:
-        count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
-        count_new = channel.stat(state=db.STATE_NORMAL, is_played=False)
-        count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
+        update_channel_model_by_iter( new_model, new_model.append(), channel,
+            color_dict, cover_cache, max_width, max_height )
 
-        new_iter = new_model.append()
-        channel.iter = new_iter
-        new_model.set(new_iter, 0, channel.url)
-        new_model.set(new_iter, 1, channel.title)
-
-        title_markup = saxutils.escape(channel.title)
-        description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
-        d = []
-        if count_new:
-            d.append('<span weight="bold">')
-        d.append(title_markup)
-        if count_new:
-            d.append('</span>')
-
-        description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
-        new_model.set(new_iter, 2, description)
-
-        if channel.parse_error is not None:
-            new_model.set(new_iter, 6, channel.parse_error)
-            color = color_dict['parse_error']
-        else:
-            color = color_dict['default']
-
-        if channel.update_flag:
-            color = color_dict['updating']
-
-        new_model.set(new_iter, 8, color)
-
-        if count_unplayed > 0 or count_downloaded > 0:
-            new_model.set(new_iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
-            new_model.set(new_iter, 7, True)
-        else:
-            new_model.set(new_iter, 7, False)
-
-        # Load the cover if we have it, but don't download
-        # it if it's not available (to avoid blocking here)
-        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-        new_pixbuf = None
-        if pixbuf is not None:
-            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
-        new_model.set(new_iter, 5, new_pixbuf or pixbuf)
-    
     return new_model
 
 

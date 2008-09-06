@@ -60,6 +60,7 @@ from libpodcasts import podcastChannel
 from libpodcasts import LocalDBReader
 from libpodcasts import podcastItem
 from libpodcasts import channels_to_model
+from libpodcasts import update_channel_model_by_iter
 from libpodcasts import load_channels
 from libpodcasts import update_channels
 from libpodcasts import save_channels
@@ -1028,7 +1029,7 @@ class gPodder(GladeWidget):
         (success, application) = gl.playback_episode(episode)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
-        self.download_status_updated()
+        self.updateComboBox(only_selected_channel=True)
 
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):
         if model is None:
@@ -1159,38 +1160,46 @@ class gPodder(GladeWidget):
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
-        
+
     def on_cbLimitDownloads_toggled(self, widget, *args):
         self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())    
 
-    def updateComboBox(self, selected_url=None):
+    def updateComboBox(self, selected_url=None, only_selected_channel=False):
         (model, iter) = self.treeChannels.get_selection().get_selected()
 
-        if model and iter and selected_url is None:
-            # Get the URL of the currently-selected podcast
-            selected_url = model.get_value(iter, 0)
+        if only_selected_channel:
+            if iter and self.active_channel is not None:
+                update_channel_model_by_iter( self.treeChannels.get_model(),
+                    iter, self.active_channel, self.channel_colors,
+                    self.cover_cache, *(gl.config.podcast_list_icon_size,)*2 )
+        else:
+            if model and iter and selected_url is None:
+                # Get the URL of the currently-selected podcast
+                selected_url = model.get_value(iter, 0)
 
-        rect = self.treeChannels.get_visible_rect()
-        self.treeChannels.set_model(channels_to_model(self.channels, self.channel_colors, self.cover_cache, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size))
-        util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
+            rect = self.treeChannels.get_visible_rect()
+            self.treeChannels.set_model( channels_to_model( self.channels,
+                self.channel_colors, self.cover_cache,
+                *(gl.config.podcast_list_icon_size,)*2 ))
+            util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
 
-        try:
-            selected_path = (0,)
-            # Find the previously-selected URL in the new
-            # model if we have an URL (else select first)
-            if selected_url is not None:
-                model = self.treeChannels.get_model()
-                pos = model.get_iter_first()
-                while pos is not None:
-                    url = model.get_value(pos, 0)
-                    if url == selected_url:
-                        selected_path = model.get_path(pos)
-                        break
-                    pos = model.iter_next(pos)
+            try:
+                selected_path = (0,)
+                # Find the previously-selected URL in the new
+                # model if we have an URL (else select first)
+                if selected_url is not None:
+                    model = self.treeChannels.get_model()
+                    pos = model.get_iter_first()
+                    while pos is not None:
+                        url = model.get_value(pos, 0)
+                        if url == selected_url:
+                            selected_path = model.get_path(pos)
+                            break
+                        pos = model.iter_next(pos)
 
-            self.treeChannels.get_selection().select_path(selected_path)
-        except:
-            log( 'Cannot set selection on treeChannels', sender = self)
+                self.treeChannels.get_selection().select_path(selected_path)
+            except:
+                log( 'Cannot set selection on treeChannels', sender = self)
         self.on_treeChannels_cursor_changed( self.treeChannels)
     
     def updateTreeView( self):
@@ -1526,12 +1535,13 @@ class gPodder(GladeWidget):
                 callback( url)
             except Exception, e:
                 log( 'Warning: Error in for_each_selected_episode_url for URL %s: %s', url, e, sender = self)
-        self.updateComboBox()
+
+        self.updateComboBox(only_selected_channel=True)
 
     def delete_episode_list( self, episodes, confirm = True):
         if len(episodes) == 0:
             return
-        
+
         if len(episodes) == 1:
             message = _('Do you really want to delete this episode?')
         else:
