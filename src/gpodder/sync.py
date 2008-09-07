@@ -240,7 +240,7 @@ class iPodDevice(Device):
 
     def open(self):
         Device.open(self)
-        if not os.path.isdir(self.mountpoint):
+        if not gpod_available or not os.path.isdir(self.mountpoint):
             return False
 
         self.notify('status', _('Opening iPod database'))
