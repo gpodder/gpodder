@@ -227,7 +227,7 @@ class iPodDevice(Device):
         return util.get_free_disk_space(self.mountpoint) - RESERVED_FOR_ITDB
 
     def open(self):
-        if not os.path.isdir(self.mountpoint):
+        if not gpod_available or not os.path.isdir(self.mountpoint):
             return False
 
         self.notify('status', _('Opening iPod database'))
