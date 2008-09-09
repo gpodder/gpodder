@@ -85,7 +85,7 @@ app_authors = [
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 'audioworld', 
     'Bernd Schlapsi', 'Bill Barnard', 'Bjørn Rasmussen', 'Camille Moncelier',
     'Carlos Moffat', 'Chris', 'Chris Arnold', 'Clark Burbidge', 'Daniel Ramos',
-    'David Spreen', 'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
+    'David Spreen', 'David Stevens', 'Doug Hellmann', 'FFranci72', 'Florian Richter', 'Frank Harper',
     'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Götz Waschk',
     'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Jens Thiele',
     'Jérôme Chabod', 'Jerry Moss',
