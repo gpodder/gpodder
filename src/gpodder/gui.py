@@ -1427,11 +1427,11 @@ class gPodder(GladeWidget):
             thread.start()
 
     def treeview_channel_set_color( self, channel, color ):
-        if color in self.channel_colors:
-            self.treeChannels.get_model().set(channel.iter, 8,
-                self.channel_colors[color])
-        else:
-            self.treeChannels.get_model().set(channel.iter, 8, color)
+        if self.treeChannels.get_model():
+            if color in self.channel_colors:
+                self.treeChannels.get_model().set(channel.iter, 8, self.channel_colors[color])
+            else:
+                self.treeChannels.get_model().set(channel.iter, 8, color)
 
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
