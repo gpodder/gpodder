@@ -2053,11 +2053,18 @@ class gPodder(GladeWidget):
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             filename = dlg.get_filename()
+            dlg.destroy()
             exporter = opml.Exporter( filename)
-            if not exporter.write( self.channels):
+            if exporter.write(self.channels):
+                if len(self.channels) == 1:
+                    title = _('One subscription exported')
+                else:
+                    title = _('%d subscriptions exported') % len(self.channels)
+                self.show_message(_('Your podcast list has been successfully exported.'), title)
+            else:
                 self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'))
-
-        dlg.destroy()
+        else:
+            dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
         gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
