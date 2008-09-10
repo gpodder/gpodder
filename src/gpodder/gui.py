@@ -1796,7 +1796,7 @@ class gPodder(GladeWidget):
 
     def ipod_cleanup_callback(self, device, tracks):
         title = _('Delete podcasts from device?')
-        message = _('Do you really want to completely remove the selected episodes?')
+        message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
         if len(tracks) > 0 and self.show_confirmation(message, title):
             device.remove_tracks(tracks)
  
@@ -1853,6 +1853,7 @@ class gPodder(GladeWidget):
             title = _('No files on device')
             message = _('The devices contains no files to be removed.')
             self.show_message(message, title)
+            device.close()
 
     def show_hide_tray_icon(self):
         if gl.config.display_tray_icon and have_trayicon and self.tray_icon is None:
