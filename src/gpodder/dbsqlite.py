@@ -42,37 +42,16 @@ from email.Utils import formatdate
 from threading import RLock
 import string
 
-class LockingCursor(sqlite.Cursor):
-    """
-    This custom cursor implementation provides thread safety.
-    Only one thread at a time can work with cursors, as many
-    as needed.  Using a custom cursor makes this transparent.
-
-    One possible alternative is to use a queue and a single
-    SQLite worker thread, which sounds right but can introduce
-    serious problems, e.g. when a thread puts something in
-    queue and dies, refusing to fetch the results.  Example
-    implementation:
-
-    http://code.activestate.com/recipes/526618/
-    """
-    lock = None
-
-    def __init__(self, *args, **kwargs):
-        self.lock.acquire()
-        sqlite.Cursor.__init__(self, *args, **kwargs)
-
-    def __del__(self):
-        self.lock.release()
-
 class Storage(object):
     (STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED) = range(3)
+
+    lock = None
 
     def __init__(self):
         self.settings = {}
         self.channel_map = {}
         self._db = None
-        LockingCursor.lock = RLock()
+        self.lock = RLock()
 
     def setup(self, settings):
         self.settings = settings
@@ -82,17 +61,22 @@ class Storage(object):
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
-            self._db.create_collation("unicode", lambda a, b: cmp(a.lower(), b.lower()))
+            self._db.create_collation("unicode", lambda a, b: cmp(a.lower().replace('the ', ''), b.lower().replace('the ', '')))
             log('SQLite connected', sender=self)
         return self._db
 
-    def cursor(self):
-        return self.db.cursor(factory=LockingCursor)
+    def cursor(self, lock=False):
+        if lock:
+            self.lock.acquire()
+        return self.db.cursor()
 
     def commit(self):
-        # grab a cursor to lock threads
-        cur = self.cursor()
-        self.db.commit()
+        self.lock.acquire()
+        try:
+            self.db.commit()
+        except ProgrammingError, e:
+            log('Error commiting changes: %s', e, sender=self, traceback=True)
+        self.lock.release()
 
     def __check_schema(self):
         """
@@ -100,7 +84,7 @@ class Storage(object):
         """
         log('Setting up SQLite database', sender=self)
 
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
 
         cur.execute("""CREATE TABLE IF NOT EXISTS channels (
             id INTEGER PRIMARY KEY,
@@ -149,6 +133,7 @@ class Storage(object):
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_locked ON episodes (locked)""")
 
         cur.close()
+        self.lock.release()
 
     def get_channel_stat(self, url_or_id, state=None, is_played=None, is_locked=None):
         where, params = ((),())
@@ -181,7 +166,7 @@ class Storage(object):
         as the only argument.
         """
 
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
         cur.execute("""
             SELECT
                 id,
@@ -237,6 +222,7 @@ class Storage(object):
                     result.append(factory(channel))
 
         cur.close()
+        self.lock.release()
 
         if url is None:
             log('Channel list read, %d entries.', len(result), sender=self)
@@ -249,7 +235,7 @@ class Storage(object):
         if c.id is None:
             c.id = self.find_channel_id(c.url)
 
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
 
         if c.id is None:
             cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, ))
@@ -261,11 +247,15 @@ class Storage(object):
         if not bulk:
             self.commit()
 
+        cur.close()
+        self.lock.release()
+
     def delete_channel(self, channel, purge=False):
         if channel.id is None:
             channel.id = self.find_channel_id(channel.url)
 
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
+        log('Deleting channel %d', channel.id, sender=self)
 
         if purge:
             cur.execute("DELETE FROM channels WHERE id = ?", (channel.id, ))
@@ -277,6 +267,8 @@ class Storage(object):
             cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, self.STATE_DELETED))
 
         self.commit()
+        cur.close()
+        self.lock.release()
 
     def __read_episodes(self, factory=None, where=None, params=None, commit=True):
         sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked FROM episodes"
@@ -287,7 +279,7 @@ class Storage(object):
         if params is None:
             params = ()
 
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
         cur.execute(sql, params)
 
         result = []
@@ -312,6 +304,8 @@ class Storage(object):
             else:
                 result.append(factory(episode))
 
+        cur.close()
+        self.lock.release()
         return result
 
     def load_episodes(self, channel, factory=None, limit=1000, state=None):
@@ -338,6 +332,8 @@ class Storage(object):
             log('Refusing to save an episode without guid: %s', e)
             return
 
+        self.lock.acquire()
+
         try:
             cur = self.cursor()
             channel_id = self.find_channel_id(e.channel.url)
@@ -355,10 +351,12 @@ class Storage(object):
         except Exception, e:
             log('save_episode() failed: %s', e, sender=self)
 
+        cur.close()
         self.commit()
+        self.lock.release()
 
     def mark_episode(self, url, state=None, is_played=None, is_locked=None, toggle=False):
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
         cur.execute("SELECT state, played, locked FROM episodes WHERE url = ?", (url, ))
 
         try:
@@ -366,6 +364,8 @@ class Storage(object):
         except:
             # This only happens when we try to mark an unknown episode,
             # which is typical for database upgrade, so we just ignore it.
+            cur.close()
+            self.lock.release()
             return
 
         if toggle:
@@ -381,14 +381,20 @@ class Storage(object):
             if is_locked is not None:
                 cur_locked = is_locked
 
+        cur.close()
+
+        cur = self.cursor()
         cur.execute("UPDATE episodes SET state = ?, played = ?, locked = ? WHERE url = ?", (cur_state, cur_played, cur_locked, url, ))
+        cur.close()
+
         self.commit()
+        self.lock.release()
 
     def __get__(self, sql, params=None):
         """
         Returns the first cell of a query result, useful for COUNT()s.
         """
-        cur = self.cursor()
+        cur = self.cursor(lock=True)
 
         if params is None:
             cur.execute(sql)
@@ -396,6 +402,8 @@ class Storage(object):
             cur.execute(sql, params)
 
         row = cur.fetchone()
+        cur.close()
+        self.lock.release()
 
         if row is None:
             return None
@@ -437,19 +445,23 @@ class Storage(object):
             self.STATE_DELETED))
         log('old episodes in (%d)%s: %d', channel.id, channel.url, old)
 
+        cur = self.cursor(lock=True)
+
         if old > 0:
-            self.cursor().execute("""
+            cur.execute("""
                 UPDATE episodes SET played = 1 WHERE channel_id = ?
                 AND played = 0 AND pubDate < (SELECT MAX(pubDate)
                 FROM episodes WHERE channel_id = ? AND state IN (?, ?))""",
                 (channel.id, channel.id, self.STATE_DOWNLOADED,
                 self.STATE_DELETED, ))
         else:
-            self.cursor().execute("""
+            cur.execute("""
                 UPDATE episodes SET played = 1 WHERE channel_id = ?
                 AND pubDate <> (SELECT MAX(pubDate) FROM episodes
                 WHERE channel_id = ?)""", (channel.id, channel.id, ))
 
         self.commit()
+        cur.close()
+        self.lock.release()
 
 db = Storage()
