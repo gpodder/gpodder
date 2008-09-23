@@ -1225,72 +1225,87 @@ class gPodder(GladeWidget):
     def add_new_channel(self, result=None, ask_download_new=True, quiet=False):
         result = util.normalize_feed_url( result)
 
-        if result:
-            for old_channel in self.channels:
-                if old_channel.url == result:
-                    log( 'Channel already exists: %s', result)
-                    # Select the existing channel in combo box
-                    for i in range( len( self.channels)):
-                        if self.channels[i] == old_channel:
-                            self.treeChannels.get_selection().select_path( (i,))
-                            self.on_treeChannels_cursor_changed(self.treeChannels)
-                            break
-                    self.show_message( _('You have already subscribed to this podcast: %s') % ( saxutils.escape( old_channel.title), ), _('Already added'))
-                    return
-            log( 'Adding new channel: %s', result)
-            try:
-                channel = podcastChannel.load(url=result, create=True)
-            except Exception, e:
-                log('Error in podcastChannel.load(%s): %s', result, e, traceback=True, sender=self)
-                channel = None
+        if not result:
+            title = _('URL scheme not supported')
+            message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
+            self.show_message( message, title)
+            return
 
-            if channel is not None:
-                self.channels.append( channel)
-                save_channels( self.channels)
-                if not quiet:
-                    # download changed channels and select the new episode in the UI afterwards
-                    self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
+        for old_channel in self.channels:
+            if old_channel.url == result:
+                log( 'Channel already exists: %s', result)
+                # Select the existing channel in combo box
+                for i in range( len( self.channels)):
+                    if self.channels[i] == old_channel:
+                        self.treeChannels.get_selection().select_path( (i,))
+                        self.on_treeChannels_cursor_changed(self.treeChannels)
+                        break
+                self.show_message( _('You have already subscribed to this podcast: %s') % ( 
+                    saxutils.escape( old_channel.title), ), _('Already added'))
+                return
 
-                (username, password) = util.username_password_from_url( result)
-                if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
-                    channel.username = username
-                    channel.password = password
-                    log('Saving authentication data for episode downloads..', sender = self)
-                    channel.save()
+        self.entryAddChannel.set_text(_('Downloading feed...'))
+        self.entryAddChannel.set_sensitive(False)
+        self.btnAddChannel.set_sensitive(False)
+        args = (result, self.add_new_channel_finish, ask_download_new, quiet)
+        thread = Thread( target=self.add_new_channel_proc, args=args )
+        thread.start()
 
-                if ask_download_new:
-                    new_episodes = channel.get_new_episodes()
-                    if len(new_episodes):
-                        self.new_episodes_show(new_episodes)
-            else:
-                # Ok, the URL is not a channel, or there is some other
-                # error - let's see if it's a web page or OPML file...
-                try:
-                    data = urllib2.urlopen(result).read().lower()
-                    if '</opml>' in data:
-                        # This looks like an OPML feed
-                        self.on_item_import_from_file_activate(None, result)
-                        return
-                    elif '</html>' in data:
-                        # This looks like a web page
-                        title = _('The URL is a website')
-                        message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
-                        if self.show_confirmation(message, title):
-                            util.open_website(result)
-                        return
-                except Exception, e:
-                    log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
+    def add_new_channel_proc( self, url, callback, *callback_args):
+        log( 'Adding new channel: %s', url)
+        try:
+            channel = podcastChannel.load(url=url, create=True)
+        except Exception, e:
+            log('Error in podcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
+            channel = None
 
-                title = _('Error adding podcast')
-                message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
-                self.show_message( message, title)
+        util.idle_add( callback, channel, url, *callback_args )
+
+    def add_new_channel_finish( self, channel, url, ask_download_new, quiet ):
+        if channel is not None:
+            self.channels.append( channel)
+            save_channels( self.channels)
+            if not quiet:
+                # download changed channels and select the new episode in the UI afterwards
+                self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
+
+            (username, password) = util.username_password_from_url( url)
+            if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
+                channel.username = username
+                channel.password = password
+                log('Saving authentication data for episode downloads..', sender = self)
+                channel.save()
+
+            if ask_download_new:
+                new_episodes = channel.get_new_episodes()
+                if len(new_episodes):
+                    self.new_episodes_show(new_episodes)
         else:
-            if result:
-                title = _('URL scheme not supported')
-                message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
-                self.show_message( message, title)
-            else:
-                self.show_message(_('There has been an error adding this podcast. Please see the log output for more information.'), _('Error adding podcast'))
+            # Ok, the URL is not a channel, or there is some other
+            # error - let's see if it's a web page or OPML file...
+            try:
+                data = urllib2.urlopen(url).read().lower()
+                if '</opml>' in data:
+                    # This looks like an OPML feed
+                    self.on_item_import_from_file_activate(None, url)
+                    return
+                elif '</html>' in data:
+                    # This looks like a web page
+                    title = _('The URL is a website')
+                    message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
+                    if self.show_confirmation(message, title):
+                        util.open_website(url)
+                    return
+            except Exception, e:
+                log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
+
+            title = _('Error adding podcast')
+            message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
+            self.show_message( message, title)
+
+        self.entryAddChannel.set_text('')
+        self.entryAddChannel.set_sensitive(True)
+        self.btnAddChannel.set_sensitive(True)
         self.update_podcasts_tab()        
 
 
