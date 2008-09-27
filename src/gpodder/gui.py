@@ -274,7 +274,6 @@ class gPodder(GladeWidget):
             self.window = hildon.Window()
             self.window.connect('delete-event', self.on_gPodder_delete_event)
             self.window.connect('window-state-event', self.window_state_event)
-            self.window.connect('key-press-event', self.on_key_press)
     
             self.itemUpdateChannel.show()
             self.UpdateChannelSeparator.show()
@@ -310,6 +309,7 @@ class gPodder(GladeWidget):
             # get screen real estate
             self.hboxContainer.set_border_width(0)
 
+        self.gPodder.connect('key-press-event', self.on_key_press)
         self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
 
         if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
@@ -2325,10 +2325,19 @@ class gPodder(GladeWidget):
         self.updateTreeView()
 
     def on_key_press(self, widget, event):
-        # Currently, we only handle Maemo hardware keys here,
-        # so if we are not a Maemo app, we don't do anything!
+        # Allow tab switching with Ctrl + PgUp/PgDown
+        if event.state & gtk.gdk.CONTROL_MASK:
+            if event.keyval == gtk.keysyms.Page_Up:
+                self.wNotebook.prev_page()
+                return True
+            elif event.keyval == gtk.keysyms.Page_Down:
+                self.wNotebook.next_page()
+                return True
+
+        # After this code we only handle Maemo hardware keys,
+        # so if we are not a Maemo app, we don't do anything
         if gpodder.interface != gpodder.MAEMO:
-            return
+            return False
         
         if event.keyval == gtk.keysyms.F6:
             if self.fullscreen:
