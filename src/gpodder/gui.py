@@ -1048,10 +1048,10 @@ class gPodder(GladeWidget):
         return True
     
     def change_menu_item(self, menuitem, icon=None, label=None):
-        (label_widget, icon_widget) = menuitem.get_children()
         if icon is not None:
-            icon_widget.set_from_icon_name(icon, gtk.ICON_SIZE_MENU)
+            menuitem.get_image().set_from_icon_name(icon, gtk.ICON_SIZE_MENU)
         if label is not None:
+            label_widget = menuitem.get_child()
             label_widget.set_text(label)
 
     def play_or_download(self):
