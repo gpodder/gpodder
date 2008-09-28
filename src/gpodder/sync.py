@@ -215,7 +215,7 @@ class Device(services.ObservableService):
         pass
 
     def episode_on_device(self, episode):
-        return self._track_on_device(episode)
+        return self._track_on_device(episode.title)
 
     def _track_on_device( self, track_name ):
         for t in self.tracks_list:
