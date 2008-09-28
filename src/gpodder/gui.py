@@ -1942,7 +1942,7 @@ class gPodder(GladeWidget):
             self.show_message( message, title)
             return
 
-        gPodderChannel(channel=self.active_channel, callback_closed=self.updateComboBox, callback_change_url=self.change_channel_url)
+        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), callback_change_url=self.change_channel_url)
 
     def change_channel_url(self, old_url, new_url):
         channel = None
