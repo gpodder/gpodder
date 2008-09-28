@@ -1222,7 +1222,7 @@ class gPodder(GladeWidget):
         else:
             self.add_new_channel(result)
 
-    def add_new_channel(self, result=None, ask_download_new=True, quiet=False):
+    def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False):
         result = util.normalize_feed_url( result)
 
         if not result:
@@ -1250,6 +1250,9 @@ class gPodder(GladeWidget):
         args = (result, self.add_new_channel_finish, ask_download_new, quiet)
         thread = Thread( target=self.add_new_channel_proc, args=args )
         thread.start()
+
+        while block and thread.isAlive(): 
+            time.sleep(0.05)
 
     def add_new_channel_proc( self, url, callback, *callback_args):
         log( 'Adding new channel: %s', url)
@@ -2050,7 +2053,7 @@ class gPodder(GladeWidget):
             dlg.destroy()
 
         if filename is not None:
-            gPodderOpmlLister(custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+            gPodderOpmlLister(custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
@@ -2083,7 +2086,7 @@ class gPodder(GladeWidget):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+        gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(app_website)
@@ -3148,7 +3151,7 @@ class gPodderOpmlLister(GladeWidget):
                 self.callback_for_channel( url)
 
         if self.callback_finished:
-            self.callback_finished()
+            util.idle_add(self.callback_finished)
 
     def on_btnCancel_clicked(self, widget, *args):
         self.gPodderOpmlLister.destroy()
