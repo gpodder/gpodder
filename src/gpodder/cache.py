@@ -73,6 +73,10 @@ class Cache:
     caching.
     """
 
+    # Supported types, see http://feedvalidator.org/docs/warning/EncodingMismatch.html
+    SUPPORTED_FEED_TYPES = ('application/rss+xml', 'application/atom+xml',
+            'application/rdf+xml', 'application/xml', 'text/xml')
+
     def __init__(self, timeToLiveSeconds=3600):
         """
         Arguments:
@@ -111,6 +115,32 @@ class Cache:
                                          modified=modified,
                                          etag=etag,
                                          )
+
+        content_type = parsed_result.headers.get('content-type', '').lower()
+        # TODO: Also detect OPML feeds and other content types here
+        if content_type.startswith('text/html'):
+            log('%s looks like a webpage - trying feed autodiscovery.', url, sender=self)
+            if not hasattr(parsed_result.feed, 'links'):
+                return (False, None)
+            try:
+                found_alternate_feed = False
+                for link in parsed_result.feed.links:
+                    if hasattr(link, 'type') and hasattr(link, 'href') and hasattr(link, 'rel'):
+                        if link.type in self.SUPPORTED_FEED_TYPES and link.rel == 'alternate':
+                            log('Found alternate feed link: %s', link.href, sender=self)
+                            parsed_result = feedparser.parse(link.href,
+                                                             agent=self.user_agent,
+                                                             modified=modified,
+                                                             etag=etag,
+                                                             )
+                            found_alternate_feed = True
+                            break
+
+                # We have not found a valid feed - abort here!
+                if not found_alternate_feed:
+                    return (False, None)
+            except:
+                log('Error while trying to get feed URL from webpage', sender=self, traceback=True)
 
         updated = False
         status = parsed_result.get('status', None)

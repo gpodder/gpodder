@@ -95,7 +95,8 @@ class podcastChannel(object):
             return tmp[0]
         elif create:
             tmp = podcastChannel(url)
-            tmp.update()
+            if not tmp.update():
+                return None
             tmp.save()
             db.force_last_new(tmp)
             return tmp
@@ -111,6 +112,13 @@ class podcastChannel(object):
     def update(self):
         (updated, c) = self.fc.fetch(self.url, self)
 
+        if c is None:
+            return False
+
+        if self.url != c.url:
+            log('Updating channel URL from %s to %s', self.url, c.url, sender=self)
+            self.url = c.url
+
         # update the cover if it's not there
         self.update_cover()
 
@@ -118,7 +126,7 @@ class podcastChannel(object):
         # feedcache says the feed hasn't changed, return old
         if not updated:
             log('Channel %s is up to date', self.url)
-            return
+            return True
 
         # Save etag and last-modified for later reuse
         if c.headers.get('etag'):
@@ -168,6 +176,7 @@ class podcastChannel(object):
 
         # Now we can flush the updates.
         db.commit()
+        return True
 
     def update_cover(self, force=False):
         if self.cover_file is None or not os.path.exists(self.cover_file) or force:

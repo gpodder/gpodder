@@ -112,10 +112,16 @@ def normalize_feed_url( url):
     This will also normalize feed:// and itpc:// to http://
     Also supported are phobos.apple.com links (iTunes podcast)
     and itms:// links (iTunes podcast direct link).
+
+    If no URL scheme is defined (e.g. "curry.com"), we will
+    simply assume the user intends to add a http:// feed.
     """
 
     if not url or len( url) < 8:
         return None
+
+    if not '://' in url:
+        url = 'http://' + url
 
     if url.startswith('itms://'):
         url = parse_itunes_xml(url)
