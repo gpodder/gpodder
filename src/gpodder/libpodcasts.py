@@ -321,12 +321,15 @@ class podcastChannel(object):
         log('Returning TreeModel for %s', self.url, sender = self)
         return self.items_liststore()
 
-    def iter_set_downloading_columns( self, model, iter):
+    def iter_set_downloading_columns( self, model, iter, episode=None):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_BITTORRENT
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
-        url = model.get_value( iter, 0)
-        episode = db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
+        if episode is None:
+            url = model.get_value( iter, 0)
+            episode = db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
+        else:
+            url = episode.url
 
         if gl.config.episode_list_descriptions:
             icon_size = 32
@@ -383,7 +386,7 @@ class podcastChannel(object):
             new_iter = new_model.append((item.url, item.title, filelength, 
                 True, None, item.cute_pubdate(), description, item.description, 
                 item.local_filename(), item.extension()))
-            self.iter_set_downloading_columns( new_model, new_iter)
+            self.iter_set_downloading_columns( new_model, new_iter, episode=item)
         
         self.update_save_dir_size()
         return new_model
