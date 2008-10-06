@@ -336,12 +336,6 @@ class podcastChannel(object):
         if services.download_status_manager.is_download_in_progress(url):
             status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
-            if episode.state != db.STATE_DOWNLOADED and episode.file_exists():
-                episode.mark(state=db.STATE_DOWNLOADED)
-                log('Resurrected episode %s', episode.guid)
-            elif episode.state == db.STATE_DOWNLOADED and not episode.file_exists():
-                episode.mark(state=db.STATE_DELETED)
-                log('Burried episode %s', episode.guid)
             if episode.state == db.STATE_NORMAL:
                 if episode.is_played:
                     status_icon = None
