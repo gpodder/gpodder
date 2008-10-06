@@ -57,6 +57,32 @@ class Storage(object):
         self.settings = settings
         self.__check_schema()
 
+    def purge(self, max_episodes, channel_id=None):
+        """
+        Deletes old episodes.  Should be called
+        before adding new episodes to a channel.
+        """
+        cur = self.cursor(lock=True)
+
+        if channel_id is None:
+            cur.execute("SELECT channel_id, COUNT(*) AS count FROM episodes GROUP BY channel_id HAVING count > ?", (max_episodes, ))
+        else:
+            cur.execute("SELECT channel_id, COUNT(*) AS count FROM episodes WHERE channel_id = ? GROUP BY channel_id HAVING count > ?", (channel_id, max_episodes, ))
+
+        for row in cur.fetchall():
+            sql = """
+                DELETE FROM episodes
+                WHERE channel_id = %d
+                AND state <> %d
+                AND id NOT IN
+                (SELECT id FROM episodes WHERE channel_id = %d
+                ORDER BY pubDate DESC LIMIT %d)""" % (row[0], self.STATE_DOWNLOADED, row[0], max_episodes)
+            # log('SQL: %s', sql)
+            cur.execute(sql)
+
+        cur.close()
+        self.lock.release()
+
     @property
     def db(self):
         if self._db is None:

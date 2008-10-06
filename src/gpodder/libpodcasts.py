@@ -159,6 +159,13 @@ class podcastChannel(object):
         # Marked as bulk because we commit after importing episodes.
         db.save_channel(self, bulk=True)
 
+        # Remove old episodes before adding the new ones.  This helps
+        # deal with hyperactive channels, such as TV news, when there
+        # can be more new episodes than the user wants in the list.
+        # By cleaning up old episodes before receiving the new ones we
+        # ensure that the user doesn't miss any.
+        db.purge(gl.config.max_episodes_per_feed, self.id)
+
         # We can limit the maximum number of entries that gPodder will parse
         # via the "max_episodes_per_feed" configuration option.
         if len(c.entries) > gl.config.max_episodes_per_feed:
@@ -308,7 +315,7 @@ class podcastChannel(object):
                 gl.invoke_torrent(item.url, torrent_filename, destination_filename)
 
     def get_all_episodes(self):
-        return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self), limit=gl.config.max_episodes_per_feed)
+        return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self))
 
     # not used anymore
     def update_model( self):
