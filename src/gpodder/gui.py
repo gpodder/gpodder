@@ -1686,7 +1686,7 @@ class gPodder(GladeWidget):
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
             filename = episode.local_filename()
-            if not os.path.exists( filename) and not services.download_status_manager.is_download_in_progress( episode.url):
+            if not episode.was_downloaded(and_exists=True) and not services.download_status_manager.is_download_in_progress( episode.url):
                 download.DownloadThread( episode.channel, episode, self.notification).start()
         services.download_status_manager.end_batch_mode()
 

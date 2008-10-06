@@ -328,7 +328,7 @@ class Storage(object):
         self.lock.release()
 
     def __read_episodes(self, factory=None, where=None, params=None, commit=True):
-        sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked FROM episodes"
+        sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, id FROM episodes"
 
         if where:
             sql = "%s %s" % (sql, where)
@@ -353,6 +353,7 @@ class Storage(object):
                 'state': row[8],
                 'is_played': row[9],
                 'is_locked': row[10],
+                'id': row[11],
                 }
             if episode['state'] is None:
                 episode['state'] = self.STATE_NORMAL
@@ -404,7 +405,7 @@ class Storage(object):
                 e.id = cur.lastrowid
             else:
                 log('Episode updated: %s', e.title)
-                cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.id, ))
+                cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ?, state = ?, played = ?, locked = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.id, ))
         except Exception, e:
             log('save_episode() failed: %s', e, sender=self)
 

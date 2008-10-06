@@ -166,6 +166,9 @@ class podcastChannel(object):
         # ensure that the user doesn't miss any.
         db.purge(gl.config.max_episodes_per_feed, self.id)
 
+        # Load all episodes to update them properly.
+        existing = self.get_all_episodes()
+
         # We can limit the maximum number of entries that gPodder will parse
         # via the "max_episodes_per_feed" configuration option.
         if len(c.entries) > gl.config.max_episodes_per_feed:
@@ -179,6 +182,15 @@ class podcastChannel(object):
                 log('Cannot instantiate episode "%s": %s. Skipping.', entry.get('id', '(no id available)'), e, sender=self, traceback=True)
 
             if episode:
+                self.count_new += 1
+
+                for ex in existing:
+                    if ex.guid == episode.guid:
+                        for k in ('title', 'title', 'mimetype', 'description', 'link', 'pubDate'):
+                            setattr(ex, k, getattr(episode, k))
+                        self.count_new -= 1
+                        episode = ex
+
                 episode.save(bulk=True)
 
         return True
@@ -355,7 +367,7 @@ class podcastChannel(object):
                     status_icon = None
                 else:
                     status_icon = util.get_tree_icon(ICON_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
-            elif episode.was_downloaded(and_exists=True):
+            elif episode.was_downloaded():
                 missing = not episode.file_exists()
 
                 if missing:
