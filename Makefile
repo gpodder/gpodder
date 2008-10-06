@@ -24,8 +24,6 @@ GLADEFILE=data/gpodder.glade
 GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
 GUIFILE=src/gpodder/gui.py
-LOGO_22=data/icons/22/gpodder.png
-LOGO_24=data/icons/24/gpodder.png
 HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
@@ -101,7 +99,7 @@ uninstall:
 
 ##########################################################################
 
-generators: $(MANPAGE) $(LOGO_24)
+generators: $(MANPAGE)
 	make -C data/po update
 
 messages: gen_gettext
@@ -115,9 +113,6 @@ data/maemo/gpodder.desktop: data/gpodder.desktop
 gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
 	make -C data/po update
-
-$(LOGO_24): $(LOGO_22)
-	convert -bordercolor Transparent -border 1x1 $(LOGO_22) $(LOGO_24)
 
 $(GLADEGETTEXT): $(GLADEFILE)
 	intltool-extract --type=gettext/glade $(GLADEFILE)

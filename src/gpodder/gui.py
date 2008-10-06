@@ -2111,7 +2111,7 @@ class gPodder(GladeWidget):
             # items to the about dialog (credits and logo)
             dlg.set_authors(app_authors)
             try:
-                dlg.set_logo(gtk.gdk.pixbuf_new_from_file_at_size(scalable_dir, 200, 200))
+                dlg.set_logo(gtk.gdk.pixbuf_new_from_file(scalable_dir))
             except:
                 pass
         
