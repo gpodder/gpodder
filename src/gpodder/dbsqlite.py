@@ -244,9 +244,6 @@ class Storage(object):
         else:
             cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.id, ))
 
-        if not bulk:
-            self.commit()
-
         cur.close()
         self.lock.release()
 
@@ -266,7 +263,6 @@ class Storage(object):
             cur.execute("UPDATE channels SET deleted = 1 WHERE id = ?", (channel.id, ))
             cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, self.STATE_DELETED))
 
-        self.commit()
         cur.close()
         self.lock.release()
 
@@ -352,7 +348,6 @@ class Storage(object):
             log('save_episode() failed: %s', e, sender=self)
 
         cur.close()
-        self.commit()
         self.lock.release()
 
     def mark_episode(self, url, state=None, is_played=None, is_locked=None, toggle=False):
@@ -387,7 +382,6 @@ class Storage(object):
         cur.execute("UPDATE episodes SET state = ?, played = ?, locked = ? WHERE url = ?", (cur_state, cur_played, cur_locked, url, ))
         cur.close()
 
-        self.commit()
         self.lock.release()
 
     def __get__(self, sql, params=None):
@@ -460,7 +454,6 @@ class Storage(object):
                 AND pubDate <> (SELECT MAX(pubDate) FROM episodes
                 WHERE channel_id = ?)""", (channel.id, channel.id, ))
 
-        self.commit()
         cur.close()
         self.lock.release()
 

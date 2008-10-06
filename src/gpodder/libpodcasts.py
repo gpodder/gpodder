@@ -174,8 +174,6 @@ class podcastChannel(object):
             if episode:
                 episode.save(bulk=True)
 
-        # Now we can flush the updates.
-        db.commit()
         return True
 
     def update_cover(self, force=False):

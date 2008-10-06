@@ -143,7 +143,6 @@ class gPodderLib(object):
                         p += p_step_2
                     # flush the localdb updates for this channel
                     status_callback(p, _('Writing changes to database'))
-                    db.commit()
                 else:
                     p += p_step
         else:

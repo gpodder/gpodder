@@ -1324,6 +1324,8 @@ class gPodder(GladeWidget):
     def update_feed_cache_finish_callback(self, channels=None,
         notify_no_new_episodes=False, select_url_afterwards=None):
 
+        db.commit()
+
         self.updating_feed_cache = False
         self.hboxUpdateFeeds.hide_all()
         self.btnUpdateFeeds.show_all()
@@ -1515,6 +1517,7 @@ class gPodder(GladeWidget):
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
         services.download_status_manager.cancel_all()
+        db.commit()
 
         self.gtk_main_quit()
         sys.exit( 0)
