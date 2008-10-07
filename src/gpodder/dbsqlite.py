@@ -57,6 +57,14 @@ class Storage(object):
         self.settings = settings
         self.__check_schema()
 
+    def log(self, message, *args, **kwargs):
+        if self.settings['gl'].config.log_sqlite:
+            try:
+                message = message % args
+                log(message, sender=self)
+            except TypeError, e:
+                log('Exception in log(): %s: %s', e, message, sender=self)
+
     def purge(self, max_episodes, channel_id=None):
         """
         Deletes old episodes.  Should be called
@@ -69,7 +77,10 @@ class Storage(object):
         else:
             cur.execute("SELECT channel_id, COUNT(*) AS count FROM episodes WHERE channel_id = ? GROUP BY channel_id HAVING count > ?", (channel_id, max_episodes, ))
 
+        self.log("purge(%s)", channel_id)
+
         for row in cur.fetchall():
+            self.log("purge() -- deleting episodes in %d", row[0])
             sql = """
                 DELETE FROM episodes
                 WHERE channel_id = %d
@@ -77,7 +88,6 @@ class Storage(object):
                 AND id NOT IN
                 (SELECT id FROM episodes WHERE channel_id = %d
                 ORDER BY pubDate DESC LIMIT %d)""" % (row[0], self.STATE_DOWNLOADED, row[0], max_episodes)
-            # log('SQL: %s', sql)
             cur.execute(sql)
 
         cur.close()
@@ -88,7 +98,7 @@ class Storage(object):
         if self._db is None:
             self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
             self._db.create_collation("unicode", lambda a, b: cmp(a.lower().replace('the ', ''), b.lower().replace('the ', '')))
-            log('SQLite connected', sender=self)
+            self.log('Connected')
         return self._db
 
     def cursor(self, lock=False):
@@ -99,6 +109,7 @@ class Storage(object):
     def commit(self):
         self.lock.acquire()
         try:
+            self.log("COMMIT")
             self.db.commit()
         except ProgrammingError, e:
             log('Error commiting changes: %s', e, sender=self, traceback=True)
@@ -108,7 +119,7 @@ class Storage(object):
         """
         Creates all necessary tables and indexes that don't exist.
         """
-        log('Setting up SQLite database', sender=self)
+        self.log('Setting up tables and views')
 
         cur = self.cursor(lock=True)
 
@@ -187,6 +198,8 @@ class Storage(object):
             where += ("channel_id IN (SELECT id FROM channels WHERE url = ?)", )
             params += (url_or_id, )
 
+        self.log("get_channel_stats(%s)", url_or_id)
+
         if len(where):
             return self.__get__("SELECT COUNT(*) FROM episodes WHERE %s" % (' AND '.join(where)), params)
         else:
@@ -198,6 +211,8 @@ class Storage(object):
         returned by the factory() function, which receives the dictionary
         as the only argument.
         """
+
+        self.log("load_channels()")
 
         cur = self.cursor(lock=True)
         cur.execute("""
@@ -264,15 +279,11 @@ class Storage(object):
         cur.close()
         self.lock.release()
 
-        if url is None:
-            log('Channel list read, %d entries.', len(result), sender=self)
-        else:
-            log('Channel %s read from db', url, sender=self)
-
         return result
 
     def stats(self):
         cur = self.cursor(lock=True)
+        self.log("stats()")
         cur.execute("""
             SELECT c.id, d.count, n.count, u.count
             FROM channels c
@@ -297,11 +308,11 @@ class Storage(object):
             c.id = self.find_channel_id(c.url)
 
         cur = self.cursor(lock=True)
+        self.log("save_channel((%s)%s)", c.id or "new", c.url)
 
         if c.id is None:
             cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, ))
             self.channel_map[c.url] = cur.lastrowid
-            log('Added channel %s[%d]', c.url, self.channel_map[c.url], sender=self)
         else:
             cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.id, ))
 
@@ -313,7 +324,7 @@ class Storage(object):
             channel.id = self.find_channel_id(channel.url)
 
         cur = self.cursor(lock=True)
-        log('Deleting channel %d', channel.id, sender=self)
+        self.log("delete_channel((%d)%s), purge=%d", channel.id, channel.url, purge)
 
         if purge:
             cur.execute("DELETE FROM channels WHERE id = ?", (channel.id, ))
@@ -370,6 +381,8 @@ class Storage(object):
         if channel.id is None:
             channel.id = self.find_channel_id(channel.url)
 
+        self.log("load_episodes((%d)%s)", channel.id, channel.url)
+
         if state is None:
             return self.__read_episodes(factory = factory, where = """
                 WHERE channel_id = ? AND state = ? OR id IN
@@ -381,6 +394,7 @@ class Storage(object):
             return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, state, limit, ))
 
     def load_episode(self, url, factory=None):
+        self.log("load_episode(%s)", url)
         list = self.__read_episodes(factory = factory, where = " WHERE url = ?", params = (url, ))
         if len(list):
             return list[0]
@@ -392,19 +406,20 @@ class Storage(object):
 
         self.lock.acquire()
 
+        self.log("save_episode((%s)%s)", e.id, e.guid)
+
         try:
             cur = self.cursor()
             channel_id = self.find_channel_id(e.channel.url)
 
             if e.id is None:
                 e.id = self.__get__("SELECT id FROM episodes WHERE guid = ?", (e.guid, ))
+                self.log("save_episode() -- looking up id")
 
             if e.id is None:
-                log('Episode added: %s', e.title)
                 cur.execute("INSERT INTO episodes (channel_id, url, title, length, mimetype, guid, description, link, pubDate, state, played, locked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, e.url, e.title, e.length, e.mimetype, e.guid, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, ))
                 e.id = cur.lastrowid
             else:
-                log('Episode updated: %s', e.title)
                 cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ?, state = ?, played = ?, locked = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.id, ))
         except Exception, e:
             log('save_episode() failed: %s', e, sender=self)
@@ -415,6 +430,8 @@ class Storage(object):
     def mark_episode(self, url, state=None, is_played=None, is_locked=None, toggle=False):
         cur = self.cursor(lock=True)
         cur.execute("SELECT state, played, locked FROM episodes WHERE url = ?", (url, ))
+
+        self.log("mark_episode(%s, state=%s, played=%s, locked=%s)", url, state, is_played, is_locked)
 
         try:
             ( cur_state, cur_played, cur_locked ) = cur.fetchone()
@@ -451,6 +468,8 @@ class Storage(object):
         Returns the first cell of a query result, useful for COUNT()s.
         """
         cur = self.cursor(lock=True)
+
+        self.log("__get__(): %s", sql)
 
         if params is None:
             cur.execute(sql)
@@ -493,15 +512,17 @@ class Storage(object):
         if url in self.channel_map.keys():
             return self.channel_map[url]
         else:
+            self.log("find_channel_id(%s)", url)
             return self.__get__("SELECT id FROM channels WHERE url = ?", (url, ))
 
     def force_last_new(self, channel):
         old = self.__get__("""SELECT COUNT(*) FROM episodes WHERE channel_id = ?
             AND state IN (?, ?)""", (channel.id, self.STATE_DOWNLOADED,
             self.STATE_DELETED))
-        log('old episodes in (%d)%s: %d', channel.id, channel.url, old)
 
         cur = self.cursor(lock=True)
+
+        self.log("force_last_new((%d)%s)", channel.id, channel.url)
 
         if old > 0:
             cur.execute("""

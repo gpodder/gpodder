@@ -83,7 +83,7 @@ class gPodderLib(object):
             self.config.videoplayer = self.config.player	
 
         self.gpodder_dir = gpodder_dir
-        not db.setup({ 'database': os.path.join(gpodder_dir, 'database.sqlite') })
+        not db.setup({ 'database': os.path.join(gpodder_dir, 'database.sqlite'), 'gl': self })
 
     def migrate_to_sqlite(self, add_callback, status_callback, load_channels, get_localdb):
         """
