@@ -294,7 +294,7 @@ class podcastChannel(object):
             if gl.config.update_tags and libtagupdate.tagging_supported():
                 filename = item.local_filename()
                 try:
-                    libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title)
+                    libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre='Podcast')
                 except Exception, e:
                     log('Error while calling update_metadata_on_file(): %s', e)
 
