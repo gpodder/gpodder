@@ -94,6 +94,8 @@ def update_tag_mp3( filename, **metadata):
             tag.setTitle( metadata[key])
         elif key.lower() == 'album':
             tag.setAlbum( metadata[key])
+        elif key.lower() == 'genre':
+            tag.setGenre(metadata[key])
 
     return tag.update( eyeD3.tag.ID3_V2) == 1 and tag.update( eyeD3.tag.ID3_V1) == 1
 
