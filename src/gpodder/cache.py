@@ -118,8 +118,8 @@ class Cache:
 
         content_type = parsed_result.headers.get('content-type', '').lower()
         # TODO: Also detect OPML feeds and other content types here
-        if content_type.startswith('text/html'):
-            log('%s looks like a webpage - trying feed autodiscovery.', url, sender=self)
+        if parsed_result.version == '':
+            log('%s looks like a webpage - trying feed autodiscovery (%s).', url, content_type, sender=self)
             if not hasattr(parsed_result.feed, 'links'):
                 return (False, None)
             try:
