@@ -28,9 +28,11 @@
 
 import feedparser
 
+import re
 import time
 import gpodder
 
+from gpodder import resolver
 from gpodder.liblogger import log
 
 
@@ -135,6 +137,15 @@ class Cache:
                                                              )
                             found_alternate_feed = True
                             break
+
+                # YouTube etc feed lookup (after the normal link lookup in case
+                # they provide a standard feed discovery mechanism in the future).
+                if not found_alternate_feed:
+                    next = resolver.get_real_channel_url(url)
+
+                    if next is not None:
+                        parsed_result = feedparser.parse(next, agent=self.user_agent, modified=modified, etag=etag)
+                        found_alternate_feed = True
 
                 # We have not found a valid feed - abort here!
                 if not found_alternate_feed:

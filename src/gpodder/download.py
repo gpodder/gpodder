@@ -29,6 +29,7 @@ from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 from gpodder import util
 from gpodder import services
+from gpodder import resolver
 import gpodder
 
 import threading
@@ -208,13 +209,19 @@ class DownloadThread(threading.Thread):
                     return
          
                 util.delete_file( self.tempname)
-                self.downloader.retrieve( self.episode.url, self.tempname, reporthook = self.status_updated)
+                (unused, headers) = self.downloader.retrieve( resolver.get_real_download_url(self.url), self.tempname, reporthook = self.status_updated)
+
+                if 'content-type' in headers and headers['content-type'] != self.episode.mimetype:
+                    log('Correcting mime type: %s => %s', self.episode.mimetype, headers['content-type'])
+                    self.episode.mimetype = headers['content-type']
+                    # File names are constructed with regard to the mime type.
+                    self.filename = self.episode.local_filename()
+
                 shutil.move( self.tempname, self.filename)
-                self.channel.addDownloadedItem( self.episode)
-                services.download_status_manager.download_completed(self.download_id)
                 # Get the _real_ filesize once we actually have the file
                 self.episode.length = os.path.getsize(self.filename)
-                self.episode.save()
+                self.channel.addDownloadedItem( self.episode)
+                services.download_status_manager.download_completed(self.download_id)
                 
                 # If a user command has been defined, execute the command setting some environment variables
                 if len(gl.config.cmd_download_complete) > 0:
