@@ -186,7 +186,7 @@ class podcastChannel(object):
 
                 for ex in existing:
                     if ex.guid == episode.guid:
-                        for k in ('title', 'title', 'mimetype', 'description', 'link', 'pubDate'):
+                        for k in ('title', 'title', 'description', 'link', 'pubDate'):
                             setattr(ex, k, getattr(episode, k))
                         self.count_new -= 1
                         episode = ex
