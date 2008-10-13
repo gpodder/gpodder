@@ -28,6 +28,7 @@ from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
 from gpodder import util
+from gpodder import resolver
 
 import gtk
 import gobject
@@ -151,6 +152,10 @@ class CoverDownloader(ObservableService):
         if not os.path.exists(channel.cover_file):
             if url is None:
                 url = channel.image
+
+            new_url = resolver.get_real_cover(channel.url)
+            if new_url is not None:
+                url = new_url
 
             if url is not None:
                 image_data = None

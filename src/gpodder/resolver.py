@@ -25,6 +25,7 @@
 #   * Support for Vimeo, maybe blip.tv and others.
 
 import re
+import urllib2
 from gpodder.liblogger import log
 from gpodder.util import proxy_request
 
@@ -71,3 +72,24 @@ def get_real_channel_url(url):
         return next
 
     return url
+
+def get_real_cover(url):
+    log('Cover: %s', url)
+
+    r = re.compile('http://www\.youtube\.com/rss/user/([a-z0-9]+)/videos\.rss', re.IGNORECASE)
+    m = r.match(url)
+
+    if m is not None:
+        data = urllib2.urlopen('http://www.youtube.com/user/'+ m.group(1)).read()
+        data = data[data.find('id="user-profile-image"'):]
+        data = data[data.find('src="') + 5:]
+
+        next = data[:data.find('"')]
+
+        if next.strip() == '':
+            return None
+
+        log('YouTube userpic for %s is: %s', url, next)
+        return next
+
+    return None
