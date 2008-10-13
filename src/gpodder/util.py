@@ -865,6 +865,18 @@ def format_seconds_to_hour_min_sec(seconds):
     else:
         return result[0]
 
+def proxy_request(url, proxy=None):
+    if proxy is None or proxy.strip() == '':
+        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
+        conn = httplib.HTTPConnection(netloc)
+        start = len(scheme) + len('://') + len(netloc)
+        conn.request('HEAD', url[start:])
+    else:
+        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(proxy)
+        conn = httplib.HTTPConnection(netloc)
+        conn.request('HEAD', url)
+
+    return conn.getresponse()
 
 def get_episode_info_from_url(url, proxy=None):
     """
@@ -886,17 +898,7 @@ def get_episode_info_from_url(url, proxy=None):
     if not (url.startswith('http://') or url.startswith('https://')):
         return {}
 
-    if proxy is None or proxy.strip() == '':
-        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
-        conn = httplib.HTTPConnection(netloc)
-        start = len(scheme) + len('://') + len(netloc)
-        conn.request('HEAD', url[start:])
-    else:
-        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(proxy)
-        conn = httplib.HTTPConnection(netloc)
-        conn.request('HEAD', url)
-
-    r = conn.getresponse()
+    r = proxy_request(url, proxy)
     result = {}
 
     log('Trying to get metainfo for %s', url)
