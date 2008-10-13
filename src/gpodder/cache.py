@@ -116,10 +116,15 @@ class Cache:
                                          etag=etag,
                                          )
 
+        # 304: Not Modified
+        if parsed_result.status == 304:
+            log('Not Modified: %s', url, sender=self)
+            return (False, None)
+
         content_type = parsed_result.headers.get('content-type', '').lower()
         # TODO: Also detect OPML feeds and other content types here
         if parsed_result.version == '':
-            log('%s looks like a webpage - trying feed autodiscovery (%s).', url, content_type, sender=self)
+            log('%s looks like a webpage - trying feed autodiscovery.', url, sender=self)
             if not hasattr(parsed_result.feed, 'links'):
                 return (False, None)
             try:
