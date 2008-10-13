@@ -309,7 +309,7 @@ class podcastChannel(object):
         log('addDownloadedItem(%s)', item.url)
 
         if not item.was_downloaded():
-            item.mark(is_played=False, state=db.STATE_DOWNLOADED)
+            item.mark_downloaded(save=True)
 
             # Update metadata on file (if possible and wanted)
             if gl.config.update_tags and libtagupdate.tagging_supported():
@@ -562,6 +562,12 @@ class podcastItem(object):
         if is_locked is not None:
             self.is_locked = is_locked
         db.mark_episode(self.url, state=state, is_played=is_played, is_locked=is_locked)
+
+    def mark_downloaded(self, save=False):
+        self.state = db.STATE_DOWNLOADED
+        self.is_played = False
+        if save:
+            self.save()
 
     @staticmethod
     def create_from_dict(d, channel):
