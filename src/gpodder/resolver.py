@@ -93,3 +93,16 @@ def get_real_cover(url):
         return next
 
     return None
+
+def get_real_episode_length(episode):
+    url = get_real_download_url(episode.url)
+
+    if url != episode.url:
+        try:
+            info = urllib2.urlopen(url).info()
+            if 'content-length' in info:
+                return info['content-length']
+        except HTTPError:
+            pass
+
+    return 0

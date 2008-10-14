@@ -39,6 +39,7 @@ from gpodder import services
 from gpodder import draw
 from gpodder import libtagupdate
 from gpodder import dumbshelve
+from gpodder import resolver
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
@@ -199,6 +200,9 @@ class podcastChannel(object):
                             setattr(ex, k, getattr(episode, k))
                         self.count_new -= 1
                         episode = ex
+
+                if not episode.length:
+                    episode.length = resolver.get_real_episode_length(episode)
 
                 episode.save(bulk=True)
 
@@ -514,7 +518,7 @@ class podcastItem(object):
                 except:
                     log('Cannot convert pubDate "%s" in from_feedparser_entry.', str(metainfo['pubdate']), traceback=True)
 
-        if hasattr( enclosure, 'length'):
+        if hasattr( enclosure, 'length') and episode.length:
             try:
                 episode.length = int(enclosure.length)
             except:
