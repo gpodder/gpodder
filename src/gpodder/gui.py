@@ -3599,6 +3599,7 @@ class gPodderDependencyManager(GladeWidget):
         col_installed = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(), text=2)
         self.treeview_components.append_column(col_installed)
         self.treeview_components.set_model(services.dependency_manager.get_model())
+        self.btn_about.set_sensitive(False)
 
     def on_btn_about_clicked(self, widget):
         selection = self.treeview_components.get_selection()
@@ -3619,8 +3620,8 @@ class gPodderDependencyManager(GladeWidget):
         pass
 
     def on_treeview_components_cursor_changed(self, treeview):
+        self.btn_about.set_sensitive(treeview.get_selection().count_selected_rows() > 0)
         # TODO: If installing is possible, enable btn_install
-        pass
 
     def on_gPodderDependencyManager_response(self, dialog, response_id):
         self.gPodderDependencyManager.destroy()
