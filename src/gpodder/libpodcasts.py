@@ -218,6 +218,10 @@ class podcastChannel(object):
         self.save_dir_size = 0
         self.__save_dir_size_set = False
 
+        self.count_downloaded = 0
+        self.count_new = 0
+        self.count_unplayed = 0
+
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
             self.update_save_dir_size()

@@ -132,6 +132,13 @@ class Storage(object):
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_played ON episodes (played)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_locked ON episodes (locked)""")
 
+        cur.execute("""CREATE TEMPORARY VIEW episodes_downloaded AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 1 GROUP BY channel_id""")
+        cur.execute("""CREATE TEMPORARY VIEW episodes_new AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 0 AND played = 0 GROUP BY channel_id""")
+        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE played = 0 AND state = %d GROUP BY channel_id""" % self.STATE_DOWNLOADED)
+
+        # Make sure deleted episodes are played, to simplify querying statistics.
+        cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (self.STATE_DELETED, ))
+
         cur.close()
         self.lock.release()
 
@@ -191,6 +198,8 @@ class Storage(object):
                 title COLLATE unicode
                 """)
 
+        stats = self.stats()
+
         result = []
         for row in cur.fetchall():
             channel = {
@@ -209,6 +218,11 @@ class Storage(object):
                 'last_modified': row[12],
                 'etag': row[13],
                 }
+
+            if row[0] in stats:
+                channel['count_downloaded'] = stats[row[0]][0]
+                channel['count_new'] = stats[row[0]][1]
+                channel['count_unplayed'] = stats[row[0]][2]
 
             if url is None:
                 # Maintain url/id relation for faster updates (otherwise
@@ -230,6 +244,27 @@ class Storage(object):
             log('Channel %s read from db', url, sender=self)
 
         return result
+
+    def stats(self):
+        cur = self.cursor(lock=True)
+        cur.execute("""
+            SELECT c.id, d.count, n.count, u.count
+            FROM channels c
+            LEFT JOIN episodes_downloaded d ON d.channel_id = c.id
+            LEFT JOIN episodes_new n ON n.channel_id = c.id
+            LEFT JOIN episodes_unplayed u ON u.channel_id = c.id
+            WHERE c.deleted = 0
+            """)
+
+        data = {}
+
+        for row in cur.fetchall():
+            data[row[0]] = (row[1] or 0, row[2] or 0, row[3] or 0)
+
+        cur.close()
+        self.lock.release()
+
+        return data
 
     def save_channel(self, c, bulk=False):
         if c.id is None:
