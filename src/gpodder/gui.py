@@ -1924,6 +1924,9 @@ class gPodder(GladeWidget):
         else:
             gPodderMaemoPreferences()
 
+    def on_itemDependencies_activate(self, widget):
+        gPodderDependencyManager()
+
     def on_add_new_google_search(self, widget, *args):
         def add_google_video_search(query):
             self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
@@ -3589,6 +3592,38 @@ class gPodderConfigEditor(GladeWidget):
     def on_btnClose_clicked(self, widget):
         self.gPodderConfigEditor.destroy()
 
+class gPodderDependencyManager(GladeWidget):
+    def new(self):
+        col_name = gtk.TreeViewColumn(_('Feature'), gtk.CellRendererText(), text=0)
+        self.treeview_components.append_column(col_name)
+        col_installed = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(), text=2)
+        self.treeview_components.append_column(col_installed)
+        self.treeview_components.set_model(services.dependency_manager.get_model())
+
+    def on_btn_about_clicked(self, widget):
+        selection = self.treeview_components.get_selection()
+        model, iter = selection.get_selected()
+        if iter is not None:
+            title = model.get_value(iter, 0)
+            description = model.get_value(iter, 1)
+            available = model.get_value(iter, 3)
+            missing = model.get_value(iter, 4)
+
+            if not available:
+                description += '\n\n'+_('Missing components:')+'\n\n'+missing
+
+            self.show_message(description, title)
+
+    def on_btn_install_clicked(self, widget):
+        # TODO: Implement package manager integration
+        pass
+
+    def on_treeview_components_cursor_changed(self, treeview):
+        # TODO: If installing is possible, enable btn_install
+        pass
+
+    def on_gPodderDependencyManager_response(self, dialog, response_id):
+        self.gPodderDependencyManager.destroy()
 
 def main():
     gobject.threads_init()

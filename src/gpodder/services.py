@@ -72,6 +72,86 @@ class ObservableService(object):
             log('Signal "%s" is not available for notification.', signal_name, sender=self)
 
 
+class DependencyManager(object):
+    def __init__(self):
+        self.dependencies = []
+
+    def depend_on(self, feature_name, description, modules, tools):
+        self.dependencies.append([feature_name, description, modules, tools])
+
+    def modules_available(self, modules):
+        """
+        Receives a list of modules and checks if each
+        of them is available. Returns a tuple with the
+        first item being a boolean variable that is True
+        when all required modules are available and False
+        otherwise. The second item is a dictionary that
+        lists every module as key with the available as
+        boolean value.
+        """
+        result = {}
+        all_available = True
+        for module in modules:
+            try:
+                __import__(module)
+                result[module] = True
+            except:
+                result[module] = False
+                all_available = False
+
+        return (all_available, result)
+
+    def tools_available(self, tools):
+        """
+        See modules_available.
+        """
+        result = {}
+        all_available = True
+        for tool in tools:
+            if util.find_command(tool):
+                result[tool] = True
+            else:
+                result[tool] = False
+                all_available = False
+
+        return (all_available, result)
+
+    def get_model(self):
+        # Name, Description, Available (str), Available (bool), Missing (str)
+        model = gtk.ListStore(str, str, str, bool, str)
+        for feature_name, description, modules, tools in self.dependencies:
+            modules_available, module_info = self.modules_available(modules)
+            tools_available, tool_info = self.tools_available(tools)
+
+            available = modules_available and tools_available
+            if available:
+                available_str = _('Available')
+            else:
+                available_str = _('Missing dependencies')
+
+            missing_str = []
+            for module in modules:
+                if not module_info[module]:
+                    missing_str.append(_('Python module "%s" not installed') % module)
+            for tool in tools:
+                if not tool_info[tool]:
+                    missing_str.append(_('Command "%s" not installed') % tool)
+            missing_str = '\n'.join(missing_str)
+
+            model.append([feature_name, description, available_str, available, missing_str])
+        return model
+
+
+dependency_manager = DependencyManager()
+
+
+# Register non-module-specific dependencies here
+dependency_manager.depend_on(_('Bluetooth file transfer'), _('Send podcast episodes to Bluetooth devices. Needs Python Bluez bindings.'), ['bluetooth'], ['bluetooth-sendto'])
+dependency_manager.depend_on(_('Update tags on MP3 files'), _('Support the "Update tags after download" option for MP3 files.'), ['eyeD3'], [])
+dependency_manager.depend_on(_('Update tags on OGG files'), _('Support the "Update tags after download" option for OGG files.'), [], ['vorbiscomment'])
+dependency_manager.depend_on(_('Gnome BitTorrent integration'), _('Download .torrent files using Gnome BitTorrent.'), [], ['gnome-btdownload'])
+
+
 class CoverDownloader(ObservableService):
     """
     This class manages downloading cover art and notification
