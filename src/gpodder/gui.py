@@ -2963,9 +2963,11 @@ class gPodderEpisode(GladeWidget):
             document.connect('request-url', request_url)
             document.clear()
             document.open_stream('text/html')
+            document.write_stream('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/></head><body>')
             document.write_stream('<h2>%s</h2><small><em>from <a href="%s">%s</a>, released %s</em></small><br><hr style="border: 1px #eeeeee solid;">' % (saxutils.escape(self.episode.title), self.episode.link, saxutils.escape(self.episode.channel.title), self.episode.cute_pubdate()))
             document.write_stream(self.episode.description)
             document.write_stream('<br><hr style="border: 1px #eeeeee solid;"><p style="font-size: 8px;">%s</p>' % self.episode.link)
+            document.write_stream('</body></html>')
             document.close_stream()
             self.gPodderEpisode.resize(500, 500)
 
