@@ -80,7 +80,7 @@ class Storage(object):
             AND id NOT IN
             (SELECT id FROM episodes WHERE channel_id = ?
             ORDER BY pubDate DESC LIMIT ?)"""
-        cur.execute(sql, channel_id, self.STATE_DOWNLOADED, channel_id, max_episodes)
+        cur.execute(sql, (channel_id, self.STATE_DOWNLOADED, channel_id, max_episodes))
 
         cur.close()
         self.lock.release()
