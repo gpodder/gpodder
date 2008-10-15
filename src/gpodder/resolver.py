@@ -102,7 +102,7 @@ def get_real_episode_length(episode):
             info = urllib2.urlopen(url).info()
             if 'content-length' in info:
                 return info['content-length']
-        except HTTPError:
+        except urllib2.HTTPError:
             pass
 
     return 0
