@@ -1130,11 +1130,13 @@ class gPodder(GladeWidget):
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
 
-                if episode.was_downloaded(and_exists=True):
-                    can_play = True
+                if episode.was_downloaded():
+                    can_play = episode.was_downloaded(and_exists=True)
                     can_delete = True
                     is_played = episode.is_played
                     is_locked = episode.is_locked
+                    if not can_play:
+                        can_download = True
                 else:
                     if services.download_status_manager.is_download_in_progress(url):
                         can_cancel = True
