@@ -61,7 +61,7 @@ class Storage(object):
         if self.settings['gl'].config.log_sqlite:
             try:
                 message = message % args
-                log(message, sender=self)
+                log('%s', message, sender=self)
             except TypeError, e:
                 log('Exception in log(): %s: %s', e, message, sender=self)
 
