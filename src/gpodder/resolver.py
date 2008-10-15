@@ -25,7 +25,11 @@
 #   * Support for Vimeo, maybe blip.tv and others.
 
 import re
+import urllib
 import urllib2
+import gtk
+import gobject
+from xml.sax import saxutils
 from gpodder.liblogger import log
 from gpodder.util import proxy_request
 
@@ -106,3 +110,23 @@ def get_real_episode_length(episode):
             pass
 
     return 0
+
+def find_youtube_channels(string):
+    url = 'http://www.youtube.com/results?search_query='+ urllib.quote(string, '') +'&search_type=search_users&aq=f'
+
+    r = re.compile('>\s+<')
+    data = r.sub('><', urllib.urlopen(url).read())
+
+    r1 = re.compile('<div\s+class="vltitlealt"><a href="/user/([^"]+)">([^<]+)</a></div>[^<]*<div\s+class="vldesc">([^<]+)?')
+    m1 = r1.findall(data)
+
+    r2 = re.compile('\s+')
+
+    model = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
+
+    for (name, title, text) in m1:
+        link = 'http://www.youtube.com/rss/user/'+ name +'/videos.rss'
+        name = '<b>%s</b>\n<span size="small">%s</span>' % (name, saxutils.escape(r2.sub(' ', text)).strip())
+        model.append([False, name, link])
+
+    return model
