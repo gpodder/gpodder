@@ -77,6 +77,7 @@ else:
     ICON_NEW = gtk.STOCK_ABOUT
 
 
+class HTTPAuthError(Exception): pass
 
 class podcastChannel(object):
     """holds data for a complete channel"""
@@ -86,7 +87,7 @@ class podcastChannel(object):
     fc = cache.Cache()
 
     @classmethod
-    def load(cls, url, create=True):
+    def load(cls, url, create=True, authentication_tokens=None):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
@@ -95,8 +96,15 @@ class podcastChannel(object):
             return tmp[0]
         elif create:
             tmp = podcastChannel(url)
-            if not tmp.update():
-                return None
+            if authentication_tokens is not None:
+                tmp.username = authentication_tokens[0]
+                tmp.password = authentication_tokens[1]
+            success, error_code = tmp.update()
+            if not success:
+                if error_code == 401:
+                    raise HTTPAuthError
+                else:
+                    return None
             tmp.save()
             db.force_last_new(tmp)
             return tmp
@@ -113,7 +121,10 @@ class podcastChannel(object):
         (updated, c) = self.fc.fetch(self.url, self)
 
         if c is None:
-            return False
+            return ( False, None )
+
+        if c.status == 401:
+            return ( False, 401 )
 
         if self.url != c.url:
             log('Updating channel URL from %s to %s', self.url, c.url, sender=self)
@@ -126,7 +137,7 @@ class podcastChannel(object):
         # feedcache says the feed hasn't changed, return old
         if not updated:
             log('Channel %s is up to date', self.url)
-            return True
+            return ( True, None )
 
         # Save etag and last-modified for later reuse
         if c.headers.get('etag'):
@@ -174,9 +185,7 @@ class podcastChannel(object):
             if episode:
                 episode.save(bulk=True)
 
-        # Now we can flush the updates.
-        db.commit()
-        return True
+        return ( True, None )
 
     def update_cover(self, force=False):
         if self.cover_file is None or not os.path.exists(self.cover_file) or force:

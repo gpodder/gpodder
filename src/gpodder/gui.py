@@ -64,6 +64,7 @@ from libpodcasts import load_channels
 from libpodcasts import update_channels
 from libpodcasts import save_channels
 from libpodcasts import can_restore_from_opml
+from libpodcasts import HTTPAuthError
 
 from gpodder.libgpodder import gl
 
@@ -219,6 +220,51 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         dlg.destroy()
         
         return response == affirmative
+
+    def UsernamePasswordDialog( self, title, message ):
+        """ An authentication dialog based on
+                http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
+
+        dialog = gtk.MessageDialog(
+            GladeWidget.gpodder_main_window,
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_QUESTION,
+            gtk.BUTTONS_OK_CANCEL )
+
+        dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
+        dialog.set_title(title)
+        dialog.format_secondary_markup(message)
+
+        username_entry = gtk.Entry()
+        username_entry.set_width_chars(25)
+        password_entry = gtk.Entry()
+        password_entry.set_width_chars(25)
+        password_entry.set_visibility(False)
+
+        username_hbox = gtk.HBox()
+        username_label = gtk.Label()
+        username_label.set_markup('<b>' + _('Username:') + '</b>')
+        username_hbox.pack_start(username_label, False, 5, 5)
+        username_hbox.pack_end(username_entry, False)
+
+        password_hbox = gtk.HBox()
+        password_label = gtk.Label()
+        password_label.set_markup('<b>' + _('Password:') + '</b>')
+        password_hbox.pack_start(password_label, False, 5, 5)
+        password_hbox.pack_end(password_entry, False)
+
+        vbox = gtk.VBox(spacing=5)
+        vbox.pack_start(username_hbox)
+        vbox.pack_start(password_hbox)
+
+        dialog.vbox.pack_end(vbox, True, True, 0)
+        dialog.show_all()
+        response = dialog.run()
+
+        password_entry.set_visibility(True)
+        dialog.destroy()
+
+        return response == gtk.RESPONSE_OK, ( username_entry.get_text(), password_entry.get_text() )
 
     def show_copy_dialog( self, src_filename, dst_filename = None, dst_directory = None, title = _('Select destination')):
         if dst_filename is None:
@@ -1222,7 +1268,7 @@ class gPodder(GladeWidget):
         else:
             self.add_new_channel(result)
 
-    def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False):
+    def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False, authentication_tokens=None):
         result = util.normalize_feed_url( result)
 
         if not result:
@@ -1247,24 +1293,26 @@ class gPodder(GladeWidget):
         self.entryAddChannel.set_text(_('Downloading feed...'))
         self.entryAddChannel.set_sensitive(False)
         self.btnAddChannel.set_sensitive(False)
-        args = (result, self.add_new_channel_finish, ask_download_new, quiet)
+        args = (result, self.add_new_channel_finish, authentication_tokens, ask_download_new, quiet)
         thread = Thread( target=self.add_new_channel_proc, args=args )
         thread.start()
 
         while block and thread.isAlive(): 
             time.sleep(0.05)
 
-    def add_new_channel_proc( self, url, callback, *callback_args):
+    def add_new_channel_proc( self, url, callback, authentication_tokens, *callback_args):
         log( 'Adding new channel: %s', url)
+        channel = error = None
         try:
-            channel = podcastChannel.load(url=url, create=True)
+            channel = podcastChannel.load(url=url, create=True, authentication_tokens=authentication_tokens)
+        except HTTPAuthError, e:
+            error = e
         except Exception, e:
             log('Error in podcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
-            channel = None
 
-        util.idle_add( callback, channel, url, *callback_args )
+        util.idle_add( callback, channel, url, error, *callback_args )
 
-    def add_new_channel_finish( self, channel, url, ask_download_new, quiet ):
+    def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet ):
         if channel is not None:
             self.channels.append( channel)
             save_channels( self.channels)
@@ -1278,11 +1326,23 @@ class gPodder(GladeWidget):
                 channel.password = password
                 log('Saving authentication data for episode downloads..', sender = self)
                 channel.save()
+                # We need to update the channel list otherwise the authentication
+                # data won't show up in the channel editor.
+                # TODO: Only updated the newly added feed to save some cpu cycles
+                self.channels = load_channels()
 
             if ask_download_new:
                 new_episodes = channel.get_new_episodes()
                 if len(new_episodes):
                     self.new_episodes_show(new_episodes)
+
+        elif isinstance( error, HTTPAuthError ):
+            response, auth_tokens = self.UsernamePasswordDialog(
+                _('Feed requires authentication'), _('Please enter your username and password.'))
+
+            if response:
+                self.add_new_channel( url, authentication_tokens=auth_tokens )
+
         else:
             # Ok, the URL is not a channel, or there is some other
             # error - let's see if it's a web page or OPML file...
@@ -1291,14 +1351,14 @@ class gPodder(GladeWidget):
                 if '</opml>' in data:
                     # This looks like an OPML feed
                     self.on_item_import_from_file_activate(None, url)
-                    return
+
                 elif '</html>' in data:
                     # This looks like a web page
                     title = _('The URL is a website')
                     message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
                     if self.show_confirmation(message, title):
                         util.open_website(url)
-                    return
+
             except Exception, e:
                 log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
 
@@ -1306,10 +1366,10 @@ class gPodder(GladeWidget):
             message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
             self.show_message( message, title)
 
-        self.entryAddChannel.set_text('')
+        self.entryAddChannel.set_text(self.ENTER_URL_TEXT)
         self.entryAddChannel.set_sensitive(True)
         self.btnAddChannel.set_sensitive(True)
-        self.update_podcasts_tab()        
+        self.update_podcasts_tab()
 
 
     def update_feed_cache_finish_callback(self, channels=None,

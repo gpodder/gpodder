@@ -28,8 +28,10 @@
 
 import feedparser
 
+import string
 import time
 import gpodder
+import urllib, urlparse
 
 from gpodder.liblogger import log
 
@@ -109,6 +111,19 @@ class Cache:
             etag = None
             modified = None
 
+        original_url = url
+        # If we have a username or password, rebuild the url with them included
+        # Note: using a HTTPBasicAuthHandler would be pain because we need to
+        # know the realm. It can be done, but I think this method will work fine
+        if old_channel is not None and (
+                old_channel.username or old_channel.password ):
+            username = urllib.quote(old_channel.username)
+            password = urllib.quote(old_channel.password)
+            auth_string = string.join( [username, password], ':' )
+            url_parts = list(urlparse.urlsplit(url))
+            url_parts[1] = string.join( [auth_string, url_parts[1]], '@' )
+            url = urlparse.urlunsplit(url_parts)
+
         # We know we need to fetch, so go ahead and do it.
         parsed_result = feedparser.parse(url,
                                          agent=self.user_agent,
@@ -120,6 +135,10 @@ class Cache:
         if parsed_result.status == 304:
             log('Not Modified: %s', url, sender=self)
             return (False, None)
+
+        if parsed_result.status == 401:
+            log('HTTP authentication required: %s', original_url, sender=self)
+            return (False, parsed_result)
 
         content_type = parsed_result.headers.get('content-type', '').lower()
         # TODO: Also detect OPML feeds and other content types here
