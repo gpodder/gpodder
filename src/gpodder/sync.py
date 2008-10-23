@@ -538,7 +538,18 @@ class MP3PlayerDevice(Device):
 
         if gl.config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
             log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)
-            self.copy_rockbox_cover_art(folder, from_file)
+            self.copy_player_cover_art(folder, from_file, \
+            'cover.bmp', 'BMP', gl.config.rockbox_coverart_size)
+
+        if gl.config.custom_player_copy_coverart \
+        and not os.path.exists(os.path.join(folder, \
+        gl.config.custom_player_coverart_name)):
+            log('Creating custom player album art for "%s"',
+                episode.channel.title, sender=self)
+            self.copy_player_cover_art(folder, from_file, \
+            gl.config.custom_player_coverart_name, \
+            gl.config.custom_player_coverart_format, \
+            gl.config.custom_player_coverart_size)
 
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding), sender=self)
@@ -645,29 +656,33 @@ class MP3PlayerDevice(Device):
         # No scrobbler log on that device
         return None
 
-    def copy_rockbox_cover_art(self, destination, local_filename):
+    def copy_player_cover_art(self, destination, local_filename, \
+                                  cover_dst_name, cover_dst_format, \
+                                  cover_dst_size):
         """
-        Try to copy the channel cover to "cover.bmp" in the podcast
-        folder on the MP3 player. This makes Rockbox (rockbox.org) display
-        the cover art in its interface.
+        Try to copy the channel cover to the podcast folder on the MP3
+        player. This makes the player, e.g. Rockbox (rockbox.org), display the
+        cover art in its interface.
 
         You need the Python Imaging Library (PIL) installed to be able to
         convert the cover file to a Bitmap file, which Rockbox needs.
         """
         try:
             cover_loc = os.path.join(os.path.dirname(local_filename), 'cover')
-            cover_dst = os.path.join(destination, 'cover.bmp')
+            cover_dst = os.path.join(destination, cover_dst_name)
             if os.path.isfile(cover_loc):
-                size = (gl.config.rockbox_coverart_size, gl.config.rockbox_coverart_size)
+                log('Creating cover art file on player', sender=self)
+                log('Cover art size is %s', cover_dst_size, sender=self)
+                size = (cover_dst_size, cover_dst_size)
                 try:
                     cover = Image.open(cover_loc)
                     cover.thumbnail(size)
-                    cover.save(cover_dst, 'BMP')
+                    cover.save(cover_dst, cover_dst_format)
                 except IOError:
                     log('Cannot create %s (PIL?)', cover_dst, traceback=True, sender=self)
                 return True
             else:
-                log('No cover available to set as Rockbox cover', sender=self)
+                log('No cover available to set as player cover', sender=self)
                 return True
         except:
             log('Error getting cover using channel cover', sender=self)
