@@ -61,7 +61,7 @@ class Storage(object):
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
-            self._db.create_collation("unicode", lambda a, b: cmp(a.lower().replace('the ', ''), b.lower().replace('the ', '')))
+            self._db.create_collation("UNICODE", lambda a, b: cmp(a.lower().replace('the ', ''), b.lower().replace('the ', '')))
             log('SQLite connected', sender=self)
         return self._db
 
@@ -188,7 +188,7 @@ class Storage(object):
             WHERE
                 (deleted IS NULL OR deleted = 0)
             ORDER BY
-                title COLLATE unicode
+                title COLLATE UNICODE
                 """)
 
         result = []
