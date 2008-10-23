@@ -49,7 +49,7 @@ import urllib2
 import os.path
 import os
 
-import datetime
+from email.Utils import formatdate
 import gpodder
 
 
@@ -189,7 +189,7 @@ class Exporter(object):
 
         head = doc.createElement( 'head')
         head.appendChild( self.create_node( doc, 'title', 'gPodder subscriptions'))
-        head.appendChild( self.create_node( doc, 'dateCreated', datetime.datetime.now().ctime()))
+        head.appendChild( self.create_node( doc, 'dateCreated', formatdate(localtime=True)))
         opml.appendChild( head)
 
         body = doc.createElement( 'body')
