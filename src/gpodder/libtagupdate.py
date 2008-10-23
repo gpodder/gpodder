@@ -90,6 +90,10 @@ def update_tag_mp3( filename, **metadata):
     for key in metadata:
         if key.lower() == 'artist':
             tag.setArtist( metadata[key])
+            # Set "album" info from artist name if it is not available
+            if 'album' not in metadata and tag.getAlbum().strip() == '':
+                log('(tagupdate) No album information - using artist')
+                tag.setAlbum(metadata[key])
         elif key.lower() == 'title':
             tag.setTitle( metadata[key])
         elif key.lower() == 'album':
