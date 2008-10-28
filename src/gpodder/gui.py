@@ -290,8 +290,12 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         dlg.set_current_name( os.path.basename( dst_filename))
         dlg.set_current_folder( dst_directory)
 
+        result = False
+        folder = dst_directory
         if dlg.run() == gtk.RESPONSE_OK:
+            result = True
             dst_filename = dlg.get_filename()
+            folder = dlg.get_current_folder()
             if not dst_filename.endswith( extension):
                 dst_filename += extension
 
@@ -303,7 +307,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
                 log( 'Error copying file.', sender = self, traceback = True)
 
         dlg.destroy()
-
+        return (result, folder)
 
 
 class gPodder(GladeWidget):
@@ -554,6 +558,9 @@ class gPodder(GladeWidget):
 
         # Set the "Device" menu item for the first time
         self.update_item_device()
+
+        # Last folder used for saving episodes
+        self.folder_for_saving_episodes = None
 
         # Set up default channel colors
         self.channel_colors = {
@@ -843,9 +850,11 @@ class gPodder(GladeWidget):
                     row[COLUMN_PIXBUF] = new_pixbuf or pixbuf
 
     def save_episode_as_file( self, url, *args):
-        episode = self.active_channel.find_episode( url)
+        episode = self.active_channel.find_episode(url)
 
-        self.show_copy_dialog( src_filename = episode.local_filename(), dst_filename = episode.sync_filename())
+        folder = self.folder_for_saving_episodes
+        (result, folder) = self.show_copy_dialog(src_filename=episode.local_filename(), dst_filename=episode.sync_filename(), dst_directory=folder)
+        self.folder_for_saving_episodes = folder
 
     def copy_episode_bluetooth(self, url, *args):
         episode = self.active_channel.find_episode(url)
