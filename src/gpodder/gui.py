@@ -2008,6 +2008,9 @@ class gPodder(GladeWidget):
         else:
             if self.channelPaned.get_position() < 200:
                 self.channelPaned.set_position( 200)
+            # make sure we are in the right tab in the main window,
+            # or else the user gets confused (thanks to steve)
+            self.wNotebook.set_current_page(0)
             self.entryAddChannel.grab_focus()
 
     def on_itemEditChannel_activate(self, widget, *args):
