@@ -1851,7 +1851,7 @@ class gPodder(GladeWidget):
         total_size = 0
         free_space = device.get_free_space()
         for episode in episodes:
-            if not device.episode_on_device(episode):
+            if not device.episode_on_device(episode) and not (sync_all_episodes and gl.config.only_sync_not_played and episode.is_played):
                 total_size += util.calculate_size(str(episode.local_filename()))
 
         if total_size > free_space:
