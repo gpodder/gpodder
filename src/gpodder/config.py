@@ -100,6 +100,11 @@ gPodderSettings = {
     'device_type': ( str, 'none' ),
     'download_dir': (str, default_download_dir),
 
+    # Playlist Management settings
+    'mp3_player_playlist_file': (str, 'PLAYLISTS/gpodder.m3u'),
+    'mp3_player_playlist_absolute_path': (bool, False),
+    'mp3_player_playlist_win_path': (bool, True),
+
     # Special settings (not in preferences)
     'default_new': ( int, 1 ),
     'use_si_units': ( bool, False ),
