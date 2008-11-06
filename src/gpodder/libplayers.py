@@ -73,6 +73,13 @@ class UserAppsReader(object):
         self.__model_cache = {}
         self.__has_read = False
         self.__finished = threading.Event()
+        self.__has_sep = False
+        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_OPEN))
+        self.apps.append(UserApplication(_('Custom command'), '', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_EXECUTE))
+
+    def add_separator(self):
+        self.apps.append(UserApplication('', '', ';'.join((mime+'/*' for mime in self.mimetypes)), ''))
+        self.__has_sep = True
 
     def read( self):
         if self.__has_read:
@@ -86,7 +93,6 @@ class UserAppsReader(object):
                     self.parse_and_append( file)
         log('end reader', bench_end=True)
         self.__finished.set()
-        self.apps.append(UserApplication('Shell command', '', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_EXECUTE))
 
     def parse_and_append( self, filename):
         try:
@@ -103,6 +109,8 @@ class UserAppsReader(object):
                     app_name = parser.get(sect, 'Name')
                     app_cmd = parser.get(sect, 'Exec')
                     app_icon = parser.get(sect, 'Icon')
+                    if not self.__has_sep:
+                        self.add_separator()
                     self.apps.append(UserApplication(app_name, app_cmd, app_mime, app_icon))
                     return
         except:

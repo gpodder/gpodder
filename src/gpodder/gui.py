@@ -2755,6 +2755,9 @@ class gPodderProperties(GladeWidget):
         if not hasattr(self, 'user_apps_reader'):
             self.user_apps_reader = UserAppsReader(['audio', 'video'])
 
+        self.comboAudioPlayerApp.set_row_separator_func(self.is_row_separator)
+        self.comboVideoPlayerApp.set_row_separator_func(self.is_row_separator)
+
         if gpodder.interface == gpodder.GUI:
             self.user_apps_reader.read()
 
@@ -2766,6 +2769,9 @@ class gPodderProperties(GladeWidget):
         self.comboVideoPlayerApp.set_active(index)
 
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
+
+    def is_row_separator(self, model, iter):
+        return model.get_value(iter, 0) == ''
 
     def update_mountpoint( self, ipod):
         if ipod is None or ipod.mount_point is None:
@@ -2886,6 +2892,8 @@ class gPodderProperties(GladeWidget):
         model = self.comboAudioPlayerApp.get_model()
         command = model.get_value( iter, 1)
         if command == '':
+            if self.openApp.get_text() == 'default':
+                self.openApp.set_text('')
             self.openApp.set_sensitive( True)
             self.openApp.show()
             self.labelCustomCommand.show()
@@ -2901,14 +2909,16 @@ class gPodderProperties(GladeWidget):
         model = self.comboVideoPlayerApp.get_model()
         command = model.get_value(iter, 1)
         if command == '':
+            if self.openVideoApp.get_text() == 'default':
+                self.openVideoApp.set_text('')
             self.openVideoApp.set_sensitive(True)
             self.openVideoApp.show()
-            self.label115.show()
+            self.labelCustomVideoCommand.show()
         else:
             self.openVideoApp.set_text(command)
             self.openVideoApp.set_sensitive(False)
             self.openVideoApp.hide()
-            self.label115.hide()
+            self.labelCustomVideoCommand.hide()
 
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
          sens = not self.cbEnvironmentVariables.get_active()

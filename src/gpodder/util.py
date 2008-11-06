@@ -930,8 +930,10 @@ def gui_open(filename):
         subprocess.Popen(['xdg-open', filename])
         # FIXME: Win32-specific "open" code needed here
         # as fallback when xdg-open not available
+        return True
     except:
         log('Cannot open file/folder: "%s"', filename, sender=self, traceback=True)
+        return False
 
 
 def open_website(url):

@@ -46,7 +46,7 @@ else:
 
 gPodderSettings = {
     # General settings
-    'player': ( str, 'xdg-open' ),
+    'player': (str, 'default'),
     'videoplayer': (str, 'unspecified'),
     'opml_url': ( str, 'http://www.gpodder.org/directory.opml' ),
     'http_proxy': ( str, '' ),
