@@ -1319,6 +1319,7 @@ class gPodder(GladeWidget):
                         break
                 self.show_message( _('You have already subscribed to this podcast: %s') % ( 
                     saxutils.escape( old_channel.title), ), _('Already added'))
+                waitdlg.destroy()
                 return
 
         self.entryAddChannel.set_text(_('Downloading feed...'))
