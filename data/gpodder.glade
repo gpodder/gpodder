@@ -6700,6 +6700,23 @@ MTP-based player</property>
 	  <property name="spacing">5</property>
 
 	  <child>
+	    <widget class="GtkButton" id="btnRemoveAction">
+	      <property name="visible">False</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">Remove</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+              <signal name="clicked" handler="on_remove_action_activate"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
 	    <widget class="GtkButton" id="btnCancel">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>

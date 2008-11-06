@@ -971,7 +971,7 @@ class gPodder(GladeWidget):
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: self.mark_selected_episodes_old())
                 menu.append(self.set_finger_friendly(item))
-            elif episode['state'] != db.STATE_NORMAL and can_download:
+            elif episode['state'] == db.STATE_NORMAL and can_download:
                 item = gtk.ImageMenuItem(_('Mark as new'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_ABOUT, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
@@ -1215,7 +1215,11 @@ class gPodder(GladeWidget):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
 
     def on_cbLimitDownloads_toggled(self, widget, *args):
-        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())    
+        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
+
+    def episode_new_status_changed(self):
+        self.updateComboBox()
+        self.updateTreeView()
 
     def updateComboBox(self, selected_url=None, only_selected_channel=False):
         (model, iter) = self.treeChannels.get_selection().get_selected()
@@ -1768,7 +1772,10 @@ class gPodder(GladeWidget):
             gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
                                    episodes=episodes, columns=columns, selected_default=True, \
                                    stock_ok_button = 'gpodder-download', \
-                                   callback=self.download_episode_list)
+                                   callback=self.download_episode_list, \
+                                   remove_callback=lambda e: e.mark_old(), \
+                                   remove_action=_('Never download'), \
+                                   remove_finished=self.episode_new_status_changed)
         else:
             title = _('No new episodes')
             message = _('No new episodes to download.\nPlease check for new episodes later.')
@@ -3298,6 +3305,12 @@ class gPodderEpisodeSelector( GladeWidget):
 
       - callback: Function that takes 1 parameter which is a list of
                   the selected episodes (or empty list when none selected)
+      - remove_callback: Function that takes 1 parameter which is a list
+                         of episodes that should be "removed" (see below)
+                         (default is None, which means remove not possible)
+      - remove_action: Label for the "remove" action (default is "Remove")
+      - remove_finished: Callback after all remove callbacks have finished
+                         (default is None, also depends on remove_callback)
       - episodes: List of episodes that are presented for selection
       - selected: (optional) List of boolean variables that define the
                   default checked state for the given episodes
@@ -3350,6 +3363,15 @@ class gPodderEpisodeSelector( GladeWidget):
     def new( self):
         if not hasattr( self, 'callback'):
             self.callback = None
+
+        if not hasattr(self, 'remove_callback'):
+            self.remove_callback = None
+
+        if not hasattr(self, 'remove_action'):
+            self.remove_action = _('Remove')
+
+        if not hasattr(self, 'remove_finished'):
+            self.remove_finished = None
 
         if not hasattr( self, 'episodes'):
             self.episodes = []
@@ -3453,6 +3475,10 @@ class gPodderEpisodeSelector( GladeWidget):
                         row.append(getattr( episode, sort_name))
             self.model.append( row)
 
+        if self.remove_callback is not None:
+            self.btnRemoveAction.show()
+            self.btnRemoveAction.set_label(self.remove_action)
+
         # connect to tooltip signals
         if self.tooltip_attribute is not None:
             try:
@@ -3554,15 +3580,18 @@ class gPodderEpisodeSelector( GladeWidget):
                 text.append(_('total size: %s') % gl.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)
+            self.btnRemoveAction.set_sensitive(count>0)
             if count > 0:
                 self.btnCancel.set_label(gtk.STOCK_CANCEL)
             else:
                 self.btnCancel.set_label(gtk.STOCK_CLOSE)
         else:
             self.btnOK.set_sensitive(False)
+            self.btnRemoveAction.set_sensitive(False)
             for index, row in enumerate(self.model):
                 if self.model.get_value(row.iter, self.COLUMN_TOGGLE) == True:
                     self.btnOK.set_sensitive(True)
+                    self.btnRemoveAction.set_sensitive(True)
                     break
             self.labelTotalSize.set_text('')
 
@@ -3593,12 +3622,32 @@ class gPodderEpisodeSelector( GladeWidget):
 
         self.calculate_total_size()
 
-    def get_selected_episodes( self):
+    def on_remove_action_activate(self, widget):
+        episodes = self.get_selected_episodes(remove_episodes=True)
+
+        for episode in episodes:
+            self.remove_callback(episode)
+
+        if self.remove_finished is not None:
+            self.remove_finished()
+        self.calculate_total_size()
+
+    def get_selected_episodes( self, remove_episodes=False):
         selected_episodes = []
 
         for index, row in enumerate( self.model):
             if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
                 selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
+
+        if remove_episodes:
+            for episode in selected_episodes:
+                index = self.episodes.index(episode)
+                iter = self.model.get_iter_first()
+                while iter is not None:
+                    if self.model.get_value(iter, self.COLUMN_INDEX) == index:
+                        self.model.remove(iter)
+                        break
+                    iter = self.model.iter_next(iter)
 
         return selected_episodes
 
