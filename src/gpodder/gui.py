@@ -3038,7 +3038,7 @@ class gPodderProperties(GladeWidget):
 
 class gPodderEpisode(GladeWidget):
     finger_friendly_widgets = ['episode_description', 'btnCloseWindow', 'btnDownload', 
-    'btnCancel', 'btnSaveFile', 'btnPlay', 'btn_website']
+    'btnCancel', 'btnPlay', 'btn_website']
     
     def new(self):
         global WEB_BROWSER_ICON
@@ -3124,7 +3124,6 @@ class gPodderEpisode(GladeWidget):
             self.progress_bar.show_all()
             self.btnCancel.show_all()
             self.btnPlay.hide_all()
-            self.btnSaveFile.hide_all()
             self.btnDownload.hide_all()
         else:
             self.progress_bar.hide_all()
@@ -3136,11 +3135,9 @@ class gPodderEpisode(GladeWidget):
                     self.btnPlay.set_label(gtk.STOCK_OPEN)
                 self.btnPlay.set_use_stock(True)
                 self.btnPlay.show_all()
-                self.btnSaveFile.show_all()
                 self.btnDownload.hide_all()
             else:
                 self.btnPlay.hide_all()
-                self.btnSaveFile.hide_all()
                 self.btnDownload.show_all()
 
     def on_btnCloseWindow_clicked(self, widget, *args):
@@ -3155,9 +3152,6 @@ class gPodderEpisode(GladeWidget):
             self.play_callback()
 
         self.gPodderEpisode.destroy()
-
-    def on_btnSaveFile_clicked(self, widget, *args):
-        self.show_copy_dialog( src_filename = self.episode.local_filename(), dst_filename = self.episode.sync_filename())
 
 
 class gPodderSync(GladeWidget):
