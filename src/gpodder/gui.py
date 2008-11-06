@@ -1291,6 +1291,17 @@ class gPodder(GladeWidget):
     def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False, authentication_tokens=None):
         result = util.normalize_feed_url( result)
 
+        waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+        waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        waitdlg.set_title(_('Downloading episode list'))
+        waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
+        waitdlg.format_secondary_text(_('Please wait while I am downloading episode information for %s') % result)
+        waitpb = gtk.ProgressBar()
+        if block:
+            waitdlg.vbox.add(waitpb)
+        waitdlg.show_all()
+        waitdlg.set_response_sensitive(gtk.RESPONSE_CANCEL, False)
+
         if not result:
             title = _('URL scheme not supported')
             message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
@@ -1313,12 +1324,16 @@ class gPodder(GladeWidget):
         self.entryAddChannel.set_text(_('Downloading feed...'))
         self.entryAddChannel.set_sensitive(False)
         self.btnAddChannel.set_sensitive(False)
-        args = (result, self.add_new_channel_finish, authentication_tokens, ask_download_new, quiet)
+        args = (result, self.add_new_channel_finish, authentication_tokens, ask_download_new, quiet, waitdlg)
         thread = Thread( target=self.add_new_channel_proc, args=args )
         thread.start()
 
-        while block and thread.isAlive(): 
+        while block and thread.isAlive():
+            while gtk.events_pending():
+                gtk.main_iteration( False)
+            waitpb.pulse()
             time.sleep(0.05)
+
 
     def add_new_channel_proc( self, url, callback, authentication_tokens, *callback_args):
         log( 'Adding new channel: %s', url)
@@ -1332,7 +1347,7 @@ class gPodder(GladeWidget):
 
         util.idle_add( callback, channel, url, error, *callback_args )
 
-    def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet ):
+    def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet, waitdlg):
         if channel is not None:
             self.channels.append( channel)
             save_channels( self.channels)
@@ -1390,6 +1405,7 @@ class gPodder(GladeWidget):
         self.entryAddChannel.set_sensitive(True)
         self.btnAddChannel.set_sensitive(True)
         self.update_podcasts_tab()
+        waitdlg.destroy()
 
 
     def update_feed_cache_finish_callback(self, channels=None,
