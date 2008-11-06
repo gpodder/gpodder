@@ -33,28 +33,16 @@ from xml.sax import saxutils
 from gpodder.liblogger import log
 from gpodder.util import proxy_request
 
-rr = {}
-
 def get_real_download_url(url, proxy=None):
-    if 'youtube-episode' not in rr:
-        rr['youtube-episode'] = re.compile('http://(?:[a-z]+\.)?youtube\.com/v/.*\.swf', re.IGNORECASE)
+    r1 = re.compile('http://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
+    if r1 is not None:
+        page = proxy_request('http://www.youtube.com/watch?v=' + r1.group(1), proxy, method='GET').read()
 
-    if rr['youtube-episode'].match(url):
-        req = proxy_request(url, proxy)
-
-        if 'location' in req.msg:
-            id, tag = (None, None)
-
-            for part in req.msg['location'].split('&'):
-                if part.startswith('video_id='):
-                    id = part[9:]
-                elif part.startswith('t='):
-                    tag = part[2:]
-
-            if id is not None and tag is not None:
-                next = 'http://www.youtube.com/get_video?video_id='+ id +'&t='+ tag +'&fmt=18'
-                log('YouTube link resolved: %s => %s', url, next)
-                return next
+        r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
+        if r2:
+            next = 'http://www.youtube.com/get_video?video_id=' + r1.group(1) + '&t=' + r2.group(1) + '&fmt=18'
+            log('YouTube link resolved: %s => %s', url, next)
+            return next
 
     return url
 

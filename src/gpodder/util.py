@@ -845,16 +845,16 @@ def format_seconds_to_hour_min_sec(seconds):
     else:
         return result[0]
 
-def proxy_request(url, proxy=None):
+def proxy_request(url, proxy=None, method='HEAD'):
     if proxy is None or proxy.strip() == '':
         (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
         conn = httplib.HTTPConnection(netloc)
         start = len(scheme) + len('://') + len(netloc)
-        conn.request('HEAD', url[start:])
+        conn.request(method, url[start:])
     else:
         (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(proxy)
         conn = httplib.HTTPConnection(netloc)
-        conn.request('HEAD', url)
+        conn.request(method, url)
 
     return conn.getresponse()
 
