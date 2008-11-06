@@ -3554,6 +3554,10 @@ class gPodderEpisodeSelector( GladeWidget):
                 text.append(_('total size: %s') % gl.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)
+            if count > 0:
+                self.btnCancel.set_label(gtk.STOCK_CANCEL)
+            else:
+                self.btnCancel.set_label(gtk.STOCK_CLOSE)
         else:
             self.btnOK.set_sensitive(False)
             for index, row in enumerate(self.model):
