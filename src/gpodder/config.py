@@ -113,7 +113,7 @@ gPodderSettings = {
     'max_episodes_per_feed': (int, 200),
     'mp3_player_use_scrobbler_log': (bool, False),
     'mp3_player_max_filename_length': (int, 100),
-    'show_podcast_url_entry': (bool, True),
+    'show_url_entry_in_podcast_list': (bool, False),
     'maemo_allow_custom_player': (bool, False),
     'rockbox_copy_coverart' : (bool, False),
     'rockbox_coverart_size' : (int, 100),

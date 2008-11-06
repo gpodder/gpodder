@@ -351,7 +351,6 @@ class gPodder(GladeWidget):
             # do some widget hiding
             self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
-            self.item_show_url_entry.hide_all()
             self.item_email_subscriptions.hide_all()
 
             # Feed cache update button
@@ -363,8 +362,8 @@ class gPodder(GladeWidget):
         self.gPodder.connect('key-press-event', self.on_key_press)
         self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
 
-        if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
-            self.hboxAddChannel.hide_all()
+        if gl.config.show_url_entry_in_podcast_list:
+            self.hboxAddChannel.show()
 
         if not gl.config.show_toolbar:
             self.toolbar.hide_all()
@@ -388,7 +387,6 @@ class gPodder(GladeWidget):
 
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
         self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
-        self.item_show_url_entry.set_active(gl.config.show_podcast_url_entry)
                    
         gl.config.connect_gtk_window( self.gPodder)
         gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
@@ -619,11 +617,11 @@ class gPodder(GladeWidget):
                 self.toolbar.hide_all()
         elif name == 'episode_list_descriptions':
             self.updateTreeView()
-        elif name == 'show_podcast_url_entry' and gpodder.interface != gpodder.MAEMO:
+        elif name == 'show_url_entry_in_podcast_list':
             if new_value:
-                self.hboxAddChannel.show_all()
+                self.hboxAddChannel.show()
             else:
-                self.hboxAddChannel.hide_all()
+                self.hboxAddChannel.hide()
 
     def read_apps(self):
         time.sleep(3) # give other parts of gpodder a chance to start up
@@ -1688,9 +1686,6 @@ class gPodder(GladeWidget):
         elif not gl.send_subscriptions():
             self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'))
 
-    def on_item_show_url_entry_activate(self, widget):
-        gl.config.show_podcast_url_entry = self.item_show_url_entry.get_active()
-
     def on_itemUpdateChannel_activate(self, widget=None):
         self.update_feed_cache(channels=[self.active_channel,])
 
@@ -2033,15 +2028,7 @@ class gPodder(GladeWidget):
         gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
 
     def on_itemAddChannel_activate(self, widget, *args):
-        if gpodder.interface == gpodder.MAEMO or not gl.config.show_podcast_url_entry:
-            gPodderAddPodcastDialog(url_callback=self.add_new_channel)
-        else:
-            if self.channelPaned.get_position() < 200:
-                self.channelPaned.set_position( 200)
-            # make sure we are in the right tab in the main window,
-            # or else the user gets confused (thanks to steve)
-            self.wNotebook.set_current_page(0)
-            self.entryAddChannel.grab_focus()
+        gPodderAddPodcastDialog(url_callback=self.add_new_channel)
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:

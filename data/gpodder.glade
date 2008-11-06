@@ -709,16 +709,6 @@
 		      <accelerator key="D" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 		    </widget>
 		  </child>
-
-		  <child>
-		    <widget class="GtkCheckMenuItem" id="item_show_url_entry">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Show URL entry box</property>
-		      <property name="use_underline">True</property>
-		      <property name="active">False</property>
-		      <signal name="activate" handler="on_item_show_url_entry_activate" last_modification_time="Mon, 28 Apr 2008 17:37:46 GMT"/>
-		    </widget>
-		  </child>
 		</widget>
 	      </child>
 	    </widget>
@@ -973,7 +963,7 @@
 
 		      <child>
 			<widget class="GtkHBox" id="hboxAddChannel">
-			  <property name="visible">True</property>
+			  <property name="visible">False</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">5</property>
 
