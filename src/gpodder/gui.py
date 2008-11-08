@@ -1866,6 +1866,9 @@ class gPodder(GladeWidget):
             self.notification(message, title)
             return
 
+        if gl.config.ipod_purge_old_episodes:
+            device.purge()
+
         sync_all_episodes = not bool(episodes)
 
         if episodes is None:

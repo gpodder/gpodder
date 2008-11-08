@@ -296,6 +296,15 @@ class iPodDevice(Device):
         Device.close(self)
         return True
 
+    def purge(self):
+        for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
+            if gpod.itdb_filename_on_ipod(track) is None:
+                log('Episode has no file: %s', track.title, sender=self)
+                # self.remove_track_gpod(track)
+            elif track.mark_unplayed == 1 and not track.rating:
+                log('Purging episode: %s', track.title, sender=self)
+                self.remove_track_gpod(track)
+
     def get_all_tracks(self):
         tracks = []
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
@@ -313,7 +322,9 @@ class iPodDevice(Device):
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
-        track = track.libgpodtrack
+        self.remove_track_gpod(track.libgpodtrack)
+
+    def remove_track_gpod(self, track):
         filename = gpod.itdb_filename_on_ipod(track)
 
         try:

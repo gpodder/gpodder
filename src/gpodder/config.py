@@ -72,6 +72,7 @@ gPodderSettings = {
     'episode_list_descriptions': (bool, True),
     'show_toolbar': (bool, True),
     'ipod_write_gtkpod_extended': (bool, False),
+    'ipod_purge_old_episodes': (bool, False),
     'mp3_player_delete_played': (bool, False),
     
     # Tray icon and notification settings
