@@ -57,6 +57,15 @@ class Storage(object):
         self.settings = settings
         self.__check_schema()
 
+    def close(self):
+        self.commit()
+
+        cur = self.cursor(lock=True)
+        log('VACUUM', sender=self)
+        cur.execute("VACUUM")
+
+        self.lock.release()
+
     def log(self, message, *args, **kwargs):
         if self.settings['gl'].config.log_sqlite:
             try:
