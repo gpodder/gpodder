@@ -64,14 +64,12 @@ from xml.sax import saxutils
 if gpodder.interface == gpodder.MAEMO:
     ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
     ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
-    ICON_BITTORRENT = 'qgn_toolb_browser_web'
     ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
     ICON_DELETED = 'qgn_toolb_gene_deletebutton'
     ICON_NEW = 'qgn_list_gene_favor'
 else:
     ICON_AUDIO_FILE = 'audio-x-generic'
     ICON_VIDEO_FILE = 'video-x-generic'
-    ICON_BITTORRENT = 'applications-internet'
     ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
     ICON_DELETED = gtk.STOCK_DELETE
     ICON_NEW = gtk.STOCK_ABOUT
@@ -331,11 +329,6 @@ class podcastChannel(object):
                     log('Error while calling update_metadata_on_file(): %s', e)
 
             self.update_m3u_playlist()
-            
-            if item.file_type() == 'torrent':
-                torrent_filename = item.local_filename()
-                destination_filename = util.torrent_filename( torrent_filename)
-                gl.invoke_torrent(item.url, torrent_filename, destination_filename)
 
     def get_all_episodes(self):
         return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self))
@@ -356,7 +349,7 @@ class podcastChannel(object):
         return self.items_liststore()
 
     def iter_set_downloading_columns( self, model, iter, episode=None):
-        global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_BITTORRENT
+        global ICON_AUDIO_FILE, ICON_VIDEO_FILE
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
         if episode is None:
@@ -389,8 +382,6 @@ class podcastChannel(object):
                     status_icon = util.get_tree_icon(ICON_AUDIO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
                 elif file_type == 'video':
                     status_icon = util.get_tree_icon(ICON_VIDEO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
-                elif file_type == 'torrent':
-                    status_icon = util.get_tree_icon(ICON_BITTORRENT, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
                 else:
                     status_icon = util.get_tree_icon('unknown', not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
             elif episode.state == db.STATE_DELETED or episode.state == db.STATE_DOWNLOADED:

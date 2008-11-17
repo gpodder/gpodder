@@ -38,10 +38,8 @@ import threading
 import ConfigParser
 
 if gpodder.interface == gpodder.MAEMO:
-    default_bittorrent_dir = '/media/mmc2/gpodder/torrents'
     default_download_dir = '/media/mmc2/gpodder/downloads'
 else:
-    default_bittorrent_dir = os.path.expanduser('~/gpodder-downloads/torrents')
     default_download_dir = os.path.expanduser('~/gpodder-downloads')
 
 gPodderSettings = {
@@ -57,13 +55,11 @@ gPodderSettings = {
     'max_downloads_enabled': ( bool, False ), 
     'limit_rate': ( bool, False ),
     'limit_rate_value': ( float, 500.0 ),
-    'bittorrent_dir': (str, default_bittorrent_dir),
     'episode_old_age': ( int, 7 ),
 
     # Boolean config flags
     'update_on_startup': ( bool, False ),
     'auto_download_when_minimized': (bool, False),
-    'use_gnome_bittorrent': ( bool, True ),
     'only_sync_not_played': ( bool, False ),
     'proxy_use_environment': ( bool, True ),
     'update_tags': ( bool, False ),

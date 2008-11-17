@@ -73,7 +73,6 @@ class gPodderLib(object):
             self.migrate_channels_xml()
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
-        util.make_directory(self.config.bittorrent_dir)
 
         # We need to make a seamless upgrade, so by default the video player is not specified
         # so the first time this application is run it will detect this and set it to the same 
@@ -262,7 +261,7 @@ class gPodderLib(object):
         for ddir in download_dirs:
             if os.path.isdir( ddir):
                 globr = glob.glob( '%s/*' % ( ddir, ))
-                if not globr and ddir != self.config.bittorrent_dir:
+                if not globr:
                     log( 'Stale download directory found: %s', os.path.basename( ddir))
                     try:
                         os.rmdir( ddir)
@@ -340,29 +339,6 @@ class gPodderLib(object):
         except:
             return ( False, command_line[0] )
         return ( True, command_line[0] )
-
-    def invoke_torrent( self, url, torrent_filename, target_filename):
-        db.mark_episode(url, is_played=True)
-
-        if self.config.use_gnome_bittorrent:
-            if util.find_command('gnome-btdownload') is None:
-                log( 'Cannot find "gnome-btdownload". Please install gnome-bittorrent.', sender = self)
-                return False
-
-            command = 'gnome-btdownload "%s" --saveas "%s"' % ( torrent_filename, os.path.join( self.config.bittorrent_dir, target_filename))
-            log( command, sender = self)
-            os.system( '%s &' % command)
-            return True
-        else:
-            # Simply copy the .torrent with a suitable name
-            try:
-                target_filename = os.path.join( self.config.bittorrent_dir, os.path.splitext( target_filename)[0] + '.torrent')
-                shutil.copyfile( torrent_filename, target_filename)
-                return True
-            except:
-                log( 'Torrent copy failed: %s => %s.', torrent_filename, target_filename)
-
-        return False
 
     def ext_command_thread(self, notification, command_line):
         """

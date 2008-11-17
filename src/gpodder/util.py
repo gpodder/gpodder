@@ -406,30 +406,6 @@ def remove_html_tags(html):
     return result.strip()
 
 
-def torrent_filename( filename):
-    """
-    Checks if a file is a ".torrent" file by examining its 
-    contents and searching for the file name of the file 
-    to be downloaded.
-
-    Returns the name of the file the ".torrent" will download 
-    or None if no filename is found (the file is no ".torrent")
-    """
-    if not os.path.exists( filename):
-        return None
-
-    header = open( filename).readline()
-    try:
-        header.index( '6:pieces')
-        name_length_pos = header.index('4:name') + 6
-
-        colon_pos = header.find( ':', name_length_pos)
-        name_length = int(header[name_length_pos:colon_pos]) + 1
-        name = header[(colon_pos + 1):(colon_pos + name_length)]
-        return name
-    except:
-        return None
-
 def extension_from_mimetype(mimetype):
     """
     Simply guesses what the file extension should be from the mimetype
@@ -443,7 +419,7 @@ def filename_from_url(url):
     will result in the string ("file", ".mp3") being returned.
 
     This function will also try to best-guess the "real" 
-    extension for a media file (audio, video, torrent) by 
+    extension for a media file (audio, video) by
     trying to match an extension to these types and recurse
     into the query string to find better matches, if the 
     original extension does not resolve to a known type.
@@ -457,7 +433,7 @@ def filename_from_url(url):
 
     if file_type_by_extension(extension) is not None and not \
         query.startswith(scheme+'://'):
-        # We have found a valid extension (audio, video, torrent)
+        # We have found a valid extension (audio, video)
         # and the query string doesn't look like a URL
         return ( filename, extension.lower() )
 
@@ -477,13 +453,12 @@ def file_type_by_extension( extension):
     """
     Tries to guess the file type by looking up the filename 
     extension from a table of known file types. Will return 
-    the type as string ("audio", "video" or "torrent") or 
+    the type as string ("audio" or "video") or
     None if the file type cannot be determined.
     """
     types = {
             'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
             'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx', 'flv', 'wmv', '3gp' ],
-            'torrent': [ 'torrent' ],
     }
 
     if extension == '':

@@ -1141,9 +1141,6 @@ class gPodder(GladeWidget):
                     else:
                         can_download = True
 
-                if episode.file_type() == 'torrent':
-                    can_download = can_download or gl.config.use_gnome_bittorrent
-
         can_download = can_download and not can_cancel
         can_play = can_play and not can_cancel and not can_download
         can_transfer = can_play and gl.config.device_type != 'none'
@@ -2688,7 +2685,6 @@ class gPodderProperties(GladeWidget):
         if gpodder.interface == gpodder.MAEMO:
             self.table13.hide_all() # bluetooth
             self.table5.hide_all() # player
-            self.table6.hide_all() # bittorrent
             self.gPodderProperties.fullscreen()
 
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
@@ -2698,14 +2694,12 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'auto_download_when_minimized', self.downloadnew)
-        gl.config.connect_gtk_togglebutton( 'use_gnome_bittorrent', self.radio_gnome_bittorrent)
         gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
         gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
         gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
         gl.config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
         gl.config.connect_gtk_togglebutton( 'proxy_use_environment', self.cbEnvironmentVariables)
-        gl.config.connect_gtk_filechooser( 'bittorrent_dir', self.chooserBitTorrentTo)
         gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
         gl.config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
         gl.config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
@@ -2726,9 +2720,6 @@ class gPodderProperties(GladeWidget):
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
-
-        self.radio_gnome_bittorrent.set_active(gl.config.use_gnome_bittorrent)
-        self.radio_copy_torrents.set_active(not gl.config.use_gnome_bittorrent)
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)

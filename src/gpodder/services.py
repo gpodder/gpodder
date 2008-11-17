@@ -149,7 +149,6 @@ dependency_manager = DependencyManager()
 dependency_manager.depend_on(_('Bluetooth file transfer'), _('Send podcast episodes to Bluetooth devices. Needs Python Bluez bindings.'), ['bluetooth'], ['bluetooth-sendto'])
 dependency_manager.depend_on(_('Update tags on MP3 files'), _('Support the "Update tags after download" option for MP3 files.'), ['eyeD3'], [])
 dependency_manager.depend_on(_('Update tags on OGG files'), _('Support the "Update tags after download" option for OGG files.'), [], ['vorbiscomment'])
-dependency_manager.depend_on(_('Gnome BitTorrent integration'), _('Download .torrent files using Gnome BitTorrent.'), [], ['gnome-btdownload'])
 
 
 class CoverDownloader(ObservableService):
