@@ -115,45 +115,45 @@ class Storage(object):
 
         cur = self.cursor(lock=True)
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS channels (
-            id INTEGER PRIMARY KEY,
-            url TEXT,
-            title TEXT,
-            override_title TEXT,
-            link TEXT,
-            description TEXT,
-            image TEXT,
-            pubDate INTEGER,
-            sync_to_devices INTEGER,
-            device_playlist_name TEXT,
-            username TEXT,
-            password TEXT,
-            last_modified TEXT,
-            etag TEXT,
-            deleted INTEGER
-            )""")
+        self.upgrade_table("channels", (
+            ("id", "INTEGER PRIMARY KEY"),
+            ("url", "TEXT"),
+            ("title", "TEXT"),
+            ("override_title", "TEXT"),
+            ("link", "TEXT"),
+            ("description", "TEXT"),
+            ("image", "TEXT"),
+            ("pubDate", "INTEGER"),
+            ("sync_to_devices", "INTEGER"),
+            ("device_playlist_name", "TEXT"),
+            ("username", "TEXT"),
+            ("password", "TEXT"),
+            ("last_modified", "TEXT"),
+            ("etag", "TEXT"),
+            ("deleted", "INTEGER"),
+            ))
+
+        self.upgrade_table("episodes", (
+            ("id", "INTEGER PRIMARY KEY"),
+            ("channel_id", "INTEGER"),
+            ("url", "TEXT"),
+            ("title", "TEXT"),
+            ("length", "INTEGER"),
+            ("mimetype", "TEXT"),
+            ("guid", "TEXT"),
+            ("description", "TEXT"),
+            ("link", "TEXT"),
+            ("pubDate", "INTEGER"),
+            ("state", "INTEGER"),
+            ("played", "INTEGER"),
+            ("locked", "INTEGER"),
+            ))
+
         cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_url ON channels (url)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_sync_to_devices ON channels (sync_to_devices)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_title ON channels (title)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_deleted ON channels (deleted)""")
 
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS episodes (
-                id INTEGER PRIMARY KEY,
-                channel_id INTEGER,
-                url TEXT,
-                title TEXT,
-                length INTEGER,
-                mimetype TEXT,
-                guid TEXT,
-                description TEXT,
-                link TEXT,
-                pubDate INTEGER,
-                state INTEGER,
-                played INTEGER,
-                locked INTEGER
-                )
-            """)
         cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_guid ON episodes (guid)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_channel_id ON episodes (channel_id)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_pubDate ON episodes (pubDate)""")
@@ -530,6 +530,29 @@ class Storage(object):
                 WHERE channel_id = ?)""", (channel.id, channel.id, ))
 
         cur.close()
+        self.lock.release()
+
+    def upgrade_table(self, table_name, fields):
+        """
+        Creates a table or adds fields to it.
+        """
+        cur = self.cursor(lock=True)
+
+        cur.execute("PRAGMA table_info(%s)" % table_name)
+        available = cur.fetchall()
+
+        if not len(available):
+            log('Creating table %s', table_name, sender=self)
+            sql = "CREATE TABLE %s (%s)" % (table_name, ", ".join([a+" "+b for (a,b) in fields]))
+            cur.execute(sql)
+        else:
+            available = [row[1] for row in available]
+
+            for field_name, field_type in fields:
+                if field_name not in available:
+                    log('Adding column %s to %s (%s)', table_name, field_name, field_type, sender=self)
+                    cur.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type))
+
         self.lock.release()
 
 db = Storage()
