@@ -55,12 +55,33 @@ if gpodder.interface == gpodder.MAEMO:
 class gPodderLib(object):
     def __init__( self):
         log('Creating gPodderLib()', sender=self)
+        gpodder_dir = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
         if gpodder.interface == gpodder.MAEMO:
-            gpodder_dir = '/media/mmc2/gpodder/'
             self.osso_c = osso.Context('gpodder_osso_sender', '1.0', False)
-        else:
-            gpodder_dir = os.path.expanduser('~/.config/gpodder/')
-        util.make_directory( gpodder_dir)
+            old_dir = '/media/mmc2/gpodder/'
+            if os.path.exists(os.path.join(old_dir, 'channels.opml')) and not os.path.exists(os.path.join(gpodder_dir, 'channels.opml')):
+                # migrate from old (0.13.0 and earlier) gpodder maemo versions
+                # to the current one by moving config files from mmc2 to $HOME
+                util.make_directory(gpodder_dir)
+                for filename in ('channels.opml', 'database.sqlite', 'gpodder.conf'):
+                    try:
+                        shutil.move(os.path.join(old_dir, filename), os.path.join(gpodder_dir, filename))
+                    except:
+                        log('Cannot move %s from %s to %s!', filename, old_dir, gpodder_dir, sender=self, traceback=True)
+                if os.path.exists(os.path.join(old_dir, 'downloads')):
+                    log('Moving old downloads')
+                    # move old download location to new one
+                    for folder in glob.glob(os.path.join(old_dir, 'downloads', '*')):
+                        try:
+                            shutil.move(folder, os.path.join(old_dir, os.path.basename(folder)))
+                        except:
+                            log('Cannot move %s to %s!', folder, old_dir, sender=self, traceback=True)
+                    try:
+                        os.rmdir(os.path.join(old_dir, 'downloads'))
+                    except:
+                        log('Cannot remove old folder %s!', os.path.join(old_dir, 'downloads'), traceback=True)
+
+        util.make_directory(gpodder_dir)
 
         self.tempdir = gpodder_dir
         self.channel_settings_file = os.path.join(gpodder_dir, 'channelsettings.pickle.db')
@@ -73,6 +94,21 @@ class gPodderLib(object):
             self.migrate_channels_xml()
 
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
+
+        if gpodder.interface == gpodder.MAEMO:
+            # Detect changing of SD cards between mmc1/mmc2 if a gpodder
+            # folder exists there (allow moving "gpodder" between SD cards or USB)
+            # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
+            if not os.path.exists(self.config.download_dir):
+                log('Downloads might have been moved. Trying to locate them...', sender=self)
+                for basedir in ['/media/mmc1', '/media/mmc2']+glob.glob('/media/usb/*')+['/home/user']:
+                    dir = os.path.join(basedir, 'gpodder')
+                    if os.path.exists(dir):
+                        log('Downloads found in: %s', dir, sender=self)
+                        self.config.download_dir = dir
+                        break
+                    else:
+                        log('Downloads NOT FOUND in %s', dir, sender=self)
 
         # We need to make a seamless upgrade, so by default the video player is not specified
         # so the first time this application is run it will detect this and set it to the same 

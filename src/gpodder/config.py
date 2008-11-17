@@ -38,7 +38,7 @@ import threading
 import ConfigParser
 
 if gpodder.interface == gpodder.MAEMO:
-    default_download_dir = '/media/mmc2/gpodder/downloads'
+    default_download_dir = '/media/mmc2/gpodder'
 else:
     default_download_dir = os.path.expanduser('~/gpodder-downloads')
 
