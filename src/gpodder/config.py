@@ -130,13 +130,24 @@ gPodderSettings = {
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, False),
 
-    # Window and paned positions
-    'main_window_x': ( int, 100 ),
-    'main_window_y': ( int, 100 ),
-    'main_window_width': ( int, 700 ),
-    'main_window_height': ( int, 500 ),
+    # Paned position
     'paned_position': ( int, 200 ),
 }
+
+# Helper function to add window-specific properties (position and size)
+def window_props(config_prefix, x=100, y=100, width=700, height=500):
+    return {
+            config_prefix+'_x': (int, x),
+            config_prefix+'_y': (int, y),
+            config_prefix+'_width': (int, width),
+            config_prefix+'_height': (int, height),
+            config_prefix+'_maximized': (bool, False),
+    }
+
+# Register window-specific properties
+gPodderSettings.update(window_props('main_window', width=700, height=500))
+gPodderSettings.update(window_props('episode_selector', width=600, height=400))
+
 
 class Config(dict):
     Settings = gPodderSettings
@@ -229,14 +240,18 @@ class Config(dict):
             raise ValueError('%s is not a setting'%name)
 
     def receive_configure_event( self, widget, event, config_prefix):
-        ( x, y, width, height ) = map( lambda x: config_prefix + '_' + x, [ 'x', 'y', 'width', 'height' ])
+        (x, y, width, height, maximized) = map(lambda x: config_prefix + '_' + x, ['x', 'y', 'width', 'height', 'maximized'])
         ( x_pos, y_pos ) = widget.get_position()
         ( width_size, height_size ) = widget.get_size()
-        if not self.__ignore_window_events:
+        if not self.__ignore_window_events and not (hasattr(self, maximized) and getattr(self, maximized)):
             setattr( self, x, x_pos)
             setattr( self, y, y_pos)
             setattr( self, width, width_size)
             setattr( self, height, height_size)
+
+    def receive_window_state(self, widget, event, config_prefix):
+        if hasattr(self, config_prefix+'_maximized'):
+            setattr(self, config_prefix+'_maximized', bool(event.new_window_state & gtk.gdk.WINDOW_STATE_MAXIMIZED))
 
     def enable_window_events(self):
         self.__ignore_window_events = False
@@ -244,14 +259,19 @@ class Config(dict):
     def disable_window_events(self):
         self.__ignore_window_events = True
 
-    def connect_gtk_window( self, window, config_prefix = 'main_window'):
-        ( x, y, width, height ) = map( lambda x: config_prefix + '_' + x, [ 'x', 'y', 'width', 'height' ])
+    def connect_gtk_window( self, window, config_prefix, show_window=False):
+        (x, y, width, height, maximized) = map(lambda x: config_prefix + '_' + x, ['x', 'y', 'width', 'height', 'maximized'])
         if set( ( x, y, width, height )).issubset( set( self.Settings)):
             window.resize( getattr( self, width), getattr( self, height))
             window.move( getattr( self, x), getattr( self, y))
             self.disable_window_events()
             util.idle_add(self.enable_window_events)
-            window.connect( 'configure-event', self.receive_configure_event, config_prefix)
+            window.connect('configure-event', self.receive_configure_event, config_prefix)
+            window.connect('window-state-event', self.receive_window_state, config_prefix)
+            if show_window:
+                window.show()
+            if hasattr(self, maximized) and getattr(self, maximized) == True:
+                window.maximize()
         else:
             raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))
 

@@ -389,7 +389,7 @@ class gPodder(GladeWidget):
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
         self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
                    
-        gl.config.connect_gtk_window( self.gPodder)
+        gl.config.connect_gtk_window(self.gPodder, 'main_window')
         gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
 
         gl.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
@@ -3484,6 +3484,7 @@ class gPodderEpisodeSelector( GladeWidget):
     COLUMN_ADDITIONAL = 3
 
     def new( self):
+        gl.config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
         if not hasattr( self, 'callback'):
             self.callback = None
 
