@@ -1283,7 +1283,9 @@ class gPodder(GladeWidget):
     
     def updateTreeView( self):
         if self.channels and self.active_channel is not None:
+            rect = self.treeAvailable.get_visible_rect()
             self.treeAvailable.set_model(self.active_channel.tree_model)
+            util.idle_add(self.treeAvailable.scroll_to_point, rect.x, rect.y)
             self.treeAvailable.columns_autosize()
             self.play_or_download()
         else:
