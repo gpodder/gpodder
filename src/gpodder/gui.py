@@ -415,13 +415,14 @@ class gPodder(GladeWidget):
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         # cell renderers for channel tree
-        namecolumn = gtk.TreeViewColumn( _('Podcast'))
+        iconcolumn = gtk.TreeViewColumn('')
 
         iconcell = gtk.CellRendererPixbuf()
-        namecolumn.pack_start( iconcell, False)
-        namecolumn.add_attribute( iconcell, 'pixbuf', 5)
+        iconcolumn.pack_start( iconcell, False)
+        iconcolumn.add_attribute( iconcell, 'pixbuf', 5)
         self.cell_channel_icon = iconcell
 
+        namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
         namecell.set_property('foreground-set', True)
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
@@ -436,7 +437,8 @@ class gPodder(GladeWidget):
         namecolumn.add_attribute(iconcell, 'visible', 7)
         self.cell_channel_pill = iconcell
 
-        self.treeChannels.append_column( namecolumn)
+        self.treeChannels.append_column(iconcolumn)
+        self.treeChannels.append_column(namecolumn)
         self.treeChannels.set_headers_visible(False)
 
         # enable alternating colors hint
@@ -640,7 +642,7 @@ class gPodder(GladeWidget):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
-        if not self.episode_list_can_tooltip:
+        if not self.episode_list_can_tooltip or (column is not None and column != treeview.get_columns()[0]):
             self.last_tooltip_episode = None
             return False
 
@@ -653,6 +655,9 @@ class gPodder(GladeWidget):
                 self.last_tooltip_episode = None
                 return False
             self.last_tooltip_episode = url
+
+            if len(description) > 400:
+                description = description[:398]+'[...]'
 
             tooltip.set_text(description)
             return True
@@ -669,7 +674,7 @@ class gPodder(GladeWidget):
     def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
-        if not self.podcast_list_can_tooltip:
+        if not self.podcast_list_can_tooltip or (column is not None and column != treeview.get_columns()[0]):
             self.last_tooltip_channel = None
             return False
 
