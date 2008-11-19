@@ -299,7 +299,7 @@ class podcastChannel(object):
         db.save_channel(self)
     
     def get_new_episodes( self):
-        return [episode for episode in db.load_episodes(self, factory=lambda x: podcastItem.create_from_dict(x, self)) if episode.state == db.STATE_NORMAL and not episode.is_played]
+        return [episode for episode in db.load_episodes(self, factory=lambda x: podcastItem.create_from_dict(x, self)) if episode.state == db.STATE_NORMAL and not episode.is_played and not services.download_status_manager.is_download_in_progress(episode.url)]
 
     def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:
