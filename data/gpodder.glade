@@ -114,34 +114,6 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="itemFind">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Find new podcasts</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_itemImportChannels_activate" last_modification_time="Sat, 29 Oct 2005 11:28:10 GMT"/>
-		      <accelerator key="F" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image4599">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-find</property>
-			  <property name="icon_size">1</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="trennlinie6">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
 		    <widget class="GtkImageMenuItem" id="itemPreferences">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Preferences</property>
@@ -236,9 +208,37 @@
 		<widget class="GtkMenu" id="advanced1_menu">
 
 		  <child>
+		    <widget class="GtkImageMenuItem" id="itemFind">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Search for podcasts</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_itemImportChannels_activate" last_modification_time="Sat, 29 Oct 2005 11:28:10 GMT"/>
+		      <accelerator key="F" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4599">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-find</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="trennlinie6">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkImageMenuItem" id="itemAddChannel">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Subscribe to new podcast</property>
+		      <property name="label" translatable="yes">Subscribe to new podcast URL</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_itemAddChannel_activate" last_modification_time="Sat, 29 Oct 2005 11:33:59 GMT"/>
 		      <accelerator key="L" modifiers="GDK_CONTROL_MASK" signal="activate"/>
@@ -5909,6 +5909,22 @@ MTP-based player</property>
 	  </child>
 
 	  <child>
+	    <widget class="GtkButton" id="btnCancel">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="has_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="has_focus">True</property>
+	      <property name="label">gtk-cancel</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="response_id">0</property>
+	      <signal name="clicked" handler="on_btnCancel_clicked" last_modification_time="Tue, 13 Jun 2006 19:31:15 GMT"/>
+	    </widget>
+	  </child>
+
+	  <child>
 	    <widget class="GtkButton" id="btnOK">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -5918,22 +5934,6 @@ MTP-based player</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">0</property>
 	      <signal name="clicked" handler="on_btnOK_clicked" last_modification_time="Tue, 13 Jun 2006 19:31:12 GMT"/>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkButton" id="btnCancel">
-	      <property name="visible">True</property>
-	      <property name="can_default">True</property>
-	      <property name="has_default">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="has_focus">True</property>
-	      <property name="label">gtk-close</property>
-	      <property name="use_stock">True</property>
-	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="focus_on_click">True</property>
-	      <property name="response_id">0</property>
-	      <signal name="clicked" handler="on_btnCancel_clicked" last_modification_time="Tue, 13 Jun 2006 19:31:15 GMT"/>
 	    </widget>
 	  </child>
 	</widget>
@@ -6163,9 +6163,9 @@ MTP-based player</property>
 	      <property name="border_width">5</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
-	      <property name="shadow_type">GTK_SHADOW_NONE</property>
+	      <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="shadow_type">GTK_SHADOW_IN</property>
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
@@ -6222,7 +6222,7 @@ MTP-based player</property>
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
-		  <property name="spacing">0</property>
+		  <property name="spacing">5</property>
 
 		  <child>
 		    <widget class="GtkLabel" id="label141">
@@ -6273,11 +6273,24 @@ MTP-based player</property>
 		    <widget class="GtkButton" id="btnSearchYouTube">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Find</property>
+		      <property name="use_stock">True</property>
+		      <property name="label">gtk-find</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="clicked" handler="on_btnSearchYouTube_clicked" last_modification_time="Tue, 14 Oct 2008 20:22:31 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4599">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-find</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -6298,9 +6311,9 @@ MTP-based player</property>
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-		  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
-		  <property name="shadow_type">GTK_SHADOW_NONE</property>
+		  <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+		  <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+		  <property name="shadow_type">GTK_SHADOW_IN</property>
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
