@@ -254,6 +254,8 @@ class podcastChannel(object):
         self.count_new = 0
         self.count_unplayed = 0
 
+        self.channel_is_locked = False
+
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
             self.update_save_dir_size()
@@ -549,7 +551,7 @@ class podcastItem(object):
 
         self.state = db.STATE_NORMAL
         self.is_played = False
-        self.is_locked = False
+        self.is_locked = channel.channel_is_locked
 
     def save(self, bulk=False):
         if self.state != db.STATE_DOWNLOADED and self.file_exists():

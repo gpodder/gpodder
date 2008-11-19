@@ -140,6 +140,7 @@ class Storage(object):
             ("last_modified", "TEXT"),
             ("etag", "TEXT"),
             ("deleted", "INTEGER"),
+            ("channel_is_locked", "INTEGER"),
             ))
 
         self.upgrade_table("episodes", (
@@ -231,7 +232,8 @@ class Storage(object):
                 username,
                 password,
                 last_modified,
-                etag
+                etag,
+                channel_is_locked
             FROM
                 channels
             WHERE
@@ -259,6 +261,7 @@ class Storage(object):
                 'password': row[11],
                 'last_modified': row[12],
                 'etag': row[13],
+                'channel_is_locked': row[14],
                 }
 
             if row[0] in stats:
@@ -312,10 +315,10 @@ class Storage(object):
         self.log("save_channel((%s)%s)", c.id or "new", c.url)
 
         if c.id is None:
-            cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, ))
+            cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag, channel_is_locked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, ))
             self.channel_map[c.url] = cur.lastrowid
         else:
-            cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.id, ))
+            cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, channel_is_locked = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.id, ))
 
         cur.close()
         self.lock.release()
@@ -460,6 +463,15 @@ class Storage(object):
 
         cur = self.cursor()
         cur.execute("UPDATE episodes SET state = ?, played = ?, locked = ? WHERE url = ?", (cur_state, cur_played, cur_locked, url, ))
+        cur.close()
+
+        self.lock.release()
+
+    def update_channel_lock(self, channel):
+        log("update_channel_lock(%s, locked=%s)", channel.url, channel.channel_is_locked, sender=self)
+
+        cur = self.cursor(lock=True)
+        cur.execute("UPDATE channels SET channel_is_locked = ? WHERE url = ?", (channel.channel_is_locked, channel.url, ))
         cur.close()
 
         self.lock.release()

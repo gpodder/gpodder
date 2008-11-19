@@ -791,6 +791,18 @@ class gPodder(GladeWidget):
                 item.connect('activate', lambda w: util.open_website(self.active_channel.link))
                 menu.append(item)
 
+            if self.active_channel.channel_is_locked:
+                item = gtk.ImageMenuItem(_('Allow deletion of all episodes'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
+                item.connect('activate', self.on_channel_toggle_lock_activate)
+                menu.append(self.set_finger_friendly(item))
+            else:
+                item = gtk.ImageMenuItem(_('Prohibit deletion of all episodes'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
+                item.connect('activate', self.on_channel_toggle_lock_activate)
+                menu.append(self.set_finger_friendly(item))
+
+
             menu.append( gtk.SeparatorMenuItem())
 
             item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
@@ -1706,6 +1718,21 @@ class gPodder(GladeWidget):
 
         self.for_each_selected_episode_url(callback)
 
+    def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+
+        self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
+        db.update_channel_lock(self.active_channel)
+
+        if self.active_channel.channel_is_locked:
+            self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
+        else:
+            self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion of all episodes'))
+
+        for episode in self.active_channel.get_all_episodes():
+            db.mark_episode(episode.url, is_locked=self.active_channel.channel_is_locked)
+        self.updateComboBox()
+
+
     def on_item_email_subscriptions_activate(self, widget):
         if not self.channels:
             self.show_message(_('Your subscription list is empty.'), _('Could not send list'))
@@ -2285,10 +2312,17 @@ class gPodder(GladeWidget):
                 self.set_title(self.active_channel.title)
             self.itemEditChannel.show_all()
             self.itemRemoveChannel.show_all()
+            self.channel_toggle_lock.show_all()
+            if self.active_channel.channel_is_locked:
+                self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
+            else:
+                self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion of all episodes'))
+
         else:
             self.active_channel = None
             self.itemEditChannel.hide_all()
             self.itemRemoveChannel.hide_all()
+            self.channel_toggle_lock.hide_all()
 
         self.updateTreeView()
 
