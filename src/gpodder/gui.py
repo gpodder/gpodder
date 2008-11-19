@@ -1281,11 +1281,12 @@ class gPodder(GladeWidget):
                 log( 'Cannot set selection on treeChannels', sender = self)
         self.on_treeChannels_cursor_changed( self.treeChannels)
     
-    def updateTreeView( self):
+    def updateTreeView(self, retain_position=True):
         if self.channels and self.active_channel is not None:
             rect = self.treeAvailable.get_visible_rect()
             self.treeAvailable.set_model(self.active_channel.tree_model)
-            util.idle_add(self.treeAvailable.scroll_to_point, rect.x, rect.y)
+            if retain_position:
+                util.idle_add(self.treeAvailable.scroll_to_point, rect.x, rect.y)
             self.treeAvailable.columns_autosize()
             self.play_or_download()
         else:
@@ -2335,7 +2336,7 @@ class gPodder(GladeWidget):
             self.itemRemoveChannel.hide_all()
             self.channel_toggle_lock.hide_all()
 
-        self.updateTreeView()
+        self.updateTreeView(False)
 
     def on_entryAddChannel_changed(self, widget, *args):
         active = self.entryAddChannel.get_text() not in ('', self.ENTER_URL_TEXT)
