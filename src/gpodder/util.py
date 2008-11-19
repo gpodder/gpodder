@@ -592,9 +592,14 @@ def format_desktop_command( command, filename):
 
     See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
     """
+    if '://' in filename:
+        filename_url = filename
+    else:
+        filename_url = 'file://%s' % filename
+
     items = {
-            '%U': 'file://%s' % filename,
-            '%u': 'file://%s' % filename,
+            '%U': filename_url,
+            '%u': filename_url,
             '%F': filename,
             '%f': filename,
     }

@@ -341,9 +341,15 @@ class gPodderLib(object):
         
         return True
 
-    def playback_episode(self, episode):
+    def playback_episode(self, episode, stream=False):
+        if stream:
+            # A streamed file acts as if it has been deleted
+            episode.state = db.STATE_DELETED
+            db.save_episode(episode)
+            filename = episode.url
+        else:
+            filename = episode.local_filename()
         db.mark_episode(episode.url, is_played=True)
-        filename = episode.local_filename()
 
         if gpodder.interface == gpodder.MAEMO and not self.config.maemo_allow_custom_player:
             # Use the built-in Nokia Mediaplayer here
@@ -351,7 +357,9 @@ class gPodderLib(object):
             osso_rpc = osso.Rpc(self.osso_c)
             service = 'com.nokia.mediaplayer'
             path = '/com/nokia/mediaplayer'
-            osso_rpc.rpc_run(service, path, service, 'mime_open', ('file://'+filename,))
+            if not '://' in filename:
+                filename = 'file://' + filename
+            osso_rpc.rpc_run(service, path, service, 'mime_open', (filename,))
             return (True, service)
 
         # Determine the file type and set the player accordingly.  

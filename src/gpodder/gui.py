@@ -977,7 +977,7 @@ class gPodder(GladeWidget):
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
                 menu.append(self.set_finger_friendly(item))
 
-            if can_play:
+            if can_play and not can_download:
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
@@ -1078,8 +1078,8 @@ class gPodder(GladeWidget):
             if len(gl.config.cmd_all_downloads_complete) > 0:
                 Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_all_downloads_complete)).start()
  
-    def playback_episode(self, episode):
-        (success, application) = gl.playback_episode(episode)
+    def playback_episode(self, episode, stream=False):
+        (success, application) = gl.playback_episode(episode, stream)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
         self.updateComboBox(only_selected_channel=True)
@@ -1142,8 +1142,8 @@ class gPodder(GladeWidget):
                         can_download = True
 
         can_download = can_download and not can_cancel
-        can_play = can_play and not can_cancel and not can_download
-        can_transfer = can_play and gl.config.device_type != 'none'
+        can_play = gl.config.enable_streaming or (can_play and not can_cancel and not can_download)
+        can_transfer = can_play and gl.config.device_type != 'none' and not can_cancel and not can_download
 
         if open_instead_of_play:
             self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
@@ -1167,9 +1167,14 @@ class gPodder(GladeWidget):
         if can_play:
             if open_instead_of_play:
                 self.itemOpenSelected.show_all()
+                self.itemPlaySelected.hide_all()
             else:
                 self.itemPlaySelected.show_all()
-            self.itemDeleteSelected.show_all()
+                self.itemOpenSelected.hide_all()
+            if not can_download:
+                self.itemDeleteSelected.show_all()
+            else:
+                self.itemDeleteSelected.hide_all()
             self.item_toggle_played.show_all()
             self.item_toggle_lock.show_all()
             self.separator9.show_all()
@@ -2331,6 +2336,8 @@ class gPodder(GladeWidget):
                     if os.path.exists(episode.local_filename()):
                         episode.channel.addDownloadedItem(episode)
                         self.playback_episode(episode)
+                    elif gl.config.enable_streaming:
+                        self.playback_episode(episode, stream=True)
             elif do_epdialog:
                 play_callback = lambda: self.playback_episode(episode)
                 download_callback = lambda: self.download_episode_list([episode])

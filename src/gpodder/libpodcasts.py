@@ -385,7 +385,7 @@ class podcastChannel(object):
                 else:
                     status_icon = util.get_tree_icon('unknown', not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
             elif episode.state == db.STATE_DELETED or episode.state == db.STATE_DOWNLOADED:
-                status_icon = util.get_tree_icon(ICON_DELETED, icon_cache=self.icon_cache, icon_size=icon_size)
+                status_icon = util.get_tree_icon(ICON_DELETED, not episode.is_played, icon_cache=self.icon_cache, icon_size=icon_size)
             else:
                 log('Warning: Cannot determine status icon.', sender=self)
                 status_icon = None

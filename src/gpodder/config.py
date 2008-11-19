@@ -121,6 +121,7 @@ gPodderSettings = {
     'podcast_list_icon_size': (int, 32),
     'cmd_all_downloads_complete': (str, ''),
     'cmd_download_complete': (str, ''),
+    'enable_streaming': (bool, False),
     'max_simulaneous_feeds_updating': (int, 3),
     'color_updating_feeds': (str, '#7db023'),
     'log_sqlite': (bool, False),
