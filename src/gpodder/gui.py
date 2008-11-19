@@ -3750,6 +3750,7 @@ class gPodderPlaylist(GladeWidget):
     finger_friendly_widgets = ['btnCancelPlaylist', 'btnSavePlaylist', 'treeviewPlaylist']
 
     def new(self):
+        self.m3u_header = '#EXTM3U\n'
         self.mountpoint = util.find_mount_point(gl.config.mp3_player_folder)
         if self.mountpoint == '/':
             self.mountpoint = gl.config.mp3_player_folder
@@ -3809,10 +3810,11 @@ class gPodderPlaylist(GladeWidget):
         tracks = []
         if os.path.exists(self.playlist_file):
             for line in open(self.playlist_file, 'r'):
-                if line.startswith('#'):
-                    tracks.append([False, line[1:].strip()])
-                else:
-                    tracks.append([True, line.strip()])
+                if line != self.m3u_header:
+                    if line.startswith('#'):
+                        tracks.append([False, line[1:].strip()])
+                    else:
+                        tracks.append([True, line.strip()])
         return tracks
 
     def write_m3u(self):
@@ -3825,6 +3827,7 @@ class gPodderPlaylist(GladeWidget):
         else:
             try:
                 fp = open(self.playlist_file, 'w')
+                fp.write(self.m3u_header)
                 for icon, checked, filename in self.playlist:
                     if not checked:
                         fp.write('#')
