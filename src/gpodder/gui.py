@@ -876,10 +876,10 @@ class gPodder(GladeWidget):
         episode = self.active_channel.find_episode(url)
         filename = episode.local_filename()
 
-        if gl.config.bluetooth_ask_always:
-            device = None
-        else:
+        if gl.config.bluetooth_use_device_address:
             device = gl.config.bluetooth_device_address
+        else:
+            device = None
 
         destfile = os.path.join(gl.tempdir, util.sanitize_filename(episode.sync_filename()))
         (base, ext) = os.path.splitext(filename)
@@ -1001,7 +1001,7 @@ class gPodder(GladeWidget):
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
                 item.connect( 'activate', lambda w: self.for_each_selected_episode_url(self.save_episode_as_file))
                 menu.append(self.set_finger_friendly(item))
-                if gl.config.bluetooth_enabled:
+                if gl.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
@@ -2742,7 +2742,6 @@ class gPodderProperties(GladeWidget):
             self.callback_finished = None
 
         if gpodder.interface == gpodder.MAEMO:
-            self.table13.hide_all() # bluetooth
             self.table5.hide_all() # player
             self.gPodderProperties.fullscreen()
 
@@ -2767,11 +2766,6 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
         gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
-        gl.config.connect_gtk_togglebutton('bluetooth_enabled', self.bluetooth_enabled)
-        gl.config.connect_gtk_togglebutton('bluetooth_ask_always', self.bluetooth_ask_always)
-        gl.config.connect_gtk_togglebutton('bluetooth_ask_never', self.bluetooth_ask_never)
-        gl.config.connect_gtk_togglebutton('bluetooth_use_converter', self.bluetooth_use_converter)
-        gl.config.connect_gtk_filechooser( 'bluetooth_converter', self.bluetooth_converter, is_for_files=True)
         gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
         gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         
@@ -2782,7 +2776,6 @@ class gPodderProperties(GladeWidget):
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
-        self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
         self.chooserDownloadTo.set_current_folder(gl.downloaddir)
 
         self.on_sync_delete.set_sensitive(not self.delete_episodes_marked_played.get_active())
@@ -2846,36 +2839,6 @@ class gPodderProperties(GladeWidget):
         else:
             self.iPodMountpoint.set_label( ipod.mount_point)
 
-    def on_bluetooth_select_device_clicked(self, widget):
-        # Stupid GTK doesn't provide us with a method to directly
-        # edit the text of a gtk.Button without "destroying" the
-        # image on it, so we dig into the button's widget tree and
-        # get the gtk.Image and gtk.Label and edit the label directly.
-        alignment = self.bluetooth_select_device.get_child()
-        hbox = alignment.get_child()
-        (image, label) = hbox.get_children()
-
-        old_text = label.get_text()
-        label.set_text(_('Searching...'))
-        self.bluetooth_select_device.set_sensitive(False)
-        while gtk.events_pending():
-            gtk.main_iteration(False)
-
-        # FIXME: Make bluetooth device discovery threaded, so
-        # the GUI doesn't freeze while we are searching for devices
-        found = False
-        for name, address in util.discover_bluetooth_devices():
-            if self.show_confirmation('Use this device as your bluetooth device?', name):
-                gl.config.bluetooth_device_name = name
-                gl.config.bluetooth_device_address = address
-                self.bluetooth_device_name.set_markup('<b>%s</b>'%gl.config.bluetooth_device_name)
-                found = True
-                break
-        if not found:
-            self.show_message('No more devices found', 'Scan finished')
-        self.bluetooth_select_device.set_sensitive(True)
-        label.set_text(old_text)
-    
     def find_active_audio_app(self):
         model = self.comboAudioPlayerApp.get_model()
         iter = model.get_iter_first()

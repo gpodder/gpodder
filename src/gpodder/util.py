@@ -764,6 +764,19 @@ def discover_bluetooth_devices():
             return # <= empty generator
 
 
+def bluetooth_available():
+    """
+    Returns True or False depending on the availability
+    of bluetooth functionality on the system.
+    """
+    if find_command('bluetooth-sendto'):
+        return True
+    elif find_command('gnome-obex-send'):
+        return True
+    else:
+        return False
+
+
 def bluetooth_send_file(filename, device=None, callback_finished=None):
     """
     Sends a file via bluetooth using gnome-obex send.

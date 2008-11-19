@@ -83,10 +83,7 @@ gPodderSettings = {
     'on_quit_ask': (bool, True),
 
     # Bluetooth-related settings
-    'bluetooth_enabled': (bool, False),
-    'bluetooth_ask_always': (bool, True),
-    'bluetooth_ask_never': (bool, False),
-    'bluetooth_device_name': (str, 'No device'),
+    'bluetooth_use_device_address': (bool, False),
     'bluetooth_device_address': (str, '00:00:00:00:00:00'),
     'bluetooth_use_converter': (bool, False),
     'bluetooth_converter': (str, ''),

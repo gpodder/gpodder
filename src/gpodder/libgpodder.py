@@ -117,6 +117,8 @@ class gPodderLib(object):
         if self.config.videoplayer == 'unspecified':
             self.config.videoplayer = self.config.player	
 
+        self.bluetooth_available = util.bluetooth_available()
+
         self.gpodder_dir = gpodder_dir
         not db.setup({ 'database': os.path.join(gpodder_dir, 'database.sqlite'), 'gl': self })
 
