@@ -61,7 +61,7 @@ class Storage(object):
         self.commit()
 
         cur = self.cursor(lock=True)
-        log('VACUUM', sender=self)
+        log('Optimizing database for faster startup.', sender=self)
         cur.execute("VACUUM")
 
         self.lock.release()
