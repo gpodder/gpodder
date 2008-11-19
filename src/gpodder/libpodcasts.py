@@ -671,7 +671,10 @@ class podcastItem(object):
 
     def sync_filename( self):
         if gl.config.custom_sync_name_enabled:
-            return util.object_string_formatter(gl.config.custom_sync_name, episode=self, channel=self.channel)
+            if '{channel' in gl.config.custom_sync_name:
+                log('Fixing OLD syntax {channel.*} => {podcast.*} in custom_sync_name.', sender=self)
+                gl.config.custom_sync_name = gl.config.custom_sync_name.replace('{channel.', '{podcast.')
+            return util.object_string_formatter(gl.config.custom_sync_name, episode=self, podcast=self.channel)
         else:
             return self.title
 
