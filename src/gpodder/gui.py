@@ -3109,7 +3109,6 @@ class gPodderEpisode(GladeWidget):
             document.write_stream('<br><hr style="border: 1px #eeeeee solid;"><p style="font-size: 8px;">%s</p>' % self.episode.link)
             document.write_stream('</body></html>')
             document.close_stream()
-            self.gPodderEpisode.resize(500, 500)
 
             self.episode_title.hide_all()
             self.channel_title.hide_all()
@@ -3139,6 +3138,7 @@ class gPodderEpisode(GladeWidget):
 
         self.hide_show_widgets()
         services.download_status_manager.request_progress_detail( self.episode.url)
+        gl.config.connect_gtk_window(self.gPodderEpisode, 'episode_window', True)
 
     def on_btnCancel_clicked( self, widget):
         services.download_status_manager.cancel_by_url( self.episode.url)

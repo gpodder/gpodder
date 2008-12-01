@@ -144,6 +144,7 @@ def window_props(config_prefix, x=100, y=100, width=700, height=500):
 # Register window-specific properties
 gPodderSettings.update(window_props('main_window', width=700, height=500))
 gPodderSettings.update(window_props('episode_selector', width=600, height=400))
+gPodderSettings.update(window_props('episode_window', width=500, height=400))
 
 
 class Config(dict):
