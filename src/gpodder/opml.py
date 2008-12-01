@@ -178,14 +178,16 @@ class Exporter(object):
         channel object in the "channels" parameter, which 
         should be a list of channel objects.
 
+        OPML 2.0 specification: http://www.opml.org/spec2
+
         Returns True on success or False when there was an 
         error writing the file.
         """
         doc = xml.dom.minidom.Document()
 
-        opml = doc.createElement( 'opml')
-        opml.setAttribute( 'version', '1.1')
-        doc.appendChild( opml)
+        opml = doc.createElement('opml')
+        opml.setAttribute('version', '2.0')
+        doc.appendChild(opml)
 
         head = doc.createElement( 'head')
         head.appendChild( self.create_node( doc, 'title', 'gPodder subscriptions'))
