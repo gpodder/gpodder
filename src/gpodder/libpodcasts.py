@@ -148,6 +148,11 @@ class podcastChannel(object):
 
         if hasattr(c.feed, 'title'):
             self.title = c.feed.title
+            # Start YouTube-specific title FIX
+            YOUTUBE_PREFIX = 'YouTube :: Videos by'
+            if self.title.startswith(YOUTUBE_PREFIX):
+                self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
+            # End YouTube-specific title FIX
         else:
             self.title = self.url
         if hasattr( c.feed, 'link'):
