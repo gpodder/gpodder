@@ -947,19 +947,26 @@ def sanitize_encoding(filename):
     return filename.encode(encoding, 'ignore')
 
 
-def sanitize_filename(filename, max_length=0):
+def sanitize_filename(filename, max_length=0, use_ascii=False):
     """
     Generate a sanitized version of a filename that can
     be written on disk (i.e. remove/replace invalid
     characters and encode in the native language) and
     trim filename if greater than max_length (0 = no limit).
+
+    If use_ascii is True, don't encode in the native language,
+    but use only characters from the ASCII character set.
     """
     if max_length > 0 and len(filename) > max_length:
         log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
         filename = filename[:max_length]
 
     global encoding
-    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(encoding, 'ignore'))
+    if use_ascii:
+        e = 'ascii'
+    else:
+        e = encoding
+    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(e, 'ignore'))
 
 
 def find_mount_point(directory):
