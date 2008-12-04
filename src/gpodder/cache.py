@@ -133,12 +133,15 @@ class Cache:
                                          etag=etag,
                                          )
 
+        # Sometimes, the status code is not set (ugly feed?)
+        status = parsed_result.get('status', None)
+
         # 304: Not Modified
-        if parsed_result.status == 304:
+        if status == 304:
             log('Not Modified: %s', url, sender=self)
             return (False, None)
 
-        if parsed_result.status == 401:
+        if status == 401:
             log('HTTP authentication required: %s', original_url, sender=self)
             return (False, parsed_result)
 
