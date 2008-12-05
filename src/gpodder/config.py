@@ -46,7 +46,8 @@ gPodderSettings = {
     # General settings
     'player': (str, 'default'),
     'videoplayer': (str, 'unspecified'),
-    'opml_url': ( str, 'http://www.gpodder.org/directory.opml' ),
+    'opml_url': (str, 'http://gpodder.org/directory.opml'),
+    'toplist_url': (str, 'http://gpodder.org/toplist.opml'),
     'http_proxy': ( str, '' ),
     'ftp_proxy': ( str, '' ),
     'custom_sync_name': ( str, '{episode.basename}' ),

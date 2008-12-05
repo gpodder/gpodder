@@ -3247,7 +3247,7 @@ class gPodderOpmlLister(GladeWidget):
             self.hbox25.hide_all()
 
         self.setup_treeview(self.treeviewChannelChooser)
-        self.setup_treeview(self.treeviewPodcastAlleyChooser)
+        self.setup_treeview(self.treeviewTopPodcastsChooser)
         self.setup_treeview(self.treeviewYouTubeChooser)
 
         self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
@@ -3294,7 +3294,7 @@ class gPodderOpmlLister(GladeWidget):
 
     def thread_finished(self, model, tab=0):
         if tab == 1:
-            tv = self.treeviewPodcastAlleyChooser
+            tv = self.treeviewTopPodcastsChooser
         elif tab == 2:
             tv = self.treeviewYouTubeChooser
             self.entryYoutubeSearch.set_sensitive(True)
@@ -3311,9 +3311,9 @@ class gPodderOpmlLister(GladeWidget):
 
     def thread_func(self, tab=0):
         if tab == 1:
-            model = opml.Importer('http://podcastalley.com/feeds/PodcastAlleyTop50.opml').get_model()
+            model = opml.Importer(gl.config.toplist_url).get_model()
             if len(model) == 0:
-                self.notification(_('Something is wrong with PodcastAlley.com'), _('Could not get top 50 channels'))
+                self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:
             model = resolver.find_youtube_channels(self.entryYoutubeSearch.get_text())
             if len(model) == 0:
@@ -3392,7 +3392,7 @@ class gPodderOpmlLister(GladeWidget):
         if tab == 0:
             return self.treeviewChannelChooser
         elif tab == 1:
-            return self.treeviewPodcastAlleyChooser
+            return self.treeviewTopPodcastsChooser
         else:
             return self.treeviewYouTubeChooser
 
