@@ -100,21 +100,25 @@ def get_real_episode_length(episode):
     return 0
 
 def find_youtube_channels(string):
+    # FIXME: Make proper use of the YouTube API instead
+    # of screen-scraping the YouTube website
     url = 'http://www.youtube.com/results?search_query='+ urllib.quote(string, '') +'&search_type=search_users&aq=f'
 
     r = re.compile('>\s+<')
     data = r.sub('><', urllib.urlopen(url).read())
 
-    r1 = re.compile('<div\s+class="vltitlealt"><a href="/user/([^"]+)">([^<]+)</a></div>[^<]*<div\s+class="vldesc">([^<]+)?')
+    r1 = re.compile('<a href="/user/([^"]+)"[^>]*>([^<]+)</a>')
     m1 = r1.findall(data)
 
     r2 = re.compile('\s+')
 
     model = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
 
-    for (name, title, text) in m1:
-        link = 'http://www.youtube.com/rss/user/'+ name +'/videos.rss'
-        name = '<b>%s</b>\n<span size="small">%s</span>' % (name, saxutils.escape(r2.sub(' ', text)).strip())
-        model.append([False, name, link])
+    found_users = []
+    for (name, title) in m1:
+        if name not in found_users:
+            found_users.append(name)
+            link = 'http://www.youtube.com/rss/user/'+ name +'/videos.rss'
+            model.append([False, name, link])
 
     return model
