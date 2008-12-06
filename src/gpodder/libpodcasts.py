@@ -414,7 +414,7 @@ class podcastChannel(object):
         for item in self.get_all_episodes():
             description = item.title_and_description
 
-            if item.length:
+            if item.length > 0:
                 filelength = gl.format_filesize(item.length, 1)
             else:
                 filelength = None
@@ -525,7 +525,7 @@ class podcastItem(object):
                 except:
                     log('Cannot convert pubDate "%s" in from_feedparser_entry.', str(metainfo['pubdate']), traceback=True)
 
-        if hasattr( enclosure, 'length') and episode.length:
+        if hasattr(enclosure, 'length'):
             try:
                 episode.length = int(enclosure.length)
             except:
