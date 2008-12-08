@@ -128,6 +128,10 @@ gPodderSettings = {
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, False),
 
+    # Settings for my.gpodder.org
+    'my_gpodder_username': (str, ''),
+    'my_gpodder_password': (str, ''),
+
     # Paned position
     'paned_position': ( int, 200 ),
 }

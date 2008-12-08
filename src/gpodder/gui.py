@@ -45,6 +45,7 @@ from gpodder import services
 from gpodder import sync
 from gpodder import download
 from gpodder import SimpleGladeApp
+from gpodder import my
 from gpodder.liblogger import log
 from gpodder.dbsqlite import db
 from gpodder import resolver
@@ -223,7 +224,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         
         return response == affirmative
 
-    def UsernamePasswordDialog( self, title, message ):
+    def UsernamePasswordDialog( self, title, message, username=None, password=None, username_prompt=_('Username')):
         """ An authentication dialog based on
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
@@ -236,22 +237,29 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
         dialog.set_title(title)
         dialog.format_secondary_markup(message)
+        dialog.set_default_response(gtk.RESPONSE_OK)
 
         username_entry = gtk.Entry()
         username_entry.set_width_chars(25)
+        username_entry.set_activates_default(True)
         password_entry = gtk.Entry()
         password_entry.set_width_chars(25)
         password_entry.set_visibility(False)
+        password_entry.set_activates_default(True)
+        if username is not None:
+            username_entry.set_text(username)
+        if password is not None:
+            password_entry.set_text(password)
 
         username_hbox = gtk.HBox()
         username_label = gtk.Label()
-        username_label.set_markup('<b>' + _('Username:') + '</b>')
+        username_label.set_markup('<b>' + username_prompt + ':</b>')
         username_hbox.pack_start(username_label, False, 5, 5)
         username_hbox.pack_end(username_entry, False)
 
         password_hbox = gtk.HBox()
         password_label = gtk.Label()
-        password_label.set_markup('<b>' + _('Password:') + '</b>')
+        password_label.set_markup('<b>' + _('Password') + ':</b>')
         password_hbox.pack_start(password_label, False, 5, 5)
         password_hbox.pack_end(password_entry, False)
 
@@ -2097,6 +2105,25 @@ class gPodder(GladeWidget):
             self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
 
         gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+
+    def on_upload_to_mygpo(self, widget):
+        if not gl.config.my_gpodder_username or not gl.config.my_gpodder_password:
+            success, authentication = self.UsernamePasswordDialog(_('My gPodder Login'), _('Please enter your e-mail address as username and pick a password. If the account does not exist, it will automatically be created.'), username=gl.config.my_gpodder_username, password=gl.config.my_gpodder_password, username_prompt=_('E-Mail Address'))
+            if success:
+                gl.config.my_gpodder_username, gl.config.my_gpodder_password = authentication
+            else:
+                return
+
+        if gl.config.my_gpodder_username and gl.config.my_gpodder_password:
+            client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
+            save_channels(self.channels)
+            success, messages = client.upload_subscriptions(gl.channel_opml_file)
+            self.show_message('\n'.join(messages), _('Results of upload'))
+            if not success:
+                gl.config.my_gpodder_password = ''
+                self.on_upload_to_mygpo(widget)
+        else:
+            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
     def on_itemAddChannel_activate(self, widget, *args):
         gPodderAddPodcastDialog(url_callback=self.add_new_channel)

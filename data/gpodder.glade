@@ -424,7 +424,23 @@
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_item_email_subscriptions_activate" last_modification_time="Mon, 28 Apr 2008 17:50:23 GMT"/>
 		    </widget>
+                </child>
+
+                  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separatorUpload">
+		      <property name="visible">True</property>
+		    </widget>
 		  </child>
+
+		  <child>
+		    <widget class="GtkMenuItem" id="itemUploadToMygpo">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Upload list to my.gpodder.org</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_upload_to_mygpo"/>
+		    </widget>
+		  </child>
+
 		</widget>
 	      </child>
 	    </widget>
