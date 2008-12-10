@@ -22,6 +22,7 @@ from gpodder import download
 from gpodder import sync
 from gpodder.libgpodder import gl
 from gpodder.liblogger import msg
+from gpodder.dbsqlite import db
 
 from libpodcasts import load_channels
 from libpodcasts import update_channels
@@ -43,7 +44,13 @@ def list_channels():
 def add_channel( url):
     callback_error = lambda s: msg( 'error', s)
 
-    url = util.normalize_feed_url( url)
+    url = util.normalize_feed_url(url)
+
+    channels = load_channels()
+    if url in (c.url for c in channels):
+        msg('error', _('Already added: %s'), urllib.unquote(url))
+        return
+
     try:
         channel = podcastChannel.load(url, create=True)
     except:
@@ -51,13 +58,10 @@ def add_channel( url):
         return
 
     if channel:
-        channels = load_channels()
-        if channel.url in ( c.url for c in channels ):
-            msg( 'error', _('Already added: %s'), urllib.unquote( url))
-            return
-        channels.append( channel)
-        save_channels( channels)
-        msg( 'add', urllib.unquote( url))
+        channels.append(channel)
+        save_channels(channels)
+        db.commit()
+        msg('add', urllib.unquote(url))
     else:
         msg('error', _('Could not add podcast.'))
 
@@ -75,6 +79,7 @@ def del_channel( url):
 
     if len(keep_channels) < len(channels):
         save_channels( keep_channels)
+        db.commit()
     else:
         msg('error', _('Could not remove podcast.'))
 
@@ -85,6 +90,7 @@ def update():
     sys.stdout.flush()
     result = update_channels(callback_error=callback_error)
     print _('done.')
+    db.commit()
     return result
 
 def run():
@@ -104,6 +110,7 @@ def run():
         print _('Downloaded one new episode.')
     else:
         print _('Downloaded %d new episodes.') % new_episodes
+    db.commit()
 
 def sync_device():
     device = sync.open_device()
@@ -133,6 +140,7 @@ def sync_device():
                 episodes_to_sync.append(episode)
         device.add_tracks(episodes_to_sync)
 
+    db.commit()
     if not device.close():
         msg('error', _('Cannot close device.'))
         return False
