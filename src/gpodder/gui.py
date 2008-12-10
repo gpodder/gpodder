@@ -224,7 +224,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         
         return response == affirmative
 
-    def UsernamePasswordDialog( self, title, message, username=None, password=None, username_prompt=_('Username')):
+    def UsernamePasswordDialog( self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
         """ An authentication dialog based on
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
@@ -234,42 +234,51 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             gtk.MESSAGE_QUESTION,
             gtk.BUTTONS_OK_CANCEL )
 
+        dialog.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_DIALOG))
+
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
-        dialog.set_title(title)
+        dialog.set_title(_('Authentication required'))
         dialog.format_secondary_markup(message)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
+        if register_callback is not None:
+            dialog.add_button(_('New user'), gtk.RESPONSE_HELP)
+
         username_entry = gtk.Entry()
-        username_entry.set_width_chars(25)
-        username_entry.set_activates_default(True)
         password_entry = gtk.Entry()
-        password_entry.set_width_chars(25)
+
+        username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)
         password_entry.set_activates_default(True)
+
         if username is not None:
             username_entry.set_text(username)
         if password is not None:
             password_entry.set_text(password)
 
-        username_hbox = gtk.HBox()
+        table = gtk.Table(2, 2)
+        table.set_row_spacings(6)
+        table.set_col_spacings(6)
+
         username_label = gtk.Label()
         username_label.set_markup('<b>' + username_prompt + ':</b>')
-        username_hbox.pack_start(username_label, False, 5, 5)
-        username_hbox.pack_end(username_entry, False)
+        username_label.set_alignment(0.0, 0.5)
+        table.attach(username_label, 0, 1, 0, 1, gtk.FILL, 0)
+        table.attach(username_entry, 1, 2, 0, 1)
 
-        password_hbox = gtk.HBox()
         password_label = gtk.Label()
         password_label.set_markup('<b>' + _('Password') + ':</b>')
-        password_hbox.pack_start(password_label, False, 5, 5)
-        password_hbox.pack_end(password_entry, False)
+        password_label.set_alignment(0.0, 0.5)
+        table.attach(password_label, 0, 1, 1, 2, gtk.FILL, 0)
+        table.attach(password_entry, 1, 2, 1, 2)
 
-        vbox = gtk.VBox(spacing=5)
-        vbox.pack_start(username_hbox)
-        vbox.pack_start(password_hbox)
-
-        dialog.vbox.pack_end(vbox, True, True, 0)
+        dialog.vbox.pack_end(table, True, True, 0)
         dialog.show_all()
         response = dialog.run()
+
+        while response == gtk.RESPONSE_HELP:
+            register_callback()
+            response = dialog.run()
 
         password_entry.set_visibility(True)
         dialog.destroy()
@@ -1634,7 +1643,11 @@ class gPodder(GladeWidget):
         """ clean everything and exit properly
         """
         if self.channels:
-            if not save_channels(self.channels):
+            if save_channels(self.channels):
+                if gl.config.my_gpodder_autoupload:
+                    log('Uploading to my.gpodder.org on close', sender=self)
+                    self.on_upload_to_mygpo(None)
+            else:
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
         services.download_status_manager.cancel_all()
@@ -1813,10 +1826,7 @@ class gPodder(GladeWidget):
                 w.run()
                 w.destroy()
         else:
-            title = _('Import podcasts from the web')
-            message = _('Your podcast list is empty. Do you want to see a list of example podcasts you can subscribe to?')
-            if self.show_confirmation(message, title):
-                self.on_itemImportChannels_activate(self, widget)
+            gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def download_episode_list( self, episodes):
         services.download_status_manager.start_batch_mode()
@@ -2106,23 +2116,57 @@ class gPodder(GladeWidget):
 
         gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
 
-    def on_upload_to_mygpo(self, widget):
+    def require_my_gpodder_authentication(self):
         if not gl.config.my_gpodder_username or not gl.config.my_gpodder_password:
-            success, authentication = self.UsernamePasswordDialog(_('My gPodder Login'), _('Please enter your e-mail address as username and pick a password. If the account does not exist, it will automatically be created.'), username=gl.config.my_gpodder_username, password=gl.config.my_gpodder_password, username_prompt=_('E-Mail Address'))
-            if success:
+            success, authentication = self.UsernamePasswordDialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=gl.config.my_gpodder_username, password=gl.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
+            if success and authentication[0] and authentication[1]:
                 gl.config.my_gpodder_username, gl.config.my_gpodder_password = authentication
+                return True
             else:
-                return
+                return False
 
-        if gl.config.my_gpodder_username and gl.config.my_gpodder_password:
+        return True
+    
+    def my_gpodder_offer_autoupload(self):
+        if not gl.config.my_gpodder_autoupload:
+            if self.show_confirmation(_('gPodder can automatically upload your subscription list to my.gpodder.org when you close it. Do you want to enable this feature?'), _('Upload subscriptions on quit')):
+                gl.config.my_gpodder_autoupload = True
+    
+    def on_download_from_mygpo(self):
+        if self.require_my_gpodder_authentication():
+            client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
+            opml_data = client.download_subscriptions()
+            if len(opml_data) > 0:
+                fp = open(gl.channel_opml_file, 'w')
+                fp.write(opml_data)
+                fp.close()
+                i = opml.Importer(gl.channel_opml_file)
+                for item in i.items:
+                    url = item['url']
+                    self.add_new_channel(url, ask_download_new=False, block=True)
+                self.updateComboBox()
+                self.my_gpodder_offer_autoupload()
+            else:
+                gl.config.my_gpodder_password = ''
+                self.on_download_from_mygpo()
+        else:
+            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
+
+    def on_upload_to_mygpo(self, widget):
+        if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
             save_channels(self.channels)
             success, messages = client.upload_subscriptions(gl.channel_opml_file)
-            self.show_message('\n'.join(messages), _('Results of upload'))
-            if not success:
-                gl.config.my_gpodder_password = ''
-                self.on_upload_to_mygpo(widget)
-        else:
+            if widget is not None:
+                self.show_message('\n'.join(messages), _('Results of upload'))
+                if not success:
+                    gl.config.my_gpodder_password = ''
+                    self.on_upload_to_mygpo(widget)
+                else:
+                    self.my_gpodder_offer_autoupload()
+            elif not success:
+                log('Upload to my.gpodder.org failed, but widget is None!', sender=self)
+        elif widget is not None:
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
     def on_itemAddChannel_activate(self, widget, *args):
@@ -4023,6 +4067,21 @@ class gPodderDependencyManager(GladeWidget):
 
     def on_gPodderDependencyManager_response(self, dialog, response_id):
         self.gPodderDependencyManager.destroy()
+
+class gPodderWelcome(GladeWidget):
+    def new(self):
+        pass
+
+    def on_show_example_podcasts(self, button):
+        self.gPodderWelcome.destroy()
+        self.show_example_podcasts_callback(None)
+
+    def on_setup_my_gpodder(self, gpodder):
+        self.gPodderWelcome.destroy()
+        self.setup_my_gpodder_callback()
+
+    def on_btnCancel_clicked(self, button):
+        self.gPodderWelcome.destroy()
 
 def main():
     gobject.threads_init()

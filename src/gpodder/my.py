@@ -88,6 +88,14 @@ class MygPodderClient(object):
         self.username = username
         self.password = password
 
+    def download_subscriptions(self):
+        theurl = self.WEBSERVICE+"/getlist"
+        args = {'username': self.username, 'password': self.password}
+        args = '&'.join(('%s=%s' % a for a in args.items()))
+        url = theurl + '?' + args
+        opml_data = urllib2.urlopen(url).read()
+        return opml_data
+
     def upload_subscriptions(self, filename):
         theurl = self.WEBSERVICE+'/upload'
         action = 'update-subscriptions'
@@ -98,9 +106,6 @@ class MygPodderClient(object):
         messages = []
 
         success = False
-
-        if '@NEWUSER' in result:
-            messages.append(_('A new user account has been created.'))
 
         if '@GOTOMYGPODDER' in result:
             webbrowser.open(self.WEBSERVICE, new=1)

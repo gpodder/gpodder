@@ -131,6 +131,7 @@ gPodderSettings = {
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, ''),
     'my_gpodder_password': (str, ''),
+    'my_gpodder_autoupload': (bool, False),
 
     # Paned position
     'paned_position': ( int, 200 ),
