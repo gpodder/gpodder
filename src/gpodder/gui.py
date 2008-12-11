@@ -1646,7 +1646,7 @@ class gPodder(GladeWidget):
             if save_channels(self.channels):
                 if gl.config.my_gpodder_autoupload:
                     log('Uploading to my.gpodder.org on close', sender=self)
-                    self.on_upload_to_mygpo(None)
+                    util.idle_add(self.on_upload_to_mygpo, None)
             else:
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
@@ -2132,7 +2132,7 @@ class gPodder(GladeWidget):
             if self.show_confirmation(_('gPodder can automatically upload your subscription list to my.gpodder.org when you close it. Do you want to enable this feature?'), _('Upload subscriptions on quit')):
                 gl.config.my_gpodder_autoupload = True
     
-    def on_download_from_mygpo(self):
+    def on_download_from_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
             opml_data = client.download_subscriptions()
@@ -2140,11 +2140,21 @@ class gPodder(GladeWidget):
                 fp = open(gl.channel_opml_file, 'w')
                 fp.write(opml_data)
                 fp.close()
+                (added, skipped) = (0, 0)
                 i = opml.Importer(gl.channel_opml_file)
                 for item in i.items:
                     url = item['url']
-                    self.add_new_channel(url, ask_download_new=False, block=True)
+                    if url not in (c.url for c in self.channels):
+                        self.add_new_channel(url, ask_download_new=False, block=True)
+                        added += 1
+                    else:
+                        log('Already added: %s', url, sender=self)
+                        skipped += 1
                 self.updateComboBox()
+                if added > 0:
+                    self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'))
+                elif widget is not None:
+                    self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'))
                 self.my_gpodder_offer_autoupload()
             else:
                 gl.config.my_gpodder_password = ''
@@ -4078,7 +4088,7 @@ class gPodderWelcome(GladeWidget):
 
     def on_setup_my_gpodder(self, gpodder):
         self.gPodderWelcome.destroy()
-        self.setup_my_gpodder_callback()
+        self.setup_my_gpodder_callback(None)
 
     def on_btnCancel_clicked(self, button):
         self.gPodderWelcome.destroy()
