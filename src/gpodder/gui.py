@@ -2158,7 +2158,7 @@ class gPodder(GladeWidget):
                 self.my_gpodder_offer_autoupload()
             else:
                 gl.config.my_gpodder_password = ''
-                self.on_download_from_mygpo()
+                self.on_download_from_mygpo(widget)
         else:
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
