@@ -632,9 +632,9 @@ class gPodder(GladeWidget):
     def on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar':
             if new_value:
-                self.toolbar.show_all()
+                self.toolbar.show()
             else:
-                self.toolbar.hide_all()
+                self.toolbar.hide()
         elif name == 'episode_list_descriptions':
             self.updateTreeView()
         elif name == 'show_url_entry_in_podcast_list':
@@ -2777,6 +2777,8 @@ class gPodderAddPodcastDialog(GladeWidget):
             self.label_add.set_text(self.custom_label)
         if hasattr(self, 'custom_title'):
             self.gPodderAddPodcastDialog.set_title(self.custom_title)
+        if gpodder.interface == gpodder.MAEMO:
+            self.entry_url.set_text('http://')
 
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcastDialog.destroy()
