@@ -552,7 +552,7 @@ class podcastItem(object):
         self.description = ''
         self.link = ''
         self.channel = channel
-        self.pubDate = None
+        self.pubDate = 0
 
         self.state = db.STATE_NORMAL
         self.is_played = False
