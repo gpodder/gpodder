@@ -2453,7 +2453,8 @@ class gPodder(GladeWidget):
             self.toolCancel.set_sensitive( services.download_status_manager.has_items())
 
     def on_treeChannels_row_activated(self, widget, *args):
-        self.on_itemEditChannel_activate( self.treeChannels)
+        # double-click action of the podcast list
+        pass
 
     def on_treeChannels_cursor_changed(self, widget, *args):
         ( model, iter ) = self.treeChannels.get_selection().get_selected()
