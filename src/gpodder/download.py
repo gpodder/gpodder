@@ -93,6 +93,10 @@ class DownloadThread(threading.Thread):
         threading.Thread.__init__( self)
         self.setDaemon( True)
 
+        if gpodder.interface == gpodder.MAEMO:
+            # Only update status every 3 seconds on Maemo
+            self.MAX_UPDATES_PER_SEC = 1./3.
+
         self.channel = channel
         self.episode = episode
 

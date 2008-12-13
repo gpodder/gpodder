@@ -547,6 +547,14 @@ class gPodder(GladeWidget):
             elif gl.config.minimize_to_tray:
                 self.tray_icon.set_visible(False)
 
+        # a dictionary that maps episode URLs to the current
+        # treeAvailable row numbers to generate tree paths
+        self.url_path_mapping = {}
+
+        # a dictionary that maps channel URLs to the current
+        # treeChannels row numbers to generate tree paths
+        self.channel_url_path_mapping = {}
+
         services.download_status_manager.register( 'list-changed', self.download_status_updated)
         services.download_status_manager.register( 'progress-changed', self.download_progress_updated)
         services.cover_downloader.register('cover-available', self.cover_download_finished)
@@ -565,6 +573,7 @@ class gPodder(GladeWidget):
         # Subscribed channels
         self.active_channel = None
         self.channels = load_channels()
+        self.channel_list_changed = True
         self.update_podcasts_tab()
 
         # load list of user applications for audio playback
@@ -1112,11 +1121,22 @@ class gPodder(GladeWidget):
         if count == 0:
             if len(gl.config.cmd_all_downloads_complete) > 0:
                 Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_all_downloads_complete)).start()
+
+    def update_selected_episode_list_icons(self):
+        """
+        Updates the status icons in the episode list
+        """
+        selection = self.treeAvailable.get_selection()
+        (model, paths) = selection.get_selected_rows()
+        for path in paths:
+            iter = model.get_iter(path)
+            self.active_channel.iter_set_downloading_columns(model, iter)
  
     def playback_episode(self, episode, stream=False):
         (success, application) = gl.playback_episode(episode, stream)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
+        self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
 
     def treeAvailable_search_equal( self, model, column, key, iter, data = None):
@@ -1241,14 +1261,20 @@ class gPodder(GladeWidget):
 
         return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
 
-    def download_status_updated( self):
+    def download_status_updated(self, episode_urls, channel_urls):
         count = services.download_status_manager.count()
         if count:
             self.labelDownloads.set_text( _('Downloads (%d)') % count)
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
-        self.updateComboBox()
+        model = self.treeAvailable.get_model()
+        for url in episode_urls:
+            if url in self.url_path_mapping:
+                path = (self.url_path_mapping[url],)
+                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path))
+
+        self.updateComboBox(only_these_urls=channel_urls)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -1260,31 +1286,60 @@ class gPodder(GladeWidget):
         self.updateComboBox()
         self.updateTreeView()
 
-    def updateComboBox(self, selected_url=None, only_selected_channel=False):
-        (model, iter) = self.treeChannels.get_selection().get_selected()
+    def updateComboBox(self, selected_url=None, only_selected_channel=False, only_these_urls=None):
+        selection = self.treeChannels.get_selection()
+        (model, iter) = selection.get_selected()
 
         if only_selected_channel:
+            # very cheap! only update selected channel
             if iter and self.active_channel is not None:
-                update_channel_model_by_iter( self.treeChannels.get_model(),
-                    iter, self.active_channel, self.channel_colors,
-                    self.cover_cache, *(gl.config.podcast_list_icon_size,)*2 )
+                update_channel_model_by_iter(model, iter,
+                    self.active_channel, self.channel_colors,
+                    self.cover_cache,
+                    gl.config.podcast_list_icon_size,
+                    gl.config.podcast_list_icon_size)
+        elif not self.channel_list_changed:
+            # we can keep the model, but have to update some
+            if only_these_urls is None:
+                # still cheaper than reloading the whole list
+                iter = model.get_iter_first()
+                while iter is not None:
+                    (index,) = model.get_path(iter)
+                    update_channel_model_by_iter(model, iter,
+                        self.channels[index], self.channel_colors,
+                        self.cover_cache,
+                        gl.config.podcast_list_icon_size,
+                        gl.config.podcast_list_icon_size)
+                    iter = model.iter_next(iter)
+            else:
+                # ok, we got a bunch of urls to update
+                for url in only_these_urls:
+                    index = self.channel_url_path_mapping[url]
+                    path = (index,)
+                    iter = model.get_iter(path)
+                    update_channel_model_by_iter(model, iter,
+                        self.channels[index], self.channel_colors,
+                        self.cover_cache,
+                        gl.config.podcast_list_icon_size,
+                        gl.config.podcast_list_icon_size)
         else:
             if model and iter and selected_url is None:
                 # Get the URL of the currently-selected podcast
                 selected_url = model.get_value(iter, 0)
 
-            rect = self.treeChannels.get_visible_rect()
-            self.treeChannels.set_model( channels_to_model( self.channels,
-                self.channel_colors, self.cover_cache,
-                *(gl.config.podcast_list_icon_size,)*2 ))
-            util.idle_add(self.treeChannels.scroll_to_point, rect.x, rect.y)
+            (model, urls) = channels_to_model(self.channels,
+                    self.channel_colors, self.cover_cache,
+                    gl.config.podcast_list_icon_size,
+                    gl.config.podcast_list_icon_size)
+
+            self.channel_url_path_mapping = dict(zip(urls, range(len(urls))))
+            self.treeChannels.set_model(model)
 
             try:
                 selected_path = (0,)
                 # Find the previously-selected URL in the new
                 # model if we have an URL (else select first)
                 if selected_url is not None:
-                    model = self.treeChannels.get_model()
                     pos = model.get_iter_first()
                     while pos is not None:
                         url = model.get_value(pos, 0)
@@ -1296,19 +1351,20 @@ class gPodder(GladeWidget):
                 self.treeChannels.get_selection().select_path(selected_path)
             except:
                 log( 'Cannot set selection on treeChannels', sender = self)
-        self.on_treeChannels_cursor_changed( self.treeChannels)
+            self.on_treeChannels_cursor_changed( self.treeChannels)
+        self.channel_list_changed = False
     
-    def updateTreeView(self, retain_position=True):
+    def updateTreeView(self):
         if self.channels and self.active_channel is not None:
-            rect = self.treeAvailable.get_visible_rect()
-            self.treeAvailable.set_model(self.active_channel.tree_model)
-            if retain_position:
-                util.idle_add(self.treeAvailable.scroll_to_point, rect.x, rect.y)
+            (model, urls) = self.active_channel.get_tree_model()
+            self.treeAvailable.set_model(model)
+            self.url_path_mapping = dict(zip(urls, range(len(urls))))
             self.treeAvailable.columns_autosize()
             self.play_or_download()
         else:
-            if self.treeAvailable.get_model():
-                self.treeAvailable.get_model().clear()
+            model = self.treeAvailable.get_model()
+            if model is not None:
+                model.clear()
     
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
         (path, column, rx, ry) = self.treeChannels.get_path_at_pos( x, y) or (None,)*4
@@ -1393,6 +1449,7 @@ class gPodder(GladeWidget):
     def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet, waitdlg):
         if channel is not None:
             self.channels.append( channel)
+            self.channel_list_changed = True
             save_channels( self.channels)
             if not quiet:
                 # download changed channels and select the new episode in the UI afterwards
@@ -1408,6 +1465,7 @@ class gPodder(GladeWidget):
                 # data won't show up in the channel editor.
                 # TODO: Only updated the newly added feed to save some cpu cycles
                 self.channels = load_channels()
+                self.channel_list_changed = True
 
             if ask_download_new:
                 new_episodes = channel.get_new_episodes()
@@ -1499,6 +1557,7 @@ class gPodder(GladeWidget):
 
         # open the episodes selection dialog
         self.channels = load_channels()
+        self.channel_list_changed = True
         self.updateComboBox()
         if not self.feed_cache_update_cancelled:
             self.download_all_new(channels=channels)
@@ -1546,6 +1605,7 @@ class gPodder(GladeWidget):
 
         if not force_update:
             self.channels = load_channels()
+            self.channel_list_changed = True
             self.updateComboBox()
             return
         
@@ -1677,6 +1737,7 @@ class gPodder(GladeWidget):
             except Exception, e:
                 log( 'Warning: Error in for_each_selected_episode_url for URL %s: %s', url, e, sender = self)
 
+        self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
 
     def delete_episode_list( self, episodes, confirm = True):
@@ -1752,7 +1813,6 @@ class gPodder(GladeWidget):
         self.for_each_selected_episode_url(callback)
 
     def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
-
         self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
         db.update_channel_lock(self.active_channel)
 
@@ -1763,8 +1823,8 @@ class gPodder(GladeWidget):
 
         for episode in self.active_channel.get_all_episodes():
             db.mark_episode(episode.url, is_locked=self.active_channel.channel_is_locked)
-        self.updateComboBox()
 
+        self.updateComboBox(only_selected_channel=True)
 
     def on_item_email_subscriptions_activate(self, widget):
         if not self.channels:
@@ -1828,13 +1888,13 @@ class gPodder(GladeWidget):
         else:
             gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
-    def download_episode_list( self, episodes):
+    def download_episode_list(self, episodes):
         services.download_status_manager.start_batch_mode()
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
             filename = episode.local_filename()
             if not episode.was_downloaded(and_exists=True) and not services.download_status_manager.is_download_in_progress( episode.url):
-                download.DownloadThread( episode.channel, episode, self.notification).start()
+                download.DownloadThread(episode.channel, episode, self.notification).start()
         services.download_status_manager.end_batch_mode()
 
     def new_episodes_show(self, episodes):
@@ -2279,6 +2339,7 @@ class gPodder(GladeWidget):
                 # Remove the channel
                 self.active_channel.delete()
                 self.channels.remove(self.active_channel)
+                self.channel_list_changed = True
                 save_channels(self.channels)
 
                 # Re-load the channels and select the desired new channel
@@ -2397,9 +2458,13 @@ class gPodder(GladeWidget):
     def on_treeChannels_cursor_changed(self, widget, *args):
         ( model, iter ) = self.treeChannels.get_selection().get_selected()
 
-        if model is not None and iter != None:
-            id = model.get_path( iter)[0]
+        if model is not None and iter is not None:
+            old_active_channel = self.active_channel
+            (id,) = model.get_path(iter)
             self.active_channel = self.channels[id]
+
+            if self.active_channel == old_active_channel:
+                return
 
             if gpodder.interface == gpodder.MAEMO:
                 self.set_title(self.active_channel.title)
@@ -2417,7 +2482,7 @@ class gPodder(GladeWidget):
             self.itemRemoveChannel.hide_all()
             self.channel_toggle_lock.hide_all()
 
-        self.updateTreeView(False)
+        self.updateTreeView()
 
     def on_entryAddChannel_changed(self, widget, *args):
         active = self.entryAddChannel.get_text() not in ('', self.ENTER_URL_TEXT)
@@ -2473,10 +2538,13 @@ class gPodder(GladeWidget):
                         self.playback_episode(episode, stream=True)
             elif do_epdialog:
                 play_callback = lambda: self.playback_episode(episode)
-                download_callback = lambda: self.download_episode_list([episode])
+                def download_callback():
+                    self.download_episode_list([episode])
+                    self.play_or_download()
                 gPodderEpisode(episode=episode, download_callback=download_callback, play_callback=play_callback)
             else:
                 self.download_episode_list(episodes)
+                self.play_or_download()
         except:
             log('Error in on_treeAvailable_row_activated', traceback=True, sender=self)
 
@@ -2523,6 +2591,7 @@ class gPodder(GladeWidget):
             for url in cancel_urls:
                 services.download_status_manager.cancel_by_url( url)
             services.download_status_manager.end_batch_mode()
+            self.play_or_download()
 
     def on_btnCancelDownloadStatus_clicked(self, widget, *args):
         self.on_treeDownloads_row_activated( widget, None)

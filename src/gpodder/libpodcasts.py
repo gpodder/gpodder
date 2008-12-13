@@ -344,21 +344,6 @@ class podcastChannel(object):
     def get_all_episodes(self):
         return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self))
 
-    # not used anymore
-    def update_model( self):
-        self.update_save_dir_size()
-        model = self.tree_model
-
-        iter = model.get_iter_first()
-        while iter is not None:
-            self.iter_set_downloading_columns(model, iter)
-            iter = model.iter_next( iter)
-
-    @property
-    def tree_model( self):
-        log('Returning TreeModel for %s', self.url, sender = self)
-        return self.items_liststore()
-
     def iter_set_downloading_columns( self, model, iter, episode=None):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
@@ -403,7 +388,7 @@ class podcastChannel(object):
 
         model.set( iter, 4, status_icon)
 
-    def items_liststore( self):
+    def get_tree_model(self):
         """
         Return a gtk.ListStore containing episodes for this channel
         """
@@ -411,6 +396,8 @@ class podcastChannel(object):
             gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, 
             gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
 
+        log('Returning TreeModel for %s', self.url, sender = self)
+        urls = []
         for item in self.get_all_episodes():
             description = item.title_and_description
 
@@ -423,9 +410,10 @@ class podcastChannel(object):
                 True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
                 item.local_filename(), item.extension()))
             self.iter_set_downloading_columns( new_model, new_iter, episode=item)
+            urls.append(item.url)
         
         self.update_save_dir_size()
-        return new_model
+        return (new_model, urls)
     
     def find_episode( self, url):
         return db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
@@ -734,16 +722,17 @@ class podcastItem(object):
 
 
 def update_channel_model_by_iter( model, iter, channel, color_dict,
-    cover_cache=None, max_width=0, max_height=0 ):
+        cover_cache=None, max_width=0, max_height=0, initialize_all=False):
 
     count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
     count_new = channel.stat(state=db.STATE_NORMAL, is_played=False)
     count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
 
     channel.iter = iter
-    model.set(iter, 0, channel.url)
-    model.set(iter, 1, channel.title)
+    if initialize_all:
+        model.set(iter, 0, channel.url)
 
+    model.set(iter, 1, channel.title)
     title_markup = saxutils.escape(channel.title)
     description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
     d = []
@@ -773,23 +762,26 @@ def update_channel_model_by_iter( model, iter, channel, color_dict,
     else:
         model.set(iter, 7, False)
 
-    # Load the cover if we have it, but don't download
-    # it if it's not available (to avoid blocking here)
-    pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-    new_pixbuf = None
-    if pixbuf is not None:
-        new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
-    model.set(iter, 5, new_pixbuf or pixbuf)
+    if initialize_all:
+        # Load the cover if we have it, but don't download
+        # it if it's not available (to avoid blocking here)
+        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+        new_pixbuf = None
+        if pixbuf is not None:
+            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
+        model.set(iter, 5, new_pixbuf or pixbuf)
 
 def channels_to_model(channels, color_dict, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore( str, str, str, gtk.gdk.Pixbuf, int,
         gtk.gdk.Pixbuf, str, bool, str )
 
+    urls = []
     for channel in channels:
-        update_channel_model_by_iter( new_model, new_model.append(), channel,
-            color_dict, cover_cache, max_width, max_height )
+        update_channel_model_by_iter(new_model, new_model.append(), channel,
+            color_dict, cover_cache, max_width, max_height, True)
+        urls.append(channel.url)
 
-    return new_model
+    return (new_model, urls)
 
 
 def load_channels():

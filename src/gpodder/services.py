@@ -283,7 +283,7 @@ cover_downloader = CoverDownloader()
 class DownloadStatusManager(ObservableService):
     COLUMN_NAMES = { 0: 'episode', 1: 'speed', 2: 'progress', 3: 'url' }
     COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_STRING )
-    PROGRESS_HOLDDOWN_TIMEOUT = 1
+    PROGRESS_HOLDDOWN_TIMEOUT = 5
 
     def __init__( self):
         self.status_list = {}
@@ -303,8 +303,9 @@ class DownloadStatusManager(ObservableService):
 
         # batch add in progress?
         self.batch_mode_enabled = False
-        # we set this flag if we would notify inside batch mode
-        self.batch_mode_notify_flag = False
+        # remember which episodes and channels changed during batch mode
+        self.batch_mode_changed_episode_urls = set()
+        self.batch_mode_changed_channel_urls = set()
 
         # Used to notify all threads that they should
         # re-check if they can acquire the lock
@@ -333,9 +334,10 @@ class DownloadStatusManager(ObservableService):
         This sends out a notification that the list has changed.
         """
         self.batch_mode_enabled = False
-        if self.batch_mode_notify_flag:
-            self.notify('list-changed')
-        self.batch_mode_notify_flag = False
+        if len(self.batch_mode_changed_episode_urls) + len(self.batch_mode_changed_channel_urls) > 0:
+            self.notify('list-changed', self.batch_mode_changed_episode_urls, self.batch_mode_changed_channel_urls)
+            self.batch_mode_changed_episode_urls = set()
+            self.batch_mode_changed_channel_urls = set()
 
     def notify_progress(self, force=False):
         now = (self.count(), self.average_progress())
@@ -404,9 +406,10 @@ class DownloadStatusManager(ObservableService):
         self.tree_model_lock.acquire()
         self.status_list[id] = { 'iter': self.tree_model.append(), 'thread': thread, 'progress': 0.0, 'speed': _('Queued'), }
         if self.batch_mode_enabled:
-            self.batch_mode_notify_flag = True
+            self.batch_mode_changed_episode_urls.add(thread.episode.url)
+            self.batch_mode_changed_channel_urls.add(thread.channel.url)
         else:
-            self.notify('list-changed')
+            self.notify('list-changed', [thread.episode.url], [thread.channel.url])
         self.tree_model_lock.release()
 
     def remove_download_id( self, id):
@@ -418,15 +421,22 @@ class DownloadStatusManager(ObservableService):
             util.idle_add(self.remove_iter, iter)
             self.tree_model_lock.release()
             self.status_list[id]['iter'] = None
+            episode_url = self.status_list[id]['thread'].episode.url
+            channel_url = self.status_list[id]['thread'].channel.url
             self.status_list[id]['thread'].cancel()
             del self.status_list[id]
             if not self.has_items():
                 # Reset the counter now
                 self.downloads_done_bytes = 0
-        if self.batch_mode_enabled:
-            self.batch_mode_notify_flag = True
         else:
-            self.notify('list-changed')
+            episode_url = None
+            channel_url = None
+
+        if self.batch_mode_enabled:
+            self.batch_mode_changed_episode_urls.add(episode_url)
+            self.batch_mode_changed_channel_urls.add(channel_url)
+        else:
+            self.notify('list-changed', [episode_url], [channel_url])
         self.notify_progress(force=True)
 
     def count( self):
