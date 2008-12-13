@@ -1131,6 +1131,24 @@ class gPodder(GladeWidget):
         for path in paths:
             iter = model.get_iter(path)
             self.active_channel.iter_set_downloading_columns(model, iter)
+
+    def update_episode_list_icons(self, urls):
+        """
+        Updates the status icons in the episode list
+        Only update the episodes that have an URL in
+        the "urls" iterable object (e.g. a list of URLs)
+        """
+        if self.active_channel is None:
+            return
+
+        model = self.treeAvailable.get_model()
+        if model is None:
+            return
+
+        for url in urls:
+            if url in self.url_path_mapping:
+                path = (self.url_path_mapping[url],)
+                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path))
  
     def playback_episode(self, episode, stream=False):
         (success, application) = gl.playback_episode(episode, stream)
@@ -1268,12 +1286,7 @@ class gPodder(GladeWidget):
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
-        model = self.treeAvailable.get_model()
-        for url in episode_urls:
-            if url in self.url_path_mapping:
-                path = (self.url_path_mapping[url],)
-                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path))
-
+        self.update_episode_list_icons(urls)
         self.updateComboBox(only_these_urls=channel_urls)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
@@ -1282,9 +1295,9 @@ class gPodder(GladeWidget):
     def on_cbLimitDownloads_toggled(self, widget, *args):
         self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
 
-    def episode_new_status_changed(self):
+    def episode_new_status_changed(self, urls):
         self.updateComboBox()
-        self.updateTreeView()
+        self.update_episode_list_icons(urls)
 
     def updateComboBox(self, selected_url=None, only_selected_channel=False, only_these_urls=None):
         selection = self.treeChannels.get_selection()
@@ -2661,7 +2674,8 @@ class gPodder(GladeWidget):
         # only delete partial files if we do not have any downloads in progress
         delete_partial = not services.download_status_manager.has_items()
         gl.clean_up_downloads(delete_partial)
-        self.updateTreeView()
+        self.update_selected_episode_list_icons()
+        self.play_or_download()
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown
@@ -3562,6 +3576,8 @@ class gPodderEpisodeSelector( GladeWidget):
       - remove_action: Label for the "remove" action (default is "Remove")
       - remove_finished: Callback after all remove callbacks have finished
                          (default is None, also depends on remove_callback)
+                         It will get a list of episode URLs that have been
+                         removed, so the main UI can update those
       - episodes: List of episodes that are presented for selection
       - selected: (optional) List of boolean variables that define the
                   default checked state for the given episodes
@@ -3877,11 +3893,13 @@ class gPodderEpisodeSelector( GladeWidget):
     def on_remove_action_activate(self, widget):
         episodes = self.get_selected_episodes(remove_episodes=True)
 
+        urls = []
         for episode in episodes:
+            urls.append(episode.url)
             self.remove_callback(episode)
 
         if self.remove_finished is not None:
-            self.remove_finished()
+            self.remove_finished(urls)
         self.calculate_total_size()
 
     def get_selected_episodes( self, remove_episodes=False):
