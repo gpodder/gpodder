@@ -618,7 +618,7 @@ class podcastItem(object):
         if not lines or lines[0] == '':
             return _('No description available')
         else:
-            return ' '.join((l.strip() for l in lines if l.strip() != ''))
+            return ' '.join(lines)
 
     def delete_from_disk(self):
         try:
