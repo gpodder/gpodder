@@ -191,9 +191,9 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             elif isinstance(widget, gtk.Button):
                 for child in widget.get_children():
                     if isinstance(child, gtk.Alignment):
-                        child.set_padding(10, 10, 5, 5)
+                        child.set_padding(5, 5, 5, 5)
                     else:
-                        child.set_padding(10, 10)
+                        child.set_padding(5, 5)
             elif isinstance(widget, gtk.TreeView) or isinstance(widget, gtk.TextView):
                 parent = widget.get_parent()
                 if isinstance(parent, gtk.ScrolledWindow):
