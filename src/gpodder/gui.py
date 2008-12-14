@@ -394,6 +394,7 @@ class gPodder(GladeWidget):
         
         self.uar = None
         self.tray_icon = None
+        self.gpodder_episode_window = None
 
         self.fullscreen = False
         self.minimized = False
@@ -1286,7 +1287,7 @@ class gPodder(GladeWidget):
         else:
             self.labelDownloads.set_text( _('Downloads'))
 
-        self.update_episode_list_icons(urls)
+        self.update_episode_list_icons(episode_urls)
         self.updateComboBox(only_these_urls=channel_urls)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
@@ -1327,14 +1328,15 @@ class gPodder(GladeWidget):
             else:
                 # ok, we got a bunch of urls to update
                 for url in only_these_urls:
-                    index = self.channel_url_path_mapping[url]
-                    path = (index,)
-                    iter = model.get_iter(path)
-                    update_channel_model_by_iter(model, iter,
-                        self.channels[index], self.channel_colors,
-                        self.cover_cache,
-                        gl.config.podcast_list_icon_size,
-                        gl.config.podcast_list_icon_size)
+                    if url in self.channel_url_path_mapping:
+                        index = self.channel_url_path_mapping[url]
+                        path = (index,)
+                        iter = model.get_iter(path)
+                        update_channel_model_by_iter(model, iter,
+                            self.channels[index], self.channel_colors,
+                            self.cover_cache,
+                            gl.config.podcast_list_icon_size,
+                            gl.config.podcast_list_icon_size)
         else:
             if model and iter and selected_url is None:
                 # Get the URL of the currently-selected podcast
@@ -1765,11 +1767,15 @@ class gPodder(GladeWidget):
         if confirm and self.show_confirmation( message, _('Delete episodes')) == False:
             return
 
+        episode_urls = set()
+        channel_urls = set()
         for episode in episodes:
             log('Deleting episode: %s', episode.title, sender = self)
             episode.delete_from_disk()
+            episode_urls.add(episode.url)
+            channel_urls.add(episode.channel.url)
 
-        self.download_status_updated()
+        self.download_status_updated(episode_urls, channel_urls)
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
@@ -2525,6 +2531,10 @@ class gPodder(GladeWidget):
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
 
+            if len(paths) == 0:
+                log('Nothing selected', sender=self)
+                return
+
             wname = widget.get_name()
             do_transfer = (wname in ('itemTransferSelected', 'toolTransfer'))
             do_playback = (wname in ('itemPlaySelected', 'itemOpenSelected', 'toolPlay'))
@@ -2555,7 +2565,10 @@ class gPodder(GladeWidget):
                 def download_callback():
                     self.download_episode_list([episode])
                     self.play_or_download()
-                gPodderEpisode(episode=episode, download_callback=download_callback, play_callback=play_callback)
+                if self.gpodder_episode_window is None:
+                    log('First-time use of episode window --- creating', sender=self)
+                    self.gpodder_episode_window = gPodderEpisode()
+                self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
             else:
                 self.download_episode_list(episodes)
                 self.play_or_download()
@@ -3245,98 +3258,147 @@ class gPodderProperties(GladeWidget):
 
 
 class gPodderEpisode(GladeWidget):
-    finger_friendly_widgets = ['episode_description', 'btnCloseWindow', 'btnDownload', 
-    'btnCancel', 'btnPlay', 'btn_website']
+    finger_friendly_widgets = ['btnPlay', 'btnDownload', 'btnCancel', 'btnClose', 'textview']
     
     def new(self):
-        global WEB_BROWSER_ICON
-        self.image3166.set_property('icon-name', WEB_BROWSER_ICON)
-        services.download_status_manager.register( 'list-changed', self.on_download_status_changed)
-        services.download_status_manager.register( 'progress-detail', self.on_download_status_progress)
-
-        self.episode_title.set_markup( '<span weight="bold" size="larger">%s</span>' % saxutils.escape( self.episode.title))
-
-        if gpodder.interface == gpodder.MAEMO:
-            # Hide the advanced prefs expander
-            self.expander1.hide_all()
-
-        try:
-            import gtkhtml2
-            document = gtkhtml2.Document()
-            document.connect('link-clicked', lambda d, url: util.open_website(url))
-            def request_url(document, url, stream):
-                stream.write(urllib2.urlopen(url).read())
-                stream.close()
-            document.connect('request-url', request_url)
-            document.clear()
-            document.open_stream('text/html')
-            document.write_stream('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/></head><body>')
-            document.write_stream('<h2>%s</h2><small><em>from <a href="%s">%s</a>, released %s</em></small><br><hr style="border: 1px #eeeeee solid;">' % (saxutils.escape(self.episode.title), self.episode.link, saxutils.escape(self.episode.channel.title), self.episode.cute_pubdate()))
-            document.write_stream(self.episode.description)
-            document.write_stream('<br><hr style="border: 1px #eeeeee solid;"><p style="font-size: 8px;">%s</p>' % self.episode.link)
-            document.write_stream('</body></html>')
-            document.close_stream()
-
-            self.episode_title.hide_all()
-            self.channel_title.hide_all()
-            self.btn_website.hide_all()
-            self.expander1.hide_all()
-
-            view = gtkhtml2.View()
-            view.set_document(document)
-            self.scrolledwindow4.remove(self.scrolledwindow4.get_child())
-            self.scrolledwindow4.add(view)
-            view.show()
-        except ImportError, ie:
-            b = gtk.TextBuffer()
-            b.set_text(strip(util.remove_html_tags(self.episode.description)))
-            self.episode_description.set_buffer( b)
-
-        self.gPodderEpisode.set_title( self.episode.title)
-        self.LabelDownloadLink.set_text( self.episode.url)
-        self.LabelWebsiteLink.set_text( self.episode.link)
-        self.labelPubDate.set_text(self.episode.cute_pubdate())
-
-        # Hide the "Go to website" button if we don't have a valid URL
-        if self.episode.link == self.episode.url or not self.episode.link:
-            self.btn_website.hide_all()
-
-        self.channel_title.set_markup(_('<i>from %s</i>') % saxutils.escape(self.episode.channel.title))
-
-        self.hide_show_widgets()
-        services.download_status_manager.request_progress_detail( self.episode.url)
+        setattr(self, 'episode', None)
+        setattr(self, 'download_callback', None)
+        setattr(self, 'play_callback', None)
+        self.gPodderEpisode.connect('delete-event', self.on_delete_event)
         gl.config.connect_gtk_window(self.gPodderEpisode, 'episode_window', True)
+        services.download_status_manager.register('list-changed', self.on_download_status_changed)
+        services.download_status_manager.register('progress-detail', self.on_download_status_progress)
+        self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
+        if gl.config.enable_html_shownotes:
+            try:
+                import gtkhtml2
+                setattr(self, 'have_gtkhtml2', True)
+                # Generate a HTML view and remove the textview
+                setattr(self, 'htmlview', gtkhtml2.View())
+                self.scrolled_window.remove(self.scrolled_window.get_child())
+                self.scrolled_window.add(self.htmlview)
+                self.textview = None
+                self.htmlview.set_document(gtkhtml2.Document())
+                self.htmlview.show()
+            except ImportError:
+                log('Install gtkhtml2 if you want HTML shownotes', sender=self)
+                setattr(self, 'have_gtkhtml2', False)
+        else:
+            setattr(self, 'have_gtkhtml2', False)
 
-    def on_btnCancel_clicked( self, widget):
-        services.download_status_manager.cancel_by_url( self.episode.url)
+    def show(self, episode, download_callback, play_callback):
+        self.episode = episode
+        self.download_callback = download_callback
+        self.play_callback = play_callback
 
-    def on_gPodderEpisode_destroy( self, widget):
-        services.download_status_manager.unregister( 'list-changed', self.on_download_status_changed)
-        services.download_status_manager.unregister( 'progress-detail', self.on_download_status_progress)
+        self.gPodderEpisode.set_title(self.episode.title)
 
-    def on_download_status_changed( self):
+        if self.have_gtkhtml2:
+            import gtkhtml2
+            d = gtkhtml2.Document()
+            d.open_stream('text/html')
+            d.write_stream('<html><head></head><body><em>%s</em></body></html>' % _('Loading shownotes...'))
+            d.close_stream()
+            self.htmlview.set_document(d)
+        else:
+            b = gtk.TextBuffer()
+            self.textview.set_buffer(b)
+
         self.hide_show_widgets()
+        self.gPodderEpisode.show()
 
-    def on_btn_website_clicked(self, widget):
-        util.open_website(self.episode.link)
+        # Make sure the window comes up right now:
+        while gtk.events_pending():
+            gtk.main_iteration(False)
 
-    def on_download_status_progress( self, url, progress, speed):
+        # Now do the stuff that takes a bit longer...
+        heading = self.episode.title
+        subheading = 'from %s' % (self.episode.channel.title)
+        description = self.episode.description
+        footer = []
+
+        if self.have_gtkhtml2:
+            import gtkhtml2
+            d.connect('link-clicked', lambda d, url: util.open_website(url))
+            def request_url(document, url, stream):
+                def opendata(url, stream):
+                    fp = urllib2.urlopen(url)
+                    data = fp.read(1024*10)
+                    while data != '':
+                        stream.write(data)
+                        data = fp.read(1024*10)
+                    stream.close()
+                Thread(target=opendata, args=[url, stream]).start()
+            d.connect('request-url', request_url)
+            d.clear()
+            d.open_stream('text/html')
+            d.write_stream('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/></head><body>')
+            d.write_stream('<span style="font-size: big; font-weight: bold;">%s</span><br><span style="font-size: small;">%s</span><hr style="border: 1px #eeeeee solid;"><p>' % (saxutils.escape(heading), saxutils.escape(subheading)))
+            d.write_stream(self.episode.description)
+            if len(footer):
+                d.write_stream('<hr style="border: 1px #eeeeee solid;">')
+                d.write_stream('<span style="font-size: small;">%s</span>' % ('<br>'.join(((saxutils.escape(f) for f in footer))),))
+            d.write_stream('</p></body></html>')
+            d.close_stream()
+        else:
+            b.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
+            b.create_tag('subheading', scale=pango.SCALE_SMALL)
+            b.create_tag('footer', scale=pango.SCALE_SMALL)
+
+            b.insert_with_tags_by_name(b.get_end_iter(), heading, 'heading')
+            b.insert_at_cursor('\n')
+            b.insert_with_tags_by_name(b.get_end_iter(), subheading, 'subheading')
+            b.insert_at_cursor('\n\n')
+            b.insert(b.get_end_iter(), util.remove_html_tags(description))
+            if len(footer):
+                 b.insert_at_cursor('\n\n')
+                 b.insert_with_tags_by_name(b.get_end_iter(), '\n'.join(footer), 'footer')
+
+        services.download_status_manager.request_progress_detail(self.episode.url)
+
+    def on_cancel(self, widget):
+        services.download_status_manager.cancel_by_url(self.episode.url)
+
+    def on_delete_event(self, widget, event):
+        # Avoid destroying the dialog, simply hide
+        self.on_close(widget)
+        return True
+
+    def on_close(self, widget):
+        self.episode = None
+        if self.have_gtkhtml2:
+            import gtkhtml2
+            self.htmlview.set_document(gtkhtml2.Document())
+        else:
+            self.textview.get_buffer().set_text('')
+        self.gPodderEpisode.hide()
+
+    def on_download_status_changed(self, episode_urls, channel_urls):
+        if self.gPodderEpisode.get_property('visible'):
+            self.hide_show_widgets()
+        else:
+            log('download status changed, but not visible', sender=self)
+
+    def on_download_status_progress(self, url, progress, speed):
+        if self.episode is None:
+            return
+
         if url == self.episode.url:
             progress = float(min(100.0,max(0.0,progress)))
-            self.progress_bar.set_fraction(progress/100.0)
-            self.progress_bar.set_text( 'Downloading: %d%% (%s)' % ( progress, speed, ))
+            self.download_progress.set_fraction(progress/100.0)
+            self.download_progress.set_text('Downloading: %d%% (%s)' % (progress, speed))
 
-    def hide_show_widgets( self):
-        is_downloading = services.download_status_manager.is_download_in_progress( self.episode.url)
+    def hide_show_widgets(self):
+        is_downloading = services.download_status_manager.is_download_in_progress(self.episode.url)
         if is_downloading:
-            self.progress_bar.show_all()
+            self.download_progress.show_all()
             self.btnCancel.show_all()
             self.btnPlay.hide_all()
             self.btnDownload.hide_all()
         else:
-            self.progress_bar.hide_all()
+            self.download_progress.hide_all()
             self.btnCancel.hide_all()
-            if os.path.exists( self.episode.local_filename()):
+            if os.path.exists(self.episode.local_filename()):
                 if self.episode.file_type() in ('audio', 'video'):
                     self.btnPlay.set_label(gtk.STOCK_MEDIA_PLAY)
                 else:
@@ -3348,19 +3410,14 @@ class gPodderEpisode(GladeWidget):
                 self.btnPlay.hide_all()
                 self.btnDownload.show_all()
 
-    def on_btnCloseWindow_clicked(self, widget, *args):
-        self.gPodderEpisode.destroy()
-
-    def on_btnDownload_clicked(self, widget, *args):
+    def on_download(self, widget):
         if self.download_callback:
             self.download_callback()
 
-    def on_btnPlay_clicked(self, widget, *args):
+    def on_playback(self, widget):
         if self.play_callback:
             self.play_callback()
-
-        self.gPodderEpisode.destroy()
-
+        self.on_close(widget)
 
 class gPodderSync(GladeWidget):
     def new(self):

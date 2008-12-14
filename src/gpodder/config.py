@@ -124,6 +124,7 @@ gPodderSettings = {
     'max_simulaneous_feeds_updating': (int, 3),
     'color_updating_feeds': (str, '#7db023'),
     'log_sqlite': (bool, False),
+    'enable_html_shownotes': (bool, True),
 
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, False),
