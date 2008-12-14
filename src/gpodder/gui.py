@@ -329,7 +329,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 
 class gPodder(GladeWidget):
-    finger_friendly_widgets = ['btnUpdateFeeds', 'btnCancelFeedUpdate', 'treeAvailable', 'label2', 'labelDownloads']
+    finger_friendly_widgets = ['btnUpdateFeeds', 'btnCancelFeedUpdate', 'treeChannels', 'label2', 'labelDownloads']
     ENTER_URL_TEXT = _('Enter podcast URL...')
     
     def new(self):
@@ -349,8 +349,19 @@ class gPodder(GladeWidget):
             
             # Give toolbar to the hildon window
             self.toolbar.parent.remove(self.toolbar)
-            self.toolbar.set_style(gtk.TOOLBAR_ICONS)
             self.window.add_toolbar(self.toolbar)
+
+            # START TEMPORARY FIX FOR TOOLBAR STYLE
+            # It seems like libglade for python still mixes
+            # old GtkToolbar API with new ones - maybe this
+            # is the reason why setting the style doesn't
+            # work very well. This small hack fixes that :)
+            self.toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
+            def remove_label(w):
+                if hasattr(w, 'set_label'):
+                    w.set_label(None)
+            self.toolbar.foreach(remove_label)
+            # END TEMPORARY FIX FOR TOOLBAR STYLE
          
             self.app.add_window(self.window)
             self.vMain.reparent(self.window)
@@ -384,7 +395,7 @@ class gPodder(GladeWidget):
             self.hboxAddChannel.show()
 
         if not gl.config.show_toolbar:
-            self.toolbar.hide_all()
+            self.toolbar.hide()
 
         gl.config.add_observer(self.on_config_changed)
         self.default_entry_text_color = self.entryAddChannel.get_style().text[gtk.STATE_NORMAL]
@@ -2763,7 +2774,7 @@ class gPodder(GladeWidget):
             self.label2.set_text(_('Podcasts'))
 
 class gPodderChannel(GladeWidget):
-    finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description']
+    finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description', 'label19', 'label37', 'label31']
     
     def new(self):
         global WEB_BROWSER_ICON
@@ -4226,6 +4237,8 @@ class gPodderDependencyManager(GladeWidget):
         self.gPodderDependencyManager.destroy()
 
 class gPodderWelcome(GladeWidget):
+    finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
+
     def new(self):
         pass
 
