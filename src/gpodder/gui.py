@@ -1342,22 +1342,13 @@ class gPodder(GladeWidget):
             self.add_new_channel(result)
 
     def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False, authentication_tokens=None):
-        result = util.normalize_feed_url( result)
-
-        waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
-        waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        waitdlg.set_title(_('Downloading episode list'))
-        waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
-        waitdlg.format_secondary_text(_('Please wait while I am downloading episode information for %s') % result)
-        waitpb = gtk.ProgressBar()
-        if block:
-            waitdlg.vbox.add(waitpb)
-        waitdlg.show_all()
-        waitdlg.set_response_sensitive(gtk.RESPONSE_CANCEL, False)
+        (scheme, rest) = result.split('://', 1)
+        result = util.normalize_feed_url(result)
 
         if not result:
-            title = _('URL scheme not supported')
-            message = _('gPodder currently only supports URLs starting with <b>http://</b>, <b>feed://</b> or <b>ftp://</b>.')
+            cute_scheme = saxutils.escape(scheme)+'://'
+            title = _('%s URLs are not supported') % cute_scheme
+            message = _('gPodder does not understand the URL you supplied.')
             self.show_message( message, title)
             return
 
@@ -1374,6 +1365,17 @@ class gPodder(GladeWidget):
                     saxutils.escape( old_channel.title), ), _('Already added'))
                 waitdlg.destroy()
                 return
+
+        waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+        waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        waitdlg.set_title(_('Downloading episode list'))
+        waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
+        waitdlg.format_secondary_text(_('Please wait while I am downloading episode information for %s') % result)
+        waitpb = gtk.ProgressBar()
+        if block:
+            waitdlg.vbox.add(waitpb)
+        waitdlg.show_all()
+        waitdlg.set_response_sensitive(gtk.RESPONSE_CANCEL, False)
 
         self.entryAddChannel.set_text(_('Downloading feed...'))
         self.entryAddChannel.set_sensitive(False)

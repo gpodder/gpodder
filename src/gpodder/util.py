@@ -103,7 +103,7 @@ def make_directory( path):
     return True
 
 
-def normalize_feed_url( url):
+def normalize_feed_url(url):
     """
     Converts any URL to http:// or ftp:// so that it can be 
     used with "wget". If the URL cannot be converted (invalid
@@ -117,25 +117,36 @@ def normalize_feed_url( url):
     simply assume the user intends to add a http:// feed.
     """
 
-    if not url or len( url) < 8:
+    if not url or len(url) < 8:
         return None
 
+    # Assume HTTP for URLs without scheme
     if not '://' in url:
         url = 'http://' + url
 
-    if url.startswith('itms://'):
+    # The scheme of the URL should be all-lowercase
+    (scheme, rest) = url.split('://', 1)
+    scheme = scheme.lower()
+
+    # Remember to parse iTunes XML for itms:// URLs
+    do_parse_itunes_xml = (scheme == 'itms')
+
+    # feed://, itpc:// and itms:// are really http://
+    if scheme in ('feed', 'itpc', 'itms'):
+        scheme = 'http'
+
+    # Re-assemble our URL
+    url = scheme + '://' + rest
+
+    # If we had an itms:// URL, parse XML
+    if do_parse_itunes_xml:
         url = parse_itunes_xml(url)
 
     # Links to "phobos.apple.com"
     url = itunes_discover_rss(url)
-    if url is None:
-        return None
     
-    if url.startswith( 'http://') or url.startswith( 'https://') or url.startswith( 'ftp://'):
+    if scheme in ('http', 'https', 'ftp'):
         return url
-
-    if url.startswith('feed://') or url.startswith('itpc://'):
-        return 'http://' + url[7:]
 
     return None
 
