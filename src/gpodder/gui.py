@@ -2585,7 +2585,7 @@ class gPodder(GladeWidget):
             return
         elif locked_count > 0:
             title = _('Remove %d out of %d episodes?') % (selection.count_selected_rows() - locked_count, selection.count_selected_rows())
-            message = _('The selection contains locked episodes. These will not be deleted. If you want to listen to any of these episodes again, then you will have to re-download them.')
+            message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
             
         # if user confirms deletion, let's remove some stuff ;)
         if self.show_confirmation( message, title):
