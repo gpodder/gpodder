@@ -3031,6 +3031,7 @@ class gPodderProperties(GladeWidget):
             self.iPodMountpoint.set_label( ipod.mount_point)
 
     def find_active_audio_app(self):
+        index_custom = -1
         model = self.comboAudioPlayerApp.get_model()
         iter = model.get_iter_first()
         index = 0
@@ -3038,12 +3039,15 @@ class gPodderProperties(GladeWidget):
             command = model.get_value(iter, 1)
             if command == self.openApp.get_text():
                 return index
+            if index_custom < 0 and command == '':
+                index_custom = index
             iter = model.iter_next(iter)
             index += 1
-        # return last item = custom command
-        return index-1
+        # return index of custom command or first item
+        return max(0, index_custom)
 
     def find_active_video_app( self):
+        index_custom = -1
         model = self.comboVideoPlayerApp.get_model()
         iter = model.get_iter_first()
         index = 0
@@ -3051,10 +3055,12 @@ class gPodderProperties(GladeWidget):
             command = model.get_value(iter, 1)
             if command == self.openVideoApp.get_text():
                 return index
+            if index_custom < 0 and command == '':
+                index_custom = index
             iter = model.iter_next(iter)
             index += 1
-        # return last item = custom command
-        return index-1
+        # return index of custom command or first item
+        return max(0, index_custom)
     
     def set_download_dir( self, new_download_dir, event = None):
         gl.downloaddir = self.chooserDownloadTo.get_filename()
