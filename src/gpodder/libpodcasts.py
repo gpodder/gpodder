@@ -680,11 +680,25 @@ class podcastItem(object):
     
     @property
     def published( self):
+        """
+        Returns published date as YYYYMMDD (or 00000000 if not available)
+        """
         try:
             return datetime.datetime.fromtimestamp(self.pubDate).strftime('%Y%m%d')
         except:
             log( 'Cannot format pubDate for "%s".', self.title, sender = self)
             return '00000000'
+
+    @property
+    def pubtime(self):
+        """
+        Returns published time as HHMM (or 0000 if not available)
+        """
+        try:
+            return datetime.datetime.fromtimestamp(self.pubDate).strftime('%H%M')
+        except:
+            log('Cannot format pubDate (time) for "%s".', self.title, sender=self)
+            return '0000'
     
     def cute_pubdate(self):
         result = util.format_date(self.pubDate)

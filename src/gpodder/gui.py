@@ -3097,7 +3097,8 @@ class gPodderProperties(GladeWidget):
         examples = [
                 '<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>',
                 '<i>{episode.basename}</i> -&gt; <b>70908-interview-rms</b>',
-                '<i>{episode.published}</i> -&gt; <b>20070908</b>',
+                '<i>{episode.published}</i> -&gt; <b>20070908</b> (for 08.09.2007)',
+                '<i>{episode.pubtime}</i> -&gt; <b>1344</b> (for 13:44)',
                 '<i>{podcast.title}</i> -&gt; <b>The Interview Podcast</b>'
         ]
 
