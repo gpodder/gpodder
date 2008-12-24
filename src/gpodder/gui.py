@@ -135,7 +135,10 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
-            self.set_finger_friendly(getattr(self, widget_name))
+            if hasattr(self, widget_name):
+                self.set_finger_friendly(getattr(self, widget_name))
+            else:
+                log('Finger-friendly widget not found: %s', widget_name, sender=self)
 
         if root == 'gPodder':
             GladeWidget.gpodder_main_window = self.gPodder
@@ -199,6 +202,13 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
                 if isinstance(parent, gtk.ScrolledWindow):
                     hildon.hildon_helper_set_thumb_scrollbar(parent, True)
             elif isinstance(widget, gtk.MenuItem):
+                for child in widget.get_children():
+                    self.set_finger_friendly(child)
+                submenu = widget.get_submenu()
+                if submenu is not None:
+                    for child in submenu.get_children():
+                        self.set_finger_friendly(child)
+            elif isinstance(widget, gtk.Menu):
                 for child in widget.get_children():
                     self.set_finger_friendly(child)
             else:
@@ -329,7 +339,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 
 class gPodder(GladeWidget):
-    finger_friendly_widgets = ['btnUpdateFeeds', 'btnCancelFeedUpdate', 'treeChannels', 'label2', 'labelDownloads']
+    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'advanced1', 'menuChannels', 'menuHelp']
     ENTER_URL_TEXT = _('Enter podcast URL...')
     
     def new(self):
