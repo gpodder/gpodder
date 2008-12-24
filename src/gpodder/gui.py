@@ -388,6 +388,11 @@ class gPodder(GladeWidget):
             # get screen real estate
             self.hboxContainer.set_border_width(0)
 
+            # Offer importing of videocenter podcasts
+            if os.path.exists(os.path.expanduser('~/videocenter')):
+                self.item_upgrade_from_videocenter.show()
+                self.upgrade_from_videocenter_separator.show()
+
         self.gPodder.connect('key-press-event', self.on_key_press)
         self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
 
@@ -1434,7 +1439,6 @@ class gPodder(GladeWidget):
                         break
                 self.show_message( _('You have already subscribed to this podcast: %s') % ( 
                     saxutils.escape( old_channel.title), ), _('Already added'))
-                waitdlg.destroy()
                 return
 
         waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
@@ -2207,6 +2211,14 @@ class gPodder(GladeWidget):
             self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
 
         gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+
+    def on_upgrade_from_videocenter(self, widget):
+        from gpodder import nokiavideocenter
+        vc = nokiavideocenter.UpgradeFromVideocenter()
+        if vc.db2opml():
+            gPodderOpmlLister(custom_title=_('Import podcasts from Video Center'), hide_url_entry=True).get_channels_from_url(vc.opmlfile, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+        else:
+            self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'))
 
     def require_my_gpodder_authentication(self):
         if not gl.config.my_gpodder_username or not gl.config.my_gpodder_password:
@@ -3488,7 +3500,10 @@ class gPodderOpmlLister(GladeWidget):
         if hasattr(self, 'custom_title'):
             self.gPodderOpmlLister.set_title(self.custom_title)
         if hasattr(self, 'hide_url_entry'):
-            self.hbox25.hide_all()
+            self.hboxOpmlUrlEntry.hide_all()
+            new_parent = self.notebookChannelAdder.get_parent()
+            new_parent.remove(self.notebookChannelAdder)
+            self.vboxOpmlImport.reparent(new_parent)
 
         self.setup_treeview(self.treeviewChannelChooser)
         self.setup_treeview(self.treeviewTopPodcastsChooser)

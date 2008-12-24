@@ -359,6 +359,20 @@
 		    </widget>
 		  </child>
 
+		  <child>
+		    <widget class="GtkMenuItem" id="item_upgrade_from_videocenter">
+		      <property name="visible">False</property>
+		      <property name="label" translatable="yes">Import subscriptions from Video Center</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_upgrade_from_videocenter"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="upgrade_from_videocenter_separator">
+		      <property name="visible">False</property>
+		    </widget>
+		  </child>
 
 		  <child>
 		    <widget class="GtkImageMenuItem" id="item_import_from_file">
@@ -5124,13 +5138,13 @@ MTP-based player</property>
 	  <property name="enable_popup">False</property>
 
 	  <child>
-	    <widget class="GtkVBox" id="vbox45">
+	    <widget class="GtkVBox" id="vboxOpmlImport">
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkHBox" id="hbox25">
+		<widget class="GtkHBox" id="hboxOpmlUrlEntry">
 		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
