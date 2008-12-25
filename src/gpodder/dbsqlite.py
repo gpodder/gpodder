@@ -41,9 +41,11 @@ from email.Utils import parsedate_tz
 from email.Utils import formatdate
 from threading import RLock
 import string
+import re
 
 class Storage(object):
     (STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED) = range(3)
+    UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
     lock = None
 
@@ -94,11 +96,32 @@ class Storage(object):
         cur.close()
         self.lock.release()
 
+    def db_sort_cmp(self, a, b):
+        """
+        Compare two strings for sorting, including removing
+        a possible "The " prefix and converting umlauts to
+        normal characters so they can be sorted correctly.
+        (i.e. "Ö1" should not appear at the end of the list)
+        """
+        try:
+            a = a.decode('utf-8', 'ignore').lower()
+            a = re.sub('^the ', '', a)
+            a = a.translate(self.UNICODE_TRANSLATE)
+            b = b.decode('utf-8', 'ignore').lower()
+            b = re.sub('^the ', '', b)
+            b = b.translate(self.UNICODE_TRANSLATE)
+            return cmp(a, b)
+        except:
+            log('Error while comparing "%s" and "%s"', a, b, sender=self, traceback=True)
+            a = re.sub('^the ', '', a.lower())
+            b = re.sub('^the ', '', b.lower())
+            return cmp(a, b)
+
     @property
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
-            self._db.create_collation("UNICODE", lambda a, b: cmp(a.lower().replace('the ', ''), b.lower().replace('the ', '')))
+            self._db.create_collation("UNICODE", self.db_sort_cmp)
             self.log('Connected')
         return self._db
 
