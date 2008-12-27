@@ -55,7 +55,7 @@ import urlparse
 import time
 import datetime
 import rfc822
-import md5
+import hashlib
 import xml.dom.minidom
 import feedparser
 
@@ -271,7 +271,7 @@ class podcastChannel(object):
         
     def get_filename( self):
         """Return the MD5 sum of the channel URL"""
-        return md5.new( self.url).hexdigest()
+        return hashlib.md5( self.url).hexdigest()
 
     filename = property(fget=get_filename)
 
@@ -619,7 +619,7 @@ class podcastItem(object):
 
         # For compatibility with already-downloaded episodes,
         # we accept md5 filenames if they are downloaded now.
-        md5_filename = os.path.join(self.channel.save_dir, md5.new(self.url).hexdigest()+ext)
+        md5_filename = os.path.join(self.channel.save_dir, hashlib.md5(self.url).hexdigest()+ext)
         if os.path.exists(md5_filename) or not gl.config.experimental_file_naming:
             return md5_filename
 
