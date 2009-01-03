@@ -1037,3 +1037,57 @@ def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None
 
     return result
 
+# matches http:// and ftp:// and mailto://
+protocolPattern = re.compile(r'^\w+://')
+
+def isabs(string):
+    """
+    @return true if string is an absolute path or protocoladdress
+    for addresses beginning in http:// or ftp:// or ldap:// -
+    they are considered "absolute" paths.
+    Source: http://code.activestate.com/recipes/208993/
+    """
+    if protocolPattern.match(string): return 1
+    return os.path.isabs(string)
+
+def rel2abs(path, base = os.curdir):
+    """ converts a relative path to an absolute path.
+
+    @param path the path to convert - if already absolute, is returned
+    without conversion.
+    @param base - optional. Defaults to the current directory.
+    The base is intelligently concatenated to the given relative path.
+    @return the relative path of path from base
+    Source: http://code.activestate.com/recipes/208993/
+    """
+    if isabs(path): return path
+    retval = os.path.join(base,path)
+    return os.path.abspath(retval)
+
+def commonpath(l1, l2, common=[]):
+    """
+    helper functions for relpath
+    Source: http://code.activestate.com/recipes/208993/
+    """
+    if len(l1) < 1: return (common, l1, l2)
+    if len(l2) < 1: return (common, l1, l2)
+    if l1[0] != l2[0]: return (common, l1, l2)
+    return commonpath(l1[1:], l2[1:], common+[l1[0]])
+
+def relpath(p1, p2):
+    """
+    Finds relative path from p1 to p2
+    Source: http://code.activestate.com/recipes/208993/
+    """
+    pathsplit = lambda s: s.split(os.path.sep)
+
+    (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
+    p = []
+    if len(l1) > 0:
+        p = [ ('..'+os.sep) * len(l1) ]
+    p = p + l2
+    if len(p) is 0:
+        return "."
+
+    return os.path.join(*p)
+

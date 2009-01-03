@@ -97,7 +97,7 @@ gPodderSettings = {
 
     # Playlist Management settings
     'mp3_player_playlist_file': (str, 'PLAYLISTS/gpodder.m3u'),
-    'mp3_player_playlist_absolute_path': (bool, False),
+    'mp3_player_playlist_absolute_path': (bool, True),
     'mp3_player_playlist_win_path': (bool, True),
 
     # Special settings (not in preferences)

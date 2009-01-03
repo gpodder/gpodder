@@ -39,6 +39,7 @@ from threading import Semaphore
 from string import strip
 
 import gpodder
+from gpodder import libtagupdate
 from gpodder import util
 from gpodder import opml
 from gpodder import services
@@ -4110,7 +4111,9 @@ class gPodderPlaylist(GladeWidget):
     finger_friendly_widgets = ['btnCancelPlaylist', 'btnSavePlaylist', 'treeviewPlaylist']
 
     def new(self):
-        self.m3u_header = '#EXTM3U\n'
+        self.linebreak = '\n'
+        if gl.config.mp3_player_playlist_win_path:
+            self.linebreak = '\r\n'
         self.mountpoint = util.find_mount_point(gl.config.mp3_player_folder)
         if self.mountpoint == '/':
             self.mountpoint = gl.config.mp3_player_folder
@@ -4168,31 +4171,54 @@ class gPodderPlaylist(GladeWidget):
         read all files from the existing playlist
         """
         tracks = []
+        log("Read data from the playlistfile %s" % self.playlist_file)
         if os.path.exists(self.playlist_file):
             for line in open(self.playlist_file, 'r'):
-                if line != self.m3u_header:
+                if not line.startswith('#EXT'):
                     if line.startswith('#'):
                         tracks.append([False, line[1:].strip()])
                     else:
                         tracks.append([True, line.strip()])
         return tracks
 
+    def build_extinf(self, filename):
+        if gl.config.mp3_player_playlist_win_path:
+            filename = filename.replace('\\', os.sep)
+
+        # rebuild the whole filename including the mountpoint
+        if gl.config.mp3_player_playlist_absolute_path:
+            absfile = self.mountpoint + filename
+        else:
+            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
+
+        # read the title from the mp3/ogg tag
+        metadata = libtagupdate.get_tags_from_file(absfile)
+        if 'title' in metadata and metadata['title']:
+            title = metadata['title']
+        else:
+            # fallback: use the basename of the file
+            (title, extension) = os.path.splitext(os.path.basename(filename))
+
+        return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
+
     def write_m3u(self):
         """
         write the list into the playlist on the device
         """
+        log('Writing playlist file: %s', self.playlist_file, sender=self)
         playlist_folder = os.path.split(self.playlist_file)[0]
         if not util.make_directory(playlist_folder):
             self.show_message(_('Folder %s could not be created.') % playlist_folder, _('Error writing playlist'))
         else:
             try:
                 fp = open(self.playlist_file, 'w')
-                fp.write(self.m3u_header)
+                fp.write('#EXTM3U%s' % self.linebreak)
                 for icon, checked, filename in self.playlist:
+                    fp.write(self.build_extinf(filename))
                     if not checked:
                         fp.write('#')
                     fp.write(filename)
-                    fp.write('\n')
+                    fp.write(self.linebreak)
                 fp.close()
                 self.show_message(_('The playlist on your MP3 player has been updated.'), _('Update successful'))
             except IOError, ioe:
@@ -4202,6 +4228,7 @@ class gPodderPlaylist(GladeWidget):
         """
         read all files from the device
         """
+        log('Reading files from %s', gl.config.mp3_player_folder, sender=self)
         tracks = []
         for root, dirs, files in os.walk(gl.config.mp3_player_folder):
             for file in files:
@@ -4212,11 +4239,15 @@ class gPodderPlaylist(GladeWidget):
                     # an entry in our file list, so skip it!
                     break
 
-                if not gl.config.mp3_player_playlist_absolute_path:
+                if gl.config.mp3_player_playlist_absolute_path:
                     filename = filename[len(self.mountpoint):]
+                else:
+                    filename = util.relpath(os.path.dirname(self.playlist_file),
+                                            os.path.dirname(filename)) + \
+                               os.sep + os.path.basename(filename)
 
                 if gl.config.mp3_player_playlist_win_path:
-                    filename = filename.replace( '/', '\\')
+                    filename = filename.replace(os.sep, '\\')
 
                 tracks.append(filename)
         return tracks

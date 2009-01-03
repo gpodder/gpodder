@@ -39,6 +39,9 @@ except:
     log('(tagupdate) eyed3 not found -- tag update disabled')
     has_eyed3 = False
 
+# Values that we want to have for our tags
+tags_keys = ['artist', 'title', 'album', 'genre']
+
 # do we provide tagging functions to the user?
 def tagging_supported():
     global has_eyed3
@@ -46,6 +49,7 @@ def tagging_supported():
 
 
 tag_update_methods = {}
+tag_get_methods = {}
 
 def update_metadata_on_file( filename, **metadata):
     global tag_update_methods
@@ -105,4 +109,61 @@ def update_tag_mp3( filename, **metadata):
 
 tag_update_methods['mp3'] = update_tag_mp3
 
+
+def get_tags_from_file(filename):
+    global tag_get_methods, tags_keys
+
+    ext = filename[-3:]
+    if ext in tag_get_methods:
+        log('Reading tags from %s', filename)
+        return tag_get_methods[ext](filename)
+
+    log('Do not know how to read file extension %s :/', ext)
+    return dict(map(lambda key: (key, ''), tags_keys))
+
+
+
+def get_tags_ogg(filename):
+    global tags_keys
+
+    p = popen2.Popen3('vorbiscomment -l "%s"' % filename)
+    reader = p.fromchild
+    lines = reader.readlines()
+    reader.close()
+    result = (p.wait() == 0)
+
+    tags = dict(map(lambda key: (key, ''), tags_keys))
+
+    if not result:
+        log('Error while running vorbiscomment. Is it installed?! (vorbis-tools)')
+    else:
+        for line in lines:
+            (key, value) = line.split('=', 1)
+            key = key.lower()
+            if key in tags:
+                tags[key] = value
+
+    return tags
+
+tag_get_methods['ogg'] = get_tags_ogg
+
+
+def get_tags_mp3(filename):
+    global tags_keys
+
+    if not has_eyed3:
+        log('eyeD3 not found -> please install. Could not read tag.')
+        return dict(map(lambda key: (key, ''), tags_keys))
+
+    tag = eyeD3.Tag()
+    tag.link(filename)
+
+    return {
+            'artist': tag.getArtist(),
+            'title': tag.getTitle(),
+            'album': tag.getAlbum(),
+            'genre': tag.getGenre()
+    }
+
+tag_get_methods['mp3'] = get_tags_mp3
 
