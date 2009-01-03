@@ -42,6 +42,8 @@ from gpodder import services
 from gpodder import util
 from gpodder import draw
 
+from xml.sax import saxutils
+
 if gpodder.interface == gpodder.MAEMO:
     import hildon
 
@@ -407,7 +409,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:
                 middle = (MAX_TITLE_LENGTH/2)-2
                 title = '%s...%s' % (episode_title[0:middle], episode_title[-middle:])
-            result.append('\n%s' % title)
+            result.append('\n%s' % saxutils.escape(title))
  
         more_episodes = len(episode_list) - MAX_EPISODES
         if more_episodes > 0:
