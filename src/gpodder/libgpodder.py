@@ -287,12 +287,15 @@ class gPodderLib(object):
     def format_filesize(self, bytesize, digits=2):
         return util.format_filesize(bytesize, self.config.use_si_units, digits)
 
-    def clean_up_downloads( self, delete_partial = False):
+    def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
+        temporary_files = glob.glob('%s/*/.tmp-*' % self.downloaddir)
+
         if delete_partial:
-            temporary_files = glob.glob( '%s/*/.tmp-*' % ( self.downloaddir, ))
-            for tempfile in temporary_files:
-                util.delete_file( tempfile)
+            temporary_files += glob.glob('%s/*/*.partial' % self.downloaddir)
+
+        for tempfile in temporary_files:
+            util.delete_file(tempfile)
 
         # Clean up empty download folders
         download_dirs = glob.glob( '%s/*' % ( self.downloaddir, ))

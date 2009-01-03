@@ -104,7 +104,7 @@ class DownloadThread(threading.Thread):
 
         self.url = self.episode.url
         self.filename = self.episode.local_filename()
-        self.tempname = os.path.join( os.path.dirname( self.filename), '.tmp-' + os.path.basename( self.filename))
+        self.tempname = self.filename + '.partial'
 
         # Make an educated guess about the total file size
         self.total_size = self.episode.length
