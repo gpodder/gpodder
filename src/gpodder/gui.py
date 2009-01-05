@@ -4150,9 +4150,18 @@ class gPodderPlaylist(GladeWidget):
         self.treeviewPlaylist.set_model(self.playlist)
 
         # read device and playlist and fill the TreeView
+        title = _('Reading files from %s') % gl.config.mp3_player_folder
+        message = _('Please wait while gPodder reads your media file list from device.')
+        dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+        dlg.set_title(title)
+        dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+        dlg.show_all()
+        Thread(target=self.process_device, args=[dlg]).start()
+
+    def process_device(self, dlg):
         self.m3u = self.read_m3u()
         self.device = self.read_device()
-        self.write2gui()
+        util.idle_add(self.write2gui, dlg)
 
     def cell_toggled(self, cellrenderertoggle, path):
         (treeview, liststore) = (self.treeviewPlaylist, self.playlist)
@@ -4252,7 +4261,7 @@ class gPodderPlaylist(GladeWidget):
                 tracks.append(filename)
         return tracks
 
-    def write2gui(self):
+    def write2gui(self, dlg):
         # add the files from the device to the list only when
         # they are not yet in the playlist
         # mark this files as NEW
@@ -4266,6 +4275,9 @@ class gPodderPlaylist(GladeWidget):
         for checked, filename in self.m3u[:]:
             if filename in self.device:
                 self.playlist.append([None, checked, filename])
+
+        dlg.destroy()
+        return False
 
 class gPodderDependencyManager(GladeWidget):
     def new(self):
