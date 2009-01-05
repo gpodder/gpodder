@@ -29,18 +29,28 @@ import urllib
 import urllib2
 import gtk
 import gobject
+
+import gpodder
 from xml.sax import saxutils
 from gpodder.liblogger import log
 from gpodder.util import proxy_request
 
 def get_real_download_url(url, proxy=None):
+    # IDs from http://forum.videohelp.com/topic336882-1800.html#1912972
+    if gpodder.interface == gpodder.MAEMO:
+        # Use 3GP with AAC on Maemo
+        fmt_id = 17
+    else:
+        # Use MP4 with AAC by default
+        fmt_id = 18
+
     r1 = re.compile('http://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
     if r1 is not None:
         page = proxy_request('http://www.youtube.com/watch?v=' + r1.group(1), proxy, method='GET').read()
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
         if r2:
-            next = 'http://www.youtube.com/get_video?video_id=' + r1.group(1) + '&t=' + r2.group(1) + '&fmt=18'
+            next = 'http://www.youtube.com/get_video?video_id=' + r1.group(1) + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
             log('YouTube link resolved: %s => %s', url, next)
             return next
 
