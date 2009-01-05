@@ -179,7 +179,7 @@ class Config(dict):
             ( fieldtype, default ) = self.Settings[name]
             return self[name]
         else:
-            raise AttributeError
+            raise AttributeError('%s is not a setting' % name)
 
     def add_observer(self, callback):
         """
