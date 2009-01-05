@@ -2089,13 +2089,16 @@ class gPodder(GladeWidget):
         title = _('Delete podcasts from device?')
         message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
         if len(tracks) > 0 and self.show_confirmation(message, title):
-            device.remove_tracks(tracks)
+            gPodderSync(device=device, gPodder=self)
+            Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
+
+    def ipod_cleanup_thread(self, device, tracks):
+        device.remove_tracks(tracks)
  
         if not device.close():
             title = _('Error closing device')
             message = _('There has been an error closing your device.')
-            self.show_message(message, title)
-            return
+            gobject.idle_add(self.show_message, message, title)
 
     def on_cleanup_ipod_activate(self, widget, *args):
         columns = (
@@ -2120,8 +2123,6 @@ class gPodder(GladeWidget):
             message = _('There has been an error opening your device.')
             self.show_message(message, title)
             return
-
-        gPodderSync(device=device, gPodder=self)
 
         tracks = device.get_all_tracks()
         if len(tracks) > 0:
