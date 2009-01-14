@@ -1991,6 +1991,7 @@ class gPodder(GladeWidget):
 
         self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
+        db.commit()
 
     def delete_episode_list( self, episodes, confirm = True):
         if len(episodes) == 0:

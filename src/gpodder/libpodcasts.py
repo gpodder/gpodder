@@ -209,6 +209,7 @@ class podcastChannel(object):
 
                 episode.save(bulk=True)
 
+        db.commit()
         return ( True, None )
 
     def update_cover(self, force=False):
@@ -663,6 +664,7 @@ class podcastItem(object):
         self.is_played = False
         if save:
             self.save()
+            db.commit()
 
     @staticmethod
     def create_from_dict(d, channel):
