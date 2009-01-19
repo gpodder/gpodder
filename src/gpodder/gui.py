@@ -358,21 +358,57 @@ class gPodder(GladeWidget):
             self.itemUpdateChannel.show()
             self.UpdateChannelSeparator.show()
             
-            # Give toolbar to the hildon window
-            self.toolbar.parent.remove(self.toolbar)
-            self.window.add_toolbar(self.toolbar)
+            # Remove old toolbar from its parent widget
+            self.toolbar.get_parent().remove(self.toolbar)
 
-            # START TEMPORARY FIX FOR TOOLBAR STYLE
-            # It seems like libglade for python still mixes
-            # old GtkToolbar API with new ones - maybe this
-            # is the reason why setting the style doesn't
-            # work very well. This small hack fixes that :)
-            self.toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
-            def remove_label(w):
-                if hasattr(w, 'set_label'):
-                    w.set_label(None)
-            self.toolbar.foreach(remove_label)
-            # END TEMPORARY FIX FOR TOOLBAR STYLE
+            toolbar = gtk.Toolbar()
+            toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
+
+            self.btnUpdateFeeds.get_parent().remove(self.btnUpdateFeeds)
+
+            self.btnUpdateFeeds = gtk.ToolButton(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_SMALL_TOOLBAR), _('Update all'))
+            self.btnUpdateFeeds.set_is_important(True)
+            self.btnUpdateFeeds.connect('clicked', self.on_itemUpdate_activate)
+            toolbar.insert(self.btnUpdateFeeds, -1)
+            self.btnUpdateFeeds.show_all()
+
+            self.btnUpdateSelectedFeed = gtk.ToolButton(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_SMALL_TOOLBAR), _('Update selected'))
+            self.btnUpdateSelectedFeed.set_is_important(True)
+            self.btnUpdateSelectedFeed.connect('clicked', self.on_itemUpdateChannel_activate)
+            toolbar.insert(self.btnUpdateSelectedFeed, -1)
+            self.btnUpdateSelectedFeed.show_all()
+
+            self.toolFeedUpdateProgress = gtk.ToolItem()
+            self.pbFeedUpdate.reparent(self.toolFeedUpdateProgress)
+            self.toolFeedUpdateProgress.set_expand(True)
+            toolbar.insert(self.toolFeedUpdateProgress, -1)
+            self.toolFeedUpdateProgress.hide()
+
+            self.btnCancelFeedUpdate = gtk.ToolButton(gtk.STOCK_CLOSE)
+            self.btnCancelFeedUpdate.connect('clicked', self.on_btnCancelFeedUpdate_clicked)
+            toolbar.insert(self.btnCancelFeedUpdate, -1)
+            self.btnCancelFeedUpdate.hide()
+
+            self.toolbarSpacer = gtk.SeparatorToolItem()
+            self.toolbarSpacer.set_draw(False)
+            self.toolbarSpacer.set_expand(True)
+            toolbar.insert(self.toolbarSpacer, -1)
+            self.toolbarSpacer.show()
+
+            self.toolPreferences = gtk.ToolButton(gtk.STOCK_PREFERENCES)
+            self.toolPreferences.connect('clicked', self.on_itemPreferences_activate)
+            toolbar.insert(self.toolPreferences, -1)
+            self.toolPreferences.show()
+
+            self.toolQuit = gtk.ToolButton(gtk.STOCK_QUIT)
+            self.toolQuit.connect('clicked', self.on_gPodder_delete_event)
+            toolbar.insert(self.toolQuit, -1)
+            self.toolQuit.show()
+
+            # Add and replace toolbar with our new one
+            toolbar.show()
+            self.window.add_toolbar(toolbar)
+            self.toolbar = toolbar
          
             self.app.add_window(self.window)
             self.vMain.reparent(self.window)
@@ -389,12 +425,9 @@ class gPodder(GladeWidget):
             self.window.show()
             
             # do some widget hiding
-            self.toolbar.remove(self.toolTransfer)
             self.itemTransferSelected.hide_all()
             self.item_email_subscriptions.hide_all()
-
-            # Feed cache update button
-            self.label120.set_text(_('Update'))
+            self.menuView.hide()
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
@@ -410,7 +443,7 @@ class gPodder(GladeWidget):
         if gl.config.show_url_entry_in_podcast_list:
             self.hboxAddChannel.show()
 
-        if not gl.config.show_toolbar:
+        if not gpodder.interface == gpodder.MAEMO and not gl.config.show_toolbar:
             self.toolbar.hide()
 
         gl.config.add_observer(self.on_config_changed)
@@ -503,15 +536,39 @@ class gPodder(GladeWidget):
         self.podcast_list_can_tooltip = True
         self.episode_list_can_tooltip = True
 
+        self.currently_updating = False
+
         # Add our context menu to treeAvailable
         if gpodder.interface == gpodder.MAEMO:
+            self.treeview_available_buttonpress = (0, 0)
+            self.treeAvailable.connect('button-press-event', self.treeview_button_savepos)
             self.treeAvailable.connect('button-release-event', self.treeview_button_pressed)
+
+            self.treeview_channels_buttonpress = (0, 0)
+            self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
+            self.treeChannels.connect('button-release-event', self.treeview_channels_button_released)
+
+            import mokoui
+            fs = mokoui.FingerScroll()
+            fs.set_property('spring-speed', 0)
+            self.treeAvailable.reparent(fs)
+            self.channelPaned.remove(self.scrollAvailable)
+            self.channelPaned.pack2(fs)
+            fs.show()
+            fsc = mokoui.FingerScroll()
+            fsc.set_property('spring-speed', 0)
+            self.treeChannels.reparent(fsc)
+            self.vboxChannelNavigator.remove(self.scrolledwindow6)
+            self.vboxChannelNavigator.pack_start(fsc, expand=True, fill=True)
+            self.vboxChannelNavigator.reorder_child(fsc, 0)
+            fsc.show()
         else:
             self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
-        self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
+            self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
 
         iconcell = gtk.CellRendererPixbuf()
         if gpodder.interface == gpodder.MAEMO:
+            iconcell.set_fixed_size(-1, 52)
             status_column_label = ''
         else:
             status_column_label = _('Status')
@@ -530,7 +587,7 @@ class gPodder(GladeWidget):
         releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
         
         for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
-            itemcolumn.set_reorderable(True)
+            itemcolumn.set_reorderable(gpodder.interface != gpodder.MAEMO)
             self.treeAvailable.append_column(itemcolumn)
 
         if gpodder.interface == gpodder.MAEMO:
@@ -545,7 +602,10 @@ class gPodder(GladeWidget):
         self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
 
         # enable multiple selection support
-        self.treeAvailable.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        if gpodder.interface == gpodder.MAEMO:
+            self.treeAvailable.get_selection().set_mode(gtk.SELECTION_SINGLE)
+        else:
+            self.treeAvailable.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         self.treeDownloads.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         
         # columns and renderers for "download progress" tab
@@ -625,7 +685,7 @@ class gPodder(GladeWidget):
             }
 
         # Now, update the feed cache, when everything's in place
-        self.btnUpdateFeeds.show_all()
+        self.btnUpdateFeeds.show()
         self.updated_feeds = 0
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
@@ -667,12 +727,12 @@ class gPodder(GladeWidget):
             widget.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
 
     def on_config_changed(self, name, old_value, new_value):
-        if name == 'show_toolbar':
+        if name == 'show_toolbar' and gpodder.interface != gpodder.MAEMO:
             if new_value:
                 self.toolbar.show()
             else:
                 self.toolbar.hide()
-        elif name == 'episode_list_descriptions':
+        elif name == 'episode_list_descriptions' and gpodder.interface != gpodder.MAEMO:
             self.updateTreeView()
         elif name == 'show_url_entry_in_podcast_list':
             if new_value:
@@ -795,6 +855,10 @@ class gPodder(GladeWidget):
 
     def treeview_channels_button_pressed( self, treeview, event):
         global WEB_BROWSER_ICON
+
+        if gpodder.interface == gpodder.MAEMO:
+            self.treeview_channels_buttonpress = (event.x, event.y)
+            return True
 
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
@@ -972,8 +1036,57 @@ class gPodder(GladeWidget):
 
         Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
 
+    def treeview_button_savepos(self, treeview, event):
+        if gpodder.interface == gpodder.MAEMO and event.button == 1:
+            self.treeview_available_buttonpress = (event.x, event.y)
+            return True
+
+    def treeview_channels_button_released(self, treeview, event):
+        if gpodder.interface == gpodder.MAEMO and event.button == 1:
+            selection = self.treeChannels.get_selection()
+            pathatpos = self.treeChannels.get_path_at_pos(int(event.x), int(event.y))
+            if self.currently_updating:
+                log('do not handle press while updating', sender=self)
+                return True
+            if pathatpos is None:
+                return False
+            else:
+                ydistance = int(abs(event.y-self.treeview_channels_buttonpress[1]))
+                xdistance = int(event.x-self.treeview_channels_buttonpress[0])
+                if ydistance < 30:
+                    (path, column, x, y) = pathatpos
+                    selection.select_path(path)
+                    self.treeChannels.set_cursor(path)
+                    self.treeChannels.grab_focus()
+                    return True
+
     def treeview_button_pressed( self, treeview, event):
         global WEB_BROWSER_ICON
+
+        if gpodder.interface == gpodder.MAEMO:
+            ydistance = int(abs(event.y-self.treeview_available_buttonpress[1]))
+            xdistance = int(event.x-self.treeview_available_buttonpress[0])
+
+            selection = self.treeAvailable.get_selection()
+            pathatpos = self.treeAvailable.get_path_at_pos(int(event.x), int(event.y))
+            if pathatpos is None:
+                # No item at the current cursor position
+                return False
+            elif ydistance < 30:
+                # Item under the cursor, and no scrolling done
+                (path, column, x, y) = pathatpos
+                selection.select_path(path)
+                self.treeAvailable.set_cursor(path)
+                self.treeAvailable.grab_focus()
+                if gl.config.maemo_enable_gestures and xdistance > 70:
+                    self.on_treeAvailable_row_activated(self.itemPlaySelected)
+                    return True
+                elif gl.config.maemo_enable_gestures and xdistance < -70:
+                    self.on_treeAvailable_row_activated(self.treeAvailable)
+                    return True
+            else:
+                # Scrolling has been done
+                return True
 
         # Use right-click for the Desktop version and left-click for Maemo
         if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
@@ -1179,6 +1292,12 @@ class gPodder(GladeWidget):
                 self.active_channel.iter_set_downloading_columns(model, model.get_iter(path))
  
     def playback_episode(self, episode, stream=False):
+        if gpodder.interface == gpodder.MAEMO:
+            banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Opening %s') % saxutils.escape(episode.title))
+            def destroy_banner_later(banner):
+                banner.destroy()
+                return False
+            gobject.timeout_add(5000, destroy_banner_later, banner)
         (success, application) = gl.playback_episode(episode, stream)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
@@ -1398,11 +1517,28 @@ class gPodder(GladeWidget):
     
     def updateTreeView(self):
         if self.channels and self.active_channel is not None:
-            (model, urls) = self.active_channel.get_tree_model()
-            self.treeAvailable.set_model(model)
-            self.url_path_mapping = dict(zip(urls, range(len(urls))))
-            self.treeAvailable.columns_autosize()
-            self.play_or_download()
+            if gpodder.interface == gpodder.MAEMO:
+                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
+            else:
+                banner = None
+            def thread_func(self, banner, active_channel):
+                (model, urls) = self.active_channel.get_tree_model()
+                mapping = dict(zip(urls, range(len(urls))))
+                def update_gui_with_new_model(self, channel, model, urls, mapping, banner):
+                    if self.active_channel is not None and channel is not None:
+                        log('%s <=> %s', self.active_channel.title, channel.title, sender=self)
+                    if self.active_channel == channel:
+                        self.treeAvailable.set_model(model)
+                        self.url_path_mapping = mapping
+                        self.treeAvailable.columns_autosize()
+                        self.play_or_download()
+                    if banner is not None:
+                        banner.destroy()
+                    self.currently_updating = False
+                    return False
+                gobject.idle_add(lambda: update_gui_with_new_model(self, active_channel, model, urls, mapping, banner))
+            self.currently_updating = True
+            Thread(target=thread_func, args=[self, banner, self.active_channel]).start()
         else:
             model = self.treeAvailable.get_model()
             if model is not None:
@@ -1474,7 +1610,7 @@ class gPodder(GladeWidget):
             while gtk.events_pending():
                 gtk.main_iteration( False)
             waitpb.pulse()
-            time.sleep(0.05)
+            time.sleep(0.1)
 
 
     def add_new_channel_proc( self, url, callback, authentication_tokens, *callback_args):
@@ -1558,8 +1694,8 @@ class gPodder(GladeWidget):
         db.commit()
 
         self.updating_feed_cache = False
-        self.hboxUpdateFeeds.hide_all()
-        self.btnUpdateFeeds.show_all()
+        if gpodder.interface == gpodder.MAEMO:
+            self.btnCancelFeedUpdate.show()
         self.itemUpdate.set_sensitive(True)
         self.itemUpdateChannel.set_sensitive(True)
 
@@ -1602,8 +1738,7 @@ class gPodder(GladeWidget):
         self.channels = load_channels()
         self.channel_list_changed = True
         self.updateComboBox()
-        if not self.feed_cache_update_cancelled:
-            self.download_all_new(channels=channels)
+        self.download_all_new(channels=channels)
 
     def update_feed_cache_callback(self, progressbar, title, position, count):
         progression = _('Updated %s (%d/%d)')%(title, position+1, count)
@@ -1637,8 +1772,22 @@ class gPodder(GladeWidget):
             finish_proc()
 
     def on_btnCancelFeedUpdate_clicked(self, widget):
-        self.pbFeedUpdate.set_text(_('Cancelling...'))
-        self.feed_cache_update_cancelled = True
+        if self.feed_cache_update_cancelled:
+            if gpodder.interface == gpodder.MAEMO:
+                self.btnUpdateSelectedFeed.show()
+                self.toolFeedUpdateProgress.hide()
+                self.btnCancelFeedUpdate.hide()
+                self.btnCancelFeedUpdate.set_is_important(False)
+                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_CLOSE)
+                self.toolbarSpacer.set_expand(True)
+                self.toolbarSpacer.set_draw(False)
+            else:
+                self.hboxUpdateFeeds.hide()
+            self.btnUpdateFeeds.show()
+        else:
+            self.pbFeedUpdate.set_text(_('Cancelling, please wait...'))
+            self.feed_cache_update_cancelled = True
+            self.btnCancelFeedUpdate.set_sensitive(False)
 
     def update_feed_cache(self, channels=None, force_update=True,
         notify_no_new_episodes=False, select_url_afterwards=None):
@@ -1663,10 +1812,10 @@ class gPodder(GladeWidget):
             channels = self.channels
 
         if len(channels) == 1:
-            text = _('Updating %d feed.')
+            text = _('Updating "%s"...') % channels[0].title
         else:
-            text = _('Updating %d feeds.')
-        self.pbFeedUpdate.set_text( text % len(channels))
+            text = _('Updating %d feeds...') % len(channels)
+        self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
 
         # let's get down to business..
@@ -1677,8 +1826,16 @@ class gPodder(GladeWidget):
 
         self.updated_feeds = 0
         self.feed_cache_update_cancelled = False
-        self.btnUpdateFeeds.hide_all()
-        self.hboxUpdateFeeds.show_all()
+        self.btnCancelFeedUpdate.show()
+        self.btnCancelFeedUpdate.set_sensitive(True)
+        if gpodder.interface == gpodder.MAEMO:
+            self.toolbarSpacer.set_expand(False)
+            self.toolbarSpacer.set_draw(True)
+            self.btnUpdateSelectedFeed.hide()
+            self.toolFeedUpdateProgress.show_all()
+        else:
+            self.hboxUpdateFeeds.show_all()
+        self.btnUpdateFeeds.hide()
         semaphore = Semaphore(gl.config.max_simulaneous_feeds_updating)
 
         for channel in channels:
@@ -1952,8 +2109,11 @@ class gPodder(GladeWidget):
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
         )
 
-        if len(episodes) > 0:
+        if len(episodes) > 0 and not self.feed_cache_update_cancelled:
             instructions = _('Select the episodes you want to download now.')
+
+            self.feed_cache_update_cancelled = True
+            self.on_btnCancelFeedUpdate_clicked(self.btnCancelFeedUpdate)
 
             gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
                                    episodes=episodes, columns=columns, selected_default=True, \
@@ -1963,9 +2123,23 @@ class gPodder(GladeWidget):
                                    remove_action=_('Never download'), \
                                    remove_finished=self.episode_new_status_changed)
         else:
-            title = _('No new episodes')
-            message = _('No new episodes to download.\nPlease check for new episodes later.')
-            self.show_message(message, title)
+            if gpodder.interface == gpodder.MAEMO:
+                self.pbFeedUpdate.set_fraction(1.0)
+                if self.feed_cache_update_cancelled:
+                    self.pbFeedUpdate.set_text(_('Update has been cancelled'))
+                else:
+                    self.pbFeedUpdate.set_text(_('No new episodes'))
+                self.feed_cache_update_cancelled = True
+                self.btnCancelFeedUpdate.show()
+                self.btnCancelFeedUpdate.set_sensitive(True)
+                #self.btnCancelFeedUpdate.set_is_important(True)
+                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
+            else:
+                self.hboxUpdateFeeds.hide()
+                self.btnUpdateFeeds.show()
+                title = _('No new episodes')
+                message = _('No new episodes to download.\nPlease check for new episodes later.')
+                self.show_message(message, title)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         self.download_all_new()
@@ -2759,11 +2933,15 @@ class gPodder(GladeWidget):
         elif event.keyval == gtk.keysyms.F8: #minus
             diff = -1
 
-        if diff != 0:
+        if diff != 0 and not self.currently_updating:
             selection = self.treeChannels.get_selection()
             (model, iter) = selection.get_selected()
-            selection.select_path(((model.get_path(iter)[0]+diff)%len(model),))
-            self.on_treeChannels_cursor_changed(self.treeChannels)
+            new_path = ((model.get_path(iter)[0]+diff)%len(model),)
+            selection.select_path(new_path)
+            self.treeChannels.set_cursor(new_path)
+            return True
+
+        return False
         
     def window_state_event(self, widget, event):
         if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
@@ -3397,6 +3575,7 @@ class gPodderEpisode(GladeWidget):
             if len(footer):
                  b.insert_at_cursor('\n\n')
                  b.insert_with_tags_by_name(b.get_end_iter(), '\n'.join(footer), 'footer')
+            b.place_cursor(b.get_start_iter())
 
         services.download_status_manager.request_progress_detail(self.episode.url)
 

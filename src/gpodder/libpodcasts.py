@@ -354,7 +354,7 @@ class podcastChannel(object):
         else:
             url = episode.url
 
-        if gl.config.episode_list_descriptions:
+        if gl.config.episode_list_descriptions or gpodder.interface == gpodder.MAEMO:
             icon_size = 32
         else:
             icon_size = 16
@@ -585,7 +585,7 @@ class podcastItem(object):
         disables the description when the config variable
         "episode_list_descriptions" is not set.
         """
-        if gl.config.episode_list_descriptions:
+        if gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO:
             return '%s\n<small>%s</small>' % (saxutils.escape(self.title), saxutils.escape(self.one_line_description()))
         else:
             return saxutils.escape(self.title)
