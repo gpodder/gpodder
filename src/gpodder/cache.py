@@ -144,7 +144,9 @@ class Cache:
         if status == 401:
             log('HTTP authentication required: %s', original_url, sender=self)
             return (False, parsed_result)
-
+        if not hasattr(parsed_result, 'headers'):
+            log('The requested object does not have a "headers" attribute.', sender=self)
+            return (False, None)
         content_type = parsed_result.headers.get('content-type', '').lower()
         # TODO: Also detect OPML feeds and other content types here
         if parsed_result.version == '':
