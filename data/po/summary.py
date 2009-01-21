@@ -34,7 +34,7 @@ class Language(object):
 languages = []
 
 for line in sys.stdin:
-    match = re.match('^(..)\.po \(([^)]*)\): ((\d+) translated messages)?(, (\d+) fuzzy translations)?(, (\d+) untranslated messages)?\.', line).groups()
+    match = re.match('^(..)\.po \(([^)]*)\): ((\d+) translated message[s]?)?(, (\d+) fuzzy translation[s]?)?(, (\d+) untranslated message[s]?)?\.', line).groups()
     languages.append(Language(match[0], match[1], match[3] or '0', match[5] or '0', match[7] or '0'))
 
 print ''
