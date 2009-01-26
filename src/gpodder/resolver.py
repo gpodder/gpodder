@@ -44,17 +44,36 @@ def get_real_download_url(url, proxy=None):
         # Use MP4 with AAC by default
         fmt_id = 18
 
-    r1 = re.compile('http://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
-    if r1 is not None:
-        page = proxy_request('http://www.youtube.com/watch?v=' + r1.group(1), proxy, method='GET').read()
+    vid = get_youtube_id(url)
+    if vid is not None:
+        page = None
+        url = 'http://www.youtube.com/watch?v=' + vid
+
+        while page is None:
+            req = proxy_request(url, proxy, method='GET')
+            if 'location' in req.msg:
+                url = req.msg['location']
+            else:
+                page = req.read()
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
         if r2:
-            next = 'http://www.youtube.com/get_video?video_id=' + r1.group(1) + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
+            next = 'http://www.youtube.com/get_video?video_id=' + vid + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
             log('YouTube link resolved: %s => %s', url, next)
             return next
 
     return url
+
+def get_youtube_id(url):
+    r = re.compile('http://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
+    if r is not None:
+        return r.group(1)
+
+    r = re.compile('http://(?:[a-z]+\.)?youtube\.com/watch\?v=([^&]*)', re.IGNORECASE).match(url)
+    if r is not None:
+        return r.group(1)
+
+    return None
 
 def get_real_channel_url(url):
     r = re.compile('http://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)', re.IGNORECASE)

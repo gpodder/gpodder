@@ -149,7 +149,7 @@ class podcastChannel(object):
         if hasattr(c.feed, 'title'):
             self.title = c.feed.title
             # Start YouTube-specific title FIX
-            YOUTUBE_PREFIX = 'YouTube :: Videos by'
+            YOUTUBE_PREFIX = 'Videos uploaded by '
             if self.title.startswith(YOUTUBE_PREFIX):
                 self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
             # End YouTube-specific title FIX
@@ -501,7 +501,14 @@ class podcastItem(object):
                 log('Adding episode with link to file type "%s".', file_type, sender=episode)
                 episode.url = entry.link
 
+        # YouTube specific
+        if not episode.url and hasattr(entry, 'links') and len(entry.links) and hasattr(entry.links[0], 'href'):
+            episode.url = entry.links[0].href
+
         if not episode.url:
+            log('Episode has no URL')
+            log('Episode: %s', episode)
+            log('Entry: %s', entry)
             # This item in the feed has no downloadable enclosure
             return None
 
