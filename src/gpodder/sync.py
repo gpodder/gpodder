@@ -205,6 +205,27 @@ class Device(services.ObservableService):
                 track.delete_from_disk()
         return True
 
+    def convert_track(self, episode):
+        filename = str(episode.local_filename(create=False))
+        (fn, extension) = os.path.splitext(filename)
+        if libconverter.converters.has_converter(extension):
+            if gl.config.disable_pre_sync_conversion:
+                log('Pre-sync conversion is not enabled, set disable_pre_sync_conversion to "False" to enable')
+                return filename
+
+            log('Converting: %s', filename, sender=self)
+            callback_status = lambda percentage: self.notify('sub-progress', int(percentage))
+            local_filename = libconverter.converters.convert(filename, callback=callback_status)
+
+            if local_filename is None:
+                log('Cannot convert %s', original_filename, sender=self)
+                return filename
+
+            if not libtagupdate.update_metadata_on_file(local_filename, title=episode.title, artist=episode.channel.title):
+                log('Could not set metadata on converted file %s', local_filename, sender=self)
+
+            return str(local_filename)
+
     def remove_tracks(self, tracklist=[]):
         for id, track in enumerate(tracklist):
             if self.cancelled:
@@ -358,20 +379,7 @@ class iPodDevice(Device):
             self.cancelled = True
             return False
 
-        (fn, extension) = os.path.splitext(original_filename)
-        if libconverter.converters.has_converter(extension):
-            log('Converting: %s', original_filename, sender=self)
-            callback_status = lambda percentage: self.notify('sub-progress', int(percentage))
-            local_filename = libconverter.converters.convert(original_filename, callback=callback_status)
-
-            if not libtagupdate.update_metadata_on_file(local_filename, title=episode.title, artist=episode.channel.title):
-                log('Could not set metadata on converted file %s', local_filename, sender=self)
-
-            if local_filename is None:
-                log('Cannot convert %s', original_filename, sender=self)
-                return False
-            else:
-                local_filename = str(local_filename)
+        local_filename = self.convert_track(episode)
 
         (fn, extension) = os.path.splitext(local_filename)
         if extension.lower().endswith('ogg'):
@@ -526,7 +534,7 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
-        from_file = util.sanitize_encoding(episode.local_filename(create=False))
+        from_file = util.sanitize_encoding(self.convert_track(episode))
         filename_base = util.sanitize_filename(episode.sync_filename(), self.MAX_FILENAME_LENGTH)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
@@ -852,11 +860,12 @@ class MTPDevice(Device):
 
     def add_track(self, episode):
         self.notify('status', _('Adding %s...') % episode.title)
-        log("sending " + str(episode.local_filename(create=False)) + " (" + episode.title + ").", sender=self)
+        filename = self.convert_track(episode)
+        log("sending " + filename + " (" + episode.title + ").", sender=self)
 
         try:
             # verify free space
-            needed = util.calculate_size(episode.local_filename(create=False))
+            needed = util.calculate_size(filename)
             free = self.get_free_space()
             if needed > free:
                 log('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed), sender=self)
@@ -870,10 +879,10 @@ class MTPDevice(Device):
             metadata.album = str(episode.channel.title)
             metadata.genre = "podcast"
             metadata.date = self.__date_to_mtp(episode.pubDate)
-            metadata.duration = get_track_length(str(episode.local_filename(create=False)))
+            metadata.duration = get_track_length(str(filename))
 
             # send the file
-            self.__MTPDevice.send_track_from_file( str(episode.local_filename(create=False)), episode.basename, metadata, 0, callback=self.__callback)
+            self.__MTPDevice.send_track_from_file( filename, episode.basename, metadata, 0, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False

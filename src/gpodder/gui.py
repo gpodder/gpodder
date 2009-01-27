@@ -3200,6 +3200,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
         gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
         gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
+        gl.config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
         
         self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
@@ -3402,7 +3403,10 @@ class gPodderProperties(GladeWidget):
         sync_widgets = ( self.only_sync_not_played, self.labelSyncOptions,
                          self.imageSyncOptions, self. separatorSyncOptions,
                          self.on_sync_mark_played, self.on_sync_delete,
-                         self.on_sync_leave, self.label_after_sync, self.delete_episodes_marked_played)
+                         self.on_sync_leave, self.label_after_sync,
+                         self.delete_episodes_marked_played,
+                         self.player_supports_ogg )
+
         for widget in sync_widgets:
             if active_item == 0:
                 widget.hide_all()
@@ -3412,6 +3416,7 @@ class gPodderProperties(GladeWidget):
         # iPod
         ipod_widgets = (self.ipodLabel, self.btn_iPodMountpoint,
                         self.ipod_write_gtkpod_extended)
+
         for widget in ipod_widgets:
             if active_item == 1:
                 widget.show_all()
@@ -3421,7 +3426,9 @@ class gPodderProperties(GladeWidget):
         # filesystem-based MP3 player
         fs_widgets = ( self.filesystemLabel, self.btn_filesystemMountpoint,
                        self.cbChannelSubfolder, self.cbCustomSyncName,
-                       self.entryCustomSyncName, self.btnCustomSyncNameHelp )
+                       self.entryCustomSyncName, self.btnCustomSyncNameHelp,
+                       self.player_supports_ogg )
+
         for widget in fs_widgets:
             if active_item == 2:
                 widget.show_all()

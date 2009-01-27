@@ -75,6 +75,7 @@ gPodderSettings = {
     'ipod_write_gtkpod_extended': (bool, False),
     'ipod_purge_old_episodes': (bool, False),
     'mp3_player_delete_played': (bool, False),
+    'disable_pre_sync_conversion': (bool, False),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False),
