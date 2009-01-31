@@ -206,9 +206,6 @@ class podcastChannel(object):
                         self.count_new -= 1
                         episode = ex
 
-                if not episode.length:
-                    episode.length = resolver.get_real_episode_length(episode)
-
                 episode.save(bulk=True)
 
         return ( True, None )
