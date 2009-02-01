@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2008 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2009 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ app_authors = [
     '',
     'List may be incomplete - please contact me.'
 ]
-app_copyright = '© 2005-2008 Thomas Perl and the gPodder Team'
+app_copyright = '© 2005-2009 Thomas Perl and the gPodder Team'
 app_website = 'http://www.gpodder.org/'
 
 # these will be filled with pathnames in bin/gpodder
