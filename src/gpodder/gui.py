@@ -669,9 +669,6 @@ class gPodder(GladeWidget):
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         Thread(target=self.read_apps).start()
 
-        # Clean up old, orphaned download files
-        gl.clean_up_downloads( delete_partial = True)
-
         # Set the "Device" menu item for the first time
         self.update_item_device()
 
@@ -691,6 +688,9 @@ class gPodder(GladeWidget):
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
+
+        # Clean up old, orphaned download files
+        gl.clean_up_downloads(delete_partial=True)
 
         # Start the auto-update procedure
         self.auto_update_procedure(first_run=True)
@@ -2483,33 +2483,18 @@ class gPodder(GladeWidget):
         gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), callback_change_url=self.change_channel_url)
 
     def change_channel_url(self, old_url, new_url):
-        channel = None
-        try:
-            channel = podcastChannel.load(url=new_url, create=True)
-        except:
-            channel = None
-
-        if channel is None:
-            self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
-            return
-
         for channel in self.channels:
             if channel.url == old_url:
                 log('=> change channel url from %s to %s', old_url, new_url)
-                old_save_dir = channel.save_dir
                 channel.url = new_url
-                new_save_dir = channel.save_dir
-                log('old save dir=%s', old_save_dir, sender=self)
-                log('new save dir=%s', new_save_dir, sender=self)
-                files = glob.glob(os.path.join(old_save_dir, '*'))
-                log('moving %d files to %s', len(files), new_save_dir, sender=self)
-                for file in files:
-                    log('moving %s', file, sender=self)
-                    shutil.move(file, new_save_dir)
-                try:
-                    os.rmdir(old_save_dir)
-                except:
-                    log('Warning: cannot delete %s', old_save_dir, sender=self)
+                # remove etag and last_modified to force an update
+                channel.etag = ''
+                channel.last_modified = ''
+                (success, error) = channel.update()
+                if not success:
+                    self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
+                    channel.url = old_url
+                break
 
         save_channels(self.channels)
         # update feed cache and select the podcast with the new URL afterwards

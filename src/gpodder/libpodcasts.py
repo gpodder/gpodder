@@ -81,6 +81,7 @@ class HTTPAuthError(Exception): pass
 class podcastChannel(object):
     """holds data for a complete channel"""
     SETTINGS = ('sync_to_devices', 'device_playlist_name','override_title','username','password')
+    MAX_FOLDERNAME_LENGTH = 150
     icon_cache = {}
 
     fc = cache.Cache()
@@ -236,6 +237,8 @@ class podcastChannel(object):
         self.newest_pubdate_cached = None
         self.update_flag = False # channel is updating or to be updated
         self.iter = None
+        self.foldername = None
+        self.auto_foldername = 1 # automatically generated foldername
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
@@ -265,12 +268,6 @@ class podcastChannel(object):
 
     def update_save_dir_size(self):
         self.save_dir_size = util.calculate_size(self.save_dir)
-        
-    def get_filename( self):
-        """Return the MD5 sum of the channel URL"""
-        return hashlib.md5( self.url).hexdigest()
-
-    filename = property(fget=get_filename)
 
     def get_title( self):
         if self.override_title:
@@ -288,6 +285,30 @@ class podcastChannel(object):
 
     def set_custom_title( self, custom_title):
         custom_title = custom_title.strip()
+
+        # make sure self.foldername is initialized
+        self.get_save_dir()
+
+        # rename folder if custom_title looks sane
+        new_folder_name = self.find_unique_folder_name(custom_title)
+        if len(new_folder_name) > 0 and new_folder_name != self.foldername:
+            log('Changing foldername based on custom title: %s', custom_title, sender=self)
+            new_folder = os.path.join(gl.downloaddir, new_folder_name)
+            old_folder = os.path.join(gl.downloaddir, self.foldername)
+            if os.path.exists(old_folder):
+                if not os.path.exists(new_folder):
+                    # Old folder exists, new folder does not -> simply rename
+                    log('Renaming %s => %s', old_folder, new_folder, sender=self)
+                    os.rename(old_folder, new_folder)
+                else:
+                    # Both folders exist -> move files and delete old folder
+                    log('Moving files from %s to %s', old_folder, new_folder, sender=self)
+                    for file in glob.glob(os.path.join(old_folder, '*')):
+                        shutil.move(file, new_folder)
+                    log('Removing %s', old_folder, sender=self)
+                    shutil.rmtree(old_folder, ignore_errors=True)
+            self.foldername = new_folder_name
+            self.save()
 
         if custom_title != self.__title:
             self.override_title = custom_title
@@ -415,8 +436,65 @@ class podcastChannel(object):
     def find_episode( self, url):
         return db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
 
+    @classmethod
+    def find_unique_folder_name(cls, foldername):
+        current_try = util.sanitize_filename(foldername, cls.MAX_FOLDERNAME_LENGTH)
+        next_try_id = 2
+
+        while db.channel_foldername_exists(current_try) and \
+                not os.path.exists(os.path.join(gl.downloaddir, current_try)):
+            current_try = '%s (%d)' % (foldername, next_try_id)
+            next_try_id += 1
+
+        return current_try
+
     def get_save_dir(self):
-        save_dir = os.path.join(gl.downloaddir, self.filename, '')
+        urldigest = hashlib.md5(self.url).hexdigest()
+        sanitizedurl = util.sanitize_filename(self.url, self.MAX_FOLDERNAME_LENGTH)
+        if self.foldername is None or (self.auto_foldername and (self.foldername == urldigest or self.foldername == sanitizedurl)):
+            # we must change the folder name, because it has not been set manually
+            fn_template = util.sanitize_filename(self.title, self.MAX_FOLDERNAME_LENGTH)
+
+            # if this is an empty string, try the basename
+            if len(fn_template) == 0:
+                log('That is one ugly feed you have here! (Report this to bugs.gpodder.org: %s)', self.url, sender=self)
+                fn_template = util.sanitize_filename(os.path.basename(self.url), self.MAX_FOLDERNAME_LENGTH)
+
+            # If the basename is also empty, use the first 6 md5 hexdigest chars of the URL
+            if len(fn_template) == 0:
+                log('That is one REALLY ugly feed you have here! (Report this to bugs.gpodder.org: %s)', self.url, sender=self)
+                fn_template = urldigest # no need for sanitize_filename here
+
+            # Find a unique folder name for this podcast
+            wanted_foldername = self.find_unique_folder_name(fn_template)
+
+            # if the foldername has not been set, check if the (old) md5 filename exists
+            if self.foldername is None and os.path.exists(os.path.join(gl.downloaddir, urldigest)):
+                log('Found pre-0.14.0 download folder for %s: %s', self.title, urldigest, sender=self)
+                self.foldername = urldigest
+
+            # we have a valid, new folder name in "current_try" -> use that!
+            if self.foldername is not None and wanted_foldername != self.foldername:
+                # there might be an old download folder crawling around - move it!
+                new_folder_name = os.path.join(gl.downloaddir, wanted_foldername)
+                old_folder_name = os.path.join(gl.downloaddir, self.foldername)
+                if os.path.exists(old_folder_name):
+                    if not os.path.exists(new_folder_name):
+                        # Old folder exists, new folder does not -> simply rename
+                        log('Renaming %s => %s', old_folder_name, new_folder_name, sender=self)
+                        os.rename(old_folder_name, new_folder_name)
+                    else:
+                        # Both folders exist -> move files and delete old folder
+                        log('Moving files from %s to %s', old_folder_name, new_folder_name, sender=self)
+                        for file in glob.glob(os.path.join(old_folder_name, '*')):
+                            shutil.move(file, new_folder_name)
+                        log('Removing %s', old_folder_name, sender=self)
+                        shutil.rmtree(old_folder_name, ignore_errors=True)
+            log('Updating foldername of %s to "%s".', self.url, wanted_foldername, sender=self)
+            self.foldername = wanted_foldername
+            self.save()
+
+        save_dir = os.path.join(gl.downloaddir, self.foldername)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):
@@ -545,6 +623,8 @@ class podcastItem(object):
         self.link = ''
         self.channel = channel
         self.pubDate = 0
+        self.filename = None
+        self.auto_filename = 1 # automatically generated filename
 
         self.state = db.STATE_NORMAL
         self.is_played = False

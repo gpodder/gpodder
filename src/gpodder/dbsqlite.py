@@ -164,6 +164,8 @@ class Storage(object):
             ("etag", "TEXT"),
             ("deleted", "INTEGER"),
             ("channel_is_locked", "INTEGER"),
+            ("foldername", "TEXT"),
+            ("auto_foldername", "INTEGER")
             ))
 
         self.upgrade_table("episodes", (
@@ -180,14 +182,18 @@ class Storage(object):
             ("state", "INTEGER"),
             ("played", "INTEGER"),
             ("locked", "INTEGER"),
+            ("filename", "TEXT"),
+            ("auto_filename", "INTEGER"),
             ))
 
+        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_foldername ON channels (foldername)""")
         cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_url ON channels (url)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_sync_to_devices ON channels (sync_to_devices)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_title ON channels (title)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_deleted ON channels (deleted)""")
 
         cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_guid ON episodes (guid)""")
+        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_filename ON episodes (filename)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_channel_id ON episodes (channel_id)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_pubDate ON episodes (pubDate)""")
         cur.execute("""CREATE INDEX IF NOT EXISTS idx_state ON episodes (state)""")
@@ -256,7 +262,9 @@ class Storage(object):
                 password,
                 last_modified,
                 etag,
-                channel_is_locked
+                channel_is_locked,
+                foldername,
+                auto_foldername
             FROM
                 channels
             WHERE
@@ -285,6 +293,8 @@ class Storage(object):
                 'last_modified': row[12],
                 'etag': row[13],
                 'channel_is_locked': row[14],
+                'foldername': row[15],
+                'auto_foldername': row[16],
                 }
 
             if row[0] in stats:
@@ -338,10 +348,10 @@ class Storage(object):
         self.log("save_channel((%s)%s)", c.id or "new", c.url)
 
         if c.id is None:
-            cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag, channel_is_locked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, ))
+            cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag, channel_is_locked, foldername, auto_foldername) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.foldername, c.auto_foldername, ))
             self.channel_map[c.url] = cur.lastrowid
         else:
-            cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, channel_is_locked = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.id, ))
+            cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, channel_is_locked = ?, foldername = ?, auto_foldername = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.foldername, c.auto_foldername, c.id, ))
 
         cur.close()
         self.lock.release()
@@ -360,13 +370,13 @@ class Storage(object):
                 del self.channel_map[channel.url]
         else:
             cur.execute("UPDATE channels SET deleted = 1 WHERE id = ?", (channel.id, ))
-            cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, self.STATE_DELETED))
+            cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, self.STATE_DOWNLOADED))
 
         cur.close()
         self.lock.release()
 
     def __read_episodes(self, factory=None, where=None, params=None, commit=True):
-        sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, id FROM episodes"
+        sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, filename, auto_filename, id FROM episodes"
 
         if where:
             sql = "%s %s" % (sql, where)
@@ -391,7 +401,9 @@ class Storage(object):
                 'state': row[8],
                 'is_played': row[9],
                 'is_locked': row[10],
-                'id': row[11],
+                'filename': row[11],
+                'auto_filename': row[12],
+                'id': row[13],
                 }
             if episode['state'] is None:
                 episode['state'] = self.STATE_NORMAL
@@ -444,10 +456,10 @@ class Storage(object):
                 self.log("save_episode() -- looking up id")
 
             if e.id is None:
-                cur.execute("INSERT INTO episodes (channel_id, url, title, length, mimetype, guid, description, link, pubDate, state, played, locked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, e.url, e.title, e.length, e.mimetype, e.guid, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, ))
+                cur.execute("INSERT INTO episodes (channel_id, url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, filename, auto_filename) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, e.url, e.title, e.length, e.mimetype, e.guid, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.filename, e.auto_filename, ))
                 e.id = cur.lastrowid
             else:
-                cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ?, state = ?, played = ?, locked = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.id, ))
+                cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ?, state = ?, played = ?, locked = ?, filename = ?, auto_filename = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.filename, e.auto_filename, e.id, ))
         except Exception, e:
             log('save_episode() failed: %s', e, sender=self)
 
@@ -538,6 +550,20 @@ class Storage(object):
         except TypeError:
             log('Could not convert "%s" to a string date.', date)
             return None
+
+    def channel_foldername_exists(self, foldername):
+        """
+        Returns True if a foldername for a channel exists.
+        False otherwise.
+        """
+        return self.__get__("SELECT id FROM channels WHERE foldername = ?", (foldername,)) is not None
+
+    def episode_filename_exists(self, filename):
+        """
+        Returns True if a filename for an episode exists.
+        False otherwise.
+        """
+        return self.__get__("SELECT id FROM episodes WHERE filename = ?", (filename,)) is not None
 
     def find_channel_id(self, url):
         """

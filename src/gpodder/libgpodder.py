@@ -297,18 +297,14 @@ class gPodderLib(object):
         for tempfile in temporary_files:
             util.delete_file(tempfile)
 
-        # Clean up empty download folders
-        download_dirs = glob.glob( '%s/*' % ( self.downloaddir, ))
+        # Clean up empty download folders and abandoned download folders
+        download_dirs = glob.glob(os.path.join(self.downloaddir, '*'))
         for ddir in download_dirs:
-            if os.path.isdir( ddir):
-                globr = glob.glob( '%s/*' % ( ddir, ))
-                if not globr:
-                    log( 'Stale download directory found: %s', os.path.basename( ddir))
-                    try:
-                        os.rmdir( ddir)
-                        log( 'Successfully removed %s.', ddir)
-                    except:
-                        log( 'Could not remove %s.', ddir)
+            if os.path.isdir(ddir) and not db.channel_foldername_exists(os.path.basename(ddir)):
+                globr = glob.glob(os.path.join(ddir, '*'))
+                if len(globr) == 0 or (len(globr) == 1 and globr[0].endswith('/cover')):
+                    log('Stale download directory found: %s', os.path.basename(ddir), sender=self)
+                    shutil.rmtree(ddir, ignore_errors=True)
 
     def get_download_dir( self):
         util.make_directory( self.config.download_dir)
