@@ -709,7 +709,10 @@ class podcastItem(object):
 
         # If the md5 filename does not exist, 
         ( episode, e ) = util.filename_from_url(self.url)
-        episode = util.sanitize_filename(episode) + ext
+        episode =  util.sanitize_filename(episode)
+        # add the first 32 bits of the sha1 hash of the url for uniqueness
+        episode += '_%s' % hashlib.sha1(self.url).hexdigest()[:8].upper()
+        episode += ext # finally add the extension
 
         # If the episode filename looks suspicious,
         # we still return the md5 filename to be on
