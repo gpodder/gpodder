@@ -118,7 +118,7 @@ def sync_device():
         msg('error', _('No device configured. Please use the GUI.'))
         return False
 
-    callback_status = lambda s: msg('status', s)
+    callback_status = lambda s: msg('status', '%s', s)
     device.register('status', callback_status)
     callback_done = lambda: msg('done', _('Synchronization finished.'))
     device.register('done', callback_done)
