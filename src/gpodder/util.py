@@ -617,7 +617,7 @@ def format_desktop_command( command, filename):
 
     for key, value in items.items():
         if command.find( key) >= 0:
-            return command.replace( key, value)
+            return command.replace( key, '"%s"' % value)
 
     return '%s "%s"' % ( command, filename )
 
