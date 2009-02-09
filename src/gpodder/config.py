@@ -126,6 +126,7 @@ gPodderSettings = {
     'log_sqlite': (bool, False),
     'enable_html_shownotes': (bool, True),
     'maemo_enable_gestures': (bool, False),
+    'sync_disks_after_transfer': (bool, True),
 
     # Hide the cover/pill from the podcast sidebar when it gets too small
     'podcast_sidebar_save_space': (bool, False),

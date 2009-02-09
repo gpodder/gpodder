@@ -169,7 +169,11 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        successful_sync = not os.system('sync')
+        if gl.config.sync_disks_after_transfer:
+            successful_sync = (os.system('sync') == 0)
+        else:
+            log('Not syncing disks. Unmount your device before unplugging.', sender=self)
+            successful_sync = True
         self.notify('done')
         self.notify('post-done', self, successful_sync)
         return True
