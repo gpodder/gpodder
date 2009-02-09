@@ -287,6 +287,9 @@ class gPodderLib(object):
     def format_filesize(self, bytesize, digits=2):
         return util.format_filesize(bytesize, self.config.use_si_units, digits)
 
+    def find_partial_files(self):
+        return glob.glob(os.path.join(self.downloaddir, '*', '*.partial'))
+
     def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
         temporary_files = glob.glob('%s/*/.tmp-*' % self.downloaddir)
@@ -349,7 +352,8 @@ class gPodderLib(object):
             db.save_episode(episode)
             filename = episode.url
         else:
-            filename = episode.local_filename()
+            filename = episode.local_filename(create=False)
+            assert filename is not None
         db.mark_episode(episode.url, is_played=True)
 
         if gpodder.interface == gpodder.MAEMO and not self.config.maemo_allow_custom_player:

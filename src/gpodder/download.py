@@ -27,6 +27,7 @@
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
+from gpodder.dbsqlite import db
 from gpodder import util
 from gpodder import services
 from gpodder import resolver
@@ -78,6 +79,77 @@ class DownloadURLOpener(urllib.FancyURLopener):
         fp.close()
         raise gPodderDownloadHTTPError(url, errcode, errmsg)
 
+# The following is based on Python's urllib.py "URLopener.retrieve"
+# Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
+
+    def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
+        # The next line is taken from urllib's URLopener.open_http
+        # method, at the end after the line "if errcode == 200:"
+        return urllib.addinfourl(fp, headers, 'http:' + url)
+
+    def retrieve_resume(self, url, filename, reporthook=None, data=None):
+        """retrieve_resume(url) returns (filename, headers) for a local object
+        or (tempfilename, headers) for a remote object.
+
+        The filename argument is REQUIRED (no tempfile creation code here!)
+
+        Additionally resumes a download if the local filename exists"""
+
+        current_size = 0
+        tfp = None
+        if os.path.exists(filename):
+            try:
+                current_size = os.path.getsize(filename)
+                tfp = open(filename, 'ab')
+                #If the file exists, then only download the remainder
+                self.addheader('Range', 'bytes=%s-' % (current_size))
+            except:
+                log('Cannot open file for resuming: %s', filename, sender=self, traceback=True)
+                tfp = None
+                current_size = 0
+
+        if tfp is None:
+            tfp = open(filename, 'wb')
+
+        url = urllib.unwrap(urllib.toBytes(url))
+        fp = self.open(url, data)
+        headers = fp.info()
+
+        # gPodder TODO: we can get the real url via fp.geturl() here
+        #               (if anybody wants to fix filenames in the future)
+
+        result = filename, headers
+        bs = 1024*8
+        size = -1
+        read = current_size
+        blocknum = int(current_size/bs)
+        if reporthook:
+            if "content-length" in headers:
+                size = int(headers["Content-Length"]) + current_size
+            reporthook(blocknum, bs, size)
+        while 1:
+            block = fp.read(bs)
+            if block == "":
+                break
+            read += len(block)
+            tfp.write(block)
+            blocknum += 1
+            if reporthook:
+                reporthook(blocknum, bs, size)
+        fp.close()
+        tfp.close()
+        del fp
+        del tfp
+
+        # raise exception if actual size does not match content-length header
+        if size >= 0 and read < size:
+            raise ContentTooShortError("retrieval incomplete: got only %i out "
+                                       "of %i bytes" % (read, size), result)
+
+        return result
+
+# end code based on urllib.py
+
     def prompt_user_passwd( self, host, realm):
         if self.channel.username or self.channel.password:
             log( 'Authenticating as "%s" to "%s" for realm "%s".', self.channel.username, host, realm, sender = self)
@@ -103,13 +175,17 @@ class DownloadThread(threading.Thread):
         self.notification = notification
 
         self.url = self.episode.url
-        self.filename = self.episode.local_filename()
+        self.filename = self.episode.local_filename(create=True)
+        # Commit the database, so we won't lose the (possibly created) filename
+        db.commit()
+
         self.tempname = self.filename + '.partial'
 
         # Make an educated guess about the total file size
         self.total_size = self.episode.length
 
         self.cancelled = False
+        self.keep_files = False
         self.start_time = 0.0
         self.speed = _('Queued')
         self.speed_value = 0
@@ -122,8 +198,9 @@ class DownloadThread(threading.Thread):
         self.limit_rate = gl.config.limit_rate
         self.start_blocks = 0
 
-    def cancel( self):
+    def cancel(self, keep_files=False):
         self.cancelled = True
+        self.keep_files = keep_files
 
     def status_updated( self, count, blockSize, totalSize):
         if totalSize:
@@ -154,7 +231,8 @@ class DownloadThread(threading.Thread):
             self.last_update = time.time()
 
         if self.cancelled:
-            util.delete_file( self.tempname)
+            if not self.keep_files:
+                util.delete_file(self.tempname)
             raise DownloadCancelledException()
 
     def calculate_speed( self, count, blockSize):
@@ -203,6 +281,21 @@ class DownloadThread(threading.Thread):
         self.download_id = services.download_status_manager.reserve_download_id()
         services.download_status_manager.register_download_id( self.download_id, self)
 
+        if os.path.exists(self.tempname):
+            try:
+                already_downloaded = os.path.getsize(self.tempname)
+                if self.total_size > 0:
+                    self.progress = already_downloaded/self.total_size
+
+                if already_downloaded > 0:
+                    self.speed = _('Queued (partial)')
+            except:
+                pass
+        else:
+            # "touch self.tempname", so we also get partial
+            # files for resuming when the file is queued
+            open(self.tempname, 'w').close()
+
         # Initial status update
         services.download_status_manager.update_status( self.download_id, episode = self.episode.title, url = self.episode.url, speed = self.speed, progress = self.progress)
 
@@ -210,16 +303,19 @@ class DownloadThread(threading.Thread):
         try:
             try:
                 if self.cancelled:
+                    # Remove the partial file in case we do
+                    # not want to keep it (e.g. user cancelled)
+                    if not self.keep_files:
+                        util.delete_file(self.tempname)
                     return
          
-                util.delete_file( self.tempname)
-                (unused, headers) = self.downloader.retrieve( resolver.get_real_download_url(self.url), self.tempname, reporthook = self.status_updated)
+                (unused, headers) = self.downloader.retrieve_resume(resolver.get_real_download_url(self.url), self.tempname, reporthook=self.status_updated)
 
                 if 'content-type' in headers and headers['content-type'] != self.episode.mimetype:
                     log('Correcting mime type: %s => %s', self.episode.mimetype, headers['content-type'])
                     self.episode.mimetype = headers['content-type']
                     # File names are constructed with regard to the mime type.
-                    self.filename = self.episode.local_filename()
+                    self.filename = self.episode.local_filename(create=True, force_update=True)
 
                 shutil.move( self.tempname, self.filename)
                 # Get the _real_ filesize once we actually have the file
@@ -242,16 +338,18 @@ class DownloadThread(threading.Thread):
                 services.download_status_manager.s_release( acquired)
         except DownloadCancelledException:
             log('Download has been cancelled: %s', self.episode.title, traceback=None, sender=self)
+            if not self.keep_files:
+                util.delete_file(self.tempname)
         except IOError, ioe:
             if self.notification is not None:
                 title = ioe.strerror
-                message = _('An error happened while trying to download <b>%s</b>.') % ( saxutils.escape( self.episode.title), )
+                message = _('An error happened while trying to download <b>%s</b>. Please try again later.') % ( saxutils.escape( self.episode.title), )
                 self.notification( message, title)
             log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.episode.title, ioe.filename, sender = self)
         except gPodderDownloadHTTPError, gdhe:
             if self.notification is not None:
                 title = gdhe.error_message
-                message = _('An error (HTTP %d) happened while trying to download <b>%s</b>.') % ( gdhe.error_code, saxutils.escape( self.episode.title), )
+                message = _('An error (HTTP %d) happened while trying to download <b>%s</b>. You can try to resume the download later.') % ( gdhe.error_code, saxutils.escape( self.episode.title), )
                 self.notification( message, title)
             log( 'HTTP error %s while downloading "%s": %s', gdhe.error_code, self.episode.title, gdhe.error_message, sender=self)
         except:

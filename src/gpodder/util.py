@@ -622,6 +622,13 @@ def format_desktop_command( command, filename):
     return '%s "%s"' % ( command, filename )
 
 
+def get_real_url(url):
+    """
+    Gets the real URL of a file and resolves all redirects.
+    """
+    return urllib.urlopen(url).geturl()
+
+
 def find_command( command):
     """
     Searches the system's PATH for a specific command that is

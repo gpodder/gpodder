@@ -336,11 +336,14 @@ class podcastChannel(object):
             f.write('#EXTM3U\n')
 
             for episode in downloaded_episodes:
-                filename = episode.local_filename()
-                if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                    filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
-                f.write(filename+'\n')
+                if episode.was_downloaded(and_exists=True):
+                    filename = episode.local_filename(create=False)
+                    assert filename is not None
+
+                    if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
+                        filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
+                    f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
+                    f.write(filename+'\n')
             f.close()
 
     def addDownloadedItem(self, item):
@@ -351,7 +354,9 @@ class podcastChannel(object):
 
             # Update metadata on file (if possible and wanted)
             if gl.config.update_tags and libtagupdate.tagging_supported():
-                filename = item.local_filename()
+                filename = item.local_filename(create=False)
+                assert filename is not None
+
                 try:
                     libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre='Podcast')
                 except Exception, e:
@@ -426,7 +431,7 @@ class podcastChannel(object):
 
             new_iter = new_model.append((item.url, item.title, filelength, 
                 True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
-                item.local_filename(), item.extension()))
+                'XXXXXXXXXXXXXUNUSEDXXXXXXXXXXXXXXXXXXX', item.extension()))
             self.iter_set_downloading_columns( new_model, new_iter, episode=item)
             urls.append(item.url)
         
@@ -470,7 +475,7 @@ class podcastChannel(object):
 
             # if the foldername has not been set, check if the (old) md5 filename exists
             if self.foldername is None and os.path.exists(os.path.join(gl.downloaddir, urldigest)):
-                log('Found pre-0.14.0 download folder for %s: %s', self.title, urldigest, sender=self)
+                log('Found pre-0.15.0 download folder for %s: %s', self.title, urldigest, sender=self)
                 self.foldername = urldigest
 
             # we have a valid, new folder name in "current_try" -> use that!
@@ -523,7 +528,11 @@ class podcastChannel(object):
         episode = db.load_episode(url, lambda c: podcastItem.create_from_dict(c, self))
 
         if episode is not None:
-            util.delete_file(episode.local_filename())
+            filename = episode.local_filename(create=False)
+            if filename is not None:
+                util.delete_file(filename)
+            else:
+                log('Cannot delete episode: %s (I have no filename!)', episode.title, sender=self)
             episode.set_state(db.STATE_DELETED)
 
         self.update_m3u_playlist()
@@ -531,6 +540,7 @@ class podcastChannel(object):
 
 class podcastItem(object):
     """holds data for one object in a channel"""
+    MAX_FILENAME_LENGTH = 200
 
     @staticmethod
     def load(url, channel):
@@ -675,7 +685,7 @@ class podcastItem(object):
             return saxutils.escape(self.title)
 
     def age_in_days(self):
-        return util.file_age_in_days(self.local_filename())
+        return util.file_age_in_days(self.local_filename(create=False))
 
     def is_old(self):
         return self.age_in_days() > gl.config.episode_old_age
@@ -698,29 +708,110 @@ class podcastItem(object):
         except:
             log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
-    def local_filename( self):
+    @classmethod
+    def find_unique_file_name(cls, url, filename, extension):
+        current_try = util.sanitize_filename(filename, cls.MAX_FILENAME_LENGTH)+extension
+        next_try_id = 2
+        lookup_url = None
+
+        while db.episode_filename_exists(current_try):
+            if next_try_id == 2:
+                # If we arrive here, current_try has a collision, so
+                # try to resolve the URL for a better basename
+                log('Filename collision: %s - trying to resolve...', current_try)
+                url = util.get_real_url(url)
+                (episode_filename, extension_UNUSED) = util.filename_from_url(url)
+                current_try = util.sanitize_filename(episode_filename, cls.MAX_FILENAME_LENGTH)
+                if not db.episode_filename_exists(current_try):
+                    log('Filename %s is available - collision resolved.', current_try)
+                    return current_try
+                else:
+                    log('Continuing search with %s as basename...', current_try)
+
+            current_try = '%s (%d)%s' % (filename, next_try_id, extension)
+            next_try_id += 1
+
+        return current_try
+
+    def local_filename(self, create, force_update=False):
+        """Get (and possibly generate) the local saving filename
+
+        Pass create=True if you want this function to generate a
+        new filename if none exists. You only want to do this when
+        planning to create/download the file after calling this function.
+
+        Normally, you should pass create=False. This will only
+        create a filename when the file already exists from a previous
+        version of gPodder (where we used md5 filenames). If the file
+        does not exist (and the filename also does not exist), this
+        function will return None.
+
+        If you pass force_update=True to this function, it will try to
+        find a new (better) filename and move the current file if this
+        is the case. This is useful if (during the download) you get
+        more information about the file, e.g. the mimetype and you want
+        to include this information in the file name generation process.
+
+        The generated filename is stored in the database for future access.
+        """
         ext = self.extension()
 
-        # For compatibility with already-downloaded episodes,
-        # we accept md5 filenames if they are downloaded now.
-        md5_filename = os.path.join(self.channel.save_dir, hashlib.md5(self.url).hexdigest()+ext)
-        if os.path.exists(md5_filename) or not gl.config.experimental_file_naming:
-            return md5_filename
+        # For compatibility with already-downloaded episodes, we
+        # have to know md5 filenames if they are downloaded already
+        urldigest = hashlib.md5(self.url).hexdigest()
 
-        # If the md5 filename does not exist, 
-        ( episode, e ) = util.filename_from_url(self.url)
-        episode =  util.sanitize_filename(episode)
-        # add the first 32 bits of the sha1 hash of the url for uniqueness
-        episode += '_%s' % hashlib.sha1(self.url).hexdigest()[:8].upper()
-        episode += ext # finally add the extension
+        if not create and self.filename is None:
+            urldigest_filename = os.path.join(self.channel.save_dir, urldigest+ext)
+            if os.path.exists(urldigest_filename):
+                # The file exists, so set it up in our database
+                log('Recovering pre-0.15.0 file: %s', urldigest_filename, sender=self)
+                self.filename = urldigest+ext
+                self.auto_filename = 1
+                self.save()
+                return urldigest_filename
+            return None
 
-        # If the episode filename looks suspicious,
-        # we still return the md5 filename to be on
-        # the safe side of the fence ;)
-        if len(episode) == 0 or episode.startswith('redirect.'):
-            return md5_filename
-        filename = os.path.join(self.channel.save_dir, episode)
-        return filename
+        if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
+            # Try to find a new filename for the current file
+            (episode_filename, extension_UNUSED) = util.filename_from_url(self.url)
+            fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
+
+            if 'redirect' in fn_template:
+                # This looks like a redirection URL - force URL resolving!
+                log('Looks like a redirection to me: %s', self.url, sender=self)
+                url = util.get_real_url(self.url)
+                log('Redirection resolved to: %s', url, sender=self)
+                (episode_filename, extension_UNUSED) = util.filename_from_url(url)
+                fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
+
+            # If the basename is empty, use the md5 hexdigest of the URL
+            if len(fn_template) == 0 or fn_template.startswith('redirect.'):
+                log('Report to bugs.gpodder.org: Podcast at %s with episode URL: %s', self.channel.url, self.url, sender=self)
+                fn_template = urldigest
+
+            # Find a unique filename for this episode
+            wanted_filename = self.find_unique_file_name(self.url, fn_template, ext)
+
+            # We populate the filename field the first time - does the old file still exist?
+            if self.filename is None and os.path.exists(os.path.join(self.channel.save_dir, urldigest+ext)):
+                log('Found pre-0.15.0 downloaded file: %s', urldigest, sender=self)
+                self.filename = urldigest+ext
+
+            # The old file exists, but we have decided to want a different filename
+            if self.filename is not None and wanted_filename != self.filename:
+                # there might be an old download folder crawling around - move it!
+                new_file_name = os.path.join(self.channel.save_dir, wanted_filename)
+                old_file_name = os.path.join(self.channel.save_dir, self.filename)
+                if os.path.exists(old_file_name) and not os.path.exists(new_file_name):
+                    log('Renaming %s => %s', old_file_name, new_file_name, sender=self)
+                    os.rename(old_file_name, new_file_name)
+                else:
+                    log('Warning: %s exists or %s does not.', new_file_name, old_file_name, sender=self)
+            log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
+            self.filename = wanted_filename
+            self.save()
+
+        return os.path.join(self.channel.save_dir, self.filename)
 
     def extension( self):
          ( filename, ext ) = util.filename_from_url(self.url)
@@ -740,7 +831,11 @@ class podcastItem(object):
         db.mark_episode(self.url, is_played=True)
 
     def file_exists(self):
-        return os.path.exists(self.local_filename())
+        filename = self.local_filename(create=False)
+        if filename is None:
+            return False
+        else:
+            return os.path.exists(filename)
 
     def was_downloaded(self, and_exists=False):
         if self.state != db.STATE_DOWNLOADED:
@@ -797,8 +892,11 @@ class podcastItem(object):
     pubdate_prop = property(fget=cute_pubdate)
 
     def calculate_filesize( self):
+        filename = self.local_filename(create=False)
+        if filename is None:
+            log('calculate_filesized called, but filename is None!', sender=self)
         try:
-            self.length = os.path.getsize(self.local_filename())
+            self.length = os.path.getsize(filename)
         except:
             log( 'Could not get filesize for %s.', self.url)
 

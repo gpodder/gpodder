@@ -504,10 +504,10 @@ class DownloadStatusManager(ObservableService):
         
         return False
 
-    def cancel_all( self):
+    def cancel_all(self, keep_files=False):
         for element in self.status_list:
             self.status_list[element]['iter'] = None
-            self.status_list[element]['thread'].cancel()
+            self.status_list[element]['thread'].cancel(keep_files)
         # clear the tree model after cancelling
         util.idle_add(self.tree_model.clear)
         self.downloads_done_bytes = 0

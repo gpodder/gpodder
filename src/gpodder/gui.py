@@ -690,7 +690,51 @@ class gPodder(GladeWidget):
         self.update_feed_cache(force_update=gl.config.update_on_startup)
 
         # Clean up old, orphaned download files
-        gl.clean_up_downloads(delete_partial=True)
+        partial_files = gl.find_partial_files()
+
+        resumable_episodes = []
+        if len(partial_files) > 0:
+            for f in partial_files:
+                correct_name = os.path.basename(f)[:-len('.partial')] # strip ".partial"
+                log('Searching episode for file: %s', correct_name, sender=self)
+                found_episode = False
+                for c in self.channels:
+                    for e in c.get_all_episodes():
+                        if e.filename == correct_name:
+                            log('Found episode: %s', e.title, sender=self)
+                            resumable_episodes.append(e)
+                            found_episode = True
+                        if found_episode:
+                            break
+                    if found_episode:
+                        break
+
+            def remove_partial_file(episode):
+                fn = episode.local_filename(create=False)
+                if fn is not None:
+                    util.delete_file(fn+'.partial')
+
+            if len(resumable_episodes):
+                if gl.config.resume_ask_every_episode:
+                    gPodderEpisodeSelector(title = _('Resume downloads'), instructions = _('There are unfinished downloads from your last session. Pick the ones you want to resume.'), \
+                                           episodes = resumable_episodes, \
+                                           stock_ok_button = 'gpodder-download', callback = self.download_episode_list, remove_callback=remove_partial_file)
+                else:
+                    if len(resumable_episodes) == 0:
+                        question = _('There is one partially downloaded episode. Do you want to continue downloading it?')
+                    else:
+                        question = _('There are %d partially downloaded episodes. Do you want to continue downloading them?') % (len(resumable_episodes))
+
+                    if self.show_confirmation(question, _('Resume downloads from last session')):
+                        self.download_episode_list(resumable_episodes)
+                    else:
+                        for episode in resumable_episodes:
+                            remove_partial_file(episode)
+
+
+            gl.clean_up_downloads(delete_partial=False)
+        else:
+            gl.clean_up_downloads(delete_partial=True)
 
         # Start the auto-update procedure
         self.auto_update_procedure(first_run=True)
@@ -987,13 +1031,21 @@ class gPodder(GladeWidget):
     def save_episode_as_file( self, url, *args):
         episode = self.active_channel.find_episode(url)
 
-        folder = self.folder_for_saving_episodes
-        (result, folder) = self.show_copy_dialog(src_filename=episode.local_filename(), dst_filename=episode.sync_filename(), dst_directory=folder)
-        self.folder_for_saving_episodes = folder
+        if episode.was_downloaded(and_exists=True):
+            folder = self.folder_for_saving_episodes
+            copy_from = episode.local_filename(create=False)
+            assert copy_from is not None
+            (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=episode.sync_filename(), dst_directory=folder)
+            self.folder_for_saving_episodes = folder
 
     def copy_episode_bluetooth(self, url, *args):
         episode = self.active_channel.find_episode(url)
-        filename = episode.local_filename()
+
+        if not episode.was_downloaded(and_exists=True):
+            log('Cannot copy episode via bluetooth (does not exist!)', sender=self)
+
+        filename = episode.local_filename(create=False)
+        assert filename is not None
 
         if gl.config.bluetooth_use_device_address:
             device = gl.config.bluetooth_device_address
@@ -1344,7 +1396,6 @@ class gPodder(GladeWidget):
          
             for path in paths:
                 url = model.get_value( model.get_iter( path), 0)
-                local_filename = model.get_value( model.get_iter( path), 8)
 
                 episode = podcastItem.load(url, self.active_channel)
 
@@ -1877,7 +1928,7 @@ class gPodder(GladeWidget):
 
             title = _('Quit gPodder')
             if downloading:
-                message = _('You are downloading episodes. If you close gPodder now, the downloads will be aborted.')
+                message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
             else:
                 message = _('Do you really want to quit gPodder now?')
 
@@ -1911,7 +1962,7 @@ class gPodder(GladeWidget):
             else:
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
-        services.download_status_manager.cancel_all()
+        services.download_status_manager.cancel_all(keep_files=True)
         self.gPodder.hide()
         while gtk.events_pending():
             gtk.main_iteration(False)
@@ -2097,7 +2148,6 @@ class gPodder(GladeWidget):
         services.download_status_manager.start_batch_mode()
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
-            filename = episode.local_filename()
             if not episode.was_downloaded(and_exists=True) and not services.download_status_manager.is_download_in_progress( episode.url):
                 download.DownloadThread(episode.channel, episode, self.notification).start()
         services.download_status_manager.end_batch_mode()
@@ -2218,7 +2268,9 @@ class gPodder(GladeWidget):
         free_space = device.get_free_space()
         for episode in episodes:
             if not device.episode_on_device(episode) and not (sync_all_episodes and gl.config.only_sync_not_played and episode.is_played):
-                total_size += util.calculate_size(str(episode.local_filename()))
+                filename = episode.local_filename(create=False)
+                if filename is not None:
+                    total_size += util.calculate_size(str(filename))
 
         if total_size > free_space:
             # can be negative because of the 10 MiB for reserved for the iTunesDB
@@ -2751,9 +2803,7 @@ class gPodder(GladeWidget):
                 self.on_sync_to_ipod_activate(widget, episodes)
             elif do_playback:
                 for episode in episodes:
-                    # Make sure to mark the episode as downloaded
-                    if os.path.exists(episode.local_filename()):
-                        episode.channel.addDownloadedItem(episode)
+                    if episode.was_downloaded(and_exists=True):
                         self.playback_episode(episode)
                     elif gl.config.enable_streaming:
                         self.playback_episode(episode, stream=True)
@@ -2879,7 +2929,7 @@ class gPodder(GladeWidget):
                 # now, clear local db cache so we can re-read it
                 self.updateComboBox()
             except:
-                log( 'Error while deleting (some) downloads.')
+                log( 'Error while deleting (some) downloads.', traceback=True, sender=self)
 
         # only delete partial files if we do not have any downloads in progress
         delete_partial = not services.download_status_manager.has_items()
@@ -3607,7 +3657,7 @@ class gPodderEpisode(GladeWidget):
         else:
             self.download_progress.hide_all()
             self.btnCancel.hide_all()
-            if os.path.exists(self.episode.local_filename()):
+            if self.episode.was_downloaded(and_exists=True):
                 if self.episode.file_type() in ('audio', 'video'):
                     self.btnPlay.set_label(gtk.STOCK_MEDIA_PLAY)
                 else:
