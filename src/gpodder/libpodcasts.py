@@ -735,7 +735,7 @@ class podcastItem(object):
 
         return current_try
 
-    def local_filename(self, create, force_update=False):
+    def local_filename(self, create, force_update=False, check_only=False):
         """Get (and possibly generate) the local saving filename
 
         Pass create=True if you want this function to generate a
@@ -753,6 +753,10 @@ class podcastItem(object):
         is the case. This is useful if (during the download) you get
         more information about the file, e.g. the mimetype and you want
         to include this information in the file name generation process.
+
+        If check_only=True is passed to this function, it will never try
+        to rename the file, even if would be a good idea. Use this if you
+        only want to check if a file exists.
 
         The generated filename is stored in the database for future access.
         """
@@ -772,6 +776,15 @@ class podcastItem(object):
                 self.save()
                 return urldigest_filename
             return None
+
+        # We only want to check if the file exists, so don't try to
+        # rename the file, even if it would be reasonable. See also:
+        # http://bugs.gpodder.org/attachment.cgi?id=236
+        if check_only:
+            if self.filename is None:
+                return None
+            else:
+                return os.path.join(self.channel.save_dir, self.filename)
 
         if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
             # Try to find a new filename for the current file
@@ -833,7 +846,7 @@ class podcastItem(object):
         db.mark_episode(self.url, is_played=True)
 
     def file_exists(self):
-        filename = self.local_filename(create=False)
+        filename = self.local_filename(create=False, check_only=True)
         if filename is None:
             return False
         else:
