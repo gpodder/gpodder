@@ -349,7 +349,7 @@ class iPodDevice(Device):
                 self.set_podcast_flags(track)
                 return True
 
-        original_filename = str(episode.local_filename())
+        original_filename = str(episode.local_filename(create=False))
         local_filename = original_filename
 
         if util.calculate_size(original_filename) > self.get_free_space():
@@ -526,7 +526,7 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
-        from_file = util.sanitize_encoding(episode.local_filename())
+        from_file = util.sanitize_encoding(episode.local_filename(create=False))
         filename_base = util.sanitize_filename(episode.sync_filename(), self.MAX_FILENAME_LENGTH)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
@@ -852,11 +852,11 @@ class MTPDevice(Device):
 
     def add_track(self, episode):
         self.notify('status', _('Adding %s...') % episode.title)
-        log("sending " + str(episode.local_filename()) + " (" + episode.title + ").", sender=self)
+        log("sending " + str(episode.local_filename(create=False)) + " (" + episode.title + ").", sender=self)
 
         try:
             # verify free space
-            needed = util.calculate_size(episode.local_filename())
+            needed = util.calculate_size(episode.local_filename(create=False))
             free = self.get_free_space()
             if needed > free:
                 log('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed), sender=self)
@@ -870,10 +870,10 @@ class MTPDevice(Device):
             metadata.album = str(episode.channel.title)
             metadata.genre = "podcast"
             metadata.date = self.__date_to_mtp(episode.pubDate)
-            metadata.duration = get_track_length(str(episode.local_filename()))
+            metadata.duration = get_track_length(str(episode.local_filename(create=False)))
 
             # send the file
-            self.__MTPDevice.send_track_from_file( str(episode.local_filename()), episode.basename, metadata, 0, callback=self.__callback)
+            self.__MTPDevice.send_track_from_file( str(episode.local_filename(create=False)), episode.basename, metadata, 0, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False
