@@ -105,7 +105,7 @@ app_authors = [
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
     'Pavel Mlčoch', 'Peter Hoffmann', 'PhilF', 'Philippe Gouaillier', 'Pieter de Decker',
     'Preben Randhol', 'Rafael Proença', 'R.Bell', 'red26wings', 'Richard Voigt',
-    'Robert Young', 'Roel Groeneveld',
+    'Robert Young', 'Roel Groeneveld', 'Romain Janvier',
     'Scott Wegner', 'Sebastian Krause', 'Seth Remington', 'Shane Donohoe', 'Silvio Sisto', 'SPGoetze',
     'S. Rust',
     'Stefan Lohmaier', 'Stephan Buys', 'Steve McCarthy', 'Stylianos Papanastasiou', 'Teo Ramirez',

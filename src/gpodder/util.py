@@ -301,7 +301,11 @@ def format_date(timestamp):
 
     today = time.localtime()[:3]
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
-    timestamp_date = time.localtime(timestamp)[:3]
+    try:
+        timestamp_date = time.localtime(timestamp)[:3]
+    except ValueError, ve:
+        log('Warning: Cannot convert timestamp', sender=self, traceback=True)
+        return None
     
     if timestamp_date == today:
        return _('Today')
