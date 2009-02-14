@@ -92,7 +92,7 @@ setup(
   author       = 'Thomas Perl',
   author_email = 'thp@thpinfo.com',
   url          = 'http://www.gpodder.org/',
-  scripts      = [ 'bin/gpodder' ],
+  scripts      = [ 'bin/gpodder', 'bin/gpodder-backup' ],
   data_files   = data_files + translation_files
 )
 

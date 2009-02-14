@@ -1,0 +1,207 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2009 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+# gpodder-backup - A backup/restore utility for gPodder user data
+# by Thomas Perl <thp@gpodder.org>; 2009-02-14
+
+
+"""
+This utility can be used to create a dump of the current gPodder
+data (configuration files + downloads), optionally skipping the
+real contents of the download folder (for submitting your data
+to a bug report without having to transfer lots of data). Modes:
+
+    * Create (--create) a new archive from the current data
+    * Extract (--extract) a previously-created archive
+    * Purge (--purge) the current data ("start out fresh")
+"""
+
+__version__ = '1.0'
+
+from ConfigParser import ConfigParser
+from optparse import OptionParser
+from StringIO import StringIO
+
+import sys
+import os
+import subprocess
+import shutil
+import tempfile
+
+MANIFEST_NAME = 'manifest'
+CONFIG_DIR = '~/.config/gpodder'
+DOWNLOAD_FOLDER = 'DOWNLOADS'
+CONFIG_FOLDER = 'CONFIG'
+
+def implodeuser(s):
+    """Does the reverse of os.path.expanduser"""
+    home = os.path.expanduser('~/')
+    if s.startswith(home):
+        return os.path.join('~', s[len(home):])
+    else:
+        return s
+
+class gPodderConfig(ConfigParser):
+    """A simple gpodder.conf-reading class
+
+    This class reads CONFIGFILE and then allows to
+    access all configuration options as attributes
+    of the object (e.g. config.download_dir)
+    """
+    CONFIGFILE = CONFIG_DIR + '/gpodder.conf'
+    SECTION = 'gpodder-conf-1'
+
+    def __init__(self):
+        ConfigParser.__init__(self)
+        self.read(os.path.expanduser(self.CONFIGFILE))
+        assert self.has_section(self.SECTION)
+
+    def __getattr__(self, key):
+        return self.get(self.SECTION, key)
+
+    def store_gpodder_config(self):
+        fp = open(os.path.expanduser(self.CONFIGFILE), 'w')
+        self.write(fp)
+        fp.close()
+
+def do_purge():
+    print 'Purging:'
+    config_dir = os.path.expanduser(CONFIG_DIR)
+    if os.path.exists(config_dir):
+        if os.path.exists(os.path.expanduser(gPodderConfig.CONFIGFILE)):
+            config = gPodderConfig()
+            download_dir = config.download_dir
+            if os.path.exists(download_dir):
+                print '  Downloads in', download_dir
+                shutil.rmtree(download_dir)
+        print '  Configuration in', config_dir
+        shutil.rmtree(config_dir)
+    else:
+        print '  Nothing (already purged?)'
+    print 'done.'
+
+def extract_archive(backup_filename, download_destination=None):
+    if not os.path.exists(backup_filename):
+        print 'File does not exist.'
+        sys.exit(-1)
+
+    config_dir = os.path.expanduser(CONFIG_DIR)
+    print 'Extracting config to %s' % config_dir
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir)
+    tar = subprocess.Popen(['tar', 'xzvf', backup_filename, '-C', config_dir,
+        '--strip', '1', CONFIG_FOLDER])
+    tar.wait()
+    print 'DONE.'
+
+    print 'Getting manifest'
+    tar = subprocess.Popen(['tar', 'xzf', backup_filename, '-O', MANIFEST_NAME],
+            stdout=subprocess.PIPE)
+    (manifest_data, stderr_unused) = tar.communicate()
+    manifest = ConfigParser()
+    manifest.readfp(StringIO(manifest_data))
+    if download_destination is None:
+        download_destination = os.path.expanduser(manifest.get(MANIFEST_NAME, 'download_dir'))
+    else:
+        # update the "download_dir" setting in gpodder.conf,
+        # because we are extracting downloads somewhere else
+        gpocfg = gPodderConfig()
+        gpocfg.set(gPodderConfig.SECTION, 'download_dir', os.path.abspath(download_destination))
+        gpocfg.store_gpodder_config()
+
+    print 'Extracting downloads to %s' % download_destination
+    if not os.path.exists(download_destination):
+        os.makedirs(download_destination)
+    tar = subprocess.Popen(['tar', 'xzvf', backup_filename, '-C', download_destination,
+        '--strip', '1', DOWNLOAD_FOLDER])
+    tar.wait()
+    print 'DONE.'
+
+def create_archive(backup_filename, fake_download_dir=True, add_cover_files=False):
+    tempfolder = tempfile.mkdtemp()
+    print 'using', tempfolder, 'to store temporary data'
+    config = gPodderConfig()
+    download_dir = implodeuser(config.download_dir)
+    manifest = ConfigParser()
+    manifest.add_section(MANIFEST_NAME)
+    configuration_dir = CONFIG_DIR
+    for key in ('fake_download_dir', 'download_dir', 'configuration_dir'):
+        manifest.set(MANIFEST_NAME, key, locals()[key])
+    manifp = open(os.path.join(tempfolder, MANIFEST_NAME), 'w')
+    manifest.write(manifp)
+    manifp.close()
+    if fake_download_dir:
+        os.mkdir(os.path.join(tempfolder, DOWNLOAD_FOLDER))
+        for dirpath, dirnames, filenames in os.walk(os.path.expanduser(download_dir)):
+            new_path = dirpath.replace(os.path.expanduser(download_dir), os.path.join(tempfolder, DOWNLOAD_FOLDER))
+            if not os.path.exists(new_path):
+                os.makedirs(new_path)
+            for filename in filenames:
+                if filename == 'cover' and add_cover_files:
+                    shutil.copy(os.path.join(dirpath, filename), os.path.join(new_path, filename))
+                else:
+                    open(os.path.join(new_path, filename), 'w').close()
+    else:
+        os.symlink(os.path.expanduser(download_dir), os.path.join(tempfolder, DOWNLOAD_FOLDER))
+    os.symlink(os.path.expanduser(CONFIG_DIR), os.path.join(tempfolder, CONFIG_FOLDER))
+    tar = subprocess.Popen(['tar', 'czvf', backup_filename, '--dereference',
+        '-C', tempfolder, MANIFEST_NAME, CONFIG_FOLDER, DOWNLOAD_FOLDER])
+    tar.wait()
+    shutil.rmtree(tempfolder)
+
+
+
+if __name__ == '__main__':
+    parser = OptionParser(usage='usage: %%prog [--create|--extract] <archive.gpo.tar.gz> [options]\n       %%prog --purge\n\n%s' % __doc__.strip(),
+            version='%%prog %s' % __version__)
+    parser.add_option('-c', '--create',
+                      dest='create', metavar='<FILE>',
+                      help='Create a new archive')
+    parser.add_option('-x', '--extract',
+                      dest='extract', metavar='<FILE>',
+                      help='Extract an existing archive')
+    parser.add_option('-f', '--fake-downloads',
+                      action='store_true', dest='fake', default=False,
+                      help='Do not store contents of downloaded files')
+    parser.add_option('-n', '--no-covers',
+                      action='store_false', dest='covers', default=True,
+                      help='Do not include cover files in archive')
+    parser.add_option('-D', '--destination',
+                      dest='destination', metavar='<DIR>',
+                      help='Extract downloads in different folder')
+    parser.add_option('-P', '--purge',
+                      action='store_true', dest='purge', default=False,
+                      help='Remove current data (can be combined with --extract)')
+    
+    (options, args) = parser.parse_args(sys.argv)
+    
+    if options.create:
+        create_archive(options.create, options.fake, options.covers)
+    elif options.extract:
+        if options.purge:
+            do_purge()
+        extract_archive(options.extract, options.destination)
+    elif options.purge:
+        do_purge()
+    else:
+        parser.print_help()
+

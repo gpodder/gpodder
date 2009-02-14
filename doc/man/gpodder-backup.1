@@ -1,0 +1,67 @@
+.TH GPODDER-BACKUP "1" "February 2009" "gpodder-backup 1.0" "User Commands"
+.SH NAME
+gpodder-backup \- Backup and restore utility for gPodder user data
+.SH SYNOPSIS
+.B gpodder-backup
+[\fI--create|--extract\fR] \fI<archive.gpo.tar.gz> \fR[\fIoptions\fR]
+.B gpodder-backup
+\fI\-\-purge\fR
+.SH DESCRIPTION
+.PP
+This utility can be used to create a dump of the current gPodder
+data (configuration files + downloads), optionally skipping the
+real contents of the download folder (for submitting your data
+to a bug report without having to transfer lots of data).
+.SH OPTIONS
+.TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-c\fR <FILE>, \fB\-\-create=\fR<FILE>
+Create a new archive
+.TP
+\fB\-x\fR <FILE>, \fB\-\-extract=\fR<FILE>
+Extract an existing archive
+.TP
+\fB\-f\fR, \fB\-\-fake\-downloads\fR
+Do not store contents of downloaded files
+.TP
+\fB\-n\fR, \fB\-\-no\-covers\fR
+Do not include cover files in archive
+.TP
+\fB\-D\fR <DIR>, \fB\-\-destination=\fR<DIR>
+Extract downloads in different folder
+.TP
+\fB\-P\fR, \fB\-\-purge\fR
+Remove current data (can be combined with \-\-extract)
+.SH "USAGE FOR BUG REPORTING"
+.TP
+This command is useful if you want to report a bug in gPodder:
+.TP
+.B gpodder-backup \-\-create bug123.gpo.tar.gz \-\-fake-downloads
+Backup your current data to file \fIbug123.gpo.tar.gz\fR, but don't store
+download data (create zero-size dummy files instead). You can then attach
+\fIbug123.gpo.tar.gz\fR to the bug report.
+.TP
+If you are instructed to try gPodder from a "clean state", you can use the following command (be sure to backup your data before!):
+.TP
+.B gpodder-backup \-\-purge
+Remove all gPodder data, so you can start from a clean state
+.SH EXAMPLES
+.TP
+.B gpodder-backup \-\-create today.gpo.tar.gz
+Backup your current data to file \fItoday.gpo.tar.gz\fR
+.TP
+.B gpodder-backup \-\-extract mybackup.gpo.tar.gz
+Restore (without purging) the contents of \fImybackup.gpo.tar.gz\fR
+.TP
+.B gpodder-backup \-\-extract default.gpo.tar.gz \-\-purge
+Remove current data, then restore the contents of \fIdefault.gpo.tar.gz\fR
+.TP
+.B gpodder-backup \-\-purge
+Remove all gPodder data, so you can start from a clean state
+.SH AUTHOR
+gpodder-backup was written by Thomas Perl (thp@gpodder.org)
