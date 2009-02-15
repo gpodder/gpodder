@@ -121,12 +121,11 @@ def extract_archive(backup_filename, download_destination=None):
     manifest.readfp(StringIO(manifest_data))
     if download_destination is None:
         download_destination = os.path.expanduser(manifest.get(MANIFEST_NAME, 'download_dir'))
-    else:
-        # update the "download_dir" setting in gpodder.conf,
-        # because we are extracting downloads somewhere else
-        gpocfg = gPodderConfig()
-        gpocfg.set(gPodderConfig.SECTION, 'download_dir', os.path.abspath(download_destination))
-        gpocfg.store_gpodder_config()
+    # update the "download_dir" setting in gpodder.conf,
+    # because we are extracting downloads somewhere else
+    gpocfg = gPodderConfig()
+    gpocfg.set(gPodderConfig.SECTION, 'download_dir', os.path.abspath(download_destination))
+    gpocfg.store_gpodder_config()
 
     print 'Extracting downloads to %s' % download_destination
     if not os.path.exists(download_destination):
