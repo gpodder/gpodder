@@ -226,6 +226,8 @@ class Device(services.ObservableService):
 
             return str(local_filename)
 
+        return filename
+
     def remove_tracks(self, tracklist=[]):
         for id, track in enumerate(tracklist):
             if self.cancelled:
