@@ -447,8 +447,7 @@ class podcastChannel(object):
         current_try = util.sanitize_filename(foldername, cls.MAX_FOLDERNAME_LENGTH)
         next_try_id = 2
 
-        while db.channel_foldername_exists(current_try) and \
-                not os.path.exists(os.path.join(gl.downloaddir, current_try)):
+        while db.channel_foldername_exists(current_try):
             current_try = '%s (%d)' % (foldername, next_try_id)
             next_try_id += 1
 
