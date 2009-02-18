@@ -206,7 +206,10 @@ class Device(services.ObservableService):
         return True
 
     def convert_track(self, episode):
-        filename = str(episode.local_filename(create=False))
+        filename = episode.local_filename(create=False)
+        # The file has to exist, if we ought to transfer it, and therefore,
+        # local_filename(create=False) must never return None as filename
+        assert filename is not None
         (fn, extension) = os.path.splitext(filename)
         if libconverter.converters.has_converter(extension):
             if gl.config.disable_pre_sync_conversion:
@@ -372,7 +375,10 @@ class iPodDevice(Device):
                 self.set_podcast_flags(track)
                 return True
 
-        original_filename = str(episode.local_filename(create=False))
+        original_filename = episode.local_filename(create=False)
+        # The file has to exist, if we ought to transfer it, and therefore,
+        # local_filename(create=False) must never return None as filename
+        assert original_filename is not None
         local_filename = original_filename
 
         if util.calculate_size(original_filename) > self.get_free_space():
