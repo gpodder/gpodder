@@ -213,7 +213,12 @@ class DownloadThread(threading.Thread):
                 # The current download has a negative value, so assume
                 # the total size given from the feed is correct
                 totalSize = self.total_size
-            self.progress = 100.0*float(count*blockSize)/float(totalSize)
+
+            try:
+                self.progress = 100.0*float(count*blockSize)/float(totalSize)
+            except ZeroDivisionError, zde:
+                log('Totalsize unknown, cannot determine progress.', sender=self)
+                self.progress = 100.0
         else:
             self.progress = 100.0
 
