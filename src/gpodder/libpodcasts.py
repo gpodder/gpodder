@@ -459,7 +459,7 @@ class podcastChannel(object):
     def get_save_dir(self):
         urldigest = hashlib.md5(self.url).hexdigest()
         sanitizedurl = util.sanitize_filename(self.url, self.MAX_FOLDERNAME_LENGTH)
-        if self.foldername is None or (self.auto_foldername and (self.foldername == urldigest or self.foldername == sanitizedurl)):
+        if self.foldername is None or (self.auto_foldername and (self.foldername == urldigest or self.foldername.startswith(sanitizedurl))):
             # we must change the folder name, because it has not been set manually
             fn_template = util.sanitize_filename(self.title, self.MAX_FOLDERNAME_LENGTH)
 
