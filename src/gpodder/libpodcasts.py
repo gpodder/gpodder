@@ -126,8 +126,11 @@ class podcastChannel(object):
         if c.status == 401:
             return ( False, 401 )
 
-        if self.url != c.url:
-            log('Updating channel URL from %s to %s', self.url, c.url, sender=self)
+        if self.url != c.url and c.status != 302:
+            # The URL has changed, and the status code is not a temporary
+            # redirect, so update the channel's URL accordingly for future use
+            log('Updating channel URL from %s to %s',
+                    self.url, c.url, sender=self)
             self.url = c.url
 
         # update the cover if it's not there
