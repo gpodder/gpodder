@@ -472,7 +472,7 @@ def file_type_by_extension( extension):
     None if the file type cannot be determined.
     """
     types = {
-            'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a' ],
+            'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a', 'm4b' ],
             'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx', 'flv', 'wmv', '3gp' ],
     }
 
