@@ -2281,6 +2281,7 @@ class gPodder(GladeWidget):
             message = _('%s remaining on device.\nPlease free up %s and try again.' % (
                 util.format_filesize( free_space ), util.format_filesize( total_size - free_space )))
             self.notification(message, title)
+            device.close()
         else:
             # start syncing!
             gPodderSync(device=device, gPodder=self)
