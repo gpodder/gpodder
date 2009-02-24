@@ -625,4 +625,14 @@ class Storage(object):
 
         self.lock.release()
 
+    def delete_empty_episodes(self, channel_id):
+        """
+        Deletes episodes which haven't been downloaded.
+        Currently used when a channel URL is changed.
+        """
+        cur = self.cursor(lock=True)
+        log('Deleting old episodes from channel #%d' % channel_id)
+        cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, self.STATE_DOWNLOADED, ))
+        self.lock.release()
+
 db = Storage()

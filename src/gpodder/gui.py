@@ -2544,21 +2544,24 @@ class gPodder(GladeWidget, dbus.service.Object):
 
         gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), callback_change_url=self.change_channel_url)
 
-    def change_channel_url(self, old_url, new_url):
-        for channel in self.channels:
-            if channel.url == old_url:
-                log('=> change channel url from %s to %s', old_url, new_url)
-                channel.url = new_url
-                # remove etag and last_modified to force an update
-                channel.etag = ''
-                channel.last_modified = ''
-                (success, error) = channel.update()
-                if not success:
-                    self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
-                    channel.url = old_url
-                break
+    def change_channel_url(self, channel, new_url):
+        old_url = channel.url
+        log('=> change channel url from %s to %s', old_url, new_url)
+        channel.url = new_url
+        # remove etag and last_modified to force an update
+        channel.etag = ''
+        channel.last_modified = ''
+        (success, error) = channel.update()
+        if not success:
+            self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
+            channel.url = old_url
 
+        # Remove old episodes which haven't been downloaded.
+        db.delete_empty_episodes(channel.id);
+
+        # Update the OPML file.
         save_channels(self.channels)
+
         # update feed cache and select the podcast with the new URL afterwards
         self.update_feed_cache(force_update=False, select_url_afterwards=new_url)
 
@@ -3116,7 +3119,7 @@ class gPodderChannel(GladeWidget):
             if self.show_confirmation(_('Do you really want to move this podcast to <b>%s</b>?') % (saxutils.escape(entered_url),), _('Really change URL?')):
                 if hasattr(self, 'callback_change_url'):
                     self.gPodderChannel.hide_all()
-                    self.callback_change_url(channel_url, entered_url)
+                    self.callback_change_url(self.channel, entered_url)
 
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
