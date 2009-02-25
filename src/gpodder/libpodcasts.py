@@ -725,7 +725,7 @@ class podcastItem(object):
                 log('Filename collision: %s - trying to resolve...', current_try)
                 url = util.get_real_url(url)
                 (episode_filename, extension_UNUSED) = util.filename_from_url(url)
-                current_try = util.sanitize_filename(episode_filename, cls.MAX_FILENAME_LENGTH)
+                current_try = util.sanitize_filename(episode_filename, cls.MAX_FILENAME_LENGTH)+extension
                 if not db.episode_filename_exists(current_try):
                     log('Filename %s is available - collision resolved.', current_try)
                     return current_try
@@ -822,6 +822,10 @@ class podcastItem(object):
                 if os.path.exists(old_file_name) and not os.path.exists(new_file_name):
                     log('Renaming %s => %s', old_file_name, new_file_name, sender=self)
                     os.rename(old_file_name, new_file_name)
+                elif force_update and not os.path.exists(old_file_name):
+                    # When we call force_update, the file might not yet exist when we
+                    # call it from the downloading code before saving the file
+                    log('Choosing new filename: %s', new_file_name, sender=self)
                 else:
                     log('Warning: %s exists or %s does not.', new_file_name, old_file_name, sender=self)
             log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)

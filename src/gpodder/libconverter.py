@@ -72,6 +72,9 @@ class ConverterCollection( types.DictType):
     def has_converter(self, extension):
         if util.find_command('lame') is not None:
             extension = extension.lower()
+            if len(extension) == 0:
+                log('Cannot find a converter without extension.', sender=self)
+                return False
             if extension[0] == '.':
                 extension = extension[1:]
             return self.has_key(extension)

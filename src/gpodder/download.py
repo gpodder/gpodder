@@ -316,11 +316,18 @@ class DownloadThread(threading.Thread):
          
                 (unused, headers) = self.downloader.retrieve_resume(resolver.get_real_download_url(self.url), self.tempname, reporthook=self.status_updated)
 
-                if 'content-type' in headers and headers['content-type'] != self.episode.mimetype:
-                    log('Correcting mime type: %s => %s', self.episode.mimetype, headers['content-type'])
-                    self.episode.mimetype = headers['content-type']
-                    # File names are constructed with regard to the mime type.
-                    self.filename = self.episode.local_filename(create=True, force_update=True)
+                new_mimetype = headers.get('content-type', self.episode.mimetype)
+                old_mimetype = self.episode.mimetype
+                if new_mimetype != old_mimetype:
+                    log('Correcting mime type: %s => %s', old_mimetype, new_mimetype, sender=self)
+                    old_extension = self.episode.extension()
+                    self.episode.mimetype = new_mimetype
+                    new_extension = self.episode.extension()
+
+                    # If the desired filename extension changed due to the new mimetype,
+                    # we force an update of the local filename to fix the extension
+                    if old_extension != new_extension:
+                        self.filename = self.episode.local_filename(create=True, force_update=True)
 
                 shutil.move( self.tempname, self.filename)
                 # Get the _real_ filesize once we actually have the file
