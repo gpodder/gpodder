@@ -42,6 +42,9 @@ import os.path
 import locale
 import gettext
 
+import dbus
+import dbus.glib
+
 from optparse import OptionParser
 
 try:
@@ -125,6 +128,15 @@ def main( argv = sys.argv):
         from gpodder.liblogger import enable_verbose
         enable_verbose()
 
+    # Try to find an already-running instance of gPodder
+    session_bus = dbus.SessionBus()
+    try:
+        remote_object = session_bus.get_object(gpodder.dbus_bus_name, gpodder.dbus_gui_object_path)
+        from gpodder.liblogger import log
+        log('Found gPodder GUI instance already running')
+    except dbus.exceptions.DBusException:
+        remote_object = None
+
     from gpodder import console
     if options.list:
         console.list_channels()
@@ -140,8 +152,11 @@ def main( argv = sys.argv):
         console.del_channel( options.delete)
     elif options.stats:
         console.sync_stats()
+    elif remote_object is not None:
+        # An instance of GUI is already running
+        remote_object.show_gui_window(dbus_interface=gpodder.dbus_interface)
     else:
-        #default run gui
+        # gPodder is not yet running - create new instance
         from gpodder import gui
         from gpodder.SimpleGladeApp import bindtextdomain
         import gtk.glade
@@ -165,7 +180,6 @@ def main( argv = sys.argv):
         bindtextdomain( domain, locale_dir)
         gui.app_version = __version__
         gui.main()
-
 
 if __name__ == "__main__":
     sys.exit( main())

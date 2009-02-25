@@ -30,6 +30,10 @@ import time
 import urllib
 import urllib2
 import datetime
+import dbus
+import dbus.service
+import dbus.mainloop
+import dbus.glib
 
 from xml.sax import saxutils
 
@@ -340,9 +344,13 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         return (result, folder)
 
 
-class gPodder(GladeWidget):
+class gPodder(GladeWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'advanced1', 'menuChannels', 'menuHelp']
     ENTER_URL_TEXT = _('Enter podcast URL...')
+
+    def __init__(self, bus_name):
+        dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
+        GladeWidget.__init__(self)
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
@@ -3015,6 +3023,10 @@ class gPodder(GladeWidget):
         else:
             self.label2.set_text(_('Podcasts'))
 
+    @dbus.service.method(gpodder.dbus_interface)
+    def show_gui_window(self):
+        self.gPodder.present()
+
 class gPodderChannel(GladeWidget):
     finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description', 'label19', 'label37', 'label31']
     
@@ -4559,7 +4571,10 @@ def main():
     gobject.threads_init()
     gtk.window_set_default_icon_name( 'gpodder')
 
-    gPodder().run()
+    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+    bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=session_bus)
+    gp = gPodder(bus_name)
+    gp.run()
 
 
 

@@ -26,3 +26,8 @@ user_agent = 'gPodder'
 # Are we running in GUI, Maemo or console mode?
 interface = CLI
 
+# D-Bus specific interface names
+dbus_bus_name = 'org.godder'
+dbus_gui_object_path = '/gui'
+dbus_interface = 'org.gpodder.interface'
+
