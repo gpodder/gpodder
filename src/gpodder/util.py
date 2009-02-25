@@ -256,7 +256,7 @@ def file_age_to_string(days):
     ''
     >>> file_age_to_string(1)
     'one day ago'
-    >>> file_age_to_String(2)
+    >>> file_age_to_string(2)
     '2 days ago'
     """
     if days == 1:
@@ -426,6 +426,40 @@ def extension_from_mimetype(mimetype):
     Simply guesses what the file extension should be from the mimetype
     """
     return mimetypes.guess_extension(mimetype) or ''
+
+
+def extension_correct_for_mimetype(extension, mimetype):
+    """
+    Check if the given filename extension (e.g. ".ogg") is a possible
+    extension for a given mimetype (e.g. "application/ogg") and return
+    a boolean value (True if it's possible, False if not). Also do
+
+    >>> extension_correct_for_mimetype('.ogg', 'application/ogg')
+    True
+    >>> extension_correct_for_mimetype('.ogv', 'video/ogg')
+    True
+    >>> extension_correct_for_mimetype('.ogg', 'audio/mpeg')
+    False
+    >>> extension_correct_for_mimetype('mp3', 'audio/mpeg')
+    Traceback (most recent call last):
+      ...
+    ValueError: "mp3" is not an extension (missing .)
+    >>> extension_correct_for_mimetype('.mp3', 'audio mpeg')
+    Traceback (most recent call last):
+      ...
+    ValueError: "audio mpeg" is not a mimetype (missing /)
+    """
+    if not '/' in mimetype:
+        raise ValueError('"%s" is not a mimetype (missing /)' % mimetype)
+    if not extension.startswith('.'):
+        raise ValueError('"%s" is not an extension (missing .)' % extension)
+
+    # Create a "default" extension from the mimetype, e.g. "application/ogg"
+    # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
+    default = ['.'+mimetype.split('/')[-1]]
+
+    return extension in default+mimetypes.guess_all_extensions(mimetype)
+
 
 def filename_from_url(url):
     """
@@ -843,7 +877,7 @@ def format_seconds_to_hour_min_sec(seconds):
 
     >>> format_seconds_to_hour_min_sec(3834)
     '1 hour, 3 minutes and 54 seconds'
-    >>> format_seconds_to_hour_min_sec(2600)
+    >>> format_seconds_to_hour_min_sec(3600)
     '1 hour'
     >>> format_seconds_to_hour_min_sec(62)
     '1 minute and 2 seconds'

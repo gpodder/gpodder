@@ -49,6 +49,7 @@ all: help
 
 help:
 	@echo 'make test            run gpodder in local directory'
+	@echo 'make unittest        run doctests + unittests'
 	@echo 'make mtest           run gpodder (for maemo scratchbox)'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
@@ -68,6 +69,9 @@ test:
 	@# set xterm title to know what this window does ;)
 	@echo -ne '\033]0;gPodder console (make test)\007'
 	$(BINFILE) --local --verbose
+
+unittest:
+	PYTHONPATH=src/ python -m gpodder.unittests
 
 mtest:
 	@# in maemo scratchbox, we need this for osso/hildon
@@ -143,7 +147,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all test release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
+.PHONY: all test unittest release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
 
 ##########################################################################
 
