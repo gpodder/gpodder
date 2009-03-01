@@ -431,7 +431,7 @@ class iPodDevice(Device):
 
         gpod.itdb_track_add(self.itdb, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
-        gpod.itdb_cp_track_to_ipod( track, local_filename, None)
+        gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
 
         # If the file has been converted, delete the temporary file here
         if local_filename != original_filename:
