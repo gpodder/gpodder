@@ -126,6 +126,11 @@ class podcastChannel(object):
         if c.status == 401:
             return ( False, 401 )
 
+        if c.status == 302 and hasattr(c, 'headers') and c.headers.get('content-type').startswith('text/html'):
+            log('Warning: Looks like a Wifi authentication page: %s', c.url, sender=self)
+            log('Acting as if the feed was not updated (FIXME!)', sender=self)
+            return (True, None)
+
         if self.url != c.url and c.status != 302:
             # The URL has changed, and the status code is not a temporary
             # redirect, so update the channel's URL accordingly for future use
