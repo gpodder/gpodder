@@ -83,7 +83,7 @@ deb:
 release: distclean
 	python setup.py sdist
 
-releasetest:
+releasetest: unittest
 	if grep -q '^__version__.*=.*+svn' $(BINFILE); then echo "Version is still '+svn'."; exit 1; fi
 	desktop-file-validate data/gpodder.desktop
 
