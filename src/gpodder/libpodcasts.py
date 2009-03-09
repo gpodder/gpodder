@@ -605,6 +605,7 @@ class podcastItem(object):
             # This item in the feed has no downloadable enclosure
             return None
 
+        metainfo = None
         if not episode.pubDate:
             metainfo = util.get_episode_info_from_url(episode.url)
             if 'pubdate' in metainfo:
@@ -617,7 +618,15 @@ class podcastItem(object):
             try:
                 episode.length = int(enclosure.length)
             except:
-                episode.length = -1
+                if enclosure.length == "":
+                    if metainfo == None:
+                        metainfo = util.get_episode_info_from_url(episode.url)
+                    if 'length' in metainfo:
+                        try:
+                            episode.length = int(float(metainfo['length']))
+                        except:
+                            log('Cannot convert lenght "%s" in from_feedparser_entry.', str(metainfo['length']), traceback=True)
+                            episode.length = -1
 
         if hasattr( enclosure, 'type'):
             episode.mimetype = enclosure.type
