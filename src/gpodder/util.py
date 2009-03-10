@@ -63,7 +63,11 @@ import xml.dom.minidom
 
 
 # Try to detect OS encoding (by Leonid Ponomarev)
-encoding = 'iso-8859-15'
+if gpodder.interface == gpodder.MAEMO:
+    encoding = 'utf8'
+else:
+    encoding = 'iso-8859-15'
+
 if 'LANG' in os.environ and '.' in os.environ['LANG']:
     lang = os.environ['LANG']
     (language, encoding) = lang.rsplit('.', 1)
