@@ -28,7 +28,6 @@ import datetime
 import gpodder
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
-from gpodder.libpodcasts import podcastItem
 
 try:
     import pynotify
@@ -386,7 +385,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         If the list is too long, it is cut and the string "x others episodes" is append
         
         episode_list
-            can be either a list containing podcastItem objects 
+            can be either a list containing episode objects
             or a list of strings of episode's title.
 
         return
@@ -400,10 +399,10 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if caption is not None:
             result.append('\n%s' % caption)
         for episode in episode_list[:min(len(episode_list),MAX_EPISODES)]:
-            if isinstance(episode, podcastItem): 
-                episode_title = episode.title
-            else:
+            if type(episode) in (str, unicode):
                 episode_title = episode
+            else:
+                episode_title = episode.title
             if len(episode_title) < MAX_TITLE_LENGTH:
                 title = episode_title
             else:

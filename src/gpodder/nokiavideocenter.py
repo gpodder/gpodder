@@ -44,7 +44,7 @@ import os.path
 
 class VCChannel(object):
     """
-    Fake podcastChannel-like object to allow
+    Fake podcast channel-like object to allow
     opml's Exporter class to write an OPML file.
     """
     def __init__(self, title, description, url):

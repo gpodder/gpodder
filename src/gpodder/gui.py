@@ -63,9 +63,8 @@ except Exception, exc:
     log('Warning: This probably means your PyGTK installation is too old!')
     have_trayicon = False
 
-from libpodcasts import podcastChannel
+from libpodcasts import PodcastChannel
 from libpodcasts import LocalDBReader
-from libpodcasts import podcastItem
 from libpodcasts import channels_to_model
 from libpodcasts import update_channel_model_by_iter
 from libpodcasts import load_channels
@@ -1405,7 +1404,7 @@ class gPodder(GladeWidget, dbus.service.Object):
             for path in paths:
                 url = model.get_value( model.get_iter( path), 0)
 
-                episode = podcastItem.load(url, self.active_channel)
+                episode = self.active_channel.find_episode(url)
 
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
@@ -1677,11 +1676,11 @@ class gPodder(GladeWidget, dbus.service.Object):
         log( 'Adding new channel: %s', url)
         channel = error = None
         try:
-            channel = podcastChannel.load(url=url, create=True, authentication_tokens=authentication_tokens)
+            channel = PodcastChannel.load(url=url, create=True, authentication_tokens=authentication_tokens)
         except HTTPAuthError, e:
             error = e
         except Exception, e:
-            log('Error in podcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
+            log('Error in PodcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
 
         util.idle_add( callback, channel, url, error, *callback_args )
 
@@ -3658,6 +3657,9 @@ class gPodderEpisode(GladeWidget):
 
     def on_download_status_changed(self, episode_urls, channel_urls):
         if self.gPodderEpisode.get_property('visible'):
+            # Reload the episode from the database, so a newly-set local_filename
+            # as a result of a download gets updated in the episode object
+            self.episode.reload_from_db()
             self.hide_show_widgets()
         else:
             log('download status changed, but not visible', sender=self)

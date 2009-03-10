@@ -78,9 +78,35 @@ else:
 
 class HTTPAuthError(Exception): pass
 
-class podcastChannel(object):
+
+class PodcastModelObject(object):
+    """
+    A generic base class for our podcast model providing common helper
+    and utility functions.
+    """
+
+    @classmethod
+    def create_from_dict(cls, d, *args):
+        """
+        Create a new object, passing "args" to the constructor
+        and then updating the object with the values from "d".
+        """
+        o = cls(*args)
+        o.update_from_dict(d)
+        return o
+
+    def update_from_dict(self, d):
+        """
+        Updates the attributes of this object with values from the
+        dictionary "d" by using the keys found in "d".
+        """
+        for k in d:
+            if hasattr(self, k):
+                setattr(self, k, d[k])
+
+
+class PodcastChannel(PodcastModelObject):
     """holds data for a complete channel"""
-    SETTINGS = ('sync_to_devices', 'device_playlist_name','override_title','username','password')
     MAX_FOLDERNAME_LENGTH = 150
     icon_cache = {}
 
@@ -91,11 +117,11 @@ class podcastChannel(object):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        tmp = db.load_channels(factory=lambda d: cls.create_from_dict(d), url=url)
+        tmp = db.load_channels(factory=cls.create_from_dict, url=url)
         if len(tmp):
             return tmp[0]
         elif create:
-            tmp = podcastChannel(url)
+            tmp = PodcastChannel(url)
             if authentication_tokens is not None:
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
@@ -109,13 +135,15 @@ class podcastChannel(object):
             db.force_last_new(tmp)
             return tmp
 
-    @staticmethod
-    def create_from_dict(d):
-        c = podcastChannel()
-        for key in d:
-            if hasattr(c, key):
-                setattr(c, key, d[key])
-        return c
+    def episode_factory(self, d):
+        """
+        This function takes a dictionary containing key-value pairs for
+        episodes and returns a new PodcastEpisode object that is connected
+        to this PodcastChannel object.
+
+        Returns: A new PodcastEpisode object
+        """
+        return PodcastEpisode.create_from_dict(d, self)
 
     def update(self):
         (updated, c) = self.fc.fetch(self.url, self)
@@ -201,7 +229,7 @@ class podcastChannel(object):
             episode = None
 
             try:
-                episode = podcastItem.from_feedparser_entry(entry, self)
+                episode = PodcastEpisode.from_feedparser_entry(entry, self)
             except Exception, e:
                 log('Cannot instantiate episode "%s": %s. Skipping.', entry.get('id', '(no id available)'), e, sender=self, traceback=True)
 
@@ -325,13 +353,10 @@ class podcastChannel(object):
             self.override_title = ''
 
     def get_downloaded_episodes(self):
-        return db.load_episodes(self, factory=lambda c: podcastItem.create_from_dict(c, self), state=db.STATE_DOWNLOADED)
-    
-    def save_settings(self):
-        db.save_channel(self)
+        return db.load_episodes(self, factory=self.episode_factory, state=db.STATE_DOWNLOADED)
     
     def get_new_episodes( self):
-        return [episode for episode in db.load_episodes(self, factory=lambda x: podcastItem.create_from_dict(x, self)) if episode.state == db.STATE_NORMAL and not episode.is_played and not services.download_status_manager.is_download_in_progress(episode.url)]
+        return [episode for episode in db.load_episodes(self, factory=self.episode_factory) if episode.state == db.STATE_NORMAL and not episode.is_played and not services.download_status_manager.is_download_in_progress(episode.url)]
 
     def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:
@@ -374,7 +399,7 @@ class podcastChannel(object):
             self.update_m3u_playlist()
 
     def get_all_episodes(self):
-        return db.load_episodes(self, factory = lambda d: podcastItem.create_from_dict(d, self))
+        return db.load_episodes(self, factory=self.episode_factory)
 
     def iter_set_downloading_columns( self, model, iter, episode=None):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE
@@ -382,7 +407,7 @@ class podcastChannel(object):
         
         if episode is None:
             url = model.get_value( iter, 0)
-            episode = db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
+            episode = db.load_episode(url, factory=self.episode_factory)
         else:
             url = episode.url
 
@@ -448,7 +473,7 @@ class podcastChannel(object):
         return (new_model, urls)
     
     def find_episode( self, url):
-        return db.load_episode(url, factory=lambda x: podcastItem.create_from_dict(x, self))
+        return db.load_episode(url, factory=self.episode_factory)
 
     @classmethod
     def find_unique_folder_name(cls, foldername):
@@ -533,7 +558,7 @@ class podcastChannel(object):
     cover_file = property(fget=get_cover_file)
 
     def delete_episode_by_url(self, url):
-        episode = db.load_episode(url, lambda c: podcastItem.create_from_dict(c, self))
+        episode = db.load_episode(url, factory=self.episode_factory)
 
         if episode is not None:
             filename = episode.local_filename(create=False)
@@ -546,23 +571,27 @@ class podcastChannel(object):
         self.update_m3u_playlist()
 
 
-class podcastItem(object):
+class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
 
-    @staticmethod
-    def load(url, channel):
-        e = podcastItem(channel)
-        d = db.load_episode(url)
+    def reload_from_db(self):
+        """
+        Re-reads all episode details for this object from the
+        database and updates this object accordingly. Can be
+        used to refresh existing objects when the database has
+        been updated (e.g. the filename has been set after a
+        download where it was not set before the download)
+        """
+        d = db.load_episode(self.url)
         if d is not None:
-            for k, v in d.iteritems():
-                if hasattr(e, k):
-                    setattr(e, k, v)
-        return e
+            self.update_from_dict(d)
+
+        return self
 
     @staticmethod
     def from_feedparser_entry( entry, channel):
-        episode = podcastItem( channel)
+        episode = PodcastEpisode( channel)
 
         episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
         episode.link = entry.get( 'link', '')
@@ -672,14 +701,6 @@ class podcastItem(object):
         if save:
             self.save()
             db.commit()
-
-    @staticmethod
-    def create_from_dict(d, channel):
-        e = podcastItem(channel)
-        for key in d:
-            if hasattr(e, key):
-                setattr(e, key, d[key])
-        return e
 
     @property
     def title_and_description(self):
@@ -1010,7 +1031,7 @@ def channels_to_model(channels, color_dict, cover_cache=None, max_width=0, max_h
 
 
 def load_channels():
-    return db.load_channels(lambda d: podcastChannel.create_from_dict(d))
+    return db.load_channels(factory=PodcastChannel.create_from_dict)
 
 def update_channels(callback_proc=None, callback_error=None, is_cancelled_cb=None):
     log('Updating channels....')
@@ -1054,7 +1075,7 @@ class LocalDBReader( object):
         return self.get_text( element.getElementsByTagName( name)[0].childNodes)
     
     def get_episode_from_element( self, channel, element):
-        episode = podcastItem( channel)
+        episode = PodcastEpisode(channel)
         episode.title = self.get_text_by_first_node( element, 'title')
         episode.description = self.get_text_by_first_node( element, 'description')
         episode.url = self.get_text_by_first_node( element, 'url')
@@ -1109,7 +1130,7 @@ class LocalDBReader( object):
         
         channel_element = rss.getElementsByTagName('channel')[0]
 
-        channel = podcastChannel( url = self.url)
+        channel = PodcastChannel(url=self.url)
         channel.title = self.get_text_by_first_node( channel_element, 'title')
         channel.description = self.get_text_by_first_node( channel_element, 'description')
         channel.link = self.get_text_by_first_node( channel_element, 'link')

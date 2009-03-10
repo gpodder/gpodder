@@ -434,9 +434,11 @@ class Storage(object):
 
     def load_episode(self, url, factory=None):
         self.log("load_episode(%s)", url)
-        list = self.__read_episodes(factory = factory, where = " WHERE url = ?", params = (url, ))
-        if len(list):
+        list = self.__read_episodes(factory=factory, where=' WHERE url=? LIMIT ?', params=(url, 1))
+        if list:
             return list[0]
+        else:
+            return None
 
     def save_episode(self, e, bulk=False):
         if not e.guid:

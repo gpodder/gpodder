@@ -27,7 +27,7 @@ from gpodder.dbsqlite import db
 from libpodcasts import load_channels
 from libpodcasts import update_channels
 from libpodcasts import save_channels
-from libpodcasts import podcastChannel
+from libpodcasts import PodcastChannel
 
 import time
 
@@ -52,7 +52,7 @@ def add_channel( url):
         return
 
     try:
-        channel = podcastChannel.load(url, create=True)
+        channel = PodcastChannel.load(url, create=True)
     except:
         msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return
