@@ -121,6 +121,7 @@ class Storage(object):
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
+            self._db.text_factory = str
             self._db.create_collation("UNICODE", self.db_sort_cmp)
             self.log('Connected')
         return self._db
