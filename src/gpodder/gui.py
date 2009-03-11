@@ -3743,6 +3743,7 @@ class gPodderSync(GladeWidget):
 
 class gPodderOpmlLister(GladeWidget):
     finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
+    (MODE_DOWNLOAD, MODE_SEARCH) = range(2)
     
     def new(self):
         # initiate channels list
@@ -3761,6 +3762,8 @@ class gPodderOpmlLister(GladeWidget):
         self.setup_treeview(self.treeviewChannelChooser)
         self.setup_treeview(self.treeviewTopPodcastsChooser)
         self.setup_treeview(self.treeviewYouTubeChooser)
+
+        self.current_mode = self.MODE_DOWNLOAD
 
         self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
 
@@ -3789,6 +3792,23 @@ class gPodderOpmlLister(GladeWidget):
             self.channels.remove( url)
 
         self.btnOK.set_sensitive( bool(len(self.get_selected_channels())))
+
+    def on_entryURL_changed(self, editable):
+        old_mode = self.current_mode
+        self.current_mode = not editable.get_text().lower().startswith('http://')
+        if self.current_mode == old_mode:
+            return
+
+        if self.current_mode == self.MODE_SEARCH:
+            self.btnDownloadOpml.set_property('image', None)
+            self.btnDownloadOpml.set_label(gtk.STOCK_FIND)
+            self.btnDownloadOpml.set_use_stock(True)
+            self.labelOpmlUrl.set_text(_('Search podcast.de:'))
+        else:
+            self.btnDownloadOpml.set_label(_('Download'))
+            self.btnDownloadOpml.set_image(gtk.image_new_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_BUTTON))
+            self.btnDownloadOpml.set_use_stock(False)
+            self.labelOpmlUrl.set_text(_('OPML:'))
 
     def get_selected_channels(self, tab=None):
         channels = []
@@ -3831,7 +3851,11 @@ class gPodderOpmlLister(GladeWidget):
             if len(model) == 0:
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
-            model = opml.Importer(self.entryURL.get_text()).get_model()
+            url = self.entryURL.get_text()
+            if not url.lower().startswith('http://'):
+                log('Using podcast.de search')
+                url = 'http://api.podcast.de/opml/podcasts/suche/%s' % (urllib.quote(url),)
+            model = opml.Importer(url).get_model()
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
 

@@ -5174,7 +5174,7 @@ MTP-based player</property>
 		  <property name="spacing">5</property>
 
 		  <child>
-		    <widget class="GtkLabel" id="label92">
+		    <widget class="GtkLabel" id="labelOpmlUrl">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">OPML:</property>
 		      <property name="use_underline">False</property>
@@ -5209,6 +5209,8 @@ MTP-based player</property>
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char">●</property>
 		      <property name="activates_default">False</property>
+                      <signal name="changed" handler="on_entryURL_changed"/>
+                      <signal name="activate" handler="on_btnDownloadOpml_clicked"/>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -5343,7 +5345,7 @@ MTP-based player</property>
 	  <child>
 	    <widget class="GtkLabel" id="label138">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_OPML</property>
+              <property name="label" translatable="yes">_OPML/Search</property>
 	      <property name="use_underline">True</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
