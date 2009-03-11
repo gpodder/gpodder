@@ -76,6 +76,7 @@ gPodderSettings = {
     'ipod_purge_old_episodes': (bool, False),
     'mp3_player_delete_played': (bool, False),
     'disable_pre_sync_conversion': (bool, False),
+    'get_length_from_http_header_if_empty': (bool, False),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False),
