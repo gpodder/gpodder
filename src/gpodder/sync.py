@@ -868,7 +868,7 @@ class MTPDevice(Device):
 
     def add_track(self, episode):
         self.notify('status', _('Adding %s...') % episode.title)
-        filename = self.convert_track(episode)
+        filename = str(self.convert_track(episode))
         log("sending " + filename + " (" + episode.title + ").", sender=self)
 
         try:
