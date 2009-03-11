@@ -646,11 +646,14 @@ class PodcastEpisode(PodcastModelObject):
         if hasattr(enclosure, 'length'):
             try:
                 episode.length = int(enclosure.length)
-            except:
+                if episode.length == 0:
+                    raise ValueError('Zero-length is not acceptable')
+            except ValueError, ve:
+                log('Invalid episode length: %s (%s)', enclosure.length, ve.message)
                 episode.length = -1
                 # If the configuration option is set, retrieve the length via a HTTP HEAD request
                 if gl.config.get_length_from_http_header_if_empty:
-                    if enclosure.length == "":
+                    if enclosure.length == '' or episode.length == 0:
                         if metainfo is None:
                             metainfo = util.get_episode_info_from_url(episode.url)
                         if 'length' in metainfo:
