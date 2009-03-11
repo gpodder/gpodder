@@ -647,15 +647,17 @@ class PodcastEpisode(PodcastModelObject):
             try:
                 episode.length = int(enclosure.length)
             except:
-                if enclosure.length == "":
-                    if metainfo == None:
-                        metainfo = util.get_episode_info_from_url(episode.url)
-                    if 'length' in metainfo:
-                        try:
-                            episode.length = int(float(metainfo['length']))
-                        except:
-                            log('Cannot convert lenght "%s" in from_feedparser_entry.', str(metainfo['length']), traceback=True)
-                            episode.length = -1
+                episode.length = -1
+                # If the configuration option is set, retrieve the length via a HTTP HEAD request
+                if gl.config.get_length_from_http_header_if_empty:
+                    if enclosure.length == "":
+                        if metainfo is None:
+                            metainfo = util.get_episode_info_from_url(episode.url)
+                        if 'length' in metainfo:
+                            try:
+                                episode.length = int(float(metainfo['length']))
+                            except:
+                                log('Cannot convert lenght "%s" in from_feedparser_entry.', str(metainfo['length']), traceback=True)
 
         if hasattr( enclosure, 'type'):
             episode.mimetype = enclosure.type

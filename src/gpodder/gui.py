@@ -102,7 +102,7 @@ app_authors = [
     'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
     'Jürgen Schinker', 'Justin Forest',
-    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Marcos Hernández', 'Mark Alford', 'Markus Golser', 'Mehmet Nur Olcay', 'Michael Salim',
+    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Marco Antonio Villegas Vega', 'Marcos Hernández', 'Mark Alford', 'Markus Golser', 'Mehmet Nur Olcay', 'Michael Salim',
     'Mika Leppinen', 'Mike Coulson', 'Mikolaj Laczynski', 'Morten Juhl-Johansen Zölde-Fejér', 'Mykola Nikishov', 'narf',
     'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
     'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
