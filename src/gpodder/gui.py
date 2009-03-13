@@ -523,6 +523,8 @@ class gPodder(GladeWidget, dbus.service.Object):
         namecolumn.add_attribute(iconcell, 'visible', 7)
         self.cell_channel_pill = iconcell
 
+        self.treeChannels.set_enable_search(True)
+        self.treeChannels.set_search_column(1)
         self.treeChannels.append_column(iconcolumn)
         self.treeChannels.append_column(namecolumn)
         self.treeChannels.set_headers_visible(False)
@@ -2734,9 +2736,9 @@ class gPodder(GladeWidget, dbus.service.Object):
             self.toolTransfer.set_sensitive( False)
             self.toolCancel.set_sensitive( services.download_status_manager.has_items())
 
-    def on_treeChannels_row_activated(self, widget, *args):
-        # double-click action of the podcast list
-        pass
+    def on_treeChannels_row_activated(self, widget, path, *args):
+        # double-click action of the podcast list or enter
+        self.treeChannels.set_cursor(path)
 
     def on_treeChannels_cursor_changed(self, widget, *args):
         ( model, iter ) = self.treeChannels.get_selection().get_selected()
