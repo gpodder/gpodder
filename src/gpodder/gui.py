@@ -3566,6 +3566,16 @@ class gPodderEpisode(GladeWidget):
                 setattr(self, 'have_gtkhtml2', False)
         else:
             setattr(self, 'have_gtkhtml2', False)
+        self.gPodderEpisode.connect('key-press-event', self.on_key_press)
+
+    def on_key_press(self, widget, event):
+        vsb = self.scrolled_window.get_vscrollbar()
+        vadj = vsb.get_adjustment()
+        step = vadj.step_increment
+        if event.keyval in (gtk.keysyms.J, gtk.keysyms.j):
+            vsb.set_value(vsb.get_value() + step)
+        elif event.keyval in (gtk.keysyms.K, gtk.keysyms.k):
+            vsb.set_value(vsb.get_value() - step)
 
     def show(self, episode, download_callback, play_callback):
         self.episode = episode
