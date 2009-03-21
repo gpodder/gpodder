@@ -31,7 +31,6 @@ from libpodcasts import PodcastChannel
 
 import time
 
-import popen2
 import urllib
 import sys
 
