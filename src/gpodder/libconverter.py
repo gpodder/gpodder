@@ -26,10 +26,10 @@
 
 
 import re
-import popen2
 import os
 import os.path
 import types
+import subprocess
 
 from gpodder import util
 from gpodder.liblogger import log
@@ -47,9 +47,9 @@ class FileConverter:
 
         command = '%s | %s' % ( input_command, output_command )
 
-        process = popen2.Popen4( command)
-        stdout = process.fromchild
-        s = stdout.read( 80)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+        stdout = process.stdout
+        s = stdout.read(80)
         while s:
             if callback:
                 for result in self.percentage_match.finditer(s):
@@ -57,7 +57,7 @@ class FileConverter:
                         callback(result.group(1).strip())
                     except:
                         log('Cannot call callback for status percentage.', sender=self)
-            s = stdout.read( 80)
+            s = stdout.read(80)
 
         return process.wait() == 0
 

@@ -26,7 +26,7 @@
 
 
 # for ogg/vorbis (vorbiscomment utility)
-import popen2
+import subprocess
 
 # for logging
 from liblogger import log
@@ -66,13 +66,13 @@ def update_metadata_on_file( filename, **metadata):
 def update_tag_ogg( filename, **metadata):
     data = '\n'.join( [ '%s=%s' % ( i.upper(), metadata[i] ) for i in metadata ] + [''])
 
-    p = popen2.Popen3('vorbiscomment -w "%s"' % filename)
+    p = subprocess.Popen(['vorbiscomment', '-w', filename], stdin=subprocess.PIPE)
 
-    writer = p.tochild
+    writer = p.stdin
     writer.write(data)
     writer.close()
 
-    result = p.wait() == 0
+    result = (p.wait() == 0)
 
     if not result:
         log('Error while running vorbiscomment. Is it installed?! (vorbis-tools)')
@@ -124,10 +124,22 @@ def get_tags_from_file(filename):
 
 
 def get_tags_ogg(filename):
+    """
+    Returns the tag of an ogg file as dictionary
+    with unicode values.
+
+    >>> t = get_tags_ogg('doc/tests/tags.ogg')
+    >>> sorted(t.keys())
+    ['album', 'artist', 'genre', 'title']
+    >>> t['artist']
+    u'gPodder Unittests'
+    >>> t['title']
+    u'My Testcase'
+    """
     global tags_keys
 
-    p = popen2.Popen3('vorbiscomment -l "%s"' % filename)
-    reader = p.fromchild
+    p = subprocess.Popen(['vorbiscomment', '--raw', '-l', filename], stdout=subprocess.PIPE)
+    reader = p.stdout
     lines = reader.readlines()
     reader.close()
     result = (p.wait() == 0)
@@ -138,8 +150,10 @@ def get_tags_ogg(filename):
         log('Error while running vorbiscomment. Is it installed?! (vorbis-tools)')
     else:
         for line in lines:
-            (key, value) = line.split('=', 1)
-            key = key.lower()
+            (key, value) = line.decode('utf-8', 'ignore').split(u'=', 1)
+            # Remove trailing newline
+            value = value.rstrip(u'\n')
+            key = key.lower().encode('utf-8', 'ignore')
             if key in tags:
                 tags[key] = value
 
@@ -149,6 +163,18 @@ tag_get_methods['ogg'] = get_tags_ogg
 
 
 def get_tags_mp3(filename):
+    """
+    Returns the tag of an mp3 file as dictionary
+    with unicode values.
+
+    >>> t = get_tags_mp3('doc/tests/tags.mp3')
+    >>> sorted(t.keys())
+    ['album', 'artist', 'genre', 'title']
+    >>> t['artist']
+    u'gPodder Unittests'
+    >>> t['title']
+    u'My Testcase'
+    """
     global tags_keys
 
     if not has_eyed3:

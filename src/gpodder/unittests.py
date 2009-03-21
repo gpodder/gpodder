@@ -28,7 +28,7 @@ import gettext
 
 # Which package and which modules in the package should be tested?
 package = 'gpodder'
-modules = ['util']
+modules = ['util', 'libtagupdate']
 
 suite = unittest.TestSuite()
 
