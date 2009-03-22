@@ -586,6 +586,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn(_("Episode"), namecell, markup=6)
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
         sizecell = gtk.CellRendererText()
@@ -621,6 +622,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         episodecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         episodecolumn = gtk.TreeViewColumn( _("Episode"), episodecell, text=0)
         episodecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        episodecolumn.set_resizable(True)
         episodecolumn.set_expand(True)
         
         speedcell = gtk.CellRendererText()
