@@ -3149,6 +3149,13 @@ class gPodderAddPodcastDialog(GladeWidget):
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcastDialog.destroy()
 
+    def on_btn_paste_clicked(self, widget):
+        clipboard = gtk.Clipboard()
+        clipboard.request_text(self.receive_clipboard_text)
+
+    def receive_clipboard_text(self, clipboard, text, data=None):
+        self.entry_url.set_text(text)
+
     def on_entry_url_changed(self, widget):
         self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
 
