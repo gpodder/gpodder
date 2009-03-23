@@ -643,9 +643,15 @@ class MP3PlayerDevice(Device):
             files = glob.glob(os.path.join(self.destination, '*'))
 
         for filename in files:
-            (title, extension) = os.path.splitext(os.path.basename(filename))
             length = util.calculate_size(filename)
-         
+
+            metadata = libtagupdate.get_tags_from_file(filename)
+            if 'title' in metadata and metadata['title']:
+                title = metadata['title']
+            else:
+                # fallback: use the basename of the file
+                (title, extension) = os.path.splitext(os.path.basename(filename))
+
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
             if gl.config.fssync_channel_subfolders:
