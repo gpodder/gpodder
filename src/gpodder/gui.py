@@ -1033,7 +1033,12 @@ class gPodder(GladeWidget, dbus.service.Object):
         """
         if pixbuf is not None:
             (COLUMN_URL, COLUMN_PIXBUF) = (0, 5)
-            for row in self.treeChannels.get_model():
+            model = self.treeChannels.get_model()
+            if model is None:
+                # Not yet ready (race condition) - simply ignore
+                return
+
+            for row in model:
                 if row[COLUMN_URL] == channel_url and row[COLUMN_PIXBUF] is None:
                     new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size, channel_url, self.cover_cache)
                     row[COLUMN_PIXBUF] = new_pixbuf or pixbuf
