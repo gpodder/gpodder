@@ -129,8 +129,8 @@ def main( argv = sys.argv):
         enable_verbose()
 
     # Try to find an already-running instance of gPodder
-    session_bus = dbus.SessionBus()
     try:
+        session_bus = dbus.SessionBus()
         remote_object = session_bus.get_object(gpodder.dbus_bus_name, gpodder.dbus_gui_object_path)
         from gpodder.liblogger import log
         log('Found gPodder GUI instance already running')
