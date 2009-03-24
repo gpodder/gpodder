@@ -27,6 +27,15 @@ import unittest
 import gettext
 import sys
 
+try:
+    import minimock
+except ImportError, e:
+    print >>sys.stderr, """
+    Error: Unit tests require the "minimock" module (python-minimock).
+    Please install it before running the unit tests.
+    """
+    sys.exit(2)
+
 # Which package and which modules in the package should be tested?
 package = 'gpodder'
 modules = ['util', 'libtagupdate']

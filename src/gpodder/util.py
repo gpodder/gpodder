@@ -1036,8 +1036,75 @@ def find_mount_point(directory):
     it. If not, remove the last part of the path and
     re-check if it's a mount point. If the directory
     resides on your root filesystem, "/" is returned.
+
+    >>> find_mount_point('/')
+    '/'
+
+    >>> find_mount_point(u'/something')
+    Traceback (most recent call last):
+      ...
+    ValueError: Convert unicode objects to str first.
+
+    >>> find_mount_point(None)
+    Traceback (most recent call last):
+      ...
+    ValueError: Directory names should be of type str.
+
+    >>> find_mount_point(42)
+    Traceback (most recent call last):
+      ...
+    ValueError: Directory names should be of type str.
+
+    >>> from minimock import mock
+    >>> mocked_mntpoints = ('/', '/home', '/media/usbdisk', '/media/cdrom')
+    >>> mock('os.path.ismount', returns_func=lambda x: x in mocked_mntpoints)
+    >>>
+    >>> # For mocking os.getcwd(), we simply use a lambda to avoid the
+    >>> # massive output of "Called os.getcwd()" lines in this doctest
+    >>> os.getcwd = lambda: '/home/thp'
+    >>>
+    >>> find_mount_point('.')
+    Called os.path.ismount('/home/thp')
+    Called os.path.ismount('/home')
+    '/home'
+    >>> find_mount_point('relativity')
+    Called os.path.ismount('/home/thp/relativity')
+    Called os.path.ismount('/home/thp')
+    Called os.path.ismount('/home')
+    '/home'
+    >>> find_mount_point('/media/usbdisk/')
+    Called os.path.ismount('/media/usbdisk')
+    '/media/usbdisk'
+    >>> find_mount_point('/home/thp/Desktop')
+    Called os.path.ismount('/home/thp/Desktop')
+    Called os.path.ismount('/home/thp')
+    Called os.path.ismount('/home')
+    '/home'
+    >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
+    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
+    Called os.path.ismount('/media/usbdisk/Podcasts')
+    Called os.path.ismount('/media/usbdisk')
+    '/media/usbdisk'
+    >>> find_mount_point('/home/')
+    Called os.path.ismount('/home')
+    '/home'
+    >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
+    Called os.path.ismount('/media/usbdisk/blubb')
+    Called os.path.ismount('/media/usbdisk')
+    '/media/usbdisk'
     """
-    while os.path.split(directory)[0] != '/':
+    if isinstance(directory, unicode):
+        # We do not accept unicode strings, because they could fail when
+        # trying to be converted to some native encoding, so fail loudly
+        # and leave it up to the callee to encode into the proper encoding.
+        raise ValueError('Convert unicode objects to str first.')
+
+    if not isinstance(directory, str):
+        raise ValueError('Directory names should be of type str.')
+
+    directory = os.path.abspath(directory)
+
+    while directory != '/':
         if os.path.ismount(directory):
             return directory
         else:

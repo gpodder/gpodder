@@ -135,7 +135,7 @@ $(ROSETTA_ARCHIVE):
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE)
+	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
 	rm -rf build
 	make -C data/po clean
 
