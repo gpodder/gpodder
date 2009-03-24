@@ -155,20 +155,59 @@ def normalize_feed_url(url):
     return None
 
 
-def username_password_from_url( url):
-    """
+def username_password_from_url(url):
+    r"""
     Returns a tuple (username,password) containing authentication
     data from the specified URL or (None,None) if no authentication
     data can be found in the URL.
+
+    See Section 3.1 of RFC 1738 (http://www.ietf.org/rfc/rfc1738.txt)
+
+    >>> username_password_from_url('https://@host.com/')
+    ('', None)
+    >>> username_password_from_url('telnet://host.com/')
+    (None, None)
+    >>> username_password_from_url('ftp://foo:@host.com/')
+    ('foo', '')
+    >>> username_password_from_url('http://a:b@host.com/')
+    ('a', 'b')
+    >>> username_password_from_url(1)
+    Traceback (most recent call last):
+      ...
+    ValueError: URL has to be a string or unicode object.
+    >>> username_password_from_url(None)
+    Traceback (most recent call last):
+      ...
+    ValueError: URL has to be a string or unicode object.
+    >>> username_password_from_url('http://a@b:c@host.com/')
+    Traceback (most recent call last):
+      ...
+    ValueError: "@" must be encoded for username/password (RFC1738).
+    >>> username_password_from_url('ftp://a:b:c@host.com/')
+    Traceback (most recent call last):
+      ...
+    ValueError: ":" must be encoded for username/password (RFC1738).
+    >>> username_password_from_url('http://i%2Fo:P%40ss%3A@host.com/')
+    ('i/o', 'P@ss:')
+    >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
+    ('\xc3\xb6sterreich', None)
     """
+    if type(url) not in (str, unicode):
+        raise ValueError('URL has to be a string or unicode object.')
+
     (username, password) = (None, None)
 
-    (scheme, netloc, path, params, query, fragment) = urlparse.urlparse( url)
+    (scheme, netloc, path, params, query, fragment) = urlparse.urlparse(url)
 
     if '@' in netloc:
         (authentication, netloc) = netloc.rsplit('@', 1)
         if ':' in authentication:
             (username, password) = authentication.split(':', 1)
+            # RFC1738 dictates that we should not allow these unquoted
+            # characters in the username and password field (Section 3.1).
+            for c in (':', '@', '/'):
+                if c in username or c in password:
+                    raise ValueError('"%c" must be encoded for username/password (RFC1738).' % c)
             username = urllib.unquote(username)
             password = urllib.unquote(password)
         else:

@@ -1702,7 +1702,13 @@ class gPodder(GladeWidget, dbus.service.Object):
                 # download changed channels and select the new episode in the UI afterwards
                 self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
 
-            (username, password) = util.username_password_from_url( url)
+            try:
+                (username, password) = util.username_password_from_url(url)
+            except ValueError, ve:
+                self.show_message(_('The following error occured while trying to get authentication data from the URL:') + '\n\n' + ve.message, _('Error getting authentication data'))
+                (username, password) = (None, None)
+                log('Error getting authentication data from URL: %s', url, traceback=True)
+
             if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
                 channel.username = username
                 channel.password = password
