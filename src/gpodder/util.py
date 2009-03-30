@@ -1037,12 +1037,19 @@ def open_website(url):
     threading.Thread(target=webbrowser.open, args=(url,)).start()
 
 def sanitize_encoding(filename):
-    """
+    r"""
     Generate a sanitized version of a string (i.e.
     remove invalid characters and encode in the
-    detected native language encoding)
+    detected native language encoding).
+
+    >>> sanitize_encoding('\x80')
+    ''
+    >>> sanitize_encoding(u'unicode')
+    'unicode'
     """
     global encoding
+    if not isinstance(filename, unicode):
+        filename = filename.decode(encoding, 'ignore')
     return filename.encode(encoding, 'ignore')
 
 
@@ -1056,15 +1063,19 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
     If use_ascii is True, don't encode in the native language,
     but use only characters from the ASCII character set.
     """
-    if max_length > 0 and len(filename) > max_length:
-        log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
-        filename = filename[:max_length]
-
     global encoding
     if use_ascii:
         e = 'ascii'
     else:
         e = encoding
+
+    if not isinstance(filename, unicode):
+        filename = filename.decode(encoding, 'ignore')
+
+    if max_length > 0 and len(filename) > max_length:
+        log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
+        filename = filename[:max_length]
+
     return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(e, 'ignore'))
 
 
