@@ -595,7 +595,15 @@ class PodcastEpisode(PodcastModelObject):
 
         episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
         episode.link = entry.get( 'link', '')
-        episode.description = entry.get( 'summary', entry.get( 'link', entry.get( 'title', '')))
+        episode.description = ''
+
+        # Get the episode description (prefer summary, then subtitle)
+        for key in ('summary', 'subtitle', 'link'):
+            if key in entry:
+                episode.description = entry[key]
+            if episode.description:
+                break
+
         episode.guid = entry.get( 'id', '')
         if entry.get( 'updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
