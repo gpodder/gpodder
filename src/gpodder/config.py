@@ -107,6 +107,7 @@ gPodderSettings = {
     'use_si_units': ( bool, False ),
     'on_quit_systray': (bool, False),
     'create_m3u_playlists': (bool, False),
+    'reverse_m3u_playlist_order': (bool, False),
     'max_episodes_per_feed': (int, 200),
     'mp3_player_use_scrobbler_log': (bool, False),
     'mp3_player_max_filename_length': (int, 100),
