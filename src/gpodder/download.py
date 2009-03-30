@@ -143,7 +143,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         # raise exception if actual size does not match content-length header
         if size >= 0 and read < size:
-            raise ContentTooShortError("retrieval incomplete: got only %i out "
+            raise urllib.ContentTooShortError("retrieval incomplete: got only %i out "
                                        "of %i bytes" % (read, size), result)
 
         return result
