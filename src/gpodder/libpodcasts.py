@@ -369,7 +369,13 @@ class PodcastChannel(PodcastModelObject):
             f = open(m3u_filename, 'w')
             f.write('#EXTM3U\n')
 
-            for episode in downloaded_episodes:
+            # Check to see if we need to reverse the playlist order
+            if gl.config.reverse_m3u_playlist_order:
+                episodes_m3u = reversed(downloaded_episodes)
+            else:
+                episodes_m3u = downloaded_episodes
+
+            for episode in episodes_m3u:
                 if episode.was_downloaded(and_exists=True):
                     filename = episode.local_filename(create=False)
                     assert filename is not None
