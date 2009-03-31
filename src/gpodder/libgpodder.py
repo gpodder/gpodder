@@ -389,7 +389,7 @@ class gPodderLib(object):
             return ( False, command_line[0] )
         return ( True, command_line[0] )
 
-    def ext_command_thread(self, notification, command_line):
+    def ext_command_thread(self, command_line):
         """
         This is the function that will be called in a separate
         thread that will call an external command (specified by
@@ -404,6 +404,10 @@ class gPodderLib(object):
     
         p = subprocess.Popen(command_line, shell=True, stdout=sys.stdout, stderr=sys.stderr)
         result = p.wait()
+
+        # FIXME: NOTIFICATION
+        def notification(message, title):
+            log('Message: %s (%s)', title, message, sender=self)
  
         if result == 127:
             title = _('User command not found')

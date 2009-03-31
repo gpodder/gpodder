@@ -99,8 +99,13 @@ def run():
     for channel in channels:
        for episode in channel.get_new_episodes():
            msg( 'downloading', urllib.unquote( episode.url))
-           # Calling run() calls the code in the current thread
-           download.DownloadThread( channel, episode).run()
+           task = download.DownloadTask(episode)
+           task.status = download.DownloadTask.QUEUED
+           task.run()
+           if task.status == task.DONE:
+               msg('done', 'Finished.')
+           elif task.status == task.FAILED:
+               msg('failed', 'Download error: %s' % task.error_message)
            new_episodes += 1
 
     if new_episodes == 0:

@@ -116,10 +116,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
             if not pynotify.init('gPodder'):
                 log('Error: unable to initialise pynotify', sender=self)
 
-        # Register with the download status manager
-        dl_man = services.download_status_manager
-        dl_man.register('progress-changed', self.__on_download_progress_changed)
-        dl_man.register('download-complete', self.__on_download_complete)
+        # Register with the download status manager FIXME FIXME
         
     def __create_context_menu(self):
         # build and connect the popup menu

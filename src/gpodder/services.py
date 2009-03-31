@@ -24,6 +24,8 @@
 #
 #
 
+from __future__ import with_statement
+
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
@@ -33,6 +35,7 @@ from gpodder import resolver
 import gtk
 import gobject
 
+import collections
 import threading
 import time
 import urllib2
@@ -281,242 +284,76 @@ class CoverDownloader(ObservableService):
 cover_downloader = CoverDownloader()
 
 
-class DownloadStatusManager(ObservableService):
-    COLUMN_NAMES = { 0: 'episode', 1: 'speed', 2: 'progress', 3: 'url' }
-    COLUMN_TYPES = ( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_STRING )
-    PROGRESS_HOLDDOWN_TIMEOUT = 5
+class DownloadStatusManager(object):
+    # Types of columns, needed for creation of gtk.ListStore
+    COLUMNS = (object, str, str, int, str, str, str, str, str)
 
-    def __init__( self):
-        self.status_list = {}
-        self.next_status_id = 0
+    # Symbolic names for our columns, so we know what we're up to
+    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_SIZE_TEXT, \
+            C_ICON_NAME, C_SPEED_TEXT, C_STATUS_TEXT = range(len(COLUMNS))
 
-        self.last_progress_status = (0, 0)
-        self.last_progress_update = 0
-        
-        # use to correctly calculate percentage done
-        self.downloads_done_bytes = 0
-        
-        self.max_downloads = gl.config.max_downloads
-        self.semaphore = threading.Semaphore( self.max_downloads)
+    def __init__(self):
+        self.__model = gtk.ListStore(*DownloadStatusManager.COLUMNS)
+        # FIXME: do not duplicate the names here (from DownloadTask!)
+        (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
 
-        self.tree_model = gtk.ListStore( *self.COLUMN_TYPES)
-        self.tree_model_lock = threading.Lock()
+        self.status_stock_ids = collections.defaultdict(lambda: None)
+        self.status_stock_ids[DOWNLOADING] = gtk.STOCK_GO_DOWN
+        self.status_stock_ids[DONE] = gtk.STOCK_APPLY
+        self.status_stock_ids[FAILED] = gtk.STOCK_STOP
+        self.status_stock_ids[CANCELLED] = gtk.STOCK_CANCEL
+        self.status_stock_ids[PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
-        # batch add in progress?
-        self.batch_mode_enabled = False
-        # remember which episodes and channels changed during batch mode
-        self.batch_mode_changed_episode_urls = set()
-        self.batch_mode_changed_channel_urls = set()
+    def get_tree_model(self):
+        return self.__model
 
-        # Used to notify all threads that they should
-        # re-check if they can acquire the lock
-        self.notification_event = threading.Event()
-        self.notification_event_waiters = 0
-        
-        signal_names = ['list-changed', 'progress-changed', 'progress-detail', 'download-complete']
-        ObservableService.__init__(self, signal_names)
-
-    def start_batch_mode(self):
-        """
-        This is called when we are going to add multiple
-        episodes to our download list, and do not want to
-        notify the GUI for every single episode.
-
-        After all episodes have been added, you MUST call
-        the end_batch_mode() method to trigger a notification.
-        """
-        self.batch_mode_enabled = True
-
-    def end_batch_mode(self):
-        """
-        This is called after multiple episodes have been
-        added when start_batch_mode() has been called before.
-
-        This sends out a notification that the list has changed.
-        """
-        self.batch_mode_enabled = False
-        if len(self.batch_mode_changed_episode_urls) + len(self.batch_mode_changed_channel_urls) > 0:
-            self.notify('list-changed', self.batch_mode_changed_episode_urls, self.batch_mode_changed_channel_urls)
-            self.batch_mode_changed_episode_urls = set()
-            self.batch_mode_changed_channel_urls = set()
-
-    def notify_progress(self, force=False):
-        now = (self.count(), self.average_progress())
-        
-        next_progress_update = self.last_progress_update + self.PROGRESS_HOLDDOWN_TIMEOUT
-
-        if force or (now != self.last_progress_status and \
-                time.time() > next_progress_update):
-            self.notify( 'progress-changed', *now)
-            self.last_progress_status = now
-            self.last_progress_update = time.time()
-
-    def s_acquire( self):
-        if not gl.config.max_downloads_enabled:
-            return False
-        
-        # Acquire queue slots if user has decreased the slots
-        while self.max_downloads > gl.config.max_downloads:
-            self.semaphore.acquire()
-            self.max_downloads -= 1
-
-        # Make sure we update the maximum number of downloads
-        self.update_max_downloads()
-
-        while self.semaphore.acquire(False) == False:
-            self.notification_event_waiters += 1
-            self.notification_event.wait(2.)
-            self.notification_event_waiters -= 1
-
-            # If we are the last thread that woke up from
-            # the notification_event, clear the flag here
-            if self.notification_event_waiters == 0:
-                self.notification_event.clear()
-                
-            # If the user has change the config option since the
-            # last time we checked, return false and start download
-            if not gl.config.max_downloads_enabled:
-                return False
-
-        # If we land here, we've acquired exactly the one we need
-        return True
-    
-    def update_max_downloads(self):
-        # Release queue slots if user has enabled more slots
-        while self.max_downloads < gl.config.max_downloads:
-            self.semaphore.release()
-            self.max_downloads += 1
-
-        # Notify all threads that the limit might have been changed
-        self.notification_event.set()
-
-    def s_release( self, acquired = True):
-        if acquired:
-            self.semaphore.release()
-
-    def reserve_download_id( self):
-        id = self.next_status_id
-	self.next_status_id = id + 1
-	return id
-
-    def remove_iter( self, iter):
-        self.tree_model.remove( iter)
-        return False
-
-    def register_download_id( self, id, thread):
-        self.tree_model_lock.acquire()
-        self.status_list[id] = { 'iter': self.tree_model.append(), 'thread': thread, 'progress': 0.0, 'speed': _('Queued'), }
-        if self.batch_mode_enabled:
-            self.batch_mode_changed_episode_urls.add(thread.episode.url)
-            self.batch_mode_changed_channel_urls.add(thread.channel.url)
+    def request_update(self, iter, task=None):
+        if task is None:
+            # Ongoing update request from UI - get task from model
+            task = self.__model.get_value(iter, self.C_TASK)
         else:
-            self.notify('list-changed', [thread.episode.url], [thread.channel.url])
-        self.tree_model_lock.release()
+            # Initial update request - update non-changing fields
+            self.__model.set(iter,
+                    self.C_TASK, task,
+                    self.C_NAME, str(task),
+                    self.C_URL, task.url)
 
-    def remove_download_id( self, id):
-        if not id in self.status_list:
-            return
-        iter = self.status_list[id]['iter']
-	if iter is not None:
-            self.tree_model_lock.acquire()
-            util.idle_add(self.remove_iter, iter)
-            self.tree_model_lock.release()
-            self.status_list[id]['iter'] = None
-            episode_url = self.status_list[id]['thread'].episode.url
-            channel_url = self.status_list[id]['thread'].channel.url
-            self.status_list[id]['thread'].cancel()
-            del self.status_list[id]
-            if not self.has_items():
-                # Reset the counter now
-                self.downloads_done_bytes = 0
+        if task.status == task.FAILED:
+            status_message = _('Failed: %s') % (task.error_message,)
         else:
-            episode_url = None
-            channel_url = None
+            status_message = task.STATUS_MESSAGE[task.status]
 
-        if self.batch_mode_enabled:
-            self.batch_mode_changed_episode_urls.add(episode_url)
-            self.batch_mode_changed_channel_urls.add(channel_url)
+        if task.status == task.DOWNLOADING:
+            speed_message = '%s/s' % util.format_filesize(task.speed)
         else:
-            self.notify('list-changed', [episode_url], [channel_url])
-        self.notify_progress(force=True)
+            speed_message = ''
 
-    def count( self):
-        return len(self.status_list)
+        self.__model.set(iter,
+                self.C_PROGRESS, 100.*task.progress,
+                self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
+                self.C_SIZE_TEXT, util.format_filesize(task.total_size),
+                self.C_ICON_NAME, self.status_stock_ids[task.status],
+                self.C_SPEED_TEXT, speed_message,
+                self.C_STATUS_TEXT, status_message)
 
-    def has_items( self):
-        return self.count() > 0
-    
-    def average_progress( self):
-        if not len(self.status_list):
-            return 0
+    def __add_new_task(self, task):
+        iter = self.__model.append()
+        self.request_update(iter, task)
 
-        done = sum(status['progress']/100. * status['thread'].total_size for status in self.status_list.values())
-        total = sum(status['thread'].total_size for status in self.status_list.values())
-        if total + self.downloads_done_bytes == 0:
-            return 0
-        return float(done + self.downloads_done_bytes) / float(total + self.downloads_done_bytes) * 100
+    def register_task(self, task):
+        util.idle_add(self.__add_new_task, task)
 
-    def total_speed(self):
-        if not len(self.status_list):
-            return 0
+    def pause_all_downloads(self):
+        for row in self.__model:
+            task = row[DownloadStatusManager.C_TASK]
+            if task is not None:
+                task.status = task.PAUSED
 
-        return sum(status['thread'].speed_value for status in self.status_list.values())
-
-    def update_status( self, id, **kwargs):
-        if not id in self.status_list:
-            return
-
-        iter = self.status_list[id]['iter']
-        if iter:
-            self.tree_model_lock.acquire()
-            for ( column, key ) in self.COLUMN_NAMES.items():
-                if key in kwargs:
-                    util.idle_add(self.tree_model.set, iter, column, kwargs[key])
-                    self.status_list[id][key] = kwargs[key]
-            self.tree_model_lock.release()
-
-        if 'progress' in kwargs and 'speed' in kwargs and 'url' in self.status_list[id]:
-            self.notify( 'progress-detail', self.status_list[id]['url'], kwargs['progress'], kwargs['speed'])
-
-        self.notify_progress()
-        
-    def download_completed(self, id):
-        if id in self.status_list:
-            self.notify('download-complete', self.status_list[id]['episode'])
-            self.downloads_done_bytes += self.status_list[id]['thread'].total_size
-
-    def request_progress_detail( self, url):
-        for status in self.status_list.values():
-            if 'url' in status and status['url'] == url and 'progress' in status and 'speed' in status:
-                self.notify( 'progress-detail', url, status['progress'], status['speed'])
-
-    def is_download_in_progress( self, url):
-        for element in self.status_list.keys():
-            # We need this, because status_list is modified from other threads
-            if element in self.status_list:
-                try:
-                    thread = self.status_list[element]['thread']
-                except:
-                    thread = None
-
-                if thread is not None and thread.url == url:
-                    return True
-        
-        return False
-
-    def cancel_all(self, keep_files=False):
-        for element in self.status_list:
-            self.status_list[element]['iter'] = None
-            self.status_list[element]['thread'].cancel(keep_files)
-        # clear the tree model after cancelling
-        util.idle_add(self.tree_model.clear)
-        self.downloads_done_bytes = 0
-
-    def cancel_by_url( self, url):
-        for element in self.status_list:
-            thread = self.status_list[element]['thread']
-            if thread is not None and thread.url == url:
-                self.remove_download_id( element)
+    def cancel_by_url(self, url):
+        for row in self.__model:
+            task = row[DownloadStatusManager.C_TASK]
+            if task.url == url and task.status == task.DOWNLOADING:
+                task.status = task.CANCELLED
                 return True
 
         return False

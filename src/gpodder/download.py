@@ -25,6 +25,8 @@
 #  Based on libwget.py (2005-10-29)
 #
 
+from __future__ import with_statement
+
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 from gpodder.dbsqlite import db
@@ -39,6 +41,7 @@ import shutil
 import os.path
 import os
 import time
+import collections
 
 from xml.sax import saxutils
 
@@ -158,212 +161,321 @@ class DownloadURLOpener(urllib.FancyURLopener):
         return ( None, None )
 
 
-class DownloadThread(threading.Thread):
-    MAX_UPDATES_PER_SEC = 1
+class DownloadQueueWorker(threading.Thread):
+    def __init__(self, queue, exit_callback):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.exit_callback = exit_callback
+        self.cancelled = False
 
-    def __init__( self, channel, episode, notification = None):
-        threading.Thread.__init__( self)
-        self.setDaemon( True)
+    def stop_accepting_tasks(self):
+        """
+        When this is called, the worker will not accept new tasks,
+        but quit when the current task has been finished.
+        """
+        if not self.cancelled:
+            self.cancelled = True
+            log('%s stopped accepting tasks.', self.getName(), sender=self)
 
-        if gpodder.interface == gpodder.MAEMO:
-            # Only update status every 3 seconds on Maemo
-            self.MAX_UPDATES_PER_SEC = 1./3.
+    def run(self):
+        log('Running new thread: %s', self.getName(), sender=self)
+        while not self.cancelled:
+            try:
+                task = self.queue.pop()
+                log('%s is processing: %s', self.getName(), task, sender=self)
+                task.run()
+            except IndexError, e:
+                log('No more tasks for %s to carry out.', self.getName(), sender=self)
+                break
+        self.exit_callback(self)
 
-        self.channel = channel
-        self.episode = episode
 
-        self.notification = notification
+class DownloadQueueManager(object):
+    def __init__(self, download_status_manager):
+        self.download_status_manager = download_status_manager
+        self.tasks = collections.deque()
 
-        self.url = self.episode.url
-        self.filename = self.episode.local_filename(create=True)
-        # Commit the database, so we won't lose the (possibly created) filename
+        self.worker_threads_access = threading.RLock()
+        self.worker_threads = []
+
+    def __exit_callback(self, worker_thread):
+        with self.worker_threads_access:
+            self.worker_threads.remove(worker_thread)
+
+    def spawn_and_retire_threads(self, request_new_thread=False):
+        with self.worker_threads_access:
+            if len(self.worker_threads) > gl.config.max_downloads and \
+                    gl.config.max_downloads_enabled:
+                # Tell the excessive amount of oldest worker threads to quit, but keep at least one
+                count = min(len(self.worker_threads)-1, len(self.worker_threads)-gl.config.max_downloads)
+                for worker in self.worker_threads[:count]:
+                    worker.stop_accepting_tasks()
+
+            if request_new_thread and (len(self.worker_threads) == 0 or \
+                    len(self.worker_threads) < gl.config.max_downloads or \
+                    not gl.config.max_downloads_enabled):
+                # We have to create a new thread here, there's work to do
+                log('I am going to spawn a new worker thread.', sender=self)
+                worker = DownloadQueueWorker(self.tasks, self.__exit_callback)
+                self.worker_threads.append(worker)
+                worker.start()
+
+    def add_resumed_task(self, task):
+        """Simply add the task without starting the download"""
+        self.download_status_manager.register_task(task)
+
+    def add_task(self, task):
+        if task.status == DownloadTask.INIT:
+            # This task is fresh, so add it to our status manager
+            self.download_status_manager.register_task(task)
+
+        task.status = DownloadTask.QUEUED
+        self.tasks.appendleft(task)
+        self.spawn_and_retire_threads(request_new_thread=True)
+
+
+class DownloadTask(object):
+    """An object representing the download task of an episode
+
+    You can create a new download task like this:
+
+        task = DownloadTask(episode)
+        task.status = DownloadTask.QUEUED
+        task.run()
+
+    While the download is in progress, you can access its properties:
+
+        task.total_size       # in bytes
+        task.progress         # from 0.0 to 1.0
+        task.speed            # in bytes per second
+        str(task)             # name of the episode
+        task.status           # current status
+
+    You can cancel a running download task by setting its status:
+
+        task.status = DownloadTask.CANCELLED
+
+    The task will then abort as soon as possible (due to the nature
+    of downloading data, this can take a while when the Internet is
+    busy).
+
+    While the download is taking place and after the .run() method
+    has finished, you can get the final status to check if the download
+    was successful:
+
+        if task.status == DownloadTask.DONE:
+            # .. everything ok ..
+        elif task.status == DownloadTask.FAILED:
+            # .. an error happened, and the
+            #    error_message attribute is set ..
+            print task.error_message
+        elif task.status == DownloadTask.PAUSED:
+            # .. user paused the download ..
+        elif task.status == DownloadTask.CANCELLED:
+            # .. user cancelled the download ..
+
+    The difference between cancelling and pausing a DownloadTask is
+    that the temporary file gets deleted when cancelling, but does
+    not get deleted when pausing.
+
+    Be sure to call .removed_from_list() on this task when removing
+    it from the UI, so that it can carry out any pending clean-up
+    actions (e.g. removing the temporary file when the task has not
+    finished successfully; i.e. task.status != DownloadTask.DONE).
+    """
+    # Possible states this download task can be in
+    STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
+            _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
+    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
+
+    def __str__(self):
+        return self.__episode.title
+
+    def __get_status(self):
+        return self.__status
+
+    def __set_status(self, status):
+        self.__status = status
+
+    status = property(fget=__get_status, fset=__set_status)
+
+    def __get_url(self):
+        return self.__episode.url
+
+    url = property(fget=__get_url)
+
+    def removed_from_list(self):
+        if self.status != self.DONE:
+            util.delete_file(self.tempname)
+
+    def __init__(self, episode):
+        self.__status = DownloadTask.INIT
+        self.__episode = episode
+
+        # Create the target filename and save it in the database
+        self.filename = self.__episode.local_filename(create=True)
+        self.tempname = self.filename + '.partial'
         db.commit()
 
-        self.tempname = self.filename + '.partial'
-
-        # Make an educated guess about the total file size
-        self.total_size = self.episode.length
-
-        self.cancelled = False
-        self.keep_files = False
-        self.start_time = 0.0
-        self.speed = _('Queued')
-        self.speed_value = 0
+        self.total_size = self.__episode.length
+        self.speed = 0.0
         self.progress = 0.0
-        self.downloader = DownloadURLOpener( self.channel)
-        self.last_update = 0.0
+        self.error_message = None
 
-        # Keep a copy of these global variables for comparison later        
-        self.limit_rate_value = gl.config.limit_rate_value
-        self.limit_rate = gl.config.limit_rate
-        self.start_blocks = 0
+        # Variables for speed limit and speed calculation
+        self.__start_time = 0
+        self.__start_blocks = 0
+        self.__limit_rate_value = gl.config.limit_rate_value
+        self.__limit_rate = gl.config.limit_rate
 
-    def cancel(self, keep_files=False):
-        self.cancelled = True
-        self.keep_files = keep_files
-
-    def status_updated( self, count, blockSize, totalSize):
-        if totalSize:
-            # We see a different "total size" while downloading,
-            # so correct the total size variable in the thread
-            if totalSize != self.total_size and totalSize > 0:
-                log('Correcting file size for %s from %d to %d while downloading.', self.url, self.total_size, totalSize, sender=self)
-                self.total_size = totalSize
-            elif totalSize < 0:
-                # The current download has a negative value, so assume
-                # the total size given from the feed is correct
-                totalSize = self.total_size
-
-            try:
-                self.progress = 100.0*float(count*blockSize)/float(totalSize)
-            except ZeroDivisionError, zde:
-                log('Totalsize unknown, cannot determine progress.', sender=self)
-                self.progress = 100.0
-        else:
-            self.progress = 100.0
-
-        # Sanity checks for "progress" in valid range (0..100)
-        if self.progress < 0.0:
-            log('Warning: Progress is lower than 0 (count=%d, blockSize=%d, totalSize=%d)', count, blockSize, totalSize, sender=self)
-            self.progress = 0.0
-        elif self.progress > 100.0:
-            log('Warning: Progress is more than 100 (count=%d, blockSize=%d, totalSize=%d)', count, blockSize, totalSize, sender=self)
-            self.progress = 100.0
-
-        self.calculate_speed( count, blockSize)
-        if self.last_update < time.time() - (1.0 / self.MAX_UPDATES_PER_SEC):
-            services.download_status_manager.update_status( self.download_id, speed = self.speed, progress = self.progress)
-            self.last_update = time.time()
-
-        if self.cancelled:
-            if not self.keep_files:
-                util.delete_file(self.tempname)
-            raise DownloadCancelledException()
-
-    def calculate_speed( self, count, blockSize):
-        if count % 5 == 0:
-            now = time.time()
-            if self.start_time > 0:
-                
-                # Has rate limiting been enabled or disabled?                
-                if self.limit_rate != gl.config.limit_rate: 
-                    # If it has been enabled then reset base time and block count                    
-                    if gl.config.limit_rate:
-                        self.start_time = now
-                        self.start_blocks = count
-                    self.limit_rate = gl.config.limit_rate
-                    
-                # Has the rate been changed and are we currently limiting?            
-                if self.limit_rate_value != gl.config.limit_rate_value and self.limit_rate: 
-                    self.start_time = now
-                    self.start_blocks = count
-                    self.limit_rate_value = gl.config.limit_rate_value
-
-                passed = now - self.start_time
-                if passed > 0:
-                    speed = ((count-self.start_blocks)*blockSize)/passed
-                else:
-                    speed = 0
-            else:
-                self.start_time = now
-                self.start_blocks = count
-                passed = now - self.start_time
-                speed = count*blockSize
-
-            self.speed = '%s/s' % gl.format_filesize(speed)
-            self.speed_value = speed
-
-            if gl.config.limit_rate and speed > gl.config.limit_rate_value:
-                # calculate the time that should have passed to reach
-                # the desired download rate and wait if necessary
-                should_have_passed = float((count-self.start_blocks)*blockSize)/(gl.config.limit_rate_value*1024.0)
-                if should_have_passed > passed:
-                    # sleep a maximum of 10 seconds to not cause time-outs
-                    delay = min( 10.0, float(should_have_passed-passed))
-                    time.sleep( delay)
-
-    def run( self):
-        self.download_id = services.download_status_manager.reserve_download_id()
-        services.download_status_manager.register_download_id( self.download_id, self)
-
+        # If the tempname already exists, set progress accordingly
         if os.path.exists(self.tempname):
             try:
                 already_downloaded = os.path.getsize(self.tempname)
                 if self.total_size > 0:
-                    self.progress = already_downloaded/self.total_size
-
-                if already_downloaded > 0:
-                    self.speed = _('Queued (partial)')
-            except:
-                pass
+                    self.progress = max(0.0, min(1.0, float(already_downloaded)/self.total_size))
+            except OSError, os_error:
+                log('Error while getting size for existing file: %s', os_error, sender=self)
         else:
             # "touch self.tempname", so we also get partial
             # files for resuming when the file is queued
             open(self.tempname, 'w').close()
 
-        # Initial status update
-        services.download_status_manager.update_status( self.download_id, episode = self.episode.title, url = self.episode.url, speed = self.speed, progress = self.progress)
+    def status_updated(self, count, blockSize, totalSize):
+        # We see a different "total size" while downloading,
+        # so correct the total size variable in the thread
+        if totalSize != self.total_size and totalSize > 0:
+            self.total_size = float(totalSize)
 
-        acquired = services.download_status_manager.s_acquire()
+        if self.total_size > 0:
+            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+
+        self.calculate_speed(count, blockSize)
+
+        if self.status == DownloadTask.CANCELLED:
+            raise DownloadCancelledException()
+
+        if self.status == DownloadTask.PAUSED:
+            raise DownloadCancelledException()
+
+    def calculate_speed(self, count, blockSize):
+        if count % 5 == 0:
+            now = time.time()
+            if self.__start_time > 0:
+                # Has rate limiting been enabled or disabled?                
+                if self.__limit_rate != gl.config.limit_rate: 
+                    # If it has been enabled then reset base time and block count                    
+                    if gl.config.limit_rate:
+                        self.__start_time = now
+                        self.__start_blocks = count
+                    self.__limit_rate = gl.config.limit_rate
+                    
+                # Has the rate been changed and are we currently limiting?            
+                if self.__limit_rate_value != gl.config.limit_rate_value and self.__limit_rate: 
+                    self.__start_time = now
+                    self.__start_blocks = count
+                    self.__limit_rate_value = gl.config.limit_rate_value
+
+                passed = now - self.__start_time
+                if passed > 0:
+                    speed = ((count-self.__start_blocks)*blockSize)/passed
+                else:
+                    speed = 0
+            else:
+                self.__start_time = now
+                self.__start_blocks = count
+                passed = now - self.__start_time
+                speed = count*blockSize
+
+            self.speed = float(speed)
+
+            if gl.config.limit_rate and speed > gl.config.limit_rate_value:
+                # calculate the time that should have passed to reach
+                # the desired download rate and wait if necessary
+                should_have_passed = float((count-self.__start_blocks)*blockSize)/(gl.config.limit_rate_value*1024.0)
+                if should_have_passed > passed:
+                    # sleep a maximum of 10 seconds to not cause time-outs
+                    delay = min(10.0, float(should_have_passed-passed))
+                    time.sleep(delay)
+
+    def run(self):
+        # Speed calculation (re-)starts here
+        self.__start_time = 0
+        self.__start_blocks = 0
+
+        # If the download has already been cancelled, skip it
+        if self.status == DownloadTask.CANCELLED:
+            util.delete_file(self.tempname)
+            return False
+
+        # We only start this download if its status is "queued"
+        if self.status != DownloadTask.QUEUED:
+            return False
+
+        # We are downloading this file right now
+        self.status = DownloadTask.DOWNLOADING
+
         try:
-            try:
-                if self.cancelled:
-                    # Remove the partial file in case we do
-                    # not want to keep it (e.g. user cancelled)
-                    if not self.keep_files:
-                        util.delete_file(self.tempname)
-                    return
-         
-                (unused, headers) = self.downloader.retrieve_resume(resolver.get_real_download_url(self.url), self.tempname, reporthook=self.status_updated)
+            # Resolve URL and start downloading the episode
+            url = resolver.get_real_download_url(self.__episode.url)
+            downloader =  DownloadURLOpener(self.__episode.channel)
+            (unused, headers) = downloader.retrieve_resume(url,
+                    self.tempname, reporthook=self.status_updated)
 
-                new_mimetype = headers.get('content-type', self.episode.mimetype)
-                old_mimetype = self.episode.mimetype
-                if new_mimetype != old_mimetype:
-                    log('Correcting mime type: %s => %s', old_mimetype, new_mimetype, sender=self)
-                    old_extension = self.episode.extension()
-                    self.episode.mimetype = new_mimetype
-                    new_extension = self.episode.extension()
+            new_mimetype = headers.get('content-type', self.__episode.mimetype)
+            old_mimetype = self.__episode.mimetype
+            if new_mimetype != old_mimetype:
+                log('Correcting mime type: %s => %s', old_mimetype, new_mimetype, sender=self)
+                old_extension = self.__episode.extension()
+                self.__episode.mimetype = new_mimetype
+                new_extension = self.__episode.extension()
 
-                    # If the desired filename extension changed due to the new mimetype,
-                    # we force an update of the local filename to fix the extension
-                    if old_extension != new_extension:
-                        self.filename = self.episode.local_filename(create=True, force_update=True)
+                # If the desired filename extension changed due to the new mimetype,
+                # we force an update of the local filename to fix the extension
+                if old_extension != new_extension:
+                    self.filename = self.__episode.local_filename(create=True, force_update=True)
 
-                shutil.move( self.tempname, self.filename)
-                # Get the _real_ filesize once we actually have the file
-                self.episode.length = os.path.getsize(self.filename)
-                self.channel.addDownloadedItem( self.episode)
-                services.download_status_manager.download_completed(self.download_id)
-                
-                # If a user command has been defined, execute the command setting some environment variables
-                if len(gl.config.cmd_download_complete) > 0:
-                    os.environ["GPODDER_EPISODE_URL"]=self.episode.url or ''
-                    os.environ["GPODDER_EPISODE_TITLE"]=self.episode.title or ''
-                    os.environ["GPODDER_EPISODE_FILENAME"]=self.filename or ''
-                    os.environ["GPODDER_EPISODE_PUBDATE"]=str(int(self.episode.pubDate))
-                    os.environ["GPODDER_EPISODE_LINK"]=self.episode.link or ''
-                    os.environ["GPODDER_EPISODE_DESC"]=self.episode.description or ''
-                    threading.Thread(target=gl.ext_command_thread, args=(self.notification,gl.config.cmd_download_complete)).start()
+            shutil.move(self.tempname, self.filename)
 
-            finally:
-                services.download_status_manager.remove_download_id( self.download_id)
-                services.download_status_manager.s_release( acquired)
+            # Get the _real_ filesize once we actually have the file
+            self.__episode.length = os.path.getsize(self.filename)
+            self.__episode.channel.addDownloadedItem(self.__episode)
+            
+            # If a user command has been defined, execute the command setting some environment variables
+            if len(gl.config.cmd_download_complete) > 0:
+                os.environ["GPODDER_EPISODE_URL"]=self.__episode.url or ''
+                os.environ["GPODDER_EPISODE_TITLE"]=self.__episode.title or ''
+                os.environ["GPODDER_EPISODE_FILENAME"]=self.filename or ''
+                os.environ["GPODDER_EPISODE_PUBDATE"]=str(int(self.__episode.pubDate))
+                os.environ["GPODDER_EPISODE_LINK"]=self.__episode.link or ''
+                os.environ["GPODDER_EPISODE_DESC"]=self.__episode.description or ''
+                threading.Thread(target=gl.ext_command_thread, args=(gl.config.cmd_download_complete,)).start()
         except DownloadCancelledException:
-            log('Download has been cancelled: %s', self.episode.title, traceback=None, sender=self)
-            if not self.keep_files:
+            log('Download has been cancelled/paused: %s', self, sender=self)
+            if self.status == DownloadTask.CANCELLED:
                 util.delete_file(self.tempname)
+                self.progress = 0.0
+                self.speed = 0.0
         except IOError, ioe:
-            if self.notification is not None:
-                title = ioe.strerror
-                message = _('An error happened while trying to download <b>%s</b>. Please try again later.') % ( saxutils.escape( self.episode.title), )
-                self.notification( message, title)
-            log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.episode.title, ioe.filename, sender = self)
+            log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.__episode.title, ioe.filename, sender=self)
+            self.status = DownloadTask.FAILED
+            self.error_message = _('I/O Error: %s: %s') % (ioe.strerror, ioe.filename)
         except gPodderDownloadHTTPError, gdhe:
-            if self.notification is not None:
-                title = gdhe.error_message
-                message = _('An error (HTTP %d) happened while trying to download <b>%s</b>. You can try to resume the download later.') % ( gdhe.error_code, saxutils.escape( self.episode.title), )
-                self.notification( message, title)
-            log( 'HTTP error %s while downloading "%s": %s', gdhe.error_code, self.episode.title, gdhe.error_message, sender=self)
-        except:
-            log( 'Error while downloading "%s".', self.episode.title, sender = self, traceback = True)
+            log( 'HTTP error %s while downloading "%s": %s', gdhe.error_code, self.__episode.title, gdhe.error_message, sender=self)
+            self.status = DownloadTask.FAILED
+            self.error_message = _('HTTP Error %s: %s') % (gdhe.error_code, gdhe.error_message)
+        except Exception, e:
+            self.status = DownloadTask.FAILED
+            self.error_message = _('Error: %s') % (e.message,)
+
+        if self.status == DownloadTask.DOWNLOADING:
+            # Everything went well - we're done
+            self.status = DownloadTask.DONE
+            self.progress = 1.0
+            return True
+        
+        self.speed = 0.0
+
+        # We finished, but not successfully (at least not really)
+        return False
 

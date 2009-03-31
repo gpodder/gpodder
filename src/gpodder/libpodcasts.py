@@ -356,7 +356,7 @@ class PodcastChannel(PodcastModelObject):
         return db.load_episodes(self, factory=self.episode_factory, state=db.STATE_DOWNLOADED)
     
     def get_new_episodes( self):
-        return [episode for episode in db.load_episodes(self, factory=self.episode_factory) if episode.state == db.STATE_NORMAL and not episode.is_played and not services.download_status_manager.is_download_in_progress(episode.url)]
+        return [episode for episode in db.load_episodes(self, factory=self.episode_factory) if episode.state == db.STATE_NORMAL and not episode.is_played] # and not services.download_status_manager.is_download_in_progress(episode.url)]
 
     def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:
@@ -407,7 +407,7 @@ class PodcastChannel(PodcastModelObject):
     def get_all_episodes(self):
         return db.load_episodes(self, factory=self.episode_factory)
 
-    def iter_set_downloading_columns( self, model, iter, episode=None):
+    def iter_set_downloading_columns(self, model, iter, episode=None, downloading=None):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
@@ -422,7 +422,7 @@ class PodcastChannel(PodcastModelObject):
         else:
             icon_size = 16
 
-        if services.download_status_manager.is_download_in_progress(url):
+        if downloading is not None and downloading(episode):
             status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
             if episode.state == db.STATE_NORMAL:
@@ -451,7 +451,7 @@ class PodcastChannel(PodcastModelObject):
 
         model.set( iter, 4, status_icon)
 
-    def get_tree_model(self):
+    def get_tree_model(self, downloading=None):
         """
         Return a gtk.ListStore containing episodes for this channel
         """
@@ -472,7 +472,7 @@ class PodcastChannel(PodcastModelObject):
             new_iter = new_model.append((item.url, item.title, filelength, 
                 True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
                 'XXXXXXXXXXXXXUNUSEDXXXXXXXXXXXXXXXXXXX', item.extension()))
-            self.iter_set_downloading_columns( new_model, new_iter, episode=item)
+            self.iter_set_downloading_columns( new_model, new_iter, episode=item, downloading=downloading)
             urls.append(item.url)
         
         self.update_save_dir_size()
