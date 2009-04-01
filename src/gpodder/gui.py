@@ -1109,6 +1109,27 @@ class gPodder(GladeWidget, dbus.service.Object):
                 item = gtk.ImageMenuItem(label)
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda item: for_each_task_set_status(tasks, status))
+
+                # Determine if we should disable this menu item
+                for row_reference, task in tasks:
+                    if status == download.DownloadTask.QUEUED:
+                        if task.status not in (download.DownloadTask.PAUSED, \
+                                download.DownloadTask.FAILED, \
+                                download.DownloadTask.CANCELLED):
+                            item.set_sensitive(False)
+                            break
+                    elif status == download.DownloadTask.CANCELLED:
+                        if task.status not in (download.DownloadTask.PAUSED, \
+                                download.DownloadTask.QUEUED, \
+                                download.DownloadTask.DOWNLOADING):
+                            item.set_sensitive(False)
+                            break
+                    elif status == download.DownloadTask.PAUSED:
+                        if task.status not in (download.DownloadTask.QUEUED, \
+                                download.DownloadTask.DOWNLOADING):
+                            item.set_sensitive(False)
+                            break
+
                 return item
 
             menu = gtk.Menu()
