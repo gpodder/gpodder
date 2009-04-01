@@ -31,6 +31,7 @@ from gpodder.libgpodder import gl
 
 from gpodder import util
 from gpodder import resolver
+from gpodder import download
 
 import gtk
 import gobject
@@ -294,15 +295,17 @@ class DownloadStatusManager(object):
 
     def __init__(self):
         self.__model = gtk.ListStore(*DownloadStatusManager.COLUMNS)
-        # FIXME: do not duplicate the names here (from DownloadTask!)
-        (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
 
+        # Shorten the name (for below)
+        DownloadTask = download.DownloadTask
+
+        # Set up stock icon IDs for tasks
         self.status_stock_ids = collections.defaultdict(lambda: None)
-        self.status_stock_ids[DOWNLOADING] = gtk.STOCK_GO_DOWN
-        self.status_stock_ids[DONE] = gtk.STOCK_APPLY
-        self.status_stock_ids[FAILED] = gtk.STOCK_STOP
-        self.status_stock_ids[CANCELLED] = gtk.STOCK_CANCEL
-        self.status_stock_ids[PAUSED] = gtk.STOCK_MEDIA_PAUSE
+        self.status_stock_ids[DownloadTask.DOWNLOADING] = gtk.STOCK_GO_DOWN
+        self.status_stock_ids[DownloadTask.DONE] = gtk.STOCK_APPLY
+        self.status_stock_ids[DownloadTask.FAILED] = gtk.STOCK_STOP
+        self.status_stock_ids[DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
+        self.status_stock_ids[DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
     def get_tree_model(self):
         return self.__model

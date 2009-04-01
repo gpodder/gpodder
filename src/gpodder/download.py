@@ -31,7 +31,6 @@ from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 from gpodder.dbsqlite import db
 from gpodder import util
-from gpodder import services
 from gpodder import resolver
 import gpodder
 
