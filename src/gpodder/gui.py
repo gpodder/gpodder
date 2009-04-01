@@ -2176,8 +2176,11 @@ class gPodder(GladeWidget, dbus.service.Object):
             else:
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
-        self.download_status_manager.pause_all_downloads()
         self.gPodder.hide()
+
+        # Notify all tasks to to carry out any clean-up actions
+        self.download_status_manager.tell_all_tasks_to_quit()
+
         while gtk.events_pending():
             gtk.main_iteration(False)
 

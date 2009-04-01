@@ -346,11 +346,17 @@ class DownloadStatusManager(object):
     def register_task(self, task):
         util.idle_add(self.__add_new_task, task)
 
-    def pause_all_downloads(self):
+    def tell_all_tasks_to_quit(self):
         for row in self.__model:
             task = row[DownloadStatusManager.C_TASK]
             if task is not None:
-                task.status = task.PAUSED
+                # Pause currently-running (and queued) downloads
+                if task.status in (task.QUEUED, task.DOWNLOADING):
+                    task.status = task.PAUSED
+
+                # Delete cancelled and failed downloads
+                if task.status in (task.CANCELLED, task.FAILED):
+                    task.removed_from_list()
 
     def are_downloads_in_progress(self):
         """
