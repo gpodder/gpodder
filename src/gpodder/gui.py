@@ -474,7 +474,6 @@ class gPodder(GladeWidget, dbus.service.Object):
         
         self.already_notified_new_episodes = []
         self.show_hide_tray_icon()
-        self.no_episode_selected.set_sensitive(False)
 
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
         self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
@@ -1397,31 +1396,32 @@ class gPodder(GladeWidget, dbus.service.Object):
 
             (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
 
-            if can_play:
-                if open_instead_of_play:
-                    item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
-                else:
-                    item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
-                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolPlay))
-                menu.append(self.set_finger_friendly(item))
-                
-            if not episode['is_locked'] and can_delete:
-                item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
-                item.connect('activate', self.on_btnDownloadedDelete_clicked)
-                menu.append(self.set_finger_friendly(item))
+            if open_instead_of_play:
+                item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
+            else:
+                item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
 
-            if can_cancel:
-                item = gtk.ImageMenuItem( _('Cancel download'))
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_STOP, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeDownloads_row_activated( self.toolCancel))
-                menu.append(self.set_finger_friendly(item))
-
-            if can_download:
-                item = gtk.ImageMenuItem(_('Download'))
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.toolDownload))
-                menu.append(self.set_finger_friendly(item))
+            item.set_sensitive(can_play)
+            item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolPlay))
+            menu.append(self.set_finger_friendly(item))
                 
+            item = gtk.ImageMenuItem(_('Download'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+            item.set_sensitive(can_download)
+            item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolDownload))
+            menu.append(self.set_finger_friendly(item))
+
+            item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
+            item.set_sensitive(can_cancel)
+            item.connect('activate', lambda w: self.on_treeDownloads_row_activated(self.toolCancel))
+            menu.append(self.set_finger_friendly(item))
+
+            item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
+            item.set_sensitive(can_delete and not episode['is_locked'])
+            item.connect('activate', self.on_btnDownloadedDelete_clicked)
+            menu.append(self.set_finger_friendly(item))
+
+            # FIXME  - fix the following block
             if episode['state'] == db.STATE_NORMAL and not episode['is_played']: # can_download:
                 item = gtk.ImageMenuItem(_('Do not download'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
@@ -1433,6 +1433,7 @@ class gPodder(GladeWidget, dbus.service.Object):
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
                 menu.append(self.set_finger_friendly(item))
 
+            # Ok, this probably makes sense to only display for downloaded files
             if can_play and not can_download:
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
@@ -1476,21 +1477,22 @@ class gPodder(GladeWidget, dbus.service.Object):
                     item.connect('activate', self.on_item_toggle_lock_activate)
                     menu.append(self.set_finger_friendly(item))
 
-            if len(paths) == 1:
-                menu.append(gtk.SeparatorMenuItem())
-                # Single item, add episode information menu item
-                episode_url = model.get_value( model.get_iter( paths[0]), 0)
-                item = gtk.ImageMenuItem(_('Episode details'))
-                item.set_image( gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
+            menu.append(gtk.SeparatorMenuItem())
+            # Single item, add episode information menu item
+            episode_url = model.get_value(model.get_iter(paths[0]), 0)
+            item = gtk.ImageMenuItem(_('Episode details'))
+            item.set_image(gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
+            item.set_sensitive(len(paths) == 1)
+            item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
+            menu.append(self.set_finger_friendly(item))
+
+            episode = self.active_channel.find_episode(episode_url)
+            # If we have it, also add episode website link
+            if len(paths) == 1 and episode and episode.link and episode.link != episode.url:
+                item = gtk.ImageMenuItem(_('Visit website'))
+                item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
+                item.connect('activate', lambda w: util.open_website(episode.link))
                 menu.append(self.set_finger_friendly(item))
-                episode = self.active_channel.find_episode(episode_url)
-                # If we have it, also add episode website link
-                if episode and episode.link and episode.link != episode.url:
-                    item = gtk.ImageMenuItem(_('Visit website'))
-                    item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: util.open_website(episode.link))
-                    menu.append(self.set_finger_friendly(item))
             
             if gpodder.interface == gpodder.MAEMO:
                 # Because we open the popup on left-click for Maemo,
@@ -1627,28 +1629,22 @@ class gPodder(GladeWidget, dbus.service.Object):
         self.toolTransfer.set_sensitive( can_transfer)
         self.toolCancel.set_sensitive( can_cancel)
 
-        if can_cancel:
-            self.item_cancel_download.show_all()
+        self.item_cancel_download.set_sensitive(can_cancel)
+        self.itemDownloadSelected.set_sensitive(can_download)
+        self.itemOpenSelected.set_sensitive(can_play)
+        self.itemPlaySelected.set_sensitive(can_play)
+        self.itemDeleteSelected.set_sensitive(can_play and not can_download)
+        self.item_toggle_played.set_sensitive(can_play)
+        self.item_toggle_lock.set_sensitive(can_play)
+
+        if open_instead_of_play:
+            self.itemOpenSelected.show_all()
+            self.itemPlaySelected.hide_all()
         else:
-            self.item_cancel_download.hide_all()
-        if can_download:
-            self.itemDownloadSelected.show_all()
-        else:
-            self.itemDownloadSelected.hide_all()
+            self.itemPlaySelected.show_all()
+            self.itemOpenSelected.hide_all()
+
         if can_play:
-            if open_instead_of_play:
-                self.itemOpenSelected.show_all()
-                self.itemPlaySelected.hide_all()
-            else:
-                self.itemPlaySelected.show_all()
-                self.itemOpenSelected.hide_all()
-            if not can_download:
-                self.itemDeleteSelected.show_all()
-            else:
-                self.itemDeleteSelected.hide_all()
-            self.item_toggle_played.show_all()
-            self.item_toggle_lock.show_all()
-            self.separator9.show_all()
             if is_played:
                 self.change_menu_item(self.item_toggle_played, gtk.STOCK_CANCEL, _('Mark as unplayed'))
             else:
@@ -1657,21 +1653,6 @@ class gPodder(GladeWidget, dbus.service.Object):
                 self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion'))
             else:
                 self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion'))
-        else:
-            self.itemPlaySelected.hide_all()
-            self.itemOpenSelected.hide_all()
-            self.itemDeleteSelected.hide_all()
-            self.item_toggle_played.hide_all()
-            self.item_toggle_lock.hide_all()
-            self.separator9.hide_all()
-        if can_play or can_download or can_cancel:
-            self.item_episode_details.show_all()
-            self.separator16.show_all()
-            self.no_episode_selected.hide_all()
-        else:
-            self.item_episode_details.hide_all()
-            self.separator16.hide_all()
-            self.no_episode_selected.show_all()
 
         return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
 
