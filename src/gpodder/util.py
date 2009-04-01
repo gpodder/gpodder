@@ -1105,7 +1105,7 @@ def find_mount_point(directory):
       ...
     ValueError: Directory names should be of type str.
 
-    >>> from minimock import mock
+    >>> from minimock import mock, restore
     >>> mocked_mntpoints = ('/', '/home', '/media/usbdisk', '/media/cdrom')
     >>> mock('os.path.ismount', returns_func=lambda x: x in mocked_mntpoints)
     >>>
@@ -1142,6 +1142,7 @@ def find_mount_point(directory):
     Called os.path.ismount('/media/usbdisk/blubb')
     Called os.path.ismount('/media/usbdisk')
     '/media/usbdisk'
+    >>> restore()
     """
     if isinstance(directory, unicode):
         # We do not accept unicode strings, because they could fail when
@@ -1256,4 +1257,38 @@ def relpath(p1, p2):
         return "."
 
     return os.path.join(*p)
+
+
+def run_external_command(command_line):
+    """
+    This is the function that will be called in a separate
+    thread that will call an external command (specified by
+    command_line). In case of problem (i.e. the command has
+    not been found or there has been another error), we will
+    call the notification function with two arguments - the
+    first being the error message and the second being the
+    title to be used for the error message.
+
+    >>> from minimock import mock, Mock, restore
+    >>> mock('subprocess.Popen', returns=Mock('subprocess.Popen'))
+    >>> run_external_command('testprogramm')
+    Called subprocess.Popen('testprogramm', shell=True)
+    Called subprocess.Popen.wait()
+    >>> restore()
+    """
+
+    def open_process(command_line):
+        log('Running external command: %s', command_line)
+        p = subprocess.Popen(command_line, shell=True)
+        result = p.wait()
+        if result == 127:
+            log('Command not found: %s', command_line)
+        elif result == 126:
+            log('Command permission denied: %s', command_line)
+        elif result > 0:
+            log('Command returned an error (%d): %s', result, command_line)
+        else:
+            log('Command finished successfully: %s', command_line)
+
+    threading.Thread(target=open_process, args=(command_line,)).start()
 

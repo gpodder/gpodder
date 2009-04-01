@@ -847,8 +847,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         elif last_download_count > 0:
             log('All downloads have finished.', sender=self)
             if gl.config.cmd_all_downloads_complete:
-                Thread(target=gl.ext_command_thread, args=( \
-                       gl.config.cmd_all_downloads_complete)).start()
+                util.run_external_command(gl.config.cmd_all_downloads_complete)
 
         self.gPodder.set_title(' - '.join(title))
 
