@@ -63,28 +63,18 @@ class GPodderStatusIcon(gtk.StatusIcon):
     STATUS_SYNCHRONIZING = (_('Synchronizing to player'), 'multimedia-player')
     STATUS_DELETING = (_('Cleaning files'), gtk.STOCK_DELETE)
 
-    # actions: buttons within the notify bubble
-    ACTION_SHOW = ('show', _('Show'))
-    ACTION_QUIT = ('quit', _('Quit gPodder'))
-    ACTION_FORCE_EXIT = ('force_quit', _('Quit anyway'))
-    ACTION_KEEP_DOWLOADING = ('keep_dowloading', _('Keep dowloading'))
-    ACTION_START_DOWNLOAD = ('download', _('Download'))
-    
     def __init__(self, gp, icon_filename):
         gtk.StatusIcon.__init__(self)
         log('Creating tray icon', sender=self)
         
         self.__gpodder = gp
-        self.__finished_downloads = []
         self.__icon_cache = {}
         self.__icon_filename = icon_filename
         self.__current_icon = -1
-        self.__is_downloading = False
         self.__synchronisation_device = None
-        self.__download_start_time = None
         self.__sync_progress = ''
 
-        self.__previous_notification = []
+        self.__previous_notification = None
 
         # try getting the icon
         try:
@@ -116,8 +106,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             if not pynotify.init('gPodder'):
                 log('Error: unable to initialise pynotify', sender=self)
 
-        # Register with the download status manager FIXME FIXME
-        
     def __create_context_menu(self):
         # build and connect the popup menu
         menu = gtk.Menu()
@@ -187,15 +175,12 @@ class GPodderStatusIcon(gtk.StatusIcon):
         return menu
 
     def __on_exit_callback(self, widget, *args):
-        if  self.__is_downloading and self.__is_notification_on():
-            self.send_notification(_("gPodder is downloading episodes\ndo you want to exit anyway?"""), "gPodder",[self.ACTION_FORCE_EXIT, self.ACTION_KEEP_DOWLOADING])
-        else:
-            self.__gpodder.close_gpodder()
+        self.__gpodder.close_gpodder()
 
     def __on_show_previous_message_callback(self, widget, *args):
-        p = self.__previous_notification
-        if p != []:
-            self.send_notification(p[0], p[1], p[2], p[3])
+        if self.__previous_notification is not None:
+            message, title, is_error = self.__previous_notification
+            self.send_notification(message, title, is_error)
 
     def __on_right_click(self, widget, button=None, time=0, data=None):
         """Open popup menu on right-click
@@ -219,64 +204,22 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:            
                 self.__gpodder.iconify_main_window()
 
-    def __on_download_complete(self, episode):
-        """Remember finished downloads
-        """
-        self.__finished_downloads.append(episode)
+    def downloads_finished(self, download_tasks_seen):
+        # FIXME: Filter all tasks that have already been reported
+        finished_downloads = [str(task) for task in download_tasks_seen if task.status == task.DONE]
+        failed_downloads = [str(task)+' ('+task.error_message+')' for task in download_tasks_seen if task.status == task.FAILED]
 
-    def __on_download_progress_changed( self, count, percentage):
-        """ callback by download manager during dowloading.
-        It updates the tooltip with information on how many
-        files are dowloaded and the percentage of dowload
-        """
-
-        # FIXME !! THIS IS NOT WORKING ANYMORE !! FIXME
-
-        tooltip = []
-        if count > 0:
-            self.__is_downloading = True
-            if not self.__download_start_time:
-                self.__download_start_time = datetime.datetime.now()
-            if count == 1:
-                tooltip.append(_('downloading one episode'))
-            else:
-                tooltip.append(_('downloading %d episodes')%count)
-
-            tooltip.append(' (%d%%) :'%percentage)
-
-            downloading = []
-            for episode in self.__finished_downloads:
-                downloading.append(_("%s (completed)") % episode)
-            #for status in services.download_status_manager.status_list.values():
-            #    downloading.append(status['thread'].episode.title + " (%d%% - %s)" % (status['progress'], status['speed']))
-            tooltip.append(self.format_episode_list(downloading))
-
-            if percentage <> 0:
-                date_diff = datetime.datetime.now() - self.__download_start_time
-                estim = date_diff.seconds * 100 // percentage - date_diff.seconds
-                tooltip.append('\n' + _('Estimated remaining time: '))
-                tooltip.append(util.format_seconds_to_hour_min_sec(estim))
-                
-            self.set_status(self.STATUS_DOWNLOAD_IN_PROGRESS, ''.join(tooltip))
-            
-            self.progress_bar(float(percentage)/100.)
-        else:
-            self.__is_downloading = False
-            self.__download_start_time = None
-            self.set_status()
-            num = len(self.__finished_downloads)
-            if num == 1:
-                title = _('one episodes downloaded:')
-            elif num > 1:
-                title = _('%d episodes downloaded:')%num
-            else:
-                # No episodes have finished downloading, ignore
-                return
-
-            message = self.format_episode_list(self.__finished_downloads, title)
+        if finished_downloads and failed_downloads:
+            message = self.format_episode_list(finished_downloads, 5)
+            message += '\n\n<i>%s</i>\n' % _('These downloads failed:')
+            message += self.format_episode_list(failed_downloads, 5)
+            self.send_notification(message, _('gPodder downloads finished'), True)
+        elif finished_downloads:
+            message = self.format_episode_list(finished_downloads)
             self.send_notification(message, _('gPodder downloads finished'))
- 
-            self.__finished_downloads = []
+        elif failed_downloads:
+            message = self.format_episode_list(failed_downloads)
+            self.send_notification(message, _('gPodder downloads failed'), True)
 
     def __get_status_icon(self, icon):
         if icon in self.__icon_cache:
@@ -297,31 +240,13 @@ class GPodderStatusIcon(gtk.StatusIcon):
         log('Warning: Cannot create status icon: %s', icon, sender=self)
         return self.__icon
 
-    def __action_callback(self, n, action):
-        """ call back when a button is clicked in a notify bubble """
-        log("action triggered %s", action, sender = self)
-        n.close()
-        if action=='show': 
-            self.__gpodder.uniconify_main_window()
-        elif action=='quit':
-            self.__gpodder.close_gpodder()
-        elif action=='keep_dowloading':
-            pass
-        elif action=='force_quit':
-            self.__gpodder.close_gpodder()
-        elif action=='download':
-            self.__gpodder.on_itemDownloadAllNew_activate(self.__gpodder)
-        else:
-            log("don't know what to do with action %s" % action, sender = self)
-        gtk.main_quit()
-            
     def __is_notification_on(self):
         # tray icon not visible or notifications disabled
         if not self.get_visible() or not gl.config.enable_notifications:
             return False
         return True
     
-    def send_notification( self, message, title = "gPodder", actions = [], is_error=False):
+    def send_notification( self, message, title = "gPodder", is_error=False):
         if not self.__is_notification_on(): return
 
         message = message.strip()
@@ -336,17 +261,13 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 notification.attach_to_status_icon(self)
             except:
                 log('Warning: Cannot attach notification to status icon.', sender=self)
-            for action in actions:
-                notification.add_action(action[0], action[1], self.__action_callback)
             if not notification.show():
                 log("Error: enable to send notification %s", message)
-            if len(actions) > 0:
-                gtk.main() # needed for action callback to be triggered
         else:
             return
         
         # If we showed any kind of notification, remember it for next time
-        self.__previous_notification=[message, title, actions, is_error]
+        self.__previous_notification = (message, title, is_error)
         self.menuItem_previous_msg.set_sensitive(True)
         
     def set_status(self, status=None, tooltip=None):
@@ -376,49 +297,35 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 self.__current_icon = icon
         self.set_tooltip(tooltip)
 
-    def format_episode_list(self, episode_list, caption=None):
+    def format_episode_list(self, episode_list, max_episodes=10):
         """
-        Format a list of episodes for tooltips and notifications
-        Return a listing of episodes title separated by a line break.
-        Long title are troncated: "xxxx...xxxx"
-        If the list is too long, it is cut and the string "x others episodes" is append
-        
-        episode_list
-            can be either a list containing episode objects
-            or a list of strings of episode's title.
+        Format a list of episode names for notifications
 
-        return
-            the formatted list of episodes as a string
+        Will truncate long episode names and limit the amount of
+        episodes displayed (max_episodes=10).
+
+        The episode_list parameter should be a list of strings.
         """
-        
-        MAX_EPISODES = 10
         MAX_TITLE_LENGTH = 100
 
         result = []
-        if caption is not None:
-            result.append('\n%s' % caption)
-        for episode in episode_list[:min(len(episode_list),MAX_EPISODES)]:
-            if type(episode) in (str, unicode):
-                episode_title = episode
-            else:
-                episode_title = episode.title
-            if len(episode_title) < MAX_TITLE_LENGTH:
-                title = episode_title
-            else:
+        for title in episode_list[:min(len(episode_list), max_episodes)]:
+            if len(title) > MAX_TITLE_LENGTH:
                 middle = (MAX_TITLE_LENGTH/2)-2
-                title = '%s...%s' % (episode_title[0:middle], episode_title[-middle:])
-            result.append('\n%s' % saxutils.escape(title))
+                title = '%s...%s' % (title[0:middle], title[-middle:])
+            result.append(saxutils.escape(title))
+            result.append('\n')
  
-        more_episodes = len(episode_list) - MAX_EPISODES
+        more_episodes = len(episode_list) - max_episodes
         if more_episodes > 0:
-            result.append('\n(...')
+            result.append('(...')
             if more_episodes == 1:
                 result.append(_('one more episode'))
             else:
                 result.append(_('%d more episodes') % more_episodes)
             result.append('...)')
 
-        return ''.join(result)
+        return (''.join(result)).strip()
     
     def set_synchronisation_device(self, synchronisation_device):
         assert not self.__synchronisation_device, "a device was already set without have been released"
@@ -452,16 +359,10 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
         self.set_status()
         
-    def progress_bar(self, ratio):
+    def draw_progress_bar(self, ratio):
         """
-        draw a progress bar on top of the tray icon.
-        Be sure to call this method the first time with ratio=0
-        in order to initialise background image
-            
-        ratio
-            value between 0 and 1 (inclusive) indicating the ratio 
-            of the progress bar to be drawn
-                
+        Draw a progress bar on top of this tray icon.
+        The ratio parameter should be a value from 0 to 1.
         """
 
         # Only update in 3-percent-steps to save some resources

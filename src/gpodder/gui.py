@@ -696,6 +696,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         self.treeDownloads.set_model(self.download_status_manager.get_tree_model())
         gobject.timeout_add(1500, self.update_downloads_list)
         self.download_tasks_seen = set()
+        self.last_download_count = 0
         
         #Add Drag and Drop Support
         flags = gtk.DEST_DEFAULT_ALL
@@ -790,8 +791,6 @@ class gPodder(GladeWidget, dbus.service.Object):
         total_speed, total_size, done_size = 0, 0, 0
 
         # Keep a list of all download tasks that we've seen
-        last_download_count = sum(1 for task in self.download_tasks_seen \
-                if task.status in (task.DOWNLOADING, task.QUEUED))
         download_tasks_seen = set()
 
         # Remember the progress and speed for the episode that
@@ -864,10 +863,19 @@ class gPodder(GladeWidget, dbus.service.Object):
                 percentage = 0.0
             total_speed = gl.format_filesize(total_speed)
             title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
-        elif last_download_count > 0:
+            if self.tray_icon is not None:
+                # Update the tray icon status and progress bar
+                self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
+                self.tray_icon.draw_progress_bar(percentage/100.)
+        elif self.last_download_count > 0:
+            if self.tray_icon is not None:
+                # Update the tray icon status
+                self.tray_icon.set_status()
+                self.tray_icon.downloads_finished(self.download_tasks_seen)
             log('All downloads have finished.', sender=self)
             if gl.config.cmd_all_downloads_complete:
                 util.run_external_command(gl.config.cmd_all_downloads_complete)
+        self.last_download_count = count
 
         self.gPodder.set_title(' - '.join(title))
 
