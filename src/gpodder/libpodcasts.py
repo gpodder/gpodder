@@ -474,9 +474,15 @@ class PodcastChannel(PodcastModelObject):
         """
         Return a gtk.ListStore containing episodes for this channel
         """
-        new_model = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, 
-            gobject.TYPE_BOOLEAN, gtk.gdk.Pixbuf, gobject.TYPE_STRING, gobject.TYPE_STRING, 
-            gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
+        DATA_TYPES = (str, str, str, bool, gtk.gdk.Pixbuf, str, str, str, str, str)
+
+        # TODO: Remove unused columns, make these symbolic names class
+        # members and use them everywhere, so we can change/reorder them
+        C_URL, C_TITLE, C_FILESIZE_TEXT, C_UNUSED0, C_STATUS_ICON, \
+                C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
+                C_UNUSED1, C_EXTENSION = range(len(DATA_TYPES))
+
+        new_model = gtk.ListStore(*DATA_TYPES)
 
         log('Returning TreeModel for %s', self.url, sender = self)
         urls = []

@@ -937,7 +937,7 @@ class gPodder(GladeWidget, dbus.service.Object):
             model = treeview.get_model()
             iter = model.get_iter(path)
             url = model.get_value(iter, 0)
-            description = model.get_value(iter, 7)
+            description = model.get_value(iter, 7) # FIXME INDEX MODEL BY SYMBOLIC NAME
             if self.last_tooltip_episode is not None and self.last_tooltip_episode != url:
                 self.last_tooltip_episode = None
                 return False
