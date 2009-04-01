@@ -794,6 +794,15 @@ class gPodder(GladeWidget, dbus.service.Object):
         old_download_tasks_seen = self.download_tasks_seen
         self.download_tasks_seen = set()
 
+        # Remember the progress and speed for the episode that
+        # has been opened in the episode shownotes dialog (if any)
+        if self.gpodder_episode_window is not None:
+            episode_window_episode = self.gpodder_episode_window.episode
+            episode_window_progress = 0.0
+            episode_window_speed = 0.0
+        else:
+            episode_window_episode = None
+
         for row in model:
             self.download_status_manager.request_update(row.iter)
 
@@ -802,6 +811,11 @@ class gPodder(GladeWidget, dbus.service.Object):
 
             total_size += size
             done_size += size*progress
+
+            if episode_window_episode is not None and \
+                    episode_window_episode.url == task.url:
+                episode_window_progress = progress
+                episode_window_speed = speed
 
             self.download_tasks_seen.add(task)
 
@@ -856,6 +870,10 @@ class gPodder(GladeWidget, dbus.service.Object):
         self.gPodder.set_title(' - '.join(title))
 
         self.update_episode_list_icons(episode_urls)
+        if self.gpodder_episode_window is not None and \
+                self.gpodder_episode_window.gPodderEpisode.get_property('visible'):
+            self.gpodder_episode_window.download_status_changed(episode_urls)
+            self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
         self.play_or_download()
         #self.updateComboBox(only_these_urls=channel_urls)
         return True
@@ -3775,6 +3793,8 @@ class gPodderEpisode(GladeWidget):
             vsb.set_value(vsb.get_value() - step)
 
     def show(self, episode, download_callback, play_callback):
+        self.download_progress.set_fraction(0)
+        self.download_progress.set_text(_('Please wait...'))
         self.episode = episode
         self.download_callback = download_callback
         self.play_callback = play_callback
@@ -3860,27 +3880,17 @@ class gPodderEpisode(GladeWidget):
             self.textview.get_buffer().set_text('')
         self.gPodderEpisode.hide()
 
-    def on_download_status_changed(self, episode_urls, channel_urls):
-        # FIXME - propagate a signal from gPodder to here, so we can
-        # get informed about download status changes
-        if self.gPodderEpisode.get_property('visible'):
-            # Reload the episode from the database, so a newly-set local_filename
-            # as a result of a download gets updated in the episode object
-            self.episode.reload_from_db()
-            self.hide_show_widgets()
-        else:
-            log('download status changed, but not visible', sender=self)
+    def download_status_changed(self, episode_urls):
+        # Reload the episode from the database, so a newly-set local_filename
+        # as a result of a download gets updated in the episode object
+        self.episode.reload_from_db()
+        self.hide_show_widgets()
 
-    def on_download_status_progress(self, url, progress, speed):
-        # FIXME - propagate the necessary data from gPodder to here,
-        # so we can display the progress of the download to the user
-        if self.episode is None:
-            return
-
-        if url == self.episode.url:
-            progress = float(min(100.0,max(0.0,progress)))
-            self.download_progress.set_fraction(progress/100.0)
-            self.download_progress.set_text('Downloading: %d%% (%s)' % (progress, speed))
+    def download_status_progress(self, progress, speed):
+        # We receive this from the main window every time the progress
+        # for our episode has changed (but only when this window is visible)
+        self.download_progress.set_fraction(progress)
+        self.download_progress.set_text('Downloading: %d%% (%s/s)' % (100.*progress, gl.format_filesize(speed)))
 
     def hide_show_widgets(self):
         is_downloading = self.episode_is_downloading(self.episode)
