@@ -249,6 +249,7 @@ class DownloadTask(object):
         task.speed            # in bytes per second
         str(task)             # name of the episode
         task.status           # current status
+        task.status_changed   # True if the status has been changed
 
     You can cancel a running download task by setting its status:
 
@@ -257,6 +258,18 @@ class DownloadTask(object):
     The task will then abort as soon as possible (due to the nature
     of downloading data, this can take a while when the Internet is
     busy).
+
+    The "status_changed" attribute gets set to True everytime the
+    "status" attribute changes its value. After you get the value of
+    the "status_changed" attribute, it is always reset to False:
+
+        if task.status_changed:
+            new_status = task.status
+            # .. update the UI accordingly ..
+
+    Obviously, this also means that you must have at most *one*
+    place in your UI code where you check for status changes and
+    broadcast the status updates from there.
 
     While the download is taking place and after the .run() method
     has finished, you can get the final status to check if the download
@@ -294,9 +307,20 @@ class DownloadTask(object):
         return self.__status
 
     def __set_status(self, status):
-        self.__status = status
+        if status != self.__status:
+            self.__status_changed = True
+            self.__status = status
 
     status = property(fget=__get_status, fset=__set_status)
+
+    def __get_status_changed(self):
+        if self.__status_changed:
+            self.__status_changed = False
+            return True
+        else:
+            return False
+
+    status_changed = property(fget=__get_status_changed)
 
     def __get_url(self):
         return self.__episode.url
@@ -309,6 +333,7 @@ class DownloadTask(object):
 
     def __init__(self, episode):
         self.__status = DownloadTask.INIT
+        self.__status_changed = True
         self.__episode = episode
 
         # Create the target filename and save it in the database

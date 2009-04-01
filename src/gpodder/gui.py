@@ -790,8 +790,9 @@ class gPodder(GladeWidget, dbus.service.Object):
         total_speed, total_size, done_size = 0, 0, 0
 
         # Keep a list of all download tasks that we've seen
-        old_download_tasks_seen = self.download_tasks_seen
-        self.download_tasks_seen = set()
+        last_download_count = sum(1 for task in self.download_tasks_seen \
+                if task.status in (task.DOWNLOADING, task.QUEUED))
+        download_tasks_seen = set()
 
         # Remember the progress and speed for the episode that
         # has been opened in the episode shownotes dialog (if any)
@@ -816,7 +817,7 @@ class gPodder(GladeWidget, dbus.service.Object):
                 episode_window_progress = progress
                 episode_window_speed = speed
 
-            self.download_tasks_seen.add(task)
+            download_tasks_seen.add(task)
 
             if status == download.DownloadTask.DOWNLOADING:
                 downloading += 1
@@ -827,6 +828,9 @@ class gPodder(GladeWidget, dbus.service.Object):
                 finished += 1
             elif status == download.DownloadTask.QUEUED:
                 queued += 1
+
+        # Remember which tasks we have seen after this run
+        self.download_tasks_seen = download_tasks_seen
 
         text = [_('Downloads')]
         if downloading + failed + finished + queued > 0:
@@ -844,9 +848,8 @@ class gPodder(GladeWidget, dbus.service.Object):
 
         title = [self.default_title]
 
-        # Calculate the difference based on what we've seen now and before
-        episode_urls = [task.url for task in self.download_tasks_seen.symmetric_difference(old_download_tasks_seen)]
-        last_download_count = sum(1 for task in old_download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED))
+        # We have to update all episode icons for which the status has changed
+        episode_urls = [task.url for task in self.download_tasks_seen if task.status_changed]
 
         count = downloading + queued
         if count > 0:
@@ -1066,6 +1069,7 @@ class gPodder(GladeWidget, dbus.service.Object):
             def make_menu_item(label, stock_id, tasks, status):
                 # This creates a menu item for selection-wide actions
                 def for_each_task_set_status(tasks, status):
+                    changed_episode_urls = []
                     for row_reference, task in tasks:
                         if status is not None:
                             if status == download.DownloadTask.QUEUED:
@@ -1088,8 +1092,19 @@ class gPodder(GladeWidget, dbus.service.Object):
                             if task.status in (task.QUEUED, task.DOWNLOADING):
                                 task.status = task.CANCELLED
                             model.remove(model.get_iter(row_reference.get_path()))
+                            # Remember the URL, so we can tell the UI to update
+                            try:
+                                # We don't "see" this task anymore - remove it;
+                                # this is needed, so update_episode_list_icons()
+                                # below gets the correct list of "seen" tasks
+                                self.download_tasks_seen.remove(task)
+                            except KeyError, key_error:
+                                log('Cannot remove task from "seen" list: %s', task, sender=self)
+                            changed_episode_urls.append(task.url)
                             # Tell the task that it has been removed (so it can clean up)
                             task.removed_from_list()
+                    # Tell the podcasts tab to update icons for our removed podcasts
+                    self.update_episode_list_icons(changed_episode_urls)
                     return True
                 item = gtk.ImageMenuItem(label)
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
@@ -1531,7 +1546,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         Only update the episodes that have an URL in
         the "urls" iterable object (e.g. a list of URLs)
         """
-        if self.active_channel is None:
+        if self.active_channel is None or not urls:
             return
 
         model = self.treeAvailable.get_model()
