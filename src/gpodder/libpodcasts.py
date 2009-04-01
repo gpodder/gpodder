@@ -355,8 +355,27 @@ class PodcastChannel(PodcastModelObject):
     def get_downloaded_episodes(self):
         return db.load_episodes(self, factory=self.episode_factory, state=db.STATE_DOWNLOADED)
     
-    def get_new_episodes( self):
-        return [episode for episode in db.load_episodes(self, factory=self.episode_factory) if episode.state == db.STATE_NORMAL and not episode.is_played] # and not services.download_status_manager.is_download_in_progress(episode.url)]
+    def get_new_episodes(self, downloading=lambda e: False):
+        """
+        Get a list of new episodes. You can optionally specify
+        "downloading" as a callback that takes an episode as
+        a parameter and returns True if the episode is currently
+        being downloaded or False if not.
+
+        By default, "downloading" is implemented so that it
+        reports all episodes as not downloading.
+        """
+        def check_is_new(episode):
+            """
+            For a given episode, returns True if it is to
+            be considered new or False if it is "not new".
+            """
+            return episode.state == db.STATE_NORMAL and \
+                    not episode.is_played and \
+                    not downloading(episode)
+
+        return [episode for episode in db.load_episodes(self, \
+                factory=self.episode_factory) if check_is_new(episode)]
 
     def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:

@@ -230,6 +230,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         files are dowloaded and the percentage of dowload
         """
 
+        # FIXME !! THIS IS NOT WORKING ANYMORE !! FIXME
+
         tooltip = []
         if count > 0:
             self.__is_downloading = True
@@ -245,8 +247,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
             downloading = []
             for episode in self.__finished_downloads:
                 downloading.append(_("%s (completed)") % episode)
-            for status in services.download_status_manager.status_list.values():
-                downloading.append(status['thread'].episode.title + " (%d%% - %s)" % (status['progress'], status['speed']))
+            #for status in services.download_status_manager.status_list.values():
+            #    downloading.append(status['thread'].episode.title + " (%d%% - %s)" % (status['progress'], status['speed']))
             tooltip.append(self.format_episode_list(downloading))
 
             if percentage <> 0:

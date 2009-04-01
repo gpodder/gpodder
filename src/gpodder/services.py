@@ -352,15 +352,28 @@ class DownloadStatusManager(object):
             if task is not None:
                 task.status = task.PAUSED
 
-    def cancel_by_url(self, url):
+    def are_downloads_in_progress(self):
+        """
+        Returns True if there are any downloads in the
+        QUEUED or DOWNLOADING status, False otherwise.
+        """
         for row in self.__model:
             task = row[DownloadStatusManager.C_TASK]
-            if task.url == url and task.status == task.DOWNLOADING:
-                task.status = task.CANCELLED
+            if task is not None and \
+                    task.status in (task.DOWNLOADING, \
+                                    task.QUEUED):
                 return True
 
         return False
 
+    def cancel_by_url(self, url):
+        for row in self.__model:
+            task = row[DownloadStatusManager.C_TASK]
+            if task is not None and task.url == url and \
+                    task.status in (task.DOWNLOADING, \
+                                    task.QUEUED):
+                task.status = task.CANCELLED
+                return True
 
-download_status_manager = DownloadStatusManager()
+        return False
 
