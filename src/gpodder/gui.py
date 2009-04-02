@@ -1997,41 +1997,55 @@ class gPodder(GladeWidget, dbus.service.Object):
         # select exactly this podcast after updating the view
         self.updateComboBox(selected_url=select_url_afterwards)
 
+        self.channels = load_channels()
+        self.channel_list_changed = True
+        self.updateComboBox()
+
+        episodes = self.get_new_episodes()
+
         if self.tray_icon:
             self.tray_icon.set_status(None)
             if self.minimized:
-                new_episodes = []
-                # look for new episodes to notify
-                for channel in self.channels:
-                    for episode in channel.get_new_episodes(downloading=self.episode_is_downloading):
-                        if not episode in self.already_notified_new_episodes:
-                            new_episodes.append(episode)
-                            self.already_notified_new_episodes.append(episode)
-                # notify new episodes
+                # Determine new episodes that we have not yet announced
+                new_episodes = [episode for episode in episodes \
+                        if episode not in self.already_notified_new_episodes]
+                self.already_notified_new_episodes.extend(new_episodes)
                                 
                 if len(new_episodes) == 0:
                     if notify_no_new_episodes and self.tray_icon is not None:
                         msg = _('No new episodes available for download')
                         self.tray_icon.send_notification(msg)                        
-                    return
-                elif len(new_episodes) == 1:
-                    title = _('gPodder has found %s') % (_('one new episode:'),)
-                else:    
-                    title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
-                message = self.tray_icon.format_episode_list(new_episodes)
+                else:
+                    if len(new_episodes) == 1:
+                        title = _('gPodder has found %s') % (_('one new episode:'),)
+                    else:
+                        title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
+                    message = self.tray_icon.format_episode_list([e.title for e in new_episodes])
 
-                #auto download new episodes
-                if gl.config.auto_download_when_minimized:
-                    message += '\n<i>(%s...)</i>' % _('downloading')
-                    self.download_episode_list(new_episodes)
-                self.tray_icon.send_notification(message, title)
-                return
+                    #auto download new episodes
+                    if gl.config.auto_download_when_minimized:
+                        message += '\n<i>(%s...)</i>' % _('downloading')
+                        self.download_episode_list(new_episodes)
+                    self.tray_icon.send_notification(message, title)
 
-        # open the episodes selection dialog
-        self.channels = load_channels()
-        self.channel_list_changed = True
-        self.updateComboBox()
-        self.download_all_new(channels=channels)
+        if len(episodes) == 0 or self.feed_cache_update_cancelled:
+            self.pbFeedUpdate.set_fraction(1.0)
+            if self.feed_cache_update_cancelled:
+                self.pbFeedUpdate.set_text(_('Update has been cancelled'))
+            else:
+                self.pbFeedUpdate.set_text(_('No new episodes'))
+            self.feed_cache_update_cancelled = True
+            self.btnCancelFeedUpdate.show()
+            self.btnCancelFeedUpdate.set_sensitive(True)
+            if gpodder.interface == gpodder.MAEMO:
+                # btnCancelFeedUpdate is a ToolButton on Maemo
+                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
+            else:
+                # btnCancelFeedUpdate is a normal gtk.Button
+                self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
+        else:
+            # open the episodes selection dialog
+            self.new_episodes_show(episodes)
 
     def update_feed_cache_callback(self, progressbar, title, position, count):
         progression = _('Updated %s (%d/%d)')%(title, position+1, count)
@@ -2127,6 +2141,7 @@ class gPodder(GladeWidget, dbus.service.Object):
             self.btnUpdateSelectedFeed.hide()
             self.toolFeedUpdateProgress.show_all()
         else:
+            self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
             self.hboxUpdateFeeds.show_all()
         self.btnUpdateFeeds.hide()
         semaphore = Semaphore(gl.config.max_simulaneous_feeds_updating)
@@ -2421,49 +2436,39 @@ class gPodder(GladeWidget, dbus.service.Object):
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
         )
 
-        if len(episodes) > 0 and not self.feed_cache_update_cancelled:
-            instructions = _('Select the episodes you want to download now.')
+        instructions = _('Select the episodes you want to download now.')
 
-            self.feed_cache_update_cancelled = True
-            self.on_btnCancelFeedUpdate_clicked(self.btnCancelFeedUpdate)
+        self.feed_cache_update_cancelled = True
+        self.on_btnCancelFeedUpdate_clicked(self.btnCancelFeedUpdate)
 
-            gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
-                                   episodes=episodes, columns=columns, selected_default=True, \
-                                   stock_ok_button = 'gpodder-download', \
-                                   callback=self.download_episode_list, \
-                                   remove_callback=lambda e: e.mark_old(), \
-                                   remove_action=_('Never download'), \
-                                   remove_finished=self.episode_new_status_changed)
-        else:
-            if gpodder.interface == gpodder.MAEMO:
-                self.pbFeedUpdate.set_fraction(1.0)
-                if self.feed_cache_update_cancelled:
-                    self.pbFeedUpdate.set_text(_('Update has been cancelled'))
-                else:
-                    self.pbFeedUpdate.set_text(_('No new episodes'))
-                self.feed_cache_update_cancelled = True
-                self.btnCancelFeedUpdate.show()
-                self.btnCancelFeedUpdate.set_sensitive(True)
-                #self.btnCancelFeedUpdate.set_is_important(True)
-                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
-            else:
-                self.hboxUpdateFeeds.hide()
-                self.btnUpdateFeeds.show()
-                title = _('No new episodes')
-                message = _('No new episodes to download.\nPlease check for new episodes later.')
-                self.show_message(message, title)
+        gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
+                               episodes=episodes, columns=columns, selected_default=True, \
+                               stock_ok_button = 'gpodder-download', \
+                               callback=self.download_episode_list, \
+                               remove_callback=lambda e: e.mark_old(), \
+                               remove_action=_('Never download'), \
+                               remove_finished=self.episode_new_status_changed)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
-        self.download_all_new()
+        new_episodes = self.get_new_episodes()
+        if len(new_episodes):
+            self.new_episodes_show(new_episodes)
+        else:
+            msg = _('No new episodes available for download')
+            if self.tray_icon is not None and self.minimized:
+                self.tray_icon.send_notification(msg)
+            else:
+                self.show_message(msg, _('No new episodes'))
 
-    def download_all_new(self, channels=None):
+    def get_new_episodes(self, channels=None):
         if channels is None:
             channels = self.channels
         episodes = []
         for channel in channels:
             for episode in channel.get_new_episodes(downloading=self.episode_is_downloading):
                 episodes.append(episode)
-        self.new_episodes_show(episodes)
+
+        return episodes
 
     def get_all_episodes(self, exclude_nonsignificant=True ):
         """'exclude_nonsignificant' will exclude non-downloaded episodes
