@@ -345,7 +345,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
 
 
 class gPodder(GladeWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'advanced1', 'menuChannels', 'menuHelp']
+    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'menuSubscriptions', 'menuChannels', 'menuHelp']
     ENTER_URL_TEXT = _('Enter podcast URL...')
 
     def __init__(self, bus_name):
@@ -634,7 +634,10 @@ class gPodder(GladeWidget, dbus.service.Object):
         column = gtk.TreeViewColumn(_('Episode'))
 
         cell = gtk.CellRendererPixbuf()
-        cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        if gpodder.interface == gpodder.MAEMO:
+            cell.set_property('stock-size', gtk.ICON_SIZE_DIALOG)
+        else:
+            cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
         column.pack_start(cell, expand=False)
         column.add_attribute(cell, 'stock-id', \
                 DownloadStatusManager.C_ICON_NAME)
@@ -653,13 +656,15 @@ class gPodder(GladeWidget, dbus.service.Object):
         column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
                 value=DownloadStatusManager.C_PROGRESS, \
                 text=DownloadStatusManager.C_PROGRESS_TEXT)
-        column.set_expand(True)
+        if gpodder.interface != gpodder.MAEMO:
+            column.set_expand(True)
         self.treeDownloads.append_column(column)
 
         # Third column: Size
-        column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
-                text=DownloadStatusManager.C_SIZE_TEXT)
-        self.treeDownloads.append_column(column)
+        if gpodder.interface != gpodder.MAEMO:
+            column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
+                    text=DownloadStatusManager.C_SIZE_TEXT)
+            self.treeDownloads.append_column(column)
 
         # Fourth column: Speed
         column = gtk.TreeViewColumn(_('Speed'), gtk.CellRendererText(),
@@ -1045,7 +1050,9 @@ class gPodder(GladeWidget, dbus.service.Object):
             if path is None:
                 treeview.get_selection().unselect_all()
 
-        if event.button == 3:
+        # Use right-click for the Desktop version and left-click for Maemo
+        if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
+           (event.button == 3 and gpodder.interface == gpodder.GUI):
             (x, y) = (int(event.x), int(event.y))
             (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
 
@@ -1138,7 +1145,7 @@ class gPodder(GladeWidget, dbus.service.Object):
                             item.set_sensitive(False)
                             break
 
-                return item
+                return self.set_finger_friendly(item)
 
             menu = gtk.Menu()
 
@@ -1148,6 +1155,14 @@ class gPodder(GladeWidget, dbus.service.Object):
             menu.append(make_menu_item(_('Pause'), gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED))
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None))
+
+            if gpodder.interface == gpodder.MAEMO:
+                # Because we open the popup on left-click for Maemo,
+                # we also include a non-action to close the menu
+                menu.append(gtk.SeparatorMenuItem())
+                item = gtk.ImageMenuItem(_('Close this menu'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
+                menu.append(self.set_finger_friendly(item))
 
             menu.show_all()
             menu.popup(None, None, None, event.button, event.time)
@@ -1448,17 +1463,17 @@ class gPodder(GladeWidget, dbus.service.Object):
             item.set_sensitive(can_play)
             item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolPlay))
             menu.append(self.set_finger_friendly(item))
-                
-            item = gtk.ImageMenuItem(_('Download'))
-            item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
-            item.set_sensitive(can_download)
-            item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolDownload))
-            menu.append(self.set_finger_friendly(item))
 
-            item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
-            item.set_sensitive(can_cancel)
-            item.connect('activate', lambda w: self.on_treeDownloads_row_activated(self.toolCancel))
-            menu.append(self.set_finger_friendly(item))
+            if not can_cancel:
+                item = gtk.ImageMenuItem(_('Download'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
+                item.set_sensitive(can_download)
+                item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolDownload))
+                menu.append(self.set_finger_friendly(item))
+            else:
+                item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
+                item.connect('activate', lambda w: self.on_treeDownloads_row_activated(self.toolCancel))
+                menu.append(self.set_finger_friendly(item))
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
             item.set_sensitive(can_delete and not episode['is_locked'])
