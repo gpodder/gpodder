@@ -656,8 +656,6 @@ class gPodder(GladeWidget, dbus.service.Object):
         column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
                 value=DownloadStatusManager.C_PROGRESS, \
                 text=DownloadStatusManager.C_PROGRESS_TEXT)
-        if gpodder.interface != gpodder.MAEMO:
-            column.set_expand(True)
         self.treeDownloads.append_column(column)
 
         # Third column: Size
@@ -1142,6 +1140,12 @@ class gPodder(GladeWidget, dbus.service.Object):
                     elif status == download.DownloadTask.PAUSED:
                         if task.status not in (download.DownloadTask.QUEUED, \
                                 download.DownloadTask.DOWNLOADING):
+                            item.set_sensitive(False)
+                            break
+                    elif status is None:
+                        if task.status not in (download.DownloadTask.CANCELLED, \
+                                download.DownloadTask.FAILED, \
+                                download.DownloadTask.DONE):
                             item.set_sensitive(False)
                             break
 
