@@ -347,7 +347,7 @@ def format_date(timestamp):
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError, ve:
-        log('Warning: Cannot convert timestamp', sender=self, traceback=True)
+        log('Warning: Cannot convert timestamp', traceback=True)
         return None
     
     if timestamp_date == today:
@@ -1024,7 +1024,7 @@ def gui_open(filename):
         # as fallback when xdg-open not available
         return True
     except:
-        log('Cannot open file/folder: "%s"', filename, sender=self, traceback=True)
+        log('Cannot open file/folder: "%s"', filename, traceback=True)
         return False
 
 
