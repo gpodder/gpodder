@@ -100,7 +100,7 @@ app_authors = [
     'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Gilles Lehoux', 'Götz Waschk',
     'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Iwan van der Kleijn', 'Jens Thiele',
     'Jérôme Chabod', 'Jerry Moss',
-    'Jessica Henline', 'João Trindade', 'Joel Calado', 'John Ferguson', 
+    'Jessica Henline', 'Jim Nygård', 'João Trindade', 'Joel Calado', 'John Ferguson', 
     'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
     'Jürgen Schinker', 'Justin Forest',
     'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Marco Antonio Villegas Vega', 'Marcos Hernández', 'Mark Alford', 'Markus Golser', 'Mehmet Nur Olcay', 'Michael Salim',
