@@ -256,7 +256,12 @@ class Device(services.ObservableService):
 
     def _track_on_device( self, track_name ):
         for t in self.tracks_list:
-            if track_name == t.title:
+            if hasattr(t, 'filetitle') and t.filetitle:
+                title = t.filetitle
+            else:
+                title = t.title
+
+            if track_name == title:
                 return t
         return False
 
@@ -643,6 +648,7 @@ class MP3PlayerDevice(Device):
             files = glob.glob(os.path.join(self.destination, '*'))
 
         for filename in files:
+            (filetitle, extension) = os.path.splitext(os.path.basename(filename))
             length = util.calculate_size(filename)
 
             metadata = libtagupdate.get_tags_from_file(filename)
@@ -650,7 +656,7 @@ class MP3PlayerDevice(Device):
                 title = metadata['title']
             else:
                 # fallback: use the basename of the file
-                (title, extension) = os.path.splitext(os.path.basename(filename))
+                title = filetitle
 
             age_in_days = util.file_age_in_days(filename)
             modified = util.file_age_to_string(age_in_days)
@@ -658,8 +664,9 @@ class MP3PlayerDevice(Device):
                 podcast_name = os.path.basename(os.path.dirname(filename))
             else:
                 podcast_name = None
-         
-            t = SyncTrack(title, length, modified, filename=filename, podcast=podcast_name)
+
+            # SyncTrack.filetitle will be used by Device._track_on_device (see above)
+            t = SyncTrack(title, length, modified, filename=filename, filetitle=filetitle, podcast=podcast_name)
             tracks.append(t)
         return tracks
 
