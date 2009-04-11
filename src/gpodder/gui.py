@@ -2334,6 +2334,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         else:
             device.add_tracks(episodes, force_played=True)
         device.close()
+        self.update_selected_episode_list_icons()
 
     def ipod_cleanup_callback(self, device, tracks):
         title = _('Delete podcasts from device?')
