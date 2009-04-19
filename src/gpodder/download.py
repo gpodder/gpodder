@@ -227,7 +227,9 @@ class DownloadQueueManager(object):
         if task.status == DownloadTask.INIT:
             # This task is fresh, so add it to our status manager
             self.download_status_manager.register_task(task)
-
+        else:
+            # This task is old so update episode from db
+            task.episode.reload_from_db()
         task.status = DownloadTask.QUEUED
         self.tasks.appendleft(task)
         self.spawn_and_retire_threads(request_new_thread=True)
@@ -326,6 +328,11 @@ class DownloadTask(object):
         return self.__episode.url
 
     url = property(fget=__get_url)
+
+    def __get_episode(self):
+        return self.__episode
+
+    episode = property(fget=__get_episode)
 
     def removed_from_list(self):
         if self.status != self.DONE:
