@@ -2524,6 +2524,13 @@ class gPodder(GladeWidget, dbus.service.Object):
             self.notification(message, title)
             return
 
+        if gl.config.device_type == 'ipod':
+            #update played episodes and delete if requested
+            for channel in self.channels:
+                if channel.sync_to_devices:
+                    allepisodes = [ episode for episode in channel.get_all_episodes() if  episode.was_downloaded(and_exists=True) ]
+                    device.update_played_or_delete(channel, allepisodes, gl.config.ipod_delete_played_from_db)
+
         if gl.config.ipod_purge_old_episodes:
             device.purge()
 
@@ -3491,6 +3498,7 @@ class gPodderProperties(GladeWidget):
         gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
         gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
+        gl.config.connect_gtk_togglebutton('ipod_delete_played_from_db', self.ipod_delete_played_from_db)
         gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         gl.config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
         
@@ -3707,7 +3715,8 @@ class gPodderProperties(GladeWidget):
 
         # iPod
         ipod_widgets = (self.ipodLabel, self.btn_iPodMountpoint,
-                        self.ipod_write_gtkpod_extended)
+                        self.ipod_write_gtkpod_extended,
+                        self.ipod_delete_played_from_db)
 
         for widget in ipod_widgets:
             if active_item == 1:

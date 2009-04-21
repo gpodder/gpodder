@@ -332,6 +332,23 @@ class iPodDevice(Device):
         Device.close(self)
         return True
 
+    def update_played_or_delete(self, channel, episodes, delete_from_db):
+        """
+        Check whether episodes on ipod are played and update as played
+        and delete if required.
+        """
+        for episode in episodes:
+            track = self.episode_on_device(episode)
+            if track:
+                gtrack = track.libgpodtrack
+                if gtrack.mark_unplayed == 1 or gtrack.playcount > 0:
+                    if delete_from_db and not gtrack.rating:
+                        log('Deleting episode from db %s', gtrack.title, sender=self)
+                        channel.delete_episode_by_url(gtrack.podcasturl)
+                    else:
+                        log('Marking episode as played %s', gtrack.title, sender=self)
+                        db.mark_episode(gtrack.podcasturl, is_played=True)
+
     def purge(self):
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             if gpod.itdb_filename_on_ipod(track) is None:

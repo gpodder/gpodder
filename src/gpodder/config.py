@@ -121,6 +121,10 @@ gPodderSettings = {
       _("Remove episodes from an iPod device if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
         "the device by the user to prevent deletion).")),
+    'ipod_delete_played_from_db': (bool, False,
+      _("Remove episodes from gPodder if they've been marked as played "
+        "on the device and they have no rating set (the rating can be set on "
+        "the device by the user to prevent deletion).")),
     'mp3_player_delete_played': (bool, False,
       _("Removes episodes from an FS-based device that have been marked as "
         "played in gPodder. Note: only works if 'only_sync_not_played' is "
