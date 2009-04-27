@@ -2272,6 +2272,9 @@ class gPodder(GladeWidget, dbus.service.Object):
             episode_urls.add(episode.url)
             channel_urls.add(episode.channel.url)
 
+        # Episodes have been deleted - persist the database
+        db.commit()
+
         #self.download_status_updated(episode_urls, channel_urls)
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
@@ -2553,6 +2556,10 @@ class gPodder(GladeWidget, dbus.service.Object):
             Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
             if self.tray_icon:
                 self.tray_icon.set_synchronisation_device(device)
+
+        # The sync process might have updated the status of episodes,
+        # therefore persist the database here to avoid losing data
+        db.commit()
 
     def sync_to_ipod_completed(self, device, successful_sync):
         device.unregister( 'post-done', self.sync_to_ipod_completed )
