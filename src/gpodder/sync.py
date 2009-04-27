@@ -179,7 +179,8 @@ class Device(services.ObservableService):
         return True
 
     def add_tracks(self, tracklist=[], force_played=False):
-        for id, track in enumerate(tracklist):
+        compare_episodes = lambda a, b: cmp(a.pubDate, b.pubDate)
+        for id, track in enumerate(sorted(tracklist, cmp=compare_episodes)):
             if self.cancelled:
                 return False
 
