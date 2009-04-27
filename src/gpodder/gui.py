@@ -4340,11 +4340,13 @@ class gPodderEpisodeSelector( GladeWidget):
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = gtk.CellRendererText()
-            renderer.set_property( 'ellipsize', pango.ELLIPSIZE_END)
+            if next_column < self.COLUMN_ADDITIONAL + 2:
+                renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
             column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_resizable( True)
-            # Only set "expand" on the first column (so more text is displayed there)
-            column.set_expand(next_column == self.COLUMN_ADDITIONAL)
+            # Only set "expand" on the first two columns
+            if next_column < self.COLUMN_ADDITIONAL + 2:
+                column.set_expand(True)
             if sort_name is not None:
                 column.set_sort_column_id(next_column+1)
             else:
