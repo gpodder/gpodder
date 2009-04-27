@@ -61,6 +61,9 @@ help:
 	@echo 'make clean           remove generated+temp+*.py{c,o} files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo ''
+	@echo 'make install-git-menuitem   Add shortcuts to your menu for this git checkout'
+	@echo 'make remove-git-menuitem    Remove shortcuts created by "install-git-menuitem"'
+	@echo ''
 	@echo '(1) Please set environment variable "EMAIL" to your e-mail address'
 
 ##########################################################################
@@ -130,6 +133,12 @@ rosetta-upload: $(ROSETTA_ARCHIVE)
 $(ROSETTA_ARCHIVE):
 	tar czvf $(ROSETTA_ARCHIVE) $(ROSETTA_FILES)
 
+install-git-menuitem:
+	doc/dev/install-desktopentry.sh
+
+remove-git-menuitem:
+	doc/dev/install-desktopentry.sh --remove
+
 ##########################################################################
 
 clean:
@@ -146,7 +155,7 @@ distclean: clean
  
 ##########################################################################
 
-.PHONY: all test unittest release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
+.PHONY: all test unittest release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help install-git-menuitem remove-git-menuitem
 
 ##########################################################################
 
