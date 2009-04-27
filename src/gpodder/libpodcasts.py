@@ -146,7 +146,10 @@ class PodcastChannel(PodcastModelObject):
         return PodcastEpisode.create_from_dict(d, self)
 
     def update(self):
-        (updated, c) = self.fc.fetch(self.url, self)
+        (updated, c) = self.fc.fetch(self.url, self,
+                not gl.config.proxy_use_environment,
+                gl.config.http_proxy,
+                gl.config.ftp_proxy)
 
         if c is None:
             return ( False, None )

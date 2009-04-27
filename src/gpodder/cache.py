@@ -31,7 +31,9 @@ import feedparser
 import string
 import re
 import time
-import urllib, urlparse
+import urllib
+import urlparse
+import urllib2
 
 import gpodder
 from gpodder import resolver
@@ -96,7 +98,8 @@ class Cache:
         self.user_agent = gpodder.user_agent
         return
 
-    def fetch(self, url, old_channel=None):
+    def fetch(self, url, old_channel=None, use_proxies=False,
+            http_proxy=None, ftp_proxy=None):
         """
         Returns an (updated, feed) tuple for the feed at the specified
         URL. If the feed hasn't updated since the last run, updated
@@ -104,6 +107,9 @@ class Cache:
 
         If updated is False, the feed value is None and you have to use
         the old channel which you passed to this function.
+
+        If use_proxies is set to True, the cache generates a ProxyHandler
+        from the http_proxy and ftp_proxy variables.
         """
 
         if old_channel is not None:
@@ -126,11 +132,24 @@ class Cache:
             url_parts[1] = string.join( [auth_string, url_parts[1]], '@' )
             url = urlparse.urlunsplit(url_parts)
 
+        handlers = []
+        if use_proxies:
+            # Add a ProxyHandler for fetching data via a proxy server
+            proxies = {}
+            if http_proxy:
+                proxies['http'] = http_proxy
+                log('Using proxy for HTTP: %s', http_proxy, sender=self)
+            if ftp_proxy:
+                proxies['ftp'] = ftp_proxy
+                log('Using proxy for FTP: %s', ftp_proxy, sender=self)
+            handlers.append(urllib2.ProxyHandler(proxies))
+
         # We know we need to fetch, so go ahead and do it.
         parsed_result = feedparser.parse(url,
                                          agent=self.user_agent,
                                          modified=modified,
                                          etag=etag,
+                                         handlers=handlers,
                                          )
 
         # Sometimes, the status code is not set (ugly feed?)
