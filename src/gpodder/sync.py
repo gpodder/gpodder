@@ -341,7 +341,7 @@ class iPodDevice(Device):
             track = self.episode_on_device(episode)
             if track:
                 gtrack = track.libgpodtrack
-                if gtrack.mark_unplayed == 1 or gtrack.playcount > 0:
+                if gtrack.playcount > 0:
                     if delete_from_db and not gtrack.rating:
                         log('Deleting episode from db %s', gtrack.title, sender=self)
                         channel.delete_episode_by_url(gtrack.podcasturl)
@@ -354,7 +354,7 @@ class iPodDevice(Device):
             if gpod.itdb_filename_on_ipod(track) is None:
                 log('Episode has no file: %s', track.title, sender=self)
                 # self.remove_track_gpod(track)
-            elif track.mark_unplayed == 1 and not track.rating:
+            elif track.playcount > 0  and not track.rating:
                 log('Purging episode: %s', track.title, sender=self)
                 self.remove_track_gpod(track)
 
@@ -471,7 +471,12 @@ class iPodDevice(Device):
                 if track.playcount == 0:
                     track.playcount = 1
             else:
-                track.mark_unplayed = 0x02
+                if track.playcount > 0 or track.bookmark_time > 0:
+                    #track is partially played so no blue bullet
+                    track.mark_unplayed = 0x01
+                else:
+                    #totally unplayed
+                    track.mark_unplayed = 0x02
 
             # Set several flags for to podcast values
             track.remember_playback_position = 0x01
