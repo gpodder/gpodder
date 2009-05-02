@@ -678,10 +678,9 @@ class gPodder(GladeWidget, dbus.service.Object):
         if not gpodder.interface == gpodder.MAEMO:
             self.gPodder.show()
 
-        if self.tray_icon:
-            if gl.config.start_iconified: 
-                self.iconify_main_window()
-            elif gl.config.minimize_to_tray:
+        if gl.config.start_iconified:
+            self.iconify_main_window()
+            if self.tray_icon and gl.config.minimize_to_tray:
                 self.tray_icon.set_visible(False)
 
         # a dictionary that maps episode URLs to the current
@@ -2044,8 +2043,14 @@ class gPodder(GladeWidget, dbus.service.Object):
                 # btnCancelFeedUpdate is a normal gtk.Button
                 self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
         else:
-            # open the episodes selection dialog
-            self.new_episodes_show(episodes)
+            if self.minimized and gl.config.auto_download_when_minimized:
+                new_episodes = [episode for episode in episodes if episode not in self.already_notified_new_episodes]
+                self.already_notified_new_episodes.extend(new_episodes)
+                if len(new_episodes) > 0:
+                    self.download_episode_list(new_episodes)
+            else:
+                # open the episodes selection dialog
+                self.new_episodes_show(episodes)
 
     def update_feed_cache_callback(self, progressbar, title, position, count):
         progression = _('Updated %s (%d/%d)')%(title, position+1, count)
