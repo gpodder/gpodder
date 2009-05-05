@@ -44,6 +44,109 @@ import collections
 
 from xml.sax import saxutils
 
+
+class ContentRange(object):
+    # Based on:
+    # http://svn.pythonpaste.org/Paste/WebOb/trunk/webob/byterange.py
+    #
+    # Copyright (c) 2007 Ian Bicking and Contributors
+    #
+    # Permission is hereby granted, free of charge, to any person obtaining
+    # a copy of this software and associated documentation files (the
+    # "Software"), to deal in the Software without restriction, including
+    # without limitation the rights to use, copy, modify, merge, publish,
+    # distribute, sublicense, and/or sell copies of the Software, and to
+    # permit persons to whom the Software is furnished to do so, subject to
+    # the following conditions:
+    #
+    # The above copyright notice and this permission notice shall be
+    # included in all copies or substantial portions of the Software.
+    #
+    # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    """
+    Represents the Content-Range header
+
+    This header is ``start-stop/length``, where stop and length can be
+    ``*`` (represented as None in the attributes).
+    """
+
+    def __init__(self, start, stop, length):
+        assert start >= 0, "Bad start: %r" % start
+        assert stop is None or (stop >= 0 and stop >= start), (
+            "Bad stop: %r" % stop)
+        self.start = start
+        self.stop = stop
+        self.length = length
+
+    def __repr__(self):
+        return '<%s %s>' % (
+            self.__class__.__name__,
+            self)
+
+    def __str__(self):
+        if self.stop is None:
+            stop = '*'
+        else:
+            stop = self.stop + 1
+        if self.length is None:
+            length = '*'
+        else:
+            length = self.length
+        return 'bytes %s-%s/%s' % (self.start, stop, length)
+
+    def __iter__(self):
+        """
+        Mostly so you can unpack this, like:
+
+            start, stop, length = res.content_range
+        """
+        return iter([self.start, self.stop, self.length])
+
+    @classmethod
+    def parse(cls, value):
+        """
+        Parse the header.  May return None if it cannot parse.
+        """
+        if value is None:
+            return None
+        value = value.strip()
+        if not value.startswith('bytes '):
+            # Unparseable
+            return None
+        value = value[len('bytes '):].strip()
+        if '/' not in value:
+            # Invalid, no length given
+            return None
+        range, length = value.split('/', 1)
+        if '-' not in range:
+            # Invalid, no range
+            return None
+        start, end = range.split('-', 1)
+        try:
+            start = int(start)
+            if end == '*':
+                end = None
+            else:
+                end = int(end)
+            if length == '*':
+                length = None
+            else:
+                length = int(length)
+        except ValueError:
+            # Parse problem
+            return None
+        if end is None:
+            return cls(start, None, length)
+        else:
+            return cls(start, end-1, length)
+
+
 class DownloadCancelledException(Exception): pass
 
 class gPodderDownloadHTTPError(Exception):
@@ -116,6 +219,20 @@ class DownloadURLOpener(urllib.FancyURLopener):
         url = urllib.unwrap(urllib.toBytes(url))
         fp = self.open(url, data)
         headers = fp.info()
+
+        if current_size > 0:
+            # We told the server to resume - see if she agrees
+            # See RFC2616 (206 Partial Content + Section 14.16)
+            # XXX check status code here, too...
+            range = ContentRange.parse(headers.get('content-range', ''))
+            if range is None or range.start != current_size:
+                # Ok, that did not work. Reset the download
+                # TODO: seek and truncate if content-range differs from request
+                tfp.close()
+                tfp = open(filename, 'wb')
+                current_size = 0
+                log('Cannot resume. Missing or wrong Content-Range header (RFC2616)', sender=self)
+
 
         # gPodder TODO: we can get the real url via fp.geturl() here
         #               (if anybody wants to fix filenames in the future)
