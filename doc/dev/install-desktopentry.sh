@@ -15,6 +15,9 @@ if [ "$1" = "--remove" ]; then
     exit 0
 fi
 
+# Make sure the folder where we install files exists
+mkdir -p "`dirname "$DESKTOPFILE"`"
+
 echo "Installing: $DESKTOPFILE"
 cat data/gpodder.desktop | \
     sed -e "s#^Name\\([^=]*\\)=\\(.*\\)#Name\\1=\\2 (Git checkout in $GITCHECKOUT)#g" | \
