@@ -57,6 +57,20 @@ def get_real_download_url(url, proxy=None):
                 page = req.read()
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
+
+        if gpodder.interface != gpodder.MAEMO:
+            # Try to find the best video format available
+            r3 = re.compile('.*"fmt_map"\:\s+"([^"]+)".*').search(page)
+            formats = r3.group(1).split(",")
+            if '18/512000/9/0/115' in formats: #[avc1]  480x270
+                  fmt_id = 18
+            elif '35/640000/9/0/115' in formats: #[H264]  480x360
+                    fmt_id = 35
+            elif '34/0/9/0/115' in formats: #[H264]  320x240
+                    fmt_id = 34
+            elif '5/0/7/0/0' in formats: #[FLV1]  320x240
+                    fmt_id = 5
+
         if r2:
             next = 'http://www.youtube.com/get_video?video_id=' + vid + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
             log('YouTube link resolved: %s => %s', url, next)
