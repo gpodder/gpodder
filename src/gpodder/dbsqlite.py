@@ -26,9 +26,11 @@ have_sqlite = True
 
 try:
     from sqlite3 import dbapi2 as sqlite
+    from sqlite3 import OperationalError
 except ImportError:
     try:
         from pysqlite2 import dbapi2 as sqlite
+        from pysqlite2 import OperationalError
     except ImportError:
         have_sqlite = False
 
@@ -60,7 +62,6 @@ class Storage(object):
 
     def setup(self, settings):
         self.settings = settings
-        self.__check_schema()
 
     def close(self):
         self.commit()
@@ -68,8 +69,9 @@ class Storage(object):
         cur = self.cursor(lock=True)
         log('Optimizing database for faster startup.', sender=self)
         cur.execute("VACUUM")
-
+        cur.close()
         self.lock.release()
+
         self._db.close()
         self._db = None
 
@@ -129,6 +131,7 @@ class Storage(object):
             self._db.text_factory = str
             self._db.create_collation("UNICODE", self.db_sort_cmp)
             self.log('Connected')
+            self.__check_schema()
         return self._db
 
     def cursor(self, lock=False):
@@ -211,7 +214,10 @@ class Storage(object):
         cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE played = 0 AND state = %d GROUP BY channel_id""" % self.STATE_DOWNLOADED)
 
         # Make sure deleted episodes are played, to simplify querying statistics.
-        cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (self.STATE_DELETED, ))
+        try:
+            cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (self.STATE_DELETED, ))
+        except OperationalError:
+            pass
 
         cur.close()
         self.lock.release()

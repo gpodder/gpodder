@@ -1842,8 +1842,8 @@ class gPodder(GladeWidget, dbus.service.Object):
             self.add_new_channel(result)
 
     def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False, authentication_tokens=None):
-        (scheme, rest) = result.split('://', 1)
         result = util.normalize_feed_url(result)
+        (scheme, rest) = result.split('://', 1)
 
         if not result:
             cute_scheme = saxutils.escape(scheme)+'://'

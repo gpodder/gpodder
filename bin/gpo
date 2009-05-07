@@ -146,7 +146,17 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         else:
             title, url = podcast.title, podcast.url
-            episodes = ('%3d. %s' % (i+1, e.title) for i, e in enumerate(podcast.get_episodes()))
+            def status_str(episode):
+                if episode.is_new:
+                    return ' * '
+                if episode.is_downloaded:
+                    return ' ▉ '
+                if episode.is_deleted:
+                    return ' ░ '
+
+                return '   '
+
+            episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
             episodes = '\n      '.join(episodes)
             print >>sys.stdout, """
     Title: %(title)s

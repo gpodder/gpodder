@@ -80,12 +80,19 @@ class Episode(object):
     Public attributes:
       title
       url
+      is_new
+      is_downloaded
+      is_deleted
     """
     def __init__(self, _episode):
         """For internal use only."""
         self._episode = _episode
         self.title = self._episode.title
         self.url = self._episode.url
+        self.is_new = (self._episode.state == db.STATE_NORMAL and \
+                not self._episode.is_played)
+        self.is_downloaded = (self._episode.state == db.STATE_DOWNLOADED)
+        self.is_deleted = (self._episode.state == db.STATE_DELETED)
 
 
 def get_podcasts():
@@ -102,7 +109,11 @@ def get_podcast(url):
     the podcast has not been subscribed to.
     """
     url = util.normalize_feed_url(url)
-    return Podcast(libpodcasts.PodcastChannel.load(url, create=False))
+    channel = libpodcasts.PodcastChannel.load(url, create=False)
+    if channel is None:
+        return None
+    else:
+        return Podcast(channel)
 
 def create_podcast(url, title=None):
     """Subscribe to a new podcast
@@ -117,8 +128,9 @@ def create_podcast(url, title=None):
         if title is not None:
             podcast.set_custom_title(title)
         podcast.save()
+        return Podcast(podcast)
 
-    return Podcast(podcast)
+    return None
 
 
 def finish():
