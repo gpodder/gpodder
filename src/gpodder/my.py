@@ -24,6 +24,8 @@
 #  Thomas Perl <thp@gpodder.org>   2008-12-08
 #
 
+import gpodder
+_ = gpodder.gettext
 
 ########################################################################
 # Based on upload_test.py

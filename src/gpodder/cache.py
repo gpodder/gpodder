@@ -39,6 +39,7 @@ import gpodder
 from gpodder import resolver
 from gpodder.liblogger import log
 
+_ = gpodder.gettext
 
 def patch_feedparser():
     """Fix a bug in feedparser 4.1

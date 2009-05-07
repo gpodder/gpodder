@@ -61,6 +61,8 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
+_ = gpodder.gettext
+
 
 # Try to detect OS encoding (by Leonid Ponomarev)
 if gpodder.interface == gpodder.MAEMO:
@@ -298,9 +300,9 @@ def file_age_to_string(days):
     >>> file_age_to_string(0)
     ''
     >>> file_age_to_string(1)
-    'one day ago'
+    u'one day ago'
     >>> file_age_to_string(2)
-    '2 days ago'
+    u'2 days ago'
     """
     if days == 1:
         return _('one day ago')
@@ -919,11 +921,11 @@ def format_seconds_to_hour_min_sec(seconds):
     human-readable string (duration).
 
     >>> format_seconds_to_hour_min_sec(3834)
-    '1 hour, 3 minutes and 54 seconds'
+    u'1 hour, 3 minutes and 54 seconds'
     >>> format_seconds_to_hour_min_sec(3600)
-    '1 hour'
+    u'1 hour'
     >>> format_seconds_to_hour_min_sec(62)
-    '1 minute and 2 seconds'
+    u'1 minute and 2 seconds'
     """
 
     if seconds < 1:

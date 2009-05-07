@@ -44,6 +44,7 @@ import collections
 
 from xml.sax import saxutils
 
+_ = gpodder.gettext
 
 class ContentRange(object):
     # Based on:

@@ -37,6 +37,8 @@ import time
 import threading
 import ConfigParser
 
+_ = gpodder.gettext
+
 if gpodder.interface == gpodder.MAEMO:
     default_download_dir = '/media/mmc2/gpodder'
 else:

@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gpodder
 from gpodder import util
 from gpodder import download
 from gpodder import sync
@@ -34,6 +35,7 @@ import time
 import urllib
 import sys
 
+_ = gpodder.gettext
 
 def list_channels():
     for channel in load_channels():

@@ -34,8 +34,10 @@ import gobject
 import gtk
 import gtk.gdk
 
+import gpodder
 from gpodder.liblogger import log
 
+_ = gpodder.gettext
 
 # where are the .desktop files located?
 userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '/usr/share/applications/kde/' ]

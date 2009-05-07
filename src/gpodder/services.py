@@ -26,6 +26,7 @@
 
 from __future__ import with_statement
 
+import gpodder
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
@@ -43,6 +44,7 @@ import urllib2
 import os
 import os.path
 
+_ = gpodder.gettext
 
 class ObservableService(object):
     def __init__(self, signal_names=[]):

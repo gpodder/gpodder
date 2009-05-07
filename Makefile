@@ -71,14 +71,14 @@ help:
 test:
 	@# set xterm title to know what this window does ;)
 	@echo -ne '\033]0;gPodder console (make test)\007'
-	$(BINFILE) --local --verbose
+	$(BINFILE) --verbose
 
 unittest:
 	PYTHONPATH=src/ python -m gpodder.unittests
 
 mtest:
 	@# in maemo scratchbox, we need this for osso/hildon
-	run-standalone.sh $(BINFILE) --local --maemo --verbose
+	run-standalone.sh $(BINFILE) --maemo --verbose
 
 deb:
 	debuild

@@ -20,17 +20,16 @@
 
 import glob
 import os
+import re
+import sys
 from distutils.core import setup
 
 # build targets
 (DEFAULT, MAEMO) = range(2)
 
-# read the version from the gpodder main program
-gpodder_version = os.popen( "cat bin/gpodder |grep ^__version__.*=|cut -d\\\" -f2").read().strip()
-
-# translations
-languages = [ "de", "fr", "sv", "it", "pt", "es", "nb", "nl", "ru", "uk", "gl", "cs", "fi", "da" ]
-translation_files = []
+# import the gpodder module locally for module metadata
+sys.path.insert(0, 'src')
+import gpodder
 
 # build target
 if 'TARGET' in os.environ:
@@ -39,9 +38,16 @@ if 'TARGET' in os.environ:
 else:
     target = DEFAULT
 
-# add translated files to translations dictionary
-for l in languages:
-    translation_files.append( ("share/locale/%s/LC_MESSAGES" % l, [ "data/locale/%s/LC_MESSAGES/gpodder.mo" % l ]) )
+# search for translations and repare to install
+translation_files = []
+for mofile in glob.glob('data/locale/*/LC_MESSAGES/gpodder.mo'):
+    modir = os.path.dirname(mofile).replace('data', 'share')
+    translation_files.append((modir, [mofile]))
+
+if not len(translation_files) and not 'clean' in sys.argv:
+    print >>sys.stderr, """
+    Warning: No translation files. (Did you forget to run "make messages"?)
+    """
 
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
@@ -82,17 +88,18 @@ elif target == MAEMO:
       ('share/icons/hicolor/26x26/apps', inst_icons_26),
     ]
 
+author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
 
 setup(
   name         = 'gpodder',
-  version      = gpodder_version,
+  version      = gpodder.__version__,
   package_dir  = { '':'src' },
   packages     = [ 'gpodder' ],
   description  = 'media aggregator',
-  author       = 'Thomas Perl',
-  author_email = 'thp@thpinfo.com',
-  url          = 'http://www.gpodder.org/',
-  scripts      = [ 'bin/gpodder', 'bin/gpodder-backup' ],
+  author       = author,
+  author_email = email,
+  url          = gpodder.__url__,
+  scripts      = glob.glob('bin/*'),
   data_files   = data_files + translation_files
 )
 

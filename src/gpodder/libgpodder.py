@@ -49,6 +49,8 @@ from liblogger import log
 
 import shlex
 
+_ = gpodder.gettext
+
 if gpodder.interface == gpodder.MAEMO:
     import osso
 

@@ -27,19 +27,11 @@ be synchronized to portable MP3 players (including iPods)
 or played back on the user's desktop.
 """
 
-# PLEASE DO NOT CHANGE FORMAT OF __version__ LINE (setup.py reads this)
-
-__author__    = "Thomas Perl <thp@perli.net>"
-__version__   = "0.15.0"
-__date__      = "2009-03-09"
-__copyright__ = "Copyright (c) 2005-2009 %s. All rights reserved." % __author__
-__licence__   = "GPL"
-
 import sys
 import os
 import os.path
+import platform
 
-import locale
 import gettext
 
 import dbus
@@ -47,26 +39,41 @@ import dbus.glib
 
 from optparse import OptionParser
 
-try:
-    import feedparser
-except:
-    print 'Warning: Module "feedparser" not found. Please install "python-feedparser".'
-    print '         The feedparser module can also be downloaded from www.feedparser.org'
-    sys.exit( -1)
+if __name__ == '__main__':
+    # Paths to important files
+    gpodder_dir = os.path.join(os.path.dirname(sys.argv[0]), '..')
+    prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 
+    src_dir = os.path.join(prefix, 'src')
+    data_dir = os.path.join(prefix, 'data')
+    locale_dir = os.path.join(prefix, 'share', 'locale')
+    glade_file = os.path.join(prefix, 'share', 'gpodder', 'gpodder.glade')
+    icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
-def main( argv = sys.argv):
-    prefix = os.path.abspath( os.path.normpath( os.path.join( os.path.dirname( argv[0]), '..')))
-    locale_dir = os.path.join( prefix, 'share', 'locale')
+    if os.path.exists(src_dir) and os.path.exists(data_dir) and \
+            not prefix.startswith('/usr'):
+        # Run gPodder from local source folder (not installed)
+        print >>sys.stderr, 'Using modules from', src_dir
+        sys.path.insert(0, src_dir)
+        print >>sys.stderr, 'Using resources from', data_dir
+        locale_dir = os.path.join(data_dir, 'locale')
+        glade_file = os.path.join(data_dir, 'gpodder.glade')
+        icon_file = os.path.join(data_dir, 'gpodder.svg')
 
-    # Enable i18n support
-    domain = 'gpodder'
-    gettext.bindtextdomain( domain, locale_dir)
-    gettext.textdomain( domain)
-    gettext.install(domain, locale_dir, unicode=True)
+    # Set up the path to translation files
+    gettext.bindtextdomain('gpodder', locale_dir)
+
+    import gpodder
+
+    # Enable i18n for gPodder translations
+    _ = gpodder.gettext
+
+    # Set up paths to gpodder.glade and gpodder.svg
+    gpodder.glade_file = glade_file
+    gpodder.icon_file = icon_file
 
     s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
-    s_version = '%%prog %s' % ( __version__ )
+    s_version = '%%prog %s' % ( gpodder.__version__ )
 
     parser = OptionParser( usage = s_usage, version = s_version)
 
@@ -76,7 +83,7 @@ def main( argv = sys.argv):
 
     parser.add_option("-t", "--local",
                       action="store_true", dest="local", default=False,
-                      help=_("Run local version in current directory"))
+                      help='Deprecated.')
     
     parser.add_option("-m", "--maemo",
                       action="store_true", dest="maemo", default=False,
@@ -108,14 +115,8 @@ def main( argv = sys.argv):
 			          action="store_true", dest="stats", default=False,
                       help=_("Get sync statistics"))
 
-    (options, args) = parser.parse_args(argv)
+    (options, args) = parser.parse_args(sys.argv)
 
-    if options.local:
-        sys.path = [ os.path.join( prefix, 'src') ] + sys.path
-
-    import gpodder
-    gpodder.user_agent = 'gPodder/%s (+http://gpodder.org/)' % __version__
-    
     if options.maemo:
         gpodder.interface = gpodder.MAEMO
     elif options.list or options.run or options.update or \
@@ -123,6 +124,9 @@ def main( argv = sys.argv):
         gpodder.interface = gpodder.CLI
     else:
         gpodder.interface = gpodder.GUI
+
+    if options.local:
+        print >>sys.stderr, 'Ignoring deprecated option --local.'
 
     if options.verbose:
         from gpodder.liblogger import enable_verbose
@@ -158,29 +162,14 @@ def main( argv = sys.argv):
     else:
         # gPodder is not yet running - create new instance
         from gpodder import gui
-        from gpodder.SimpleGladeApp import bindtextdomain
-        import gtk.glade
+        from gpodder import SimpleGladeApp
 
-        # check if we have a X connection
-        from os import environ
-        if not 'DISPLAY' in environ or not environ['DISPLAY']:
-            print 'Your DISPLAY variable is not set correctly. Cannot start GUI.'
-            sys.exit( -1)
+        # check if we have an X11 connection (but not on Windows)
+        if platform.system() != 'Windows' and \
+                not os.environ.get('DISPLAY', None):
+            print >>sys.stderr, 'Cannot start gPodder: $DISPLAY is not set.'
+            sys.exit(1)
 
-        gui.glade_dir = os.path.join( prefix, *gui.glade_dir)
-        gui.icon_dir = os.path.join( prefix, *gui.icon_dir)
-        gui.scalable_dir = os.path.join( prefix, *gui.scalable_dir)
-
-        if options.local:
-            gui.glade_dir = os.path.join( prefix, 'data')
-            gui.icon_dir = os.path.join( prefix, 'data', 'gpodder.png')
-            gui.scalable_dir = os.path.join( prefix, 'data', 'gpodder.svg')
-            locale_dir = os.path.join( prefix, 'data', 'locale')
-
-        bindtextdomain( domain, locale_dir)
-        gui.app_version = __version__
+        SimpleGladeApp.bindtextdomain(gpodder.textdomain, locale_dir)
         gui.main()
-
-if __name__ == "__main__":
-    sys.exit( main())
 

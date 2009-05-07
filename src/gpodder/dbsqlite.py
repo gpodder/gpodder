@@ -19,6 +19,9 @@
 # dbsqlite.py -- SQLite interface
 # Justin Forest <justin.forest@gmail.com> 2008-06-13
 
+import gpodder
+_ = gpodder.gettext
+
 have_sqlite = True
 
 try:

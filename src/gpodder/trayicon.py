@@ -29,6 +29,8 @@ import gpodder
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
 
+_ = gpodder.gettext
+
 try:
     import pynotify
     have_pynotify = True

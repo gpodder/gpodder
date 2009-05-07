@@ -56,6 +56,8 @@ from gpodder.liblogger import log
 from gpodder.dbsqlite import db
 from gpodder import resolver
 
+_ = gpodder.gettext
+
 try:
     from gpodder import trayicon
     have_trayicon = True
@@ -86,8 +88,6 @@ elif gpodder.interface == gpodder.MAEMO:
     import hildon
     WEB_BROWSER_ICON = 'qgn_toolb_browser_web'
 
-app_name = "gpodder"
-app_version = "unknown" # will be set in main() call
 app_authors = [
     _('Current maintainer:'), 'Thomas Perl <thpinfo.com>',
     '',
@@ -119,23 +119,15 @@ app_authors = [
     '',
     'List may be incomplete - please contact me.'
 ]
-app_copyright = '© 2005-2009 Thomas Perl and the gPodder Team'
-app_website = 'http://www.gpodder.org/'
-
-# these will be filled with pathnames in bin/gpodder
-glade_dir = [ 'share', 'gpodder' ]
-icon_dir = [ 'share', 'pixmaps', 'gpodder.png' ]
-scalable_dir = [ 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg' ]
-
 
 class GladeWidget(SimpleGladeApp.SimpleGladeApp):
     gpodder_main_window = None
     finger_friendly_widgets = []
 
     def __init__( self, **kwargs):
-        path = os.path.join( glade_dir, '%s.glade' % app_name)
+        path = gpodder.glade_file
         root = self.__class__.__name__
-        domain = app_name
+        domain = gpodder.textdomain
 
         SimpleGladeApp.SimpleGladeApp.__init__( self, path, root, domain, **kwargs)
 
@@ -355,8 +347,7 @@ class gPodder(GladeWidget, dbus.service.Object):
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
             # Maemo-specific changes to the UI
-            global scalable_dir
-            scalable_dir = scalable_dir.replace('.svg', '.png')
+            gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
             
             self.app = hildon.Program()
             gtk.set_application_name('gPodder')
@@ -491,8 +482,8 @@ class gPodder(GladeWidget, dbus.service.Object):
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
         self.default_title = None
-        if app_version.rfind('git') != -1:
-            self.set_title('gPodder %s' % app_version)
+        if gpodder.__version__.rfind('git') != -1:
+            self.set_title('gPodder %s' % gpodder.__version__)
         else:
             title = self.gPodder.get_title()
             if title is not None:
@@ -2693,7 +2684,7 @@ class gPodder(GladeWidget, dbus.service.Object):
 
     def show_hide_tray_icon(self):
         if gl.config.display_tray_icon and have_trayicon and self.tray_icon is None:
-            self.tray_icon = trayicon.GPodderStatusIcon(self, scalable_dir)
+            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file)
         elif not gl.config.display_tray_icon and self.tray_icon is not None:
             self.tray_icon.set_visible(False)
             del self.tray_icon
@@ -2963,7 +2954,7 @@ class gPodder(GladeWidget, dbus.service.Object):
         gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_homepage_activate(self, widget, *args):
-        util.open_website(app_website)
+        util.open_website(gpodder.__url__)
 
     def on_wiki_activate(self, widget, *args):
         util.open_website('http://wiki.gpodder.org/')
@@ -2973,10 +2964,10 @@ class gPodder(GladeWidget, dbus.service.Object):
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
-        dlg.set_name(app_name.replace('p', 'P')) # gpodder->gPodder
-        dlg.set_version( app_version)
-        dlg.set_copyright( app_copyright)
-        dlg.set_website( app_website)
+        dlg.set_name('gPodder')
+        dlg.set_version(gpodder.__version__)
+        dlg.set_copyright(gpodder.__copyright__)
+        dlg.set_website(gpodder.__url__)
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect( 'response', lambda dlg, response: dlg.destroy())
 
@@ -2985,9 +2976,9 @@ class gPodder(GladeWidget, dbus.service.Object):
             # items to the about dialog (credits and logo)
             dlg.set_authors(app_authors)
             try:
-                dlg.set_logo(gtk.gdk.pixbuf_new_from_file(scalable_dir))
+                dlg.set_logo(gtk.gdk.pixbuf_new_from_file(gpodder.icon_file))
             except:
-                pass
+                dlg.set_logo_icon_name('gpodder')
         
         dlg.run()
 

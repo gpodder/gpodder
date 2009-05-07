@@ -46,9 +46,6 @@ suite = unittest.TestSuite()
 for module in modules:
     m = __import__('.'.join((package, module)), fromlist=[module])
     coverage_modules.append(m)
-    # Emulate a globally-installed no-op gettext _() function
-    if not hasattr(m, '_'):
-        setattr(m, '_', lambda x: x)
     suite.addTest(doctest.DocTestSuite(m))
 
 runner = unittest.TextTestRunner(verbosity=2)

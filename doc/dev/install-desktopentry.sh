@@ -21,7 +21,7 @@ mkdir -p "`dirname "$DESKTOPFILE"`"
 echo "Installing: $DESKTOPFILE"
 cat data/gpodder.desktop | \
     sed -e "s#^Name\\([^=]*\\)=\\(.*\\)#Name\\1=\\2 (Git checkout in $GITCHECKOUT)#g" | \
-    sed -e "s#^Exec=.*#Exec=$GITCHECKOUT/bin/gpodder --local#" | \
+    sed -e "s#^Exec=.*#Exec=$GITCHECKOUT/bin/gpodder#" | \
     sed -e "s#^Icon=.*#Icon=$GITCHECKOUT/data/gpodder.png#" \
     >"$DESKTOPFILE"
 

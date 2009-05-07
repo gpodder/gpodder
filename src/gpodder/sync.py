@@ -22,6 +22,7 @@
 # Thomas Perl <thp@perli.net> 2007-12-06
 # based on libipodsync.py (2006-04-05 Thomas Perl)
 
+import gpodder
 
 from gpodder import util
 from gpodder import services
@@ -34,6 +35,8 @@ from gpodder.dbsqlite import db
 
 import time
 import calendar
+
+_ = gpodder.gettext
 
 gpod_available = True
 try:

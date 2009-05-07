@@ -61,6 +61,7 @@ import feedparser
 
 from xml.sax import saxutils
 
+_ = gpodder.gettext
 
 if gpodder.interface == gpodder.MAEMO:
     ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
