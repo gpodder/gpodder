@@ -70,6 +70,8 @@ class Storage(object):
         cur.execute("VACUUM")
 
         self.lock.release()
+        self._db.close()
+        self._db = None
 
     def log(self, message, *args, **kwargs):
         if self.settings['gl'].config.log_sqlite:

@@ -1,0 +1,208 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2009 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+# gpo - A better command-line interface to gPodder using the gPodder API
+# by Thomas Perl <thp@gpodder.org>; 2009-05-07
+
+
+"""
+  Usage: gpo [COMMAND] [params...]
+
+  Subscription management
+  -----------------------
+
+    subscribe URL [TITLE]         Subscribe to a new feed at URL (as TITLE)
+    rename URL TITLE              Rename feed at URL to TITLE
+    unsubscribe URL               Unsubscribe from feed at URL
+
+    info URL                      Show information about feed at URL
+    list                          List all subscribed podcasts
+    update                        Refresh all feeds (check for new episodes)
+
+  Episode management
+  ------------------
+
+    download [URL]                Download all new (=pending) episodes; if
+                                  URL is an episode URL, download only one
+                                  episode; if it's a channel URL, download
+                                  all pending episodes from that channel
+    pending [URL]                 Show episodes that are marked as new; if
+                                  URL is given, show only pending downloads
+                                  from the channel at this URL
+    queue URL                     Add episode at URL to pending episodes
+    skip URL                      Remove episode at URL from pending episodes
+
+    details URL                   Show information about episode at URL
+    episodes [URL]                Show a list of all episodes; if URL is given
+                                  it should be a channel URL and only episodes
+                                  from that channel will be displayed
+
+    delete URL                    Delete the downloaded episode at URL
+
+  Portable device synchronization
+  -------------------------------
+
+    device                        Show information about your device
+
+  Helper commands
+  ---------------
+
+    youtube resolve [URL]         Resolve the YouTube URL to a download URL
+    youtube download [URL]        Download a video from YouTube via its URL
+
+"""
+
+import sys
+import os
+import inspect
+
+gpodder_dir = os.path.join(os.path.dirname(sys.argv[0]), '..')
+prefix = os.path.abspath(os.path.normpath(gpodder_dir))
+
+src_dir = os.path.join(prefix, 'src')
+data_dir = os.path.join(prefix, 'data')
+
+if os.path.exists(src_dir) and os.path.exists(data_dir) and \
+        not prefix.startswith('/usr'):
+    # Run gPodder from local source folder (not installed)
+    sys.path.insert(0, src_dir)
+
+
+import gpodder
+_ = gpodder.gettext
+
+
+# Use only the gPodder API here, so this serves both as an example
+# and as a motivation to provide all functionality in the API :)
+from gpodder import api
+
+
+
+class gPodderCli(object):
+    # -------------------------------------------------------------------
+
+    def subscribe(self, url, title=None):
+        if api.get_podcast(url) is not None:
+            self._info(_('You are already subscribed to %s.' % url))
+            return True
+
+        if api.create_podcast(url, title) is None:
+            self._error(_('Cannot download feed for %s.') % url)
+            return True
+
+        api.finish()
+
+        self._info(_('Successfully added %s.' % url))
+        return True
+
+    def rename(self, url, title):
+        podcast = api.get_podcast(url)
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            old_title = podcast.title
+            podcast.rename(title)
+            api.finish()
+            self._info(_('Renamed %s to %s.') % (old_title, title))
+
+        return True
+
+    def unsubscribe(self, url):
+        podcast = api.get_podcast(url)
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            podcast.delete()
+            api.finish()
+            self._error(_('Unsubscribed from %s.') % url)
+
+        return True
+
+    def info(self, url):
+        podcast = api.get_podcast(url)
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            title, url = podcast.title, podcast.url
+            episodes = ('%3d. %s' % (i+1, e.title) for i, e in enumerate(podcast.get_episodes()))
+            episodes = '\n      '.join(episodes)
+            print >>sys.stdout, """
+    Title: %(title)s
+    URL: %(url)s
+
+    Episodes:
+      %(episodes)s
+""" % locals()
+
+        return True
+
+    def list(self):
+        for podcast in api.get_podcasts():
+            print podcast.url
+
+        return True
+
+    # -------------------------------------------------------------------
+
+    def _error(self, *args):
+        print >>sys.stderr, ' '.join(args)
+
+    def _info(self, *args):
+        print >>sys.stdout, ' '.join(args)
+
+    def _checkargs(self, func, command_line):
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+        args.pop(0) # Remove "self" from args
+        defaults = defaults or ()
+        minarg, maxarg = len(args)-len(defaults), len(args)
+
+        if len(command_line) < minarg or len(command_line) > maxarg:
+            self._error('Wrong argument count for %s.' % func.__name__)
+            return False
+
+        return func(*command_line)
+
+
+    def _parse(self, command_line):
+        if not command_line:
+            return False
+
+        command = command_line.pop(0)
+        if command.startswith('_'):
+            self._error(_('This command is not available.'))
+            return False
+
+        for name, func in inspect.getmembers(self):
+            if inspect.ismethod(func) and name == command:
+                return self._checkargs(func, command_line)
+
+        return False
+
+
+if __name__ == '__main__':
+    cli = gPodderCli()
+    cli._parse(sys.argv[1:]) or sys.stderr.write(__doc__)
+
+
