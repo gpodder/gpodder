@@ -73,6 +73,8 @@ def del_channel( url):
     for channel in channels:
         if channel.url == url:
             msg( 'delete', urllib.unquote( channel.url))
+            channel.remove_downloaded()
+            channel.delete()
         else:
             keep_channels.append( channel)
 
