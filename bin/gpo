@@ -75,7 +75,7 @@ import sys
 import os
 import inspect
 
-gpodder_dir = os.path.join(os.path.dirname(sys.argv[0]), '..')
+gpodder_dir = os.path.join(os.path.dirname(os.readlink(sys.argv[0])), '..')
 prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 
 src_dir = os.path.join(prefix, 'src')
