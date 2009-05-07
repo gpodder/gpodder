@@ -2518,8 +2518,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     allepisodes = [ episode for episode in channel.get_all_episodes() if  episode.was_downloaded(and_exists=True) ]
                     device.update_played_or_delete(channel, allepisodes, gl.config.ipod_delete_played_from_db)
 
-        if gl.config.ipod_purge_old_episodes:
-            device.purge()
+            if gl.config.ipod_purge_old_episodes:
+                device.purge()
 
         sync_all_episodes = not bool(episodes)
 
