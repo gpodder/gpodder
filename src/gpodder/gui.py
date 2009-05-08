@@ -49,7 +49,7 @@ from gpodder import opml
 from gpodder import services
 from gpodder import sync
 from gpodder import download
-from gpodder import SimpleGladeApp
+from gpodder import uibase
 from gpodder import my
 from gpodder import widgets
 from gpodder.liblogger import log
@@ -120,16 +120,12 @@ app_authors = [
     'List may be incomplete - please contact me.'
 ]
 
-class GladeWidget(SimpleGladeApp.SimpleGladeApp):
+class BuilderWidget(uibase.GtkBuilderWidget):
     gpodder_main_window = None
     finger_friendly_widgets = []
 
     def __init__( self, **kwargs):
-        path = gpodder.glade_file
-        root = self.__class__.__name__
-        domain = gpodder.textdomain
-
-        SimpleGladeApp.SimpleGladeApp.__init__( self, path, root, domain, **kwargs)
+        uibase.GtkBuilderWidget.__init__(self, gpodder.ui_folder, gpodder.textdomain, **kwargs)
 
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
@@ -138,22 +134,22 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             else:
                 log('Finger-friendly widget not found: %s', widget_name, sender=self)
 
-        if root == 'gPodder':
-            GladeWidget.gpodder_main_window = self.gPodder
+        if self.__class__.__name__ == 'gPodder':
+            BuilderWidget.gpodder_main_window = self.gPodder
         else:
             # If we have a child window, set it transient for our main window
-            getattr( self, root).set_transient_for( GladeWidget.gpodder_main_window)
+            self.main_window.set_transient_for(BuilderWidget.gpodder_main_window)
 
             if gpodder.interface == gpodder.GUI:
-                if hasattr( self, 'center_on_widget'):
-                    ( x, y ) = self.gpodder_main_window.get_position()
+                if hasattr(self, 'center_on_widget'):
+                    (x, y) = self.gpodder_main_window.get_position()
                     a = self.center_on_widget.allocation
-                    ( x, y ) = ( x + a.x, y + a.y )
-                    ( w, h ) = ( a.width, a.height )
-                    ( pw, ph ) = getattr( self, root).get_size()
-                    getattr( self, root).move( x + w/2 - pw/2, y + h/2 - ph/2)
+                    (x, y) = (x + a.x, y + a.y)
+                    (w, h) = (a.width, a.height)
+                    (pw, ph) = self.main_window.get_size()
+                    self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
                 else:
-                    getattr( self, root).set_position( gtk.WIN_POS_CENTER_ON_PARENT)
+                    self.main_window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
 
     def notification(self, message, title=None):
         util.idle_add(self.show_message, message, title)
@@ -166,14 +162,14 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             return
         
         if gpodder.interface == gpodder.GUI:
-            dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+            dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
             else:
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         elif gpodder.interface == gpodder.MAEMO:
-            dlg = hildon.Note('information', (GladeWidget.gpodder_main_window, message))
+            dlg = hildon.Note('information', (BuilderWidget.gpodder_main_window, message))
         
         dlg.run()
         dlg.destroy()
@@ -217,7 +213,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
     def show_confirmation( self, message, title = None):
         if gpodder.interface == gpodder.GUI:
             affirmative = gtk.RESPONSE_YES
-            dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
+            dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -225,7 +221,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         elif gpodder.interface == gpodder.MAEMO:
             affirmative = gtk.RESPONSE_OK
-            dlg = hildon.Note('confirmation', (GladeWidget.gpodder_main_window, message))
+            dlg = hildon.Note('confirmation', (BuilderWidget.gpodder_main_window, message))
 
         response = dlg.run()
         dlg.destroy()
@@ -237,7 +233,7 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
         dialog = gtk.MessageDialog(
-            GladeWidget.gpodder_main_window,
+            BuilderWidget.gpodder_main_window,
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
             gtk.MESSAGE_QUESTION,
             gtk.BUTTONS_OK_CANCEL )
@@ -306,11 +302,11 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
             dst_filename += extension
 
         if gpodder.interface == gpodder.GUI:
-            dlg = gtk.FileChooserDialog(title=title, parent=GladeWidget.gpodder_main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg = gtk.FileChooserDialog(title=title, parent=BuilderWidget.gpodder_main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
         elif gpodder.interface == gpodder.MAEMO:
-            dlg = hildon.FileChooserDialog(GladeWidget.gpodder_main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg = hildon.FileChooserDialog(BuilderWidget.gpodder_main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
         dlg.set_do_overwrite_confirmation( True)
         dlg.set_current_name( os.path.basename( dst_filename))
@@ -336,13 +332,13 @@ class GladeWidget(SimpleGladeApp.SimpleGladeApp):
         return (result, folder)
 
 
-class gPodder(GladeWidget, dbus.service.Object):
+class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'menuSubscriptions', 'menuChannels', 'menuHelp']
     ENTER_URL_TEXT = _('Enter podcast URL...')
 
     def __init__(self, bus_name):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
-        GladeWidget.__init__(self)
+        BuilderWidget.__init__(self)
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
@@ -1628,10 +1624,9 @@ class gPodder(GladeWidget, dbus.service.Object):
     
     def change_menu_item(self, menuitem, icon=None, label=None):
         if icon is not None:
-            menuitem.get_image().set_from_icon_name(icon, gtk.ICON_SIZE_MENU)
+            menuitem.set_property('stock-id', icon)
         if label is not None:
-            label_widget = menuitem.get_child()
-            label_widget.set_text(label)
+            menuitem.label = label
 
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
@@ -1690,12 +1685,8 @@ class gPodder(GladeWidget, dbus.service.Object):
         self.item_toggle_played.set_sensitive(can_play)
         self.item_toggle_lock.set_sensitive(can_play)
 
-        if open_instead_of_play:
-            self.itemOpenSelected.show_all()
-            self.itemPlaySelected.hide_all()
-        else:
-            self.itemPlaySelected.show_all()
-            self.itemOpenSelected.hide_all()
+        self.itemOpenSelected.set_visible(open_instead_of_play)
+        self.itemPlaySelected.set_visible(not open_instead_of_play)
 
         if can_play:
             if is_played:
@@ -2224,8 +2215,8 @@ class gPodder(GladeWidget, dbus.service.Object):
 
         db.close()
 
-        self.gtk_main_quit()
-        sys.exit( 0)
+        self.quit()
+        sys.exit(0)
 
     def get_old_episodes(self):
         episodes = []
@@ -2703,11 +2694,10 @@ class gPodder(GladeWidget, dbus.service.Object):
 
     def update_item_device( self):
         if gl.config.device_type != 'none':
-            self.itemDevice.show_all()
-            (label,) = self.itemDevice.get_children()
-            label.set_text(gl.get_device_name())
+            self.itemDevice.set_visible(True)
+            self.itemDevice.label = gl.get_device_name()
         else:
-            self.itemDevice.hide_all()
+            self.itemDevice.set_visible(False)
 
     def properties_closed( self):
         self.show_hide_tray_icon()
@@ -3025,9 +3015,9 @@ class gPodder(GladeWidget, dbus.service.Object):
 
             if gpodder.interface == gpodder.MAEMO:
                 self.set_title(self.active_channel.title)
-            self.itemEditChannel.show_all()
-            self.itemRemoveChannel.show_all()
-            self.channel_toggle_lock.show_all()
+            self.itemEditChannel.set_visible(True)
+            self.itemRemoveChannel.set_visible(True)
+            self.channel_toggle_lock.set_visible(True)
             if self.active_channel.channel_is_locked:
                 self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
             else:
@@ -3035,9 +3025,9 @@ class gPodder(GladeWidget, dbus.service.Object):
 
         else:
             self.active_channel = None
-            self.itemEditChannel.hide_all()
-            self.itemRemoveChannel.hide_all()
-            self.channel_toggle_lock.hide_all()
+            self.itemEditChannel.set_visible(False)
+            self.itemRemoveChannel.set_visible(False)
+            self.channel_toggle_lock.set_visible(False)
 
         self.updateTreeView()
 
@@ -3302,7 +3292,7 @@ class gPodder(GladeWidget, dbus.service.Object):
     def show_gui_window(self):
         self.gPodder.present()
 
-class gPodderChannel(GladeWidget):
+class gPodderChannel(BuilderWidget):
     finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description', 'label19', 'label37', 'label31']
     
     def new(self):
@@ -3403,7 +3393,7 @@ class gPodderChannel(GladeWidget):
         self.gPodderChannel.destroy()
         self.callback_closed()
 
-class gPodderAddPodcastDialog(GladeWidget):
+class gPodderAddPodcastDialog(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_add']
 
     def new(self):
@@ -3416,6 +3406,7 @@ class gPodderAddPodcastDialog(GladeWidget):
             self.gPodderAddPodcastDialog.set_title(self.custom_title)
         if gpodder.interface == gpodder.MAEMO:
             self.entry_url.set_text('http://')
+        self.gPodderAddPodcastDialog.show()
 
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcastDialog.destroy()
@@ -3425,7 +3416,10 @@ class gPodderAddPodcastDialog(GladeWidget):
         clipboard.request_text(self.receive_clipboard_text)
 
     def receive_clipboard_text(self, clipboard, text, data=None):
-        self.entry_url.set_text(text)
+        if text is not None:
+            self.entry_url.set_text(text)
+        else:
+            self.show_message(_('Nothing to paste.'), _('Clipboard is empty'))
 
     def on_entry_url_changed(self, widget):
         self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
@@ -3437,7 +3431,7 @@ class gPodderAddPodcastDialog(GladeWidget):
             self.url_callback(url)
         
 
-class gPodderMaemoPreferences(GladeWidget):
+class gPodderMaemoPreferences(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'label128', 'label129', 'btn_advanced']
     
     def new(self):
@@ -3463,7 +3457,7 @@ class gPodderMaemoPreferences(GladeWidget):
             self.show_message(_('Please restart gPodder for the changes to take effect.'))
 
 
-class gPodderProperties(GladeWidget):
+class gPodderProperties(BuilderWidget):
     def new(self):
         if not hasattr( self, 'callback_finished'):
             self.callback_finished = None
@@ -3820,7 +3814,7 @@ class gPodderProperties(GladeWidget):
             self.callback_finished()
 
 
-class gPodderEpisode(GladeWidget):
+class gPodderEpisode(BuilderWidget):
     finger_friendly_widgets = ['btnPlay', 'btnDownload', 'btnCancel', 'btnClose', 'textview']
     
     def new(self):
@@ -3988,7 +3982,7 @@ class gPodderEpisode(GladeWidget):
             self.play_callback()
         self.on_close(widget)
 
-class gPodderSync(GladeWidget):
+class gPodderSync(BuilderWidget):
     def new(self):
         util.idle_add(self.imageSync.set_from_icon_name, 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
 
@@ -4025,7 +4019,7 @@ class gPodderSync(GladeWidget):
         self.device.cancel()
 
 
-class gPodderOpmlLister(GladeWidget):
+class gPodderOpmlLister(BuilderWidget):
     finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
     (MODE_DOWNLOAD, MODE_SEARCH) = range(2)
     
@@ -4216,7 +4210,7 @@ class gPodderOpmlLister(GladeWidget):
         else:
             return self.treeviewYouTubeChooser
 
-class gPodderEpisodeSelector( GladeWidget):
+class gPodderEpisodeSelector( BuilderWidget):
     """Episode selection dialog
 
     Optional keyword arguments that modify the behaviour of this dialog:
@@ -4586,7 +4580,7 @@ class gPodderEpisodeSelector( GladeWidget):
         if self.callback is not None:
             self.callback([])
 
-class gPodderConfigEditor(GladeWidget):
+class gPodderConfigEditor(BuilderWidget):
     finger_friendly_widgets = ['btnShowAll', 'btnClose', 'configeditor']
     
     def new(self):
@@ -4667,7 +4661,7 @@ class gPodderConfigEditor(GladeWidget):
             option_name = gl.config.get_description( model.get(iter, 0)[0] )
             self.config_option_description_label.set_text(option_name)
 
-class gPodderPlaylist(GladeWidget):
+class gPodderPlaylist(BuilderWidget):
     finger_friendly_widgets = ['btnCancelPlaylist', 'btnSavePlaylist', 'treeviewPlaylist']
 
     def new(self):
@@ -4712,7 +4706,7 @@ class gPodderPlaylist(GladeWidget):
         # read device and playlist and fill the TreeView
         title = _('Reading files from %s') % gl.config.mp3_player_folder
         message = _('Please wait while gPodder reads your media file list from device.')
-        dlg = gtk.MessageDialog(GladeWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+        dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
         dlg.set_title(title)
         dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
         dlg.show_all()
@@ -4839,7 +4833,7 @@ class gPodderPlaylist(GladeWidget):
         dlg.destroy()
         return False
 
-class gPodderDependencyManager(GladeWidget):
+class gPodderDependencyManager(BuilderWidget):
     def new(self):
         col_name = gtk.TreeViewColumn(_('Feature'), gtk.CellRendererText(), text=0)
         self.treeview_components.append_column(col_name)
@@ -4873,7 +4867,7 @@ class gPodderDependencyManager(GladeWidget):
     def on_gPodderDependencyManager_response(self, dialog, response_id):
         self.gPodderDependencyManager.destroy()
 
-class gPodderWelcome(GladeWidget):
+class gPodderWelcome(BuilderWidget):
     finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
 
     def new(self):

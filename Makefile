@@ -20,9 +20,9 @@
 ##########################################################################
 
 BINFILE=bin/gpodder
-GLADEFILE=data/gpodder.glade
-GLADEGETTEXT=$(GLADEFILE).h
 MESSAGESPOT=data/messages.pot
+UIFILES=$(wildcard data/ui/*.ui)
+UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
 GUIFILE=src/gpodder/gui.py
 HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
@@ -120,11 +120,11 @@ gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
 	make -C data/po update
 
-$(GLADEGETTEXT): $(GLADEFILE)
-	intltool-extract --type=gettext/glade $(GLADEFILE)
+data/ui/%.ui.h: $(subst .ui.h,.h,$@)
+	intltool-extract --type=gettext/glade $(subst .ui.h,.ui,$@)
 
-$(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
-	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE)
+$(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE) $(UIFILES_H)
+	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(UIFILES_H) $(BINFILE)
 	sed -i'~' -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
 rosetta-upload: $(ROSETTA_ARCHIVE)
@@ -143,7 +143,7 @@ remove-git-menuitem:
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO data/gpodder.gladep{,.bak} data/gpodder.glade.bak $(GLADEGETTEXT) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
+	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
 	rm -rf build
 	make -C data/po clean
 

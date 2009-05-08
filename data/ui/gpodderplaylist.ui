@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--*- mode: xml -*-->
+<interface>
+  <object class="GtkDialog" id="gPodderPlaylist">
+    <property name="visible">True</property>
+    <property name="default_height">300</property>
+    <property name="default_width">500</property>
+    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="modal">True</property>
+    <property context="yes" name="title" translatable="yes">Manage playlist on MP3 player</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog1-vbox">
+        <property name="border_width">2</property>
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkLabel" id="labelPlayListHeader">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Playlist manager&lt;/big&gt;&lt;/b&gt;</property>
+            <property name="use_underline">True</property>
+            <property name="use_markup">True</property>
+            <property name="wrap">False</property>
+            <property name="selectable">False</property>
+            <property name="xalign">0.0</property>
+            <property name="ypad">3</property>
+            <property name="width_chars">-1</property>
+            <property name="single_line_mode">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">start</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="labelPlayListInstructions">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Create your playlist by selecting and sorting these episodes.</property>
+            <property name="use_underline">True</property>
+            <property name="use_markup">False</property>
+            <property name="wrap">False</property>
+            <property name="selectable">False</property>
+            <property name="xalign">0.0</property>
+            <property name="ypad">3</property>
+            <property name="width_chars">-1</property>
+            <property name="single_line_mode">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">start</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrollPlaylist">
+            <property name="border_width">6</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="is_focus">True</property>
+            <property name="shadow_type">in</property>
+            <property name="visible">True</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTreeView" id="treeviewPlaylist">
+                <property name="visible">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack_type">start</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog1-action_area">
+            <property name="border_width">5</property>
+            <property name="layout_style">end</property>
+            <property name="spacing">6</property>
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="btnCancelPlaylist">
+                <property name="label">gtk-cancel</property>
+                <property name="use_stock">True</property>
+                <property name="visible">True</property>
+                <signal handler="on_btnCancelPlaylist_clicked" name="clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnSavePlaylist">
+                <property name="label">gtk-save</property>
+                <property name="use_stock">True</property>
+                <property name="visible">True</property>
+                <signal handler="on_btnSavePlaylist_clicked" name="clicked"/>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
