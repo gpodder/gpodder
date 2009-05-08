@@ -884,6 +884,11 @@ class PodcastEpisode(PodcastModelObject):
                 (episode_filename, extension_UNUSED) = util.filename_from_url(url)
                 fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
+            # Use the video title for YouTube downloads
+            for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
+                if self.url.startswith(yt_url):
+                    fn_template = self.title
+
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):
                 log('Report to bugs.gpodder.org: Podcast at %s with episode URL: %s', self.channel.url, self.url, sender=self)
