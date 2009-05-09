@@ -66,12 +66,14 @@ _ = gpodder.gettext
 if gpodder.interface == gpodder.MAEMO:
     ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
     ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
+    ICON_GENERIC_FILE = 'text-x-generic'
     ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
     ICON_DELETED = 'qgn_toolb_gene_deletebutton'
     ICON_NEW = 'qgn_list_gene_favor'
 else:
     ICON_AUDIO_FILE = 'audio-x-generic'
     ICON_VIDEO_FILE = 'video-x-generic'
+    ICON_GENERIC_FILE = 'text-x-generic'
     ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
     ICON_DELETED = gtk.STOCK_DELETE
     ICON_NEW = gtk.STOCK_ABOUT
@@ -431,7 +433,7 @@ class PodcastChannel(PodcastModelObject):
         return db.load_episodes(self, factory=self.episode_factory)
 
     def iter_set_downloading_columns(self, model, iter, episode=None, downloading=None):
-        global ICON_AUDIO_FILE, ICON_VIDEO_FILE
+        global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_GENERIC_FILE
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
         if episode is None:
@@ -465,7 +467,7 @@ class PodcastChannel(PodcastModelObject):
                 elif file_type == 'video':
                     status_icon = util.get_tree_icon(ICON_VIDEO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
                 else:
-                    status_icon = util.get_tree_icon('unknown', not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
+                    status_icon = util.get_tree_icon(ICON_GENERIC_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
             elif episode.state == db.STATE_DELETED or episode.state == db.STATE_DOWNLOADED:
                 status_icon = util.get_tree_icon(ICON_DELETED, not episode.is_played, icon_cache=self.icon_cache, icon_size=icon_size)
             else:

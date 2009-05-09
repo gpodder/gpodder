@@ -30,10 +30,6 @@ import time
 import urllib
 import urllib2
 import datetime
-import dbus
-import dbus.service
-import dbus.mainloop
-import dbus.glib
 
 from xml.sax import saxutils
 
@@ -43,6 +39,33 @@ from threading import Semaphore
 from string import strip
 
 import gpodder
+
+if gpodder.win32:
+    # Mock the required D-Bus interfaces with no-ops
+    class dbus:
+        class SessionBus:
+            def __init__(self, *args, **kwargs):
+                pass
+        class glib:
+            class DBusGMainLoop:
+                pass
+        class service:
+            @staticmethod
+            def method(interface):
+                return lambda x: x
+            class BusName:
+                def __init__(self, *args, **kwargs):
+                    pass
+            class Object:
+                def __init__(self, *args, **kwargs):
+                    pass
+else:
+    import dbus
+    import dbus.service
+    import dbus.mainloop
+    import dbus.glib
+
+
 from gpodder import libtagupdate
 from gpodder import util
 from gpodder import opml
@@ -435,6 +458,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.gPodder.connect('key-press-event', self.on_key_press)
         self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
+
+        if gpodder.win32:
+            # FIXME: Implement e-mail sending of list in win32
+            self.item_email_subscriptions.set_sensitive(False)
 
         if gl.config.show_url_entry_in_podcast_list:
             self.hboxAddChannel.show()
@@ -2206,6 +2233,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
 
         self.gPodder.hide()
+
+        if self.tray_icon is not None:
+            self.tray_icon.set_visible(False)
 
         # Notify all tasks to to carry out any clean-up actions
         self.download_status_manager.tell_all_tasks_to_quit()
@@ -4130,7 +4160,7 @@ class gPodderOpmlLister(BuilderWidget):
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
             url = self.entryURL.get_text()
-            if not url.lower().startswith('http://'):
+            if not os.path.isfile(url) and not url.lower().startswith('http://'):
                 log('Using podcast.de search')
                 url = 'http://api.podcast.de/opml/podcasts/suche/%s' % (urllib.quote(url),)
             model = opml.Importer(url).get_model()

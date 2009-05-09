@@ -25,6 +25,7 @@ __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
 
 import sys
+import platform
 import gettext
 
 # Check if real hard dependencies are available
@@ -65,4 +66,7 @@ del t
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folder = None
 icon_file = None
+
+# Set "win32" to True if we are on Windows
+win32 = (platform.system() == 'Windows')
 

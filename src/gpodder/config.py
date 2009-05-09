@@ -42,7 +42,7 @@ _ = gpodder.gettext
 if gpodder.interface == gpodder.MAEMO:
     default_download_dir = '/media/mmc2/gpodder'
 else:
-    default_download_dir = os.path.expanduser('~/gpodder-downloads')
+    default_download_dir = os.path.join(os.path.expanduser('~'), 'gpodder-downloads')
 
 gPodderSettings = {
     # General settings

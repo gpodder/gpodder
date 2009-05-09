@@ -48,6 +48,8 @@ import urllib
 import urllib2
 import os.path
 import os
+import platform
+import shutil
 
 from email.Utils import formatdate
 import gpodder
@@ -76,15 +78,10 @@ class Importer(object):
         """
         self.items = []
         try:
-            if url.startswith('/'):
-                # assume local filename
-                if os.path.exists(url):
-                    doc = xml.dom.minidom.parse( url)
-                else:
-                    log('Empty/non-existing OPML file', sender=self)
-                    return
+            if os.path.exists(url):
+                doc = xml.dom.minidom.parse(url)
             else:
-                doc = xml.dom.minidom.parseString( self.read_url( url))
+                doc = xml.dom.minidom.parseString(self.read_url(url))
 
             for outline in doc.getElementsByTagName('outline'):
                 if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
@@ -206,15 +203,21 @@ class Exporter(object):
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512
-            if util.get_free_disk_space(os.path.dirname(self.filename)) < 2*len(data)+FREE_DISK_SPACE_AFTER:
+            available = util.get_free_disk_space(os.path.dirname(self.filename))
+            if available < 2*len(data)+FREE_DISK_SPACE_AFTER and not gpodder.win32:
+                # FIXME: get_free_disk_space still unimplemented for win32
                 log('Not enough free disk space to save channel list to %s', self.filename, sender = self)
                 return False
             fp = open(self.filename+'.tmp', 'w')
             fp.write(data)
             fp.close()
-            os.rename(self.filename+'.tmp', self.filename)
+            if gpodder.win32:
+                # Win32 does not support atomic rename with os.rename
+                shutil.move(self.filename+'.tmp', self.filename)
+            else:
+                os.rename(self.filename+'.tmp', self.filename)
         except:
-            log( 'Could not open file for writing: %s', self.filename, sender = self)
+            log('Could not open file for writing: %s', self.filename, sender=self, traceback=True)
             return False
 
         return True

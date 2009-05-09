@@ -37,6 +37,7 @@ import gobject
 
 import os
 import os.path
+import platform
 import glob
 import stat
 
@@ -320,6 +321,10 @@ def get_free_disk_space(path):
     If the path (or its parent folder) does not yet exist, this
     function returns zero.
     """
+
+    if gpodder.win32:
+        # FIXME: Implement for win32
+        return 0
 
     if not os.path.exists(path):
         return 0
@@ -1018,12 +1023,14 @@ def get_episode_info_from_url(url, proxy=None):
 def gui_open(filename):
     """
     Open a file or folder with the default application set
-    by the Desktop environment. This uses "xdg-open".
+    by the Desktop environment. This uses "xdg-open" on all
+    systems except Win32, which uses os.startfile().
     """
     try:
-        subprocess.Popen(['xdg-open', filename])
-        # FIXME: Win32-specific "open" code needed here
-        # as fallback when xdg-open not available
+        if gpodder.win32:
+            os.startfile(filename)
+        else:
+            subprocess.Popen(['xdg-open', filename])
         return True
     except:
         log('Cannot open file/folder: "%s"', filename, traceback=True)
