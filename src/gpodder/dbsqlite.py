@@ -30,7 +30,7 @@ try:
 except ImportError:
     try:
         from pysqlite2 import dbapi2 as sqlite
-        from pysqlite2 import OperationalError
+        from pysqlite2.dbapi2 import OperationalError
     except ImportError:
         have_sqlite = False
 
