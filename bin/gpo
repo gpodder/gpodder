@@ -177,6 +177,46 @@ class gPodderCli(object):
 
         return True
 
+    def update(self):
+        for podcast in api.get_podcasts():
+            print 'Updating', podcast.title
+            podcast.update()
+        print 'Done.'
+
+        return True
+
+    def pending(self):
+        count = 0
+        for podcast in api.get_podcasts():
+            podcast_printed = False
+            for episode in podcast.get_episodes():
+                if episode.is_new:
+                    if not podcast_printed:
+                        print podcast.title
+                        podcast_printed = True
+                    print '   ', episode.title
+                    count += 1
+
+        print count, 'episodes pending.'
+        return True
+
+    def download(self):
+        count = 0
+        for podcast in api.get_podcasts():
+            podcast_printed = False
+            for episode in podcast.get_episodes():
+                if episode.is_new:
+                    if not podcast_printed:
+                        print podcast.title
+                        podcast_printed = True
+                    print '   ', episode.title
+                    episode.download()
+                    count += 1
+
+        print count, 'episodes downloaded.'
+        return True
+
+
     # -------------------------------------------------------------------
 
     def _error(self, *args):

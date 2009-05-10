@@ -27,7 +27,7 @@ import gpodder
 from gpodder import util
 from gpodder import libpodcasts
 from gpodder.dbsqlite import db
-
+from gpodder import download
 
 class Podcast(object):
     """API interface of gPodder podcasts
@@ -69,6 +69,14 @@ class Podcast(object):
         self._podcast.delete()
         self._podcast = None
 
+    def update(self):
+        """Updates this podcast by downloading the feed
+
+        Downloads the podcast feed (using the feed cache), and
+        adds new episodes and updated information to the database.
+        """
+        self._podcast.update()
+
 
 
 class Episode(object):
@@ -93,6 +101,16 @@ class Episode(object):
                 not self._episode.is_played)
         self.is_downloaded = (self._episode.state == db.STATE_DOWNLOADED)
         self.is_deleted = (self._episode.state == db.STATE_DELETED)
+
+    def download(self):
+        """Downloads the episode to a local file
+
+        This will run the download in the same thread, so be sure
+        to call this method from a worker thread in case you have
+        a GUI running as a frontend."""
+        task = download.DownloadTask(self._episode)
+        task.status = download.DownloadTask.QUEUED
+        task.run()
 
 
 def get_podcasts():
