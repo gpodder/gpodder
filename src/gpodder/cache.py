@@ -224,6 +224,15 @@ class Cache:
             # There is new content, so store it unless there was an error.
             # Store it regardless of errors when we don't have anything yet
             error = parsed_result.get('bozo_exception')
+
+            # Detect HTTP authentication pages
+            if isinstance(error, feedparser.NonXMLContentType) and \
+                    status == 302 and hasattr(c, 'headers') and \
+                    c.header.get('content-type').startswith('text/html'):
+                log('Warning: Looks like a Wifi authentication page: %s', c.url, sender=self)
+                log('Acting as if the feed was not updated (FIXME!)', sender=self)
+                return (True, None)
+
             if error:
                 log('Warning: %s (%s)', url, str(error), sender=self)
                 parsed_result['bozo_exception'] = str(error)
