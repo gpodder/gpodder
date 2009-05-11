@@ -80,7 +80,6 @@ class GtkBuilderWidget(object):
         try:
             import mokoui
         except ImportError, ie:
-            log('Install mokoui for finger-scroll.', sender=self)
             return widget
 
         parent = widget.get_parent()
@@ -133,7 +132,6 @@ class GtkBuilderWidget(object):
 
         if scroll is not None:
             if isinstance(child, gtk.TextView):
-                log('Disabling editing inside fingerscroll.', sender=self)
                 child.set_editable(False)
                 child.set_cursor_visible(False)
                 child.set_sensitive(False)

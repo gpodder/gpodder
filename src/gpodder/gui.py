@@ -205,6 +205,9 @@ class BuilderWidget(uibase.GtkBuilderWidget):
         buttons will have more padding, TreeViews a thick
         scrollbar, etc..)
         """
+        if widget is None:
+            return None
+
         if gpodder.interface == gpodder.MAEMO:
             if isinstance(widget, gtk.Misc):
                 widget.set_padding(0, 5)
@@ -356,7 +359,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
 
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'itemQuit', 'menuPodcasts', 'menuSubscriptions', 'menuChannels', 'menuHelp']
+    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads']
     ENTER_URL_TEXT = _('Enter podcast URL...')
 
     def __init__(self, bus_name):
@@ -413,6 +416,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             toolbar.insert(self.toolbarSpacer, -1)
             self.toolbarSpacer.show()
 
+            self.wNotebook.set_show_tabs(False)
+            self.tool_downloads = gtk.ToggleToolButton(gtk.STOCK_GO_DOWN)
+            self.tool_downloads.connect('toggled', self.on_tool_downloads_toggled)
+            self.tool_downloads.set_label(_('Downloads'))
+            self.tool_downloads.set_is_important(True)
+            toolbar.insert(self.tool_downloads, -1)
+            self.tool_downloads.show_all()
+
             self.toolPreferences = gtk.ToolButton(gtk.STOCK_PREFERENCES)
             self.toolPreferences.connect('clicked', self.on_itemPreferences_activate)
             toolbar.insert(self.toolPreferences, -1)
@@ -435,8 +446,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Reparent the main menu
             menu = gtk.Menu()
             for child in self.mainMenu.get_children():
-                child.reparent(menu)
-            menu.append(self.itemQuit.create_menu_item())
+                child.get_parent().remove(child)
+                menu.append(self.set_finger_friendly(child))
+            menu.append(self.set_finger_friendly(self.itemQuit.create_menu_item()))
             self.window.set_menu(menu)
          
             self.mainMenu.destroy()
@@ -784,10 +796,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate, None)
 
+    def on_tool_downloads_toggled(self, toolbutton):
+        if toolbutton.get_active():
+            self.wNotebook.set_current_page(1)
+        else:
+            self.wNotebook.set_current_page(0)
+
     def update_downloads_list(self):
         model = self.treeDownloads.get_model()
 
-        downloading, failed, finished, queued = 0, 0, 0, 0
+        downloading, failed, finished, queued, others = 0, 0, 0, 0, 0
         total_speed, total_size, done_size = 0, 0, 0
 
         # Keep a list of all download tasks that we've seen
@@ -827,6 +845,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 finished += 1
             elif status == download.DownloadTask.QUEUED:
                 queued += 1
+            else:
+                others += 1
 
         # Remember which tasks we have seen after this run
         self.download_tasks_seen = download_tasks_seen
@@ -844,6 +864,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 s.append(_('%d queued') % queued)
             text.append(' (' + ', '.join(s)+')')
         self.labelDownloads.set_text(''.join(text))
+
+        if gpodder.interface == gpodder.MAEMO:
+            sum = downloading + failed + finished + queued + others
+            self.tool_downloads.set_is_important(sum > 0)
+            if sum:
+                self.tool_downloads.set_label(_('Downloads (%d)') % sum)
+            else:
+                self.tool_downloads.set_label(_('Downloads'))
 
         title = [self.default_title]
 
@@ -872,6 +900,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Update the tray icon status
                 self.tray_icon.set_status()
                 self.tray_icon.downloads_finished(self.download_tasks_seen)
+            if gpodder.interface == gpodder.MAEMO:
+                hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
             log('All downloads have finished.', sender=self)
             if gl.config.cmd_all_downloads_complete:
                 util.run_external_command(gl.config.cmd_all_downloads_complete)
@@ -1678,10 +1708,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         can_transfer = can_play and gl.config.device_type != 'none' and not can_cancel and not can_download
 
         if open_instead_of_play:
-            self.toolPlay.set_property('stock-id', gtk.STOCK_OPEN)
+            if gpodder.interface != gpodder.MAEMO:
+                self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
             can_transfer = False
         else:
-            self.toolPlay.set_property('stock-id', gtk.STOCK_MEDIA_PLAY)
+            if gpodder.interface != gpodder.MAEMO:
+                self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
 
         self.toolPlay.set_sensitive( can_play)
         self.toolDownload.set_sensitive( can_download)
@@ -2989,6 +3021,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
         if gpodder.interface == gpodder.MAEMO:
+            self.tool_downloads.set_active(page_num == 1)
             page = self.wNotebook.get_nth_page(page_num)
             tab_label = self.wNotebook.get_tab_label(page).get_text()
             if page_num == 0 and self.active_channel is not None:
@@ -3459,6 +3492,7 @@ class gPodderMaemoPreferences(BuilderWidget):
     def new(self):
         gl.config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
         gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
+        gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
 
         for item in self.audio_players:
             command, caption = item
@@ -3889,7 +3923,8 @@ class gPodderEpisode(BuilderWidget):
         self.gPodderEpisode.connect('delete-event', self.on_delete_event)
         gl.config.connect_gtk_window(self.gPodderEpisode, 'episode_window', True)
         self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
-        if gl.config.enable_html_shownotes:
+        if gl.config.enable_html_shownotes and \
+                not gpodder.interface == gpodder.MAEMO:
             try:
                 import gtkhtml2
                 setattr(self, 'have_gtkhtml2', True)
@@ -4938,7 +4973,7 @@ class gPodderWelcome(BuilderWidget):
     finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
 
     def new(self):
-        pass
+        self.gPodderWelcome.show()
 
     def on_show_example_podcasts(self, button):
         self.gPodderWelcome.destroy()

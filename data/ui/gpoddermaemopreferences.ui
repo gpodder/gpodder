@@ -24,7 +24,7 @@
             <property name="border_width">12</property>
             <property name="column_spacing">6</property>
             <property name="n_columns">2</property>
-            <property name="n_rows">4</property>
+            <property name="n_rows">5</property>
             <property name="row_spacing">6</property>
             <property name="visible">True</property>
             <child>
@@ -70,6 +70,17 @@
                 <property name="bottom_attach">4</property>
                 <property name="right_attach">2</property>
                 <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="check_enable_gestures">
+                <property context="yes" name="label" translatable="yes">Enable episode list gestures</property>
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">5</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">4</property>
               </packing>
             </child>
             <child>
