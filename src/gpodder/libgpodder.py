@@ -51,15 +51,12 @@ import shlex
 
 _ = gpodder.gettext
 
-if gpodder.interface == gpodder.MAEMO:
-    import osso
 
 class gPodderLib(object):
     def __init__( self):
         log('Creating gPodderLib()', sender=self)
         gpodder_dir = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
         if gpodder.interface == gpodder.MAEMO:
-            self.osso_c = osso.Context('gpodder_osso_sender', '1.0', False)
             old_dir = '/media/mmc2/gpodder/'
             if os.path.exists(os.path.join(old_dir, 'channels.opml')) and not os.path.exists(os.path.join(gpodder_dir, 'channels.opml')):
                 # migrate from old (0.13.0 and earlier) gpodder maemo versions
@@ -357,17 +354,6 @@ class gPodderLib(object):
             filename = episode.local_filename(create=False)
             assert filename is not None
         db.mark_episode(episode.url, is_played=True)
-
-        if gpodder.interface == gpodder.MAEMO and not self.config.maemo_allow_custom_player:
-            # Use the built-in Nokia Mediaplayer here
-            filename = filename.encode('utf-8')
-            osso_rpc = osso.Rpc(self.osso_c)
-            service = 'com.nokia.mediaplayer'
-            path = '/com/nokia/mediaplayer'
-            if not '://' in filename:
-                filename = 'file://' + filename
-            osso_rpc.rpc_run(service, path, service, 'mime_open', (filename,))
-            return (True, service)
 
         # Determine the file type and set the player accordingly.  
         file_type = episode.file_type()

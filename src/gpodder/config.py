@@ -204,9 +204,6 @@ gPodderSettings = {
       _("The maximum filename length for FS-based devices.")),
     'show_url_entry_in_podcast_list': (bool, False,
       _("Whether or not to show the URL entry (add podcast) box in the main window.")),
-    'maemo_allow_custom_player': (bool, False,
-      _("This must be enabled on Maemo in order to be able to use a media "
-        "player other than Nokia's built-in media player.")),
     'rockbox_copy_coverart' : (bool, False,
       _("Create rockbox-compatible coverart and copy it to the device when "
         "syncing. See: 'rockbox_coverart_size'.")),

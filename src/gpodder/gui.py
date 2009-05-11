@@ -2734,10 +2734,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.updateComboBox()
 
     def on_itemPreferences_activate(self, widget, *args):
-        if gpodder.interface == gpodder.GUI:
-            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
-        else:
-            gPodderMaemoPreferences()
+        gPodderMaemoPreferences()
+#        if gpodder.interface == gpodder.GUI:
+#            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
+#        else:
+#            gPodderMaemoPreferences()
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager()
@@ -3461,20 +3462,61 @@ class gPodderAddPodcastDialog(BuilderWidget):
         
 
 class gPodderMaemoPreferences(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'label128', 'label129', 'btn_advanced']
+    finger_friendly_widgets = ['btn_close', 'btn_advanced']
+    audio_players = (
+            ('default', 'Nokia Media Player'),
+            ('panucci', 'Panucci'),
+    )
+    video_players = (
+            ('default', 'Nokia Media Player'),
+            ('mplayer', 'MPlayer'),
+    )
     
     def new(self):
-        gl.config.connect_gtk_togglebutton('update_on_startup', self.update_on_startup)
-        gl.config.connect_gtk_togglebutton('display_tray_icon', self.show_tray_icon)
-        gl.config.connect_gtk_togglebutton('enable_notifications', self.show_notifications)
-        gl.config.connect_gtk_togglebutton('on_quit_ask', self.on_quit_ask)
+        gl.config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
+        gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
 
-        self.restart_required = False
-        self.show_tray_icon.connect('clicked', self.on_restart_required)
-        self.show_notifications.connect('clicked', self.on_restart_required)
+        # Set up the audio player combobox
+        found = False
+        self.userconfigured_player = None
+        for id, audio_player in enumerate(self.audio_players):
+            command, caption = audio_player
+            self.combo_player_model.append([caption])
+            if gl.config.player == command:
+                self.combo_player.set_active(id)
+                found = True
+        if not found:
+            self.combo_player_model.append(['User-configured (%s)' % gl.config.player])
+            self.combo_player.set_active(len(self.combo_player_model)-1)
+            self.userconfigured_player = gl.config.player
 
-    def on_restart_required(self, widget):
-        self.restart_required = True
+        # Set up the video player combobox
+        found = False
+        self.userconfigured_videoplayer = None
+        for id, video_player in enumerate(self.video_players):
+            command, caption = video_player
+            self.combo_videoplayer_model.append([caption])
+            if gl.config.videoplayer == command:
+                self.combo_videoplayer.set_active(id)
+                found = True
+        if not found:
+            self.combo_videoplayer_model.append(['User-configured (%s)' % gl.config.videoplayer])
+            self.combo_videoplayer.set_active(len(self.combo_videoplayer_model)-1)
+            self.userconfigured_videoplayer = gl.config.videoplayer
+
+    def on_combo_player_changed(self, combobox):
+        index = combobox.get_active()
+        if index < len(self.audio_players):
+            gl.config.player = self.audio_players[index][0]
+        elif self.userconfigured_player is not None:
+            gl.config.player = self.userconfigured_player
+
+    def on_combo_videoplayer_changed(self, combobox):
+        index = combobox.get_active()
+        if index < len(self.video_players):
+            gl.config.videoplayer = self.video_players[index][0]
+        elif self.userconfigured_videoplayer is not None:
+            gl.config.videoplayer = self.userconfigured_videoplayer
 
     def on_btn_advanced_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
@@ -3482,8 +3524,6 @@ class gPodderMaemoPreferences(BuilderWidget):
 
     def on_btn_close_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
-        if self.restart_required:
-            self.show_message(_('Please restart gPodder for the changes to take effect.'))
 
 
 class gPodderProperties(BuilderWidget):

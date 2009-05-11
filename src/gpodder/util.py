@@ -1024,9 +1024,28 @@ def gui_open(filename):
     """
     Open a file or folder with the default application set
     by the Desktop environment. This uses "xdg-open" on all
-    systems except Win32, which uses os.startfile().
+    systems with a few exceptions:
+
+       on Win32, os.startfile() is used
+       on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
+        if gpodder.interface == gpodder.MAEMO:
+            try:
+                import osso
+            except ImportError, ie:
+                log('Cannot import osso module on maemo.', sender=self)
+                return False
+
+            context = osso.Context('gpodder_osso_sender', '1.0', False)
+            filename = filename.encode('utf-8')
+            rpc = osso.Rpc(context)
+            service, path = 'com.nokia.mediaplayer', '/com/nokia/mediaplayer'
+            if os.path.isfile(filename):
+                filename = 'file://' + filename
+            rpc.rpc_run(service, path, service, 'mime_open', (filename,))
+            return True
+
         if gpodder.win32:
             os.startfile(filename)
         else:
