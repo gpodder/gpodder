@@ -2246,6 +2246,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         db.close()
 
         self.quit()
+        sys.exit(0)
 
     def get_old_episodes(self):
         episodes = []
@@ -2734,11 +2735,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.updateComboBox()
 
     def on_itemPreferences_activate(self, widget, *args):
-        gPodderMaemoPreferences()
-#        if gpodder.interface == gpodder.GUI:
-#            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
-#        else:
-#            gPodderMaemoPreferences()
+        if gpodder.interface == gpodder.GUI:
+            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
+        else:
+            gPodderMaemoPreferences()
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager()
