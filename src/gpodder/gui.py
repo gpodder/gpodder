@@ -2246,7 +2246,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         db.close()
 
         self.quit()
-        sys.exit(0)
 
     def get_old_episodes(self):
         episodes = []
