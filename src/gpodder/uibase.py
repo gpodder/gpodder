@@ -29,6 +29,10 @@ import tokenize
 import gtk
 
 class GtkBuilderWidget(object):
+    # Other code can set this to True if it wants us to try and
+    # replace GtkScrolledWindow widgets with Finger Scroll widgets
+    use_fingerscroll = False
+
     def __init__(self, ui_folder, textdomain, **kwargs):
         """
         Loads the UI file from the specified folder (with translations
@@ -59,6 +63,86 @@ class GtkBuilderWidget(object):
 
         self.new()
 
+    def _handle_scrolledwindow(self, widget):
+        """Helper for replacing gtk.ScrolledWindow with finger scroll
+
+        This function tries to replace a gtk.ScrolledWindow
+        widget with a finger scroll widget if available, reparenting
+        the child widget and trying to place the finger scroll
+        widget exactly where the ScrolledWindow was.
+
+        This function needs use_fingerscroll to be set to True,
+        otherwise it won't do anything."""
+        if not self.use_fingerscroll:
+            return widget
+
+        # Check if we have mokoui before continuing
+        try:
+            import mokoui
+        except ImportError, ie:
+            log('Install mokoui for finger-scroll.', sender=self)
+            return widget
+
+        parent = widget.get_parent()
+        child = widget.get_child()
+        scroll = None
+
+        def create_fingerscroll():
+            scroll = mokoui.FingerScroll()
+            scroll.set_name(widget.get_name())
+            scroll.set_property('spring-speed', 0)
+            return scroll
+
+        def container_get_child_pos(container, widget):
+            for pos, child in enumerate(container.get_children()):
+                if child == widget:
+                    return pos
+            return -1
+
+        if isinstance(parent, gtk.Paned):
+            scroll = create_fingerscroll()
+            child.reparent(scroll)
+
+            if parent.get_child1() == widget:
+                add_to_paned = parent.add1
+            else:
+                add_to_paned = parent.add2
+
+            parent.remove(widget)
+            add_to_paned(scroll)
+        elif isinstance(parent, gtk.Box):
+            scroll = create_fingerscroll()
+            child.reparent(scroll)
+
+            position = container_get_child_pos(parent, widget)
+            packing = parent.query_child_packing(widget)
+
+            parent.remove(widget)
+            parent.add(scroll)
+            parent.set_child_packing(scroll, *packing)
+            parent.reorder_child(scroll, position)
+        elif isinstance(parent, gtk.Table):
+            scroll = create_fingerscroll()
+            child.reparent(scroll)
+
+            attachment = parent.child_get(widget, 'left-attach', \
+                    'right-attach', 'top-attach', 'bottom-attach', \
+                    'x-options', 'y-options', 'x-padding', 'y-padding')
+            parent.remove(widget)
+            parent.attach(scroll, *attachment)
+
+        if scroll is not None:
+            if isinstance(child, gtk.TextView):
+                log('Disabling editing inside fingerscroll.', sender=self)
+                child.set_editable(False)
+                child.set_cursor_visible(False)
+                child.set_sensitive(False)
+            widget.destroy()
+            scroll.show()
+            return scroll
+
+        return widget
+
     def set_attributes(self):
         """
         Convert widget names to attributes of this object.
@@ -69,6 +153,9 @@ class GtkBuilderWidget(object):
         for widget in self.builder.get_objects():
             if not hasattr(widget, 'get_name'):
                 continue
+
+            if isinstance(widget, gtk.ScrolledWindow):
+                widget = self._handle_scrolledwindow(widget)
 
             widget_name = widget.get_name()
             widget_api_name = '_'.join(re.findall(tokenize.Name, widget_name))

@@ -374,8 +374,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.window.connect('delete-event', self.on_gPodder_delete_event)
             self.window.connect('window-state-event', self.window_state_event)
     
-            self.itemUpdateChannel.show()
-            self.UpdateChannelSeparator.show()
+            self.itemUpdateChannel.set_visible(True)
             
             # Remove old toolbar from its parent widget
             self.toolbar.get_parent().remove(self.toolbar)
@@ -437,16 +436,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = gtk.Menu()
             for child in self.mainMenu.get_children():
                 child.reparent(menu)
-            self.itemQuit.reparent(menu)
+            menu.append(self.itemQuit.create_menu_item())
             self.window.set_menu(menu)
          
             self.mainMenu.destroy()
             self.window.show()
             
             # do some widget hiding
-            self.itemTransferSelected.hide_all()
-            self.item_email_subscriptions.hide_all()
-            self.menuView.hide()
+            self.itemTransferSelected.set_visible(False)
+            self.item_email_subscriptions.set_visible(False)
+            self.menuView.set_visible(False)
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
@@ -573,21 +572,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeview_channels_buttonpress = (0, 0)
             self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
             self.treeChannels.connect('button-release-event', self.treeview_channels_button_released)
-
-            import mokoui
-            fs = mokoui.FingerScroll()
-            fs.set_property('spring-speed', 0)
-            self.treeAvailable.reparent(fs)
-            self.channelPaned.remove(self.scrollAvailable)
-            self.channelPaned.pack2(fs)
-            fs.show()
-            fsc = mokoui.FingerScroll()
-            fsc.set_property('spring-speed', 0)
-            self.treeChannels.reparent(fsc)
-            self.vboxChannelNavigator.remove(self.scrolledwindow6)
-            self.vboxChannelNavigator.pack_start(fsc, expand=True, fill=True)
-            self.vboxChannelNavigator.reorder_child(fsc, 0)
-            fsc.show()
         else:
             self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
             self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
@@ -1694,10 +1678,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         can_transfer = can_play and gl.config.device_type != 'none' and not can_cancel and not can_download
 
         if open_instead_of_play:
-            self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
+            self.toolPlay.set_property('stock-id', gtk.STOCK_OPEN)
             can_transfer = False
         else:
-            self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
+            self.toolPlay.set_property('stock-id', gtk.STOCK_MEDIA_PLAY)
 
         self.toolPlay.set_sensitive( can_play)
         self.toolDownload.set_sensitive( can_download)
@@ -3463,18 +3447,28 @@ class gPodderAddPodcastDialog(BuilderWidget):
 
 class gPodderMaemoPreferences(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_advanced']
-    audio_players = (
-            ('default', 'Nokia Media Player'),
+    audio_players = [
+            ('default', 'Media Player'),
             ('panucci', 'Panucci'),
-    )
-    video_players = (
-            ('default', 'Nokia Media Player'),
+    ]
+    video_players = [
+            ('default', 'Media Player'),
             ('mplayer', 'MPlayer'),
-    )
+    ]
     
     def new(self):
         gl.config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
         gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
+
+        for item in self.audio_players:
+            command, caption = item
+            if util.find_command(command) is None and command != 'default':
+                self.audio_players.remove(item)
+
+        for item in self.video_players:
+            command, caption = item
+            if util.find_command(command) is None and command != 'default':
+                self.video_players.remove(item)
 
         # Set up the audio player combobox
         found = False
@@ -3503,6 +3497,8 @@ class gPodderMaemoPreferences(BuilderWidget):
             self.combo_videoplayer_model.append(['User-configured (%s)' % gl.config.videoplayer])
             self.combo_videoplayer.set_active(len(self.combo_videoplayer_model)-1)
             self.userconfigured_videoplayer = gl.config.videoplayer
+
+        self.gPodderMaemoPreferences.show()
 
     def on_combo_player_changed(self, combobox):
         index = combobox.get_active()
@@ -3912,6 +3908,8 @@ class gPodderEpisode(BuilderWidget):
         self.gPodderEpisode.connect('key-press-event', self.on_key_press)
 
     def on_key_press(self, widget, event):
+        if not hasattr(self.scrolled_window, 'get_vscrollbar'):
+            return
         vsb = self.scrolled_window.get_vscrollbar()
         vadj = vsb.get_adjustment()
         step = vadj.step_increment
@@ -4959,6 +4957,11 @@ def main():
 
     session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
     bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=session_bus)
+
+    if gpodder.interface == gpodder.MAEMO and \
+            not gl.config.disable_fingerscroll:
+        uibase.GtkBuilderWidget.use_fingerscroll = True
+
     gp = gPodder(bus_name)
     gp.run()
 

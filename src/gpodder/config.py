@@ -245,6 +245,8 @@ gPodderSettings = {
         "not to resume every single one.")),
     'podcast_sidebar_save_space': (bool, False,
       _("Hide the cover/pill from the podcast sidebar when it gets too small.")),
+    'disable_fingerscroll': (bool, False,
+      _("Disable the use of finger-scrollable widgets on Maemo.")),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',

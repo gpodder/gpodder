@@ -1034,9 +1034,10 @@ def gui_open(filename):
             try:
                 import osso
             except ImportError, ie:
-                log('Cannot import osso module on maemo.', sender=self)
+                log('Cannot import osso module on maemo.')
                 return False
 
+            log('Using Nokia Media Player to open %s', filename)
             context = osso.Context('gpodder_osso_sender', '1.0', False)
             filename = filename.encode('utf-8')
             rpc = osso.Rpc(context)
