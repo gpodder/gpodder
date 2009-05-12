@@ -369,7 +369,9 @@ class DownloadTask(object):
         task.speed            # in bytes per second
         str(task)             # name of the episode
         task.status           # current status
-        task.status_changed   # True if the status has been changed
+        task.status_changed   # True if the status has been changed (see below)
+        task.url              # URL of the episode being downloaded
+        task.podcast_url      # URL of the podcast this download belongs to
 
     You can cancel a running download task by setting its status:
 
@@ -446,6 +448,11 @@ class DownloadTask(object):
         return self.__episode.url
 
     url = property(fget=__get_url)
+
+    def __get_podcast_url(self):
+        return self.__episode.channel.url
+
+    podcast_url = property(fget=__get_podcast_url)
 
     def __get_episode(self):
         return self.__episode

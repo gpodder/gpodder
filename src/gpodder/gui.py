@@ -875,8 +875,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         title = [self.default_title]
 
-        # We have to update all episode icons for which the status has changed
-        episode_urls = [task.url for task in self.download_tasks_seen if task.status_changed]
+        # We have to update all episodes/channels for which the status has
+        # changed. Accessing task.status_changed has the side effect of
+        # re-setting the changed flag, so we need to get the "changed" list
+        # of tuples first and split it into two lists afterwards
+        changed = [(task.url, task.podcast_url) for task in \
+                self.download_tasks_seen if task.status_changed]
+        episode_urls = [episode_url for episode_url, channel_url in changed]
+        channel_urls = [channel_url for episode_url, channel_url in changed]
 
         count = downloading + queued
         if count > 0:
@@ -915,7 +921,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gpodder_episode_window.download_status_changed(episode_urls)
             self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
         self.play_or_download()
-        #self.updateComboBox(only_these_urls=channel_urls)
+        if channel_urls:
+            self.updateComboBox(only_these_urls=channel_urls)
         return True
 
     def on_tree_channels_resize(self, widget, allocation):
