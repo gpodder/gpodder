@@ -27,6 +27,7 @@ __url__       = 'http://gpodder.org/'
 import sys
 import platform
 import gettext
+import locale
 
 # Check if real hard dependencies are available
 try:
@@ -54,19 +55,32 @@ dbus_bus_name = 'org.godder'
 dbus_gui_object_path = '/gui'
 dbus_interface = 'org.gpodder.interface'
 
+# Set "win32" to True if we are on Windows
+win32 = (platform.system() == 'Windows')
+
 # i18n setup (will result in "gettext" to be available)
 # Use   _ = gpodder.gettext   in modules to enable string translations
 textdomain = 'gpodder'
 locale_dir = gettext.bindtextdomain(textdomain)
 t = gettext.translation(textdomain, locale_dir, fallback=True)
 gettext = t.ugettext
-del locale_dir
 del t
+
+# Set up textdomain for gtk.Builder (this accesses the C library functions)
+if hasattr(locale, 'bindtextdomain'):
+    locale.bindtextdomain(textdomain, locale_dir)
+else:
+    # On Win32, the locale module does not have bindtextdomain. We use a
+    # small module that provides similar functionality here (from doc/dev/).
+    try:
+        import gtkbuilderi18n
+        gtkbuilderi18n.bindtextdomain(textdomain, locale_dir)
+    except ImportError, ioe:
+        pass
+
+del locale_dir
 
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folder = None
 icon_file = None
-
-# Set "win32" to True if we are on Windows
-win32 = (platform.system() == 'Windows')
 

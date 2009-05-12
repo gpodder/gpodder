@@ -51,7 +51,7 @@ class GtkBuilderWidget(object):
             setattr(self, key, value)
 
         self.builder = gtk.Builder()
-        #self.builder.set_translation_domain(textdomain)
+        self.builder.set_translation_domain(textdomain)
 
         print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
