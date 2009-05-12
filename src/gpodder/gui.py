@@ -756,12 +756,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         resumable_episodes = []
         if len(partial_files) > 0:
             for f in partial_files:
-                correct_name = os.path.basename(f)[:-len('.partial')] # strip ".partial"
+                correct_name = f[:-len('.partial')] # strip ".partial"
                 log('Searching episode for file: %s', correct_name, sender=self)
                 found_episode = False
                 for c in self.channels:
                     for e in c.get_all_episodes():
-                        if e.filename == correct_name:
+                        if e.local_filename(create=False, check_only=True) == correct_name:
                             log('Found episode: %s', e.title, sender=self)
                             resumable_episodes.append(e)
                             found_episode = True
@@ -769,6 +769,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                     if found_episode:
                         break
+                if not found_episode:
+                    log('Partial file without episode: %s', f, sender=self)
+                    util.delete_file(f)
 
             if len(resumable_episodes):
                 self.download_episode_list_paused(resumable_episodes)
@@ -1215,6 +1218,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.popup(None, None, None, event.button, event.time)
             return True
 
+    def change_current_podcast_url(self, *args):
+        if self.active_channel is None:
+            return
+
+        url_callback = lambda new_url: self.change_channel_url(self.active_channel, new_url)
+        gPodderAddPodcastDialog(url_callback=url_callback, \
+                custom_title=_('Change feed URL of %s') % self.active_channel.title, \
+                custom_label=_('Change to:'), \
+                preset_url=self.active_channel.url, \
+                btn_add_stock_id=_('Change URL'))
 
     def treeview_channels_button_pressed( self, treeview, event):
         global WEB_BROWSER_ICON
@@ -1294,6 +1307,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
             item.connect( 'activate', self.on_itemEditChannel_activate)
             menu.append( item)
+
+            item = gtk.ImageMenuItem(_('Change feed URL'))
+            item.connect('activate', self.change_current_podcast_url)
+            menu.append(item)
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
@@ -2039,7 +2056,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.channels = load_channels()
         self.channel_list_changed = True
-        self.updateComboBox()
+        self.updateComboBox(selected_url=select_url_afterwards)
 
         episodes = self.get_new_episodes()
 
@@ -2151,7 +2168,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not force_update:
             self.channels = load_channels()
             self.channel_list_changed = True
-            self.updateComboBox()
+            self.updateComboBox(selected_url=select_url_afterwards)
             return
         
         self.updating_feed_cache = True
@@ -2862,28 +2879,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title)
             return
 
-        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), callback_change_url=self.change_channel_url)
+        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True))
 
     def change_channel_url(self, channel, new_url):
         old_url = channel.url
-        log('=> change channel url from %s to %s', old_url, new_url)
+        if old_url == new_url:
+            log('Channel URL %s unchanged.', old_url, sender=self)
+            return
+        else:
+            log('Changing channel URL from %s to %s', old_url, new_url, sender=self)
+
         channel.url = new_url
         # remove etag and last_modified to force an update
         channel.etag = ''
         channel.last_modified = ''
+
+        # Remove old episodes which haven't been downloaded.
+        db.delete_empty_episodes(channel.id)
+
         (success, error) = channel.update()
         if not success:
             self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
             channel.url = old_url
-
-        # Remove old episodes which haven't been downloaded.
-        db.delete_empty_episodes(channel.id);
-
-        # Update the OPML file.
-        save_channels(self.channels)
+        else:
+            # Only allow the last podcast to be new when changing URLs
+            db.force_last_new(channel)
+            # Update the OPML file.
+            save_channels(self.channels)
 
         # update feed cache and select the podcast with the new URL afterwards
-        self.update_feed_cache(force_update=False, select_url_afterwards=new_url)
+        self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
@@ -3367,7 +3392,7 @@ class gPodderChannel(BuilderWidget):
         self.image3167.set_property('icon-name', WEB_BROWSER_ICON)
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
-        self.entryURL.set_text( self.channel.url)
+        self.labelURL.set_text(self.channel.url)
 
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
@@ -3440,18 +3465,9 @@ class gPodderChannel(BuilderWidget):
         services.cover_downloader.unregister('cover-available', self.cover_download_finished)
 
     def on_btnOK_clicked(self, widget, *args):
-        entered_url = self.entryURL.get_text()
-        channel_url = self.channel.url
-
-        if entered_url != channel_url:
-            if self.show_confirmation(_('Do you really want to move this podcast to <b>%s</b>?') % (saxutils.escape(entered_url),), _('Really change URL?')):
-                if hasattr(self, 'callback_change_url'):
-                    self.gPodderChannel.hide_all()
-                    self.callback_change_url(self.channel, entered_url)
-
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
-        self.channel.set_custom_title( self.entryTitle.get_text())
+        self.channel.set_custom_title(self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
         self.channel.password = self.FeedPassword.get_text()
         self.channel.save()
@@ -3472,6 +3488,11 @@ class gPodderAddPodcastDialog(BuilderWidget):
             self.gPodderAddPodcastDialog.set_title(self.custom_title)
         if gpodder.interface == gpodder.MAEMO:
             self.entry_url.set_text('http://')
+        if hasattr(self, 'preset_url'):
+            self.entry_url.set_text(self.preset_url)
+        if hasattr(self, 'btn_add_stock_id'):
+            self.btn_add.set_label(self.btn_add_stock_id)
+            self.btn_add.set_use_stock(True)
         self.gPodderAddPodcastDialog.show()
 
     def on_btn_close_clicked(self, widget):

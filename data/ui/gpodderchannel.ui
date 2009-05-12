@@ -61,13 +61,11 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entryURL">
+                  <object class="GtkLabel" id="labelURL">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="max_length">0</property>
-                    <property name="has_frame">True</property>
-                    <property name="invisible_char">*</property>
-                    <property name="activates_default">False</property>
+                    <property name="selectable">True</property>
+                    <property name="xalign">0.0</property>
+                    <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>

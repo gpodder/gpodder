@@ -119,6 +119,13 @@
           </object>
         </child>
         <child>
+          <object class="GtkAction" id="item_change_podcast_feed_url">
+            <property name="name">item_change_podcast_feed_url</property>
+            <property name="label" translatable="yes">Change feed URL of selected podcast</property>
+            <signal handler="change_current_podcast_url" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="itemRemoveChannel">
             <property name="stock_id">gtk-remove</property>
             <property name="name">itemRemoveChannel</property>
@@ -381,6 +388,7 @@
           <separator/>
           <menuitem action="itemAddChannel"/>
           <menuitem action="itemEditChannel"/>
+          <menuitem action="item_change_podcast_feed_url"/>
           <menuitem action="itemRemoveChannel"/>
           <separator/>
           <menuitem action="itemUpdateChannel"/>
