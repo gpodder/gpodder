@@ -182,21 +182,23 @@ class Device(services.ObservableService):
         return True
 
     def add_tracks(self, tracklist=[], force_played=False):
+        for track in list(tracklist):
+            # Filter tracks that are not meant to be synchronized
+            does_not_exist = not track.was_downloaded(and_exists=True)
+            exclude_played = track.is_played and not force_played and \
+                    gl.config.only_sync_not_played
+            wrong_type = track.file_type() not in self.allowed_types
+
+            if does_not_exist or exclude_played or wrong_type:
+                log('Excluding %s from sync', track.title, sender=self)
+                tracklist.remove(track)
+
         compare_episodes = lambda a, b: cmp(a.pubDate, b.pubDate)
         for id, track in enumerate(sorted(tracklist, cmp=compare_episodes)):
             if self.cancelled:
                 return False
 
             self.notify('progress', id+1, len(tracklist))
-
-            if not track.was_downloaded(and_exists=True):
-                continue
-
-            if track.is_played and gl.config.only_sync_not_played and not force_played:
-                continue
-
-            if track.file_type() not in self.allowed_types:
-                continue
 
             added = self.add_track(track)
 
