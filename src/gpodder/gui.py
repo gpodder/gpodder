@@ -1180,8 +1180,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = gtk.Menu()
 
-            menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED))
+            item = gtk.ImageMenuItem(_('Episode details'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
+            if len(selected_tasks) == 1:
+                row_reference, task = selected_tasks[0]
+                episode = task.episode
+                item.connect('activate', lambda item: self.show_episode_shownotes(episode))
+            else:
+                item.set_sensitive(False)
+            menu.append(item)
             menu.append(gtk.SeparatorMenuItem())
+            menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED))
             menu.append(make_menu_item(_('Cancel'), gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED))
             menu.append(make_menu_item(_('Pause'), gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED))
             menu.append(gtk.SeparatorMenuItem())
@@ -3133,22 +3142,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     elif gl.config.enable_streaming:
                         self.playback_episode(episode, stream=True)
             elif do_epdialog:
-                play_callback = lambda: self.playback_episode(episode)
-                def download_callback():
-                    self.download_episode_list([episode])
-                    self.play_or_download()
-                if self.gpodder_episode_window is None:
-                    log('First-time use of episode window --- creating', sender=self)
-                    self.gpodder_episode_window = gPodderEpisode(\
-                            download_status_manager=self.download_status_manager, \
-                            episode_is_downloading=self.episode_is_downloading)
-                self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
+                self.show_episode_shownotes(episode)
             else:
                 self.download_episode_list(episodes)
                 self.update_selected_episode_list_icons()
                 self.play_or_download()
         except:
             log('Error in on_treeAvailable_row_activated', traceback=True, sender=self)
+
+    def show_episode_shownotes(self, episode):
+        play_callback = lambda: self.playback_episode(episode)
+        def download_callback():
+            self.download_episode_list([episode])
+            self.play_or_download()
+        if self.gpodder_episode_window is None:
+            log('First-time use of episode window --- creating', sender=self)
+            self.gpodder_episode_window = gPodderEpisode(\
+                    download_status_manager=self.download_status_manager, \
+                    episode_is_downloading=self.episode_is_downloading)
+        self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
 
     def on_treeAvailable_button_release_event(self, widget, *args):
         self.play_or_download()
