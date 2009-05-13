@@ -238,8 +238,8 @@ class PodcastChannel(PodcastModelObject):
                 self.count_new += 1
 
                 for ex in existing:
-                    if ex.guid == episode.guid:
-                        for k in ('title', 'title', 'description', 'link', 'pubDate'):
+                    if ex.guid == episode.guid or episode.is_duplicate(ex):
+                        for k in ('title', 'url', 'description', 'link', 'pubDate', 'guid'):
                             setattr(ex, k, getattr(episode, k))
                         self.count_new -= 1
                         episode = ex
@@ -1024,6 +1024,11 @@ class PodcastEpisode(PodcastModelObject):
 
     played_prop = property(fget=get_played_string)
     
+    def is_duplicate( self, episode ):
+        if self.title == episode.title and self.pubDate == episode.pubDate:
+            log('Possible duplicate detected: %s', self.title)
+            return True
+        return False
 
 
 def update_channel_model_by_iter( model, iter, channel, color_dict,
