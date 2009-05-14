@@ -212,13 +212,6 @@ class PodcastChannel(PodcastModelObject):
         # Marked as bulk because we commit after importing episodes.
         db.save_channel(self, bulk=True)
 
-        # Remove old episodes before adding the new ones.  This helps
-        # deal with hyperactive channels, such as TV news, when there
-        # can be more new episodes than the user wants in the list.
-        # By cleaning up old episodes before receiving the new ones we
-        # ensure that the user doesn't miss any.
-        db.purge(gl.config.max_episodes_per_feed, self.id)
-
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
 
@@ -246,6 +239,11 @@ class PodcastChannel(PodcastModelObject):
 
                 episode.save(bulk=True)
 
+        # This *might* cause episodes to be skipped if there were more than
+        # max_episodes_per_feed items added to the feed between updates.
+        # The benefit is that it prevents old episodes from apearing as new
+        # in certain situations (see bug #340).
+        db.purge(gl.config.max_episodes_per_feed, self.id)
         db.commit()
         return ( True, None )
 
