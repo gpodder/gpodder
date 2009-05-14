@@ -53,7 +53,7 @@ gPodderSettings = {
       _("The default player for video, if set to 'unspecified' this will use "
         "whatever 'player' is set to.")),
     'opml_url': (str, 'http://gpodder.org/directory.opml',
-      _("A URL pointing to an OPML file which can be used to bulk-add feeds.")),
+      _("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
     'toplist_url': (str, 'http://gpodder.org/toplist.opml',
       _("A URL pointing to a gPodder web services top podcasts list")),
     'http_proxy': ( str, '',
