@@ -64,7 +64,7 @@ def update_metadata_on_file( filename, **metadata):
 
 
 def update_tag_ogg( filename, **metadata):
-    data = '\n'.join( [ '%s=%s' % ( i.upper(), metadata[i] ) for i in metadata ] + [''])
+    data = '\n'.join( [ '%s=%s' % ( i.upper(), metadata[i] ) for i in metadata if metadata[i] != ''] + [''])
 
     p = subprocess.Popen(['vorbiscomment', '-w', filename], stdin=subprocess.PIPE)
 
@@ -102,7 +102,7 @@ def update_tag_mp3( filename, **metadata):
             tag.setTitle( metadata[key])
         elif key.lower() == 'album':
             tag.setAlbum( metadata[key])
-        elif key.lower() == 'genre':
+        elif key.lower() == 'genre' and metadata[key] != '':
             tag.setGenre(metadata[key])
 
     return tag.update( eyeD3.tag.ID3_V2) == 1 and tag.update( eyeD3.tag.ID3_V1) == 1

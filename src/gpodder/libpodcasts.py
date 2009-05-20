@@ -416,7 +416,10 @@ class PodcastChannel(PodcastModelObject):
                 assert filename is not None
 
                 try:
-                    libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre='Podcast')
+                    if (gl.config.rewrite_genre_tag):
+                        libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre=gl.config.rewrite_genre_tag_with)
+                    else:
+                        libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre='Podcast')
                 except Exception, e:
                     log('Error while calling update_metadata_on_file(): %s', e)
 

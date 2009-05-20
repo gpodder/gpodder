@@ -247,6 +247,13 @@ gPodderSettings = {
       _("Hide the cover/pill from the podcast sidebar when it gets too small.")),
     'disable_fingerscroll': (bool, False,
       _("Disable the use of finger-scrollable widgets on Maemo.")),
+    'rewrite_genre_tag': (bool, False,
+      _("Some media players have special handling for the Podcast tag and some "
+        "users may want to avoid using that tag. This option rewrites the genre "
+        "tag with what is specified in the rewrite_genre_tag_with option."
+        "The update_tags option must be enabled in order to use this feature.")),
+    'rewrite_genre_tag_with': (str, 'Podcast',
+      _("This option specifies what the genre tag will be rewritten to.")),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',
