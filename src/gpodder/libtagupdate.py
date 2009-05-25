@@ -138,15 +138,14 @@ def get_tags_ogg(filename):
     """
     global tags_keys
 
-    p = subprocess.Popen(['vorbiscomment', '--raw', '-l', filename], stdout=subprocess.PIPE)
-    reader = p.stdout
-    lines = reader.readlines()
-    reader.close()
-    result = (p.wait() == 0)
-
     tags = dict(map(lambda key: (key, ''), tags_keys))
-
-    if not result:
+    try:
+        p = subprocess.Popen(['vorbiscomment', '--raw', '-l', filename], stdout=subprocess.PIPE)
+        reader = p.stdout
+        lines = reader.readlines()
+        reader.close()
+        result = (p.wait() == 0)
+    except:
         log('Error while running vorbiscomment. Is it installed?! (vorbis-tools)')
     else:
         for line in lines:
@@ -181,15 +180,18 @@ def get_tags_mp3(filename):
         log('eyeD3 not found -> please install. Could not read tag.')
         return dict(map(lambda key: (key, ''), tags_keys))
 
-    tag = eyeD3.Tag()
-    tag.link(filename)
+    try:
+        tag = eyeD3.Tag()
+        tag.link(filename)
 
-    return {
+        return {
             'artist': tag.getArtist(),
             'title': tag.getTitle(),
             'album': tag.getAlbum(),
             'genre': tag.getGenre()
-    }
+        }
+    except:
+        return dict(map(lambda key: (key, ''), tags_keys))
 
 tag_get_methods['mp3'] = get_tags_mp3
 
