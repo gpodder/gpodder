@@ -5013,6 +5013,12 @@ class gPodderWelcome(BuilderWidget):
     finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
 
     def new(self):
+        for widget in (self.btnOPML, self.btnMygPodder):
+            for child in widget.get_children():
+                if isinstance(child, gtk.Alignment):
+                    child.set_padding(20, 20, 20, 20)
+                else:
+                    child.set_padding(20, 20)
         self.gPodderWelcome.show()
 
     def on_show_example_podcasts(self, button):
