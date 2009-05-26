@@ -931,7 +931,9 @@ class MTPDevice(Device):
             metadata.duration = get_track_length(str(filename))
 
             # send the file
-            self.__MTPDevice.send_track_from_file( filename, episode.basename, metadata, 0, callback=self.__callback)
+            self.__MTPDevice.send_track_from_file(filename,
+                    episode.basename + episode.extension(),
+                    metadata, 0, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False
