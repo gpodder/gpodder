@@ -80,6 +80,13 @@ else:
 
 del locale_dir
 
+# Set up socket timeouts to fix bug 174
+SOCKET_TIMEOUT = 60
+import socket
+socket.setdefaulttimeout(SOCKET_TIMEOUT)
+del socket
+del SOCKET_TIMEOUT
+
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folder = None
 icon_file = None
