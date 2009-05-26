@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--*- mode: xml -*-->
 <interface>
+  <object class="GtkImage" id="imageCleanUpDownloads">
+    <property name="visible">True</property>
+    <property name="stock">gtk-clear</property>
+  </object>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">10240</property>
     <property name="lower">0.5</property>
@@ -892,138 +896,105 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkTable" id="table15">
+                      <object class="GtkHBox" id="hboxDownloadSettings">
                         <property name="visible">True</property>
-                        <property name="n_rows">1</property>
-                        <property name="n_columns">7</property>
-                        <property name="homogeneous">False</property>
-                        <property name="row_spacing">0</property>
-                        <property name="column_spacing">5</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkCheckButton" id="cbLimitDownloads">
+                            <property name="label" translatable="yes">Limit rate to</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_cbLimitDownloads_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
                         <child>
                           <object class="GtkSpinButton" id="spinLimitDownloads">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
                             <property name="climb_rate">1</property>
                             <property name="digits">1</property>
-                            <property name="numeric">False</property>
-                            <property name="update_policy">GTK_UPDATE_ALWAYS</property>
-                            <property name="snap_to_ticks">False</property>
-                            <property name="wrap">False</property>
-                            <property name="adjustment">adjustment1</property>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_options">fill</property>
-                            <property name="y_options"/>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkCheckButton" id="cbLimitDownloads">
+                          <object class="GtkLabel" id="labelLimitRate">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Limit rate to</property>
-                            <property name="use_underline">True</property>
-                            <property name="focus_on_click">True</property>
-                            <property name="active">False</property>
-                            <property name="inconsistent">False</property>
-                            <property name="draw_indicator">True</property>
-                            <signal handler="on_cbLimitDownloads_toggled" name="toggled"/>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">kb/s</property>
                           </object>
                           <packing>
-                            <property name="left_attach">0</property>
-                            <property name="right_attach">1</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_options">fill</property>
-                            <property name="y_options"/>
+                            <property name="expand">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkVSeparator" id="vseparator1">
+                            <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
+                          </object>
+                          <packing>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="cbMaxDownloads">
+                            <property name="label" translatable="yes">Limit downloads to</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_cbMaxDownloads_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkSpinButton" id="spinMaxDownloads">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
                             <property name="climb_rate">1</property>
-                            <property name="numeric">False</property>
-                            <property name="update_policy">GTK_UPDATE_ALWAYS</property>
-                            <property name="snap_to_ticks">False</property>
-                            <property name="wrap">False</property>
-                            <property name="adjustment">adjustment2</property>
                           </object>
                           <packing>
-                            <property name="left_attach">6</property>
-                            <property name="right_attach">7</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_options">fill</property>
-                            <property name="y_options"/>
+                            <property name="expand">False</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkCheckButton" id="cbMaxDownloads">
+                          <object class="GtkVSeparator" id="vseparator2">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Limit downloads to</property>
-                            <property name="use_underline">True</property>
-                            <property name="focus_on_click">True</property>
-                            <property name="active">False</property>
-                            <property name="inconsistent">False</property>
-                            <property name="draw_indicator">True</property>
-                            <signal handler="on_cbMaxDownloads_toggled" name="toggled"/>
+                            <property name="orientation">vertical</property>
                           </object>
-                          <packing>
-                            <property name="left_attach">5</property>
-                            <property name="right_attach">6</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_options">fill</property>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label125">
-                            <property name="visible">True</property>
-                            <property name="use_underline">False</property>
-                            <property name="use_markup">False</property>
-                            <property name="wrap">False</property>
-                            <property name="selectable">False</property>
-                            <property name="xalign">0</property>
-                            <property name="width_chars">-1</property>
-                            <property name="single_line_mode">False</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">3</property>
-                            <property name="right_attach">5</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_padding">10</property>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label124">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">kb/s</property>
-                            <property name="use_underline">False</property>
-                            <property name="use_markup">False</property>
-                            <property name="wrap">False</property>
-                            <property name="selectable">False</property>
-                            <property name="xalign">0</property>
-                            <property name="width_chars">-1</property>
-                            <property name="single_line_mode">False</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">0</property>
-                            <property name="bottom_attach">1</property>
-                            <property name="x_options">fill</property>
-                            <property name="y_options"/>
-                          </packing>
-                        </child>
-                      </object>
+                        <packing>
+                          <property name="position">6</property>
+                        </packing>
+                      </child>
+                      <child>
+                        <object class="GtkButton" id="btnCleanUpDownloads">
+                          <property name="label" translatable="yes">Clean up</property>
+                          <property name="visible">True</property>
+                          <property name="can_focus">True</property>
+                          <property name="receives_default">True</property>
+                          <property name="image">imageCleanUpDownloads</property>
+                          <signal name="clicked" handler="on_btnCleanUpDownloads_clicked"/>
+                        </object>
+                        <packing>
+                          <property name="position">7</property>
+                        </packing>
+                      </child>
+                    </object>
                       <packing>
                         <property name="padding">0</property>
                         <property name="expand">False</property>

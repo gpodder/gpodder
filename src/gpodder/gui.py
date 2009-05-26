@@ -359,7 +359,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
 
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads']
+    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
     ENTER_URL_TEXT = _('Enter podcast URL...')
 
     def __init__(self, bus_name):
@@ -798,6 +798,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate, None)
+
+    def on_btnCleanUpDownloads_clicked(self, button):
+        model = self.treeDownloads.get_model()
+
+        all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
+        changed_episode_urls = []
+        for row_reference, task in all_tasks:
+            if task.status in (task.DONE, task.CANCELLED, task.FAILED):
+                model.remove(model.get_iter(row_reference.get_path()))
+                try:
+                    # We don't "see" this task anymore - remove it;
+                    # this is needed, so update_episode_list_icons()
+                    # below gets the correct list of "seen" tasks
+                    self.download_tasks_seen.remove(task)
+                except KeyError, key_error:
+                    log('Cannot remove task from "seen" list: %s', task, sender=self)
+                changed_episode_urls.append(task.url)
+                # Tell the task that it has been removed (so it can clean up)
+                task.removed_from_list()
+
+        # Tell the podcasts tab to update icons for our removed podcasts
+        self.update_episode_list_icons(changed_episode_urls)
+
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
