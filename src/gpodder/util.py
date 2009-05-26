@@ -281,6 +281,21 @@ def file_modification_datetime(filename):
         return None
 
 
+def file_modification_timestamp(filename):
+    """
+    Returns the modification date of the specified file as a number
+    or -1 if the modification date cannot be determined.
+    """
+    if filename is None:
+        return -1
+    try:
+        s = os.stat(filename)
+        return s[stat.ST_MTIME]
+    except:
+        log('Cannot get modification timestamp for %s', filename)
+        return -1
+
+
 def file_age_in_days(filename):
     """
     Returns the age of the specified filename in days or

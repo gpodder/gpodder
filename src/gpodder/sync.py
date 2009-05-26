@@ -369,12 +369,12 @@ class iPodDevice(Device):
             filename = gpod.itdb_filename_on_ipod(track)
             length = util.calculate_size(filename)
 
-            age_in_days = util.file_age_in_days(filename)
-            modified = util.file_age_to_string(age_in_days)
+            timestamp = util.file_modification_timestamp(filename)
+            modified = util.format_date(timestamp)
             released = gpod.itdb_time_mac_to_host(track.time_released)
             released = util.format_date(released)
 
-            t = SyncTrack(track.title, length, modified, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
+            t = SyncTrack(track.title, length, modified, modified_sort=timestamp, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
             tracks.append(t)
         return tracks        
 
@@ -686,15 +686,15 @@ class MP3PlayerDevice(Device):
                 # fallback: use the basename of the file
                 title = filetitle
 
-            age_in_days = util.file_age_in_days(filename)
-            modified = util.file_age_to_string(age_in_days)
+            timestamp = util.file_modification_timestamp(filename)
+            modified = util.format_date(timestamp)
             if gl.config.fssync_channel_subfolders:
                 podcast_name = os.path.basename(os.path.dirname(filename))
             else:
                 podcast_name = None
 
             # SyncTrack.filetitle will be used by Device._track_on_device (see above)
-            t = SyncTrack(title, length, modified, filename=filename, filetitle=filetitle, podcast=podcast_name)
+            t = SyncTrack(title, length, modified, modified_sort=timestamp, filename=filename, filetitle=filetitle, podcast=podcast_name)
             tracks.append(t)
         return tracks
 
@@ -969,10 +969,12 @@ class MTPDevice(Device):
             date = self.__mtp_to_date(track.date)
             if not date:
                 modified = track.date # not a valid mtp date. Display what mtp gave anyway
+                modified_sort = -1 # no idea how to sort invalid date
             else:
                 modified = util.format_date(date)
+                modified_sort = date
 
-            t = SyncTrack(title, length, modified, mtptrack=track, podcast=artist)
+            t = SyncTrack(title, length, modified, modified_sort=modified_sort, mtptrack=track, podcast=artist)
             tracks.append(t)
         return tracks
 

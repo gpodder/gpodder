@@ -2703,7 +2703,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('title', None, None, _('Episode')),
                 ('podcast', None, None, _('Podcast')),
                 ('filesize', None, None, _('Size')),
-                ('modified', None, None, _('Copied')),
+                ('modified', 'modified_sort', gobject.TYPE_INT, _('Copied')),
                 ('playcount', None, None, _('Play count')),
                 ('released', None, None, _('Released')),
         )
