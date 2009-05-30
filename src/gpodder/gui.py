@@ -846,6 +846,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             episode_window_episode = None
 
+        # Do not go through the list of the model is not (yet) available
+        if model is None:
+            model = ()
+
         for row in model:
             self.download_status_manager.request_update(row.iter)
 
