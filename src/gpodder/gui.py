@@ -40,8 +40,13 @@ from string import strip
 
 import gpodder
 
-if gpodder.win32:
-    # Mock the required D-Bus interfaces with no-ops
+try:
+    import dbus
+    import dbus.service
+    import dbus.mainloop
+    import dbus.glib
+except ImportError:
+    # Mock the required D-Bus interfaces with no-ops (ugly? maybe.)
     class dbus:
         class SessionBus:
             def __init__(self, *args, **kwargs):
@@ -59,11 +64,6 @@ if gpodder.win32:
             class Object:
                 def __init__(self, *args, **kwargs):
                     pass
-else:
-    import dbus
-    import dbus.service
-    import dbus.mainloop
-    import dbus.glib
 
 
 from gpodder import libtagupdate
@@ -5059,8 +5059,18 @@ def main():
     gobject.threads_init()
     gtk.window_set_default_icon_name( 'gpodder')
 
-    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
-    bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=session_bus)
+    try:
+        session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+        bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=session_bus)
+    except dbus.exceptions.DBusException, dbe:
+        log('Warning: Cannot get "on the bus".', traceback=True)
+        dlg = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, \
+                gtk.BUTTONS_CLOSE, _('Cannot start gPodder'))
+        dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
+        dlg.set_title('gPodder')
+        dlg.run()
+        dlg.destroy()
+        sys.exit(0)
 
     if gpodder.interface == gpodder.MAEMO and \
             not gl.config.disable_fingerscroll:

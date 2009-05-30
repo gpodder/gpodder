@@ -34,8 +34,15 @@ import platform
 
 import gettext
 
-import dbus
-import dbus.glib
+try:
+    import dbus
+    import dbus.glib
+    have_dbus = True
+except ImportError:
+    print >>sys.stderr, """
+    Warning: python-dbus not found. Disabling D-Bus support.
+    """
+    have_dbus = False
 
 from optparse import OptionParser
 
@@ -135,13 +142,17 @@ if __name__ == '__main__':
         from gpodder.liblogger import enable_verbose
         enable_verbose()
 
-    # Try to find an already-running instance of gPodder
-    try:
-        session_bus = dbus.SessionBus()
-        remote_object = session_bus.get_object(gpodder.dbus_bus_name, gpodder.dbus_gui_object_path)
-        from gpodder.liblogger import log
-        log('Found gPodder GUI instance already running')
-    except dbus.exceptions.DBusException:
+    if have_dbus:
+        # Try to find an already-running instance of gPodder
+        try:
+            session_bus = dbus.SessionBus()
+            remote_object = session_bus.get_object(gpodder.dbus_bus_name, gpodder.dbus_gui_object_path)
+            from gpodder.liblogger import log
+            log('Found gPodder GUI instance already running')
+        except dbus.exceptions.DBusException:
+            remote_object = None
+    else:
+        # No D-Bus available :/
         remote_object = None
 
     from gpodder import console
