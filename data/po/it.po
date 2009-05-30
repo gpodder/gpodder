@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-26 14:25+0200\n"
-"PO-Revision-Date: 2009-05-11 12:55+0200\n"
+"POT-Creation-Date: 2009-05-28 16:36+0200\n"
+"PO-Revision-Date: 2009-05-28 17:28+0200\n"
 "Last-Translator: Fabio Fiorentini <fabio.fiorentini@gmail.com>\n"
 "Language-Team: Italian <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -29,6 +29,8 @@ msgid ""
 "The default player for video, if set to 'unspecified' this will use whatever "
 "'player' is set to."
 msgstr ""
+"Il lettore predefinito per i video, se impostato su 'unspecified' verr� "
+"utilizzato qualsiasi lettore � impostato su 'player'."
 
 #: src/gpodder/config.py:56
 msgid "A URL pointing to an OPML file which can be used to bulk-add podcasts."
@@ -37,6 +39,8 @@ msgstr ""
 #: src/gpodder/config.py:58
 msgid "A URL pointing to a gPodder web services top podcasts list"
 msgstr ""
+"Un indirizzo che punta a un servizio web di gPodder di lista dei migliori "
+"podcast"
 
 #: src/gpodder/config.py:60
 msgid ""
@@ -148,7 +152,7 @@ msgstr "Dopo aver sincronizzato un episodio, eliminalo da gPodder"
 
 #: src/gpodder/config.py:108
 msgid "Remove episodes older than 'episode_old_age' days on startup."
-msgstr ""
+msgstr "Rimuovi gli episodi pi� vecchi di 'episode_old_age'�all'avvio."
 
 #: src/gpodder/config.py:110
 msgid ""
@@ -293,6 +297,8 @@ msgstr ""
 #: src/gpodder/config.py:191
 msgid "When the 'X' button is clicked do not quit, send gPodder to the tray."
 msgstr ""
+"Quando il pulsante 'X' viene premuto non uscire ma minimizza gPodder "
+"nell'area di notifica."
 
 #: src/gpodder/config.py:193
 msgid "Create an m3u playlist for every channel."
@@ -317,7 +323,7 @@ msgstr ""
 
 #: src/gpodder/config.py:204
 msgid "The maximum filename length for FS-based devices."
-msgstr ""
+msgstr "La lunghezza massima del nome del file su dispoditivi a base FS."
 
 #: src/gpodder/config.py:206
 msgid ""
@@ -352,7 +358,7 @@ msgstr ""
 
 #: src/gpodder/config.py:221
 msgid "The width of the icon used in the podcast channel list."
-msgstr ""
+msgstr "La larghezza dell'icona usata nella lista dei canali"
 
 #: src/gpodder/config.py:223
 msgid "The path to a command that gets run after all downloads are completed."
@@ -428,7 +434,7 @@ msgstr ""
 
 #: src/gpodder/config.py:262
 msgid "The user's gPodder web services password."
-msgstr ""
+msgstr "La password dell'utente per il servizio web di gPodder"
 
 #: src/gpodder/config.py:264
 msgid ""
@@ -708,9 +714,8 @@ msgid "downloading %d files"
 msgstr "Scaricamento di %d file in corso"
 
 #: src/gpodder/gui.py:936
-#, fuzzy
 msgid "All downloads finished"
-msgstr "Scaricamenti di gPodder terminati"
+msgstr "Scaricamenti completati"
 
 #: src/gpodder/gui.py:1055
 #, python-format
@@ -762,14 +767,12 @@ msgid "Change feed URL of %s"
 msgstr ""
 
 #: src/gpodder/gui.py:1251
-#, fuzzy
 msgid "Change to:"
-msgstr "Informationi sul Feed sorgente"
+msgstr "Cambia in:"
 
 #: src/gpodder/gui.py:1253
-#, fuzzy
 msgid "Change URL"
-msgstr "Vuoi modificare l'indirizzo?"
+msgstr "Modifica dell'indirizzo"
 
 #: src/gpodder/gui.py:1293
 msgid "Open download folder"
@@ -1434,12 +1437,11 @@ msgstr "Esportazione OPML fallita"
 msgid "translator-credits"
 msgstr ""
 "Traduttore: \n"
-"Antonio Roversi\n"
 "Fabio Fiorentini\n"
 "\n"
-"Launchpad Contributions:\n"
-"  FFranci72 <https://launchpad.net/~fabiusfranci>\n"
-"  Thomas Perl <https://launchpad.net/~thp>"
+"Traduttori Precedenti:\n"
+"Antonio Roversi\n"
+"FFranci72 <https://launchpad.net/~fabiusfranci>\n"
 
 #: src/gpodder/gui.py:3284
 #, python-format
@@ -1536,7 +1538,7 @@ msgstr "Niente da incollare"
 
 #: src/gpodder/gui.py:3532
 msgid "Clipboard is empty"
-msgstr ""
+msgstr "Gli appunti sono vuoti"
 
 #: src/gpodder/gui.py:3673
 msgid "needs python-eyed3"
@@ -1679,7 +1681,7 @@ msgstr "%d episodi selezionati"
 #: src/gpodder/gui.py:4662
 #, python-format
 msgid "total size: %s"
-msgstr "Grandezza totale: %s"
+msgstr "Dimensione totale: %s"
 
 #: src/gpodder/gui.py:4752
 msgid "Setting"
@@ -1944,7 +1946,7 @@ msgstr "Sto aprendo il database dell'iPod..."
 
 #: src/gpodder/sync.py:303
 msgid "iPod opened"
-msgstr ""
+msgstr "iPod aperto"
 
 #: src/gpodder/sync.py:314
 msgid "Saving iPod database"
@@ -1952,17 +1954,17 @@ msgstr "Sto salvando il database dell'iPod..."
 
 #: src/gpodder/sync.py:321
 msgid "Writing extended gtkpod database"
-msgstr ""
+msgstr "Scrittura del database gtkpod"
 
 #: src/gpodder/sync.py:382 src/gpodder/sync.py:706 src/gpodder/sync.py:944
 #, python-format
 msgid "Removing %s"
-msgstr ""
+msgstr "Eliminazione di %s"
 
 #: src/gpodder/sync.py:397 src/gpodder/sync.py:567
 #, python-format
 msgid "Adding %s"
-msgstr ""
+msgstr "Aggiunta di %s"
 
 #: src/gpodder/sync.py:414
 #, python-format
@@ -1971,44 +1973,44 @@ msgstr "Errore nella copia di %s: Spazio insufficente su %s"
 
 #: src/gpodder/sync.py:548
 msgid "Opening MP3 player"
-msgstr ""
+msgstr "Apertura del lettore MP3"
 
 #: src/gpodder/sync.py:550
 msgid "MP3 player opened"
-msgstr ""
+msgstr "lettore MP3 aperto"
 
 #: src/gpodder/sync.py:628 src/gpodder/sync.py:635
 #, python-format
 msgid "Error opening %s: %s"
-msgstr ""
+msgstr "Errore nell'apertura di %s: %s"
 
 #: src/gpodder/sync.py:883
 msgid "Opening the MTP device"
-msgstr ""
+msgstr "Apertura del dispositivo MTP"
 
 #: src/gpodder/sync.py:893
 #, python-format
 msgid "%s opened"
-msgstr ""
+msgstr "%s aperto"
 
 #: src/gpodder/sync.py:898
 #, python-format
 msgid "Closing %s"
-msgstr ""
+msgstr "Chiusura di %s"
 
 #: src/gpodder/sync.py:906
 #, python-format
 msgid "%s closed"
-msgstr ""
+msgstr "%s chiuso"
 
 #: src/gpodder/sync.py:911
 #, python-format
 msgid "Adding %s..."
-msgstr ""
+msgstr "Aggiunta di %s..."
 
 #: src/gpodder/trayicon.py:60
 msgid "gPodder media aggregator"
-msgstr ""
+msgstr "Aggregatore di media gPodder"
 
 #: src/gpodder/trayicon.py:63
 msgid "Downloading episodes"
@@ -2155,7 +2157,7 @@ msgstr "Indirizzo:"
 
 #: data/ui/gpodderchannel.ui.h:1
 msgid "<b>HTTP/FTP Authentication</b>"
-msgstr ""
+msgstr "<b>Autenticazione HTTP/FTP</b>"
 
 #: data/ui/gpodderchannel.ui.h:2
 msgid "<b>Locations</b>"
@@ -2254,20 +2256,20 @@ msgid "Ask before closing gPodder"
 msgstr "Chiedi prima di chiudere gPodder"
 
 #: data/ui/gpoddermaemopreferences.ui.h:3
-#, fuzzy
 msgid "Audio player:"
-msgstr "Lettore MP3"
+msgstr "Lettore Audio:"
 
 #: data/ui/gpoddermaemopreferences.ui.h:4
-#, fuzzy
 msgid "Enable episode list gestures"
-msgstr "Un episodio selezionato"
+msgstr ""
 
 #: data/ui/gpoddermaemopreferences.ui.h:5
 msgid ""
 "Nokia Media Player\n"
 "MPlayer"
 msgstr ""
+"Nokia Media Player\n"
+"MPlayer"
 
 #: data/ui/gpoddermaemopreferences.ui.h:7 data/ui/gpodder.ui.h:29
 msgid "Preferences"
@@ -2278,9 +2280,8 @@ msgid "Show icon in status area"
 msgstr "Mostra icona nell'area di notifica"
 
 #: data/ui/gpoddermaemopreferences.ui.h:9
-#, fuzzy
 msgid "Video player:"
-msgstr "Lettore MP3"
+msgstr "Lettore Video:"
 
 #: data/ui/gpodderopmllister.ui.h:2
 msgid "Find new podcasts"
@@ -2335,9 +2336,8 @@ msgid "<b>Audio Media Player</b>"
 msgstr "<b>Riproduzione Audio</b>"
 
 #: data/ui/gpodderproperties.ui.h:5
-#, fuzzy
 msgid "<b>Automatic download of episode list</b>"
-msgstr "Scaricamento dell'elenco degli episodi"
+msgstr "<b>Scaricamento dell'elenco degli episodi</b>"
 
 #: data/ui/gpodderproperties.ui.h:6
 msgid "<b>Clean-up</b>"
@@ -2380,14 +2380,12 @@ msgid "Auto download new episodes when gPodder is minimized"
 msgstr "Scarica automaticamente nuovi episodi mentre gPodder � minimizzato"
 
 #: data/ui/gpodderproperties.ui.h:17
-#, fuzzy
 msgid "Check for new episodes every"
-msgstr "Cerca nuovi episodi"
+msgstr "Controlla se ci sono nuovi episodi ogni"
 
 #: data/ui/gpodderproperties.ui.h:18
-#, fuzzy
 msgid "Check for new episodes on startup"
-msgstr "Cerca nuovi episodi"
+msgstr "Controlla se ci sono nuovi episodi all'avvio"
 
 #: data/ui/gpodderproperties.ui.h:19
 msgid "Command line:"
@@ -2417,7 +2415,7 @@ msgstr "Elimina episodi ascoltati sull'iPod da gPodder"
 
 #: data/ui/gpodderproperties.ui.h:25
 msgid "Delete played episodes on startup after"
-msgstr "Elimina gli episodi ascoltati all'avvio dopo"
+msgstr "All'avvio elimina gli episodi ascoltati dopo"
 
 #: data/ui/gpodderproperties.ui.h:26 data/ui/gpodder.ui.h:11
 msgid "Device"
@@ -2525,7 +2523,7 @@ msgstr "Tipo di dispositivo:"
 
 #: data/ui/gpodderproperties.ui.h:51
 msgid "Update gtkpod extended database after synchronization"
-msgstr ""
+msgstr "Aggiorna il database di gtkpod dopo la sincronizzazione"
 
 #: data/ui/gpodderproperties.ui.h:52
 msgid "Update tags on audio files after download"
@@ -2578,18 +2576,16 @@ msgid "Initializing..."
 msgstr "Inizializzazione..."
 
 #: data/ui/gpodder.ui.h:4
-#, fuzzy
 msgid "Change feed URL of selected podcast"
-msgstr "Aggiorna il podcast selezionato"
+msgstr "Modifica l'indirizzo del podcast selezionato"
 
 #: data/ui/gpodder.ui.h:5
 msgid "Check for Updates"
 msgstr "Controlla gli aggiornamenti"
 
 #: data/ui/gpodder.ui.h:7
-#, fuzzy
 msgid "Clean up"
-msgstr "<b>Pulizia</b>"
+msgstr "Pulizia"
 
 #: data/ui/gpodder.ui.h:8
 msgid "Close"
@@ -2660,9 +2656,8 @@ msgid "Search for podcasts"
 msgstr "Ricerca podcast"
 
 #: data/ui/gpodder.ui.h:36
-#, fuzzy
 msgid "Select and remove episodes from device"
-msgstr "Rimuovi episodi dal dispositivo"
+msgstr "Seleziona e rimuovi episodi dal dispositivo"
 
 #: data/ui/gpodder.ui.h:37
 msgid "Send subscription list via e-mail"
@@ -2881,7 +2876,7 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ "Please check your user command settings in the preferences dialog."
 #~ msgstr ""
 #~ "Il comando [%s] non "
-#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ stato trovato.\n"
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ stato trovato.\n"
 #~ "Controlla le impostazioni nelle preferenze."
 
 #~ msgid "User command permission denied"
@@ -2993,8 +2988,9 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ "There has been an error adding this podcast. Please see the log output "
 #~ "for more information."
 #~ msgstr ""
-#~ "C'ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ stato un errore nell'aggiungere il Feed sorgente.\n"
-#~ "Forse l'URL ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ sbagliato ?"
+#~ "C'ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ stato un errore nell'aggiungere il Feed sorgente.\n"
+#~ "Forse l'URL "
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ sbagliato ?"
 
 #, fuzzy
 #~ msgid "Loading %s (%d/%d)"
@@ -3008,7 +3004,8 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ msgid ""
 #~ "You have already downloaded this episode. Click on the episode to play it."
 #~ msgstr ""
-#~ "Hai giÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  "
+#~ "Hai "
+#~ "giÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  "
 #~ "scaricato questo episodio\n"
 #~ "o lo stai scaricando ora."
 
@@ -3040,7 +3037,7 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ msgid "Delete selected episodes"
 #~ msgstr ""
 #~ "Supprimer la "
-#~ "sÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©lection"
+#~ "sÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©lection"
 
 #, fuzzy
 #~ msgid "Download _all new episodes"
@@ -3062,7 +3059,7 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ msgid "Play selected episode"
 #~ msgstr ""
 #~ "Lire la "
-#~ "sÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©lection"
+#~ "sÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©lection"
 
 #, fuzzy
 #~ msgid "Remove _old episodes"
@@ -3249,9 +3246,11 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ "<b>gPodder development version %s</b>\n"
 #~ "Use at your own risk, but also enjoy new features :)"
 #~ msgstr ""
-#~ "<b>Questa ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ la versione di sviluppo %s di gPodder</b>\n"
-#~ "La versione ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ ancora instabile ma ha molte nuove "
-#~ "funzionalitÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  :)"
+#~ "<b>Questa "
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ la versione di sviluppo %s di gPodder</b>\n"
+#~ "La versione "
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ ancora instabile ma ha molte nuove "
+#~ "funzionalitÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  :)"
 
 #~ msgid ""
 #~ "<b>No channels found</b>\n"
@@ -3307,7 +3306,7 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ msgid "Your channel list is empty. Nothing to export."
 #~ msgstr ""
 #~ "La lista dei Feed "
-#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ vuota. Nulla da esportare."
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ vuota. Nulla da esportare."
 
 #~ msgid "Do you really want to cancel this download?"
 #~ msgstr "Vuoi davvero interrompere questo download ?"
@@ -3327,14 +3326,14 @@ msgstr "Mostra statistiche di sincronizzazione"
 #~ msgid "Download error. Wget exit code was: %d"
 #~ msgstr ""
 #~ "Errore nel download. Il codice di errore di wget "
-#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡: %d"
+#~ "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡: %d"
 
 #~ msgid "<b>(unknown)</b>"
 #~ msgstr "<b>(sconosciuto)</b>"
 
 #~ msgid "<b>Episode:</b>"
 #~ msgstr ""
-#~ "<b>ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂpisodio</"
+#~ "<b>ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂpisodio</"
 #~ "b>"
 
 #~ msgid "Autostart:"
@@ -3366,7 +3365,7 @@ msgstr "Mostra statistiche di sincronizzazione"
 
 #~ msgid "Be more verbose"
 #~ msgstr ""
-#~ "ModalitÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  "
+#~ "ModalitÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ  "
 #~ "verbosa"
 
 #~ msgid "Channel IDs may have changed, list before deleting again."
