@@ -362,6 +362,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
     ENTER_URL_TEXT = _('Enter podcast URL...')
     APPMENU_ACTIONS = ('itemUpdate', 'itemDownloadAllNew', 'itemPreferences')
+    TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
 
     def __init__(self, bus_name):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -641,6 +642,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # enable search in treeavailable
         self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
+
+        # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
+        if gpodder.interface == gpodder.MAEMO:
+            HUIM = 'hildon-ui-mode'
+            if HUIM in [p.name for p in gobject.list_properties(gtk.TreeView)]:
+                for treeview_name in self.TREEVIEW_WIDGETS:
+                    treeview = getattr(self, treeview_name)
+                    treeview.set_property(HUIM, 1)
 
         # enable multiple selection support
         if gpodder.interface == gpodder.MAEMO:
