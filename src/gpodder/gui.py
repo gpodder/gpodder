@@ -361,6 +361,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
     ENTER_URL_TEXT = _('Enter podcast URL...')
+    APPMENU_ACTIONS = ('itemUpdate', 'itemDownloadAllNew', 'itemPreferences')
 
     def __init__(self, bus_name):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -449,7 +450,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 child.get_parent().remove(child)
                 menu.append(self.set_finger_friendly(child))
             menu.append(self.set_finger_friendly(self.itemQuit.create_menu_item()))
-            self.window.set_menu(menu)
+
+            if hasattr(hildon, 'AppMenu'):
+                # Maemo 5 - use the new AppMenu with Buttons
+                self.appmenu = hildon.AppMenu()
+                for action_name in self.APPMENU_ACTIONS:
+                    action = getattr(self, action_name)
+                    b = gtk.Button('')
+                    action.connect_proxy(b)
+                    self.appmenu.append(b)
+                b = gtk.Button(_('Classic menu'))
+                b.connect('clicked', lambda b: menu.popup(None, None, None, 1, 0))
+                self.appmenu.append(b)
+                self.window.set_app_menu(self.appmenu)
+            else:
+                # Maemo 4 - just "reparent" the menu to the hildon window
+                self.window.set_menu(menu)
          
             self.mainMenu.destroy()
             self.window.show()
