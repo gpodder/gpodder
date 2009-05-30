@@ -1478,6 +1478,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     selection.select_path(path)
                     self.treeChannels.set_cursor(path)
                     self.treeChannels.grab_focus()
+                    # Emulate the cursor changed signal to force an update
+                    self.on_treeChannels_cursor_changed(self.treeChannels)
                     return True
 
     def treeview_button_pressed( self, treeview, event):
