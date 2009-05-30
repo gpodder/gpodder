@@ -76,20 +76,30 @@ class GtkBuilderWidget(object):
         if not self.use_fingerscroll:
             return widget
 
-        # Check if we have mokoui before continuing
+        # Check if we have mokoui OR hildon before continuing
+        mokoui, hildon = None, None
         try:
             import mokoui
         except ImportError, ie:
-            return widget
+            try:
+                import hildon
+            except ImportError, ie:
+                return widget
+            if not hasattr(hildon, 'PannableArea'):
+                # Probably using an older version of Hildon
+                return widget
 
         parent = widget.get_parent()
         child = widget.get_child()
         scroll = None
 
         def create_fingerscroll():
-            scroll = mokoui.FingerScroll()
+            if mokoui is not None:
+                scroll = mokoui.FingerScroll()
+                scroll.set_property('spring-speed', 0)
+            else:
+                scroll = hildon.PannableArea()
             scroll.set_name(widget.get_name())
-            scroll.set_property('spring-speed', 0)
             return scroll
 
         def container_get_child_pos(container, widget):
