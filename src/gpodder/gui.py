@@ -3092,6 +3092,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_bug_tracker_activate(self, widget, *args):
         util.open_website('http://bugs.gpodder.org/')
 
+    def on_shop_activate(self, widget, *args):
+        util.open_website('http://gpodder.org/shop')
+
+    def on_wishlist_activate(self, widget, *args):
+        util.open_website('http://www.amazon.de/gp/registry/2PD2MYGHE6857')
+
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
         dlg.set_name('gPodder')

@@ -365,6 +365,20 @@
           </object>
         </child>
         <child>
+          <object class="GtkAction" id="shop">
+            <property name="name">shop</property>
+            <property name="label" translatable="yes">T-Shirts and mugs</property>
+            <signal handler="on_shop_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
+          <object class="GtkAction" id="wishlist">
+            <property name="name">wishlist</property>
+            <property name="label" translatable="yes">Amazon wishlist</property>
+            <signal handler="on_wishlist_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="itemAbout">
             <property name="stock_id">gtk-about</property>
             <property name="name">itemAbout</property>
@@ -438,6 +452,9 @@
           <separator/>
           <menuitem action="homepage"/>
           <menuitem action="bug_tracker"/>
+          <separator/>
+          <menuitem action="shop"/>
+          <menuitem action="wishlist"/>
           <separator/>
           <menuitem action="itemAbout"/>
         </menu>
