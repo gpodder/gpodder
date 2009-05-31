@@ -922,7 +922,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.interface == gpodder.MAEMO:
             sum = downloading + failed + finished + queued + others
-            self.tool_downloads.set_is_important(sum > 0)
             if sum:
                 self.tool_downloads.set_label(_('Downloads (%d)') % sum)
             else:
