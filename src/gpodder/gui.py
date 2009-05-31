@@ -3090,7 +3090,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://wiki.gpodder.org/')
 
     def on_bug_tracker_activate(self, widget, *args):
-        util.open_website('http://bugs.gpodder.org/')
+        if gpodder.interface == gpodder.MAEMO:
+            util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
+        else:
+            util.open_website('http://bugs.gpodder.org/')
 
     def on_shop_activate(self, widget, *args):
         util.open_website('http://gpodder.org/shop')
