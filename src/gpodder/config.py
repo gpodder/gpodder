@@ -68,10 +68,10 @@ gPodderSettings = {
     'custom_sync_name_enabled': ( bool, True,
       _("Enables renaming files when transfered to an FS-based device with "
         "respect to the 'custom_sync_name'.")),
-    'max_downloads': ( int, 3,
+    'max_downloads': ( int, 1,
       _("The maximum number of simultaneous downloads allowed at a single "
         "time. Requires 'max_downloads_enabled'.")),
-    'max_downloads_enabled': ( bool, False,
+    'max_downloads_enabled': ( bool, True,
       _("The 'max_downloads' setting will only work if this is set to 'True'.")), 
     'limit_rate': ( bool, False,
       _("The 'limit_rate_value' setting will only work if this is set to 'True'.")),
