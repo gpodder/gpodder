@@ -481,8 +481,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Offer importing of videocenter podcasts
             if os.path.exists(os.path.expanduser('~/videocenter')):
-                self.item_upgrade_from_videocenter.show()
-                self.upgrade_from_videocenter_separator.show()
+                self.item_upgrade_from_videocenter.set_visible(True)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
         self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
