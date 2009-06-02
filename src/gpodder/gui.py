@@ -1909,6 +1909,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def episode_is_downloading(self, episode):
         """Returns True if the given episode is being downloaded at the moment"""
+        if episode is None:
+            return False
+
         return episode.url in (task.url for task in self.download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED))
     
     def updateTreeView(self):
