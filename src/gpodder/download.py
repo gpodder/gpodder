@@ -36,6 +36,7 @@ import gpodder
 
 import threading
 import urllib
+import urlparse
 import shutil
 import os.path
 import os
@@ -184,7 +185,26 @@ class DownloadURLOpener(urllib.FancyURLopener):
         void = fp.read()
         fp.close()
         raise gPodderDownloadHTTPError(url, errcode, errmsg)
-
+    
+    def redirect_internal(self, url, fp, errcode, errmsg, headers, data):
+        """ This is the exact same function that's included with urllib
+            except with "void = fp.read()" commented out. """
+        
+        if 'location' in headers:
+            newurl = headers['location']
+        elif 'uri' in headers:
+            newurl = headers['uri']
+        else:
+            return
+        
+        # This blocks forever(?) with certain servers (see bug #465)
+        #void = fp.read()
+        fp.close()
+        
+        # In case the server sent a relative URL, join with original:
+        newurl = urlparse.urljoin(self.type + ":" + url, newurl)
+        return self.open(newurl)
+    
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
