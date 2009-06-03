@@ -211,7 +211,7 @@ class Cache:
             # storage, though, so we know that what we have
             # stored is up to date.
             log('Using cached feed: %s', url, sender=self)
-        elif status in (200, 301, 302, 307):
+        elif status in (200, 301, 302, 303, 307):
             # log('===============')
             # log('[%s]', url)
             # log('LM old: %s', old_channel.last_modified)
