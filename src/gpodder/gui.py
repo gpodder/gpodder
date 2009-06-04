@@ -2545,7 +2545,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if task_exists:
                     continue
 
-                task = download.DownloadTask(episode)
+                try:
+                    task = download.DownloadTask(episode)
+                except Exception, e:
+                    self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'))
+                    log('Download error while downloading %s', episode.title, sender=self, traceback=True)
+                    continue
+
                 if add_paused:
                     task.status = task.PAUSED
                     self.download_queue_manager.add_resumed_task(task)

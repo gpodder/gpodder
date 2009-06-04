@@ -254,9 +254,12 @@ class CoverDownloader(ObservableService):
              
                 if image_data is not None:
                     log('Saving image data to %s', channel.cover_file, sender=self)
-                    fp = open(channel.cover_file, 'wb')
-                    fp.write(image_data)
-                    fp.close()
+                    try:
+                        fp = open(channel.cover_file, 'wb')
+                        fp.write(image_data)
+                        fp.close()
+                    except IOError, ioe:
+                        log('Cannot save image due to I/O error', sender=self, traceback=True)
 
         if os.path.exists(channel.cover_file):
             try:
