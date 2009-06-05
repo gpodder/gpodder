@@ -853,130 +853,137 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.wNotebook.set_current_page(0)
 
     def update_downloads_list(self):
-        model = self.treeDownloads.get_model()
+        try:
+            model = self.treeDownloads.get_model()
 
-        downloading, failed, finished, queued, others = 0, 0, 0, 0, 0
-        total_speed, total_size, done_size = 0, 0, 0
+            downloading, failed, finished, queued, others = 0, 0, 0, 0, 0
+            total_speed, total_size, done_size = 0, 0, 0
 
-        # Keep a list of all download tasks that we've seen
-        download_tasks_seen = set()
+            # Keep a list of all download tasks that we've seen
+            download_tasks_seen = set()
 
-        # Remember the progress and speed for the episode that
-        # has been opened in the episode shownotes dialog (if any)
-        if self.gpodder_episode_window is not None:
-            episode_window_episode = self.gpodder_episode_window.episode
-            episode_window_progress = 0.0
-            episode_window_speed = 0.0
-        else:
-            episode_window_episode = None
-
-        # Do not go through the list of the model is not (yet) available
-        if model is None:
-            model = ()
-
-        for row in model:
-            self.download_status_manager.request_update(row.iter)
-
-            task = row[self.download_status_manager.C_TASK]
-            speed, size, status, progress = task.speed, task.total_size, task.status, task.progress
-
-            total_size += size
-            done_size += size*progress
-
-            if episode_window_episode is not None and \
-                    episode_window_episode.url == task.url:
-                episode_window_progress = progress
-                episode_window_speed = speed
-
-            download_tasks_seen.add(task)
-
-            if status == download.DownloadTask.DOWNLOADING:
-                downloading += 1
-                total_speed += speed
-            elif status == download.DownloadTask.FAILED:
-                failed += 1
-            elif status == download.DownloadTask.DONE:
-                finished += 1
-            elif status == download.DownloadTask.QUEUED:
-                queued += 1
+            # Remember the progress and speed for the episode that
+            # has been opened in the episode shownotes dialog (if any)
+            if self.gpodder_episode_window is not None:
+                episode_window_episode = self.gpodder_episode_window.episode
+                episode_window_progress = 0.0
+                episode_window_speed = 0.0
             else:
-                others += 1
+                episode_window_episode = None
 
-        # Remember which tasks we have seen after this run
-        self.download_tasks_seen = download_tasks_seen
+            # Do not go through the list of the model is not (yet) available
+            if model is None:
+                model = ()
 
-        text = [_('Downloads')]
-        if downloading + failed + finished + queued > 0:
-            s = []
-            if downloading > 0:
-                s.append(_('%d downloading') % downloading)
-            if failed > 0:
-                s.append(_('%d failed') % failed)
-            if finished > 0:
-                s.append(_('%d done') % finished)
-            if queued > 0:
-                s.append(_('%d queued') % queued)
-            text.append(' (' + ', '.join(s)+')')
-        self.labelDownloads.set_text(''.join(text))
+            for row in model:
+                self.download_status_manager.request_update(row.iter)
 
-        if gpodder.interface == gpodder.MAEMO:
-            sum = downloading + failed + finished + queued + others
-            if sum:
-                self.tool_downloads.set_label(_('Downloads (%d)') % sum)
-            else:
-                self.tool_downloads.set_label(_('Downloads'))
+                task = row[self.download_status_manager.C_TASK]
+                speed, size, status, progress = task.speed, task.total_size, task.status, task.progress
 
-        title = [self.default_title]
+                total_size += size
+                done_size += size*progress
 
-        # We have to update all episodes/channels for which the status has
-        # changed. Accessing task.status_changed has the side effect of
-        # re-setting the changed flag, so we need to get the "changed" list
-        # of tuples first and split it into two lists afterwards
-        changed = [(task.url, task.podcast_url) for task in \
-                self.download_tasks_seen if task.status_changed]
-        episode_urls = [episode_url for episode_url, channel_url in changed]
-        channel_urls = [channel_url for episode_url, channel_url in changed]
+                if episode_window_episode is not None and \
+                        episode_window_episode.url == task.url:
+                    episode_window_progress = progress
+                    episode_window_speed = speed
 
-        count = downloading + queued
-        if count > 0:
-            if count == 1:
-                title.append( _('downloading one file'))
-            elif count > 1:
-                title.append( _('downloading %d files') % count)
+                download_tasks_seen.add(task)
 
-            if total_size > 0:
-                percentage = 100.0*done_size/total_size
-            else:
-                percentage = 0.0
-            total_speed = gl.format_filesize(total_speed)
-            title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
-            if self.tray_icon is not None:
-                # Update the tray icon status and progress bar
-                self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
-                self.tray_icon.draw_progress_bar(percentage/100.)
-        elif self.last_download_count > 0:
-            if self.tray_icon is not None:
-                # Update the tray icon status
-                self.tray_icon.set_status()
-                self.tray_icon.downloads_finished(self.download_tasks_seen)
+                if status == download.DownloadTask.DOWNLOADING:
+                    downloading += 1
+                    total_speed += speed
+                elif status == download.DownloadTask.FAILED:
+                    failed += 1
+                elif status == download.DownloadTask.DONE:
+                    finished += 1
+                elif status == download.DownloadTask.QUEUED:
+                    queued += 1
+                else:
+                    others += 1
+
+            # Remember which tasks we have seen after this run
+            self.download_tasks_seen = download_tasks_seen
+
+            text = [_('Downloads')]
+            if downloading + failed + finished + queued > 0:
+                s = []
+                if downloading > 0:
+                    s.append(_('%d downloading') % downloading)
+                if failed > 0:
+                    s.append(_('%d failed') % failed)
+                if finished > 0:
+                    s.append(_('%d done') % finished)
+                if queued > 0:
+                    s.append(_('%d queued') % queued)
+                text.append(' (' + ', '.join(s)+')')
+            self.labelDownloads.set_text(''.join(text))
+
             if gpodder.interface == gpodder.MAEMO:
-                hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
-            log('All downloads have finished.', sender=self)
-            if gl.config.cmd_all_downloads_complete:
-                util.run_external_command(gl.config.cmd_all_downloads_complete)
-        self.last_download_count = count
+                sum = downloading + failed + finished + queued + others
+                if sum:
+                    self.tool_downloads.set_label(_('Downloads (%d)') % sum)
+                else:
+                    self.tool_downloads.set_label(_('Downloads'))
 
-        self.gPodder.set_title(' - '.join(title))
+            title = [self.default_title]
 
-        self.update_episode_list_icons(episode_urls)
-        if self.gpodder_episode_window is not None and \
-                self.gpodder_episode_window.gPodderEpisode.get_property('visible'):
-            self.gpodder_episode_window.download_status_changed(episode_urls)
-            self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
-        self.play_or_download()
-        if channel_urls:
-            self.updateComboBox(only_these_urls=channel_urls)
-        return True
+            # We have to update all episodes/channels for which the status has
+            # changed. Accessing task.status_changed has the side effect of
+            # re-setting the changed flag, so we need to get the "changed" list
+            # of tuples first and split it into two lists afterwards
+            changed = [(task.url, task.podcast_url) for task in \
+                    self.download_tasks_seen if task.status_changed]
+            episode_urls = [episode_url for episode_url, channel_url in changed]
+            channel_urls = [channel_url for episode_url, channel_url in changed]
+
+            count = downloading + queued
+            if count > 0:
+                if count == 1:
+                    title.append( _('downloading one file'))
+                elif count > 1:
+                    title.append( _('downloading %d files') % count)
+
+                if total_size > 0:
+                    percentage = 100.0*done_size/total_size
+                else:
+                    percentage = 0.0
+                total_speed = gl.format_filesize(total_speed)
+                title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
+                if self.tray_icon is not None:
+                    # Update the tray icon status and progress bar
+                    self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
+                    self.tray_icon.draw_progress_bar(percentage/100.)
+            elif self.last_download_count > 0:
+                if self.tray_icon is not None:
+                    # Update the tray icon status
+                    self.tray_icon.set_status()
+                    self.tray_icon.downloads_finished(self.download_tasks_seen)
+                if gpodder.interface == gpodder.MAEMO:
+                    hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
+                log('All downloads have finished.', sender=self)
+                if gl.config.cmd_all_downloads_complete:
+                    util.run_external_command(gl.config.cmd_all_downloads_complete)
+            self.last_download_count = count
+
+            self.gPodder.set_title(' - '.join(title))
+
+            self.update_episode_list_icons(episode_urls)
+            if self.gpodder_episode_window is not None and \
+                    self.gpodder_episode_window.gPodderEpisode.get_property('visible'):
+                self.gpodder_episode_window.download_status_changed(episode_urls)
+                self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
+            self.play_or_download()
+            if channel_urls:
+                self.updateComboBox(only_these_urls=channel_urls)
+            return True
+        except Exception, e:
+            log('Exception happened while updating download list.', sender=self, traceback=True)
+            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'))
+            # We return False here, so the update loop won't be called again,
+            # that's why we require the restart of gPodder in the message.
+            return False
 
     def on_tree_channels_resize(self, widget, allocation):
         if not gl.config.podcast_sidebar_save_space:
