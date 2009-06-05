@@ -110,7 +110,7 @@ generators: $(MANPAGE)
 
 messages: gen_gettext
 
-$(MANPAGE): $(BINFILE)
+$(MANPAGE): src/gpodder/__init__.py
 	$(HELP2MAN) --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
 
 data/maemo/gpodder.desktop: data/gpodder.desktop
