@@ -2120,7 +2120,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.channel_list_changed = True
         self.updateComboBox(selected_url=select_url_afterwards)
 
-        episodes = self.get_new_episodes()
+        # Only search for new episodes in podcasts that have been
+        # updated, not in other podcasts (for single-feed updates)
+        updated_urls = [c.url for c in channels]
+        episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
 
         if self.tray_icon:
             self.tray_icon.set_status(None)
