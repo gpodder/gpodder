@@ -2297,7 +2297,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Only iconify if we are using the window's "X" button,
         # but not when we are using "Quit" in the menu or toolbar
-        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.name not in ('toolQuit', 'itemQuit'):
+        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
         elif gl.config.on_quit_ask or downloading:
             if gpodder.interface == gpodder.MAEMO:
