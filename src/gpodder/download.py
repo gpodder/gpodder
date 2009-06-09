@@ -228,7 +228,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
                 current_size = os.path.getsize(filename)
                 tfp = open(filename, 'ab')
                 #If the file exists, then only download the remainder
-                self.addheader('Range', 'bytes=%s-' % (current_size))
+                if current_size > 0:
+                    self.addheader('Range', 'bytes=%s-' % (current_size))
             except:
                 log('Cannot open file for resuming: %s', filename, sender=self, traceback=True)
                 tfp = None
@@ -267,8 +268,11 @@ class DownloadURLOpener(urllib.FancyURLopener):
             if "content-length" in headers:
                 size = int(headers["Content-Length"]) + current_size
             reporthook(blocknum, bs, size)
-        while 1:
-            block = fp.read(bs)
+        while read < size:
+            if size == -1:
+                block = fp.read(bs)
+            else:
+                block = fp.read(min(size-read, bs))
             if block == "":
                 break
             read += len(block)
@@ -632,8 +636,11 @@ class DownloadTask(object):
                 util.delete_file(self.tempname)
                 self.progress = 0.0
                 self.speed = 0.0
+        except urllib.ContentTooShortError, ctse:
+            self.status = DownloadTask.FAILED
+            self.error_message = _('Missing content from server')
         except IOError, ioe:
-            log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.__episode.title, ioe.filename, sender=self)
+            log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.__episode.title, ioe.filename, sender=self, traceback=True)
             self.status = DownloadTask.FAILED
             self.error_message = _('I/O Error: %s: %s') % (ioe.strerror, ioe.filename)
         except gPodderDownloadHTTPError, gdhe:
