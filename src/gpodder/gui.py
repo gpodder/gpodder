@@ -3496,6 +3496,7 @@ class gPodderAddPodcastDialog(BuilderWidget):
         if hasattr(self, 'btn_add_stock_id'):
             self.btn_add.set_label(self.btn_add_stock_id)
             self.btn_add.set_use_stock(True)
+        self.entry_url.connect('activate', self.on_entry_url_activate)
         self.gPodderAddPodcastDialog.show()
 
     def on_btn_close_clicked(self, widget):
@@ -3513,6 +3514,9 @@ class gPodderAddPodcastDialog(BuilderWidget):
 
     def on_entry_url_changed(self, widget):
         self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
+
+    def on_entry_url_activate(self, widget):
+        self.on_btn_add_clicked(widget)
 
     def on_btn_add_clicked(self, widget):
         url = self.entry_url.get_text()
