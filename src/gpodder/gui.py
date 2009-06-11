@@ -513,7 +513,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.minimized = False
         self.gPodder.connect('window-state-event', self.window_state_event)
         
-        self.already_notified_new_episodes = []
         self.show_hide_tray_icon()
 
         self.itemShowToolbar.set_active(gl.config.show_toolbar)
@@ -553,11 +552,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
-        namecell.set_property('foreground-set', True)
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn.pack_start( namecell, True)
         namecolumn.add_attribute( namecell, 'markup', 2)
-        namecolumn.add_attribute( namecell, 'foreground', 8)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
@@ -757,16 +754,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Last folder used for saving episodes
         self.folder_for_saving_episodes = None
 
-        # Set up default channel colors
-        self.channel_colors = {
-            'default': None,
-            'updating': gl.config.color_updating_feeds,
-            'parse_error': '#ff0000',
-            }
-
         # Now, update the feed cache, when everything's in place
         self.btnUpdateFeeds.show()
-        self.updated_feeds = 0
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
@@ -821,7 +810,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # First-time users should be asked if they want to see the OPML
         if len(self.channels) == 0:
-            util.idle_add(self.on_itemUpdate_activate, None)
+            util.idle_add(self.on_itemUpdate_activate)
 
     def on_btnCleanUpDownloads_clicked(self, button):
         model = self.treeDownloads.get_model()
@@ -1853,7 +1842,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # very cheap! only update selected channel
             if iter and self.active_channel is not None:
                 update_channel_model_by_iter(model, iter,
-                    self.active_channel, self.channel_colors,
+                    self.active_channel,
                     self.cover_cache,
                     gl.config.podcast_list_icon_size,
                     gl.config.podcast_list_icon_size)
@@ -1865,7 +1854,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 while iter is not None:
                     (index,) = model.get_path(iter)
                     update_channel_model_by_iter(model, iter,
-                        self.channels[index], self.channel_colors,
+                        self.channels[index],
                         self.cover_cache,
                         gl.config.podcast_list_icon_size,
                         gl.config.podcast_list_icon_size)
@@ -1878,7 +1867,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         path = (index,)
                         iter = model.get_iter(path)
                         update_channel_model_by_iter(model, iter,
-                            self.channels[index], self.channel_colors,
+                            self.channels[index],
                             self.cover_cache,
                             gl.config.podcast_list_icon_size,
                             gl.config.podcast_list_icon_size)
@@ -1888,7 +1877,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selected_url = model.get_value(iter, 0)
 
             (model, urls) = channels_to_model(self.channels,
-                    self.channel_colors, self.cover_cache,
+                    self.cover_cache,
                     gl.config.podcast_list_icon_size,
                     gl.config.podcast_list_icon_size)
 
@@ -2100,21 +2089,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         waitdlg.destroy()
 
 
-    def update_feed_cache_finish_callback(self, channels=None,
-        notify_no_new_episodes=False, select_url_afterwards=None):
-
+    def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
         db.commit()
-
         self.updating_feed_cache = False
-        if gpodder.interface == gpodder.MAEMO:
-            self.btnCancelFeedUpdate.show()
-        self.itemUpdate.set_sensitive(True)
-        self.itemUpdateChannel.set_sensitive(True)
-
-        # If we want to select a specific podcast (via its URL)
-        # after the update, we give it to updateComboBox here to
-        # select exactly this podcast after updating the view
-        self.updateComboBox(selected_url=select_url_afterwards)
 
         self.channels = load_channels()
         self.channel_list_changed = True
@@ -2122,40 +2099,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Only search for new episodes in podcasts that have been
         # updated, not in other podcasts (for single-feed updates)
-        updated_urls = [c.url for c in channels]
         episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
 
         if self.tray_icon:
-            self.tray_icon.set_status(None)
-            if self.minimized:
-                # Determine new episodes that we have not yet announced
-                new_episodes = [episode for episode in episodes \
-                        if episode not in self.already_notified_new_episodes]
-                self.already_notified_new_episodes.extend(new_episodes)
-                                
-                if len(new_episodes) == 0:
-                    if notify_no_new_episodes and self.tray_icon is not None:
-                        msg = _('No new episodes available for download')
-                        self.tray_icon.send_notification(msg)                        
-                else:
-                    if len(new_episodes) == 1:
-                        title = _('gPodder has found %s') % (_('one new episode:'),)
-                    else:
-                        title = _('gPodder has found %s') % (_('%i new episodes:') % len(new_episodes))
-                    message = self.tray_icon.format_episode_list([e.title for e in new_episodes])
+            self.tray_icon.set_status()
 
-                    #auto download new episodes
-                    if gl.config.auto_download_when_minimized:
-                        message += '\n<i>(%s...)</i>' % _('downloading')
-                        self.download_episode_list(new_episodes)
-                    self.tray_icon.send_notification(message, title)
-
-        if len(episodes) == 0 or self.feed_cache_update_cancelled:
+        if self.feed_cache_update_cancelled:
+            # The user decided to abort the feed update
+            self.show_update_feeds_buttons()
+        elif not episodes:
+            # Nothing new here - but inform the user
             self.pbFeedUpdate.set_fraction(1.0)
-            if self.feed_cache_update_cancelled:
-                self.pbFeedUpdate.set_text(_('Update has been cancelled'))
-            else:
-                self.pbFeedUpdate.set_text(_('No new episodes'))
+            self.pbFeedUpdate.set_text(_('No new episodes'))
             self.feed_cache_update_cancelled = True
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
@@ -2165,68 +2120,78 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # btnCancelFeedUpdate is a normal gtk.Button
                 self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
-        else:
-            if self.minimized and gl.config.auto_download_when_minimized:
-                new_episodes = [episode for episode in episodes if episode not in self.already_notified_new_episodes]
-                self.already_notified_new_episodes.extend(new_episodes)
-                if len(new_episodes) > 0:
-                    self.download_episode_list(new_episodes)
+        elif self.minimized:
+            # New episodes are available, but we are minimized
+            if gl.config.auto_download_when_minimized:
+                self.download_episode_list(episodes)
+                if len(episodes) == 1:
+                    title = _('Downloading one new episode')
+                else:
+                    title = _('Downloading %d new episodes') % len(episodes)
             else:
-                # open the episodes selection dialog
-                self.new_episodes_show(episodes)
+                if len(episodes) == 1:
+                    title = _('One new episode available')
+                else:
+                    title = _('%d new episodes available') % len(episodes)
 
-    def update_feed_cache_callback(self, progressbar, title, position, count):
-        progression = _('Updated %s (%d/%d)')%(title, position+1, count)
-        progressbar.set_text(progression)
-        if self.tray_icon:
-            self.tray_icon.set_status(
-                self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression )
-        if count > 0:
-            progressbar.set_fraction(float(position)/float(count))
+            if self.tray_icon:
+                message = self.tray_icon.format_episode_list([e.title for e in episodes])
+                self.tray_icon.send_notification(message, title)
+            self.show_update_feeds_buttons()
+        else:
+            # New episodes are available and we are not minimized
+            self.show_update_feeds_buttons()
+            self.new_episodes_show(episodes)
 
-    def update_feed_cache_proc( self, channel, total_channels, semaphore,
-        callback_proc, finish_proc):
+    def update_feed_cache_proc(self, channels, select_url_afterwards):
+        total = len(channels)
 
-        semaphore.acquire()
-        if not self.feed_cache_update_cancelled:
-            try:
+        for updated, channel in enumerate(channels):
+            if not self.feed_cache_update_cancelled:
                 channel.update()
-            except:
-                log('Darn SQLite LOCK!', sender=self, traceback=True)
 
-        # By the time we get here the update may have already been cancelled
-        if not self.feed_cache_update_cancelled:
-            callback_proc(channel.title, self.updated_feeds, total_channels)
+            # By the time we get here the update may have already been cancelled
+            if not self.feed_cache_update_cancelled:
+                def update_progress():
+                    progression = _('Updated %s (%d/%d)') % (channel.title, updated, total)
+                    self.pbFeedUpdate.set_text(progression)
+                    if self.tray_icon:
+                        self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
+                    self.pbFeedUpdate.set_fraction(float(updated)/float(total))
+                util.idle_add(update_progress)
 
-        self.updated_feeds += 1
-        self.treeview_channel_set_color( channel, 'default' )
-        channel.update_flag = False
+            if self.feed_cache_update_cancelled:
+                break
 
-        semaphore.release()
-        if self.updated_feeds == total_channels:
-            finish_proc()
+        updated_urls = [c.url for c in channels]
+        util.idle_add(self.update_feed_cache_finish_callback, updated_urls, select_url_afterwards)
+
+    def show_update_feeds_buttons(self):
+        # Make sure that the buttons for updating feeds
+        # appear - this should happen after a feed update
+        if gpodder.interface == gpodder.MAEMO:
+            self.btnUpdateSelectedFeed.show()
+            self.toolFeedUpdateProgress.hide()
+            self.btnCancelFeedUpdate.hide()
+            self.btnCancelFeedUpdate.set_is_important(False)
+            self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_CLOSE)
+            self.toolbarSpacer.set_expand(True)
+            self.toolbarSpacer.set_draw(False)
+        else:
+            self.hboxUpdateFeeds.hide()
+        self.btnUpdateFeeds.show()
+        self.itemUpdate.set_sensitive(True)
+        self.itemUpdateChannel.set_sensitive(True)
 
     def on_btnCancelFeedUpdate_clicked(self, widget):
-        if self.feed_cache_update_cancelled:
-            if gpodder.interface == gpodder.MAEMO:
-                self.btnUpdateSelectedFeed.show()
-                self.toolFeedUpdateProgress.hide()
-                self.btnCancelFeedUpdate.hide()
-                self.btnCancelFeedUpdate.set_is_important(False)
-                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_CLOSE)
-                self.toolbarSpacer.set_expand(True)
-                self.toolbarSpacer.set_draw(False)
-            else:
-                self.hboxUpdateFeeds.hide()
-            self.btnUpdateFeeds.show()
-        else:
-            self.pbFeedUpdate.set_text(_('Cancelling, please wait...'))
+        if not self.feed_cache_update_cancelled:
+            self.pbFeedUpdate.set_text(_('Cancelling...'))
             self.feed_cache_update_cancelled = True
             self.btnCancelFeedUpdate.set_sensitive(False)
+        else:
+            self.show_update_feeds_buttons()
 
-    def update_feed_cache(self, channels=None, force_update=True,
-        notify_no_new_episodes=False, select_url_afterwards=None):
-
+    def update_feed_cache(self, channels=None, force_update=True, select_url_afterwards=None):
         if self.updating_feed_cache: 
             return
 
@@ -2253,13 +2218,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
 
-        # let's get down to business..
-        callback_proc = lambda title, pos, count: util.idle_add( 
-            self.update_feed_cache_callback, self.pbFeedUpdate, title, pos, count )
-        finish_proc = lambda: util.idle_add( self.update_feed_cache_finish_callback,
-            channels, notify_no_new_episodes, select_url_afterwards )
-
-        self.updated_feeds = 0
         self.feed_cache_update_cancelled = False
         self.btnCancelFeedUpdate.show()
         self.btnCancelFeedUpdate.set_sensitive(True)
@@ -2272,21 +2230,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
             self.hboxUpdateFeeds.show_all()
         self.btnUpdateFeeds.hide()
-        semaphore = Semaphore(gl.config.max_simulaneous_feeds_updating)
 
-        for channel in channels:
-            self.treeview_channel_set_color( channel, 'updating' )
-            channel.update_flag = True
-            args = (channel, len(channels), semaphore, callback_proc, finish_proc)
-            thread = Thread( target = self.update_feed_cache_proc, args = args)
-            thread.start()
-
-    def treeview_channel_set_color( self, channel, color ):
-        if self.treeChannels.get_model():
-            if color in self.channel_colors:
-                self.treeChannels.get_model().set(channel.iter, 8, self.channel_colors[color])
-            else:
-                self.treeChannels.get_model().set(channel.iter, 8, color)
+        args = (channels, select_url_afterwards)
+        Thread(target=self.update_feed_cache_proc, args=args).start()
 
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
@@ -2485,12 +2431,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemUpdateChannel_activate(self, widget=None):
         self.update_feed_cache(channels=[self.active_channel,])
 
-    def on_itemUpdate_activate(self, widget, notify_no_new_episodes=False):
-        restore_from = can_restore_from_opml()
-
+    def on_itemUpdate_activate(self, widget=None):
         if self.channels:
-            self.update_feed_cache(notify_no_new_episodes=notify_no_new_episodes)
-        elif restore_from is not None:
+            self.update_feed_cache()
+            return
+
+        restore_from = can_restore_from_opml()
+        if restore_from is not None:
             title = _('Database upgrade required')
             message = _('gPodder is now using a new (much faster) database backend and needs to convert your current data. This can take some time. Start the conversion now?')
             if self.show_confirmation(message, title):
@@ -2577,9 +2524,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         )
 
         instructions = _('Select the episodes you want to download now.')
-
-        self.feed_cache_update_cancelled = True
-        self.on_btnCancelFeedUpdate_clicked(self.btnCancelFeedUpdate)
 
         gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
                                episodes=episodes, columns=columns, selected_default=True, \

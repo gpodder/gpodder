@@ -113,8 +113,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menu = gtk.Menu()
         menuItem = gtk.ImageMenuItem(_("Check for new episodes"))
         menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU))
-        # connect the "on_itemUpdate_activate" with the parameter notify_no_new_episodes set to True
-        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate, True)
+        menuItem.connect('activate',  self.__gpodder.on_itemUpdate_activate)
         menu.append(menuItem)
         
         menuItem = gtk.ImageMenuItem(_("Download all new episodes"))
@@ -276,11 +275,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if status is None:
             if tooltip is None:
                 tooltip = self.DEFAULT_TOOLTIP
-                if len(self.__gpodder.already_notified_new_episodes) > 0:
-                    tooltip += "\n" + _("New episodes:") 
-                    for episode in self.__gpodder.already_notified_new_episodes:
-                        tooltip += "\n" + episode.title
-                        if episode.was_downloaded(): tooltip +=  _(" (downloaded)")
             else:
                 tooltip = 'gPodder - %s' % tooltip
             if self.__current_icon is not None:

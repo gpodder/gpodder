@@ -271,7 +271,6 @@ class PodcastChannel(PodcastModelObject):
         self.pubDate = 0
         self.parse_error = None
         self.newest_pubdate_cached = None
-        self.update_flag = False # channel is updating or to be updated
         self.iter = None
         self.foldername = None
         self.auto_foldername = 1 # automatically generated foldername
@@ -1032,7 +1031,7 @@ class PodcastEpisode(PodcastModelObject):
         return False
 
 
-def update_channel_model_by_iter( model, iter, channel, color_dict,
+def update_channel_model_by_iter( model, iter, channel,
         cover_cache=None, max_width=0, max_height=0, initialize_all=False):
 
     count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
@@ -1056,16 +1055,7 @@ def update_channel_model_by_iter( model, iter, channel, color_dict,
     description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
     model.set(iter, 2, description)
 
-    if channel.parse_error is not None:
-        model.set(iter, 6, channel.parse_error)
-        color = color_dict['parse_error']
-    else:
-        color = color_dict['default']
-
-    if channel.update_flag:
-        color = color_dict['updating']
-
-    model.set(iter, 8, color)
+    model.set(iter, 6, channel.parse_error)
 
     if count_unplayed > 0 or count_downloaded > 0:
         model.set(iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
@@ -1082,14 +1072,14 @@ def update_channel_model_by_iter( model, iter, channel, color_dict,
             new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
         model.set(iter, 5, new_pixbuf or pixbuf)
 
-def channels_to_model(channels, color_dict, cover_cache=None, max_width=0, max_height=0):
+def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
     new_model = gtk.ListStore( str, str, str, gtk.gdk.Pixbuf, int,
         gtk.gdk.Pixbuf, str, bool, str )
 
     urls = []
     for channel in channels:
         update_channel_model_by_iter(new_model, new_model.append(), channel,
-            color_dict, cover_cache, max_width, max_height, True)
+            cover_cache, max_width, max_height, True)
         urls.append(channel.url)
 
     return (new_model, urls)

@@ -227,11 +227,6 @@ gPodderSettings = {
     'enable_streaming': (bool, False,
       _("This will pass a URL to the media player (see: 'player') instead of "
         "having to download the episode and then play it.")),
-    'max_simulaneous_feeds_updating': (int, 3,
-      _("The maximum number of feeds that can be updating at a time. Set this "
-        "to a low number on low-powered machines and a higher number on faster PCs.")),
-    'color_updating_feeds': (str, '#7db023',
-      _("The color of the text of currently updating channels.")),
     'log_sqlite': (bool, False,
       _("Enable _very_ verbose logging from the dbsqlite module.")),
     'enable_html_shownotes': (bool, True,
