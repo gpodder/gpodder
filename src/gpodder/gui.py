@@ -66,6 +66,7 @@ except ImportError:
                     pass
 
 
+from gpodder import feedcore
 from gpodder import libtagupdate
 from gpodder import util
 from gpodder import opml
@@ -97,7 +98,6 @@ from libpodcasts import load_channels
 from libpodcasts import update_channels
 from libpodcasts import save_channels
 from libpodcasts import can_restore_from_opml
-from libpodcasts import HTTPAuthError
 
 from gpodder.libgpodder import gl
 
@@ -1264,17 +1264,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.popup(None, None, None, event.button, event.time)
             return True
 
-    def change_current_podcast_url(self, *args):
-        if self.active_channel is None:
-            return
-
-        url_callback = lambda new_url: self.change_channel_url(self.active_channel, new_url)
-        gPodderAddPodcastDialog(url_callback=url_callback, \
-                custom_title=_('Change feed URL of %s') % self.active_channel.title, \
-                custom_label=_('Change to:'), \
-                preset_url=self.active_channel.url, \
-                btn_add_stock_id=_('Change URL'))
-
     def treeview_channels_button_pressed( self, treeview, event):
         global WEB_BROWSER_ICON
 
@@ -1353,10 +1342,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
             item.connect( 'activate', self.on_itemEditChannel_activate)
             menu.append( item)
-
-            item = gtk.ImageMenuItem(_('Change feed URL'))
-            item.connect('activate', self.change_current_podcast_url)
-            menu.append(item)
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
@@ -1767,6 +1752,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 url = model.get_value( model.get_iter( path), 0)
 
                 episode = self.active_channel.find_episode(url)
+                if episode is None:
+                    continue
 
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
@@ -2013,7 +2000,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         channel = error = None
         try:
             channel = PodcastChannel.load(url=url, create=True, authentication_tokens=authentication_tokens)
-        except HTTPAuthError, e:
+        except feedcore.AuthenticationRequired, e:
+            error = e
+        except feedcore.WifiLogin, e:
             error = e
         except Exception, e:
             log('Error in PodcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
@@ -2052,21 +2041,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if len(new_episodes):
                     self.new_episodes_show(new_episodes)
 
-        elif isinstance( error, HTTPAuthError ):
+        elif isinstance(error, feedcore.AuthenticationRequired):
             response, auth_tokens = self.UsernamePasswordDialog(
                 _('Feed requires authentication'), _('Please enter your username and password.'))
 
             if response:
                 self.add_new_channel( url, authentication_tokens=auth_tokens )
 
+        elif isinstance(error, feedcore.WifiLogin):
+            if self.show_confirmation(_('The URL you are trying to add redirects to the website %s. Do you want to visit the website to login now?') % saxutils.escape(error.data), _('Website redirection detected')):
+                util.open_website(error.data)
+                if self.show_confirmation(_('Please login to the website now. Should I retry subscribing to the podcast at %s?') % saxutils.escape(url), _('Retry adding channel')):
+                    self.add_new_channel(url)
+
         else:
             # Ok, the URL is not a channel, or there is some other
             # error - let's see if it's a web page or OPML file...
+            handled = False
             try:
                 data = urllib2.urlopen(url).read().lower()
                 if '</opml>' in data:
                     # This looks like an OPML feed
                     self.on_item_import_from_file_activate(None, url)
+                    handled = True
 
                 elif '</html>' in data:
                     # This looks like a web page
@@ -2074,13 +2071,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
                     if self.show_confirmation(message, title):
                         util.open_website(url)
+                        handled = True
 
             except Exception, e:
                 log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
 
-            title = _('Error adding podcast')
-            message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
-            self.show_message( message, title)
+            if not handled:
+                title = _('Error adding podcast')
+                message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
+                self.show_message( message, title)
 
         self.entryAddChannel.set_text(self.ENTER_URL_TEXT)
         self.entryAddChannel.set_sensitive(True)
@@ -2148,7 +2147,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
-                channel.update()
+                try:
+                    channel.update()
+                except feedcore.Offline:
+                    self.feed_cache_update_cancelled = True
+                    if not self.minimized:
+                        util.idle_add(self.show_message, _('The feed update has been cancelled because you appear to be offline.'), _('Cannot connect to server'))
+                    break
+                except Exception, e:
+                    util.idle_add(self.show_message, _('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'))
 
             # By the time we get here the update may have already been cancelled
             if not self.feed_cache_update_cancelled:
@@ -2896,35 +2903,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True))
 
-    def change_channel_url(self, channel, new_url):
-        old_url = channel.url
-        if old_url == new_url:
-            log('Channel URL %s unchanged.', old_url, sender=self)
-            return
-        else:
-            log('Changing channel URL from %s to %s', old_url, new_url, sender=self)
-
-        channel.url = new_url
-        # remove etag and last_modified to force an update
-        channel.etag = ''
-        channel.last_modified = ''
-
-        # Remove old episodes which haven't been downloaded.
-        db.delete_empty_episodes(channel.id)
-
-        (success, error) = channel.update()
-        if not success:
-            self.show_message(_('The specified URL is invalid. The old URL has been used instead.'), _('Invalid URL'))
-            channel.url = old_url
-        else:
-            # Only allow the last podcast to be new when changing URLs
-            db.force_last_new(channel)
-            # Update the OPML file.
-            save_channels(self.channels)
-
-        # update feed cache and select the podcast with the new URL afterwards
-        self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
-
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
             if gpodder.interface == gpodder.GUI:
@@ -3630,7 +3608,6 @@ class gPodderProperties(BuilderWidget):
             self.gPodderProperties.fullscreen()
 
         gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
-        gl.config.connect_gtk_editable( 'ftp_proxy', self.ftpProxy)
         gl.config.connect_gtk_editable( 'player', self.openApp)
         gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
@@ -3847,7 +3824,6 @@ class gPodderProperties(BuilderWidget):
     def on_cbEnvironmentVariables_toggled(self, widget, *args):
          sens = not self.cbEnvironmentVariables.get_active()
          self.httpProxy.set_sensitive( sens)
-         self.ftpProxy.set_sensitive( sens)
 
     def on_comboboxDeviceType_changed(self, widget, *args):
         active_item = self.comboboxDeviceType.get_active()

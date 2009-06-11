@@ -175,7 +175,7 @@ class gPodderLib(object):
                         episode.is_played = True
                         if (episode.file_exists()):
                             episode.mark(state=db.STATE_DOWNLOADED)
-                        episode.save(bulk=True)
+                        episode.save()
                         p += p_step_2
                     # flush the localdb updates for this channel
                     status_callback(p, _('Writing changes to database'))

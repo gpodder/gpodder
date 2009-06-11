@@ -352,7 +352,7 @@ class Storage(object):
 
         return data
 
-    def save_channel(self, c, bulk=False):
+    def save_channel(self, c):
         if c.id is None:
             c.id = self.find_channel_id(c.url)
 
@@ -452,7 +452,7 @@ class Storage(object):
         else:
             return None
 
-    def save_episode(self, e, bulk=False):
+    def save_episode(self, e):
         if not e.guid:
             log('Refusing to save an episode without guid: %s', e)
             return

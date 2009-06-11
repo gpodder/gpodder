@@ -59,9 +59,6 @@ gPodderSettings = {
     'http_proxy': ( str, '',
       _("The URL for proxy to use for HTTP downloads. "
         "Requires that 'proxy_use_environment' be 'False'")),
-    'ftp_proxy': ( str, '',
-      _("The URL for proxy to use for FTP downloads. "
-        "Requires that 'proxy_use_environment' be 'False'")),
     'custom_sync_name': ( str, '{episode.basename}',
       _("The name used when copying a file to a FS-based device. Available "
         "options are: episode.basename, episode.title, episode.published")),
@@ -92,7 +89,7 @@ gPodderSettings = {
       _("Only sync episodes to a device that have not been marked played in gPodder.")),
     'proxy_use_environment': ( bool, True,
       _("Use your environment's (Eg. Gnome's) proxy settings instead of "
-        "gPodder's. See 'http_proxy' and 'ftp_proxy'.")),
+        "gPodder's. See 'http_proxy'.")),
     'update_tags': ( bool, False,
       _("Update tags on files after they've been downloaded. This sets the "
         "artist tag to the title of the feed (can be customized in the feed's "

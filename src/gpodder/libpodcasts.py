@@ -34,7 +34,7 @@ import pango
 import gpodder
 from gpodder import util
 from gpodder import opml
-from gpodder import cache
+from gpodder import feedcore
 from gpodder import services
 from gpodder import draw
 from gpodder import libtagupdate
@@ -79,7 +79,45 @@ else:
     ICON_NEW = gtk.STOCK_ABOUT
 
 
-class HTTPAuthError(Exception): pass
+class gPodderFetcher(feedcore.Fetcher):
+    """
+    This class extends the feedcore Fetcher with the gPodder User-Agent and the
+    Proxy handler based on the current settings in gPodder and provides a
+    convenience method (fetch_channel) for use by PodcastChannel objects.
+    """
+
+    def __init__(self):
+        feedcore.Fetcher.__init__(self, gpodder.user_agent)
+
+    def fetch_channel(self, channel):
+        etag = channel.etag
+        modified = feedparser._parse_date(channel.last_modified)
+        # If we have a username or password, rebuild the url with them included
+        # Note: using a HTTPBasicAuthHandler would be pain because we need to
+        # know the realm. It can be done, but I think this method works, too
+        if channel.username or channel.password:
+            username = urllib.quote(channel.username)
+            password = urllib.quote(channel.password)
+            auth_string = ':'.join((username, password))
+            url_parts = list(urlparse.urlsplit(url))
+            url_parts[1] = '@'.join((auth_string, url_parts[1]))
+            url = urlparse.urlunsplit(url_parts)
+        else:
+            url = channel.url
+        self.fetch(url, etag, modified)
+
+    def _resolve_url(self, url):
+        return resolver.get_real_channel_url(url)
+
+    def _get_handlers(self):
+        handlers = []
+        if not gl.config.proxy_use_environment:
+            # Add a ProxyHandler for fetching data via a proxy server
+            proxies = {}
+            if gl.config.http_proxy:
+                proxies['http'] = gl.config.http_proxy
+            handlers.append(urllib2.ProxyHandler(proxies))
+        return handlers
 
 
 class PodcastModelObject(object):
@@ -113,7 +151,7 @@ class PodcastChannel(PodcastModelObject):
     MAX_FOLDERNAME_LENGTH = 150
     icon_cache = {}
 
-    fc = cache.Cache()
+    feed_fetcher = gPodderFetcher()
 
     @classmethod
     def load(cls, url, create=True, authentication_tokens=None):
@@ -128,12 +166,8 @@ class PodcastChannel(PodcastModelObject):
             if authentication_tokens is not None:
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
-            success, error_code = tmp.update()
-            if not success:
-                if error_code == 401:
-                    raise HTTPAuthError
-                else:
-                    return None
+
+            tmp.update()
             tmp.save()
             db.force_last_new(tmp)
             return tmp
@@ -148,78 +182,43 @@ class PodcastChannel(PodcastModelObject):
         """
         return PodcastEpisode.create_from_dict(d, self)
 
-    def update(self):
-        (updated, c) = self.fc.fetch(self.url, self,
-                not gl.config.proxy_use_environment,
-                gl.config.http_proxy,
-                gl.config.ftp_proxy)
-
-        if c is None:
-            return ( False, None )
-
-        if c.status == 401:
-            return ( False, 401 )
-
-        if self.url != c.url and c.status != 302:
-            # The URL has changed, and the status code is not a temporary
-            # redirect, so update the channel's URL accordingly for future use
-            log('Updating channel URL from %s to %s',
-                    self.url, c.url, sender=self)
-            self.url = c.url
-
+    def _consume_updated_feed(self, feed):
         # update the cover if it's not there
         self.update_cover()
 
-        # If we have an old instance of this channel, and
-        # feedcache says the feed hasn't changed, return old
-        if not updated:
-            log('Channel %s is up to date', self.url)
-            return ( True, None )
+        self.parse_error = feed.get('bozo_exception', None)
 
-        # Save etag and last-modified for later reuse
-        if c.headers.get('etag'):
-            self.etag = c.headers.get('etag')
-        if c.headers.get('last-modified'):
-            self.last_modified = c.headers.get('last-modified')
+        self.title = feed.feed.get('title', self.url)
+        self.link = feed.feed.get('link', self.link)
+        self.description = feed.feed.get('subtitle', self.description)
+        # Start YouTube-specific title FIX
+        YOUTUBE_PREFIX = 'Uploads by '
+        if self.title.startswith(YOUTUBE_PREFIX):
+            self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
+        # End YouTube-specific title FIX
 
-        self.parse_error = c.get('bozo_exception', None)
-
-        if hasattr(c.feed, 'title'):
-            self.title = c.feed.title
-            # Start YouTube-specific title FIX
-            YOUTUBE_PREFIX = 'Videos uploaded by '
-            if self.title.startswith(YOUTUBE_PREFIX):
-                self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
-            # End YouTube-specific title FIX
-        else:
-            self.title = self.url
-        if hasattr( c.feed, 'link'):
-            self.link = c.feed.link
-        if hasattr( c.feed, 'subtitle'):
-            self.description = c.feed.subtitle
-
-        if hasattr(c.feed, 'updated_parsed') and c.feed.updated_parsed is not None:
-            self.pubDate = rfc822.mktime_tz(c.feed.updated_parsed+(0,))
-        else:
+        try:
+            self.pubDate = rfc822.mktime_tz(feed.feed.get('updated_parsed', None+(0,)))
+        except:
             self.pubDate = time.time()
-        if hasattr( c.feed, 'image'):
-            if hasattr(c.feed.image, 'href') and c.feed.image.href:
+
+        if hasattr(feed.feed, 'image'):
+            if hasattr(feed.feed.image, 'href') and feed.feed.image.href:
                 old = self.image
-                self.image = c.feed.image.href
+                self.image = feed.feed.image.href
                 if old != self.image:
                     self.update_cover(force=True)
 
-        # Marked as bulk because we commit after importing episodes.
-        db.save_channel(self, bulk=True)
+        self.save()
 
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
 
         # We can limit the maximum number of entries that gPodder will parse
         # via the "max_episodes_per_feed" configuration option.
-        if len(c.entries) > gl.config.max_episodes_per_feed:
+        if len(feed.entries) > gl.config.max_episodes_per_feed:
             log('Limiting number of episodes for %s to %d', self.title, gl.config.max_episodes_per_feed)
-        for entry in c.entries[:min(gl.config.max_episodes_per_feed, len(c.entries))]:
+        for entry in feed.entries[:min(gl.config.max_episodes_per_feed, len(feed.entries))]:
             episode = None
 
             try:
@@ -237,15 +236,52 @@ class PodcastChannel(PodcastModelObject):
                         self.count_new -= 1
                         episode = ex
 
-                episode.save(bulk=True)
+                episode.save()
 
         # This *might* cause episodes to be skipped if there were more than
         # max_episodes_per_feed items added to the feed between updates.
         # The benefit is that it prevents old episodes from apearing as new
         # in certain situations (see bug #340).
         db.purge(gl.config.max_episodes_per_feed, self.id)
+
+    def _update_etag_modified(self, feed):
+        self.etag = feed.headers.get('etag', self.etag)
+        self.last_modified = feed.headers.get('last-modified', self.last_modified)
+
+    def update(self):
+        try:
+            self.feed_fetcher.fetch_channel(self)
+        except feedcore.UpdatedFeed, updated:
+            feed = updated.data
+            self._consume_updated_feed(feed)
+            self._update_etag_modified(feed)
+            self.save()
+        except feedcore.NewLocation, updated:
+            feed = updated.data
+            self.url = feed.href
+            self._consume_updated_feed(feed)
+            self._update_etag_modified(feed)
+            self.save()
+        except feedcore.NotModified, updated:
+            feed = updated.data
+            self._update_etag_modified(feed)
+            self.save()
+        except Exception, e:
+            # "Not really" errors
+            #feedcore.AuthenticationRequired
+            # Temporary errors
+            #feedcore.Offline
+            #feedcore.BadRequest
+            #feedcore.InternalServerError
+            #feedcore.WifiLogin
+            # Permanent errors
+            #feedcore.Unsubscribe
+            #feedcore.NotFound
+            #feedcore.InvalidFeed
+            #feedcore.UnknownStatusCode
+            raise
+
         db.commit()
-        return ( True, None )
 
     def update_cover(self, force=False):
         if self.cover_file is None or not os.path.exists(self.cover_file) or force:
@@ -731,10 +767,10 @@ class PodcastEpisode(PodcastModelObject):
         self.is_played = False
         self.is_locked = channel.channel_is_locked
 
-    def save(self, bulk=False):
+    def save(self):
         if self.state != db.STATE_DOWNLOADED and self.file_exists():
             self.state = db.STATE_DOWNLOADED
-        db.save_episode(self, bulk=bulk)
+        db.save_episode(self)
 
     def set_state(self, state):
         self.state = state
@@ -1055,7 +1091,10 @@ def update_channel_model_by_iter( model, iter, channel,
     description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
     model.set(iter, 2, description)
 
-    model.set(iter, 6, channel.parse_error)
+    if channel.parse_error:
+        model.set(iter, 6, str(channel.parse_error))
+    else:
+        model.set(iter, 6, None)
 
     if count_unplayed > 0 or count_downloaded > 0:
         model.set(iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))

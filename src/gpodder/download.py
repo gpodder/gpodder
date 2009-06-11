@@ -163,12 +163,10 @@ class DownloadURLOpener(urllib.FancyURLopener):
     def __init__( self, channel):
         if gl.config.proxy_use_environment:
             proxies = None
+        elif gl.config.http_proxy:
+            proxies = {'http': gl.config.http_proxy}
         else:
             proxies = {}
-            if gl.config.http_proxy:
-                proxies['http'] = gl.config.http_proxy
-            if gl.config.ftp_proxy:
-                proxies['ftp'] = gl.config.ftp_proxy
 
         self.channel = channel
         urllib.FancyURLopener.__init__( self, proxies)
