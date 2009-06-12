@@ -40,6 +40,7 @@ from gpodder import draw
 from gpodder import libtagupdate
 from gpodder import dumbshelve
 from gpodder import resolver
+from gpodder import corestats
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
@@ -245,10 +246,24 @@ class PodcastChannel(PodcastModelObject):
         db.purge(gl.config.max_episodes_per_feed, self.id)
 
     def _update_etag_modified(self, feed):
+        self.updated_timestamp = time.time()
+        self.calculate_publish_behaviour()
         self.etag = feed.headers.get('etag', self.etag)
         self.last_modified = feed.headers.get('last-modified', self.last_modified)
 
     def update(self):
+        if self.updated_timestamp > time.time() - 60*60*24:
+            # If we have updated in the last 24 hours, do some optimizations
+            if self.release_expected > time.time():
+                hours = (self.release_expected-time.time())/(60*60)
+                log('Expecting a release in %.2f hours - skipping %s', hours, self.title, sender=self)
+                return
+
+            # If we have updated in the last 10 minutes, skip the update
+            if self.updated_timestamp > time.time() - 60*10:
+                log('Last update still too recent - skipping %s', self.title, sender=self)
+                return
+
         try:
             self.feed_fetcher.fetch_channel(self)
         except feedcore.UpdatedFeed, updated:
@@ -331,6 +346,29 @@ class PodcastChannel(PodcastModelObject):
         self.count_unplayed = 0
 
         self.channel_is_locked = False
+
+        self.release_expected = time.time()
+        self.release_deviation = 0
+        self.updated_timestamp = 0
+
+    def calculate_publish_behaviour(self):
+        episodes = db.load_episodes(self, factory=self.episode_factory, limit=30)
+        if len(episodes) < 3:
+            return
+
+        deltas = []
+        latest = max(e.pubDate for e in episodes)
+        for index in range(len(episodes)-1):
+            if episodes[index].pubDate != 0 and episodes[index+1].pubDate != 0:
+                deltas.append(episodes[index].pubDate - episodes[index+1].pubDate)
+
+        if len(deltas) > 1:
+            stats = corestats.Stats(deltas)
+            self.release_expected = min([latest+stats.stdev(), latest+(stats.min()+stats.avg())*.5])
+            self.release_deviation = stats.stdev()
+        else:
+            self.release_expected = latest
+            self.release_deviation = 0
 
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:

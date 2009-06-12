@@ -118,7 +118,7 @@ app_authors = [
     'Alain Tauch', 'Alex Ghitza', 'Alistair Sutton', 'Anders Kvist', 'Andrei Dolganov', 'Andrew Bennett', 'Andy Busch',
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 'audioworld', 
     'Bastian Staeck', 'Bernd Schlapsi', 'Bill Barnard', 'Bill Peters', 'Bjørn Rasmussen', 'Camille Moncelier', 'Casey Watson',
-    'Carlos Moffat', 'Chris Arnold', 'Chris Moffitt', 'Clark Burbidge', 'Cory Albrecht', 'daggpod', 'Daniel Ramos',
+    'Carlos Moffat', 'Chris Arnold', 'Chris Moffitt', 'Clark Burbidge', 'Corey Goldberg', 'Cory Albrecht', 'daggpod', 'Daniel Ramos',
     'David Spreen', 'Doug Hellmann', 'Edouard Pellerin', 'Fabio Fiorentini', 'FFranci72', 'Florian Richter', 'Frank Harper',
     'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Gilles Lehoux', 'Götz Waschk',
     'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Iwan van der Kleijn', 'Jens Thiele',
@@ -2156,6 +2156,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
                 except Exception, e:
                     util.idle_add(self.show_message, _('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'))
+                    log('Error: %s', str(e), sender=self, traceback=True)
 
             # By the time we get here the update may have already been cancelled
             if not self.feed_cache_update_cancelled:
