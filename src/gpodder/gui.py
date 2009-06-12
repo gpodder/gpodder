@@ -364,6 +364,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
     ENTER_URL_TEXT = _('Enter podcast URL...')
     APPMENU_ACTIONS = ('itemUpdate', 'itemDownloadAllNew', 'itemPreferences')
     TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
+    _app_menu = (
+            ('btn_update_feeds', maemo.Button(_('Check for new episodes'))),
+            ('btn_show_downloads', maemo.Button(_('Downloads'))),
+            ('btn_subscribe', maemo.Button(_('Add new podcast'))),
+            ('btn_unsubscribe', maemo.Button(_('Unsubscribe'))),
+            #('btn_remove_old', maemo.Button(_('Remove old episodes'))),
+            ('btn_preferences', maemo.Button(_('Preferences'))),
+            ('btn_about', maemo.Button(_('About gPodder'))),
+    )
+
+    def on_btn_update_feeds_clicked(self, widget):
+        self.on_itemUpdate_activate(widget)
+
+    def on_btn_show_downloads_clicked(self, widget):
+        self.downloads_window.show()
+
+    def on_btn_subscribe_clicked(self, widget):
+        # FIXME: add choice between find new podcasts + add via URL
+        self.on_itemAddChannel_activate()
+
+    def on_btn_unsubscribe_clicked(self, widget):
+        self.on_itemRemoveChannel_activate()
+
+    def on_btn_preferences_clicked(self, widget):
+        self.on_itemPreferences_activate()
+
+    def on_btn_about_clicked(self, widget):
+        self.on_itemAbout_activate()
 
     def __init__(self, bus_name):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -371,6 +399,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
+            maemo.create_app_menu(self)
             # Maemo-specific changes to the UI
             gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
             
@@ -438,36 +467,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolQuit.show()
 
             # Add and replace toolbar with our new one
-            toolbar.show()
-            self.gPodder.add_toolbar(toolbar)
-            self.toolbar = toolbar
+            #toolbar.show()
+            #self.gPodder.add_toolbar(toolbar)
+            #self.toolbar = toolbar
          
             self.app.add_window(self.gPodder)
 #            self.vMain.reparent(self.window)
 #            self.gPodder = self.window
             
             # Reparent the main menu
-            menu = gtk.Menu()
-            for child in self.mainMenu.get_children():
-                child.get_parent().remove(child)
-                menu.append(self.set_finger_friendly(child))
-            menu.append(self.set_finger_friendly(self.itemQuit.create_menu_item()))
-
-            if hasattr(hildon, 'AppMenu'):
+#            menu = gtk.Menu()
+#            for child in self.mainMenu.get_children():
+#                child.get_parent().remove(child)
+#                menu.append(self.set_finger_friendly(child))
+#            menu.append(self.set_finger_friendly(self.itemQuit.create_menu_item()))
+#
+#            if hasattr(hildon, 'AppMenu'):
                 # Maemo 5 - use the new AppMenu with Buttons
-                self.appmenu = hildon.AppMenu()
-                for action_name in self.APPMENU_ACTIONS:
-                    action = getattr(self, action_name)
-                    b = gtk.Button('')
-                    action.connect_proxy(b)
-                    self.appmenu.append(b)
-                b = gtk.Button(_('Classic menu'))
-                b.connect('clicked', lambda b: menu.popup(None, None, None, 1, 0))
-                self.appmenu.append(b)
-                self.gPodder.set_app_menu(self.appmenu)
-            else:
+#                self.appmenu = hildon.AppMenu()
+#                for action_name in self.APPMENU_ACTIONS:
+#                    action = getattr(self, action_name)
+#                    b = gtk.Button('')
+#                    action.connect_proxy(b)
+#                    self.appmenu.append(b)
+#                b = gtk.Button(_('Classic menu'))
+#                b.connect('clicked', lambda b: menu.popup(None, None, None, 1, 0))
+#                self.appmenu.append(b)
+#                self.gPodder.set_app_menu(self.appmenu)
+#            else:
                 # Maemo 4 - just "reparent" the menu to the hildon window
-                self.gPodder.set_menu(menu)
+#                self.gPodder.set_menu(menu)
          
             self.mainMenu.destroy()
             self.gPodder.show()
@@ -476,6 +505,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemTransferSelected.set_visible(False)
             self.item_email_subscriptions.set_visible(False)
             self.menuView.set_visible(False)
+
+            self.downloads_window = gPodderStackableDownloads(
+                    downloads_list_vbox=self.vboxDownloadStatusWidgets,
+                    cleanup_callback=self.on_btnCleanUpDownloads_clicked)
+            self.hboxDownloadSettings.hide_all()
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
@@ -793,7 +827,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
                 self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
                 self.message_area.show_all()
-                self.wNotebook.set_current_page(1)
+                #self.wNotebook.set_current_page(1)
+                self.downloads_window.show()
 
             gl.clean_up_downloads(delete_partial=False)
         else:
@@ -813,7 +848,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate)
 
-    def on_btnCleanUpDownloads_clicked(self, button):
+    def on_btnCleanUpDownloads_clicked(self, button=None):
         model = self.treeDownloads.get_model()
 
         all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
@@ -838,7 +873,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
+            self.downloads_window.show()
+            #self.wNotebook.set_current_page(1)
+            toolbutton.set_active(False)
         else:
             self.wNotebook.set_current_page(0)
 
@@ -895,6 +932,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
+
+            if downloading:
+                self.btn_show_downloads.set_value(_('%d active') % downloading)
+            elif failed:
+                self.btn_show_downloads.set_value(_('%d failed') % failed)
+            elif finished:
+                self.btn_show_downloads.set_value(_('%d done') % finished)
+            else:
+                self.btn_show_downloads.set_value(_('idle'))
 
             text = [_('Downloads')]
             if downloading + failed + finished + queued > 0:
@@ -1162,6 +1208,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
             
             selected_tasks = [(gtk.TreeRowReference(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
+            if len(selected_tasks) == 1:
+                row_reference, task = selected_tasks[0]
+                episode = task.episode
+                self.show_episode_shownotes(episode)
+                return True
+            else:
+                return True
 
             def make_menu_item(label, stock_id, tasks, status):
                 # This creates a menu item for selection-wide actions
@@ -2809,7 +2862,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_item_device()
         self.updateComboBox()
 
-    def on_itemPreferences_activate(self, widget, *args):
+    def on_itemPreferences_activate(self, widget=None, *args):
         if gpodder.interface == gpodder.GUI:
             gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
         else:
@@ -2895,7 +2948,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif widget is not None:
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
-    def on_itemAddChannel_activate(self, widget, *args):
+    def on_itemAddChannel_activate(self, widget=None, *args):
         gPodderAddPodcastDialog(url_callback=self.add_new_channel)
 
     def on_itemEditChannel_activate(self, widget, *args):
@@ -2907,9 +2960,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True))
 
-    def on_itemRemoveChannel_activate(self, widget, *args):
+    def on_itemRemoveChannel_activate(self, widget=None, *args):
         try:
-            if gpodder.interface == gpodder.GUI:
+            if gpodder.interface == gpodder.GUI or True:
                 dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
                 dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
                 dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
@@ -3045,7 +3098,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_wishlist_activate(self, widget, *args):
         util.open_website('http://www.amazon.de/gp/registry/2PD2MYGHE6857')
 
-    def on_itemAbout_activate(self, widget, *args):
+    def on_itemAbout_activate(self, widget=None, *args):
         dlg = gtk.AboutDialog()
         dlg.set_name('gPodder')
         dlg.set_version(gpodder.__version__)
@@ -3968,9 +4021,40 @@ class gPodderProperties(BuilderWidget):
         if self.callback_finished:
             self.callback_finished()
 
+class gPodderStackableDownloads(BuilderWidget):
+    _app_menu = (
+            ('btn_pause_all', maemo.Button(_('Pause all'))),
+            ('btn_resume_all', maemo.Button(_('Resume all'))),
+            ('btn_cancel_all', maemo.Button(_('Cancel all'))),
+            ('btn_clean_up', maemo.Button(_('Clean up list'))),
+    )
+
+    def new(self):
+        maemo.create_app_menu(self)
+        self.downloads_list_vbox.reparent(self.main_window)
+        self.downloads_list_vbox.show()
+
+    def show(self):
+        self.main_window.show()
+
+    def on_delete_event(self, widget, event):
+        self.main_window.hide()
+        return True
+
+    def on_btn_pause_all_clicked(self, widget):
+        pass
+    def on_btn_resume_all_clicked(self, widget):
+        pass
+    def on_btn_cancel_all_clicked(self, widget):
+        pass
+
+    def on_btn_clean_up_clicked(self, widget):
+        self.cleanup_callback()
+
+
 class gPodderStackableEpisode(BuilderWidget):
     _app_menu = (
-            ('btn_play', maemo.Button(_('Play as stream'))),
+            ('btn_play', maemo.Button(_('Play'))),
             ('btn_download_delete', maemo.Button(_('Download'))),
             ('btn_mark_as_new', maemo.Button(_('Do not download'))),
             ('btn_visit_website', maemo.Button(_('Open website'))),
@@ -4034,7 +4118,7 @@ class gPodderStackableEpisode(BuilderWidget):
             self.progressbar.show()
             self.is_downloading = True
         else:
-            self.btn_play.set_title(_('Play as stream'))
+            self.btn_play.set_title(_('Stream from server'))
             self.btn_play.set_sensitive(True)
             self.btn_download_delete.set_title(_('Download'))
             self.btn_download_delete.set_value(gl.format_filesize(self.episode.length))

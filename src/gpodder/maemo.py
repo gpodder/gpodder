@@ -36,15 +36,17 @@ class Button(object):
         signal_name = 'on_%s_clicked' % name
 
         if not hasattr(gtkbuilderwidget, signal_name):
-            raise Exception('no method %s on %s' %
-                    (gtkbuilderwidget, signal_name))
+            pass
+#            raise Exception('no method %s on %s' %
+#                    (gtkbuilderwidget, signal_name))
+        else:
+            handler = getattr(gtkbuilderwidget, signal_name)
+            widget.connect('clicked', handler)
 
         if hasattr(gtkbuilderwidget, name):
             raise Exception('%s already has an attribute %s' %
                     (gtkbuilderwidget, name))
 
-        handler = getattr(gtkbuilderwidget, signal_name)
-        widget.connect('clicked', handler)
         setattr(gtkbuilderwidget, name, widget)
 
         return widget

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-naming-policy project-wide -->
+  <object class="HildonStackableWindow" id="gPodderStackableDownloads">
+    <property name="title" translatable="yes">Podcast download status</property>
+    <property name="visible">False</property>
+    <signal name="delete_event" handler="on_delete_event"/>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+</interface>
