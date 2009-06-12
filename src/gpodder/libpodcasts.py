@@ -880,7 +880,7 @@ class PodcastEpisode(PodcastModelObject):
                 url = util.get_real_url(url)
                 (episode_filename, extension_UNUSED) = util.filename_from_url(url)
                 current_try = util.sanitize_filename(episode_filename, cls.MAX_FILENAME_LENGTH)+extension
-                if not db.episode_filename_exists(current_try):
+                if not db.episode_filename_exists(current_try) and current_try:
                     log('Filename %s is available - collision resolved.', current_try)
                     return current_try
                 else:
