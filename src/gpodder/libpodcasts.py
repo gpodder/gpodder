@@ -437,17 +437,8 @@ class PodcastChannel(PodcastModelObject):
         By default, "downloading" is implemented so that it
         reports all episodes as not downloading.
         """
-        def check_is_new(episode):
-            """
-            For a given episode, returns True if it is to
-            be considered new or False if it is "not new".
-            """
-            return episode.state == db.STATE_NORMAL and \
-                    not episode.is_played and \
-                    not downloading(episode)
-
         return [episode for episode in db.load_episodes(self, \
-                factory=self.episode_factory) if check_is_new(episode)]
+                factory=self.episode_factory) if episode.is_new()]
 
     def update_m3u_playlist(self):
         if gl.config.create_m3u_playlists:
@@ -1000,6 +991,15 @@ class PodcastEpisode(PodcastModelObject):
              ext = util.extension_from_mimetype(self.mimetype)
              #log('Getting extension from mimetype for: %s  (mimetype: %s)' % (self.title, ext), sender=self)
          return ext
+
+    def is_new(self, downloading=lambda e: False):
+        """
+        For a given episode, returns True if it is to
+        be considered new or False if it is "not new".
+        """
+        return self.state == db.STATE_NORMAL and \
+                not self.is_played and \
+                not downloading(self)
 
     def mark_new(self):
         self.state = db.STATE_NORMAL

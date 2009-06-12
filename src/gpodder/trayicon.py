@@ -252,7 +252,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         message = message.strip()
         log('Notification: %s', message, sender=self)
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.interface == gpodder.MAEMO and False:
             pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
             hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
         elif gpodder.interface == gpodder.GUI and have_pynotify:

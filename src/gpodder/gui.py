@@ -74,6 +74,7 @@ from gpodder import services
 from gpodder import sync
 from gpodder import download
 from gpodder import uibase
+from gpodder import maemo
 from gpodder import my
 from gpodder import widgets
 from gpodder.liblogger import log
@@ -184,7 +185,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
             self.tray_icon.send_notification(message, title)            
             return
         
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.interface == gpodder.GUI or True:
             dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
             if title:
                 dlg.set_title(str(title))
@@ -237,7 +238,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
         return widget
 
     def show_confirmation( self, message, title = None):
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.interface == gpodder.GUI or True:
             affirmative = gtk.RESPONSE_YES
             dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
             if title:
@@ -375,9 +376,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             
             self.app = hildon.Program()
             gtk.set_application_name('gPodder')
-            self.window = hildon.Window()
-            self.window.connect('delete-event', self.on_gPodder_delete_event)
-            self.window.connect('window-state-event', self.window_state_event)
+#            self.window = hildon.Window()
+#            self.window.connect('delete-event', self.on_gPodder_delete_event)
+#            self.window.connect('window-state-event', self.window_state_event)
     
             self.itemUpdateChannel.set_visible(True)
             
@@ -438,12 +439,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Add and replace toolbar with our new one
             toolbar.show()
-            self.window.add_toolbar(toolbar)
+            self.gPodder.add_toolbar(toolbar)
             self.toolbar = toolbar
          
-            self.app.add_window(self.window)
-            self.vMain.reparent(self.window)
-            self.gPodder = self.window
+            self.app.add_window(self.gPodder)
+#            self.vMain.reparent(self.window)
+#            self.gPodder = self.window
             
             # Reparent the main menu
             menu = gtk.Menu()
@@ -463,13 +464,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 b = gtk.Button(_('Classic menu'))
                 b.connect('clicked', lambda b: menu.popup(None, None, None, 1, 0))
                 self.appmenu.append(b)
-                self.window.set_app_menu(self.appmenu)
+                self.gPodder.set_app_menu(self.appmenu)
             else:
                 # Maemo 4 - just "reparent" the menu to the hildon window
-                self.window.set_menu(menu)
+                self.gPodder.set_menu(menu)
          
             self.mainMenu.destroy()
-            self.window.show()
+            self.gPodder.show()
             
             # do some widget hiding
             self.itemTransferSelected.set_visible(False)
@@ -949,7 +950,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Update the tray icon status
                     self.tray_icon.set_status()
                     self.tray_icon.downloads_finished(self.download_tasks_seen)
-                if gpodder.interface == gpodder.MAEMO:
+                if gpodder.interface == gpodder.MAEMO and False:
                     hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
                 if gl.config.cmd_all_downloads_complete:
@@ -960,7 +961,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.update_episode_list_icons(episode_urls)
             if self.gpodder_episode_window is not None and \
-                    self.gpodder_episode_window.gPodderEpisode.get_property('visible'):
+                    self.gpodder_episode_window.main_window.get_property('visible'):
                 self.gpodder_episode_window.download_status_changed(episode_urls)
                 self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
             self.play_or_download()
@@ -1513,7 +1514,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # Scrolling has been done
                 return True
-
+        
         # Use right-click for the Desktop version and left-click for Maemo
         if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
            (event.button == 3 and gpodder.interface == gpodder.GUI):
@@ -1546,7 +1547,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
 
             first_url = model.get_value( model.get_iter( paths[0]), 0)
-            episode = db.load_episode(first_url)
+            episode = db.load_episode(first_url, factory=self.active_channel.episode_factory)
+            self.show_episode_shownotes(episode)
+            return
 
             menu = gtk.Menu()
 
@@ -1700,7 +1703,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading)
  
     def playback_episode(self, episode, stream=False):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.interface == gpodder.MAEMO and False:
             banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Opening %s') % saxutils.escape(episode.title))
             def destroy_banner_later(banner):
                 banner.destroy()
@@ -1745,7 +1748,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         open_instead_of_play = False
 
         selection = self.treeAvailable.get_selection()
-        if selection.count_selected_rows() > 0:
+        if selection and selection.count_selected_rows() > 0:
             (model, paths) = selection.get_selected_rows()
          
             for path in paths:
@@ -1899,7 +1902,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def updateTreeView(self):
         if self.channels and self.active_channel is not None:
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.interface == gpodder.MAEMO and False:
                 banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
             else:
                 banner = None
@@ -3190,12 +3193,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def download_callback():
             self.download_episode_list([episode])
             self.play_or_download()
-        if self.gpodder_episode_window is None:
-            log('First-time use of episode window --- creating', sender=self)
-            self.gpodder_episode_window = gPodderEpisode(\
-                    download_status_manager=self.download_status_manager, \
-                    episode_is_downloading=self.episode_is_downloading)
-        self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
+        def delete_callback():
+            self.delete_episode_list([episode])
+            self.play_or_download()
+
+        self.gpodder_episode_window = gPodderStackableEpisode(
+                episode=episode,
+                download_status_manager=self.download_status_manager,
+                episode_is_downloading=self.episode_is_downloading,
+                download_callback=download_callback,
+                play_callback=play_callback,
+                delete_callback=delete_callback,
+                update_episode_icon_callback=self.update_selected_episode_list_icons)
+#        if self.gpodder_episode_window is None:
+#            log('First-time use of episode window --- creating', sender=self)
+#            self.gpodder_episode_window = gPodderEpisode(\
+#                    download_status_manager=self.download_status_manager, \
+#                    episode_is_downloading=self.episode_is_downloading)
+#        self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
 
     def on_treeAvailable_button_release_event(self, widget, *args):
         self.play_or_download()
@@ -3323,9 +3338,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         
         if event.keyval == gtk.keysyms.F6:
             if self.fullscreen:
-                self.window.unfullscreen()
+                self.gPodder.unfullscreen()
             else:
-                self.window.fullscreen()
+                self.gPodder.fullscreen()
         if event.keyval == gtk.keysyms.Escape:
             new_visibility = not self.vboxChannelNavigator.get_property('visible')
             self.vboxChannelNavigator.set_property('visible', new_visibility)
@@ -3952,6 +3967,108 @@ class gPodderProperties(BuilderWidget):
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()
+
+class gPodderStackableEpisode(BuilderWidget):
+    _app_menu = (
+            ('btn_play', maemo.Button(_('Play as stream'))),
+            ('btn_download_delete', maemo.Button(_('Download'))),
+            ('btn_mark_as_new', maemo.Button(_('Do not download'))),
+            ('btn_visit_website', maemo.Button(_('Open website'))),
+    )
+
+    def new(self):
+        maemo.create_app_menu(self)
+        self.main_window.set_title(self.episode.title)
+        setattr(self, 'is_downloading', False)
+
+        if not self.episode.link:
+            self.btn_visit_website.set_sensitive(False)
+
+        # Cover, episode title and podcast title
+        cover = services.cover_downloader.get_cover(self.episode.channel)
+        cover = cover.scale_simple(100, 100, gtk.gdk.INTERP_BILINEAR)
+        self.imagePodcast.set_from_pixbuf(cover)
+        self.labelPodcast.set_alignment(0.0, 0.5)
+        self.labelPodcast.set_markup('<b><big>%s</big></b>\nfrom %s' %
+                (saxutils.escape(self.episode.title),
+                 saxutils.escape(self.episode.channel.title)))
+
+        # Shownotes
+        b = gtk.TextBuffer()
+        self.textview.set_buffer(b)
+        b.insert(b.get_end_iter(), util.remove_html_tags(self.episode.description))
+        self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
+
+        self.hide_show_widgets()
+
+    def download_status_changed(self, episode_urls):
+        # Reload the episode from the database, so a newly-set local_filename
+        # as a result of a download gets updated in the episode object
+        self.episode.reload_from_db()
+        self.hide_show_widgets()
+
+    def download_status_progress(self, progress, speed):
+        # We receive this from the main window every time the progress
+        # for our episode has changed (but only when this window is visible)
+        if self.is_downloading:
+            self.progressbar.set_fraction(progress)
+            self.progressbar.set_text(_('Downloading: %d%% (%s/s)') % (100.*progress, gl.format_filesize(speed)))
+            self.btn_download_delete.set_value('%d%%' % (100*self.progressbar.get_fraction(),))
+
+    def hide_show_widgets(self):
+        if self.episode.was_downloaded(and_exists=True):
+            self.btn_play.set_title(_('Play'))
+            self.btn_play.set_sensitive(True)
+            self.btn_download_delete.set_title('Delete')
+            self.btn_download_delete.set_value(gl.format_filesize(self.episode.length))
+            self.btn_mark_as_new.set_title(_('Do not download'))
+            self.btn_mark_as_new.set_sensitive(False)
+            self.progressbar.hide()
+            self.is_downloading = False
+        elif self.episode_is_downloading(self.episode):
+            self.btn_play.set_title(_('Play'))
+            self.btn_play.set_sensitive(False)
+            self.btn_download_delete.set_title('Cancel download')
+            self.btn_mark_as_new.set_title(_('Do not download'))
+            self.btn_mark_as_new.set_sensitive(False)
+            self.progressbar.show()
+            self.is_downloading = True
+        else:
+            self.btn_play.set_title(_('Play as stream'))
+            self.btn_play.set_sensitive(True)
+            self.btn_download_delete.set_title(_('Download'))
+            self.btn_download_delete.set_value(gl.format_filesize(self.episode.length))
+            if self.episode.is_new(self.episode_is_downloading):
+                self.btn_mark_as_new.set_title(_('Do not download'))
+            else:
+                self.btn_mark_as_new.set_title(_('Mark as new'))
+            self.btn_mark_as_new.set_sensitive(True)
+            self.progressbar.hide()
+            self.is_downloading = False
+
+    def on_btn_play_clicked(self, widget):
+        self.play_callback()
+    
+    def on_btn_download_delete_clicked(self, widget):
+        if self.episode_is_downloading(self.episode):
+            self.download_status_manager.cancel_by_url(self.episode.url)
+        elif self.episode.was_downloaded(and_exists=True):
+            self.delete_callback()
+        else:
+            self.download_callback()
+        self.update_episode_icon_callback()
+        self.hide_show_widgets()
+
+    def on_btn_mark_as_new_clicked(self, widget):
+        if self.episode.is_new(self.episode_is_downloading):
+            self.episode.mark_old()
+        else:
+            self.episode.mark_new()
+        self.update_episode_icon_callback()
+        self.hide_show_widgets()
+
+    def on_btn_visit_website_clicked(self, widget):
+        util.open_website(self.episode.link)
 
 
 class gPodderEpisode(BuilderWidget):
