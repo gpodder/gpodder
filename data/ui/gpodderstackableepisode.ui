@@ -4,6 +4,7 @@
   <object class="HildonStackableWindow" id="gPodderStackableEpisode">
     <property name="visible">True</property>
     <property name="title" translatable="yes">Episode details</property>
+    <signal name="delete_event" handler="on_delete_event"/>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>

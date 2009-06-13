@@ -313,7 +313,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
         self.downloads_window = gPodderStackableDownloads(
                 downloads_list_vbox=self.vboxDownloadStatusWidgets,
-                cleanup_callback=self.on_btnCleanUpDownloads_clicked)
+                cleanup_callback=self.on_btnCleanUpDownloads_clicked,
+                set_status_on_all_downloads=self.set_status_on_all_downloads)
         
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -534,12 +535,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if len(resumable_episodes):
                 self.download_episode_list_paused(resumable_episodes)
-                self.message_area = widgets.SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
-                self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
-                self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
-                self.message_area.show_all()
-                #self.wNotebook.set_current_page(1)
                 self.downloads_window.show()
+                dlg = hildon.hildon_note_new_information(self.main_window, _('There are unfinished downloads from your last session. Pick the ones you want to continue downloading.'))
+                dlg.run()
+                dlg.destroy()
 
             gl.clean_up_downloads(delete_partial=False)
         else:
@@ -581,6 +580,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(changed_episode_urls)
 
+    def set_status_on_all_downloads(self, status):
+        model = self.treeDownloads.get_model()
+
+        all_tasks = [row[0] for row in model]
+        changed_episode_urls = []
+        for task in all_tasks:
+            if status == download.DownloadTask.QUEUED:
+                # Only queue task when its paused/failed/cancelled
+                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED):
+                    self.download_queue_manager.add_task(task)
+            elif status == download.DownloadTask.CANCELLED:
+                # Cancelling a download only allows when paused/downloading/queued
+                if task.status in (task.QUEUED, task.DOWNLOADING, task.PAUSED):
+                    task.status = status
+            elif status == download.DownloadTask.PAUSED:
+                # Pausing a download only when queued/downloading
+                if task.status in (task.DOWNLOADING, task.QUEUED):
+                    task.status = status
+            else:
+                # We (hopefully) can simply set the task status here
+                task.status = status
+                changed_episode_urls.append(task.url)
+
+        # Tell the podcasts tab to update icons for our removed podcasts
+        self.update_episode_list_icons(changed_episode_urls)
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
@@ -604,8 +628,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # has been opened in the episode shownotes dialog (if any)
             if self.gpodder_episode_window is not None:
                 episode_window_episode = self.gpodder_episode_window.episode
-                episode_window_progress = 0.0
-                episode_window_speed = 0.0
+                episode_window_task = None
             else:
                 episode_window_episode = None
 
@@ -624,8 +647,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if episode_window_episode is not None and \
                         episode_window_episode.url == task.url:
-                    episode_window_progress = progress
-                    episode_window_speed = speed
+                    episode_window_task = task
 
                 download_tasks_seen.add(task)
 
@@ -644,10 +666,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
 
-            if downloading:
-                self.btn_show_downloads.set_value(_('%d active') % downloading)
+            if downloading + queued:
+                self.btn_show_downloads.set_value(_('%d active') % (downloading + queued))
             elif failed:
                 self.btn_show_downloads.set_value(_('%d failed') % failed)
+            elif others:
+                self.btn_show_downloads.set_value(_('%d waiting') % others)
             elif finished:
                 self.btn_show_downloads.set_value(_('%d done') % finished)
             else:
@@ -702,10 +726,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.set_title(' - '.join(title))
 
             self.update_episode_list_icons(episode_urls)
-            if self.gpodder_episode_window is not None and \
-                    self.gpodder_episode_window.main_window.get_property('visible'):
-                self.gpodder_episode_window.download_status_changed(episode_urls)
-                self.gpodder_episode_window.download_status_progress(episode_window_progress, episode_window_speed)
+            if self.gpodder_episode_window is not None:
+                if episode_window_task and episode_window_task.url in episode_urls:
+                    self.gpodder_episode_window.download_status_changed(episode_window_task)
+                elif episode_window_task != self.gpodder_episode_window.task:
+                    self.gpodder_episode_window.download_status_changed(episode_window_task)
+                self.gpodder_episode_window.download_status_progress()
             if channel_urls:
                 self.updateComboBox(only_these_urls=channel_urls)
             return True
@@ -1666,6 +1692,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.download_episode_list([episode])
         def delete_callback():
             self.delete_episode_list([episode])
+        def close_callback():
+            self.gpodder_episode_window = None
 
         self.gpodder_episode_window = gPodderStackableEpisode(
                 episode=episode,
@@ -1674,6 +1702,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 download_callback=download_callback,
                 play_callback=play_callback,
                 delete_callback=delete_callback,
+                close_callback=close_callback,
                 update_episode_icon_callback=self.update_selected_episode_list_icons)
 
     def auto_update_procedure(self, first_run=False):
@@ -1888,13 +1917,13 @@ class gPodderStackableDownloads(BuilderWidget):
         return True
 
     def on_btn_pause_all_clicked(self, widget):
-        pass
+        self.set_status_on_all_downloads(download.DownloadTask.PAUSED)
 
     def on_btn_resume_all_clicked(self, widget):
-        pass
+        self.set_status_on_all_downloads(download.DownloadTask.QUEUED)
 
     def on_btn_cancel_all_clicked(self, widget):
-        pass
+        self.set_status_on_all_downloads(download.DownloadTask.CANCELLED)
 
     def on_btn_clean_up_clicked(self, widget):
         self.cleanup_callback()
@@ -1905,21 +1934,25 @@ class gPodderStackableEpisode(BuilderWidget):
             ('btn_play', maemo.Button(_('Play'))),
             ('btn_download_delete', maemo.Button(_('Download'))),
             ('btn_mark_as_new', maemo.Button(_('Do not download'))),
+            ('btn_download_resume', maemo.Button(_('Pause download'))),
             ('btn_visit_website', maemo.Button(_('Open website'))),
     )
 
     def new(self):
         maemo.create_app_menu(self)
         self.main_window.set_title(self.episode.title)
-        setattr(self, 'is_downloading', False)
+        setattr(self, 'task', None)
 
         if not self.episode.link:
             self.btn_visit_website.set_sensitive(False)
 
         # Cover, episode title and podcast title
         cover = services.cover_downloader.get_cover(self.episode.channel)
-        cover = cover.scale_simple(100, 100, gtk.gdk.INTERP_BILINEAR)
-        self.imagePodcast.set_from_pixbuf(cover)
+        if cover is not None:
+            cover = cover.scale_simple(100, 100, gtk.gdk.INTERP_BILINEAR)
+            self.imagePodcast.set_from_pixbuf(cover)
+        else:
+            self.imagePodcast.hide()
         self.labelPodcast.set_alignment(0.0, 0.5)
         self.labelPodcast.set_markup('<b><big>%s</big></b>\nfrom %s' %
                 (saxutils.escape(self.episode.title),
@@ -1931,19 +1964,42 @@ class gPodderStackableEpisode(BuilderWidget):
         b.insert(b.get_end_iter(), util.remove_html_tags(self.episode.description))
         self.hide_show_widgets()
 
-    def download_status_changed(self, episode_urls):
-        # Reload the episode from the database, so a newly-set local_filename
-        # as a result of a download gets updated in the episode object
+    def on_delete_event(self, widget, event):
+        self.close_callback()
+        return False
+
+    def download_status_changed(self, task):
+        self.task = task
         self.episode.reload_from_db()
         self.hide_show_widgets()
 
-    def download_status_progress(self, progress, speed):
-        # We receive this from the main window every time the progress
-        # for our episode has changed (but only when this window is visible)
-        if self.is_downloading:
-            self.progressbar.set_fraction(progress)
-            self.progressbar.set_text(_('Downloading: %d%% (%s/s)') % (100.*progress, gl.format_filesize(speed)))
-            self.btn_download_delete.set_value('%d%%' % (100*self.progressbar.get_fraction(),))
+    def download_status_progress(self):
+        if self.task is None:
+            return
+
+        progress = self.task.progress
+        self.progressbar.set_fraction(self.task.progress)
+
+        if self.task.status == download.DownloadTask.QUEUED:
+            long_text = _('Download is waiting in queue (%d%%)') % (100.*self.task.progress,)
+            short_text = ''
+        elif self.task.status == download.DownloadTask.PAUSED:
+            long_text = _('Download has been paused (%d%%)') % (100.*self.task.progress,)
+            short_text = '%d%%' % (100*self.progressbar.get_fraction(),)
+        elif self.task.status == download.DownloadTask.FAILED:
+            long_text = _('Download has failed: %s') % (self.task.error_message,)
+            short_text = _('Failed')
+        elif self.task.status == download.DownloadTask.CANCELLED:
+            long_text = '' # Statusbar not visible
+            short_text = gl.format_filesize(self.episode.length)
+        else:
+            # downloading
+            long_text = _('Downloading: %d%% (%s/s)') % (100.*self.task.progress, gl.format_filesize(self.task.speed),)
+            short_text = '%d%%' % (100*self.progressbar.get_fraction(),)
+
+        self.progressbar.set_text(long_text)
+        if self.task.status != download.DownloadTask.DONE:
+            self.btn_download_delete.set_value(short_text)
 
     def hide_show_widgets(self):
         if self.episode.was_downloaded(and_exists=True):
@@ -1953,16 +2009,21 @@ class gPodderStackableEpisode(BuilderWidget):
             self.btn_download_delete.set_value(gl.format_filesize(self.episode.length))
             self.btn_mark_as_new.set_title(_('Do not download'))
             self.btn_mark_as_new.set_sensitive(False)
+            self.btn_mark_as_new.show()
+            self.btn_download_resume.hide()
             self.progressbar.hide()
-            self.is_downloading = False
         elif self.episode_is_downloading(self.episode):
             self.btn_play.set_title(_('Play'))
             self.btn_play.set_sensitive(False)
             self.btn_download_delete.set_title('Cancel download')
             self.btn_mark_as_new.set_title(_('Do not download'))
-            self.btn_mark_as_new.set_sensitive(False)
+            self.btn_mark_as_new.hide()
+            self.btn_download_resume.show()
+            if self.task and self.task.status == download.DownloadTask.PAUSED:
+                self.btn_download_resume.set_title(_('Resume download'))
+            else:
+                self.btn_download_resume.set_title(_('Pause download'))
             self.progressbar.show()
-            self.is_downloading = True
         else:
             self.btn_play.set_title(_('Stream from server'))
             self.btn_play.set_sensitive(True)
@@ -1973,15 +2034,16 @@ class gPodderStackableEpisode(BuilderWidget):
             else:
                 self.btn_mark_as_new.set_title(_('Mark as new'))
             self.btn_mark_as_new.set_sensitive(True)
+            self.btn_mark_as_new.show()
+            self.btn_download_resume.hide()
             self.progressbar.hide()
-            self.is_downloading = False
 
     def on_btn_play_clicked(self, widget):
         self.play_callback()
     
     def on_btn_download_delete_clicked(self, widget):
-        if self.episode_is_downloading(self.episode):
-            self.download_status_manager.cancel_by_url(self.episode.url)
+        if self.episode_is_downloading(self.episode) and self.task:
+            self.task.status = download.DownloadTask.CANCELLED
         elif self.episode.was_downloaded(and_exists=True):
             self.delete_callback()
         else:
@@ -1990,7 +2052,7 @@ class gPodderStackableEpisode(BuilderWidget):
         self.hide_show_widgets()
 
     def on_btn_mark_as_new_clicked(self, widget):
-        if self.episode.is_new(self.episode_is_downloading):
+        if self.episode.is_new():
             self.episode.mark_old()
         else:
             self.episode.mark_new()
@@ -1999,6 +2061,13 @@ class gPodderStackableEpisode(BuilderWidget):
 
     def on_btn_visit_website_clicked(self, widget):
         util.open_website(self.episode.link)
+
+    def on_btn_download_resume_clicked(self, widget):
+        if self.task and self.task.status == download.DownloadTask.PAUSED:
+            self.download_callback()
+        elif self.task and self.task.status in (download.DownloadTask.DOWNLOADING, download.DownloadTask.QUEUED):
+            self.task.status = download.DownloadTask.PAUSED
+
 
 
 class gPodderOpmlLister(BuilderWidget):
