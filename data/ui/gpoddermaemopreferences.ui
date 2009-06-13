@@ -1,21 +1,10 @@
 <?xml version="1.0"?>
 <!--*- mode: xml -*-->
 <interface>
-  <object class="GtkListStore" id="combo_player_model">
-    <columns>
-      <column type="gchararray"/>
-    </columns>
-    <data/>
-  </object>
-  <object class="GtkListStore" id="combo_videoplayer_model">
-    <columns>
-      <column type="gchararray"/>
-    </columns>
-    <data/>
-  </object>
   <object class="GtkDialog" id="gPodderMaemoPreferences">
     <property context="yes" name="title" translatable="yes">Preferences</property>
     <property name="modal">True</property>
+    <property name="height-request">300</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
         <property name="border_width">2</property>
@@ -24,92 +13,62 @@
           <object class="GtkTable" id="table1">
             <property name="border_width">12</property>
             <property name="column_spacing">6</property>
-            <property name="n_columns">2</property>
+            <property name="n_columns">1</property>
             <property name="n_rows">5</property>
             <property name="row_spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkLabel" id="label_player">
-                <property context="yes" name="label" translatable="yes">Audio player:</property>
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="x_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_videoplayer">
-                <property context="yes" name="label" translatable="yes">Video player:</property>
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="x_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="check_ask_on_quit">
+              <object class="HildonCheckButton" id="check_ask_on_quit">
                 <property name="is_focus">True</property>
                 <property context="yes" name="label" translatable="yes">Ask before closing gPodder</property>
                 <property name="visible">True</property>
               </object>
               <packing>
                 <property name="bottom_attach">4</property>
-                <property name="right_attach">2</property>
+                <property name="right_attach">1</property>
                 <property name="top_attach">3</property>
+                <property name="x_options">fill</property>
+                <property name="y_options">fill expand</property>
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="check_enable_gestures">
+              <object class="HildonCheckButton" id="check_enable_gestures">
                 <property context="yes" name="label" translatable="yes">Enable episode list gestures</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
               </object>
               <packing>
                 <property name="bottom_attach">5</property>
-                <property name="right_attach">2</property>
+                <property name="right_attach">1</property>
                 <property name="top_attach">4</property>
+                <property name="x_options">fill</property>
+                <property name="y_options">fill expand</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="combo_player">
-                <property name="active">0</property>
+              <object class="HildonPickerButton" id="combo_player">
                 <property name="visible">True</property>
-                <property name="model">combo_player_model</property>
-                <signal handler="on_combo_player_changed" name="changed"/>
-                <child>
-                  <object class="GtkCellRendererText" id="renderer1"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
+                <property name="title">Player for audio podcasts</property>
+                <property name="value">Panucci</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <signal handler="on_combo_player_changed" name="value-changed"/>
               </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
+                <property name="left_attach">0</property>
+                <property name="right_attach">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="combo_videoplayer">
-                <property name="active">0</property>
-                <property context="yes" name="tearoff_title" translatable="yes">Nokia Media Player
-MPlayer</property>
+              <object class="HildonPickerButton" id="combo_videoplayer">
                 <property name="visible">True</property>
-                <property name="model">combo_videoplayer_model</property>
-                <signal handler="on_combo_videoplayer_changed" name="changed"/>
-                <child>
-                  <object class="GtkCellRendererText" id="renderer2"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
+                <property name="title">Player for video podcasts</property>
+                <property name="value">MPlayer</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <signal handler="on_combo_videoplayer_changed" name="value-changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">2</property>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
+                <property name="left_attach">0</property>
+                <property name="right_attach">1</property>
                 <property name="top_attach">1</property>
               </packing>
             </child>

@@ -1853,7 +1853,14 @@ class gPodderMaemoPreferences(BuilderWidget):
     
     def new(self):
         gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
-        gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
+        #gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
+        player_selector = hildon.hildon_touch_selector_new_text()
+        self.combo_player.set_selector(player_selector)
+        self.combo_player.set_alignment(0.5, 0.5, 1.0, 0.0)
+
+        videoplayer_selector = hildon.hildon_touch_selector_new_text()
+        self.combo_videoplayer.set_selector(videoplayer_selector)
+        self.combo_videoplayer.set_alignment(0.5, 0.5, 1.0, 0.0)
 
         for item in self.audio_players:
             command, caption = item
@@ -1867,46 +1874,48 @@ class gPodderMaemoPreferences(BuilderWidget):
 
         # Set up the audio player combobox
         found = False
-        self.userconfigured_player = None
+        setattr(self, 'userconfigured_player', None)
         for id, audio_player in enumerate(self.audio_players):
             command, caption = audio_player
-            self.combo_player_model.append([caption])
+            player_selector.append_text(caption)
             if gl.config.player == command:
-                self.combo_player.set_active(id)
+                self.combo_player.set_value(caption)
                 found = True
         if not found:
-            self.combo_player_model.append(['User-configured (%s)' % gl.config.player])
-            self.combo_player.set_active(len(self.combo_player_model)-1)
+            player_selector.append_text('User-configured (%s)' % gl.config.player)
+            self.combo_player.set_value('User-configured (%s)' % gl.config.player)
             self.userconfigured_player = gl.config.player
 
         # Set up the video player combobox
         found = False
-        self.userconfigured_videoplayer = None
+        setattr(self, 'userconfigured_videoplayer', None)
         for id, video_player in enumerate(self.video_players):
             command, caption = video_player
-            self.combo_videoplayer_model.append([caption])
+            videoplayer_selector.append_text(caption)
             if gl.config.videoplayer == command:
-                self.combo_videoplayer.set_active(id)
+                self.combo_videoplayer.set_value(caption)
                 found = True
         if not found:
-            self.combo_videoplayer_model.append(['User-configured (%s)' % gl.config.videoplayer])
-            self.combo_videoplayer.set_active(len(self.combo_videoplayer_model)-1)
+            videoplayer_selector.append_text('User-configured (%s)' % gl.config.videoplayer)
+            self.combo_videoplayer.set_value('User-configured (%s)' % gl.config.videoplayer)
             self.userconfigured_videoplayer = gl.config.videoplayer
 
         self.gPodderMaemoPreferences.show()
 
     def on_combo_player_changed(self, combobox):
-        index = combobox.get_active()
-        if index < len(self.audio_players):
-            gl.config.player = self.audio_players[index][0]
-        elif self.userconfigured_player is not None:
+        for command, caption in self.audio_players:
+            if self.combo_player.get_value() == caption:
+                gl.config.player = command
+                return
+        if self.userconfigured_player is not None:
             gl.config.player = self.userconfigured_player
 
     def on_combo_videoplayer_changed(self, combobox):
-        index = combobox.get_active()
-        if index < len(self.video_players):
-            gl.config.videoplayer = self.video_players[index][0]
-        elif self.userconfigured_videoplayer is not None:
+        for command, caption in self.video_players:
+            if self.combo_videoplayer.get_value() == caption:
+                gl.config.videoplayer = command
+                return
+        if self.userconfigured_videoplayer is not None:
             gl.config.videoplayer = self.userconfigured_videoplayer
 
     def on_btn_advanced_clicked(self, widget):
@@ -1979,8 +1988,6 @@ class gPodderStackableEpisode(BuilderWidget):
         b = gtk.TextBuffer()
         self.textview.set_buffer(b)
         b.insert(b.get_end_iter(), util.remove_html_tags(self.episode.description))
-        self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
-
         self.hide_show_widgets()
 
     def download_status_changed(self, episode_urls):
