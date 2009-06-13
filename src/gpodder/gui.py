@@ -140,14 +140,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
         util.idle_add(self.show_message, message, title)
 
     def show_message( self, message, title = None):
-        # XXX Hildonization
-        dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-        if title:
-            dlg.set_title(str(title))
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
-        else:
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
-        
+        dlg = hildon.hildon_note_new_information(BuilderWidget.gpodder_main_window, message)
         dlg.run()
         dlg.destroy()
 
@@ -191,18 +184,11 @@ class BuilderWidget(uibase.GtkBuilderWidget):
         return widget
 
     def show_confirmation( self, message, title = None):
-        # XXX: Hildonization
-        dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
-        if title:
-            dlg.set_title(str(title))
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
-        else:
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
-
+        dlg = hildon.hildon_note_new_confirmation(BuilderWidget.gpodder_main_window, message)
         response = dlg.run()
         dlg.destroy()
         
-        return response == gtk.RESPONSE_YES
+        return response == gtk.RESPONSE_OK
 
     def UsernamePasswordDialog( self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
         """ An authentication dialog based on
@@ -894,8 +880,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
 
     def set_title(self, new_title):
-        self.default_title = new_title
-        self.gPodder.set_title(new_title)
+        self.default_title = 'gPodder - ' + new_title
+        self.gPodder.set_title(self.default_title)
 
     def update_selected_episode_list_icons(self):
         """
@@ -1015,11 +1001,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def updateTreeView(self):
         if self.channels and self.active_channel is not None:
-            if gpodder.interface == gpodder.MAEMO and False:
-                # XXX: FIX BANNER SHOWING HILDONIZATION
-                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
-            else:
-                banner = None
+            # XXX: FIX BANNER SHOWING HILDONIZATION
+            #banner = hildon.hildon_banner_show_information(self.main_window, 'hildon22-ignored', _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
+            banner = None
             def thread_func(self, banner, active_channel):
                 (model, urls) = self.active_channel.get_tree_model(self.episode_is_downloading)
                 mapping = dict(zip(urls, range(len(urls))))
@@ -1086,16 +1070,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     saxutils.escape( old_channel.title), ), _('Already added'))
                 return
 
-        waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
-        waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        waitdlg.set_title(_('Downloading episode list'))
-        waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
-        waitdlg.format_secondary_text(_('Please wait while I am downloading episode information for %s') % result)
-        waitpb = gtk.ProgressBar()
-        if block:
-            waitdlg.vbox.add(waitpb)
+        waitdlg = hildon.hildon_note_new_information(self.main_window, _('Please wait while I am downloading episode information for %s') % result)
         waitdlg.show_all()
-        waitdlg.set_response_sensitive(gtk.RESPONSE_CANCEL, False)
 
         self.entryAddChannel.set_text(_('Downloading feed...'))
         self.entryAddChannel.set_sensitive(False)
@@ -1107,7 +1083,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         while block and thread.isAlive():
             while gtk.events_pending():
                 gtk.main_iteration( False)
-            waitpb.pulse()
             time.sleep(0.1)
 
 
@@ -1216,7 +1191,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not episodes:
             # Nothing new here - but inform the user
             self.feed_cache_update_cancelled = True
-            self.show_message('no new episodes')
+            self.show_message(_('No new episodes available at the moment.'))
         elif self.minimized:
             # New episodes are available, but we are minimized
             if gl.config.auto_download_when_minimized:
@@ -1284,27 +1259,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         downloading = self.download_status_manager.are_downloads_in_progress()
 
         if gl.config.on_quit_ask or downloading:
-            dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
-
-            title = _('Quit gPodder')
             if downloading:
                 message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
             else:
                 message = _('Do you really want to quit gPodder now?')
 
-            dialog.set_title(title)
-            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            if not downloading:
-                cb_ask = gtk.CheckButton(_("Don't ask me again"))
-                dialog.vbox.pack_start(cb_ask)
-                cb_ask.show_all()
-
-            result = dialog.run()
-            dialog.destroy()
-
-            if result == gtk.RESPONSE_YES:
-                if not downloading and cb_ask.get_active() == True:
-                    gl.config.on_quit_ask = False
+            if self.show_confirmation(message):
                 self.close_gpodder()
         else:
             self.close_gpodder()
@@ -1596,28 +1556,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemRemoveChannel_activate(self, widget=None, *args):
         try:
-            dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
-            dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
-            dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
-
-            title = _('Remove podcast and episodes?')
-            message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
-            
-            dialog.set_title(title)
-            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            
-            cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
-            dialog.vbox.pack_start(cb_ask)
-            cb_ask.show_all()
-            result = dialog.run()
-            dialog.destroy()
-
-            if result == gtk.RESPONSE_YES:
-                # delete downloaded episodes only if checkbox is unchecked
-                if cb_ask.get_active() == False:
-                    self.active_channel.remove_downloaded()
-                else:
-                    log('Not removing downloaded episodes', sender=self)
+            if self.show_confirmation(_('Do you really want to remove "%s" and all downloaded episodes?') % saxutils.escape(self.active_channel.title)):
+                # delete downloaded episodes
+                self.active_channel.remove_downloaded()
 
                 # Clean up downloads and download directories
                 gl.clean_up_downloads()
