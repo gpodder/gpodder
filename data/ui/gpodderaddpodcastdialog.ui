@@ -2,7 +2,7 @@
 <!--*- mode: xml -*-->
 <interface>
   <object class="GtkDialog" id="gPodderAddPodcastDialog">
-    <property name="title" translatable="yes">Add a new podcast</property>
+    <property name="title" translatable="yes">Enter the podcast feed URL</property>
     <property name="default_width">400</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vboxmain">
@@ -10,16 +10,9 @@
           <object class="GtkHButtonBox" id="hbuttonbox">
             <property name="layout_style">GTK_BUTTONBOX_END</property>
             <child>
-              <object class="GtkButton" id="btn_close">
+              <object class="HildonButton" id="btn_add">
                 <property name="visible">True</property>
-                <property name="label">gtk-cancel</property>
-                <property name="use_stock">True</property>
-                <signal handler="on_btn_close_clicked" name="clicked"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_add">
-                <property name="visible">True</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <property name="label">gtk-add</property>
                 <property name="use_stock">True</property>
                 <signal handler="on_btn_add_clicked" name="clicked"/>
@@ -51,7 +44,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_url">
+              <object class="HildonEntry" id="entry_url">
                 <property name="visible">True</property>
                 <property name="has_focus">True</property>
                 <property name="activates_default">True</property>
@@ -64,9 +57,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btn_paste">
+              <object class="HildonButton" id="btn_paste">
                 <property name="label">gtk-paste</property>
                 <property name="use_stock">True</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <property name="visible">True</property>
                 <signal handler="on_btn_paste_clicked" name="clicked"/>
               </object>

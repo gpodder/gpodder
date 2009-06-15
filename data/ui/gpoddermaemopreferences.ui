@@ -4,7 +4,6 @@
   <object class="GtkDialog" id="gPodderMaemoPreferences">
     <property context="yes" name="title" translatable="yes">Preferences</property>
     <property name="modal">True</property>
-    <property name="height-request">300</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
         <property name="border_width">2</property>
@@ -21,7 +20,7 @@
               <object class="HildonCheckButton" id="check_ask_on_quit">
                 <property name="is_focus">True</property>
                 <property context="yes" name="label" translatable="yes">Ask before closing gPodder</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
               </object>
               <packing>
                 <property name="bottom_attach">4</property>
@@ -50,6 +49,7 @@
                 <property name="title">Player for audio podcasts</property>
                 <property name="value">Panucci</property>
                 <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
                 <signal handler="on_combo_player_changed" name="value-changed"/>
               </object>
               <packing>
@@ -63,6 +63,7 @@
                 <property name="title">Player for video podcasts</property>
                 <property name="value">MPlayer</property>
                 <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
                 <signal handler="on_combo_videoplayer_changed" name="value-changed"/>
               </object>
               <packing>
@@ -84,9 +85,10 @@
             <property name="spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkButton" id="btn_advanced">
+              <object class="HildonButton" id="btn_advanced">
                 <property context="yes" name="label" translatable="yes">Advanced...</property>
                 <property name="visible">True</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <signal handler="on_btn_advanced_clicked" name="clicked"/>
               </object>
               <packing>
@@ -95,10 +97,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btn_close">
+              <object class="HildonButton" id="btn_close">
                 <property name="label">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="visible">True</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <signal handler="on_btn_close_clicked" name="clicked"/>
               </object>
               <packing>

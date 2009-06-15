@@ -254,7 +254,7 @@ class BuilderWidget(uibase.GtkBuilderWidget):
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
-    TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
+    TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels')
     _app_menu = (
             ('btn_update_feeds', maemo.Button(_('Check for new episodes'))),
             ('btn_show_downloads', maemo.Button(_('Downloads'))),
@@ -263,6 +263,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             #('btn_remove_old', maemo.Button(_('Remove old episodes'))),
             ('btn_preferences', maemo.Button(_('Preferences'))),
             ('btn_about', maemo.Button(_('About gPodder'))),
+            ('btn_podcast_directory', maemo.Button(_('Podcast directory'))),
     )
 
     def on_btn_update_feeds_clicked(self, widget):
@@ -272,8 +273,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.downloads_window.show()
 
     def on_btn_subscribe_clicked(self, widget):
-        # FIXME: add choice between find new podcasts + add via URL
         gPodderAddPodcastDialog(url_callback=self.add_new_channel)
+
+    def on_btn_podcast_directory_clicked(self, widget):
+        self.on_itemImportChannels_activate(None)
 
     def on_btn_unsubscribe_clicked(self, widget):
         self.on_itemRemoveChannel_activate()
@@ -334,11 +337,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.__version__.rfind('git') != -1:
             self.set_title('gPodder %s' % gpodder.__version__)
         else:
-            title = self.gPodder.get_title()
-            if title is not None:
-                self.set_title(title)
-            else:
-                self.set_title(_('gPodder'))
+            self.set_title(_('Welcome!'))
 
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
@@ -366,6 +365,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.append_column(iconcolumn)
         self.treeChannels.append_column(namecolumn)
         self.treeChannels.set_headers_visible(False)
+        self.treeAvailable.set_headers_visible(False)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -1284,12 +1284,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         downloading = self.download_status_manager.are_downloads_in_progress()
 
-        if gl.config.on_quit_ask or downloading:
-            if downloading:
-                message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
-            else:
-                message = _('Do you really want to quit gPodder now?')
-
+        if downloading:
+            message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
             if self.show_confirmation(message):
                 self.close_gpodder()
         else:
@@ -1449,7 +1445,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 w.run()
                 w.destroy()
         else:
-            gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
+            self.on_itemImportChannels_activate(None)
+            #gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -1484,19 +1481,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def new_episodes_show(self, episodes):
         columns = (
                 ('title_and_description', None, None, _('Episode')),
-                ('channel_prop', None, None, _('Podcast')),
-                ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
-                ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
+        #        ('channel_prop', None, None, _('Podcast')),
+        #        ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
+        #        ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
         )
 
         instructions = _('Select the episodes you want to download now.')
 
-        gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
+        gPodderEpisodeSelector(title=_('New episodes available - pick the ones to download'), instructions=instructions, \
                                episodes=episodes, columns=columns, selected_default=True, \
                                stock_ok_button = 'gpodder-download', \
                                callback=self.download_episode_list, \
                                remove_callback=lambda e: e.mark_old(), \
-                               remove_action=_('Never download'), \
+                               remove_action=_('Remove'), \
                                remove_finished=self.episode_new_status_changed)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
@@ -1770,8 +1767,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 
 class gPodderAddPodcastDialog(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_add']
-
     def new(self):
         if not hasattr(self, 'url_callback'):
             log('No url callback set', sender=self)
@@ -1782,13 +1777,7 @@ class gPodderAddPodcastDialog(BuilderWidget):
             self.gPodderAddPodcastDialog.set_title(self.custom_title)
         if hasattr(self, 'preset_url'):
             self.entry_url.set_text(self.preset_url)
-        if hasattr(self, 'btn_add_stock_id'):
-            self.btn_add.set_label(self.btn_add_stock_id)
-            self.btn_add.set_use_stock(True)
         self.gPodderAddPodcastDialog.show()
-
-    def on_btn_close_clicked(self, widget):
-        self.gPodderAddPodcastDialog.destroy()
 
     def on_btn_paste_clicked(self, widget):
         clipboard = gtk.Clipboard()
@@ -1805,7 +1794,7 @@ class gPodderAddPodcastDialog(BuilderWidget):
 
     def on_btn_add_clicked(self, widget):
         url = self.entry_url.get_text()
-        self.on_btn_close_clicked(widget)
+        self.gPodderAddPodcastDialog.destroy()
         if self.url_callback is not None:
             self.url_callback(url)
         
@@ -1822,8 +1811,11 @@ class gPodderMaemoPreferences(BuilderWidget):
     ]
     
     def new(self):
-        gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
+        #gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
         #gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
+        setattr(self, 'userconfigured_player', None)
+        setattr(self, 'userconfigured_videoplayer', None)
+
         player_selector = hildon.hildon_touch_selector_new_text()
         self.combo_player.set_selector(player_selector)
         self.combo_player.set_alignment(0.5, 0.5, 1.0, 0.0)
@@ -1844,7 +1836,6 @@ class gPodderMaemoPreferences(BuilderWidget):
 
         # Set up the audio player combobox
         found = False
-        setattr(self, 'userconfigured_player', None)
         for id, audio_player in enumerate(self.audio_players):
             command, caption = audio_player
             player_selector.append_text(caption)
@@ -1858,7 +1849,6 @@ class gPodderMaemoPreferences(BuilderWidget):
 
         # Set up the video player combobox
         found = False
-        setattr(self, 'userconfigured_videoplayer', None)
         for id, video_player in enumerate(self.video_players):
             command, caption = video_player
             videoplayer_selector.append_text(caption)
@@ -2094,33 +2084,13 @@ class gPodderOpmlLister(BuilderWidget):
 
         self.current_mode = self.MODE_DOWNLOAD
 
-        self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
-
     def setup_treeview(self, tv):
-        togglecell = gtk.CellRendererToggle()
-        togglecell.set_property( 'activatable', True)
-        togglecell.connect( 'toggled', self.callback_edited)
-        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=0)
-        
         titlecell = gtk.CellRendererText()
         titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=1)
-
-        for itemcolumn in ( togglecolumn, titlecolumn ):
-            tv.append_column(itemcolumn)
-
-    def callback_edited( self, cell, path):
-        model = self.get_treeview().get_model()
-
-        url = model[path][2]
-
-        model[path][0] = not model[path][0]
-        if model[path][0]:
-            self.channels.append( url)
-        else:
-            self.channels.remove( url)
-
-        self.btnOK.set_sensitive( bool(len(self.get_selected_channels())))
+        tv.set_property('hildon-ui-mode', 1)
+        tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        tv.append_column(titlecolumn)
 
     def on_entryURL_changed(self, editable):
         old_mode = self.current_mode
@@ -2142,16 +2112,12 @@ class gPodderOpmlLister(BuilderWidget):
     def get_selected_channels(self, tab=None):
         channels = []
 
-        model = self.get_treeview(tab).get_model()
-        if model is not None:
-            for row in model:
-                if row[0]:
-                    channels.append(row[2])
+        model, paths = self.get_treeview(tab).get_selection().get_selected_rows()
+        for path in paths:
+            url = model.get_value(model.get_iter(path), 2)
+            channels.append(url)
 
         return channels
-
-    def on_change_tab(self, tab):
-        self.btnOK.set_sensitive( bool(len(self.get_selected_channels(tab))))
 
     def thread_finished(self, model, tab=0):
         if tab == 1:
@@ -2160,7 +2126,6 @@ class gPodderOpmlLister(BuilderWidget):
             tv = self.treeviewYouTubeChooser
             self.entryYoutubeSearch.set_sensitive(True)
             self.btnSearchYouTube.set_sensitive(True)
-            self.btnOK.set_sensitive(False)
         else:
             tv = self.treeviewChannelChooser
             self.btnDownloadOpml.set_sensitive(True)
@@ -2198,20 +2163,9 @@ class gPodderOpmlLister(BuilderWidget):
         self.entryURL.set_text( url)
         self.btnDownloadOpml.set_sensitive( False)
         self.entryURL.set_sensitive( False)
-        self.btnOK.set_sensitive( False)
         self.treeviewChannelChooser.set_sensitive( False)
         Thread( target = self.thread_func).start()
         Thread( target = lambda: self.thread_func(1)).start()
-
-    def select_all( self, value ):
-        enabled = False
-        model = self.get_treeview().get_model()
-        if model is not None:
-            for row in model:
-                row[0] = value
-                if value:
-                    enabled = True
-        self.btnOK.set_sensitive(enabled)
 
     def on_gPodderOpmlLister_destroy(self, widget, *args):
         pass
@@ -2226,10 +2180,10 @@ class gPodderOpmlLister(BuilderWidget):
         Thread(target = lambda: self.thread_func(2)).start()
 
     def on_btnSelectAll_clicked(self, widget, *args):
-        self.select_all(True)
+        self.get_treeview().get_selection().select_all()
     
     def on_btnSelectNone_clicked(self, widget, *args):
-        self.select_all(False)
+        self.get_treeview().get_selection().unselect_all()
 
     def on_btnOK_clicked(self, widget, *args):
         self.channels = self.get_selected_channels()
@@ -2242,9 +2196,6 @@ class gPodderOpmlLister(BuilderWidget):
 
         if self.callback_finished:
             util.idle_add(self.callback_finished)
-
-    def on_btnCancel_clicked(self, widget, *args):
-        self.gPodderOpmlLister.destroy()
 
     def on_entryYoutubeSearch_key_press_event(self, widget, event):
         if event.keyval == gtk.keysyms.Return:
@@ -2313,14 +2264,15 @@ class gPodderEpisodeSelector( BuilderWidget):
                         done (in cases where total size is useless)
                         (default is 'length')
     """
-    finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
+    finger_friendly_widgets = [ 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
     
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
-    COLUMN_TOGGLE = 2
-    COLUMN_ADDITIONAL = 3
+#    COLUMN_TOGGLE = 2
+    COLUMN_ADDITIONAL = 2
 
     def new( self):
+        self.treeviewEpisodes.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         gl.config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
         if not hasattr( self, 'callback'):
             self.callback = None
@@ -2357,24 +2309,19 @@ class gPodderEpisodeSelector( BuilderWidget):
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
-            self.labelHeading.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.title))
-
-        if hasattr( self, 'instructions'):
-            self.labelInstructions.set_text( self.instructions)
-            self.labelInstructions.show_all()
 
         if hasattr(self, 'stock_ok_button'):
             if self.stock_ok_button == 'gpodder-download':
-                self.btnOK.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
-                self.btnOK.set_label(_('Download'))
+                #self.btnOK.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
+                self.btnOK.set_title(_('Download'))
             else:
-                self.btnOK.set_label(self.stock_ok_button)
+                self.btnOK.set_title(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
         # check/uncheck column
-        toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.connect( 'toggled', self.toggle_cell_handler)
-        self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
+#        toggle_cell = gtk.CellRendererToggle()
+#        toggle_cell.connect( 'toggled', self.toggle_cell_handler)
+#        self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
         
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
@@ -2400,7 +2347,7 @@ class gPodderEpisodeSelector( BuilderWidget):
                 self.treeviewEpisodes.append_column( column)
                 next_column += 1
 
-        column_types = [ gobject.TYPE_INT, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN ]
+        column_types = [ gobject.TYPE_INT, gobject.TYPE_STRING ]
         # add string column type plus sort column type if it exists
         for name, sort_name, sort_type, caption in self.columns:
             column_types.append(gobject.TYPE_STRING)
@@ -2409,7 +2356,7 @@ class gPodderEpisodeSelector( BuilderWidget):
         self.model = gtk.ListStore( *column_types)
 
         for index, episode in enumerate( self.episodes):
-            row = [ index, None, self.selected[index] ]
+            row = [ index, None ]
             for name, sort_name, sort_type, caption in self.columns:
                 if not hasattr(episode, name):
                     log('Warning: Missing attribute "%s"', name, sender=self)
@@ -2433,7 +2380,6 @@ class gPodderEpisodeSelector( BuilderWidget):
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
-        self.calculate_total_size()
 
     def treeview_episodes_button_pressed(self, treeview, event):
         if event.button == 3:
@@ -2469,16 +2415,6 @@ class gPodderEpisodeSelector( BuilderWidget):
                 except:
                     log( 'Cannot get size for %s', episode.title, sender = self)
 
-            text = []
-            if count == 0: 
-                text.append(_('Nothing selected'))
-            elif count == 1:
-                text.append(_('One episode selected'))
-            else:
-                text.append(_('%d episodes selected') % count)
-            if total_size > 0: 
-                text.append(_('total size: %s') % gl.format_filesize(total_size))
-            self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)
             self.btnRemoveAction.set_sensitive(count>0)
             if count > 0:
@@ -2493,13 +2429,6 @@ class gPodderEpisodeSelector( BuilderWidget):
                     self.btnOK.set_sensitive(True)
                     self.btnRemoveAction.set_sensitive(True)
                     break
-            self.labelTotalSize.set_text('')
-
-    def toggle_cell_handler( self, cell, path):
-        model = self.treeviewEpisodes.get_model()
-        model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
-
-        self.calculate_total_size()
 
     def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
@@ -2508,19 +2437,11 @@ class gPodderEpisodeSelector( BuilderWidget):
             new_value = callback( self.episodes[index])
             self.model.set_value( row.iter, self.COLUMN_TOGGLE, new_value)
 
-        self.calculate_total_size()
-
     def on_btnCheckAll_clicked( self, widget):
-        for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, True)
-
-        self.calculate_total_size()
+        self.treeviewEpisodes.get_selection().select_all()
 
     def on_btnCheckNone_clicked( self, widget):
-        for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, False)
-
-        self.calculate_total_size()
+        self.treeviewEpisodes.get_selection().unselect_all()
 
     def on_remove_action_activate(self, widget):
         episodes = self.get_selected_episodes(remove_episodes=True)
@@ -2532,14 +2453,15 @@ class gPodderEpisodeSelector( BuilderWidget):
 
         if self.remove_finished is not None:
             self.remove_finished(urls)
-        self.calculate_total_size()
 
     def get_selected_episodes( self, remove_episodes=False):
         selected_episodes = []
 
-        for index, row in enumerate( self.model):
-            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
-                selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
+        model, paths = self.treeviewEpisodes.get_selection().get_selected_rows()
+
+        for path in paths:
+            index = model.get_value(model.get_iter(path), self.COLUMN_INDEX)
+            selected_episodes.append(self.episodes[index])
 
         if remove_episodes:
             for episode in selected_episodes:
@@ -2554,9 +2476,10 @@ class gPodderEpisodeSelector( BuilderWidget):
         return selected_episodes
 
     def on_btnOK_clicked( self, widget):
+        selected_episodes = self.get_selected_episodes()
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
-            self.callback( self.get_selected_episodes())
+            self.callback(selected_episodes)
 
     def on_btnCancel_clicked( self, widget):
         self.gPodderEpisodeSelector.destroy()
@@ -2646,15 +2569,7 @@ class gPodderConfigEditor(BuilderWidget):
 
 
 class gPodderWelcome(BuilderWidget):
-    finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
-
     def new(self):
-        for widget in (self.btnOPML, self.btnMygPodder):
-            for child in widget.get_children():
-                if isinstance(child, gtk.Alignment):
-                    child.set_padding(20, 20, 20, 20)
-                else:
-                    child.set_padding(20, 20)
         self.gPodderWelcome.show()
 
     def on_show_example_podcasts(self, button):

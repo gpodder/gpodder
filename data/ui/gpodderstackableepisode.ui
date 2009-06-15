@@ -41,7 +41,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow">
+          <object class="HildonPannableArea" id="scrolledwindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hscrollbar_policy">automatic</property>
@@ -49,10 +49,8 @@
             <child>
               <object class="HildonTextView" id="textview">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
                 <property name="editable">False</property>
                 <property name="wrap_mode">word</property>
-                <property name="accepts_tab">False</property>
               </object>
             </child>
           </object>
