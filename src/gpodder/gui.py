@@ -1430,7 +1430,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gl.config.bluetooth_use_converter:
             title = _('Converting file')
-            message = _('Please wait while gPodder converts your media file for bluetooth file transfer.')
+            message = _('Please wait your media file is being converted for bluetooth file transfer.')
             dlg = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
             dlg.set_title(title)
             dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
@@ -1974,7 +1974,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         waitdlg.set_title(_('Downloading episode list'))
         waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
-        waitdlg.format_secondary_text(_('Please wait while I am downloading episode information for %s') % result)
+        waitdlg.format_secondary_text(_('Downloading episode information for %s') % result)
         waitpb = gtk.ProgressBar()
         if block:
             waitdlg.vbox.add(waitpb)
@@ -4848,7 +4848,7 @@ class gPodderPlaylist(BuilderWidget):
 
         # read device and playlist and fill the TreeView
         title = _('Reading files from %s') % gl.config.mp3_player_folder
-        message = _('Please wait while gPodder reads your media file list from device.')
+        message = _('Please wait your media file list is being read from device.')
         dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
         dlg.set_title(title)
         dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
