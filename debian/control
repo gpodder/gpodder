@@ -1,0 +1,51 @@
+Source: gpodder
+Maintainer: Thomas Perl <thp@gpodder.org>
+Section: user/multimedia
+Priority: optional
+Standards-Version: 3.7.3
+Build-Depends: debhelper (>= 5.0.37.2), python-dev, intltool, python-feedparser
+Homepage: http://gpodder.org/
+
+Package: gpodder
+Architecture: all
+Depends: python (>= 2.5), python-gtk2, python-hildon, python-feedparser, python-dbus
+Description: A usable podcast aggregator for Internet Tablets
+ gPodder is a podcast receiver/catcher with a specialized UI that
+ has been optimized for Nokia Internet Tablets. Podcasts are like
+ short radio shows that you can download from the Internet and
+ subscribe to like blogs or news feeds.
+ .
+ gPodder supports both audio and video podcasts equally, and is
+ said to be one of the most usable podcast clients available.
+ .
+ A version for Linux Desktops exists. This is the Maemo version.
+XB-Maemo-Display-Name: gPodder Podcast Client
+XB-Maemo-Upgrade-Description: Preview release with new Maemo 5 UI (2009-06-14)
+XB-Maemo-Icon-26: iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAMAAACelLz8AAADAFBMVEUDAwMEBAQDAwMDAwMDAwMC
+ AgICAgICAgIBAQEBAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB
+ AQACBQAJEgAWKwAhQgAoTwAuXAAzZAE1aAE2awI3bQI4bQI4bQM4bAM4awQ4awU4awY4aAc2Ywk1
+ Xgw0WQ8zUhQyTBkyRR8yPyYyOyoyNy0yNC8zMzM1NTU2NjY3Nzc4ODg5OTk6Ojo6Ojo7Ozs8PDw9
+ PT0+Pj4/Pz9AQEBBQUFCQkJDQ0NFRUVHR0dISEhJSUlKSkpMTExNTU1OTk5QUFBRUVFTU1NYWFhc
+ XVxhYWBoaGdtbmxyc3F1d3R4eXZ6fHh+f3uAgnyDhX+Fh4GHiIKIiYOJioSJi4SJioSIioOHiIOF
+ hoGChH+Agn5/gX1+f3x8fXp6e3l4eXZ1dnNydHBxc29vcm1vcmxrb2dnbGJla15ja1tia1hhbFZe
+ aVNcaE9ZZkxYZUpWZUdSZEFMXjpJXTZKYTNObS9OdSZNeiBNfxpNgxZOhhVPiBZRixdUjxpZkiBc
+ lSRimyllnixpoy9spzJvqzV1szh7vDx/wz6DyD+EzT6Gzz6H0j6J1T+L10CM2UKq23uo0YGmyIaj
+ v4qit46hsZOgrZagq5mhqpqhqpyjrJ2krqClrqGlraOlraWlraemrqqmrq+nr7KosbWqtLmrtrit
+ t7muubuvurywu7yzvL21vr63v8G5wcO8w8W+xMXBxsbDx8jGysvKzM7Mz9DP0dLS09TV1dbY2NjZ
+ 2dna2trb29vb29vc3Nzc3d7d3t/d3+He4OLf4ePh4uTi4+Xj5OXk5eXm5ubm5ubo6Ojp6enq6urq
+ 6urr6+vr6+vs7Ozs7Ozs7Ozs7Ozt7e3t7e3v7+/x8fH29vb29vb29vb19fX19fX09PT09PT09PTz
+ 8/Py8vLy8vLw8PCs43ar5XKq526o52um5mel5mWj5mKi5mCh5l6g5luf5Vqe5Vic5Faa41OY4lCW
+ 4U2U4EmQ3UWO2kO/mgYKAAAA4XRSTlMxMi8rJB0WDwoGAgIBAQEBAAAAAAAAAAABAgUNFBgeIiYl
+ KiwtLzE0ODxBR09ZYWlxdHd5dm9qZWFdWVVRTUlFQDo1LywrLS8xNDY5PEBESE1RVVxhZmdnaWRg
+ V0xFPUZJUFlibnmGjJKao66+ztjh7O/09fX19fX09PTz8O7s6OLX0MrHyc7Q1tfb3+Tm6e3x9vr8
+ /f39/v7+/Pj18e/t6+vq5ePg4OHj4uHi5Ofs8fT29/f4+Pn5+fj4+Pj4+Pj4+Pj5+fn5+vr7+/v8
+ /Pz9/Pz9/f39/v7+/v7+/v7+/v5dXlGUAAABpUlEQVQoz2MQxAkYaCalpAhlxKWkx8XFIUlpdLQG
+ 5oSAZBLj4lKSs+OgUvzBwa3/ugoOrsgVhGgQXJwBlcpZuaLs+4RFt+8vsADKAGXjli+GSLkW3L63
+ cOKkhQ9evqzjEExZt27p4gUpECnnggev7tf8L3j08OE+Y8HFG1avXL8Fqku64MnDhwUTqx4+3HLS
+ WHDl6jMHti9aHAeWYi14+Gjfzp660w+rCuri1m04vHfjIqgujrqHe6o29EytfVhbV5d0YNGa9T19
+ HYoQFxof2F9X0POvZ8HeHcaL798/uXXC20kaECm2kpfFBf0zftTX1TMufnLvwone35OhUoLGBVvq
+ fvz/97NDSXHhyxvnj+7rb1eEBRSjccuMPzN+/ent2/7g2tkjBxaDw1CxtaO9tbW14+/fGTN+//y5
+ 4f7l04f2ZUGker9++/Hz948fM4Dg9/vZ8+Yv27AoHiylMeHLj5/fPn/+/uPrp/fv3r59+64nNU4Q
+ auCE32AhMHj3fXKHBjwqpbVb2iCgvaOjpUWXkYWNGx7LnOxsrMwMYMDMysbBTaMUBQBIwuXsDRwz
+ uwAAAABJRU5ErkJggg==
+
