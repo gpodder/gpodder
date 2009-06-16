@@ -100,7 +100,7 @@ class gPodderFetcher(feedcore.Fetcher):
             username = urllib.quote(channel.username)
             password = urllib.quote(channel.password)
             auth_string = ':'.join((username, password))
-            url_parts = list(urlparse.urlsplit(url))
+            url_parts = list(urlparse.urlsplit(channel.url))
             url_parts[1] = '@'.join((auth_string, url_parts[1]))
             url = urlparse.urlunsplit(url_parts)
         else:
