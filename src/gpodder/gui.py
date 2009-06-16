@@ -1967,7 +1967,7 @@ class gPodderStackableEpisode(BuilderWidget):
         self.progressbar.set_fraction(self.task.progress)
 
         if self.task.status == download.DownloadTask.QUEUED:
-            long_text = _('Episode is queued for download'))
+            long_text = _('Episode is queued for download')
             short_text = ''
         elif self.task.status == download.DownloadTask.PAUSED:
             progress = int(100.*self.task.progress)
