@@ -1096,7 +1096,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     saxutils.escape( old_channel.title), ), _('Already added'))
                 return
 
-        waitdlg = hildon.hildon_note_new_information(self.main_window, _('Please wait while I am downloading episode information for %s') % result)
+        waitdlg = hildon.hildon_note_new_information(self.main_window, _('Downloading episode information for %s') % result)
         waitdlg.show_all()
 
         self.entryAddChannel.set_text(_('Downloading feed...'))

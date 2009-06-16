@@ -74,7 +74,7 @@ test:
 	$(BINFILE) --verbose
 
 unittest:
-	PYTHONPATH=src/ python -m gpodder.unittests
+	PYTHONPATH=src/ python2.5 -m gpodder.unittests
 
 mtest:
 	@# in maemo scratchbox, we need this for osso/hildon
@@ -84,13 +84,13 @@ deb:
 	debuild
 
 release: distclean
-	python setup.py sdist
+	python2.5 setup.py sdist
 
 releasetest: unittest
 	desktop-file-validate data/gpodder.desktop
 
 install: generators
-	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+	python2.5 setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 update-icons:
 	gtk-update-icon-cache -f -i $(PREFIX)/share/icons/hicolor/
@@ -142,7 +142,7 @@ remove-git-menuitem:
 ##########################################################################
 
 clean:
-	python setup.py clean
+	python2.5 setup.py clean
 	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
 	rm -rf build
 	make -C data/po clean
