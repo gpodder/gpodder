@@ -1445,8 +1445,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 w.run()
                 w.destroy()
         else:
-            self.on_itemImportChannels_activate(None)
-            #gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
+            gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
