@@ -833,6 +833,11 @@ class PodcastEpisode(PodcastModelObject):
         else:
             return saxutils.escape(self.title)
 
+    @property
+    def new_episode_markup(self):
+        """Markup for "new episodes available"."""
+        return '%s\n<small>%s; from %s</small>' % (saxutils.escape(self.title), saxutils.escape(self.pubdate_prop), saxutils.escape(self.channel.title),)
+
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False))
 

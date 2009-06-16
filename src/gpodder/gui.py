@@ -1285,7 +1285,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         downloading = self.download_status_manager.are_downloads_in_progress()
 
         if downloading:
-            message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
+            message = _('Podcasts are currently downloading. If you quit now, they will be paused and can be resumed the next time you start gPodder. Quit anyway?')
             if self.show_confirmation(message):
                 self.close_gpodder()
         else:
@@ -1480,7 +1480,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def new_episodes_show(self, episodes):
         columns = (
-                ('title_and_description', None, None, _('Episode')),
+                ('new_episode_markup', None, None, _('Episode')),
         #        ('channel_prop', None, None, _('Podcast')),
         #        ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
         #        ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
@@ -1488,12 +1488,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         instructions = _('Select the episodes you want to download now.')
 
-        gPodderEpisodeSelector(title=_('New episodes available - pick the ones to download'), instructions=instructions, \
+        gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
                                episodes=episodes, columns=columns, selected_default=True, \
-                               stock_ok_button = 'gpodder-download', \
+                               stock_ok_button=_('Download selected'), \
                                callback=self.download_episode_list, \
                                remove_callback=lambda e: e.mark_old(), \
-                               remove_action=_('Remove'), \
+                               remove_action=_('Skip selected'), \
                                remove_finished=self.episode_new_status_changed)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
@@ -1800,7 +1800,6 @@ class gPodderAddPodcastDialog(BuilderWidget):
         
 
 class gPodderMaemoPreferences(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_advanced']
     audio_players = [
             ('default', 'Media Player'),
             ('panucci', 'Panucci'),
@@ -1881,9 +1880,6 @@ class gPodderMaemoPreferences(BuilderWidget):
     def on_btn_advanced_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
         gPodderConfigEditor()
-
-    def on_btn_close_clicked(self, widget):
-        self.gPodderMaemoPreferences.destroy()
 
 
 class gPodderStackableDownloads(BuilderWidget):
@@ -1971,13 +1967,17 @@ class gPodderStackableEpisode(BuilderWidget):
         self.progressbar.set_fraction(self.task.progress)
 
         if self.task.status == download.DownloadTask.QUEUED:
-            long_text = _('Download is waiting in queue (%d%%)') % (100.*self.task.progress,)
+            long_text = _('Episode is queued for download'))
             short_text = ''
         elif self.task.status == download.DownloadTask.PAUSED:
-            long_text = _('Download has been paused (%d%%)') % (100.*self.task.progress,)
+            progress = int(100.*self.task.progress)
+            if progress:
+                long_text = _('Download is paused at %d%%') % progress
+            else:
+                long_text = _('Download is paused')
             short_text = '%d%%' % (100*self.progressbar.get_fraction(),)
         elif self.task.status == download.DownloadTask.FAILED:
-            long_text = _('Download has failed: %s') % (self.task.error_message,)
+            long_text = _('Could not download: %s') % (self.task.error_message,)
             short_text = _('Failed')
         elif self.task.status == download.DownloadTask.CANCELLED:
             long_text = '' # Statusbar not visible
@@ -2264,14 +2264,20 @@ class gPodderEpisodeSelector( BuilderWidget):
                         done (in cases where total size is useless)
                         (default is 'length')
     """
-    finger_friendly_widgets = [ 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
-    
+    _app_menu = (
+            ('btnCheckAll', maemo.Button(_('Select all'))),
+            ('btnCheckNone', maemo.Button(_('Select none'))),
+            ('btnRemoveAction', maemo.Button(_('Remove'))),
+            ('btnOK', maemo.Button('OK')),
+    )
+
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
 #    COLUMN_TOGGLE = 2
     COLUMN_ADDITIONAL = 2
 
     def new( self):
+        maemo.create_app_menu(self)
         self.treeviewEpisodes.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         gl.config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
         if not hasattr( self, 'callback'):
@@ -2443,7 +2449,7 @@ class gPodderEpisodeSelector( BuilderWidget):
     def on_btnCheckNone_clicked( self, widget):
         self.treeviewEpisodes.get_selection().unselect_all()
 
-    def on_remove_action_activate(self, widget):
+    def on_btnRemoveAction_clicked(self, widget):
         episodes = self.get_selected_episodes(remove_episodes=True)
 
         urls = []
