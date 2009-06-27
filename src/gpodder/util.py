@@ -32,9 +32,6 @@ are not tied to any specific part of gPodder.
 import gpodder
 from gpodder.liblogger import log
 
-import gtk
-import gobject
-
 import os
 import os.path
 import platform
@@ -82,15 +79,6 @@ else:
     log('Using ISO-8859-15 as encoding. If this')
     log('is incorrect, please set your $LANG variable.')
 
-
-if gpodder.interface == gpodder.GUI:
-    ICON_UNPLAYED = gtk.STOCK_YES
-    ICON_LOCKED = 'emblem-nowrite'
-    ICON_MISSING = gtk.STOCK_STOP
-elif gpodder.interface == gpodder.MAEMO:
-    ICON_UNPLAYED = 'qgn_list_gene_favor'
-    ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
-    ICON_MISSING = gtk.STOCK_STOP # FIXME!
 
 def make_directory( path):
     """
@@ -605,7 +593,15 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, add_missing=Fa
     the cache is supplied again and the icon is found in 
     the cache.
     """
-    global ICON_UNPLAYED, ICON_LOCKED, ICON_MISSING
+    import gtk
+    if gpodder.interface == gpodder.GUI:
+        ICON_UNPLAYED = gtk.STOCK_YES
+        ICON_LOCKED = 'emblem-nowrite'
+        ICON_MISSING = gtk.STOCK_STOP
+    elif gpodder.interface == gpodder.MAEMO:
+        ICON_UNPLAYED = 'qgn_list_gene_favor'
+        ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
+        ICON_MISSING = gtk.STOCK_STOP # FIXME!
 
     if icon_cache is not None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
         return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
@@ -843,6 +839,7 @@ def idle_add(func, *args):
     threads to be able to modify GTK+ widget data.
     """
     if gpodder.interface in (gpodder.GUI, gpodder.MAEMO):
+        import gobject
         def x(f, *a):
             f(*a)
             return False
@@ -1219,6 +1216,7 @@ def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None
     the image in the "cache", which is a dict-object
     that holds already-resized pixbufs to access.
     """
+    import gtk
     changed = False
 
     if cache is not None:
