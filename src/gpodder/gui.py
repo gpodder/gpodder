@@ -30,6 +30,7 @@ import time
 import urllib
 import urllib2
 import datetime
+import fnmatch
 
 from xml.sax import saxutils
 
@@ -4902,10 +4903,11 @@ class gPodderPlaylist(BuilderWidget):
             for file in files:
                 filename = os.path.join(root, file)
 
-                if filename == self.playlist_file:
+                if filename == self.playlist_file or fnmatch.fnmatch(filename, '*.dat') or fnmatch.fnmatch(filename, '*.DAT'):
                     # We don't want to have our playlist file as
                     # an entry in our file list, so skip it!
-                    break
+                    # We also don't want to include dat files
+                    continue
 
                 if gl.config.mp3_player_playlist_absolute_path:
                     filename = filename[len(self.mountpoint):]
