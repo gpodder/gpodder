@@ -167,15 +167,15 @@ def sync_stats():
             if episode.was_downloaded(and_exists=True):
                 episode.calculate_filesize()
                 size += episode.length
-    msg('info', _('Free space on device %s: %s') % (gl.get_device_name(), gl.format_filesize(device.get_free_space())))
-    msg('info', _('Size of episodes to sync: %s') % gl.format_filesize(size))
+    msg('info', _('Free space on device %s: %s') % (gl.get_device_name(), util.format_filesize(device.get_free_space())))
+    msg('info', _('Size of episodes to sync: %s') % util.format_filesize(size))
 
     difference = device.get_free_space() - size
     if difference < 0:
-        msg('error', _('Need to free at least %s more') % gl.format_filesize(abs(difference)))
+        msg('error', _('Need to free at least %s more') % util.format_filesize(abs(difference)))
         return False
     else:
-        msg('info', _('Free space after sync: %s') % gl.format_filesize(abs(difference)))
+        msg('info', _('Free space after sync: %s') % util.format_filesize(abs(difference)))
 
     if not device.close():
         msg('error', _('Cannot close device.'))

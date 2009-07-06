@@ -283,9 +283,6 @@ class gPodderLib(object):
             log( 'Warning: Called get_device_name() when no device was selected.', sender = self)
             return '(unknown device)'
 
-    def format_filesize(self, bytesize, digits=2):
-        return util.format_filesize(bytesize, self.config.use_si_units, digits)
-
     def find_partial_files(self):
         return glob.glob(os.path.join(self.downloaddir, '*', '*.partial'))
 

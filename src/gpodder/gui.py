@@ -935,7 +935,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     percentage = 100.0*done_size/total_size
                 else:
                     percentage = 0.0
-                total_speed = gl.format_filesize(total_speed)
+                total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
                 if self.tray_icon is not None:
                     # Update the tray icon status and progress bar
@@ -1069,7 +1069,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         return False
                     self.last_tooltip_channel = channel
                     channel.request_save_dir_size()
-                    diskspace_str = gl.format_filesize(channel.save_dir_size, 0)
+                    diskspace_str = util.format_filesize(channel.save_dir_size, 0)
                     error_str = model.get_value(iter, 6)
                     if error_str:
                         error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
@@ -3858,7 +3858,7 @@ class gPodderProperties(BuilderWidget):
         if gl.downloaddir != self.chooserDownloadTo.get_filename():
             new_download_dir = self.chooserDownloadTo.get_filename()
             download_dir_size = util.calculate_size( gl.downloaddir)
-            download_dir_size_string = gl.format_filesize( download_dir_size)
+            download_dir_size_string = util.format_filesize( download_dir_size)
             event = Event()
 
             dlg = gtk.Dialog( _('Moving downloads folder'), self.gPodderProperties)
@@ -3897,7 +3897,7 @@ class gPodderProperties(BuilderWidget):
                 else:
                     fract = 0.0
                 if fract < 0.99:
-                    myprogressbar.set_text( _('%s of %s') % ( gl.format_filesize( new_download_dir_size), download_dir_size_string, ))
+                    myprogressbar.set_text( _('%s of %s') % ( util.format_filesize( new_download_dir_size), download_dir_size_string, ))
                 else:
                     myprogressbar.set_text( _('Finishing... please wait.'))
                 myprogressbar.set_fraction(max(0.0,min(1.0,fract)))
@@ -4059,7 +4059,7 @@ class gPodderEpisode(BuilderWidget):
         # We receive this from the main window every time the progress
         # for our episode has changed (but only when this window is visible)
         self.download_progress.set_fraction(progress)
-        self.download_progress.set_text('Downloading: %d%% (%s/s)' % (100.*progress, gl.format_filesize(speed)))
+        self.download_progress.set_text('Downloading: %d%% (%s/s)' % (100.*progress, util.format_filesize(speed)))
 
     def hide_show_widgets(self):
         is_downloading = self.episode_is_downloading(self.episode)
@@ -4604,7 +4604,7 @@ class gPodderEpisodeSelector( BuilderWidget):
             else:
                 text.append(_('%d episodes selected') % count)
             if total_size > 0: 
-                text.append(_('total size: %s') % gl.format_filesize(total_size))
+                text.append(_('total size: %s') % util.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)
             self.btnRemoveAction.set_sensitive(count>0)

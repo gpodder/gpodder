@@ -121,9 +121,6 @@ gPodderSettings = {
     'disable_pre_sync_conversion': (bool, False,
       _("Disable pre-synchronization conversion of OGG files. This should be "
         "enabled for deviced that natively support OGG. Eg. Rockbox, iAudio")),
-    'get_length_from_http_header_if_empty': (bool, False,
-      _("If the reported file length in the RSS feed is invalid, try getting "
-        "from the server instead.")),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False,
@@ -159,8 +156,6 @@ gPodderSettings = {
       _("Whether or not the player requires Windows-style paths in the playlist.")),
 
     # Special settings (not in preferences)
-    'use_si_units': ( bool, False,
-      _("Use SI units (KB instead of KiB) in the episodes list.")),
     'on_quit_systray': (bool, False,
       _("When the 'X' button is clicked do not quit, send gPodder to the tray.")),
     'create_m3u_playlists': (bool, False,

@@ -141,7 +141,7 @@ class SyncTrack(object):
     def __init__(self, title, length, modified, **kwargs):
         self.title = title
         self.length = length
-        self.filesize = util.format_filesize(length, gl.config.use_si_units)
+        self.filesize = util.format_filesize(length)
         self.modified = modified
 
         # Set some (possible) keyword arguments to default values

@@ -545,7 +545,7 @@ class PodcastChannel(PodcastModelObject):
             description = item.title_and_description
 
             if item.length > 0:
-                filelength = gl.format_filesize(item.length, 1)
+                filelength = util.format_filesize(item.length, 1)
             else:
                 filelength = None
 
@@ -745,16 +745,6 @@ class PodcastEpisode(PodcastModelObject):
             except ValueError, ve:
                 log('Invalid episode length: %s (%s)', enclosure.length, ve.message)
                 episode.length = -1
-                # If the configuration option is set, retrieve the length via a HTTP HEAD request
-                if gl.config.get_length_from_http_header_if_empty:
-                    if enclosure.length == '' or episode.length == 0:
-                        if metainfo is None:
-                            metainfo = util.get_episode_info_from_url(episode.url)
-                        if 'length' in metainfo:
-                            try:
-                                episode.length = int(float(metainfo['length']))
-                            except:
-                                log('Cannot convert lenght "%s" in from_feedparser_entry.', str(metainfo['length']), traceback=True)
 
         if hasattr( enclosure, 'type'):
             episode.mimetype = enclosure.type
@@ -1060,8 +1050,8 @@ class PodcastEpisode(PodcastModelObject):
         except:
             log( 'Could not get filesize for %s.', self.url)
 
-    def get_filesize_string( self):
-        return gl.format_filesize( self.length)
+    def get_filesize_string(self):
+        return util.format_filesize(self.length)
 
     filesize_prop = property(fget=get_filesize_string)
 
