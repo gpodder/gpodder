@@ -161,15 +161,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
     version = gpodder.user_agent
 
     def __init__( self, channel):
-        if gl.config.proxy_use_environment:
-            proxies = None
-        elif gl.config.http_proxy:
-            proxies = {'http': gl.config.http_proxy}
-        else:
-            proxies = {}
-
         self.channel = channel
-        urllib.FancyURLopener.__init__( self, proxies)
+        urllib.FancyURLopener.__init__(self, None)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         """

@@ -56,9 +56,6 @@ gPodderSettings = {
       _("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
     'toplist_url': (str, 'http://gpodder.org/toplist.opml',
       _("A URL pointing to a gPodder web services top podcasts list")),
-    'http_proxy': ( str, '',
-      _("The URL for proxy to use for HTTP downloads. "
-        "Requires that 'proxy_use_environment' be 'False'")),
     'custom_sync_name': ( str, '{episode.basename}',
       _("The name used when copying a file to a FS-based device. Available "
         "options are: episode.basename, episode.title, episode.published")),
@@ -87,9 +84,6 @@ gPodderSettings = {
         "This is only useful with 'auto_update_feeds' enabled.")),
     'only_sync_not_played': ( bool, False,
       _("Only sync episodes to a device that have not been marked played in gPodder.")),
-    'proxy_use_environment': ( bool, True,
-      _("Use your environment's (Eg. Gnome's) proxy settings instead of "
-        "gPodder's. See 'http_proxy'.")),
     'update_tags': ( bool, False,
       _("Update tags on files after they've been downloaded. This sets the "
         "artist tag to the title of the feed (can be customized in the feed's "

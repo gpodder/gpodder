@@ -110,15 +110,10 @@ class gPodderFetcher(feedcore.Fetcher):
     def _resolve_url(self, url):
         return resolver.get_real_channel_url(url)
 
-    def _get_handlers(self):
-        handlers = []
-        if not gl.config.proxy_use_environment:
-            # Add a ProxyHandler for fetching data via a proxy server
-            proxies = {}
-            if gl.config.http_proxy:
-                proxies['http'] = gl.config.http_proxy
-            handlers.append(urllib2.ProxyHandler(proxies))
-        return handlers
+#    def _get_handlers(self):
+#        # Add a ProxyHandler for fetching data via a proxy server
+#        proxies = {'http': 'http://proxy.example.org:8080'}
+#        return[urllib2.ProxyHandler(proxies))]
 
 
 class PodcastModelObject(object):

@@ -3587,7 +3587,6 @@ class gPodderProperties(BuilderWidget):
             self.table5.hide_all() # player
             self.gPodderProperties.fullscreen()
 
-        gl.config.connect_gtk_editable( 'http_proxy', self.httpProxy)
         gl.config.connect_gtk_editable( 'player', self.openApp)
         gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
@@ -3598,7 +3597,6 @@ class gPodderProperties(BuilderWidget):
         gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
         gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
         gl.config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
-        gl.config.connect_gtk_togglebutton( 'proxy_use_environment', self.cbEnvironmentVariables)
         gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
         gl.config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
         gl.config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
