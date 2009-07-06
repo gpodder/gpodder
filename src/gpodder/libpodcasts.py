@@ -444,32 +444,23 @@ class PodcastChannel(PodcastModelObject):
                 factory=self.episode_factory) if check_is_new(episode)]
 
     def update_m3u_playlist(self):
-        if gl.config.create_m3u_playlists:
-            downloaded_episodes = self.get_downloaded_episodes()
-            fn = util.sanitize_filename(self.title)
-            if len(fn) == 0:
-                fn = os.path.basename(self.save_dir)
-            m3u_filename = os.path.join(gl.downloaddir, fn+'.m3u')
-            log('Writing playlist to %s', m3u_filename, sender=self)
-            f = open(m3u_filename, 'w')
-            f.write('#EXTM3U\n')
+        m3u_filename = os.path.join(gl.downloaddir, os.path.basename(self.save_dir)+'.m3u')
+        log('Writing playlist to %s', m3u_filename, sender=self)
 
-            # Check to see if we need to reverse the playlist order
-            if gl.config.reverse_m3u_playlist_order:
-                episodes_m3u = reversed(downloaded_episodes)
-            else:
-                episodes_m3u = downloaded_episodes
+        f = open(m3u_filename, 'w')
+        f.write('#EXTM3U\n')
 
-            for episode in episodes_m3u:
-                if episode.was_downloaded(and_exists=True):
-                    filename = episode.local_filename(create=False)
-                    assert filename is not None
+        for episode in self.get_downloaded_episodes():
+            if episode.was_downloaded(and_exists=True):
+                filename = episode.local_filename(create=False)
+                assert filename is not None
 
-                    if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                        filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-                    f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
-                    f.write(filename+'\n')
-            f.close()
+                if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
+                    filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
+                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
+                f.write(filename+'\n')
+
+        f.close()
 
     def addDownloadedItem(self, item):
         log('addDownloadedItem(%s)', item.url)

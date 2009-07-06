@@ -1311,11 +1311,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.set_sensitive( not self.updating_feed_cache )
             menu.append( item)
 
-            if gl.config.create_m3u_playlists:
-                item = gtk.ImageMenuItem(_('Update M3U playlist'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
-                item.connect('activate', self.update_m3u_playlist_clicked)
-                menu.append(item)
+            item = gtk.ImageMenuItem(_('Update M3U playlist'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
+            item.connect('activate', self.update_m3u_playlist_clicked)
+            menu.append(item)
 
             if self.active_channel.link:
                 item = gtk.ImageMenuItem(_('Visit website'))

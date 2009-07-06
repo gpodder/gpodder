@@ -158,10 +158,6 @@ gPodderSettings = {
     # Special settings (not in preferences)
     'on_quit_systray': (bool, False,
       _("When the 'X' button is clicked do not quit, send gPodder to the tray.")),
-    'create_m3u_playlists': (bool, False,
-      _("Create an m3u playlist for every channel.")),
-    'reverse_m3u_playlist_order': (bool, False,
-      _("Reverse the order of the gPodder-generated m3u playlists.")),
     'max_episodes_per_feed': (int, 200,
       _("The maximum number of episodes that gPodder will display in the episode "
         "list. Note: Set this to a lower value on slower hardware to speed up "
