@@ -258,11 +258,7 @@ class Device(services.ObservableService):
 
     def _track_on_device( self, track_name ):
         for t in self.tracks_list:
-            if hasattr(t, 'filetitle') and t.filetitle:
-                title = t.filetitle
-            else:
-                title = t.title
-
+            title = t.title
             if track_name == title:
                 return t
         return False
@@ -682,8 +678,7 @@ class MP3PlayerDevice(Device):
             else:
                 podcast_name = None
 
-            # SyncTrack.filetitle will be used by Device._track_on_device (see above)
-            t = SyncTrack(title, length, modified, modified_sort=timestamp, filename=filename, filetitle=filetitle, podcast=podcast_name)
+            t = SyncTrack(title, length, modified, modified_sort=timestamp, filename=filename, podcast=podcast_name)
             tracks.append(t)
         return tracks
 
