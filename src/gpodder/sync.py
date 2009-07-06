@@ -27,7 +27,6 @@ import gpodder
 from gpodder import util
 from gpodder import services
 from gpodder import libconverter
-from gpodder import libtagupdate
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
@@ -229,9 +228,6 @@ class Device(services.ObservableService):
             if local_filename is None:
                 log('Cannot convert %s', original_filename, sender=self)
                 return filename
-
-            if not libtagupdate.update_metadata_on_file(local_filename, title=episode.title, artist=episode.channel.title):
-                log('Could not set metadata on converted file %s', local_filename, sender=self)
 
             return str(local_filename)
 
@@ -676,15 +672,8 @@ class MP3PlayerDevice(Device):
             files = glob.glob(os.path.join(self.destination, '*'))
 
         for filename in files:
-            (filetitle, extension) = os.path.splitext(os.path.basename(filename))
+            (title, extension) = os.path.splitext(os.path.basename(filename))
             length = util.calculate_size(filename)
-
-            metadata = libtagupdate.get_tags_from_file(filename)
-            if 'title' in metadata and metadata['title']:
-                title = metadata['title']
-            else:
-                # fallback: use the basename of the file
-                title = filetitle
 
             timestamp = util.file_modification_timestamp(filename)
             modified = util.format_date(timestamp)

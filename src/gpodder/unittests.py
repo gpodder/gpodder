@@ -38,7 +38,7 @@ except ImportError, e:
 
 # Which package and which modules in the package should be tested?
 package = 'gpodder'
-modules = ['util', 'libtagupdate']
+modules = ['util']
 coverage_modules = []
 
 suite = unittest.TestSuite()

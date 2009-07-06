@@ -67,7 +67,6 @@ except ImportError:
 
 
 from gpodder import feedcore
-from gpodder import libtagupdate
 from gpodder import util
 from gpodder import opml
 from gpodder import services
@@ -102,8 +101,6 @@ from libpodcasts import can_restore_from_opml
 from gpodder.libgpodder import gl
 
 from libplayers import UserAppsReader
-
-from libtagupdate import tagging_supported
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -3622,13 +3619,6 @@ class gPodderProperties(BuilderWidget):
         self.on_sync_delete.set_sensitive(not self.delete_episodes_marked_played.get_active())
         self.on_sync_mark_played.set_sensitive(not self.delete_episodes_marked_played.get_active())
         
-        if tagging_supported():
-            gl.config.connect_gtk_togglebutton( 'update_tags', self.updatetags)
-        else:
-            self.updatetags.set_sensitive( False)
-            new_label = '%s (%s)' % ( self.updatetags.get_label(), _('needs python-eyed3') )
-            self.updatetags.set_label( new_label)
-
         # device type
         self.comboboxDeviceType.set_active( 0)
         if gl.config.device_type == 'ipod':
@@ -4874,13 +4864,8 @@ class gPodderPlaylist(BuilderWidget):
         else:
             absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
 
-        # read the title from the mp3/ogg tag
-        metadata = libtagupdate.get_tags_from_file(absfile)
-        if 'title' in metadata and metadata['title']:
-            title = metadata['title']
-        else:
-            # fallback: use the basename of the file
-            (title, extension) = os.path.splitext(os.path.basename(filename))
+        # fallback: use the basename of the file
+        (title, extension) = os.path.splitext(os.path.basename(filename))
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 

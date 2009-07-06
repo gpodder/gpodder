@@ -84,10 +84,6 @@ gPodderSettings = {
         "This is only useful with 'auto_update_feeds' enabled.")),
     'only_sync_not_played': ( bool, False,
       _("Only sync episodes to a device that have not been marked played in gPodder.")),
-    'update_tags': ( bool, False,
-      _("Update tags on files after they've been downloaded. This sets the "
-        "artist tag to the title of the feed (can be customized in the feed's "
-        "preferences) and genre tag to 'Podcast'.")),
     'fssync_channel_subfolders': ( bool, True,
       _("Create a directory for every feed when syncing to an FS-based device "
         "instead of putting all the episodes in a single directory.")),
@@ -220,13 +216,6 @@ gPodderSettings = {
       _("Hide the cover/pill from the podcast sidebar when it gets too small.")),
     'disable_fingerscroll': (bool, False,
       _("Disable the use of finger-scrollable widgets on Maemo.")),
-    'rewrite_genre_tag': (bool, False,
-      _("Some media players have special handling for the Podcast tag and some "
-        "users may want to avoid using that tag. This option rewrites the genre "
-        "tag with what is specified in the rewrite_genre_tag_with option."
-        "The update_tags option must be enabled in order to use this feature.")),
-    'rewrite_genre_tag_with': (str, 'Podcast',
-      _("This option specifies what the genre tag will be rewritten to.")),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',

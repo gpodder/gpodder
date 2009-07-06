@@ -37,7 +37,6 @@ from gpodder import opml
 from gpodder import feedcore
 from gpodder import services
 from gpodder import draw
-from gpodder import libtagupdate
 from gpodder import dumbshelve
 from gpodder import resolver
 from gpodder import corestats
@@ -477,20 +476,6 @@ class PodcastChannel(PodcastModelObject):
 
         if not item.was_downloaded():
             item.mark_downloaded(save=True)
-
-            # Update metadata on file (if possible and wanted)
-            if gl.config.update_tags and libtagupdate.tagging_supported():
-                filename = item.local_filename(create=False)
-                assert filename is not None
-
-                try:
-                    if (gl.config.rewrite_genre_tag):
-                        libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre=gl.config.rewrite_genre_tag_with)
-                    else:
-                        libtagupdate.update_metadata_on_file(filename, title=item.title, artist=self.title, genre='Podcast')
-                except Exception, e:
-                    log('Error while calling update_metadata_on_file(): %s', e)
-
             self.update_m3u_playlist()
 
     def get_all_episodes(self):
