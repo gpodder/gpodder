@@ -149,19 +149,6 @@ gPodderSettings = {
     'on_quit_ask': (bool, True,
       _("Ask the user to confirm quitting the application.")),
 
-    # Bluetooth-related settings
-    'bluetooth_use_device_address': (bool, False,
-      _("Whether to use the 'bluetooth_device_address' or to search for a device.")),
-    'bluetooth_device_address': (str, '00:00:00:00:00:00',
-      _("The address of the bluetooth device to sync to. This setting is only "
-        "useful if 'bluetooth_use_device_address' is enabled.")),
-    'bluetooth_use_converter': (bool, False,
-      _("Whether or not the bluetooth converter application should be used."
-        "See: 'bluetooth_converter'")),
-    'bluetooth_converter': (str, '',
-      _("The path to an application which can convert the episode to a "
-        "compatible format for the bluetooth device.")),
-
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod',
       _("The moint point for an iPod Device.")),

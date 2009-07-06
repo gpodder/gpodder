@@ -1418,47 +1418,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         filename = episode.local_filename(create=False)
         assert filename is not None
 
-        if gl.config.bluetooth_use_device_address:
-            device = gl.config.bluetooth_device_address
-        else:
-            device = None
-
         destfile = os.path.join(gl.tempdir, util.sanitize_filename(episode.sync_filename()))
         (base, ext) = os.path.splitext(filename)
         if not destfile.endswith(ext):
             destfile += ext
 
-        if gl.config.bluetooth_use_converter:
-            title = _('Converting file')
-            message = _('Please wait your media file is being converted for bluetooth file transfer.')
-            dlg = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
-            dlg.set_title(title)
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            dlg.show_all()
-        else:
-            dlg = None
-
-        def convert_and_send_thread(filename, destfile, device, dialog, notify):
-            if gl.config.bluetooth_use_converter:
-                p = subprocess.Popen([gl.config.bluetooth_converter, filename, destfile], stdout=sys.stdout, stderr=sys.stderr)
-                result = p.wait()
-                if dialog is not None:
-                    dialog.destroy()
-            else:
-                try:
-                    shutil.copyfile(filename, destfile)
-                    result = 0
-                except:
-                    log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
-                    result = 1
-
-            if result == 0 or not os.path.exists(destfile):
-                util.bluetooth_send_file(destfile, device)
-            else:
+        def convert_and_send_thread(filename, destfile, device, notify):
+            try:
+                shutil.copyfile(filename, destfile)
+                util.bluetooth_send_file(destfile)
+            except:
+                log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
                 notify(_('Error converting file.'), _('Bluetooth file transfer'))
+
             util.delete_file(destfile)
 
-        Thread(target=convert_and_send_thread, args=[filename, destfile, device, dlg, self.notification]).start()
+        Thread(target=convert_and_send_thread, args=[filename, destfile, device, self.notification]).start()
 
     def treeview_button_savepos(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO and event.button == 1:
