@@ -2092,28 +2092,33 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # btnCancelFeedUpdate is a normal gtk.Button
                 self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
-        elif self.minimized:
-            # New episodes are available, but we are minimized
-            if gl.config.auto_download_when_minimized:
+        else:
+            # New episodes are available
+            self.pbFeedUpdate.set_fraction(1.0)
+            # Are we minimized and should we auto download?
+            if (self.minimized and (gl.config.auto_download == 'minimized')) or (gl.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
                 if len(episodes) == 1:
                     title = _('Downloading one new episode')
                 else:
                     title = _('Downloading %d new episodes') % len(episodes)
-            else:
-                if len(episodes) == 1:
-                    title = _('One new episode available')
-                else:
-                    title = _('%d new episodes available') % len(episodes)
 
-            if self.tray_icon:
-                message = self.tray_icon.format_episode_list([e.title for e in episodes])
-                self.tray_icon.send_notification(message, title)
-            self.show_update_feeds_buttons()
-        else:
-            # New episodes are available and we are not minimized
-            self.show_update_feeds_buttons()
-            self.new_episodes_show(episodes)
+                if self.tray_icon:
+                    message = self.tray_icon.format_episode_list([e.title for e in episodes])
+                    self.tray_icon.send_notification(message, title)
+                self.show_update_feeds_buttons()
+            else:
+                self.show_update_feeds_buttons()
+                # New episodes are available and we are not minimized
+                if not gl.config.do_not_show_new_episodes_dialog:
+                    self.new_episodes_show(episodes)
+                else:
+                    if len(episodes) == 1:
+                        message = _('One new episode is available for download') 
+                    else:
+                        message = _('%i new episodes are available for download' % len(episodes))
+                    
+                    self.pbFeedUpdate.set_text(message)
 
     def update_feed_cache_proc(self, channels, select_url_afterwards):
         total = len(channels)
@@ -3645,6 +3650,13 @@ class gPodderProperties(BuilderWidget):
         index = self.find_active_video_app()
         self.comboVideoPlayerApp.set_active(index)
 
+        # auto download option
+        self.comboboxAutoDownload.set_active( 0)
+        if gl.config.auto_download == 'minimized':
+            self.comboboxAutoDownload.set_active( 1)
+        elif gl.config.auto_download == 'always':
+            self.comboboxAutoDownload.set_active( 2)
+ 
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
     def is_row_separator(self, model, iter):
@@ -3902,6 +3914,14 @@ class gPodderProperties(BuilderWidget):
             gl.config.device_type = 'filesystem'
         elif device_type == 3:
             gl.config.device_type = 'mtp'
+
+        auto_download = self.comboboxAutoDownload.get_active()
+        if auto_download == 0:
+            gl.config.auto_download = 'never'
+        elif auto_download == 1:
+            gl.config.auto_download = 'minimized'
+        elif auto_download == 2:
+            gl.config.auto_download = 'always'
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()

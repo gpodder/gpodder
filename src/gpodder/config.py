@@ -79,9 +79,6 @@ gPodderSettings = {
     # Boolean config flags
     'update_on_startup': ( bool, False,
       _("Update the feed cache on startup.")),
-    'auto_download_when_minimized': (bool, False,
-      _("Automatically download new episodes (only when gPodder is minimized). "
-        "This is only useful with 'auto_update_feeds' enabled.")),
     'only_sync_not_played': ( bool, False,
       _("Only sync episodes to a device that have not been marked played in gPodder.")),
     'fssync_channel_subfolders': ( bool, True,
@@ -95,7 +92,7 @@ gPodderSettings = {
       _("Remove episodes older than 'episode_old_age' days on startup.")),
     'auto_update_feeds': (bool, False,
       _("Automatically update feeds when gPodder is minimized. "
-        "See 'auto_update_frequency' and 'auto_download_when_minimized'.")),
+        "See 'auto_update_frequency' and 'auto_download'.")),
     'auto_update_frequency': (int, 20,
       _("The frequency (in minutes) at which gPodder will update all feeds "
         "if 'auto_update_feeds' is enabled.")),
@@ -135,6 +132,12 @@ gPodderSettings = {
         "tasks like downloading an episode or finishing syncing to a device.")),
     'on_quit_ask': (bool, True,
       _("Ask the user to confirm quitting the application.")),
+    'auto_download': (str, 'never',
+      _("Auto download episodes (never, minimized, always)")),
+    'do_not_show_new_episodes_dialog': (bool, False,
+      _("Do not show the new episodes dialog after updating feed cache when "
+        "gPodder is not minimized")),
+
 
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod',
