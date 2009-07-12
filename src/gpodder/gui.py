@@ -4948,6 +4948,7 @@ class gPodderDependencyManager(BuilderWidget):
         self.treeview_components.append_column(col_installed)
         self.treeview_components.set_model(services.dependency_manager.get_model())
         self.btn_about.set_sensitive(False)
+        self.btn_install.set_sensitive(False)
 
     def on_btn_about_clicked(self, widget):
         selection = self.treeview_components.get_selection()
