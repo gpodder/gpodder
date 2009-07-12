@@ -316,6 +316,27 @@ def file_age_to_string(days):
         return ''
 
 
+def get_free_disk_space_win32(path):
+    """
+    Win32-specific code to determine the free disk space remaining
+    for a given path. Uses code from:
+
+    http://mail.python.org/pipermail/python-list/2003-May/203223.html
+    """
+
+    drive, tail = os.path.splitdrive(path)
+
+    try:
+        import win32file
+        userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
+        return userFree
+    except ImportError:
+        log('Warning: Running on Win32 but win32api/win32file not installed.')
+
+    # Cannot determine free disk space
+    return 0
+
+
 def get_free_disk_space(path):
     """
     Calculates the free disk space available to the current user
@@ -325,12 +346,11 @@ def get_free_disk_space(path):
     function returns zero.
     """
 
-    if gpodder.win32:
-        # FIXME: Implement for win32
-        return 0
-
     if not os.path.exists(path):
         return 0
+
+    if gpodder.win32:
+        return get_free_disk_space_win32(path)
 
     s = os.statvfs(path)
 
