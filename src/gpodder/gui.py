@@ -116,7 +116,7 @@ app_authors = [
     'Alain Tauch', 'Alex Ghitza', 'Alistair Sutton', 'Anders Kvist', 'Andrei Dolganov', 'Andrew Bennett', 'Andy Busch',
     'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 'audioworld', 
     'Bastian Staeck', 'Bernd Schlapsi', 'Bill Barnard', 'Bill Peters', 'Bjørn Rasmussen', 'Camille Moncelier', 'Casey Watson',
-    'Carlos Moffat', 'Chris Arnold', 'Chris Moffitt', 'Clark Burbidge', 'Corey Goldberg', 'Cory Albrecht', 'daggpod', 'Daniel Ramos',
+    'Carlos Moffat', 'Chris Arnold', 'Chris Moffitt', 'Clark Burbidge', 'Corey Goldberg', 'corq', 'Cory Albrecht', 'daggpod', 'Daniel Ramos',
     'David Spreen', 'Doug Hellmann', 'Edouard Pellerin', 'Fabio Fiorentini', 'FFranci72', 'Florian Richter', 'Frank Harper',
     'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Gilles Lehoux', 'Götz Waschk',
     'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Iwan van der Kleijn', 'Jens Thiele',
