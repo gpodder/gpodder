@@ -1672,14 +1672,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 path = (self.url_path_mapping[url],)
                 self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading)
  
-    def playback_episode(self, episode, stream=False):
+    def playback_episode(self, episode):
         if gpodder.interface == gpodder.MAEMO:
             banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Opening %s') % saxutils.escape(episode.title))
             def destroy_banner_later(banner):
                 banner.destroy()
                 return False
             gobject.timeout_add(5000, destroy_banner_later, banner)
-        (success, application) = gl.playback_episode(episode, stream)
+        (success, application) = gl.playback_episode(episode)
         if not success:
             self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
         self.update_selected_episode_list_icons()
@@ -1745,7 +1745,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         can_download = True
 
         can_download = can_download and not can_cancel
-        can_play = gl.config.enable_streaming or (can_play and not can_cancel and not can_download)
+        can_play = gl.streaming_possible() or (can_play and not can_cancel and not can_download)
         can_transfer = can_play and gl.config.device_type != 'none' and not can_cancel and not can_download
 
         if open_instead_of_play:
@@ -3145,10 +3145,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.on_sync_to_ipod_activate(widget, episodes)
             elif do_playback:
                 for episode in episodes:
-                    if episode.was_downloaded(and_exists=True):
+                    if episode.was_downloaded(and_exists=True) or gl.streaming_possible():
                         self.playback_episode(episode)
-                    elif gl.config.enable_streaming:
-                        self.playback_episode(episode, stream=True)
             elif do_epdialog:
                 self.show_episode_shownotes(episode)
             else:

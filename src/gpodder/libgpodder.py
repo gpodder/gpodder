@@ -341,31 +341,28 @@ class gPodderLib(object):
         
         return True
 
-    def playback_episode(self, episode, stream=False):
-        if stream:
-            # A streamed file acts as if it has been deleted
-            episode.state = db.STATE_DELETED
-            db.save_episode(episode)
+    def streaming_possible(self):
+        return self.config.player and self.config.player != 'default'
+
+    def playback_episode(self, episode):
+        filename = episode.local_filename(create=False)
+
+        if filename is None:
             filename = episode.url
-        else:
-            filename = episode.local_filename(create=False)
-            assert filename is not None
+
         db.mark_episode(episode.url, is_played=True)
 
-        # Determine the file type and set the player accordingly.  
         file_type = episode.file_type()
-
-        if file_type == 'video':
+        if file_type == 'video' and self.config.videoplayer and \
+                self.config.videoplayer != 'default':
             player = self.config.videoplayer
-        elif file_type == 'audio':
+        elif file_type == 'audio' and self.config.player and \
+                self.config.player != 'default':
             player = self.config.player
         else:
-            player = 'default'
-
-        # we should use the default player or no player is set
-        if player == 'default' or player == '':
+            # System default open action for the file
             return (util.gui_open(filename), player)
- 
+
         command_line = shlex.split(util.format_desktop_command(player, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
         try:
