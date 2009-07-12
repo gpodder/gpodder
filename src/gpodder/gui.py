@@ -3579,7 +3579,6 @@ class gPodderProperties(BuilderWidget):
         gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
         gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
         gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
-        gl.config.connect_gtk_togglebutton( 'auto_download_when_minimized', self.downloadnew)
         gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
         gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
         gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
