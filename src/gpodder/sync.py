@@ -306,25 +306,6 @@ class iPodDevice(Device):
             self.notify('status', _('Saving iPod database'))
             gpod.itdb_write(self.itdb, None)
             self.itdb = None
-
-            if gl.config.ipod_write_gtkpod_extended:
-                # Fix up iTunesDB.ext (gtkpod extended database),
-                # so gtkpod will not complain about a wrong sha1sum
-                self.notify('status', _('Writing extended gtkpod database'))
-                ext_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB.ext')
-                idb_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB')
-                if os.path.exists(ext_filename) and os.path.exists(idb_filename):
-                    try:
-                        db = gpod.ipod.Database(self.mountpoint)
-                        gpod.gtkpod.parse(ext_filename, db, idb_filename)
-                        gpod.gtkpod.write(ext_filename, db, idb_filename)
-                        db.close()
-                    except:
-                        log('Error when writing iTunesDB.ext', sender=self, traceback=True)
-                else:
-                    log('I could not find %s or %s. Will not update extended gtkpod DB.', ext_filename, idb_filename, sender=self)
-            else:
-                log('Not writing extended gtkpod DB. Set "ipod_write_gpod_extended" to True if I should write it.', sender=self)
             
         Device.close(self)
         return True

@@ -3592,7 +3592,6 @@ class gPodderProperties(BuilderWidget):
         gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
         gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
-        gl.config.connect_gtk_togglebutton('ipod_write_gtkpod_extended', self.ipod_write_gtkpod_extended)
         gl.config.connect_gtk_togglebutton('ipod_delete_played_from_db', self.ipod_delete_played_from_db)
         gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         gl.config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
@@ -3809,7 +3808,6 @@ class gPodderProperties(BuilderWidget):
 
         # iPod
         ipod_widgets = (self.ipodLabel, self.btn_iPodMountpoint,
-                        self.ipod_write_gtkpod_extended,
                         self.ipod_delete_played_from_db)
 
         for widget in ipod_widgets:

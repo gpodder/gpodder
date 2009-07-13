@@ -100,9 +100,6 @@ gPodderSettings = {
       _("Display the episode's description under the episode title in the GUI.")),
     'show_toolbar': (bool, True,
       _("Show the toolbar in the GUI's main window.")),
-    'ipod_write_gtkpod_extended': (bool, False,
-      _("Create a GTKpod extended database on an iPod device after syncing "
-        "for greater compatibility with GTKpod.")),
     'ipod_purge_old_episodes': (bool, False,
       _("Remove episodes from an iPod device if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
