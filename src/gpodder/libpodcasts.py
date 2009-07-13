@@ -886,7 +886,7 @@ class PodcastEpisode(PodcastModelObject):
 
         The generated filename is stored in the database for future access.
         """
-        ext = self.extension()
+        ext = self.extension().encode('utf-8', 'ignore')
 
         # For compatibility with already-downloaded episodes, we
         # have to know md5 filenames if they are downloaded already
