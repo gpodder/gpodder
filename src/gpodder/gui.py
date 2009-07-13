@@ -1478,10 +1478,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.treeAvailable.set_cursor(path)
                 self.treeAvailable.grab_focus()
                 if gl.config.maemo_enable_gestures and xdistance > 70:
-                    self.on_treeAvailable_row_activated(self.itemPlaySelected)
+                    self.on_playback_selected_episodes()
                     return True
                 elif gl.config.maemo_enable_gestures and xdistance < -70:
-                    self.on_treeAvailable_row_activated(self.treeAvailable)
+                    self.on_shownotes_selected_episodes()
                     return True
             else:
                 # Scrolling has been done
@@ -1531,14 +1531,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
 
             item.set_sensitive(can_play)
-            item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolPlay))
+            item.connect('activate', self.on_playback_selected_episodes)
             menu.append(self.set_finger_friendly(item))
 
             if not can_cancel:
                 item = gtk.ImageMenuItem(_('Download'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.set_sensitive(can_download)
-                item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolDownload))
+                item.connect('activate', self.on_download_selected_episodes)
                 menu.append(self.set_finger_friendly(item))
             else:
                 item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
@@ -1577,7 +1577,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if can_transfer:
                     item = gtk.ImageMenuItem(_('Transfer to %s') % gl.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.on_treeAvailable_row_activated(self.toolTransfer))
+                    item.connect('activate', self.on_transfer_selected_episodes)
                     menu.append(self.set_finger_friendly(item))
 
             if can_play:
@@ -1612,7 +1612,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.ImageMenuItem(_('Episode details'))
             item.set_image(gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
             item.set_sensitive(len(paths) == 1)
-            item.connect( 'activate', lambda w: self.on_treeAvailable_row_activated( self.treeAvailable))
+            item.connect( 'activate', self.on_shownotes_selected_episodes)
             menu.append(self.set_finger_friendly(item))
 
             episode = self.active_channel.find_episode(episode_url)
@@ -3107,54 +3107,41 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
 
-    def on_treeAvailable_row_activated(self, widget, path=None, view_column=None):
-        """
-        What this function does depends on from which widget it is called.
-        It gets the selected episodes of the current podcast and runs one
-        of the following actions on them:
+    def get_selected_episodes(self):
+        """Get a list of selected episodes from treeAvailable"""
+        selection = self.treeAvailable.get_selection()
+        model, paths = selection.get_selected_rows()
 
-          * Transfer (to MP3 player, iPod, etc..)
-          * Playback/open files
-          * Show the episode info dialog
-          * Download episodes
-        """
-        try:
-            selection = self.treeAvailable.get_selection()
-            (model, paths) = selection.get_selected_rows()
+        urls = [model.get_value(model.get_iter(path), 0) for path in paths]
+        episodes = [self.active_channel.find_episode(url) for url in urls]
+        return episodes
 
-            if len(paths) == 0:
-                log('Nothing selected', sender=self)
-                return
+    def on_transfer_selected_episodes(self, widget):
+        self.on_sync_to_ipod_activate(widget, self.get_selected_episodes())
 
-            wname = widget.get_name()
-            do_transfer = (wname in ('itemTransferSelected', 'toolTransfer'))
-            do_playback = (wname in ('itemPlaySelected', 'itemOpenSelected', 'toolPlay'))
-            do_epdialog = (wname in ('treeAvailable', 'item_episode_details'))
+    def on_playback_selected_episodes(self, widget):
+        # FIXME: Support multiple episodes per playback command call
+        for episode in self.get_selected_episodes():
+            if episode.was_downloaded(and_exists=True) or gl.streaming_possible():
+                self.playback_episode(episode)
 
-            episodes = []
-            for path in paths:
-                it = model.get_iter(path)
-                url = model.get_value(it, 0)
-                episode = self.active_channel.find_episode(url)
-                episodes.append(episode)
+    def on_shownotes_selected_episodes(self, widget):
+        episodes = self.get_selected_episodes()
+        if episodes:
+            episode = episodes.pop(0)
+            self.show_episode_shownotes(episode)
+        else:
+            self.show_message(_('No episode selected'), _('Please select an episode'))
 
-            if len(episodes) == 0:
-                log('No episodes selected', sender=self)
+    def on_download_selected_episodes(self, widget):
+        episodes = self.get_selected_episodes()
+        self.download_episode_list(episodes)
+        self.update_episode_list_icons([episode.url for episode in episodes])
+        self.play_or_download()
 
-            if do_transfer:
-                self.on_sync_to_ipod_activate(widget, episodes)
-            elif do_playback:
-                for episode in episodes:
-                    if episode.was_downloaded(and_exists=True) or gl.streaming_possible():
-                        self.playback_episode(episode)
-            elif do_epdialog:
-                self.show_episode_shownotes(episode)
-            else:
-                self.download_episode_list(episodes)
-                self.update_selected_episode_list_icons()
-                self.play_or_download()
-        except:
-            log('Error in on_treeAvailable_row_activated', traceback=True, sender=self)
+    def on_treeAvailable_row_activated(self, widget, path, view_column):
+        """Double-click/enter action handler for treeAvailable"""
+        self.on_shownotes_selected_episodes(widget)
 
     def show_episode_shownotes(self, episode):
         play_callback = lambda: self.playback_episode(episode)

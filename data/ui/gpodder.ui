@@ -208,7 +208,7 @@
             <property name="stock_id">gtk-media-play</property>
             <property name="name">itemPlaySelected</property>
             <property name="label" translatable="yes">Play</property>
-            <signal handler="on_treeAvailable_row_activated" name="activate"/>
+            <signal handler="on_playback_selected_episodes" name="activate"/>
           </object>
           <accelerator key="Return" modifiers="GDK_SHIFT_MASK"/>
         </child>
@@ -217,7 +217,7 @@
             <property name="stock_id">gtk-open</property>
             <property name="name">itemOpenSelected</property>
             <property name="label" translatable="yes">Open</property>
-            <signal handler="on_treeAvailable_row_activated" name="activate"/>
+            <signal handler="on_playback_selected_episodes" name="activate"/>
           </object>
         </child>
         <child>
@@ -225,7 +225,7 @@
             <property name="stock_id">gtk-goto-bottom</property>
             <property name="name">itemDownloadSelected</property>
             <property name="label" translatable="yes">Download</property>
-            <signal handler="on_treeAvailable_row_activated" name="activate"/>
+            <signal handler="on_download_selected_episodes" name="activate"/>
           </object>
         </child>
         <child>
@@ -266,7 +266,7 @@
             <property name="stock_id">gtk-info</property>
             <property name="name">item_episode_details</property>
             <property name="label" translatable="yes">Episode details</property>
-            <signal handler="on_treeAvailable_row_activated" name="activate"/>
+            <signal handler="on_shownotes_selected_episodes" name="activate"/>
           </object>
         </child>
         <child>
@@ -296,7 +296,7 @@
           <object class="GtkAction" id="itemTransferSelected">
             <property name="name">itemTransferSelected</property>
             <property name="label" translatable="yes">Copy selected episodes to device</property>
-            <signal handler="on_treeAvailable_row_activated" name="activate"/>
+            <signal handler="on_transfer_selected_episodes" name="activate"/>
           </object>
         </child>
         <child>
@@ -495,7 +495,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">True</property>
-                <signal handler="on_treeAvailable_row_activated" name="clicked"/>
+                <signal handler="on_download_selected_episodes" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -509,7 +509,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">True</property>
-                <signal handler="on_treeAvailable_row_activated" name="clicked"/>
+                <signal handler="on_playback_selected_episodes" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -525,7 +525,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">True</property>
-                <signal handler="on_treeAvailable_row_activated" name="clicked"/>
+                <signal handler="on_transfer_selected_episodes" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
