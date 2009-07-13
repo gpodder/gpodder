@@ -1672,16 +1672,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 path = (self.url_path_mapping[url],)
                 self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading)
  
-    def playback_episode(self, episode):
+    def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
             banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Opening %s') % saxutils.escape(episode.title))
             def destroy_banner_later(banner):
                 banner.destroy()
                 return False
             gobject.timeout_add(5000, destroy_banner_later, banner)
-        (success, application) = gl.playback_episode(episode)
-        if not success:
-            self.show_message( _('The selected player application cannot be found. Please check your media player settings in the preferences dialog.'), _('Error opening player: %s') % ( saxutils.escape( application), ))
+
+        episodes = [e for e in episodes if \
+                e.was_downloaded(and_exists=True) or gl.streaming_possible()]
+
+        try:
+            gl.playback_episodes(episodes)
+        except Exception, e:
+            log('Error in playback!', sender=self, traceback=True)
+            self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Error opening player'))
+
         self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
 
@@ -3125,10 +3132,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_sync_to_ipod_activate(widget, self.get_selected_episodes())
 
     def on_playback_selected_episodes(self, widget):
-        # FIXME: Support multiple episodes per playback command call
-        for episode in self.get_selected_episodes():
-            if episode.was_downloaded(and_exists=True) or gl.streaming_possible():
-                self.playback_episode(episode)
+        self.playback_episodes(self.get_selected_episodes())
 
     def on_shownotes_selected_episodes(self, widget):
         episodes = self.get_selected_episodes()
@@ -3149,7 +3153,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_shownotes_selected_episodes(widget)
 
     def show_episode_shownotes(self, episode):
-        play_callback = lambda: self.playback_episode(episode)
+        play_callback = lambda: self.playback_episodes([episode])
         def download_callback():
             self.download_episode_list([episode])
             self.play_or_download()

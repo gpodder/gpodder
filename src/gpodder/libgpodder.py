@@ -30,6 +30,7 @@ import threading
 import urllib
 import shutil
 import xml.dom.minidom
+from collections import defaultdict
 
 import gpodder
 from gpodder import util
@@ -46,8 +47,6 @@ import subprocess
 import sys
 
 from liblogger import log
-
-import shlex
 
 _ = gpodder.gettext
 
@@ -344,33 +343,36 @@ class gPodderLib(object):
     def streaming_possible(self):
         return self.config.player and self.config.player != 'default'
 
-    def playback_episode(self, episode):
-        filename = episode.local_filename(create=False)
+    def playback_episodes(self, episodes):
+        groups = defaultdict(list)
+        for episode in episodes:
+            # Mark all episodes as played in the database
+            db.mark_episode(episode.url, is_played=True)
 
-        if filename is None:
-            filename = episode.url
+            file_type = episode.file_type()
+            if file_type == 'video' and self.config.videoplayer and \
+                    self.config.videoplayer != 'default':
+                player = self.config.videoplayer
+            elif file_type == 'audio' and self.config.player and \
+                    self.config.player != 'default':
+                player = self.config.player
+            else:
+                player = 'default'
 
-        db.mark_episode(episode.url, is_played=True)
+            groups[player].append(episode.local_filename(create=False) or episode.url)
 
-        file_type = episode.file_type()
-        if file_type == 'video' and self.config.videoplayer and \
-                self.config.videoplayer != 'default':
-            player = self.config.videoplayer
-        elif file_type == 'audio' and self.config.player and \
-                self.config.player != 'default':
-            player = self.config.player
-        else:
-            # System default open action for the file
-            return (util.gui_open(filename), _('System default'))
+        # Open episodes with system default player
+        if 'default' in groups:
+            for filename in groups['default']:
+                log('Opening with system default: %s', filename, sender=self)
+                util.gui_open(filename)
+            del groups['default']
 
-        command_line = shlex.split(util.format_desktop_command(player, filename).encode('utf-8'))
-        log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
-        try:
-            subprocess.Popen( command_line)
-        except:
-            return ( False, command_line[0] )
-        return ( True, command_line[0] )
-
+        # For each type now, go and create play commands
+        for group in groups:
+            for command in util.format_desktop_command(group, groups[group]):
+                log('Executing: %s', repr(command), sender=self)
+                subprocess.Popen(command)
 
 
 class HistoryStore( types.ListType):

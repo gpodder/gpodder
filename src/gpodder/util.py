@@ -37,6 +37,7 @@ import os.path
 import platform
 import glob
 import stat
+import shlex
 
 import re
 import subprocess
@@ -712,7 +713,7 @@ def object_string_formatter( s, **kwargs):
     return result
 
 
-def format_desktop_command( command, filename):
+def format_desktop_command(command, filenames):
     """
     Formats a command template from the "Exec=" line of a .desktop
     file to a string that can be invoked in a shell.
@@ -721,24 +722,31 @@ def format_desktop_command( command, filename):
     appends the filename as first parameter of the command.
 
     See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
+
+    Returns a list of commands to execute, either one for
+    each filename if the application does not support multiple
+    file names or one for all filenames (%U, %F or unknown).
     """
-    if '://' in filename:
-        filename_url = filename
-    else:
-        filename_url = 'file://%s' % filename
+    command = shlex.split(command)
 
-    items = {
-            '%U': filename_url,
-            '%u': filename_url,
-            '%F': filename,
-            '%f': filename,
-    }
+    command_before = command
+    command_after = []
+    multiple_arguments = True
+    for fieldcode in ('%U', '%F', '%u', '%f'):
+        if fieldcode in command:
+            command_before = command[:command.index(fieldcode)]
+            command_after = command[command.index(fieldcode)+1:]
+            multiple_arguments = fieldcode in ('%U', '%F')
+            break
 
-    for key, value in items.items():
-        if command.find( key) >= 0:
-            return command.replace( key, '"%s"' % value)
+    if multiple_arguments:
+        return [command_before + filenames + command_after]
 
-    return '%s "%s"' % ( command, filename )
+    commands = []
+    for filename in filenames:
+        commands.append(command_before+[filename]+command_after)
+
+    return commands
 
 
 def get_real_url(url):
