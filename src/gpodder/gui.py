@@ -3211,6 +3211,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             return
 
+        if self.wNotebook.get_current_page() == 1:
+            # Downloads tab visible - no action!
+            return
+
         channel_url = self.active_channel.url
         selection = self.treeAvailable.get_selection()
         ( model, paths ) = selection.get_selected_rows()
