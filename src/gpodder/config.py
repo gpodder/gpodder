@@ -204,6 +204,8 @@ gPodderSettings = {
       _("Hide the cover/pill from the podcast sidebar when it gets too small.")),
     'disable_fingerscroll': (bool, False,
       _("Disable the use of finger-scrollable widgets on Maemo.")),
+    'double_click_episode_action': (str, 'shownotes',
+      _("Episode double-click/enter action handler (shownotes, download, stream)")),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',

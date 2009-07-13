@@ -3149,7 +3149,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
-        self.on_shownotes_selected_episodes(widget)
+        # We should only have one one selected as it was double clicked!
+        e = self.get_selected_episodes()[0]
+        
+        if (gl.config.double_click_episode_action == 'download'):
+            # If the episode has already been downloaded and exists then play it
+            if e.was_downloaded(and_exists=True):
+                self.playback_episodes(self.get_selected_episodes())
+            # else download it if it is not already downloading
+            elif not self.episode_is_downloading(e): 
+                self.download_episode_list([e])
+                self.update_episode_list_icons([e.url])
+                self.play_or_download()
+        elif (gl.config.double_click_episode_action == 'stream'):
+            # If we happen to have downloaded this episode simple play it
+            if e.was_downloaded(and_exists=True):
+                self.playback_episodes(self.get_selected_episodes())
+            # else if streaming is possible stream it    
+            elif gl.streaming_possible():
+                self.playback_episodes(self.get_selected_episodes())
+            else:
+                log('Unable to stream episode - default media player selected!', sender=self, traceback=True)
+                self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Unable to stream episode'))
+        else:
+            # default action is to display show notes
+            self.on_shownotes_selected_episodes(widget)
 
     def show_episode_shownotes(self, episode):
         play_callback = lambda: self.playback_episodes([episode])
