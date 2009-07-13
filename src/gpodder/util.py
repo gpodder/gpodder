@@ -615,9 +615,9 @@ def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, add_missing=Fa
     """
     import gtk
     if gpodder.interface == gpodder.GUI:
-        ICON_UNPLAYED = gtk.STOCK_YES
-        ICON_LOCKED = 'emblem-nowrite'
-        ICON_MISSING = gtk.STOCK_STOP
+        ICON_UNPLAYED = 'emblem-new'
+        ICON_LOCKED = 'emblem-readonly'
+        ICON_MISSING = 'emblem-unreadable'
     elif gpodder.interface == gpodder.MAEMO:
         ICON_UNPLAYED = 'qgn_list_gene_favor'
         ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
