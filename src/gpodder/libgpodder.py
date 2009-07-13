@@ -361,7 +361,7 @@ class gPodderLib(object):
             player = self.config.player
         else:
             # System default open action for the file
-            return (util.gui_open(filename), player)
+            return (util.gui_open(filename), _('System default'))
 
         command_line = shlex.split(util.format_desktop_command(player, filename).encode('utf-8'))
         log( 'Command line: [ %s ]', ', '.join( [ '"%s"' % p for p in command_line ]), sender = self)
