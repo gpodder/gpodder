@@ -620,6 +620,7 @@ class DownloadTask(object):
                 os.environ["GPODDER_EPISODE_PUBDATE"]=str(int(self.__episode.pubDate))
                 os.environ["GPODDER_EPISODE_LINK"]=self.__episode.link or ''
                 os.environ["GPODDER_EPISODE_DESC"]=self.__episode.description or ''
+                os.environ["GPODDER_CHANNEL_TITLE"]=self.__episode.channel.title or ''
                 util.run_external_command(gl.config.cmd_download_complete)
         except DownloadCancelledException:
             log('Download has been cancelled/paused: %s', self, sender=self)
