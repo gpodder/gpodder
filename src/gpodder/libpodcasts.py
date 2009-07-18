@@ -699,6 +699,17 @@ class PodcastEpisode(PodcastModelObject):
                             enclosure = e
                             break
             episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
+        elif hasattr(entry, 'media_content'):
+            media = getattr(entry, 'media_content')
+            for m in media:
+                if 'url' in m and 'type' in m and (m['type'].startswith('audio/') or m['type'].startswith('video/')):
+                    if util.normalize_feed_url(m['url']) is not None:
+                        log('Selected media_content: %s', m['url'], sender = episode)
+                        episode.url=util.normalize_feed_url(m['url'])
+                        episode.mimetype=m['type']
+                        if 'fileSize' in m:
+                            episode.length=int(m['fileSize'])
+                        break
         elif hasattr(entry, 'link'):
             (filename, extension) = util.filename_from_url(entry.link)
             if extension == '' and hasattr( entry, 'type'):
