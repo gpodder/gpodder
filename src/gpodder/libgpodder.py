@@ -359,7 +359,10 @@ class gPodderLib(object):
             else:
                 player = 'default'
 
-            groups[player].append(episode.local_filename(create=False) or episode.url)
+            filename = episode.local_filename(create=False)
+            if filename is None or not os.path.exists(filename):
+                filename = episode.url
+            groups[player].append(filename)
 
         # Open episodes with system default player
         if 'default' in groups:
