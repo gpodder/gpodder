@@ -200,8 +200,6 @@ gPodderSettings = {
     'resume_ask_every_episode': (bool, False,
       _("If there are episode downloads that can be resumed, ask whether or "
         "not to resume every single one.")),
-    'podcast_sidebar_save_space': (bool, False,
-      _("Hide the cover/pill from the podcast sidebar when it gets too small.")),
     'disable_fingerscroll': (bool, False,
       _("Disable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',

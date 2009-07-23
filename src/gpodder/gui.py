@@ -482,7 +482,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.item_upgrade_from_videocenter.set_visible(True)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
-        self.treeChannels.connect('size-allocate', self.on_tree_channels_resize)
 
         if gpodder.win32:
             # FIXME: Implement e-mail sending of list in win32
@@ -546,7 +545,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         iconcell = gtk.CellRendererPixbuf()
         iconcolumn.pack_start( iconcell, False)
         iconcolumn.add_attribute( iconcell, 'pixbuf', 5)
-        self.cell_channel_icon = iconcell
 
         namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
@@ -559,7 +557,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.pack_start( iconcell, False)
         namecolumn.add_attribute( iconcell, 'pixbuf', 3)
         namecolumn.add_attribute(iconcell, 'visible', 7)
-        self.cell_channel_pill = iconcell
 
         self.treeChannels.set_enable_search(True)
         self.treeChannels.set_search_column(1)
@@ -971,17 +968,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # We return False here, so the update loop won't be called again,
             # that's why we require the restart of gPodder in the message.
             return False
-
-    def on_tree_channels_resize(self, widget, allocation):
-        if not gl.config.podcast_sidebar_save_space:
-            return
-
-        window_allocation = self.gPodder.get_allocation()
-        percentage = 100. * float(allocation.width) / float(window_allocation.width)
-        if hasattr(self, 'cell_channel_icon'):
-            self.cell_channel_icon.set_property('visible', bool(percentage > 22.))
-        if hasattr(self, 'cell_channel_pill'):
-            self.cell_channel_pill.set_property('visible', bool(percentage > 25.))
 
     def entry_add_channel_focus(self, widget, event):
         widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
