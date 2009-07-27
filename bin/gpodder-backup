@@ -136,6 +136,10 @@ def extract_archive(backup_filename, download_destination=None):
     print 'DONE.'
 
 def create_archive(backup_filename, fake_download_dir=True, add_cover_files=False):
+    if os.path.exists(backup_filename):
+        print 'refusing to overwrite existing file:', backup_filename
+        sys.exit(1)
+
     tempfolder = tempfile.mkdtemp()
     print 'using', tempfolder, 'to store temporary data'
     config = gPodderConfig()
