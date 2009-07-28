@@ -350,9 +350,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         log("tooltip: %s", tooltip, sender=self) 
 
     def __on_synchronisation_done(self):
-        if self.__gpodder.minimized:
-            # this might propably never appends so long gPodder synchronizes in a modal windows
-            self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
+        # this might propably never appends so long gPodder synchronizes in a modal windows
+        self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
         self.set_status()
         
     def draw_progress_bar(self, ratio):

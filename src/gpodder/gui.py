@@ -3967,8 +3967,6 @@ class gPodderSync(BuilderWidget):
 
     def on_done(self):
         util.idle_add(self.gPodderSync.destroy)
-        if not self.gPodder.minimized:
-            util.idle_add(self.notification, _('Your device has been updated by gPodder.'), _('Operation finished'))
 
     def on_gPodderSync_destroy(self, widget, *args):
         self.device.unregister('progress', self.on_progress)
