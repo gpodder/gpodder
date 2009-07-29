@@ -374,6 +374,14 @@ class PodcastChannel(PodcastModelObject):
 
     def set_custom_title( self, custom_title):
         custom_title = custom_title.strip()
+        
+        # if the custom title is the same as we have
+        if custom_title == self.override_title:
+            return
+        
+        # if custom title is the same as channel title and we didn't have a custom title
+        if custom_title == self.__title and self.override_title == '':
+            return
 
         # make sure self.foldername is initialized
         self.get_save_dir()
