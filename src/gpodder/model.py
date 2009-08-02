@@ -473,11 +473,15 @@ class PodcastChannel(PodcastModelObject):
         current_try = util.sanitize_filename(foldername, self.MAX_FOLDERNAME_LENGTH)
         next_try_id = 2
 
-        while self.db.channel_foldername_exists(current_try):
-            current_try = '%s (%d)' % (foldername, next_try_id)
-            next_try_id += 1
+        while True:
+            if not os.path.exists(os.path.join(self.download_dir, current_try)):
+                self.db.remove_foldername_if_deleted_channel(current_try)
 
-        return current_try
+            if self.db.channel_foldername_exists(current_try):
+                current_try = '%s (%d)' % (foldername, next_try_id)
+                next_try_id += 1
+            else:
+                return current_try
 
     def get_save_dir(self):
         urldigest = hashlib.md5(self.url).hexdigest()

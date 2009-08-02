@@ -576,6 +576,14 @@ class Database(object):
         """
         return self.__get__("SELECT id FROM channels WHERE foldername = ?", (foldername,)) is not None
 
+    def remove_foldername_if_deleted_channel(self, foldername):
+        cur = self.cursor(lock=True)
+        self.log('Setting foldername=NULL for folder "%s"', foldername)
+        cur.execute('UPDATE channels SET foldername=NULL ' + \
+                    'WHERE foldername=? AND deleted=1', (foldername,))
+        cur.close()
+        self.lock.release()
+
     def episode_filename_exists(self, filename):
         """
         Returns True if a filename for an episode exists.
