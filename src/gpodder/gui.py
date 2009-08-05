@@ -1463,10 +1463,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.treeAvailable.set_cursor(path)
                 self.treeAvailable.grab_focus()
                 if gl.config.maemo_enable_gestures and xdistance > 70:
-                    self.on_playback_selected_episodes()
+                    self.on_playback_selected_episodes(None)
                     return True
                 elif gl.config.maemo_enable_gestures and xdistance < -70:
-                    self.on_shownotes_selected_episodes()
+                    self.on_shownotes_selected_episodes(None)
                     return True
             else:
                 # Scrolling has been done
@@ -1659,7 +1659,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
  
     def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
-            banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Opening %s') % saxutils.escape(episode.title))
+            if len(episodes) == 1:
+                text = _('Opening %s') % saxutils.escape(episodes[0].title)
+            else:
+                text = _('Opening %d episodes') % len(episodes)
+            banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
             def destroy_banner_later(banner):
                 banner.destroy()
                 return False
