@@ -24,6 +24,7 @@ __copyright__ = '© 2005-2009 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
 
+import os
 import sys
 import platform
 import gettext
@@ -93,4 +94,10 @@ icon_file = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
+
+# Default locations for configuration and data files
+home = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
+subscription_file = os.path.join(home, 'channels.opml')
+config_file = os.path.join(home, 'gpodder.conf')
+database_file = os.path.join(home, 'database.sqlite')
 

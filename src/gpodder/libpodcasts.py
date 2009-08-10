@@ -1155,15 +1155,6 @@ def update_channels(db, callback_proc=None, callback_error=None, is_cancelled_cb
     return channels
 
 def save_channels( channels):
-    exporter = opml.Exporter(gl.channel_opml_file)
+    exporter = opml.Exporter(gpodder.subscription_file)
     return exporter.write(channels)
-
-def can_restore_from_opml():
-    try:
-        if len(opml.Importer(gl.channel_opml_file).items):
-            return gl.channel_opml_file
-    except:
-        return None
-
-
 

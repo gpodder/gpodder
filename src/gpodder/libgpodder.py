@@ -42,13 +42,8 @@ _ = gpodder.gettext
 
 class gPodderLib(object):
     def __init__( self):
-        log('Creating gPodderLib()', sender=self)
-        gpodder_dir = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
-        util.make_directory(gpodder_dir)
-
-        self.channel_opml_file = os.path.join(gpodder_dir, 'channels.opml')
-
-        self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
+        util.make_directory(gpodder.home)
+        self.config = config.Config(gpodder.config_file)
 
         if gpodder.interface == gpodder.MAEMO:
             # Detect changing of SD cards between mmc1/mmc2 if a gpodder
@@ -64,14 +59,6 @@ class gPodderLib(object):
                         break
                     else:
                         log('Downloads NOT FOUND in %s', dir, sender=self)
-
-        self.bluetooth_available = util.bluetooth_available()
-
-        self.gpodder_dir = gpodder_dir
-        self.database_file = os.path.join(gpodder_dir, 'database.sqlite')
-
-    def find_partial_files(self):
-        return glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
 
     def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
@@ -133,5 +120,5 @@ class gPodderLib(object):
 gl = gPodderLib()
 
 # Global, singleton Database object (for now)
-db = dbsqlite.Database(gl.database_file)
+db = dbsqlite.Database(gpodder.database_file)
 

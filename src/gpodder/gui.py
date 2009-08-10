@@ -95,7 +95,6 @@ from libpodcasts import channels_to_model
 from libpodcasts import update_channel_model_by_iter
 from libpodcasts import load_channels
 from libpodcasts import save_channels
-from libpodcasts import can_restore_from_opml
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -481,6 +480,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.item_upgrade_from_videocenter.set_visible(True)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
+        self.bluetooth_available = util.bluetooth_available()
 
         if gpodder.win32:
             # FIXME: Implement e-mail sending of list in win32
@@ -754,8 +754,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=gl.config.update_on_startup)
 
-        # Clean up old, orphaned download files
-        partial_files = gl.find_partial_files()
+        # Look for partial file downloads
+        partial_files = glob.glob(os.path.join(gl.config.download_dir, '*', '*.partial'))
 
         # Message area
         self.message_area = None
@@ -1560,7 +1560,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: [self.save_episode_as_file(e.url) for e in episodes])
                 menu.append(self.set_finger_friendly(item))
-                if gl.bluetooth_available:
+                if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.copy_episodes_bluetooth(episodes))
@@ -2403,7 +2403,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def send_subscriptions(self):
         try:
             subprocess.Popen(['xdg-email', '--subject', _('My podcast subscriptions'),
-                                           '--attach', gl.channel_opml_file])
+                                           '--attach', gpodder.subscription_file])
         except:
             return False
 
@@ -2781,11 +2781,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
             opml_data = client.download_subscriptions()
             if len(opml_data) > 0:
-                fp = open(gl.channel_opml_file, 'w')
+                fp = open(gpodder.subscription_file, 'w')
                 fp.write(opml_data)
                 fp.close()
                 (added, skipped) = (0, 0)
-                i = opml.Importer(gl.channel_opml_file)
+                i = opml.Importer(gpodder.subscription_file)
                 for item in i.items:
                     url = item['url']
                     if url not in (c.url for c in self.channels):
@@ -2810,7 +2810,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
             save_channels(self.channels)
-            success, messages = client.upload_subscriptions(gl.channel_opml_file)
+            success, messages = client.upload_subscriptions(gpodder.subscription_file)
             if widget is not None:
                 self.show_message('\n'.join(messages), _('Results of upload'))
                 if not success:
