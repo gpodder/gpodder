@@ -23,8 +23,6 @@
 #
 #
 
-import gtk
-import gtk.gdk
 import thread
 import threading
 import urllib
