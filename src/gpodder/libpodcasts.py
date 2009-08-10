@@ -398,8 +398,8 @@ class PodcastChannel(PodcastModelObject):
         new_folder_name = self.find_unique_folder_name(custom_title)
         if len(new_folder_name) > 0 and new_folder_name != self.foldername:
             log('Changing foldername based on custom title: %s', custom_title, sender=self)
-            new_folder = os.path.join(gl.downloaddir, new_folder_name)
-            old_folder = os.path.join(gl.downloaddir, self.foldername)
+            new_folder = os.path.join(gl.config.download_dir, new_folder_name)
+            old_folder = os.path.join(gl.config.download_dir, self.foldername)
             if os.path.exists(old_folder):
                 if not os.path.exists(new_folder):
                     # Old folder exists, new folder does not -> simply rename
@@ -446,7 +446,7 @@ class PodcastChannel(PodcastModelObject):
                 factory=self.episode_factory) if check_is_new(episode)]
 
     def update_m3u_playlist(self):
-        m3u_filename = os.path.join(gl.downloaddir, os.path.basename(self.save_dir)+'.m3u')
+        m3u_filename = os.path.join(gl.config.download_dir, os.path.basename(self.save_dir)+'.m3u')
         log('Writing playlist to %s', m3u_filename, sender=self)
 
         f = open(m3u_filename, 'w')
@@ -585,15 +585,15 @@ class PodcastChannel(PodcastModelObject):
             wanted_foldername = self.find_unique_folder_name(fn_template)
 
             # if the foldername has not been set, check if the (old) md5 filename exists
-            if self.foldername is None and os.path.exists(os.path.join(gl.downloaddir, urldigest)):
+            if self.foldername is None and os.path.exists(os.path.join(gl.config.download_dir, urldigest)):
                 log('Found pre-0.15.0 download folder for %s: %s', self.title, urldigest, sender=self)
                 self.foldername = urldigest
 
             # we have a valid, new folder name in "current_try" -> use that!
             if self.foldername is not None and wanted_foldername != self.foldername:
                 # there might be an old download folder crawling around - move it!
-                new_folder_name = os.path.join(gl.downloaddir, wanted_foldername)
-                old_folder_name = os.path.join(gl.downloaddir, self.foldername)
+                new_folder_name = os.path.join(gl.config.download_dir, wanted_foldername)
+                old_folder_name = os.path.join(gl.config.download_dir, self.foldername)
                 if os.path.exists(old_folder_name):
                     if not os.path.exists(new_folder_name):
                         # Old folder exists, new folder does not -> simply rename
@@ -610,7 +610,7 @@ class PodcastChannel(PodcastModelObject):
             self.foldername = wanted_foldername
             self.save()
 
-        save_dir = os.path.join(gl.downloaddir, self.foldername)
+        save_dir = os.path.join(gl.config.download_dir, self.foldername)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):

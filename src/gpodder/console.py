@@ -121,7 +121,7 @@ def run():
     db.commit()
 
 def sync_device():
-    device = sync.open_device()
+    device = sync.open_device(gl.config)
     if device is None:
         msg('error', _('No device configured. Please use the GUI.'))
         return False
@@ -155,7 +155,7 @@ def sync_device():
 
 def sync_stats():
     size = 0
-    device = sync.open_device()
+    device = sync.open_device(gl.config)
     if device is None:
         msg('error', _('No device configured. Please use the GUI.'))
         return False

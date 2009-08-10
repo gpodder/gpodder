@@ -28,7 +28,6 @@ from __future__ import with_statement
 
 import gpodder
 from gpodder.liblogger import log
-from gpodder.libgpodder import gl
 
 from gpodder import util
 from gpodder import resolver

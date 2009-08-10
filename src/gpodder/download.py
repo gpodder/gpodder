@@ -28,7 +28,6 @@
 from __future__ import with_statement
 
 from gpodder.liblogger import log
-from gpodder.libgpodder import gl
 from gpodder import util
 from gpodder import resolver
 import gpodder
@@ -322,8 +321,9 @@ class DownloadQueueWorker(threading.Thread):
 
 
 class DownloadQueueManager(object):
-    def __init__(self, download_status_manager):
+    def __init__(self, download_status_manager, config):
         self.download_status_manager = download_status_manager
+        self._config = config
         self.tasks = collections.deque()
 
         self.worker_threads_access = threading.RLock()
@@ -335,16 +335,16 @@ class DownloadQueueManager(object):
 
     def spawn_and_retire_threads(self, request_new_thread=False):
         with self.worker_threads_access:
-            if len(self.worker_threads) > gl.config.max_downloads and \
-                    gl.config.max_downloads_enabled:
+            if len(self.worker_threads) > self._config.max_downloads and \
+                    self._config.max_downloads_enabled:
                 # Tell the excessive amount of oldest worker threads to quit, but keep at least one
-                count = min(len(self.worker_threads)-1, len(self.worker_threads)-gl.config.max_downloads)
+                count = min(len(self.worker_threads)-1, len(self.worker_threads)-self._config.max_downloads)
                 for worker in self.worker_threads[:count]:
                     worker.stop_accepting_tasks()
 
             if request_new_thread and (len(self.worker_threads) == 0 or \
-                    len(self.worker_threads) < gl.config.max_downloads or \
-                    not gl.config.max_downloads_enabled):
+                    len(self.worker_threads) < self._config.max_downloads or \
+                    not self._config.max_downloads_enabled):
                 # We have to create a new thread here, there's work to do
                 log('I am going to spawn a new worker thread.', sender=self)
                 worker = DownloadQueueWorker(self.tasks, self.__exit_callback)
@@ -372,7 +372,7 @@ class DownloadTask(object):
 
     You can create a new download task like this:
 
-        task = DownloadTask(episode)
+        task = DownloadTask(episode, gpodder.config.Config(CONFIGFILE))
         task.status = DownloadTask.QUEUED
         task.run()
 
@@ -477,10 +477,11 @@ class DownloadTask(object):
         if self.status != self.DONE:
             util.delete_file(self.tempname)
 
-    def __init__(self, episode):
+    def __init__(self, episode, config):
         self.__status = DownloadTask.INIT
         self.__status_changed = True
         self.__episode = episode
+        self._config = config
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)
@@ -494,8 +495,8 @@ class DownloadTask(object):
         # Variables for speed limit and speed calculation
         self.__start_time = 0
         self.__start_blocks = 0
-        self.__limit_rate_value = gl.config.limit_rate_value
-        self.__limit_rate = gl.config.limit_rate
+        self.__limit_rate_value = self._config.limit_rate_value
+        self.__limit_rate = self._config.limit_rate
 
         # If the tempname already exists, set progress accordingly
         if os.path.exists(self.tempname):
@@ -532,18 +533,18 @@ class DownloadTask(object):
             now = time.time()
             if self.__start_time > 0:
                 # Has rate limiting been enabled or disabled?                
-                if self.__limit_rate != gl.config.limit_rate: 
+                if self.__limit_rate != self._config.limit_rate: 
                     # If it has been enabled then reset base time and block count                    
-                    if gl.config.limit_rate:
+                    if self._config.limit_rate:
                         self.__start_time = now
                         self.__start_blocks = count
-                    self.__limit_rate = gl.config.limit_rate
+                    self.__limit_rate = self._config.limit_rate
                     
                 # Has the rate been changed and are we currently limiting?            
-                if self.__limit_rate_value != gl.config.limit_rate_value and self.__limit_rate: 
+                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate: 
                     self.__start_time = now
                     self.__start_blocks = count
-                    self.__limit_rate_value = gl.config.limit_rate_value
+                    self.__limit_rate_value = self._config.limit_rate_value
 
                 passed = now - self.__start_time
                 if passed > 0:
@@ -558,10 +559,10 @@ class DownloadTask(object):
 
             self.speed = float(speed)
 
-            if gl.config.limit_rate and speed > gl.config.limit_rate_value:
+            if self._config.limit_rate and speed > self._config.limit_rate_value:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = float((count-self.__start_blocks)*blockSize)/(gl.config.limit_rate_value*1024.0)
+                should_have_passed = float((count-self.__start_blocks)*blockSize)/(self._config.limit_rate_value*1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))
@@ -611,7 +612,7 @@ class DownloadTask(object):
             self.__episode.channel.addDownloadedItem(self.__episode)
             
             # If a user command has been defined, execute the command setting some environment variables
-            if len(gl.config.cmd_download_complete) > 0:
+            if len(self._config.cmd_download_complete) > 0:
                 os.environ["GPODDER_EPISODE_URL"]=self.__episode.url or ''
                 os.environ["GPODDER_EPISODE_TITLE"]=self.__episode.title or ''
                 os.environ["GPODDER_EPISODE_FILENAME"]=self.filename or ''
@@ -619,7 +620,7 @@ class DownloadTask(object):
                 os.environ["GPODDER_EPISODE_LINK"]=self.__episode.link or ''
                 os.environ["GPODDER_EPISODE_DESC"]=self.__episode.description or ''
                 os.environ["GPODDER_CHANNEL_TITLE"]=self.__episode.channel.title or ''
-                util.run_external_command(gl.config.cmd_download_complete)
+                util.run_external_command(self._config.cmd_download_complete)
         except DownloadCancelledException:
             log('Download has been cancelled/paused: %s', self, sender=self)
             if self.status == DownloadTask.CANCELLED:

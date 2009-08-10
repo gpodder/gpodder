@@ -503,7 +503,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.gpodder_episode_window = None
 
         self.download_status_manager = services.DownloadStatusManager()
-        self.download_queue_manager = download.DownloadQueueManager(self.download_status_manager)
+        self.download_queue_manager = download.DownloadQueueManager(self.download_status_manager, gl.config)
 
         self.fullscreen = False
         self.minimized = False
@@ -2442,7 +2442,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue
 
                 try:
-                    task = download.DownloadTask(episode)
+                    task = download.DownloadTask(episode, gl.config)
                 except Exception, e:
                     self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'))
                     log('Download error while downloading %s', episode.title, sender=self, traceback=True)
@@ -2529,7 +2529,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification( message, title )
             return
 
-        device = sync.open_device()
+        device = sync.open_device(gl.config)
         device.register( 'post-done', self.sync_to_ipod_completed )
 
         if device is None:
@@ -2639,7 +2639,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('released', None, None, _('Released')),
         )
 
-        device = sync.open_device()
+        device = sync.open_device(gl.config)
 
         if device is None:
             title = _('No device configured')
@@ -2689,7 +2689,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification( message, title )
             return
 
-        device = sync.open_device()
+        device = sync.open_device(gl.config)
 
         if device is None:
             title = _('No device configured')
@@ -2708,7 +2708,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def show_hide_tray_icon(self):
         if gl.config.display_tray_icon and have_trayicon and self.tray_icon is None:
-            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file)
+            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file, gl.config)
         elif not gl.config.display_tray_icon and self.tray_icon is not None:
             self.tray_icon.set_visible(False)
             del self.tray_icon
@@ -3567,7 +3567,7 @@ class gPodderProperties(BuilderWidget):
 
         self.iPodMountpoint.set_label( gl.config.ipod_mount)
         self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
-        self.chooserDownloadTo.set_current_folder(gl.downloaddir)
+        self.chooserDownloadTo.set_current_folder(gl.config.download_dir)
 
         self.on_sync_delete.set_sensitive(not self.delete_episodes_marked_played.get_active())
         self.on_sync_mark_played.set_sensitive(not self.delete_episodes_marked_played.get_active())
@@ -3662,14 +3662,6 @@ class gPodderProperties(BuilderWidget):
         # return index of custom command or first item
         return max(0, index_custom)
     
-    def set_download_dir( self, new_download_dir, event = None):
-        gl.downloaddir = self.chooserDownloadTo.get_filename()
-        if gl.downloaddir != self.chooserDownloadTo.get_filename():
-            self.notification(_('There has been an error moving your downloads to the specified location. The old download directory will be used instead.'), _('Error moving downloads'))
-
-        if event:
-            event.set()
-            
     def on_auto_update_feeds_toggled( self, widget, *args):
         self.auto_update_frequency.set_sensitive(widget.get_active())
         
@@ -3814,57 +3806,7 @@ class gPodderProperties(BuilderWidget):
         gl.config.ipod_mount = self.iPodMountpoint.get_label()
         gl.config.mp3_player_folder = self.filesystemMountpoint.get_label()
 
-        if gl.downloaddir != self.chooserDownloadTo.get_filename():
-            new_download_dir = self.chooserDownloadTo.get_filename()
-            download_dir_size = util.calculate_size( gl.downloaddir)
-            download_dir_size_string = util.format_filesize( download_dir_size)
-            event = Event()
-
-            dlg = gtk.Dialog( _('Moving downloads folder'), self.gPodderProperties)
-            dlg.vbox.set_spacing( 5)
-            dlg.set_border_width( 5)
-         
-            label = gtk.Label()
-            label.set_line_wrap( True)
-            label.set_markup( _('Moving downloads from <b>%s</b> to <b>%s</b>...') % ( saxutils.escape( gl.downloaddir), saxutils.escape( new_download_dir), ))
-            myprogressbar = gtk.ProgressBar()
-         
-            # put it all together
-            dlg.vbox.pack_start( label)
-            dlg.vbox.pack_end( myprogressbar)
-
-            # switch windows
-            dlg.show_all()
-            self.gPodderProperties.hide_all()
-         
-            # hide action area and separator line
-            dlg.action_area.hide()
-            dlg.set_has_separator( False)
-
-            args = ( new_download_dir, event, )
-
-            thread = Thread( target = self.set_download_dir, args = args)
-            thread.start()
-
-            while not event.isSet():
-                try:
-                    new_download_dir_size = util.calculate_size( new_download_dir)
-                except:
-                    new_download_dir_size = 0
-                if download_dir_size > 0:
-                    fract = (1.00*new_download_dir_size) / (1.00*download_dir_size)
-                else:
-                    fract = 0.0
-                if fract < 0.99:
-                    myprogressbar.set_text( _('%s of %s') % ( util.format_filesize( new_download_dir_size), download_dir_size_string, ))
-                else:
-                    myprogressbar.set_text( _('Finishing... please wait.'))
-                myprogressbar.set_fraction(max(0.0,min(1.0,fract)))
-                event.wait( 0.1)
-                while gtk.events_pending():
-                    gtk.main_iteration( False)
-
-            dlg.destroy()
+        # FIXME: set gl.config.download_dir to self.chooserDownloadTo.get_filename() and move download folder!
 
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:

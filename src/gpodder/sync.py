@@ -29,7 +29,6 @@ from gpodder import services
 from gpodder import libconverter
 
 from gpodder.liblogger import log
-from gpodder.libgpodder import gl
 
 import time
 import calendar
@@ -83,14 +82,14 @@ import email.Utils
 import re
 
 
-def open_device():
-    device_type = gl.config.device_type
+def open_device(config):
+    device_type = config.device_type
     if device_type == 'ipod':
-        return iPodDevice()
+        return iPodDevice(config)
     elif device_type == 'filesystem':
-        return MP3PlayerDevice()
+        return MP3PlayerDevice(config)
     elif device_type == 'mtp':
-        return MTPDevice()
+        return MTPDevice(config)
     else:
         return None
 
@@ -153,7 +152,8 @@ class SyncTrack(object):
 
 
 class Device(services.ObservableService):
-    def __init__(self):
+    def __init__(self, config):
+        self._config = config
         self.cancelled = False
         self.allowed_types = ['audio', 'video']
         self.errors = []
@@ -170,7 +170,7 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        if gl.config.sync_disks_after_transfer:
+        if self._config.sync_disks_after_transfer:
             successful_sync = (os.system('sync') == 0)
         else:
             log('Not syncing disks. Unmount your device before unplugging.', sender=self)
@@ -184,7 +184,7 @@ class Device(services.ObservableService):
             # Filter tracks that are not meant to be synchronized
             does_not_exist = not track.was_downloaded(and_exists=True)
             exclude_played = track.is_played and not force_played and \
-                    gl.config.only_sync_not_played
+                    self._config.only_sync_not_played
             wrong_type = track.file_type() not in self.allowed_types
 
             if does_not_exist or exclude_played or wrong_type:
@@ -200,11 +200,11 @@ class Device(services.ObservableService):
 
             added = self.add_track(track)
 
-            if gl.config.on_sync_mark_played:
+            if self._config.on_sync_mark_played:
                 log('Marking as played on transfer: %s', track.url, sender=self)
                 track.mark(is_played=True)
 
-            if added and gl.config.on_sync_delete:
+            if added and self._config.on_sync_delete:
                 log('Removing episode after transfer: %s', track.url, sender=self)
                 track.delete_from_disk()
         return True
@@ -216,7 +216,7 @@ class Device(services.ObservableService):
         assert filename is not None
         (fn, extension) = os.path.splitext(filename)
         if libconverter.converters.has_converter(extension):
-            if gl.config.disable_pre_sync_conversion:
+            if self._config.disable_pre_sync_conversion:
                 log('Pre-sync conversion is not enabled, set disable_pre_sync_conversion to "False" to enable')
                 return filename
 
@@ -263,10 +263,10 @@ class Device(services.ObservableService):
         return False
 
 class iPodDevice(Device):
-    def __init__(self):
-        Device.__init__(self)
+    def __init__(self, config):
+        Device.__init__(self, config)
 
-        self.mountpoint = str(gl.config.ipod_mount)
+        self.mountpoint = str(self._config.ipod_mount)
 
         self.itdb = None
         self.podcast_playlist = None
@@ -500,14 +500,9 @@ class MP3PlayerDevice(Device):
     # .scrobbler.log, add them to this list
     scrobbler_log_filenames = ['.scrobbler.log']
 
-    # This is the maximum length of a file name that is
-    # created on the MP3 player, because FAT32 has a
-    # 255-character limit for the whole path
-    MAX_FILENAME_LENGTH = gl.config.mp3_player_max_filename_length
-
-    def __init__(self):
-        Device.__init__(self)
-        self.destination = gl.config.mp3_player_folder
+    def __init__(self, config):
+        Device.__init__(self, config)
+        self.destination = self._config.mp3_player_folder
         self.buffer_size = 1024*1024 # 1 MiB
         self.scrobbler_log = []
 
@@ -521,7 +516,7 @@ class MP3PlayerDevice(Device):
             self.notify('status', _('MP3 player opened'))
             # build the initial tracks_list
             self.tracks_list = self.get_all_tracks()
-            if gl.config.mp3_player_use_scrobbler_log:
+            if self._config.mp3_player_use_scrobbler_log:
                 mp3_player_mount_point = util.find_mount_point(self.destination)
                 # If a moint point cannot be found look inside self.destination for scrobbler_log_filenames
                 # this prevents us from os.walk()'ing the entire / filesystem
@@ -537,17 +532,17 @@ class MP3PlayerDevice(Device):
     def add_track(self, episode):
         self.notify('status', _('Adding %s') % episode.title)
 
-        if gl.config.fssync_channel_subfolders:
+        if self._config.fssync_channel_subfolders:
             # Add channel title as subfolder
             folder = episode.channel.title
             # Clean up the folder name for use on limited devices
-            folder = util.sanitize_filename(folder, self.MAX_FILENAME_LENGTH)
+            folder = util.sanitize_filename(folder, self._config.mp3_player_max_filename_length)
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
 
         from_file = util.sanitize_encoding(self.convert_track(episode))
-        filename_base = util.sanitize_filename(episode.sync_filename(), self.MAX_FILENAME_LENGTH)
+        filename_base = util.sanitize_filename(episode.sync_filename(), self._config.mp3_player_max_filename_length)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
@@ -566,25 +561,25 @@ class MP3PlayerDevice(Device):
                 log('Cannot create folder on MP3 player: %s', folder, sender=self)
                 return False
 
-        if (gl.config.mp3_player_use_scrobbler_log and not episode.is_played
+        if (self._config.mp3_player_use_scrobbler_log and not episode.is_played
                 and [episode.channel.title, episode.title] in self.scrobbler_log):
             log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
             episode.mark(is_played=True)
 
-        if gl.config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
+        if self._config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
             log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)
             self.copy_player_cover_art(folder, from_file, \
-            'cover.bmp', 'BMP', gl.config.rockbox_coverart_size)
+            'cover.bmp', 'BMP', self._config.rockbox_coverart_size)
 
-        if gl.config.custom_player_copy_coverart \
+        if self._config.custom_player_copy_coverart \
         and not os.path.exists(os.path.join(folder, \
-        gl.config.custom_player_coverart_name)):
+        self._config.custom_player_coverart_name)):
             log('Creating custom player album art for "%s"',
                 episode.channel.title, sender=self)
             self.copy_player_cover_art(folder, from_file, \
-            gl.config.custom_player_coverart_name, \
-            gl.config.custom_player_coverart_format, \
-            gl.config.custom_player_coverart_size)
+            self._config.custom_player_coverart_name, \
+            self._config.custom_player_coverart_format, \
+            self._config.custom_player_coverart_size)
 
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding), sender=self)
@@ -641,7 +636,7 @@ class MP3PlayerDevice(Device):
     def get_all_tracks(self):
         tracks = []
 
-        if gl.config.fssync_channel_subfolders:
+        if self._config.fssync_channel_subfolders:
             files = glob.glob(os.path.join(self.destination, '*', '*'))
         else:
             files = glob.glob(os.path.join(self.destination, '*'))
@@ -652,7 +647,7 @@ class MP3PlayerDevice(Device):
 
             timestamp = util.file_modification_timestamp(filename)
             modified = util.format_date(timestamp)
-            if gl.config.fssync_channel_subfolders:
+            if self._config.fssync_channel_subfolders:
                 podcast_name = os.path.basename(os.path.dirname(filename))
             else:
                 podcast_name = None
@@ -662,14 +657,14 @@ class MP3PlayerDevice(Device):
         return tracks
 
     def episode_on_device(self, episode):
-        e = util.sanitize_filename(episode.sync_filename(), gl.config.mp3_player_max_filename_length)
+        e = util.sanitize_filename(episode.sync_filename(), self._config.mp3_player_max_filename_length)
         return self._track_on_device(e)
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
         util.delete_file(track.filename)
         directory = os.path.dirname(track.filename)
-        if self.directory_is_empty(directory) and gl.config.fssync_channel_subfolders:
+        if self.directory_is_empty(directory) and self._config.fssync_channel_subfolders:
             try:
                 os.rmdir(directory)
             except:
@@ -752,8 +747,8 @@ class MP3PlayerDevice(Device):
         return True
 
 class MTPDevice(Device):
-    def __init__(self):
-        Device.__init__(self)
+    def __init__(self, config):
+        Device.__init__(self, config)
         self.__model_name = None
         self.__MTPDevice = pymtp.MTP()
 

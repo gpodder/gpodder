@@ -27,7 +27,6 @@ import datetime
 
 import gpodder
 from gpodder.liblogger import log
-from gpodder.libgpodder import gl
 
 _ = gpodder.gettext
 
@@ -65,7 +64,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
     STATUS_SYNCHRONIZING = (_('Synchronizing to player'), 'multimedia-player')
     STATUS_DELETING = (_('Cleaning files'), gtk.STOCK_DELETE)
 
-    def __init__(self, gp, icon_filename):
+    def __init__(self, gp, icon_filename, config):
         gtk.StatusIcon.__init__(self)
         log('Creating tray icon', sender=self)
         
@@ -122,9 +121,9 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menu.append(menuItem)
 
         # menus's label will adapt to the synchronisation device name
-        if gl.config.device_type != 'none':
+        if self._config.device_type != 'none':
             menuItem = gtk.ImageMenuItem(sync_label)
-            menuItem.set_sensitive(gl.config.device_type != 'none')
+            menuItem.set_sensitive(self._config.device_type != 'none')
             menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
             menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
             menu.append(menuItem)
@@ -242,7 +241,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
     def __is_notification_on(self):
         # tray icon not visible or notifications disabled
-        if not self.get_visible() or not gl.config.enable_notifications:
+        if not self.get_visible() or not self._config.enable_notifications:
             return False
         return True
     

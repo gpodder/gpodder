@@ -71,20 +71,20 @@ class gPodderLib(object):
         self.database_file = os.path.join(gpodder_dir, 'database.sqlite')
 
     def find_partial_files(self):
-        return glob.glob(os.path.join(self.downloaddir, '*', '*.partial'))
+        return glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
 
     def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
-        temporary_files = glob.glob('%s/*/.tmp-*' % self.downloaddir)
+        temporary_files = glob.glob('%s/*/.tmp-*' % self.config.download_dir)
 
         if delete_partial:
-            temporary_files += glob.glob('%s/*/*.partial' % self.downloaddir)
+            temporary_files += glob.glob('%s/*/*.partial' % self.config.download_dir)
 
         for tempfile in temporary_files:
             util.delete_file(tempfile)
 
         # Clean up empty download folders and abandoned download folders
-        download_dirs = glob.glob(os.path.join(self.downloaddir, '*'))
+        download_dirs = glob.glob(os.path.join(self.config.download_dir, '*'))
         for ddir in download_dirs:
             if os.path.isdir(ddir) and False: # FIXME not db.channel_foldername_exists(os.path.basename(ddir)):
                 globr = glob.glob(os.path.join(ddir, '*'))
@@ -92,33 +92,6 @@ class gPodderLib(object):
                     log('Stale download directory found: %s', os.path.basename(ddir), sender=self)
                     shutil.rmtree(ddir, ignore_errors=True)
 
-    def get_download_dir( self):
-        util.make_directory( self.config.download_dir)
-        return self.config.download_dir
-
-    def set_download_dir( self, new_downloaddir):
-        if self.config.download_dir != new_downloaddir:
-            log( 'Moving downloads from %s to %s', self.config.download_dir, new_downloaddir)
-            try:
-                # Fix error when moving over disk boundaries
-                if os.path.isdir( new_downloaddir) and not os.listdir( new_downloaddir):
-                    os.rmdir( new_downloaddir)
-
-                shutil.move( self.config.download_dir, new_downloaddir)
-            except NameError:
-                log( 'Fixing a bug in shutil. See http://bugs.python.org/issue2549')
-                errno = subprocess.call(["rm", "-rf", self.config.download_dir])
-                if errno <> 0:
-                    log( 'Error while deleting %s: rm returned error %i', self.config.download_dir, errno) 
-                    return
-            except Exception, exc:
-                log( 'Error while moving %s to %s: %s',self.config.download_dir, new_downloaddir, exc)
-                return
-
-        self.config.download_dir = new_downloaddir
-
-    downloaddir = property(fget=get_download_dir,fset=set_download_dir)
-    
     def streaming_possible(self):
         return self.config.player and self.config.player != 'default'
 
