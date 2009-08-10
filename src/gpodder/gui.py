@@ -31,6 +31,7 @@ import urllib
 import urllib2
 import datetime
 import fnmatch
+import tempfile
 
 from xml.sax import saxutils
 
@@ -1400,12 +1401,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         filename = episode.local_filename(create=False)
         assert filename is not None
 
-        destfile = os.path.join(gl.tempdir, util.sanitize_filename(episode.sync_filename()))
+        destfile = os.path.join(tempfile.gettempdir(), util.sanitize_filename(episode.sync_filename()))
         (base, ext) = os.path.splitext(filename)
         if not destfile.endswith(ext):
             destfile += ext
 
-        def convert_and_send_thread(filename, destfile, device, notify):
+        def convert_and_send_thread(filename, destfile, notify):
             try:
                 shutil.copyfile(filename, destfile)
                 util.bluetooth_send_file(destfile)
@@ -1415,7 +1416,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             util.delete_file(destfile)
 
-        Thread(target=convert_and_send_thread, args=[filename, destfile, device, self.notification]).start()
+        Thread(target=convert_and_send_thread, args=[filename, destfile, self.notification]).start()
 
     def treeview_button_savepos(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO and event.button == 1:
@@ -1442,6 +1443,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Emulate the cursor changed signal to force an update
                     self.on_treeChannels_cursor_changed(self.treeChannels)
                     return True
+
+    def get_device_name(self):
+        if gl.config.device_type == 'ipod':
+            return _('iPod')
+        elif gl.config.device_type in ('filesystem', 'mtp'):
+            return _('MP3 player')
+        else:
+            return '(unknown device)'
 
     def treeview_button_pressed( self, treeview, event):
         global WEB_BROWSER_ICON
@@ -1559,7 +1568,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
                     menu.append(self.set_finger_friendly(item))
                 if can_transfer:
-                    item = gtk.ImageMenuItem(_('Transfer to %s') % gl.get_device_name())
+                    item = gtk.ImageMenuItem(_('Transfer to %s') % self.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_transfer_selected_episodes)
                     menu.append(self.set_finger_friendly(item))
@@ -2403,10 +2412,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.updateComboBox(only_selected_channel=True)
 
+    def send_subscriptions(self):
+        try:
+            subprocess.Popen(['xdg-email', '--subject', _('My podcast subscriptions'),
+                                           '--attach', gl.channel_opml_file])
+        except:
+            return False
+
+        return True
+
     def on_item_email_subscriptions_activate(self, widget):
         if not self.channels:
             self.show_message(_('Your subscription list is empty.'), _('Could not send list'))
-        elif not gl.send_subscriptions():
+        elif not self.send_subscriptions():
             self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'))
 
     def on_itemUpdateChannel_activate(self, widget=None):

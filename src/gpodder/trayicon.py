@@ -123,7 +123,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         # menus's label will adapt to the synchronisation device name
         if gl.config.device_type != 'none':
-            sync_label = _('Synchronize to %s') % (gl.get_device_name(),)
             menuItem = gtk.ImageMenuItem(sync_label)
             menuItem.set_sensitive(gl.config.device_type != 'none')
             menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))

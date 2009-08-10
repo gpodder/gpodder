@@ -76,7 +76,7 @@ class Storage(object):
         self._db = None
 
     def log(self, message, *args, **kwargs):
-        if self.settings['gl'].config.log_sqlite:
+        if False:
             try:
                 message = message % args
                 log('%s', message, sender=self)

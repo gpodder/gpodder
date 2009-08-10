@@ -49,9 +49,8 @@ gPodderSettings = {
     'player': (str, 'default', 
       _("The default player for all media, if set to 'default' this will "
         "attempt to use xdg-open on linux or the built-in media player on maemo.")),
-    'videoplayer': (str, 'unspecified', 
-      _("The default player for video, if set to 'unspecified' this will use "
-        "whatever 'player' is set to.")),
+    'videoplayer': (str, 'default',
+      _("The default player for video")),
     'opml_url': (str, 'http://gpodder.org/directory.opml',
       _("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
     'toplist_url': (str, 'http://gpodder.org/toplist.opml',
