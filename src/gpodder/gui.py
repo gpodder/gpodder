@@ -91,7 +91,6 @@ except Exception, exc:
     have_trayicon = False
 
 from libpodcasts import PodcastChannel
-from libpodcasts import LocalDBReader
 from libpodcasts import channels_to_model
 from libpodcasts import update_channel_model_by_iter
 from libpodcasts import load_channels
@@ -2416,54 +2415,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemUpdate_activate(self, widget=None):
         if self.channels:
             self.update_feed_cache()
-            return
-
-        restore_from = can_restore_from_opml()
-        if restore_from is not None:
-            title = _('Database upgrade required')
-            message = _('gPodder is now using a new (much faster) database backend and needs to convert your current data. This can take some time. Start the conversion now?')
-            if self.show_confirmation(message, title):
-                add_callback = lambda url: self.add_new_channel(url, False, True)
-                w = gtk.Dialog(_('Migrating to SQLite'), self.gPodder, 0, (gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
-                w.set_has_separator(False)
-                w.set_response_sensitive(gtk.RESPONSE_ACCEPT, False)
-                w.set_default_size(500, -1)
-                pb = gtk.ProgressBar()
-                l = gtk.Label()
-                l.set_padding(6, 3)
-                l.set_markup('<b><big>%s</big></b>' % _('SQLite migration'))
-                l.set_alignment(0.0, 0.5)
-                w.vbox.pack_start(l)
-                l = gtk.Label()
-                l.set_padding(6, 3)
-                l.set_alignment(0.0, 0.5)
-                l.set_text(_('Please wait while your settings are converted.'))
-                w.vbox.pack_start(l)
-                w.vbox.pack_start(pb)
-                lb = gtk.Label()
-                lb.set_ellipsize(pango.ELLIPSIZE_END)
-                lb.set_alignment(0.0, 0.5)
-                lb.set_padding(6, 6)
-                w.vbox.pack_start(lb)
-
-                def set_pb_status(pb, lb, fraction, text):
-                    pb.set_fraction(float(fraction)/100.0)
-                    pb.set_text('%.0f %%' % fraction)
-                    lb.set_markup('<i>%s</i>' % saxutils.escape(text))
-                    while gtk.events_pending():
-                        gtk.main_iteration(False)
-                status_callback = lambda fraction, text: set_pb_status(pb, lb, fraction, text)
-                get_localdb = lambda channel: LocalDBReader(channel.url).read(channel.index_file)
-                w.show_all()
-                start = datetime.datetime.now()
-                gl.migrate_to_sqlite(add_callback, status_callback, load_channels, get_localdb)
-                # Refresh the view with the updated episodes
-                self.updateComboBox()
-                time_taken = str(datetime.datetime.now()-start)
-                status_callback(100.0, _('Migration finished in %s') % time_taken)
-                w.set_response_sensitive(gtk.RESPONSE_ACCEPT, True)
-                w.run()
-                w.destroy()
         else:
             gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
