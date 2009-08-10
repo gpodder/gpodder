@@ -22,6 +22,8 @@
 import gpodder
 _ = gpodder.gettext
 
+import sys
+
 have_sqlite = True
 
 try:
@@ -36,9 +38,8 @@ except ImportError:
 
 # TODO: show a message box
 if not have_sqlite:
-    print "Please install pysqlite2 or upgrade to Python 2.5."
-    import sys
-    sys.exit()
+    print >>sys.stderr, 'Please install pysqlite2 or Python 2.5.'
+    sys.exit(1)
 
 from gpodder.liblogger import log
 from email.Utils import mktime_tz
@@ -48,20 +49,14 @@ from threading import RLock
 import string
 import re
 
-class Storage(object):
-    (STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED) = range(3)
+class Database(object):
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
-    lock = None
-
-    def __init__(self):
-        self.settings = {}
+    def __init__(self, filename):
+        self.database_file = filename
         self.channel_map = {}
         self._db = None
         self.lock = RLock()
-
-    def setup(self, settings):
-        self.settings = settings
 
     def close(self):
         self.commit()
@@ -98,7 +93,7 @@ class Storage(object):
             AND id NOT IN
             (SELECT id FROM episodes WHERE channel_id = ?
             ORDER BY pubDate DESC LIMIT ?)"""
-        cur.execute(sql, (channel_id, self.STATE_DOWNLOADED, channel_id, max_episodes))
+        cur.execute(sql, (channel_id, gpodder.STATE_DOWNLOADED, channel_id, max_episodes))
 
         cur.close()
         self.lock.release()
@@ -127,7 +122,7 @@ class Storage(object):
     @property
     def db(self):
         if self._db is None:
-            self._db = sqlite.connect(self.settings['database'], check_same_thread=False)
+            self._db = sqlite.connect(self.database_file, check_same_thread=False)
             self._db.text_factory = str
             self._db.create_collation("UNICODE", self.db_sort_cmp)
             self.log('Connected')
@@ -214,11 +209,11 @@ class Storage(object):
 
         cur.execute("""CREATE TEMPORARY VIEW episodes_downloaded AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 1 GROUP BY channel_id""")
         cur.execute("""CREATE TEMPORARY VIEW episodes_new AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 0 AND played = 0 GROUP BY channel_id""")
-        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE played = 0 AND state = %d GROUP BY channel_id""" % self.STATE_DOWNLOADED)
+        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE played = 0 AND state = %d GROUP BY channel_id""" % gpodder.STATE_DOWNLOADED)
 
         # Make sure deleted episodes are played, to simplify querying statistics.
         try:
-            cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (self.STATE_DELETED, ))
+            cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (gpodder.STATE_DELETED, ))
         except OperationalError:
             pass
 
@@ -391,7 +386,7 @@ class Storage(object):
                 del self.channel_map[channel.url]
         else:
             cur.execute("UPDATE channels SET deleted = 1 WHERE id = ?", (channel.id, ))
-            cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, self.STATE_DOWNLOADED))
+            cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, gpodder.STATE_DOWNLOADED))
 
         cur.close()
         self.lock.release()
@@ -427,7 +422,7 @@ class Storage(object):
                 'id': row[13],
                 }
             if episode['state'] is None:
-                episode['state'] = self.STATE_NORMAL
+                episode['state'] = gpodder.STATE_NORMAL
             if factory is None:
                 result.append(episode)
             else:
@@ -449,7 +444,7 @@ class Storage(object):
                 (SELECT id FROM episodes WHERE channel_id = ?
                 ORDER BY pubDate DESC LIMIT ?)
                 ORDER BY pubDate DESC
-                """, params = (channel.id, self.STATE_DOWNLOADED, channel.id, limit, ))
+                """, params = (channel.id, gpodder.STATE_DOWNLOADED, channel.id, limit, ))
         else:
             return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, state, limit, ))
 
@@ -602,8 +597,8 @@ class Storage(object):
 
     def force_last_new(self, channel):
         old = self.__get__("""SELECT COUNT(*) FROM episodes WHERE channel_id = ?
-            AND state IN (?, ?)""", (channel.id, self.STATE_DOWNLOADED,
-            self.STATE_DELETED))
+            AND state IN (?, ?)""", (channel.id, gpodder.STATE_DOWNLOADED,
+            gpodder.STATE_DELETED))
 
         cur = self.cursor(lock=True)
 
@@ -614,8 +609,8 @@ class Storage(object):
                 UPDATE episodes SET played = 1 WHERE channel_id = ?
                 AND played = 0 AND pubDate < (SELECT MAX(pubDate)
                 FROM episodes WHERE channel_id = ? AND state IN (?, ?))""",
-                (channel.id, channel.id, self.STATE_DOWNLOADED,
-                self.STATE_DELETED, ))
+                (channel.id, channel.id, gpodder.STATE_DOWNLOADED,
+                gpodder.STATE_DELETED, ))
         else:
             cur.execute("""
                 UPDATE episodes SET played = 1 WHERE channel_id = ?
@@ -655,7 +650,6 @@ class Storage(object):
         """
         cur = self.cursor(lock=True)
         log('Deleting old episodes from channel #%d' % channel_id)
-        cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, self.STATE_DOWNLOADED, ))
+        cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, gpodder.STATE_DOWNLOADED, ))
         self.lock.release()
 
-db = Storage()

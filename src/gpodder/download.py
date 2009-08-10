@@ -29,7 +29,6 @@ from __future__ import with_statement
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
-from gpodder.dbsqlite import db
 from gpodder import util
 from gpodder import resolver
 import gpodder
@@ -486,7 +485,6 @@ class DownloadTask(object):
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)
         self.tempname = self.filename + '.partial'
-        db.commit()
 
         self.total_size = self.__episode.length
         self.speed = 0.0

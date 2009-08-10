@@ -188,8 +188,6 @@ gPodderSettings = {
     'cmd_download_complete': (str, '',
       _("The path to a command that gets run after a single download completes. "
         "See http://wiki.gpodder.org/wiki/Time_stretching for more info.")),
-    'log_sqlite': (bool, False,
-      _("Enable _very_ verbose logging from the dbsqlite module.")),
     'enable_html_shownotes': (bool, True,
       _("Allow HTML to be rendered in the episode information dialog.")),
     'maemo_enable_gestures': (bool, False,

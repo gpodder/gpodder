@@ -26,7 +26,7 @@ integrate podcast functionality into their applications.
 import gpodder
 from gpodder import util
 from gpodder import libpodcasts
-from gpodder.dbsqlite import db
+from gpodder.libgpodder import db
 from gpodder import download
 
 class Podcast(object):
@@ -97,10 +97,10 @@ class Episode(object):
         self._episode = _episode
         self.title = self._episode.title
         self.url = self._episode.url
-        self.is_new = (self._episode.state == db.STATE_NORMAL and \
+        self.is_new = (self._episode.state == gpodder.STATE_NORMAL and \
                 not self._episode.is_played)
-        self.is_downloaded = (self._episode.state == db.STATE_DOWNLOADED)
-        self.is_deleted = (self._episode.state == db.STATE_DELETED)
+        self.is_downloaded = (self._episode.state == gpodder.STATE_DOWNLOADED)
+        self.is_deleted = (self._episode.state == gpodder.STATE_DELETED)
 
     def download(self):
         """Downloads the episode to a local file

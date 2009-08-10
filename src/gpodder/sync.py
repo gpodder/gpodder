@@ -30,7 +30,6 @@ from gpodder import libconverter
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
-from gpodder.dbsqlite import db
 
 import time
 import calendar
@@ -203,7 +202,7 @@ class Device(services.ObservableService):
 
             if gl.config.on_sync_mark_played:
                 log('Marking as played on transfer: %s', track.url, sender=self)
-                db.mark_episode(track.url, is_played=True)
+                track.mark(is_played=True)
 
             if added and gl.config.on_sync_delete:
                 log('Removing episode after transfer: %s', track.url, sender=self)
@@ -325,7 +324,7 @@ class iPodDevice(Device):
                         channel.delete_episode_by_url(gtrack.podcasturl)
                     else:
                         log('Marking episode as played %s', gtrack.title, sender=self)
-                        db.mark_episode(gtrack.podcasturl, is_played=True)
+                        episode.mark(is_played=True)
 
     def purge(self):
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
@@ -371,9 +370,9 @@ class iPodDevice(Device):
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             if episode.url == track.podcasturl:
                 if track.playcount > 0:
-                    db.mark_episode(track.podcasturl, is_played=True)
+                    episode.mark(is_played=True)
                 # Mark as played on iPod if played locally (and set podcast flags)
-                self.set_podcast_flags(track)
+                self.set_podcast_flags(track, episode)
                 return True
 
         original_filename = episode.local_filename(create=False)
@@ -427,7 +426,7 @@ class iPodDevice(Device):
             track.filetype = 'm4v'
             track.mediatype = 0x00000006
 
-        self.set_podcast_flags(track)
+        self.set_podcast_flags(track, episode)
         self.set_cover_art(track, local_filename)
 
         gpod.itdb_track_add(self.itdb, track, -1)
@@ -440,11 +439,10 @@ class iPodDevice(Device):
 
         return True
 
-    def set_podcast_flags(self, track):
+    def set_podcast_flags(self, track, episode):
         try:
             # Set blue bullet for unplayed tracks on 5G iPods
-            episode = db.load_episode(track.podcasturl)
-            if episode['is_played']:
+            if episode.is_played:
                 track.mark_unplayed = 0x01
                 if track.playcount == 0:
                     track.playcount = 1
@@ -571,7 +569,7 @@ class MP3PlayerDevice(Device):
         if (gl.config.mp3_player_use_scrobbler_log and not episode.is_played
                 and [episode.channel.title, episode.title] in self.scrobbler_log):
             log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
-            db.mark_episode(episode.url, is_played=True)
+            episode.mark(is_played=True)
 
         if gl.config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
             log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)

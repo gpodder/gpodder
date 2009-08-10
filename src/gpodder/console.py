@@ -22,8 +22,8 @@ from gpodder import util
 from gpodder import download
 from gpodder import sync
 from gpodder.libgpodder import gl
+from gpodder.libgpodder import db
 from gpodder.liblogger import msg
-from gpodder.dbsqlite import db
 
 from libpodcasts import load_channels
 from libpodcasts import update_channels

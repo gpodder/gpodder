@@ -42,7 +42,7 @@ from gpodder import corestats
 
 from gpodder.liblogger import log
 from gpodder.libgpodder import gl
-from gpodder.dbsqlite import db
+from gpodder.libgpodder import db
 
 import os.path
 import os
@@ -238,6 +238,9 @@ class PodcastChannel(PodcastModelObject):
         # in certain situations (see bug #340).
         db.purge(gl.config.max_episodes_per_feed, self.id)
 
+    def update_channel_lock(self):
+        db.update_channel_lock(self)
+
     def _update_etag_modified(self, feed):
         self.updated_timestamp = time.time()
         self.calculate_publish_behaviour()
@@ -418,7 +421,7 @@ class PodcastChannel(PodcastModelObject):
             self.override_title = ''
 
     def get_downloaded_episodes(self):
-        return db.load_episodes(self, factory=self.episode_factory, state=db.STATE_DOWNLOADED)
+        return db.load_episodes(self, factory=self.episode_factory, state=gpodder.STATE_DOWNLOADED)
     
     def get_new_episodes(self, downloading=lambda e: False):
         """
@@ -435,7 +438,7 @@ class PodcastChannel(PodcastModelObject):
             For a given episode, returns True if it is to
             be considered new or False if it is "not new".
             """
-            return episode.state == db.STATE_NORMAL and \
+            return episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played and \
                     not downloading(episode)
 
@@ -489,7 +492,7 @@ class PodcastChannel(PodcastModelObject):
         if downloading is not None and downloading(episode):
             status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
         else:
-            if episode.state == db.STATE_NORMAL:
+            if episode.state == gpodder.STATE_NORMAL:
                 if episode.is_played:
                     status_icon = None
                 else:
@@ -507,7 +510,7 @@ class PodcastChannel(PodcastModelObject):
                     status_icon = util.get_tree_icon(ICON_VIDEO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
                 else:
                     status_icon = util.get_tree_icon(ICON_GENERIC_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
-            elif episode.state == db.STATE_DELETED or episode.state == db.STATE_DOWNLOADED:
+            elif episode.state == gpodder.STATE_DELETED or episode.state == gpodder.STATE_DOWNLOADED:
                 status_icon = util.get_tree_icon(ICON_DELETED, not episode.is_played, icon_cache=self.icon_cache, icon_size=icon_size)
             else:
                 log('Warning: Cannot determine status icon.', sender=self)
@@ -642,7 +645,7 @@ class PodcastChannel(PodcastModelObject):
                 util.delete_file(filename)
             else:
                 log('Cannot delete episode: %s (I have no filename!)', episode.title, sender=self)
-            episode.set_state(db.STATE_DELETED)
+            episode.set_state(gpodder.STATE_DELETED)
 
         self.update_m3u_playlist()
 
@@ -772,13 +775,13 @@ class PodcastEpisode(PodcastModelObject):
         self.filename = None
         self.auto_filename = 1 # automatically generated filename
 
-        self.state = db.STATE_NORMAL
+        self.state = gpodder.STATE_NORMAL
         self.is_played = False
         self.is_locked = channel.channel_is_locked
 
     def save(self):
-        if self.state != db.STATE_DOWNLOADED and self.file_exists():
-            self.state = db.STATE_DOWNLOADED
+        if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
+            self.state = gpodder.STATE_DOWNLOADED
         db.save_episode(self)
 
     def set_state(self, state):
@@ -795,7 +798,7 @@ class PodcastEpisode(PodcastModelObject):
         db.mark_episode(self.url, state=state, is_played=is_played, is_locked=is_locked)
 
     def mark_downloaded(self, save=False):
-        self.state = db.STATE_DOWNLOADED
+        self.state = gpodder.STATE_DOWNLOADED
         self.is_played = False
         if save:
             self.save()
@@ -961,6 +964,7 @@ class PodcastEpisode(PodcastModelObject):
             log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
             self.filename = wanted_filename
             self.save()
+            db.commit()
 
         return os.path.join(self.channel.save_dir, self.filename)
 
@@ -973,7 +977,7 @@ class PodcastEpisode(PodcastModelObject):
          return ext
 
     def mark_new(self):
-        self.state = db.STATE_NORMAL
+        self.state = gpodder.STATE_NORMAL
         self.is_played = False
         db.mark_episode(self.url, state=self.state, is_played=self.is_played)
 
@@ -989,7 +993,7 @@ class PodcastEpisode(PodcastModelObject):
             return os.path.exists(filename)
 
     def was_downloaded(self, and_exists=False):
-        if self.state != db.STATE_DOWNLOADED:
+        if self.state != gpodder.STATE_DOWNLOADED:
             return False
         if and_exists and not self.file_exists():
             return False
@@ -1079,9 +1083,9 @@ class PodcastEpisode(PodcastModelObject):
 def update_channel_model_by_iter( model, iter, channel,
         cover_cache=None, max_width=0, max_height=0, initialize_all=False):
 
-    count_downloaded = channel.stat(state=db.STATE_DOWNLOADED)
-    count_new = channel.stat(state=db.STATE_NORMAL, is_played=False)
-    count_unplayed = channel.stat(state=db.STATE_DOWNLOADED, is_played=False)
+    count_downloaded = channel.stat(state=gpodder.STATE_DOWNLOADED)
+    count_new = channel.stat(state=gpodder.STATE_NORMAL, is_played=False)
+    count_unplayed = channel.stat(state=gpodder.STATE_DOWNLOADED, is_played=False)
 
     channel.iter = iter
     if initialize_all:

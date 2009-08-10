@@ -29,7 +29,7 @@ from collections import defaultdict
 import gpodder
 from gpodder import util
 from gpodder import config
-from gpodder.dbsqlite import db
+from gpodder import dbsqlite
 
 import os
 import glob
@@ -68,7 +68,7 @@ class gPodderLib(object):
         self.bluetooth_available = util.bluetooth_available()
 
         self.gpodder_dir = gpodder_dir
-        db.setup({'database': os.path.join(gpodder_dir, 'database.sqlite')})
+        self.database_file = os.path.join(gpodder_dir, 'database.sqlite')
 
     def find_partial_files(self):
         return glob.glob(os.path.join(self.downloaddir, '*', '*.partial'))
@@ -86,7 +86,7 @@ class gPodderLib(object):
         # Clean up empty download folders and abandoned download folders
         download_dirs = glob.glob(os.path.join(self.downloaddir, '*'))
         for ddir in download_dirs:
-            if os.path.isdir(ddir) and not db.channel_foldername_exists(os.path.basename(ddir)):
+            if os.path.isdir(ddir) and False: # FIXME not db.channel_foldername_exists(os.path.basename(ddir)):
                 globr = glob.glob(os.path.join(ddir, '*'))
                 if len(globr) == 0 or (len(globr) == 1 and globr[0].endswith('/cover')):
                     log('Stale download directory found: %s', os.path.basename(ddir), sender=self)
@@ -125,8 +125,8 @@ class gPodderLib(object):
     def playback_episodes(self, episodes):
         groups = defaultdict(list)
         for episode in episodes:
-            # Mark all episodes as played in the database
-            db.mark_episode(episode.url, is_played=True)
+            # Mark episode as played in the database
+            episode.mark(is_played=True)
 
             file_type = episode.file_type()
             if file_type == 'video' and self.config.videoplayer and \
@@ -156,7 +156,9 @@ class gPodderLib(object):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
 
-# Global, singleton gPodderLib object
+# Global, singleton gPodderLib object (for now)
 gl = gPodderLib()
 
+# Global, singleton Database object (for now)
+db = dbsqlite.Database(gl.database_file)
 

@@ -78,7 +78,6 @@ from gpodder import uibase
 from gpodder import my
 from gpodder import widgets
 from gpodder.liblogger import log
-from gpodder.dbsqlite import db
 from gpodder import resolver
 
 _ = gpodder.gettext
@@ -99,6 +98,7 @@ from libpodcasts import update_channels
 from libpodcasts import save_channels
 from libpodcasts import can_restore_from_opml
 
+from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
 
 from libplayers import UserAppsReader
@@ -1392,31 +1392,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=episode.sync_filename(), dst_directory=folder)
             self.folder_for_saving_episodes = folder
 
-    def copy_episode_bluetooth(self, url, *args):
-        episode = self.active_channel.find_episode(url)
+    def copy_episodes_bluetooth(self, episodes):
+        episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
 
-        if not episode.was_downloaded(and_exists=True):
-            log('Cannot copy episode via bluetooth (does not exist!)', sender=self)
+        def convert_and_send_thread(episodes, notify):
+            for episode in episodes:
+                filename = episode.local_filename(create=False)
+                assert filename is not None
+                destfile = os.path.join(tempfile.gettempdir(), \
+                        util.sanitize_filename(episode.sync_filename()))
+                (base, ext) = os.path.splitext(filename)
+                if not destfile.endswith(ext):
+                    destfile += ext
 
-        filename = episode.local_filename(create=False)
-        assert filename is not None
+                try:
+                    shutil.copyfile(filename, destfile)
+                    util.bluetooth_send_file(destfile)
+                except:
+                    log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
+                    notify(_('Error converting file.'), _('Bluetooth file transfer'))
 
-        destfile = os.path.join(tempfile.gettempdir(), util.sanitize_filename(episode.sync_filename()))
-        (base, ext) = os.path.splitext(filename)
-        if not destfile.endswith(ext):
-            destfile += ext
+                util.delete_file(destfile)
 
-        def convert_and_send_thread(filename, destfile, notify):
-            try:
-                shutil.copyfile(filename, destfile)
-                util.bluetooth_send_file(destfile)
-            except:
-                log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
-                notify(_('Error converting file.'), _('Bluetooth file transfer'))
-
-            util.delete_file(destfile)
-
-        Thread(target=convert_and_send_thread, args=[filename, destfile, self.notification]).start()
+        Thread(target=convert_and_send_thread, args=[episodes_to_copy, self.notification]).start()
 
     def treeview_button_savepos(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO and event.button == 1:
@@ -1511,8 +1509,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not len( paths):
                 return True
 
-            first_url = model.get_value( model.get_iter( paths[0]), 0)
-            episode = db.load_episode(first_url)
+            episodes = self.get_selected_episodes()
+            any_locked = any(e.is_locked for e in episodes)
+            any_played = any(e.is_played for e in episodes)
+            one_is_new = any(e.state == gpodder.STATE_NORMAL and not e.is_played for e in episodes)
 
             menu = gtk.Menu()
 
@@ -1539,17 +1539,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(self.set_finger_friendly(item))
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
-            item.set_sensitive(can_delete and not episode['is_locked'])
+            item.set_sensitive(can_delete)
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(self.set_finger_friendly(item))
 
-            # FIXME  - fix the following block
-            if episode['state'] == db.STATE_NORMAL and not episode['is_played']: # can_download:
+            if one_is_new:
                 item = gtk.ImageMenuItem(_('Do not download'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: self.mark_selected_episodes_old())
                 menu.append(self.set_finger_friendly(item))
-            elif episode['state'] == db.STATE_NORMAL and can_download:
+            elif can_download:
                 item = gtk.ImageMenuItem(_('Mark as new'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_ABOUT, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
@@ -1560,23 +1559,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
-                item.connect( 'activate', lambda w: self.for_each_selected_episode_url(self.save_episode_as_file))
+                item.connect('activate', lambda w: [self.save_episode_as_file(e.url) for e in episodes])
                 menu.append(self.set_finger_friendly(item))
                 if gl.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.copy_episode_bluetooth(episode_url))
+                    item.connect('activate', lambda w: self.copy_episodes_bluetooth(episodes))
                     menu.append(self.set_finger_friendly(item))
                 if can_transfer:
                     item = gtk.ImageMenuItem(_('Transfer to %s') % self.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
-                    item.connect('activate', self.on_transfer_selected_episodes)
+                    item.connect('activate', lambda w: self.on_sync_to_ipod_activate(w, episodes))
                     menu.append(self.set_finger_friendly(item))
 
             if can_play:
                 menu.append( gtk.SeparatorMenuItem())
-                is_played = episode['is_played']
-                if is_played:
+                if any_played:
                     item = gtk.ImageMenuItem(_('Mark as unplayed'))
                     item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, False))
@@ -1587,8 +1585,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
                     menu.append(self.set_finger_friendly(item))
 
-                is_locked = episode['is_locked']
-                if is_locked:
+                if any_locked:
                     item = gtk.ImageMenuItem(_('Allow deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
                     item.connect('activate', self.on_item_toggle_lock_activate)
@@ -1601,19 +1598,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append(gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
-            episode_url = model.get_value(model.get_iter(paths[0]), 0)
             item = gtk.ImageMenuItem(_('Episode details'))
             item.set_image(gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
-            item.set_sensitive(len(paths) == 1)
-            item.connect( 'activate', self.on_shownotes_selected_episodes)
+            item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
             menu.append(self.set_finger_friendly(item))
 
-            episode = self.active_channel.find_episode(episode_url)
             # If we have it, also add episode website link
-            if len(paths) == 1 and episode and episode.link and episode.link != episode.url:
+            if episodes[0].link and episodes[0].link != episodes[0].url:
                 item = gtk.ImageMenuItem(_('Visit website'))
                 item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: util.open_website(episode.link))
+                item.connect('activate', lambda w: util.open_website(episodes[0].link))
                 menu.append(self.set_finger_friendly(item))
             
             if gpodder.interface == gpodder.MAEMO:
@@ -2306,19 +2300,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes.append(episode)
         return episodes
 
-    def for_each_selected_episode_url( self, callback):
-        ( model, paths ) = self.treeAvailable.get_selection().get_selected_rows()
-        for path in paths:
-            url = model.get_value( model.get_iter( path), 0)
-            try:
-                callback( url)
-            except Exception, e:
-                log( 'Warning: Error in for_each_selected_episode_url for URL %s: %s', url, e, sender = self)
-
-        self.update_selected_episode_list_icons()
-        self.updateComboBox(only_selected_channel=True)
-        db.commit()
-
     def delete_episode_list( self, episodes, confirm = True):
         if len(episodes) == 0:
             return
@@ -2374,33 +2355,40 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons)
 
+    def on_selected_episodes_status_changed(self):
+        self.update_selected_episode_list_icons()
+        self.updateComboBox(only_selected_channel=True)
+        db.commit()
+
     def mark_selected_episodes_new(self):
-        callback = lambda url: self.active_channel.find_episode(url).mark_new()
-        self.for_each_selected_episode_url(callback)
+        for episode in self.get_selected_episodes():
+            episode.mark_new()
+        self.on_selected_episodes_status_changed()
 
     def mark_selected_episodes_old(self):
-        callback = lambda url: self.active_channel.find_episode(url).mark_old()
-        self.for_each_selected_episode_url(callback)
+        for episode in self.get_selected_episodes():
+            episode.mark_old()
+        self.on_selected_episodes_status_changed()
 
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
-        if toggle:
-            callback = lambda url: db.mark_episode(url, is_played=True, toggle=True)
-        else:
-            callback = lambda url: db.mark_episode(url, is_played=new_value)
-
-        self.for_each_selected_episode_url(callback)
+        for episode in self.get_selected_episodes():
+            if toggle:
+                episode.mark(is_played=not episode.is_played)
+            else:
+                episode.mark(is_played=new_value)
+        self.on_selected_episodes_status_changed()
 
     def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
-        if toggle:
-            callback = lambda url: db.mark_episode(url, is_locked=True, toggle=True)
-        else:
-            callback = lambda url: db.mark_episode(url, is_locked=new_value)
-
-        self.for_each_selected_episode_url(callback)
+        for episode in self.get_selected_episodes():
+            if toggle:
+                episode.mark(is_locked=not episode.is_locked)
+            else:
+                episode.mark(is_locked=new_value)
+        self.on_selected_episodes_status_changed()
 
     def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
         self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
-        db.update_channel_lock(self.active_channel)
+        self.active_channel.update_channel_lock()
 
         if self.active_channel.channel_is_locked:
             self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
@@ -2408,9 +2396,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion of all episodes'))
 
         for episode in self.active_channel.get_all_episodes():
-            db.mark_episode(episode.url, is_locked=self.active_channel.channel_is_locked)
+            episode.mark(is_locked=self.active_channel.channel_is_locked)
 
         self.updateComboBox(only_selected_channel=True)
+        self.update_episode_list_icons([e.url for e in self.active_channel.get_all_episodes()])
 
     def send_subscriptions(self):
         try:
@@ -2524,7 +2513,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for local_episode in all_episodes:
             device_episode = device.episode_on_device(local_episode)
             if device_episode and ( local_episode.is_played and not local_episode.is_locked
-                or local_episode.state == db.STATE_DELETED ):
+                or local_episode.state == gpodder.STATE_DELETED ):
                 log("mp3_player_delete_played: removing %s" % device_episode.title)
                 device.remove_track(device_episode)
 
@@ -2740,7 +2729,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def update_item_device( self):
         if gl.config.device_type != 'none':
             self.itemDevice.set_visible(True)
-            self.itemDevice.label = gl.get_device_name()
+            self.itemDevice.label = self.get_device_name()
         else:
             self.itemDevice.set_visible(False)
 
@@ -3201,57 +3190,43 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Downloads tab visible - no action!
             return
 
-        channel_url = self.active_channel.url
-        selection = self.treeAvailable.get_selection()
-        ( model, paths ) = selection.get_selected_rows()
+        episodes = self.get_selected_episodes()
 
-        if selection.count_selected_rows() == 0:
-            log( 'Nothing selected - will not remove any downloaded episode.')
+        if not episodes:
+            log('Nothing selected - will not remove any downloaded episode.')
             return
 
-        if selection.count_selected_rows() == 1:
-            episode_title = saxutils.escape(model.get_value(model.get_iter(paths[0]), 1))
-
-            episode = db.load_episode(model.get_value(model.get_iter(paths[0]), 0))
-            if episode['is_locked']:
-                title = _('%s is locked') % episode_title
+        if len(episodes) == 1:
+            episode = episodes[0]
+            if episode.is_locked:
+                title = _('%s is locked') % saxutils.escape(episode.title)
                 message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
                 self.notification(message, title)
                 return
 
-            title = _('Remove %s?') % episode_title
+            title = _('Remove %s?') % saxutils.escape(episode.title)
             message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
         else:
-            title = _('Remove %d episodes?') % selection.count_selected_rows()
+            title = _('Remove %d episodes?') % len(episodes)
             message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
 
-        locked_count = 0
-        for path in paths:
-            episode = db.load_episode(model.get_value(model.get_iter(path), 0))
-            if episode['is_locked']:
-                locked_count += 1
+        locked_count = sum(int(e.is_locked) for e in episodes)
 
-        if selection.count_selected_rows() == locked_count:
+        if len(episodes) == locked_count:
             title = _('Episodes are locked')
             message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
             self.notification(message, title)
             return
         elif locked_count > 0:
-            title = _('Remove %d out of %d episodes?') % (selection.count_selected_rows() - locked_count, selection.count_selected_rows())
+            title = _('Remove %d out of %d episodes?') % (len(episodes)-locked_count, len(episodes))
             message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
             
         # if user confirms deletion, let's remove some stuff ;)
-        if self.show_confirmation( message, title):
-            try:
-                # iterate over the selection, see also on_treeDownloads_row_activated
-                for path in paths:
-                    url = model.get_value( model.get_iter( path), 0)
-                    self.active_channel.delete_episode_by_url( url)
-      
-                # now, clear local db cache so we can re-read it
-                self.updateComboBox()
-            except:
-                log( 'Error while deleting (some) downloads.', traceback=True, sender=self)
+        if self.show_confirmation(message, title):
+            for episode in episodes:
+                if not episode.is_locked:
+                    episode.delete_from_disk()
+            self.updateComboBox(only_selected_channel=True)
 
         # only delete partial files if we do not have any downloads in progress
         delete_partial = False #not services.download_status_manager.has_items()
