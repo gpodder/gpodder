@@ -327,7 +327,7 @@ class Database(object):
                 if factory is None:
                     result.append(channel)
                 else:
-                    result.append(factory(channel))
+                    result.append(factory(channel, self))
 
         cur.close()
         self.lock.release()
@@ -426,7 +426,7 @@ class Database(object):
             if factory is None:
                 result.append(episode)
             else:
-                result.append(factory(episode))
+                result.append(factory(episode, self))
 
         cur.close()
         self.lock.release()

@@ -118,7 +118,7 @@ def get_podcasts():
 
     Returns all the subscribed podcasts from gPodder.
     """
-    return [Podcast(p) for p in libpodcasts.load_channels()]
+    return [Podcast(p) for p in libpodcasts.load_channels(db)]
 
 def get_podcast(url):
     """Get a specific podcast by URL
@@ -127,7 +127,7 @@ def get_podcast(url):
     the podcast has not been subscribed to.
     """
     url = util.normalize_feed_url(url)
-    channel = libpodcasts.PodcastChannel.load(url, create=False)
+    channel = libpodcasts.PodcastChannel.load(db, url, create=False)
     if channel is None:
         return None
     else:
@@ -141,7 +141,7 @@ def create_podcast(url, title=None):
     the resulting object.
     """
     url = util.normalize_feed_url(url)
-    podcast = libpodcasts.PodcastChannel.load(url, create=True)
+    podcast = libpodcasts.PodcastChannel.load(db, url, create=True)
     if podcast is not None:
         if title is not None:
             podcast.set_custom_title(title)
@@ -157,7 +157,7 @@ def finish():
     This has to be called from the API user after
     data-changing actions have been carried out.
     """
-    libpodcasts.save_channels(libpodcasts.load_channels())
+    libpodcasts.save_channels(libpodcasts.load_channels(db))
     db.commit()
     return True
 

@@ -38,7 +38,7 @@ import sys
 _ = gpodder.gettext
 
 def list_channels():
-    for channel in load_channels():
+    for channel in load_channels(db):
         msg('podcast', urllib.unquote(channel.url))
 
 
@@ -47,13 +47,13 @@ def add_channel( url):
 
     url = util.normalize_feed_url(url)
 
-    channels = load_channels()
+    channels = load_channels(db)
     if url in (c.url for c in channels):
         msg('error', _('Already added: %s'), urllib.unquote(url))
         return
 
     try:
-        channel = PodcastChannel.load(url, create=True)
+        channel = PodcastChannel.load(db, url, create=True)
     except:
         msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return
@@ -70,7 +70,7 @@ def add_channel( url):
 def del_channel( url):
     url = util.normalize_feed_url( url)
 
-    channels = load_channels()
+    channels = load_channels(db)
     keep_channels = []
     for channel in channels:
         if channel.url == url:
@@ -91,7 +91,7 @@ def update():
     callback_error = lambda s: msg('error', s)
     sys.stdout.write(_('Updating podcast feeds...'))
     sys.stdout.flush()
-    result = update_channels(callback_error=callback_error)
+    result = update_channels(db, callback_error=callback_error)
     print _('done.')
     db.commit()
     return result
@@ -137,7 +137,7 @@ def sync_device():
         msg('error', _('Cannot open device.'))
         return False
 
-    for channel in load_channels():
+    for channel in load_channels(db):
         if not channel.sync_to_devices:
             msg('info', _('Skipping podcast: %s') % channel.title)
             continue
@@ -160,7 +160,7 @@ def sync_stats():
         msg('error', _('No device configured. Please use the GUI.'))
         return False
 
-    for channel in load_channels():
+    for channel in load_channels(db):
         if not channel.sync_to_devices:
             continue
         for episode in channel.get_all_episodes():

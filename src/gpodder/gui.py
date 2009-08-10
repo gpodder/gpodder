@@ -94,7 +94,6 @@ from libpodcasts import PodcastChannel
 from libpodcasts import channels_to_model
 from libpodcasts import update_channel_model_by_iter
 from libpodcasts import load_channels
-from libpodcasts import update_channels
 from libpodcasts import save_channels
 from libpodcasts import can_restore_from_opml
 
@@ -735,7 +734,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = load_channels()
+        self.channels = load_channels(db)
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
@@ -1970,7 +1969,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         log( 'Adding new channel: %s', url)
         channel = error = None
         try:
-            channel = PodcastChannel.load(url=url, create=True, authentication_tokens=authentication_tokens)
+            channel = PodcastChannel.load(db, url=url, create=True, authentication_tokens=authentication_tokens)
         except feedcore.AuthenticationRequired, e:
             error = e
         except feedcore.WifiLogin, e:
@@ -2004,7 +2003,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # We need to update the channel list otherwise the authentication
                 # data won't show up in the channel editor.
                 # TODO: Only updated the newly added feed to save some cpu cycles
-                self.channels = load_channels()
+                self.channels = load_channels(db)
                 self.channel_list_changed = True
 
             if ask_download_new:
@@ -2063,7 +2062,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         db.commit()
         self.updating_feed_cache = False
 
-        self.channels = load_channels()
+        self.channels = load_channels(db)
         self.channel_list_changed = True
         self.updateComboBox(selected_url=select_url_afterwards)
 
@@ -2180,7 +2179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if not force_update:
-            self.channels = load_channels()
+            self.channels = load_channels(db)
             self.channel_list_changed = True
             self.updateComboBox(selected_url=select_url_afterwards)
             return
