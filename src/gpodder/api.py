@@ -25,8 +25,10 @@ integrate podcast functionality into their applications.
 
 import gpodder
 from gpodder import util
-from gpodder import libpodcasts
+from gpodder import opml
+from gpodder.libpodcasts import PodcastChannel
 from gpodder.libgpodder import db
+from gpodder.libgpodder import gl
 from gpodder import download
 
 class Podcast(object):
@@ -75,7 +77,7 @@ class Podcast(object):
         Downloads the podcast feed (using the feed cache), and
         adds new episodes and updated information to the database.
         """
-        self._podcast.update()
+        self._podcast.update(gl.config.max_episodes_per_feed)
 
 
 
@@ -118,7 +120,7 @@ def get_podcasts():
 
     Returns all the subscribed podcasts from gPodder.
     """
-    return [Podcast(p) for p in libpodcasts.load_channels(db)]
+    return [Podcast(p) for p in PodcastChannel.load_from_db(db, gl.config.download_dir)]
 
 def get_podcast(url):
     """Get a specific podcast by URL
@@ -127,7 +129,7 @@ def get_podcast(url):
     the podcast has not been subscribed to.
     """
     url = util.normalize_feed_url(url)
-    channel = libpodcasts.PodcastChannel.load(db, url, create=False)
+    channel = PodcastChannel.load(db, url, create=False, download_dir=gl.config.download_dir)
     if channel is None:
         return None
     else:
@@ -141,7 +143,7 @@ def create_podcast(url, title=None):
     the resulting object.
     """
     url = util.normalize_feed_url(url)
-    podcast = libpodcasts.PodcastChannel.load(db, url, create=True)
+    podcast = PodcastChannel.load(db, url, create=True, max_episodes=gl.config.max_episodes_per_feed, download_dir=gl.config.download_dir)
     if podcast is not None:
         if title is not None:
             podcast.set_custom_title(title)
@@ -157,7 +159,9 @@ def finish():
     This has to be called from the API user after
     data-changing actions have been carried out.
     """
-    libpodcasts.save_channels(libpodcasts.load_channels(db))
+    podcasts = PodcastChannel.load_from_db(db, gl.config.download_dir)
+    exporter = opml.Exporter(gpodder.subscription_file)
+    exporter.write(podcasts)
     db.commit()
     return True
 

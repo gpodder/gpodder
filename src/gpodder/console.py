@@ -21,13 +21,11 @@ import gpodder
 from gpodder import util
 from gpodder import download
 from gpodder import sync
+from gpodder import opml
 from gpodder.libgpodder import gl
 from gpodder.libgpodder import db
 from gpodder.liblogger import msg
 
-from libpodcasts import load_channels
-from libpodcasts import update_channels
-from libpodcasts import save_channels
 from libpodcasts import PodcastChannel
 
 import time
@@ -38,7 +36,7 @@ import sys
 _ = gpodder.gettext
 
 def list_channels():
-    for channel in load_channels(db):
+    for channel in PodcastChannel.load_from_db(db, gl.config.download_dir):
         msg('podcast', urllib.unquote(channel.url))
 
 
@@ -47,20 +45,21 @@ def add_channel( url):
 
     url = util.normalize_feed_url(url)
 
-    channels = load_channels(db)
+    channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
     if url in (c.url for c in channels):
         msg('error', _('Already added: %s'), urllib.unquote(url))
         return
 
     try:
-        channel = PodcastChannel.load(db, url, create=True)
+        channel = PodcastChannel.load(db, url, create=True, max_episodes=gl.config.max_episodes_per_feed, download_dir=gl.config.download_dir)
     except:
         msg( 'error', _('Could not load feed from URL: %s'), urllib.unquote( url))
         return
 
     if channel:
         channels.append(channel)
-        save_channels(channels)
+        exporter = opml.Exporter(gpodder.subscription_file)
+        exporter.write(channels)
         db.commit()
         msg('add', urllib.unquote(url))
     else:
@@ -70,7 +69,7 @@ def add_channel( url):
 def del_channel( url):
     url = util.normalize_feed_url( url)
 
-    channels = load_channels(db)
+    channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
     keep_channels = []
     for channel in channels:
         if channel.url == url:
@@ -81,20 +80,23 @@ def del_channel( url):
             keep_channels.append( channel)
 
     if len(keep_channels) < len(channels):
-        save_channels( keep_channels)
+        exporter = opml.Exporter(gpodder.subscription_file)
+        exporter.write(keep_channels)
         db.commit()
     else:
         msg('error', _('Could not remove podcast.'))
 
 
 def update():
-    callback_error = lambda s: msg('error', s)
     sys.stdout.write(_('Updating podcast feeds...'))
     sys.stdout.flush()
-    result = update_channels(db, callback_error=callback_error)
+    channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
+    for channel in channels:
+        channel.update(gl.config.max_episodes_per_feed)
     print _('done.')
     db.commit()
-    return result
+    return channels
+
 
 def run():
     channels = update()
@@ -137,7 +139,7 @@ def sync_device():
         msg('error', _('Cannot open device.'))
         return False
 
-    for channel in load_channels(db):
+    for channel in PodcastChannel.load_from_db(db, gl.config.download_dir):
         if not channel.sync_to_devices:
             msg('info', _('Skipping podcast: %s') % channel.title)
             continue
@@ -160,7 +162,7 @@ def sync_stats():
         msg('error', _('No device configured. Please use the GUI.'))
         return False
 
-    for channel in load_channels(db):
+    for channel in PodcastChannel.load_from_db(db, gl.config.download_dir):
         if not channel.sync_to_devices:
             continue
         for episode in channel.get_all_episodes():

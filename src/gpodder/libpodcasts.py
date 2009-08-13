@@ -28,12 +28,9 @@
 #
 
 import gtk
-import gobject
-import pango
 
 import gpodder
 from gpodder import util
-from gpodder import opml
 from gpodder import feedcore
 from gpodder import services
 from gpodder import draw
@@ -41,7 +38,6 @@ from gpodder import resolver
 from gpodder import corestats
 
 from gpodder.liblogger import log
-from gpodder.libgpodder import gl
 
 import os.path
 import os
@@ -147,11 +143,22 @@ class PodcastChannel(PodcastModelObject):
     feed_fetcher = gPodderFetcher()
 
     @classmethod
-    def load(cls, db, url, create=True, authentication_tokens=None):
+    def build_factory(cls, download_dir):
+        def factory(dict, db):
+            return cls.create_from_dict(dict, db, download_dir)
+        return factory
+
+    @classmethod
+    def load_from_db(cls, db, download_dir):
+        return db.load_channels(factory=cls.build_factory(download_dir))
+
+    @classmethod
+    def load(cls, db, url, create=True, authentication_tokens=None,\
+            max_episodes=0, download_dir=None):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        tmp = db.load_channels(factory=cls.create_from_dict, url=url)
+        tmp = db.load_channels(factory=cls.build_factory(download_dir), url=url)
         if len(tmp):
             return tmp[0]
         elif create:
@@ -160,7 +167,7 @@ class PodcastChannel(PodcastModelObject):
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
 
-            tmp.update()
+            tmp.update(max_episodes)
             tmp.save()
             db.force_last_new(tmp)
             return tmp
@@ -175,7 +182,7 @@ class PodcastChannel(PodcastModelObject):
         """
         return PodcastEpisode.create_from_dict(d, self)
 
-    def _consume_updated_feed(self, feed):
+    def _consume_updated_feed(self, feed, max_episodes=0):
         # update the cover if it's not there
         self.update_cover()
 
@@ -208,10 +215,13 @@ class PodcastChannel(PodcastModelObject):
         existing = self.get_all_episodes()
 
         # We can limit the maximum number of entries that gPodder will parse
-        # via the "max_episodes_per_feed" configuration option.
-        if len(feed.entries) > gl.config.max_episodes_per_feed:
-            log('Limiting number of episodes for %s to %d', self.title, gl.config.max_episodes_per_feed)
-        for entry in feed.entries[:min(gl.config.max_episodes_per_feed, len(feed.entries))]:
+        if max_episodes > 0 and len(feed.entries) > max_episodes:
+            entries = feed.entries[:max_episodes]
+        else:
+            entries = feed.entries
+
+        # Search all entries for new episodes
+        for entry in entries:
             episode = None
 
             try:
@@ -235,7 +245,7 @@ class PodcastChannel(PodcastModelObject):
         # max_episodes_per_feed items added to the feed between updates.
         # The benefit is that it prevents old episodes from apearing as new
         # in certain situations (see bug #340).
-        self.db.purge(gl.config.max_episodes_per_feed, self.id)
+        self.db.purge(max_episodes, self.id)
 
     def update_channel_lock(self):
         self.db.update_channel_lock(self)
@@ -246,7 +256,7 @@ class PodcastChannel(PodcastModelObject):
         self.etag = feed.headers.get('etag', self.etag)
         self.last_modified = feed.headers.get('last-modified', self.last_modified)
 
-    def update(self):
+    def update(self, max_episodes=0):
         if self.updated_timestamp > time.time() - 60*60*24:
             # If we have updated in the last 24 hours, do some optimizations
             if self.release_expected > time.time():
@@ -263,13 +273,13 @@ class PodcastChannel(PodcastModelObject):
             self.feed_fetcher.fetch_channel(self)
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
-            self._consume_updated_feed(feed)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NewLocation, updated:
             feed = updated.data
             self.url = feed.href
-            self._consume_updated_feed(feed)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NotModified, updated:
@@ -307,13 +317,14 @@ class PodcastChannel(PodcastModelObject):
     def stat(self, state=None, is_played=None, is_locked=None):
         return self.db.get_channel_stat(self.url, state=state, is_played=is_played, is_locked=is_locked)
 
-    def __init__(self, db, url = "", title = "", link = "", description = ""):
+    def __init__(self, db, download_dir):
         self.db = db
+        self.download_dir = download_dir
         self.id = None
-        self.url = url
-        self.title = title
-        self.link = link
-        self.description = description
+        self.url = None
+        self.title = ''
+        self.link = ''
+        self.description = ''
         self.image = None
         self.pubDate = 0
         self.parse_error = None
@@ -398,8 +409,8 @@ class PodcastChannel(PodcastModelObject):
         new_folder_name = self.find_unique_folder_name(custom_title)
         if len(new_folder_name) > 0 and new_folder_name != self.foldername:
             log('Changing foldername based on custom title: %s', custom_title, sender=self)
-            new_folder = os.path.join(gl.config.download_dir, new_folder_name)
-            old_folder = os.path.join(gl.config.download_dir, self.foldername)
+            new_folder = os.path.join(self.download_dir, new_folder_name)
+            old_folder = os.path.join(self.download_dir, self.foldername)
             if os.path.exists(old_folder):
                 if not os.path.exists(new_folder):
                     # Old folder exists, new folder does not -> simply rename
@@ -446,7 +457,10 @@ class PodcastChannel(PodcastModelObject):
                 factory=self.episode_factory) if check_is_new(episode)]
 
     def update_m3u_playlist(self):
-        m3u_filename = os.path.join(gl.config.download_dir, os.path.basename(self.save_dir)+'.m3u')
+        # If the save_dir doesn't end with a slash (which it really should
+        # not, if the implementation is correct, we can just append .m3u :)
+        assert self.save_dir[-1] != '/'
+        m3u_filename = self.save_dir+'.m3u'
         log('Writing playlist to %s', m3u_filename, sender=self)
 
         f = open(m3u_filename, 'w')
@@ -474,7 +488,7 @@ class PodcastChannel(PodcastModelObject):
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
-    def iter_set_downloading_columns(self, model, iter, episode=None, downloading=None):
+    def iter_set_downloading_columns(self, model, iter, episode=None, downloading=None, include_description=False):
         global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_GENERIC_FILE
         global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
         
@@ -484,7 +498,7 @@ class PodcastChannel(PodcastModelObject):
         else:
             url = episode.url
 
-        if gl.config.episode_list_descriptions or gpodder.interface == gpodder.MAEMO:
+        if include_description:
             icon_size = 32
         else:
             icon_size = 16
@@ -518,9 +532,12 @@ class PodcastChannel(PodcastModelObject):
 
         model.set( iter, 4, status_icon)
 
-    def get_tree_model(self, downloading=None):
+    def get_tree_model(self, downloading=None, include_description=False):
         """
-        Return a gtk.ListStore containing episodes for this channel
+        Return a gtk.ListStore containing episodes for this channel.
+        Downloading should be a callback.
+        include_description should be a boolean value (True if description
+        is to be added to the episode row, or False if not)
         """
         DATA_TYPES = (str, str, str, bool, gtk.gdk.Pixbuf, str, str, str, str, str)
 
@@ -535,7 +552,7 @@ class PodcastChannel(PodcastModelObject):
         log('Returning TreeModel for %s', self.url, sender = self)
         urls = []
         for item in self.get_all_episodes():
-            description = item.title_and_description
+            description = item.format_episode_row_markup(include_description)
 
             if item.length > 0:
                 filelength = util.format_filesize(item.length, 1)
@@ -545,7 +562,7 @@ class PodcastChannel(PodcastModelObject):
             new_iter = new_model.append((item.url, item.title, filelength, 
                 True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
                 'XXXXXXXXXXXXXUNUSEDXXXXXXXXXXXXXXXXXXX', item.extension()))
-            self.iter_set_downloading_columns( new_model, new_iter, episode=item, downloading=downloading)
+            self.iter_set_downloading_columns( new_model, new_iter, episode=item, downloading=downloading, include_description=include_description)
             urls.append(item.url)
         
         self.update_save_dir_size()
@@ -585,15 +602,15 @@ class PodcastChannel(PodcastModelObject):
             wanted_foldername = self.find_unique_folder_name(fn_template)
 
             # if the foldername has not been set, check if the (old) md5 filename exists
-            if self.foldername is None and os.path.exists(os.path.join(gl.config.download_dir, urldigest)):
+            if self.foldername is None and os.path.exists(os.path.join(self.download_dir, urldigest)):
                 log('Found pre-0.15.0 download folder for %s: %s', self.title, urldigest, sender=self)
                 self.foldername = urldigest
 
             # we have a valid, new folder name in "current_try" -> use that!
             if self.foldername is not None and wanted_foldername != self.foldername:
                 # there might be an old download folder crawling around - move it!
-                new_folder_name = os.path.join(gl.config.download_dir, wanted_foldername)
-                old_folder_name = os.path.join(gl.config.download_dir, self.foldername)
+                new_folder_name = os.path.join(self.download_dir, wanted_foldername)
+                old_folder_name = os.path.join(self.download_dir, self.foldername)
                 if os.path.exists(old_folder_name):
                     if not os.path.exists(new_folder_name):
                         # Old folder exists, new folder does not -> simply rename
@@ -610,7 +627,7 @@ class PodcastChannel(PodcastModelObject):
             self.foldername = wanted_foldername
             self.save()
 
-        save_dir = os.path.join(gl.config.download_dir, self.foldername)
+        save_dir = os.path.join(self.download_dir, self.foldername)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):
@@ -622,12 +639,6 @@ class PodcastChannel(PodcastModelObject):
 
     def remove_downloaded( self):
         shutil.rmtree( self.save_dir, True)
-    
-    def get_index_file(self):
-        # gets index xml filename for downloaded channels list
-        return os.path.join( self.save_dir, 'index.xml')
-    
-    index_file = property(fget=get_index_file)
     
     def get_cover_file( self):
         # gets cover filename for cover download cache
@@ -804,24 +815,20 @@ class PodcastEpisode(PodcastModelObject):
             self.save()
             self.db.commit()
 
-    @property
-    def title_and_description(self):
-        """
-        Returns Pango markup for displaying in a TreeView, and
-        disables the description when the config variable
-        "episode_list_descriptions" is not set.
-        """
-        if gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO:
-            return '%s\n<small>%s</small>' % (saxutils.escape(self.title), saxutils.escape(self.one_line_description()))
+    def format_episode_row_markup(self, include_description=False):
+        if include_description:
+            return '%s\n<small>%s</small>' % (saxutils.escape(self.title),
+                    saxutils.escape(self.one_line_description()))
         else:
             return saxutils.escape(self.title)
+
+    @property
+    def title_markup(self):
+        return self.format_episode_row_markup(False)
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False))
 
-    def is_old(self):
-        return self.age_in_days() > gl.config.episode_old_age
-    
     def get_age_string(self):
         return util.file_age_to_string(self.age_in_days())
 
@@ -998,12 +1005,10 @@ class PodcastEpisode(PodcastModelObject):
             return False
         return True
 
-    def sync_filename( self):
-        if gl.config.custom_sync_name_enabled:
-            if '{channel' in gl.config.custom_sync_name:
-                log('Fixing OLD syntax {channel.*} => {podcast.*} in custom_sync_name.', sender=self)
-                gl.config.custom_sync_name = gl.config.custom_sync_name.replace('{channel.', '{podcast.')
-            return util.object_string_formatter(gl.config.custom_sync_name, episode=self, podcast=self.channel)
+    def sync_filename(self, use_custom=False, custom_format=None):
+        if use_custom:
+            return util.object_string_formatter(custom_format,
+                    episode=self, podcast=self.channel)
         else:
             return self.title
 
@@ -1135,26 +1140,4 @@ def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
 
     return (new_model, urls)
 
-
-def load_channels(db):
-    return db.load_channels(factory=PodcastChannel.create_from_dict)
-
-def update_channels(db, callback_proc=None, callback_error=None, is_cancelled_cb=None):
-    log('Updating channels....')
-
-    channels = load_channels(db)
-    count = 0
-
-    for channel in channels:
-        if is_cancelled_cb is not None and is_cancelled_cb():
-            return channels
-        callback_proc and callback_proc(count, len(channels))
-        channel.update()
-        count += 1
-
-    return channels
-
-def save_channels( channels):
-    exporter = opml.Exporter(gpodder.subscription_file)
-    return exporter.write(channels)
 

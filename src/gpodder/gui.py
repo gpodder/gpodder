@@ -93,8 +93,6 @@ except Exception, exc:
 from libpodcasts import PodcastChannel
 from libpodcasts import channels_to_model
 from libpodcasts import update_channel_model_by_iter
-from libpodcasts import load_channels
-from libpodcasts import save_channels
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -734,7 +732,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = load_channels(db)
+        self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
@@ -1388,7 +1386,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             folder = self.folder_for_saving_episodes
             copy_from = episode.local_filename(create=False)
             assert copy_from is not None
-            (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=episode.sync_filename(), dst_directory=folder)
+            copy_to = episode.sync_filename(gl.config.custom_sync_name_enabled, gl.config.custom_sync_name)
+            (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
             self.folder_for_saving_episodes = folder
 
     def copy_episodes_bluetooth(self, episodes):
@@ -1399,7 +1398,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
                 destfile = os.path.join(tempfile.gettempdir(), \
-                        util.sanitize_filename(episode.sync_filename()))
+                        util.sanitize_filename(episode.sync_filename(gl.config.custom_sync_name_enabled, gl.config.custom_sync_name)))
                 (base, ext) = os.path.splitext(filename)
                 if not destfile.endswith(ext):
                     destfile += ext
@@ -1638,7 +1637,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (model, paths) = selection.get_selected_rows()
         for path in paths:
             iter = model.get_iter(path)
-            self.active_channel.iter_set_downloading_columns(model, iter, downloading=self.episode_is_downloading)
+            self.active_channel.iter_set_downloading_columns(model, iter, downloading=self.episode_is_downloading,
+                    include_description=gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
 
     def update_episode_list_icons(self, urls):
         """
@@ -1656,7 +1656,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for url in urls:
             if url in self.url_path_mapping:
                 path = (self.url_path_mapping[url],)
-                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading)
+                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading,
+                    include_description=gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
  
     def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
@@ -1874,7 +1875,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 banner = None
             def thread_func(self, banner, active_channel):
-                (model, urls) = self.active_channel.get_tree_model(self.episode_is_downloading)
+                (model, urls) = self.active_channel.get_tree_model(self.episode_is_downloading, \
+                        gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
                 mapping = dict(zip(urls, range(len(urls))))
                 def update_gui_with_new_model(self, channel, model, urls, mapping, banner):
                     if self.active_channel is not None and channel is not None:
@@ -1969,21 +1971,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
         log( 'Adding new channel: %s', url)
         channel = error = None
         try:
-            channel = PodcastChannel.load(db, url=url, create=True, authentication_tokens=authentication_tokens)
+            channel = PodcastChannel.load(db, url=url, create=True,
+                    authentication_tokens=authentication_tokens,
+                    max_episodes=gl.config.max_episodes_per_feed,
+                    download_dir=gl.config.download_dir)
         except feedcore.AuthenticationRequired, e:
             error = e
         except feedcore.WifiLogin, e:
             error = e
         except Exception, e:
-            log('Error in PodcastChannel.load(%s): %s', url, e, traceback=True, sender=self)
+            log('Error adding channel: %s', e, traceback=True, sender=self)
 
         util.idle_add( callback, channel, url, error, *callback_args )
+
+    def save_channels_opml(self):
+        exporter = opml.Exporter(gpodder.subscription_file)
+        return exporter.write(self.channels)
 
     def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet, waitdlg):
         if channel is not None:
             self.channels.append( channel)
             self.channel_list_changed = True
-            save_channels( self.channels)
+            self.save_channels_opml()
             if not quiet:
                 # download changed channels and select the new episode in the UI afterwards
                 self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
@@ -2003,7 +2012,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # We need to update the channel list otherwise the authentication
                 # data won't show up in the channel editor.
                 # TODO: Only updated the newly added feed to save some cpu cycles
-                self.channels = load_channels(db)
+                self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
                 self.channel_list_changed = True
 
             if ask_download_new:
@@ -2062,7 +2071,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         db.commit()
         self.updating_feed_cache = False
 
-        self.channels = load_channels(db)
+        self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
         self.channel_list_changed = True
         self.updateComboBox(selected_url=select_url_afterwards)
 
@@ -2123,7 +2132,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
                 try:
-                    channel.update()
+                    channel.update(max_episodes=gl.config.max_episodes_per_feed)
                 except feedcore.Offline:
                     self.feed_cache_update_cancelled = True
                     if not self.minimized:
@@ -2179,7 +2188,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if not force_update:
-            self.channels = load_channels(db)
+            self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
             self.channel_list_changed = True
             self.updateComboBox(selected_url=select_url_afterwards)
             return
@@ -2268,7 +2277,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """ clean everything and exit properly
         """
         if self.channels:
-            if save_channels(self.channels):
+            if self.save_channels_opml():
                 if gl.config.my_gpodder_autoupload:
                     log('Uploading to my.gpodder.org on close', sender=self)
                     util.idle_add(self.on_upload_to_mygpo, None)
@@ -2295,7 +2304,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = []
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
-                if episode.is_old() and not episode.is_locked and episode.is_played:
+                if episode.age_in_days() > gl.config.episode_old_age and \
+                        not episode.is_locked and episode.is_played:
                     episodes.append(episode)
         return episodes
 
@@ -2326,7 +2336,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
-                ('title_and_description', None, None, _('Episode')),
+                ('title_markup', None, None, _('Episode')),
                 ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
@@ -2336,7 +2346,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
-                _('Select older than %d days') % gl.config.episode_old_age: lambda episode: episode.is_old(),
+                _('Select older than %d days') % gl.config.episode_old_age: lambda episode: episode.age_in_days() > gl.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete from your hard disk.')
@@ -2456,7 +2466,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def new_episodes_show(self, episodes):
         columns = (
-                ('title_and_description', None, None, _('Episode')),
+                ('title_markup', None, None, _('Episode')),
                 ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
@@ -2809,7 +2819,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_upload_to_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
-            save_channels(self.channels)
+            self.save_channels_opml()
             success, messages = client.upload_subscriptions(gpodder.subscription_file)
             if widget is not None:
                 self.show_message('\n'.join(messages), _('Results of upload'))
@@ -2889,7 +2899,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.active_channel.delete()
                 self.channels.remove(self.active_channel)
                 self.channel_list_changed = True
-                save_channels(self.channels)
+                self.save_channels_opml()
 
                 # Re-load the channels and select the desired new channel
                 self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
@@ -4257,7 +4267,7 @@ class gPodderEpisodeSelector( BuilderWidget):
                  If the sort_name is None it will use the attribute name for
                  sorting.  The sort type is the type of the sort column.
                  The caption attribute is the text that appear as column caption
-                 (default is [('title_and_description', None, None, 'Episode'),])
+                 (default is [('title_markup', None, None, 'Episode'),])
       - title: (optional) The title of the window + heading
       - instructions: (optional) A one-line text describing what the 
                       user should select / what the selection is for
@@ -4329,7 +4339,7 @@ class gPodderEpisodeSelector( BuilderWidget):
             self.selected += [self.selected_default]*(len(self.episodes)-len(self.selected))
 
         if not hasattr( self, 'columns'):
-            self.columns = (('title_and_description', None, None, _('Episode')),)
+            self.columns = (('title_markup', None, None, _('Episode')),)
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)

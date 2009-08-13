@@ -542,7 +542,7 @@ class MP3PlayerDevice(Device):
             folder = self.destination
 
         from_file = util.sanitize_encoding(self.convert_track(episode))
-        filename_base = util.sanitize_filename(episode.sync_filename(), self._config.mp3_player_max_filename_length)
+        filename_base = util.sanitize_filename(episode.sync_filename(self._config.custom_sync_name_enabled, self._config.custom_sync_name), self._config.mp3_player_max_filename_length)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
@@ -657,7 +657,7 @@ class MP3PlayerDevice(Device):
         return tracks
 
     def episode_on_device(self, episode):
-        e = util.sanitize_filename(episode.sync_filename(), self._config.mp3_player_max_filename_length)
+        e = util.sanitize_filename(episode.sync_filename(self._config.custom_sync_name_enabled, self._config.custom_sync_name), self._config.mp3_player_max_filename_length)
         return self._track_on_device(e)
 
     def remove_track(self, track):
