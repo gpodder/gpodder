@@ -22,7 +22,7 @@ import sys
 import gpodder
 
 from gpodder import sync
-from gpodder.libpodcasts import PodcastChannel
+from gpodder.model import PodcastChannel
 
 _ = gpodder.gettext
 

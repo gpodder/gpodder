@@ -19,41 +19,30 @@
 
 
 #
-#  libpodcasts.py -- data classes for gpodder
-#  thomas perl <thp@perli.net>   20051029
+#  gpodder.model - Core model classes for gPodder (2009-08-13)
+#  Based on libpodcasts.py (thp, 2005-10-29)
 #
-#  Contains code based on:
-#            liblocdbwriter.py (2006-01-09)
-#            liblocdbreader.py (2006-01-10)
-#
-
-import gtk
 
 import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import services
-from gpodder import draw
 from gpodder import resolver
 from gpodder import corestats
 
 from gpodder.liblogger import log
 
-import os.path
 import os
 import glob
 import shutil
-import sys
 import urllib
 import urlparse
 import time
 import datetime
 import rfc822
 import hashlib
-import xml.dom.minidom
 import feedparser
-
-from xml.sax import saxutils
+import xml.sax.saxutils
 
 _ = gpodder.gettext
 
@@ -717,10 +706,10 @@ class PodcastEpisode(PodcastModelObject):
 
     def format_episode_row_markup(self, include_description=False):
         if include_description:
-            return '%s\n<small>%s</small>' % (saxutils.escape(self.title),
-                    saxutils.escape(self.one_line_description()))
+            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(self.title),
+                    xml.sax.saxutils.escape(self.one_line_description()))
         else:
-            return saxutils.escape(self.title)
+            return xml.sax.saxutils.escape(self.title)
 
     @property
     def title_markup(self):
@@ -982,206 +971,4 @@ class PodcastEpisode(PodcastModelObject):
             log('Possible duplicate detected: %s', self.title)
             return True
         return False
-
-
-class EpisodeListModel(gtk.ListStore):
-    C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
-            C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
-            = range(8)
-
-    def __init__(self):
-        gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str)
-        self._icon_cache = {}
-        if gpodder.interface == gpodder.MAEMO:
-            self.ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
-            self.ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
-            self.ICON_GENERIC_FILE = 'text-x-generic'
-            self.ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
-            self.ICON_DELETED = 'qgn_toolb_gene_deletebutton'
-            self.ICON_NEW = 'qgn_list_gene_favor'
-        else:
-            self.ICON_AUDIO_FILE = 'audio-x-generic'
-            self.ICON_VIDEO_FILE = 'video-x-generic'
-            self.ICON_GENERIC_FILE = 'text-x-generic'
-            self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-            self.ICON_DELETED = gtk.STOCK_DELETE
-            self.ICON_NEW = gtk.STOCK_ABOUT
-
-
-    def _format_filesize(self, episode):
-        if episode.length > 0:
-            return util.format_filesize(episode.length, 1)
-        else:
-            return None
-
-    def update_from_channel(self, channel, downloading=None, \
-            include_description=False, finish_callback=None):
-        """
-        Return a gtk.ListStore containing episodes for the given channel.
-        Downloading should be a callback.
-        include_description should be a boolean value (True if description
-        is to be added to the episode row, or False if not)
-        """
-        self.clear()
-        for episode in channel.get_all_episodes():
-            description = episode.format_episode_row_markup(include_description)
-            description_stripped = util.remove_html_tags(episode.description)
-
-            iter = self.append()
-            self.set(iter, \
-                    self.C_URL, episode.url, \
-                    self.C_TITLE, episode.title, \
-                    self.C_FILESIZE_TEXT, self._format_filesize(episode), \
-                    self.C_EPISODE, episode, \
-                    self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
-                    self.C_DESCRIPTION, description, \
-                    self.C_DESCRIPTION_STRIPPED, description_stripped)
-
-            self.update_by_iter(iter, downloading, include_description)
-
-        if finish_callback is not None:
-            finish_callback()
-
-    def update_by_urls(self, urls, downloading=None, include_description=False):
-        for row in self:
-            if row[self.C_URL] in urls:
-                self.update_by_iter(row.iter, downloading, include_description)
-
-    def update_by_iter(self, iter, downloading=None, include_description=False):
-        episode = self.get_value(iter, self.C_EPISODE)
-
-        if include_description:
-            icon_size = 32
-        else:
-            icon_size = 16
-
-        show_bullet = False
-        show_padlock = False
-        show_missing = False
-        status_icon = None
-
-        if downloading is not None and downloading(episode):
-            status_icon = self.ICON_DOWNLOADING
-        else:
-            if episode.state == gpodder.STATE_DELETED:
-                status_icon = self.ICON_DELETED
-            elif episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played:
-                status_icon = self.ICON_NEW
-            elif episode.state == gpodder.STATE_DOWNLOADED:
-                show_bullet = not episode.is_played
-                show_padlock = episode.is_locked
-                show_missing = not episode.file_exists()
-
-                file_type = episode.file_type()
-                if file_type == 'audio':
-                    status_icon = self.ICON_AUDIO_FILE
-                elif file_type == 'video':
-                    status_icon = self.ICON_VIDEO_FILE
-                else:
-                    status_icon = self.ICON_GENERIC_FILE
-
-        if status_icon is not None:
-            status_icon = util.get_tree_icon(status_icon, show_bullet, \
-                    show_padlock, show_missing, self._icon_cache, icon_size)
-        self.set(iter, self.C_STATUS_ICON, status_icon)
-
-
-class PodcastListModel(gtk.ListStore):
-    C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
-            C_COVER, C_ERROR, C_PILL_VISIBLE = range(8)
-
-    def __init__(self, max_image_side):
-        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool)
-
-        self._cover_cache = {}
-        self._max_image_side = max_image_side
-
-    def _resize_pixbuf(self, url, pixbuf):
-        if pixbuf is None:
-            return None
-
-        return util.resize_pixbuf_keep_ratio(pixbuf, \
-                    self._max_image_side, self._max_image_side, \
-                    url, self._cover_cache) or pixbuf
-
-    def _get_cover_image(self, channel):
-        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-        return self._resize_pixbuf(channel.url, pixbuf)
-
-    def _get_pill_image(self, channel):
-        count_downloaded = channel.stat(state=gpodder.STATE_DOWNLOADED)
-        count_unplayed = channel.stat(state=gpodder.STATE_DOWNLOADED, is_played=False)
-        if count_unplayed > 0 or count_downloaded > 0:
-            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
-        else:
-            return None
-
-    def _format_description(self, channel):
-        count_new = channel.stat(state=gpodder.STATE_NORMAL, is_played=False)
-        title_markup = saxutils.escape(channel.title)
-        description_markup = saxutils.escape(util.get_first_line(channel.description) or ' ')
-        d = []
-        if count_new:
-            d.append('<span weight="bold">')
-        d.append(title_markup)
-        if count_new:
-            d.append('</span>')
-        return ''.join(d+['\n', '<small>', description_markup, '</small>'])
-
-    def _format_error(self, channel):
-        if channel.parse_error:
-            return str(channel.parse_error)
-        else:
-            return None
-
-    def set_channels(self, channels):
-        # Clear the model and update the list of podcasts
-        self.clear()
-        for channel in channels:
-            iter = self.append()
-            self.set(iter, \
-                    self.C_URL, channel.url, \
-                    self.C_CHANNEL, channel, \
-                    self.C_COVER, self._get_cover_image(channel))
-            self.update_by_iter(iter)
-
-    def update_by_urls(self, urls):
-        # Given a list of URLs, update each matching row
-        for row in self:
-            if row[self.C_URL] in urls:
-                self.update_by_iter(row.iter)
-
-    def update_by_iter(self, iter):
-        # Given a GtkTreeIter, update volatile information
-        channel = self.get_value(iter, self.C_CHANNEL)
-        pill_image = self._get_pill_image(channel)
-        self.set(iter, \
-                self.C_TITLE, channel.title, \
-                self.C_DESCRIPTION, self._format_description(channel), \
-                self.C_ERROR, self._format_error(channel), \
-                self.C_PILL, pill_image, \
-                self.C_PILL_VISIBLE, pill_image != None)
-
-    def add_cover_by_url(self, url, pixbuf):
-        # Resize and add the new cover image
-        pixbuf = self._resize_pixbuf(url, pixbuf)
-        for row in self:
-            if row[self.C_URL] == url:
-                row[self.C_COVER] = pixbuf
-                break
-
-    def delete_cover_by_url(self, url):
-        # Remove the cover from the model
-        for row in self:
-            if row[self.C_URL] == url:
-                row[self.C_COVER] = None
-                break
-
-        # Remove the cover from the cache
-        key = (url, self._max_image_side, self._max_image_side)
-        if key in self._cover_cache:
-            del self._cover_cache[key]
 

@@ -90,9 +90,10 @@ except Exception, exc:
     log('Warning: This probably means your PyGTK installation is too old!')
     have_trayicon = False
 
-from libpodcasts import PodcastChannel
-from libpodcasts import PodcastListModel
-from libpodcasts import EpisodeListModel
+from gpodder.model import PodcastChannel
+
+from gpodder.gtkui.model import PodcastListModel
+from gpodder.gtkui.model import EpisodeListModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -1661,11 +1662,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         key = key.lower()
 
-        # columns, as defined in libpodcasts' get model method
-        # 1 = episode title, 7 = description
-        columns = (1, 7)
-
-        for column in columns:
+        for column in (EpisodeListModel.C_TITLE, EpisodeListModel.C_DESCRIPTION_STRIPPED):
             value = model.get_value( iter, column).lower()
             if value.find( key) != -1:
                 return False

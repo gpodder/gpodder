@@ -26,7 +26,7 @@ integrate podcast functionality into their applications.
 import gpodder
 from gpodder import util
 from gpodder import opml
-from gpodder.libpodcasts import PodcastChannel
+from gpodder.model import PodcastChannel
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
 from gpodder import download

@@ -143,7 +143,7 @@ remove-git-menuitem:
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
+	rm -f src/gpodder/*.pyc src/gpodder/gtkui/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
 	rm -rf build
 	make -C data/po clean
 
