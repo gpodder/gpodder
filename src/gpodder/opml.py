@@ -38,11 +38,7 @@ from gpodder.liblogger import log
 
 from gpodder import util
 
-import gtk
-import gobject
-
 import xml.dom.minidom
-import xml.sax.saxutils
 
 import urllib
 import urllib2
@@ -102,32 +98,6 @@ class Importer(object):
                 log( 'OPML import finished, but no items found: %s', url, sender = self)
         except:
             log( 'Cannot import OPML from URL: %s', url, traceback=True, sender = self)
-
-    def format_channel( self, channel):
-        """
-        Formats a channel dictionary (as populated by the 
-        constructor) into a Pango markup string, suitable 
-        for output in GTK widgets.
-
-        The resulting string contains the title and description.
-        """
-        return '<b>%s</b>\n<span size="small">%s</span>' % ( xml.sax.saxutils.escape( urllib.unquote_plus( channel['title'])), xml.sax.saxutils.escape( channel['description']), )
-
-    def get_model( self):
-        """
-        Returns a gtk.ListStore with three columns:
-
-         - a bool that is initally set to False
-         - a descriptive Pango markup string created
-           by calling self.format_channel()
-         - the URL of the channel as string
-        """
-        model = gtk.ListStore( gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
-
-        for channel in self.items:
-            model.append( [ False, self.format_channel( channel), channel['url'] ])
-
-        return model
 
 
 

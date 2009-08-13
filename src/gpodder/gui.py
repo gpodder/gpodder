@@ -94,6 +94,7 @@ from gpodder.model import PodcastChannel
 from gpodder.gtkui.base import GtkBuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
+from gpodder.gtkui.opml import OpmlListModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -4010,22 +4011,22 @@ class gPodderOpmlLister(BuilderWidget):
         togglecell = gtk.CellRendererToggle()
         togglecell.set_property( 'activatable', True)
         togglecell.connect( 'toggled', self.callback_edited)
-        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=0)
+        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=OpmlListModel.C_SELECTED)
         
         titlecell = gtk.CellRendererText()
         titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=1)
+        titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
 
-        for itemcolumn in ( togglecolumn, titlecolumn ):
+        for itemcolumn in (togglecolumn, titlecolumn):
             tv.append_column(itemcolumn)
 
     def callback_edited( self, cell, path):
         model = self.get_treeview().get_model()
 
-        url = model[path][2]
+        url = model[path][OpmlListModel.C_URL]
 
-        model[path][0] = not model[path][0]
-        if model[path][0]:
+        model[path][OpmlListModel.C_SELECTED] = not model[path][OpmlListModel.C_SELECTED]
+        if model[path][OpmlListModel.C_SELECTED]:
             self.channels.append( url)
         else:
             self.channels.remove( url)
@@ -4055,8 +4056,8 @@ class gPodderOpmlLister(BuilderWidget):
         model = self.get_treeview(tab).get_model()
         if model is not None:
             for row in model:
-                if row[0]:
-                    channels.append(row[2])
+                if row[OpmlListModel.C_SELECTED]:
+                    channels.append(row[OpmlListModel.C_URL])
 
         return channels
 
@@ -4082,7 +4083,7 @@ class gPodderOpmlLister(BuilderWidget):
 
     def thread_func(self, tab=0):
         if tab == 1:
-            model = opml.Importer(gl.config.toplist_url).get_model()
+            model = OpmlListModel(opml.Importer(gl.config.toplist_url))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:
@@ -4094,7 +4095,7 @@ class gPodderOpmlLister(BuilderWidget):
             if not os.path.isfile(url) and not url.lower().startswith('http://'):
                 log('Using podcast.de search')
                 url = 'http://api.podcast.de/opml/podcasts/suche/%s' % (urllib.quote(url),)
-            model = opml.Importer(url).get_model()
+            model = OpmlListModel(opml.Importer(url))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
 
@@ -4118,7 +4119,7 @@ class gPodderOpmlLister(BuilderWidget):
         model = self.get_treeview().get_model()
         if model is not None:
             for row in model:
-                row[0] = value
+                row[OpmlListModel.C_SELECTED] = value
                 if value:
                     enabled = True
         self.btnOK.set_sensitive(enabled)
