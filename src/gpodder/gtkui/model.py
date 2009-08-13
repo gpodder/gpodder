@@ -29,7 +29,8 @@ _ = gpodder.gettext
 
 from gpodder import util
 from gpodder import services
-from gpodder import draw
+
+from gpodder.gtkui import draw
 
 import gtk
 import xml.sax.saxutils
@@ -221,21 +222,21 @@ class PodcastListModel(gtk.ListStore):
             return self._cover_cache[url]
 
         # Resize if too wide
-        if pixbuf.get_width() > max_width:
-            f = float(max_width)/pixbuf.get_width()
+        if pixbuf.get_width() > self._max_image_side:
+            f = float(self._max_image_side)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
             pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
             changed = True
 
         # Resize if too high
-        if pixbuf.get_height() > max_height:
-            f = float(max_height)/pixbuf.get_height()
+        if pixbuf.get_height() > self._max_image_side:
+            f = float(self._max_image_side)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
             pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
             changed = True
 
         if changed:
-            cache[url] = pixbuf
+            self._cover_cache[url] = pixbuf
             result = pixbuf
 
         return result

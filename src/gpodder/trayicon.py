@@ -40,7 +40,8 @@ except:
 
 from gpodder import services
 from gpodder import util
-from gpodder import draw
+
+from gpodder.gtkui import draw
 
 from xml.sax import saxutils
 
