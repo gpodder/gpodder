@@ -92,6 +92,7 @@ except Exception, exc:
 
 from libpodcasts import PodcastChannel
 from libpodcasts import PodcastListModel
+from libpodcasts import EpisodeListModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -559,8 +560,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
         self.treeChannels.append_column(namecolumn)
 
+        # Generate list models for podcasts and their episodes
         self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size)
         self.treeChannels.set_model(self.podcast_list_model)
+
+        self.episode_list_model = EpisodeListModel()
+        self.treeAvailable.set_model(self.episode_list_model)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -602,20 +607,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             status_column_label = ''
         else:
             status_column_label = _('Status')
-        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=4)
+        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=EpisodeListModel.C_STATUS_ICON)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn = gtk.TreeViewColumn(_("Episode"), namecell, markup=6)
+        namecolumn = gtk.TreeViewColumn(_('Episode'), namecell, markup=EpisodeListModel.C_DESCRIPTION)
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
         sizecell = gtk.CellRendererText()
-        sizecolumn = gtk.TreeViewColumn( _("Size"), sizecell, text=2)
+        sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
 
         releasecell = gtk.CellRendererText()
-        releasecolumn = gtk.TreeViewColumn( _("Released"), releasecell, text=5)
+        releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         
         for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
             itemcolumn.set_reorderable(gpodder.interface != gpodder.MAEMO)
@@ -706,10 +711,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.iconify_main_window()
             if self.tray_icon and gl.config.minimize_to_tray:
                 self.tray_icon.set_visible(False)
-
-        # a dictionary that maps episode URLs to the current
-        # treeAvailable row numbers to generate tree paths
-        self.url_path_mapping = {}
 
         services.cover_downloader.register('cover-available', self.cover_download_finished)
         services.cover_downloader.register('cover-removed', self.cover_file_removed)
@@ -1009,8 +1010,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if path is not None:
             model = treeview.get_model()
             iter = model.get_iter(path)
-            url = model.get_value(iter, 0)
-            description = model.get_value(iter, 7) # FIXME INDEX MODEL BY SYMBOLIC NAME
+            url = model.get_value(iter, EpisodeListModel.C_URL)
+            description = model.get_value(iter, EpisodeListModel.C_DESCRIPTION_STRIPPED)
             if self.last_tooltip_episode is not None and self.last_tooltip_episode != url:
                 self.last_tooltip_episode = None
                 return False
@@ -1041,56 +1042,56 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if path is not None:
             model = treeview.get_model()
             iter = model.get_iter(path)
-            url = model.get_value(iter, 0)
-            for channel in self.channels:
-                if channel.url == url:
-                    if self.last_tooltip_channel is not None and self.last_tooltip_channel != channel:
-                        self.last_tooltip_channel = None
-                        return False
-                    self.last_tooltip_channel = channel
-                    channel.request_save_dir_size()
-                    diskspace_str = util.format_filesize(channel.save_dir_size, 0)
-                    error_str = model.get_value(iter, 6)
-                    if error_str:
-                        error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
-                        error_str = '<span foreground="#ff0000">%s</span>' % error_str
-                    table = gtk.Table(rows=3, columns=3)
-                    table.set_row_spacings(5)
-                    table.set_col_spacings(5)
-                    table.set_border_width(5)
+            url = model.get_value(iter, PodcastListModel.C_URL)
+            channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
 
-                    heading = gtk.Label()
-                    heading.set_alignment(0, 1)
-                    heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
-                    table.attach(heading, 0, 1, 0, 1)
-                    size_info = gtk.Label()
-                    size_info.set_alignment(1, 1)
-                    size_info.set_justify(gtk.JUSTIFY_RIGHT)
-                    size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
-                    table.attach(size_info, 2, 3, 0, 1)
+            if self.last_tooltip_channel is not None and self.last_tooltip_channel != channel:
+                self.last_tooltip_channel = None
+                return False
+            self.last_tooltip_channel = channel
+            channel.request_save_dir_size()
+            diskspace_str = util.format_filesize(channel.save_dir_size, 0)
+            error_str = model.get_value(iter, PodcastListModel.C_ERROR)
+            if error_str:
+                error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
+                error_str = '<span foreground="#ff0000">%s</span>' % error_str
+            table = gtk.Table(rows=3, columns=3)
+            table.set_row_spacings(5)
+            table.set_col_spacings(5)
+            table.set_border_width(5)
 
-                    table.attach(gtk.HSeparator(), 0, 3, 1, 2)
+            heading = gtk.Label()
+            heading.set_alignment(0, 1)
+            heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
+            table.attach(heading, 0, 1, 0, 1)
+            size_info = gtk.Label()
+            size_info.set_alignment(1, 1)
+            size_info.set_justify(gtk.JUSTIFY_RIGHT)
+            size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
+            table.attach(size_info, 2, 3, 0, 1)
 
-                    if len(channel.description) < 500:
-                        description = channel.description
-                    else:
-                        pos = channel.description.find('\n\n')
-                        if pos == -1 or pos > 500:
-                            description = channel.description[:498]+'[...]'
-                        else:
-                            description = channel.description[:pos]
+            table.attach(gtk.HSeparator(), 0, 3, 1, 2)
 
-                    description = gtk.Label(description)
-                    if error_str:
-                        description.set_markup(error_str)
-                    description.set_alignment(0, 0)
-                    description.set_line_wrap(True)
-                    table.attach(description, 0, 3, 2, 3)
+            if len(channel.description) < 500:
+                description = channel.description
+            else:
+                pos = channel.description.find('\n\n')
+                if pos == -1 or pos > 500:
+                    description = channel.description[:498]+'[...]'
+                else:
+                    description = channel.description[:pos]
 
-                    table.show_all()
-                    tooltip.set_custom(table)
+            description = gtk.Label(description)
+            if error_str:
+                description.set_markup(error_str)
+            description.set_alignment(0, 0)
+            description.set_line_wrap(True)
+            table.attach(description, 0, 3, 2, 3)
 
-                    return True
+            table.show_all()
+            tooltip.set_custom(table)
+
+            return True
 
         self.last_tooltip_channel = None
         return False
@@ -1357,9 +1358,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         self.podcast_list_model.add_cover_by_url(channel_url, pixbuf)
 
-    def save_episode_as_file( self, url, *args):
-        episode = self.active_channel.find_episode(url)
-
+    def save_episode_as_file(self, episode):
         if episode.was_downloaded(and_exists=True):
             folder = self.folder_for_saving_episodes
             copy_from = episode.local_filename(create=False)
@@ -1535,7 +1534,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append( gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Save to disk'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: [self.save_episode_as_file(e.url) for e in episodes])
+                item.connect('activate', lambda w: [self.save_episode_as_file(e) for e in episodes])
                 menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
@@ -1615,8 +1614,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (model, paths) = selection.get_selected_rows()
         for path in paths:
             iter = model.get_iter(path)
-            self.active_channel.iter_set_downloading_columns(model, iter, downloading=self.episode_is_downloading,
-                    include_description=gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
+            self.episode_list_model.update_by_iter(iter, \
+                    self.episode_is_downloading, \
+                    gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
 
     def update_episode_list_icons(self, urls):
         """
@@ -1627,15 +1627,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None or not urls:
             return
 
-        model = self.treeAvailable.get_model()
-        if model is None:
-            return
-
-        for url in urls:
-            if url in self.url_path_mapping:
-                path = (self.url_path_mapping[url],)
-                self.active_channel.iter_set_downloading_columns(model, model.get_iter(path), downloading=self.episode_is_downloading,
-                    include_description=gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
+        self.episode_list_model.update_by_urls(urls, \
+                self.episode_is_downloading, \
+                gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
  
     def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
@@ -1698,11 +1692,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (model, paths) = selection.get_selected_rows()
          
             for path in paths:
-                url = model.get_value( model.get_iter( path), 0)
-
-                episode = self.active_channel.find_episode(url)
-                if episode is None:
-                    continue
+                episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
 
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
@@ -1822,6 +1812,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         return episode.url in (task.url for task in self.download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED))
+
+    def on_episode_list_model_updated(self, banner=None):
+        if banner is not None:
+            banner.destroy()
+        self.treeAvailable.columns_autosize()
+        self.play_or_download()
+        self.currently_updating = False
     
     def updateTreeView(self):
         if self.channels and self.active_channel is not None:
@@ -1829,29 +1826,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
             else:
                 banner = None
-            def thread_func(self, banner, active_channel):
-                (model, urls) = self.active_channel.get_tree_model(self.episode_is_downloading, \
-                        gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
-                mapping = dict(zip(urls, range(len(urls))))
-                def update_gui_with_new_model(self, channel, model, urls, mapping, banner):
-                    if self.active_channel is not None and channel is not None:
-                        log('%s <=> %s', self.active_channel.title, channel.title, sender=self)
-                    if self.active_channel == channel:
-                        self.treeAvailable.set_model(model)
-                        self.url_path_mapping = mapping
-                        self.treeAvailable.columns_autosize()
-                        self.play_or_download()
-                    if banner is not None:
-                        banner.destroy()
-                    self.currently_updating = False
-                    return False
-                gobject.idle_add(lambda: update_gui_with_new_model(self, active_channel, model, urls, mapping, banner))
+
             self.currently_updating = True
-            Thread(target=thread_func, args=[self, banner, self.active_channel]).start()
+            self.episode_list_model.update_from_channel(self.active_channel, \
+                    self.episode_is_downloading, \
+                    gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO, \
+                    lambda: self.on_episode_list_model_updated(banner))
         else:
-            model = self.treeAvailable.get_model()
-            if model is not None:
-                model.clear()
+            self.episode_list_model.clear()
     
     def drag_data_received(self, widget, context, x, y, sel, ttype, time):
         (path, column, rx, ry) = self.treeChannels.get_path_at_pos( x, y) or (None,)*4
@@ -2994,8 +2976,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if model is not None and iter is not None:
             old_active_channel = self.active_channel
-            (id,) = model.get_path(iter)
-            self.active_channel = self.channels[id]
+            self.active_channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
 
             if self.active_channel == old_active_channel:
                 return
@@ -3035,8 +3016,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeAvailable.get_selection()
         model, paths = selection.get_selected_rows()
 
-        urls = [model.get_value(model.get_iter(path), 0) for path in paths]
-        episodes = [self.active_channel.find_episode(url) for url in urls]
+        episodes = [model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE) for path in paths]
         return episodes
 
     def on_transfer_selected_episodes(self, widget):

@@ -57,21 +57,6 @@ from xml.sax import saxutils
 
 _ = gpodder.gettext
 
-if gpodder.interface == gpodder.MAEMO:
-    ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
-    ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
-    ICON_GENERIC_FILE = 'text-x-generic'
-    ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
-    ICON_DELETED = 'qgn_toolb_gene_deletebutton'
-    ICON_NEW = 'qgn_list_gene_favor'
-else:
-    ICON_AUDIO_FILE = 'audio-x-generic'
-    ICON_VIDEO_FILE = 'video-x-generic'
-    ICON_GENERIC_FILE = 'text-x-generic'
-    ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-    ICON_DELETED = gtk.STOCK_DELETE
-    ICON_NEW = gtk.STOCK_ABOUT
-
 
 class gPodderFetcher(feedcore.Fetcher):
     """
@@ -138,7 +123,6 @@ class PodcastModelObject(object):
 class PodcastChannel(PodcastModelObject):
     """holds data for a complete channel"""
     MAX_FOLDERNAME_LENGTH = 150
-    icon_cache = {}
 
     feed_fetcher = gPodderFetcher()
 
@@ -486,89 +470,6 @@ class PodcastChannel(PodcastModelObject):
 
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
-
-    def iter_set_downloading_columns(self, model, iter, episode=None, downloading=None, include_description=False):
-        global ICON_AUDIO_FILE, ICON_VIDEO_FILE, ICON_GENERIC_FILE
-        global ICON_DOWNLOADING, ICON_DELETED, ICON_NEW
-        
-        if episode is None:
-            url = model.get_value( iter, 0)
-            episode = self.db.load_episode(url, factory=self.episode_factory)
-        else:
-            url = episode.url
-
-        if include_description:
-            icon_size = 32
-        else:
-            icon_size = 16
-
-        if downloading is not None and downloading(episode):
-            status_icon = util.get_tree_icon(ICON_DOWNLOADING, icon_cache=self.icon_cache, icon_size=icon_size)
-        else:
-            if episode.state == gpodder.STATE_NORMAL:
-                if episode.is_played:
-                    status_icon = None
-                else:
-                    status_icon = util.get_tree_icon(ICON_NEW, icon_cache=self.icon_cache, icon_size=icon_size)
-            elif episode.was_downloaded():
-                missing = not episode.file_exists()
-
-                if missing:
-                    log('Episode missing: %s (before drawing an icon)', episode.url, sender=self)
-
-                file_type = util.file_type_by_extension( model.get_value( iter, 9))
-                if file_type == 'audio':
-                    status_icon = util.get_tree_icon(ICON_AUDIO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
-                elif file_type == 'video':
-                    status_icon = util.get_tree_icon(ICON_VIDEO_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
-                else:
-                    status_icon = util.get_tree_icon(ICON_GENERIC_FILE, not episode.is_played, episode.is_locked, not episode.file_exists(), self.icon_cache, icon_size)
-            elif episode.state == gpodder.STATE_DELETED or episode.state == gpodder.STATE_DOWNLOADED:
-                status_icon = util.get_tree_icon(ICON_DELETED, not episode.is_played, icon_cache=self.icon_cache, icon_size=icon_size)
-            else:
-                log('Warning: Cannot determine status icon.', sender=self)
-                status_icon = None
-
-        model.set( iter, 4, status_icon)
-
-    def get_tree_model(self, downloading=None, include_description=False):
-        """
-        Return a gtk.ListStore containing episodes for this channel.
-        Downloading should be a callback.
-        include_description should be a boolean value (True if description
-        is to be added to the episode row, or False if not)
-        """
-        DATA_TYPES = (str, str, str, bool, gtk.gdk.Pixbuf, str, str, str, str, str)
-
-        # TODO: Remove unused columns, make these symbolic names class
-        # members and use them everywhere, so we can change/reorder them
-        C_URL, C_TITLE, C_FILESIZE_TEXT, C_UNUSED0, C_STATUS_ICON, \
-                C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
-                C_UNUSED1, C_EXTENSION = range(len(DATA_TYPES))
-
-        new_model = gtk.ListStore(*DATA_TYPES)
-
-        log('Returning TreeModel for %s', self.url, sender = self)
-        urls = []
-        for item in self.get_all_episodes():
-            description = item.format_episode_row_markup(include_description)
-
-            if item.length > 0:
-                filelength = util.format_filesize(item.length, 1)
-            else:
-                filelength = None
-
-            new_iter = new_model.append((item.url, item.title, filelength, 
-                True, None, item.cute_pubdate(), description, util.remove_html_tags(item.description), 
-                'XXXXXXXXXXXXXUNUSEDXXXXXXXXXXXXXXXXXXX', item.extension()))
-            self.iter_set_downloading_columns( new_model, new_iter, episode=item, downloading=downloading, include_description=include_description)
-            urls.append(item.url)
-        
-        self.update_save_dir_size()
-        return (new_model, urls)
-    
-    def find_episode( self, url):
-        return self.db.load_episode(url, factory=self.episode_factory)
 
     def find_unique_folder_name(self, foldername):
         current_try = util.sanitize_filename(foldername, self.MAX_FOLDERNAME_LENGTH)
@@ -1082,6 +983,109 @@ class PodcastEpisode(PodcastModelObject):
             return True
         return False
 
+
+class EpisodeListModel(gtk.ListStore):
+    C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
+            C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
+            = range(8)
+
+    def __init__(self):
+        gtk.ListStore.__init__(self, str, str, str, object, \
+                gtk.gdk.Pixbuf, str, str, str)
+        self._icon_cache = {}
+        if gpodder.interface == gpodder.MAEMO:
+            self.ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
+            self.ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
+            self.ICON_GENERIC_FILE = 'text-x-generic'
+            self.ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
+            self.ICON_DELETED = 'qgn_toolb_gene_deletebutton'
+            self.ICON_NEW = 'qgn_list_gene_favor'
+        else:
+            self.ICON_AUDIO_FILE = 'audio-x-generic'
+            self.ICON_VIDEO_FILE = 'video-x-generic'
+            self.ICON_GENERIC_FILE = 'text-x-generic'
+            self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
+            self.ICON_DELETED = gtk.STOCK_DELETE
+            self.ICON_NEW = gtk.STOCK_ABOUT
+
+
+    def _format_filesize(self, episode):
+        if episode.length > 0:
+            return util.format_filesize(episode.length, 1)
+        else:
+            return None
+
+    def update_from_channel(self, channel, downloading=None, \
+            include_description=False, finish_callback=None):
+        """
+        Return a gtk.ListStore containing episodes for the given channel.
+        Downloading should be a callback.
+        include_description should be a boolean value (True if description
+        is to be added to the episode row, or False if not)
+        """
+        self.clear()
+        for episode in channel.get_all_episodes():
+            description = episode.format_episode_row_markup(include_description)
+            description_stripped = util.remove_html_tags(episode.description)
+
+            iter = self.append()
+            self.set(iter, \
+                    self.C_URL, episode.url, \
+                    self.C_TITLE, episode.title, \
+                    self.C_FILESIZE_TEXT, self._format_filesize(episode), \
+                    self.C_EPISODE, episode, \
+                    self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
+                    self.C_DESCRIPTION, description, \
+                    self.C_DESCRIPTION_STRIPPED, description_stripped)
+
+            self.update_by_iter(iter, downloading, include_description)
+
+        if finish_callback is not None:
+            finish_callback()
+
+    def update_by_urls(self, urls, downloading=None, include_description=False):
+        for row in self:
+            if row[self.C_URL] in urls:
+                self.update_by_iter(row.iter, downloading, include_description)
+
+    def update_by_iter(self, iter, downloading=None, include_description=False):
+        episode = self.get_value(iter, self.C_EPISODE)
+
+        if include_description:
+            icon_size = 32
+        else:
+            icon_size = 16
+
+        show_bullet = False
+        show_padlock = False
+        show_missing = False
+        status_icon = None
+
+        if downloading is not None and downloading(episode):
+            status_icon = self.ICON_DOWNLOADING
+        else:
+            if episode.state == gpodder.STATE_DELETED:
+                status_icon = self.ICON_DELETED
+            elif episode.state == gpodder.STATE_NORMAL and \
+                    not episode.is_played:
+                status_icon = self.ICON_NEW
+            elif episode.state == gpodder.STATE_DOWNLOADED:
+                show_bullet = not episode.is_played
+                show_padlock = episode.is_locked
+                show_missing = not episode.file_exists()
+
+                file_type = episode.file_type()
+                if file_type == 'audio':
+                    status_icon = self.ICON_AUDIO_FILE
+                elif file_type == 'video':
+                    status_icon = self.ICON_VIDEO_FILE
+                else:
+                    status_icon = self.ICON_GENERIC_FILE
+
+        if status_icon is not None:
+            status_icon = util.get_tree_icon(status_icon, show_bullet, \
+                    show_padlock, show_missing, self._icon_cache, icon_size)
+        self.set(iter, self.C_STATUS_ICON, status_icon)
 
 
 class PodcastListModel(gtk.ListStore):
