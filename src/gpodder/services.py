@@ -271,13 +271,13 @@ class CoverDownloader(ObservableService):
             except:
                 pass
 
-        if pixbuf is not None:
-            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, self.MAX_SIZE, self.MAX_SIZE)
-            if new_pixbuf is not None:
-                # Save the resized cover so we do not have to
-                # resize it next time we load it
-                new_pixbuf.save(channel.cover_file, 'png')
-                pixbuf = new_pixbuf
+#        if pixbuf is not None:
+#            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, self.MAX_SIZE, self.MAX_SIZE)
+#            if new_pixbuf is not None:
+#                # Save the resized cover so we do not have to
+#                # resize it next time we load it
+#                new_pixbuf.save(channel.cover_file, 'png')
+#                pixbuf = new_pixbuf
 
         if async:
             self.notify('cover-available', channel.url, pixbuf)

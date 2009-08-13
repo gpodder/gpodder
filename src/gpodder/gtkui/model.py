@@ -51,6 +51,9 @@ class EpisodeListModel(gtk.ListStore):
             self.ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
             self.ICON_DELETED = 'qgn_toolb_gene_deletebutton'
             self.ICON_NEW = 'qgn_list_gene_favor'
+            self.ICON_UNPLAYED = 'qgn_list_gene_favor'
+            self.ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
+            self.ICON_MISSING = gtk.STOCK_STOP # FIXME!
         else:
             self.ICON_AUDIO_FILE = 'audio-x-generic'
             self.ICON_VIDEO_FILE = 'video-x-generic'
@@ -58,6 +61,9 @@ class EpisodeListModel(gtk.ListStore):
             self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
             self.ICON_DELETED = gtk.STOCK_DELETE
             self.ICON_NEW = gtk.STOCK_ABOUT
+            self.ICON_UNPLAYED = 'emblem-new'
+            self.ICON_LOCKED = 'emblem-readonly'
+            self.ICON_MISSING = 'emblem-unreadable'
 
 
     def _format_filesize(self, episode):
@@ -134,9 +140,61 @@ class EpisodeListModel(gtk.ListStore):
                     status_icon = self.ICON_GENERIC_FILE
 
         if status_icon is not None:
-            status_icon = util.get_tree_icon(status_icon, show_bullet, \
-                    show_padlock, show_missing, self._icon_cache, icon_size)
+            status_icon = self._get_tree_icon(status_icon, show_bullet, \
+                    show_padlock, show_missing, icon_size)
         self.set(iter, self.C_STATUS_ICON, status_icon)
+
+    def _get_tree_icon(self, icon_name, add_bullet=False, \
+            add_padlock=False, add_missing=False, icon_size=32):
+        """
+        Loads an icon from the current icon theme at the specified
+        size, suitable for display in a gtk.TreeView. Additional
+        emblems can be added on top of the icon.
+        """
+
+        if (icon_name,add_bullet,add_padlock,icon_size) in self._icon_cache:
+            return self._icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
+
+        icon_theme = gtk.icon_theme_get_default()
+
+        try:
+            icon = icon_theme.load_icon(icon_name, icon_size, 0)
+        except:
+            icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
+
+        if icon and (add_bullet or add_padlock or add_missing):
+            # We'll modify the icon, so use .copy()
+            if add_missing:
+                try:
+                    icon = icon.copy()
+                    emblem = icon_theme.load_icon(self.ICON_MISSING, int(float(icon_size)*1.2/3.0), 0)
+                    (width, height) = (emblem.get_width(), emblem.get_height())
+                    xpos = icon.get_width() - width
+                    ypos = icon.get_height() - height
+                    emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+                except:
+                    pass
+            elif add_bullet:
+                try:
+                    icon = icon.copy()
+                    emblem = icon_theme.load_icon(self.ICON_UNPLAYED, int(float(icon_size)*1.2/3.0), 0)
+                    (width, height) = (emblem.get_width(), emblem.get_height())
+                    xpos = icon.get_width() - width
+                    ypos = icon.get_height() - height
+                    emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+                except:
+                    pass
+            if add_padlock:
+                try:
+                    icon = icon.copy()
+                    emblem = icon_theme.load_icon(self.ICON_LOCKED, int(float(icon_size)/2.0), 0)
+                    (width, height) = (emblem.get_width(), emblem.get_height())
+                    emblem.composite(icon, 0, 0, width, height, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+                except:
+                    pass
+
+        self._icon_cache[(icon_name,add_bullet,add_padlock,icon_size)] = icon
+        return icon
 
 
 class PodcastListModel(gtk.ListStore):
@@ -150,13 +208,43 @@ class PodcastListModel(gtk.ListStore):
         self._cover_cache = {}
         self._max_image_side = max_image_side
 
+    def _resize_pixbuf_keep_ratio(self, url, pixbuf):
+        """
+        Resizes a GTK Pixbuf but keeps its aspect ratio.
+        Returns None if the pixbuf does not need to be
+        resized or the newly resized pixbuf if it does.
+        """
+        changed = False
+        result = None
+
+        if url in self._cover_cache:
+            return self._cover_cache[url]
+
+        # Resize if too wide
+        if pixbuf.get_width() > max_width:
+            f = float(max_width)/pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            changed = True
+
+        # Resize if too high
+        if pixbuf.get_height() > max_height:
+            f = float(max_height)/pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            changed = True
+
+        if changed:
+            cache[url] = pixbuf
+            result = pixbuf
+
+        return result
+
     def _resize_pixbuf(self, url, pixbuf):
         if pixbuf is None:
             return None
 
-        return util.resize_pixbuf_keep_ratio(pixbuf, \
-                    self._max_image_side, self._max_image_side, \
-                    url, self._cover_cache) or pixbuf
+        return self._resize_pixbuf_keep_ratio(url, pixbuf) or pixbuf
 
     def _get_cover_image(self, channel):
         pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)

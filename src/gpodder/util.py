@@ -599,80 +599,6 @@ def file_type_by_extension( extension):
     return None
 
 
-def get_tree_icon(icon_name, add_bullet=False, add_padlock=False, add_missing=False, icon_cache=None, icon_size=32):
-    """
-    Loads an icon from the current icon theme at the specified
-    size, suitable for display in a gtk.TreeView.
-
-    Optionally adds a green bullet (the GTK Stock "Yes" icon)
-    to the Pixbuf returned. Also, a padlock icon can be added.
-
-    If an icon_cache parameter is supplied, it has to be a
-    dictionary and will be used to store generated icons. 
-
-    On subsequent calls, icons will be loaded from cache if 
-    the cache is supplied again and the icon is found in 
-    the cache.
-    """
-    import gtk
-    if gpodder.interface == gpodder.GUI:
-        ICON_UNPLAYED = 'emblem-new'
-        ICON_LOCKED = 'emblem-readonly'
-        ICON_MISSING = 'emblem-unreadable'
-    elif gpodder.interface == gpodder.MAEMO:
-        ICON_UNPLAYED = 'qgn_list_gene_favor'
-        ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
-        ICON_MISSING = gtk.STOCK_STOP # FIXME!
-
-    if icon_cache is not None and (icon_name,add_bullet,add_padlock,icon_size) in icon_cache:
-        return icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
-    
-    icon_theme = gtk.icon_theme_get_default()
-
-    try:
-        icon = icon_theme.load_icon(icon_name, icon_size, 0)
-    except:
-        log( '(get_tree_icon) Warning: Cannot load icon with name "%s", will use  default icon.', icon_name)
-        icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
-
-    if icon and (add_bullet or add_padlock or add_missing):
-        # We'll modify the icon, so use .copy()
-        if add_missing:
-            log('lalala')
-            try:
-                icon = icon.copy()
-                emblem = icon_theme.load_icon(ICON_MISSING, int(float(icon_size)*1.2/3.0), 0)
-                (width, height) = (emblem.get_width(), emblem.get_height())
-                xpos = icon.get_width() - width
-                ypos = icon.get_height() - height
-                emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-            except:
-                log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
-        elif add_bullet:
-            try:
-                icon = icon.copy()
-                emblem = icon_theme.load_icon(ICON_UNPLAYED, int(float(icon_size)*1.2/3.0), 0)
-                (width, height) = (emblem.get_width(), emblem.get_height())
-                xpos = icon.get_width() - width
-                ypos = icon.get_height() - height
-                emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-            except:
-                log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
-        if add_padlock:
-            try:
-                icon = icon.copy()
-                emblem = icon_theme.load_icon(ICON_LOCKED, int(float(icon_size)/2.0), 0)
-                (width, height) = (emblem.get_width(), emblem.get_height())
-                emblem.composite(icon, 0, 0, width, height, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-            except:
-                log('(get_tree_icon) Error adding emblem to icon "%s".', icon_name)
-
-    if icon_cache is not None:
-        icon_cache[(icon_name,add_bullet,add_padlock,icon_size)] = icon
-
-    return icon
-
-
 def get_first_line( s):
     """
     Returns only the first line of a string, stripped so
@@ -1183,47 +1109,6 @@ def find_mount_point(directory):
 
     return '/'
 
-
-def resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, key=None, cache=None):
-    """
-    Resizes a GTK Pixbuf but keeps its aspect ratio.
-    
-    Returns None if the pixbuf does not need to be
-    resized or the newly resized pixbuf if it does.
-
-    The optional parameter "key" is used to identify
-    the image in the "cache", which is a dict-object
-    that holds already-resized pixbufs to access.
-    """
-    import gtk
-    changed = False
-
-    if cache is not None:
-        if (key, max_width, max_height) in cache:
-            return cache[(key, max_width, max_height)]
-
-    # Resize if too wide
-    if pixbuf.get_width() > max_width:
-        f = float(max_width)/pixbuf.get_width()
-        (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-        pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
-        changed = True
-
-    # Resize if too high
-    if pixbuf.get_height() > max_height:
-        f = float(max_height)/pixbuf.get_height()
-        (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-        pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
-        changed = True
-
-    if changed:
-        result = pixbuf
-        if cache is not None:
-            cache[(key, max_width, max_height)] = result
-    else:
-        result = None
-
-    return result
 
 # matches http:// and ftp:// and mailto://
 protocolPattern = re.compile(r'^\w+://')
