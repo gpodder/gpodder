@@ -21,10 +21,13 @@
 
 """
 gPodder enables you to subscribe to RSS feeds and download
-podcast episodes from these feeds. gPodder can operate in 
-GUI mode and in CLI mode. Downloaded podcasts can either 
-be synchronized to portable MP3 players (including iPods) 
-or played back on the user's desktop.
+podcast episodes from these feeds.
+
+Downloaded podcasts can either be synchronized to portable
+MP3 players (including iPods) or played back on the user's
+desktop.
+
+See gpo(1) for the command-line interface.
 """
 
 import sys
@@ -91,52 +94,16 @@ if __name__ == '__main__':
                       action="store_true", dest="verbose", default=False,
                       help=_("Print debugging output to stdout"))
 
-    parser.add_option("-t", "--local",
-                      action="store_true", dest="local", default=False,
-                      help='Deprecated.')
-    
     parser.add_option("-m", "--maemo",
                       action="store_true", dest="maemo", default=False,
                       help=_("Start the Maemo user interface of gPodder"))
     
-    parser.add_option("-l", "--list",
-                      action="store_true", dest="list", default=False,
-                      help=_("List all channel subscriptions"))
-
-    parser.add_option("-r", "--run",
-                      action="store_true", dest="run", default=False,
-                      help=_("Update channel list, download new podcasts"))
-
-    parser.add_option("-u", "--update",
-                      action="store_true", dest="update", default=False,
-                      help=_("Update channel list and exit"))
-    
-    parser.add_option("-s", "--sync",
-                      action="store_true", dest="sync", default=False,
-                      help=_("Synchronize channels to configured device"))
-
-    parser.add_option("-a", "--add", dest="add",
-                      help=_("Subscribe to channel from URL"), metavar="URL")
-    
-    parser.add_option("-d", "--delete", dest="delete",
-                      help=_("Delete channel specified by URL"), metavar="URL")
-
-    parser.add_option("-S", "--stats",
-			          action="store_true", dest="stats", default=False,
-                      help=_("Get sync statistics"))
-
     (options, args) = parser.parse_args(sys.argv)
 
     if options.maemo:
         gpodder.interface = gpodder.MAEMO
-    elif options.list or options.run or options.update or \
-            options.sync or options.add or options.delete:
-        gpodder.interface = gpodder.CLI
     else:
         gpodder.interface = gpodder.GUI
-
-    if options.local:
-        print >>sys.stderr, 'Ignoring deprecated option --local.'
 
     if options.verbose:
         from gpodder.liblogger import enable_verbose
@@ -155,22 +122,7 @@ if __name__ == '__main__':
         # No D-Bus available :/
         remote_object = None
 
-    from gpodder import console
-    if options.list:
-        console.list_channels()
-    elif options.run:
-        console.run()
-    elif options.update:
-        console.update()
-    elif options.sync:
-        console.sync_device()
-    elif options.add:
-        console.add_channel( options.add)
-    elif options.delete:
-        console.del_channel( options.delete)
-    elif options.stats:
-        console.sync_stats()
-    elif remote_object is not None:
+    if remote_object is not None:
         # An instance of GUI is already running
         remote_object.show_gui_window(dbus_interface=gpodder.dbus_interface)
     else:

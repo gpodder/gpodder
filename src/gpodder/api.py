@@ -30,6 +30,7 @@ from gpodder.libpodcasts import PodcastChannel
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
 from gpodder import download
+from gpodder import console
 
 class Podcast(object):
     """API interface of gPodder podcasts
@@ -151,6 +152,13 @@ def create_podcast(url, title=None):
         return Podcast(podcast)
 
     return None
+
+def synchronize_device():
+    """Synchronize episodes to a device
+
+    WARNING: API subject to change.
+    """
+    console.synchronize_device(db, gl.config)
 
 
 def finish():

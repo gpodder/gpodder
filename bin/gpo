@@ -62,6 +62,7 @@
   -------------------------------
 
     device                        Show information about your device
+    sync                          Synchronize downloaded episodes to device
 
   Helper commands
   ---------------
@@ -93,6 +94,8 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 import gpodder
 _ = gpodder.gettext
 
+# This is the command-line interface to gPodder
+gpodder.interface = gpodder.CLI
 
 # Use only the gPodder API here, so this serves both as an example
 # and as a motivation to provide all functionality in the API :)
@@ -216,6 +219,9 @@ class gPodderCli(object):
         print count, 'episodes downloaded.'
         return True
 
+    def sync(self):
+        api.synchronize_device()
+        return True
 
     # -------------------------------------------------------------------
 
