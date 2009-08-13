@@ -74,7 +74,6 @@ from gpodder import opml
 from gpodder import services
 from gpodder import sync
 from gpodder import download
-from gpodder import uibase
 from gpodder import my
 from gpodder import widgets
 from gpodder.liblogger import log
@@ -92,6 +91,7 @@ except Exception, exc:
 
 from gpodder.model import PodcastChannel
 
+from gpodder.gtkui.base import GtkBuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 
@@ -138,12 +138,12 @@ app_authors = [
     'List may be incomplete - please contact me.'
 ]
 
-class BuilderWidget(uibase.GtkBuilderWidget):
+class BuilderWidget(GtkBuilderWidget):
     gpodder_main_window = None
     finger_friendly_widgets = []
 
     def __init__( self, **kwargs):
-        uibase.GtkBuilderWidget.__init__(self, gpodder.ui_folder, gpodder.textdomain, **kwargs)
+        GtkBuilderWidget.__init__(self, gpodder.ui_folder, gpodder.textdomain, **kwargs)
 
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
@@ -4867,7 +4867,7 @@ def main():
 
     if gpodder.interface == gpodder.MAEMO and \
             not gl.config.disable_fingerscroll:
-        uibase.GtkBuilderWidget.use_fingerscroll = True
+        GtkBuilderWidget.use_fingerscroll = True
 
     gp = gPodder(bus_name)
     gp.run()
