@@ -91,8 +91,7 @@ except Exception, exc:
     have_trayicon = False
 
 from libpodcasts import PodcastChannel
-from libpodcasts import channels_to_model
-from libpodcasts import update_channel_model_by_iter
+from libpodcasts import PodcastListModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -560,6 +559,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.append_column(iconcolumn)
         self.treeChannels.append_column(namecolumn)
         self.treeChannels.set_headers_visible(False)
+        self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size)
+        self.treeChannels.set_model(self.podcast_list_model)
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -710,13 +711,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # treeAvailable row numbers to generate tree paths
         self.url_path_mapping = {}
 
-        # a dictionary that maps channel URLs to the current
-        # treeChannels row numbers to generate tree paths
-        self.channel_url_path_mapping = {}
-
         services.cover_downloader.register('cover-available', self.cover_download_finished)
         services.cover_downloader.register('cover-removed', self.cover_file_removed)
-        self.cover_cache = {}
 
         self.treeDownloads.set_model(self.download_status_manager.get_tree_model())
         gobject.timeout_add(1500, self.update_downloads_list)
@@ -1349,17 +1345,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         The Cover Downloader calls this when a previously-
         available cover has been removed from the disk. We
-        have to update our cache to reflect this change.
+        have to update our model to reflect this change.
         """
-        (COLUMN_URL, COLUMN_PIXBUF) = (0, 5)
-        for row in self.treeChannels.get_model():
-            if row[COLUMN_URL] == channel_url:
-                row[COLUMN_PIXBUF] = None
-                key = (channel_url, gl.config.podcast_list_icon_size, \
-                        gl.config.podcast_list_icon_size)
-                if key in self.cover_cache:
-                    del self.cover_cache[key]
-        
+        self.podcast_list_model.delete_cover_by_url(channel_url)
     
     def cover_download_finished(self, channel_url, pixbuf):
         """
@@ -1367,17 +1355,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         downloading (or registering, if already downloaded)
         a new channel cover, which is ready for displaying.
         """
-        if pixbuf is not None:
-            (COLUMN_URL, COLUMN_PIXBUF) = (0, 5)
-            model = self.treeChannels.get_model()
-            if model is None:
-                # Not yet ready (race condition) - simply ignore
-                return
-
-            for row in model:
-                if row[COLUMN_URL] == channel_url and row[COLUMN_PIXBUF] is None:
-                    new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, gl.config.podcast_list_icon_size, gl.config.podcast_list_icon_size, channel_url, self.cover_cache)
-                    row[COLUMN_PIXBUF] = new_pixbuf or pixbuf
+        self.podcast_list_model.add_cover_by_url(channel_url, pixbuf)
 
     def save_episode_as_file( self, url, *args):
         episode = self.active_channel.find_episode(url)
@@ -1799,48 +1777,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if only_selected_channel:
             # very cheap! only update selected channel
             if iter and self.active_channel is not None:
-                update_channel_model_by_iter(model, iter,
-                    self.active_channel,
-                    self.cover_cache,
-                    gl.config.podcast_list_icon_size,
-                    gl.config.podcast_list_icon_size)
+                model.update_by_iter(iter)
         elif not self.channel_list_changed:
             # we can keep the model, but have to update some
             if only_these_urls is None:
                 # still cheaper than reloading the whole list
                 iter = model.get_iter_first()
                 while iter is not None:
-                    (index,) = model.get_path(iter)
-                    update_channel_model_by_iter(model, iter,
-                        self.channels[index],
-                        self.cover_cache,
-                        gl.config.podcast_list_icon_size,
-                        gl.config.podcast_list_icon_size)
+                    model.update_by_iter(iter)
                     iter = model.iter_next(iter)
             else:
                 # ok, we got a bunch of urls to update
-                for url in only_these_urls:
-                    if url in self.channel_url_path_mapping:
-                        index = self.channel_url_path_mapping[url]
-                        path = (index,)
-                        iter = model.get_iter(path)
-                        update_channel_model_by_iter(model, iter,
-                            self.channels[index],
-                            self.cover_cache,
-                            gl.config.podcast_list_icon_size,
-                            gl.config.podcast_list_icon_size)
+                model.update_by_urls(only_these_urls)
         else:
             if model and iter and selected_url is None:
                 # Get the URL of the currently-selected podcast
                 selected_url = model.get_value(iter, 0)
 
-            (model, urls) = channels_to_model(self.channels,
-                    self.cover_cache,
-                    gl.config.podcast_list_icon_size,
-                    gl.config.podcast_list_icon_size)
-
-            self.channel_url_path_mapping = dict(zip(urls, range(len(urls))))
-            self.treeChannels.set_model(model)
+            # Update the podcast list model with new channels
+            self.podcast_list_model.set_channels(self.channels)
 
             try:
                 selected_path = (0,)

@@ -329,7 +329,6 @@ class PodcastChannel(PodcastModelObject):
         self.pubDate = 0
         self.parse_error = None
         self.newest_pubdate_cached = None
-        self.iter = None
         self.foldername = None
         self.auto_foldername = 1 # automatically generated foldername
 
@@ -1084,60 +1083,101 @@ class PodcastEpisode(PodcastModelObject):
         return False
 
 
-def update_channel_model_by_iter( model, iter, channel,
-        cover_cache=None, max_width=0, max_height=0, initialize_all=False):
 
-    count_downloaded = channel.stat(state=gpodder.STATE_DOWNLOADED)
-    count_new = channel.stat(state=gpodder.STATE_NORMAL, is_played=False)
-    count_unplayed = channel.stat(state=gpodder.STATE_DOWNLOADED, is_played=False)
+class PodcastListModel(gtk.ListStore):
+    C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
+            C_COVER, C_ERROR, C_PILL_VISIBLE = range(8)
 
-    channel.iter = iter
-    if initialize_all:
-        model.set(iter, 0, channel.url)
+    def __init__(self, max_image_side):
+        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
+                object, gtk.gdk.Pixbuf, str, bool)
 
-    model.set(iter, 1, channel.title)
-    title_markup = saxutils.escape(channel.title)
-    description_markup = saxutils.escape(util.get_first_line(channel.description) or _('No description available'))
-    d = []
-    if count_new:
-        d.append('<span weight="bold">')
-    d.append(title_markup)
-    if count_new:
-        d.append('</span>')
+        self._cover_cache = {}
+        self._max_image_side = max_image_side
 
-    description = ''.join(d+['\n', '<small>', description_markup, '</small>'])
-    model.set(iter, 2, description)
+    def _resize_pixbuf(self, url, pixbuf):
+        if pixbuf is None:
+            return None
 
-    if channel.parse_error:
-        model.set(iter, 6, str(channel.parse_error))
-    else:
-        model.set(iter, 6, None)
+        return util.resize_pixbuf_keep_ratio(pixbuf, \
+                    self._max_image_side, self._max_image_side, \
+                    url, self._cover_cache) or pixbuf
 
-    if count_unplayed > 0 or count_downloaded > 0:
-        model.set(iter, 3, draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded)))
-        model.set(iter, 7, True)
-    else:
-        model.set(iter, 7, False)
-
-    if initialize_all:
-        # Load the cover if we have it, but don't download
-        # it if it's not available (to avoid blocking here)
+    def _get_cover_image(self, channel):
         pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
-        new_pixbuf = None
-        if pixbuf is not None:
-            new_pixbuf = util.resize_pixbuf_keep_ratio(pixbuf, max_width, max_height, channel.url, cover_cache)
-        model.set(iter, 5, new_pixbuf or pixbuf)
+        return self._resize_pixbuf(channel.url, pixbuf)
 
-def channels_to_model(channels, cover_cache=None, max_width=0, max_height=0):
-    new_model = gtk.ListStore( str, str, str, gtk.gdk.Pixbuf, int,
-        gtk.gdk.Pixbuf, str, bool, str )
+    def _get_pill_image(self, channel):
+        count_downloaded = channel.stat(state=gpodder.STATE_DOWNLOADED)
+        count_unplayed = channel.stat(state=gpodder.STATE_DOWNLOADED, is_played=False)
+        if count_unplayed > 0 or count_downloaded > 0:
+            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+        else:
+            return None
 
-    urls = []
-    for channel in channels:
-        update_channel_model_by_iter(new_model, new_model.append(), channel,
-            cover_cache, max_width, max_height, True)
-        urls.append(channel.url)
+    def _format_description(self, channel):
+        count_new = channel.stat(state=gpodder.STATE_NORMAL, is_played=False)
+        title_markup = saxutils.escape(channel.title)
+        description_markup = saxutils.escape(util.get_first_line(channel.description) or ' ')
+        d = []
+        if count_new:
+            d.append('<span weight="bold">')
+        d.append(title_markup)
+        if count_new:
+            d.append('</span>')
+        return ''.join(d+['\n', '<small>', description_markup, '</small>'])
 
-    return (new_model, urls)
+    def _format_error(self, channel):
+        if channel.parse_error:
+            return str(channel.parse_error)
+        else:
+            return None
 
+    def set_channels(self, channels):
+        # Clear the model and update the list of podcasts
+        self.clear()
+        for channel in channels:
+            iter = self.append()
+            self.set(iter, \
+                    self.C_URL, channel.url, \
+                    self.C_CHANNEL, channel, \
+                    self.C_COVER, self._get_cover_image(channel))
+            self.update_by_iter(iter)
+
+    def update_by_urls(self, urls):
+        # Given a list of URLs, update each matching row
+        for row in self:
+            if row[self.C_URL] in urls:
+                self.update_by_iter(row.iter)
+
+    def update_by_iter(self, iter):
+        # Given a GtkTreeIter, update volatile information
+        channel = self.get_value(iter, self.C_CHANNEL)
+        pill_image = self._get_pill_image(channel)
+        self.set(iter, \
+                self.C_TITLE, channel.title, \
+                self.C_DESCRIPTION, self._format_description(channel), \
+                self.C_ERROR, self._format_error(channel), \
+                self.C_PILL, pill_image, \
+                self.C_PILL_VISIBLE, pill_image != None)
+
+    def add_cover_by_url(self, url, pixbuf):
+        # Resize and add the new cover image
+        pixbuf = self._resize_pixbuf(url, pixbuf)
+        for row in self:
+            if row[self.C_URL] == url:
+                row[self.C_COVER] = pixbuf
+                break
+
+    def delete_cover_by_url(self, url):
+        # Remove the cover from the model
+        for row in self:
+            if row[self.C_URL] == url:
+                row[self.C_COVER] = None
+                break
+
+        # Remove the cover from the cache
+        key = (url, self._max_image_side, self._max_image_side)
+        if key in self._cover_cache:
+            del self._cover_cache[key]
 
