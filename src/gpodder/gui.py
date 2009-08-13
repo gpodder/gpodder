@@ -535,30 +535,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
-        # cell renderers for channel tree
-        iconcolumn = gtk.TreeViewColumn('')
+        # Set up podcast channel tree view widget
+        self.treeChannels.set_enable_search(True)
+        self.treeChannels.set_search_column(PodcastListModel.C_TITLE)
+        self.treeChannels.set_headers_visible(False)
 
+        iconcolumn = gtk.TreeViewColumn('')
         iconcell = gtk.CellRendererPixbuf()
-        iconcolumn.pack_start( iconcell, False)
-        iconcolumn.add_attribute( iconcell, 'pixbuf', 5)
+        iconcolumn.pack_start(iconcell, False)
+        iconcolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
+        self.treeChannels.append_column(iconcolumn)
 
         namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn.pack_start( namecell, True)
-        namecolumn.add_attribute( namecell, 'markup', 2)
+        namecolumn.pack_start(namecell, True)
+        namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
-        namecolumn.pack_start( iconcell, False)
-        namecolumn.add_attribute( iconcell, 'pixbuf', 3)
-        namecolumn.add_attribute(iconcell, 'visible', 7)
-
-        self.treeChannels.set_enable_search(True)
-        self.treeChannels.set_search_column(1)
-        self.treeChannels.append_column(iconcolumn)
+        namecolumn.pack_start(iconcell, False)
+        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
+        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
         self.treeChannels.append_column(namecolumn)
-        self.treeChannels.set_headers_visible(False)
+
         self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size)
         self.treeChannels.set_model(self.podcast_list_model)
 
