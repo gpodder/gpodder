@@ -718,7 +718,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         services.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         self.treeDownloads.set_model(self.download_status_manager.get_tree_model())
-        gobject.timeout_add(1500, self.update_downloads_list)
         self.download_tasks_seen = set()
         self.last_download_count = 0
         
@@ -802,6 +801,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate)
+
+    def enable_download_list_update(self):
+        if not self.download_list_update_enabled:
+            gobject.timeout_add(1500, self.update_downloads_list)
+            self.download_list_update_enabled = True
 
     def on_btnCleanUpDownloads_clicked(self, button):
         model = self.treeDownloads.get_model()
@@ -957,6 +961,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_or_download()
             if channel_urls:
                 self.updateComboBox(only_these_urls=channel_urls)
+
+            if not self.download_queue_manager.are_queued_or_active_tasks():
+                self.download_list_update_enabled = False
             return True
         except Exception, e:
             log('Exception happened while updating download list.', sender=self, traceback=True)
@@ -1152,6 +1159,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 # Only queue task when its paused/failed/cancelled
                                 if task.status in (task.PAUSED, task.FAILED, task.CANCELLED):
                                     self.download_queue_manager.add_task(task)
+                                    self.enable_download_list_update()
                             elif status == download.DownloadTask.CANCELLED:
                                 # Cancelling a download only allows when paused/downloading/queued
                                 if task.status in (task.QUEUED, task.DOWNLOADING, task.PAUSED):
@@ -2380,6 +2388,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url and task.status not in (task.DOWNLOADING, task.QUEUED):
                         self.download_queue_manager.add_task(task)
+                        self.enable_download_list_update()
                         task_exists = True
                         continue
 
@@ -2398,6 +2407,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_queue_manager.add_resumed_task(task)
                 else:
                     self.download_queue_manager.add_task(task)
+                self.enable_download_list_update()
 
     def new_episodes_show(self, episodes):
         columns = (
@@ -3111,6 +3121,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 task.status = task.PAUSED
             elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
                 self.download_queue_manager.add_task(task)
+                self.enable_download_list_update()
             elif task.status == task.DONE:
                 model.remove(model.get_iter(tree_row_reference.get_path()))
                 

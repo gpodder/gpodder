@@ -351,6 +351,10 @@ class DownloadQueueManager(object):
                 self.worker_threads.append(worker)
                 worker.start()
 
+    def are_queued_or_active_tasks(self):
+        with self.worker_threads_access:
+            return len(self.worker_threads) > 0
+
     def add_resumed_task(self, task):
         """Simply add the task without starting the download"""
         self.download_status_manager.register_task(task)
