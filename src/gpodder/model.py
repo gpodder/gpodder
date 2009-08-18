@@ -135,7 +135,8 @@ class PodcastChannel(PodcastModelObject):
         if len(tmp):
             return tmp[0]
         elif create:
-            tmp = PodcastChannel(db, url)
+            tmp = PodcastChannel(db, download_dir)
+            tmp.url = url
             if authentication_tokens is not None:
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
