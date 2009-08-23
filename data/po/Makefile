@@ -28,6 +28,8 @@ clean:
 statistics:
 	@for file in *.po; do echo -n "$$file (`cat $$file | grep Revision-Date | cut -d' ' -f2`): "; msgfmt --statistics $$file 2>&1; done
 
+validate:
+	./validate.sh
 
-.PHONY: update generators clean statistics
+.PHONY: update generators clean statistics validate
 

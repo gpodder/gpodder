@@ -88,6 +88,7 @@ release: distclean
 
 releasetest: unittest
 	desktop-file-validate data/gpodder.desktop
+	make -C data/po validate
 
 install: generators
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
