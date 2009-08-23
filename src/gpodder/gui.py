@@ -719,6 +719,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeDownloads.set_model(self.download_status_manager.get_tree_model())
         self.download_tasks_seen = set()
+        self.download_list_update_enabled = False
         self.last_download_count = 0
         
         #Add Drag and Drop Support
@@ -829,6 +830,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(changed_episode_urls)
 
+        # Update the tab title and downloads list
+        self.update_downloads_list()
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
@@ -964,7 +967,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not self.download_queue_manager.are_queued_or_active_tasks():
                 self.download_list_update_enabled = False
-            return True
+
+            return self.download_list_update_enabled
         except Exception, e:
             log('Exception happened while updating download list.', sender=self, traceback=True)
             self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'))
@@ -1189,6 +1193,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             task.removed_from_list()
                     # Tell the podcasts tab to update icons for our removed podcasts
                     self.update_episode_list_icons(changed_episode_urls)
+                    # Update the tab title and downloads list
+                    self.update_downloads_list()
                     return True
                 item = gtk.ImageMenuItem(label)
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
@@ -3127,6 +3133,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 
         self.play_or_download()
 
+        # Update the tab title and downloads list
+        self.update_downloads_list()
+
     def on_btnCancelDownloadStatus_clicked(self, widget, *args):
         self.on_treeDownloads_row_activated( widget, None)
 
@@ -3134,6 +3143,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeDownloads.get_selection().select_all()
         self.on_treeDownloads_row_activated( self.toolCancel, None)
         self.treeDownloads.get_selection().unselect_all()
+
+        # Update the tab title and downloads list
+        self.update_downloads_list()
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         if self.active_channel is None:
@@ -3186,6 +3198,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gl.clean_up_downloads(delete_partial)
         self.update_selected_episode_list_icons()
         self.play_or_download()
+
+        # Update the tab title and downloads list
+        self.update_downloads_list()
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown
