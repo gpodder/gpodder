@@ -1565,12 +1565,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if any_locked:
                     item = gtk.ImageMenuItem(_('Allow deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                    item.connect('activate', self.on_item_toggle_lock_activate)
+                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, False))
                     menu.append(self.set_finger_friendly(item))
                 else:
                     item = gtk.ImageMenuItem(_('Prohibit deletion'))
                     item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                    item.connect('activate', self.on_item_toggle_lock_activate)
+                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, True))
                     menu.append(self.set_finger_friendly(item))
 
             menu.append(gtk.SeparatorMenuItem())
