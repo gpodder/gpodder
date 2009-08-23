@@ -2522,8 +2522,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes = self.get_all_episodes()
 
         # make sure we have enough space on the device
+        can_sync = True
         total_size = 0
-        free_space = device.get_free_space()
+        free_space = max(device.get_free_space(), 0)
         for episode in episodes:
             if not device.episode_on_device(episode) and not (sync_all_episodes and gl.config.only_sync_not_played and episode.is_played):
                 filename = episode.local_filename(create=False)
@@ -2531,20 +2532,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     total_size += util.calculate_size(str(filename))
 
         if total_size > free_space:
-            # can be negative because of the 10 MiB for reserved for the iTunesDB
-            free_space = max( free_space, 0 )
-            log('(gpodder.sync) Not enough free space. Transfer size = %d, Free space = %d', total_size, free_space)
-            title = _('Not enough space left on device.')
-            message = _('%s remaining on device.\nPlease free up %s and try again.' % (
-                util.format_filesize( free_space ), util.format_filesize( total_size - free_space )))
-            self.notification(message, title)
-            device.close()
-        else:
-            # start syncing!
+            title = _('Not enough space left on device')
+            message = _('You need to free up %s.\nDo you want to continue?') % (util.format_filesize(total_size-free_space),)
+            can_sync = self.show_confirmation(message, title)
+
+        if self.tray_icon:
+            self.tray_icon.set_synchronisation_device(device)
+
+        if can_sync:
             gPodderSync(device=device, gPodder=self)
             Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
-            if self.tray_icon:
-                self.tray_icon.set_synchronisation_device(device)
+        else:
+            device.close()
 
         # The sync process might have updated the status of episodes,
         # therefore persist the database here to avoid losing data
