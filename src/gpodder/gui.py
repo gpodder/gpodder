@@ -2281,7 +2281,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Episodes have been deleted - persist the database
         db.commit()
 
-        #self.download_status_updated(episode_urls, channel_urls)
+        self.update_episode_list_icons(episode_urls)
+        self.updateComboBox(only_these_urls=channel_urls)
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
@@ -3185,7 +3186,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif locked_count > 0:
             title = _('Remove %d out of %d episodes?') % (len(episodes)-locked_count, len(episodes))
             message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
-            
+
         # if user confirms deletion, let's remove some stuff ;)
         if self.show_confirmation(message, title):
             for episode in episodes:
@@ -3194,13 +3195,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.updateComboBox(only_selected_channel=True)
 
         # only delete partial files if we do not have any downloads in progress
-        delete_partial = False #not services.download_status_manager.has_items()
-        gl.clean_up_downloads(delete_partial)
+        gl.clean_up_downloads(False)
         self.update_selected_episode_list_icons()
         self.play_or_download()
-
-        # Update the tab title and downloads list
-        self.update_downloads_list()
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown

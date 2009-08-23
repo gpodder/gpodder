@@ -108,6 +108,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def update_by_iter(self, iter, downloading=None, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
+        episode.reload_from_db()
 
         if include_description:
             icon_size = 32
