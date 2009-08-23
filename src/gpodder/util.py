@@ -392,12 +392,17 @@ def format_date(timestamp):
         log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
         return None
 
+    try:
+        timestamp = datetime.datetime.fromtimestamp(timestamp)
+    except:
+        return None
+
     if diff < 7:
         # Weekday name
-        return str(datetime.datetime.fromtimestamp(timestamp).strftime('%A'))
+        return str(timestamp.strftime('%A'))
     else:
         # Locale's appropriate date representation
-        return str(datetime.datetime.fromtimestamp(timestamp).strftime('%x'))
+        return str(timestamp.strftime('%x'))
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
