@@ -1,0 +1,228 @@
+# -*- coding: utf-8 -*-
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2009 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import gtk
+import pango
+import urllib
+import threading
+
+import gpodder
+
+_ = gpodder.gettext
+
+from gpodder import util
+from gpodder import opml
+from gpodder import youtube
+
+from gpodder.gtkui.opml import OpmlListModel
+
+from gpodder.gtkui.interface.common import BuilderWidget
+
+
+class gPodderPodcastDirectory(BuilderWidget):
+    finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
+    (MODE_DOWNLOAD, MODE_SEARCH) = range(2)
+    
+    def new(self):
+        # initiate channels list
+        self.channels = []
+        self.callback_for_channel = None
+        self.callback_finished = None
+
+        if hasattr(self, 'custom_title'):
+            self.gPodderPodcastDirectory.set_title(self.custom_title)
+        if hasattr(self, 'hide_url_entry'):
+            self.hboxOpmlUrlEntry.hide_all()
+            new_parent = self.notebookChannelAdder.get_parent()
+            new_parent.remove(self.notebookChannelAdder)
+            self.vboxOpmlImport.reparent(new_parent)
+
+        self.setup_treeview(self.treeviewChannelChooser)
+        self.setup_treeview(self.treeviewTopPodcastsChooser)
+        self.setup_treeview(self.treeviewYouTubeChooser)
+
+        self.current_mode = self.MODE_DOWNLOAD
+
+        self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
+
+    def setup_treeview(self, tv):
+        togglecell = gtk.CellRendererToggle()
+        togglecell.set_property( 'activatable', True)
+        togglecell.connect( 'toggled', self.callback_edited)
+        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=OpmlListModel.C_SELECTED)
+        
+        titlecell = gtk.CellRendererText()
+        titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
+
+        for itemcolumn in (togglecolumn, titlecolumn):
+            tv.append_column(itemcolumn)
+
+    def callback_edited( self, cell, path):
+        model = self.get_treeview().get_model()
+
+        url = model[path][OpmlListModel.C_URL]
+
+        model[path][OpmlListModel.C_SELECTED] = not model[path][OpmlListModel.C_SELECTED]
+        if model[path][OpmlListModel.C_SELECTED]:
+            self.channels.append( url)
+        else:
+            self.channels.remove( url)
+
+        self.btnOK.set_sensitive( bool(len(self.get_selected_channels())))
+
+    def on_entryURL_changed(self, editable):
+        old_mode = self.current_mode
+        self.current_mode = not editable.get_text().lower().startswith('http://')
+        if self.current_mode == old_mode:
+            return
+
+        if self.current_mode == self.MODE_SEARCH:
+            self.btnDownloadOpml.set_property('image', None)
+            self.btnDownloadOpml.set_label(gtk.STOCK_FIND)
+            self.btnDownloadOpml.set_use_stock(True)
+            self.labelOpmlUrl.set_text(_('Search podcast.de:'))
+        else:
+            self.btnDownloadOpml.set_label(_('Download'))
+            self.btnDownloadOpml.set_image(gtk.image_new_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_BUTTON))
+            self.btnDownloadOpml.set_use_stock(False)
+            self.labelOpmlUrl.set_text(_('OPML:'))
+
+    def get_selected_channels(self, tab=None):
+        channels = []
+
+        model = self.get_treeview(tab).get_model()
+        if model is not None:
+            for row in model:
+                if row[OpmlListModel.C_SELECTED]:
+                    channels.append(row[OpmlListModel.C_URL])
+
+        return channels
+
+    def on_change_tab(self, tab):
+        self.btnOK.set_sensitive( bool(len(self.get_selected_channels(tab))))
+
+    def thread_finished(self, model, tab=0):
+        if tab == 1:
+            tv = self.treeviewTopPodcastsChooser
+        elif tab == 2:
+            tv = self.treeviewYouTubeChooser
+            self.entryYoutubeSearch.set_sensitive(True)
+            self.btnSearchYouTube.set_sensitive(True)
+            self.btnOK.set_sensitive(False)
+        else:
+            tv = self.treeviewChannelChooser
+            self.btnDownloadOpml.set_sensitive(True)
+            self.entryURL.set_sensitive(True)
+            self.channels = []
+
+        tv.set_model(model)
+        tv.set_sensitive(True)
+
+    def thread_func(self, tab=0):
+        if tab == 1:
+            model = OpmlListModel(opml.Importer(self._config.toplist_url))
+            if len(model) == 0:
+                self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
+        elif tab == 2:
+            model = OpmlListModel(youtube.find_youtube_channels(self.entryYoutubeSearch.get_text()))
+            if len(model) == 0:
+                self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
+        else:
+            url = self.entryURL.get_text()
+            if not os.path.isfile(url) and not url.lower().startswith('http://'):
+                url = 'http://api.podcast.de/opml/podcasts/suche/%s' % (urllib.quote(url),)
+            model = OpmlListModel(opml.Importer(url))
+            if len(model) == 0:
+                self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
+
+        util.idle_add(self.thread_finished, model, tab)
+    
+    def get_channels_from_url( self, url, callback_for_channel = None, callback_finished = None):
+        if callback_for_channel:
+            self.callback_for_channel = callback_for_channel
+        if callback_finished:
+            self.callback_finished = callback_finished
+        self.entryURL.set_text( url)
+        self.btnDownloadOpml.set_sensitive( False)
+        self.entryURL.set_sensitive( False)
+        self.btnOK.set_sensitive( False)
+        self.treeviewChannelChooser.set_sensitive( False)
+        threading.Thread( target = self.thread_func).start()
+        threading.Thread( target = lambda: self.thread_func(1)).start()
+
+    def select_all( self, value ):
+        enabled = False
+        model = self.get_treeview().get_model()
+        if model is not None:
+            for row in model:
+                row[OpmlListModel.C_SELECTED] = value
+                if value:
+                    enabled = True
+        self.btnOK.set_sensitive(enabled)
+
+    def on_gPodderPodcastDirectory_destroy(self, widget, *args):
+        pass
+
+    def on_btnDownloadOpml_clicked(self, widget, *args):
+        self.get_channels_from_url( self.entryURL.get_text())
+
+    def on_btnSearchYouTube_clicked(self, widget, *args):
+        self.entryYoutubeSearch.set_sensitive(False)
+        self.treeviewYouTubeChooser.set_sensitive(False)
+        self.btnSearchYouTube.set_sensitive(False)
+        threading.Thread(target = lambda: self.thread_func(2)).start()
+
+    def on_btnSelectAll_clicked(self, widget, *args):
+        self.select_all(True)
+    
+    def on_btnSelectNone_clicked(self, widget, *args):
+        self.select_all(False)
+
+    def on_btnOK_clicked(self, widget, *args):
+        self.channels = self.get_selected_channels()
+        self.gPodderPodcastDirectory.destroy()
+
+        # add channels that have been selected
+        for url in self.channels:
+            if self.callback_for_channel:
+                self.callback_for_channel( url)
+
+        if self.callback_finished:
+            util.idle_add(self.callback_finished)
+
+    def on_btnCancel_clicked(self, widget, *args):
+        self.gPodderPodcastDirectory.destroy()
+
+    def on_entryYoutubeSearch_key_press_event(self, widget, event):
+        if event.keyval == gtk.keysyms.Return:
+            self.on_btnSearchYouTube_clicked(widget)
+
+    def get_treeview(self, tab=None):
+        if tab is None:
+            tab = self.notebookChannelAdder.get_current_page()
+
+        if tab == 0:
+            return self.treeviewChannelChooser
+        elif tab == 1:
+            return self.treeviewTopPodcastsChooser
+        else:
+            return self.treeviewYouTubeChooser
+
