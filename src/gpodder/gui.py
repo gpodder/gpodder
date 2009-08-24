@@ -731,7 +731,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.download_list_update_enabled
         except Exception, e:
             log('Exception happened while updating download list.', sender=self, traceback=True)
-            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'))
+            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'), important=True)
             # We return False here, so the update loop won't be called again,
             # that's why we require the restart of gPodder in the message.
             return False
@@ -871,7 +871,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_m3u_playlist_clicked(self, widget):
         self.active_channel.update_m3u_playlist()
-        self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'))
+        self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'), widget=self.treeChannels)
 
     def treeview_downloads_button_pressed(self, treeview, event):
         if event.button == 1:
@@ -1144,7 +1144,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
 
-        def convert_and_send_thread(episodes, notify):
+        def convert_and_send_thread(episode):
             for episode in episodes:
                 filename = episode.local_filename(create=False)
                 assert filename is not None
@@ -1159,11 +1159,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     util.bluetooth_send_file(destfile)
                 except:
                     log('Cannot copy "%s" to "%s".', filename, destfile, sender=self)
-                    notify(_('Error converting file.'), _('Bluetooth file transfer'))
+                    self.notification(_('Error converting file.'), _('Bluetooth file transfer'), important=True)
 
                 util.delete_file(destfile)
 
-        threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy, self.notification]).start()
+        threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
 
     def treeview_button_savepos(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO and event.button == 1:
@@ -1478,7 +1478,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.playback_episodes_for_real(episodes)
         except Exception, e:
             log('Error in playback!', sender=self, traceback=True)
-            self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Error opening player'))
+            self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Error opening player'), widget=self.toolPreferences)
 
         self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
@@ -1687,7 +1687,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             cute_scheme = saxutils.escape(scheme)+'://'
             title = _('%s URLs are not supported') % cute_scheme
             message = _('gPodder does not understand the URL you supplied.')
-            self.show_message( message, title)
+            self.show_message(message, title, important=True)
             return
 
         for old_channel in self.channels:
@@ -1699,8 +1699,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.treeChannels.get_selection().select_path( (i,))
                         self.on_treeChannels_cursor_changed(self.treeChannels)
                         break
-                self.show_message( _('You have already subscribed to this podcast: %s') % ( 
-                    saxutils.escape( old_channel.title), ), _('Already added'))
+                self.show_message(_('You have already subscribed to this podcast: %s') % ( 
+                    saxutils.escape( old_channel.title), ), _('Already added'), widget=self.treeChannels)
                 return
 
         waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
@@ -1761,7 +1761,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             try:
                 (username, password) = util.username_password_from_url(url)
             except ValueError, ve:
-                self.show_message(_('The following error occured while trying to get authentication data from the URL:') + '\n\n' + ve.message, _('Error getting authentication data'))
+                self.show_message(_('The following error occured while trying to get authentication data from the URL:') + '\n\n' + ve.message, _('Error getting authentication data'), important=True)
                 (username, password) = (None, None)
                 log('Error getting authentication data from URL: %s', url, traceback=True)
 
@@ -1819,7 +1819,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not handled:
                 title = _('Error adding podcast')
                 message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
-                self.show_message( message, title)
+                self.show_message(message, title, important=True)
 
         self.entryAddChannel.set_text(self.ENTER_URL_TEXT)
         self.entryAddChannel.set_sensitive(True)
@@ -1867,13 +1867,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if (self.minimized and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
                 if len(episodes) == 1:
-                    title = _('Downloading one new episode')
+                    title = _('Downloading one new episode.')
                 else:
-                    title = _('Downloading %d new episodes') % len(episodes)
+                    title = _('Downloading %d new episodes.') % len(episodes)
 
-                if self.tray_icon:
-                    message = self.tray_icon.format_episode_list([e.title for e in episodes])
-                    self.tray_icon.send_notification(message, title)
+                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             else:
                 self.show_update_feeds_buttons()
@@ -1900,13 +1898,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
-#                except feedcore.Offline:
-#                    self.feed_cache_update_cancelled = True
-#                    if not self.minimized:
-#                        util.idle_add(self.show_message, _('The feed update has been cancelled because you appear to be offline.'), _('Cannot connect to server'))
-#                    break
                 except Exception, e:
-                    util.idle_add(self.show_message, _('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'))
+                    self.notification(_('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'), widget=self.treeChannels)
                     log('Error: %s', str(e), sender=self, traceback=True)
 
             # By the time we get here the update may have already been cancelled
@@ -2049,7 +2042,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     log('Uploading to my.gpodder.org on close', sender=self)
                     util.idle_add(self.on_upload_to_mygpo, None)
             else:
-                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'))
+                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'), important=True)
 
         self.gPodder.hide()
 
@@ -2189,9 +2182,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_email_subscriptions_activate(self, widget):
         if not self.channels:
-            self.show_message(_('Your subscription list is empty.'), _('Could not send list'))
+            self.show_message(_('Your subscription list is empty. Add some podcasts first.'), _('Could not send list'), widget=self.treeChannels)
         elif not self.send_subscriptions():
-            self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'))
+            self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'), important=True)
 
     def on_itemUpdateChannel_activate(self, widget=None):
         self.update_feed_cache(channels=[self.active_channel,])
@@ -2223,7 +2216,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     task = download.DownloadTask(episode, self.config)
                 except Exception, e:
-                    self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'))
+                    self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'), important=True)
                     log('Download error while downloading %s', episode.title, sender=self, traceback=True)
                     continue
 
@@ -2259,11 +2252,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(new_episodes):
             self.new_episodes_show(new_episodes)
         else:
-            msg = _('No new episodes available for download')
-            if self.tray_icon is not None and self.minimized:
-                self.tray_icon.send_notification(msg)
-            else:
-                self.show_message(msg, _('No new episodes'))
+            self.show_message(_('No new episodes available for download. Check for new episodes later.'), \
+                    _('No new episodes'), widget=self.btnUpdateFeeds)
 
     def get_new_episodes(self, channels=None):
         if channels is None:
@@ -2303,27 +2293,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.device_type == 'ipod' and not sync.gpod_available:
             title = _('Cannot Sync To iPod')
             message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
-            self.notification( message, title )
+            self.notification(message, title, important=True)
             return
         elif self.config.device_type == 'mtp' and not sync.pymtp_available:
             title = _('Cannot sync to MTP device')
             message = _('Please install the libmtp python bindings (python-pymtp) and restart gPodder to continue.')
-            self.notification( message, title )
+            self.notification(message, title, important=True)
             return
 
         device = sync.open_device(self.config)
-        device.register( 'post-done', self.sync_to_ipod_completed )
+        if device is not None:
+            device.register( 'post-done', self.sync_to_ipod_completed )
 
         if device is None:
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.notification(message, title)
+            self.notification(message, title, widget=self.toolPreferences)
             return
 
         if not device.open():
             title = _('Cannot open device')
-            message = _('There has been an error opening your device.')
-            self.notification(message, title)
+            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
+            self.notification(message, title, widget=self.toolPreferences)
             return
 
         if self.config.device_type == 'ipod':
@@ -2375,10 +2366,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.tray_icon:
             self.tray_icon.release_synchronisation_device()
  
-        if not successful_sync:
+        if successful_sync:
+            title = _('Device synchronized')
+            message = _('Your device has been synchronized with gPodder.')
+            self.notification(message, title)
+        else:
             title = _('Error closing device')
             message = _('There has been an error closing your device.')
-            self.notification(message, title)
+            self.notification(message, title, important=True)
 
         # update model for played state updates after sync
         util.idle_add(self.updateComboBox)
@@ -2408,7 +2403,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not device.close():
             title = _('Error closing device')
             message = _('There has been an error closing your device.')
-            gobject.idle_add(self.show_message, message, title)
+            self.notification(message, title, important=True)
 
     def on_cleanup_ipod_activate(self, widget, *args):
         columns = (
@@ -2425,13 +2420,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if device is None:
             title = _('No device configured')
             message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.show_message(message, title)
+            self.show_message(message, title, widget=self.toolPreferences)
             return
 
         if not device.open():
             title = _('Cannot open device')
-            message = _('There has been an error opening your device.')
-            self.show_message(message, title)
+            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
+            self.show_message(message, title, widget=self.toolPreferences)
             return
 
         tracks = device.get_all_tracks()
@@ -2463,12 +2458,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.device_type == 'ipod' and not sync.gpod_available:
             title = _('Cannot manage iPod playlist')
             message = _('This feature is not available for iPods.')
-            self.notification( message, title )
+            self.notification(message, title)
             return
         elif self.config.device_type == 'mtp' and not sync.pymtp_available:
             title = _('Cannot manage MTP device playlist')
             message = _('This feature is not available for MTP devices.')
-            self.notification( message, title )
+            self.notification(message, title)
             return
 
         device = sync.open_device(self.config)
@@ -2476,13 +2471,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if device is None:
             title = _('No device configured')
             message = _('To use the playlist feature, please configure your Filesystem based MP3-Player in the preferences dialog first.')
-            self.notification(message, title)
+            self.notification(message, title, widget=self.toolPreferences)
             return
 
         if not device.open():
             title = _('Cannot open device')
-            message = _('There has been an error opening your device.')
-            self.notification(message, title)
+            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
+            self.notification(message, title, widget=self.toolPreferences)
             return
 
         gPodderDevicePlaylist(self.gPodder, device=device, gPodder=self, _config=self.config)
@@ -2539,7 +2534,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if vc.db2opml():
             gPodderPodcastDirectory(self.gPodder, _config=self.config, custom_title=_('Import podcasts from Video Center'), hide_url_entry=True).get_channels_from_url(vc.opmlfile, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
         else:
-            self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'))
+            self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'), important=True)
 
     def require_my_gpodder_authentication(self):
         if not self.config.my_gpodder_username or not self.config.my_gpodder_password:
@@ -2576,16 +2571,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         log('Already added: %s', url, sender=self)
                         skipped += 1
                 self.updateComboBox()
-                if added > 0:
-                    self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'))
-                elif widget is not None:
-                    self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'))
                 self.my_gpodder_offer_autoupload()
+                if added > 0:
+                    self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'), widget=self.treeChannels)
+                elif widget is not None:
+                    self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'), widget=self.treeChannels)
             else:
                 self.config.my_gpodder_password = ''
                 self.on_download_from_mygpo(widget)
         else:
-            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
+            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
 
     def on_upload_to_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
@@ -2593,16 +2588,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.save_channels_opml()
             success, messages = client.upload_subscriptions(gpodder.subscription_file)
             if widget is not None:
-                self.show_message('\n'.join(messages), _('Results of upload'))
                 if not success:
+                    self.show_message('\n'.join(messages), _('Results of upload'), important=True)
                     self.config.my_gpodder_password = ''
                     self.on_upload_to_mygpo(widget)
                 else:
                     self.my_gpodder_offer_autoupload()
+                    self.show_message('\n'.join(messages), _('Results of upload'), widget=self.treeChannels)
             elif not success:
                 log('Upload to my.gpodder.org failed, but widget is None!', sender=self)
         elif widget is not None:
-            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
+            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
 
     def on_itemAddChannel_activate(self, widget, *args):
         gPodderAddPodcast(self.gPodder, url_callback=self.add_new_channel)
@@ -2611,7 +2607,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to edit.')
-            self.show_message( message, title)
+            self.show_message( message, title, widget=self.treeChannels)
             return
 
         gPodderChannel(self.main_window, channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), cover_downloader=self.cover_downloader)
@@ -2707,7 +2703,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.channels:
             title = _('Nothing to export')
             message = _('Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list.')
-            self.show_message( message, title)
+            self.show_message(message, title, widget=self.treeChannels)
             return
 
         if gpodder.interface == gpodder.GUI:
@@ -2727,9 +2723,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     title = _('One subscription exported')
                 else:
                     title = _('%d subscriptions exported') % len(self.channels)
-                self.show_message(_('Your podcast list has been successfully exported.'), title)
+                self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
             else:
-                self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'))
+                self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'), important=True)
         else:
             dlg.destroy()
 
@@ -2875,7 +2871,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode = episodes.pop(0)
             self.show_episode_shownotes(episode)
         else:
-            self.show_message(_('No episode selected'), _('Please select an episode'))
+            self.show_message(_('Please select an episode from the episode list to display shownotes.'), _('No episode selected'), widget=self.treeAvailable)
 
     def on_download_selected_episodes(self, widget):
         episodes = self.get_selected_episodes()
@@ -2906,7 +2902,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.playback_episodes(self.get_selected_episodes())
             else:
                 log('Unable to stream episode - default media player selected!', sender=self, traceback=True)
-                self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Unable to stream episode'))
+                self.show_message(_('Please check your media player settings in the preferences dialog.'), _('Unable to stream episode'), widget=self.toolPreferences)
         else:
             # default action is to display show notes
             self.on_shownotes_selected_episodes(widget)
@@ -2996,7 +2992,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if episode.is_locked:
                 title = _('%s is locked') % saxutils.escape(episode.title)
                 message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
-                self.notification(message, title)
+                self.notification(message, title, widget=self.treeAvailable)
                 return
 
             title = _('Remove %s?') % saxutils.escape(episode.title)
@@ -3010,7 +3006,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(episodes) == locked_count:
             title = _('Episodes are locked')
             message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
-            self.notification(message, title)
+            self.notification(message, title, widget=self.treeAvailable)
             return
         elif locked_count > 0:
             title = _('Remove %d out of %d episodes?') % (len(episodes)-locked_count, len(episodes))

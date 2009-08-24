@@ -25,6 +25,7 @@
 #
 
 import gtk
+import gobject
 
 from xml.sax import saxutils
 
@@ -55,6 +56,13 @@ class SimpleMessageArea(gtk.HBox):
         vbox.pack_start(self.__button, expand=True, fill=False)
         self.pack_start(vbox, expand=False, fill=False)
 
+    def get_button(self):
+        return self.__button
+
+    def set_markup(self, markup, line_wrap=True):
+        self.__label.set_markup(markup)
+        self.__label.set_line_wrap(line_wrap)
+
     def __style_set(self, widget, previous_style):
         if self.__in_style_set:
             return 
@@ -82,4 +90,34 @@ class SimpleMessageArea(gtk.HBox):
     
     def __button_clicked(self, toolbutton):
         self.hide_all()
+
+class NotificationWindow(gtk.Window):
+    """A quick substitution widget for pynotify notifications."""
+    def __init__(self, message, title=None, important=False, widget=None):
+        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
+        self._finished = False
+        message_area = SimpleMessageArea('')
+        button = message_area.get_button()
+        button.connect('clicked', lambda b: self._hide_and_destroy())
+        if title is not None:
+            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (saxutils.escape(title), saxutils.escape(message)))
+        else:
+            message_area.set_markup(saxutils.escape(message))
+        self.add(message_area)
+        self.set_gravity(gtk.gdk.GRAVITY_NORTH_WEST)
+        if widget is None:
+            self.move(100, 100)
+        else:
+            x, y = widget.window.get_origin()
+            self.move(x+10, y+10)
+
+    def show_timeout(self, timeout=8000):
+        gobject.timeout_add(timeout, self._hide_and_destroy)
+        self.show_all()
+
+    def _hide_and_destroy(self):
+        if not self._finished:
+            self.destroy()
+            self._finished = True
+        return False
 

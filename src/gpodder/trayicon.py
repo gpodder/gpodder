@@ -30,14 +30,6 @@ from gpodder.liblogger import log
 
 _ = gpodder.gettext
 
-try:
-    import pynotify
-    have_pynotify = True
-except:
-    log('Cannot find pynotify. Please install the python-notify package.')
-    log('Notification bubbles have been disabled.')
-    have_pynotify = False
-
 from gpodder import services
 from gpodder import util
 
@@ -77,8 +69,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.__synchronisation_device = None
         self.__sync_progress = ''
 
-        self.__previous_notification = None
-
         # try getting the icon
         try:
             if gpodder.interface == gpodder.GUI:
@@ -104,11 +94,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         self.set_visible(True)
 
-        # initialise pynotify
-        if have_pynotify:
-            if not pynotify.init('gPodder'):
-                log('Error: unable to initialise pynotify', sender=self)
-
     def __create_context_menu(self):
         # build and connect the popup menu
         menu = gtk.Menu()
@@ -130,14 +115,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
             menu.append(menuItem)
             menu.append( gtk.SeparatorMenuItem())
-        
-        self.menuItem_previous_msg = gtk.ImageMenuItem(_('Show previous message again'))
-        self.menuItem_previous_msg.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))       
-        self.menuItem_previous_msg.connect('activate',  self.__on_show_previous_message_callback)
-        self.menuItem_previous_msg.set_sensitive(False)
-        menu.append(self.menuItem_previous_msg)
-        
-        menu.append( gtk.SeparatorMenuItem())
         
         menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
         menuItem.connect('activate',  self.__gpodder.on_itemPreferences_activate)
@@ -178,11 +155,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
     def __on_exit_callback(self, widget, *args):
         self.__gpodder.close_gpodder()
 
-    def __on_show_previous_message_callback(self, widget, *args):
-        if self.__previous_notification is not None:
-            message, title, is_error = self.__previous_notification
-            self.send_notification(message, title, is_error)
-
     def __on_right_click(self, widget, button=None, time=0, data=None):
         """Open popup menu on right-click
         """
@@ -200,8 +172,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         if self.__gpodder.minimized:
             self.__gpodder.uniconify_main_window()
         else:
-            if not self.__gpodder.gpodder_main_window.is_active(): 
-                self.__gpodder.gpodder_main_window.present()
+            if not self.__gpodder.gPodder.is_active():
+                self.__gpodder.gPodder.present()
             else:            
                 self.__gpodder.iconify_main_window()
 
@@ -241,35 +213,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         log('Warning: Cannot create status icon: %s', icon, sender=self)
         return self.__icon
 
-    def __is_notification_on(self):
-        # tray icon not visible or notifications disabled
-        if not self.get_visible() or not self._config.enable_notifications:
-            return False
-        return True
-    
-    def send_notification( self, message, title = "gPodder", is_error=False):
-        if not self.__is_notification_on(): return
-
-        message = message.strip()
-        log('Notification: %s', message, sender=self)
-        if gpodder.interface == gpodder.MAEMO:
-            pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
-            hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
-        elif gpodder.interface == gpodder.GUI and have_pynotify:
-            notification = pynotify.Notification(title, message, self.__icon_filename)
-            if is_error: notification.set_urgency(pynotify.URGENCY_CRITICAL)
-            try:
-                notification.attach_to_status_icon(self)
-            except:
-                log('Warning: Cannot attach notification to status icon.', sender=self)
-            if not notification.show():
-                log("Error: enable to send notification %s", message)
-        else:
-            return
-        
-        # If we showed any kind of notification, remember it for next time
-        self.__previous_notification = (message, title, is_error)
-        self.menuItem_previous_msg.set_sensitive(True)
+    def send_notification(self, message, title=None, is_error=False):
+        self.__gpodder.show_message(message, title, is_error)
         
     def set_status(self, status=None, tooltip=None):
         if status is None:

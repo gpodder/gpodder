@@ -29,6 +29,15 @@ from gpodder import util
 
 from gpodder.gtkui.base import GtkBuilderWidget
 
+from gpodder.gtkui.widgets import NotificationWindow
+
+try:
+    import pynotify
+    if not pynotify.init('gPodder'):
+        pynotify = None
+except ImportError:
+    pynotify = None
+
 
 class BuilderWidget(GtkBuilderWidget):
     finger_friendly_widgets = []
@@ -55,24 +64,50 @@ class BuilderWidget(GtkBuilderWidget):
                 else:
                     self.main_window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
 
-    def notification(self, message, title=None):
-        util.idle_add(self.show_message, message, title)
+    def notification(self, message, title=None, important=False, widget=None):
+        util.idle_add(self.show_message, message, title, important, widget)
 
-    def show_message(self, message, title=None):
-        # FIXME: Add support for showing a libnotify notification when minimized
-        if gpodder.interface == gpodder.GUI:
-            dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-            if title:
-                dlg.set_title(str(title))
-                dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
-            else:
-                dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
-        elif gpodder.interface == gpodder.MAEMO:
+    def show_message(self, message, title=None, important=False, widget=None):
+        if gpodder.interface == gpodder.MAEMO:
             import hildon
-            dlg = hildon.Note('information', (self.main_window, message))
+            if important:
+                dlg = hildon.Note('information', (self.main_window, message))
+                dlg.run()
+                dlg.destroy()
+            else:
+                if title is None:
+                    title = 'gPodder'
+                pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
+                hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
+        else:
+            if important:
+                dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+                if title:
+                    dlg.set_title(str(title))
+                    dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+                else:
+                    dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+                dlg.run()
+                dlg.destroy()
+            elif pynotify is not None:
+                if title is None:
+                    title = 'gPodder'
+                notification = pynotify.Notification(title, message, gpodder.icon_file)
 
-        dlg.run()
-        dlg.destroy()
+                if widget and isinstance(widget, gtk.Widget):
+                    if not widget.window:
+                        widget = self.main_window
+                    notification.attach_to_widget(widget)
+
+                notification.show()
+            else:
+                if widget and isinstance(widget, gtk.Widget):
+                    if not widget.window:
+                        widget = self.main_window
+                else:
+                    widget = self.main_window
+                notification = NotificationWindow(message, title, important=False, widget=widget)
+                notification.show_timeout()
 
     def set_finger_friendly(self, widget):
         """
