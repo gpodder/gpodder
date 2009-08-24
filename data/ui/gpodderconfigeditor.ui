@@ -15,6 +15,7 @@
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
+    <signal handler="on_gPodderConfigEditor_destroy" name="destroy"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox13">
         <property name="visible">True</property>

@@ -28,7 +28,7 @@ from collections import defaultdict
 
 import gpodder
 from gpodder import util
-from gpodder import config
+from gpodder.gtkui import config
 from gpodder import dbsqlite
 
 import os
@@ -43,7 +43,7 @@ _ = gpodder.gettext
 class gPodderLib(object):
     def __init__( self):
         util.make_directory(gpodder.home)
-        self.config = config.Config(gpodder.config_file)
+        self.config = config.UIConfig(gpodder.config_file)
 
         if gpodder.interface == gpodder.MAEMO:
             # Detect changing of SD cards between mmc1/mmc2 if a gpodder

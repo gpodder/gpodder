@@ -24,15 +24,12 @@
 #
 
 
-import gtk
-import pango
-
 import gpodder
 from gpodder import util
 from gpodder.liblogger import log
 
 import atexit
-import os.path
+import os
 import time
 import threading
 import ConfigParser
@@ -238,20 +235,17 @@ class Config(dict):
     # Number of seconds after which settings are auto-saved
     WRITE_TO_DISK_TIMEOUT = 60
 
-    def __init__( self, filename = 'gpodder.conf'):
-        dict.__init__( self)
+    def __init__(self, filename='gpodder.conf'):
+        dict.__init__(self)
         self.__save_thread = None
         self.__filename = filename
         self.__section = 'gpodder-conf-1'
-        self.__ignore_window_events = False
         self.__observers = []
-        # Name, Type, Value, Type(python type), Editable?, Font style, Boolean?, Boolean value
-        self.__model = gtk.ListStore(str, str, str, object, bool, int, bool, bool)
-
-        atexit.register( self.__atexit)
 
         self.load()
         self.apply_fixes()
+
+        atexit.register( self.__atexit)
 
     def apply_fixes(self):
         # Here you can add fixes in case syntax changes. These will be
@@ -260,15 +254,14 @@ class Config(dict):
             log('Fixing OLD syntax {channel.*} => {podcast.*} in custom_sync_name.', sender=self)
             self.custom_sync_name = self.custom_sync_name.replace('{channel.', '{podcast.')
     
-    def __getattr__( self, name):
+    def __getattr__(self, name):
         if name in self.Settings:
-            ( fieldtype, default ) = self.Settings[name][:2]
             return self[name]
         else:
             raise AttributeError('%s is not a setting' % name)
 
-    def get_description( self, option_name ):
-        description = _("No description available.")
+    def get_description(self, option_name):
+        description = _('No description available.')
         
         if self.Settings.get(option_name) is not None:
             row = self.Settings[option_name]
@@ -293,161 +286,81 @@ class Config(dict):
         else:
             log('Observer already added: %s', repr(callback), sender=self)
 
-    def connect_gtk_editable( self, name, editable):
-        if name in self.Settings:
-            editable.delete_text( 0, -1)
-            editable.insert_text( str(getattr( self, name)))
-            editable.connect( 'changed', lambda editable: setattr( self, name, editable.get_chars( 0, -1)))
+    def remove_observer(self, callback):
+        """
+        Remove an observer previously added to this object.
+        """
+        if callback in self.__observers:
+            self.__observers.remove(callback)
         else:
-            raise ValueError( '%s is not a setting' % name)
+            log('Observer not added :%s', repr(callback), sender=self)
 
-    def connect_gtk_spinbutton( self, name, spinbutton):
-        if name in self.Settings:
-            spinbutton.set_value( getattr( self, name))
-            spinbutton.connect( 'value-changed', lambda spinbutton: setattr( self, name, spinbutton.get_value()))
-        else:
-            raise ValueError( '%s is not a setting' % name)
-
-    def connect_gtk_paned( self, name, paned):
-        if name in self.Settings:
-            paned.set_position( getattr( self, name))
-            paned_child = paned.get_child1()
-            paned_child.connect( 'size-allocate', lambda x, y: setattr( self, name, paned.get_position()))
-        else:
-            raise ValueError( '%s is not a setting' % name)
-
-    def connect_gtk_togglebutton( self, name, togglebutton):
-        if name in self.Settings:
-            togglebutton.set_active( getattr( self, name))
-            togglebutton.connect( 'toggled', lambda togglebutton: setattr( self, name, togglebutton.get_active()))
-        else:
-            raise ValueError( '%s is not a setting' % name)
-    
-    def filechooser_selection_changed(self, name, filechooser):
-        filename = filechooser.get_filename()
-        if filename is not None:
-            setattr(self, name, filename)
-
-    def connect_gtk_filechooser(self, name, filechooser, is_for_files=False):
-        if name in self.Settings:
-            if is_for_files:
-                # A FileChooser for a single file
-                filechooser.set_filename(getattr(self, name))
-            else:
-                # A FileChooser for a folder
-                filechooser.set_current_folder(getattr(self, name))
-            filechooser.connect('selection-changed', lambda filechooser: self.filechooser_selection_changed(name, filechooser))
-        else:
-            raise ValueError('%s is not a setting'%name)
-
-    def receive_configure_event( self, widget, event, config_prefix):
-        (x, y, width, height, maximized) = map(lambda x: config_prefix + '_' + x, ['x', 'y', 'width', 'height', 'maximized'])
-        ( x_pos, y_pos ) = widget.get_position()
-        ( width_size, height_size ) = widget.get_size()
-        if not self.__ignore_window_events and not (hasattr(self, maximized) and getattr(self, maximized)):
-            setattr( self, x, x_pos)
-            setattr( self, y, y_pos)
-            setattr( self, width, width_size)
-            setattr( self, height, height_size)
-
-    def receive_window_state(self, widget, event, config_prefix):
-        if hasattr(self, config_prefix+'_maximized'):
-            setattr(self, config_prefix+'_maximized', bool(event.new_window_state & gtk.gdk.WINDOW_STATE_MAXIMIZED))
-
-    def enable_window_events(self):
-        self.__ignore_window_events = False
-
-    def disable_window_events(self):
-        self.__ignore_window_events = True
-
-    def connect_gtk_window( self, window, config_prefix, show_window=False):
-        (x, y, width, height, maximized) = map(lambda x: config_prefix + '_' + x, ['x', 'y', 'width', 'height', 'maximized'])
-        if set( ( x, y, width, height )).issubset( set( self.Settings)):
-            window.resize( getattr( self, width), getattr( self, height))
-            window.move( getattr( self, x), getattr( self, y))
-            self.disable_window_events()
-            util.idle_add(self.enable_window_events)
-            window.connect('configure-event', self.receive_configure_event, config_prefix)
-            window.connect('window-state-event', self.receive_window_state, config_prefix)
-            if show_window:
-                window.show()
-            if hasattr(self, maximized) and getattr(self, maximized) == True:
-                window.maximize()
-        else:
-            raise ValueError( 'Missing settings in set: %s' % ', '.join( ( x, y, width, height )))
-
-    def schedule_save( self):
+    def schedule_save(self):
         if self.__save_thread is None:
-            self.__save_thread = threading.Thread( target = self.save_thread_proc)
+            self.__save_thread = threading.Thread(target=self.save_thread_proc)
+            self.__save_thread.setDaemon(True)
             self.__save_thread.start()
 
-    def save_thread_proc( self):
-        for i in range(self.WRITE_TO_DISK_TIMEOUT*10):
-            if self.__save_thread is not None:
-                time.sleep( .1)
+    def save_thread_proc(self):
+        time.sleep(self.WRITE_TO_DISK_TIMEOUT)
         if self.__save_thread is not None:
             self.save()
 
-    def __atexit( self):
+    def __atexit(self):
         if self.__save_thread is not None:
             self.save()
 
-    def save( self, filename = None):
-        if filename is not None:
-            self.__filename = filename
+    def save(self, filename=None):
+        if filename is None:
+            filename = self.__filename
 
-        log( 'Flushing settings to disk', sender = self)
+        log('Flushing settings to disk', sender=self)
 
         parser = ConfigParser.RawConfigParser()
-        parser.add_section( self.__section)
+        parser.add_section(self.__section)
 
-        for ( key, value ) in self.Settings.items():
-            ( fieldtype, default ) = value[:2]
-            parser.set( self.__section, key, getattr( self, key, default))
+        for key, value in self.Settings.items():
+            fieldtype, default = value[:2]
+            parser.set(self.__section, key, getattr(self, key, default))
 
         try:
-            parser.write( open( self.__filename, 'w'))
+            parser.write(open(filename, 'w'))
         except:
-            raise IOError( 'Cannot write to file: %s' % self.__filename)
+            log('Cannot write settings to %s', filename, sender=self)
+            raise IOError('Cannot write to file: %s' % filename)
 
         self.__save_thread = None
 
-    def load( self, filename = None):
+    def load(self, filename=None):
         if filename is not None:
             self.__filename = filename
 
-        self.__model.clear()
-
         parser = ConfigParser.RawConfigParser()
-        try:
-            parser.read( self.__filename)
-        except:
-            pass
 
-        for key in sorted(self.Settings):
-            (fieldtype, default) = self.Settings[key][:2]
+        if os.path.exists(self.__filename):
+            try:
+                parser.read(self.__filename)
+            except:
+                log('Cannot parse config file: %s', self.__filename,
+                        sender=self, traceback=True)
+
+        for key, value in self.Settings.items():
+            fieldtype, default = value[:2]
             try:
                 if fieldtype == int:
-                    value = parser.getint( self.__section, key)
+                    value = parser.getint(self.__section, key)
                 elif fieldtype == float:
-                    value = parser.getfloat( self.__section, key)
+                    value = parser.getfloat(self.__section, key)
                 elif fieldtype == bool:
-                    value = parser.getboolean( self.__section, key)
+                    value = parser.getboolean(self.__section, key)
                 else:
-                    value = fieldtype(parser.get( self.__section, key))
+                    value = fieldtype(parser.get(self.__section, key))
             except:
+                log('Invalid value in %s for %s: %s', self.__filename,
+                        key, value, sender=self, traceback=True)
                 value = default
 
             self[key] = value
-            if value == default:
-                style = pango.STYLE_NORMAL
-            else:
-                style = pango.STYLE_ITALIC
-
-            self.__model.append([key, self.type_as_string(fieldtype), str(value), fieldtype, fieldtype is not bool, style, fieldtype is bool, bool(value)])
-
-    def model(self):
-        return self.__model
 
     def toggle_flag(self, name):
         if name in self.Settings:
@@ -473,43 +386,25 @@ class Config(dict):
             log('Invalid setting name: %s', name, sender=self)
             return False
 
-    def type_as_string(self, type):
-        if type == int:
-            return _('Integer')
-        elif type == float:
-            return _('Float')
-        elif type == bool:
-            return _('Boolean')
-        else:
-            return _('String')
-
-    def __setattr__( self, name, value):
+    def __setattr__(self, name, value):
         if name in self.Settings:
-            ( fieldtype, default ) = self.Settings[name][:2]
+            fieldtype, default = self.Settings[name][:2]
             try:
                 if self[name] != fieldtype(value):
-                    log( 'Update: %s = %s', name, value, sender = self)
                     old_value = self[name]
+                    log('Update %s: %s => %s', name, old_value, value, sender=self)
                     self[name] = fieldtype(value)
                     for observer in self.__observers:
                         try:
                             # Notify observer about config change
                             observer(name, old_value, self[name])
                         except:
-                            log('Error while calling observer: %s', repr(observer), sender=self)
-                    for row in self.__model:
-                        if row[0] == name:
-                            value = fieldtype(value)
-                            row[2] = str(value)
-                            row[7] = bool(value)
-                            if self[name] == default:
-                                style = pango.STYLE_NORMAL
-                            else:
-                                style = pango.STYLE_ITALIC
-                            row[5] = style
+                            log('Error while calling observer: %s',
+                                    repr(observer), sender=self,
+                                    traceback=True)
                     self.schedule_save()
             except:
-                raise ValueError( '%s has to be of type %s' % ( name, fieldtype.__name__ ))
+                raise ValueError('%s has to be of type %s' % (name, fieldtype.__name__))
         else:
-            object.__setattr__( self, name, value)
+            object.__setattr__(self, name, value)
 

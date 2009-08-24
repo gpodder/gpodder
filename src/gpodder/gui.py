@@ -95,6 +95,7 @@ from gpodder.gtkui.base import GtkBuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.opml import OpmlListModel
+from gpodder.gtkui.config import ConfigModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -4590,7 +4591,7 @@ class gPodderConfigEditor(BuilderWidget):
         value_renderer.connect('edited', self.value_edited)
         self.configeditor.append_column(value_column)
 
-        self.model = gl.config.model()
+        self.model = ConfigModel(gl.config)
         self.filter = self.model.filter_new()
         self.filter.set_visible_func(self.visible_func)
 
@@ -4636,6 +4637,9 @@ class gPodderConfigEditor(BuilderWidget):
 
     def on_btnClose_clicked(self, widget):
         self.gPodderConfigEditor.destroy()
+
+    def on_gPodderConfigEditor_destroy(self, widget):
+        self.model.stop_observing()
 
     def on_configeditor_row_changed(self, treeselection):
         model, iter = treeselection.get_selected()
