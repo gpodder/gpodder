@@ -530,7 +530,7 @@ class MP3PlayerDevice(Device):
             return False
 
     def add_track(self, episode):
-        self.notify('status', _('Adding %s') % episode.title)
+        self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
 
         if self._config.fssync_channel_subfolders:
             # Add channel title as subfolder
