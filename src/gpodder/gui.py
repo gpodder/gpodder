@@ -2082,11 +2082,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not self.feed_cache_update_cancelled:
                 try:
                     channel.update(max_episodes=gl.config.max_episodes_per_feed)
-                except feedcore.Offline:
-                    self.feed_cache_update_cancelled = True
-                    if not self.minimized:
-                        util.idle_add(self.show_message, _('The feed update has been cancelled because you appear to be offline.'), _('Cannot connect to server'))
-                    break
+#                except feedcore.Offline:
+#                    self.feed_cache_update_cancelled = True
+#                    if not self.minimized:
+#                        util.idle_add(self.show_message, _('The feed update has been cancelled because you appear to be offline.'), _('Cannot connect to server'))
+#                    break
                 except Exception, e:
                     util.idle_add(self.show_message, _('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'))
                     log('Error: %s', str(e), sender=self, traceback=True)
