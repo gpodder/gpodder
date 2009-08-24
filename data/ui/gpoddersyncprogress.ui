@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--*- mode: xml -*-->
 <interface>
-  <object class="GtkDialog" id="gPodderSync">
+  <object class="GtkDialog" id="gPodderSyncProgress">
     <property name="visible">True</property>
     <property name="has_separator">False</property>
     <property name="title" translatable="yes">Copying Files To Device</property>
@@ -13,7 +13,7 @@
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
-    <signal handler="on_gPodderSync_destroy" name="destroy"/>
+    <signal handler="on_gPodderSyncProgress_destroy" name="destroy"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vboxSyncWindow">
         <property name="visible">True</property>

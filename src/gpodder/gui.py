@@ -111,6 +111,7 @@ else:
     from gpodder.gtkui.maemo.preferences import gPodderDiabloPreferences as gPodderPreferences
 
 from gpodder.gtkui.interface.shownotes import gPodderShownotes
+from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -2403,7 +2404,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.tray_icon.set_synchronisation_device(device)
 
         if can_sync:
-            gPodderSync(self.gPodder, device=device, gPodder=self)
+            gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
             Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
         else:
             device.close()
@@ -2442,7 +2443,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         title = _('Delete podcasts from device?')
         message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
         if len(tracks) > 0 and self.show_confirmation(message, title):
-            gPodderSync(self.gPodder, device=device, gPodder=self)
+            gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
             Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
 
     def ipod_cleanup_thread(self, device, tracks):
@@ -3140,41 +3141,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
         self.gPodder.present()
-
-
-class gPodderSync(BuilderWidget):
-    def new(self):
-        util.idle_add(self.imageSync.set_from_icon_name, 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
-
-        self.device.register('progress', self.on_progress)
-        self.device.register('sub-progress', self.on_sub_progress)
-        self.device.register('status', self.on_status)
-        self.device.register('done', self.on_done)
-    
-    def on_progress(self, pos, max, text=None):
-        if text is None:
-            text = _('%d of %d done') % (pos, max)
-        util.idle_add(self.progressbar.set_fraction, float(pos)/float(max))
-        util.idle_add(self.progressbar.set_text, text)
-
-    def on_sub_progress(self, percentage):
-        util.idle_add(self.progressbar.set_text, _('Processing (%d%%)') % (percentage))
-
-    def on_status(self, status):
-        util.idle_add(self.status_label.set_markup, '<i>%s</i>' % saxutils.escape(status))
-
-    def on_done(self):
-        util.idle_add(self.gPodderSync.destroy)
-
-    def on_gPodderSync_destroy(self, widget, *args):
-        self.device.unregister('progress', self.on_progress)
-        self.device.unregister('sub-progress', self.on_sub_progress)
-        self.device.unregister('status', self.on_status)
-        self.device.unregister('done', self.on_done)
-        self.device.cancel()
-
-    def on_cancel_button_clicked(self, widget, *args):
-        self.device.cancel()
 
 
 class gPodderOpmlLister(BuilderWidget):
