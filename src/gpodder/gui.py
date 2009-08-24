@@ -36,9 +36,7 @@ import collections
 
 from xml.sax import saxutils
 
-from threading import Event
 from threading import Thread
-from threading import Semaphore
 from string import strip
 
 import gpodder
@@ -143,10 +141,9 @@ app_authors = [
 ]
 
 class BuilderWidget(GtkBuilderWidget):
-    gpodder_main_window = None
     finger_friendly_widgets = []
 
-    def __init__( self, **kwargs):
+    def __init__(self, parent, **kwargs):
         GtkBuilderWidget.__init__(self, gpodder.ui_folder, gpodder.textdomain, **kwargs)
 
         # Set widgets to finger-friendly mode if on Maemo
@@ -156,15 +153,12 @@ class BuilderWidget(GtkBuilderWidget):
             else:
                 log('Finger-friendly widget not found: %s', widget_name, sender=self)
 
-        if self.__class__.__name__ == 'gPodder':
-            BuilderWidget.gpodder_main_window = self.gPodder
-        else:
-            # If we have a child window, set it transient for our main window
-            self.main_window.set_transient_for(BuilderWidget.gpodder_main_window)
+        if parent is not None:
+            self.main_window.set_transient_for(parent)
 
             if gpodder.interface == gpodder.GUI:
                 if hasattr(self, 'center_on_widget'):
-                    (x, y) = self.gpodder_main_window.get_position()
+                    (x, y) = parent.get_position()
                     a = self.center_on_widget.allocation
                     (x, y) = (x + a.x, y + a.y)
                     (w, h) = (a.width, a.height)
@@ -184,14 +178,14 @@ class BuilderWidget(GtkBuilderWidget):
             return
         
         if gpodder.interface == gpodder.GUI:
-            dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+            dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
             else:
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         elif gpodder.interface == gpodder.MAEMO:
-            dlg = hildon.Note('information', (BuilderWidget.gpodder_main_window, message))
+            dlg = hildon.Note('information', (self.main_window, message))
         
         dlg.run()
         dlg.destroy()
@@ -238,7 +232,7 @@ class BuilderWidget(GtkBuilderWidget):
     def show_confirmation( self, message, title = None):
         if gpodder.interface == gpodder.GUI:
             affirmative = gtk.RESPONSE_YES
-            dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
+            dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -246,7 +240,7 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         elif gpodder.interface == gpodder.MAEMO:
             affirmative = gtk.RESPONSE_OK
-            dlg = hildon.Note('confirmation', (BuilderWidget.gpodder_main_window, message))
+            dlg = hildon.Note('confirmation', (self.main_window, message))
 
         response = dlg.run()
         dlg.destroy()
@@ -258,7 +252,7 @@ class BuilderWidget(GtkBuilderWidget):
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
         dialog = gtk.MessageDialog(
-            BuilderWidget.gpodder_main_window,
+            self.main_window,
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
             gtk.MESSAGE_QUESTION,
             gtk.BUTTONS_OK_CANCEL )
@@ -327,11 +321,11 @@ class BuilderWidget(GtkBuilderWidget):
             dst_filename += extension
 
         if gpodder.interface == gpodder.GUI:
-            dlg = gtk.FileChooserDialog(title=title, parent=BuilderWidget.gpodder_main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg = gtk.FileChooserDialog(title=title, parent=self.main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
         elif gpodder.interface == gpodder.MAEMO:
-            dlg = hildon.FileChooserDialog(BuilderWidget.gpodder_main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg = hildon.FileChooserDialog(self.main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
         dlg.set_do_overwrite_confirmation( True)
         dlg.set_current_name( os.path.basename( dst_filename))
@@ -367,7 +361,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.db = Database(gpodder.database_file)
         self.config = config
-        BuilderWidget.__init__(self)
+        BuilderWidget.__init__(self, None)
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
@@ -2376,7 +2370,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes.append(episode)
                     selected.append(episode.is_played)
 
-        gPodderEpisodeSelector( title = _('Remove old episodes'), instructions = instructions, \
+        gPodderEpisodeSelector(self.gPodder, title = _('Remove old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
@@ -2449,7 +2443,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            gPodderWelcome(center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
+            gPodderWelcome(self.gPodder, center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -2494,7 +2488,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         instructions = _('Select the episodes you want to download now.')
 
-        gPodderEpisodeSelector(title=_('New episodes available'), instructions=instructions, \
+        gPodderEpisodeSelector(self.gPodder, title=_('New episodes available'), instructions=instructions, \
                                episodes=episodes, columns=columns, selected_default=True, \
                                stock_ok_button = 'gpodder-download', \
                                callback=self.download_episode_list, \
@@ -2609,7 +2603,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.tray_icon.set_synchronisation_device(device)
 
         if can_sync:
-            gPodderSync(device=device, gPodder=self)
+            gPodderSync(self.gPodder, device=device, gPodder=self)
             Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
         else:
             device.close()
@@ -2648,7 +2642,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         title = _('Delete podcasts from device?')
         message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
         if len(tracks) > 0 and self.show_confirmation(message, title):
-            gPodderSync(device=device, gPodder=self)
+            gPodderSync(self.gPodder, device=device, gPodder=self)
             Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
 
     def ipod_cleanup_thread(self, device, tracks):
@@ -2698,7 +2692,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     wanted_columns.append((key, sort_name, sort_type, caption))
             title = _('Remove podcasts from device')
             instructions = _('Select the podcast episodes you want to remove from your device.')
-            gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
+            gPodderEpisodeSelector(self.gPodder, title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
                                    stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback, tooltip_attribute=None, \
                                    _config=self.config)
         else:
@@ -2734,7 +2728,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification(message, title)
             return
 
-        gPodderPlaylist(device=device, gPodder=self, _config=self.config)
+        gPodderPlaylist(self.gPodder, device=device, gPodder=self, _config=self.config)
         device.close()
 
     def show_hide_tray_icon(self):
@@ -2770,24 +2764,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemPreferences_activate(self, widget, *args):
         if gpodder.interface == gpodder.GUI:
-            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader, _config=self.config)
+            gPodderProperties(self.gPodder, callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader, _config=self.config)
         else:
-            gPodderMaemoPreferences(_config=self.config)
+            gPodderMaemoPreferences(self.gPodder, _config=self.config)
 
     def on_itemDependencies_activate(self, widget):
-        gPodderDependencyManager()
+        gPodderDependencyManager(self.gPodder)
 
     def on_add_new_google_search(self, widget, *args):
         def add_google_video_search(query):
             self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
 
-        gPodderAddPodcastDialog(url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+        gPodderAddPodcastDialog(self.gPodder, url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
 
     def on_upgrade_from_videocenter(self, widget):
         from gpodder import nokiavideocenter
         vc = nokiavideocenter.UpgradeFromVideocenter()
         if vc.db2opml():
-            gPodderOpmlLister(custom_title=_('Import podcasts from Video Center'), hide_url_entry=True).get_channels_from_url(vc.opmlfile, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+            gPodderOpmlLister(self.gPodder, _config=self.config, custom_title=_('Import podcasts from Video Center'), hide_url_entry=True).get_channels_from_url(vc.opmlfile, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
         else:
             self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'))
 
@@ -2855,7 +2849,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
     def on_itemAddChannel_activate(self, widget, *args):
-        gPodderAddPodcastDialog(url_callback=self.add_new_channel)
+        gPodderAddPodcastDialog(self.gPodder, url_callback=self.add_new_channel)
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
@@ -2864,7 +2858,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title)
             return
 
-        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), cover_downloader=self.cover_downloader)
+        gPodderChannel(self.main_window, channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), cover_downloader=self.cover_downloader)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
@@ -2951,7 +2945,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
         if filename is not None:
-            gPodderOpmlLister(custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+            gPodderOpmlLister(self.gPodder, _config=self.config, custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
@@ -2984,7 +2978,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        gPodderOpmlLister().get_channels_from_url(self.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+        gPodderOpmlLister(self.gPodder, _config=self.config).get_channels_from_url(self.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
@@ -3158,7 +3152,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_or_download()
         if self.gpodder_episode_window is None:
             log('First-time use of episode window --- creating', sender=self)
-            self.gpodder_episode_window = gPodderEpisode(_config=self.config, \
+            self.gpodder_episode_window = gPodderEpisode(self.gPodder, _config=self.config, \
                     download_status_model=self.download_status_model, \
                     episode_is_downloading=self.episode_is_downloading)
         self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
@@ -3558,8 +3552,8 @@ class gPodderMaemoPreferences(BuilderWidget):
             self._config.videoplayer = self.userconfigured_videoplayer
 
     def on_btn_advanced_clicked(self, widget):
+        gPodderConfigEditor(self.gPodderMaemoPreferences, _config=self._config)
         self.gPodderMaemoPreferences.destroy()
-        gPodderConfigEditor(_config=self._config)
 
     def on_btn_close_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
@@ -3739,8 +3733,8 @@ class gPodderProperties(BuilderWidget):
         self.on_btnOK_clicked( widget, *args)
 
     def on_btnConfigEditor_clicked(self, widget, *args):
+        gPodderConfigEditor(self.gPodderProperties, _config=self._config)
         self.on_btnOK_clicked(widget, *args)
-        gPodderConfigEditor(_config=self._config)
 
     def on_comboAudioPlayerApp_changed(self, widget, *args):
         # find out which one
@@ -4262,7 +4256,7 @@ class gPodderOpmlLister(BuilderWidget):
         else:
             return self.treeviewYouTubeChooser
 
-class gPodderEpisodeSelector( BuilderWidget):
+class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
 
     Optional keyword arguments that modify the behaviour of this dialog:
@@ -4761,7 +4755,7 @@ class gPodderPlaylist(BuilderWidget):
         # read device and playlist and fill the TreeView
         title = _('Reading files from %s') % self._config.mp3_player_folder
         message = _('Please wait your media file list is being read from device.')
-        dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
+        dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
         dlg.set_title(title)
         dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
         dlg.show_all()
