@@ -16,24 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#  resolver.py -- YouTube and related magic
+#  gpodder.youtube - YouTube and related magic
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
-# TODO:
-#
-#   * Channel covers.
-#   * Support for Vimeo, maybe blip.tv and others.
+
+
+import gpodder
+
+from gpodder import util
+from gpodder.liblogger import log
 
 import re
 import urllib
 import urllib2
-import gtk
-import gobject
 
-import gpodder
 from xml.sax import saxutils
-from gpodder.liblogger import log
-from gpodder.util import proxy_request
 
 def get_real_download_url(url, proxy=None):
     # IDs from http://forum.videohelp.com/topic336882-1800.html#1912972
@@ -50,7 +47,7 @@ def get_real_download_url(url, proxy=None):
         url = 'http://www.youtube.com/watch?v=' + vid
 
         while page is None:
-            req = proxy_request(url, proxy, method='GET')
+            req = util.proxy_request(url, proxy, method='GET')
             if 'location' in req.msg:
                 url = req.msg['location']
             else:
@@ -155,13 +152,17 @@ def find_youtube_channels(string):
 
     r2 = re.compile('\s+')
 
-    model = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING)
+    class FakeImporter(object):
+        def __init__(self):
+            self.items = []
 
+    result = FakeImporter()
     found_users = []
-    for (name, title) in m1:
+    for name, title in m1:
         if name not in found_users:
             found_users.append(name)
             link = 'http://www.youtube.com/rss/user/'+ name +'/videos.rss'
-            model.append([False, name, link])
+            result.items.append({'title': name, 'url': link, 'description': title})
 
-    return model
+    return result
+

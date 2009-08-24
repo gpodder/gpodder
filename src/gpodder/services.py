@@ -28,7 +28,6 @@ import gpodder
 from gpodder.liblogger import log
 
 from gpodder import util
-from gpodder import resolver
 from gpodder import download
 
 import threading

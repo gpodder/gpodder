@@ -26,7 +26,7 @@
 import gpodder
 from gpodder import util
 from gpodder import feedcore
-from gpodder import resolver
+from gpodder import youtube
 from gpodder import corestats
 
 from gpodder.liblogger import log
@@ -66,7 +66,7 @@ class gPodderFetcher(feedcore.Fetcher):
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
-        return resolver.get_real_channel_url(url)
+        return youtube.get_real_channel_url(url)
 
 #    def _get_handlers(self):
 #        # Add a ProxyHandler for fetching data via a proxy server

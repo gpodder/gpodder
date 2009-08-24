@@ -29,7 +29,7 @@ from __future__ import with_statement
 
 from gpodder.liblogger import log
 from gpodder import util
-from gpodder import resolver
+from gpodder import youtube
 import gpodder
 
 import threading
@@ -590,7 +590,7 @@ class DownloadTask(object):
 
         try:
             # Resolve URL and start downloading the episode
-            url = resolver.get_real_download_url(self.__episode.url)
+            url = youtube.get_real_download_url(self.__episode.url)
             downloader =  DownloadURLOpener(self.__episode.channel)
             (unused, headers) = downloader.retrieve_resume(url,
                     self.tempname, reporthook=self.status_updated)

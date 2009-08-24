@@ -76,7 +76,7 @@ from gpodder import sync
 from gpodder import download
 from gpodder import my
 from gpodder.liblogger import log
-from gpodder import resolver
+from gpodder import youtube
 
 _ = gpodder.gettext
 
@@ -4116,7 +4116,7 @@ class gPodderOpmlLister(BuilderWidget):
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:
-            model = resolver.find_youtube_channels(self.entryYoutubeSearch.get_text())
+            model = OpmlListModel(youtube.find_youtube_channels(self.entryYoutubeSearch.get_text()))
             if len(model) == 0:
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
