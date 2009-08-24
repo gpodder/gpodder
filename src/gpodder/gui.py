@@ -104,6 +104,7 @@ from gpodder.gtkui.desktopfile import UserAppsReader
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.channel import gPodderChannel
+from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -2568,7 +2569,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def add_google_video_search(query):
             self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
 
-        gPodderAddPodcastDialog(self.gPodder, url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+        gPodderAddPodcast(self.gPodder, url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
 
     def on_upgrade_from_videocenter(self, widget):
         from gpodder import nokiavideocenter
@@ -2642,7 +2643,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
     def on_itemAddChannel_activate(self, widget, *args):
-        gPodderAddPodcastDialog(self.gPodder, url_callback=self.add_new_channel)
+        gPodderAddPodcast(self.gPodder, url_callback=self.add_new_channel)
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
@@ -3135,53 +3136,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_gui_window(self):
         self.gPodder.present()
 
-
-class gPodderAddPodcastDialog(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_add']
-
-    def new(self):
-        if not hasattr(self, 'url_callback'):
-            log('No url callback set', sender=self)
-            self.url_callback = None
-        if hasattr(self, 'custom_label'):
-            self.label_add.set_text(self.custom_label)
-        if hasattr(self, 'custom_title'):
-            self.gPodderAddPodcastDialog.set_title(self.custom_title)
-        if gpodder.interface == gpodder.MAEMO:
-            self.entry_url.set_text('http://')
-        if hasattr(self, 'preset_url'):
-            self.entry_url.set_text(self.preset_url)
-        if hasattr(self, 'btn_add_stock_id'):
-            self.btn_add.set_label(self.btn_add_stock_id)
-            self.btn_add.set_use_stock(True)
-        self.entry_url.connect('activate', self.on_entry_url_activate)
-        self.gPodderAddPodcastDialog.show()
-
-    def on_btn_close_clicked(self, widget):
-        self.gPodderAddPodcastDialog.destroy()
-
-    def on_btn_paste_clicked(self, widget):
-        clipboard = gtk.Clipboard()
-        clipboard.request_text(self.receive_clipboard_text)
-
-    def receive_clipboard_text(self, clipboard, text, data=None):
-        if text is not None:
-            self.entry_url.set_text(text)
-        else:
-            self.show_message(_('Nothing to paste.'), _('Clipboard is empty'))
-
-    def on_entry_url_changed(self, widget):
-        self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
-
-    def on_entry_url_activate(self, widget):
-        self.on_btn_add_clicked(widget)
-
-    def on_btn_add_clicked(self, widget):
-        url = self.entry_url.get_text()
-        self.on_btn_close_clicked(widget)
-        if self.url_callback is not None:
-            self.url_callback(url)
-        
 
 class gPodderMaemoPreferences(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_advanced']
