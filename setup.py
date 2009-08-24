@@ -94,7 +94,12 @@ setup(
   name         = 'gpodder',
   version      = gpodder.__version__,
   package_dir  = { '':'src' },
-  packages     = [ 'gpodder', 'gpodder.gtkui', 'gpodder.gtkui.interface' ],
+  packages     = [
+      'gpodder',
+      'gpodder.gtkui',
+      'gpodder.gtkui.interface',
+      'gpodder.gtkui.maemo',
+  ],
   description  = 'media aggregator',
   author       = author,
   author_email = email,

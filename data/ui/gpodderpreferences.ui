@@ -34,14 +34,14 @@
       </row>
     </data>
   </object>
-  <object class="GtkDialog" id="gPodderProperties">
+  <object class="GtkDialog" id="gPodderPreferences">
     <property name="visible">True</property>
     <property name="title" translatable="yes">gPodder Preferences</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
-    <signal name="destroy" handler="on_gPodderProperties_destroy"/>
+    <signal name="destroy" handler="on_gPodderPreferences_destroy"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vBoxMain">
         <property name="visible">True</property>
