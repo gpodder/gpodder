@@ -115,6 +115,7 @@ from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
+from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -3145,41 +3146,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_gui_window(self):
         self.gPodder.present()
 
-
-class gPodderDependencyManager(BuilderWidget):
-    def new(self):
-        col_name = gtk.TreeViewColumn(_('Feature'), gtk.CellRendererText(), text=0)
-        self.treeview_components.append_column(col_name)
-        col_installed = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(), text=2)
-        self.treeview_components.append_column(col_installed)
-        self.treeview_components.set_model(DependencyModel(services.dependency_manager))
-        self.btn_about.set_sensitive(False)
-        self.btn_install.set_sensitive(False)
-
-    def on_btn_about_clicked(self, widget):
-        selection = self.treeview_components.get_selection()
-        model, iter = selection.get_selected()
-        if iter is not None:
-            title = model.get_value(iter, 0)
-            description = model.get_value(iter, 1)
-            available = model.get_value(iter, 3)
-            missing = model.get_value(iter, 4)
-
-            if not available:
-                description += '\n\n'+_('Missing components:')+'\n\n'+missing
-
-            self.show_message(description, title)
-
-    def on_btn_install_clicked(self, widget):
-        # TODO: Implement package manager integration
-        pass
-
-    def on_treeview_components_cursor_changed(self, treeview):
-        self.btn_about.set_sensitive(treeview.get_selection().count_selected_rows() > 0)
-        # TODO: If installing is possible, enable btn_install
-
-    def on_gPodderDependencyManager_response(self, dialog, response_id):
-        self.gPodderDependencyManager.destroy()
 
 class gPodderWelcome(BuilderWidget):
     finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
