@@ -61,6 +61,7 @@ if __name__ == '__main__':
     data_dir = os.path.join(prefix, 'data')
     locale_dir = os.path.join(prefix, 'share', 'locale')
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
+    credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
     if os.path.exists(src_dir) and os.path.exists(data_dir) and \
@@ -71,6 +72,7 @@ if __name__ == '__main__':
         print >>sys.stderr, 'Using resources from', data_dir
         locale_dir = os.path.join(data_dir, 'locale')
         ui_folder = os.path.join(data_dir, 'ui')
+        credits_file = os.path.join(data_dir, 'credits.txt')
         icon_file = os.path.join(data_dir, 'gpodder.svg')
 
     # Set up the path to translation files
@@ -83,6 +85,7 @@ if __name__ == '__main__':
 
     # Set up paths to folder with GtkBuilder files and gpodder.svg
     gpodder.ui_folder = ui_folder
+    gpodder.credits_file = credits_file
     gpodder.icon_file = icon_file
 
     s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )

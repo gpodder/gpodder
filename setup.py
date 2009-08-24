@@ -52,8 +52,9 @@ if not len(translation_files) and not 'clean' in sys.argv:
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
-inst_desktop  = [ 'data/gpodder.desktop' ]
-inst_desktop_maemo  = [ 'data/maemo/gpodder.desktop' ]
+inst_share_gpodder = [ 'data/credits.txt' ]
+inst_desktop = [ 'data/gpodder.desktop' ]
+inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]
 
 inst_icons    = [ 'data/gpodder.png' ]
 inst_icons_64 = [ 'data/icons/64/gpodder.png' ]
@@ -68,6 +69,7 @@ data_files = [
   ('share/man/man1',       inst_manpages),
   ('share/gpodder/ui',     inst_share_ui),
   ('share/pixmaps',        inst_icons),
+  ('share/gpodder',        inst_share_gpodder),
 ]
 
 # target-specific installation data files

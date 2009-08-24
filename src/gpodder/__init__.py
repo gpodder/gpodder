@@ -90,6 +90,7 @@ del SOCKET_TIMEOUT
 
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folder = None
+credits_file = None
 icon_file = None
 
 # Episode states used in the database

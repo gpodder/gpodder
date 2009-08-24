@@ -29,15 +29,11 @@ import glob
 import time
 import urllib
 import urllib2
-import datetime
-import fnmatch
 import tempfile
 import collections
+import threading
 
 from xml.sax import saxutils
-
-from threading import Thread
-from string import strip
 
 import gpodder
 
@@ -70,12 +66,10 @@ except ImportError:
 from gpodder import feedcore
 from gpodder import util
 from gpodder import opml
-from gpodder import services
 from gpodder import sync
 from gpodder import download
 from gpodder import my
 from gpodder.liblogger import log
-from gpodder import youtube
 
 _ = gpodder.gettext
 
@@ -90,13 +84,10 @@ except Exception, exc:
 from gpodder.model import PodcastChannel
 from gpodder.dbsqlite import Database
 
-from gpodder.gtkui.base import GtkBuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
-from gpodder.gtkui.opml import OpmlListModel
 from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.download import DownloadStatusModel
-from gpodder.gtkui.services import DependencyModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
@@ -107,14 +98,14 @@ from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.interface == gpodder.GUI:
     from gpodder.gtkui.interface.preferences import gPodderPreferences
+    from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
+    from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
 else:
     from gpodder.gtkui.maemo.preferences import gPodderDiabloPreferences as gPodderPreferences
 
 from gpodder.gtkui.interface.shownotes import gPodderShownotes
-from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
-from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
 from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
@@ -123,39 +114,6 @@ if gpodder.interface == gpodder.GUI:
 elif gpodder.interface == gpodder.MAEMO:
     import hildon
     WEB_BROWSER_ICON = 'qgn_toolb_browser_web'
-
-app_authors = [
-    _('Current maintainer:'), 'Thomas Perl <thpinfo.com>',
-    '',
-    _('Patches, bug reports and donations by:'), 'Adrien Beaucreux',
-    'Alain Tauch', 'Alex Ghitza', 'Alistair Sutton', 'Anders Kvist', 'Andrei Dolganov', 'Andrew Bennett', 'Andy Busch',
-    'Antonio Roversi', 'Aravind Seshadri', 'Atte André Jensen', 'audioworld', 
-    'Bastian Staeck', 'Bernd Schlapsi', 'Bill Barnard', 'Bill Peters', 'Bjørn Rasmussen', 'Camille Moncelier', 'Casey Watson',
-    'Carlos Moffat', 'Chris Arnold', 'Chris Moffitt', 'Clark Burbidge', 'Corey Goldberg', 'corq', 'Cory Albrecht', 'daggpod', 'Daniel Ramos',
-    'David Spreen', 'Doug Hellmann', 'Edouard Pellerin', 'Fabio Fiorentini', 'FFranci72', 'Florian Richter', 'Frank Harper',
-    'Franz Seidl', 'FriedBunny', 'Gerrit Sangel', 'Gilles Lehoux', 'Götz Waschk',
-    'Haim Roitgrund', 'Heinz Erhard', 'Hex', 'Holger Bauer', 'Holger Leskien', 'Iwan van der Kleijn', 'Jens Thiele',
-    'Jérôme Chabod', 'Jerry Moss',
-    'Jessica Henline', 'Jim Nygård', 'João Trindade', 'Joel Calado', 'John Ferguson', 
-    'José Luis Fustel', 'Joseph Bleau', 'Julio Acuña', 'Junio C Hamano',
-    'Jürgen Schinker', 'Justin Forest',
-    'Konstantin Ryabitsev', 'Leonid Ponomarev', 'Marco Antonio Villegas Vega', 'Marcos Hernández', 'Mark Alford', 'Markus Golser', 'Mehmet Nur Olcay', 'Michael Salim',
-    'Mika Leppinen', 'Mike Coulson', 'Mikolaj Laczynski', 'Morten Juhl-Johansen Zölde-Fejér', 'Mykola Nikishov', 'narf',
-    'Nick L.', 'Nicolas Quienot', 'Ondrej Vesely', 
-    'Ortwin Forster', 'Paul Elliot', 'Paul Rudkin',
-    'Pavel Mlčoch', 'Peter Hoffmann', 'PhilF', 'Philippe Gouaillier', 'Pieter de Decker',
-    'Preben Randhol', 'Rafael Proença', 'R.Bell', 'red26wings', 'Richard Voigt',
-    'Robert Young', 'Roel Groeneveld', 'Romain Janvier',
-    'Scott Wegner', 'Sebastian Krause', 'Seth Remington', 'Shane Donohoe', 'Silvio Sisto', 'SPGoetze',
-    'S. Rust',
-    'Stefan Lohmaier', 'Stephan Buys', 'Steve McCarthy', 'Stylianos Papanastasiou', 'Teo Ramirez',
-    'Thomas Matthijs', 'Thomas Mills Hinkle', 'Thomas Nilsson', 
-    'Tim Michelsen', 'Tim Preetz', 'Todd Zullinger', 'Tomas Matheson', 'Ville-Pekka Vainio', 'Vitaliy Bondar', 'VladDrac',
-    'Vladimir Zemlyakov', 'Wilfred van Rooijen',
-    '',
-    'List may be incomplete - please contact me.'
-]
-
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
@@ -542,7 +500,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
-        Thread(target=self.read_apps).start()
+        threading.Thread(target=self.read_apps).start()
 
         # Set the "Device" menu item for the first time
         self.update_item_device()
@@ -1210,7 +1168,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 util.delete_file(destfile)
 
-        Thread(target=convert_and_send_thread, args=[episodes_to_copy, self.notification]).start()
+        threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy, self.notification]).start()
 
     def treeview_button_savepos(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO and event.button == 1:
@@ -1767,7 +1725,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.entryAddChannel.set_sensitive(False)
         self.btnAddChannel.set_sensitive(False)
         args = (result, self.add_new_channel_finish, authentication_tokens, ask_download_new, quiet, waitdlg)
-        thread = Thread( target=self.add_new_channel_proc, args=args )
+        thread = threading.Thread( target=self.add_new_channel_proc, args=args )
         thread.start()
 
         while block and thread.isAlive():
@@ -2040,7 +1998,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnUpdateFeeds.hide()
 
         args = (channels, select_url_afterwards)
-        Thread(target=self.update_feed_cache_proc, args=args).start()
+        threading.Thread(target=self.update_feed_cache_proc, args=args).start()
 
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
@@ -2410,7 +2368,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if can_sync:
             gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
-            Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
+            threading.Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
         else:
             device.close()
 
@@ -2449,7 +2407,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
         if len(tracks) > 0 and self.show_confirmation(message, title):
             gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
-            Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
+            threading.Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
 
     def ipod_cleanup_thread(self, device, tracks):
         device.remove_tracks(tracks)
@@ -2815,6 +2773,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.interface == gpodder.GUI:
             # For the "GUI" version, we add some more
             # items to the about dialog (credits and logo)
+            app_authors = [
+                    _('Maintainer:'),
+                    'Thomas Perl <thpinfo.com>',
+            ]
+
+            if os.path.exists(gpodder.credits_file):
+                credits = open(gpodder.credits_file).read().strip().split('\n')
+                app_authors += ['', _('Patches, bug reports and donations by:')]
+                app_authors += credits
+
             dlg.set_authors(app_authors)
             try:
                 dlg.set_logo(gtk.gdk.pixbuf_new_from_file(gpodder.icon_file))
@@ -2845,10 +2813,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
-            self.toolDownload.set_sensitive( False)
-            self.toolPlay.set_sensitive( False)
-            self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( False)#services.download_status_model.has_items())
+            self.toolDownload.set_sensitive(False)
+            self.toolPlay.set_sensitive(False)
+            self.toolTransfer.set_sensitive(False)
+            self.toolCancel.set_sensitive(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3184,7 +3152,7 @@ def main():
                     log('Downloads NOT FOUND in %s', dir)
 
         if not config.disable_fingerscroll:
-            GtkBuilderWidget.use_fingerscroll = True
+            BuilderWidget.use_fingerscroll = True
 
     gp = gPodder(bus_name, config)
     gp.run()
