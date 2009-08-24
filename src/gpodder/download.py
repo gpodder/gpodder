@@ -148,6 +148,7 @@ class ContentRange(object):
 
 
 class DownloadCancelledException(Exception): pass
+class AuthenticationError(Exception): pass
 
 class gPodderDownloadHTTPError(Exception):
     def __init__(self, url, error_code, error_message):
@@ -160,6 +161,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
     def __init__( self, channel):
         self.channel = channel
+        self._auth_retry_counter = 0
         urllib.FancyURLopener.__init__(self, None)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
@@ -284,11 +286,16 @@ class DownloadURLOpener(urllib.FancyURLopener):
 # end code based on urllib.py
 
     def prompt_user_passwd( self, host, realm):
+        # Keep track of authentication attempts, fail after the third one
+        self._auth_retry_counter += 1
+        if self._auth_retry_counter > 3:
+            raise AuthenticationError(_('Wrong username/password'))
+
         if self.channel.username or self.channel.password:
             log( 'Authenticating as "%s" to "%s" for realm "%s".', self.channel.username, host, realm, sender = self)
             return ( self.channel.username, self.channel.password )
 
-        return ( None, None )
+        return (None, None)
 
 
 class DownloadQueueWorker(threading.Thread):

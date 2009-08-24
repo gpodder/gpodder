@@ -63,15 +63,7 @@ class gPodderFetcher(feedcore.Fetcher):
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
-        if channel.username or channel.password:
-            username = urllib.quote(channel.username)
-            password = urllib.quote(channel.password)
-            auth_string = ':'.join((username, password))
-            url_parts = list(urlparse.urlsplit(channel.url))
-            url_parts[1] = '@'.join((auth_string, url_parts[1]))
-            url = urlparse.urlunsplit(url_parts)
-        else:
-            url = channel.url
+        url = channel.authenticate_url(channel.url)
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
@@ -290,6 +282,9 @@ class PodcastChannel(PodcastModelObject):
 
     def stat(self, state=None, is_played=None, is_locked=None):
         return self.db.get_channel_stat(self.url, state=state, is_played=is_played, is_locked=is_locked)
+
+    def authenticate_url(self, url):
+        return util.url_add_authentication(url, self.username, self.password)
 
     def __init__(self, db, download_dir):
         self.db = db
@@ -759,7 +754,7 @@ class PodcastEpisode(PodcastModelObject):
                 # If we arrive here, current_try has a collision, so
                 # try to resolve the URL for a better basename
                 log('Filename collision: %s - trying to resolve...', current_try)
-                url = util.get_real_url(url)
+                url = util.get_real_url(self.channel.authenticate_url(url))
                 (episode_filename, extension_UNUSED) = util.filename_from_url(url)
                 current_try = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)+extension
                 if not self.db.episode_filename_exists(current_try) and current_try:
@@ -832,7 +827,7 @@ class PodcastEpisode(PodcastModelObject):
             if 'redirect' in fn_template:
                 # This looks like a redirection URL - force URL resolving!
                 log('Looks like a redirection to me: %s', self.url, sender=self)
-                url = util.get_real_url(self.url)
+                url = util.get_real_url(self.channel.authenticate_url(self.url))
                 log('Redirection resolved to: %s', url, sender=self)
                 (episode_filename, extension_UNUSED) = util.filename_from_url(url)
                 fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)

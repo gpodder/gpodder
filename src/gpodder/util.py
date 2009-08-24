@@ -679,12 +679,97 @@ def format_desktop_command(command, filenames):
 
     return commands
 
+def url_strip_authentication(url):
+    """
+    Strips authentication data from an URL. Returns the URL with
+    the authentication data removed from it.
+
+    >>> url_strip_authentication('https://host.com/')
+    'https://host.com/'
+    >>> url_strip_authentication('telnet://foo:bar@host.com/')
+    'telnet://host.com/'
+    >>> url_strip_authentication('ftp://billy@example.org')
+    'ftp://example.org'
+    >>> url_strip_authentication('ftp://billy:@example.org')
+    'ftp://example.org'
+    >>> url_strip_authentication('http://aa:bc@localhost/x')
+    'http://localhost/x'
+    >>> url_strip_authentication('http://i%2Fo:P%40ss%3A@blubb.lan/u.html')
+    'http://blubb.lan/u.html'
+    >>> url_strip_authentication('http://c:d@x.org/')
+    'http://x.org/'
+    >>> url_strip_authentication('http://P%40%3A:i%2F@cx.lan')
+    'http://cx.lan'
+    """
+    url_parts = list(urlparse.urlsplit(url))
+    # url_parts[1] is the HOST part of the URL
+
+    # Remove existing authentication data
+    if '@' in url_parts[1]:
+        url_parts[1] = url_parts[1].split('@', 2)[1]
+
+    return urlparse.urlunsplit(url_parts)
+
+
+def url_add_authentication(url, username, password):
+    """
+    Adds authentication data (username, password) to a given
+    URL in order to construct an authenticated URL.
+
+    >>> url_add_authentication('https://host.com/', '', None)
+    'https://host.com/'
+    >>> url_add_authentication('http://example.org/', None, None)
+    'http://example.org/'
+    >>> url_add_authentication('telnet://host.com/', 'foo', 'bar')
+    'telnet://foo:bar@host.com/'
+    >>> url_add_authentication('ftp://example.org', 'billy', None)
+    'ftp://billy@example.org'
+    >>> url_add_authentication('ftp://example.org', 'billy', '')
+    'ftp://billy:@example.org'
+    >>> url_add_authentication('http://localhost/x', 'aa', 'bc')
+    'http://aa:bc@localhost/x'
+    >>> url_add_authentication('http://blubb.lan/u.html', 'i/o', 'P@ss:')
+    'http://i%2Fo:P%40ss%3A@blubb.lan/u.html'
+    >>> url_add_authentication('http://a:b@x.org/', 'c', 'd')
+    'http://c:d@x.org/'
+    >>> url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@:', 'i/')
+    'http://P%40%3A:i%2F@cx.lan'
+    """
+    if username is None or username == '':
+        return url
+
+    username = urllib.quote_plus(username)
+
+    if password is not None:
+        password = urllib.quote_plus(password)
+        auth_string = ':'.join((username, password))
+    else:
+        auth_string = username
+
+    url = url_strip_authentication(url)
+
+    url_parts = list(urlparse.urlsplit(url))
+    # url_parts[1] is the HOST part of the URL
+    url_parts[1] = '@'.join((auth_string, url_parts[1]))
+
+    return urlparse.urlunsplit(url_parts)
+
 
 def get_real_url(url):
     """
     Gets the real URL of a file and resolves all redirects.
     """
-    return urllib.urlopen(url).geturl()
+    username, password = username_password_from_url(url)
+    if username or password:
+        url = url_strip_authentication(url)
+        log('url=%s, username=%s, password=%s', url, username, password)
+        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr.add_password(None, url, username, password)
+        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib2.build_opener(handler)
+        return opener.open(url).geturl()
+    else:
+        return urllib2.urlopen(url).geturl()
 
 
 def find_command( command):

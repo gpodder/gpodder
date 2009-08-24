@@ -148,7 +148,7 @@ def find_youtube_channels(string):
     url = 'http://www.youtube.com/results?search_query='+ urllib.quote(string, '') +'&search_type=search_users&aq=f'
 
     r = re.compile('>\s+<')
-    data = r.sub('><', urllib.urlopen(url).read())
+    data = r.sub('><', urllib2.urlopen(url).read())
 
     r1 = re.compile('<a href="/user/([^"]+)"[^>]*>([^<]+)</a>')
     m1 = r1.findall(data)
