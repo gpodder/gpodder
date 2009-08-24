@@ -68,6 +68,7 @@ class BuilderWidget(GtkBuilderWidget):
             else:
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         elif gpodder.interface == gpodder.MAEMO:
+            import hildon
             dlg = hildon.Note('information', (self.main_window, message))
 
         dlg.run()
@@ -96,6 +97,7 @@ class BuilderWidget(GtkBuilderWidget):
             elif isinstance(widget, gtk.TreeView) or isinstance(widget, gtk.TextView):
                 parent = widget.get_parent()
                 if isinstance(parent, gtk.ScrolledWindow):
+                    import hildon
                     hildon.hildon_helper_set_thumb_scrollbar(parent, True)
             elif isinstance(widget, gtk.MenuItem):
                 for child in widget.get_children():
@@ -122,6 +124,7 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.destroy()
             return response == gtk.RESPONSE_YES
         elif gpodder.interface == gpodder.MAEMO:
+            import hildon
             dlg = hildon.Note('confirmation', (self.main_window, message))
             response = dlg.run()
             dlg.destroy()
@@ -207,6 +210,7 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
         elif gpodder.interface == gpodder.MAEMO:
+            import hildon
             dlg = hildon.FileChooserDialog(self.main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
         dlg.set_do_overwrite_confirmation(True)

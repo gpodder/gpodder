@@ -109,11 +109,8 @@ from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
-if gpodder.interface == gpodder.GUI:
-    WEB_BROWSER_ICON = 'web-browser'
-elif gpodder.interface == gpodder.MAEMO:
+if gpodder.interface == gpodder.MAEMO:
     import hildon
-    WEB_BROWSER_ICON = 'qgn_toolb_browser_web'
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
@@ -1022,8 +1019,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def treeview_channels_button_pressed( self, treeview, event):
-        global WEB_BROWSER_ICON
-
         if gpodder.interface == gpodder.MAEMO:
             self.treeview_channels_buttonpress = (event.x, event.y)
             return True
@@ -1077,7 +1072,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.active_channel.link:
                 item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
+                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: util.open_website(self.active_channel.link))
                 menu.append(item)
 
@@ -1205,8 +1200,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return '(unknown device)'
 
     def treeview_button_pressed( self, treeview, event):
-        global WEB_BROWSER_ICON
-
         if gpodder.interface == gpodder.MAEMO:
             ydistance = int(abs(event.y-self.treeview_available_buttonpress[1]))
             xdistance = int(event.x-self.treeview_available_buttonpress[0])
@@ -1360,7 +1353,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # If we have it, also add episode website link
             if episodes[0].link and episodes[0].link != episodes[0].url:
                 item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name(WEB_BROWSER_ICON, gtk.ICON_SIZE_MENU))
+                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: util.open_website(episodes[0].link))
                 menu.append(self.set_finger_friendly(item))
             
@@ -1896,7 +1889,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.pbFeedUpdate.set_text(message)
 
     def _update_cover(self, channel):
-        if not os.path.exists(channel.cover_file) and channel.image:
+        if channel is not None and not os.path.exists(channel.cover_file) and channel.image:
             self.cover_downloader.request_cover(channel)
 
     def update_feed_cache_proc(self, channels, select_url_afterwards):

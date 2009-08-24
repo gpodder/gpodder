@@ -74,6 +74,7 @@ class gPodderChannel(BuilderWidget):
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
         elif gpodder.interface == gpodder.MAEMO:
+            import hildon
             dlg = hildon.FileChooserDialog(self.gPodderChannel, gtk.FILE_CHOOSER_ACTION_OPEN)
 
         if dlg.run() == gtk.RESPONSE_OK:
