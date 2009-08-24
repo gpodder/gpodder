@@ -116,6 +116,7 @@ from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
 from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
+from gpodder.gtkui.interface.welcome import gPodderWelcome
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -3146,29 +3147,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_gui_window(self):
         self.gPodder.present()
 
-
-class gPodderWelcome(BuilderWidget):
-    finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
-
-    def new(self):
-        for widget in (self.btnOPML, self.btnMygPodder):
-            for child in widget.get_children():
-                if isinstance(child, gtk.Alignment):
-                    child.set_padding(20, 20, 20, 20)
-                else:
-                    child.set_padding(20, 20)
-        self.gPodderWelcome.show()
-
-    def on_show_example_podcasts(self, button):
-        self.gPodderWelcome.destroy()
-        self.show_example_podcasts_callback(None)
-
-    def on_setup_my_gpodder(self, gpodder):
-        self.gPodderWelcome.destroy()
-        self.setup_my_gpodder_callback(None)
-
-    def on_btnCancel_clicked(self, button):
-        self.gPodderWelcome.destroy()
 
 def main():
     gobject.threads_init()
