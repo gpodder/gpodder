@@ -34,7 +34,6 @@ from gpodder import resolver
 from gpodder import download
 
 import gtk
-import gobject
 
 import threading
 import time
@@ -118,31 +117,6 @@ class DependencyManager(object):
                 all_available = False
 
         return (all_available, result)
-
-    def get_model(self):
-        # Name, Description, Available (str), Available (bool), Missing (str)
-        model = gtk.ListStore(str, str, str, bool, str)
-        for feature_name, description, modules, tools in self.dependencies:
-            modules_available, module_info = self.modules_available(modules)
-            tools_available, tool_info = self.tools_available(tools)
-
-            available = modules_available and tools_available
-            if available:
-                available_str = _('Available')
-            else:
-                available_str = _('Missing dependencies')
-
-            missing_str = []
-            for module in modules:
-                if not module_info[module]:
-                    missing_str.append(_('Python module "%s" not installed') % module)
-            for tool in tools:
-                if not tool_info[tool]:
-                    missing_str.append(_('Command "%s" not installed') % tool)
-            missing_str = '\n'.join(missing_str)
-
-            model.append([feature_name, description, available_str, available, missing_str])
-        return model
 
 
 dependency_manager = DependencyManager()

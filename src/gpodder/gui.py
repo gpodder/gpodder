@@ -97,6 +97,7 @@ from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.opml import OpmlListModel
 from gpodder.gtkui.config import ConfigModel
 from gpodder.gtkui.download import DownloadStatusModel
+from gpodder.gtkui.services import DependencyModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -4821,7 +4822,7 @@ class gPodderDependencyManager(BuilderWidget):
         self.treeview_components.append_column(col_name)
         col_installed = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(), text=2)
         self.treeview_components.append_column(col_installed)
-        self.treeview_components.set_model(services.dependency_manager.get_model())
+        self.treeview_components.set_model(DependencyModel(services.dependency_manager))
         self.btn_about.set_sensitive(False)
         self.btn_install.set_sensitive(False)
 
