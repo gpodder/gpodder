@@ -32,6 +32,7 @@ import urllib2
 import datetime
 import fnmatch
 import tempfile
+import collections
 
 from xml.sax import saxutils
 
@@ -89,20 +90,19 @@ except Exception, exc:
     have_trayicon = False
 
 from gpodder.model import PodcastChannel
+from gpodder.dbsqlite import Database
 
 from gpodder.gtkui.base import GtkBuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.opml import OpmlListModel
+from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.config import ConfigModel
 from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.services import DependencyModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
-
-from gpodder.libgpodder import db
-from gpodder.libgpodder import gl
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
@@ -363,8 +363,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     APPMENU_ACTIONS = ('itemUpdate', 'itemDownloadAllNew', 'itemPreferences')
     TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
 
-    def __init__(self, bus_name):
+    def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
+        self.db = Database(gpodder.database_file)
+        self.config = config
         BuilderWidget.__init__(self)
     
     def new(self):
@@ -489,13 +491,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # FIXME: Implement e-mail sending of list in win32
             self.item_email_subscriptions.set_sensitive(False)
 
-        if gl.config.show_url_entry_in_podcast_list:
+        if self.config.show_url_entry_in_podcast_list:
             self.hboxAddChannel.show()
 
-        if not gpodder.interface == gpodder.MAEMO and not gl.config.show_toolbar:
+        if not gpodder.interface == gpodder.MAEMO and not self.config.show_toolbar:
             self.toolbar.hide()
 
-        gl.config.add_observer(self.on_config_changed)
+        self.config.add_observer(self.on_config_changed)
         self.default_entry_text_color = self.entryAddChannel.get_style().text[gtk.STATE_NORMAL]
         self.entryAddChannel.connect('focus-in-event', self.entry_add_channel_focus)
         self.entryAddChannel.connect('focus-out-event', self.entry_add_channel_unfocus)
@@ -506,7 +508,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.gpodder_episode_window = None
 
         self.download_status_model = DownloadStatusModel()
-        self.download_queue_manager = download.DownloadQueueManager(gl.config)
+        self.download_queue_manager = download.DownloadQueueManager(self.config)
 
         self.fullscreen = False
         self.minimized = False
@@ -514,16 +516,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         
         self.show_hide_tray_icon()
 
-        self.itemShowToolbar.set_active(gl.config.show_toolbar)
-        self.itemShowDescription.set_active(gl.config.episode_list_descriptions)
+        self.itemShowToolbar.set_active(self.config.show_toolbar)
+        self.itemShowDescription.set_active(self.config.episode_list_descriptions)
                    
-        gl.config.connect_gtk_window(self.gPodder, 'main_window')
-        gl.config.connect_gtk_paned( 'paned_position', self.channelPaned)
+        self.config.connect_gtk_window(self.gPodder, 'main_window')
+        self.config.connect_gtk_paned( 'paned_position', self.channelPaned)
 
-        gl.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
-        gl.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
-        gl.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
-        gl.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+        self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
+        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
+        self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
+        self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
         # Then the amount of maximum downloads changes, notify the queue manager
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_and_retire_threads()
@@ -568,7 +570,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader = CoverDownloader()
 
         # Generate list models for podcasts and their episodes
-        self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size, self.cover_downloader)
+        self.podcast_list_model = PodcastListModel(self.config.podcast_list_icon_size, self.cover_downloader)
         self.treeChannels.set_model(self.podcast_list_model)
 
         self.episode_list_model = EpisodeListModel()
@@ -712,9 +714,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not gpodder.interface == gpodder.MAEMO:
             self.gPodder.show()
 
-        if gl.config.start_iconified:
+        if self.config.start_iconified:
             self.iconify_main_window()
-            if self.tray_icon and gl.config.minimize_to_tray:
+            if self.tray_icon and self.config.minimize_to_tray:
                 self.tray_icon.set_visible(False)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
@@ -734,7 +736,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
+        self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
@@ -752,10 +754,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnUpdateFeeds.show()
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
-        self.update_feed_cache(force_update=gl.config.update_on_startup)
+        self.update_feed_cache(force_update=self.config.update_on_startup)
 
         # Look for partial file downloads
-        partial_files = glob.glob(os.path.join(gl.config.download_dir, '*', '*.partial'))
+        partial_files = glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
 
         # Message area
         self.message_area = None
@@ -788,15 +790,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.message_area.show_all()
                 self.wNotebook.set_current_page(1)
 
-            gl.clean_up_downloads(delete_partial=False)
+            self.clean_up_downloads(delete_partial=False)
         else:
-            gl.clean_up_downloads(delete_partial=True)
+            self.clean_up_downloads(delete_partial=True)
 
         # Start the auto-update procedure
         self.auto_update_procedure(first_run=True)
 
         # Delete old episodes if the user wishes to
-        if gl.config.auto_remove_old_episodes:
+        if self.config.auto_remove_old_episodes:
             old_episodes = self.get_old_episodes()
             if len(old_episodes) > 0:
                 self.delete_episode_list(old_episodes, confirm=False)
@@ -953,8 +955,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if gpodder.interface == gpodder.MAEMO:
                     hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
-                if gl.config.cmd_all_downloads_complete:
-                    util.run_external_command(gl.config.cmd_all_downloads_complete)
+                if self.config.cmd_all_downloads_complete:
+                    util.run_external_command(self.config.cmd_all_downloads_complete)
             self.last_download_count = count
 
             self.gPodder.set_title(' - '.join(title))
@@ -1382,7 +1384,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             folder = self.folder_for_saving_episodes
             copy_from = episode.local_filename(create=False)
             assert copy_from is not None
-            copy_to = episode.sync_filename(gl.config.custom_sync_name_enabled, gl.config.custom_sync_name)
+            copy_to = episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)
             (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
             self.folder_for_saving_episodes = folder
 
@@ -1394,7 +1396,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
                 destfile = os.path.join(tempfile.gettempdir(), \
-                        util.sanitize_filename(episode.sync_filename(gl.config.custom_sync_name_enabled, gl.config.custom_sync_name)))
+                        util.sanitize_filename(episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)))
                 (base, ext) = os.path.splitext(filename)
                 if not destfile.endswith(ext):
                     destfile += ext
@@ -1437,9 +1439,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     return True
 
     def get_device_name(self):
-        if gl.config.device_type == 'ipod':
+        if self.config.device_type == 'ipod':
             return _('iPod')
-        elif gl.config.device_type in ('filesystem', 'mtp'):
+        elif self.config.device_type in ('filesystem', 'mtp'):
             return _('MP3 player')
         else:
             return '(unknown device)'
@@ -1462,10 +1464,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.select_path(path)
                 self.treeAvailable.set_cursor(path)
                 self.treeAvailable.grab_focus()
-                if gl.config.maemo_enable_gestures and xdistance > 70:
+                if self.config.maemo_enable_gestures and xdistance > 70:
                     self.on_playback_selected_episodes(None)
                     return True
-                elif gl.config.maemo_enable_gestures and xdistance < -70:
+                elif self.config.maemo_enable_gestures and xdistance < -70:
                     self.on_shownotes_selected_episodes(None)
                     return True
             else:
@@ -1635,7 +1637,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             iter = model.get_iter(path)
             self.episode_list_model.update_by_iter(iter, \
                     self.episode_is_downloading, \
-                    gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
+                    self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
 
     def update_episode_list_icons(self, urls):
         """
@@ -1648,8 +1650,64 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_model.update_by_urls(urls, \
                 self.episode_is_downloading, \
-                gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
+                self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
  
+    def clean_up_downloads(self, delete_partial=False):
+        # Clean up temporary files left behind by old gPodder versions
+        temporary_files = glob.glob('%s/*/.tmp-*' % self.config.download_dir)
+
+        if delete_partial:
+            temporary_files += glob.glob('%s/*/*.partial' % self.config.download_dir)
+
+        for tempfile in temporary_files:
+            util.delete_file(tempfile)
+
+        # Clean up empty download folders and abandoned download folders
+        download_dirs = glob.glob(os.path.join(self.config.download_dir, '*'))
+        for ddir in download_dirs:
+            if os.path.isdir(ddir) and False: # FIXME not db.channel_foldername_exists(os.path.basename(ddir)):
+                globr = glob.glob(os.path.join(ddir, '*'))
+                if len(globr) == 0 or (len(globr) == 1 and globr[0].endswith('/cover')):
+                    log('Stale download directory found: %s', os.path.basename(ddir), sender=self)
+                    shutil.rmtree(ddir, ignore_errors=True)
+
+    def streaming_possible(self):
+        return self.config.player and self.config.player != 'default'
+
+    def playback_episodes_for_real(self, episodes):
+        groups = collections.defaultdict(list)
+        for episode in episodes:
+            # Mark episode as played in the database
+            episode.mark(is_played=True)
+
+            file_type = episode.file_type()
+            if file_type == 'video' and self.config.videoplayer and \
+                    self.config.videoplayer != 'default':
+                player = self.config.videoplayer
+            elif file_type == 'audio' and self.config.player and \
+                    self.config.player != 'default':
+                player = self.config.player
+            else:
+                player = 'default'
+
+            filename = episode.local_filename(create=False)
+            if filename is None or not os.path.exists(filename):
+                filename = episode.url
+            groups[player].append(filename)
+
+        # Open episodes with system default player
+        if 'default' in groups:
+            for filename in groups['default']:
+                log('Opening with system default: %s', filename, sender=self)
+                util.gui_open(filename)
+            del groups['default']
+
+        # For each type now, go and create play commands
+        for group in groups:
+            for command in util.format_desktop_command(group, groups[group]):
+                log('Executing: %s', repr(command), sender=self)
+                subprocess.Popen(command)
+
     def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
             if len(episodes) == 1:
@@ -1663,10 +1721,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gobject.timeout_add(5000, destroy_banner_later, banner)
 
         episodes = [e for e in episodes if \
-                e.was_downloaded(and_exists=True) or gl.streaming_possible()]
+                e.was_downloaded(and_exists=True) or self.streaming_possible()]
 
         try:
-            gl.playback_episodes(episodes)
+            self.playback_episodes_for_real(episodes)
         except Exception, e:
             log('Error in playback!', sender=self, traceback=True)
             self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Error opening player'))
@@ -1726,8 +1784,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         can_download = True
 
         can_download = can_download and not can_cancel
-        can_play = gl.streaming_possible() or (can_play and not can_cancel and not can_download)
-        can_transfer = can_play and gl.config.device_type != 'none' and not can_cancel and not can_download
+        can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
+        can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download
 
         if open_instead_of_play:
             if gpodder.interface != gpodder.MAEMO:
@@ -1845,7 +1903,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.currently_updating = True
             self.episode_list_model.update_from_channel(self.active_channel, \
                     self.episode_is_downloading, \
-                    gl.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO, \
+                    self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO, \
                     lambda: self.on_episode_list_model_updated(banner))
         else:
             self.episode_list_model.clear()
@@ -1923,10 +1981,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         log( 'Adding new channel: %s', url)
         channel = error = None
         try:
-            channel = PodcastChannel.load(db, url=url, create=True,
+            channel = PodcastChannel.load(self.db, url=url, create=True,
                     authentication_tokens=authentication_tokens,
-                    max_episodes=gl.config.max_episodes_per_feed,
-                    download_dir=gl.config.download_dir)
+                    max_episodes=self.config.max_episodes_per_feed,
+                    download_dir=self.config.download_dir)
         except feedcore.AuthenticationRequired, e:
             error = e
         except feedcore.WifiLogin, e:
@@ -1964,7 +2022,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # We need to update the channel list otherwise the authentication
                 # data won't show up in the channel editor.
                 # TODO: Only updated the newly added feed to save some cpu cycles
-                self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
+                self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
                 self.channel_list_changed = True
 
             if ask_download_new:
@@ -2016,14 +2074,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.entryAddChannel.set_sensitive(True)
         self.btnAddChannel.set_sensitive(True)
         self.update_podcasts_tab()
+        self._update_cover(channel)
         waitdlg.destroy()
 
 
     def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
-        db.commit()
+        self.db.commit()
         self.updating_feed_cache = False
 
-        self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
+        self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
         self.channel_list_changed = True
         self.updateComboBox(selected_url=select_url_afterwards)
 
@@ -2054,7 +2113,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # New episodes are available
             self.pbFeedUpdate.set_fraction(1.0)
             # Are we minimized and should we auto download?
-            if (self.minimized and (gl.config.auto_download == 'minimized')) or (gl.config.auto_download == 'always'):
+            if (self.minimized and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
                 if len(episodes) == 1:
                     title = _('Downloading one new episode')
@@ -2068,7 +2127,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 self.show_update_feeds_buttons()
                 # New episodes are available and we are not minimized
-                if not gl.config.do_not_show_new_episodes_dialog:
+                if not self.config.do_not_show_new_episodes_dialog:
                     self.new_episodes_show(episodes)
                 else:
                     if len(episodes) == 1:
@@ -2088,7 +2147,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
                 try:
-                    channel.update(max_episodes=gl.config.max_episodes_per_feed)
+                    channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
 #                except feedcore.Offline:
 #                    self.feed_cache_update_cancelled = True
@@ -2145,7 +2204,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if not force_update:
-            self.channels = PodcastChannel.load_from_db(db, gl.config.download_dir)
+            self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
             self.channel_list_changed = True
             self.updateComboBox(selected_url=select_url_afterwards)
             return
@@ -2192,9 +2251,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Only iconify if we are using the window's "X" button,
         # but not when we are using "Quit" in the menu or toolbar
-        if not gl.config.on_quit_ask and gl.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
+        if not self.config.on_quit_ask and self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
-        elif gl.config.on_quit_ask or downloading:
+        elif self.config.on_quit_ask or downloading:
             if gpodder.interface == gpodder.MAEMO:
                 result = self.show_confirmation(_('Do you really want to quit gPodder now?'))
                 if result:
@@ -2223,7 +2282,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if result == gtk.RESPONSE_CLOSE:
                 if not downloading and cb_ask.get_active() == True:
-                    gl.config.on_quit_ask = False
+                    self.config.on_quit_ask = False
                 self.close_gpodder()
         else:
             self.close_gpodder()
@@ -2235,7 +2294,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         if self.channels:
             if self.save_channels_opml():
-                if gl.config.my_gpodder_autoupload:
+                if self.config.my_gpodder_autoupload:
                     log('Uploading to my.gpodder.org on close', sender=self)
                     util.idle_add(self.on_upload_to_mygpo, None)
             else:
@@ -2252,7 +2311,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
-        db.close()
+        self.db.close()
 
         self.quit()
         sys.exit(0)
@@ -2261,7 +2320,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = []
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
-                if episode.age_in_days() > gl.config.episode_old_age and \
+                if episode.age_in_days() > self.config.episode_old_age and \
                         not episode.is_locked and episode.is_played:
                     episodes.append(episode)
         return episodes
@@ -2287,7 +2346,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             channel_urls.add(episode.channel.url)
 
         # Episodes have been deleted - persist the database
-        db.commit()
+        self.db.commit()
 
         self.update_episode_list_icons(episode_urls)
         self.updateComboBox(only_these_urls=channel_urls)
@@ -2304,7 +2363,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
-                _('Select older than %d days') % gl.config.episode_old_age: lambda episode: episode.age_in_days() > gl.config.episode_old_age,
+                _('Select older than %d days') % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete from your hard disk.')
@@ -2320,12 +2379,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderEpisodeSelector( title = _('Remove old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
-                                selection_buttons = selection_buttons)
+                                selection_buttons = selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
         self.update_selected_episode_list_icons()
         self.updateComboBox(only_selected_channel=True)
-        db.commit()
+        self.db.commit()
 
     def mark_selected_episodes_new(self):
         for episode in self.get_selected_episodes():
@@ -2411,7 +2470,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue
 
                 try:
-                    task = download.DownloadTask(episode, gl.config)
+                    task = download.DownloadTask(episode, self.config)
                 except Exception, e:
                     self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'))
                     log('Download error while downloading %s', episode.title, sender=self, traceback=True)
@@ -2441,7 +2500,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                callback=self.download_episode_list, \
                                remove_callback=lambda e: e.mark_old(), \
                                remove_action=_('Never download'), \
-                               remove_finished=self.episode_new_status_changed)
+                               remove_finished=self.episode_new_status_changed, \
+                               _config=self.config)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         new_episodes = self.get_new_episodes()
@@ -2489,18 +2549,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         # make sure gpod is available before even trying to sync
-        if gl.config.device_type == 'ipod' and not sync.gpod_available:
+        if self.config.device_type == 'ipod' and not sync.gpod_available:
             title = _('Cannot Sync To iPod')
             message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
             self.notification( message, title )
             return
-        elif gl.config.device_type == 'mtp' and not sync.pymtp_available:
+        elif self.config.device_type == 'mtp' and not sync.pymtp_available:
             title = _('Cannot sync to MTP device')
             message = _('Please install the libmtp python bindings (python-pymtp) and restart gPodder to continue.')
             self.notification( message, title )
             return
 
-        device = sync.open_device(gl.config)
+        device = sync.open_device(self.config)
         device.register( 'post-done', self.sync_to_ipod_completed )
 
         if device is None:
@@ -2515,14 +2575,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification(message, title)
             return
 
-        if gl.config.device_type == 'ipod':
+        if self.config.device_type == 'ipod':
             #update played episodes and delete if requested
             for channel in self.channels:
                 if channel.sync_to_devices:
                     allepisodes = [ episode for episode in channel.get_all_episodes() if  episode.was_downloaded(and_exists=True) ]
-                    device.update_played_or_delete(channel, allepisodes, gl.config.ipod_delete_played_from_db)
+                    device.update_played_or_delete(channel, allepisodes, self.config.ipod_delete_played_from_db)
 
-            if gl.config.ipod_purge_old_episodes:
+            if self.config.ipod_purge_old_episodes:
                 device.purge()
 
         sync_all_episodes = not bool(episodes)
@@ -2535,7 +2595,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         total_size = 0
         free_space = max(device.get_free_space(), 0)
         for episode in episodes:
-            if not device.episode_on_device(episode) and not (sync_all_episodes and gl.config.only_sync_not_played and episode.is_played):
+            if not device.episode_on_device(episode) and not (sync_all_episodes and self.config.only_sync_not_played and episode.is_played):
                 filename = episode.local_filename(create=False)
                 if filename is not None:
                     total_size += util.calculate_size(str(filename))
@@ -2556,7 +2616,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # The sync process might have updated the status of episodes,
         # therefore persist the database here to avoid losing data
-        db.commit()
+        self.db.commit()
 
     def sync_to_ipod_completed(self, device, successful_sync):
         device.unregister( 'post-done', self.sync_to_ipod_completed )
@@ -2577,7 +2637,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             device.add_tracks(episodes)
             # 'only_sync_not_played' must be used or else all the played
             #  tracks will be copied then immediately deleted
-            if gl.config.mp3_player_delete_played and gl.config.only_sync_not_played:
+            if self.config.mp3_player_delete_played and self.config.only_sync_not_played:
                 self.ipod_delete_played(device)
         else:
             device.add_tracks(episodes, force_played=True)
@@ -2609,7 +2669,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('released', None, None, _('Released')),
         )
 
-        device = sync.open_device(gl.config)
+        device = sync.open_device(self.config)
 
         if device is None:
             title = _('No device configured')
@@ -2639,7 +2699,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Remove podcasts from device')
             instructions = _('Select the podcast episodes you want to remove from your device.')
             gPodderEpisodeSelector(title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
-                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback, tooltip_attribute=None)
+                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback, tooltip_attribute=None, \
+                                   _config=self.config)
         else:
             title = _('No files on device')
             message = _('The devices contains no files to be removed.')
@@ -2648,18 +2709,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_manage_device_playlist(self, widget):
         # make sure gpod is available before even trying to sync
-        if gl.config.device_type == 'ipod' and not sync.gpod_available:
+        if self.config.device_type == 'ipod' and not sync.gpod_available:
             title = _('Cannot manage iPod playlist')
             message = _('This feature is not available for iPods.')
             self.notification( message, title )
             return
-        elif gl.config.device_type == 'mtp' and not sync.pymtp_available:
+        elif self.config.device_type == 'mtp' and not sync.pymtp_available:
             title = _('Cannot manage MTP device playlist')
             message = _('This feature is not available for MTP devices.')
             self.notification( message, title )
             return
 
-        device = sync.open_device(gl.config)
+        device = sync.open_device(self.config)
 
         if device is None:
             title = _('No device configured')
@@ -2673,30 +2734,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification(message, title)
             return
 
-        gPodderPlaylist(device=device, gPodder=self)
+        gPodderPlaylist(device=device, gPodder=self, _config=self.config)
         device.close()
 
     def show_hide_tray_icon(self):
-        if gl.config.display_tray_icon and have_trayicon and self.tray_icon is None:
-            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file, gl.config)
-        elif not gl.config.display_tray_icon and self.tray_icon is not None:
+        if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:
+            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file, self.config)
+        elif not self.config.display_tray_icon and self.tray_icon is not None:
             self.tray_icon.set_visible(False)
             del self.tray_icon
             self.tray_icon = None
 
-        if gl.config.minimize_to_tray and self.tray_icon:
+        if self.config.minimize_to_tray and self.tray_icon:
             self.tray_icon.set_visible(self.minimized)
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
 
     def on_itemShowToolbar_activate(self, widget):
-        gl.config.show_toolbar = self.itemShowToolbar.get_active()
+        self.config.show_toolbar = self.itemShowToolbar.get_active()
 
     def on_itemShowDescription_activate(self, widget):
-        gl.config.episode_list_descriptions = self.itemShowDescription.get_active()
+        self.config.episode_list_descriptions = self.itemShowDescription.get_active()
 
     def update_item_device( self):
-        if gl.config.device_type != 'none':
+        if self.config.device_type != 'none':
             self.itemDevice.set_visible(True)
             self.itemDevice.label = self.get_device_name()
         else:
@@ -2709,9 +2770,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemPreferences_activate(self, widget, *args):
         if gpodder.interface == gpodder.GUI:
-            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader)
+            gPodderProperties(callback_finished=self.properties_closed, user_apps_reader=self.user_apps_reader, _config=self.config)
         else:
-            gPodderMaemoPreferences()
+            gPodderMaemoPreferences(_config=self.config)
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager()
@@ -2731,10 +2792,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'))
 
     def require_my_gpodder_authentication(self):
-        if not gl.config.my_gpodder_username or not gl.config.my_gpodder_password:
-            success, authentication = self.UsernamePasswordDialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=gl.config.my_gpodder_username, password=gl.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
+        if not self.config.my_gpodder_username or not self.config.my_gpodder_password:
+            success, authentication = self.UsernamePasswordDialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=self.config.my_gpodder_username, password=self.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
             if success and authentication[0] and authentication[1]:
-                gl.config.my_gpodder_username, gl.config.my_gpodder_password = authentication
+                self.config.my_gpodder_username, self.config.my_gpodder_password = authentication
                 return True
             else:
                 return False
@@ -2742,13 +2803,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
     
     def my_gpodder_offer_autoupload(self):
-        if not gl.config.my_gpodder_autoupload:
+        if not self.config.my_gpodder_autoupload:
             if self.show_confirmation(_('gPodder can automatically upload your subscription list to my.gpodder.org when you close it. Do you want to enable this feature?'), _('Upload subscriptions on quit')):
-                gl.config.my_gpodder_autoupload = True
+                self.config.my_gpodder_autoupload = True
     
     def on_download_from_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
+            client = my.MygPodderClient(self.config.my_gpodder_username, self.config.my_gpodder_password)
             opml_data = client.download_subscriptions()
             if len(opml_data) > 0:
                 fp = open(gpodder.subscription_file, 'w')
@@ -2771,20 +2832,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'))
                 self.my_gpodder_offer_autoupload()
             else:
-                gl.config.my_gpodder_password = ''
+                self.config.my_gpodder_password = ''
                 self.on_download_from_mygpo(widget)
         else:
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'))
 
     def on_upload_to_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(gl.config.my_gpodder_username, gl.config.my_gpodder_password)
+            client = my.MygPodderClient(self.config.my_gpodder_username, self.config.my_gpodder_password)
             self.save_channels_opml()
             success, messages = client.upload_subscriptions(gpodder.subscription_file)
             if widget is not None:
                 self.show_message('\n'.join(messages), _('Results of upload'))
                 if not success:
-                    gl.config.my_gpodder_password = ''
+                    self.config.my_gpodder_password = ''
                     self.on_upload_to_mygpo(widget)
                 else:
                     self.my_gpodder_offer_autoupload()
@@ -2838,7 +2899,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     log('Not removing downloaded episodes', sender=self)
 
                 # Clean up downloads and download directories
-                gl.clean_up_downloads()
+                self.clean_up_downloads()
 
                 # cancel any active downloads from this channel
                 for episode in self.active_channel.get_all_episodes():
@@ -2923,7 +2984,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        gPodderOpmlLister().get_channels_from_url(gl.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+        gPodderOpmlLister().get_channels_from_url(self.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
@@ -3067,7 +3128,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # We should only have one one selected as it was double clicked!
         e = self.get_selected_episodes()[0]
         
-        if (gl.config.double_click_episode_action == 'download'):
+        if (self.config.double_click_episode_action == 'download'):
             # If the episode has already been downloaded and exists then play it
             if e.was_downloaded(and_exists=True):
                 self.playback_episodes(self.get_selected_episodes())
@@ -3076,12 +3137,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.download_episode_list([e])
                 self.update_episode_list_icons([e.url])
                 self.play_or_download()
-        elif (gl.config.double_click_episode_action == 'stream'):
+        elif (self.config.double_click_episode_action == 'stream'):
             # If we happen to have downloaded this episode simple play it
             if e.was_downloaded(and_exists=True):
                 self.playback_episodes(self.get_selected_episodes())
             # else if streaming is possible stream it    
-            elif gl.streaming_possible():
+            elif self.streaming_possible():
                 self.playback_episodes(self.get_selected_episodes())
             else:
                 log('Unable to stream episode - default media player selected!', sender=self, traceback=True)
@@ -3097,7 +3158,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_or_download()
         if self.gpodder_episode_window is None:
             log('First-time use of episode window --- creating', sender=self)
-            self.gpodder_episode_window = gPodderEpisode(\
+            self.gpodder_episode_window = gPodderEpisode(_config=self.config, \
                     download_status_model=self.download_status_model, \
                     episode_is_downloading=self.episode_is_downloading)
         self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
@@ -3107,10 +3168,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
-        if not first_run and gl.config.auto_update_feeds and self.minimized:
+        if not first_run and self.config.auto_update_feeds and self.minimized:
             self.update_feed_cache(force_update=True)
 
-        next_update = 60*1000*gl.config.auto_update_frequency
+        next_update = 60*1000*self.config.auto_update_frequency
         gobject.timeout_add(next_update, self.auto_update_procedure)
 
     def on_treeDownloads_row_activated(self, widget, *args):
@@ -3203,7 +3264,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.updateComboBox(only_selected_channel=True)
 
         # only delete partial files if we do not have any downloads in progress
-        gl.clean_up_downloads(False)
+        self.clean_up_downloads(False)
         self.update_selected_episode_list_icons()
         self.play_or_download()
 
@@ -3266,7 +3327,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif not self.tray_icon:
             self.gPodder.set_skip_taskbar_hint(False)
 
-        if gl.config.minimize_to_tray and self.tray_icon:
+        if self.config.minimize_to_tray and self.tray_icon:
             self.tray_icon.set_visible(self.minimized)
     
     def uniconify_main_window(self):
@@ -3438,9 +3499,9 @@ class gPodderMaemoPreferences(BuilderWidget):
     ]
     
     def new(self):
-        gl.config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
-        gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
-        gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
+        self._config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
+        self._config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
+        self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
 
         for item in self.audio_players:
             command, caption = item
@@ -3458,13 +3519,13 @@ class gPodderMaemoPreferences(BuilderWidget):
         for id, audio_player in enumerate(self.audio_players):
             command, caption = audio_player
             self.combo_player_model.append([caption])
-            if gl.config.player == command:
+            if self._config.player == command:
                 self.combo_player.set_active(id)
                 found = True
         if not found:
-            self.combo_player_model.append(['User-configured (%s)' % gl.config.player])
+            self.combo_player_model.append(['User-configured (%s)' % self._config.player])
             self.combo_player.set_active(len(self.combo_player_model)-1)
-            self.userconfigured_player = gl.config.player
+            self.userconfigured_player = self._config.player
 
         # Set up the video player combobox
         found = False
@@ -3472,33 +3533,33 @@ class gPodderMaemoPreferences(BuilderWidget):
         for id, video_player in enumerate(self.video_players):
             command, caption = video_player
             self.combo_videoplayer_model.append([caption])
-            if gl.config.videoplayer == command:
+            if self._config.videoplayer == command:
                 self.combo_videoplayer.set_active(id)
                 found = True
         if not found:
-            self.combo_videoplayer_model.append(['User-configured (%s)' % gl.config.videoplayer])
+            self.combo_videoplayer_model.append(['User-configured (%s)' % self._config.videoplayer])
             self.combo_videoplayer.set_active(len(self.combo_videoplayer_model)-1)
-            self.userconfigured_videoplayer = gl.config.videoplayer
+            self.userconfigured_videoplayer = self._config.videoplayer
 
         self.gPodderMaemoPreferences.show()
 
     def on_combo_player_changed(self, combobox):
         index = combobox.get_active()
         if index < len(self.audio_players):
-            gl.config.player = self.audio_players[index][0]
+            self._config.player = self.audio_players[index][0]
         elif self.userconfigured_player is not None:
-            gl.config.player = self.userconfigured_player
+            self._config.player = self.userconfigured_player
 
     def on_combo_videoplayer_changed(self, combobox):
         index = combobox.get_active()
         if index < len(self.video_players):
-            gl.config.videoplayer = self.video_players[index][0]
+            self._config.videoplayer = self.video_players[index][0]
         elif self.userconfigured_videoplayer is not None:
-            gl.config.videoplayer = self.userconfigured_videoplayer
+            self._config.videoplayer = self.userconfigured_videoplayer
 
     def on_btn_advanced_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
-        gPodderConfigEditor()
+        gPodderConfigEditor(_config=self._config)
 
     def on_btn_close_clicked(self, widget):
         self.gPodderMaemoPreferences.destroy()
@@ -3513,46 +3574,46 @@ class gPodderProperties(BuilderWidget):
             self.table5.hide_all() # player
             self.gPodderProperties.fullscreen()
 
-        gl.config.connect_gtk_editable( 'player', self.openApp)
-        gl.config.connect_gtk_editable('videoplayer', self.openVideoApp)
-        gl.config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
-        gl.config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
-        gl.config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
-        gl.config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
-        gl.config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
-        gl.config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
-        gl.config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
-        gl.config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
-        gl.config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
-        gl.config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
-        gl.config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
-        gl.config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
-        gl.config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
-        gl.config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
-        gl.config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
-        gl.config.connect_gtk_togglebutton('ipod_delete_played_from_db', self.ipod_delete_played_from_db)
-        gl.config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
-        gl.config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
+        self._config.connect_gtk_editable( 'player', self.openApp)
+        self._config.connect_gtk_editable('videoplayer', self.openVideoApp)
+        self._config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)
+        self._config.connect_gtk_togglebutton( 'custom_sync_name_enabled', self.cbCustomSyncName)
+        self._config.connect_gtk_togglebutton( 'update_on_startup', self.updateonstartup)
+        self._config.connect_gtk_togglebutton( 'only_sync_not_played', self.only_sync_not_played)
+        self._config.connect_gtk_togglebutton( 'fssync_channel_subfolders', self.cbChannelSubfolder)
+        self._config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
+        self._config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
+        self._config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
+        self._config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
+        self._config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
+        self._config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
+        self._config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
+        self._config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
+        self._config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
+        self._config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
+        self._config.connect_gtk_togglebutton('ipod_delete_played_from_db', self.ipod_delete_played_from_db)
+        self._config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
+        self._config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
         
         self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
 
-        self.iPodMountpoint.set_label( gl.config.ipod_mount)
-        self.filesystemMountpoint.set_label( gl.config.mp3_player_folder)
-        self.chooserDownloadTo.set_current_folder(gl.config.download_dir)
+        self.iPodMountpoint.set_label( self._config.ipod_mount)
+        self.filesystemMountpoint.set_label( self._config.mp3_player_folder)
+        self.chooserDownloadTo.set_current_folder(self._config.download_dir)
 
         self.on_sync_delete.set_sensitive(not self.delete_episodes_marked_played.get_active())
         self.on_sync_mark_played.set_sensitive(not self.delete_episodes_marked_played.get_active())
         
         # device type
         self.comboboxDeviceType.set_active( 0)
-        if gl.config.device_type == 'ipod':
+        if self._config.device_type == 'ipod':
             self.comboboxDeviceType.set_active( 1)
-        elif gl.config.device_type == 'filesystem':
+        elif self._config.device_type == 'filesystem':
             self.comboboxDeviceType.set_active( 2)
-        elif gl.config.device_type == 'mtp':
+        elif self._config.device_type == 'mtp':
             self.comboboxDeviceType.set_active( 3)
 
         # setup cell renderers
@@ -3588,9 +3649,9 @@ class gPodderProperties(BuilderWidget):
 
         # auto download option
         self.comboboxAutoDownload.set_active( 0)
-        if gl.config.auto_download == 'minimized':
+        if self._config.auto_download == 'minimized':
             self.comboboxAutoDownload.set_active( 1)
-        elif gl.config.auto_download == 'always':
+        elif self._config.auto_download == 'always':
             self.comboboxAutoDownload.set_active( 2)
  
         self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
@@ -3679,7 +3740,7 @@ class gPodderProperties(BuilderWidget):
 
     def on_btnConfigEditor_clicked(self, widget, *args):
         self.on_btnOK_clicked(widget, *args)
-        gPodderConfigEditor()
+        gPodderConfigEditor(_config=self._config)
 
     def on_comboAudioPlayerApp_changed(self, widget, *args):
         # find out which one
@@ -3777,28 +3838,28 @@ class gPodderProperties(BuilderWidget):
         fs.destroy()
 
     def on_btnOK_clicked(self, widget, *args):
-        gl.config.ipod_mount = self.iPodMountpoint.get_label()
-        gl.config.mp3_player_folder = self.filesystemMountpoint.get_label()
+        self._config.ipod_mount = self.iPodMountpoint.get_label()
+        self._config.mp3_player_folder = self.filesystemMountpoint.get_label()
 
-        # FIXME: set gl.config.download_dir to self.chooserDownloadTo.get_filename() and move download folder!
+        # FIXME: set self._config.download_dir to self.chooserDownloadTo.get_filename() and move download folder!
 
         device_type = self.comboboxDeviceType.get_active()
         if device_type == 0:
-            gl.config.device_type = 'none'
+            self._config.device_type = 'none'
         elif device_type == 1:
-            gl.config.device_type = 'ipod'
+            self._config.device_type = 'ipod'
         elif device_type == 2:
-            gl.config.device_type = 'filesystem'
+            self._config.device_type = 'filesystem'
         elif device_type == 3:
-            gl.config.device_type = 'mtp'
+            self._config.device_type = 'mtp'
 
         auto_download = self.comboboxAutoDownload.get_active()
         if auto_download == 0:
-            gl.config.auto_download = 'never'
+            self._config.auto_download = 'never'
         elif auto_download == 1:
-            gl.config.auto_download = 'minimized'
+            self._config.auto_download = 'minimized'
         elif auto_download == 2:
-            gl.config.auto_download = 'always'
+            self._config.auto_download = 'always'
         self.gPodderProperties.destroy()
         if self.callback_finished:
             self.callback_finished()
@@ -3812,9 +3873,9 @@ class gPodderEpisode(BuilderWidget):
         setattr(self, 'download_callback', None)
         setattr(self, 'play_callback', None)
         self.gPodderEpisode.connect('delete-event', self.on_delete_event)
-        gl.config.connect_gtk_window(self.gPodderEpisode, 'episode_window', True)
+        self._config.connect_gtk_window(self.gPodderEpisode, 'episode_window', True)
         self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
-        if gl.config.enable_html_shownotes and \
+        if self._config.enable_html_shownotes and \
                 not gpodder.interface == gpodder.MAEMO:
             try:
                 import gtkhtml2
@@ -4112,7 +4173,7 @@ class gPodderOpmlLister(BuilderWidget):
 
     def thread_func(self, tab=0):
         if tab == 1:
-            model = OpmlListModel(opml.Importer(gl.config.toplist_url))
+            model = OpmlListModel(opml.Importer(self._config.toplist_url))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:
@@ -4266,7 +4327,7 @@ class gPodderEpisodeSelector( BuilderWidget):
     COLUMN_ADDITIONAL = 3
 
     def new( self):
-        gl.config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
+        self._config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
         if not hasattr( self, 'callback'):
             self.callback = None
 
@@ -4599,7 +4660,7 @@ class gPodderConfigEditor(BuilderWidget):
         value_renderer.connect('edited', self.value_edited)
         self.configeditor.append_column(value_column)
 
-        self.model = ConfigModel(gl.config)
+        self.model = ConfigModel(self._config)
         self.filter = self.model.filter_new()
         self.filter.set_visible_func(self.visible_func)
 
@@ -4623,7 +4684,7 @@ class gPodderConfigEditor(BuilderWidget):
         name = model.get_value(iter, 0)
         type_cute = model.get_value(iter, 1)
 
-        if not gl.config.update_field(name, new_text):
+        if not self._config.update_field(name, new_text):
             self.notification(_('Cannot set value of <b>%s</b> to <i>%s</i>.\n\nNeeded data type: %s') % (saxutils.escape(name), saxutils.escape(new_text), saxutils.escape(type_cute)), _('Error updating %s') % saxutils.escape(name))
     
     def value_toggled(self, renderer, path):
@@ -4634,7 +4695,7 @@ class gPodderConfigEditor(BuilderWidget):
 
         # Flip the boolean config flag
         if field_type == bool:
-            gl.config.toggle_flag(field_name)
+            self._config.toggle_flag(field_name)
     
     def on_entryFilter_changed(self, widget):
         self.filter.refilter()
@@ -4652,7 +4713,7 @@ class gPodderConfigEditor(BuilderWidget):
     def on_configeditor_row_changed(self, treeselection):
         model, iter = treeselection.get_selected()
         if iter is not None:
-            option_name = gl.config.get_description( model.get(iter, 0)[0] )
+            option_name = self._config.get_description( model.get(iter, 0)[0] )
             self.config_option_description_label.set_text(option_name)
 
 class gPodderPlaylist(BuilderWidget):
@@ -4660,14 +4721,14 @@ class gPodderPlaylist(BuilderWidget):
 
     def new(self):
         self.linebreak = '\n'
-        if gl.config.mp3_player_playlist_win_path:
+        if self._config.mp3_player_playlist_win_path:
             self.linebreak = '\r\n'
-        self.mountpoint = util.find_mount_point(gl.config.mp3_player_folder)
+        self.mountpoint = util.find_mount_point(self._config.mp3_player_folder)
         if self.mountpoint == '/':
-            self.mountpoint = gl.config.mp3_player_folder
+            self.mountpoint = self._config.mp3_player_folder
             log('Warning: MP3 player resides on / - using %s as MP3 player root', self.mountpoint, sender=self)
         self.playlist_file = os.path.join(self.mountpoint,
-                                          gl.config.mp3_player_playlist_file)
+                                          self._config.mp3_player_playlist_file)
         icon_theme = gtk.icon_theme_get_default()
         self.icon_new = icon_theme.load_icon(gtk.STOCK_NEW, 16, 0)
 
@@ -4698,7 +4759,7 @@ class gPodderPlaylist(BuilderWidget):
         self.treeviewPlaylist.set_model(self.playlist)
 
         # read device and playlist and fill the TreeView
-        title = _('Reading files from %s') % gl.config.mp3_player_folder
+        title = _('Reading files from %s') % self._config.mp3_player_folder
         message = _('Please wait your media file list is being read from device.')
         dlg = gtk.MessageDialog(BuilderWidget.gpodder_main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
         dlg.set_title(title)
@@ -4739,11 +4800,11 @@ class gPodderPlaylist(BuilderWidget):
         return tracks
 
     def build_extinf(self, filename):
-        if gl.config.mp3_player_playlist_win_path:
+        if self._config.mp3_player_playlist_win_path:
             filename = filename.replace('\\', os.sep)
 
         # rebuild the whole filename including the mountpoint
-        if gl.config.mp3_player_playlist_absolute_path:
+        if self._config.mp3_player_playlist_absolute_path:
             absfile = self.mountpoint + filename
         else:
             absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
@@ -4780,9 +4841,9 @@ class gPodderPlaylist(BuilderWidget):
         """
         read all files from the device
         """
-        log('Reading files from %s', gl.config.mp3_player_folder, sender=self)
+        log('Reading files from %s', self._config.mp3_player_folder, sender=self)
         tracks = []
-        for root, dirs, files in os.walk(gl.config.mp3_player_folder):
+        for root, dirs, files in os.walk(self._config.mp3_player_folder):
             for file in files:
                 filename = os.path.join(root, file)
 
@@ -4792,14 +4853,14 @@ class gPodderPlaylist(BuilderWidget):
                     # We also don't want to include dat files
                     continue
 
-                if gl.config.mp3_player_playlist_absolute_path:
+                if self._config.mp3_player_playlist_absolute_path:
                     filename = filename[len(self.mountpoint):]
                 else:
                     filename = util.relpath(os.path.dirname(self.playlist_file),
                                             os.path.dirname(filename)) + \
                                os.sep + os.path.basename(filename)
 
-                if gl.config.mp3_player_playlist_win_path:
+                if self._config.mp3_player_playlist_win_path:
                     filename = filename.replace(os.sep, '\\')
 
                 tracks.append(filename)
@@ -4898,11 +4959,28 @@ def main():
         dlg.destroy()
         sys.exit(0)
 
-    if gpodder.interface == gpodder.MAEMO and \
-            not gl.config.disable_fingerscroll:
-        GtkBuilderWidget.use_fingerscroll = True
+    util.make_directory(gpodder.home)
+    config = UIConfig(gpodder.config_file)
 
-    gp = gPodder(bus_name)
+    if gpodder.interface == gpodder.MAEMO:
+        # Detect changing of SD cards between mmc1/mmc2 if a gpodder
+        # folder exists there (allow moving "gpodder" between SD cards or USB)
+        # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
+        if not os.path.exists(config.download_dir):
+            log('Downloads might have been moved. Trying to locate them...')
+            for basedir in ['/media/mmc1', '/media/mmc2']+glob.glob('/media/usb/*')+['/home/user']:
+                dir = os.path.join(basedir, 'gpodder')
+                if os.path.exists(dir):
+                    log('Downloads found in: %s', dir)
+                    config.download_dir = dir
+                    break
+                else:
+                    log('Downloads NOT FOUND in %s', dir)
+
+        if not config.disable_fingerscroll:
+            GtkBuilderWidget.use_fingerscroll = True
+
+    gp = gPodder(bus_name, config)
     gp.run()
 
 

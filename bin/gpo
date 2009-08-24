@@ -104,49 +104,52 @@ from gpodder import api
 
 
 class gPodderCli(object):
+    def __init__(self):
+        self.client = api.PodcastClient()
+
     # -------------------------------------------------------------------
 
     def subscribe(self, url, title=None):
-        if api.get_podcast(url) is not None:
+        if self.client.get_podcast(url) is not None:
             self._info(_('You are already subscribed to %s.' % url))
             return True
 
-        if api.create_podcast(url, title) is None:
+        if self.client.create_podcast(url, title) is None:
             self._error(_('Cannot download feed for %s.') % url)
             return True
 
-        api.finish()
+        self.client.finish()
 
         self._info(_('Successfully added %s.' % url))
         return True
 
     def rename(self, url, title):
-        podcast = api.get_podcast(url)
+        podcast = self.client.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
             old_title = podcast.title
             podcast.rename(title)
-            api.finish()
+            self.client.finish()
             self._info(_('Renamed %s to %s.') % (old_title, title))
 
         return True
 
     def unsubscribe(self, url):
-        podcast = api.get_podcast(url)
+        podcast = self.client.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.delete()
-            api.finish()
+            self.client.finish()
             self._error(_('Unsubscribed from %s.') % url)
 
         return True
 
     def info(self, url):
-        podcast = api.get_podcast(url)
+        podcast = self.client.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
@@ -175,13 +178,13 @@ class gPodderCli(object):
         return True
 
     def list(self):
-        for podcast in api.get_podcasts():
+        for podcast in self.client.get_podcasts():
             print podcast.url
 
         return True
 
     def update(self):
-        for podcast in api.get_podcasts():
+        for podcast in self.client.get_podcasts():
             print 'Updating', podcast.title
             podcast.update()
         print 'Done.'
@@ -190,7 +193,7 @@ class gPodderCli(object):
 
     def pending(self):
         count = 0
-        for podcast in api.get_podcasts():
+        for podcast in self.client.get_podcasts():
             podcast_printed = False
             for episode in podcast.get_episodes():
                 if episode.is_new:
@@ -205,7 +208,7 @@ class gPodderCli(object):
 
     def download(self):
         count = 0
-        for podcast in api.get_podcasts():
+        for podcast in self.client.get_podcasts():
             podcast_printed = False
             for episode in podcast.get_episodes():
                 if episode.is_new:
@@ -220,7 +223,7 @@ class gPodderCli(object):
         return True
 
     def sync(self):
-        api.synchronize_device()
+        self.client.synchronize_device()
         return True
 
     # -------------------------------------------------------------------

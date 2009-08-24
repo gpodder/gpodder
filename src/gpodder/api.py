@@ -27,10 +27,11 @@ import gpodder
 from gpodder import util
 from gpodder import opml
 from gpodder.model import PodcastChannel
-from gpodder.libgpodder import db
-from gpodder.libgpodder import gl
 from gpodder import download
 from gpodder import console
+
+from gpodder import dbsqlite
+from gpodder import config
 
 class Podcast(object):
     """API interface of gPodder podcasts
@@ -42,9 +43,10 @@ class Podcast(object):
       title
       url
     """
-    def __init__(self, _podcast):
+    def __init__(self, _podcast, _manager):
         """For internal use only."""
         self._podcast = _podcast
+        self._manager = _manager
         self.title = self._podcast.title
         self.url = self._podcast.url
 
@@ -52,7 +54,7 @@ class Podcast(object):
         """Get all episodes that belong to this podcast
 
         Returns a list of Episode objects that belong to this podcast."""
-        return [Episode(e) for e in self._podcast.get_all_episodes()]
+        return [Episode(e, self._manager) for e in self._podcast.get_all_episodes()]
 
     def rename(self, title):
         """Set a new title for this podcast
@@ -78,7 +80,7 @@ class Podcast(object):
         Downloads the podcast feed (using the feed cache), and
         adds new episodes and updated information to the database.
         """
-        self._podcast.update(gl.config.max_episodes_per_feed)
+        self._podcast.update(self._manager._config.max_episodes_per_feed)
 
 
 
@@ -95,9 +97,10 @@ class Episode(object):
       is_downloaded
       is_deleted
     """
-    def __init__(self, _episode):
+    def __init__(self, _episode, _manager):
         """For internal use only."""
         self._episode = _episode
+        self._manager = _manager
         self.title = self._episode.title
         self.url = self._episode.url
         self.is_new = (self._episode.state == gpodder.STATE_NORMAL and \
@@ -111,66 +114,76 @@ class Episode(object):
         This will run the download in the same thread, so be sure
         to call this method from a worker thread in case you have
         a GUI running as a frontend."""
-        task = download.DownloadTask(self._episode)
+        task = download.DownloadTask(self._episode, self._manager._config)
         task.status = download.DownloadTask.QUEUED
         task.run()
 
 
-def get_podcasts():
-    """Get a list of Podcast objects
+class PodcastClient(object):
+    def __init__(self):
+        """Create a new gPodder API instance
 
-    Returns all the subscribed podcasts from gPodder.
-    """
-    return [Podcast(p) for p in PodcastChannel.load_from_db(db, gl.config.download_dir)]
+        Connects to the database and loads the configuration.
+        """
+        util.make_directory(gpodder.home)
 
-def get_podcast(url):
-    """Get a specific podcast by URL
+        self._db = dbsqlite.Database(gpodder.database_file)
+        self._config = config.Config(gpodder.config_file)
 
-    Returns a podcast object for the URL or None if
-    the podcast has not been subscribed to.
-    """
-    url = util.normalize_feed_url(url)
-    channel = PodcastChannel.load(db, url, create=False, download_dir=gl.config.download_dir)
-    if channel is None:
+    def get_podcasts(self):
+        """Get a list of Podcast objects
+
+        Returns all the subscribed podcasts from gPodder.
+        """
+        return [Podcast(p, self) for p in PodcastChannel.load_from_db(self._db, self._config.download_dir)]
+
+    def get_podcast(self, url):
+        """Get a specific podcast by URL
+
+        Returns a podcast object for the URL or None if
+        the podcast has not been subscribed to.
+        """
+        url = util.normalize_feed_url(url)
+        channel = PodcastChannel.load(self._db, url, create=False, download_dir=self._config.download_dir)
+        if channel is None:
+            return None
+        else:
+            return Podcast(channel, self)
+
+    def create_podcast(self, url, title=None):
+        """Subscribe to a new podcast
+
+        Add a subscription for "url", optionally
+        renaming the podcast to "title" and return
+        the resulting object.
+        """
+        url = util.normalize_feed_url(url)
+        podcast = PodcastChannel.load(self._db, url, create=True, max_episodes=self._config.max_episodes_per_feed, download_dir=self._config.download_dir)
+        if podcast is not None:
+            if title is not None:
+                podcast.set_custom_title(title)
+            podcast.save()
+            return Podcast(podcast, self)
+
         return None
-    else:
-        return Podcast(channel)
 
-def create_podcast(url, title=None):
-    """Subscribe to a new podcast
+    def synchronize_device(self):
+        """Synchronize episodes to a device
 
-    Add a subscription for "url", optionally
-    renaming the podcast to "title" and return
-    the resulting object.
-    """
-    url = util.normalize_feed_url(url)
-    podcast = PodcastChannel.load(db, url, create=True, max_episodes=gl.config.max_episodes_per_feed, download_dir=gl.config.download_dir)
-    if podcast is not None:
-        if title is not None:
-            podcast.set_custom_title(title)
-        podcast.save()
-        return Podcast(podcast)
+        WARNING: API subject to change.
+        """
+        console.synchronize_device(self._db, self._config)
 
-    return None
+    def finish(self):
+        """Persist changed data to the database file
 
-def synchronize_device():
-    """Synchronize episodes to a device
-
-    WARNING: API subject to change.
-    """
-    console.synchronize_device(db, gl.config)
-
-
-def finish():
-    """Persist changed data to the database file
-
-    This has to be called from the API user after
-    data-changing actions have been carried out.
-    """
-    podcasts = PodcastChannel.load_from_db(db, gl.config.download_dir)
-    exporter = opml.Exporter(gpodder.subscription_file)
-    exporter.write(podcasts)
-    db.commit()
-    return True
+        This has to be called from the API user after
+        data-changing actions have been carried out.
+        """
+        podcasts = PodcastChannel.load_from_db(self._db, self._config.download_dir)
+        exporter = opml.Exporter(gpodder.subscription_file)
+        exporter.write(podcasts)
+        self._db.commit()
+        return True
 
 
