@@ -3175,7 +3175,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Remove %d episodes?') % len(episodes)
             message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
 
-        locked_count = sum(int(e.is_locked) for e in episodes)
+        locked_count = sum(int(e.is_locked) for e in episodes if e.is_locked is not None)
 
         if len(episodes) == locked_count:
             title = _('Episodes are locked')
