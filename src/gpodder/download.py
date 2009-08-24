@@ -19,7 +19,7 @@
 
 
 #
-#  download.py -- Download client using DownloadStatusManager
+#  download.py -- Download queue management
 #  Thomas Perl <thp@perli.net>   2007-09-15
 #
 #  Based on libwget.py (2005-10-29)
@@ -328,8 +328,7 @@ class DownloadQueueWorker(threading.Thread):
 
 
 class DownloadQueueManager(object):
-    def __init__(self, download_status_manager, config):
-        self.download_status_manager = download_status_manager
+    def __init__(self, config):
         self._config = config
         self.tasks = collections.deque()
 
@@ -362,15 +361,8 @@ class DownloadQueueManager(object):
         with self.worker_threads_access:
             return len(self.worker_threads) > 0
 
-    def add_resumed_task(self, task):
-        """Simply add the task without starting the download"""
-        self.download_status_manager.register_task(task)
-
     def add_task(self, task):
-        if task.status == DownloadTask.INIT:
-            # This task is fresh, so add it to our status manager
-            self.download_status_manager.register_task(task)
-        else:
+        if task.status != DownloadTask.INIT:
             # This task is old so update episode from db
             task.episode.reload_from_db()
         task.status = DownloadTask.QUEUED

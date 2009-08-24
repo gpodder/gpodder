@@ -96,6 +96,7 @@ from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.opml import OpmlListModel
 from gpodder.gtkui.config import ConfigModel
+from gpodder.gtkui.download import DownloadStatusModel
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -503,8 +504,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.tray_icon = None
         self.gpodder_episode_window = None
 
-        self.download_status_manager = services.DownloadStatusManager()
-        self.download_queue_manager = download.DownloadQueueManager(self.download_status_manager, gl.config)
+        self.download_status_model = DownloadStatusModel()
+        self.download_queue_manager = download.DownloadQueueManager(gl.config)
 
         self.fullscreen = False
         self.minimized = False
@@ -660,8 +661,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeDownloads.set_rubber_banding(True)
         
         # columns and renderers for "download progress" tab
-        DownloadStatusManager = services.DownloadStatusManager
-
         # First column: [ICON] Episodename
         column = gtk.TreeViewColumn(_('Episode'))
 
@@ -672,12 +671,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
         column.pack_start(cell, expand=False)
         column.add_attribute(cell, 'stock-id', \
-                DownloadStatusManager.C_ICON_NAME)
+                DownloadStatusModel.C_ICON_NAME)
 
         cell = gtk.CellRendererText()
         cell.set_property('ellipsize', pango.ELLIPSIZE_END)
         column.pack_start(cell, expand=True)
-        column.add_attribute(cell, 'text', DownloadStatusManager.C_NAME)
+        column.add_attribute(cell, 'text', DownloadStatusModel.C_NAME)
 
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_resizable(True)
@@ -686,24 +685,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Second column: Progress
         column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
-                value=DownloadStatusManager.C_PROGRESS, \
-                text=DownloadStatusManager.C_PROGRESS_TEXT)
+                value=DownloadStatusModel.C_PROGRESS, \
+                text=DownloadStatusModel.C_PROGRESS_TEXT)
         self.treeDownloads.append_column(column)
 
         # Third column: Size
         if gpodder.interface != gpodder.MAEMO:
             column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
-                    text=DownloadStatusManager.C_SIZE_TEXT)
+                    text=DownloadStatusModel.C_SIZE_TEXT)
             self.treeDownloads.append_column(column)
 
         # Fourth column: Speed
         column = gtk.TreeViewColumn(_('Speed'), gtk.CellRendererText(),
-                text=DownloadStatusManager.C_SPEED_TEXT)
+                text=DownloadStatusModel.C_SPEED_TEXT)
         self.treeDownloads.append_column(column)
 
         # Fifth column: Status
         column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
-                text=DownloadStatusManager.C_STATUS_TEXT)
+                text=DownloadStatusModel.C_STATUS_TEXT)
         self.treeDownloads.append_column(column)
 
         # After we've set up most of the window, show it :)
@@ -718,7 +717,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         services.cover_downloader.register('cover-available', self.cover_download_finished)
         services.cover_downloader.register('cover-removed', self.cover_file_removed)
 
-        self.treeDownloads.set_model(self.download_status_manager.get_tree_model())
+        self.treeDownloads.set_model(self.download_status_model)
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.last_download_count = 0
@@ -810,7 +809,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.download_list_update_enabled = True
 
     def on_btnCleanUpDownloads_clicked(self, button):
-        model = self.treeDownloads.get_model()
+        model = self.download_status_model
 
         all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
         changed_episode_urls = []
@@ -842,7 +841,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_downloads_list(self):
         try:
-            model = self.treeDownloads.get_model()
+            model = self.download_status_model
 
             downloading, failed, finished, queued, others = 0, 0, 0, 0, 0
             total_speed, total_size, done_size = 0, 0, 0
@@ -864,9 +863,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 model = ()
 
             for row in model:
-                self.download_status_manager.request_update(row.iter)
+                self.download_status_model.request_update(row.iter)
 
-                task = row[self.download_status_manager.C_TASK]
+                task = row[self.download_status_model.C_TASK]
                 speed, size, status, progress = task.speed, task.total_size, task.status, task.progress
 
                 total_size += size
@@ -2181,7 +2180,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         Displays a confirmation dialog (and closes/hides gPodder)
         """
 
-        downloading = self.download_status_manager.are_downloads_in_progress()
+        downloading = self.download_status_model.are_downloads_in_progress()
 
         # Only iconify if we are using the window's "X" button,
         # but not when we are using "Quit" in the menu or toolbar
@@ -2240,7 +2239,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.tray_icon.set_visible(False)
 
         # Notify all tasks to to carry out any clean-up actions
-        self.download_status_manager.tell_all_tasks_to_quit()
+        self.download_status_model.tell_all_tasks_to_quit()
 
         while gtk.events_pending():
             gtk.main_iteration(False)
@@ -2412,9 +2411,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if add_paused:
                     task.status = task.PAUSED
-                    self.download_queue_manager.add_resumed_task(task)
                 else:
                     self.download_queue_manager.add_task(task)
+
+                self.download_status_model.register_task(task)
                 self.enable_download_list_update()
 
     def new_episodes_show(self, episodes):
@@ -2834,7 +2834,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # cancel any active downloads from this channel
                 for episode in self.active_channel.get_all_episodes():
-                    self.download_status_manager.cancel_by_url(episode.url)
+                    self.download_status_model.cancel_by_url(episode.url)
 
                 # get the URL of the podcast we want to select next
                 position = self.channels.index(self.active_channel)
@@ -2980,7 +2980,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolDownload.set_sensitive( False)
             self.toolPlay.set_sensitive( False)
             self.toolTransfer.set_sensitive( False)
-            self.toolCancel.set_sensitive( False)#services.download_status_manager.has_items())
+            self.toolCancel.set_sensitive( False)#services.download_status_model.has_items())
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3090,7 +3090,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.gpodder_episode_window is None:
             log('First-time use of episode window --- creating', sender=self)
             self.gpodder_episode_window = gPodderEpisode(\
-                    download_status_manager=self.download_status_manager, \
+                    download_status_model=self.download_status_model, \
                     episode_is_downloading=self.episode_is_downloading)
         self.gpodder_episode_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
 
@@ -3908,7 +3908,7 @@ class gPodderEpisode(BuilderWidget):
             b.place_cursor(b.get_start_iter())
 
     def on_cancel(self, widget):
-        self.download_status_manager.cancel_by_url(self.episode.url)
+        self.download_status_model.cancel_by_url(self.episode.url)
 
     def on_delete_event(self, widget, event):
         # Avoid destroying the dialog, simply hide

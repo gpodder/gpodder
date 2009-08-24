@@ -36,12 +36,10 @@ from gpodder import download
 import gtk
 import gobject
 
-import collections
 import threading
 import time
 import urllib2
 import os
-import os.path
 
 _ = gpodder.gettext
 
@@ -286,102 +284,4 @@ class CoverDownloader(ObservableService):
 
 cover_downloader = CoverDownloader()
 
-
-class DownloadStatusManager(object):
-    # Types of columns, needed for creation of gtk.ListStore
-    COLUMNS = (object, str, str, int, str, str, str, str, str)
-
-    # Symbolic names for our columns, so we know what we're up to
-    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_SIZE_TEXT, \
-            C_ICON_NAME, C_SPEED_TEXT, C_STATUS_TEXT = range(len(COLUMNS))
-
-    def __init__(self):
-        self.__model = gtk.ListStore(*DownloadStatusManager.COLUMNS)
-
-        # Shorten the name (for below)
-        DownloadTask = download.DownloadTask
-
-        # Set up stock icon IDs for tasks
-        self.status_stock_ids = collections.defaultdict(lambda: None)
-        self.status_stock_ids[DownloadTask.DOWNLOADING] = gtk.STOCK_GO_DOWN
-        self.status_stock_ids[DownloadTask.DONE] = gtk.STOCK_APPLY
-        self.status_stock_ids[DownloadTask.FAILED] = gtk.STOCK_STOP
-        self.status_stock_ids[DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
-        self.status_stock_ids[DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
-
-    def get_tree_model(self):
-        return self.__model
-
-    def request_update(self, iter, task=None):
-        if task is None:
-            # Ongoing update request from UI - get task from model
-            task = self.__model.get_value(iter, self.C_TASK)
-        else:
-            # Initial update request - update non-changing fields
-            self.__model.set(iter,
-                    self.C_TASK, task,
-                    self.C_NAME, str(task),
-                    self.C_URL, task.url)
-
-        if task.status == task.FAILED:
-            status_message = _('Failed: %s') % (task.error_message,)
-        else:
-            status_message = task.STATUS_MESSAGE[task.status]
-
-        if task.status == task.DOWNLOADING:
-            speed_message = '%s/s' % util.format_filesize(task.speed)
-        else:
-            speed_message = ''
-
-        self.__model.set(iter,
-                self.C_PROGRESS, 100.*task.progress,
-                self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
-                self.C_SIZE_TEXT, util.format_filesize(task.total_size),
-                self.C_ICON_NAME, self.status_stock_ids[task.status],
-                self.C_SPEED_TEXT, speed_message,
-                self.C_STATUS_TEXT, status_message)
-
-    def __add_new_task(self, task):
-        iter = self.__model.append()
-        self.request_update(iter, task)
-
-    def register_task(self, task):
-        util.idle_add(self.__add_new_task, task)
-
-    def tell_all_tasks_to_quit(self):
-        for row in self.__model:
-            task = row[DownloadStatusManager.C_TASK]
-            if task is not None:
-                # Pause currently-running (and queued) downloads
-                if task.status in (task.QUEUED, task.DOWNLOADING):
-                    task.status = task.PAUSED
-
-                # Delete cancelled and failed downloads
-                if task.status in (task.CANCELLED, task.FAILED):
-                    task.removed_from_list()
-
-    def are_downloads_in_progress(self):
-        """
-        Returns True if there are any downloads in the
-        QUEUED or DOWNLOADING status, False otherwise.
-        """
-        for row in self.__model:
-            task = row[DownloadStatusManager.C_TASK]
-            if task is not None and \
-                    task.status in (task.DOWNLOADING, \
-                                    task.QUEUED):
-                return True
-
-        return False
-
-    def cancel_by_url(self, url):
-        for row in self.__model:
-            task = row[DownloadStatusManager.C_TASK]
-            if task is not None and task.url == url and \
-                    task.status in (task.DOWNLOADING, \
-                                    task.QUEUED):
-                task.status = task.CANCELLED
-                return True
-
-        return False
 
