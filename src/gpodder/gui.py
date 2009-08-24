@@ -75,7 +75,6 @@ from gpodder import services
 from gpodder import sync
 from gpodder import download
 from gpodder import my
-from gpodder import widgets
 from gpodder.liblogger import log
 from gpodder import resolver
 
@@ -99,6 +98,7 @@ from gpodder.gtkui.config import ConfigModel
 from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.services import DependencyModel
 from gpodder.gtkui.services import CoverDownloader
+from gpodder.gtkui.widgets import SimpleMessageArea
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -783,7 +783,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if len(resumable_episodes):
                 self.download_episode_list_paused(resumable_episodes)
-                self.message_area = widgets.SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
+                self.message_area = SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
                 self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
                 self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
                 self.message_area.show_all()
