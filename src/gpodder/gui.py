@@ -99,11 +99,10 @@ from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.services import DependencyModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
+from gpodder.gtkui.desktopfile import UserAppsReader
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
-
-from libplayers import UserAppsReader
 
 if gpodder.interface == gpodder.GUI:
     WEB_BROWSER_ICON = 'web-browser'
