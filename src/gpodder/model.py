@@ -26,7 +26,6 @@
 import gpodder
 from gpodder import util
 from gpodder import feedcore
-from gpodder import services
 from gpodder import resolver
 from gpodder import corestats
 
@@ -149,9 +148,6 @@ class PodcastChannel(PodcastModelObject):
         return PodcastEpisode.create_from_dict(d, self)
 
     def _consume_updated_feed(self, feed, max_episodes=0):
-        # update the cover if it's not there
-        self.update_cover()
-
         self.parse_error = feed.get('bozo_exception', None)
 
         self.title = feed.feed.get('title', self.url)
@@ -172,8 +168,6 @@ class PodcastChannel(PodcastModelObject):
             if hasattr(feed.feed.image, 'href') and feed.feed.image.href:
                 old = self.image
                 self.image = feed.feed.image.href
-                if old != self.image:
-                    self.update_cover(force=True)
 
         self.save()
 
@@ -268,11 +262,6 @@ class PodcastChannel(PodcastModelObject):
             raise
 
         self.db.commit()
-
-    def update_cover(self, force=False):
-        if self.cover_file is None or not os.path.exists(self.cover_file) or force:
-            if self.image is not None:
-                services.cover_downloader.request_cover(self)
 
     def delete(self):
         self.db.delete_channel(self)
@@ -537,11 +526,9 @@ class PodcastChannel(PodcastModelObject):
     def remove_downloaded( self):
         shutil.rmtree( self.save_dir, True)
     
-    def get_cover_file( self):
-        # gets cover filename for cover download cache
-        return os.path.join( self.save_dir, 'cover')
-
-    cover_file = property(fget=get_cover_file)
+    @property
+    def cover_file(self):
+        return os.path.join(self.save_dir, 'cover')
 
     def delete_episode_by_url(self, url):
         episode = self.db.load_episode(url, factory=self.episode_factory)

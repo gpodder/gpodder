@@ -28,7 +28,6 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
-from gpodder import services
 
 from gpodder.gtkui import draw
 
@@ -203,12 +202,13 @@ class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE = range(8)
 
-    def __init__(self, max_image_side):
+    def __init__(self, max_image_side, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool)
 
         self._cover_cache = {}
         self._max_image_side = max_image_side
+        self._cover_downloader = cover_downloader
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
         """
@@ -249,7 +249,10 @@ class PodcastListModel(gtk.ListStore):
         return self._resize_pixbuf_keep_ratio(url, pixbuf) or pixbuf
 
     def _get_cover_image(self, channel):
-        pixbuf = services.cover_downloader.get_cover(channel, avoid_downloading=True)
+        if self._cover_downloader is None:
+            return None
+
+        pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
         return self._resize_pixbuf(channel.url, pixbuf)
 
     def _get_pill_image(self, channel):

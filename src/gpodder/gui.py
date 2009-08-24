@@ -98,6 +98,7 @@ from gpodder.gtkui.opml import OpmlListModel
 from gpodder.gtkui.config import ConfigModel
 from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.services import DependencyModel
+from gpodder.gtkui.services import CoverDownloader
 
 from gpodder.libgpodder import db
 from gpodder.libgpodder import gl
@@ -565,8 +566,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
         self.treeChannels.append_column(namecolumn)
 
+        self.cover_downloader = CoverDownloader()
+
         # Generate list models for podcasts and their episodes
-        self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size)
+        self.podcast_list_model = PodcastListModel(gl.config.podcast_list_icon_size, self.cover_downloader)
         self.treeChannels.set_model(self.podcast_list_model)
 
         self.episode_list_model = EpisodeListModel()
@@ -715,8 +718,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.tray_icon and gl.config.minimize_to_tray:
                 self.tray_icon.set_visible(False)
 
-        services.cover_downloader.register('cover-available', self.cover_download_finished)
-        services.cover_downloader.register('cover-removed', self.cover_file_removed)
+        self.cover_downloader.register('cover-available', self.cover_download_finished)
+        self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         self.treeDownloads.set_model(self.download_status_model)
         self.download_tasks_seen = set()
@@ -1864,7 +1867,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         result = sel.data
         rl = result.strip().lower()
         if (rl.endswith('.jpg') or rl.endswith('.png') or rl.endswith('.gif') or rl.endswith('.svg')) and dnd_channel is not None:
-            services.cover_downloader.replace_cover(dnd_channel, result)
+            self.cover_downloader.replace_cover(dnd_channel, result)
         else:
             self.add_new_channel(result)
 
@@ -2076,6 +2079,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     
                     self.pbFeedUpdate.set_text(message)
 
+    def _update_cover(self, channel):
+        if not os.path.exists(channel.cover_file) and channel.image:
+            self.cover_downloader.request_cover(channel)
+
     def update_feed_cache_proc(self, channels, select_url_afterwards):
         total = len(channels)
 
@@ -2083,6 +2090,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not self.feed_cache_update_cancelled:
                 try:
                     channel.update(max_episodes=gl.config.max_episodes_per_feed)
+                    self._update_cover(channel)
 #                except feedcore.Offline:
 #                    self.feed_cache_update_cancelled = True
 #                    if not self.minimized:
@@ -2796,7 +2804,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title)
             return
 
-        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True))
+        gPodderChannel(channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), cover_downloader=self.cover_downloader)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         try:
@@ -3301,8 +3309,8 @@ class gPodderChannel(BuilderWidget):
         if self.channel.password:
             self.FeedPassword.set_text( self.channel.password)
 
-        services.cover_downloader.register('cover-available', self.cover_download_finished)
-        services.cover_downloader.request_cover(self.channel)
+        self.cover_downloader.register('cover-available', self.cover_download_finished)
+        self.cover_downloader.request_cover(self.channel)
 
         # Hide the website button if we don't have a valid URL
         if not self.channel.link:
@@ -3332,12 +3340,12 @@ class gPodderChannel(BuilderWidget):
 
         if dlg.run() == gtk.RESPONSE_OK:
             url = dlg.get_uri()
-            services.cover_downloader.replace_cover(self.channel, url)
+            self.cover_downloader.replace_cover(self.channel, url)
 
         dlg.destroy()
 
     def on_btnClearCover_clicked(self, widget):
-        services.cover_downloader.replace_cover(self.channel)
+        self.cover_downloader.replace_cover(self.channel)
 
     def cover_download_finished(self, channel_url, pixbuf):
         if pixbuf is not None:
@@ -3353,13 +3361,13 @@ class gPodderChannel(BuilderWidget):
         file = files[0]
 
         if file.startswith('file://') or file.startswith('http://'):
-            services.cover_downloader.replace_cover(self.channel, file)
+            self.cover_downloader.replace_cover(self.channel, file)
             return
         
         self.show_message( _('You can only drop local files and http:// URLs here.'), _('Drag and drop'))
 
     def on_gPodderChannel_destroy(self, widget, *args):
-        services.cover_downloader.unregister('cover-available', self.cover_download_finished)
+        self.cover_downloader.unregister('cover-available', self.cover_download_finished)
 
     def on_btnOK_clicked(self, widget, *args):
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
