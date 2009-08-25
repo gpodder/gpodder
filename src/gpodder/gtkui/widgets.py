@@ -114,7 +114,10 @@ class NotificationWindow(gtk.Window):
         self.show_all()
         if widget is not None:
             _x, _y, ww, hh, _depth = self.window.get_geometry()
-            x, y, w, h, _depth = widget.window.get_geometry()
+            parent = widget
+            while not isinstance(parent, gtk.Window):
+                parent = parent.get_parent()
+            x, y, _w, _h, _depth = parent.window.get_geometry()
             rect = widget.allocation
             w, h = rect.width, rect.height
             x += rect.x
