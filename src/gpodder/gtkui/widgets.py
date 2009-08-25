@@ -97,6 +97,12 @@ class NotificationWindow(gtk.Window):
         gtk.Window.__init__(self, gtk.WINDOW_POPUP)
         self._finished = False
         message_area = SimpleMessageArea('')
+        arrow = gtk.image_new_from_stock(gtk.STOCK_GO_UP, \
+                gtk.ICON_SIZE_BUTTON)
+        arrow.set_alignment(.5, 0.)
+        arrow.set_padding(6., 0.)
+        message_area.pack_start(arrow, False)
+        message_area.reorder_child(arrow, 0)
         button = message_area.get_button()
         button.connect('clicked', lambda b: self._hide_and_destroy())
         if title is not None:
@@ -105,11 +111,20 @@ class NotificationWindow(gtk.Window):
             message_area.set_markup(saxutils.escape(message))
         self.add(message_area)
         self.set_gravity(gtk.gdk.GRAVITY_NORTH_WEST)
-        if widget is None:
-            self.move(100, 100)
-        else:
-            x, y = widget.window.get_origin()
-            self.move(x+10, y+10)
+        self.show_all()
+        if widget is not None:
+            _x, _y, ww, hh, _depth = self.window.get_geometry()
+            x, y, w, h, _depth = widget.window.get_geometry()
+            rect = widget.allocation
+            w, h = rect.width, rect.height
+            x += rect.x
+            y += rect.y
+            arrow_rect = arrow.allocation
+            if h < hh:
+                self.move(x+w/2-arrow_rect.x-arrow_rect.width/2, y+h-5)
+            else:
+                self.move(x+w/2, y+h/2-hh/2+20)
+                arrow.hide_all()
 
     def show_timeout(self, timeout=8000):
         gobject.timeout_add(timeout, self._hide_and_destroy)
