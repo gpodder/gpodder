@@ -292,6 +292,16 @@ class PodcastListModel(gtk.ListStore):
                     self.C_COVER, self._get_cover_image(channel))
             self.update_by_iter(iter)
 
+    def get_path_from_url(self, url):
+        # Return the tree model path for a given URL
+        if url is None:
+            return None
+
+        for row in self:
+            if row[self.C_URL] == url:
+                    return row.path
+        return None
+
     def update_by_urls(self, urls):
         # Given a list of URLs, update each matching row
         for row in self:

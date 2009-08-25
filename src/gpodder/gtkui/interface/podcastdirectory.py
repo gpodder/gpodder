@@ -41,18 +41,17 @@ class gPodderPodcastDirectory(BuilderWidget):
     (MODE_DOWNLOAD, MODE_SEARCH) = range(2)
     
     def new(self):
-        # initiate channels list
-        self.channels = []
-        self.callback_for_channel = None
-        self.callback_finished = None
-
         if hasattr(self, 'custom_title'):
             self.gPodderPodcastDirectory.set_title(self.custom_title)
+
         if hasattr(self, 'hide_url_entry'):
             self.hboxOpmlUrlEntry.hide_all()
             new_parent = self.notebookChannelAdder.get_parent()
             new_parent.remove(self.notebookChannelAdder)
             self.vboxOpmlImport.reparent(new_parent)
+
+        if not hasattr(self, 'add_urls_callback'):
+            self.add_urls_callback = None
 
         self.setup_treeview(self.treeviewChannelChooser)
         self.setup_treeview(self.treeviewTopPodcastsChooser)
@@ -77,16 +76,8 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def callback_edited( self, cell, path):
         model = self.get_treeview().get_model()
-
-        url = model[path][OpmlListModel.C_URL]
-
         model[path][OpmlListModel.C_SELECTED] = not model[path][OpmlListModel.C_SELECTED]
-        if model[path][OpmlListModel.C_SELECTED]:
-            self.channels.append( url)
-        else:
-            self.channels.remove( url)
-
-        self.btnOK.set_sensitive( bool(len(self.get_selected_channels())))
+        self.btnOK.set_sensitive(bool(len(self.get_selected_channels())))
 
     def on_entryURL_changed(self, editable):
         old_mode = self.current_mode
@@ -131,7 +122,6 @@ class gPodderPodcastDirectory(BuilderWidget):
             tv = self.treeviewChannelChooser
             self.btnDownloadOpml.set_sensitive(True)
             self.entryURL.set_sensitive(True)
-            self.channels = []
 
         tv.set_model(model)
         tv.set_sensitive(True)
@@ -155,18 +145,14 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         util.idle_add(self.thread_finished, model, tab)
     
-    def get_channels_from_url( self, url, callback_for_channel = None, callback_finished = None):
-        if callback_for_channel:
-            self.callback_for_channel = callback_for_channel
-        if callback_finished:
-            self.callback_finished = callback_finished
-        self.entryURL.set_text( url)
-        self.btnDownloadOpml.set_sensitive( False)
-        self.entryURL.set_sensitive( False)
-        self.btnOK.set_sensitive( False)
-        self.treeviewChannelChooser.set_sensitive( False)
-        threading.Thread( target = self.thread_func).start()
-        threading.Thread( target = lambda: self.thread_func(1)).start()
+    def download_opml_file(self, url):
+        self.entryURL.set_text(url)
+        self.btnDownloadOpml.set_sensitive(False)
+        self.entryURL.set_sensitive(False)
+        self.btnOK.set_sensitive(False)
+        self.treeviewChannelChooser.set_sensitive(False)
+        threading.Thread(target=self.thread_func).start()
+        threading.Thread(target=lambda: self.thread_func(1)).start()
 
     def select_all( self, value ):
         enabled = False
@@ -182,7 +168,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         pass
 
     def on_btnDownloadOpml_clicked(self, widget, *args):
-        self.get_channels_from_url( self.entryURL.get_text())
+        self.get_channels_from_url(self.entryURL.get_text())
 
     def on_btnSearchYouTube_clicked(self, widget, *args):
         self.entryYoutubeSearch.set_sensitive(False)
@@ -197,16 +183,12 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.select_all(False)
 
     def on_btnOK_clicked(self, widget, *args):
-        self.channels = self.get_selected_channels()
+        channel_urls = self.get_selected_channels()
         self.gPodderPodcastDirectory.destroy()
 
         # add channels that have been selected
-        for url in self.channels:
-            if self.callback_for_channel:
-                self.callback_for_channel( url)
-
-        if self.callback_finished:
-            util.idle_add(self.callback_finished)
+        if self.add_urls_callback is not None:
+            self.add_urls_callback(channel_urls)
 
     def on_btnCancel_clicked(self, widget, *args):
         self.gPodderPodcastDirectory.destroy()

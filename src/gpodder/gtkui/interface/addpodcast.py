@@ -30,8 +30,8 @@ class gPodderAddPodcast(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_add']
 
     def new(self):
-        if not hasattr(self, 'url_callback'):
-            self.url_callback = None
+        if not hasattr(self, 'add_urls_callback'):
+            self.add_urls_callback = None
         if hasattr(self, 'custom_label'):
             self.label_add.set_text(self.custom_label)
         if hasattr(self, 'custom_title'):
@@ -68,6 +68,6 @@ class gPodderAddPodcast(BuilderWidget):
     def on_btn_add_clicked(self, widget):
         url = self.entry_url.get_text()
         self.on_btn_close_clicked(widget)
-        if self.url_callback is not None:
-            self.url_callback(url)
+        if self.add_urls_callback is not None:
+            self.add_urls_callback([url])
 

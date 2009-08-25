@@ -246,18 +246,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # FIXME: Implement e-mail sending of list in win32
             self.item_email_subscriptions.set_sensitive(False)
 
-        if self.config.show_url_entry_in_podcast_list:
-            self.hboxAddChannel.show()
-
         if not gpodder.interface == gpodder.MAEMO and not self.config.show_toolbar:
             self.toolbar.hide()
 
         self.config.add_observer(self.on_config_changed)
-        self.default_entry_text_color = self.entryAddChannel.get_style().text[gtk.STATE_NORMAL]
-        self.entryAddChannel.connect('focus-in-event', self.entry_add_channel_focus)
-        self.entryAddChannel.connect('focus-out-event', self.entry_add_channel_unfocus)
-        self.entry_add_channel_unfocus(self.entryAddChannel, None)
-        
+
         self.uar = None
         self.tray_icon = None
         self.episode_shownotes_window = None
@@ -736,16 +729,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # that's why we require the restart of gPodder in the message.
             return False
 
-    def entry_add_channel_focus(self, widget, event):
-        widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
-        if widget.get_text() == self.ENTER_URL_TEXT:
-            widget.set_text('')
-
-    def entry_add_channel_unfocus(self, widget, event):
-        if widget.get_text() == '':
-            widget.set_text(self.ENTER_URL_TEXT)
-            widget.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
-
     def on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.interface != gpodder.MAEMO:
             if new_value:
@@ -754,11 +737,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.toolbar.hide()
         elif name == 'episode_list_descriptions' and gpodder.interface != gpodder.MAEMO:
             self.updateTreeView()
-        elif name == 'show_url_entry_in_podcast_list':
-            if new_value:
-                self.hboxAddChannel.show()
-            else:
-                self.hboxAddChannel.hide()
 
     def read_apps(self):
         time.sleep(3) # give other parts of gpodder a chance to start up
@@ -1677,157 +1655,120 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if (rl.endswith('.jpg') or rl.endswith('.png') or rl.endswith('.gif') or rl.endswith('.svg')) and dnd_channel is not None:
             self.cover_downloader.replace_cover(dnd_channel, result)
         else:
-            self.add_new_channel(result)
+            self.add_podcast_list([result])
 
-    def add_new_channel(self, result=None, ask_download_new=True, quiet=False, block=False, authentication_tokens=None):
-        result = util.normalize_feed_url(result)
-        (scheme, rest) = result.split('://', 1)
+    def offer_new_episodes(self):
+        new_episodes = self.get_new_episodes()
+        if new_episodes:
+            self.new_episodes_show(new_episodes)
+            return True
+        return False
 
-        if not result:
-            cute_scheme = saxutils.escape(scheme)+'://'
-            title = _('%s URLs are not supported') % cute_scheme
-            message = _('gPodder does not understand the URL you supplied.')
+    def add_podcast_list(self, urls):
+        """Subscribe to a list of podcast given their URLs"""
+
+        # Sort and split the URL list into three buckets
+        queued, failed, existing = [], [], []
+        for input_url in urls:
+            url = util.normalize_feed_url(input_url)
+            if url is None:
+                # Fail this one because the URL is not valid
+                failed.append(input_url)
+            elif self.podcast_list_model.get_path_from_url(url) is not None:
+                # A podcast already exists in the list for this URL
+                existing.append(url)
+            else:
+                # This URL has survived the first round - queue for add
+                queued.append(url)
+
+        # After the initial sorting and splitting, try all queued podcasts
+        for url in queued:
+            log('QUEUE RUNNER: %s', url, sender=self)
+            channel = self._add_new_channel(url)
+            if channel is None:
+                failed.append(url)
+            else:
+                self.channels.append(channel)
+                self.channel_list_changed = True
+
+        # Report already-existing subscriptions to the user
+        if existing:
+            title = _('Existing subscriptions skipped')
+            message = _('You are already subscribed to these podcasts:') \
+                 + '\n\n' + '\n'.join(saxutils.escape(url) for url in existing)
+            self.show_message(message, title, widget=self.treeChannels)
+
+        # Report failed subscriptions to the user
+        if failed:
+            title = _('Could not add some podcasts')
+            message = _('Some podcasts could not be added to your list:') \
+                 + '\n\n' + '\n'.join(saxutils.escape(url) for url in failed)
             self.show_message(message, title, important=True)
-            return
 
-        for old_channel in self.channels:
-            if old_channel.url == result:
-                log( 'Channel already exists: %s', result)
-                # Select the existing channel in combo box
-                for i in range( len( self.channels)):
-                    if self.channels[i] == old_channel:
-                        self.treeChannels.get_selection().select_path( (i,))
-                        self.on_treeChannels_cursor_changed(self.treeChannels)
-                        break
-                self.show_message(_('You have already subscribed to this podcast: %s') % ( 
-                    saxutils.escape( old_channel.title), ), _('Already added'), widget=self.treeChannels)
-                return
+        # If at least one podcast has been added, save and update all
+        if self.channel_list_changed:
+            self.save_channels_opml()
 
-        waitdlg = gtk.MessageDialog(self.gPodder, 0, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE)
-        waitdlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        waitdlg.set_title(_('Downloading episode list'))
-        waitdlg.set_markup('<b><big>%s</big></b>' % waitdlg.get_title())
-        waitdlg.format_secondary_text(_('Downloading episode information for %s') % result)
-        waitpb = gtk.ProgressBar()
-        if block:
-            waitdlg.vbox.add(waitpb)
-        waitdlg.show_all()
-        waitdlg.set_response_sensitive(gtk.RESPONSE_CANCEL, False)
+            # Update the list of subscribed podcasts
+            self.update_feed_cache(force_update=False)
+            self.update_podcasts_tab()
 
-        self.entryAddChannel.set_text(_('Downloading feed...'))
-        self.entryAddChannel.set_sensitive(False)
-        self.btnAddChannel.set_sensitive(False)
-        args = (result, self.add_new_channel_finish, authentication_tokens, ask_download_new, quiet, waitdlg)
-        thread = threading.Thread( target=self.add_new_channel_proc, args=args )
-        thread.start()
+            # If only one podcast was added, select it
+            if len(urls) == 1:
+                path = self.podcast_list_model.get_path_from_url(urls[0])
+                if path is not None:
+                    selection = self.treeChannels.get_selection()
+                    selection.select_path(path)
+                    self.on_treeChannels_cursor_changed(self.treeChannels)
 
-        while block and thread.isAlive():
-            while gtk.events_pending():
-                gtk.main_iteration( False)
-            waitpb.pulse()
-            time.sleep(0.1)
+            # Offer to download new episodes
+            self.offer_new_episodes()
 
-
-    def add_new_channel_proc( self, url, callback, authentication_tokens, *callback_args):
-        log( 'Adding new channel: %s', url)
-        channel = error = None
+    def _add_new_channel(self, url, authentication_tokens=None):
+        # The URL is valid and does not exist already - subscribe!
         try:
-            channel = PodcastChannel.load(self.db, url=url, create=True,
-                    authentication_tokens=authentication_tokens,
-                    max_episodes=self.config.max_episodes_per_feed,
+            channel = PodcastChannel.load(self.db, url=url, create=True, \
+                    authentication_tokens=authentication_tokens, \
+                    max_episodes=self.config.max_episodes_per_feed, \
                     download_dir=self.config.download_dir)
-        except feedcore.AuthenticationRequired, e:
-            error = e
-        except feedcore.WifiLogin, e:
-            error = e
+        except feedcore.AuthenticationRequired:
+            title = _('Feed requires authentication')
+            message = _('Please enter your username and password.')
+            success, auth_tokens = self.show_login_dialog(title, message)
+            if success:
+                return self._add_new_channel(url, \
+                        authentication_tokens=auth_tokens)
+        except feedcore.WifiLogin, error:
+            title = _('Website redirection detected')
+            message = _('The URL you are trying to add redirects to %s.') \
+                    + _('Do you want to visit the website now?')
+            message = message % saxutils.escape(error.data)
+            if self.show_confirmation(message, title):
+                util.open_website(error.data)
+            return None
         except Exception, e:
-            log('Error adding channel: %s', e, traceback=True, sender=self)
+            self.show_message(saxutils.escape(str(e)), \
+                    _('Cannot subscribe to podcast'), important=True)
+            log('Subscription error: %s', e, traceback=True, sender=self)
+            return None
 
-        util.idle_add( callback, channel, url, error, *callback_args )
+        try:
+            username, password = util.username_password_from_url(url)
+        except ValueError, ve:
+            username, password = (None, None)
+
+        if username is not None and channel.username is None and \
+                password is not None and channel.password is None:
+            channel.username = username
+            channel.password = password
+            channel.save()
+
+        self._update_cover(channel)
+        return channel
 
     def save_channels_opml(self):
         exporter = opml.Exporter(gpodder.subscription_file)
         return exporter.write(self.channels)
-
-    def add_new_channel_finish( self, channel, url, error, ask_download_new, quiet, waitdlg):
-        if channel is not None:
-            self.channels.append( channel)
-            self.channel_list_changed = True
-            self.save_channels_opml()
-            if not quiet:
-                # download changed channels and select the new episode in the UI afterwards
-                self.update_feed_cache(force_update=False, select_url_afterwards=channel.url)
-
-            try:
-                (username, password) = util.username_password_from_url(url)
-            except ValueError, ve:
-                self.show_message(_('The following error occured while trying to get authentication data from the URL:') + '\n\n' + ve.message, _('Error getting authentication data'), important=True)
-                (username, password) = (None, None)
-                log('Error getting authentication data from URL: %s', url, traceback=True)
-
-            if username and self.show_confirmation( _('You have supplied <b>%s</b> as username and a password for this feed. Would you like to use the same authentication data for downloading episodes?') % ( saxutils.escape( username), ), _('Password authentication')):
-                channel.username = username
-                channel.password = password
-                log('Saving authentication data for episode downloads..', sender = self)
-                channel.save()
-                # We need to update the channel list otherwise the authentication
-                # data won't show up in the channel editor.
-                # TODO: Only updated the newly added feed to save some cpu cycles
-                self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
-                self.channel_list_changed = True
-
-            if ask_download_new:
-                new_episodes = channel.get_new_episodes(downloading=self.episode_is_downloading)
-                if len(new_episodes):
-                    self.new_episodes_show(new_episodes)
-
-        elif isinstance(error, feedcore.AuthenticationRequired):
-            response, auth_tokens = self.UsernamePasswordDialog(
-                _('Feed requires authentication'), _('Please enter your username and password.'))
-
-            if response:
-                self.add_new_channel( url, authentication_tokens=auth_tokens )
-
-        elif isinstance(error, feedcore.WifiLogin):
-            if self.show_confirmation(_('The URL you are trying to add redirects to the website %s. Do you want to visit the website to login now?') % saxutils.escape(error.data), _('Website redirection detected')):
-                util.open_website(error.data)
-                if self.show_confirmation(_('Please login to the website now. Should I retry subscribing to the podcast at %s?') % saxutils.escape(url), _('Retry adding channel')):
-                    self.add_new_channel(url)
-
-        else:
-            # Ok, the URL is not a channel, or there is some other
-            # error - let's see if it's a web page or OPML file...
-            handled = False
-            try:
-                data = urllib2.urlopen(url).read().lower()
-                if '</opml>' in data:
-                    # This looks like an OPML feed
-                    self.on_item_import_from_file_activate(None, url)
-                    handled = True
-
-                elif '</html>' in data:
-                    # This looks like a web page
-                    title = _('The URL is a website')
-                    message = _('The URL you specified points to a web page. You need to find the "feed" URL of the podcast to add to gPodder. Do you want to visit this website now and look for the podcast feed URL?\n\n(Hint: Look for "XML feed", "RSS feed" or "Podcast feed" if you are unsure for what to look. If there is only an iTunes URL, try adding this one.)')
-                    if self.show_confirmation(message, title):
-                        util.open_website(url)
-                        handled = True
-
-            except Exception, e:
-                log('Error trying to handle the URL as OPML or web page: %s', e, sender=self)
-
-            if not handled:
-                title = _('Error adding podcast')
-                message = _('The podcast could not be added. Please check the spelling of the URL or try again later.')
-                self.show_message(message, title, important=True)
-
-        self.entryAddChannel.set_text(self.ENTER_URL_TEXT)
-        self.entryAddChannel.set_sensitive(True)
-        self.btnAddChannel.set_sensitive(True)
-        self.update_podcasts_tab()
-        self._update_cover(channel)
-        waitdlg.destroy()
-
 
     def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
         self.db.commit()
@@ -2249,12 +2190,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                _config=self.config)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
-        new_episodes = self.get_new_episodes()
-        if len(new_episodes):
-            self.new_episodes_show(new_episodes)
-        else:
-            self.show_message(_('No new episodes available for download. Check for new episodes later.'), \
-                    _('No new episodes'), widget=self.btnUpdateFeeds)
+        if not self.offer_new_episodes():
+            self.show_message(_('Please check for new episodes later.'), \
+                    _('No new episodes available'), widget=self.btnUpdateFeeds)
 
     def get_new_episodes(self, channels=None):
         if channels is None:
@@ -2524,22 +2462,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderDependencyManager(self.gPodder)
 
     def on_add_new_google_search(self, widget, *args):
-        def add_google_video_search(query):
-            self.add_new_channel('http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss')
+        def add_google_video_search(urls):
+            assert len(urls) == 1
+            query = urls[0]
+            self.add_podcast_list(['http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss'])
 
-        gPodderAddPodcast(self.gPodder, url_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
+        gPodderAddPodcast(self.gPodder, add_urls_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
 
     def on_upgrade_from_videocenter(self, widget):
         from gpodder import nokiavideocenter
         vc = nokiavideocenter.UpgradeFromVideocenter()
         if vc.db2opml():
-            gPodderPodcastDirectory(self.gPodder, _config=self.config, custom_title=_('Import podcasts from Video Center'), hide_url_entry=True).get_channels_from_url(vc.opmlfile, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
+                    custom_title=_('Import podcasts from Video Center'), \
+                    add_urls_callback=self.add_podcast_list, \
+                    hide_url_entry=True)
+            dir.download_opml_file(vc.opmlfile)
         else:
             self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'), important=True)
 
     def require_my_gpodder_authentication(self):
         if not self.config.my_gpodder_username or not self.config.my_gpodder_password:
-            success, authentication = self.UsernamePasswordDialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=self.config.my_gpodder_username, password=self.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
+            success, authentication = self.show_login_dialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=self.config.my_gpodder_username, password=self.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
             if success and authentication[0] and authentication[1]:
                 self.config.my_gpodder_username, self.config.my_gpodder_password = authentication
                 return True
@@ -2563,15 +2507,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 fp.close()
                 (added, skipped) = (0, 0)
                 i = opml.Importer(gpodder.subscription_file)
-                for item in i.items:
-                    url = item['url']
-                    if url not in (c.url for c in self.channels):
-                        self.add_new_channel(url, ask_download_new=False, block=True)
-                        added += 1
-                    else:
-                        log('Already added: %s', url, sender=self)
-                        skipped += 1
-                self.updateComboBox()
+
+                existing = [c.url for c in self.channels]
+                urls = [item['url'] for item in i.items if item['url'] not in existing]
+
+                skipped = len(i.items) - len(urls)
+                added = len(urls)
+
+                self.add_podcast_list(urls)
+
                 self.my_gpodder_offer_autoupload()
                 if added > 0:
                     self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'), widget=self.treeChannels)
@@ -2602,7 +2546,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
 
     def on_itemAddChannel_activate(self, widget, *args):
-        gPodderAddPodcast(self.gPodder, url_callback=self.add_new_channel)
+        gPodderAddPodcast(self.gPodder, \
+                add_urls_callback=self.add_podcast_list)
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
@@ -2698,7 +2643,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
         if filename is not None:
-            gPodderPodcastDirectory(self.gPodder, _config=self.config, custom_title=_('Import podcasts from OPML file'), hide_url_entry=True).get_channels_from_url(filename, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
+                    custom_title=_('Import podcasts from OPML file'), \
+                    add_urls_callback=self.add_podcast_list, \
+                    hide_url_entry=True)
+            dir.download_opml_file(filename)
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
@@ -2731,7 +2680,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        gPodderPodcastDirectory(self.gPodder, _config=self.config).get_channels_from_url(self.config.opml_url, lambda url: self.add_new_channel(url,False,block=True), lambda: self.on_itemDownloadAllNew_activate(self.gPodder))
+        dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
+                add_urls_callback=self.add_podcast_list)
+        dir.download_opml_file(self.config.opml_url)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
@@ -2839,15 +2790,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.channel_toggle_lock.set_visible(False)
 
         self.updateTreeView()
-
-    def on_entryAddChannel_changed(self, widget, *args):
-        active = self.entryAddChannel.get_text() not in ('', self.ENTER_URL_TEXT)
-        self.btnAddChannel.set_sensitive( active)
-
-    def on_btnAddChannel_clicked(self, widget, *args):
-        url = self.entryAddChannel.get_text()
-        self.entryAddChannel.set_text('')
-        self.add_new_channel( url)
 
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)

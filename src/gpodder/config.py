@@ -163,8 +163,6 @@ gPodderSettings = {
         "gPodder. Useful for Rockbox players.")),
     'mp3_player_max_filename_length': (int, 100,
       _("The maximum filename length for FS-based devices.")),
-    'show_url_entry_in_podcast_list': (bool, False,
-      _("Whether or not to show the URL entry (add podcast) box in the main window.")),
     'rockbox_copy_coverart' : (bool, False,
       _("Create rockbox-compatible coverart and copy it to the device when "
         "syncing. See: 'rockbox_coverart_size'.")),

@@ -631,50 +631,6 @@
                         <property name="homogeneous">False</property>
                         <property name="spacing">5</property>
                         <child>
-                          <object class="GtkHBox" id="hboxAddChannel">
-                            <property name="visible">False</property>
-                            <property name="homogeneous">False</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkEntry" id="entryAddChannel">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="max_length">0</property>
-                                <property name="has_frame">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="activates_default">False</property>
-                                <signal handler="on_btnAddChannel_clicked" name="activate"/>
-                                <signal handler="on_entryAddChannel_changed" name="changed"/>
-                              </object>
-                              <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="btnAddChannel">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="label">gtk-add</property>
-                                <property name="use_stock">True</property>
-                                <property name="focus_on_click">True</property>
-                                <signal handler="on_btnAddChannel_clicked" name="clicked"/>
-                              </object>
-                              <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkScrolledWindow" id="scrolledwindow6">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>

@@ -176,7 +176,7 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             raise Exception('Unknown interface type')
 
-    def UsernamePasswordDialog(self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
+    def show_login_dialog(self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
         """ An authentication dialog based on
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
