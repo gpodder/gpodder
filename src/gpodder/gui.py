@@ -2006,7 +2006,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     return True
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
+            quit_button = dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
 
             title = _('Quit gPodder')
             if downloading:
@@ -2021,6 +2021,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 dialog.vbox.pack_start(cb_ask)
                 cb_ask.show_all()
 
+            quit_button.grab_focus()
             result = dialog.run()
             dialog.destroy()
 
