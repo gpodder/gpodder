@@ -100,7 +100,7 @@ class NotificationWindow(gtk.Window):
         arrow = gtk.image_new_from_stock(gtk.STOCK_GO_UP, \
                 gtk.ICON_SIZE_BUTTON)
         arrow.set_alignment(.5, 0.)
-        arrow.set_padding(6., 0.)
+        arrow.set_padding(6, 0)
         message_area.pack_start(arrow, False)
         message_area.reorder_child(arrow, 0)
         button = message_area.get_button()
@@ -120,11 +120,11 @@ class NotificationWindow(gtk.Window):
             x += rect.x
             y += rect.y
             arrow_rect = arrow.allocation
-            if h < hh:
+            if h < hh or w < ww:
                 self.move(x+w/2-arrow_rect.x-arrow_rect.width/2, y+h-5)
             else:
-                self.move(x+w/2, y+h/2-hh/2+20)
-                arrow.hide_all()
+                self.move(x+w/2-ww/2, y+h/2-hh/2+20)
+                message_area.remove(arrow)
 
     def show_timeout(self, timeout=8000):
         gobject.timeout_add(timeout, self._hide_and_destroy)
