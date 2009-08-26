@@ -64,6 +64,9 @@ if __name__ == '__main__':
     credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
+    # The existence of this file tells us we're running on Maemo
+    maemo_file = os.path.join(prefix, 'share', 'applications', 'hildon', 'gpodder.desktop')
+
     if os.path.exists(src_dir) and os.path.exists(data_dir) and \
             not prefix.startswith('/usr'):
         # Run gPodder from local source folder (not installed)
@@ -100,10 +103,13 @@ if __name__ == '__main__':
     parser.add_option("-m", "--maemo",
                       action="store_true", dest="maemo", default=False,
                       help=_("Start the Maemo user interface of gPodder"))
-    
+
+    parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
+                      help=_('Subscribe to the given URL'))
+
     (options, args) = parser.parse_args(sys.argv)
 
-    if options.maemo:
+    if options.maemo or os.path.exists(maemo_file):
         gpodder.interface = gpodder.MAEMO
     else:
         gpodder.interface = gpodder.GUI
@@ -128,6 +134,8 @@ if __name__ == '__main__':
     if remote_object is not None:
         # An instance of GUI is already running
         remote_object.show_gui_window(dbus_interface=gpodder.dbus_interface)
+        if options.subscribe:
+            remote_object.subscribe_to_url(options.subscribe)
     else:
         # gPodder is not yet running - create new instance
         from gpodder import gui
@@ -144,5 +152,5 @@ if __name__ == '__main__':
             if os.nice(0) < 0:
                 os.nice(-os.nice(0))
 
-        gui.main()
+        gui.main(options)
 

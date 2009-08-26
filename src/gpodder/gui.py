@@ -3047,8 +3047,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_gui_window(self):
         self.gPodder.present()
 
+    @dbus.service.method(gpodder.dbus_interface)
+    def subscribe_to_url(self, url):
+        gPodderAddPodcast(self.gPodder,
+                add_urls_callback=self.add_podcast_list,
+                preset_url=url)
 
-def main():
+
+def main(options=None):
     gobject.threads_init()
     gtk.window_set_default_icon_name( 'gpodder')
 
@@ -3087,6 +3093,11 @@ def main():
             BuilderWidget.use_fingerscroll = True
 
     gp = gPodder(bus_name, config)
+
+    # Handle options
+    if options.subscribe:
+        util.idle_add(gp.subscribe_to_url, options.subscribe)
+
     gp.run()
 
 
