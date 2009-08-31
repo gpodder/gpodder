@@ -14,7 +14,7 @@
     <data/>
   </object>
   <object class="GtkDialog" id="gPodderDiabloPreferences">
-    <property context="yes" name="title" translatable="yes">Preferences</property>
+    <property name="title" translatable="yes">Preferences</property>
     <property name="modal">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
@@ -30,7 +30,7 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkLabel" id="label_player">
-                <property context="yes" name="label" translatable="yes">Audio player:</property>
+                <property name="label" translatable="yes">Audio player:</property>
                 <property name="visible">True</property>
                 <property name="xalign">0.0</property>
               </object>
@@ -40,7 +40,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_videoplayer">
-                <property context="yes" name="label" translatable="yes">Video player:</property>
+                <property name="label" translatable="yes">Video player:</property>
                 <property name="visible">True</property>
                 <property name="xalign">0.0</property>
               </object>
@@ -52,7 +52,7 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="check_show_status_icon">
-                <property context="yes" name="label" translatable="yes">Show icon in status area</property>
+                <property name="label" translatable="yes">Show icon in status area</property>
                 <property name="visible">True</property>
               </object>
               <packing>
@@ -64,7 +64,7 @@
             <child>
               <object class="GtkCheckButton" id="check_ask_on_quit">
                 <property name="is_focus">True</property>
-                <property context="yes" name="label" translatable="yes">Ask before closing gPodder</property>
+                <property name="label" translatable="yes">Ask before closing gPodder</property>
                 <property name="visible">True</property>
               </object>
               <packing>
@@ -75,7 +75,7 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="check_enable_gestures">
-                <property context="yes" name="label" translatable="yes">Enable episode list gestures</property>
+                <property name="label" translatable="yes">Enable episode list gestures</property>
                 <property name="visible">True</property>
               </object>
               <packing>
@@ -105,7 +105,7 @@
             <child>
               <object class="GtkComboBox" id="combo_videoplayer">
                 <property name="active">0</property>
-                <property context="yes" name="tearoff_title" translatable="yes">Nokia Media Player
+                <property name="tearoff_title" translatable="yes">Nokia Media Player
 MPlayer</property>
                 <property name="visible">True</property>
                 <property name="model">combo_videoplayer_model</property>
@@ -137,7 +137,7 @@ MPlayer</property>
             <property name="visible">True</property>
             <child>
               <object class="GtkButton" id="btn_advanced">
-                <property context="yes" name="label" translatable="yes">Advanced...</property>
+                <property name="label" translatable="yes">Advanced...</property>
                 <property name="visible">True</property>
                 <signal handler="on_btn_advanced_clicked" name="clicked"/>
               </object>

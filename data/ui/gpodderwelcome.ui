@@ -5,7 +5,7 @@
     <property name="default_height">230</property>
     <property name="default_width">340</property>
     <property name="modal">True</property>
-    <property context="yes" name="title" translatable="yes">gPodder startup assistant</property>
+    <property name="title" translatable="yes">gPodder startup assistant</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog1-vbox">
@@ -25,7 +25,7 @@
                 <property name="visible">True</property>
                 <child>
                   <object class="GtkImage" id="image1">
-                    <property context="yes" name="icon_name" translatable="yes">gpodder</property>
+                    <property name="icon_name" translatable="yes">gpodder</property>
                     <property name="icon_size">6</property>
                     <property name="visible">True</property>
                     <property name="xpad">5</property>
@@ -36,7 +36,7 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="label1">
-                    <property context="yes" name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Welcome to gPodder&lt;/big&gt;&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Welcome to gPodder&lt;/big&gt;&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                     <property name="visible">True</property>
                     <property name="xalign">0.0</property>
@@ -49,7 +49,7 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="label2">
-                    <property context="yes" name="label" translatable="yes">Your subscription list is empty. What do you want to do?</property>
+                    <property name="label" translatable="yes">Your subscription list is empty. What do you want to do?</property>
                     <property name="visible">True</property>
                     <property name="xalign">0.0</property>
                     <property name="yalign">0.0</property>
@@ -74,14 +74,14 @@
                 <child>
                   <object class="GtkButton" id="btnOPML">
                     <property name="is_focus">True</property>
-                    <property context="yes" name="label" translatable="yes">Choose from a list of example podcasts</property>
+                    <property name="label" translatable="yes">Choose from a list of example podcasts</property>
                     <property name="visible">True</property>
                     <signal handler="on_show_example_podcasts" name="clicked"/>
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="btnMygPodder">
-                    <property context="yes" name="label" translatable="yes">Download my subscriptions from my.gpodder.org</property>
+                    <property name="label" translatable="yes">Download my subscriptions from my.gpodder.org</property>
                     <property name="visible">True</property>
                     <signal handler="on_setup_my_gpodder" name="clicked"/>
                   </object>
