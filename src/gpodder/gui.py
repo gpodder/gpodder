@@ -2588,11 +2588,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dialog.destroy()
 
             if result == affirmative:
+                keep_episodes = cb_ask.get_active()
                 # delete downloaded episodes only if checkbox is unchecked
-                if cb_ask.get_active() == False:
-                    self.active_channel.remove_downloaded()
-                else:
+                if keep_episodes:
                     log('Not removing downloaded episodes', sender=self)
+                else:
+                    self.active_channel.remove_downloaded()
 
                 # Clean up downloads and download directories
                 self.clean_up_downloads()
@@ -2613,7 +2614,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     select_url = self.channels[position+1].url
                 
                 # Remove the channel
-                self.active_channel.delete()
+                self.active_channel.delete(purge=not keep_episodes)
                 self.channels.remove(self.active_channel)
                 self.channel_list_changed = True
                 self.save_channels_opml()

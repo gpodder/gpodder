@@ -268,8 +268,8 @@ class PodcastChannel(PodcastModelObject):
 
         self.db.commit()
 
-    def delete(self):
-        self.db.delete_channel(self)
+    def delete(self, purge=True):
+        self.db.delete_channel(self, purge)
 
     def save(self):
         self.db.save_channel(self)

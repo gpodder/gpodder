@@ -389,6 +389,8 @@ class Database(object):
             cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, gpodder.STATE_DOWNLOADED))
 
         cur.close()
+        # Commit changes
+        self.db.commit()
         self.lock.release()
 
     def __read_episodes(self, factory=None, where=None, params=None, commit=True):
