@@ -232,7 +232,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # do some widget hiding
             self.itemTransferSelected.set_visible(False)
             self.item_email_subscriptions.set_visible(False)
-            self.menuView.set_visible(False)
+            self.itemShowToolbar.set_visible(False)
+            self.itemShowDescription.set_visible(False)
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)

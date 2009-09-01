@@ -140,9 +140,6 @@ class BuilderWidget(GtkBuilderWidget):
                         child.set_padding(5, 5)
             elif isinstance(widget, gtk.TreeView) or isinstance(widget, gtk.TextView):
                 parent = widget.get_parent()
-                if isinstance(parent, gtk.ScrolledWindow):
-                    import hildon
-                    hildon.hildon_helper_set_thumb_scrollbar(parent, True)
             elif isinstance(widget, gtk.MenuItem):
                 for child in widget.get_children():
                     self.set_finger_friendly(child)
