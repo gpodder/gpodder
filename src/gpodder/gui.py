@@ -650,7 +650,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloading + failed + finished + queued > 0:
                 s = []
                 if downloading > 0:
-                    s.append(_('%d downloading') % downloading)
+                    s.append(_('%d active') % downloading)
                 if failed > 0:
                     s.append(_('%d failed') % failed)
                 if finished > 0:
@@ -1474,12 +1474,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
     
-    def change_menu_item(self, menuitem, icon=None, label=None):
-        if icon is not None:
-            menuitem.set_property('stock-id', icon)
-        if label is not None:
-            menuitem.label = label
-
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
             return
@@ -1539,16 +1533,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.itemOpenSelected.set_visible(open_instead_of_play)
         self.itemPlaySelected.set_visible(not open_instead_of_play)
-
-        if can_play:
-            if is_played:
-                self.change_menu_item(self.item_toggle_played, gtk.STOCK_CANCEL, _('Mark as unplayed'))
-            else:
-                self.change_menu_item(self.item_toggle_played, gtk.STOCK_APPLY, _('Mark as played'))
-            if is_locked:
-                self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion'))
-            else:
-                self.change_menu_item(self.item_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion'))
 
         return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
 
@@ -2105,11 +2089,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
         self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
         self.active_channel.update_channel_lock()
-
-        if self.active_channel.channel_is_locked:
-            self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
-        else:
-            self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion of all episodes'))
 
         for episode in self.active_channel.get_all_episodes():
             episode.mark(is_locked=self.active_channel.channel_is_locked)
@@ -2774,17 +2753,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.set_title(self.active_channel.title)
             self.itemEditChannel.set_visible(True)
             self.itemRemoveChannel.set_visible(True)
-            self.channel_toggle_lock.set_visible(True)
-            if self.active_channel.channel_is_locked:
-                self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Allow deletion of all episodes'))
-            else:
-                self.change_menu_item(self.channel_toggle_lock, gtk.STOCK_DIALOG_AUTHENTICATION, _('Prohibit deletion of all episodes'))
-
         else:
             self.active_channel = None
             self.itemEditChannel.set_visible(False)
             self.itemRemoveChannel.set_visible(False)
-            self.channel_toggle_lock.set_visible(False)
 
         self.updateTreeView()
 

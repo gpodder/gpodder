@@ -99,7 +99,7 @@
           <object class="GtkAction" id="itemFind">
             <property name="stock_id">gtk-find</property>
             <property name="name">itemFind</property>
-            <property name="label" translatable="yes">Search for podcasts</property>
+            <property name="label" translatable="yes">Discover new podcasts</property>
             <signal handler="on_itemImportChannels_activate" name="activate"/>
           </object>
           <accelerator key="F" modifiers="GDK_CONTROL_MASK"/>
@@ -108,7 +108,7 @@
           <object class="GtkAction" id="itemAddChannel">
             <property name="stock_id">gtk-add</property>
             <property name="name">itemAddChannel</property>
-            <property name="label" translatable="yes">Subscribe to new podcast URL</property>
+            <property name="label" translatable="yes">Add podcast via URL</property>
             <signal handler="on_itemAddChannel_activate" name="activate"/>
           </object>
           <accelerator key="L" modifiers="GDK_CONTROL_MASK"/>
@@ -117,7 +117,7 @@
           <object class="GtkAction" id="itemEditChannel">
             <property name="stock_id">gtk-edit</property>
             <property name="name">itemEditChannel</property>
-            <property name="label" translatable="yes">Edit selected podcast</property>
+            <property name="label" translatable="yes">Podcast settings</property>
             <signal handler="on_itemEditChannel_activate" name="activate"/>
           </object>
         </child>
@@ -125,7 +125,7 @@
           <object class="GtkAction" id="itemRemoveChannel">
             <property name="stock_id">gtk-remove</property>
             <property name="name">itemRemoveChannel</property>
-            <property name="label" translatable="yes">Unsubscribe from selected podcast</property>
+            <property name="label" translatable="yes">Unsubscribe</property>
             <signal handler="on_itemRemoveChannel_activate" name="activate"/>
           </object>
         </child>
@@ -133,16 +133,8 @@
           <object class="GtkAction" id="itemUpdateChannel">
             <property name="stock_id">gtk-refresh</property>
             <property name="name">itemUpdateChannel</property>
-            <property name="label" translatable="yes">Update selected podcast</property>
+            <property name="label" translatable="yes">Update podcast</property>
             <signal handler="on_itemUpdateChannel_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="channel_toggle_lock">
-            <property name="stock_id">gtk-cancel</property>
-            <property name="name">channel_toggle_lock</property>
-            <property name="label" translatable="yes">Prohibit deletion of all episodes</property>
-            <signal handler="on_channel_toggle_lock_activate" name="activate"/>
           </object>
         </child>
         <child>
@@ -157,7 +149,7 @@
           <object class="GtkAction" id="item_import_from_file">
             <property name="stock_id">gtk-open</property>
             <property name="name">item_import_from_file</property>
-            <property name="label" translatable="yes">Import podcasts from OPML file</property>
+            <property name="label" translatable="yes">Import from OPML file</property>
             <signal handler="on_item_import_from_file_activate" name="activate"/>
           </object>
         </child>
@@ -165,28 +157,28 @@
           <object class="GtkAction" id="itemExportChannels">
             <property name="stock_id">gtk-save-as</property>
             <property name="name">itemExportChannels</property>
-            <property name="label" translatable="yes">Export podcasts to OPML file</property>
+            <property name="label" translatable="yes">Export to OPML file</property>
             <signal handler="on_itemExportChannels_activate" name="activate"/>
           </object>
         </child>
         <child>
           <object class="GtkAction" id="item_email_subscriptions">
             <property name="name">item_email_subscriptions</property>
-            <property name="label" translatable="yes">Send subscription list via e-mail</property>
+            <property name="label" translatable="yes">Send list via e-mail</property>
             <signal handler="on_item_email_subscriptions_activate" name="activate"/>
           </object>
         </child>
         <child>
           <object class="GtkAction" id="itemUploadToMygpo">
             <property name="name">itemUploadToMygpo</property>
-            <property name="label" translatable="yes">Upload list to my.gpodder.org</property>
+            <property name="label" translatable="yes">Upload to my.gpodder.org</property>
             <signal handler="on_upload_to_mygpo" name="activate"/>
           </object>
         </child>
         <child>
           <object class="GtkAction" id="itemDownloadFromMygpo">
             <property name="name">itemDownloadFromMygpo</property>
-            <property name="label" translatable="yes">Download list from my.gpodder.org</property>
+            <property name="label" translatable="yes">Download from my.gpodder.org</property>
             <signal handler="on_download_from_mygpo" name="activate"/>
           </object>
         </child>
@@ -242,15 +234,15 @@
           <object class="GtkAction" id="item_toggle_played">
             <property name="stock_id">gtk-apply</property>
             <property name="name">item_toggle_played</property>
-            <property name="label" translatable="yes">Mark as played</property>
+            <property name="label" translatable="yes">Change played status</property>
             <signal handler="on_item_toggle_played_activate" name="activate"/>
           </object>
         </child>
         <child>
           <object class="GtkAction" id="item_toggle_lock">
-            <property name="stock_id">gtk-cancel</property>
+            <property name="stock_id">gtk-dialog-authentication</property>
             <property name="name">item_toggle_lock</property>
-            <property name="label" translatable="yes">Prohibit deletion</property>
+            <property name="label" translatable="yes">Change delete lock</property>
             <signal handler="on_item_toggle_lock_activate" name="activate"/>
           </object>
         </child>
@@ -318,7 +310,7 @@
           <object class="GtkToggleAction" id="itemShowDescription">
             <property name="active">True</property>
             <property name="name">itemShowDescription</property>
-            <property name="label" translatable="yes">Show episode description</property>
+            <property name="label" translatable="yes">Episode descriptions</property>
             <signal handler="on_itemShowDescription_activate" name="activate"/>
           </object>
           <accelerator key="D" modifiers="GDK_CONTROL_MASK"/>
@@ -389,20 +381,16 @@
         </menu>
         <menu action="menuSubscriptions">
           <menuitem action="itemFind"/>
-          <separator/>
           <menuitem action="itemAddChannel"/>
-          <menuitem action="itemEditChannel"/>
-          <menuitem action="itemRemoveChannel"/>
           <separator/>
           <menuitem action="itemUpdateChannel"/>
-          <separator/>
-          <menuitem action="channel_toggle_lock"/>
-          <separator/>
-          <menuitem action="item_upgrade_from_videocenter"/>
+          <menuitem action="itemEditChannel"/>
+          <menuitem action="itemRemoveChannel"/>
           <separator/>
           <menuitem action="item_import_from_file"/>
           <menuitem action="itemExportChannels"/>
           <separator/>
+          <menuitem action="item_upgrade_from_videocenter"/>
           <menuitem action="item_email_subscriptions"/>
           <separator/>
           <menuitem action="itemUploadToMygpo"/>
