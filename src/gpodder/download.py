@@ -249,6 +249,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         # gPodder TODO: we can get the real url via fp.geturl() here
         #               (if anybody wants to fix filenames in the future)
+        # Maybe also utilize the name in the "Content-disposition" header
 
         result = filename, headers
         bs = 1024*8
@@ -259,7 +260,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
             if "content-length" in headers:
                 size = int(headers["Content-Length"]) + current_size
             reporthook(blocknum, bs, size)
-        while read < size:
+        while read < size or size == -1:
             if size == -1:
                 block = fp.read(bs)
             else:
@@ -648,6 +649,9 @@ class DownloadTask(object):
         if self.status == DownloadTask.DOWNLOADING:
             # Everything went well - we're done
             self.status = DownloadTask.DONE
+            if self.total_size <= 0:
+                self.total_size = util.calculate_size(self.filename)
+                log('Total size updated to %d', self.total_size, sender=self)
             self.progress = 1.0
             return True
         
