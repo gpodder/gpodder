@@ -103,7 +103,7 @@ if gpodder.interface == gpodder.GUI:
     from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
     from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
 else:
-    from gpodder.gtkui.maemo.preferences import gPodderDiabloPreferences as gPodderPreferences
+    from gpodder.gtkui.maemo.preferences import gPodderPreferences
 
 from gpodder.gtkui.interface.shownotes import gPodderShownotes
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
@@ -261,7 +261,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
-        self.fullscreen = False
         self.minimized = False
         self.gPodder.connect('window-state-event', self.window_state_event)
         
@@ -3061,11 +3060,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.interface != gpodder.MAEMO:
             return False
         
-        if event.keyval == gtk.keysyms.F6:
-            if self.fullscreen:
-                self.window.unfullscreen()
-            else:
-                self.window.fullscreen()
         if event.keyval == gtk.keysyms.Escape:
             new_visibility = not self.vboxChannelNavigator.get_property('visible')
             self.vboxChannelNavigator.set_property('visible', new_visibility)
@@ -3089,11 +3083,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
         
     def window_state_event(self, widget, event):
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-            self.fullscreen = True
-        else:
-            self.fullscreen = False
-            
         old_minimized = self.minimized
 
         self.minimized = bool(event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED)

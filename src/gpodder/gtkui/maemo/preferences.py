@@ -27,7 +27,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
-class gPodderDiabloPreferences(BuilderWidget):
+class gPodderPreferences(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_advanced']
     audio_players = [
             ('default', 'Media Player'),
@@ -82,7 +82,7 @@ class gPodderDiabloPreferences(BuilderWidget):
             self.combo_videoplayer.set_active(len(self.combo_videoplayer_model)-1)
             self.userconfigured_videoplayer = self._config.videoplayer
 
-        self.gPodderDiabloPreferences.show()
+        self.gPodderPreferences.show()
 
     def on_combo_player_changed(self, combobox):
         index = combobox.get_active()
@@ -99,9 +99,9 @@ class gPodderDiabloPreferences(BuilderWidget):
             self._config.videoplayer = self.userconfigured_videoplayer
 
     def on_btn_advanced_clicked(self, widget):
-        gPodderConfigEditor(self.gPodderDiabloPreferences, _config=self._config)
-        self.gPodderDiabloPreferences.destroy()
+        gPodderConfigEditor(self.gPodderPreferences, _config=self._config)
+        self.gPodderPreferences.destroy()
 
     def on_btn_close_clicked(self, widget):
-        self.gPodderDiabloPreferences.destroy()
+        self.gPodderPreferences.destroy()
 

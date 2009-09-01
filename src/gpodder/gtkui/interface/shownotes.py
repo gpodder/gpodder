@@ -62,6 +62,16 @@ class gPodderShownotes(BuilderWidget):
             setattr(self, 'have_gtkhtml2', False)
         self.gPodderShownotes.connect('key-press-event', self.on_key_press)
 
+        if gpodder.interface == gpodder.MAEMO:
+            menu = gtk.Menu()
+            menu.append(self.action_play.create_menu_item())
+            menu.append(gtk.SeparatorMenuItem())
+            menu.append(self.action_download.create_menu_item())
+            menu.append(self.action_cancel.create_menu_item())
+            menu.append(gtk.SeparatorMenuItem())
+            menu.append(self.action_close.create_menu_item())
+            self.gPodderShownotes.set_menu(self.set_finger_friendly(menu))
+
     def on_key_press(self, widget, event):
         if not hasattr(self.scrolled_window, 'get_vscrollbar'):
             return
@@ -194,6 +204,11 @@ class gPodderShownotes(BuilderWidget):
             else:
                 self.btnPlay.hide_all()
                 self.btnDownload.show_all()
+
+        if gpodder.interface == gpodder.MAEMO:
+            self.action_play.set_sensitive(self.btnPlay.get_property('visible'))
+            self.action_download.set_sensitive(self.btnDownload.get_property('visible'))
+            self.action_cancel.set_sensitive(self.btnCancel.get_property('visible'))
 
     def on_download(self, widget):
         if self.download_callback:

@@ -54,6 +54,14 @@ class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
 
+        # Enable support for fullscreen toggle key on Maemo
+        if gpodder.interface == gpodder.MAEMO:
+            self._maemo_fullscreen = False
+            self.main_window.connect('key-press-event', \
+                    self._on_key_press_event_maemo)
+            self.main_window.connect('window-state-event', \
+                    self._on_window_state_event_maemo)
+
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
             if hasattr(self, widget_name):
@@ -72,6 +80,26 @@ class BuilderWidget(GtkBuilderWidget):
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
                 else:
                     self.main_window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+
+    def _on_key_press_event_maemo(self, widget, event):
+        if event.keyval == gtk.keysyms.F6:
+            if self._maemo_fullscreen:
+                self.main_window.unfullscreen()
+                self.main_window.set_border_width(0)
+            else:
+                self.main_window.fullscreen()
+                self.main_window.set_border_width(12)
+            return True
+        else:
+            return False
+
+    def _on_window_state_event_maemo(self, widget, event):
+        if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
+            self._maemo_fullscreen = True
+        else:
+            self._maemo_fullscreen = False
+
+        return False
 
     def notification(self, message, title=None, important=False, widget=None):
         util.idle_add(self.show_message, message, title, important, widget)
