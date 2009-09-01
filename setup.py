@@ -52,6 +52,8 @@ if not len(translation_files) and not 'clean' in sys.argv:
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
+inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
+inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ]
 inst_desktop = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]
@@ -75,6 +77,7 @@ data_files = [
 # target-specific installation data files
 if target == DEFAULT:
     data_files += [
+      ('share/gpodder/ui/desktop', inst_share_ui_desktop),
       ('share/applications', inst_desktop),
       ('share/icons/hicolor/scalable/apps', inst_icons_svg),
       ('share/icons/hicolor/48x48/apps', inst_icons),
@@ -84,6 +87,7 @@ if target == DEFAULT:
     ]
 elif target == MAEMO:
     data_files += [
+      ('share/gpodder/ui/maemo', inst_share_ui_maemo),
       ('share/applications/hildon', inst_desktop_maemo),
       ('share/icons/hicolor/scalable/apps', inst_icons_64),
       ('share/icons/hicolor/40x40/apps', inst_icons_40),

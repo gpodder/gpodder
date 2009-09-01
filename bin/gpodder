@@ -113,6 +113,7 @@ if __name__ == '__main__':
         gpodder.interface = gpodder.MAEMO
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
     else:
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
         gpodder.interface = gpodder.GUI
 
     if options.verbose:

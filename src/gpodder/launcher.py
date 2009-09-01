@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
     # Set up paths to folder with GtkBuilder files and gpodder.svg
     gpodder.ui_folders.append(ui_folder)
+    gpodder.ui_folders.append(os.path.join(ui_folder, 'desktop'))
     gpodder.icon_file = icon_file
     gpodder.interface = gpodder.GUI
 
