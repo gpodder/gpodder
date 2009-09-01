@@ -99,13 +99,15 @@ from gpodder.gtkui.interface.channel import gPodderChannel
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.interface == gpodder.GUI:
-    from gpodder.gtkui.interface.preferences import gPodderPreferences
-    from gpodder.gtkui.interface.syncprogress import gPodderSyncProgress
-    from gpodder.gtkui.interface.deviceplaylist import gPodderDevicePlaylist
+    from gpodder.gtkui.desktop.syncprogress import gPodderSyncProgress
+    from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
+
+    from gpodder.gtkui.desktop.preferences import gPodderPreferences
+    from gpodder.gtkui.desktop.shownotes import gPodderShownotes
 else:
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
+    from gpodder.gtkui.maemo.shownotes import gPodderShownotes
 
-from gpodder.gtkui.interface.shownotes import gPodderShownotes
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager

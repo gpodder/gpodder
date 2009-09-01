@@ -74,6 +74,12 @@ data_files = [
   ('share/gpodder',        inst_share_gpodder),
 ]
 
+packages = [
+  'gpodder',
+  'gpodder.gtkui',
+  'gpodder.gtkui.interface',
+]
+
 # target-specific installation data files
 if target == DEFAULT:
     data_files += [
@@ -85,6 +91,9 @@ if target == DEFAULT:
       ('share/icons/hicolor/22x22/apps', inst_icons_22),
       ('share/icons/hicolor/16x16/apps', inst_icons_16),
     ]
+    packages += [
+      'gpodder.gtkui.desktop',
+    ]
 elif target == MAEMO:
     data_files += [
       ('share/gpodder/ui/maemo', inst_share_ui_maemo),
@@ -93,6 +102,9 @@ elif target == MAEMO:
       ('share/icons/hicolor/40x40/apps', inst_icons_40),
       ('share/icons/hicolor/26x26/apps', inst_icons_26),
     ]
+    packages += [
+      'gpodder.gtkui.maemo',
+    ]
 
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
 
@@ -100,12 +112,7 @@ setup(
   name         = 'gpodder',
   version      = gpodder.__version__,
   package_dir  = { '':'src' },
-  packages     = [
-      'gpodder',
-      'gpodder.gtkui',
-      'gpodder.gtkui.interface',
-      'gpodder.gtkui.maemo',
-  ],
+  packages     = packages,
   description  = 'media aggregator',
   author       = author,
   author_email = email,
