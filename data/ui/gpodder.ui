@@ -170,13 +170,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="itemAddGoogleSearch">
-            <property name="name">itemAddGoogleSearch</property>
-            <property name="label" translatable="yes">Add Google Video search</property>
-            <signal handler="on_add_new_google_search" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="item_email_subscriptions">
             <property name="name">item_email_subscriptions</property>
             <property name="label" translatable="yes">Send subscription list via e-mail</property>
@@ -410,7 +403,6 @@
           <menuitem action="item_import_from_file"/>
           <menuitem action="itemExportChannels"/>
           <separator/>
-          <menuitem action="itemAddGoogleSearch"/>
           <menuitem action="item_email_subscriptions"/>
           <separator/>
           <menuitem action="itemUploadToMygpo"/>

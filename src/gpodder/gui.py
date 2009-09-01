@@ -2465,14 +2465,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
 
-    def on_add_new_google_search(self, widget, *args):
-        def add_google_video_search(urls):
-            assert len(urls) == 1
-            query = urls[0]
-            self.add_podcast_list(['http://video.google.com/videofeed?type=search&q='+urllib.quote(query)+'&so=1&num=250&output=rss'])
-
-        gPodderAddPodcast(self.gPodder, add_urls_callback=add_google_video_search, custom_title=_('Add Google Video search'), custom_label=_('Search for:'))
-
     def on_upgrade_from_videocenter(self, widget):
         from gpodder import nokiavideocenter
         vc = nokiavideocenter.UpgradeFromVideocenter()
