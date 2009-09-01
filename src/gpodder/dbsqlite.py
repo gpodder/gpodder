@@ -220,31 +220,17 @@ class Database(object):
         cur.close()
         self.lock.release()
 
-    def get_channel_stat(self, url_or_id, state=None, is_played=None, is_locked=None):
-        where, params = ((),())
+    def get_channel_count(self, id):
+        """Given a channel ID, returns the statistics for it
 
-        if state is not None:
-            where += ("state = ?", )
-            params += (state, )
-        if is_played is not None:
-            where += ("played = ?", )
-            params += (is_played, )
-        if is_locked is not None:
-            where += ("locked = ?", )
-            params += (is_locked, )
-        if isinstance(url_or_id, int):
-            where += ("channel_id = ?", )
-            params += (url_or_id, )
-        else:
-            where += ("channel_id IN (SELECT id FROM channels WHERE url = ?)", )
-            params += (url_or_id, )
-
-        self.log("get_channel_stats(%s)", url_or_id)
-
-        if len(where):
-            return self.__get__("SELECT COUNT(*) FROM episodes WHERE %s" % (' AND '.join(where)), params)
-        else:
-            return 0
+        Returns a tuple (total, deleted, new, downloaded, unplayed)
+        """
+        total = self.__get__('SELECT COUNT(*) FROM episodes WHERE channel_id = ?', (id,))
+        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id = ?', (gpodder.STATE_DELETED, id))
+        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id = ?', (gpodder.STATE_NORMAL, False, id))
+        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id = ?', (gpodder.STATE_DOWNLOADED, id))
+        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id = ?', (gpodder.STATE_DOWNLOADED, False, id))
+        return (total, deleted, new, downloaded, unplayed)
 
     def load_channels(self, factory=None, url=None):
         """

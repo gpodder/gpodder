@@ -319,7 +319,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Generate list models for podcasts and their episodes
         self.podcast_list_model = PodcastListModel(self.config.podcast_list_icon_size, self.cover_downloader)
-        self.treeChannels.set_model(self.podcast_list_model)
+
+        if self.config.podcast_list_hide_boring:
+            self.item_view_hide_boring_podcasts.set_active(True)
+
+        self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
+
+        # Allow the podcast list selection to re-select something
+        selection = self.treeChannels.get_selection()
+        def on_selection_changed(selection):
+            model, iter = selection.get_selected()
+            if iter is None:
+                def autoselect_first_channel():
+                    log('Podcast selection empty - autoselecting')
+                    iter = model.get_iter_first()
+                    if iter is None:
+                        log('No item to select. Giving up.')
+                        self.active_channel = None
+                        self.updateTreeView() # empty episode list
+                    else:
+                        log('Found item to select. Selecting.')
+                        selection.select_iter(iter)
+                        self.on_treeChannels_cursor_changed(None)
+                util.idle_add(autoselect_first_channel)
+        selection.connect('changed', on_selection_changed)
 
         self.episode_list_model = EpisodeListModel()
 
@@ -856,8 +879,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
 
     def update_m3u_playlist_clicked(self, widget):
-        self.active_channel.update_m3u_playlist()
-        self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'), widget=self.treeChannels)
+        if self.active_channel is not None:
+            self.active_channel.update_m3u_playlist()
+            self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'), widget=self.treeChannels)
 
     def treeview_downloads_button_pressed(self, treeview, event):
         if event.button == 1:
@@ -1561,18 +1585,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if only_selected_channel:
             # very cheap! only update selected channel
             if iter and self.active_channel is not None:
-                model.update_by_iter(iter)
+                self.podcast_list_model.update_by_filter_iter(iter)
         elif not self.channel_list_changed:
             # we can keep the model, but have to update some
             if only_these_urls is None:
                 # still cheaper than reloading the whole list
                 iter = model.get_iter_first()
                 while iter is not None:
-                    model.update_by_iter(iter)
+                    self.podcast_list_model.update_by_filter_iter(iter)
                     iter = model.iter_next(iter)
             else:
                 # ok, we got a bunch of urls to update
-                model.update_by_urls(only_these_urls)
+                self.podcast_list_model.update_by_urls(only_these_urls)
         else:
             if model and iter and selected_url is None:
                 # Get the URL of the currently-selected podcast
@@ -1666,7 +1690,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if url is None:
                 # Fail this one because the URL is not valid
                 failed.append(input_url)
-            elif self.podcast_list_model.get_path_from_url(url) is not None:
+            elif self.podcast_list_model.get_filter_path_from_url(url) is not None:
                 # A podcast already exists in the list for this URL
                 existing.append(url)
             else:
@@ -1707,7 +1731,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If only one podcast was added, select it
             if len(urls) == 1:
-                path = self.podcast_list_model.get_path_from_url(urls[0])
+                path = self.podcast_list_model.get_filter_path_from_url(urls[0])
                 if path is not None:
                     selection = self.treeChannels.get_selection()
                     selection.select_path(path)
@@ -2095,6 +2119,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_selected_episodes_status_changed()
 
     def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+        if self.active_channel is None:
+            return
+
         self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
         self.active_channel.update_channel_lock()
 
@@ -2120,7 +2147,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'), important=True)
 
     def on_itemUpdateChannel_activate(self, widget=None):
-        self.update_feed_cache(channels=[self.active_channel,])
+        if self.active_channel is None:
+            title = _('No podcast selected')
+            message = _('Please select a podcast in the podcasts list to update.')
+            self.show_message( message, title, widget=self.treeChannels)
+            return
+
+        self.update_feed_cache(channels=[self.active_channel])
 
     def on_itemUpdate_activate(self, widget=None):
         if self.channels:
@@ -2432,6 +2465,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemShowDescription_activate(self, widget):
         self.config.episode_list_descriptions = self.itemShowDescription.get_active()
 
+    def on_item_view_hide_boring_podcasts_toggled(self, toggleaction):
+        self.config.podcast_list_hide_boring = toggleaction.get_active()
+        if self.config.podcast_list_hide_boring:
+            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
+        else:
+            self.podcast_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
+
     def on_item_view_episodes_changed(self, radioaction, current):
         if current == self.item_view_episodes_all:
             self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
@@ -2441,6 +2481,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
 
         self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
+
+        if self.config.podcast_list_hide_boring:
+            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
     def update_item_device( self):
         if self.config.device_type != 'none':
@@ -2552,6 +2595,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderChannel(self.main_window, channel=self.active_channel, callback_closed=lambda: self.updateComboBox(only_selected_channel=True), cover_downloader=self.cover_downloader)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
+        if self.active_channel is None:
+            title = _('No podcast selected')
+            message = _('Please select a podcast in the podcasts list to remove.')
+            self.show_message( message, title, widget=self.treeChannels)
+            return
+
         try:
             if gpodder.interface == gpodder.GUI:
                 dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)

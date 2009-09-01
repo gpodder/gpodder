@@ -340,6 +340,14 @@
           </object>
         </child>
         <child>
+          <object class="GtkToggleAction" id="item_view_hide_boring_podcasts">
+            <property name="active">False</property>
+            <property name="name">item_view_hide_boring_podcasts</property>
+            <property name="label" translatable="yes">Hide podcasts without episodes</property>
+            <signal handler="on_item_view_hide_boring_podcasts_toggled" name="toggled"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="menuHelp">
             <property name="name">menuHelp</property>
             <property name="label" translatable="yes">_Help</property>
@@ -447,6 +455,8 @@
           <menuitem action="item_view_episodes_all"/>
           <menuitem action="item_view_episodes_undeleted"/>
           <menuitem action="item_view_episodes_downloaded"/>
+          <separator/>
+          <menuitem action="item_view_hide_boring_podcasts"/>
         </menu>
         <menu action="menuHelp">
           <menuitem action="wiki"/>

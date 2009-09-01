@@ -274,8 +274,11 @@ class PodcastChannel(PodcastModelObject):
     def save(self):
         self.db.save_channel(self)
 
-    def stat(self, state=None, is_played=None, is_locked=None):
-        return self.db.get_channel_stat(self.url, state=state, is_played=is_played, is_locked=is_locked)
+    def get_statistics(self):
+        if self.id is None:
+            return (0, 0, 0, 0, 0)
+        else:
+            return self.db.get_channel_count(int(self.id))
 
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.username, self.password)

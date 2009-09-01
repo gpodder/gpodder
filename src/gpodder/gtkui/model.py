@@ -259,15 +259,55 @@ class EpisodeListModel(gtk.ListStore):
 
 class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
-            C_COVER, C_ERROR, C_PILL_VISIBLE = range(8)
+            C_COVER, C_ERROR, C_PILL_VISIBLE, \
+            C_VISIBLE_UNDELETED, C_VISIBLE_DOWNLOADED = range(10)
 
     def __init__(self, max_image_side, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool)
+                object, gtk.gdk.Pixbuf, str, bool, bool, bool)
+
+        # Filter to allow hiding some episodes
+        self._filter = self.filter_new()
+        self._view_mode = EpisodeListModel.VIEW_ALL
+        self._filter.set_visible_func(self._filter_visible_func)
 
         self._cover_cache = {}
         self._max_image_side = max_image_side
         self._cover_downloader = cover_downloader
+
+
+    def _filter_visible_func(self, model, iter):
+        if self._view_mode == EpisodeListModel.VIEW_ALL:
+            return True
+        elif self._view_mode == EpisodeListModel.VIEW_UNDELETED:
+            return model.get_value(iter, self.C_VISIBLE_UNDELETED)
+        elif self._view_mode == EpisodeListModel.VIEW_DOWNLOADED:
+            return model.get_value(iter, self.C_VISIBLE_DOWNLOADED)
+
+        return True
+
+    def get_filtered_model(self):
+        """Returns a filtered version of this episode model
+
+        The filtered version should be displayed in the UI,
+        as this model can have some filters set that should
+        be reflected in the UI.
+        """
+        return self._filter
+
+    def set_view_mode(self, new_mode):
+        """Sets a new view mode for this model
+
+        After setting the view mode, the filtered model
+        might be updated to reflect the new mode."""
+        if self._view_mode != new_mode:
+            self._view_mode = new_mode
+            self._filter.refilter()
+
+    def get_view_mode(self):
+        """Returns the currently-set view mode"""
+        return self._view_mode
+
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
         """
@@ -314,16 +354,13 @@ class PodcastListModel(gtk.ListStore):
         pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
         return self._resize_pixbuf(channel.url, pixbuf)
 
-    def _get_pill_image(self, channel):
-        count_downloaded = channel.stat(state=gpodder.STATE_DOWNLOADED)
-        count_unplayed = channel.stat(state=gpodder.STATE_DOWNLOADED, is_played=False)
+    def _get_pill_image(self, channel, count_downloaded, count_unplayed):
         if count_unplayed > 0 or count_downloaded > 0:
             return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
         else:
             return None
 
-    def _format_description(self, channel):
-        count_new = channel.stat(state=gpodder.STATE_NORMAL, is_played=False)
+    def _format_description(self, channel, count_new):
         title_markup = xml.sax.saxutils.escape(channel.title)
         description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         d = []
@@ -351,6 +388,14 @@ class PodcastListModel(gtk.ListStore):
                     self.C_COVER, self._get_cover_image(channel))
             self.update_by_iter(iter)
 
+    def get_filter_path_from_url(self, url):
+        # Return the path of the filtered model for a given URL
+        child_path = self.get_path_from_url(url)
+        if child_path is None:
+            return None
+        else:
+            return self._filter.child_path_to_path(child_path)
+
     def get_path_from_url(self, url):
         # Return the tree model path for a given URL
         if url is None:
@@ -367,16 +412,23 @@ class PodcastListModel(gtk.ListStore):
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter)
 
+    def update_by_filter_iter(self, iter):
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
+
     def update_by_iter(self, iter):
         # Given a GtkTreeIter, update volatile information
         channel = self.get_value(iter, self.C_CHANNEL)
-        pill_image = self._get_pill_image(channel)
+        total, deleted, new, downloaded, unplayed = channel.get_statistics()
+
+        pill_image = self._get_pill_image(channel, downloaded, unplayed)
         self.set(iter, \
                 self.C_TITLE, channel.title, \
-                self.C_DESCRIPTION, self._format_description(channel), \
+                self.C_DESCRIPTION, self._format_description(channel, new), \
                 self.C_ERROR, self._format_error(channel), \
                 self.C_PILL, pill_image, \
-                self.C_PILL_VISIBLE, pill_image != None)
+                self.C_PILL_VISIBLE, pill_image != None, \
+                self.C_VISIBLE_UNDELETED, total > deleted, \
+                self.C_VISIBLE_DOWNLOADED, downloaded + new > 0)
 
     def add_cover_by_url(self, url, pixbuf):
         # Resize and add the new cover image
