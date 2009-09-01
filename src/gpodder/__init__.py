@@ -89,7 +89,7 @@ del socket
 del SOCKET_TIMEOUT
 
 # Variables reserved for GUI-specific use (will be set accordingly)
-ui_folder = None
+ui_folders = []
 credits_file = None
 icon_file = None
 

@@ -52,7 +52,7 @@ class BuilderWidget(GtkBuilderWidget):
     finger_friendly_widgets = []
 
     def __init__(self, parent, **kwargs):
-        GtkBuilderWidget.__init__(self, gpodder.ui_folder, gpodder.textdomain, **kwargs)
+        GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
 
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:

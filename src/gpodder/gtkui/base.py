@@ -33,13 +33,13 @@ class GtkBuilderWidget(object):
     # replace GtkScrolledWindow widgets with Finger Scroll widgets
     use_fingerscroll = False
 
-    def __init__(self, ui_folder, textdomain, **kwargs):
+    def __init__(self, ui_folders, textdomain, **kwargs):
         """
         Loads the UI file from the specified folder (with translations
         from the textdomain) and initializes attributes.
 
-        ui_folder:
-            Folder with GtkBuilder .ui files
+        ui_folders:
+            List of folders with GtkBuilder .ui files in search order
 
         textdomain:
             The textdomain to be used for translating strings
@@ -56,7 +56,13 @@ class GtkBuilderWidget(object):
         print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
         ui_file = '%s.ui' % self.__class__.__name__.lower()
-        self.builder.add_from_file(os.path.join(ui_folder, ui_file))
+
+        # Search for the UI file in the UI folders, stop after first match
+        for ui_folder in ui_folders:
+            filename = os.path.join(ui_folder, ui_file)
+            if os.path.exists(filename):
+                self.builder.add_from_file(filename)
+                break
 
         self.builder.connect_signals(self)
         self.set_attributes()

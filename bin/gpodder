@@ -87,7 +87,7 @@ if __name__ == '__main__':
     _ = gpodder.gettext
 
     # Set up paths to folder with GtkBuilder files and gpodder.svg
-    gpodder.ui_folder = ui_folder
+    gpodder.ui_folders.append(ui_folder)
     gpodder.credits_file = credits_file
     gpodder.icon_file = icon_file
 
@@ -111,6 +111,7 @@ if __name__ == '__main__':
 
     if options.maemo or os.path.exists(maemo_file):
         gpodder.interface = gpodder.MAEMO
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
     else:
         gpodder.interface = gpodder.GUI
 
