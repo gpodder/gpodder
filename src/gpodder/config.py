@@ -199,6 +199,7 @@ gPodderSettings = {
 
     'feed_update_skipping': (bool, True,
       _('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
+    'episode_list_view_mode': (int, 0, _('Internally used (current view mode)')),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',

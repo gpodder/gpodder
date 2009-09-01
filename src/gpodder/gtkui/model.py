@@ -38,11 +38,19 @@ import xml.sax.saxutils
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
-            = range(8)
+            C_IS_NOT_DELETED, C_IS_DOWNLOADED_NEW_DLING = range(10)
+
+    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED = range(3)
 
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str)
+                gtk.gdk.Pixbuf, str, str, str, bool, bool)
+
+        # Filter to allow hiding some episodes
+        self._filter = self.filter_new()
+        self._view_mode = self.VIEW_ALL
+        self._filter.set_visible_func(self._filter_visible_func)
+
         self._icon_cache = {}
         if gpodder.interface == gpodder.MAEMO:
             self.ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
@@ -71,6 +79,40 @@ class EpisodeListModel(gtk.ListStore):
             return util.format_filesize(episode.length, 1)
         else:
             return None
+
+
+    def _filter_visible_func(self, model, iter):
+        if self._view_mode == self.VIEW_ALL:
+            return True
+        elif self._view_mode == self.VIEW_UNDELETED:
+            return model.get_value(iter, self.C_IS_NOT_DELETED)
+        elif self._view_mode == self.VIEW_DOWNLOADED:
+            return model.get_value(iter, self.C_IS_DOWNLOADED_NEW_DLING)
+
+        return True
+
+    def get_filtered_model(self):
+        """Returns a filtered version of this episode model
+
+        The filtered version should be displayed in the UI,
+        as this model can have some filters set that should
+        be reflected in the UI.
+        """
+        return self._filter
+
+    def set_view_mode(self, new_mode):
+        """Sets a new view mode for this model
+
+        After setting the view mode, the filtered model
+        might be updated to reflect the new mode."""
+        if self._view_mode != new_mode:
+            self._view_mode = new_mode
+            self._filter.refilter()
+
+    def get_view_mode(self):
+        """Returns the currently-set view mode"""
+        return self._view_mode
+
 
     def update_from_channel(self, channel, downloading=None, \
             include_description=False, finish_callback=None):
@@ -105,6 +147,13 @@ class EpisodeListModel(gtk.ListStore):
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter, downloading, include_description)
 
+    def update_by_filter_iter(self, iter, downloading=None, \
+            include_description=False):
+        # Convenience function for use by "outside" methods that use iters
+        # from the filtered episode list model (i.e. all UI things normally)
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
+                downloading, include_description)
+
     def update_by_iter(self, iter, downloading=None, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
         episode.reload_from_db()
@@ -118,16 +167,22 @@ class EpisodeListModel(gtk.ListStore):
         show_padlock = False
         show_missing = False
         status_icon = None
+        deleted = False
+        downloaded_new_downloading = False
 
         if downloading is not None and downloading(episode):
             status_icon = self.ICON_DOWNLOADING
+            downloaded_new_downloading = True
         else:
             if episode.state == gpodder.STATE_DELETED:
                 status_icon = self.ICON_DELETED
+                deleted = True
             elif episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played:
                 status_icon = self.ICON_NEW
+                downloaded_new_downloading = True
             elif episode.state == gpodder.STATE_DOWNLOADED:
+                downloaded_new_downloading = True
                 show_bullet = not episode.is_played
                 show_padlock = episode.is_locked
                 show_missing = not episode.file_exists()
@@ -143,7 +198,11 @@ class EpisodeListModel(gtk.ListStore):
         if status_icon is not None:
             status_icon = self._get_tree_icon(status_icon, show_bullet, \
                     show_padlock, show_missing, icon_size)
-        self.set(iter, self.C_STATUS_ICON, status_icon)
+
+        self.set(iter, \
+                self.C_STATUS_ICON, status_icon, \
+                self.C_IS_NOT_DELETED, not deleted, \
+                self.C_IS_DOWNLOADED_NEW_DLING, downloaded_new_downloading)
 
     def _get_tree_icon(self, icon_name, add_bullet=False, \
             add_padlock=False, add_missing=False, icon_size=32):

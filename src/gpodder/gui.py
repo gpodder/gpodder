@@ -322,7 +322,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.set_model(self.podcast_list_model)
 
         self.episode_list_model = EpisodeListModel()
-        self.treeAvailable.set_model(self.episode_list_model)
+
+        if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
+            self.item_view_episodes_undeleted.set_active(True)
+        elif self.config.episode_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
+            self.item_view_episodes_downloaded.set_active(True)
+        else:
+            self.item_view_episodes_all.set_active(True)
+
+        self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
 
         # enable alternating colors hint
         self.treeAvailable.set_rules_hint( True)
@@ -1362,9 +1370,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         selection = self.treeAvailable.get_selection()
         (model, paths) = selection.get_selected_rows()
-        for path in paths:
+        for path in reversed(paths):
             iter = model.get_iter(path)
-            self.episode_list_model.update_by_iter(iter, \
+            self.episode_list_model.update_by_filter_iter(iter, \
                     self.episode_is_downloading, \
                     self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
 
@@ -2423,6 +2431,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemShowDescription_activate(self, widget):
         self.config.episode_list_descriptions = self.itemShowDescription.get_active()
+
+    def on_item_view_episodes_changed(self, radioaction, current):
+        if current == self.item_view_episodes_all:
+            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
+        elif current == self.item_view_episodes_undeleted:
+            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNDELETED)
+        elif current == self.item_view_episodes_downloaded:
+            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
+
+        self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
 
     def update_item_device( self):
         if self.config.device_type != 'none':
