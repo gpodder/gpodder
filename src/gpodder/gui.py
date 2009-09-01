@@ -1837,7 +1837,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
                 try:
-                    channel.update(max_episodes=self.config.max_episodes_per_feed)
+                    # Update if timeout is not reached or we update a single podcast or skipping is disabled
+                    if channel.query_automatic_update() or total == 1 or not self.config.feed_update_skipping:
+                        channel.update(max_episodes=self.config.max_episodes_per_feed)
+                    else:
+                        log('Skipping update of %s (see feed_update_skipping)', channel.title, sender=self)
                     self._update_cover(channel)
                 except Exception, e:
                     self.notification(_('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'), widget=self.treeChannels)

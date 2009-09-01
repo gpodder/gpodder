@@ -216,19 +216,24 @@ class PodcastChannel(PodcastModelObject):
         self.etag = feed.headers.get('etag', self.etag)
         self.last_modified = feed.headers.get('last-modified', self.last_modified)
 
+    def query_automatic_update(self):
+        """Query if this channel should be updated automatically
+
+        Returns True if the update should happen in automatic
+        mode or False if this channel should be skipped (timeout
+        not yet reached or release not expected right now).
+        """
+        updated = self.updated_timestamp
+        expected = self.release_expected
+
+        now = time.time()
+        one_day_ago = now - 60*60*24
+        lastcheck = now - 60*10
+
+        return updated < one_day_ago or \
+                (expected < now and updated < lastcheck)
+
     def update(self, max_episodes=0):
-        if self.updated_timestamp > time.time() - 60*60*24:
-            # If we have updated in the last 24 hours, do some optimizations
-            if self.release_expected > time.time():
-                hours = (self.release_expected-time.time())/(60*60)
-                log('Expecting a release in %.2f hours - skipping %s', hours, self.title, sender=self)
-                return
-
-            # If we have updated in the last 10 minutes, skip the update
-            if self.updated_timestamp > time.time() - 60*10:
-                log('Last update still too recent - skipping %s', self.title, sender=self)
-                return
-
         try:
             self.feed_fetcher.fetch_channel(self)
         except feedcore.UpdatedFeed, updated:
