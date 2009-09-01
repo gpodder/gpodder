@@ -394,7 +394,7 @@ class PodcastListModel(gtk.ListStore):
         if child_path is None:
             return None
         else:
-            return self._filter.child_path_to_path(child_path)
+            return self._filter.convert_child_path_to_path(child_path)
 
     def get_path_from_url(self, url):
         # Return the tree model path for a given URL

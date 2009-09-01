@@ -68,6 +68,30 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
             ctx.line_to(x+int(left_side_width)+offset, y)
 
 
+def draw_text_box_centered(ctx, widget, w_width, w_height, text):
+    style = widget.rc_get_style()
+    text_color = style.text[gtk.STATE_PRELIGHT]
+    red, green, blue = text_color.red, text_color.green, text_color.blue
+    text_color = [float(x)/65535. for x in (red, green, blue)]
+    text_color.append(.5)
+
+    font_desc = style.font_desc
+    font_size = 14 #font_desc.get_size()/float(pango.SCALE)
+    font_name = font_desc.get_family()
+
+    ctx.set_font_size(font_size)
+    ctx.select_font_face(font_name, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+
+    text_extents = TextExtents(ctx, text)
+
+    width = text_extents.width
+    height = text_extents.height
+
+    ctx.move_to(w_width/2-width/2, w_height/2-height/2)
+    ctx.set_source_rgba(*text_color)
+    ctx.show_text(text)
+
+
 def draw_text_pill(left_text, right_text, x=0, y=0, border=4, radius=14):
     # Create temporary context to calculate the text size
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))

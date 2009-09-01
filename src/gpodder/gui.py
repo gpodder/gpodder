@@ -92,6 +92,8 @@ from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
 
+from gpodder.gtkui.draw import draw_text_box_centered
+
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.channel import gPodderChannel
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
@@ -586,6 +588,46 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate)
+
+        self.treeAvailable.connect('expose-event', self.on_treeview_expose_event)
+        self.treeChannels.connect('expose-event', self.on_treeview_expose_event)
+        self.treeDownloads.connect('expose-event', self.on_treeview_expose_event)
+
+    def on_treeview_expose_event(self, widget, event):
+        if event.window == widget.get_bin_window():
+            model = widget.get_model()
+            if model is not None and model.get_iter_first() is not None:
+                return False
+
+            ctx = event.window.cairo_create()
+            png = widget.get_pango_context()
+            ctx.rectangle(event.area.x, event.area.y,
+                    event.area.width, event.area.height)
+            ctx.clip()
+
+            x, y, width, height, depth = event.window.get_geometry()
+            if widget == self.treeAvailable:
+                if self.config.episode_list_view_mode != \
+                        EpisodeListModel.VIEW_ALL:
+                    text = _('Select "View" > "All episodes" to show episodes')
+                else:
+                    text = _('No episodes available')
+            elif widget == self.treeChannels:
+                if self.config.episode_list_view_mode != \
+                        EpisodeListModel.VIEW_ALL and \
+                        self.config.podcast_list_hide_boring and \
+                        len(self.channels) > 0:
+                    text = _('No podcasts in this view')
+                else:
+                    text = _('No subscriptions')
+            elif widget == self.treeDownloads:
+                text = _('No downloads')
+            else:
+                raise Exception('on_treeview_expose_event: unknown widget')
+
+            draw_text_box_centered(ctx, widget, width, height, text)
+
+        return False
 
     def enable_download_list_update(self):
         if not self.download_list_update_enabled:
