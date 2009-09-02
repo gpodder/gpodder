@@ -1,0 +1,36 @@
+
+  gPodder Shownotes Dialog interface specification
+  ------------------------------------------------
+
+  suggested shownotes dialog actions:
+
+    play / stream
+    download / cancel / delete
+    mark as new / do not download
+    visit website
+    pause / resume
+
+  Methods to be implemented by the window:
+
+    def on_scroll_down(self):
+    def on_scroll_up(self):
+    def on_create_window(self):
+    def on_show_window(self):
+    def on_display_text(self):
+    def on_hide_window(self):
+    def on_download_status_progress(self):
+    def on_episode_status_changed(self):
+
+  Handler/service methods provided by the implementation:
+
+    def on_play_button_clicked(self, widget=None):
+    def on_download_button_clicked(self, widget=None):
+    def on_cancel_button_clicked(self, widget=None):
+    def on_delete_button_clicked(self, widget=None):
+    def on_mark_as_new_button_clicked(self, widget=None):
+    def on_do_not_download_button_clicked(self, widget=None):
+    def on_visit_website_button_clicked(self, widget=None):
+    def on_pause_download_button_clicked(self, widget=None):
+    def on_resume_download_button_clicked(self, widget=None):
+    def on_close_button_clicked(self, widget=None):
+

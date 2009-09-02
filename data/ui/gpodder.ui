@@ -218,7 +218,7 @@
             <property name="stock_id">gtk-stop</property>
             <property name="name">item_cancel_download</property>
             <property name="label" translatable="yes">Cancel</property>
-            <signal handler="on_treeDownloads_row_activated" name="activate"/>
+            <signal handler="on_item_cancel_download_activate" name="activate"/>
           </object>
         </child>
         <child>
@@ -559,7 +559,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">True</property>
-                <signal handler="on_btnCancelDownloadStatus_clicked" name="clicked"/>
+                <signal handler="on_item_cancel_download_activate" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>

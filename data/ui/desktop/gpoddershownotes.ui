@@ -7,7 +7,7 @@
     <property name="title" translatable="yes">Episode details</property>
     <property name="type_hint">dialog</property>
     <property name="visible">False</property>
-    <property name="modal">True</property>
+    <property name="modal">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="gpodderepisode-vbox">
         <property name="border_width">2</property>
@@ -59,13 +59,13 @@
                 <property name="label">gtk-media-play</property>
                 <property name="use_stock">True</property>
                 <property name="visible">True</property>
-                <signal handler="on_playback" name="clicked"/>
+                <signal handler="on_play_button_clicked" name="clicked"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="btnDownload">
                 <property name="visible">True</property>
-                <signal handler="on_download" name="clicked"/>
+                <signal handler="on_download_button_clicked" name="clicked"/>
                 <child>
                   <object class="GtkAlignment" id="alignment185">
                     <property name="visible">True</property>
@@ -101,7 +101,7 @@
                 <property name="label">gtk-cancel</property>
                 <property name="use_stock">True</property>
                 <property name="visible">True</property>
-                <signal handler="on_cancel" name="clicked"/>
+                <signal handler="on_cancel_button_clicked" name="clicked"/>
               </object>
               <packing>
                 <property name="position">2</property>
@@ -112,7 +112,7 @@
                 <property name="label">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="visible">True</property>
-                <signal handler="on_close" name="clicked"/>
+                <signal handler="on_close_button_clicked" name="clicked"/>
               </object>
               <packing>
                 <property name="position">3</property>

@@ -658,6 +658,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(changed_episode_urls)
 
+        # Tell the shownotes window that we have removed the episode
+        if self.episode_shownotes_window is not None and \
+                self.episode_shownotes_window.episode is not None and \
+                self.episode_shownotes_window.episode.url in changed_episode_urls:
+            self.episode_shownotes_window._download_status_changed(None)
+
         # Update the tab title and downloads list
         self.update_downloads_list()
 
@@ -677,14 +683,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Keep a list of all download tasks that we've seen
             download_tasks_seen = set()
 
-            # Remember the progress and speed for the episode that
+            # Remember the DownloadTask object for the episode that
             # has been opened in the episode shownotes dialog (if any)
             if self.episode_shownotes_window is not None:
-                episode_window_episode = self.episode_shownotes_window.episode
-                episode_window_progress = 0.0
-                episode_window_speed = 0.0
+                shownotes_episode = self.episode_shownotes_window.episode
+                shownotes_task = None
             else:
-                episode_window_episode = None
+                shownotes_episode = None
+                shownotes_task = None
 
             # Do not go through the list of the model is not (yet) available
             if model is None:
@@ -699,10 +705,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 total_size += size
                 done_size += size*progress
 
-                if episode_window_episode is not None and \
-                        episode_window_episode.url == task.url:
-                    episode_window_progress = progress
-                    episode_window_speed = speed
+                if shownotes_episode is not None and \
+                        shownotes_episode.url == task.episode.url:
+                    shownotes_task = task
 
                 download_tasks_seen.add(task)
 
@@ -785,10 +790,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.set_title(' - '.join(title))
 
             self.update_episode_list_icons(episode_urls)
-            if self.episode_shownotes_window is not None and \
-                    self.episode_shownotes_window.gPodderShownotes.get_property('visible'):
-                self.episode_shownotes_window.download_status_changed(episode_urls)
-                self.episode_shownotes_window.download_status_progress(episode_window_progress, episode_window_speed)
+            if self.episode_shownotes_window is not None:
+                if (shownotes_task and shownotes_task.url in episode_urls) or \
+                        shownotes_task != self.episode_shownotes_window.task:
+                    self.episode_shownotes_window._download_status_changed(shownotes_task)
+                self.episode_shownotes_window._download_status_progress()
             self.play_or_download()
             if channel_urls:
                 self.updateComboBox(only_these_urls=channel_urls)
@@ -979,9 +985,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                     self.download_queue_manager.add_task(task)
                                     self.enable_download_list_update()
                             elif status == download.DownloadTask.CANCELLED:
-                                # Cancelling a download only allows when paused/downloading/queued
-                                if task.status in (task.QUEUED, task.DOWNLOADING, task.PAUSED):
+                                # Cancelling a download allowed when downloading/queued
+                                if task.status in (task.QUEUED, task.DOWNLOADING):
                                     task.status = status
+                                # Cancelling paused downloads requires a call to .run()
+                                elif task.status == task.PAUSED:
+                                    task.status = status
+                                    # Call run, so the partial file gets deleted
+                                    task.run()
                             elif status == download.DownloadTask.PAUSED:
                                 # Pausing a download only when queued/downloading
                                 if task.status in (task.DOWNLOADING, task.QUEUED):
@@ -1336,7 +1347,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(self.set_finger_friendly(item))
             else:
                 item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
-                item.connect('activate', lambda w: self.on_treeDownloads_row_activated(self.toolCancel))
+                item.connect('activate', self.on_item_cancel_download_activate)
                 menu.append(self.set_finger_friendly(item))
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
@@ -1443,6 +1454,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.update_by_filter_iter(iter, \
                     self.episode_is_downloading, \
                     self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO)
+
+    def episode_list_status_changed(self, episodes):
+        self.update_episode_list_icons([episode.url for episode in episodes])
 
     def update_episode_list_icons(self, urls):
         """
@@ -1552,6 +1566,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
+            self.toolCancel.set_sensitive(True)
             return
 
         ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
@@ -2075,31 +2090,63 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes.append(episode)
         return episodes
 
-    def delete_episode_list( self, episodes, confirm = True):
-        if len(episodes) == 0:
+    def delete_episode_list(self, episodes, confirm=True):
+        if not episodes:
             return
 
-        if len(episodes) == 1:
-            message = _('Do you really want to delete this episode?')
-        else:
-            message = _('Do you really want to delete %d episodes?') % len(episodes)
+        count = len(episodes)
 
-        if confirm and self.show_confirmation( message, _('Delete episodes')) == False:
+        if count == 1:
+            episode = episodes[0]
+            if episode.is_locked:
+                title = _('%s is locked') % saxutils.escape(episode.title)
+                message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
+                self.notification(message, title, widget=self.treeAvailable)
+                return
+
+            title = _('Remove %s?') % saxutils.escape(episode.title)
+            message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
+        else:
+            title = _('Remove %d episodes?') % count
+            message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
+
+        locked_count = sum(int(e.is_locked) for e in episodes if e.is_locked is not None)
+
+        if count == locked_count:
+            title = _('Episodes are locked')
+            message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+            self.notification(message, title, widget=self.treeAvailable)
+            return
+        elif locked_count > 0:
+            title = _('Remove %d out of %d episodes?') % (count-locked_count, count)
+            message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
+
+        if confirm and not self.show_confirmation(message, title):
             return
 
         episode_urls = set()
         channel_urls = set()
         for episode in episodes:
-            log('Deleting episode: %s', episode.title, sender = self)
-            episode.delete_from_disk()
-            episode_urls.add(episode.url)
-            channel_urls.add(episode.channel.url)
+            if episode.is_locked:
+                log('Not deleting episode (is locked): %s', episode.title)
+            else:
+                log('Deleting episode: %s', episode.title)
+                episode.delete_from_disk()
+                episode_urls.add(episode.url)
+                channel_urls.add(episode.channel.url)
+
+                # Tell the shownotes window that we have removed the episode
+                if self.episode_shownotes_window is not None and \
+                        self.episode_shownotes_window.episode is not None and \
+                        self.episode_shownotes_window.episode.url == episode.url:
+                    self.episode_shownotes_window._download_status_changed(None)
 
         # Episodes have been deleted - persist the database
         self.db.commit()
 
         self.update_episode_list_icons(episode_urls)
         self.updateComboBox(only_these_urls=channel_urls)
+        self.play_or_download()
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         columns = (
@@ -2237,6 +2284,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 self.download_status_model.register_task(task)
                 self.enable_download_list_update()
+
+    def cancel_task_list(self, tasks):
+        if not tasks:
+            return
+
+        for task in tasks:
+            if task.status in (task.QUEUED, task.DOWNLOADING):
+                task.status = task.CANCELLED
+            elif task.status == task.PAUSED:
+                task.status = task.CANCELLED
+                # Call run, so the partial file gets deleted
+                task.run()
+
+        self.update_episode_list_icons([task.url for task in tasks])
+        self.play_or_download()
+
+        # Update the tab title and downloads list
+        self.update_downloads_list()
 
     def new_episodes_show(self, episodes):
         columns = (
@@ -2931,16 +2996,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.on_shownotes_selected_episodes(widget)
 
     def show_episode_shownotes(self, episode):
-        play_callback = lambda: self.playback_episodes([episode])
-        def download_callback():
-            self.download_episode_list([episode])
-            self.play_or_download()
         if self.episode_shownotes_window is None:
             log('First-time use of episode window --- creating', sender=self)
             self.episode_shownotes_window = gPodderShownotes(self.gPodder, _config=self.config, \
-                    download_status_model=self.download_status_model, \
-                    episode_is_downloading=self.episode_is_downloading)
-        self.episode_shownotes_window.show(episode=episode, download_callback=download_callback, play_callback=play_callback)
+                    _download_episode_list=self.download_episode_list, \
+                    _playback_episodes=self.playback_episodes, \
+                    _delete_episode_list=self.delete_episode_list, \
+                    _episode_list_status_changed=self.episode_list_status_changed, \
+                    _cancel_task_list=self.cancel_task_list)
+        self.episode_shownotes_window.show(episode)
+        if self.episode_is_downloading(episode):
+            self.update_downloads_list()
 
     def on_treeAvailable_button_release_event(self, widget, *args):
         self.play_or_download()
@@ -2954,18 +3020,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gobject.timeout_add(next_update, self.auto_update_procedure)
 
     def on_treeDownloads_row_activated(self, widget, *args):
-        if self.wNotebook.get_current_page() == 0:
-            # Use the available podcasts treeview + model
-            selection = self.treeAvailable.get_selection()
-            (model, paths) = selection.get_selected_rows()
-            urls = [model.get_value(model.get_iter(path), 0) for path in paths]
-            selected_tasks = [task for task in self.download_tasks_seen if task.url in urls]
-            for task in selected_tasks:
-                task.status = task.CANCELLED
-            self.update_selected_episode_list_icons()
-            self.play_or_download()
-            return
-
         # Use the standard way of working on the treeview
         selection = self.treeDownloads.get_selection()
         (model, paths) = selection.get_selected_rows()
@@ -2985,67 +3039,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def on_btnCancelDownloadStatus_clicked(self, widget, *args):
-        self.on_treeDownloads_row_activated( widget, None)
+    def on_item_cancel_download_activate(self, widget):
+        if self.wNotebook.get_current_page() == 0:
+            selection = self.treeAvailable.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            urls = [model.get_value(model.get_iter(path), \
+                    self.episode_list_model.C_URL) for path in paths]
+            selected_tasks = [task for task in self.download_tasks_seen \
+                    if task.url in urls]
+        else:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [model.get_value(model.get_iter(path), \
+                    self.download_status_model.C_TASK) for path in paths]
+        self.cancel_task_list(selected_tasks)
 
     def on_btnCancelAll_clicked(self, widget, *args):
-        self.treeDownloads.get_selection().select_all()
-        self.on_treeDownloads_row_activated( self.toolCancel, None)
-        self.treeDownloads.get_selection().unselect_all()
-
-        # Update the tab title and downloads list
-        self.update_downloads_list()
+        self.cancel_task_list(self.download_tasks_seen)
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        if self.active_channel is None:
-            return
-
         if self.wNotebook.get_current_page() == 1:
-            # Downloads tab visible - no action!
+            # Downloads tab visibile - skip (for now)
             return
 
         episodes = self.get_selected_episodes()
-
-        if not episodes:
-            log('Nothing selected - will not remove any downloaded episode.')
-            return
-
-        if len(episodes) == 1:
-            episode = episodes[0]
-            if episode.is_locked:
-                title = _('%s is locked') % saxutils.escape(episode.title)
-                message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
-                self.notification(message, title, widget=self.treeAvailable)
-                return
-
-            title = _('Remove %s?') % saxutils.escape(episode.title)
-            message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
-        else:
-            title = _('Remove %d episodes?') % len(episodes)
-            message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
-
-        locked_count = sum(int(e.is_locked) for e in episodes if e.is_locked is not None)
-
-        if len(episodes) == locked_count:
-            title = _('Episodes are locked')
-            message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
-            self.notification(message, title, widget=self.treeAvailable)
-            return
-        elif locked_count > 0:
-            title = _('Remove %d out of %d episodes?') % (len(episodes)-locked_count, len(episodes))
-            message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
-
-        # if user confirms deletion, let's remove some stuff ;)
-        if self.show_confirmation(message, title):
-            for episode in episodes:
-                if not episode.is_locked:
-                    episode.delete_from_disk()
-            self.updateComboBox(only_selected_channel=True)
-
-        # only delete partial files if we do not have any downloads in progress
-        self.clean_up_downloads(False)
-        self.update_selected_episode_list_icons()
-        self.play_or_download()
+        self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown

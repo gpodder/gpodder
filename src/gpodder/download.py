@@ -580,6 +580,8 @@ class DownloadTask(object):
         # If the download has already been cancelled, skip it
         if self.status == DownloadTask.CANCELLED:
             util.delete_file(self.tempname)
+            self.progress = 0.0
+            self.speed = 0.0
             return False
 
         # We only start this download if its status is "queued"
