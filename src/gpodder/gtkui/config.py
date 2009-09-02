@@ -149,7 +149,10 @@ class UIConfig(config.Config):
 
         if set((x, y, width, height)).issubset(set(self.Settings)):
             window.resize(getattr(self, width), getattr(self, height))
-            window.move(getattr(self, x), getattr(self, y))
+            if getattr(self, x) == -1 or getattr(self, y) == -1:
+                window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+            else:
+                window.move(getattr(self, x), getattr(self, y))
 
             # Ignore events while we're connecting to the window
             self.__ignore_window_events = True

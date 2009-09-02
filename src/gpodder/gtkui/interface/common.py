@@ -78,8 +78,6 @@ class BuilderWidget(GtkBuilderWidget):
                     (w, h) = (a.width, a.height)
                     (pw, ph) = self.main_window.get_size()
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-                else:
-                    self.main_window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
 
     def _on_key_press_event_maemo(self, widget, event):
         if event.keyval == gtk.keysyms.F6:

@@ -218,7 +218,7 @@ gPodderSettings = {
 }
 
 # Helper function to add window-specific properties (position and size)
-def window_props(config_prefix, x=100, y=100, width=700, height=500):
+def window_props(config_prefix, x=-1, y=-1, width=700, height=500):
     return {
             config_prefix+'_x': (int, x),
             config_prefix+'_y': (int, y),
