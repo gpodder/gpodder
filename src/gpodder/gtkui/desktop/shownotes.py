@@ -37,8 +37,7 @@ from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 class gPodderShownotes(gPodderShownotesBase):
     def on_create_window(self):
         self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
-        if self._config.enable_html_shownotes and \
-                not gpodder.interface == gpodder.MAEMO:
+        if self._config.enable_html_shownotes:
             try:
                 import gtkhtml2
                 setattr(self, 'have_gtkhtml2', True)
@@ -53,16 +52,6 @@ class gPodderShownotes(gPodderShownotesBase):
                 setattr(self, 'have_gtkhtml2', False)
         else:
             setattr(self, 'have_gtkhtml2', False)
-
-        if gpodder.interface == gpodder.MAEMO:
-            menu = gtk.Menu()
-            menu.append(self.action_play.create_menu_item())
-            menu.append(gtk.SeparatorMenuItem())
-            menu.append(self.action_download.create_menu_item())
-            menu.append(self.action_cancel.create_menu_item())
-            menu.append(gtk.SeparatorMenuItem())
-            menu.append(self.action_close.create_menu_item())
-            self.main_window.set_menu(self.set_finger_friendly(menu))
 
     def on_scroll_down(self):
         if not hasattr(self.scrolled_window, 'get_vscrollbar'):

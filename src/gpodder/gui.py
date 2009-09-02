@@ -179,6 +179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolbarSpacer.show()
 
             self.wNotebook.set_show_tabs(False)
+            self.wNotebook.set_show_border(False)
             self.tool_downloads = gtk.ToggleToolButton(gtk.STOCK_GO_DOWN)
             self.tool_downloads.connect('toggled', self.on_tool_downloads_toggled)
             self.tool_downloads.set_label(_('Downloads'))
@@ -239,6 +240,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             
             # get screen real estate
             self.hboxContainer.set_border_width(0)
+
+            self.cbLimitDownloads.set_label(_('Max.'))
+            self.cbMaxDownloads.set_label(_('Limit DLs to'))
 
             # Offer importing of videocenter podcasts
             if os.path.exists(os.path.expanduser('~/videocenter')):
@@ -380,16 +384,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Add our context menu to treeAvailable
         if gpodder.interface == gpodder.MAEMO:
+            # On button press, only save the event position
             self.treeview_available_buttonpress = (0, 0)
-            self.treeAvailable.connect('button-press-event', self.treeview_button_savepos)
-            self.treeAvailable.connect('button-release-event', self.treeview_button_pressed)
+            def on_button_pressed(treeview, event):
+                self.treeview_available_buttonpress = (event.x, event.y)
+                return True
+            self.treeAvailable.connect('button-press-event', on_button_pressed)
 
+            # On button press, only save the event position
             self.treeview_channels_buttonpress = (0, 0)
-            self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
+            def on_button_pressed(treeview, event):
+                self.treeview_channels_buttonpress = (event.x, event.y)
+                return True
+            self.treeChannels.connect('button-press-event', on_button_pressed)
+
+            # On button release, really handle the event
+            self.treeAvailable.connect('button-release-event', self.treeview_available_button_released)
             self.treeChannels.connect('button-release-event', self.treeview_channels_button_released)
+            self.context_menu_mouse_button = 1
         else:
-            self.treeAvailable.connect('button-press-event', self.treeview_button_pressed)
+            # For the desktop, handle the event earlier (press event)
+            self.treeAvailable.connect('button-press-event', self.treeview_available_button_pressed)
             self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
+            self.context_menu_mouse_button = 3
 
         self.treeDownloads.connect('button-press-event', self.treeview_downloads_button_pressed)
 
@@ -415,7 +432,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         
         for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
-            itemcolumn.set_reorderable(gpodder.interface != gpodder.MAEMO)
+            itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
 
         if gpodder.interface == gpodder.MAEMO:
@@ -494,8 +511,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeDownloads.append_column(column)
 
         # After we've set up most of the window, show it :)
-        if not gpodder.interface == gpodder.MAEMO:
-            self.gPodder.show()
+        self.gPodder.show()
 
         if self.config.start_iconified:
             self.iconify_main_window()
@@ -598,7 +614,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_expose_event(self, widget, event):
         if event.window == widget.get_bin_window():
             model = widget.get_model()
-            if model is not None and model.get_iter_first() is not None:
+            if (model is not None and model.get_iter_first() is not None) or \
+                    self.currently_updating:
                 return False
 
             ctx = event.window.cairo_create()
@@ -816,7 +833,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.toolbar.show()
             else:
                 self.toolbar.hide()
-        elif name == 'episode_list_descriptions' and gpodder.interface != gpodder.MAEMO:
+        elif name == 'episode_list_descriptions':
             self.updateTreeView()
 
     def read_apps(self):
@@ -942,9 +959,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if path is None:
                 treeview.get_selection().unselect_all()
 
-        # Use right-click for the Desktop version and left-click for Maemo
-        if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
-           (event.button == 3 and gpodder.interface == gpodder.GUI):
+        if event.button == self.context_menu_mouse_button:
             (x, y) = (int(event.x), int(event.y))
             (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
 
@@ -1077,6 +1092,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Close this menu'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
+
                 menu.append(self.set_finger_friendly(item))
 
             menu.show_all()
@@ -1084,10 +1100,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def treeview_channels_button_pressed( self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO:
-            self.treeview_channels_buttonpress = (event.x, event.y)
-            return True
-
         if event.button == 3:
             ( x, y ) = ( int(event.x), int(event.y) )
             ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
@@ -1174,10 +1186,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemClose_activate(self, widget):
         if self.tray_icon is not None:
-            if gpodder.interface == gpodder.MAEMO:
-                self.gPodder.set_property('visible', False)
-            else:
-                self.iconify_main_window()
+            self.iconify_main_window()
         else:
             self.on_gPodder_delete_event(widget)
 
@@ -1230,31 +1239,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
 
-    def treeview_button_savepos(self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO and event.button == 1:
-            self.treeview_available_buttonpress = (event.x, event.y)
-            return True
-
     def treeview_channels_button_released(self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO and event.button == 1:
-            selection = self.treeChannels.get_selection()
-            pathatpos = self.treeChannels.get_path_at_pos(int(event.x), int(event.y))
-            if self.currently_updating:
-                log('do not handle press while updating', sender=self)
+        selection = self.treeChannels.get_selection()
+        pathatpos = self.treeChannels.get_path_at_pos(int(event.x), int(event.y))
+        if self.currently_updating:
+            log('do not handle press while updating', sender=self)
+            return True
+        if pathatpos is None:
+            return False
+        else:
+            ydistance = int(abs(event.y-self.treeview_channels_buttonpress[1]))
+            xdistance = int(event.x-self.treeview_channels_buttonpress[0])
+            if ydistance < 30:
+                (path, column, x, y) = pathatpos
+                selection.select_path(path)
+                self.treeChannels.set_cursor(path)
+                self.treeChannels.grab_focus()
+                # Emulate the cursor changed signal to force an update
+                self.on_treeChannels_cursor_changed(self.treeChannels)
                 return True
-            if pathatpos is None:
-                return False
-            else:
-                ydistance = int(abs(event.y-self.treeview_channels_buttonpress[1]))
-                xdistance = int(event.x-self.treeview_channels_buttonpress[0])
-                if ydistance < 30:
-                    (path, column, x, y) = pathatpos
-                    selection.select_path(path)
-                    self.treeChannels.set_cursor(path)
-                    self.treeChannels.grab_focus()
-                    # Emulate the cursor changed signal to force an update
-                    self.on_treeChannels_cursor_changed(self.treeChannels)
-                    return True
 
     def get_device_name(self):
         if self.config.device_type == 'ipod':
@@ -1264,35 +1267,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             return '(unknown device)'
 
-    def treeview_button_pressed( self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO:
-            ydistance = int(abs(event.y-self.treeview_available_buttonpress[1]))
-            xdistance = int(event.x-self.treeview_available_buttonpress[0])
+    def treeview_available_button_released(self, treeview, event):
+        ydistance = int(abs(event.y-self.treeview_available_buttonpress[1]))
+        xdistance = int(event.x-self.treeview_available_buttonpress[0])
 
-            selection = self.treeAvailable.get_selection()
-            pathatpos = self.treeAvailable.get_path_at_pos(int(event.x), int(event.y))
-            if pathatpos is None:
-                # No item at the current cursor position
-                return False
-            elif ydistance < 30:
-                # Item under the cursor, and no scrolling done
-                (path, column, x, y) = pathatpos
-                selection.select_path(path)
-                self.treeAvailable.set_cursor(path)
-                self.treeAvailable.grab_focus()
-                if self.config.maemo_enable_gestures and xdistance > 70:
-                    self.on_playback_selected_episodes(None)
-                    return True
-                elif self.config.maemo_enable_gestures and xdistance < -70:
-                    self.on_shownotes_selected_episodes(None)
-                    return True
-            else:
-                # Scrolling has been done
+        selection = self.treeAvailable.get_selection()
+        pathatpos = self.treeAvailable.get_path_at_pos(int(event.x), int(event.y))
+        if pathatpos is None:
+            # No item at the current cursor position
+            return False
+        elif ydistance < 30:
+            # Item under the cursor, and no scrolling done
+            (path, column, x, y) = pathatpos
+            selection.select_path(path)
+            self.treeAvailable.set_cursor(path)
+            self.treeAvailable.grab_focus()
+            if self.config.maemo_enable_gestures and xdistance > 70:
+                self.on_playback_selected_episodes(None)
                 return True
+            elif self.config.maemo_enable_gestures and xdistance < -70:
+                self.on_shownotes_selected_episodes(None)
+                return True
+        else:
+            # Scrolling has been done
+            return True
 
-        # Use right-click for the Desktop version and left-click for Maemo
-        if (event.button == 1 and gpodder.interface == gpodder.MAEMO) or \
-           (event.button == 3 and gpodder.interface == gpodder.GUI):
+        # Pass the event to the context menu handler for treeAvailable
+        self.treeview_available_button_pressed(treeview, event)
+
+    def treeview_available_button_pressed(self, treeview, event):
+        if event.button == self.context_menu_mouse_button:
             ( x, y ) = ( int(event.x), int(event.y) )
             ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
 
@@ -1530,7 +1534,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def playback_episodes(self, episodes):
         if gpodder.interface == gpodder.MAEMO:
             if len(episodes) == 1:
-                text = _('Opening %s') % saxutils.escape(episodes[0].title)
+                text = _('Opening %s') % episodes[0].title
             else:
                 text = _('Opening %d episodes') % len(episodes)
             banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
@@ -1599,14 +1603,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         can_download = can_download and not can_cancel
         can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
-        can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download
+        can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
 
-        if open_instead_of_play:
-            if gpodder.interface != gpodder.MAEMO:
+        if gpodder.interface != gpodder.MAEMO:
+            if open_instead_of_play:
                 self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
-            can_transfer = False
-        else:
-            if gpodder.interface != gpodder.MAEMO:
+            else:
                 self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
 
         self.toolPlay.set_sensitive( can_play)
@@ -1700,15 +1702,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def updateTreeView(self):
         if self.channels and self.active_channel is not None:
             if gpodder.interface == gpodder.MAEMO:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes for %s') % saxutils.escape(self.active_channel.title))
+                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes'))
             else:
                 banner = None
 
             self.currently_updating = True
-            self.episode_list_model.update_from_channel(self.active_channel, \
-                    self.episode_is_downloading, \
-                    self.config.episode_list_descriptions and gpodder.interface != gpodder.MAEMO, \
-                    lambda: self.on_episode_list_model_updated(banner))
+            def update_in_thread():
+                self.episode_list_model.update_from_channel(\
+                        self.active_channel, \
+                        self.episode_is_downloading, \
+                        self.config.episode_list_descriptions \
+                          and gpodder.interface != gpodder.MAEMO)
+                util.idle_add(self.on_episode_list_model_updated, banner)
+            threading.Thread(target=update_in_thread).start()
         else:
             self.episode_list_model.clear()
     

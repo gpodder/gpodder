@@ -36,6 +36,11 @@ from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 
 class gPodderShownotes(gPodderShownotesBase):
     def on_create_window(self):
+        self.text_buffer = gtk.TextBuffer()
+        self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, \
+                weight=pango.WEIGHT_BOLD)
+        self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
+        self.textview.set_buffer(self.text_buffer)
         # Create the menu and set it for this window (Maybe move
         # this to the .ui file if GtkBuilder allows this)
         menu = gtk.Menu()
@@ -94,20 +99,19 @@ class gPodderShownotes(gPodderShownotesBase):
         subheading = _('from %s') % (self.episode.channel.title)
         description = self.episode.description
 
-        b = gtk.TextBuffer()
-        b.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
-        b.create_tag('subheading', scale=pango.SCALE_SMALL)
-        b.insert_with_tags_by_name(b.get_end_iter(), heading, 'heading')
-        b.insert_at_cursor('\n')
-        b.insert_with_tags_by_name(b.get_end_iter(), subheading, 'subheading')
-        b.insert_at_cursor('\n\n')
-        b.insert(b.get_end_iter(), util.remove_html_tags(description))
-        b.place_cursor(b.get_start_iter())
-        self.textview.set_buffer(b)
+        self.text_buffer.insert_with_tags_by_name(\
+                self.text_buffer.get_end_iter(), heading, 'heading')
+        self.text_buffer.insert_at_cursor('\n')
+        self.text_buffer.insert_with_tags_by_name(\
+                self.text_buffer.get_end_iter(), subheading, 'subheading')
+        self.text_buffer.insert_at_cursor('\n\n')
+        self.text_buffer.insert(self.text_buffer.get_end_iter(), \
+                util.remove_html_tags(description))
+        self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
 
     def on_hide_window(self):
         self.episode = None
-        self.textview.set_buffer(gtk.TextBuffer())
+        self.text_buffer.set_text('')
 
     def on_episode_status_changed(self):
         self.download_progress.set_property('visible', \

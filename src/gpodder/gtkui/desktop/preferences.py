@@ -31,10 +31,6 @@ class gPodderPreferences(BuilderWidget):
         if not hasattr( self, 'callback_finished'):
             self.callback_finished = None
 
-        if gpodder.interface == gpodder.MAEMO:
-            self.table5.hide_all() # player
-            self.gPodderPreferences.fullscreen()
-
         self._config.connect_gtk_editable( 'player', self.openApp)
         self._config.connect_gtk_editable('videoplayer', self.openVideoApp)
         self._config.connect_gtk_editable( 'custom_sync_name', self.entryCustomSyncName)

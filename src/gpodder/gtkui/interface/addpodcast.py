@@ -36,8 +36,6 @@ class gPodderAddPodcast(BuilderWidget):
             self.label_add.set_text(self.custom_label)
         if hasattr(self, 'custom_title'):
             self.gPodderAddPodcast.set_title(self.custom_title)
-        if gpodder.interface == gpodder.MAEMO:
-            self.entry_url.set_text('http://')
         if hasattr(self, 'preset_url'):
             self.entry_url.set_text(self.preset_url)
         if hasattr(self, 'btn_add_stock_id'):

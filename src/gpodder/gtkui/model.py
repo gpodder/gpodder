@@ -115,7 +115,7 @@ class EpisodeListModel(gtk.ListStore):
 
 
     def update_from_channel(self, channel, downloading=None, \
-            include_description=False, finish_callback=None):
+            include_description=False):
         """
         Return a gtk.ListStore containing episodes for the given channel.
         Downloading should be a callback.
@@ -138,9 +138,6 @@ class EpisodeListModel(gtk.ListStore):
                     self.C_DESCRIPTION_STRIPPED, description_stripped)
 
             self.update_by_iter(iter, downloading, include_description)
-
-        if finish_callback is not None:
-            finish_callback()
 
     def update_by_urls(self, urls, downloading=None, include_description=False):
         for row in self:
