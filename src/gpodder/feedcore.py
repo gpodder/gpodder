@@ -173,7 +173,7 @@ class Fetcher(object):
         if not hasattr(feed, 'status'):
             raise InvalidFeed('feed has no status code')
 
-        if not feed.version and feed.status != 304:
+        if not feed.version and feed.status != 304 and feed.status != 401:
             raise InvalidFeed('unknown feed type')
 
     def _normalize_status(self, status):
