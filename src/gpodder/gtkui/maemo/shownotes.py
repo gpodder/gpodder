@@ -52,6 +52,22 @@ class gPodderShownotes(gPodderShownotesBase):
         menu.append(self.action_close.create_menu_item())
         self.main_window.set_menu(self.set_finger_friendly(menu))
 
+    def _on_key_press_event(self, widget, event):
+        # Override to provide support for all hardware keys
+        if gPodderShownotesBase._on_key_press_event(self, widget, event):
+            return True
+
+        if event.keyval == gtk.keysyms.Escape:
+            self.on_close_button_clicked()
+        elif event.keyval == gtk.keysyms.F7:
+            self.on_scroll_down()
+        elif event.keyval == gtk.keysyms.F8:
+            self.on_scroll_up()
+        else:
+            return False
+
+        return True
+
     def on_scroll_down(self):
         if not hasattr(self.scrolled_window, 'get_vscrollbar'):
             return
