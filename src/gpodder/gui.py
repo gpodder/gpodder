@@ -614,8 +614,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_expose_event(self, widget, event):
         if event.window == widget.get_bin_window():
             model = widget.get_model()
-            if (model is not None and model.get_iter_first() is not None) or \
-                    self.currently_updating:
+            if (model is not None and model.get_iter_first() is not None):
                 return False
 
             ctx = event.window.cairo_create()
@@ -626,7 +625,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             x, y, width, height, depth = event.window.get_geometry()
             if widget == self.treeAvailable:
-                if self.config.episode_list_view_mode != \
+                if self.currently_updating:
+                    text = _('Loading episodes') + '...'
+                elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
                     text = _('Select "View" > "All episodes" to show episodes')
                 else:

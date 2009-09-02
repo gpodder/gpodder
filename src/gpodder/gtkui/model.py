@@ -123,7 +123,8 @@ class EpisodeListModel(gtk.ListStore):
         is to be added to the episode row, or False if not)
         """
         self.clear()
-        for episode in channel.get_all_episodes():
+
+        def insert_and_update(episode):
             description = episode.format_episode_row_markup(include_description)
             description_stripped = util.remove_html_tags(episode.description)
 
@@ -138,6 +139,9 @@ class EpisodeListModel(gtk.ListStore):
                     self.C_DESCRIPTION_STRIPPED, description_stripped)
 
             self.update_by_iter(iter, downloading, include_description)
+
+        for episode in channel.get_all_episodes():
+            util.idle_add(insert_and_update, episode)
 
     def update_by_urls(self, urls, downloading=None, include_description=False):
         for row in self:
