@@ -131,19 +131,6 @@ class gPodderShownotes(gPodderShownotesBase):
             self.textview.get_buffer().set_text('')
 
     def on_episode_status_changed(self):
-        self.hide_show_widgets()
-
-    def on_download_status_progress(self):
-        # We receive this from the main window every time the progress
-        # for our episode has changed (but only when this window is visible)
-        if self.task:
-            self.download_progress.set_fraction(self.task.progress)
-            self.download_progress.set_text('%s: %d%% (%s/s)' % ( \
-                    self.task.STATUS_MESSAGE[self.task.status], \
-                    100.*self.task.progress, \
-                    util.format_filesize(self.task.speed)))
-
-    def hide_show_widgets(self):
         if self.task:
             self.download_progress.show()
             self.btnCancel.set_property('visible', self.task.status not in \
@@ -166,4 +153,15 @@ class gPodderShownotes(gPodderShownotesBase):
             else:
                 self.btnPlay.show()
                 self.btnDownload.show()
+
+
+    def on_download_status_progress(self):
+        # We receive this from the main window every time the progress
+        # for our episode has changed (but only when this window is visible)
+        if self.task:
+            self.download_progress.set_fraction(self.task.progress)
+            self.download_progress.set_text('%s: %d%% (%s/s)' % ( \
+                    self.task.STATUS_MESSAGE[self.task.status], \
+                    100.*self.task.progress, \
+                    util.format_filesize(self.task.speed)))
 
