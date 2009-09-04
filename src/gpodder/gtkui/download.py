@@ -42,6 +42,8 @@ class DownloadStatusModel(gtk.ListStore):
     C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_SIZE_TEXT, \
             C_ICON_NAME, C_SPEED_TEXT, C_STATUS_TEXT = range(9)
 
+    SEARCH_COLUMNS = (C_NAME, C_URL)
+
     def __init__(self):
         gtk.ListStore.__init__(self, object, str, str, int, str, str, str, str, str)
 

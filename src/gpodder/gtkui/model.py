@@ -40,6 +40,8 @@ class EpisodeListModel(gtk.ListStore):
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
             C_IS_NOT_DELETED, C_IS_DOWNLOADED_NEW_DLING = range(10)
 
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION_STRIPPED)
+
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED = range(3)
 
     def __init__(self):
@@ -266,6 +268,8 @@ class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VISIBLE_UNDELETED, C_VISIBLE_DOWNLOADED = range(10)
+
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     def __init__(self, max_image_side, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \

@@ -87,6 +87,7 @@ from gpodder.gtkui.desktopfile import UserAppsReader
 from gpodder.gtkui.draw import draw_text_box_centered
 
 from gpodder.gtkui.interface.common import BuilderWidget
+from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.channel import gPodderChannel
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
@@ -260,7 +261,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.add_observer(self.on_config_changed)
 
-        self.uar = None
         self.tray_icon = None
         self.episode_shownotes_window = None
 
@@ -299,30 +299,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
-        # Set up podcast channel tree view widget
-        self.treeChannels.set_enable_search(True)
-        self.treeChannels.set_search_column(PodcastListModel.C_TITLE)
-        self.treeChannels.set_headers_visible(False)
-
-        iconcolumn = gtk.TreeViewColumn('')
-        iconcell = gtk.CellRendererPixbuf()
-        iconcolumn.pack_start(iconcell, False)
-        iconcolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
-        self.treeChannels.append_column(iconcolumn)
-
-        namecolumn = gtk.TreeViewColumn('')
-        namecell = gtk.CellRendererText()
-        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn.pack_start(namecell, True)
-        namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
-
-        iconcell = gtk.CellRendererPixbuf()
-        iconcell.set_property('xalign', 1.0)
-        namecolumn.pack_start(iconcell, False)
-        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
-        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
-        self.treeChannels.append_column(namecolumn)
-
         self.cover_downloader = CoverDownloader()
 
         # Generate list models for podcasts and their episodes
@@ -331,111 +307,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring:
             self.item_view_hide_boring_podcasts.set_active(True)
 
-        self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
-
-        # Allow the podcast list selection to re-select something
-        selection = self.treeChannels.get_selection()
-        def on_selection_changed(selection):
-            model, iter = selection.get_selected()
-            # Clear the episode list when no channel is selected
-            if iter is None:
-                self.active_channel = None
-                self.episode_list_model.clear()
-        selection.connect('changed', on_selection_changed)
-
-        self.episode_list_model = EpisodeListModel()
-
-        if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
-            self.item_view_episodes_undeleted.set_active(True)
-        elif self.config.episode_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
-            self.item_view_episodes_downloaded.set_active(True)
-        else:
-            self.item_view_episodes_all.set_active(True)
-
-        self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
-
-        # enable alternating colors hint
-        self.treeAvailable.set_rules_hint( True)
-        self.treeChannels.set_rules_hint( True)
-
-        # connect to tooltip signals
-        try:
-            self.treeChannels.set_property('has-tooltip', True)
-            self.treeChannels.connect('query-tooltip', self.treeview_channels_query_tooltip)
-            self.treeAvailable.set_property('has-tooltip', True)
-            self.treeAvailable.connect('query-tooltip', self.treeview_episodes_query_tooltip)
-        except:
-            log('I cannot set has-tooltip/query-tooltip (need at least PyGTK 2.12)', sender = self)
-        self.last_tooltip_channel = None
-        self.last_tooltip_episode = None
-        self.podcast_list_can_tooltip = True
-        self.episode_list_can_tooltip = True
-
-        self.currently_updating = False
-
-        # Add our context menu to treeAvailable
-        if gpodder.interface == gpodder.MAEMO:
-            # On button press, only save the event position
-            self.treeview_available_buttonpress = (0, 0)
-            def on_button_pressed(treeview, event):
-                self.treeview_available_buttonpress = (event.x, event.y)
-                return True
-            self.treeAvailable.connect('button-press-event', on_button_pressed)
-
-            # On button press, only save the event position
-            self.treeview_channels_buttonpress = (0, 0)
-            def on_button_pressed(treeview, event):
-                self.treeview_channels_buttonpress = (event.x, event.y)
-                return True
-            self.treeChannels.connect('button-press-event', on_button_pressed)
-
-            # On button release, really handle the event
-            self.treeAvailable.connect('button-release-event', self.treeview_available_button_released)
-            self.treeChannels.connect('button-release-event', self.treeview_channels_button_released)
-            self.context_menu_mouse_button = 1
-        else:
-            # For the desktop, handle the event earlier (press event)
-            self.treeAvailable.connect('button-press-event', self.treeview_available_button_pressed)
-            self.treeChannels.connect('button-press-event', self.treeview_channels_button_pressed)
-            self.context_menu_mouse_button = 3
-
-        self.treeDownloads.connect('button-press-event', self.treeview_downloads_button_pressed)
-
-        iconcell = gtk.CellRendererPixbuf()
-        if gpodder.interface == gpodder.MAEMO:
-            iconcell.set_fixed_size(-1, 52)
-            status_column_label = ''
-        else:
-            status_column_label = _('Status')
-        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=EpisodeListModel.C_STATUS_ICON)
-
-        namecell = gtk.CellRendererText()
-        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn = gtk.TreeViewColumn(_('Episode'), namecell, markup=EpisodeListModel.C_DESCRIPTION)
-        namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        namecolumn.set_resizable(True)
-        namecolumn.set_expand(True)
-
-        sizecell = gtk.CellRendererText()
-        sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
-
-        releasecell = gtk.CellRendererText()
-        releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
-        
-        for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
-            itemcolumn.set_reorderable(True)
-            self.treeAvailable.append_column(itemcolumn)
-
-        if gpodder.interface == gpodder.MAEMO:
-            # Due to screen space contraints, we
-            # hide these columns here by default
-            self.column_size = sizecolumn
-            self.column_released = releasecolumn
-            self.column_released.set_visible(False)
-            self.column_size.set_visible(False)
-
-        # enable search in treeavailable
-        self.treeAvailable.set_search_equal_func( self.treeAvailable_search_equal)
+        # Init the treeviews that we use
+        self.init_podcast_list_treeview()
+        self.init_episode_list_treeview()
+        self.init_download_list_treeview()
 
         # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
         if gpodder.interface == gpodder.MAEMO:
@@ -445,61 +320,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     treeview = getattr(self, treeview_name)
                     treeview.set_property(HUIM, 1)
 
-        # enable multiple selection support
+        self.currently_updating = False
+
         if gpodder.interface == gpodder.MAEMO:
-            self.treeAvailable.get_selection().set_mode(gtk.SELECTION_SINGLE)
+            self.context_menu_mouse_button = 1
         else:
-            self.treeAvailable.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-        self.treeDownloads.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-
-        if hasattr(self.treeDownloads, 'set_rubber_banding'):
-            # Available in PyGTK 2.10 and above
-            self.treeDownloads.set_rubber_banding(True)
-        
-        # columns and renderers for "download progress" tab
-        # First column: [ICON] Episodename
-        column = gtk.TreeViewColumn(_('Episode'))
-
-        cell = gtk.CellRendererPixbuf()
-        if gpodder.interface == gpodder.MAEMO:
-            cell.set_property('stock-size', gtk.ICON_SIZE_DIALOG)
-        else:
-            cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        column.pack_start(cell, expand=False)
-        column.add_attribute(cell, 'stock-id', \
-                DownloadStatusModel.C_ICON_NAME)
-
-        cell = gtk.CellRendererText()
-        cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column.pack_start(cell, expand=True)
-        column.add_attribute(cell, 'text', DownloadStatusModel.C_NAME)
-
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        column.set_resizable(True)
-        column.set_expand(True)
-        self.treeDownloads.append_column(column)
-
-        # Second column: Progress
-        column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
-                value=DownloadStatusModel.C_PROGRESS, \
-                text=DownloadStatusModel.C_PROGRESS_TEXT)
-        self.treeDownloads.append_column(column)
-
-        # Third column: Size
-        if gpodder.interface != gpodder.MAEMO:
-            column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
-                    text=DownloadStatusModel.C_SIZE_TEXT)
-            self.treeDownloads.append_column(column)
-
-        # Fourth column: Speed
-        column = gtk.TreeViewColumn(_('Speed'), gtk.CellRendererText(),
-                text=DownloadStatusModel.C_SPEED_TEXT)
-        self.treeDownloads.append_column(column)
-
-        # Fifth column: Status
-        column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
-                text=DownloadStatusModel.C_STATUS_TEXT)
-        self.treeDownloads.append_column(column)
+            self.context_menu_mouse_button = 3
 
         # After we've set up most of the window, show it :)
         self.gPodder.show()
@@ -512,17 +338,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
-        self.treeDownloads.set_model(self.download_status_model)
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.last_download_count = 0
-        
-        #Add Drag and Drop Support
-        flags = gtk.DEST_DEFAULT_ALL
-        targets = [ ('text/plain', 0, 2), ('STRING', 0, 3), ('TEXT', 0, 4) ]
-        actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
-        self.treeChannels.drag_dest_set( flags, targets, actions)
-        self.treeChannels.connect( 'drag_data_received', self.drag_data_received)
 
         # Subscribed channels
         self.active_channel = None
@@ -598,24 +416,192 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(self.channels) == 0:
             util.idle_add(self.on_itemUpdate_activate)
 
-        self.treeAvailable.connect('expose-event', self.on_treeview_expose_event)
-        self.treeChannels.connect('expose-event', self.on_treeview_expose_event)
-        self.treeDownloads.connect('expose-event', self.on_treeview_expose_event)
+    def on_treeview_podcasts_selection_changed(self, selection):
+        model, iter = selection.get_selected()
+        if iter is None:
+            self.active_channel = None
+            self.episode_list_model.clear()
 
-    def on_treeview_expose_event(self, widget, event):
-        if event.window == widget.get_bin_window():
-            model = widget.get_model()
+    def on_treeview_button_pressed(self, treeview, event):
+        TreeViewHelper.save_button_press_event(treeview, event)
+
+        if getattr(treeview, TreeViewHelper.ROLE) == \
+                TreeViewHelper.ROLE_PODCASTS:
+            return self.currently_updating
+
+        return event.button == self.context_menu_mouse_button and \
+                gpodder.interface != gpodder.MAEMO
+
+    def on_treeview_podcasts_button_released(self, treeview, event):
+        if gpodder.interface == gpodder.MAEMO:
+            return self.treeview_channels_handle_gestures(treeview, event)
+
+        return self.treeview_channels_show_context_menu(treeview, event)
+
+    def on_treeview_episodes_button_released(self, treeview, event):
+        if gpodder.interface == gpodder.MAEMO:
+            if not self.config.disable_fingerscroll or self.config.maemo_enable_gestures:
+                return self.treeview_available_handle_gestures(treeview, event)
+
+        return self.treeview_available_show_context_menu(treeview, event)
+
+    def on_treeview_downloads_button_released(self, treeview, event):
+        return self.treeview_downloads_show_context_menu(treeview, event)
+
+    def init_podcast_list_treeview(self):
+        # Set up podcast channel tree view widget
+        self.treeChannels.set_search_equal_func(TreeViewHelper.make_search_equal_func(PodcastListModel))
+
+        iconcolumn = gtk.TreeViewColumn('')
+        iconcell = gtk.CellRendererPixbuf()
+        iconcolumn.pack_start(iconcell, False)
+        iconcolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
+        self.treeChannels.append_column(iconcolumn)
+
+        namecolumn = gtk.TreeViewColumn('')
+        namecell = gtk.CellRendererText()
+        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        namecolumn.pack_start(namecell, True)
+        namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
+
+        iconcell = gtk.CellRendererPixbuf()
+        iconcell.set_property('xalign', 1.0)
+        namecolumn.pack_start(iconcell, False)
+        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
+        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        self.treeChannels.append_column(namecolumn)
+
+        self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
+
+        # When no podcast is selected, clear the episode list model
+        selection = self.treeChannels.get_selection()
+        selection.connect('changed', self.on_treeview_podcasts_selection_changed)
+
+        TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
+
+    def init_episode_list_treeview(self):
+        self.episode_list_model = EpisodeListModel()
+
+        if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
+            self.item_view_episodes_undeleted.set_active(True)
+        elif self.config.episode_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
+            self.item_view_episodes_downloaded.set_active(True)
+        else:
+            self.item_view_episodes_all.set_active(True)
+
+        self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
+
+        TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
+
+        iconcell = gtk.CellRendererPixbuf()
+        if gpodder.interface == gpodder.MAEMO:
+            iconcell.set_fixed_size(-1, 52)
+            status_column_label = ''
+        else:
+            status_column_label = _('Status')
+        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=EpisodeListModel.C_STATUS_ICON)
+
+        namecell = gtk.CellRendererText()
+        namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        namecolumn = gtk.TreeViewColumn(_('Episode'), namecell, markup=EpisodeListModel.C_DESCRIPTION)
+        namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        namecolumn.set_resizable(True)
+        namecolumn.set_expand(True)
+
+        sizecell = gtk.CellRendererText()
+        sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
+
+        releasecell = gtk.CellRendererText()
+        releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
+
+        for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
+            itemcolumn.set_reorderable(True)
+            self.treeAvailable.append_column(itemcolumn)
+
+        if gpodder.interface == gpodder.MAEMO:
+            sizecolumn.set_visible(False)
+            releasecolumn.set_visible(False)
+
+        self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
+
+        selection = self.treeAvailable.get_selection()
+        if gpodder.interface == gpodder.MAEMO:
+            if self.config.maemo_enable_gestures or not self.config.disable_fingerscroll:
+                selection.set_mode(gtk.SELECTION_SINGLE)
+            else:
+                selection.set_mode(gtk.SELECTION_MULTIPLE)
+        else:
+            selection.set_mode(gtk.SELECTION_MULTIPLE)
+
+    def init_download_list_treeview(self):
+        # enable multiple selection support
+        self.treeDownloads.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
+
+        # columns and renderers for "download progress" tab
+        # First column: [ICON] Episodename
+        column = gtk.TreeViewColumn(_('Episode'))
+
+        cell = gtk.CellRendererPixbuf()
+        if gpodder.interface == gpodder.MAEMO:
+            cell.set_property('stock-size', gtk.ICON_SIZE_DIALOG)
+        else:
+            cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        column.pack_start(cell, expand=False)
+        column.add_attribute(cell, 'stock-id', \
+                DownloadStatusModel.C_ICON_NAME)
+
+        cell = gtk.CellRendererText()
+        cell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        column.pack_start(cell, expand=True)
+        column.add_attribute(cell, 'text', DownloadStatusModel.C_NAME)
+
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        column.set_resizable(True)
+        column.set_expand(True)
+        self.treeDownloads.append_column(column)
+
+        # Second column: Progress
+        column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
+                value=DownloadStatusModel.C_PROGRESS, \
+                text=DownloadStatusModel.C_PROGRESS_TEXT)
+        self.treeDownloads.append_column(column)
+
+        # Third column: Size
+        if gpodder.interface != gpodder.MAEMO:
+            column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
+                    text=DownloadStatusModel.C_SIZE_TEXT)
+            self.treeDownloads.append_column(column)
+
+        # Fourth column: Speed
+        column = gtk.TreeViewColumn(_('Speed'), gtk.CellRendererText(),
+                text=DownloadStatusModel.C_SPEED_TEXT)
+        self.treeDownloads.append_column(column)
+
+        # Fifth column: Status
+        column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
+                text=DownloadStatusModel.C_STATUS_TEXT)
+        self.treeDownloads.append_column(column)
+
+        self.treeDownloads.set_model(self.download_status_model)
+        TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
+
+    def on_treeview_expose_event(self, treeview, event):
+        if event.window == treeview.get_bin_window():
+            model = treeview.get_model()
             if (model is not None and model.get_iter_first() is not None):
                 return False
 
+            role = getattr(treeview, TreeViewHelper.ROLE)
             ctx = event.window.cairo_create()
-            png = widget.get_pango_context()
+            png = treeview.get_pango_context()
             ctx.rectangle(event.area.x, event.area.y,
                     event.area.width, event.area.height)
             ctx.clip()
 
             x, y, width, height, depth = event.window.get_geometry()
-            if widget == self.treeAvailable:
+
+            if role == TreeViewHelper.ROLE_EPISODES:
                 if self.currently_updating:
                     text = _('Loading episodes') + '...'
                 elif self.config.episode_list_view_mode != \
@@ -623,7 +609,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     text = _('Select "View" > "All episodes" to show episodes')
                 else:
                     text = _('No episodes available')
-            elif widget == self.treeChannels:
+            elif role == TreeViewHelper.ROLE_PODCASTS:
                 if self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL and \
                         self.config.podcast_list_hide_boring and \
@@ -631,12 +617,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     text = _('No podcasts in this view')
                 else:
                     text = _('No subscriptions')
-            elif widget == self.treeDownloads:
+            elif role == TreeViewHelper.ROLE_DOWNLOADS:
                 text = _('No downloads')
             else:
-                raise Exception('on_treeview_expose_event: unknown widget')
+                raise Exception('on_treeview_expose_event: unknown role')
 
-            draw_text_box_centered(ctx, widget, width, height, text)
+            draw_text_box_centered(ctx, treeview, width, height, text)
 
         return False
 
@@ -834,7 +820,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
         util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
 
-    def treeview_episodes_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
+    def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
         # the header. The Y coordinate of this window will be the height of the
         # treeview header. This is the amount we have to subtract from the
@@ -844,140 +830,129 @@ class gPodder(BuilderWidget, dbus.service.Object):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
-        if not self.episode_list_can_tooltip or (column is not None and column != treeview.get_columns()[0]):
-            self.last_tooltip_episode = None
+        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or (column is not None and column != treeview.get_columns()[0]):
+            setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
             return False
 
         if path is not None:
             model = treeview.get_model()
             iter = model.get_iter(path)
-            url = model.get_value(iter, EpisodeListModel.C_URL)
-            description = model.get_value(iter, EpisodeListModel.C_DESCRIPTION_STRIPPED)
-            if self.last_tooltip_episode is not None and self.last_tooltip_episode != url:
-                self.last_tooltip_episode = None
+            role = getattr(treeview, TreeViewHelper.ROLE)
+
+            if role == TreeViewHelper.ROLE_EPISODES:
+                id = model.get_value(iter, EpisodeListModel.C_URL)
+            elif role == TreeViewHelper.ROLE_PODCASTS:
+                id = model.get_value(iter, PodcastListModel.C_URL)
+
+            last_tooltip = getattr(treeview, TreeViewHelper.LAST_TOOLTIP)
+            if last_tooltip is not None and last_tooltip != id:
+                setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
                 return False
-            self.last_tooltip_episode = url
+            setattr(treeview, TreeViewHelper.LAST_TOOLTIP, id)
 
-            if len(description) > 400:
-                description = description[:398]+'[...]'
+            if role == TreeViewHelper.ROLE_EPISODES:
+                description = model.get_value(iter, EpisodeListModel.C_DESCRIPTION_STRIPPED)
+                if len(description) > 400:
+                    description = description[:398]+'[...]'
 
-            tooltip.set_text(description)
-            return True
+                tooltip.set_text(description)
+            elif role == TreeViewHelper.ROLE_PODCASTS:
+                channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
+                channel.request_save_dir_size()
+                diskspace_str = util.format_filesize(channel.save_dir_size, 0)
+                error_str = model.get_value(iter, PodcastListModel.C_ERROR)
+                if error_str:
+                    error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
+                    error_str = '<span foreground="#ff0000">%s</span>' % error_str
+                table = gtk.Table(rows=3, columns=3)
+                table.set_row_spacings(5)
+                table.set_col_spacings(5)
+                table.set_border_width(5)
 
-        self.last_tooltip_episode = None
-        return False
+                heading = gtk.Label()
+                heading.set_alignment(0, 1)
+                heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
+                table.attach(heading, 0, 1, 0, 1)
+                size_info = gtk.Label()
+                size_info.set_alignment(1, 1)
+                size_info.set_justify(gtk.JUSTIFY_RIGHT)
+                size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
+                table.attach(size_info, 2, 3, 0, 1)
 
-    def podcast_list_allow_tooltips(self):
-        self.podcast_list_can_tooltip = True
+                table.attach(gtk.HSeparator(), 0, 3, 1, 2)
 
-    def episode_list_allow_tooltips(self):
-        self.episode_list_can_tooltip = True
-
-    def treeview_channels_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
-        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
-
-        if not self.podcast_list_can_tooltip or (column is not None and column != treeview.get_columns()[0]):
-            self.last_tooltip_channel = None
-            return False
-
-        if path is not None:
-            model = treeview.get_model()
-            iter = model.get_iter(path)
-            url = model.get_value(iter, PodcastListModel.C_URL)
-            channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
-
-            if self.last_tooltip_channel is not None and self.last_tooltip_channel != channel:
-                self.last_tooltip_channel = None
-                return False
-            self.last_tooltip_channel = channel
-            channel.request_save_dir_size()
-            diskspace_str = util.format_filesize(channel.save_dir_size, 0)
-            error_str = model.get_value(iter, PodcastListModel.C_ERROR)
-            if error_str:
-                error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
-                error_str = '<span foreground="#ff0000">%s</span>' % error_str
-            table = gtk.Table(rows=3, columns=3)
-            table.set_row_spacings(5)
-            table.set_col_spacings(5)
-            table.set_border_width(5)
-
-            heading = gtk.Label()
-            heading.set_alignment(0, 1)
-            heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
-            table.attach(heading, 0, 1, 0, 1)
-            size_info = gtk.Label()
-            size_info.set_alignment(1, 1)
-            size_info.set_justify(gtk.JUSTIFY_RIGHT)
-            size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
-            table.attach(size_info, 2, 3, 0, 1)
-
-            table.attach(gtk.HSeparator(), 0, 3, 1, 2)
-
-            if len(channel.description) < 500:
-                description = channel.description
-            else:
-                pos = channel.description.find('\n\n')
-                if pos == -1 or pos > 500:
-                    description = channel.description[:498]+'[...]'
+                if len(channel.description) < 500:
+                    description = channel.description
                 else:
-                    description = channel.description[:pos]
+                    pos = channel.description.find('\n\n')
+                    if pos == -1 or pos > 500:
+                        description = channel.description[:498]+'[...]'
+                    else:
+                        description = channel.description[:pos]
 
-            description = gtk.Label(description)
-            if error_str:
-                description.set_markup(error_str)
-            description.set_alignment(0, 0)
-            description.set_line_wrap(True)
-            table.attach(description, 0, 3, 2, 3)
+                description = gtk.Label(description)
+                if error_str:
+                    description.set_markup(error_str)
+                description.set_alignment(0, 0)
+                description.set_line_wrap(True)
+                table.attach(description, 0, 3, 2, 3)
 
-            table.show_all()
-            tooltip.set_custom(table)
+                table.show_all()
+                tooltip.set_custom(table)
 
             return True
 
-        self.last_tooltip_channel = None
+        setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
         return False
+
+    def treeview_allow_tooltips(self, treeview, allow):
+        setattr(treeview, TreeViewHelper.CAN_TOOLTIP, allow)
 
     def update_m3u_playlist_clicked(self, widget):
         if self.active_channel is not None:
             self.active_channel.update_m3u_playlist()
             self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'), widget=self.treeChannels)
 
-    def treeview_downloads_button_pressed(self, treeview, event):
-        if event.button == 1:
-            # Catch left mouse button presses, and if we there is no
-            # path at the given position, deselect all items
-            (x, y) = (int(event.x), int(event.y))
-            (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
-            if path is None:
-                treeview.get_selection().unselect_all()
+    def treeview_handle_context_menu_click(self, treeview, event):
+        x, y = int(event.x), int(event.y)
+        path, column, rx, ry = treeview.get_path_at_pos(x, y) or (None,)*4
+
+        selection = treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+
+        if path is None or (path not in paths and \
+                event.button == self.context_menu_mouse_button):
+            # We have right-clicked, but not into the selection,
+            # assume we don't want to operate on the selection
+            paths = []
+
+        if path is not None and not paths and \
+                event.button == self.context_menu_mouse_button:
+            # No selection or clicked outside selection;
+            # select the single item where we clicked
+            treeview.grab_focus()
+            treeview.set_cursor(path, column, 0)
+            paths = [path]
+
+        if not paths:
+            # Unselect any remaining items (clicked elsewhere)
+            if hasattr(treeview, 'is_rubber_banding_active'):
+                if not treeview.is_rubber_banding_active():
+                    selection.unselect_all()
+            else:
+                selection.unselect_all()
+
+        return model, paths
+
+    def treeview_downloads_show_context_menu(self, treeview, event):
+        model, paths = self.treeview_handle_context_menu_click(treeview, event)
+        if not paths:
+            if not hasattr(treeview, 'is_rubber_banding_active'):
+                return True
+            else:
+                return not treeview.is_rubber_banding_active()
 
         if event.button == self.context_menu_mouse_button:
-            (x, y) = (int(event.x), int(event.y))
-            (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
-
-            paths = []
-            # Did the user right-click into a selection?
-            selection = treeview.get_selection()
-            if selection.count_selected_rows() and path:
-                (model, paths) = selection.get_selected_rows()
-                if path not in paths:
-                    # We have right-clicked, but not into the 
-                    # selection, assume we don't want to operate
-                    # on the selection
-                    paths = []
-
-            # No selection or right click not in selection:
-            # Select the single item where we clicked
-            if not paths and path:
-                treeview.grab_focus()
-                treeview.set_cursor( path, column, 0)
-                (model, paths) = (treeview.get_model(), [path])
-
-            # We did not find a selection, and the user didn't
-            # click on an item to select -- don't show the menu
-            if not paths:
-                return True
-            
             selected_tasks = [(gtk.TreeRowReference(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
             def make_menu_item(label, stock_id, tasks, status):
@@ -1091,36 +1066,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.popup(None, None, None, event.button, event.time)
             return True
 
-    def treeview_channels_button_pressed( self, treeview, event):
+    def treeview_channels_show_context_menu(self, treeview, event):
+        model, paths = self.treeview_handle_context_menu_click(treeview, event)
+        if not paths:
+            return True
+
         if event.button == 3:
-            ( x, y ) = ( int(event.x), int(event.y) )
-            ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
-
-            paths = []
-
-            # Did the user right-click into a selection?
-            selection = treeview.get_selection()
-            if selection.count_selected_rows() and path:
-                ( model, paths ) = selection.get_selected_rows()
-                if path not in paths:
-                    # We have right-clicked, but not into the 
-                    # selection, assume we don't want to operate
-                    # on the selection
-                    paths = []
-
-            # No selection or right click not in selection:
-            # Select the single item where we clicked
-            if not len( paths) and path:
-                treeview.grab_focus()
-                treeview.set_cursor( path, column, 0)
-
-                ( model, paths ) = ( treeview.get_model(), [ path ] )
-
-            # We did not find a selection, and the user didn't
-            # click on an item to select -- don't show the menu
-            if not len( paths):
-                return True
-
             menu = gtk.Menu()
 
             item = gtk.ImageMenuItem( _('Open download folder'))
@@ -1170,8 +1121,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.show_all()
             # Disable tooltips while we are showing the menu, so 
             # the tooltip will not appear over the menu
-            self.podcast_list_can_tooltip = False
-            menu.connect('deactivate', lambda menushell: self.podcast_list_allow_tooltips())
+            self.treeview_allow_tooltips(self.treeChannels, False)
+            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
             menu.popup( None, None, None, event.button, event.time)
 
             return True
@@ -1231,26 +1182,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
 
-    def treeview_channels_button_released(self, treeview, event):
-        selection = self.treeChannels.get_selection()
-        pathatpos = self.treeChannels.get_path_at_pos(int(event.x), int(event.y))
-        if self.currently_updating:
-            log('do not handle press while updating', sender=self)
-            return True
-        if pathatpos is None:
-            return False
-        else:
-            ydistance = int(abs(event.y-self.treeview_channels_buttonpress[1]))
-            xdistance = int(event.x-self.treeview_channels_buttonpress[0])
-            if ydistance < 30:
-                (path, column, x, y) = pathatpos
-                selection.select_path(path)
-                self.treeChannels.set_cursor(path)
-                self.treeChannels.grab_focus()
-                # Emulate the cursor changed signal to force an update
-                self.on_treeChannels_cursor_changed(self.treeChannels)
-                return True
-
     def get_device_name(self):
         if self.config.device_type == 'ipod':
             return _('iPod')
@@ -1259,64 +1190,64 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             return '(unknown device)'
 
-    def treeview_available_button_released(self, treeview, event):
-        ydistance = int(abs(event.y-self.treeview_available_buttonpress[1]))
-        xdistance = int(event.x-self.treeview_available_buttonpress[0])
+    def _treeview_button_released(self, treeview, event):
+        xpos, ypos = TreeViewHelper.get_button_press_event(treeview)
+        dy = int(abs(event.y-ypos))
+        dx = int(event.x-xpos)
 
-        selection = self.treeAvailable.get_selection()
-        pathatpos = self.treeAvailable.get_path_at_pos(int(event.x), int(event.y))
-        if pathatpos is None:
-            # No item at the current cursor position
-            return False
-        elif ydistance < 30:
-            # Item under the cursor, and no scrolling done
-            (path, column, x, y) = pathatpos
-            selection.select_path(path)
-            self.treeAvailable.set_cursor(path)
-            self.treeAvailable.grab_focus()
-            if self.config.maemo_enable_gestures and xdistance > 70:
-                self.on_playback_selected_episodes(None)
-                return True
-            elif self.config.maemo_enable_gestures and xdistance < -70:
-                self.on_shownotes_selected_episodes(None)
-                return True
-        else:
-            # Scrolling has been done
+        selection = treeview.get_selection()
+        path = treeview.get_path_at_pos(int(event.x), int(event.y))
+        if path is None or dy > 30:
+            return (False, dx, dy)
+
+        path, column, x, y = path
+        selection.select_path(path)
+        treeview.set_cursor(path)
+        treeview.grab_focus()
+
+        return (True, dx, dy)
+
+    def treeview_channels_handle_gestures(self, treeview, event):
+        if self.currently_updating:
             return True
 
-        # Pass the event to the context menu handler for treeAvailable
-        self.treeview_available_button_pressed(treeview, event)
+        selected, dx, dy = self._treeview_button_released(treeview, event)
 
-    def treeview_available_button_pressed(self, treeview, event):
-        if event.button == self.context_menu_mouse_button:
-            ( x, y ) = ( int(event.x), int(event.y) )
-            ( path, column, rx, ry ) = treeview.get_path_at_pos( x, y) or (None,)*4
+        if selected:
+            if self.config.maemo_enable_gestures:
+                if dx > 70:
+                    self.on_itemUpdateChannel_activate()
+                elif dx < -70:
+                    self.on_itemEditChannel_activate(treeview)
 
-            paths = []
+        return True
 
-            # Did the user right-click into a selection?
-            selection = self.treeAvailable.get_selection()
-            if selection.count_selected_rows() and path:
-                ( model, paths ) = selection.get_selected_rows()
-                if path not in paths:
-                    # We have right-clicked, but not into the 
-                    # selection, assume we don't want to operate
-                    # on the selection
-                    paths = []
+    def treeview_available_handle_gestures(self, treeview, event):
+        selected, dx, dy = self._treeview_button_released(treeview, event)
 
-            # No selection or right click not in selection:
-            # Select the single item where we clicked
-            if not len( paths) and path:
-                treeview.grab_focus()
-                treeview.set_cursor( path, column, 0)
+        if selected:
+            if self.config.maemo_enable_gestures:
+                if dx > 70:
+                    self.on_playback_selected_episodes(None)
+                    return True
+                elif dx < -70:
+                    self.on_shownotes_selected_episodes(None)
+                    return True
 
-                ( model, paths ) = ( treeview.get_model(), [ path ] )
+            # Pass the event to the context menu handler for treeAvailable
+            self.treeview_available_show_context_menu(treeview, event)
 
-            # We did not find a selection, and the user didn't
-            # click on an item to select -- don't show the menu
-            if not len( paths):
+        return True
+
+    def treeview_available_show_context_menu(self, treeview, event):
+        model, paths = self.treeview_handle_context_menu_click(treeview, event)
+        if not paths:
+            if not hasattr(treeview, 'is_rubber_banding_active'):
                 return True
+            else:
+                return not treeview.is_rubber_banding_active()
 
+        if event.button == self.context_menu_mouse_button:
             episodes = self.get_selected_episodes()
             any_locked = any(e.is_locked for e in episodes)
             any_played = any(e.is_played for e in episodes)
@@ -1429,8 +1360,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.show_all()
             # Disable tooltips while we are showing the menu, so 
             # the tooltip will not appear over the menu
-            self.episode_list_can_tooltip = False
-            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
+            self.treeview_allow_tooltips(self.treeAvailable, False)
+            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
             menu.popup( None, None, None, event.button, event.time)
 
             return True
@@ -1564,19 +1495,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_icons(episode_urls)
         self.update_podcast_list_model(channel_urls)
 
-    def treeAvailable_search_equal( self, model, column, key, iter, data = None):
-        if model is None:
-            return True
-
-        key = key.lower()
-
-        for column in (EpisodeListModel.C_TITLE, EpisodeListModel.C_DESCRIPTION_STRIPPED):
-            value = model.get_value( iter, column).lower()
-            if value.find( key) != -1:
-                return False
-
-        return True
-    
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
             self.toolCancel.set_sensitive(True)
@@ -1742,26 +1660,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.episode_list_model.clear()
     
-    def drag_data_received(self, widget, context, x, y, sel, ttype, time):
-        (path, column, rx, ry) = self.treeChannels.get_path_at_pos( x, y) or (None,)*4
-
-        dnd_channel = None
-        if path is not None:
-            model = self.treeChannels.get_model()
-            iter = model.get_iter(path)
-            url = model.get_value(iter, 0)
-            for channel in self.channels:
-                if channel.url == url:
-                    dnd_channel = channel
-                    break
-
-        result = sel.data
-        rl = result.strip().lower()
-        if (rl.endswith('.jpg') or rl.endswith('.png') or rl.endswith('.gif') or rl.endswith('.svg')) and dnd_channel is not None:
-            self.cover_downloader.replace_cover(dnd_channel, result)
-        else:
-            self.add_podcast_list([result])
-
     def offer_new_episodes(self):
         new_episodes = self.get_new_episodes()
         if new_episodes:
@@ -2638,6 +2536,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def properties_closed( self):
         self.show_hide_tray_icon()
         self.update_item_device()
+        if gpodder.interface == gpodder.MAEMO:
+            selection = self.treeAvailable.get_selection()
+            if self.config.maemo_enable_gestures or not \
+                    self.config.disable_fingerscroll:
+                selection.set_mode(gtk.SELECTION_SINGLE)
+            else:
+                selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
         gPodderPreferences(self.gPodder, _config=self.config, \
@@ -3041,9 +2946,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.episode_is_downloading(episode):
             self.update_downloads_list()
 
-    def on_treeAvailable_button_release_event(self, widget, *args):
-        self.play_or_download()
-
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
         if not first_run and self.config.auto_update_feeds and self.minimized:
@@ -3112,12 +3014,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # so if we are not a Maemo app, we don't do anything
         if gpodder.interface != gpodder.MAEMO:
             return False
-        
-        if event.keyval == gtk.keysyms.Escape:
-            new_visibility = not self.vboxChannelNavigator.get_property('visible')
-            self.vboxChannelNavigator.set_property('visible', new_visibility)
-            self.column_size.set_visible(not new_visibility)
-            self.column_released.set_visible(not new_visibility)
         
         diff = 0
         if event.keyval == gtk.keysyms.F7: #plus

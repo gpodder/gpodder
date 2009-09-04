@@ -303,3 +303,41 @@ class BuilderWidget(GtkBuilderWidget):
         dlg.destroy()
         return (result, folder)
 
+class TreeViewHelper(object):
+    """Container for gPodder-specific TreeView attributes."""
+    BUTTON_PRESS = '_gpodder_button_press'
+    LAST_TOOLTIP = '_gpodder_last_tooltip'
+    CAN_TOOLTIP = '_gpodder_can_tooltip'
+    ROLE = '_gpodder_role'
+
+    # Enum for the role attribute
+    ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = range(3)
+
+    @classmethod
+    def set(cls, treeview, role):
+        setattr(treeview, cls.BUTTON_PRESS, (0, 0))
+        setattr(treeview, cls.LAST_TOOLTIP, None)
+        setattr(treeview, cls.CAN_TOOLTIP, True)
+        setattr(treeview, cls.ROLE, role)
+
+    @classmethod
+    def save_button_press_event(cls, treeview, event):
+        setattr(treeview, cls.BUTTON_PRESS, (event.x, event.y))
+        return True
+
+    @classmethod
+    def get_button_press_event(cls, treeview):
+        return getattr(treeview, cls.BUTTON_PRESS)
+
+    @staticmethod
+    def make_search_equal_func(gpodder_model):
+        def func(model, column, key, iter):
+            if model is None:
+                return True
+            key = key.lower()
+            for column in gpodder_model.SEARCH_COLUMNS:
+                if key in model.get_value(iter, column).lower():
+                    return False
+            return True
+        return func
+

@@ -43,6 +43,8 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
         self._config.connect_gtk_togglebutton('disable_fingerscroll', self.check_disable_fingerscroll)
 
+        self.main_window.connect('destroy', lambda w: self.callback_finished())
+
         for item in self.audio_players:
             command, caption = item
             if util.find_command(command) is None and command != 'default':
