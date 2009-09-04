@@ -289,12 +289,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 self.set_title(_('gPodder'))
 
-        gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
-
         self.cover_downloader = CoverDownloader()
 
         # Generate list models for podcasts and their episodes
         self.podcast_list_model = PodcastListModel(self.config.podcast_list_icon_size, self.cover_downloader)
+
+        self.cover_downloader.register('cover-available', self.cover_download_finished)
+        self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         if self.config.podcast_list_hide_boring:
             self.item_view_hide_boring_podcasts.set_active(True)
@@ -324,11 +325,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if self.config.start_iconified:
             self.iconify_main_window()
-            if self.tray_icon and self.config.minimize_to_tray:
-                self.tray_icon.set_visible(False)
-
-        self.cover_downloader.register('cover-available', self.cover_download_finished)
-        self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
@@ -342,13 +338,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
-        threading.Thread(target=self.read_apps).start()
+        def read_apps():
+            time.sleep(3) # give other parts of gpodder a chance to start up
+            self.user_apps_reader.read()
+            util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
+            util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
+        threading.Thread(target=read_apps).start()
 
         # Set the "Device" menu item for the first time
         self.update_item_device()
-
-        # Last folder used for saving episodes
-        self.folder_for_saving_episodes = None
 
         # Now, update the feed cache, when everything's in place
         self.btnUpdateFeeds.show()
@@ -405,7 +403,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.update_podcast_list_model(set(e.channel.url for e in old_episodes))
 
         # First-time users should be asked if they want to see the OPML
-        if len(self.channels) == 0:
+        if not self.channels:
             util.idle_add(self.on_itemUpdate_activate)
 
     def on_treeview_podcasts_selection_changed(self, selection):
@@ -806,12 +804,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
 
-    def read_apps(self):
-        time.sleep(3) # give other parts of gpodder a chance to start up
-        self.user_apps_reader.read()
-        util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
-        util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
-
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
         # the header. The Y coordinate of this window will be the height of the
@@ -1142,13 +1134,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.podcast_list_model.add_cover_by_url(channel_url, pixbuf)
 
     def save_episode_as_file(self, episode):
+        PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
         if episode.was_downloaded(and_exists=True):
-            folder = self.folder_for_saving_episodes
+            folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
             copy_from = episode.local_filename(create=False)
             assert copy_from is not None
             copy_to = episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)
             (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
-            self.folder_for_saving_episodes = folder
+            setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
@@ -2933,6 +2926,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         next_update = 60*1000*self.config.auto_update_frequency
         gobject.timeout_add(next_update, self.auto_update_procedure)
+        return False
 
     def on_treeDownloads_row_activated(self, widget, *args):
         # Use the standard way of working on the treeview
@@ -3055,6 +3049,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 def main(options=None):
     gobject.threads_init()
     gtk.window_set_default_icon_name( 'gpodder')
+    gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
     try:
         session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
