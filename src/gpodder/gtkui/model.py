@@ -143,6 +143,10 @@ class EpisodeListModel(gtk.ListStore):
         for episode in channel.get_all_episodes():
             util.idle_add(insert_and_update, episode)
 
+    def update_all(self, downloading=None, include_description=False):
+        for row in self:
+            self.update_by_iter(row.iter, downloading, include_description)
+
     def update_by_urls(self, urls, downloading=None, include_description=False):
         for row in self:
             if row[self.C_URL] in urls:
