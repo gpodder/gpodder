@@ -73,14 +73,6 @@ from gpodder.liblogger import log
 
 _ = gpodder.gettext
 
-try:
-    from gpodder import trayicon
-    have_trayicon = True
-except Exception, exc:
-    log('Warning: Could not import gpodder.trayicon.', traceback=True)
-    log('Warning: This probably means your PyGTK installation is too old!')
-    have_trayicon = False
-
 from gpodder.model import PodcastChannel
 from gpodder.dbsqlite import Database
 
@@ -104,9 +96,17 @@ if gpodder.interface == gpodder.GUI:
 
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
+    try:
+        from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
+        have_trayicon = True
+    except Exception, exc:
+        log('Warning: Could not import gpodder.trayicon.', traceback=True)
+        log('Warning: This probably means your PyGTK installation is too old!')
+        have_trayicon = False
 else:
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
+    have_trayicon = False
 
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
@@ -2591,7 +2591,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def show_hide_tray_icon(self):
         if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:
-            self.tray_icon = trayicon.GPodderStatusIcon(self, gpodder.icon_file, self.config)
+            self.tray_icon = GPodderStatusIcon(self, gpodder.icon_file, self.config)
         elif not self.config.display_tray_icon and self.tray_icon is not None:
             self.tray_icon.set_visible(False)
             del self.tray_icon

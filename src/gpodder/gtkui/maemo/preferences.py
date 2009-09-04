@@ -39,7 +39,6 @@ class gPodderPreferences(BuilderWidget):
     ]
     
     def new(self):
-        self._config.connect_gtk_togglebutton('display_tray_icon', self.check_show_status_icon)
         self._config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
         self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
         self._config.connect_gtk_togglebutton('disable_fingerscroll', self.check_disable_fingerscroll)
