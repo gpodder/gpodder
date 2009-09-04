@@ -135,8 +135,8 @@ class gPodderShownotes(gPodderShownotesBase):
             self.download_progress.show()
             self.btnCancel.set_property('visible', self.task.status not in \
                     (self.task.DONE, self.task.CANCELLED, self.task.FAILED))
-            self.btnDownload.set_property('visible', \
-                    not self.btnCancel.get_property('visible'))
+            self.btnDownload.set_property('visible', self.task.status in
+                    (self.task.CANCELLED, self.task.FAILED, self.task.PAUSED))
             self.btnPlay.set_property('visible', \
                     self.task.status == self.task.DONE)
         else:
