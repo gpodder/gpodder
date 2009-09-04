@@ -244,10 +244,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.cbLimitDownloads.set_label(_('Max.'))
             self.cbMaxDownloads.set_label(_('Limit DLs to'))
 
-            # Offer importing of videocenter podcasts
-            if os.path.exists(os.path.expanduser('~/videocenter')):
-                self.item_upgrade_from_videocenter.set_visible(True)
-
         self.gPodder.connect('key-press-event', self.on_key_press)
         self.bluetooth_available = util.bluetooth_available()
 
@@ -2547,18 +2543,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
-
-    def on_upgrade_from_videocenter(self, widget):
-        from gpodder import nokiavideocenter
-        vc = nokiavideocenter.UpgradeFromVideocenter()
-        if vc.db2opml():
-            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
-                    custom_title=_('Import podcasts from Video Center'), \
-                    add_urls_callback=self.add_podcast_list, \
-                    hide_url_entry=True)
-            dir.download_opml_file(vc.opmlfile)
-        else:
-            self.show_message(_('Have you installed Video Center on your tablet?'), _('Cannot find Video Center subscriptions'), important=True)
 
     def require_my_gpodder_authentication(self):
         if not self.config.my_gpodder_username or not self.config.my_gpodder_password:

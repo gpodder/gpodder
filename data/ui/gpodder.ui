@@ -138,14 +138,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="item_upgrade_from_videocenter">
-            <property name="name">item_upgrade_from_videocenter</property>
-            <property name="visible">False</property>
-            <property name="label" translatable="yes">Import subscriptions from Video Center</property>
-            <signal handler="on_upgrade_from_videocenter" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="item_import_from_file">
             <property name="stock_id">gtk-open</property>
             <property name="name">item_import_from_file</property>
@@ -422,7 +414,6 @@
           <menuitem action="item_import_from_file"/>
           <menuitem action="itemExportChannels"/>
           <separator/>
-          <menuitem action="item_upgrade_from_videocenter"/>
           <menuitem action="item_email_subscriptions"/>
           <separator/>
           <menuitem action="itemUploadToMygpo"/>
