@@ -67,6 +67,12 @@ class BuilderWidget(GtkBuilderWidget):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_maemo)
 
+        # Enable support for tracking iconified state
+        self._window_iconified = False
+        if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
+            self.main_window.connect('window-state-event', \
+                    self._on_window_state_event_iconified)
+
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
             if hasattr(self, widget_name):
@@ -103,6 +109,21 @@ class BuilderWidget(GtkBuilderWidget):
             self._maemo_fullscreen = False
 
         return False
+
+    def _on_window_state_event_iconified(self, widget, event):
+        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+            if not self._window_iconified:
+                self._window_iconified = True
+                self.on_iconify()
+        else:
+            if self._window_iconified:
+                self._window_iconified = False
+                self.on_uniconify()
+
+        return False
+
+    def is_iconified(self):
+        return self._window_iconified
 
     def notification(self, message, title=None, important=False, widget=None):
         util.idle_add(self.show_message, message, title, important, widget)

@@ -138,7 +138,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gtk.set_application_name('gPodder')
             self.window = hildon.Window()
             self.window.connect('delete-event', self.on_gPodder_delete_event)
-            self.window.connect('window-state-event', self.window_state_event)
     
             self.itemUpdateChannel.set_visible(True)
             
@@ -267,9 +266,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
-        self.minimized = False
-        self.gPodder.connect('window-state-event', self.window_state_event)
-        
         self.show_hide_tray_icon()
 
         self.itemShowToolbar.set_active(self.config.show_toolbar)
@@ -1807,7 +1803,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # New episodes are available
             self.pbFeedUpdate.set_fraction(1.0)
             # Are we minimized and should we auto download?
-            if (self.minimized and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
+            if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
                 if len(episodes) == 1:
                     title = _('Downloading one new episode.')
@@ -2496,7 +2492,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.tray_icon = None
 
         if self.config.minimize_to_tray and self.tray_icon:
-            self.tray_icon.set_visible(self.minimized)
+            self.tray_icon.set_visible(self.is_iconified())
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
 
@@ -2948,7 +2944,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def auto_update_procedure(self, first_run=False):
         log('auto_update_procedure() got called', sender=self)
-        if not first_run and self.config.auto_update_feeds and self.minimized:
+        if not first_run and self.config.auto_update_feeds and self.is_iconified():
             self.update_feed_cache(force_update=True)
 
         next_update = 60*1000*self.config.auto_update_frequency
@@ -3030,28 +3026,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         return False
-        
-    def window_state_event(self, widget, event):
-        old_minimized = self.minimized
 
-        self.minimized = bool(event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED)
-        if gpodder.interface == gpodder.MAEMO:
-            self.minimized = bool(event.new_window_state & gtk.gdk.WINDOW_STATE_WITHDRAWN)
-
-        if old_minimized != self.minimized and self.tray_icon:
-            self.gPodder.set_skip_taskbar_hint(self.minimized)
-        elif not self.tray_icon:
+    def on_iconify(self):
+        if self.tray_icon:
+            self.gPodder.set_skip_taskbar_hint(True)
+            if self.config.minimize_to_tray:
+                self.tray_icon.set_visible(True)
+        else:
             self.gPodder.set_skip_taskbar_hint(False)
 
-        if self.config.minimize_to_tray and self.tray_icon:
-            self.tray_icon.set_visible(self.minimized)
-    
+    def on_uniconify(self):
+        if self.tray_icon:
+            self.gPodder.set_skip_taskbar_hint(False)
+            if self.config.minimize_to_tray:
+                self.tray_icon.set_visible(False)
+        else:
+            self.gPodder.set_skip_taskbar_hint(False)
+
     def uniconify_main_window(self):
-        if self.minimized:
+        if self.is_iconified():
             self.gPodder.present()
  
     def iconify_main_window(self):
-        if not self.minimized:
+        if not self.is_iconified():
             self.gPodder.iconify()          
 
     def update_podcasts_tab(self):

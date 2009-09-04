@@ -169,7 +169,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
     def __on_left_click(self, widget, data=None):
         """Hide/unhide gPodder on left-click
         """
-        if self.__gpodder.minimized:
+        if self.__gpodder.is_iconified():
             self.__gpodder.uniconify_main_window()
         else:
             if not self.__gpodder.gPodder.is_active():
