@@ -35,12 +35,17 @@ from gpodder.gtkui.widgets import NotificationWindow
 try:
     import pynotify
     if pynotify.init('gPodder'):
-        pynotify_server_info = pynotify.get_server_info()
-        pynotify_server = pynotify_server_info.get('name', 'unknown')
-        notify_server_from_canonical = (pynotify_server == 'notify-osd')
-        if notify_server_from_canonical:
-            print >>sys.stderr, 'Broken libnotify server from Canonical found.'
-            print >>sys.stderr, '(notify-osd does not position notifications!)'
+        try:
+            pynotify_server_info = pynotify.get_server_info()
+            pynotify_server = pynotify_server_info.get('name', 'unknown')
+            notify_server_from_canonical = (pynotify_server == 'notify-osd')
+            if notify_server_from_canonical:
+                print >>sys.stderr, 'Broken libnotify server found.'
+                print >>sys.stderr, '(notify-osd does not positioning)'
+        except:
+            print >>sys.stderr, 'Error detecting libnotify server.'
+            pynotify = None
+            notify_server_from_canonical = False
     else:
         pynotify = None
         notify_server_from_canonical = False
