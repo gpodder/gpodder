@@ -78,7 +78,7 @@ unittest:
 
 mtest:
 	@# in maemo scratchbox, we need this for osso/hildon
-	run-standalone.sh $(BINFILE) --maemo --verbose
+	run-standalone.sh python2.5 $(BINFILE) --maemo --verbose
 
 deb:
 	debuild
