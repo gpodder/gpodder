@@ -112,9 +112,10 @@ if __name__ == '__main__':
     if options.maemo or os.path.exists(maemo_file):
         gpodder.interface = gpodder.MAEMO
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
+        gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
     else:
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
         gpodder.interface = gpodder.GUI
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
         from gpodder.liblogger import enable_verbose

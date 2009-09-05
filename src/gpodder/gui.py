@@ -102,6 +102,7 @@ if gpodder.interface == gpodder.GUI:
         log('Warning: Could not import gpodder.trayicon.', traceback=True)
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
+    from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 else:
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
@@ -109,16 +110,13 @@ else:
 
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
-from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
 if gpodder.interface == gpodder.MAEMO:
     import hildon
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCancelFeedUpdate', 'label2', 'labelDownloads', 'btnCleanUpDownloads']
-    ENTER_URL_TEXT = _('Enter podcast URL...')
-    APPMENU_ACTIONS = ('itemUpdate', 'itemDownloadAllNew', 'itemPreferences')
+    finger_friendly_widgets = ['btnCleanUpDownloads']
     TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
 
     def __init__(self, bus_name, config):
@@ -129,128 +127,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def new(self):
         if gpodder.interface == gpodder.MAEMO:
-            # Maemo-specific changes to the UI
-            gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
-            
             self.app = hildon.Program()
-            gtk.set_application_name('gPodder')
-            self.window = hildon.Window()
-            self.window.connect('delete-event', self.on_gPodder_delete_event)
-    
-            self.itemUpdateChannel.set_visible(True)
-            
-            # Remove old toolbar from its parent widget
-            self.toolbar.get_parent().remove(self.toolbar)
-
-            toolbar = gtk.Toolbar()
-            toolbar.set_style(gtk.TOOLBAR_BOTH_HORIZ)
-
-            self.btnUpdateFeeds.get_parent().remove(self.btnUpdateFeeds)
-
-            self.btnUpdateFeeds = gtk.ToolButton(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_SMALL_TOOLBAR), _('Update all'))
-            self.btnUpdateFeeds.set_is_important(True)
-            self.btnUpdateFeeds.connect('clicked', self.on_itemUpdate_activate)
-            toolbar.insert(self.btnUpdateFeeds, -1)
-            self.btnUpdateFeeds.show_all()
-
-            self.btnUpdateSelectedFeed = gtk.ToolButton(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_SMALL_TOOLBAR), _('Update selected'))
-            self.btnUpdateSelectedFeed.set_is_important(True)
-            self.btnUpdateSelectedFeed.connect('clicked', self.on_itemUpdateChannel_activate)
-            toolbar.insert(self.btnUpdateSelectedFeed, -1)
-            self.btnUpdateSelectedFeed.show_all()
-
-            self.toolFeedUpdateProgress = gtk.ToolItem()
-            self.pbFeedUpdate.reparent(self.toolFeedUpdateProgress)
-            self.toolFeedUpdateProgress.set_expand(True)
-            toolbar.insert(self.toolFeedUpdateProgress, -1)
-            self.toolFeedUpdateProgress.hide()
-
-            self.btnCancelFeedUpdate = gtk.ToolButton(gtk.STOCK_CLOSE)
-            self.btnCancelFeedUpdate.connect('clicked', self.on_btnCancelFeedUpdate_clicked)
-            toolbar.insert(self.btnCancelFeedUpdate, -1)
-            self.btnCancelFeedUpdate.hide()
-
-            self.toolbarSpacer = gtk.SeparatorToolItem()
-            self.toolbarSpacer.set_draw(False)
-            self.toolbarSpacer.set_expand(True)
-            toolbar.insert(self.toolbarSpacer, -1)
-            self.toolbarSpacer.show()
-
-            self.wNotebook.set_show_tabs(False)
-            self.wNotebook.set_show_border(False)
-            self.tool_downloads = gtk.ToggleToolButton(gtk.STOCK_GO_DOWN)
-            self.tool_downloads.connect('toggled', self.on_tool_downloads_toggled)
-            self.tool_downloads.set_label(_('Downloads'))
-            self.tool_downloads.set_is_important(True)
-            toolbar.insert(self.tool_downloads, -1)
-            self.tool_downloads.show_all()
-
-            self.toolPreferences = gtk.ToolButton(gtk.STOCK_PREFERENCES)
-            self.toolPreferences.connect('clicked', self.on_itemPreferences_activate)
-            toolbar.insert(self.toolPreferences, -1)
-            self.toolPreferences.show()
-
-            self.toolQuit = gtk.ToolButton(gtk.STOCK_QUIT)
-            self.toolQuit.connect('clicked', self.on_gPodder_delete_event)
-            toolbar.insert(self.toolQuit, -1)
-            self.toolQuit.show()
-
-            # Add and replace toolbar with our new one
-            toolbar.show()
-            self.window.add_toolbar(toolbar)
-            self.toolbar = toolbar
-         
-            self.app.add_window(self.window)
-            self.vMain.reparent(self.window)
-            self.gPodder = self.window
-            
-            # Reparent the main menu
+            self.app.add_window(self.main_window)
+            self.main_window.add_toolbar(self.toolbar)
             menu = gtk.Menu()
-            for child in self.mainMenu.get_children():
-                child.get_parent().remove(child)
-                menu.append(self.set_finger_friendly(child))
-            menu.append(self.set_finger_friendly(self.itemQuit.create_menu_item()))
+            for child in self.main_menu.get_children():
+                child.reparent(menu)
+            self.main_window.set_menu(self.set_finger_friendly(menu))
+            self.bluetooth_available = False
+        else:
+            if gpodder.win32:
+                # FIXME: Implement e-mail sending of list in win32
+                self.item_email_subscriptions.set_sensitive(False)
+            self.bluetooth_available = util.bluetooth_available()
+            self.toolbar.set_property('visible', self.config.show_toolbar)
 
-            if hasattr(hildon, 'AppMenu'):
-                # Maemo 5 - use the new AppMenu with Buttons
-                self.appmenu = hildon.AppMenu()
-                for action_name in self.APPMENU_ACTIONS:
-                    action = getattr(self, action_name)
-                    b = gtk.Button('')
-                    action.connect_proxy(b)
-                    self.appmenu.append(b)
-                b = gtk.Button(_('Classic menu'))
-                b.connect('clicked', lambda b: menu.popup(None, None, None, 1, 0))
-                self.appmenu.append(b)
-                self.window.set_app_menu(self.appmenu)
-            else:
-                # Maemo 4 - just "reparent" the menu to the hildon window
-                self.window.set_menu(menu)
-         
-            self.mainMenu.destroy()
-            self.window.show()
-            
-            # do some widget hiding
-            self.itemTransferSelected.set_visible(False)
-            self.item_email_subscriptions.set_visible(False)
-            self.itemShowToolbar.set_visible(False)
-            self.itemShowDescription.set_visible(False)
-            
-            # get screen real estate
-            self.hboxContainer.set_border_width(0)
-
-            self.cbLimitDownloads.set_label(_('Max.'))
-            self.cbMaxDownloads.set_label(_('Limit DLs to'))
+        self.config.connect_gtk_window(self.gPodder, 'main_window')
+        self.config.connect_gtk_paned('paned_position', self.channelPaned)
+        self.main_window.show()
 
         self.gPodder.connect('key-press-event', self.on_key_press)
-        self.bluetooth_available = util.bluetooth_available()
-
-        if gpodder.win32:
-            # FIXME: Implement e-mail sending of list in win32
-            self.item_email_subscriptions.set_sensitive(False)
-
-        if not gpodder.interface == gpodder.MAEMO and not self.config.show_toolbar:
-            self.toolbar.hide()
 
         self.config.add_observer(self.on_config_changed)
 
@@ -274,9 +170,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.itemShowToolbar.set_active(self.config.show_toolbar)
         self.itemShowDescription.set_active(self.config.episode_list_descriptions)
                    
-        self.config.connect_gtk_window(self.gPodder, 'main_window')
-        self.config.connect_gtk_paned( 'paned_position', self.channelPaned)
-
         self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
@@ -326,9 +219,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.context_menu_mouse_button = 1
         else:
             self.context_menu_mouse_button = 3
-
-        # After we've set up most of the window, show it :)
-        self.gPodder.show()
 
         if self.config.start_iconified:
             self.iconify_main_window()
@@ -804,10 +694,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.interface != gpodder.MAEMO:
-            if new_value:
-                self.toolbar.show()
-            else:
-                self.toolbar.hide()
+            self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
 
@@ -1530,10 +1417,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
 
-        self.toolPlay.set_sensitive( can_play)
-        self.toolDownload.set_sensitive( can_download)
-        self.toolTransfer.set_sensitive( can_transfer)
-        self.toolCancel.set_sensitive( can_cancel)
+        if gpodder.interface != gpodder.MAEMO:
+            self.toolPlay.set_sensitive( can_play)
+            self.toolDownload.set_sensitive( can_download)
+            self.toolTransfer.set_sensitive( can_transfer)
+            self.toolCancel.set_sensitive( can_cancel)
 
         self.item_cancel_download.set_sensitive(can_cancel)
         self.itemDownloadSelected.set_sensitive(can_download)
@@ -2614,9 +2502,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
             self.toolDownload.set_sensitive(False)
-            self.toolPlay.set_sensitive(False)
-            self.toolTransfer.set_sensitive(False)
-            self.toolCancel.set_sensitive(False)
+            if gpodder.interface != gpodder.MAEMO:
+                self.toolPlay.set_sensitive(False)
+                self.toolTransfer.set_sensitive(False)
+                self.toolCancel.set_sensitive(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -2844,7 +2733,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 def main(options=None):
     gobject.threads_init()
-    gtk.window_set_default_icon_name( 'gpodder')
+    gobject.set_application_name('gPodder')
+    gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
     try:

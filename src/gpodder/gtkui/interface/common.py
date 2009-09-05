@@ -91,6 +91,10 @@ class BuilderWidget(GtkBuilderWidget):
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
 
     def _on_key_press_event_maemo(self, widget, event):
+        window_type = widget.get_type_hint()
+        if window_type != gtk.gdk.WINDOW_TYPE_HINT_NORMAL:
+            return False
+
         if event.keyval == gtk.keysyms.F6:
             if self._maemo_fullscreen:
                 self.main_window.unfullscreen()
