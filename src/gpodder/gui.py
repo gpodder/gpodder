@@ -2502,8 +2502,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
-            self.toolDownload.set_sensitive(False)
             if gpodder.interface != gpodder.MAEMO:
+                self.toolDownload.set_sensitive(False)
                 self.toolPlay.set_sensitive(False)
                 self.toolTransfer.set_sensitive(False)
                 self.toolCancel.set_sensitive(False)
