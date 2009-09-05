@@ -1376,7 +1376,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
-            self.toolCancel.set_sensitive(True)
+            if gpodder.interface != gpodder.MAEMO:
+                self.toolCancel.set_sensitive(True)
             return
 
         ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
