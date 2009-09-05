@@ -1548,11 +1548,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         return False
 
-    def add_podcast_list(self, urls):
-        """Subscribe to a list of podcast given their URLs"""
+    def add_podcast_list(self, urls, auth_tokens=None):
+        """Subscribe to a list of podcast given their URLs
 
-        # Sort and split the URL list into four buckets
-        queued, failed, existing, worked = [], [], [], []
+        If auth_tokens is given, it should be a dictionary
+        mapping URLs to (username, password) tuples."""
+
+        if auth_tokens is None:
+            auth_tokens = {}
+
+        # Sort and split the URL list into five buckets
+        queued, failed, existing, worked, authreq = [], [], [], [], []
         for input_url in urls:
             url = util.normalize_feed_url(input_url)
             if url is None:
@@ -1564,17 +1570,58 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # This URL has survived the first round - queue for add
                 queued.append(url)
+                if url != input_url and input_url in auth_tokens:
+                    auth_tokens[url] = auth_tokens[input_url]
+
+        error_messages = {}
+        redirections = {}
 
         # After the initial sorting and splitting, try all queued podcasts
         for url in queued:
             log('QUEUE RUNNER: %s', url, sender=self)
-            channel = self._add_new_channel(url)
-            if channel is None:
+            try:
+                # The URL is valid and does not exist already - subscribe!
+                channel = PodcastChannel.load(self.db, url=url, create=True, \
+                        authentication_tokens=auth_tokens.get(url, None), \
+                        max_episodes=self.config.max_episodes_per_feed, \
+                        download_dir=self.config.download_dir)
+
+                try:
+                    username, password = util.username_password_from_url(url)
+                except ValueError, ve:
+                    username, password = (None, None)
+
+                if username is not None and channel.username is None and \
+                        password is not None and channel.password is None:
+                    channel.username = username
+                    channel.password = password
+                    channel.save()
+
+                self._update_cover(channel)
+            except feedcore.AuthenticationRequired:
+                if url in auth_tokens:
+                    # Fail for wrong authentication data
+                    error_messages[url] = _('Authentication failed')
+                    failed.append(url)
+                else:
+                    # Queue for login dialog later
+                    authreq.append(url)
+                continue
+            except feedcore.WifiLogin, error:
+                redirections[url] = error.data
                 failed.append(url)
-            else:
-                worked.append(url)
-                self.channels.append(channel)
-                self.channel_list_changed = True
+                error_messages[url] = _('Redirection detected')
+                continue
+            except Exception, e:
+                log('Subscription error: %s', e, traceback=True, sender=self)
+                error_messages[url] = str(e)
+                failed.append(url)
+                continue
+
+            assert channel is not None
+            worked.append(url)
+            self.channels.append(channel)
+            self.channel_list_changed = True
 
         # Report already-existing subscriptions to the user
         if existing:
@@ -1583,11 +1630,44 @@ class gPodder(BuilderWidget, dbus.service.Object):
                  + '\n\n' + '\n'.join(saxutils.escape(url) for url in existing)
             self.show_message(message, title, widget=self.treeChannels)
 
+        # Report subscriptions that require authentication
+        if authreq:
+            retry_podcasts = {}
+            for url in authreq:
+                title = _('Podcast requires authentication')
+                message = _('Please login to %s:') % (saxutils.escape(url),)
+                success, auth_tokens = self.show_login_dialog(title, message)
+                if success:
+                    retry_podcasts[url] = auth_tokens
+                else:
+                    # Stop asking the user for more login data
+                    retry_podcasts = {}
+                    for url in authreq:
+                        error_messages[url] = _('Authentication failed')
+                        failed.append(url)
+                    break
+
+            # If we have authentication data to retry, do so here
+            if retry_podcasts:
+                self.add_podcast_list(retry_podcasts.keys(), retry_podcasts)
+
+        # Report website redirections
+        for url in redirections:
+            title = _('Website redirection detected')
+            message = _('The URL %s redirects to %s.') \
+                    + '\n\n' + _('Do you want to visit the website now?')
+            message = message % (url, redirections[url])
+            if self.show_confirmation(message, title):
+                util.open_website(error.data)
+            else:
+                break
+
         # Report failed subscriptions to the user
         if failed:
             title = _('Could not add some podcasts')
             message = _('Some podcasts could not be added to your list:') \
-                 + '\n\n' + '\n'.join(saxutils.escape(url) for url in failed)
+                 + '\n\n' + '\n'.join(saxutils.escape('%s: %s' % (url, \
+                    error_messages.get(url, _('Unknown')))) for url in failed)
             self.show_message(message, title, important=True)
 
         # If at least one podcast has been added, save and update all
@@ -1606,48 +1686,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Offer to download new episodes
             self.offer_new_episodes()
-
-    def _add_new_channel(self, url, authentication_tokens=None):
-        # The URL is valid and does not exist already - subscribe!
-        try:
-            channel = PodcastChannel.load(self.db, url=url, create=True, \
-                    authentication_tokens=authentication_tokens, \
-                    max_episodes=self.config.max_episodes_per_feed, \
-                    download_dir=self.config.download_dir)
-        except feedcore.AuthenticationRequired:
-            title = _('Feed requires authentication')
-            message = _('Please enter your username and password.')
-            success, auth_tokens = self.show_login_dialog(title, message)
-            if success:
-                return self._add_new_channel(url, \
-                        authentication_tokens=auth_tokens)
-        except feedcore.WifiLogin, error:
-            title = _('Website redirection detected')
-            message = _('The URL you are trying to add redirects to %s.') \
-                    + _('Do you want to visit the website now?')
-            message = message % saxutils.escape(error.data)
-            if self.show_confirmation(message, title):
-                util.open_website(error.data)
-            return None
-        except Exception, e:
-            self.show_message(saxutils.escape(str(e)), \
-                    _('Cannot subscribe to podcast'), important=True)
-            log('Subscription error: %s', e, traceback=True, sender=self)
-            return None
-
-        try:
-            username, password = util.username_password_from_url(url)
-        except ValueError, ve:
-            username, password = (None, None)
-
-        if username is not None and channel.username is None and \
-                password is not None and channel.password is None:
-            channel.username = username
-            channel.password = password
-            channel.save()
-
-        self._update_cover(channel)
-        return channel
 
     def save_channels_opml(self):
         exporter = opml.Exporter(gpodder.subscription_file)
