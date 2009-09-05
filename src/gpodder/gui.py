@@ -66,7 +66,6 @@ except ImportError:
 from gpodder import feedcore
 from gpodder import util
 from gpodder import opml
-from gpodder import sync
 from gpodder import download
 from gpodder import my
 from gpodder.liblogger import log
@@ -92,8 +91,7 @@ from gpodder.gtkui.interface.channel import gPodderChannel
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.interface == gpodder.GUI:
-    from gpodder.gtkui.desktop.syncprogress import gPodderSyncProgress
-    from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
+    from gpodder.gtkui.desktop.sync import gPodderSyncUI
 
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
@@ -258,6 +256,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.tray_icon = None
         self.episode_shownotes_window = None
+
+        if gpodder.interface == gpodder.GUI:
+            self.sync_ui = gPodderSyncUI(self.config, self.notification, \
+                    self.main_window, self.show_confirmation, \
+                    self.update_episode_list_icons, \
+                    self.update_podcast_list_model, self.toolPreferences, \
+                    gPodderEpisodeSelector)
+        else:
+            self.sync_ui = None
 
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
@@ -2249,228 +2256,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episodes
 
-    def get_all_episodes(self, exclude_nonsignificant=True ):
-        """'exclude_nonsignificant' will exclude non-downloaded episodes
-            and all episodes from channels that are set to skip when syncing"""
-        episode_list = []
-        for channel in self.channels:
-            if not channel.sync_to_devices and exclude_nonsignificant:
-                log('Skipping channel: %s', channel.title, sender=self)
-                continue
-            for episode in channel.get_all_episodes():
-                if episode.was_downloaded(and_exists=True) or not exclude_nonsignificant:
-                    episode_list.append(episode)
-        return episode_list
-
-    def ipod_delete_played(self, device):
-        all_episodes = self.get_all_episodes( exclude_nonsignificant=False )
-        episodes_on_device = device.get_all_tracks()
-        for local_episode in all_episodes:
-            device_episode = device.episode_on_device(local_episode)
-            if device_episode and ( local_episode.is_played and not local_episode.is_locked
-                or local_episode.state == gpodder.STATE_DELETED ):
-                log("mp3_player_delete_played: removing %s" % device_episode.title)
-                device.remove_track(device_episode)
-
     def on_sync_to_ipod_activate(self, widget, episodes=None):
-        # make sure gpod is available before even trying to sync
-        if self.config.device_type == 'ipod' and not sync.gpod_available:
-            title = _('Cannot Sync To iPod')
-            message = _('Please install the libgpod python bindings (python-gpod) and restart gPodder to continue.')
-            self.notification(message, title, important=True)
-            return
-        elif self.config.device_type == 'mtp' and not sync.pymtp_available:
-            title = _('Cannot sync to MTP device')
-            message = _('Please install the libmtp python bindings (python-pymtp) and restart gPodder to continue.')
-            self.notification(message, title, important=True)
-            return
-
-        device = sync.open_device(self.config)
-        if device is not None:
-            device.register( 'post-done', self.sync_to_ipod_completed )
-
-        if device is None:
-            title = _('No device configured')
-            message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.notification(message, title, widget=self.toolPreferences)
-            return
-
-        if not device.open():
-            title = _('Cannot open device')
-            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
-            self.notification(message, title, widget=self.toolPreferences)
-            return
-
-        if self.config.device_type == 'ipod':
-            #update played episodes and delete if requested
-            for channel in self.channels:
-                if channel.sync_to_devices:
-                    allepisodes = [ episode for episode in channel.get_all_episodes() if  episode.was_downloaded(and_exists=True) ]
-                    device.update_played_or_delete(channel, allepisodes, self.config.ipod_delete_played_from_db)
-
-            if self.config.ipod_purge_old_episodes:
-                device.purge()
-
-        sync_all_episodes = not bool(episodes)
-
-        if episodes is None:
-            episodes = self.get_all_episodes()
-
-        # make sure we have enough space on the device
-        can_sync = True
-        total_size = 0
-        free_space = max(device.get_free_space(), 0)
-        for episode in episodes:
-            if not device.episode_on_device(episode) and not (sync_all_episodes and self.config.only_sync_not_played and episode.is_played):
-                filename = episode.local_filename(create=False)
-                if filename is not None:
-                    total_size += util.calculate_size(str(filename))
-
-        if total_size > free_space:
-            title = _('Not enough space left on device')
-            message = _('You need to free up %s.\nDo you want to continue?') % (util.format_filesize(total_size-free_space),)
-            can_sync = self.show_confirmation(message, title)
-
-        if self.tray_icon:
-            self.tray_icon.set_synchronisation_device(device)
-
-        if can_sync:
-            gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
-            threading.Thread(target=self.sync_to_ipod_thread, args=(widget, device, sync_all_episodes, episodes)).start()
-        else:
-            device.close()
-
+        self.sync_ui.on_synchronize_episodes(self.channels, episodes)
         # The sync process might have updated the status of episodes,
         # therefore persist the database here to avoid losing data
         self.db.commit()
 
-    def sync_to_ipod_completed(self, device, successful_sync):
-        device.unregister( 'post-done', self.sync_to_ipod_completed )
-
-        if self.tray_icon:
-            self.tray_icon.release_synchronisation_device()
- 
-        if successful_sync:
-            title = _('Device synchronized')
-            message = _('Your device has been synchronized with gPodder.')
-            self.notification(message, title)
-        else:
-            title = _('Error closing device')
-            message = _('There has been an error closing your device.')
-            self.notification(message, title, important=True)
-
-        # Update the UI to reflect changes from the sync process
-        episode_urls = set()
-        channel_urls = set()
-        for episode in episodes:
-            episode_urls.add(episode.url)
-            channel_urls.add(episode.channel.url)
-        util.idle_add(self.update_episode_list_icons, episode_urls)
-        util.idle_add(self.update_podcast_list_model, channel_urls)
-
-    def sync_to_ipod_thread(self, widget, device, sync_all_episodes, episodes=None):
-        if sync_all_episodes:
-            device.add_tracks(episodes)
-            # 'only_sync_not_played' must be used or else all the played
-            #  tracks will be copied then immediately deleted
-            if self.config.mp3_player_delete_played and self.config.only_sync_not_played:
-                self.ipod_delete_played(device)
-        else:
-            device.add_tracks(episodes, force_played=True)
-        device.close()
-
-    def ipod_cleanup_callback(self, device, tracks):
-        title = _('Delete podcasts from device?')
-        message = _('The selected episodes will be removed from your device. This cannot be undone. Files in your gPodder library will be unaffected. Do you really want to delete these episodes from your device?')
-        if len(tracks) > 0 and self.show_confirmation(message, title):
-            gPodderSyncProgress(self.gPodder, device=device, gPodder=self)
-            threading.Thread(target=self.ipod_cleanup_thread, args=[device, tracks]).start()
-
-    def ipod_cleanup_thread(self, device, tracks):
-        device.remove_tracks(tracks)
- 
-        if not device.close():
-            title = _('Error closing device')
-            message = _('There has been an error closing your device.')
-            self.notification(message, title, important=True)
-
     def on_cleanup_ipod_activate(self, widget, *args):
-        columns = (
-                ('title', None, None, _('Episode')),
-                ('podcast', None, None, _('Podcast')),
-                ('filesize', None, None, _('Size')),
-                ('modified', 'modified_sort', gobject.TYPE_INT, _('Copied')),
-                ('playcount', None, None, _('Play count')),
-                ('released', None, None, _('Released')),
-        )
-
-        device = sync.open_device(self.config)
-
-        if device is None:
-            title = _('No device configured')
-            message = _('To use the synchronization feature, please configure your device in the preferences dialog first.')
-            self.show_message(message, title, widget=self.toolPreferences)
-            return
-
-        if not device.open():
-            title = _('Cannot open device')
-            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
-            self.show_message(message, title, widget=self.toolPreferences)
-            return
-
-        tracks = device.get_all_tracks()
-        if len(tracks) > 0:
-            remove_tracks_callback = lambda tracks: self.ipod_cleanup_callback(device, tracks)
-            wanted_columns = []
-            for key, sort_name, sort_type, caption in columns:
-                want_this_column = False
-                for track in tracks:
-                    if getattr(track, key) is not None:
-                        want_this_column = True
-                        break
-
-                if want_this_column:
-                    wanted_columns.append((key, sort_name, sort_type, caption))
-            title = _('Remove podcasts from device')
-            instructions = _('Select the podcast episodes you want to remove from your device.')
-            gPodderEpisodeSelector(self.gPodder, title=title, instructions=instructions, episodes=tracks, columns=wanted_columns, \
-                                   stock_ok_button=gtk.STOCK_DELETE, callback=remove_tracks_callback, tooltip_attribute=None, \
-                                   _config=self.config)
-        else:
-            title = _('No files on device')
-            message = _('The devices contains no files to be removed.')
-            self.show_message(message, title)
-            device.close()
+        self.sync_ui.on_cleanup_device()
 
     def on_manage_device_playlist(self, widget):
-        # make sure gpod is available before even trying to sync
-        if self.config.device_type == 'ipod' and not sync.gpod_available:
-            title = _('Cannot manage iPod playlist')
-            message = _('This feature is not available for iPods.')
-            self.notification(message, title)
-            return
-        elif self.config.device_type == 'mtp' and not sync.pymtp_available:
-            title = _('Cannot manage MTP device playlist')
-            message = _('This feature is not available for MTP devices.')
-            self.notification(message, title)
-            return
-
-        device = sync.open_device(self.config)
-
-        if device is None:
-            title = _('No device configured')
-            message = _('To use the playlist feature, please configure your Filesystem based MP3-Player in the preferences dialog first.')
-            self.notification(message, title, widget=self.toolPreferences)
-            return
-
-        if not device.open():
-            title = _('Cannot open device')
-            message = _('There has been an error opening the device. Please check the settings in the preferences dialog.')
-            self.notification(message, title, widget=self.toolPreferences)
-            return
-
-        gPodderDevicePlaylist(self.gPodder, device=device, gPodder=self, _config=self.config)
-        device.close()
+        self.sync_ui.on_manage_device_playlist()
 
     def show_hide_tray_icon(self):
         if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:

@@ -255,12 +255,12 @@ class Device(services.ObservableService):
     def episode_on_device(self, episode):
         return self._track_on_device(episode.title)
 
-    def _track_on_device( self, track_name ):
+    def _track_on_device(self, track_name):
         for t in self.tracks_list:
             title = t.title
             if track_name == title:
                 return t
-        return False
+        return None
 
 class iPodDevice(Device):
     def __init__(self, config):
