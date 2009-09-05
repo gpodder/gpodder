@@ -327,7 +327,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_treeview_episodes_button_released(self, treeview, event):
         if gpodder.interface == gpodder.MAEMO:
-            if not self.config.disable_fingerscroll or self.config.maemo_enable_gestures:
+            if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
                 return self.treeview_available_handle_gestures(treeview, event)
 
         return self.treeview_available_show_context_menu(treeview, event)
@@ -413,7 +413,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection = self.treeAvailable.get_selection()
         if gpodder.interface == gpodder.MAEMO:
-            if self.config.maemo_enable_gestures or not self.config.disable_fingerscroll:
+            if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
                 selection.set_mode(gtk.SELECTION_SINGLE)
             else:
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -2207,8 +2207,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_item_device()
         if gpodder.interface == gpodder.MAEMO:
             selection = self.treeAvailable.get_selection()
-            if self.config.maemo_enable_gestures or not \
-                    self.config.disable_fingerscroll:
+            if self.config.maemo_enable_gestures or \
+                    self.config.enable_fingerscroll:
                 selection.set_mode(gtk.SELECTION_SINGLE)
             else:
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -2768,7 +2768,7 @@ def main(options=None):
                 else:
                     log('Downloads NOT FOUND in %s', dir)
 
-        if not config.disable_fingerscroll:
+        if config.enable_fingerscroll:
             BuilderWidget.use_fingerscroll = True
 
     gp = gPodder(bus_name, config)

@@ -192,8 +192,8 @@ gPodderSettings = {
     'resume_ask_every_episode': (bool, False,
       _("If there are episode downloads that can be resumed, ask whether or "
         "not to resume every single one.")),
-    'disable_fingerscroll': (bool, False,
-      _("Disable the use of finger-scrollable widgets on Maemo.")),
+    'enable_fingerscroll': (bool, False,
+      _("Enable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',
       _("Episode double-click/enter action handler (shownotes, download, stream)")),
 

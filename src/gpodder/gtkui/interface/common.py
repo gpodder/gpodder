@@ -98,10 +98,12 @@ class BuilderWidget(GtkBuilderWidget):
         if event.keyval == gtk.keysyms.F6:
             if self._maemo_fullscreen:
                 self.main_window.unfullscreen()
-                self.main_window.set_border_width(0)
+                if not self.use_fingerscroll:
+                    self.main_window.set_border_width(0)
             else:
                 self.main_window.fullscreen()
-                self.main_window.set_border_width(12)
+                if not self.use_fingerscroll:
+                    self.main_window.set_border_width(12)
             return True
         else:
             return False

@@ -102,7 +102,9 @@ class GtkBuilderWidget(object):
         def create_fingerscroll():
             if mokoui is not None:
                 scroll = mokoui.FingerScroll()
+                scroll.set_property('mode', 0)
                 scroll.set_property('spring-speed', 0)
+                scroll.set_property('deceleration', .975)
             else:
                 scroll = hildon.PannableArea()
             scroll.set_name(widget.get_name())
