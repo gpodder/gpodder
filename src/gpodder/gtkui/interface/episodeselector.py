@@ -242,7 +242,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
 
-        if not self.episode_list_can_tooltip:
+        if not self.episode_list_can_tooltip or column != treeview.get_columns()[1]:
             self.last_tooltip_episode = None
             return False
 
@@ -256,7 +256,10 @@ class gPodderEpisodeSelector(BuilderWidget):
                 return False
             self.last_tooltip_episode = index
 
+            description = util.remove_html_tags(description)
             if description is not None:
+                if len(description) > 400:
+                    description = description[:398]+'[...]'
                 tooltip.set_text(description)
                 return True
             else:
