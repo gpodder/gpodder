@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gtk
+
 import gpodder
 
 _ = gpodder.gettext
@@ -28,7 +30,13 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 class gPodderPreferences(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_advanced']
+    # Key press sequence to open advanced configuration editor
+    adv_keyseq = (gtk.keysyms.F6, gtk.keysyms.F6, \
+                  gtk.keysyms.F7, gtk.keysyms.F8, \
+                  gtk.keysyms.F7, gtk.keysyms.F6)
+
+    finger_friendly_widgets = ['btn_close', 'btn_gesture_info']
+
     audio_players = [
             ('default', 'Media Player'),
             ('panucci', 'Panucci'),
@@ -39,10 +47,12 @@ class gPodderPreferences(BuilderWidget):
     ]
     
     def new(self):
+        self.adv_keyseq_pos = 0
+
         self._config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
         self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
-        self._config.connect_gtk_togglebutton('enable_fingerscroll', self.check_enable_fingerscroll)
 
+        self.main_window.connect('key-press-event', self.on_key_press)
         self.main_window.connect('destroy', lambda w: self.callback_finished())
 
         for item in self.audio_players:
@@ -85,6 +95,19 @@ class gPodderPreferences(BuilderWidget):
 
         self.gPodderPreferences.show()
 
+    def on_key_press(self, widget, event):
+        if event.keyval == self.adv_keyseq[self.adv_keyseq_pos]:
+            self.adv_keyseq_pos += 1
+            if self.adv_keyseq_pos == len(self.adv_keyseq):
+                self.adv_keyseq_pos = 0
+                self.show_message(_('Configuration editor activated'), _('Be careful'))
+                gPodderConfigEditor(self.gPodderPreferences, _config=self._config)
+                self.gPodderPreferences.destroy()
+            return True
+        else:
+            self.adv_keyseq_pos = 0
+        return False
+
     def on_combo_player_changed(self, combobox):
         index = combobox.get_active()
         if index < len(self.audio_players):
@@ -99,9 +122,26 @@ class gPodderPreferences(BuilderWidget):
         elif self.userconfigured_videoplayer is not None:
             self._config.videoplayer = self.userconfigured_videoplayer
 
-    def on_btn_advanced_clicked(self, widget):
-        gPodderConfigEditor(self.gPodderPreferences, _config=self._config)
-        self.gPodderPreferences.destroy()
+    def on_btn_gesture_info_clicked(self, widget):
+        dialog = gtk.Dialog(_('Gestures in gPodder'))
+        dialog.set_transient_for(self.main_window)
+        dialog.set_parent(self.main_window)
+        dialog.set_has_separator(False)
+        dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_OK)
+        message = '<b>' + _('Podcast list') + '</b>\n ' + \
+            _('Swipe left') + ' - ' + _('Edit selected podcast') + '\n ' + \
+            _('Swipe right') + ' - ' + _('Update podcast feed') + '\n\n' + \
+            '<b>' + _('Episode list') + '</b>\n ' + \
+            _('Swipe left') + ' - ' + _('Display shownotes') + '\n ' + \
+            _('Swipe right') + ' - ' + _('Playback episode')
+
+        label = gtk.Label()
+        label.set_padding(30, 17)
+        label.set_markup(message)
+        dialog.vbox.add(label)
+        dialog.vbox.show_all()
+        dialog.run()
+        dialog.destroy()
 
     def on_btn_close_clicked(self, widget):
         self.gPodderPreferences.destroy()

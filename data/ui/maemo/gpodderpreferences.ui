@@ -74,17 +74,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="check_enable_fingerscroll">
-                <property name="label" translatable="yes">Enable kinetic scrolling</property>
-                <property name="visible">True</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">6</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">5</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkComboBox" id="combo_player">
                 <property name="active">0</property>
                 <property name="visible">True</property>
@@ -132,14 +121,15 @@ MPlayer</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="action_area">
             <property name="border_width">5</property>
-            <property name="layout_style">end</property>
+            <property name="layout_style">edge</property>
             <property name="spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkButton" id="btn_advanced">
-                <property name="label" translatable="yes">Advanced...</property>
+              <object class="GtkButton" id="btn_gesture_info">
+                <property name="label">gtk-help</property>
+                <property name="use_stock">True</property>
                 <property name="visible">True</property>
-                <signal handler="on_btn_advanced_clicked" name="clicked"/>
+                <signal handler="on_btn_gesture_info_clicked" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">True</property>
