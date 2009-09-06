@@ -763,7 +763,8 @@ class PodcastEpisode(PodcastModelObject):
 
         return current_try
 
-    def local_filename(self, create, force_update=False, check_only=False):
+    def local_filename(self, create, force_update=False, check_only=False,
+            template=None):
         """Get (and possibly generate) the local saving filename
 
         Pass create=True if you want this function to generate a
@@ -785,6 +786,9 @@ class PodcastEpisode(PodcastModelObject):
         If check_only=True is passed to this function, it will never try
         to rename the file, even if would be a good idea. Use this if you
         only want to check if a file exists.
+
+        If "template" is specified, it should be a filename that is to
+        be used as a template for generating the "real" filename.
 
         The generated filename is stored in the database for future access.
         """
@@ -816,10 +820,14 @@ class PodcastEpisode(PodcastModelObject):
 
         if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
             # Try to find a new filename for the current file
-            (episode_filename, extension_UNUSED) = util.filename_from_url(self.url)
+            if template is not None:
+                # If template is specified, trust the template's extension
+                episode_filename, ext = os.path.splitext(template)
+            else:
+                episode_filename, extension_UNUSED = util.filename_from_url(self.url)
             fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
-            if 'redirect' in fn_template:
+            if 'redirect' in fn_template and template is None:
                 # This looks like a redirection URL - force URL resolving!
                 log('Looks like a redirection to me: %s', self.url, sender=self)
                 url = util.get_real_url(self.channel.authenticate_url(self.url))
@@ -830,7 +838,7 @@ class PodcastEpisode(PodcastModelObject):
             # Use the video title for YouTube downloads
             for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
                 if self.url.startswith(yt_url):
-                    fn_template = self.title
+                    fn_template = os.path.basename(self.title)
 
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):
@@ -865,6 +873,12 @@ class PodcastEpisode(PodcastModelObject):
             self.db.commit()
 
         return os.path.join(self.channel.save_dir, self.filename)
+
+    def set_mimetype(self, mimetype, commit=False):
+        """Sets the mimetype for this episode"""
+        self.mimetype = mimetype
+        if commit:
+            self.db.commit()
 
     def extension( self):
          ( filename, ext ) = util.filename_from_url(self.url)

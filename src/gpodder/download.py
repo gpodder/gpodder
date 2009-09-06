@@ -41,9 +41,42 @@ import os
 import time
 import collections
 
+import mimetypes
+import email
+import email.Header
+
 from xml.sax import saxutils
 
 _ = gpodder.gettext
+
+def get_header_param(headers, param, header_name):
+    """Extract a HTTP header parameter from a dict
+
+    Uses the "email" module to retrieve parameters
+    from HTTP headers. This can be used to get the
+    "filename" parameter of the "content-disposition"
+    header for downloads to pick a good filename.
+
+    Returns None if the filename cannot be retrieved.
+    """
+    try:
+        headers_string = ['%s:%s'%(k,v) for k,v in headers.items()]
+        msg = email.message_from_string('\n'.join(headers_string))
+        if header_name in msg:
+            value = msg.get_param(param, header=header_name)
+            decoded_list = email.Header.decode_header(value)
+            value = []
+            for part, encoding in decoded_list:
+                if encoding:
+                    value.append(part.decode(encoding))
+                else:
+                    value.append(unicode(part))
+            return u''.join(value)
+    except Exception, e:
+        log('Error trying to get %s from %s: %s', \
+                param, header_name, str(e), traceback=True)
+
+    return None
 
 class ContentRange(object):
     # Based on:
@@ -205,12 +238,11 @@ class DownloadURLOpener(urllib.FancyURLopener):
         return urllib.addinfourl(fp, headers, 'http:' + url)
 
     def retrieve_resume(self, url, filename, reporthook=None, data=None):
-        """retrieve_resume(url) returns (filename, headers) for a local object
-        or (tempfilename, headers) for a remote object.
+        """Download files from an URL; return (headers, real_url)
 
-        The filename argument is REQUIRED (no tempfile creation code here!)
-
-        Additionally resumes a download if the local filename exists"""
+        Resumes a download if the local filename exists and
+        the server supports download resuming.
+        """
 
         current_size = 0
         tfp = None
@@ -246,12 +278,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
                 current_size = 0
                 log('Cannot resume. Missing or wrong Content-Range header (RFC2616)', sender=self)
 
-
-        # gPodder TODO: we can get the real url via fp.geturl() here
-        #               (if anybody wants to fix filenames in the future)
-        # Maybe also utilize the name in the "Content-disposition" header
-
-        result = filename, headers
+        result = headers, fp.geturl()
         bs = 1024*8
         size = -1
         read = current_size
@@ -595,7 +622,7 @@ class DownloadTask(object):
             # Resolve URL and start downloading the episode
             url = youtube.get_real_download_url(self.__episode.url)
             downloader =  DownloadURLOpener(self.__episode.channel)
-            (unused, headers) = downloader.retrieve_resume(url,
+            headers, real_url = downloader.retrieve_resume(url, \
                     self.tempname, reporthook=self.status_updated)
 
             new_mimetype = headers.get('content-type', self.__episode.mimetype)
@@ -610,6 +637,24 @@ class DownloadTask(object):
                 # we force an update of the local filename to fix the extension
                 if old_extension != new_extension:
                     self.filename = self.__episode.local_filename(create=True, force_update=True)
+
+            # TODO: Check if "real_url" is different from "url" and if it is,
+            #       see if we can get a better episode filename out of it
+
+            # Look at the Content-disposition header; use if if available
+            disposition_filename = get_header_param(headers, \
+                    'filename', 'content-disposition')
+
+            if disposition_filename is not None:
+                # The server specifies a download filename - try to use it
+                disposition_filename = os.path.basename(disposition_filename)
+                self.filename = self.__episode.local_filename(create=True, \
+                        force_update=True, template=disposition_filename)
+                new_mimetype, encoding = mimetypes.guess_type(self.filename)
+                if new_mimetype is not None:
+                    log('Using content-disposition mimetype: %s',
+                            new_mimetype, sender=self)
+                    self.__episode.set_mimetype(new_mimetype, commit=True)
 
             shutil.move(self.tempname, self.filename)
 
