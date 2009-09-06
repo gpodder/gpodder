@@ -110,8 +110,6 @@ class gPodderPreferences(BuilderWidget):
             self.comboboxAutoDownload.set_active( 1)
         elif self._config.auto_download == 'always':
             self.comboboxAutoDownload.set_active( 2)
- 
-        self.ipodIcon.set_from_icon_name( 'gnome-dev-ipod', gtk.ICON_SIZE_BUTTON)
 
     def is_row_separator(self, model, iter):
         return model.get_value(iter, 0) == ''

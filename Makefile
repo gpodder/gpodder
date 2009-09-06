@@ -28,6 +28,8 @@ HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
+GPODDER_ICON_THEME=dist/gpodder
+
 ROSETTA_FILES=$(MESSAGESPOT) data/po/*.po
 ROSETTA_ARCHIVE=gpodder-rosetta-upload.tar.gz
 
@@ -114,9 +116,6 @@ messages: gen_gettext
 $(MANPAGE): src/gpodder/__init__.py
 	$(HELP2MAN) --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
 
-data/maemo/gpodder.desktop: data/gpodder.desktop
-	sed -e 's/^Exec=gpodder$$/Exec=gpodder --maemo/g' <data/gpodder.desktop >data/maemo/gpodder.desktop
-
 gen_gettext: $(MESSAGESPOT)
 	make -C data/po generators
 	make -C data/po update
@@ -139,6 +138,16 @@ install-git-menuitem:
 
 remove-git-menuitem:
 	doc/dev/install-desktopentry.sh --remove
+
+gpodder-icon-theme:
+	rm -rf $(GPODDER_ICON_THEME)
+	mkdir -p $(GPODDER_ICON_THEME)
+	python doc/dev/icon-theme/list-icon-names.py >$(GPODDER_ICON_THEME)/names
+	(cd $(GPODDER_ICON_THEME) && \
+	    python ../../doc/dev/icon-theme/pack-icons.py && \
+	    python ../../doc/dev/icon-theme/create-index.py >index.theme && \
+	    gtk-update-icon-cache . && \
+	    rm -f names)
 
 ##########################################################################
 

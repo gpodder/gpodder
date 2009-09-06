@@ -34,7 +34,6 @@ from gpodder.gtkui import draw
 import gtk
 import xml.sax.saxutils
 
-
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
@@ -53,27 +52,19 @@ class EpisodeListModel(gtk.ListStore):
         self._view_mode = self.VIEW_ALL
         self._filter.set_visible_func(self._filter_visible_func)
 
+        # "ICON" is used to mark icon names in source files
+        ICON = lambda x: x
+
         self._icon_cache = {}
-        if gpodder.interface == gpodder.MAEMO:
-            self.ICON_AUDIO_FILE = 'gnome-mime-audio-mp3'
-            self.ICON_VIDEO_FILE = 'gnome-mime-video-mp4'
-            self.ICON_GENERIC_FILE = 'text-x-generic'
-            self.ICON_DOWNLOADING = 'qgn_toolb_messagin_moveto'
-            self.ICON_DELETED = 'qgn_toolb_gene_deletebutton'
-            self.ICON_NEW = 'qgn_list_gene_favor'
-            self.ICON_UNPLAYED = 'qgn_list_gene_favor'
-            self.ICON_LOCKED = 'qgn_indi_KeypadLk_lock'
-            self.ICON_MISSING = gtk.STOCK_STOP # FIXME!
-        else:
-            self.ICON_AUDIO_FILE = 'audio-x-generic'
-            self.ICON_VIDEO_FILE = 'video-x-generic'
-            self.ICON_GENERIC_FILE = 'text-x-generic'
-            self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-            self.ICON_DELETED = gtk.STOCK_DELETE
-            self.ICON_NEW = gtk.STOCK_ABOUT
-            self.ICON_UNPLAYED = 'emblem-new'
-            self.ICON_LOCKED = 'emblem-readonly'
-            self.ICON_MISSING = 'emblem-unreadable'
+        self.ICON_AUDIO_FILE = ICON('audio-x-generic')
+        self.ICON_VIDEO_FILE = ICON('video-x-generic')
+        self.ICON_GENERIC_FILE = ICON('text-x-generic')
+        self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
+        self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_NEW = gtk.STOCK_ABOUT
+        self.ICON_UNPLAYED = ICON('emblem-new')
+        self.ICON_LOCKED = ICON('emblem-readonly')
+        self.ICON_MISSING = ICON('emblem-unreadable')
 
 
     def _format_filesize(self, episode):
@@ -165,7 +156,7 @@ class EpisodeListModel(gtk.ListStore):
         episode = self.get_value(iter, self.C_EPISODE)
         episode.reload_from_db()
 
-        if include_description:
+        if include_description or gpodder.interface == gpodder.MAEMO:
             icon_size = 32
         else:
             icon_size = 16

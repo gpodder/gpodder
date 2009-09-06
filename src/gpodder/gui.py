@@ -382,7 +382,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         iconcell = gtk.CellRendererPixbuf()
         if gpodder.interface == gpodder.MAEMO:
-            iconcell.set_fixed_size(-1, 52)
+            iconcell.set_fixed_size(50, 50)
             status_column_label = ''
         else:
             status_column_label = _('Status')
@@ -431,9 +431,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         cell = gtk.CellRendererPixbuf()
         if gpodder.interface == gpodder.MAEMO:
-            cell.set_property('stock-size', gtk.ICON_SIZE_DIALOG)
-        else:
-            cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+            cell.set_fixed_size(50, 50)
+        cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
         column.pack_start(cell, expand=False)
         column.add_attribute(cell, 'stock-id', \
                 DownloadStatusModel.C_ICON_NAME)
@@ -923,7 +922,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', lambda item: self.show_episode_shownotes(episode))
             else:
                 item.set_sensitive(False)
-            menu.append(item)
+            menu.append(self.set_finger_friendly(item))
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED))
             menu.append(make_menu_item(_('Cancel'), gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED))
@@ -952,13 +951,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.button == 3:
             menu = gtk.Menu()
 
+            ICON = lambda x: x
+
             item = gtk.ImageMenuItem( _('Open download folder'))
-            item.set_image( gtk.image_new_from_icon_name( 'folder-open', gtk.ICON_SIZE_MENU))
+            item.set_image( gtk.image_new_from_icon_name(ICON('folder-open'), gtk.ICON_SIZE_MENU))
             item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
             menu.append( item)
 
             item = gtk.ImageMenuItem( _('Update Feed'))
-            item.set_image( gtk.image_new_from_icon_name( 'gtk-refresh', gtk.ICON_SIZE_MENU))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemUpdateChannel_activate )
             item.set_sensitive( not self.updating_feed_cache )
             menu.append( item)
@@ -970,7 +971,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.active_channel.link:
                 item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                item.set_image(gtk.image_new_from_icon_name(ICON('web-browser'), gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: util.open_website(self.active_channel.link))
                 menu.append(item)
 
@@ -1172,6 +1173,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
                 menu.append(self.set_finger_friendly(item))
 
+            ICON = lambda x: x
+
             # Ok, this probably makes sense to only display for downloaded files
             if can_play and not can_download:
                 menu.append( gtk.SeparatorMenuItem())
@@ -1181,12 +1184,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Send via bluetooth'))
-                    item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
+                    item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.copy_episodes_bluetooth(episodes))
                     menu.append(self.set_finger_friendly(item))
                 if can_transfer:
                     item = gtk.ImageMenuItem(_('Transfer to %s') % self.get_device_name())
-                    item.set_image(gtk.image_new_from_icon_name('multimedia-player', gtk.ICON_SIZE_MENU))
+                    item.set_image(gtk.image_new_from_icon_name(ICON('multimedia-player'), gtk.ICON_SIZE_MENU))
                     item.connect('activate', lambda w: self.on_sync_to_ipod_activate(w, episodes))
                     menu.append(self.set_finger_friendly(item))
 
@@ -1224,7 +1227,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # If we have it, also add episode website link
             if episodes[0].link and episodes[0].link != episodes[0].url:
                 item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name('web-browser', gtk.ICON_SIZE_MENU))
+                item.set_image(gtk.image_new_from_icon_name(ICON('web-browser'), gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda w: util.open_website(episodes[0].link))
                 menu.append(self.set_finger_friendly(item))
             
@@ -2773,6 +2776,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
+
+    if gpodder.interface == gpodder.MAEMO:
+        # Try to enable the custom icon theme for gPodder on Maemo
+        settings = gtk.settings_get_default()
+        settings.set_string_property('gtk-icon-theme-name', \
+                                     'gpodder', __file__)
+        icon_theme = gtk.icon_theme_get_default()
+        icon_theme.prepend_search_path('dist/')
+        share_dir = os.path.dirname(gpodder.credits_file)
+        icon_theme.prepend_search_path(os.path.join(share_dir, 'icons'))
+
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 

@@ -32,8 +32,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderSyncProgress(BuilderWidget):
     def new(self):
-        util.idle_add(self.imageSync.set_from_icon_name, 'gnome-dev-ipod', gtk.ICON_SIZE_DIALOG)
-
         self.device.register('progress', self.on_progress)
         self.device.register('sub-progress', self.on_sub_progress)
         self.device.register('status', self.on_status)
