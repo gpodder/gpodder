@@ -2782,10 +2782,6 @@ def main(options=None):
         settings = gtk.settings_get_default()
         settings.set_string_property('gtk-icon-theme-name', \
                                      'gpodder', __file__)
-        icon_theme = gtk.icon_theme_get_default()
-        icon_theme.prepend_search_path('dist/')
-        share_dir = os.path.dirname(gpodder.credits_file)
-        icon_theme.prepend_search_path(os.path.join(share_dir, 'icons'))
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)

@@ -146,7 +146,6 @@ gpodder-icon-theme:
 	(cd $(GPODDER_ICON_THEME) && \
 	    python ../../doc/dev/icon-theme/pack-icons.py && \
 	    python ../../doc/dev/icon-theme/create-index.py >index.theme && \
-	    gtk-update-icon-cache . && \
 	    rm -f names)
 
 ##########################################################################
