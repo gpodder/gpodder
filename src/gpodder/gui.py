@@ -87,12 +87,12 @@ from gpodder.gtkui.draw import draw_text_box_centered
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
-from gpodder.gtkui.interface.channel import gPodderChannel
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.interface == gpodder.GUI:
     from gpodder.gtkui.desktop.sync import gPodderSyncUI
 
+    from gpodder.gtkui.desktop.channel import gPodderChannel
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
     try:
@@ -104,6 +104,7 @@ if gpodder.interface == gpodder.GUI:
         have_trayicon = False
     from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 else:
+    from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
     have_trayicon = False
@@ -419,6 +420,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
         else:
             selection.set_mode(gtk.SELECTION_MULTIPLE)
+
+        if gpodder.interface == gpodder.MAEMO:
+            # Set up the tap-and-hold context menu for podcasts
+            menu = gtk.Menu()
+            menu.append(self.itemUpdateChannel.create_menu_item())
+            menu.append(self.itemEditChannel.create_menu_item())
+            menu.append(gtk.SeparatorMenuItem())
+            menu.append(self.itemRemoveChannel.create_menu_item())
+            menu.append(gtk.SeparatorMenuItem())
+            item = gtk.ImageMenuItem(_('Close this menu'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, \
+                    gtk.ICON_SIZE_MENU))
+            menu.append(item)
+            menu.show_all()
+            menu = self.set_finger_friendly(menu)
+            self.treeChannels.tap_and_hold_setup(menu)
+
 
     def init_download_list_treeview(self):
         # enable multiple selection support
@@ -1089,7 +1107,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def treeview_channels_handle_gestures(self, treeview, event):
         if self.currently_updating:
-            return True
+            return False
 
         selected, dx, dy = self._treeview_button_released(treeview, event)
 
@@ -1100,7 +1118,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 elif dx < -70:
                     self.on_itemEditChannel_activate(treeview)
 
-        return True
+        return False
 
     def treeview_available_handle_gestures(self, treeview, event):
         selected, dx, dy = self._treeview_button_released(treeview, event)
@@ -2338,7 +2356,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        gPodderChannel(self.main_window, channel=self.active_channel, callback_closed=lambda: self.update_podcast_list_model(selected=True), cover_downloader=self.cover_downloader)
+        callback_closed = lambda: self.update_podcast_list_model(selected=True)
+        gPodderChannel(self.main_window, \
+                channel=self.active_channel, \
+                callback_closed=callback_closed, \
+                cover_downloader=self.cover_downloader)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         if self.active_channel is None:

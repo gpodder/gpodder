@@ -29,10 +29,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderChannel(BuilderWidget):
-    finger_friendly_widgets = ['btn_website', 'btnOK', 'channel_description', 'label19', 'label37', 'label31']
-
     def new(self):
-        self.changed = False
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)

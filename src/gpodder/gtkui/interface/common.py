@@ -231,6 +231,44 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             raise Exception('Unknown interface type')
 
+    def show_text_edit_dialog(self, title, prompt, text=None, empty=False):
+        dialog = gtk.Dialog(title, self.main_window, \
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, \
+            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, \
+             gtk.STOCK_OK, gtk.RESPONSE_OK))
+
+        dialog.set_has_separator(False)
+        dialog.set_default_size(650, -1)
+        dialog.set_default_response(gtk.RESPONSE_OK)
+
+        text_entry = gtk.Entry()
+        text_entry.set_activates_default(True)
+        if text is not None:
+            text_entry.set_text(text)
+            text_entry.select_region(0, -1)
+
+        if not empty:
+            def on_text_changed(editable):
+                can_confirm = (editable.get_text() != '')
+                dialog.set_response_sensitive(gtk.RESPONSE_OK, can_confirm)
+            text_entry.connect('changed', on_text_changed)
+
+        hbox = gtk.HBox()
+        hbox.set_border_width(10)
+        hbox.set_spacing(10)
+        hbox.pack_start(gtk.Label(prompt), False, False)
+        hbox.pack_start(text_entry, True, True)
+        dialog.vbox.pack_start(hbox, True, True)
+
+        dialog.show_all()
+        response = dialog.run()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK:
+            return text_entry.get_text()
+        else:
+            return None
+
     def show_login_dialog(self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
         """ An authentication dialog based on
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
