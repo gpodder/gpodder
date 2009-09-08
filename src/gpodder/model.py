@@ -718,6 +718,32 @@ class PodcastEpisode(PodcastModelObject):
     def title_markup(self):
         return self.format_episode_row_markup(False)
 
+    @property
+    def maemo_markup(self):
+        return ('<b>%s</b>\n<small>%s; '+_('released %s')+ \
+                '; '+_('from %s')+'</small>') % (\
+                xml.sax.saxutils.escape(self.title), \
+                xml.sax.saxutils.escape(self.filesize_prop), \
+                xml.sax.saxutils.escape(self.pubdate_prop), \
+                xml.sax.saxutils.escape(self.channel.title))
+
+    @property
+    def maemo_remove_markup(self):
+        if self.is_played:
+            played_string = _('played')
+        else:
+            played_string = _('unplayed')
+        downloaded_string = self.get_age_string()
+        if not downloaded_string:
+            downloaded_string = _('today')
+        return ('<b>%s</b>\n<small>%s; %s; '+_('downloaded %s')+ \
+                '; '+_('from %s')+'</small>') % (\
+                xml.sax.saxutils.escape(self.title), \
+                xml.sax.saxutils.escape(self.filesize_prop), \
+                xml.sax.saxutils.escape(played_string), \
+                xml.sax.saxutils.escape(downloaded_string), \
+                xml.sax.saxutils.escape(self.channel.title))
+
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False))
 

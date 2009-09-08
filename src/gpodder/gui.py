@@ -95,6 +95,7 @@ if gpodder.interface == gpodder.GUI:
     from gpodder.gtkui.desktop.channel import gPodderChannel
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
+    from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
     try:
         from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
         have_trayicon = True
@@ -107,10 +108,10 @@ else:
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
+    from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
     have_trayicon = False
 
 from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
-from gpodder.gtkui.interface.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
 if gpodder.interface == gpodder.MAEMO:
@@ -2016,21 +2017,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.play_or_download()
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
-        columns = (
+        if gpodder.interface == gpodder.MAEMO:
+            columns = (
+                ('maemo_remove_markup', None, None, _('Episode')),
+            )
+        else:
+            columns = (
                 ('title_markup', None, None, _('Episode')),
                 ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
                 ('played_prop', None, None, _('Status')),
                 ('age_prop', None, None, _('Downloaded')),
-        )
+            )
 
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
                 _('Select older than %d days') % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
-        instructions = _('Select the episodes you want to delete from your hard disk.')
+        instructions = _('Select the episodes you want to delete:')
 
         episodes = []
         selected = []
@@ -2171,14 +2177,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def new_episodes_show(self, episodes):
-        columns = (
+        if gpodder.interface == gpodder.MAEMO:
+            columns = (
+                ('maemo_markup', None, None, _('Episode')),
+            )
+        else:
+            columns = (
                 ('title_markup', None, None, _('Episode')),
                 ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
-        )
+            )
 
-        instructions = _('Select the episodes you want to download now.')
+        instructions = _('Select the episodes you want to download:')
 
         gPodderEpisodeSelector(self.gPodder, title=_('New episodes available'), instructions=instructions, \
                                episodes=episodes, columns=columns, selected_default=True, \

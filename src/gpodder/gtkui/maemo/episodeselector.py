@@ -87,7 +87,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                            over an episode (default is 'description')
                            
     """
-    finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
+    finger_friendly_widgets = ['btnRemoveAction', 'btnCancel', 'btnOK']
     
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
@@ -134,14 +134,14 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
-            self.labelHeading.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.title))
-
-        if gpodder.interface == gpodder.MAEMO:
-            self.labelHeading.hide()
 
         if hasattr( self, 'instructions'):
             self.labelInstructions.set_text( self.instructions)
             self.labelInstructions.show_all()
+
+        if self.remove_callback is not None:
+            self.btnRemoveAction.show()
+            self.btnRemoveAction.set_label(self.remove_action)
 
         if hasattr(self, 'stock_ok_button'):
             if self.stock_ok_button == 'gpodder-download':
@@ -151,9 +151,15 @@ class gPodderEpisodeSelector(BuilderWidget):
                 self.btnOK.set_label(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
+        # Make sure the window comes up quick
+        self.main_window.show()
+        self.main_window.present()
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+
         # check/uncheck column
         toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.connect( 'toggled', self.toggle_cell_handler)
+        toggle_cell.set_fixed_size(50, -1)
         self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
         
         next_column = self.COLUMN_ADDITIONAL
@@ -163,8 +169,8 @@ class gPodderEpisodeSelector(BuilderWidget):
                 renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
             column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_resizable( True)
-            # Only set "expand" on the first two columns
-            if next_column < self.COLUMN_ADDITIONAL + 2:
+            # Only set "expand" on the first column
+            if next_column < self.COLUMN_ADDITIONAL + 1:
                 column.set_expand(True)
             if sort_name is not None:
                 column.set_sort_column_id(next_column+1)
@@ -212,92 +218,61 @@ class gPodderEpisodeSelector(BuilderWidget):
                         row.append(getattr( episode, sort_name))
             self.model.append( row)
 
-        if self.remove_callback is not None:
-            self.btnRemoveAction.show()
-            self.btnRemoveAction.set_label(self.remove_action)
-
-        # connect to tooltip signals
-        if self.tooltip_attribute is not None:
-            try:
-                self.treeviewEpisodes.set_property('has-tooltip', True)
-                self.treeviewEpisodes.connect('query-tooltip', self.treeview_episodes_query_tooltip)
-            except:
-                log('I cannot set has-tooltip/query-tooltip (need at least PyGTK 2.12)', sender=self)
-        self.last_tooltip_episode = None
-        self.episode_list_can_tooltip = True
-
-        self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
         self.calculate_total_size()
 
-    def treeview_episodes_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
-        # With get_bin_window, we get the window that contains the rows without
-        # the header. The Y coordinate of this window will be the height of the
-        # treeview header. This is the amount we have to subtract from the
-        # event's Y coordinate to get the coordinate to pass to get_path_at_pos
-        (x_bin, y_bin) = treeview.get_bin_window().get_position()
-        y -= x_bin
-        y -= y_bin
-        (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
+        menu = gtk.Menu()
+        menu.append(self.action_select_all.create_menu_item())
+        menu.append(self.action_select_none.create_menu_item())
+        menu.append(gtk.SeparatorMenuItem())
+        menu.append(self.action_invert_selection.create_menu_item())
+        menu.append(gtk.SeparatorMenuItem())
 
-        if not self.episode_list_can_tooltip or column != treeview.get_columns()[1]:
-            self.last_tooltip_episode = None
-            return False
+        selection = self.treeviewEpisodes.get_selection()
+        #selection.connect('changed', self.on_selection_changed)
+        self.treeviewEpisodes.connect('button-release-event', \
+                self.on_treeview_button_release)
 
-        if path is not None:
-            model = treeview.get_model()
-            iter = model.get_iter(path)
-            index = model.get_value(iter, self.COLUMN_INDEX)
-            description = model.get_value(iter, self.COLUMN_TOOLTIP)
-            if self.last_tooltip_episode is not None and self.last_tooltip_episode != index:
-                self.last_tooltip_episode = None
-                return False
-            self.last_tooltip_episode = index
+        if self.selection_buttons:
+            for label in self.selection_buttons:
+                item = gtk.MenuItem(label)
+                item.connect('activate', self.custom_selection_button_clicked, label)
+                menu.append(item)
+            menu.append(gtk.SeparatorMenuItem())
 
-            description = util.remove_html_tags(description)
-            if description is not None:
-                if len(description) > 400:
-                    description = description[:398]+'[...]'
-                tooltip.set_text(description)
-                return True
-            else:
-                return False
+        menu.append(self.action_close.create_menu_item())
+        self.main_window.set_menu(self.set_finger_friendly(menu))
 
-        self.last_tooltip_episode = None
-        return False
+    def on_selection_changed(self, selection):
+        model, iter = selection.get_selected()
+        if iter is not None:
+            model.set_value(iter, self.COLUMN_TOGGLE, \
+                    not model.get_value(iter, self.COLUMN_TOGGLE))
+            self.calculate_total_size()
 
-    def treeview_episodes_button_pressed(self, treeview, event):
-        if event.button == 3:
-            menu = gtk.Menu()
+    def on_treeview_button_release(self, widget, event):
+        selection = widget.get_selection()
+        self.on_selection_changed(widget.get_selection())
 
-            if len(self.selection_buttons):
-                for label in self.selection_buttons:
-                    item = gtk.MenuItem(label)
-                    item.connect('activate', self.custom_selection_button_clicked, label)
-                    menu.append(item)
-                menu.append(gtk.SeparatorMenuItem())
+    def on_select_all_button_clicked(self, widget):
+        for row in self.model:
+            row[self.COLUMN_TOGGLE] = True
+        self.calculate_total_size()
 
-            item = gtk.MenuItem(_('Select all'))
-            item.connect('activate', self.on_btnCheckAll_clicked)
-            menu.append(item)
+    def on_select_none_button_clicked(self, widget):
+        for row in self.model:
+            row[self.COLUMN_TOGGLE] = False
+        self.calculate_total_size()
 
-            item = gtk.MenuItem(_('Select none'))
-            item.connect('activate', self.on_btnCheckNone_clicked)
-            menu.append(item)
+    def on_invert_selection_button_clicked(self, widget):
+        for row in self.model:
+            row[self.COLUMN_TOGGLE] = not row[self.COLUMN_TOGGLE]
+        self.calculate_total_size()
 
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so 
-            # the tooltip will not appear over the menu
-            self.episode_list_can_tooltip = False
-            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
-            menu.popup(None, None, None, event.button, event.time)
-
-            return True
-
-    def episode_list_allow_tooltips(self):
-        self.episode_list_can_tooltip = True
+    def on_close_button_clicked(self, widget):
+        self.on_btnCancel_clicked(widget)
 
     def calculate_total_size( self):
         if self.size_attribute is not None:
@@ -335,30 +310,12 @@ class gPodderEpisodeSelector(BuilderWidget):
                     break
             self.labelTotalSize.set_text('')
 
-    def toggle_cell_handler( self, cell, path):
-        model = self.treeviewEpisodes.get_model()
-        model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
-
-        self.calculate_total_size()
-
     def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
 
         for index, row in enumerate( self.model):
             new_value = callback( self.episodes[index])
             self.model.set_value( row.iter, self.COLUMN_TOGGLE, new_value)
-
-        self.calculate_total_size()
-
-    def on_btnCheckAll_clicked( self, widget):
-        for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, True)
-
-        self.calculate_total_size()
-
-    def on_btnCheckNone_clicked( self, widget):
-        for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, False)
 
         self.calculate_total_size()
 
@@ -398,7 +355,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         if self.callback is not None:
             self.callback( self.get_selected_episodes())
 
-    def on_btnCancel_clicked( self, widget):
+    def on_btnCancel_clicked(self, widget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
             self.callback([])
