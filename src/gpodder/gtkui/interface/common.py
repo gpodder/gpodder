@@ -62,6 +62,7 @@ class BuilderWidget(GtkBuilderWidget):
         # Enable support for fullscreen toggle key on Maemo
         if gpodder.interface == gpodder.MAEMO:
             self._maemo_fullscreen = False
+            self._maemo_fullscreen_chain = None
             self.main_window.connect('key-press-event', \
                     self._on_key_press_event_maemo)
             self.main_window.connect('window-state-event', \
@@ -89,6 +90,11 @@ class BuilderWidget(GtkBuilderWidget):
                     (w, h) = (a.width, a.height)
                     (pw, ph) = self.main_window.get_size()
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
+            elif gpodder.interface == gpodder.MAEMO:
+                self._maemo_fullscreen_chain = parent
+                if parent.window.get_state() & gtk.gdk.WINDOW_STATE_FULLSCREEN:
+                    self.main_window.fullscreen()
+                    self._maemo_fullscreen = True
 
     def _on_key_press_event_maemo(self, widget, event):
         window_type = widget.get_type_hint()
@@ -97,10 +103,14 @@ class BuilderWidget(GtkBuilderWidget):
 
         if event.keyval == gtk.keysyms.F6:
             if self._maemo_fullscreen:
+                if self._maemo_fullscreen_chain is not None:
+                    self._maemo_fullscreen_chain.unfullscreen()
                 self.main_window.unfullscreen()
                 if not self.use_fingerscroll:
                     self.main_window.set_border_width(0)
             else:
+                if self._maemo_fullscreen_chain is not None:
+                    self._maemo_fullscreen_chain.fullscreen()
                 self.main_window.fullscreen()
                 if not self.use_fingerscroll:
                     self.main_window.set_border_width(12)
