@@ -1331,7 +1331,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     shutil.rmtree(ddir, ignore_errors=True)
 
     def streaming_possible(self):
-        return self.config.player and self.config.player != 'default'
+        return self.config.player and self.config.player != 'default' and \
+                gpodder.interface != gpodder.MAEMO
 
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
@@ -1343,6 +1344,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if file_type == 'video' and self.config.videoplayer and \
                     self.config.videoplayer != 'default':
                 player = self.config.videoplayer
+                if gpodder.interface == gpodder.MAEMO:
+                    # Use the wrapper script if it's installed to crop 3GP YouTube
+                    # videos to fit the screen (looks much nicer than w/ black border)
+                    if player == 'mplayer' and util.find_command('gpodder-mplayer'):
+                        player = 'gpodder-mplayer'
             elif file_type == 'audio' and self.config.player and \
                     self.config.player != 'default':
                 player = self.config.player

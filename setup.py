@@ -94,6 +94,7 @@ if target == DEFAULT:
     packages += [
       'gpodder.gtkui.desktop',
     ]
+    additional_scripts = []
 elif target == MAEMO:
     data_files += [
       ('share/gpodder/ui/maemo', inst_share_ui_maemo),
@@ -104,6 +105,9 @@ elif target == MAEMO:
     ]
     packages += [
       'gpodder.gtkui.maemo',
+    ]
+    additional_scripts = [
+      'data/maemo/gpodder-mplayer',
     ]
 
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
@@ -117,7 +121,7 @@ setup(
   author       = author,
   author_email = email,
   url          = gpodder.__url__,
-  scripts      = glob.glob('bin/*'),
+  scripts      = glob.glob('bin/*') + additional_scripts,
   data_files   = data_files + translation_files
 )
 
