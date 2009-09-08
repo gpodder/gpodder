@@ -81,6 +81,10 @@ else:
     log('is incorrect, please set your $LANG variable.')
 
 
+# Used by file_type_by_extension()
+_BUILTIN_FILE_TYPES = None
+
+
 def make_directory( path):
     """
     Tries to create a directory if it does not exist already.
@@ -577,29 +581,56 @@ def filename_from_url(url):
     return ( filename, extension.lower() )
 
 
-def file_type_by_extension( extension):
+def file_type_by_extension(extension):
     """
     Tries to guess the file type by looking up the filename 
     extension from a table of known file types. Will return 
-    the type as string ("audio" or "video") or
-    None if the file type cannot be determined.
-    """
-    types = {
-            'audio': [ 'mp3', 'ogg', 'wav', 'wma', 'aac', 'm4a', 'm4b' ],
-            'video': [ 'mp4', 'avi', 'mpg', 'mpeg', 'm4v', 'mov', 'divx', 'flv', 'wmv', '3gp' ],
-    }
+    "audio", "video" or None.
 
-    if extension == '':
+    >>> file_type_by_extension('.aif')
+    'audio'
+    >>> file_type_by_extension('.3GP')
+    'video'
+    >>> file_type_by_extension('.txt') is None
+    True
+    >>> file_type_by_extension(None) is None
+    True
+    >>> file_type_by_extension('ogg')
+    Traceback (most recent call last):
+      ...
+    ValueError: Extension does not start with a dot: ogg
+    """
+    if not extension:
         return None
 
-    if extension[0] == '.':
-        extension = extension[1:]
+    if not extension.startswith('.'):
+        raise ValueError('Extension does not start with a dot: %s' % extension)
+
+    global _BUILTIN_FILE_TYPES
+    if _BUILTIN_FILE_TYPES is None:
+        # List all types that are not in the default mimetypes.types_map
+        # (even if they might be detected by mimetypes.guess_type)
+        # For OGG, see http://wiki.xiph.org/MIME_Types_and_File_Extensions
+        audio_types = ('.ogg', '.oga', '.spx', '.flac', '.axa', \
+                       '.aac', '.m4a', '.m4b', '.wma')
+        video_types = ('.ogv', '.axv', \
+                       '.mkv', '.m4v', '.divx', '.flv', '.wmv', '.3gp')
+        _BUILTIN_FILE_TYPES = {}
+        _BUILTIN_FILE_TYPES.update((ext, 'audio') for ext in audio_types)
+        _BUILTIN_FILE_TYPES.update((ext, 'video') for ext in video_types)
 
     extension = extension.lower()
 
-    for type in types:
-        if extension in types[type]:
-            return type
+    if extension in _BUILTIN_FILE_TYPES:
+        return _BUILTIN_FILE_TYPES[extension]
+
+    # Need to prepend something to the extension, so guess_type works
+    type, encoding = mimetypes.guess_type('file'+extension)
+
+    if type is not None and '/' in type:
+        filetype, rest = type.split('/', 1)
+        if filetype in ('audio', 'video'):
+            return filetype
     
     return None
 
