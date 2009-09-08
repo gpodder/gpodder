@@ -3,7 +3,7 @@
 # Used by gPodder if available and player is set to "mplayer"
 # Thomas Perl <thpinfo.com> 2009-09-09
 
-CROP_PARAM=`mplayer -ss 5 -frames 5 -vo null -ao null -vf cropdetect "$1" 2>/dev/null | grep -o -- '-vf crop=[^)]*' | tail -n1`
+CROP_PARAM=`mplayer -ss 10 -frames 10 -vo null -ao null -vf cropdetect "$1" 2>/dev/null | grep -o -- '-vf crop=[^)]*' | tail -n1`
 
-mplayer $CROP_PARAM "$1"
+mplayer $CROP_PARAM "$1" || mplayer "$1"
 
