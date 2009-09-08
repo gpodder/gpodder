@@ -262,6 +262,8 @@ class BuilderWidget(GtkBuilderWidget):
                 can_confirm = (editable.get_text() != '')
                 dialog.set_response_sensitive(gtk.RESPONSE_OK, can_confirm)
             text_entry.connect('changed', on_text_changed)
+            if text is None:
+                dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
 
         hbox = gtk.HBox()
         hbox.set_border_width(10)

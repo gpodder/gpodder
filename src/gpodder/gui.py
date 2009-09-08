@@ -96,6 +96,7 @@ if gpodder.interface == gpodder.GUI:
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
     from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+    from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
     try:
         from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
         have_trayicon = True
@@ -109,9 +110,9 @@ else:
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
     from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
+    from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
     have_trayicon = False
 
-from gpodder.gtkui.interface.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
 if gpodder.interface == gpodder.MAEMO:
@@ -1569,8 +1570,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.episode_list_model.clear()
     
-    def offer_new_episodes(self):
-        new_episodes = self.get_new_episodes()
+    def offer_new_episodes(self, channels=None):
+        new_episodes = self.get_new_episodes(channels)
         if new_episodes:
             self.new_episodes_show(new_episodes)
             return True
@@ -1647,7 +1648,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 continue
 
             assert channel is not None
-            worked.append(url)
+            worked.append(channel.url)
             self.channels.append(channel)
             self.channel_list_changed = True
 
@@ -1713,7 +1714,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcasts_tab()
 
             # Offer to download new episodes
-            self.offer_new_episodes()
+            self.offer_new_episodes(channels=[c for c in self.channels if c.url in worked])
 
     def save_channels_opml(self):
         exporter = opml.Exporter(gpodder.subscription_file)
@@ -1767,7 +1768,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_update_feeds_buttons()
                 # New episodes are available and we are not minimized
                 if not self.config.do_not_show_new_episodes_dialog:
-                    self.new_episodes_show(episodes)
+                    self.new_episodes_show(episodes, notification=True)
                 else:
                     if len(episodes) == 1:
                         message = _('One new episode is available for download') 
@@ -2182,11 +2183,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def new_episodes_show(self, episodes):
+    def new_episodes_show(self, episodes, notification=False):
         if gpodder.interface == gpodder.MAEMO:
             columns = (
                 ('maemo_markup', None, None, _('Episode')),
             )
+            show_notification = notification
         else:
             columns = (
                 ('title_markup', None, None, _('Episode')),
@@ -2194,6 +2196,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
             )
+            show_notification = False
 
         instructions = _('Select the episodes you want to download:')
 
@@ -2204,7 +2207,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                remove_callback=lambda e: e.mark_old(), \
                                remove_action=_('Never download'), \
                                remove_finished=self.episode_new_status_changed, \
-                               _config=self.config)
+                               _config=self.config, \
+                               show_notification=show_notification)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():

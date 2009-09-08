@@ -157,6 +157,9 @@ class gPodderEpisodeSelector(BuilderWidget):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
+        if getattr(self, 'show_notification', False) and hasattr(self, 'title'):
+            self.show_message(self.title)
+
         # check/uncheck column
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.set_fixed_size(50, -1)
