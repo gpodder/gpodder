@@ -818,7 +818,7 @@ class PodcastEpisode(PodcastModelObject):
 
         The generated filename is stored in the database for future access.
         """
-        ext = self.extension().encode('utf-8', 'ignore')
+        ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
 
         # For compatibility with already-downloaded episodes, we
         # have to know md5 filenames if they are downloaded already
@@ -906,13 +906,16 @@ class PodcastEpisode(PodcastModelObject):
         if commit:
             self.db.commit()
 
-    def extension( self):
-         ( filename, ext ) = util.filename_from_url(self.url)
-         # if we can't detect the extension from the url fallback on the mimetype
-         if ext == '' or util.file_type_by_extension(ext) is None:
-             ext = util.extension_from_mimetype(self.mimetype)
-             #log('Getting extension from mimetype for: %s  (mimetype: %s)' % (self.title, ext), sender=self)
-         return ext
+    def extension(self, may_call_local_filename=True):
+        filename, ext = util.filename_from_url(self.url)
+        if may_call_local_filename:
+            filename = self.local_filename(create=False)
+            if filename is not None:
+                filename, ext = os.path.splitext(filename)
+        # if we can't detect the extension from the url fallback on the mimetype
+        if ext == '' or util.file_type_by_extension(ext) is None:
+            ext = util.extension_from_mimetype(self.mimetype)
+        return ext
 
     def mark_new(self):
         self.state = gpodder.STATE_NORMAL
