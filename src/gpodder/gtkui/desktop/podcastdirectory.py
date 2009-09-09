@@ -168,7 +168,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         pass
 
     def on_btnDownloadOpml_clicked(self, widget, *args):
-        self.get_channels_from_url(self.entryURL.get_text())
+        self.download_opml_file(self.entryURL.get_text())
 
     def on_btnSearchYouTube_clicked(self, widget, *args):
         self.entryYoutubeSearch.set_sensitive(False)
