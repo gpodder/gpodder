@@ -192,6 +192,11 @@ class gPodderDownloadHTTPError(Exception):
 class DownloadURLOpener(urllib.FancyURLopener):
     version = gpodder.user_agent
 
+    # Sometimes URLs are not escaped correctly - try to fix them
+    # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
+    # FYI: The omission of "%" in the list is to avoid double escaping!
+    ESCAPE_CHARS = dict((ord(c), u'%%%x'%ord(c)) for c in u' <>#"{}|\\^[]`')
+
     def __init__( self, channel):
         self.channel = channel
         self._auth_retry_counter = 0
@@ -260,6 +265,11 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         if tfp is None:
             tfp = open(filename, 'wb')
+
+        # Fix a problem with bad URLs that are not encoded correctly (bug 549)
+        url = url.decode('ascii', 'ignore')
+        url = url.translate(self.ESCAPE_CHARS)
+        url = url.encode('ascii')
 
         url = urllib.unwrap(urllib.toBytes(url))
         fp = self.open(url, data)
