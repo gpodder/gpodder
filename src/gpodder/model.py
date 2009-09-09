@@ -135,6 +135,10 @@ class PodcastChannel(PodcastModelObject):
             tmp.update(max_episodes)
             tmp.save()
             db.force_last_new(tmp)
+            # Subscribing to empty feeds should yield an error
+            if sum(tmp.get_statistics()) == 0:
+                tmp.delete()
+                raise Exception(_('No downloadable episodes in feed'))
             return tmp
 
     def episode_factory(self, d, db__parameter_is_unused=None):
@@ -614,24 +618,33 @@ class PodcastEpisode(PodcastModelObject):
                         if 'fileSize' in m:
                             episode.length=int(m['fileSize'])
                         break
-        elif hasattr(entry, 'link'):
-            (filename, extension) = util.filename_from_url(entry.link)
-            if extension == '' and hasattr( entry, 'type'):
-                extension = util.extension_from_mimetype(e.type)
-            file_type = util.file_type_by_extension(extension)
-            if file_type is not None:
-                log('Adding episode with link to file type "%s".', file_type, sender=episode)
-                episode.url = entry.link
+        elif hasattr(entry, 'links'):
+            for link in entry.links:
+                if not hasattr(link, 'href'):
+                    continue
 
-        # YouTube specific
-        if not episode.url and hasattr(entry, 'links') and len(entry.links) and hasattr(entry.links[0], 'href'):
-            episode.url = entry.links[0].href
+                # YouTube-specific workaround
+                if youtube.is_video_link(link.href):
+                    episode.url = link.href
+                    break
+
+                # Check if we can resolve this link to a audio/video file
+                filename, extension = util.filename_from_url(link.href)
+                file_type = util.file_type_by_extension(extension)
+                if file_type is None and hasattr(link, 'type'):
+                    extension = util.extension_from_mimetype(link.type)
+                    file_type = util.file_type_by_extension(extension)
+
+                # The link points to a audio or video file - use it!
+                if file_type is not None:
+                    log('Adding episode with link to file type "%s".', \
+                            file_type, sender=episode)
+                    episode.url = link.href
+                    break
 
         if not episode.url:
-            log('Episode has no URL')
-            log('Episode: %s', episode)
-            log('Entry: %s', entry)
             # This item in the feed has no downloadable enclosure
+            log('Episode has no URL: %s', entry, sender=episode)
             return None
 
         metainfo = None
@@ -770,19 +783,24 @@ class PodcastEpisode(PodcastModelObject):
         next_try_id = 2
         lookup_url = None
 
+        if self.filename == current_try:
+            # We already have this filename - good!
+            return current_try
+
         while self.db.episode_filename_exists(current_try):
-            if next_try_id == 2:
+            if next_try_id == 2 and not youtube.is_video_link(url):
                 # If we arrive here, current_try has a collision, so
                 # try to resolve the URL for a better basename
-                log('Filename collision: %s - trying to resolve...', current_try)
+                log('Filename collision: %s - trying to resolve...', current_try, sender=self)
                 url = util.get_real_url(self.channel.authenticate_url(url))
-                (episode_filename, extension_UNUSED) = util.filename_from_url(url)
+                episode_filename, extension_UNUSED = util.filename_from_url(url)
                 current_try = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)+extension
                 if not self.db.episode_filename_exists(current_try) and current_try:
-                    log('Filename %s is available - collision resolved.', current_try)
+                    log('Filename %s is available - collision resolved.', current_try, sender=self)
                     return current_try
                 else:
-                    log('Continuing search with %s as basename...', current_try)
+                    filename = episode_filename
+                    log('Continuing search with %s as basename...', filename, sender=self)
 
             current_try = '%s (%d)%s' % (filename, next_try_id, extension)
             next_try_id += 1
@@ -893,7 +911,9 @@ class PodcastEpisode(PodcastModelObject):
                     log('Choosing new filename: %s', new_file_name, sender=self)
                 else:
                     log('Warning: %s exists or %s does not.', new_file_name, old_file_name, sender=self)
-            log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
+                log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
+            else:
+                log('Should update filename. Stays the same. Good!', sender=self)
             self.filename = wanted_filename
             self.save()
             self.db.commit()
