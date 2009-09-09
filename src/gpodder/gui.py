@@ -200,13 +200,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
-        if self.config.podcast_list_hide_boring:
-            self.item_view_hide_boring_podcasts.set_active(True)
-
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
         self.init_episode_list_treeview()
         self.init_download_list_treeview()
+
+        if self.config.podcast_list_hide_boring:
+            self.item_view_hide_boring_podcasts.set_active(True)
 
         # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
         if gpodder.interface == gpodder.MAEMO:
@@ -376,8 +376,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.item_view_episodes_undeleted.set_active(True)
         elif self.config.episode_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
             self.item_view_episodes_downloaded.set_active(True)
+        elif self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNPLAYED:
+            self.item_view_episodes_unplayed.set_active(True)
         else:
             self.item_view_episodes_all.set_active(True)
+
+        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
 
         self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
 
@@ -2264,7 +2268,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
         else:
-            self.podcast_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
+            self.podcast_list_model.set_view_mode(-1)
 
     def on_item_view_episodes_changed(self, radioaction, current):
         if current == self.item_view_episodes_all:
@@ -2273,6 +2277,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNDELETED)
         elif current == self.item_view_episodes_downloaded:
             self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
+        elif current == self.item_view_episodes_unplayed:
+            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNPLAYED)
 
         self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
 

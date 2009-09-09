@@ -37,15 +37,16 @@ import xml.sax.saxutils
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
-            C_IS_NOT_DELETED, C_IS_DOWNLOADED_NEW_DLING = range(10)
+            C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
+            C_VIEW_SHOW_UNPLAYED = range(11)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION_STRIPPED)
 
-    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED = range(3)
+    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str, bool, bool)
+                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -78,9 +79,11 @@ class EpisodeListModel(gtk.ListStore):
         if self._view_mode == self.VIEW_ALL:
             return True
         elif self._view_mode == self.VIEW_UNDELETED:
-            return model.get_value(iter, self.C_IS_NOT_DELETED)
+            return model.get_value(iter, self.C_VIEW_SHOW_UNDELETED)
         elif self._view_mode == self.VIEW_DOWNLOADED:
-            return model.get_value(iter, self.C_IS_DOWNLOADED_NEW_DLING)
+            return model.get_value(iter, self.C_VIEW_SHOW_DOWNLOADED)
+        elif self._view_mode == self.VIEW_UNPLAYED:
+            return model.get_value(iter, self.C_VIEW_SHOW_UNPLAYED)
 
         return True
 
@@ -165,22 +168,26 @@ class EpisodeListModel(gtk.ListStore):
         show_padlock = False
         show_missing = False
         status_icon = None
-        deleted = False
-        downloaded_new_downloading = False
+        view_show_undeleted = True
+        view_show_downloaded = False
+        view_show_unplayed = False
 
         if downloading is not None and downloading(episode):
             status_icon = self.ICON_DOWNLOADING
-            downloaded_new_downloading = True
+            view_show_downloaded = True
+            view_show_unplayed = True
         else:
             if episode.state == gpodder.STATE_DELETED:
                 status_icon = self.ICON_DELETED
-                deleted = True
+                view_show_undeleted = False
             elif episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played:
                 status_icon = self.ICON_NEW
-                downloaded_new_downloading = True
+                view_show_downloaded = True
+                view_show_unplayed = True
             elif episode.state == gpodder.STATE_DOWNLOADED:
-                downloaded_new_downloading = True
+                view_show_downloaded = True
+                view_show_unplayed = not episode.is_played
                 show_bullet = not episode.is_played
                 show_padlock = episode.is_locked
                 show_missing = not episode.file_exists()
@@ -199,8 +206,9 @@ class EpisodeListModel(gtk.ListStore):
 
         self.set(iter, \
                 self.C_STATUS_ICON, status_icon, \
-                self.C_IS_NOT_DELETED, not deleted, \
-                self.C_IS_DOWNLOADED_NEW_DLING, downloaded_new_downloading)
+                self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \
+                self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded, \
+                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed)
 
     def _get_tree_icon(self, icon_name, add_bullet=False, \
             add_padlock=False, add_missing=False, icon_size=32):
@@ -258,17 +266,18 @@ class EpisodeListModel(gtk.ListStore):
 class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
-            C_VISIBLE_UNDELETED, C_VISIBLE_DOWNLOADED = range(10)
+            C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
+            C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES = range(12)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     def __init__(self, max_image_side, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool)
+                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._view_mode = EpisodeListModel.VIEW_ALL
+        self._view_mode = -1
         self._filter.set_visible_func(self._filter_visible_func)
 
         self._cover_cache = {}
@@ -278,11 +287,13 @@ class PodcastListModel(gtk.ListStore):
 
     def _filter_visible_func(self, model, iter):
         if self._view_mode == EpisodeListModel.VIEW_ALL:
-            return True
+            return model.get_value(iter, self.C_HAS_EPISODES)
         elif self._view_mode == EpisodeListModel.VIEW_UNDELETED:
-            return model.get_value(iter, self.C_VISIBLE_UNDELETED)
+            return model.get_value(iter, self.C_VIEW_SHOW_UNDELETED)
         elif self._view_mode == EpisodeListModel.VIEW_DOWNLOADED:
-            return model.get_value(iter, self.C_VISIBLE_DOWNLOADED)
+            return model.get_value(iter, self.C_VIEW_SHOW_DOWNLOADED)
+        elif self._view_mode == EpisodeListModel.VIEW_UNPLAYED:
+            return model.get_value(iter, self.C_VIEW_SHOW_UNPLAYED)
 
         return True
 
@@ -427,8 +438,10 @@ class PodcastListModel(gtk.ListStore):
                 self.C_ERROR, self._format_error(channel), \
                 self.C_PILL, pill_image, \
                 self.C_PILL_VISIBLE, pill_image != None, \
-                self.C_VISIBLE_UNDELETED, total > deleted, \
-                self.C_VISIBLE_DOWNLOADED, downloaded + new > 0)
+                self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
+                self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
+                self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \
+                self.C_HAS_EPISODES, total > 0)
 
     def add_cover_by_url(self, url, pixbuf):
         # Resize and add the new cover image

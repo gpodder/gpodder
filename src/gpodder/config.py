@@ -199,7 +199,9 @@ gPodderSettings = {
 
     'feed_update_skipping': (bool, True,
       _('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
-    'episode_list_view_mode': (int, 0, _('Internally used (current view mode)')),
+
+    'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)
+      _('Internally used (current view mode)')),
     'podcast_list_hide_boring': (bool, False,
       _('Hide podcasts in the main window for which the episode list is empty')),
 
