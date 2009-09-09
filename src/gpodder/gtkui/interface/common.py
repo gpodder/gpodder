@@ -57,6 +57,7 @@ class BuilderWidget(GtkBuilderWidget):
     finger_friendly_widgets = []
 
     def __init__(self, parent, **kwargs):
+        self._window_iconified = False
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
 
         # Enable support for fullscreen toggle key on Maemo
@@ -69,7 +70,6 @@ class BuilderWidget(GtkBuilderWidget):
                     self._on_window_state_event_maemo)
 
         # Enable support for tracking iconified state
-        self._window_iconified = False
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
