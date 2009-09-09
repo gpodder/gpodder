@@ -203,6 +203,11 @@ gPodderSettings = {
     'podcast_list_hide_boring': (bool, False,
       _('Hide podcasts in the main window for which the episode list is empty')),
 
+    'audio_played_dbus': (bool, False,
+      _('Set to True if the audio player notifies gPodder about played episodes')),
+    'video_played_dbus': (bool, False,
+      _('Set to True if the video player notifies gPodder about played episodes')),
+
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',
       _("The user's gPodder web services username.")),

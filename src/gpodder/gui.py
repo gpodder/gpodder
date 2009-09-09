@@ -1338,9 +1338,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
-            # Mark episode as played in the database
-            episode.mark(is_played=True)
-
             file_type = episode.file_type()
             if file_type == 'video' and self.config.videoplayer and \
                     self.config.videoplayer != 'default':
@@ -1355,6 +1352,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 player = self.config.player
             else:
                 player = 'default'
+
+            if file_type not in ('audio', 'video') or \
+              (file_type == 'audio' and not self.config.audio_played_dbus) or \
+              (file_type == 'video' and not self.config.video_played_dbus):
+                # Mark episode as played in the database
+                episode.mark(is_played=True)
 
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
@@ -2814,6 +2817,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderAddPodcast(self.gPodder,
                 add_urls_callback=self.add_podcast_list,
                 preset_url=url)
+
+    @dbus.service.method(gpodder.dbus_interface)
+    def mark_episode_played(self, filename):
+        if filename is None:
+            return False
+
+        for channel in self.channels:
+            for episode in channel.get_all_episodes():
+                fn = episode.local_filename(create=False, check_only=True)
+                if fn == filename:
+                    episode.mark(is_played=True)
+                    self.db.commit()
+                    self.update_episode_list_icons([episode.url])
+                    self.update_podcast_list_model([episode.channel.url])
+                    return True
+
+        return False
 
 
 def main(options=None):
