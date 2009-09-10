@@ -459,7 +459,6 @@ class PodcastListModel(gtk.ListStore):
                 break
 
         # Remove the cover from the cache
-        key = (url, self._max_image_side, self._max_image_side)
-        if key in self._cover_cache:
-            del self._cover_cache[key]
+        if url in self._cover_cache:
+            del self._cover_cache[url]
 
