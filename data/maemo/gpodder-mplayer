@@ -1,9 +1,41 @@
-#!/bin/sh
-# Small wrapper to crop widescreen Youtube 3gp videos (and others)
-# Used by gPodder if available and player is set to "mplayer"
-# Thomas Perl <thpinfo.com> 2009-09-09
+#!/usr/bin/python
+# Wrapper to crop videos to 16:10 widescreen using MPlayer
+# Thomas Perl <thpinfo.com>; 2009-09-10
 
-CROP_PARAM=`mplayer -ss 10 -frames 10 -vo null -ao null -vf cropdetect "$1" 2>/dev/null | grep -o -- '-vf crop=[^)]*' | tail -n1`
+import re
+import sys
+import subprocess
 
-mplayer $CROP_PARAM "$1" || mplayer "$1"
+if len(sys.argv) != 2:
+    print >>sys.stderr, """
+    Usage: %s /path/to/mediafile.ext
+    """ % sys.argv[0]
+    sys.exit(1)
+
+filename = sys.argv[1]
+
+target_ratio = 16./10.
+
+p = subprocess.Popen(['mplayer', '-identify', '-vo', 'null', '-ao', 'null', \
+        '-frames', '10', filename], stdout=subprocess.PIPE)
+
+data = p.stdout.read()
+
+width, height = -1, -1
+for type, value in re.findall(r'ID_VIDEO_(WIDTH|HEIGHT)=(\d+)', data):
+    if type == 'WIDTH':
+        width = int(value)
+    elif type == 'HEIGHT':
+        height = int(value)
+
+ratio = float(width)/float(height)
+
+args = ['mplayer']
+if ratio < target_ratio and width != -1 and height != -1:
+    new_height = int(width/target_ratio)
+    crop_top = int((height-new_height)/2)
+    args += ['-vf', 'crop=%d:%d:%d:%d' % (width, new_height, 0, crop_top)]
+args += [filename]
+
+subprocess.Popen(args)
 
