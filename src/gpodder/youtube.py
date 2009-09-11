@@ -33,14 +33,6 @@ import urllib2
 from xml.sax import saxutils
 
 def get_real_download_url(url, proxy=None):
-    # IDs from http://forum.videohelp.com/topic336882-1800.html#1912972
-    if gpodder.interface == gpodder.MAEMO:
-        # Use 3GP with AAC on Maemo
-        fmt_id = 17
-    else:
-        # Use MP4 with AAC by default
-        fmt_id = 18
-
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
@@ -53,21 +45,38 @@ def get_real_download_url(url, proxy=None):
             else:
                 page = req.read()
 
+        # Try to find the best video format available for this video
+        # (http://forum.videohelp.com/topic336882-1800.html#1912972)
+        r3 = re.compile('.*"fmt_map"\:\s+"([^"]+)".*').search(page)
+        if r3:
+            formats_available = urllib.unquote(r3.group(1)).split(',')
+        else:
+            formats_available = []
+
+        # This is the proritized list of formats that gPodder will
+        # use, depending on what is available from top to bottom.
+        format_priorities = [
+                '22/2000000/9/0/115', # 1280x720
+                '35/640000/9/0/115',  # 640x360
+                '18/512000/9/0/115',  # 480x270
+                '34/0/9/0/115',       # 320x180
+                '5/0/7/0/0',          # 320x180
+        ]
+
+        fmt_id = 5
+        for wanted in format_priorities:
+            if wanted in formats_available:
+                format, rest_ = wanted.split('/', 1)
+                fmt_id = int(format)
+                break
+
+        # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
+        # also use 13 and 17 here, but the quality is very low then. There
+        # seems to also be a 6, but I could not find a video with that yet.
+        if gpodder.interface == gpodder.MAEMO:
+            fmt_id = 5
+
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
-
-        if gpodder.interface != gpodder.MAEMO:
-            # Try to find the best video format available
-            r3 = re.compile('.*"fmt_map"\:\s+"([^"]+)".*').search(page)
-            formats = r3.group(1).split(",")
-            if '18/512000/9/0/115' in formats: #[avc1]  480x270
-                  fmt_id = 18
-            elif '35/640000/9/0/115' in formats: #[H264]  480x360
-                    fmt_id = 35
-            elif '34/0/9/0/115' in formats: #[H264]  320x240
-                    fmt_id = 34
-            elif '5/0/7/0/0' in formats: #[FLV1]  320x240
-                    fmt_id = 5
-
         if r2:
             next = 'http://www.youtube.com/get_video?video_id=' + vid + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
             log('YouTube link resolved: %s => %s', url, next)
@@ -109,23 +118,18 @@ def get_real_channel_url(url):
     return url
 
 def get_real_cover(url):
-    log('Cover: %s', url)
-
-    r = re.compile('http://www\.youtube\.com/rss/user/([a-z0-9]+)/videos\.rss', re.IGNORECASE)
+    r = re.compile('http://www\.youtube\.com/rss/user/([^/]+)/videos\.rss', \
+            re.IGNORECASE)
     m = r.match(url)
 
     if m is not None:
-        data = urllib2.urlopen('http://www.youtube.com/user/'+ m.group(1)).read()
-        data = data[data.find('id="user-profile-image"'):]
-        data = data[data.find('src="') + 5:]
-
-        next = data[:data.find('"')]
-
-        if next.strip() == '':
-            return None
-
-        log('YouTube userpic for %s is: %s', url, next)
-        return next
+        username = m.group(1)
+        api_url = 'http://gdata.youtube.com/feeds/api/users/%s?v=2' % username
+        data = urllib2.urlopen(api_url).read()
+        match = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
+        if match is not None:
+            log('YouTube userpic for %s is: %s', url, match.group(1))
+            return match.group(1)
 
     return None
 
