@@ -239,7 +239,9 @@ class EpisodeListModel(gtk.ListStore):
             if add_missing:
                 try:
                     icon = icon.copy()
-                    emblem = icon_theme.load_icon(self.ICON_MISSING, int(float(icon_size)*1.2/3.0), 0)
+                    # Desaturate the icon so it looks even more "missing"
+                    icon.saturate_and_pixelate(icon, 0.0, False)
+                    emblem = icon_theme.load_icon(self.ICON_MISSING, icon_size/2, 0)
                     (width, height) = (emblem.get_width(), emblem.get_height())
                     xpos = icon.get_width() - width
                     ypos = icon.get_height() - height
@@ -249,7 +251,7 @@ class EpisodeListModel(gtk.ListStore):
             elif add_bullet:
                 try:
                     icon = icon.copy()
-                    emblem = icon_theme.load_icon(self.ICON_UNPLAYED, int(float(icon_size)*1.2/3.0), 0)
+                    emblem = icon_theme.load_icon(self.ICON_UNPLAYED, icon_size/2, 0)
                     (width, height) = (emblem.get_width(), emblem.get_height())
                     xpos = icon.get_width() - width
                     ypos = icon.get_height() - height
@@ -259,7 +261,7 @@ class EpisodeListModel(gtk.ListStore):
             if add_padlock:
                 try:
                     icon = icon.copy()
-                    emblem = icon_theme.load_icon(self.ICON_LOCKED, int(float(icon_size)/2.0), 0)
+                    emblem = icon_theme.load_icon(self.ICON_LOCKED, icon_size/2, 0)
                     (width, height) = (emblem.get_width(), emblem.get_height())
                     emblem.composite(icon, 0, 0, width, height, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
                 except:
