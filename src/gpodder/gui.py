@@ -2877,7 +2877,7 @@ def main(options=None):
         # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
         if not os.path.exists(config.download_dir):
             log('Downloads might have been moved. Trying to locate them...')
-            for basedir in ['/media/mmc1', '/media/mmc2']+glob.glob('/media/usb/*')+['/home/user']:
+            for basedir in ['/media/mmc1', '/media/mmc2']+glob.glob('/media/usb/*')+['/home/user/MyDocs']:
                 dir = os.path.join(basedir, 'gpodder')
                 if os.path.exists(dir):
                     log('Downloads found in: %s', dir)
