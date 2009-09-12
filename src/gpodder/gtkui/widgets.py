@@ -139,3 +139,39 @@ class NotificationWindow(gtk.Window):
             self._finished = True
         return False
 
+class SpinningProgressIndicator(gtk.Image):
+    # Progress indicator loading inspired by glchess from gnome-games-clutter
+    def __init__(self, size=32):
+        gtk.Image.__init__(self)
+
+        self._frames = []
+        self._frame_id = 0
+
+        # Load the progress indicator
+        icon_theme = gtk.icon_theme_get_default()
+
+        ICON = lambda x: x
+        try:
+            icon = icon_theme.load_icon(ICON('process-working'), size, 0)
+            width, height = icon.get_width(), icon.get_height()
+            if width < size or height < size:
+                size = min(width, height)
+            for row in range(height/size):
+                for column in range(width/size):
+                    frame = icon.subpixbuf(column*size, row*size, size, size)
+                    self._frames.append(frame)
+            # Remove the first frame (the "idle" icon)
+            if self._frames:
+                self._frames.pop(0)
+            self.step_animation()
+        except:
+            # FIXME: This is not very beautiful :/
+            self.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_BUTTON)
+
+    def step_animation(self):
+        if len(self._frames) > 1:
+            self._frame_id += 1
+            if self._frame_id >= len(self._frames):
+                self._frame_id = 0
+            self.set_from_pixbuf(self._frames[self._frame_id])
+
