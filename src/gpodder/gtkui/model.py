@@ -216,10 +216,16 @@ class EpisodeListModel(gtk.ListStore):
         Loads an icon from the current icon theme at the specified
         size, suitable for display in a gtk.TreeView. Additional
         emblems can be added on top of the icon.
+
+        Caching is used to speed up the icon lookup.
         """
 
-        if (icon_name,add_bullet,add_padlock,icon_size) in self._icon_cache:
-            return self._icon_cache[(icon_name,add_bullet,add_padlock,icon_size)]
+        # Add all variables that modify the appearance of the icon, so
+        # our cache does not return the same icons for different requests
+        cache_id = (icon_name, add_bullet, add_padlock, add_missing, icon_size)
+
+        if cache_id in self._icon_cache:
+            return self._icon_cache[cache_id]
 
         icon_theme = gtk.icon_theme_get_default()
 
@@ -259,7 +265,7 @@ class EpisodeListModel(gtk.ListStore):
                 except:
                     pass
 
-        self._icon_cache[(icon_name,add_bullet,add_padlock,icon_size)] = icon
+        self._icon_cache[cache_id] = icon
         return icon
 
 
