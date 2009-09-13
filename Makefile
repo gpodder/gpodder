@@ -21,9 +21,17 @@
 
 BINFILE=bin/gpodder
 MESSAGESPOT=data/messages.pot
-UIFILES=$(wildcard data/ui/*.ui)
+
+UIFILES=$(wildcard data/ui/*.ui \
+	           data/ui/desktop/*.ui \
+		   data/ui/maemo/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
-GUIFILE=src/gpodder/gui.py
+TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
+		               src/gpodder/gtkui/*.py \
+		               src/gpodder/gtkui/interface/*.py \
+			       src/gpodder/gtkui/desktop/*.py \
+			       src/gpodder/gtkui/maemo/*.py)
+
 HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
 GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
@@ -123,8 +131,8 @@ gen_gettext: $(MESSAGESPOT)
 data/ui/%.ui.h: $(subst .ui.h,.h,$@)
 	intltool-extract --type=gettext/glade $(subst .ui.h,.ui,$@)
 
-$(MESSAGESPOT): src/gpodder/*.py $(GLADEGETTEXT) $(BINFILE) $(UIFILES_H)
-	xgettext -k_ -kN_ -o $(MESSAGESPOT) src/gpodder/*.py $(UIFILES_H) $(BINFILE)
+$(MESSAGESPOT): src/gpodder/*.py $(BINFILE) $(UIFILES_H) $(TRANSLATABLE_SOURCE)
+	xgettext -k_ -kN_ -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
 	sed -i'~' -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
 rosetta-upload: $(ROSETTA_ARCHIVE)
