@@ -95,6 +95,8 @@ class gPodderLib(object):
         self.config = config.Config( os.path.join( gpodder_dir, 'gpodder.conf'))
 
         if gpodder.interface == gpodder.MAEMO:
+            # Downloads are saved to $HOME in Fremantle
+            self.config.download_dir = config.default_download_dir
             # Detect changing of SD cards between mmc1/mmc2 if a gpodder
             # folder exists there (allow moving "gpodder" between SD cards or USB)
             # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
