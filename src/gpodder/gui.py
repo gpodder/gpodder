@@ -1691,6 +1691,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def close_callback():
             self.gpodder_episode_window = None
 
+        if self.gpodder_episode_window is not None:
+            log('episode window already open... please wait')
+            self.gpodder_episode_window.main_window.present()
+            return
+
         self.gpodder_episode_window = gPodderStackableEpisode(
                 episode=episode,
                 download_status_manager=self.download_status_manager,
@@ -1814,16 +1819,26 @@ class gPodderMaemoPreferences(BuilderWidget):
     ]
     
     def new(self):
-        #gl.config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
-        #gl.config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
+        # Workaround for Maemo bug #4718
+        self.combo_player.set_name('HildonButton-thumb')
+        self.combo_videoplayer.set_name('HildonButton-thumb')
+
         setattr(self, 'userconfigured_player', None)
         setattr(self, 'userconfigured_videoplayer', None)
 
-        player_selector = hildon.hildon_touch_selector_new_text()
+        try:
+            # That's how it worked before 2009-09-04
+            player_selector = hildon.hildon_touch_selector_new_text()
+        except:
+            player_selector = hildon.TouchSelector(text=True)
         self.combo_player.set_selector(player_selector)
         self.combo_player.set_alignment(0.5, 0.5, 1.0, 0.0)
 
-        videoplayer_selector = hildon.hildon_touch_selector_new_text()
+        try:
+            # That's how it worked before 2009-09-04
+            videoplayer_selector = hildon.hildon_touch_selector_new_text()
+        except:
+            videoplayer_selector = hildon.TouchSelector(text=True)
         self.combo_videoplayer.set_selector(videoplayer_selector)
         self.combo_videoplayer.set_alignment(0.5, 0.5, 1.0, 0.0)
 
@@ -2580,6 +2595,9 @@ class gPodderConfigEditor(BuilderWidget):
 
 class gPodderWelcome(BuilderWidget):
     def new(self):
+        # Workaround for Maemo bug #4718
+        self.btnOPML.set_name('HildonButton-thumb')
+        self.btnMygPodder.set_name('HildonButton-thumb')
         self.gPodderWelcome.show()
 
     def on_show_example_podcasts(self, button):
