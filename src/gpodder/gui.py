@@ -427,6 +427,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
         else:
             selection.set_mode(gtk.SELECTION_MULTIPLE)
+            # Update the sensitivity of the toolbar buttons on the Desktop
+            selection.connect('changed', lambda s: self.play_or_download())
 
         if gpodder.interface == gpodder.MAEMO:
             # Set up the tap-and-hold context menu for podcasts
@@ -1445,9 +1447,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         can_download = True
 
-        can_download = can_download and not can_cancel
-        can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
-        can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
+            can_download = can_download and not can_cancel
+            can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
+            can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
 
         if gpodder.interface != gpodder.MAEMO:
             if open_instead_of_play:
