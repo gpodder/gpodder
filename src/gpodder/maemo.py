@@ -59,5 +59,6 @@ def create_app_menu(gtkbuilderwidget):
     app_menu = hildon.AppMenu()
     for name, widget in gtkbuilderwidget._app_menu:
         app_menu.append(widget.create(name, gtkbuilderwidget))
+    app_menu.show_all()
     gtkbuilderwidget.main_window.set_app_menu(app_menu)
 
