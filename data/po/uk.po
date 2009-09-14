@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.9.2+svn20070611\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-27 14:00+0200\n"
+"POT-Creation-Date: 2009-09-14 22:30+0200\n"
 "PO-Revision-Date: 2007-07-20 07:22+0300\n"
 "Last-Translator: mn <mn@mn.com.ua>\n"
 "Language-Team: Украинский <linux@linux.org.ua>\n"
@@ -17,1054 +17,635 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/gpodder/config.py:50
-msgid ""
-"The default player for all media, if set to 'default' this will attempt to "
-"use xdg-open on linux or the built-in media player on maemo."
-msgstr ""
-
-#: src/gpodder/config.py:53
-msgid ""
-"The default player for video, if set to 'unspecified' this will use whatever "
-"'player' is set to."
-msgstr ""
-
-#: src/gpodder/config.py:56
-msgid "A URL pointing to an OPML file which can be used to bulk-add podcasts."
-msgstr ""
-
-#: src/gpodder/config.py:58
-msgid "A URL pointing to a gPodder web services top podcasts list"
-msgstr ""
-
-#: src/gpodder/config.py:60
-msgid ""
-"The name used when copying a file to a FS-based device. Available options "
-"are: episode.basename, episode.title, episode.published"
-msgstr ""
-
-#: src/gpodder/config.py:63
-msgid ""
-"Enables renaming files when transfered to an FS-based device with respect to "
-"the 'custom_sync_name'."
-msgstr ""
-
-#: src/gpodder/config.py:66
-msgid ""
-"The maximum number of simultaneous downloads allowed at a single time. "
-"Requires 'max_downloads_enabled'."
-msgstr ""
-
-#: src/gpodder/config.py:69
-msgid "The 'max_downloads' setting will only work if this is set to 'True'."
-msgstr ""
-
-#: src/gpodder/config.py:71
-msgid "The 'limit_rate_value' setting will only work if this is set to 'True'."
-msgstr ""
-
-#: src/gpodder/config.py:73
-msgid ""
-"Set a global speed limit (in KB/s) when downloading files. Requires "
-"'limit_rate'."
-msgstr ""
-
-#: src/gpodder/config.py:76
-msgid ""
-"The number of days before an episode is considered old. Must be used in "
-"conjunction with 'auto_remove_old_episodes'."
-msgstr ""
-
-#: src/gpodder/config.py:81
-#, fuzzy
-msgid "Update the feed cache on startup."
-msgstr "Оновити список каналів та вийти"
-
-#: src/gpodder/config.py:83
-#, fuzzy
-msgid ""
-"Only sync episodes to a device that have not been marked played in gPodder."
-msgstr "Синхронізувати тільки треки, що раніше не програвалися"
-
-#: src/gpodder/config.py:85
-msgid ""
-"Create a directory for every feed when syncing to an FS-based device instead "
-"of putting all the episodes in a single directory."
-msgstr ""
-
-#: src/gpodder/config.py:88
-msgid "After syncing an episode, mark it as played in gPodder."
-msgstr ""
-
-#: src/gpodder/config.py:90
-#, fuzzy
-msgid "After syncing an episode, delete it from gPodder."
-msgstr "Програти обраний епізод"
-
-#: src/gpodder/config.py:92
-msgid "Remove episodes older than 'episode_old_age' days on startup."
-msgstr ""
-
-#: src/gpodder/config.py:94
-msgid ""
-"Automatically update feeds when gPodder is minimized. See "
-"'auto_update_frequency' and 'auto_download'."
-msgstr ""
-
-#: src/gpodder/config.py:97
-msgid ""
-"The frequency (in minutes) at which gPodder will update all feeds if "
-"'auto_update_feeds' is enabled."
-msgstr ""
-
-#: src/gpodder/config.py:100
-msgid "Display the episode's description under the episode title in the GUI."
-msgstr ""
-
-#: src/gpodder/config.py:102
-msgid "Show the toolbar in the GUI's main window."
-msgstr ""
-
-#: src/gpodder/config.py:104
-msgid ""
-"Remove episodes from an iPod device if they've been marked as played on the "
-"device and they have no rating set (the rating can be set on the device by "
-"the user to prevent deletion)."
-msgstr ""
-
-#: src/gpodder/config.py:108
-msgid ""
-"Remove episodes from gPodder if they've been marked as played on the device "
-"and they have no rating set (the rating can be set on the device by the user "
-"to prevent deletion)."
-msgstr ""
-
-#: src/gpodder/config.py:112
-msgid ""
-"Removes episodes from an FS-based device that have been marked as played in "
-"gPodder. Note: only works if 'only_sync_not_played' is also enabled."
-msgstr ""
-
-#: src/gpodder/config.py:116
-msgid ""
-"Disable pre-synchronization conversion of OGG files. This should be enabled "
-"for deviced that natively support OGG. Eg. Rockbox, iAudio"
-msgstr ""
-
-#: src/gpodder/config.py:121
-msgid "Whether or not gPodder should display an icon in the system tray."
-msgstr ""
-
-#: src/gpodder/config.py:123
-msgid ""
-"If 'display_tray_icon' is enabled, when gPodder is minimized it will not be "
-"visible in the window list."
-msgstr ""
-
-#: src/gpodder/config.py:126
-msgid "When gPodder starts, send it to the tray immediately."
-msgstr ""
-
-#: src/gpodder/config.py:128
-msgid ""
-"Let gPodder use notification bubbles when it can completed certain tasks "
-"like downloading an episode or finishing syncing to a device."
-msgstr ""
-
-#: src/gpodder/config.py:131
-msgid "Ask the user to confirm quitting the application."
-msgstr ""
-
-#: src/gpodder/config.py:133
-msgid "Auto download episodes (never, minimized, always)"
-msgstr ""
-
-#: src/gpodder/config.py:135
-msgid ""
-"Do not show the new episodes dialog after updating feed cache when gPodder "
-"is not minimized"
-msgstr ""
-
-#: src/gpodder/config.py:141
-msgid "The moint point for an iPod Device."
-msgstr ""
-
-#: src/gpodder/config.py:143
-msgid "The moint point for an FS-based device."
-msgstr ""
-
-#: src/gpodder/config.py:145
-msgid "The device type: 'mtp', 'filesystem' or 'ipod'"
-msgstr ""
-
-#: src/gpodder/config.py:147
-msgid "The default directory that podcast episodes are downloaded to."
-msgstr ""
-
-#: src/gpodder/config.py:151
-msgid ""
-"The relative path to where the playlist is stored on an FS-based device."
-msgstr ""
-
-#: src/gpodder/config.py:153
-msgid ""
-"Whether or not the the playlist should contain relative or absolute paths; "
-"this is dependent on the player."
-msgstr ""
-
-#: src/gpodder/config.py:156
-msgid "Whether or not the player requires Windows-style paths in the playlist."
-msgstr ""
-
-#: src/gpodder/config.py:160
-msgid "When the 'X' button is clicked do not quit, send gPodder to the tray."
-msgstr ""
-
-#: src/gpodder/config.py:162
-msgid ""
-"The maximum number of episodes that gPodder will display in the episode "
-"list. Note: Set this to a lower value on slower hardware to speed up "
-"rendering of the episode list."
-msgstr ""
-
-#: src/gpodder/config.py:166
-msgid ""
-"Attempt to use a Device's scrobbler.log to mark episodes as played in "
-"gPodder. Useful for Rockbox players."
-msgstr ""
-
-#: src/gpodder/config.py:169
-msgid "The maximum filename length for FS-based devices."
-msgstr ""
-
-#: src/gpodder/config.py:171
-msgid ""
-"Whether or not to show the URL entry (add podcast) box in the main window."
-msgstr ""
-
-#: src/gpodder/config.py:173
-msgid ""
-"Create rockbox-compatible coverart and copy it to the device when syncing. "
-"See: 'rockbox_coverart_size'."
-msgstr ""
-
-#: src/gpodder/config.py:176
-msgid "The width of the coverart for the user's Rockbox player/skin."
-msgstr ""
-
-#: src/gpodder/config.py:178
-msgid "Create custom coverart for FS-based players."
-msgstr ""
-
-#: src/gpodder/config.py:180
-msgid "The width of the coverart for the user's FS-based player."
-msgstr ""
-
-#: src/gpodder/config.py:182
-msgid "The name of the coverart file accepted by the user's FS-based player."
-msgstr ""
-
-#: src/gpodder/config.py:184
-msgid "The image format accepted by the user's FS-based player."
-msgstr ""
-
-#: src/gpodder/config.py:186
-msgid "The width of the icon used in the podcast channel list."
-msgstr ""
-
-#: src/gpodder/config.py:188
-msgid "The path to a command that gets run after all downloads are completed."
-msgstr ""
-
-#: src/gpodder/config.py:190
-msgid ""
-"The path to a command that gets run after a single download completes. See "
-"http://wiki.gpodder.org/wiki/Time_stretching for more info."
-msgstr ""
-
-#: src/gpodder/config.py:193
-msgid "Enable _very_ verbose logging from the dbsqlite module."
-msgstr ""
-
-#: src/gpodder/config.py:195
-msgid "Allow HTML to be rendered in the episode information dialog."
-msgstr ""
-
-#: src/gpodder/config.py:197
-msgid "Enable fancy gestures on Maemo."
-msgstr ""
-
-#: src/gpodder/config.py:199
-#, fuzzy
-msgid "Call 'sync' after tranfering episodes to a device."
-msgstr "Програти обраний епізод"
-
-#: src/gpodder/config.py:201
-msgid ""
-"If there are episode downloads that can be resumed, ask whether or not to "
-"resume every single one."
-msgstr ""
-
-#: src/gpodder/config.py:204
-msgid "Disable the use of finger-scrollable widgets on Maemo."
-msgstr ""
-
-#: src/gpodder/config.py:206
-msgid "Episode double-click/enter action handler (shownotes, download, stream)"
-msgstr ""
-
-#: src/gpodder/config.py:210
-msgid "The user's gPodder web services username."
-msgstr ""
-
-#: src/gpodder/config.py:212
-msgid "The user's gPodder web services password."
-msgstr ""
-
-#: src/gpodder/config.py:214
-msgid ""
-"Upload the user's podcast list to the gPodder web services when gPodder is "
-"closed."
-msgstr ""
-
-#: src/gpodder/config.py:219
-msgid "The width of the channel list."
-msgstr ""
-
-#: src/gpodder/config.py:266
+#: src/gpodder/config.py:275
 #, fuzzy
 msgid "No description available."
 msgstr "Опис відсутній"
 
-#: src/gpodder/config.py:473
-msgid "Integer"
-msgstr ""
-
-#: src/gpodder/config.py:475
-msgid "Float"
-msgstr ""
-
-#: src/gpodder/config.py:477
-msgid "Boolean"
-msgstr ""
-
-#: src/gpodder/config.py:479
-msgid "String"
-msgstr ""
-
-#: src/gpodder/console.py:52
-#, fuzzy, python-format
-msgid "Already added: %s"
-msgstr "Вже додано"
-
-#: src/gpodder/console.py:58
-#, python-format
-msgid "Could not load feed from URL: %s"
-msgstr ""
-
-#: src/gpodder/console.py:67
+#: src/gpodder/console.py:32
 #, fuzzy
-msgid "Could not add podcast."
-msgstr "Не можу додати канал."
-
-#: src/gpodder/console.py:87
-#, fuzzy
-msgid "Could not remove podcast."
-msgstr "Видалити подкасти"
-
-#: src/gpodder/console.py:92
-#, fuzzy
-msgid "Updating podcast feeds..."
-msgstr "Оновити фіди"
-
-#: src/gpodder/console.py:95
-msgid "done."
-msgstr ""
-
-#: src/gpodder/console.py:116
-#, fuzzy
-msgid "No new episodes to download."
-msgstr "Немає епізодів для завантаження"
-
-#: src/gpodder/console.py:118
-#, fuzzy
-msgid "Downloaded one new episode."
-msgstr "Завантажити нові епізоди"
-
-#: src/gpodder/console.py:120
-#, fuzzy, python-format
-msgid "Downloaded %d new episodes."
-msgstr "Завантажити нові епізоди"
-
-#: src/gpodder/console.py:126 src/gpodder/console.py:160
-#, fuzzy
-msgid "No device configured. Please use the GUI."
+msgid "No device configured."
 msgstr "Пристрій не налаштовано"
 
-#: src/gpodder/console.py:131
-#, fuzzy
-msgid "Synchronization finished."
-msgstr "Синхронізацію завершено"
-
-#: src/gpodder/console.py:133
+#: src/gpodder/console.py:39
 #, fuzzy, python-format
 msgid "Synchronizing: %d of %d"
 msgstr "Синхронізую %s"
 
-#: src/gpodder/console.py:137
+#: src/gpodder/console.py:53
+msgid "Device synchronized successfully."
+msgstr ""
+
+#: src/gpodder/console.py:56
 #, fuzzy
-msgid "Cannot open device."
+msgid "Error: Cannot open device!"
 msgstr "Не можу доступитись до пристрою"
 
-#: src/gpodder/console.py:142
-#, fuzzy, python-format
-msgid "Skipping podcast: %s"
-msgstr "Оновити фіди"
-
-#: src/gpodder/console.py:153 src/gpodder/console.py:181
-#, fuzzy
-msgid "Cannot close device."
-msgstr "Не можу доступитись до пристрою"
-
-#: src/gpodder/console.py:170
-#, python-format
-msgid "Free space on device %s: %s"
+#: src/gpodder/download.py:330
+msgid "Wrong username/password"
 msgstr ""
 
-#: src/gpodder/console.py:171
-#, fuzzy, python-format
-msgid "Size of episodes to sync: %s"
-msgstr "Новий епізод: %s"
-
-#: src/gpodder/console.py:175
-#, python-format
-msgid "Need to free at least %s more"
-msgstr ""
-
-#: src/gpodder/console.py:178
-#, python-format
-msgid "Free space after sync: %s"
-msgstr ""
-
-#: src/gpodder/download.py:436
+#: src/gpodder/download.py:476
 msgid "Added"
 msgstr ""
 
-#: src/gpodder/download.py:436
+#: src/gpodder/download.py:476
 msgid "Queued"
 msgstr "В черзі"
 
-#: src/gpodder/download.py:436
+#: src/gpodder/download.py:476
 #, fuzzy
 msgid "Downloading"
 msgstr "завантажень"
 
-#: src/gpodder/download.py:437
+#: src/gpodder/download.py:477
 msgid "Finished"
 msgstr ""
 
-#: src/gpodder/download.py:437
+#: src/gpodder/download.py:477
 msgid "Failed"
 msgstr ""
 
-#: src/gpodder/download.py:437
+#: src/gpodder/download.py:477
 #, fuzzy
 msgid "Cancelled"
 msgstr "Скасувати"
 
-#: src/gpodder/download.py:437
+#: src/gpodder/download.py:477
 msgid "Paused"
 msgstr ""
 
-#: src/gpodder/download.py:633
+#: src/gpodder/download.py:693
 msgid "Missing content from server"
 msgstr ""
 
-#: src/gpodder/download.py:637
+#: src/gpodder/download.py:697
 #, python-format
 msgid "I/O Error: %s: %s"
 msgstr ""
 
-#: src/gpodder/download.py:641
+#: src/gpodder/download.py:701
 #, python-format
 msgid "HTTP Error %s: %s"
 msgstr ""
 
-#: src/gpodder/download.py:644
+#: src/gpodder/download.py:704
 #, fuzzy, python-format
 msgid "Error: %s"
 msgstr "Оновлення %s"
 
-#: src/gpodder/gui.py:113
-msgid "Current maintainer:"
-msgstr ""
-
-#: src/gpodder/gui.py:115
-msgid "Patches, bug reports and donations by:"
-msgstr ""
-
-#: src/gpodder/gui.py:255
-msgid "Username"
-msgstr ""
-
-#: src/gpodder/gui.py:268
-msgid "Authentication required"
-msgstr ""
-
-#: src/gpodder/gui.py:273
-msgid "New user"
-msgstr ""
-
-#: src/gpodder/gui.py:298
-msgid "Password"
-msgstr ""
-
-#: src/gpodder/gui.py:316
-msgid "Select destination"
-msgstr ""
-
-#: src/gpodder/gui.py:361
-msgid "Enter podcast URL..."
-msgstr ""
-
-#: src/gpodder/gui.py:390
-#, fuzzy
-msgid "Update all"
-msgstr "Оновити фіди"
-
-#: src/gpodder/gui.py:396
-#, fuzzy
-msgid "Update selected"
-msgstr "Програти обраний епізод"
-
-#: src/gpodder/gui.py:422 src/gpodder/gui.py:893 src/gpodder/gui.py:912
-#: data/ui/gpodderproperties.ui.h:27 data/ui/gpodder.ui.h:15
-msgid "Downloads"
-msgstr "Завантаження"
-
-#: src/gpodder/gui.py:461
-msgid "Classic menu"
-msgstr ""
-
-#: src/gpodder/gui.py:538
+#: src/gpodder/gui.py:194
 #, fuzzy
 msgid "gPodder"
 msgstr "Сайт gPodder"
 
-#: src/gpodder/gui.py:606 src/gpodder/gui.py:699 src/gpodder/gui.py:2341
-#: src/gpodder/gui.py:4966
-msgid "Status"
-msgstr "Стан"
-
-#: src/gpodder/gui.py:611 src/gpodder/gui.py:660 src/gpodder/gui.py:2337
-#: src/gpodder/gui.py:2498 src/gpodder/gui.py:2673 src/gpodder/gui.py:4443
-msgid "Episode"
-msgstr "Епізод"
-
-#: src/gpodder/gui.py:617 src/gpodder/gui.py:689 src/gpodder/gui.py:2339
-#: src/gpodder/gui.py:2500 src/gpodder/gui.py:2675
-msgid "Size"
-msgstr "Розмір"
-
-#: src/gpodder/gui.py:620 src/gpodder/gui.py:2340 src/gpodder/gui.py:2501
-#: src/gpodder/gui.py:2678
-msgid "Released"
-msgstr "Опубліковано"
-
-#: src/gpodder/gui.py:682
-msgid "Progress"
-msgstr "Процес"
-
-#: src/gpodder/gui.py:694
-msgid "Speed"
-msgstr "Швидкість"
-
-#: src/gpodder/gui.py:786
+#: src/gpodder/gui.py:286
 msgid ""
 "There are unfinished downloads from your last session.\n"
 "Pick the ones you want to continue downloading."
 msgstr ""
 
-#: src/gpodder/gui.py:897
-#, fuzzy, python-format
-msgid "%d downloading"
+#: src/gpodder/gui.py:396 src/gpodder/gui.py:495 src/gpodder/gui.py:2057
+#: src/gpodder/gtkui/interface/dependencymanager.py:36
+msgid "Status"
+msgstr "Стан"
+
+#: src/gpodder/gui.py:401 src/gpodder/gui.py:457 src/gpodder/gui.py:2049
+#: src/gpodder/gui.py:2053 src/gpodder/gui.py:2209 src/gpodder/gui.py:2214
+#: src/gpodder/gtkui/desktop/episodeselector.py:133
+#: src/gpodder/gtkui/desktop/sync.py:197
+#: src/gpodder/gtkui/maemo/episodeselector.py:133
+msgid "Episode"
+msgstr "Епізод"
+
+#: src/gpodder/gui.py:407 src/gpodder/gui.py:485 src/gpodder/gui.py:2055
+#: src/gpodder/gui.py:2216 src/gpodder/gtkui/desktop/sync.py:199
+msgid "Size"
+msgstr "Розмір"
+
+#: src/gpodder/gui.py:410 src/gpodder/gui.py:2056 src/gpodder/gui.py:2217
+#: src/gpodder/gtkui/desktop/sync.py:202
+msgid "Released"
+msgstr "Опубліковано"
+
+#: src/gpodder/gui.py:441 src/gpodder/gui.py:964 src/gpodder/gui.py:1265
+msgid "Close this menu"
+msgstr ""
+
+#: src/gpodder/gui.py:478
+msgid "Progress"
+msgstr "Процес"
+
+#: src/gpodder/gui.py:490
+msgid "Speed"
+msgstr "Швидкість"
+
+#: src/gpodder/gui.py:519 src/gpodder/gui.py:1558
+#, fuzzy
+msgid "Loading episodes"
+msgstr "Завантажити нові епізоди"
+
+#: src/gpodder/gui.py:522
+msgid "Select \"View\" > \"All episodes\" to show episodes"
+msgstr ""
+
+#: src/gpodder/gui.py:524
+#, fuzzy
+msgid "No episodes available"
+msgstr "Доступні нові епізоди"
+
+#: src/gpodder/gui.py:530
+#, fuzzy
+msgid "No podcasts in this view"
+msgstr "Нічого не обрано"
+
+#: src/gpodder/gui.py:532
+#, fuzzy
+msgid "No subscriptions"
+msgstr "Опис"
+
+#: src/gpodder/gui.py:534
+#, fuzzy
+msgid "No downloads"
 msgstr "завантажень"
 
-#: src/gpodder/gui.py:899
+#: src/gpodder/gui.py:637 src/gpodder/gui.py:656
+#: data/ui/desktop/gpodderpreferences.ui.h:27 data/ui/desktop/gpodder.ui.h:20
+#: data/ui/maemo/gpodder.ui.h:18
+msgid "Downloads"
+msgstr "Завантаження"
+
+#: src/gpodder/gui.py:641
+#, python-format
+msgid "%d active"
+msgstr ""
+
+#: src/gpodder/gui.py:643
 #, python-format
 msgid "%d failed"
 msgstr ""
 
-#: src/gpodder/gui.py:901
+#: src/gpodder/gui.py:645
 #, fuzzy, python-format
 msgid "%d done"
 msgstr "%d·з·%d·завершено"
 
-#: src/gpodder/gui.py:903
+#: src/gpodder/gui.py:647
 #, fuzzy, python-format
 msgid "%d queued"
 msgstr "В черзі"
 
-#: src/gpodder/gui.py:910
+#: src/gpodder/gui.py:654
 #, fuzzy, python-format
 msgid "Downloads (%d)"
 msgstr "Завантаження"
 
-#: src/gpodder/gui.py:928
+#: src/gpodder/gui.py:672
 #, fuzzy
 msgid "downloading one file"
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/gui.py:930
+#: src/gpodder/gui.py:674
 #, fuzzy, python-format
 msgid "downloading %d files"
 msgstr "Помилка при завантаженні %s."
 
-#: src/gpodder/gui.py:948
+#: src/gpodder/gui.py:692
 #, fuzzy
 msgid "All downloads finished"
 msgstr "завантажень"
 
-#: src/gpodder/gui.py:967
+#: src/gpodder/gui.py:716
 msgid "Please report this problem and restart gPodder:"
 msgstr ""
 
-#: src/gpodder/gui.py:967
+#: src/gpodder/gui.py:716
 msgid "Unhandled exception"
 msgstr ""
 
-#: src/gpodder/gui.py:1062
+#: src/gpodder/gui.py:769
 #, python-format
 msgid "Feedparser error: %s"
 msgstr ""
 
-#: src/gpodder/gui.py:1076
+#: src/gpodder/gui.py:783
 msgid "disk usage"
 msgstr ""
 
-#: src/gpodder/gui.py:1107
+#: src/gpodder/gui.py:818
 #, fuzzy
 msgid "Updated M3U playlist in download folder."
 msgstr "Оберіть папку для збереження завантажень"
 
-#: src/gpodder/gui.py:1107
+#: src/gpodder/gui.py:818
 msgid "Updated playlist"
 msgstr ""
 
-#: src/gpodder/gui.py:1223 src/gpodder/gui.py:1597
-#: data/ui/gpodderepisode.ui.h:2 data/ui/gpodder.ui.h:17
+#: src/gpodder/gui.py:944 src/gpodder/gui.py:1249
+#: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:22
+#: data/ui/maemo/gpodder.ui.h:20
 #, fuzzy
 msgid "Episode details"
 msgstr "Епізод"
 
-#: src/gpodder/gui.py:1233 src/gpodder/gui.py:1523 src/gpodder/gui.py:4216
-#: src/gpodder/gui.py:4459 data/ui/gpodderepisode.ui.h:1
-#: data/ui/gpodderopmllister.ui.h:1 data/ui/gpodder.ui.h:12
+#: src/gpodder/gui.py:954 src/gpodder/gui.py:1177
+#: src/gpodder/gtkui/desktop/episodeselector.py:146
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:94
+#: src/gpodder/gtkui/maemo/episodeselector.py:149
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:1
+#: data/ui/desktop/gpoddershownotes.ui.h:1 data/ui/desktop/gpodder.ui.h:16
+#: data/ui/maemo/gpoddershownotes.ui.h:2 data/ui/maemo/gpodder.ui.h:14
 msgid "Download"
 msgstr "Завантаження"
 
-#: src/gpodder/gui.py:1234 data/ui/gpodder.ui.h:4
+#: src/gpodder/gui.py:955 data/ui/desktop/gpodder.ui.h:5
+#: data/ui/maemo/gpodder.ui.h:5
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: src/gpodder/gui.py:1235
+#: src/gpodder/gui.py:956
 msgid "Pause"
 msgstr ""
 
-#: src/gpodder/gui.py:1237
+#: src/gpodder/gui.py:958
 #, fuzzy
 msgid "Remove from list"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:1243 src/gpodder/gui.py:1615
-msgid "Close this menu"
-msgstr ""
-
-#: src/gpodder/gui.py:1289
+#: src/gpodder/gui.py:983
 #, fuzzy
 msgid "Open download folder"
 msgstr "Оберіть папку для збереження завантажень"
 
-#: src/gpodder/gui.py:1294
+#: src/gpodder/gui.py:988
 #, fuzzy
 msgid "Update Feed"
 msgstr "Оновити фіди"
 
-#: src/gpodder/gui.py:1300
+#: src/gpodder/gui.py:994
 msgid "Update M3U playlist"
 msgstr ""
 
-#: src/gpodder/gui.py:1306 src/gpodder/gui.py:1606
+#: src/gpodder/gui.py:1000 src/gpodder/gui.py:1256
+#: data/ui/maemo/gpodderchannel.ui.h:5 data/ui/maemo/gpoddershownotes.ui.h:5
 msgid "Visit website"
 msgstr ""
 
-#: src/gpodder/gui.py:1312 src/gpodder/gui.py:2394 src/gpodder/gui.py:3083
+#: src/gpodder/gui.py:1006
 #, fuzzy
 msgid "Allow deletion of all episodes"
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/gui.py:1317 src/gpodder/gui.py:2396 src/gpodder/gui.py:3085
-#: data/ui/gpodder.ui.h:31
+#: src/gpodder/gui.py:1011
 #, fuzzy
 msgid "Prohibit deletion of all episodes"
 msgstr "Завантажити обрані епізоди"
 
-#: src/gpodder/gui.py:1415
+#: src/gpodder/gui.py:1086
 #, fuzzy
 msgid "Error converting file."
 msgstr "Помилка при завантаженні %s."
 
-#: src/gpodder/gui.py:1415 src/gpodder/services.py:155
+#: src/gpodder/gui.py:1086 src/gpodder/services.py:121
 msgid "Bluetooth file transfer"
 msgstr ""
 
-#: src/gpodder/gui.py:1540
+#: src/gpodder/gui.py:1094 data/ui/desktop/gpodderpreferences.ui.h:50
+msgid "iPod"
+msgstr ""
+
+#: src/gpodder/gui.py:1096
+#, fuzzy
+msgid "MP3 player"
+msgstr "Програвач"
+
+#: src/gpodder/gui.py:1193
 #, fuzzy
 msgid "Do not download"
 msgstr "Немає епізодів для завантаження"
 
-#: src/gpodder/gui.py:1545
+#: src/gpodder/gui.py:1198
 #, fuzzy
 msgid "Mark as new"
 msgstr "Зберегти епізод як файл"
 
-#: src/gpodder/gui.py:1553
+#: src/gpodder/gui.py:1208
 msgid "Save to disk"
 msgstr ""
 
-#: src/gpodder/gui.py:1558
+#: src/gpodder/gui.py:1213
 msgid "Send via bluetooth"
 msgstr ""
 
-#: src/gpodder/gui.py:1563
+#: src/gpodder/gui.py:1218
 #, fuzzy, python-format
 msgid "Transfer to %s"
 msgstr "Передати"
 
-#: src/gpodder/gui.py:1572 src/gpodder/gui.py:1769
+#: src/gpodder/gui.py:1226
 #, fuzzy
 msgid "Mark as unplayed"
 msgstr "Зберегти епізод як файл"
 
-#: src/gpodder/gui.py:1577 src/gpodder/gui.py:1771 data/ui/gpodder.ui.h:25
+#: src/gpodder/gui.py:1231
 #, fuzzy
 msgid "Mark as played"
 msgstr "Зберегти епізод як файл"
 
-#: src/gpodder/gui.py:1584 src/gpodder/gui.py:1773
+#: src/gpodder/gui.py:1237
 msgid "Allow deletion"
 msgstr ""
 
-#: src/gpodder/gui.py:1589 src/gpodder/gui.py:1775 data/ui/gpodder.ui.h:30
+#: src/gpodder/gui.py:1242
 msgid "Prohibit deletion"
 msgstr ""
 
-#: src/gpodder/gui.py:1662
+#: src/gpodder/gui.py:1390
 #, fuzzy, python-format
 msgid "Opening %s"
 msgstr "Видалення %s"
 
-#: src/gpodder/gui.py:1675 src/gpodder/gui.py:3159
+#: src/gpodder/gui.py:1392
+#, fuzzy, python-format
+msgid "Opening %d episodes"
+msgstr "Помилка при завантаженні %s."
+
+#: src/gpodder/gui.py:1406 src/gpodder/gui.py:2696
 msgid "Please check your media player settings in the preferences dialog."
 msgstr ""
 
-#: src/gpodder/gui.py:1675
+#: src/gpodder/gui.py:1406
 #, fuzzy
 msgid "Error opening player"
 msgstr "Помилка при завантаженні %s."
 
-#: src/gpodder/gui.py:1868
-#, fuzzy, python-format
-msgid "Loading episodes for %s"
-msgstr "Новий епізод: %s"
+#: src/gpodder/gui.py:1616
+#, fuzzy
+msgid "Adding podcasts"
+msgstr "Оновити фіди"
 
-#: src/gpodder/gui.py:1920
-#, python-format
-msgid "%s URLs are not supported"
+#: src/gpodder/gui.py:1617
+msgid "Please wait while episode information is downloaded."
 msgstr ""
 
-#: src/gpodder/gui.py:1921
-msgid "gPodder does not understand the URL you supplied."
-msgstr ""
+#: src/gpodder/gui.py:1624
+#, fuzzy
+msgid "Existing subscriptions skipped"
+msgstr "Опис"
 
-#: src/gpodder/gui.py:1934
-#, fuzzy, python-format
-msgid "You have already subscribed to this podcast: %s"
+#: src/gpodder/gui.py:1625
+#, fuzzy
+msgid "You are already subscribed to these podcasts:"
 msgstr "Ви вже підписані на цей канал: %s"
 
-#: src/gpodder/gui.py:1935
-msgid "Already added"
-msgstr "Вже додано"
-
-#: src/gpodder/gui.py:1940
-#, fuzzy
-msgid "Downloading episode list"
-msgstr "Завантажити нові епізоди"
-
-#: src/gpodder/gui.py:1942
-#, fuzzy, python-format
-msgid "Downloading episode information for %s"
-msgstr "Завантажити нові епізоди"
-
-#: src/gpodder/gui.py:1949
-#, fuzzy
-msgid "Downloading feed..."
-msgstr "Завершую... зачекайте"
-
-#: src/gpodder/gui.py:1989
-msgid ""
-"The following error occured while trying to get authentication data from the "
-"URL:"
+#: src/gpodder/gui.py:1633
+msgid "Podcast requires authentication"
 msgstr ""
 
-#: src/gpodder/gui.py:1989
-msgid "Error getting authentication data"
-msgstr ""
-
-#: src/gpodder/gui.py:1993
+#: src/gpodder/gui.py:1634
 #, python-format
-msgid ""
-"You have supplied <b>%s</b> as username and a password for this feed. Would "
-"you like to use the same authentication data for downloading episodes?"
+msgid "Please login to %s:"
 msgstr ""
 
-#: src/gpodder/gui.py:1993
-msgid "Password authentication"
-msgstr ""
+#: src/gpodder/gui.py:1642 src/gpodder/gui.py:1715
+#, fuzzy
+msgid "Authentication failed"
+msgstr "Редагування не вдалося"
 
-#: src/gpodder/gui.py:2011
-msgid "Feed requires authentication"
-msgstr ""
-
-#: src/gpodder/gui.py:2011
-msgid "Please enter your username and password."
-msgstr ""
-
-#: src/gpodder/gui.py:2017
-#, python-format
-msgid ""
-"The URL you are trying to add redirects to the website %s. Do you want to "
-"visit the website to login now?"
-msgstr ""
-
-#: src/gpodder/gui.py:2017
+#: src/gpodder/gui.py:1652
 msgid "Website redirection detected"
 msgstr ""
 
-#: src/gpodder/gui.py:2019
+#: src/gpodder/gui.py:1653
 #, python-format
-msgid ""
-"Please login to the website now. Should I retry subscribing to the podcast "
-"at %s?"
+msgid "The URL %s redirects to %s."
 msgstr ""
 
-#: src/gpodder/gui.py:2019
-msgid "Retry adding channel"
-msgstr ""
-
-#: src/gpodder/gui.py:2035
-msgid "The URL is a website"
-msgstr ""
-
-#: src/gpodder/gui.py:2036
-msgid ""
-"The URL you specified points to a web page. You need to find the \"feed\" "
-"URL of the podcast to add to gPodder. Do you want to visit this website now "
-"and look for the podcast feed URL?\n"
-"\n"
-"(Hint: Look for \"XML feed\", \"RSS feed\" or \"Podcast feed\" if you are "
-"unsure for what to look. If there is only an iTunes URL, try adding this "
-"one.)"
-msgstr ""
-
-#: src/gpodder/gui.py:2045
+#: src/gpodder/gui.py:1654
 #, fuzzy
-msgid "Error adding podcast"
-msgstr "Помилка при додаванні каналу"
+msgid "Do you want to visit the website now?"
+msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
 
-#: src/gpodder/gui.py:2046
+#: src/gpodder/gui.py:1663
 #, fuzzy
-msgid ""
-"The podcast could not be added. Please check the spelling of the URL or try "
-"again later."
-msgstr "Не можу додати цей канал. Перевірте його адресу або спробуйте пізніше"
+msgid "Could not add some podcasts"
+msgstr "Не можу додати канал."
 
-#: src/gpodder/gui.py:2077 src/gpodder/gui.py:2523
+#: src/gpodder/gui.py:1664
+msgid "Some podcasts could not be added to your list:"
+msgstr ""
+
+#: src/gpodder/gui.py:1666
+#, fuzzy
+msgid "Unknown"
+msgstr "невідомий"
+
+#: src/gpodder/gui.py:1724
+msgid "Redirection detected"
+msgstr ""
+
+#: src/gpodder/gui.py:1764
 msgid "No new episodes"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:2094
+#: src/gpodder/gui.py:1781
 #, fuzzy
-msgid "Downloading one new episode"
+msgid "Downloading one new episode."
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/gui.py:2096
+#: src/gpodder/gui.py:1783
 #, fuzzy, python-format
-msgid "Downloading %d new episodes"
+msgid "Downloading %d new episodes."
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/gui.py:2109
+#: src/gpodder/gui.py:1785 src/gpodder/gui.py:2223
+msgid "New episodes available"
+msgstr "Доступні нові епізоди"
+
+#: src/gpodder/gui.py:1794
 #, fuzzy
 msgid "One new episode is available for download"
 msgstr "Доступні нові епізоди"
 
-#: src/gpodder/gui.py:2111
+#: src/gpodder/gui.py:1796
 #, fuzzy, python-format
 msgid "%i new episodes are available for download"
 msgstr "Доступні нові епізоди"
 
-#: src/gpodder/gui.py:2125
-msgid "The feed update has been cancelled because you appear to be offline."
-msgstr ""
-
-#: src/gpodder/gui.py:2125
-#, fuzzy
-msgid "Cannot connect to server"
-msgstr "Не можу доступитись до пристрою"
-
-#: src/gpodder/gui.py:2128
+#: src/gpodder/gui.py:1817
 #, python-format
 msgid "There has been an error updating %s: %s"
 msgstr ""
 
-#: src/gpodder/gui.py:2128
+#: src/gpodder/gui.py:1817
 #, fuzzy
 msgid "Error while updating feed"
 msgstr "Оновлення %s"
 
-#: src/gpodder/gui.py:2134
+#: src/gpodder/gui.py:1823
 #, fuzzy, python-format
 msgid "Updated %s (%d/%d)"
 msgstr "Оновлення %s"
 
-#: src/gpodder/gui.py:2166
+#: src/gpodder/gui.py:1855
 #, fuzzy
 msgid "Cancelling..."
 msgstr "Скасувати"
 
-#: src/gpodder/gui.py:2193
+#: src/gpodder/gui.py:1882
 #, fuzzy, python-format
 msgid "Updating \"%s\"..."
 msgstr "Оновлення %s"
 
-#: src/gpodder/gui.py:2195
+#: src/gpodder/gui.py:1884
 #, fuzzy, python-format
 msgid "Updating %d feeds..."
 msgstr "Оновлення %s"
 
-#: src/gpodder/gui.py:2228 src/gpodder/gui.py:2241
+#: src/gpodder/gui.py:1917 src/gpodder/gui.py:1930
 #, fuzzy
 msgid "Do you really want to quit gPodder now?"
 msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
 
-#: src/gpodder/gui.py:2237
+#: src/gpodder/gui.py:1926
 msgid "Quit gPodder"
 msgstr ""
 
-#: src/gpodder/gui.py:2239
+#: src/gpodder/gui.py:1928
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
 msgstr ""
 
-#: src/gpodder/gui.py:2246
+#: src/gpodder/gui.py:1935
 msgid "Don't ask me again"
 msgstr ""
 
-#: src/gpodder/gui.py:2271
+#: src/gpodder/gui.py:1961
 msgid "Please check your permissions and free disk space."
 msgstr ""
 
-#: src/gpodder/gui.py:2271
+#: src/gpodder/gui.py:1961
 #, fuzzy
 msgid "Error saving podcast list"
 msgstr "Помилка при додаванні каналу"
 
-#: src/gpodder/gui.py:2315
-#, fuzzy
-msgid "Do you really want to delete this episode?"
-msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
+#: src/gpodder/gui.py:1997
+#, python-format
+msgid "%s is locked"
+msgstr ""
 
-#: src/gpodder/gui.py:2317
+#: src/gpodder/gui.py:1998
+msgid ""
+"You cannot delete this locked episode. You must unlock it before you can "
+"delete it."
+msgstr ""
+
+#: src/gpodder/gui.py:2002
+#, python-format
+msgid "Remove %s?"
+msgstr "Видалити %s?"
+
+#: src/gpodder/gui.py:2003
+msgid ""
+"If you remove this episode, it will be deleted from your computer. If you "
+"want to listen to this episode again, you will have to re-download it."
+msgstr ""
+
+#: src/gpodder/gui.py:2005
+#, python-format
+msgid "Remove %d episodes?"
+msgstr ""
+
+#: src/gpodder/gui.py:2006
+msgid ""
+"If you remove these episodes, they will be deleted from your computer. If "
+"you want to listen to any of these episodes again, you will have to re-"
+"download the episodes in question."
+msgstr ""
+
+#: src/gpodder/gui.py:2011
+#, fuzzy
+msgid "Episodes are locked"
+msgstr "Епізод вже завантажено"
+
+#: src/gpodder/gui.py:2012
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+
+#: src/gpodder/gui.py:2016
 #, fuzzy, python-format
-msgid "Do you really want to delete %d episodes?"
-msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
+msgid "Remove %d out of %d episodes?"
+msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:2319
-#, fuzzy
-msgid "Delete episodes"
-msgstr "Програти обраний епізод"
+#: src/gpodder/gui.py:2017
+msgid ""
+"The selection contains locked episodes that will not be deleted. If you want "
+"to listen to the deleted episodes, you will have to re-download them."
+msgstr ""
 
-#: src/gpodder/gui.py:2338 src/gpodder/gui.py:2499 src/gpodder/gui.py:2674
-#: src/gpodder/gui.py:4186
+#: src/gpodder/gui.py:2054 src/gpodder/gui.py:2215
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:72
+#: src/gpodder/gtkui/desktop/sync.py:198
 #, fuzzy
 msgid "Podcast"
 msgstr "Подкасти"
 
-#: src/gpodder/gui.py:2342
+#: src/gpodder/gui.py:2058
 #, fuzzy
 msgid "Downloaded"
 msgstr "Завантаження"
 
-#: src/gpodder/gui.py:2346
+#: src/gpodder/gui.py:2062
 msgid "Select played"
 msgstr ""
 
-#: src/gpodder/gui.py:2347
+#: src/gpodder/gui.py:2063
 #, fuzzy, python-format
 msgid "Select older than %d days"
 msgstr "Оберіть теку для програвача MP3"
 
-#: src/gpodder/gui.py:2350
-msgid "Select the episodes you want to delete from your hard disk."
-msgstr ""
+#: src/gpodder/gui.py:2066
+#, fuzzy
+msgid "Select the episodes you want to delete:"
+msgstr "Немає епізодів для завантаження"
 
-#: src/gpodder/gui.py:2360 data/ui/gpodder.ui.h:33
+#: src/gpodder/gui.py:2076 data/ui/desktop/gpodder.ui.h:36
+#: data/ui/maemo/gpodder.ui.h:33
 #, fuzzy
 msgid "Remove old episodes"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:2405
-msgid "Your subscription list is empty."
+#: src/gpodder/gui.py:2127
+msgid "My podcast subscriptions"
 msgstr ""
 
-#: src/gpodder/gui.py:2405 src/gpodder/gui.py:2407
+#: src/gpodder/gui.py:2136
+msgid "Your subscription list is empty. Add some podcasts first."
+msgstr ""
+
+#: src/gpodder/gui.py:2136 src/gpodder/gui.py:2138
 #, fuzzy
 msgid "Could not send list"
 msgstr "Не можу додати канал."
 
-#: src/gpodder/gui.py:2407
+#: src/gpodder/gui.py:2138
 msgid "There was an error sending your subscription list via e-mail."
 msgstr ""
 
-#: src/gpodder/gui.py:2419
-msgid "Database upgrade required"
-msgstr ""
+#: src/gpodder/gui.py:2142 src/gpodder/gui.py:2397 src/gpodder/gui.py:2410
+#, fuzzy
+msgid "No podcast selected"
+msgstr "Нічого не обрано"
 
-#: src/gpodder/gui.py:2420
-msgid ""
-"gPodder is now using a new (much faster) database backend and needs to "
-"convert your current data. This can take some time. Start the conversion now?"
-msgstr ""
+#: src/gpodder/gui.py:2143
+#, fuzzy
+msgid "Please select a podcast in the podcasts list to update."
+msgstr "Програти обраний епізод"
 
-#: src/gpodder/gui.py:2423
-msgid "Migrating to SQLite"
-msgstr ""
-
-#: src/gpodder/gui.py:2430
-msgid "SQLite migration"
-msgstr ""
-
-#: src/gpodder/gui.py:2436
-msgid "Please wait while your settings are converted."
-msgstr ""
-
-#: src/gpodder/gui.py:2459
-#, fuzzy, python-format
-msgid "Migration finished in %s"
-msgstr "Синхронізацію завершено"
-
-#: src/gpodder/gui.py:2486
+#: src/gpodder/gui.py:2176
 #, python-format
 msgid ""
 "Download error while downloading %s:\n"
@@ -1072,683 +653,246 @@ msgid ""
 "%s"
 msgstr ""
 
-#: src/gpodder/gui.py:2486
+#: src/gpodder/gui.py:2176
 #, fuzzy
 msgid "Download error"
 msgstr "Завантажити до:"
 
-#: src/gpodder/gui.py:2504
+#: src/gpodder/gui.py:2221
 #, fuzzy
-msgid "Select the episodes you want to download now."
+msgid "Select the episodes you want to download:"
 msgstr "Немає епізодів для завантаження"
 
-#: src/gpodder/gui.py:2506
-msgid "New episodes available"
-msgstr "Доступні нові епізоди"
-
-#: src/gpodder/gui.py:2511
+#: src/gpodder/gui.py:2228
 #, fuzzy
 msgid "Never download"
 msgstr "завантажень"
 
-#: src/gpodder/gui.py:2519
+#: src/gpodder/gui.py:2235
 #, fuzzy
-msgid "No new episodes available for download"
+msgid "Please check for new episodes later."
+msgstr "Немає нових епізодів"
+
+#: src/gpodder/gui.py:2236
+#, fuzzy
+msgid "No new episodes available"
 msgstr "Доступні нові епізоди"
 
-#: src/gpodder/gui.py:2561
-#, fuzzy
-msgid "Cannot Sync To iPod"
-msgstr "Під'єднайте свій iPod"
-
-#: src/gpodder/gui.py:2562
-msgid ""
-"Please install the libgpod python bindings (python-gpod) and restart gPodder "
-"to continue."
-msgstr ""
-
-#: src/gpodder/gui.py:2566
-#, fuzzy
-msgid "Cannot sync to MTP device"
-msgstr "Не можу доступитись до пристрою"
-
-#: src/gpodder/gui.py:2567
-msgid ""
-"Please install the libmtp python bindings (python-pymtp) and restart gPodder "
-"to continue."
-msgstr ""
-
-#: src/gpodder/gui.py:2575 src/gpodder/gui.py:2684 src/gpodder/gui.py:2734
-msgid "No device configured"
-msgstr "Пристрій не налаштовано"
-
-#: src/gpodder/gui.py:2576 src/gpodder/gui.py:2685
-msgid ""
-"To use the synchronization feature, please configure your device in the "
-"preferences dialog first."
-msgstr ""
-
-#: src/gpodder/gui.py:2581 src/gpodder/gui.py:2690 src/gpodder/gui.py:2740
-#, fuzzy
-msgid "Cannot open device"
-msgstr "Не можу доступитись до пристрою"
-
-#: src/gpodder/gui.py:2582 src/gpodder/gui.py:2691 src/gpodder/gui.py:2741
-msgid "There has been an error opening your device."
-msgstr ""
-
-#: src/gpodder/gui.py:2614
-#, fuzzy
-msgid "Not enough space left on device."
-msgstr "Тип пристрою:"
-
-#: src/gpodder/gui.py:2615
-#, python-format
-msgid ""
-"%s remaining on device.\n"
-"Please free up %s and try again."
-msgstr ""
-
-#: src/gpodder/gui.py:2637 src/gpodder/gui.py:2667
-#, fuzzy
-msgid "Error closing device"
-msgstr "Помилка при додаванні каналу"
-
-#: src/gpodder/gui.py:2638 src/gpodder/gui.py:2668
-msgid "There has been an error closing your device."
-msgstr ""
-
-#: src/gpodder/gui.py:2657
-#, fuzzy
-msgid "Delete podcasts from device?"
-msgstr "Видалити подкасти з iPod?"
-
-#: src/gpodder/gui.py:2658
-msgid ""
-"The selected episodes will be removed from your device. This cannot be "
-"undone. Files in your gPodder library will be unaffected. Do you really want "
-"to delete these episodes from your device?"
-msgstr ""
-
-#: src/gpodder/gui.py:2676
-msgid "Copied"
-msgstr ""
-
-#: src/gpodder/gui.py:2677
-msgid "Play count"
-msgstr ""
-
-#: src/gpodder/gui.py:2708
-#, fuzzy
-msgid "Remove podcasts from device"
-msgstr "Видалити подкасти з iPod?"
-
-#: src/gpodder/gui.py:2709
-#, fuzzy
-msgid "Select the podcast episodes you want to remove from your device."
-msgstr "Немає епізодів для завантаження"
-
-#: src/gpodder/gui.py:2713
-#, fuzzy
-msgid "No files on device"
-msgstr "Тип пристрою:"
-
-#: src/gpodder/gui.py:2714
-msgid "The devices contains no files to be removed."
-msgstr ""
-
-#: src/gpodder/gui.py:2721
-msgid "Cannot manage iPod playlist"
-msgstr ""
-
-#: src/gpodder/gui.py:2722
-msgid "This feature is not available for iPods."
-msgstr ""
-
-#: src/gpodder/gui.py:2726
-#, fuzzy
-msgid "Cannot manage MTP device playlist"
-msgstr "Не можу доступитись до пристрою"
-
-#: src/gpodder/gui.py:2727
-msgid "This feature is not available for MTP devices."
-msgstr ""
-
-#: src/gpodder/gui.py:2735
-msgid ""
-"To use the playlist feature, please configure your Filesystem based MP3-"
-"Player in the preferences dialog first."
-msgstr ""
-
-#: src/gpodder/gui.py:2792 data/ui/gpodder.ui.h:1
-msgid "Add Google Video search"
-msgstr ""
-
-#: src/gpodder/gui.py:2792 data/ui/gpodderconfigeditor.ui.h:1
-#: data/ui/gpodderopmllister.ui.h:4
-msgid "Search for:"
-msgstr ""
-
-#: src/gpodder/gui.py:2798
-#, fuzzy
-msgid "Import podcasts from Video Center"
-msgstr "Імпортувати з інтернету"
-
-#: src/gpodder/gui.py:2800
-msgid "Have you installed Video Center on your tablet?"
-msgstr ""
-
-#: src/gpodder/gui.py:2800
-msgid "Cannot find Video Center subscriptions"
-msgstr ""
-
-#: src/gpodder/gui.py:2804
+#: src/gpodder/gui.py:2329
 msgid "Login to my.gpodder.org"
 msgstr ""
 
-#: src/gpodder/gui.py:2804
+#: src/gpodder/gui.py:2329
 msgid "Please enter your e-mail address and your password."
 msgstr ""
 
-#: src/gpodder/gui.py:2804
+#: src/gpodder/gui.py:2329
 msgid "E-Mail Address"
 msgstr ""
 
-#: src/gpodder/gui.py:2815
+#: src/gpodder/gui.py:2340
 msgid ""
 "gPodder can automatically upload your subscription list to my.gpodder.org "
 "when you close it. Do you want to enable this feature?"
 msgstr ""
 
-#: src/gpodder/gui.py:2815
+#: src/gpodder/gui.py:2340
 #, fuzzy
 msgid "Upload subscriptions on quit"
 msgstr "Опис"
 
-#: src/gpodder/gui.py:2838
+#: src/gpodder/gui.py:2364
 #, python-format
 msgid "Added %d new subscriptions and skipped %d existing ones."
 msgstr ""
 
-#: src/gpodder/gui.py:2838 src/gpodder/gui.py:2840
+#: src/gpodder/gui.py:2364 src/gpodder/gui.py:2366
 msgid "Result of subscription download"
 msgstr ""
 
-#: src/gpodder/gui.py:2840
+#: src/gpodder/gui.py:2366
 msgid "Your local subscription list is up to date."
 msgstr ""
 
-#: src/gpodder/gui.py:2846 src/gpodder/gui.py:2863
+#: src/gpodder/gui.py:2371 src/gpodder/gui.py:2389
 msgid "Please set up your username and password first."
 msgstr ""
 
-#: src/gpodder/gui.py:2846 src/gpodder/gui.py:2863
+#: src/gpodder/gui.py:2371 src/gpodder/gui.py:2389
 msgid "Username and password needed"
 msgstr ""
 
-#: src/gpodder/gui.py:2854
+#: src/gpodder/gui.py:2380 src/gpodder/gui.py:2385
 msgid "Results of upload"
 msgstr ""
 
-#: src/gpodder/gui.py:2870
-#, fuzzy
-msgid "No podcast selected"
-msgstr "Нічого не обрано"
-
-#: src/gpodder/gui.py:2871
+#: src/gpodder/gui.py:2398
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr ""
 
-#: src/gpodder/gui.py:2884
+#: src/gpodder/gui.py:2411
+msgid "Please select a podcast in the podcasts list to remove."
+msgstr ""
+
+#: src/gpodder/gui.py:2421
 #, fuzzy
 msgid "Remove podcast and episodes?"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:2885
+#: src/gpodder/gui.py:2422
 #, python-format
 msgid "Do you really want to remove <b>%s</b> and all downloaded episodes?"
 msgstr ""
 
-#: src/gpodder/gui.py:2890
+#: src/gpodder/gui.py:2427
 #, fuzzy
 msgid "Do not delete my downloaded episodes"
 msgstr "Завантажити обрані епізоди"
 
-#: src/gpodder/gui.py:2896
+#: src/gpodder/gui.py:2433
 #, fuzzy
 msgid "Do you really want to remove this podcast and all downloaded episodes?"
 msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
 
-#: src/gpodder/gui.py:2943
+#: src/gpodder/gui.py:2481
 msgid "OPML files"
 msgstr ""
 
-#: src/gpodder/gui.py:2949
+#: src/gpodder/gui.py:2487
 #, fuzzy
 msgid "Import from OPML"
 msgstr "Експортувати в OPML"
 
-#: src/gpodder/gui.py:2962 data/ui/gpodder.ui.h:20
+#: src/gpodder/gui.py:2501
 #, fuzzy
 msgid "Import podcasts from OPML file"
 msgstr "Видалити подкасти з iPod?"
 
-#: src/gpodder/gui.py:2966
+#: src/gpodder/gui.py:2508
 msgid "Nothing to export"
 msgstr "Немає чого експортувати"
 
-#: src/gpodder/gui.py:2967
+#: src/gpodder/gui.py:2509
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
 msgstr ""
 
-#: src/gpodder/gui.py:2972
+#: src/gpodder/gui.py:2514
 msgid "Export to OPML"
 msgstr "Експортувати в OPML"
 
-#: src/gpodder/gui.py:2985
+#: src/gpodder/gui.py:2527
 msgid "One subscription exported"
 msgstr ""
 
-#: src/gpodder/gui.py:2987
+#: src/gpodder/gui.py:2529
 #, fuzzy, python-format
 msgid "%d subscriptions exported"
 msgstr "Опис"
 
-#: src/gpodder/gui.py:2988
+#: src/gpodder/gui.py:2530
 msgid "Your podcast list has been successfully exported."
 msgstr ""
 
-#: src/gpodder/gui.py:2990
+#: src/gpodder/gui.py:2532
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr ""
 
-#: src/gpodder/gui.py:2990
+#: src/gpodder/gui.py:2532
 msgid "OPML export failed"
 msgstr ""
 
-#: src/gpodder/gui.py:3021
+#: src/gpodder/gui.py:2565
 msgid "translator-credits"
 msgstr ""
 
-#: src/gpodder/gui.py:3128
+#: src/gpodder/gui.py:2572
+msgid "Maintainer:"
+msgstr ""
+
+#: src/gpodder/gui.py:2578
+msgid "Patches, bug reports and donations by:"
+msgstr ""
+
+#: src/gpodder/gui.py:2665
+msgid "Please select an episode from the episode list to display shownotes."
+msgstr ""
+
+#: src/gpodder/gui.py:2665
 #, fuzzy
 msgid "No episode selected"
 msgstr "Нічого не обрано"
 
-#: src/gpodder/gui.py:3128
-#, fuzzy
-msgid "Please select an episode"
-msgstr "Програти обраний епізод"
-
-#: src/gpodder/gui.py:3159
+#: src/gpodder/gui.py:2696
 #, fuzzy
 msgid "Unable to stream episode"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/gui.py:3244
-#, python-format
-msgid "%s is locked"
-msgstr ""
-
-#: src/gpodder/gui.py:3245
-msgid ""
-"You cannot delete this locked episode. You must unlock it before you can "
-"delete it."
-msgstr ""
-
-#: src/gpodder/gui.py:3249
-#, python-format
-msgid "Remove %s?"
-msgstr "Видалити %s?"
-
-#: src/gpodder/gui.py:3250
-msgid ""
-"If you remove this episode, it will be deleted from your computer. If you "
-"want to listen to this episode again, you will have to re-download it."
-msgstr ""
-
-#: src/gpodder/gui.py:3252
-#, python-format
-msgid "Remove %d episodes?"
-msgstr ""
-
-#: src/gpodder/gui.py:3253
-msgid ""
-"If you remove these episodes, they will be deleted from your computer. If "
-"you want to listen to any of these episodes again, you will have to re-"
-"download the episodes in question."
-msgstr ""
-
-#: src/gpodder/gui.py:3262
-#, fuzzy
-msgid "Episodes are locked"
-msgstr "Епізод вже завантажено"
-
-#: src/gpodder/gui.py:3263
-msgid ""
-"The selected episodes are locked. Please unlock the episodes that you want "
-"to delete before trying to delete them."
-msgstr ""
-
-#: src/gpodder/gui.py:3267
-#, fuzzy, python-format
-msgid "Remove %d out of %d episodes?"
-msgstr "Немає нових епізодів"
-
-#: src/gpodder/gui.py:3268
-msgid ""
-"The selection contains locked episodes that will not be deleted. If you want "
-"to listen to the deleted episodes, you will have to re-download them."
-msgstr ""
-
-#: src/gpodder/gui.py:3361
+#: src/gpodder/gui.py:2826
 #, fuzzy, python-format
 msgid "Podcasts (%d)"
 msgstr "Подкасти"
 
-#: src/gpodder/gui.py:3363 data/ui/gpodder.ui.h:28
+#: src/gpodder/gui.py:2828 data/ui/desktop/gpodder.ui.h:33
+#: data/ui/maemo/gpodder.ui.h:30
 msgid "Podcasts"
 msgstr "Подкасти"
 
-#: src/gpodder/gui.py:3413
-msgid "Select new podcast cover artwork"
-msgstr ""
-
-#: src/gpodder/gui.py:3436
-msgid "You can only drop a single image or URL here."
-msgstr ""
-
-#: src/gpodder/gui.py:3436 src/gpodder/gui.py:3445
-msgid "Drag and drop"
-msgstr ""
-
-#: src/gpodder/gui.py:3445
-msgid "You can only drop local files and http:// URLs here."
-msgstr ""
-
-#: src/gpodder/gui.py:3493
-#, fuzzy
-msgid "Nothing to paste."
-msgstr "Немає чого експортувати"
-
-#: src/gpodder/gui.py:3493
-msgid "Clipboard is empty"
-msgstr ""
-
-#: src/gpodder/gui.py:3721
-msgid ""
-"There has been an error moving your downloads to the specified location. The "
-"old download directory will be used instead."
-msgstr ""
-
-#: src/gpodder/gui.py:3721
-msgid "Error moving downloads"
-msgstr "Помилка під-час переміщення завантажень"
-
-#: src/gpodder/gui.py:3757
-msgid ""
-"You can specify a custom format string for the file names on your MP3 player "
-"here."
-msgstr ""
-
-#: src/gpodder/gui.py:3758
-msgid ""
-"The format string will be used to generate a file name on your device. The "
-"file extension (e.g. \".mp3\") will be added automatically."
-msgstr ""
-
-#: src/gpodder/gui.py:3762
-msgid "Custom format strings"
-msgstr ""
-
-#: src/gpodder/gui.py:3849
-msgid "Select iPod mountpoint"
-msgstr ""
-
-#: src/gpodder/gui.py:3858
-msgid "Select folder for MP3 player"
-msgstr "Оберіть теку для програвача MP3"
-
-#: src/gpodder/gui.py:3876
-msgid "Moving downloads folder"
-msgstr ""
-
-#: src/gpodder/gui.py:3882
-#, python-format
-msgid "Moving downloads from <b>%s</b> to <b>%s</b>..."
-msgstr ""
-
-#: src/gpodder/gui.py:3912
-#, python-format
-msgid "%s of %s"
-msgstr ""
-
-#: src/gpodder/gui.py:3914
-msgid "Finishing... please wait."
-msgstr "Завершую... зачекайте"
-
-#: src/gpodder/gui.py:3986
-msgid "Please wait..."
-msgstr "Зачекайте..."
-
-#: src/gpodder/gui.py:3997
-#, fuzzy
-msgid "Loading shownotes..."
-msgstr "Помилка при завантаженні %s."
-
-#: src/gpodder/gui.py:4126 src/gpodder/trayicon.py:344
-#, python-format
-msgid "%d of %d done"
-msgstr "%d·з·%d·завершено"
-
-#: src/gpodder/gui.py:4131
-#, python-format
-msgid "Processing (%d%%)"
-msgstr ""
-
-#: src/gpodder/gui.py:4139 src/gpodder/trayicon.py:355
-msgid "Your device has been updated by gPodder."
-msgstr ""
-
-#: src/gpodder/gui.py:4139 src/gpodder/trayicon.py:355
-#, fuzzy
-msgid "Operation finished"
-msgstr "Синхронізацію завершено"
-
-#: src/gpodder/gui.py:4214
-#, fuzzy
-msgid "Search podcast.de:"
-msgstr "Перевірити наявність оновленнь"
-
-#: src/gpodder/gui.py:4219 data/ui/gpodderopmllister.ui.h:3
-msgid "OPML:"
-msgstr ""
-
-#: src/gpodder/gui.py:4256 src/gpodder/gui.py:4268
-msgid "The specified URL does not provide any valid OPML podcast items."
-msgstr ""
-
-#: src/gpodder/gui.py:4256 src/gpodder/gui.py:4268
-msgid "No feeds found"
-msgstr ""
-
-#: src/gpodder/gui.py:4260
-msgid "There are no YouTube channels that would match this query."
-msgstr ""
-
-#: src/gpodder/gui.py:4260
-#, fuzzy
-msgid "No channels found"
-msgstr "Імпортувати з інтернету"
-
-#: src/gpodder/gui.py:4416
-#, fuzzy
-msgid "Remove"
-msgstr "Видалити %s?"
-
-#: src/gpodder/gui.py:4589 data/ui/gpodderepisodeselector.ui.h:2
-msgid "Select all"
-msgstr ""
-
-#: src/gpodder/gui.py:4593 data/ui/gpodderepisodeselector.ui.h:4
-#, fuzzy
-msgid "Select none"
-msgstr "Оберіть папку для збереження завантажень"
-
-#: src/gpodder/gui.py:4621
-msgid "Nothing selected"
-msgstr "Нічого не обрано"
-
-#: src/gpodder/gui.py:4623
-#, fuzzy
-msgid "One episode selected"
-msgstr "Нічого не обрано"
-
-#: src/gpodder/gui.py:4625
-#, fuzzy, python-format
-msgid "%d episodes selected"
-msgstr "Нічого не обрано"
-
-#: src/gpodder/gui.py:4627
-#, python-format
-msgid "total size: %s"
-msgstr ""
-
-#: src/gpodder/gui.py:4717
-msgid "Setting"
-msgstr ""
-
-#: src/gpodder/gui.py:4724
-msgid "Set to"
-msgstr ""
-
-#: src/gpodder/gui.py:4766
-#, python-format
-msgid ""
-"Cannot set value of <b>%s</b> to <i>%s</i>.\n"
-"\n"
-"Needed data type: %s"
-msgstr ""
-
-#: src/gpodder/gui.py:4766
-#, fuzzy, python-format
-msgid "Error updating %s"
-msgstr "Оновлення %s"
-
-#: src/gpodder/gui.py:4814
-msgid "Use"
-msgstr ""
-
-#: src/gpodder/gui.py:4818
-msgid "Filename"
-msgstr ""
-
-#: src/gpodder/gui.py:4837
-#, fuzzy, python-format
-msgid "Reading files from %s"
-msgstr "Видалення файлів"
-
-#: src/gpodder/gui.py:4838
-msgid "Please wait your media file list is being read from device."
-msgstr ""
-
-#: src/gpodder/gui.py:4899
-#, python-format
-msgid "Folder %s could not be created."
-msgstr ""
-
-#: src/gpodder/gui.py:4899
-#, fuzzy
-msgid "Error writing playlist"
-msgstr "Помилка при додаванні каналу"
-
-#: src/gpodder/gui.py:4911
-msgid "The playlist on your MP3 player has been updated."
-msgstr ""
-
-#: src/gpodder/gui.py:4911
-msgid "Update successful"
-msgstr ""
-
-#: src/gpodder/gui.py:4913
-#, fuzzy
-msgid "Error writing playlist file"
-msgstr "Помилка при завантаженні %s."
-
-#: src/gpodder/gui.py:4964
-msgid "Feature"
-msgstr ""
-
-#: src/gpodder/gui.py:4982
-msgid "Missing components:"
-msgstr ""
-
-#: src/gpodder/gui.py:5030
+#: src/gpodder/gui.py:2877
 msgid "Cannot start gPodder"
 msgstr ""
 
-#: src/gpodder/gui.py:5031
+#: src/gpodder/gui.py:2878
 #, fuzzy, python-format
 msgid "D-Bus error: %s"
 msgstr "Оновлення %s"
 
-#: src/gpodder/libgpodder.py:153
-#, fuzzy, python-format
-msgid "Adding podcast: %s"
-msgstr "Оновити фіди"
-
-#: src/gpodder/libgpodder.py:164
-#, python-format
-msgid "Loading LocalDB for %s"
-msgstr ""
-
-#: src/gpodder/libgpodder.py:180
+#: src/gpodder/model.py:141
 #, fuzzy
-msgid "Writing changes to database"
-msgstr "Збереження даних на диск"
+msgid "No downloadable episodes in feed"
+msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/libgpodder.py:202
-#, python-format
-msgid "Migrating settings for %s"
-msgstr ""
-
-#: src/gpodder/libgpodder.py:204
+#: src/gpodder/model.py:736
 #, fuzzy, python-format
-msgid "Fixing episodes in %s"
-msgstr "Новий епізод: %s"
+msgid "released %s"
+msgstr "Опубліковано"
 
-#: src/gpodder/libgpodder.py:278 data/ui/gpodderproperties.ui.h:50
-msgid "iPod"
-msgstr ""
+#: src/gpodder/model.py:737 src/gpodder/model.py:753
+#: src/gpodder/gtkui/maemo/shownotes.py:99
+#, fuzzy, python-format
+msgid "from %s"
+msgstr "Оновлення %s"
 
-#: src/gpodder/libgpodder.py:280
+#: src/gpodder/model.py:746
 #, fuzzy
-msgid "MP3 player"
+msgid "played"
 msgstr "Програвач"
 
-#: src/gpodder/libgpodder.py:336
-msgid "My podcast subscriptions"
-msgstr ""
+#: src/gpodder/model.py:748
+#, fuzzy
+msgid "unplayed"
+msgstr "Зберегти епізод як файл"
 
-#: src/gpodder/libplayers.py:79
-msgid "Default application"
-msgstr ""
+#: src/gpodder/model.py:751
+#, fuzzy
+msgid "today"
+msgstr "Сьогодні"
 
-#: src/gpodder/libplayers.py:80
-msgid "Custom command"
-msgstr ""
+#: src/gpodder/model.py:752
+#, fuzzy, python-format
+msgid "downloaded %s"
+msgstr "Завантажити %s?"
 
-#: src/gpodder/libpodcasts.py:831 src/gpodder/libpodcasts.py:1093
+#: src/gpodder/model.py:771
 msgid "No description available"
 msgstr "Опис відсутній"
 
-#: src/gpodder/libpodcasts.py:1040
+#: src/gpodder/model.py:1002
 msgid "unknown"
 msgstr "невідомий"
 
-#: src/gpodder/libpodcasts.py:1067
+#: src/gpodder/model.py:1029
 msgid "Unplayed"
 msgstr ""
 
@@ -1774,386 +918,841 @@ msgstr ""
 msgid "Unknown response."
 msgstr ""
 
-#: src/gpodder/services.py:134
-msgid "Available"
-msgstr ""
-
-#: src/gpodder/services.py:136
-msgid "Missing dependencies"
-msgstr ""
-
-#: src/gpodder/services.py:141
-#, python-format
-msgid "Python module \"%s\" not installed"
-msgstr ""
-
-#: src/gpodder/services.py:144
-#, python-format
-msgid "Command \"%s\" not installed"
-msgstr ""
-
-#: src/gpodder/services.py:155
+#: src/gpodder/services.py:121
 msgid ""
 "Send podcast episodes to Bluetooth devices. Needs Python Bluez bindings."
 msgstr ""
 
-#: src/gpodder/services.py:156
+#: src/gpodder/services.py:122
 #, fuzzy
 msgid "HTML episode shownotes"
 msgstr "Немає епізодів для завантаження"
 
-#: src/gpodder/services.py:156
+#: src/gpodder/services.py:122
 msgid "Display episode shownotes in HTML format using GTKHTML2."
 msgstr ""
 
-#: src/gpodder/services.py:328
-#, python-format
-msgid "Failed: %s"
-msgstr ""
-
-#: src/gpodder/sync.py:70
+#: src/gpodder/sync.py:68
 #, fuzzy
 msgid "iPod synchronization"
 msgstr "Помилка синхронізації"
 
-#: src/gpodder/sync.py:70
+#: src/gpodder/sync.py:68
 msgid "Support synchronization of podcasts to Apple iPod devices via libgpod."
 msgstr ""
 
-#: src/gpodder/sync.py:71
+#: src/gpodder/sync.py:69
 #, fuzzy
 msgid "MTP device synchronization"
 msgstr "Помилка синхронізації"
 
-#: src/gpodder/sync.py:71
+#: src/gpodder/sync.py:69
 msgid ""
 "Support synchronization of podcasts to devices using the Media Transfer "
 "Protocol via pymtp."
 msgstr ""
 
-#: src/gpodder/sync.py:72
+#: src/gpodder/sync.py:70
 msgid "iPod OGG converter"
 msgstr ""
 
-#: src/gpodder/sync.py:72
+#: src/gpodder/sync.py:70
 msgid ""
 "Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec "
 "and LAME."
 msgstr ""
 
-#: src/gpodder/sync.py:73
+#: src/gpodder/sync.py:71
 #, fuzzy
 msgid "iPod video podcasts"
 msgstr "Додати новий канал"
 
-#: src/gpodder/sync.py:73
+#: src/gpodder/sync.py:71
 msgid ""
 "Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
 msgstr ""
 
-#: src/gpodder/sync.py:74
+#: src/gpodder/sync.py:72
 msgid "Rockbox cover art support"
 msgstr ""
 
-#: src/gpodder/sync.py:74
+#: src/gpodder/sync.py:72
 msgid ""
 "Copy podcast cover art to filesystem-based MP3 players running Rockbox.org "
 "firmware. Needs Python Imaging."
 msgstr ""
 
-#: src/gpodder/sync.py:170
+#: src/gpodder/sync.py:169
 msgid "Cancelled by user"
 msgstr ""
 
-#: src/gpodder/sync.py:173
+#: src/gpodder/sync.py:172
 msgid "Writing data to disk"
 msgstr "Збереження даних на диск"
 
-#: src/gpodder/sync.py:286
+#: src/gpodder/sync.py:285
 #, fuzzy
 msgid "Opening iPod database"
 msgstr "Збереження даних iPod"
 
-#: src/gpodder/sync.py:295
+#: src/gpodder/sync.py:294
 msgid "iPod opened"
 msgstr ""
 
-#: src/gpodder/sync.py:306
+#: src/gpodder/sync.py:305
 msgid "Saving iPod database"
 msgstr "Збереження даних iPod"
 
-#: src/gpodder/sync.py:355 src/gpodder/sync.py:671 src/gpodder/sync.py:909
+#: src/gpodder/sync.py:354 src/gpodder/sync.py:664 src/gpodder/sync.py:902
 #, python-format
 msgid "Removing %s"
 msgstr "Видалення %s"
 
-#: src/gpodder/sync.py:370 src/gpodder/sync.py:540
+#: src/gpodder/sync.py:369 src/gpodder/sync.py:533
 #, fuzzy, python-format
 msgid "Adding %s"
 msgstr "Оновлення %s"
 
-#: src/gpodder/sync.py:387
+#: src/gpodder/sync.py:386
 #, python-format
 msgid "Error copying %s: Not enough free disk space on %s"
 msgstr ""
 
-#: src/gpodder/sync.py:521
+#: src/gpodder/sync.py:514
 #, fuzzy
 msgid "Opening MP3 player"
 msgstr "Програвач"
 
-#: src/gpodder/sync.py:523
+#: src/gpodder/sync.py:516
 #, fuzzy
 msgid "MP3 player opened"
 msgstr "Програвач"
 
-#: src/gpodder/sync.py:601 src/gpodder/sync.py:608
+#: src/gpodder/sync.py:594 src/gpodder/sync.py:601
 #, python-format
 msgid "Error opening %s: %s"
 msgstr ""
 
-#: src/gpodder/sync.py:848
+#: src/gpodder/sync.py:841
 #, fuzzy
 msgid "Opening the MTP device"
 msgstr "Програвач"
 
-#: src/gpodder/sync.py:858
+#: src/gpodder/sync.py:851
 #, fuzzy, python-format
 msgid "%s opened"
 msgstr "Завершено %s"
 
-#: src/gpodder/sync.py:863
+#: src/gpodder/sync.py:856
 #, fuzzy, python-format
 msgid "Closing %s"
 msgstr "Копіювання %s"
 
-#: src/gpodder/sync.py:871
+#: src/gpodder/sync.py:864
 #, fuzzy, python-format
 msgid "%s closed"
 msgstr "Завершено %s"
 
-#: src/gpodder/sync.py:876
+#: src/gpodder/sync.py:869
 #, fuzzy, python-format
 msgid "Adding %s..."
 msgstr "Оновлення %s"
 
-#: src/gpodder/trayicon.py:60
+#: src/gpodder/util.py:317
+msgid "one day ago"
+msgstr ""
+
+#: src/gpodder/util.py:319
+#, python-format
+msgid "%d days ago"
+msgstr ""
+
+#: src/gpodder/util.py:389
+msgid "Today"
+msgstr "Сьогодні"
+
+#: src/gpodder/util.py:391
+msgid "Yesterday"
+msgstr "Вчора"
+
+#: src/gpodder/util.py:434 src/gpodder/util.py:437
+msgid "(unknown)"
+msgstr ""
+
+#: src/gpodder/util.py:975
+msgid "0 seconds"
+msgstr ""
+
+#: src/gpodder/util.py:986
+msgid "1 hour"
+msgstr ""
+
+#: src/gpodder/util.py:988
+#, python-format
+msgid "%i hours"
+msgstr ""
+
+#: src/gpodder/util.py:991
+msgid "1 minute"
+msgstr ""
+
+#: src/gpodder/util.py:993
+#, python-format
+msgid "%i minutes"
+msgstr ""
+
+#: src/gpodder/util.py:996
+msgid "1 second"
+msgstr ""
+
+#: src/gpodder/util.py:998
+#, python-format
+msgid "%i seconds"
+msgstr ""
+
+#: src/gpodder/util.py:1001
+msgid "and"
+msgstr ""
+
+#: src/gpodder/gtkui/config.py:50
+msgid "Integer"
+msgstr ""
+
+#: src/gpodder/gtkui/config.py:52
+msgid "Float"
+msgstr ""
+
+#: src/gpodder/gtkui/config.py:54
+msgid "Boolean"
+msgstr ""
+
+#: src/gpodder/gtkui/config.py:56
+msgid "String"
+msgstr ""
+
+#: src/gpodder/gtkui/desktopfile.py:79
+msgid "Default application"
+msgstr ""
+
+#: src/gpodder/gtkui/desktopfile.py:80
+msgid "Custom command"
+msgstr ""
+
+#: src/gpodder/gtkui/download.py:70
+#, python-format
+msgid "Failed: %s"
+msgstr ""
+
+#: src/gpodder/gtkui/services.py:52
+msgid "Available"
+msgstr ""
+
+#: src/gpodder/gtkui/services.py:54
+msgid "Missing dependencies"
+msgstr ""
+
+#: src/gpodder/gtkui/services.py:59
+#, python-format
+msgid "Python module \"%s\" not installed"
+msgstr ""
+
+#: src/gpodder/gtkui/services.py:62
+#, python-format
+msgid "Command \"%s\" not installed"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/addpodcast.py:58
+#, fuzzy
+msgid "Nothing to paste."
+msgstr "Немає чого експортувати"
+
+#: src/gpodder/gtkui/interface/addpodcast.py:58
+msgid "Clipboard is empty"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:284
+msgid "Username"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:297
+msgid "Authentication required"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:302
+msgid "New user"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:327
+msgid "Password"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:345
+msgid "Select destination"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/configeditor.py:37
+msgid "Setting"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/configeditor.py:44
+msgid "Set to"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/configeditor.py:86
+#, python-format
+msgid ""
+"Cannot set value of <b>%s</b> to <i>%s</i>.\n"
+"\n"
+"Needed data type: %s"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/configeditor.py:86
+#, fuzzy, python-format
+msgid "Error updating %s"
+msgstr "Оновлення %s"
+
+#: src/gpodder/gtkui/interface/dependencymanager.py:34
+msgid "Feature"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/dependencymanager.py:52
+msgid "Missing components:"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/channel.py:70
+msgid "Select new podcast cover artwork"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/channel.py:94
+msgid "You can only drop a single image or URL here."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/channel.py:94
+#: src/gpodder/gtkui/desktop/channel.py:103
+msgid "Drag and drop"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/channel.py:103
+msgid "You can only drop local files and http:// URLs here."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:55
+msgid "Use"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:59
+msgid "Filename"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:78
+#, fuzzy, python-format
+msgid "Reading files from %s"
+msgstr "Видалення файлів"
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:79
+msgid "Please wait your media file list is being read from device."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:140
+#, python-format
+msgid "Folder %s could not be created."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:140
+#, fuzzy
+msgid "Error writing playlist"
+msgstr "Помилка при додаванні каналу"
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:152
+msgid "The playlist on your MP3 player has been updated."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:152
+msgid "Update successful"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:154
+#, fuzzy
+msgid "Error writing playlist file"
+msgstr "Помилка при завантаженні %s."
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:106
+#: src/gpodder/gtkui/maemo/episodeselector.py:106
+#, fuzzy
+msgid "Remove"
+msgstr "Видалити %s?"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:279
+#: data/ui/desktop/gpodderepisodeselector.ui.h:2
+#: data/ui/maemo/gpodderepisodeselector.ui.h:2
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:6
+msgid "Select all"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:283
+#: data/ui/desktop/gpodderepisodeselector.ui.h:4
+#: data/ui/maemo/gpodderepisodeselector.ui.h:4
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:7
+#, fuzzy
+msgid "Select none"
+msgstr "Оберіть папку для збереження завантажень"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:311
+#: src/gpodder/gtkui/maemo/episodeselector.py:292
+msgid "Nothing selected"
+msgstr "Нічого не обрано"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:313
+#: src/gpodder/gtkui/maemo/episodeselector.py:294
+#, fuzzy
+msgid "One episode"
+msgstr "Немає нових епізодів"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:315
+#: src/gpodder/gtkui/maemo/episodeselector.py:296
+#, fuzzy, python-format
+msgid "%d episodes"
+msgstr "%s нових епізодів"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:317
+#: src/gpodder/gtkui/maemo/episodeselector.py:298
+#, fuzzy, python-format
+msgid "size: %s"
+msgstr "Виконано: %s"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:92
+#, fuzzy
+msgid "Search podcast.de:"
+msgstr "Перевірити наявність оновленнь"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:97
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:3
+msgid "OPML:"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:133
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:144
+msgid "The specified URL does not provide any valid OPML podcast items."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:133
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:144
+msgid "No feeds found"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:137
+msgid "There are no YouTube channels that would match this query."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:137
+#, fuzzy
+msgid "No channels found"
+msgstr "Імпортувати з інтернету"
+
+#: src/gpodder/gtkui/desktop/preferences.py:186
+msgid ""
+"You can specify a custom format string for the file names on your MP3 player "
+"here."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:187
+msgid ""
+"The format string will be used to generate a file name on your device. The "
+"file extension (e.g. \".mp3\") will be added automatically."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:191
+msgid "Custom format strings"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:278
+msgid "Select iPod mountpoint"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:287
+msgid "Select folder for MP3 player"
+msgstr "Оберіть теку для програвача MP3"
+
+#: src/gpodder/gtkui/desktop/shownotes.py:74
+msgid "Please wait..."
+msgstr "Зачекайте..."
+
+#: src/gpodder/gtkui/desktop/shownotes.py:81
+#, fuzzy
+msgid "Loading shownotes..."
+msgstr "Помилка при завантаженні %s."
+
+#: src/gpodder/gtkui/desktop/syncprogress.py:42
+#: src/gpodder/gtkui/desktop/trayicon.py:289
+#, python-format
+msgid "%d of %d done"
+msgstr "%d·з·%d·завершено"
+
+#: src/gpodder/gtkui/desktop/syncprogress.py:47
+#, python-format
+msgid "Processing (%d%%)"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:73
+msgid "No device configured"
+msgstr "Пристрій не налаштовано"
+
+#: src/gpodder/gtkui/desktop/sync.py:74
+msgid "Please set up your device in the preferences dialog."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:78
+#, fuzzy
+msgid "Cannot open device"
+msgstr "Не можу доступитись до пристрою"
+
+#: src/gpodder/gtkui/desktop/sync.py:79
+msgid "Please check the settings in the preferences dialog."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:84
+#, fuzzy
+msgid "Cannot sync to iPod"
+msgstr "Під'єднайте свій iPod"
+
+#: src/gpodder/gtkui/desktop/sync.py:85
+msgid "Please install python-gpod and restart gPodder."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:89
+#, fuzzy
+msgid "Cannot sync to MTP device"
+msgstr "Не можу доступитись до пристрою"
+
+#: src/gpodder/gtkui/desktop/sync.py:90
+msgid "Please install python-pymtp and restart gPodder."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:101
+#, fuzzy
+msgid "Device synchronized"
+msgstr "Помилка синхронізації"
+
+#: src/gpodder/gtkui/desktop/sync.py:102
+#, fuzzy
+msgid "Your device has been synchronized."
+msgstr "Помилка синхронізації"
+
+#: src/gpodder/gtkui/desktop/sync.py:105 src/gpodder/gtkui/desktop/sync.py:223
+#, fuzzy
+msgid "Error closing device"
+msgstr "Помилка при додаванні каналу"
+
+#: src/gpodder/gtkui/desktop/sync.py:106
+msgid "Please check settings and permission."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:157
+#, fuzzy
+msgid "Not enough space left on device"
+msgstr "Тип пристрою:"
+
+#: src/gpodder/gtkui/desktop/sync.py:158
+#, python-format
+msgid ""
+"You need to free up %s.\n"
+"Do you want to continue?"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:200
+msgid "Copied"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:201
+msgid "Play count"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:216
+#, fuzzy
+msgid "Delete podcasts from device?"
+msgstr "Видалити подкасти з iPod?"
+
+#: src/gpodder/gtkui/desktop/sync.py:217
+#, fuzzy
+msgid ""
+"Do you really want to remove these episodes from your device? Episodes in "
+"your library will not be deleted."
+msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
+
+#: src/gpodder/gtkui/desktop/sync.py:224
+msgid "There has been an error closing your device."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:238
+#, fuzzy
+msgid "Remove podcasts from device"
+msgstr "Видалити подкасти з iPod?"
+
+#: src/gpodder/gtkui/desktop/sync.py:239
+#, fuzzy
+msgid "Select episodes to remove from your device."
+msgstr "Немає епізодів для завантаження"
+
+#: src/gpodder/gtkui/desktop/sync.py:249
+#, fuzzy
+msgid "No files on device"
+msgstr "Тип пристрою:"
+
+#: src/gpodder/gtkui/desktop/sync.py:250
+msgid "The devices contains no files to be removed."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:255
+msgid "Cannot manage iPod playlist"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:256
+msgid "This feature is not available for iPods."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/sync.py:260
+#, fuzzy
+msgid "Cannot manage MTP device playlist"
+msgstr "Не можу доступитись до пристрою"
+
+#: src/gpodder/gtkui/desktop/sync.py:261
+msgid "This feature is not available for MTP devices."
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/trayicon.py:52
 #, fuzzy
 msgid "gPodder media aggregator"
 msgstr "Сайт gPodder"
 
-#: src/gpodder/trayicon.py:63
+#: src/gpodder/gtkui/desktop/trayicon.py:55
 #, fuzzy
 msgid "Downloading episodes"
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/trayicon.py:64
+#: src/gpodder/gtkui/desktop/trayicon.py:56
 #, fuzzy
 msgid "Looking for new episodes"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/trayicon.py:65
+#: src/gpodder/gtkui/desktop/trayicon.py:57
 #, fuzzy
 msgid "Synchronizing to player"
 msgstr "Синхронізую %s"
 
-#: src/gpodder/trayicon.py:66
+#: src/gpodder/gtkui/desktop/trayicon.py:58
 #, fuzzy
 msgid "Cleaning files"
 msgstr "Видалення файлів"
 
-#: src/gpodder/trayicon.py:114 data/ui/gpodder.ui.h:6
+#: src/gpodder/gtkui/desktop/trayicon.py:100 data/ui/desktop/gpodder.ui.h:9
+#: data/ui/maemo/gpodder.ui.h:8
 #, fuzzy
 msgid "Check for new episodes"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/trayicon.py:119
+#: src/gpodder/gtkui/desktop/trayicon.py:105
 #, fuzzy
 msgid "Download all new episodes"
 msgstr "Завантажити нові епізоди"
 
-#: src/gpodder/trayicon.py:126
-#, fuzzy, python-format
-msgid "Synchronize to %s"
+#: src/gpodder/gtkui/desktop/trayicon.py:112
+#, fuzzy
+msgid "Synchronize to device"
 msgstr "Синхронізую %s"
 
-#: src/gpodder/trayicon.py:134
-msgid "Show previous message again"
-msgstr ""
-
-#: src/gpodder/trayicon.py:154 src/gpodder/trayicon.py:164
+#: src/gpodder/gtkui/desktop/trayicon.py:131
+#: src/gpodder/gtkui/desktop/trayicon.py:141
 msgid "Hide gPodder"
 msgstr ""
 
-#: src/gpodder/trayicon.py:161
+#: src/gpodder/gtkui/desktop/trayicon.py:138
 msgid "Show gPodder"
 msgstr ""
 
-#: src/gpodder/trayicon.py:215
+#: src/gpodder/gtkui/desktop/trayicon.py:187
 #, fuzzy
 msgid "These downloads failed:"
 msgstr "завантажень"
 
-#: src/gpodder/trayicon.py:217 src/gpodder/trayicon.py:220
+#: src/gpodder/gtkui/desktop/trayicon.py:189
+#: src/gpodder/gtkui/desktop/trayicon.py:192
 msgid "gPodder downloads finished"
 msgstr ""
 
-#: src/gpodder/trayicon.py:223
+#: src/gpodder/gtkui/desktop/trayicon.py:195
 #, fuzzy
 msgid "gPodder downloads failed"
 msgstr "Оберіть папку для збереження завантажень"
 
-#: src/gpodder/trayicon.py:319
+#: src/gpodder/gtkui/desktop/trayicon.py:264
 #, fuzzy
 msgid "one more episode"
 msgstr "Немає нових епізодів"
 
-#: src/gpodder/trayicon.py:321
+#: src/gpodder/gtkui/desktop/trayicon.py:266
 #, fuzzy, python-format
 msgid "%d more episodes"
 msgstr "%s нових епізодів"
 
-#: src/gpodder/trayicon.py:348
+#: src/gpodder/gtkui/desktop/trayicon.py:293
 #, python-format
 msgid ""
 "%s\n"
 "%s"
 msgstr ""
 
-#: src/gpodder/util.py:313
-msgid "one day ago"
+#: src/gpodder/gtkui/desktop/trayicon.py:299
+msgid "Your device has been updated by gPodder."
 msgstr ""
 
-#: src/gpodder/util.py:315
-#, python-format
-msgid "%d days ago"
-msgstr ""
-
-#: src/gpodder/util.py:385
-msgid "Today"
-msgstr "Сьогодні"
-
-#: src/gpodder/util.py:387
-msgid "Yesterday"
-msgstr "Вчора"
-
-#: src/gpodder/util.py:425 src/gpodder/util.py:428
-msgid "(unknown)"
-msgstr ""
-
-#: src/gpodder/util.py:928
-msgid "0 seconds"
-msgstr ""
-
-#: src/gpodder/util.py:939
-msgid "1 hour"
-msgstr ""
-
-#: src/gpodder/util.py:941
-#, python-format
-msgid "%i hours"
-msgstr ""
-
-#: src/gpodder/util.py:944
-msgid "1 minute"
-msgstr ""
-
-#: src/gpodder/util.py:946
-#, python-format
-msgid "%i minutes"
-msgstr ""
-
-#: src/gpodder/util.py:949
-msgid "1 second"
-msgstr ""
-
-#: src/gpodder/util.py:951
-#, python-format
-msgid "%i seconds"
-msgstr ""
-
-#: src/gpodder/util.py:954
-msgid "and"
-msgstr ""
-
-#: data/ui/gpodderaddpodcastdialog.ui.h:1
+#: src/gpodder/gtkui/desktop/trayicon.py:299
 #, fuzzy
-msgid "Add a new podcast"
+msgid "Operation finished"
+msgstr "Синхронізацію завершено"
+
+#: src/gpodder/gtkui/maemo/channel.py:58
+#, fuzzy, python-format
+msgid "Edit %s"
+msgstr "Редагувати \"%s\""
+
+#: src/gpodder/gtkui/maemo/channel.py:75 data/ui/maemo/gpodderchannel.ui.h:3
+#, fuzzy
+msgid "Rename podcast"
 msgstr "Додати новий канал"
 
-#: data/ui/gpodderaddpodcastdialog.ui.h:2
+#: src/gpodder/gtkui/maemo/channel.py:76
+msgid "New name:"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/channel.py:81
+#, fuzzy, python-format
+msgid "New name: %s"
+msgstr "Виконано: %s"
+
+#: src/gpodder/gtkui/maemo/channel.py:82
+#, fuzzy
+msgid "Podcast renamed"
+msgstr "Подкаст видалено"
+
+#: src/gpodder/gtkui/maemo/channel.py:85
+msgid "Edit podcast authentication"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/channel.py:86
+msgid "Please enter your username and password."
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/channel.py:97
+msgid "Username and password removed."
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/channel.py:98
+#: src/gpodder/gtkui/maemo/channel.py:101
+#, fuzzy
+msgid "Authentication updated"
+msgstr "Редагування не вдалося"
+
+#: src/gpodder/gtkui/maemo/channel.py:100
+msgid "Username and password saved."
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:64
+#, fuzzy
+msgid "Load podcast list"
+msgstr "Помилка при додаванні каналу"
+
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:98
+msgid "Load OPML file from the web"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:98
+#: data/ui/desktop/gpodderaddpodcast.ui.h:2
+#: data/ui/maemo/gpodderaddpodcast.ui.h:2
 msgid "URL:"
 msgstr ""
 
-#: data/ui/gpodderchannel.ui.h:1
-msgid "<b>HTTP/FTP Authentication</b>"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:2
-msgid "<b>Locations</b>"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:3
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:106
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:5
 #, fuzzy
-msgid "<b>Synchronization</b>"
-msgstr "Синхронізацію перервано"
+msgid "Search podcast.de"
+msgstr "Перевірити наявність оновленнь"
 
-#: data/ui/gpodderchannel.ui.h:4
-msgid "Advanced"
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:107
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:116
+#: data/ui/gpodderconfigeditor.ui.h:1
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:4
+msgid "Search for:"
 msgstr ""
 
-#: data/ui/gpodderchannel.ui.h:5
-msgid "Cover"
-msgstr "Обкладинка"
-
-#: data/ui/gpodderchannel.ui.h:6
-msgid "Download to:"
-msgstr "Завантажити до:"
-
-#: data/ui/gpodderchannel.ui.h:7
-msgid "Feed URL:"
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:115
+msgid "Search YouTube user channels"
 msgstr ""
 
-#: data/ui/gpodderchannel.ui.h:8 data/ui/gpodderproperties.ui.h:30
-msgid "General"
-msgstr "Головне"
-
-#: data/ui/gpodderchannel.ui.h:9
-msgid "Go to website"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:10
-msgid "Password:"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:11
-msgid "Playlist name:"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:12
-msgid "Skip this podcast when syncing to my device"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:13
-msgid "Title:"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:14
-msgid "Username:"
-msgstr ""
-
-#: data/ui/gpodderchannel.ui.h:15
-msgid "Website:"
-msgstr "Сайт:"
-
-#: data/ui/gpodderchannel.ui.h:16
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:126
 #, fuzzy
-msgid "gPodder Podcast Editor"
-msgstr "Сайт gPodder"
+msgid "Loading podcast list, please wait"
+msgstr "Помилка при додаванні каналу"
 
-#: data/ui/gpodderchannel.ui.h:17
-msgid "website label"
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:138
+msgid "Please pick another source."
 msgstr ""
+
+#: src/gpodder/gtkui/maemo/podcastdirectory.py:138
+#, fuzzy
+msgid "No podcasts found"
+msgstr "Імпортувати з інтернету"
+
+#: src/gpodder/gtkui/maemo/preferences.py:103
+msgid "Configuration editor activated"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/preferences.py:103
+msgid "Be careful"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/preferences.py:126
+msgid "Gestures in gPodder"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/preferences.py:131
+#, fuzzy
+msgid "Podcast list"
+msgstr "Подкасти"
+
+#: src/gpodder/gtkui/maemo/preferences.py:132
+#: src/gpodder/gtkui/maemo/preferences.py:135
+msgid "Swipe left"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/preferences.py:132
+#, fuzzy
+msgid "Edit selected podcast"
+msgstr "Програти обраний епізод"
+
+#: src/gpodder/gtkui/maemo/preferences.py:133
+#: src/gpodder/gtkui/maemo/preferences.py:136
+msgid "Swipe right"
+msgstr ""
+
+#: src/gpodder/gtkui/maemo/preferences.py:133
+#, fuzzy
+msgid "Update podcast feed"
+msgstr "Оновити фіди"
+
+#: src/gpodder/gtkui/maemo/preferences.py:134
+#, fuzzy
+msgid "Episode list"
+msgstr "Епізод"
+
+#: src/gpodder/gtkui/maemo/preferences.py:135
+#, fuzzy
+msgid "Display shownotes"
+msgstr "Немає епізодів для завантаження"
+
+#: src/gpodder/gtkui/maemo/preferences.py:136
+#, fuzzy
+msgid "Playback episode"
+msgstr "Програти обраний епізод"
 
 #: data/ui/gpodderconfigeditor.ui.h:2
 msgid "Show All"
@@ -2163,500 +1762,14 @@ msgstr ""
 msgid "gPodder Configuration Editor"
 msgstr ""
 
-#: data/ui/gpodderdependencymanager.ui.h:1 data/ui/gpodder.ui.h:2
+#: data/ui/gpodderdependencymanager.ui.h:1 data/ui/desktop/gpodder.ui.h:2
+#: data/ui/maemo/gpodder.ui.h:2
 #, fuzzy
 msgid "Additional components"
 msgstr "Додаткова інформація"
 
 #: data/ui/gpodderdependencymanager.ui.h:2
 msgid "Install package"
-msgstr ""
-
-#: data/ui/gpodderepisodeselector.ui.h:1
-msgid "<b><big>Select episodes</big></b>"
-msgstr ""
-
-#: data/ui/gpodderepisodeselector.ui.h:3
-#, fuzzy
-msgid "Select episodes"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpoddermaemopreferences.ui.h:1 data/ui/gpodderproperties.ui.h:12
-msgid "Advanced..."
-msgstr ""
-
-#: data/ui/gpoddermaemopreferences.ui.h:2
-msgid "Ask before closing gPodder"
-msgstr ""
-
-#: data/ui/gpoddermaemopreferences.ui.h:3
-#, fuzzy
-msgid "Audio player:"
-msgstr "Програвач"
-
-#: data/ui/gpoddermaemopreferences.ui.h:4
-#, fuzzy
-msgid "Enable episode list gestures"
-msgstr "Нічого не обрано"
-
-#: data/ui/gpoddermaemopreferences.ui.h:5
-msgid ""
-"Nokia Media Player\n"
-"MPlayer"
-msgstr ""
-
-#: data/ui/gpoddermaemopreferences.ui.h:7 data/ui/gpodder.ui.h:29
-#, fuzzy
-msgid "Preferences"
-msgstr "_Налаштування"
-
-#: data/ui/gpoddermaemopreferences.ui.h:8
-msgid "Show icon in status area"
-msgstr ""
-
-#: data/ui/gpoddermaemopreferences.ui.h:9
-#, fuzzy
-msgid "Video player:"
-msgstr "Програвач"
-
-#: data/ui/gpodderopmllister.ui.h:2
-#, fuzzy
-msgid "Find new podcasts"
-msgstr "Додати новий канал"
-
-#: data/ui/gpodderopmllister.ui.h:5
-#, fuzzy
-msgid "Select All"
-msgstr "Оберіть папку для збереження завантажень"
-
-#: data/ui/gpodderopmllister.ui.h:6
-#, fuzzy
-msgid "Select None"
-msgstr "Оберіть папку для збереження завантажень"
-
-#: data/ui/gpodderopmllister.ui.h:7
-#, fuzzy
-msgid "Top _podcasts"
-msgstr "Подкасти"
-
-#: data/ui/gpodderopmllister.ui.h:8
-msgid "_OPML/Search"
-msgstr ""
-
-#: data/ui/gpodderopmllister.ui.h:9
-#, fuzzy
-msgid "_YouTube"
-msgstr "Видалити канал"
-
-#: data/ui/gpodderplaylist.ui.h:1
-msgid "<b><big>Playlist manager</big></b>"
-msgstr ""
-
-#: data/ui/gpodderplaylist.ui.h:2
-msgid "Create your playlist by selecting and sorting these episodes."
-msgstr ""
-
-#: data/ui/gpodderplaylist.ui.h:3
-#, fuzzy
-msgid "Manage playlist on MP3 player"
-msgstr "Видалити подкасти з програвача MP3?"
-
-#: data/ui/gpodderproperties.ui.h:1
-msgid "/path/to/fs-based-player"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:2
-msgid "/path/to/ipod"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:3
-msgid "<b>Advanced window options</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:4
-msgid "<b>Audio Media Player</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:5
-#, fuzzy
-msgid "<b>Automatic download of episode list</b>"
-msgstr "Завантажити нові епізоди"
-
-#: data/ui/gpodderproperties.ui.h:6
-msgid "<b>Clean-up</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:7
-msgid "<b>Device Configuration</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:8
-msgid "<b>Download Folder</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:9
-msgid "<b>Notification Area Integration</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:10
-msgid "<b>Synchronization Options</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:11
-msgid "<b>Video Media Player</b>"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:13
-#, fuzzy
-msgid "After synchronisation:"
-msgstr "Помилка синхронізації"
-
-#: data/ui/gpodderproperties.ui.h:14
-#, fuzzy
-msgid "Always automatically download new episodes"
-msgstr "Завантажити нові епізоди"
-
-#: data/ui/gpodderproperties.ui.h:15
-msgid "Automatically download new episodes when gPodder is minimized"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:16
-#, fuzzy
-msgid "Check for new episodes every"
-msgstr "Немає нових епізодів"
-
-#: data/ui/gpodderproperties.ui.h:17
-#, fuzzy
-msgid "Check for new episodes on startup"
-msgstr "Немає нових епізодів"
-
-#: data/ui/gpodderproperties.ui.h:18
-msgid "Command line:"
-msgstr "Командний рядок"
-
-#: data/ui/gpodderproperties.ui.h:19
-msgid "Create a subfolder for each podcast"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:20
-msgid "Custom filename:"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:21
-#, fuzzy
-msgid "Delete episode from gPodder"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpodderproperties.ui.h:22
-msgid "Delete episodes on device that have been marked played in gPodder"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:23
-#, fuzzy
-msgid "Delete episodes played on iPod from gPodder"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpodderproperties.ui.h:24
-msgid "Delete played episodes on startup after"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:25 data/ui/gpodder.ui.h:11
-msgid "Device"
-msgstr "Пристрій"
-
-#: data/ui/gpodderproperties.ui.h:26
-msgid "Do nothing"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:28
-msgid "Enable notification bubbles"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:29
-msgid "Filesystem-based MP3 player"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:31
-msgid ""
-"If checked, OGG files will not be converted to MP3 before being transfered."
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:32
-msgid ""
-"If checked, a subfolder will be created for each podcast synchronized. If "
-"not checked, all episodes will be copied directly to the folder specified by "
-"\"Sync to folder:\"."
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:33
-msgid ""
-"If checked, gPodder will delete played episodes that are older than the "
-"specified amout of days (in the Downloads tab) on every startup."
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:34
-msgid ""
-"If checked, gPodder will update the status of the episode as if it has been "
-"played locally after copying it to your device"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:35
-#, fuzzy
-msgid "MTP-based player"
-msgstr "Програвач"
-
-#: data/ui/gpodderproperties.ui.h:36
-#, fuzzy
-msgid "Mark episode as played"
-msgstr "Зберегти епізод як файл"
-
-#: data/ui/gpodderproperties.ui.h:37
-msgid "My player supports OGG"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:38
-#, fuzzy
-msgid "Never automatically download new episodes"
-msgstr "Завантажити нові епізоди"
-
-#: data/ui/gpodderproperties.ui.h:39
-msgid "None"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:40
-msgid "Only show tray icon when minimized"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:41
-msgid "Only sync tracks that have not been played"
-msgstr "Синхронізувати тільки треки, що раніше не програвалися"
-
-#: data/ui/gpodderproperties.ui.h:42
-msgid "Select download folder"
-msgstr "Оберіть папку для збереження завантажень"
-
-#: data/ui/gpodderproperties.ui.h:43
-msgid "Show gPodder icon in the system notification area"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:44
-msgid "Start gPodder minimized"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:45
-msgid "Sync to folder:"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:46
-msgid "Tray Icon"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:47
-msgid "Type of device:"
-msgstr "Тип пристрою:"
-
-#: data/ui/gpodderproperties.ui.h:48
-#, fuzzy
-msgid "days"
-msgstr "Сьогодні"
-
-#: data/ui/gpodderproperties.ui.h:49
-msgid "gPodder Preferences"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:51
-msgid "iPod mountpoint:"
-msgstr ""
-
-#: data/ui/gpodderproperties.ui.h:52
-msgid "minutes"
-msgstr ""
-
-#: data/ui/gpoddersync.ui.h:1
-msgid "<b><big>Synchronizing Podcasts</big></b>"
-msgstr ""
-
-#: data/ui/gpoddersync.ui.h:2
-msgid "Copying Files To Device"
-msgstr ""
-
-#: data/ui/gpoddersync.ui.h:3
-msgid ""
-"Episodes marked for synchronization are now transferred to your player "
-"device."
-msgstr ""
-
-#: data/ui/gpoddersync.ui.h:4
-msgid "Initializing..."
-msgstr ""
-
-#: data/ui/gpodder.ui.h:3
-msgid "Amazon wishlist"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:5
-#, fuzzy
-msgid "Check for Updates"
-msgstr "Перевірити наявність оновленнь"
-
-#: data/ui/gpodder.ui.h:7
-msgid "Clean up"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:8
-#, fuzzy
-msgid "Close"
-msgstr "_Вийти"
-
-#: data/ui/gpodder.ui.h:9
-#, fuzzy
-msgid "Copy selected episodes to device"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpodder.ui.h:10
-msgid "Delete"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:13
-msgid "Download list from my.gpodder.org"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:14
-msgid "Download new episodes"
-msgstr "Завантажити нові епізоди"
-
-#: data/ui/gpodder.ui.h:16
-#, fuzzy
-msgid "Edit selected podcast"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpodder.ui.h:18
-#, fuzzy
-msgid "Export podcasts to OPML file"
-msgstr "Експортувати в OPML"
-
-#: data/ui/gpodder.ui.h:19
-msgid "Go to gpodder.org"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:21
-#, fuzzy
-msgid "Import subscriptions from Video Center"
-msgstr "Опис"
-
-#: data/ui/gpodder.ui.h:22
-#, fuzzy
-msgid "Limit downloads to"
-msgstr "Обмежити швидкість завантаження у "
-
-#: data/ui/gpodder.ui.h:23
-#, fuzzy
-msgid "Limit rate to"
-msgstr "Обмежити швидкість завантаження у "
-
-#: data/ui/gpodder.ui.h:24
-msgid "Manage device playlist"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:26
-msgid "Open"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:27
-#, fuzzy
-msgid "Play"
-msgstr "Програвач"
-
-#: data/ui/gpodder.ui.h:32
-msgid "Quit"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:34
-msgid "Report a problem"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:35
-#, fuzzy
-msgid "Search for podcasts"
-msgstr "Перевірити наявність оновленнь"
-
-#: data/ui/gpodder.ui.h:36
-#, fuzzy
-msgid "Select and remove episodes from device"
-msgstr "Видалити подкасти з iPod?"
-
-#: data/ui/gpodder.ui.h:37
-msgid "Send subscription list via e-mail"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:38
-msgid "Show episode description"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:39
-msgid "Show toolbar"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:40
-#, fuzzy
-msgid "Subscribe to new podcast URL"
-msgstr "Додати новий канал"
-
-#: data/ui/gpodder.ui.h:41
-#, fuzzy
-msgid "Sync episodes to device"
-msgstr "Тип пристрою:"
-
-#: data/ui/gpodder.ui.h:42
-msgid "T-Shirts and mugs"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:43
-msgid "Transfer"
-msgstr "Передати"
-
-#: data/ui/gpodder.ui.h:44
-#, fuzzy
-msgid "Unsubscribe from selected podcast"
-msgstr "Передати обрані епізоди"
-
-#: data/ui/gpodder.ui.h:45
-#, fuzzy
-msgid "Update selected podcast"
-msgstr "Програти обраний епізод"
-
-#: data/ui/gpodder.ui.h:46
-msgid "Upload list to my.gpodder.org"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:47
-msgid "User manual"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:48
-#, fuzzy
-msgid "_Episodes"
-msgstr "Епізод"
-
-#: data/ui/gpodder.ui.h:49
-msgid "_Help"
-msgstr "_Довідка"
-
-#: data/ui/gpodder.ui.h:50
-msgid "_Podcasts"
-msgstr "Подкасти"
-
-#: data/ui/gpodder.ui.h:51
-#, fuzzy
-msgid "_Subscriptions"
-msgstr "Опис"
-
-#: data/ui/gpodder.ui.h:52
-msgid "_View"
-msgstr ""
-
-#: data/ui/gpodder.ui.h:53
-msgid "kb/s"
 msgstr ""
 
 #: data/ui/gpodderwelcome.ui.h:1
@@ -2684,45 +1797,857 @@ msgstr ""
 msgid "gpodder"
 msgstr "Сайт gPodder"
 
-#: bin/gpodder:92
+#: data/ui/desktop/gpodderaddpodcast.ui.h:1
+#: data/ui/maemo/gpodderaddpodcast.ui.h:1
+#, fuzzy
+msgid "Add a new podcast"
+msgstr "Додати новий канал"
+
+#: data/ui/desktop/gpodderchannel.ui.h:1
+msgid "<b>HTTP/FTP Authentication</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:2
+msgid "<b>Locations</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:3
+#, fuzzy
+msgid "<b>Synchronization</b>"
+msgstr "Синхронізацію перервано"
+
+#: data/ui/desktop/gpodderchannel.ui.h:4
+msgid "Advanced"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:5
+msgid "Cover"
+msgstr "Обкладинка"
+
+#: data/ui/desktop/gpodderchannel.ui.h:6
+msgid "Download to:"
+msgstr "Завантажити до:"
+
+#: data/ui/desktop/gpodderchannel.ui.h:7
+msgid "Feed URL:"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:8
+#: data/ui/desktop/gpodderpreferences.ui.h:30
+msgid "General"
+msgstr "Головне"
+
+#: data/ui/desktop/gpodderchannel.ui.h:9
+msgid "Go to website"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:10
+msgid "Password:"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:11
+msgid "Playlist name:"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:12
+msgid "Skip this podcast when syncing to my device"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:13
+msgid "Title:"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:14
+msgid "Username:"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:15
+msgid "Website:"
+msgstr "Сайт:"
+
+#: data/ui/desktop/gpodderchannel.ui.h:16
+#, fuzzy
+msgid "gPodder Podcast Editor"
+msgstr "Сайт gPodder"
+
+#: data/ui/desktop/gpodderchannel.ui.h:17
+msgid "website label"
+msgstr ""
+
+#: data/ui/desktop/gpodderdeviceplaylist.ui.h:1
+msgid "<b><big>Playlist manager</big></b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderdeviceplaylist.ui.h:2
+msgid "Create your playlist by selecting and sorting these episodes."
+msgstr ""
+
+#: data/ui/desktop/gpodderdeviceplaylist.ui.h:3
+#, fuzzy
+msgid "Manage playlist on MP3 player"
+msgstr "Видалити подкасти з програвача MP3?"
+
+#: data/ui/desktop/gpodderepisodeselector.ui.h:1
+msgid "<b><big>Select episodes</big></b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderepisodeselector.ui.h:3
+#: data/ui/maemo/gpodderepisodeselector.ui.h:3
+#, fuzzy
+msgid "Select episodes"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:2
+#, fuzzy
+msgid "Find new podcasts"
+msgstr "Додати новий канал"
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:5
+#, fuzzy
+msgid "Select All"
+msgstr "Оберіть папку для збереження завантажень"
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:6
+#, fuzzy
+msgid "Select None"
+msgstr "Оберіть папку для збереження завантажень"
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:7
+#, fuzzy
+msgid "Top _podcasts"
+msgstr "Подкасти"
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:8
+msgid "_OPML/Search"
+msgstr ""
+
+#: data/ui/desktop/gpodderpodcastdirectory.ui.h:9
+#, fuzzy
+msgid "_YouTube"
+msgstr "Видалити канал"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:1
+msgid "/path/to/fs-based-player"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:2
+msgid "/path/to/ipod"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:3
+msgid "<b>Advanced window options</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:4
+msgid "<b>Audio Media Player</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:5
+#, fuzzy
+msgid "<b>Automatic download of episode list</b>"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:6
+msgid "<b>Clean-up</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:7
+msgid "<b>Device Configuration</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:8
+msgid "<b>Download Folder</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:9
+msgid "<b>Notification Area Integration</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:10
+msgid "<b>Synchronization Options</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:11
+msgid "<b>Video Media Player</b>"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:12
+msgid "Advanced..."
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:13
+#, fuzzy
+msgid "After synchronisation:"
+msgstr "Помилка синхронізації"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:14
+#, fuzzy
+msgid "Always automatically download new episodes"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:15
+msgid "Automatically download new episodes when gPodder is minimized"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:16
+#, fuzzy
+msgid "Check for new episodes every"
+msgstr "Немає нових епізодів"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:17
+#, fuzzy
+msgid "Check for new episodes on startup"
+msgstr "Немає нових епізодів"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:18
+msgid "Command line:"
+msgstr "Командний рядок"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:19
+msgid "Create a subfolder for each podcast"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:20
+msgid "Custom filename:"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:21
+#, fuzzy
+msgid "Delete episode from gPodder"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:22
+msgid "Delete episodes on device that have been marked played in gPodder"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:23
+#, fuzzy
+msgid "Delete episodes played on iPod from gPodder"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:24
+msgid "Delete played episodes on startup after"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:25 data/ui/desktop/gpodder.ui.h:14
+#: data/ui/maemo/gpodder.ui.h:12
+msgid "Device"
+msgstr "Пристрій"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:26
+msgid "Do nothing"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:28
+msgid "Enable notification bubbles"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:29
+msgid "Filesystem-based MP3 player"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:31
+msgid ""
+"If checked, OGG files will not be converted to MP3 before being transfered."
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:32
+msgid ""
+"If checked, a subfolder will be created for each podcast synchronized. If "
+"not checked, all episodes will be copied directly to the folder specified by "
+"\"Sync to folder:\"."
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:33
+msgid ""
+"If checked, gPodder will delete played episodes that are older than the "
+"specified amout of days (in the Downloads tab) on every startup."
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:34
+msgid ""
+"If checked, gPodder will update the status of the episode as if it has been "
+"played locally after copying it to your device"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:35
+#, fuzzy
+msgid "MTP-based player"
+msgstr "Програвач"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:36
+#, fuzzy
+msgid "Mark episode as played"
+msgstr "Зберегти епізод як файл"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:37
+msgid "My player supports OGG"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:38
+#, fuzzy
+msgid "Never automatically download new episodes"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:39
+msgid "None"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:40
+msgid "Only show tray icon when minimized"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:41
+msgid "Only sync tracks that have not been played"
+msgstr "Синхронізувати тільки треки, що раніше не програвалися"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:42
+msgid "Select download folder"
+msgstr "Оберіть папку для збереження завантажень"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:43
+msgid "Show gPodder icon in the system notification area"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:44
+msgid "Start gPodder minimized"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:45
+msgid "Sync to folder:"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:46
+msgid "Tray Icon"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:47
+msgid "Type of device:"
+msgstr "Тип пристрою:"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:48
+#, fuzzy
+msgid "days"
+msgstr "Сьогодні"
+
+#: data/ui/desktop/gpodderpreferences.ui.h:49
+msgid "gPodder Preferences"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:51
+msgid "iPod mountpoint:"
+msgstr ""
+
+#: data/ui/desktop/gpodderpreferences.ui.h:52
+msgid "minutes"
+msgstr ""
+
+#: data/ui/desktop/gpoddersyncprogress.ui.h:1
+msgid "<b><big>Synchronizing Podcasts</big></b>"
+msgstr ""
+
+#: data/ui/desktop/gpoddersyncprogress.ui.h:2
+msgid "Copying Files To Device"
+msgstr ""
+
+#: data/ui/desktop/gpoddersyncprogress.ui.h:3
+msgid ""
+"Episodes marked for synchronization are now transferred to your player "
+"device."
+msgstr ""
+
+#: data/ui/desktop/gpoddersyncprogress.ui.h:4
+msgid "Initializing..."
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
+#, fuzzy
+msgid "Add podcast via URL"
+msgstr "Оновити фіди"
+
+#: data/ui/desktop/gpodder.ui.h:3 data/ui/maemo/gpodder.ui.h:3
+#, fuzzy
+msgid "All episodes"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodder.ui.h:4 data/ui/maemo/gpodder.ui.h:4
+msgid "Amazon wishlist"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:6 data/ui/maemo/gpodder.ui.h:6
+#, fuzzy
+msgid "Change delete lock"
+msgstr "Список каналів"
+
+#: data/ui/desktop/gpodder.ui.h:7 data/ui/maemo/gpodder.ui.h:7
+msgid "Change played status"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:8
+#, fuzzy
+msgid "Check for Updates"
+msgstr "Перевірити наявність оновленнь"
+
+#: data/ui/desktop/gpodder.ui.h:10 data/ui/maemo/gpodder.ui.h:9
+msgid "Clean up"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:11 data/ui/maemo/gpodder.ui.h:10
+#, fuzzy
+msgid "Close"
+msgstr "_Вийти"
+
+#: data/ui/desktop/gpodder.ui.h:12
+#, fuzzy
+msgid "Copy selected episodes to device"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodder.ui.h:13 data/ui/maemo/gpodder.ui.h:11
+msgid "Delete"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:15 data/ui/maemo/gpodder.ui.h:13
+#, fuzzy
+msgid "Discover new podcasts"
+msgstr "Додати новий канал"
+
+#: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
+#, fuzzy
+msgid "Download from my.gpodder.org"
+msgstr "Завантажити до:"
+
+#: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
+msgid "Download new episodes"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodder.ui.h:19 data/ui/maemo/gpodder.ui.h:17
+#, fuzzy
+msgid "Downloaded episodes"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodder.ui.h:21 data/ui/maemo/gpodder.ui.h:19
+#, fuzzy
+msgid "Episode descriptions"
+msgstr "Епізод"
+
+#: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
+#, fuzzy
+msgid "Export to OPML file"
+msgstr "Експортувати в OPML"
+
+#: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
+msgid "Go to gpodder.org"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
+#, fuzzy
+msgid "Hide podcasts without episodes"
+msgstr "Немає нових епізодів"
+
+#: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
+#, fuzzy
+msgid "Import from OPML file"
+msgstr "Експортувати в OPML"
+
+#: data/ui/desktop/gpodder.ui.h:27
+#, fuzzy
+msgid "Limit downloads to"
+msgstr "Обмежити швидкість завантаження у "
+
+#: data/ui/desktop/gpodder.ui.h:28
+#, fuzzy
+msgid "Limit rate to"
+msgstr "Обмежити швидкість завантаження у "
+
+#: data/ui/desktop/gpodder.ui.h:29
+msgid "Manage device playlist"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:30 data/ui/maemo/gpodder.ui.h:27
+msgid "Open"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:31 data/ui/maemo/gpodder.ui.h:28
+#, fuzzy
+msgid "Play"
+msgstr "Програвач"
+
+#: data/ui/desktop/gpodder.ui.h:32 data/ui/maemo/gpodder.ui.h:29
+#, fuzzy
+msgid "Podcast settings"
+msgstr "Подкасти"
+
+#: data/ui/desktop/gpodder.ui.h:34 data/ui/maemo/gpodderpreferences.ui.h:5
+#: data/ui/maemo/gpodder.ui.h:31
+#, fuzzy
+msgid "Preferences"
+msgstr "_Налаштування"
+
+#: data/ui/desktop/gpodder.ui.h:35 data/ui/maemo/gpodder.ui.h:32
+msgid "Quit"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:37 data/ui/maemo/gpodder.ui.h:34
+msgid "Report a problem"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:38
+#, fuzzy
+msgid "Select and remove episodes from device"
+msgstr "Видалити подкасти з iPod?"
+
+#: data/ui/desktop/gpodder.ui.h:39 data/ui/maemo/gpodder.ui.h:35
+msgid "Send list via e-mail"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:40 data/ui/maemo/gpodder.ui.h:36
+#, fuzzy
+msgid "Show deleted episodes"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodder.ui.h:41 data/ui/maemo/gpodder.ui.h:37
+msgid "Show toolbar"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:42
+#, fuzzy
+msgid "Sync episodes to device"
+msgstr "Тип пристрою:"
+
+#: data/ui/desktop/gpodder.ui.h:43 data/ui/maemo/gpodder.ui.h:38
+msgid "T-Shirts and mugs"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:44
+msgid "Transfer"
+msgstr "Передати"
+
+#: data/ui/desktop/gpodder.ui.h:45 data/ui/maemo/gpodder.ui.h:39
+#, fuzzy
+msgid "Unplayed episodes"
+msgstr "Завантажити нові епізоди"
+
+#: data/ui/desktop/gpodder.ui.h:46 data/ui/maemo/gpodder.ui.h:40
+msgid "Unsubscribe"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:47 data/ui/maemo/gpodder.ui.h:42
+#, fuzzy
+msgid "Update podcast"
+msgstr "Програти обраний епізод"
+
+#: data/ui/desktop/gpodder.ui.h:48 data/ui/maemo/gpodder.ui.h:44
+msgid "Upload to my.gpodder.org"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:45
+msgid "User manual"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:50 data/ui/maemo/gpodder.ui.h:46
+#, fuzzy
+msgid "_Episodes"
+msgstr "Епізод"
+
+#: data/ui/desktop/gpodder.ui.h:51 data/ui/maemo/gpodder.ui.h:47
+msgid "_Help"
+msgstr "_Довідка"
+
+#: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
+msgid "_Podcasts"
+msgstr "Подкасти"
+
+#: data/ui/desktop/gpodder.ui.h:53 data/ui/maemo/gpodder.ui.h:49
+#, fuzzy
+msgid "_Subscriptions"
+msgstr "Опис"
+
+#: data/ui/desktop/gpodder.ui.h:54 data/ui/maemo/gpodder.ui.h:50
+msgid "_View"
+msgstr ""
+
+#: data/ui/desktop/gpodder.ui.h:55 data/ui/maemo/gpodder.ui.h:51
+msgid "kb/s"
+msgstr ""
+
+#: data/ui/maemo/gpodderchannel.ui.h:1
+msgid "Edit username/password"
+msgstr ""
+
+#: data/ui/maemo/gpodderchannel.ui.h:2
+msgid "Reload cover image"
+msgstr ""
+
+#: data/ui/maemo/gpodderchannel.ui.h:4
+#, fuzzy
+msgid "Set cover from file"
+msgstr "Немає нових епізодів"
+
+#: data/ui/maemo/gpodderepisodeselector.ui.h:1
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:2
+msgid "Invert selection"
+msgstr ""
+
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:1
+#, fuzzy
+msgid "Add new podcasts"
+msgstr "Додати новий канал"
+
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:3
+msgid "OPML file on the web"
+msgstr ""
+
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:4
+#, fuzzy
+msgid "Podcast Top 50"
+msgstr "Подкасти"
+
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:8
+#, fuzzy
+msgid "Subscribe"
+msgstr "Опис"
+
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:9
+msgid "YouTube user channel"
+msgstr ""
+
+#: data/ui/maemo/gpodderpreferences.ui.h:1
+msgid "Ask before closing gPodder"
+msgstr ""
+
+#: data/ui/maemo/gpodderpreferences.ui.h:2
+#, fuzzy
+msgid "Audio player:"
+msgstr "Програвач"
+
+#: data/ui/maemo/gpodderpreferences.ui.h:3
+msgid ""
+"Nokia Media Player\n"
+"MPlayer"
+msgstr ""
+
+#: data/ui/maemo/gpodderpreferences.ui.h:6
+msgid "Use gestures (single selection)"
+msgstr ""
+
+#: data/ui/maemo/gpodderpreferences.ui.h:7
+#, fuzzy
+msgid "Video player:"
+msgstr "Програвач"
+
+#: data/ui/maemo/gpoddershownotes.ui.h:1
+#, fuzzy
+msgid "Cancel download"
+msgstr "Скасувати завантаження?"
+
+#: data/ui/maemo/gpoddershownotes.ui.h:3
+#, fuzzy
+msgid "Pause download"
+msgstr "Скасувати завантаження?"
+
+#: data/ui/maemo/gpoddershownotes.ui.h:4
+#, fuzzy
+msgid "Resume download"
+msgstr "завантажень"
+
+#: data/ui/maemo/gpodder.ui.h:25
+#, fuzzy
+msgid "Limit DLs to"
+msgstr "Обмежити швидкість завантаження у "
+
+#: data/ui/maemo/gpodder.ui.h:26
+msgid "Max."
+msgstr ""
+
+#: data/ui/maemo/gpodder.ui.h:41
+#, fuzzy
+msgid "Update all"
+msgstr "Оновити фіди"
+
+#: data/ui/maemo/gpodder.ui.h:43
+#, fuzzy
+msgid "Update selected"
+msgstr "Програти обраний епізод"
+
+#: bin/gpodder:101
 msgid "Print debugging output to stdout"
 msgstr ""
 
-#: bin/gpodder:100
+#: bin/gpodder:105
 msgid "Start the Maemo user interface of gPodder"
 msgstr ""
 
-#: bin/gpodder:104
-msgid "List all channel subscriptions"
-msgstr ""
-
-#: bin/gpodder:108
-msgid "Update channel list, download new podcasts"
-msgstr ""
-
-#: bin/gpodder:112
-msgid "Update channel list and exit"
-msgstr "Оновити список каналів та вийти"
-
-#: bin/gpodder:116
-msgid "Synchronize channels to configured device"
-msgstr ""
-
-#: bin/gpodder:119
-msgid "Subscribe to channel from URL"
-msgstr ""
-
-#: bin/gpodder:122
-msgid "Delete channel specified by URL"
-msgstr "Видалити канал за його адресою"
-
-#: bin/gpodder:126
-msgid "Get sync statistics"
-msgstr ""
+#, fuzzy
+#~ msgid "Update the feed cache on startup."
+#~ msgstr "Оновити список каналів та вийти"
 
 #, fuzzy
-#~ msgid "Change to:"
-#~ msgstr "Список каналів"
+#~ msgid ""
+#~ "Only sync episodes to a device that have not been marked played in "
+#~ "gPodder."
+#~ msgstr "Синхронізувати тільки треки, що раніше не програвалися"
+
+#, fuzzy
+#~ msgid "After syncing an episode, delete it from gPodder."
+#~ msgstr "Програти обраний епізод"
+
+#, fuzzy
+#~ msgid "Call 'sync' after tranfering episodes to a device."
+#~ msgstr "Програти обраний епізод"
+
+#, fuzzy
+#~ msgid "Already added: %s"
+#~ msgstr "Вже додано"
+
+#, fuzzy
+#~ msgid "Could not remove podcast."
+#~ msgstr "Видалити подкасти"
+
+#, fuzzy
+#~ msgid "No new episodes to download."
+#~ msgstr "Немає епізодів для завантаження"
+
+#, fuzzy
+#~ msgid "Downloaded one new episode."
+#~ msgstr "Завантажити нові епізоди"
+
+#, fuzzy
+#~ msgid "Downloaded %d new episodes."
+#~ msgstr "Завантажити нові епізоди"
+
+#, fuzzy
+#~ msgid "No device configured. Please use the GUI."
+#~ msgstr "Пристрій не налаштовано"
+
+#, fuzzy
+#~ msgid "Synchronization finished."
+#~ msgstr "Синхронізацію завершено"
+
+#, fuzzy
+#~ msgid "Cannot open device."
+#~ msgstr "Не можу доступитись до пристрою"
+
+#, fuzzy
+#~ msgid "Skipping podcast: %s"
+#~ msgstr "Оновити фіди"
+
+#, fuzzy
+#~ msgid "Cannot close device."
+#~ msgstr "Не можу доступитись до пристрою"
+
+#, fuzzy
+#~ msgid "Size of episodes to sync: %s"
+#~ msgstr "Новий епізод: %s"
+
+#, fuzzy
+#~ msgid "%d downloading"
+#~ msgstr "завантажень"
+
+#, fuzzy
+#~ msgid "Loading episodes for %s"
+#~ msgstr "Новий епізод: %s"
+
+#~ msgid "Already added"
+#~ msgstr "Вже додано"
+
+#, fuzzy
+#~ msgid "Downloading episode list"
+#~ msgstr "Завантажити нові епізоди"
+
+#, fuzzy
+#~ msgid "Downloading episode information for %s"
+#~ msgstr "Завантажити нові епізоди"
+
+#, fuzzy
+#~ msgid "Downloading feed..."
+#~ msgstr "Завершую... зачекайте"
+
+#, fuzzy
+#~ msgid "Error adding podcast"
+#~ msgstr "Помилка при додаванні каналу"
+
+#, fuzzy
+#~ msgid ""
+#~ "The podcast could not be added. Please check the spelling of the URL or "
+#~ "try again later."
+#~ msgstr ""
+#~ "Не можу додати цей канал. Перевірте його адресу або спробуйте пізніше"
+
+#, fuzzy
+#~ msgid "Cannot connect to server"
+#~ msgstr "Не можу доступитись до пристрою"
+
+#, fuzzy
+#~ msgid "Do you really want to delete this episode?"
+#~ msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
+
+#, fuzzy
+#~ msgid "Do you really want to delete %d episodes?"
+#~ msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
+
+#, fuzzy
+#~ msgid "Migration finished in %s"
+#~ msgstr "Синхронізацію завершено"
+
+#, fuzzy
+#~ msgid "No new episodes available for download"
+#~ msgstr "Доступні нові епізоди"
+
+#, fuzzy
+#~ msgid "Import podcasts from Video Center"
+#~ msgstr "Імпортувати з інтернету"
+
+#~ msgid "Error moving downloads"
+#~ msgstr "Помилка під-час переміщення завантажень"
+
+#~ msgid "Finishing... please wait."
+#~ msgstr "Завершую... зачекайте"
+
+#, fuzzy
+#~ msgid "One episode selected"
+#~ msgstr "Нічого не обрано"
+
+#, fuzzy
+#~ msgid "%d episodes selected"
+#~ msgstr "Нічого не обрано"
+
+#, fuzzy
+#~ msgid "Writing changes to database"
+#~ msgstr "Збереження даних на диск"
+
+#, fuzzy
+#~ msgid "Fixing episodes in %s"
+#~ msgstr "Новий епізод: %s"
+
+#, fuzzy
+#~ msgid "Enable episode list gestures"
+#~ msgstr "Нічого не обрано"
+
+#, fuzzy
+#~ msgid "Export podcasts to OPML file"
+#~ msgstr "Експортувати в OPML"
+
+#, fuzzy
+#~ msgid "Import subscriptions from Video Center"
+#~ msgstr "Опис"
+
+#, fuzzy
+#~ msgid "Search for podcasts"
+#~ msgstr "Перевірити наявність оновленнь"
+
+#, fuzzy
+#~ msgid "Subscribe to new podcast URL"
+#~ msgstr "Додати новий канал"
+
+#, fuzzy
+#~ msgid "Unsubscribe from selected podcast"
+#~ msgstr "Передати обрані епізоди"
+
+#~ msgid "Update channel list and exit"
+#~ msgstr "Оновити список каналів та вийти"
+
+#~ msgid "Delete channel specified by URL"
+#~ msgstr "Видалити канал за його адресою"
 
 #, fuzzy
 #~ msgid "Converting file"
@@ -2779,10 +2704,6 @@ msgstr ""
 #~ msgid "Update feed cache on startup"
 #~ msgstr "Оновити список каналів та вийти"
 
-#, fuzzy
-#~ msgid "Cancel download"
-#~ msgstr "Скасувати завантаження?"
-
 #~ msgid "Cancel download?"
 #~ msgstr "Скасувати завантаження?"
 
@@ -2792,10 +2713,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "downloading one episode"
 #~ msgstr "Завантажити нові епізоди"
-
-#, fuzzy
-#~ msgid "downloading %d episodes"
-#~ msgstr "Помилка при завантаженні %s."
 
 #, fuzzy
 #~ msgid "%s (completed)"
@@ -2867,9 +2784,6 @@ msgstr ""
 #~ msgid "Could not load channel feed from URL: %s"
 #~ msgstr "Не можу додати канал."
 
-#~ msgid "Player"
-#~ msgstr "Програвач"
-
 #~ msgid "Channel"
 #~ msgstr "Канал"
 
@@ -2901,10 +2815,6 @@ msgstr ""
 #~ msgstr "_Налаштування"
 
 #, fuzzy
-#~ msgid "Edit %s"
-#~ msgstr "Редагувати \"%s\""
-
-#, fuzzy
 #~ msgid "Episode information: %s"
 #~ msgstr "Інформація про епізод"
 
@@ -2913,19 +2823,11 @@ msgstr ""
 #~ msgstr "Програвач"
 
 #, fuzzy
-#~ msgid "Download %s"
-#~ msgstr "Завантажити %s?"
-
-#, fuzzy
 #~ msgid "Unlock %s"
 #~ msgstr "Завантажити %s?"
 
 #~ msgid "%d of %d channels updated"
 #~ msgstr "%d·з·%d каналів оновлено"
-
-#~ msgid ""
-#~ "Do you really want to completely remove all episodes from your MP3 player?"
-#~ msgstr "Ви дійсно бажаєте видалити всі епізоди з свого програвача MP3?"
 
 #~ msgid "Download new episodes?"
 #~ msgstr "Завантажити нові епізоди?"
@@ -2938,9 +2840,6 @@ msgstr ""
 
 #~ msgid "Device cleaned"
 #~ msgstr "Пристрій очищено"
-
-#~ msgid "Podcasts removed"
-#~ msgstr "Подкаст видалено"
 
 #~ msgid "An error has occurred"
 #~ msgstr "Сталася помилка"
@@ -2961,9 +2860,6 @@ msgstr ""
 
 #~ msgid "Waiting for iPod"
 #~ msgstr "Чекаю на iPod"
-
-#~ msgid "Done: %s"
-#~ msgstr "Виконано: %s"
 
 #~ msgid "Removing files"
 #~ msgstr "Видалення файлів"
