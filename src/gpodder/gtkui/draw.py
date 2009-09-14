@@ -92,21 +92,22 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text):
     ctx.show_text(text)
 
 
-def draw_text_pill(left_text, right_text, x=0, y=0, border=4, radius=14):
+def draw_text_pill(left_text, right_text, x=0, y=0, border=5, radius=14):
     # Create temporary context to calculate the text size
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
 
     # Use GTK+ style of a normal Button
-    widget = gtk.ProgressBar()
+    widget = gtk.Button()
     style = widget.rc_get_style()
 
-    x_border = int(border*1.2)
+    x_border = border
 
     font_desc = style.font_desc
-    font_size = float(1.15*font_desc.get_size())/float(pango.SCALE)
+    font_size = 1.2*float(font_desc.get_size())/float(pango.SCALE)
     font_name = font_desc.get_family()
 
-    ctx.set_font_size(font_size)
+    xd, yd = ctx.device_to_user(font_size, font_size)
+    ctx.set_font_size((xd+yd)/2)
     ctx.select_font_face(font_name, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
 
     left_text_e = TextExtents(ctx, left_text)
@@ -134,11 +135,22 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=4, radius=14):
     if left_text is not None:
         draw_rounded_rectangle(ctx,x,y,rect_width,rect_height,radius, left_side_width, RRECT_LEFT_SIDE, right_text is None)
         linear = cairo.LinearGradient(x, y, x+left_side_width/2, y+rect_height/2)
-        linear.add_color_stop_rgba(0, .7, .7, .7, .5)
-        linear.add_color_stop_rgba(1, .4, .4, .4, .5)
+        linear.add_color_stop_rgba(0, .8, .8, .8, .5)
+        linear.add_color_stop_rgba(.4, .8, .8, .8, .7)
+        linear.add_color_stop_rgba(.6, .8, .8, .8, .6)
+        linear.add_color_stop_rgba(.9, .8, .8, .8, .8)
+        linear.add_color_stop_rgba(1, .8, .8, .8, .9)
         ctx.set_source(linear)
-        ctx.fill_preserve()
-        ctx.set_source_rgba(0, 0, 0, .4)
+        ctx.fill()
+        xpos, ypos, width_left, height = x+1, y+1, left_side_width, rect_height-2
+        if right_text is None:
+            width_left -= 2
+        draw_rounded_rectangle(ctx, xpos, ypos, rect_width, height, radius, width_left, RRECT_LEFT_SIDE, right_text is None)
+        ctx.set_source_rgba(1., 1., 1., .3)
+        ctx.set_line_width(1)
+        ctx.stroke()
+        draw_rounded_rectangle(ctx,x,y,rect_width,rect_height,radius, left_side_width, RRECT_LEFT_SIDE, right_text is None)
+        ctx.set_source_rgba(.2, .2, .2, .6)
         ctx.set_line_width(1)
         ctx.stroke()
 
@@ -152,11 +164,22 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=4, radius=14):
     if right_text is not None:
         draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
         linear = cairo.LinearGradient(x+left_side_width, y, x+left_side_width+right_side_width/2, y+rect_height)
-        linear.add_color_stop_rgba(0, 0, 0, 0, .9)
-        linear.add_color_stop_rgba(1, 0, 0, 0, .5)
+        linear.add_color_stop_rgba(0, .2, .2, .2, .9)
+        linear.add_color_stop_rgba(.4, .2, .2, .2, .8)
+        linear.add_color_stop_rgba(.6, .2, .2, .2, .6)
+        linear.add_color_stop_rgba(.9, .2, .2, .2, .7)
+        linear.add_color_stop_rgba(1, .2, .2, .2, .5)
         ctx.set_source(linear)
-        ctx.fill_preserve()
-        ctx.set_source_rgba(0, 0, 0, .7)
+        ctx.fill()
+        xpos, ypos, width, height = x, y+1, rect_width-1, rect_height-2
+        if left_text is None:
+            xpos, width = x+1, rect_width-2
+        draw_rounded_rectangle(ctx, xpos, ypos, width, height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
+        ctx.set_source_rgba(1., 1., 1., .3)
+        ctx.set_line_width(1)
+        ctx.stroke()
+        draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
+        ctx.set_source_rgba(.1, .1, .1, .6)
         ctx.set_line_width(1)
         ctx.stroke()
 
