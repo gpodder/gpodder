@@ -358,7 +358,9 @@ class Config(dict):
         for key, value in self.Settings.items():
             fieldtype, default = value[:2]
             try:
-                if fieldtype == int:
+                if not parser.has_section(self.__section):
+                    value = default
+                elif fieldtype == int:
                     value = parser.getint(self.__section, key)
                 elif fieldtype == float:
                     value = parser.getfloat(self.__section, key)
