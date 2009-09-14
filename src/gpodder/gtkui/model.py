@@ -434,6 +434,10 @@ class PodcastListModel(gtk.ListStore):
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
 
+    def update_all(self):
+        for row in self:
+            self.update_by_iter(row.iter)
+
     def update_by_iter(self, iter):
         # Given a GtkTreeIter, update volatile information
         channel = self.get_value(iter, self.C_CHANNEL)

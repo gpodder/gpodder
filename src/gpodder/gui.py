@@ -1513,10 +1513,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # we can keep the model, but have to update some
             if urls is None:
                 # still cheaper than reloading the whole list
-                iter = model.get_iter_first()
-                while iter is not None:
-                    self.podcast_list_model.update_by_filter_iter(iter)
-                    iter = model.iter_next(iter)
+                self.podcast_list_model.update_all()
             else:
                 # ok, we got a bunch of urls to update
                 self.podcast_list_model.update_by_urls(urls)
@@ -1541,7 +1538,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                         pos = model.iter_next(pos)
 
-                selection.select_iter(selected_iter)
+                if selected_iter is not None:
+                    selection.select_iter(selected_iter)
                 self.on_treeChannels_cursor_changed(self.treeChannels)
             except:
                 log('Cannot select podcast in list', traceback=True, sender=self)
