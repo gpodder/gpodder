@@ -31,6 +31,9 @@ from distutils.core import setup
 sys.path.insert(0, 'src')
 import gpodder
 
+# if we are running "setup.py sdist", include all targets (see below)
+building_source = ('sdist' in sys.argv)
+
 # build target
 if 'TARGET' in os.environ:
     if os.environ['TARGET'].strip().lower() == 'maemo':
@@ -81,7 +84,7 @@ packages = [
 ]
 
 # target-specific installation data files
-if target == DEFAULT:
+if target == DEFAULT or building_source:
     data_files += [
       ('share/gpodder/ui/desktop', inst_share_ui_desktop),
       ('share/applications', inst_desktop),
@@ -95,7 +98,8 @@ if target == DEFAULT:
       'gpodder.gtkui.desktop',
     ]
     additional_scripts = []
-elif target == MAEMO:
+
+if target == MAEMO or building_source:
     data_files += [
       ('share/gpodder/ui/maemo', inst_share_ui_maemo),
       ('share/applications/hildon', inst_desktop_maemo),
