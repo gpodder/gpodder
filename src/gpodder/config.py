@@ -44,184 +44,184 @@ else:
 gPodderSettings = {
     # General settings
     'player': (str, 'default', 
-      _("The default player for all media, if set to 'default' this will "
+      ("The default player for all media, if set to 'default' this will "
         "attempt to use xdg-open on linux or the built-in media player on maemo.")),
     'videoplayer': (str, 'default',
-      _("The default player for video")),
+      ("The default player for video")),
     'opml_url': (str, 'http://gpodder.org/directory.opml',
-      _("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
+      ("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
     'toplist_url': (str, 'http://gpodder.org/toplist.opml',
-      _("A URL pointing to a gPodder web services top podcasts list")),
+      ("A URL pointing to a gPodder web services top podcasts list")),
     'custom_sync_name': ( str, '{episode.basename}',
-      _("The name used when copying a file to a FS-based device. Available "
+      ("The name used when copying a file to a FS-based device. Available "
         "options are: episode.basename, episode.title, episode.published")),
     'custom_sync_name_enabled': ( bool, True,
-      _("Enables renaming files when transfered to an FS-based device with "
+      ("Enables renaming files when transfered to an FS-based device with "
         "respect to the 'custom_sync_name'.")),
     'max_downloads': ( int, 1,
-      _("The maximum number of simultaneous downloads allowed at a single "
+      ("The maximum number of simultaneous downloads allowed at a single "
         "time. Requires 'max_downloads_enabled'.")),
     'max_downloads_enabled': ( bool, True,
-      _("The 'max_downloads' setting will only work if this is set to 'True'.")), 
+      ("The 'max_downloads' setting will only work if this is set to 'True'.")), 
     'limit_rate': ( bool, False,
-      _("The 'limit_rate_value' setting will only work if this is set to 'True'.")),
+      ("The 'limit_rate_value' setting will only work if this is set to 'True'.")),
     'limit_rate_value': ( float, 500.0,
-      _("Set a global speed limit (in KB/s) when downloading files. "
+      ("Set a global speed limit (in KB/s) when downloading files. "
         "Requires 'limit_rate'.")),
     'episode_old_age': ( int, 7,
-      _("The number of days before an episode is considered old. "
+      ("The number of days before an episode is considered old. "
         "Must be used in conjunction with 'auto_remove_old_episodes'.")),
 
     # Boolean config flags
     'update_on_startup': ( bool, False,
-      _("Update the feed cache on startup.")),
+      ("Update the feed cache on startup.")),
     'only_sync_not_played': ( bool, False,
-      _("Only sync episodes to a device that have not been marked played in gPodder.")),
+      ("Only sync episodes to a device that have not been marked played in gPodder.")),
     'fssync_channel_subfolders': ( bool, True,
-      _("Create a directory for every feed when syncing to an FS-based device "
+      ("Create a directory for every feed when syncing to an FS-based device "
         "instead of putting all the episodes in a single directory.")),
     'on_sync_mark_played': ( bool, False,
-      _("After syncing an episode, mark it as played in gPodder.")),
+      ("After syncing an episode, mark it as played in gPodder.")),
     'on_sync_delete': ( bool, False,
-      _("After syncing an episode, delete it from gPodder.")),
+      ("After syncing an episode, delete it from gPodder.")),
     'auto_remove_old_episodes': ( bool, False,
-      _("Remove episodes older than 'episode_old_age' days on startup.")),
+      ("Remove episodes older than 'episode_old_age' days on startup.")),
     'auto_update_feeds': (bool, False,
-      _("Automatically update feeds when gPodder is minimized. "
+      ("Automatically update feeds when gPodder is minimized. "
         "See 'auto_update_frequency' and 'auto_download'.")),
     'auto_update_frequency': (int, 20,
-      _("The frequency (in minutes) at which gPodder will update all feeds "
+      ("The frequency (in minutes) at which gPodder will update all feeds "
         "if 'auto_update_feeds' is enabled.")),
     'episode_list_descriptions': (bool, True,
-      _("Display the episode's description under the episode title in the GUI.")),
+      ("Display the episode's description under the episode title in the GUI.")),
     'show_toolbar': (bool, True,
-      _("Show the toolbar in the GUI's main window.")),
+      ("Show the toolbar in the GUI's main window.")),
     'ipod_purge_old_episodes': (bool, False,
-      _("Remove episodes from an iPod device if they've been marked as played "
+      ("Remove episodes from an iPod device if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
         "the device by the user to prevent deletion).")),
     'ipod_delete_played_from_db': (bool, False,
-      _("Remove episodes from gPodder if they've been marked as played "
+      ("Remove episodes from gPodder if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
         "the device by the user to prevent deletion).")),
     'mp3_player_delete_played': (bool, False,
-      _("Removes episodes from an FS-based device that have been marked as "
+      ("Removes episodes from an FS-based device that have been marked as "
         "played in gPodder. Note: only works if 'only_sync_not_played' is "
         "also enabled.")),
     'disable_pre_sync_conversion': (bool, False,
-      _("Disable pre-synchronization conversion of OGG files. This should be "
+      ("Disable pre-synchronization conversion of OGG files. This should be "
         "enabled for deviced that natively support OGG. Eg. Rockbox, iAudio")),
     
     # Tray icon and notification settings
     'display_tray_icon': (bool, False,
-      _("Whether or not gPodder should display an icon in the system tray.")),
+      ("Whether or not gPodder should display an icon in the system tray.")),
     'minimize_to_tray': (bool, False,
-      _("If 'display_tray_icon' is enabled, when gPodder is minimized it will "
+      ("If 'display_tray_icon' is enabled, when gPodder is minimized it will "
         "not be visible in the window list.")),  
     'start_iconified': (bool, False,
-      _("When gPodder starts, send it to the tray immediately.")),
+      ("When gPodder starts, send it to the tray immediately.")),
     'enable_notifications': (bool, True,
-      _("Let gPodder use notification bubbles when it can completed certain "
+      ("Let gPodder use notification bubbles when it can completed certain "
         "tasks like downloading an episode or finishing syncing to a device.")),
     'on_quit_ask': (bool, True,
-      _("Ask the user to confirm quitting the application.")),
+      ("Ask the user to confirm quitting the application.")),
     'auto_download': (str, 'never',
-      _("Auto download episodes (never, minimized, always)")),
+      ("Auto download episodes (never, minimized, always)")),
     'do_not_show_new_episodes_dialog': (bool, False,
-      _("Do not show the new episodes dialog after updating feed cache when "
+      ("Do not show the new episodes dialog after updating feed cache when "
         "gPodder is not minimized")),
 
 
     # Settings that are updated directly in code
     'ipod_mount': ( str, '/media/ipod',
-      _("The moint point for an iPod Device.")),
+      ("The moint point for an iPod Device.")),
     'mp3_player_folder': ( str, '/media/usbdisk',
-      _("The moint point for an FS-based device.")),
+      ("The moint point for an FS-based device.")),
     'device_type': ( str, 'none',
-      _("The device type: 'mtp', 'filesystem' or 'ipod'")),
+      ("The device type: 'mtp', 'filesystem' or 'ipod'")),
     'download_dir': (str, default_download_dir,
-      _("The default directory that podcast episodes are downloaded to.")),
+      ("The default directory that podcast episodes are downloaded to.")),
 
     # Playlist Management settings
     'mp3_player_playlist_file': (str, 'PLAYLISTS/gpodder.m3u',
-      _("The relative path to where the playlist is stored on an FS-based device.")),
+      ("The relative path to where the playlist is stored on an FS-based device.")),
     'mp3_player_playlist_absolute_path': (bool, True,
-      _("Whether or not the the playlist should contain relative or absolute "
+      ("Whether or not the the playlist should contain relative or absolute "
         "paths; this is dependent on the player.")),
     'mp3_player_playlist_win_path': (bool, True,
-      _("Whether or not the player requires Windows-style paths in the playlist.")),
+      ("Whether or not the player requires Windows-style paths in the playlist.")),
 
     # Special settings (not in preferences)
     'on_quit_systray': (bool, False,
-      _("When the 'X' button is clicked do not quit, send gPodder to the tray.")),
+      ("When the 'X' button is clicked do not quit, send gPodder to the tray.")),
     'max_episodes_per_feed': (int, 200,
-      _("The maximum number of episodes that gPodder will display in the episode "
+      ("The maximum number of episodes that gPodder will display in the episode "
         "list. Note: Set this to a lower value on slower hardware to speed up "
         "rendering of the episode list.")),
     'mp3_player_use_scrobbler_log': (bool, False,
-      _("Attempt to use a Device's scrobbler.log to mark episodes as played in "
+      ("Attempt to use a Device's scrobbler.log to mark episodes as played in "
         "gPodder. Useful for Rockbox players.")),
     'mp3_player_max_filename_length': (int, 100,
-      _("The maximum filename length for FS-based devices.")),
+      ("The maximum filename length for FS-based devices.")),
     'rockbox_copy_coverart' : (bool, False,
-      _("Create rockbox-compatible coverart and copy it to the device when "
+      ("Create rockbox-compatible coverart and copy it to the device when "
         "syncing. See: 'rockbox_coverart_size'.")),
     'rockbox_coverart_size' : (int, 100,
-      _("The width of the coverart for the user's Rockbox player/skin.")),
+      ("The width of the coverart for the user's Rockbox player/skin.")),
     'custom_player_copy_coverart' : (bool, False,
-      _("Create custom coverart for FS-based players.")),
+      ("Create custom coverart for FS-based players.")),
     'custom_player_coverart_size' : (int, 176,
-      _("The width of the coverart for the user's FS-based player.")),
+      ("The width of the coverart for the user's FS-based player.")),
     'custom_player_coverart_name' : (str, 'folder.jpg',
-      _("The name of the coverart file accepted by the user's FS-based player.")),
+      ("The name of the coverart file accepted by the user's FS-based player.")),
     'custom_player_coverart_format' : (str, 'JPEG',
-      _("The image format accepted by the user's FS-based player.")),
+      ("The image format accepted by the user's FS-based player.")),
     'podcast_list_icon_size': (int, 32,
-      _("The width of the icon used in the podcast channel list.")),
+      ("The width of the icon used in the podcast channel list.")),
     'cmd_all_downloads_complete': (str, '',
-      _("The path to a command that gets run after all downloads are completed.")),
+      ("The path to a command that gets run after all downloads are completed.")),
     'cmd_download_complete': (str, '',
-      _("The path to a command that gets run after a single download completes. "
+      ("The path to a command that gets run after a single download completes. "
         "See http://wiki.gpodder.org/wiki/Time_stretching for more info.")),
     'enable_html_shownotes': (bool, True,
-      _("Allow HTML to be rendered in the episode information dialog.")),
+      ("Allow HTML to be rendered in the episode information dialog.")),
     'maemo_enable_gestures': (bool, False,
-      _("Enable fancy gestures on Maemo.")),
+      ("Enable fancy gestures on Maemo.")),
     'sync_disks_after_transfer': (bool, True,
-      _("Call 'sync' after tranfering episodes to a device.")),
+      ("Call 'sync' after tranfering episodes to a device.")),
     'resume_ask_every_episode': (bool, False,
-      _("If there are episode downloads that can be resumed, ask whether or "
+      ("If there are episode downloads that can be resumed, ask whether or "
         "not to resume every single one.")),
     'enable_fingerscroll': (bool, False,
-      _("Enable the use of finger-scrollable widgets on Maemo.")),
+      ("Enable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',
-      _("Episode double-click/enter action handler (shownotes, download, stream)")),
+      ("Episode double-click/enter action handler (shownotes, download, stream)")),
 
     'feed_update_skipping': (bool, True,
-      _('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
+      ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
 
     'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)
-      _('Internally used (current view mode)')),
+      ('Internally used (current view mode)')),
     'podcast_list_hide_boring': (bool, False,
-      _('Hide podcasts in the main window for which the episode list is empty')),
+      ('Hide podcasts in the main window for which the episode list is empty')),
 
     'audio_played_dbus': (bool, False,
-      _('Set to True if the audio player notifies gPodder about played episodes')),
+      ('Set to True if the audio player notifies gPodder about played episodes')),
     'video_played_dbus': (bool, False,
-      _('Set to True if the video player notifies gPodder about played episodes')),
+      ('Set to True if the video player notifies gPodder about played episodes')),
 
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',
-      _("The user's gPodder web services username.")),
+      ("The user's gPodder web services username.")),
     'my_gpodder_password': (str, '',
-      _("The user's gPodder web services password.")),
+      ("The user's gPodder web services password.")),
     'my_gpodder_autoupload': (bool, False,
-      _("Upload the user's podcast list to the gPodder web services when "
+      ("Upload the user's podcast list to the gPodder web services when "
         "gPodder is closed.")),
 
     # Paned position
     'paned_position': ( int, 200,
-      _("The width of the channel list.")),
+      ("The width of the channel list.")),
 }
 
 # Helper function to add window-specific properties (position and size)
