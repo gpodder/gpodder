@@ -1419,6 +1419,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.toolCancel.set_sensitive(True)
             return
 
+        if self.currently_updating:
+            return (False, False, False, False, False, False)
+
         ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
         ( is_played, is_locked ) = (False,)*2
 
@@ -1560,8 +1563,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 banner = None
 
             self.currently_updating = True
+            self.episode_list_model.clear()
             def do_update_episode_list_model():
-                self.episode_list_model.update_from_channel(\
+                self.episode_list_model.add_from_channel(\
                         self.active_channel, \
                         self.episode_is_downloading, \
                         self.config.episode_list_descriptions \
@@ -1571,8 +1575,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if banner is not None:
                         banner.destroy()
                     self.treeAvailable.columns_autosize()
-                    self.play_or_download()
                     self.currently_updating = False
+                    self.play_or_download()
                 util.idle_add(on_episode_list_model_updated)
             threading.Thread(target=do_update_episode_list_model).start()
         else:

@@ -110,16 +110,14 @@ class EpisodeListModel(gtk.ListStore):
         return self._view_mode
 
 
-    def update_from_channel(self, channel, downloading=None, \
+    def add_from_channel(self, channel, downloading=None, \
             include_description=False):
         """
-        Return a gtk.ListStore containing episodes for the given channel.
+        Add episode from the given channel to this model.
         Downloading should be a callback.
         include_description should be a boolean value (True if description
         is to be added to the episode row, or False if not)
         """
-        self.clear()
-
         def insert_and_update(episode):
             description = episode.format_episode_row_markup(include_description)
             description_stripped = util.remove_html_tags(episode.description)
