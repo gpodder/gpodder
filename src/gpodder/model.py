@@ -783,7 +783,7 @@ class PodcastEpisode(PodcastModelObject):
         next_try_id = 2
         lookup_url = None
 
-        if self.filename == current_try:
+        if self.filename == current_try and current_try is not None:
             # We already have this filename - good!
             return current_try
 
@@ -912,8 +912,11 @@ class PodcastEpisode(PodcastModelObject):
                 else:
                     log('Warning: %s exists or %s does not.', new_file_name, old_file_name, sender=self)
                 log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
+            elif self.filename is None:
+                log('Setting filename to "%s".', wanted_filename, sender=self)
             else:
-                log('Should update filename. Stays the same. Good!', sender=self)
+                log('Should update filename. Stays the same (%s). Good!', \
+                        wanted_filename, sender=self)
             self.filename = wanted_filename
             self.save()
             self.db.commit()

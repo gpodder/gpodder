@@ -64,6 +64,8 @@ def get_header_param(headers, param, header_name):
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             value = msg.get_param(param, header=header_name)
+            if value is None:
+                return None
             decoded_list = email.Header.decode_header(value)
             value = []
             for part, encoding in decoded_list:
