@@ -159,6 +159,10 @@ class BuilderWidget(GtkBuilderWidget):
         elif gpodder.ui.fremantle:
             import hildon
             if important:
+                if title is None:
+                    message = message
+                else:
+                    message = '%s\n%s' % (title, message)
                 dlg = hildon.hildon_note_new_information(self.main_window, \
                         message)
                 dlg.run()
@@ -260,15 +264,28 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False):
         dialog = gtk.Dialog(title, self.main_window, \
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, \
-            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, \
-             gtk.STOCK_OK, gtk.RESPONSE_OK))
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+        
+        if gpodder.ui.fremantle:
+            import hildon
+            button = hildon.Button(gtk.HILDON_SIZE_AUTO_WIDTH | \
+                    gtk.HILDON_SIZE_FINGER_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
+            button.set_text(_('OK'), '')
+            dialog.add_action_widget(button, gtk.RESPONSE_OK)
+        else:
+            cancel_button = dialog.add_button(gtk.STOCK_CANCEL, \
+                    gtk.RESPONSE_CANCEL)
+            ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.set_has_separator(False)
         dialog.set_default_size(650, -1)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
-        text_entry = gtk.Entry()
+        if gpodder.ui.fremantle:
+            import hildon
+            text_entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
+        else:
+            text_entry = gtk.Entry()
         text_entry.set_activates_default(True)
         if text is not None:
             text_entry.set_text(text)
@@ -283,7 +300,8 @@ class BuilderWidget(GtkBuilderWidget):
                 dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
 
         hbox = gtk.HBox()
-        hbox.set_border_width(10)
+        if not gpodder.ui.fremantle:
+            hbox.set_border_width(10)
         hbox.set_spacing(10)
         hbox.pack_start(gtk.Label(prompt), False, False)
         hbox.pack_start(text_entry, True, True)

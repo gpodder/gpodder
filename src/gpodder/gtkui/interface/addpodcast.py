@@ -42,6 +42,8 @@ class gPodderAddPodcast(BuilderWidget):
             self.btn_add.set_label(self.btn_add_stock_id)
             self.btn_add.set_use_stock(True)
         self.entry_url.connect('activate', self.on_entry_url_activate)
+        if gpodder.ui.fremantle:
+            self.btn_add.set_name('HildonButton-finger')
         self.gPodderAddPodcast.show()
 
     def on_btn_close_clicked(self, widget):

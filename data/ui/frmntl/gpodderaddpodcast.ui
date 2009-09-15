@@ -8,31 +8,9 @@
       <object class="GtkVBox" id="vboxmain">
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hbuttonbox">
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
             <child>
-              <object class="GtkButton" id="btn_paste">
-                <property name="label">gtk-paste</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_btn_paste_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="padding">0</property>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="secondary">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_close">
-                <property name="visible">True</property>
-                <property name="label">gtk-cancel</property>
-                <property name="use_stock">True</property>
-                <signal handler="on_btn_close_clicked" name="clicked"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_add">
+              <object class="HildonButton" id="btn_add">
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <property name="visible">True</property>
                 <property name="sensitive">false</property>
                 <property name="label">gtk-add</property>
@@ -44,13 +22,11 @@
           <packing>
             <property name="padding">0</property>
             <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="fill">False</property>
           </packing>
         </child>
         <child>
           <object class="GtkHBox" id="hboxurlentry">
-            <property name="border_width">10</property>
             <property name="visible">True</property>
             <property name="homogeneous">False</property>
             <property name="spacing">5</property>
@@ -66,7 +42,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_url">
+              <object class="HildonEntry" id="entry_url">
+                <property name="size">HILDON_SIZE_AUTO</property>
                 <property name="visible">True</property>
                 <property name="has_focus">True</property>
                 <property name="activates_default">True</property>

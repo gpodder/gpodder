@@ -110,6 +110,7 @@ if target == MAEMO or building_source:
     ]
     packages += [
       'gpodder.gtkui.maemo',
+      'gpodder.gtkui.frmntl',
     ]
     additional_scripts = [
       'data/maemo/gpodder-mplayer',

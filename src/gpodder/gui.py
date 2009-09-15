@@ -105,12 +105,19 @@ if gpodder.ui.desktop:
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
     from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
-elif gpodder.ui.maemo:
+elif gpodder.ui.diablo:
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
     from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
+    have_trayicon = False
+elif gpodder.ui.fremantle:
+    from gpodder.gtkui.maemo.channel import gPodderChannel
+    from gpodder.gtkui.maemo.preferences import gPodderPreferences
+    from gpodder.gtkui.maemo.shownotes import gPodderShownotes
+    from gpodder.gtkui.frmntl.episodeselector import gPodderEpisodeSelector
+    from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
     have_trayicon = False
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
@@ -2238,7 +2245,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                stock_ok_button = 'gpodder-download', \
                                callback=self.download_episode_list, \
                                remove_callback=lambda e: e.mark_old(), \
-                               remove_action=_('Never download'), \
+                               remove_action=_('Mark as old'), \
                                remove_finished=self.episode_new_status_changed, \
                                _config=self.config, \
                                show_notification=show_notification)

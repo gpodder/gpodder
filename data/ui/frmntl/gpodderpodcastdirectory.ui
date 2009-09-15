@@ -50,7 +50,8 @@
             <property name="border-width">0</property>
             <property name="layout-style">end</property>
             <child>
-              <object class="GtkButton" id="button_subscribe">
+              <object class="HildonButton" id="button_subscribe">
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                 <property name="visible">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
@@ -102,11 +103,6 @@
   <object class="GtkAction" id="action_select_none">
     <property name="label" translatable="yes">Select none</property>
     <signal name="activate" handler="on_select_none_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_invert_selection">
-    <property name="label" translatable="yes">Invert selection</property>
-    <property name="stock_id">gtk-refresh</property>
-    <signal name="activate" handler="on_invert_selection_button_clicked"/>
   </object>
   <object class="GtkAction" id="action_close">
     <property name="stock_id">gtk-close</property>

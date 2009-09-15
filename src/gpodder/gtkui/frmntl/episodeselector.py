@@ -18,11 +18,11 @@
 #
 
 import gtk
+import hildon
 import pango
 from xml.sax import saxutils
 
 import gpodder
-
 _ = gpodder.gettext
 
 from gpodder import util
@@ -87,7 +87,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                            over an episode (default is 'description')
                            
     """
-    finger_friendly_widgets = ['btnRemoveAction', 'btnCancel', 'btnOK']
+    finger_friendly_widgets = ['btnRemoveAction', 'btnOK']
     
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
@@ -136,8 +136,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.gPodderEpisodeSelector.set_title( self.title)
 
         if hasattr(self, 'instructions'):
-            self.labelInstructions.set_text( self.instructions)
-            self.labelInstructions.show_all()
+            self.show_message(self.instructions)
 
         if self.remove_callback is not None:
             self.btnRemoveAction.show()
@@ -151,6 +150,10 @@ class gPodderEpisodeSelector(BuilderWidget):
                 self.btnOK.set_label(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
+        # Work around Maemo bug #4718
+        self.btnOK.set_name('HildonButton-finger')
+        self.btnRemoveAction.set_name('HildonButton-finger')
+
         # Make sure the window comes up quick
         self.main_window.show()
         self.main_window.present()
@@ -160,10 +163,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         if getattr(self, 'show_notification', False) and hasattr(self, 'title'):
             self.show_message(self.title)
 
-        toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.set_fixed_size(50, -1)
-        self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
-        
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = gtk.CellRendererText()
@@ -227,32 +226,26 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         selection = self.treeviewEpisodes.get_selection()
         selection.connect('changed', self.on_selection_changed)
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.unselect_all()
 
-        menu = gtk.Menu()
-        menu.append(self.action_select_all.create_menu_item())
-        menu.append(self.action_select_none.create_menu_item())
-        menu.append(gtk.SeparatorMenuItem())
-        menu.append(self.action_invert_selection.create_menu_item())
-        menu.append(gtk.SeparatorMenuItem())
-
-        self.treeviewEpisodes.connect('button-release-event', \
-                self.on_treeview_button_release)
+        appmenu = hildon.AppMenu()
+        for action in (self.action_select_all, \
+                       self.action_select_none):
+            button = gtk.Button()
+            action.connect_proxy(button)
+            appmenu.append(button)
 
         if self.selection_buttons:
             for label in self.selection_buttons:
-                item = gtk.MenuItem(label)
-                item.connect('activate', self.custom_selection_button_clicked, label)
-                menu.append(item)
-            menu.append(gtk.SeparatorMenuItem())
+                button = gtk.Button(label)
+                button.connect('clicked', self.custom_selection_button_clicked, label)
+                appmenu.append(button)
 
-        menu.append(self.action_close.create_menu_item())
-        self.main_window.set_menu(self.set_finger_friendly(menu))
+        appmenu.show_all()
+        self.main_window.set_app_menu(appmenu)
 
     def on_selection_changed(self, selection):
-        model, iter = selection.get_selected()
-        if iter is not None:
-            model.set_value(iter, self.COLUMN_TOGGLE, \
-                    not model.get_value(iter, self.COLUMN_TOGGLE))
         self.calculate_total_size()
 
     def on_treeview_button_release(self, widget, event):
@@ -260,18 +253,13 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.on_selection_changed(widget.get_selection())
 
     def on_select_all_button_clicked(self, widget):
-        for row in self.model:
-            row[self.COLUMN_TOGGLE] = True
+        selection = self.treeviewEpisodes.get_selection()
+        selection.select_all()
         self.calculate_total_size()
 
     def on_select_none_button_clicked(self, widget):
-        for row in self.model:
-            row[self.COLUMN_TOGGLE] = False
-        self.calculate_total_size()
-
-    def on_invert_selection_button_clicked(self, widget):
-        for row in self.model:
-            row[self.COLUMN_TOGGLE] = not row[self.COLUMN_TOGGLE]
+        selection = self.treeviewEpisodes.get_selection()
+        selection.unselect_all()
         self.calculate_total_size()
 
     def on_close_button_clicked(self, widget):
@@ -299,26 +287,21 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)
             self.btnRemoveAction.set_sensitive(count>0)
-            if count > 0:
-                self.btnCancel.set_label(gtk.STOCK_CANCEL)
-            else:
-                self.btnCancel.set_label(gtk.STOCK_CLOSE)
         else:
-            self.btnOK.set_sensitive(False)
-            self.btnRemoveAction.set_sensitive(False)
-            for index, row in enumerate(self.model):
-                if self.model.get_value(row.iter, self.COLUMN_TOGGLE) == True:
-                    self.btnOK.set_sensitive(True)
-                    self.btnRemoveAction.set_sensitive(True)
-                    break
+            selection = self.treeviewEpisodes.get_selection()
+            selected_rows = selection.count_selected_rows()
+            self.btnOK.set_sensitive(selected_rows > 0)
+            self.btnRemoveAction.set_sensitive(selected_rows > 0)
             self.labelTotalSize.set_text('')
 
     def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
 
-        for index, row in enumerate( self.model):
-            new_value = callback( self.episodes[index])
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, new_value)
+        selection = self.treeviewEpisodes.get_selection()
+        selection.unselect_all()
+        for index, row in enumerate(self.model):
+            if callback(self.episodes[index]):
+                selection.select_path(row.path)
 
         self.calculate_total_size()
 
@@ -335,11 +318,12 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.calculate_total_size()
 
     def get_selected_episodes( self, remove_episodes=False):
-        selected_episodes = []
+        selection = self.treeviewEpisodes.get_selection()
+        model, paths = selection.get_selected_rows()
 
-        for index, row in enumerate( self.model):
-            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
-                selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
+        selected_episodes = [self.episodes[model.get_value(\
+                model.get_iter(path), self.COLUMN_INDEX)] \
+                for path in paths]
 
         if remove_episodes:
             for episode in selected_episodes:

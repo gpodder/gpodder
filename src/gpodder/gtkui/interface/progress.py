@@ -49,6 +49,9 @@ class ProgressIndicator(object):
     def _create_progress(self):
         self.dialog = gtk.MessageDialog(self.parent, \
                 0, 0, gtk.BUTTONS_CANCEL, self.subtitle or self.title)
+        if gpodder.ui.fremantle:
+            import hildon
+            hildon.hildon_gtk_window_set_progress_indicator(self.dialog, True)
         self.dialog.set_title(self.title)
         self.dialog.label.set_selectable(False)
 

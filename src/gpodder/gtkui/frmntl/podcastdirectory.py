@@ -38,7 +38,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderPodcastDirectory(BuilderWidget):
-    finger_friendly_widgets = ('button_cancel', 'button_subscribe')
+    finger_friendly_widgets = ('button_subscribe')
     
     def new(self):
         if hasattr(self, 'custom_title'):
@@ -47,54 +47,38 @@ class gPodderPodcastDirectory(BuilderWidget):
         if not hasattr(self, 'add_urls_callback'):
             self.add_urls_callback = None
 
-        togglecell = gtk.CellRendererToggle()
-        togglecolumn = gtk.TreeViewColumn('', togglecell, active=OpmlListModel.C_SELECTED)
-        self.treeview.append_column(togglecolumn)
-
         titlecell = gtk.CellRendererText()
         titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         titlecolumn = gtk.TreeViewColumn('', titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
         self.treeview.append_column(titlecolumn)
 
-        self.treeview.connect('button-release-event', \
-                self.on_treeview_button_release)
+        selection = self.treeview.get_selection()
+        selection.connect('changed', self.on_selection_changed)
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.unselect_all()
+        appmenu = hildon.AppMenu()
+        for action in (self.action_load_opml, \
+                       self.action_load_toplist, \
+                       self.action_load_search, \
+                       self.action_load_youtube, \
+                       self.action_select_all, \
+                       self.action_select_none):
+            button = gtk.Button()
+            action.connect_proxy(button)
+            appmenu.append(button)
+        self.main_window.set_app_menu(appmenu)
 
-        menu = gtk.Menu()
-        item = gtk.MenuItem(_('Load podcast list'))
-        submenu = gtk.Menu()
-        submenu.append(self.action_load_opml.create_menu_item())
-        submenu.append(self.action_load_toplist.create_menu_item())
-        submenu.append(self.action_load_search.create_menu_item())
-        submenu.append(self.action_load_youtube.create_menu_item())
-        item.set_submenu(submenu)
-        menu.append(item)
-        menu.append(gtk.SeparatorMenuItem())
-        menu.append(self.action_select_all.create_menu_item())
-        menu.append(self.action_select_none.create_menu_item())
-        menu.append(gtk.SeparatorMenuItem())
-        menu.append(self.action_invert_selection.create_menu_item())
-        menu.append(gtk.SeparatorMenuItem())
-        menu.append(self.action_close.create_menu_item())
-        self.main_window.set_menu(self.set_finger_friendly(menu))
+        # Work around Maemo bug #4718
+        self.button_subscribe.set_name('HildonButton-finger')
 
     def on_selection_changed(self, selection):
         self.set_subscribe_button_sensitive()
 
-    def on_treeview_button_release(self, widget, event):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        if iter is not None:
-            model.set_value(iter, OpmlListModel.C_SELECTED, \
-                    not model.get_value(iter, OpmlListModel.C_SELECTED))
-        self.set_subscribe_button_sensitive()
-
     def get_selected_channels(self):
-        model = self.treeview.get_model()
-        if model is not None:
-            return [row[OpmlListModel.C_URL] for row in model \
-                    if row[OpmlListModel.C_SELECTED]]
-
-        return []
+        selection = self.treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+        return [model.get_value(model.get_iter(path), \
+                OpmlListModel.C_URL) for path in paths]
 
     def on_load_opml_button_clicked(self, widget):
         url = self.show_text_edit_dialog(_('Load OPML file from the web'), _('URL:'))
@@ -120,13 +104,14 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.download_opml_file(search_term, use_youtube=True)
     
     def download_opml_file(self, url, use_youtube=False):
-        self.treeview.get_selection().unselect_all()
+        selection = self.treeview.get_selection()
+        selection.unselect_all()
         self.treeview.set_sensitive(False)
         self.button_subscribe.set_sensitive(False)
 
-        self.button_cancel.set_sensitive(False)
         banner = hildon.hildon_banner_show_animation(self.main_window, \
-                None, _('Loading podcast list, please wait'))
+                '', _('Loading podcast list, please wait'))
+        hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
 
         def download_thread_func():
             if use_youtube:
@@ -138,47 +123,33 @@ class gPodderPodcastDirectory(BuilderWidget):
                 model = OpmlListModel(importer)
             else:
                 model = None
-                self.show_message(_('Please pick another source.'), _('No podcasts found'))
+                self.notification(_('No podcasts found. Try another source.'), \
+                        important=True)
 
             def download_thread_finished():
                 if banner is not None:
                     banner.destroy()
+                hildon.hildon_gtk_window_set_progress_indicator(\
+                        self.main_window, False)
                 self.treeview.set_model(model)
                 self.treeview.set_sensitive(True)
-                self.button_cancel.set_sensitive(True)
                 self.set_subscribe_button_sensitive()
             util.idle_add(download_thread_finished)
 
         threading.Thread(target=download_thread_func).start()
 
     def on_select_all_button_clicked(self, widget):
-        self.do_select(all=True)
+        selection = self.treeview.get_selection()
+        selection.select_all()
 
     def on_select_none_button_clicked(self, widget):
-        self.do_select(all=False)
-
-    def on_invert_selection_button_clicked(self, widget):
-        self.do_select(invert=True)
-
-    def do_select(self, all=False, invert=False):
-        model = self.treeview.get_model()
-        if model is not None:
-            for row in model:
-                if invert:
-                    row[OpmlListModel.C_SELECTED] = \
-                            not row[OpmlListModel.C_SELECTED]
-                else:
-                    row[OpmlListModel.C_SELECTED] = all
-        self.set_subscribe_button_sensitive()
+        selection = self.treeview.get_selection()
+        selection.unselect_all()
 
     def set_subscribe_button_sensitive(self):
-        model = self.treeview.get_model()
-        if model is not None:
-            for row in model:
-                if row[OpmlListModel.C_SELECTED]:
-                    self.button_subscribe.set_sensitive(True)
-                    return
-        self.button_subscribe.set_sensitive(False)
+        selection = self.treeview.get_selection()
+        count = selection.count_selected_rows()
+        self.button_subscribe.set_sensitive(count > 0)
 
     def on_subscribe_button_clicked(self, widget, *args):
         channel_urls = self.get_selected_channels()
