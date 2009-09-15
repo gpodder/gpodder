@@ -66,13 +66,9 @@ class gPodderChannel(BuilderWidget):
         util.open_website(self.channel.link)
 
     def on_btnDownloadCover_clicked(self, widget):
-        if gpodder.interface == gpodder.GUI:
-            dlg = gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=gtk.FILE_CHOOSER_ACTION_OPEN)
-            dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-            dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-        elif gpodder.interface == gpodder.MAEMO:
-            import hildon
-            dlg = hildon.FileChooserDialog(self.gPodderChannel, gtk.FILE_CHOOSER_ACTION_OPEN)
+        dlg = gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
 
         if dlg.run() == gtk.RESPONSE_OK:
             url = dlg.get_uri()

@@ -37,9 +37,6 @@ from gpodder.gtkui import draw
 
 from xml.sax import saxutils
 
-if gpodder.interface == gpodder.MAEMO:
-    import hildon
-
 class GPodderStatusIcon(gtk.StatusIcon):
     """ this class display a status icon in the system tray
     this icon serves to show or hide gPodder, notify dowload status
@@ -71,10 +68,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
 
         # try getting the icon
         try:
-            if gpodder.interface == gpodder.GUI:
-                self.__icon = gtk.gdk.pixbuf_new_from_file(self.__icon_filename)
-            elif gpodder.interface == gpodder.MAEMO:
-                self.__icon = gtk.gdk.pixbuf_new_from_file_at_size(self.__icon_filename, 36, 36)
+            self.__icon = gtk.gdk.pixbuf_new_from_file(self.__icon_filename)
         except Exception, exc:
             log('Warning: Cannot load gPodder icon, will use the default icon (%s)', exc, sender=self)
             self.__icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_DIALOG_QUESTION, 30, 30)
@@ -85,12 +79,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.set_status()
  
         menu = self.__create_context_menu()
-        if gpodder.interface == gpodder.GUI:
-            self.connect('activate', self.__on_left_click)
-            self.connect('popup-menu', self.__on_right_click, menu)
-        elif gpodder.interface == gpodder.MAEMO:
-            # On Maemo, we show the popup menu on left-click
-            self.connect('activate', self.__on_right_click, menu)
+        self.connect('activate', self.__on_left_click)
+        self.connect('popup-menu', self.__on_right_click, menu)
 
         self.set_visible(True)
 
@@ -125,27 +115,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menu.append(menuItem)
         menu.append( gtk.SeparatorMenuItem())
         
-        if gpodder.interface == gpodder.MAEMO:
-            # On Maemo, we map the left-click to the popup-menu,
-            # so add a menu item to do the left-click action
-            menuItem = gtk.ImageMenuItem(_('Hide gPodder'))
-            self.item_showhide = menuItem
-
-            def show_hide_gpodder_maemo(menu_item):
-                visible = self.__gpodder.gPodder.get_property('visible')
-                (label, image) = menu_item.get_children()
-                if visible:
-                    label.set_text(_('Show gPodder'))
-                    menu_item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_MENU))
-                else:
-                    label.set_text(_('Hide gPodder'))
-                    menu_item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
-                self.__gpodder.gPodder.set_property('visible', not visible)
-                
-            menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
-            menuItem.connect('activate', lambda widget: show_hide_gpodder_maemo(self.item_showhide))
-            menu.append(menuItem)
-        
         menuItem = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         menuItem.connect('activate',  self.__on_exit_callback)
         menu.append(menuItem)
@@ -158,10 +127,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
     def __on_right_click(self, widget, button=None, time=0, data=None):
         """Open popup menu on right-click
         """
-        if gpodder.interface == gpodder.MAEMO and data is None and button is not None:
-            # The left-click action has a different function
-            # signature, so we have to swap parameters here
-            data = button
         if data is not None:
             data.show_all()
             data.popup(None, None, None, 3, time)
