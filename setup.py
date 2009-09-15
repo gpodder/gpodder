@@ -56,7 +56,8 @@ if not len(translation_files) and not 'clean' in sys.argv:
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
-inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui')
+inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui') + \
+                      glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ]
 inst_desktop = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]

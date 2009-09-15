@@ -157,7 +157,7 @@ class EpisodeListModel(gtk.ListStore):
         episode = self.get_value(iter, self.C_EPISODE)
         episode.reload_from_db()
 
-        if include_description or gpodder.interface == gpodder.MAEMO:
+        if include_description or gpodder.ui.maemo:
             icon_size = 32
         else:
             icon_size = 16

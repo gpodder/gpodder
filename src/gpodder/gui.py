@@ -89,7 +89,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
-if gpodder.interface == gpodder.GUI:
+if gpodder.ui.desktop:
     from gpodder.gtkui.desktop.sync import gPodderSyncUI
 
     from gpodder.gtkui.desktop.channel import gPodderChannel
@@ -105,7 +105,7 @@ if gpodder.interface == gpodder.GUI:
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
     from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
-else:
+elif gpodder.ui.maemo:
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
@@ -116,7 +116,7 @@ else:
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
-if gpodder.interface == gpodder.MAEMO:
+if gpodder.ui.maemo:
     import hildon
 
 class gPodder(BuilderWidget, dbus.service.Object):
@@ -130,7 +130,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None)
     
     def new(self):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             self.app = hildon.Program()
             self.app.add_window(self.main_window)
             self.main_window.add_toolbar(self.toolbar)
@@ -157,7 +157,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.tray_icon = None
         self.episode_shownotes_window = None
 
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.ui.desktop:
             self.sync_ui = gPodderSyncUI(self.config, self.notification, \
                     self.main_window, self.show_confirmation, \
                     self.update_episode_list_icons, \
@@ -201,6 +201,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
+        # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
+        if gpodder.ui.fremantle:
+            HUIM = 'hildon-ui-mode'
+            if HUIM in [p.name for p in gobject.list_properties(gtk.TreeView)]:
+                for treeview_name in self.TREEVIEW_WIDGETS:
+                    treeview = getattr(self, treeview_name)
+                    treeview.set_property(HUIM, 1)
+
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
         self.init_episode_list_treeview()
@@ -209,17 +217,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring:
             self.item_view_hide_boring_podcasts.set_active(True)
 
-        # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
-        if gpodder.interface == gpodder.MAEMO:
-            HUIM = 'hildon-ui-mode'
-            if HUIM in [p.name for p in gobject.list_properties(gtk.TreeView)]:
-                for treeview_name in self.TREEVIEW_WIDGETS:
-                    treeview = getattr(self, treeview_name)
-                    treeview.set_property(HUIM, 1)
-
         self.currently_updating = False
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             self.context_menu_mouse_button = 1
         else:
             self.context_menu_mouse_button = 3
@@ -321,16 +321,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.currently_updating
 
         return event.button == self.context_menu_mouse_button and \
-                gpodder.interface != gpodder.MAEMO
+                gpodder.ui.desktop
 
     def on_treeview_podcasts_button_released(self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             return self.treeview_channels_handle_gestures(treeview, event)
 
         return self.treeview_channels_show_context_menu(treeview, event)
 
     def on_treeview_episodes_button_released(self, treeview, event):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
                 return self.treeview_available_handle_gestures(treeview, event)
 
@@ -389,7 +389,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = gtk.CellRendererPixbuf()
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             iconcell.set_fixed_size(50, 50)
             status_column_label = ''
         else:
@@ -413,14 +413,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             sizecolumn.set_visible(False)
             releasecolumn.set_visible(False)
 
         self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
 
         selection = self.treeAvailable.get_selection()
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
                 selection.set_mode(gtk.SELECTION_SINGLE)
             else:
@@ -430,7 +430,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Update the sensitivity of the toolbar buttons on the Desktop
             selection.connect('changed', lambda s: self.play_or_download())
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             # Set up the tap-and-hold context menu for podcasts
             menu = gtk.Menu()
             menu.append(self.itemUpdateChannel.create_menu_item())
@@ -457,7 +457,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column = gtk.TreeViewColumn(_('Episode'))
 
         cell = gtk.CellRendererPixbuf()
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             cell.set_fixed_size(50, 50)
         cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
         column.pack_start(cell, expand=False)
@@ -481,7 +481,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeDownloads.append_column(column)
 
         # Third column: Size
-        if gpodder.interface != gpodder.MAEMO:
+        if gpodder.ui.desktop:
             column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
                     text=DownloadStatusModel.C_SIZE_TEXT)
             self.treeDownloads.append_column(column)
@@ -648,7 +648,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 text.append(' (' + ', '.join(s)+')')
             self.labelDownloads.set_text(''.join(text))
 
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 sum = downloading + failed + finished + queued + others
                 if sum:
                     self.tool_downloads.set_label(_('Downloads (%d)') % sum)
@@ -688,8 +688,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Update the tray icon status
                     self.tray_icon.set_status()
                     self.tray_icon.downloads_finished(self.download_tasks_seen)
-                if gpodder.interface == gpodder.MAEMO:
+                if gpodder.ui.diablo:
                     hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
+                elif gpodder.ui.fremantle:
+                    self.show_message(_('All downloads finished'))
                 log('All downloads have finished.', sender=self)
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)
@@ -719,7 +721,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
     def on_config_changed(self, name, old_value, new_value):
-        if name == 'show_toolbar' and gpodder.interface != gpodder.MAEMO:
+        if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
@@ -957,7 +959,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None))
 
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -1258,7 +1260,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', lambda w: util.open_website(episodes[0].link))
                 menu.append(self.set_finger_friendly(item))
             
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -1295,7 +1297,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.update_by_urls(urls, \
                     self.episode_is_downloading, \
                     self.config.episode_list_descriptions and \
-                    gpodder.interface != gpodder.MAEMO)
+                    gpodder.ui.desktop)
         elif selected and not all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
@@ -1305,13 +1307,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_list_model.update_by_filter_iter(iter, \
                         self.episode_is_downloading, \
                         self.config.episode_list_descriptions and \
-                        gpodder.interface != gpodder.MAEMO)
+                        gpodder.ui.desktop)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
             self.episode_list_model.update_all(\
                     self.episode_is_downloading, \
                     self.config.episode_list_descriptions and \
-                    gpodder.interface != gpodder.MAEMO)
+                    gpodder.ui.desktop)
         else:
             # Wrong/invalid call - have to specify at least one parameter
             raise ValueError('Invalid call to update_episode_list_icons')
@@ -1339,8 +1341,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     shutil.rmtree(ddir, ignore_errors=True)
 
     def streaming_possible(self):
-        return self.config.player and self.config.player != 'default' and \
-                gpodder.interface != gpodder.MAEMO
+        return self.config.player and \
+               self.config.player != 'default' and \
+               gpodder.ui.desktop
 
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
@@ -1349,7 +1352,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if file_type == 'video' and self.config.videoplayer and \
                     self.config.videoplayer != 'default':
                 player = self.config.videoplayer
-                if gpodder.interface == gpodder.MAEMO:
+                if gpodder.ui.diablo:
                     # Use the wrapper script if it's installed to crop 3GP YouTube
                     # videos to fit the screen (looks much nicer than w/ black border)
                     if player == 'mplayer' and util.find_command('gpodder-mplayer'):
@@ -1385,12 +1388,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 subprocess.Popen(command)
 
     def playback_episodes(self, episodes):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             if len(episodes) == 1:
                 text = _('Opening %s') % episodes[0].title
             else:
                 text = _('Opening %d episodes') % len(episodes)
-            banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
+
+            if gpodder.ui.diablo:
+                banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
+            elif gpodder.ui.fremantle:
+                banner = hildon.hildon_banner_show_animation(self.gPodder, '', text)
+
             def destroy_banner_later(banner):
                 banner.destroy()
                 return False
@@ -1415,7 +1423,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
-            if gpodder.interface != gpodder.MAEMO:
+            if gpodder.ui.desktop:
                 self.toolCancel.set_sensitive(True)
             return
 
@@ -1454,13 +1462,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
             can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
 
-        if gpodder.interface != gpodder.MAEMO:
+        if gpodder.ui.desktop:
             if open_instead_of_play:
                 self.toolPlay.set_stock_id(gtk.STOCK_OPEN)
             else:
                 self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
-
-        if gpodder.interface != gpodder.MAEMO:
             self.toolPlay.set_sensitive( can_play)
             self.toolDownload.set_sensitive( can_download)
             self.toolTransfer.set_sensitive( can_transfer)
@@ -1557,8 +1563,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.diablo:
                 banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes'))
+            elif gpodder.ui.fremantle:
+                banner = hildon.hildon_banner_show_animation(self.gPodder, '', _('Loading episodes'))
             else:
                 banner = None
 
@@ -1569,7 +1577,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.active_channel, \
                         self.episode_is_downloading, \
                         self.config.episode_list_descriptions \
-                          and gpodder.interface != gpodder.MAEMO)
+                          and gpodder.ui.desktop)
 
                 def on_episode_list_model_updated():
                     if banner is not None:
@@ -1769,7 +1777,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.feed_cache_update_cancelled = True
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 # btnCancelFeedUpdate is a ToolButton on Maemo
                 self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
             else:
@@ -1786,7 +1794,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     title = _('Downloading %d new episodes.') % len(episodes)
 
-                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                if not gpodder.ui.fremantle:
+                    self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             else:
                 self.show_update_feeds_buttons()
@@ -1840,7 +1849,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             self.btnUpdateSelectedFeed.show()
             self.toolFeedUpdateProgress.hide()
             self.btnCancelFeedUpdate.hide()
@@ -1892,7 +1901,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.btnCancelFeedUpdate.show()
         self.btnCancelFeedUpdate.set_sensitive(True)
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             self.toolbarSpacer.set_expand(False)
             self.toolbarSpacer.set_draw(True)
             self.btnUpdateSelectedFeed.hide()
@@ -1917,7 +1926,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.config.on_quit_ask and self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
         elif self.config.on_quit_ask or downloading:
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 result = self.show_confirmation(_('Do you really want to quit gPodder now?'))
                 if result:
                     self.close_gpodder()
@@ -2048,7 +2057,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.play_or_download()
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             columns = (
                 ('maemo_remove_markup', None, None, _('Episode')),
             )
@@ -2208,7 +2217,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def new_episodes_show(self, episodes, notification=False):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             columns = (
                 ('maemo_markup', None, None, _('Episode')),
             )
@@ -2312,7 +2321,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def properties_closed( self):
         self.show_hide_tray_icon()
         self.update_item_device()
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             selection = self.treeAvailable.get_selection()
             if self.config.maemo_enable_gestures or \
                     self.config.enable_fingerscroll:
@@ -2417,7 +2426,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         try:
-            if gpodder.interface == gpodder.GUI:
+            if gpodder.ui.desktop:
                 dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
                 dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
                 dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
@@ -2431,17 +2440,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
                 dialog.vbox.pack_start(cb_ask)
                 cb_ask.show_all()
-                affirmative = gtk.RESPONSE_YES
-            elif gpodder.interface == gpodder.MAEMO:
-                cb_ask = gtk.CheckButton('') # dummy check button
-                dialog = hildon.Note('confirmation', (self.gPodder, _('Do you really want to remove this podcast and all downloaded episodes?')))
-                affirmative = gtk.RESPONSE_OK
-
-            result = dialog.run()
-            dialog.destroy()
-
-            if result == affirmative:
+                result = (dialog.run() == gtk.RESPONSE_YES)
                 keep_episodes = cb_ask.get_active()
+                dialog.destroy()
+            elif gpodder.ui.maemo:
+                result = self.show_confirmation(_('Do you really want to remove this podcast and all downloaded episodes?'))
+                keep_episodes = False
+
+            if result:
                 # delete downloaded episodes only if checkbox is unchecked
                 if keep_episodes:
                     log('Not removing downloaded episodes', sender=self)
@@ -2487,11 +2493,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_import_from_file_activate(self, widget, filename=None):
         if filename is None:
-            if gpodder.interface == gpodder.GUI:
+            if gpodder.ui.desktop or gpodder.ui.fremantle:
+                # FIXME: Hildonization on Fremantle
                 dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
                 dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-            elif gpodder.interface == gpodder.MAEMO:
+            elif gpodder.ui.diablo:
                 dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_OPEN)
             dlg.set_filter(self.get_opml_filter())
             response = dlg.run()
@@ -2514,11 +2521,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, title, widget=self.treeChannels)
             return
 
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.ui.desktop or gpodder.ui.fremantle:
+            # FIXME: Hildonization on Fremantle
             dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        elif gpodder.interface == gpodder.MAEMO:
+        elif gpodder.ui.diablo:
             dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_SAVE)
         dlg.set_filter(self.get_opml_filter())
         response = dlg.run()
@@ -2549,7 +2557,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://wiki.gpodder.org/')
 
     def on_bug_tracker_activate(self, widget, *args):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
         else:
             util.open_website('http://bugs.gpodder.org/')
@@ -2569,7 +2577,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect( 'response', lambda dlg, response: dlg.destroy())
 
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.ui.desktop:
             # For the "GUI" version, we add some more
             # items to the about dialog (credits and logo)
             app_authors = [
@@ -2592,7 +2600,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             self.tool_downloads.set_active(page_num == 1)
             page = self.wNotebook.get_nth_page(page_num)
             tab_label = self.wNotebook.get_tab_label(page).get_text()
@@ -2612,7 +2620,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
-            if gpodder.interface != gpodder.MAEMO:
+            if gpodder.ui.desktop:
                 self.toolDownload.set_sensitive(False)
                 self.toolPlay.set_sensitive(False)
                 self.toolTransfer.set_sensitive(False)
@@ -2632,7 +2640,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.active_channel == old_active_channel:
                 return
 
-            if gpodder.interface == gpodder.MAEMO:
+            if gpodder.ui.maemo:
                 self.set_title(self.active_channel.title)
             self.itemEditChannel.set_visible(True)
             self.itemRemoveChannel.set_visible(True)
@@ -2782,7 +2790,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # After this code we only handle Maemo hardware keys,
         # so if we are not a Maemo app, we don't do anything
-        if gpodder.interface != gpodder.MAEMO:
+        if not gpodder.ui.maemo:
             return False
         
         diff = 0
@@ -2863,7 +2871,7 @@ def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
 
-    if gpodder.interface == gpodder.MAEMO:
+    if gpodder.ui.diablo:
         # Try to enable the custom icon theme for gPodder on Maemo
         settings = gtk.settings_get_default()
         settings.set_string_property('gtk-icon-theme-name', \
@@ -2888,7 +2896,7 @@ def main(options=None):
     util.make_directory(gpodder.home)
     config = UIConfig(gpodder.config_file)
 
-    if gpodder.interface == gpodder.MAEMO:
+    if gpodder.ui.diablo:
         # Detect changing of SD cards between mmc1/mmc2 if a gpodder
         # folder exists there (allow moving "gpodder" between SD cards or USB)
         # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
@@ -2905,6 +2913,10 @@ def main(options=None):
 
         if config.enable_fingerscroll:
             BuilderWidget.use_fingerscroll = True
+    elif gpodder.ui.fremantle:
+        # FIXME: Move download_dir from ~/gPodder-Podcasts to default setting
+        BuilderWidget.use_fingerscroll = True
+        pass
 
     gp = gPodder(bus_name, config)
 

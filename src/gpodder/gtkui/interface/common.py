@@ -60,8 +60,8 @@ class BuilderWidget(GtkBuilderWidget):
         self._window_iconified = False
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
 
-        # Enable support for fullscreen toggle key on Maemo
-        if gpodder.interface == gpodder.MAEMO:
+        # Enable support for fullscreen toggle key on Maemo 4
+        if gpodder.ui.diablo:
             self._maemo_fullscreen = False
             self._maemo_fullscreen_chain = None
             self.main_window.connect('key-press-event', \
@@ -82,7 +82,7 @@ class BuilderWidget(GtkBuilderWidget):
         if parent is not None:
             self.main_window.set_transient_for(parent)
 
-            if gpodder.interface == gpodder.GUI:
+            if gpodder.ui.desktop:
                 if hasattr(self, 'center_on_widget'):
                     (x, y) = parent.get_position()
                     a = self.center_on_widget.allocation
@@ -90,7 +90,7 @@ class BuilderWidget(GtkBuilderWidget):
                     (w, h) = (a.width, a.height)
                     (pw, ph) = self.main_window.get_size()
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-            elif gpodder.interface == gpodder.MAEMO:
+            elif gpodder.ui.diablo:
                 self._maemo_fullscreen_chain = parent
                 if parent.window.get_state() & gtk.gdk.WINDOW_STATE_FULLSCREEN:
                     self.main_window.fullscreen()
@@ -145,7 +145,7 @@ class BuilderWidget(GtkBuilderWidget):
         util.idle_add(self.show_message, message, title, important, widget)
 
     def show_message(self, message, title=None, important=False, widget=None):
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.diablo:
             import hildon
             if important:
                 dlg = hildon.Note('information', (self.main_window, message))
@@ -156,6 +156,16 @@ class BuilderWidget(GtkBuilderWidget):
                     title = 'gPodder'
                 pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
                 hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
+        elif gpodder.ui.fremantle:
+            import hildon
+            if important:
+                dlg = hildon.hildon_note_new_information(self.main_window, \
+                        message)
+                dlg.run()
+                dlg.destroy()
+            else:
+                hildon.hildon_banner_show_information(self.main_window, \
+                        '', message)
         else:
             if important:
                 dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
@@ -197,7 +207,7 @@ class BuilderWidget(GtkBuilderWidget):
         if widget is None:
             return None
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.diablo or gpodder.ui.fremantle:
             if isinstance(widget, gtk.Misc):
                 widget.set_padding(0, 5)
             elif isinstance(widget, gtk.Button):
@@ -222,7 +232,7 @@ class BuilderWidget(GtkBuilderWidget):
         return widget
 
     def show_confirmation(self, message, title=None):
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.ui.desktop:
             dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
             if title:
                 dlg.set_title(str(title))
@@ -232,9 +242,16 @@ class BuilderWidget(GtkBuilderWidget):
             response = dlg.run()
             dlg.destroy()
             return response == gtk.RESPONSE_YES
-        elif gpodder.interface == gpodder.MAEMO:
+        elif gpodder.ui.diablo:
             import hildon
             dlg = hildon.Note('confirmation', (self.main_window, message))
+            response = dlg.run()
+            dlg.destroy()
+            return response == gtk.RESPONSE_OK
+        elif gpodder.ui.fremantle:
+            import hildon
+            dlg = hildon.hildon_note_new_confirmation(self.main_window, \
+                    message)
             response = dlg.run()
             dlg.destroy()
             return response == gtk.RESPONSE_OK
@@ -354,11 +371,12 @@ class BuilderWidget(GtkBuilderWidget):
         if not dst_filename.endswith(extension):
             dst_filename += extension
 
-        if gpodder.interface == gpodder.GUI:
+        if gpodder.ui.desktop or gpodder.ui.fremantle:
+            # FIXME: Hildonization for Fremantle
             dlg = gtk.FileChooserDialog(title=title, parent=self.main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        elif gpodder.interface == gpodder.MAEMO:
+        elif gpodder.ui.diablo:
             import hildon
             dlg = hildon.FileChooserDialog(self.main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 

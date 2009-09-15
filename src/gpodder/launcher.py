@@ -59,7 +59,7 @@ if __name__ == '__main__':
     gpodder.ui_folders.append(ui_folder)
     gpodder.ui_folders.append(os.path.join(ui_folder, 'desktop'))
     gpodder.icon_file = icon_file
-    gpodder.interface = gpodder.GUI
+    gpodder.ui.desktop = True
 
     from gpodder import gui
 

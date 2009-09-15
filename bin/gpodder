@@ -101,20 +101,29 @@ if __name__ == '__main__':
                       help=_("Print debugging output to stdout"))
 
     parser.add_option("-m", "--maemo",
-                      action="store_true", dest="maemo", default=False,
-                      help=_("Start the Maemo user interface of gPodder"))
+                      action="store_true", dest="diablo", default=False,
+                      help=_("Start the Maemo 4 user interface"))
+
+    parser.add_option("-f", "--fremantle",
+                      action="store_true", dest="fremantle", default=False,
+                      help=_("Start the Maemo 5 user interface"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
 
     (options, args) = parser.parse_args(sys.argv)
 
-    if options.maemo or os.path.exists(maemo_file):
-        gpodder.interface = gpodder.MAEMO
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
+    if options.fremantle or options.diablo:
         gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
+
+    if options.fremantle:
+        gpodder.ui.fremantle = True
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
+    elif options.diablo or os.path.exists(maemo_file):
+        gpodder.ui.diablo = True
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
     else:
-        gpodder.interface = gpodder.GUI
+        gpodder.ui.desktop = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
@@ -149,7 +158,7 @@ if __name__ == '__main__':
             print >>sys.stderr, 'Cannot start gPodder: $DISPLAY is not set.'
             sys.exit(1)
 
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.maemo:
             # Reduce our nice value to zero if we're on Maemo to
             # make the tablet not kill itself while updating feeds
             if os.nice(0) < 0:

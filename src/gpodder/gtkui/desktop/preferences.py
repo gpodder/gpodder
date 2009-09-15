@@ -94,8 +94,7 @@ class gPodderPreferences(BuilderWidget):
         self.comboAudioPlayerApp.set_row_separator_func(self.is_row_separator)
         self.comboVideoPlayerApp.set_row_separator_func(self.is_row_separator)
 
-        if gpodder.interface == gpodder.GUI:
-            self.user_apps_reader.read()
+        self.user_apps_reader.read()
 
         self.comboAudioPlayerApp.set_model(self.user_apps_reader.get_applications_as_model('audio'))
         index = self.find_active_audio_app()

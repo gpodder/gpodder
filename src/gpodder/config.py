@@ -36,7 +36,9 @@ import ConfigParser
 
 _ = gpodder.gettext
 
-if gpodder.interface == gpodder.MAEMO:
+if gpodder.ui.fremantle:
+    default_download_dir = os.path.join(os.path.expanduser('~'), 'MyDocs/Podcasts')
+elif gpodder.ui.diablo:
     default_download_dir = '/media/mmc2/gpodder'
 else:
     default_download_dir = os.path.join(os.path.expanduser('~'), 'gpodder-downloads')

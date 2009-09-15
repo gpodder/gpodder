@@ -45,11 +45,18 @@ del feedparser
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
-# Interface type enums
-(CLI, GUI, MAEMO) = range(3)
-
 # Are we running in GUI, Maemo or console mode?
-interface = CLI
+class UI(object):
+    def __init__(self):
+        self.desktop = False
+        self.diablo = False
+        self.fremantle = False
+
+    @property
+    def maemo(self):
+        return self.diablo or self.fremantle
+
+ui = UI()
 
 # D-Bus specific interface names
 dbus_bus_name = 'org.godder'

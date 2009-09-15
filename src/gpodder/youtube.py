@@ -63,6 +63,8 @@ def get_real_download_url(url, proxy=None):
                 '5/0/7/0/0',          # 320x180
         ]
 
+        # FIXME: Don't use HD on Fremantle??
+
         fmt_id = 5
         for wanted in format_priorities:
             if wanted in formats_available:
@@ -73,7 +75,7 @@ def get_real_download_url(url, proxy=None):
         # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
         # also use 13 and 17 here, but the quality is very low then. There
         # seems to also be a 6, but I could not find a video with that yet.
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.diablo:
             fmt_id = 5
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)

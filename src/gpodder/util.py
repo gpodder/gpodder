@@ -64,7 +64,7 @@ _ = gpodder.gettext
 
 
 # Try to detect OS encoding (by Leonid Ponomarev)
-if gpodder.interface == gpodder.MAEMO:
+if gpodder.ui.maemo:
     encoding = 'utf8'
 else:
     encoding = 'iso-8859-15'
@@ -913,7 +913,7 @@ def idle_add(func, *args):
     call the function later - this is needed for
     threads to be able to modify GTK+ widget data.
     """
-    if gpodder.interface in (gpodder.GUI, gpodder.MAEMO):
+    if gpodder.ui.desktop or gpodder.ui.maemo:
         import gobject
         def x(f, *a):
             f(*a)
@@ -1068,7 +1068,7 @@ def gui_open(filename):
        on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
-        if gpodder.interface == gpodder.MAEMO:
+        if gpodder.ui.diablo:
             try:
                 import osso
             except ImportError, ie:
