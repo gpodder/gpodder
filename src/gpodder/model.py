@@ -540,7 +540,12 @@ class PodcastChannel(PodcastModelObject):
     
     @property
     def cover_file(self):
-        return os.path.join(self.save_dir, 'cover')
+        old_cover = os.path.join(self.save_dir, 'cover')
+        cover = os.path.join(self.save_dir, '.cover')
+        if os.path.exists(old_cover):
+            return old_cover
+        else:
+            return cover
 
     def delete_episode_by_url(self, url):
         episode = self.db.load_episode(url, factory=self.episode_factory)
