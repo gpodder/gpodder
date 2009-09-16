@@ -287,7 +287,10 @@ class PodcastListModel(gtk.ListStore):
         self._filter.set_visible_func(self._filter_visible_func)
 
         self._cover_cache = {}
-        self._max_image_side = max_image_side
+        if gpodder.ui.fremantle:
+            self._max_image_side = 64
+        else:
+            self._max_image_side = max_image_side
         self._cover_downloader = cover_downloader
 
 
@@ -379,6 +382,8 @@ class PodcastListModel(gtk.ListStore):
 
     def _format_description(self, channel, count_new):
         title_markup = xml.sax.saxutils.escape(channel.title)
+        if gpodder.ui.fremantle:
+            return title_markup
         description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         d = []
         if count_new:

@@ -8,15 +8,15 @@
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
         <child>
-          <object class="GtkScrolledWindow" id="scrolled_window">
+          <object class="HildonPannableArea" id="scrolled_window">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hscrollbar_policy">automatic</property>
             <property name="vscrollbar_policy">automatic</property>
             <child>
-              <object class="GtkTextView" id="textview">
+              <object class="HildonTextView" id="textview">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="cursor-visible">False</property>
                 <property name="editable">False</property>
                 <property name="wrap_mode">word</property>
               </object>
@@ -28,7 +28,7 @@
         </child>
         <child>
           <object class="GtkProgressBar" id="download_progress">
-            <property name="visible">True</property>
+            <property name="visible">False</property>
           </object>
           <packing>
             <property name="expand">False</property>

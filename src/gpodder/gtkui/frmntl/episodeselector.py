@@ -160,9 +160,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
-        if getattr(self, 'show_notification', False) and hasattr(self, 'title'):
-            self.show_message(self.title)
-
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = gtk.CellRendererText()

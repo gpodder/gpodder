@@ -115,9 +115,12 @@ elif gpodder.ui.diablo:
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
-    from gpodder.gtkui.maemo.shownotes import gPodderShownotes
+    from gpodder.gtkui.frmntl.shownotes import gPodderShownotes
     from gpodder.gtkui.frmntl.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
+    from gpodder.gtkui.frmntl.podcasts import gPodderPodcasts
+    from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
+    from gpodder.gtkui.frmntl.downloads import gPodderDownloads
     have_trayicon = False
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
@@ -128,7 +131,6 @@ if gpodder.ui.maemo:
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCleanUpDownloads']
-    TREEVIEW_WIDGETS = ('treeAvailable', 'treeChannels', 'treeDownloads')
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -137,7 +139,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None)
     
     def new(self):
-        if gpodder.ui.maemo:
+        if gpodder.ui.diablo:
+            import hildon
             self.app = hildon.Program()
             self.app.add_window(self.main_window)
             self.main_window.add_toolbar(self.toolbar)
@@ -145,6 +148,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for child in self.main_menu.get_children():
                 child.reparent(menu)
             self.main_window.set_menu(self.set_finger_friendly(menu))
+            self.bluetooth_available = False
+        elif gpodder.ui.fremantle:
+            import hildon
+            self.app = hildon.Program()
+            self.app.add_window(self.main_window)
+
+            appmenu = hildon.AppMenu()
+            for action in (self.itemUpdate, \
+                           self.itemRemoveOldEpisodes, \
+                           self.itemPreferences):
+                button = gtk.Button()
+                action.connect_proxy(button)
+                appmenu.append(button)
+            appmenu.show_all()
+            self.main_window.set_app_menu(appmenu)
+            self._fremantle_update_banner = None
+
             self.bluetooth_available = False
         else:
             if gpodder.win32:
@@ -154,7 +174,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolbar.set_property('visible', self.config.show_toolbar)
 
         self.config.connect_gtk_window(self.gPodder, 'main_window')
-        self.config.connect_gtk_paned('paned_position', self.channelPaned)
+        if not gpodder.ui.fremantle:
+            self.config.connect_gtk_paned('paned_position', self.channelPaned)
         self.main_window.show()
 
         self.gPodder.connect('key-press-event', self.on_key_press)
@@ -176,21 +197,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
-        self.show_hide_tray_icon()
+        if gpodder.ui.desktop:
+            self.show_hide_tray_icon()
+            self.itemShowToolbar.set_active(self.config.show_toolbar)
+            self.itemShowDescription.set_active(self.config.episode_list_descriptions)
 
-        self.itemShowToolbar.set_active(self.config.show_toolbar)
-        self.itemShowDescription.set_active(self.config.episode_list_descriptions)
-                   
-        self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
-        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
-        self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
-        self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+        if not gpodder.ui.fremantle:
+            self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
+            self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
+            self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
+            self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
-        # Then the amount of maximum downloads changes, notify the queue manager
-        changed_cb = lambda spinbutton: self.download_queue_manager.spawn_and_retire_threads()
-        self.spinMaxDownloads.connect('value-changed', changed_cb)
+            # When the amount of maximum downloads changes, notify the queue manager
+            changed_cb = lambda spinbutton: self.download_queue_manager.spawn_and_retire_threads()
+            self.spinMaxDownloads.connect('value-changed', changed_cb)
 
-        self.default_title = None
+        self.default_title = 'gPodder'
         if gpodder.__version__.rfind('git') != -1:
             self.set_title('gPodder %s' % gpodder.__version__)
         else:
@@ -208,13 +230,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
-        # on Maemo 5, we need to set hildon-ui-mode of TreeView widgets to 1
         if gpodder.ui.fremantle:
-            HUIM = 'hildon-ui-mode'
-            if HUIM in [p.name for p in gobject.list_properties(gtk.TreeView)]:
-                for treeview_name in self.TREEVIEW_WIDGETS:
-                    treeview = getattr(self, treeview_name)
-                    treeview.set_property(HUIM, 1)
+            self.episodes_window = gPodderEpisodes(self.main_window, \
+                    on_treeview_expose_event=self.on_treeview_expose_event, \
+                    show_episode_shownotes=self.show_episode_shownotes, \
+                    update_podcast_list_model=self.update_podcast_list_model, \
+                    on_itemRemoveChannel_activate=self.on_itemRemoveChannel_activate)
+
+            def on_podcast_selected(channel):
+                self.active_channel = channel
+                self.update_episode_list_model()
+                self.episodes_window.channel = self.active_channel
+                self.episodes_window.show()
+
+            self.podcasts_window = gPodderPodcasts(self.main_window, \
+                    show_podcast_episodes=on_podcast_selected, \
+                    on_treeview_expose_event=self.on_treeview_expose_event, \
+                    on_itemAddChannel_activate=self.on_itemAddChannel_activate, \
+                    on_itemUpdate_activate=self.on_itemUpdate_activate)
+
+            self.downloads_window = gPodderDownloads(self.main_window, \
+                    on_treeview_expose_event=self.on_treeview_expose_event, \
+                    on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked)
+            self.treeChannels = self.podcasts_window.treeview
+            self.treeAvailable = self.episodes_window.treeview
+            self.treeDownloads = self.downloads_window.treeview
+
+            self.button_subscribe.set_name('HildonButton-thumb')
+            self.button_podcasts.set_name('HildonButton-thumb')
+            self.button_downloads.set_name('HildonButton-thumb')
 
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
@@ -254,10 +298,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         threading.Thread(target=read_apps).start()
 
         # Set the "Device" menu item for the first time
-        self.update_item_device()
+        if gpodder.ui.desktop:
+            self.update_item_device()
 
         # Now, update the feed cache, when everything's in place
-        self.btnUpdateFeeds.show()
+        if not gpodder.ui.fremantle:
+            self.btnUpdateFeeds.show()
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=self.config.update_on_startup)
@@ -290,11 +336,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if len(resumable_episodes):
                 self.download_episode_list_paused(resumable_episodes)
-                self.message_area = SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
-                self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
-                self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
-                self.message_area.show_all()
-                self.wNotebook.set_current_page(1)
+                if not gpodder.ui.fremantle:
+                    self.message_area = SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
+                    self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
+                    self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
+                    self.message_area.show_all()
+                    self.wNotebook.set_current_page(1)
 
             self.clean_up_downloads(delete_partial=False)
         else:
@@ -313,6 +360,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
             util.idle_add(self.on_itemUpdate_activate)
+
+    def on_button_subscribe_clicked(self, button):
+        self.on_itemImportChannels_activate(button)
+
+    def on_button_podcasts_clicked(self, widget):
+        self.podcasts_window.show()
+
+    def on_button_downloads_clicked(self, widget):
+        self.downloads_window.show()
 
     def on_treeview_podcasts_selection_changed(self, selection):
         model, iter = selection.get_selected()
@@ -427,17 +483,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
 
         selection = self.treeAvailable.get_selection()
-        if gpodder.ui.maemo:
+        if gpodder.ui.diablo:
             if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
                 selection.set_mode(gtk.SELECTION_SINGLE)
             else:
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
+        elif gpodder.ui.fremantle:
+            selection.set_mode(gtk.SELECTION_SINGLE)
         else:
             selection.set_mode(gtk.SELECTION_MULTIPLE)
             # Update the sensitivity of the toolbar buttons on the Desktop
             selection.connect('changed', lambda s: self.play_or_download())
 
-        if gpodder.ui.maemo:
+        if gpodder.ui.diablo:
             # Set up the tap-and-hold context menu for podcasts
             menu = gtk.Menu()
             menu.append(self.itemUpdateChannel.create_menu_item())
@@ -498,10 +556,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 text=DownloadStatusModel.C_SPEED_TEXT)
         self.treeDownloads.append_column(column)
 
-        # Fifth column: Status
-        column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
-                text=DownloadStatusModel.C_STATUS_TEXT)
-        self.treeDownloads.append_column(column)
+        if not gpodder.ui.fremantle:
+            # Fifth column: Status
+            column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
+                    text=DownloadStatusModel.C_STATUS_TEXT)
+            self.treeDownloads.append_column(column)
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
@@ -592,7 +651,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             model = self.download_status_model
 
-            downloading, failed, finished, queued, others = 0, 0, 0, 0, 0
+            downloading, failed, finished, queued, paused, others = 0, 0, 0, 0, 0, 0
             total_speed, total_size, done_size = 0, 0, 0
 
             # Keep a list of all download tasks that we've seen
@@ -635,32 +694,43 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     finished += 1
                 elif status == download.DownloadTask.QUEUED:
                     queued += 1
+                elif status == download.DownloadTask.PAUSED:
+                    paused += 1
                 else:
                     others += 1
 
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
 
-            text = [_('Downloads')]
-            if downloading + failed + finished + queued > 0:
-                s = []
-                if downloading > 0:
-                    s.append(_('%d active') % downloading)
-                if failed > 0:
-                    s.append(_('%d failed') % failed)
-                if finished > 0:
-                    s.append(_('%d done') % finished)
-                if queued > 0:
-                    s.append(_('%d queued') % queued)
-                text.append(' (' + ', '.join(s)+')')
-            self.labelDownloads.set_text(''.join(text))
-
-            if gpodder.ui.maemo:
-                sum = downloading + failed + finished + queued + others
+            if gpodder.ui.desktop:
+                text = [_('Downloads')]
+                if downloading + failed + finished + queued > 0:
+                    s = []
+                    if downloading > 0:
+                        s.append(_('%d active') % downloading)
+                    if failed > 0:
+                        s.append(_('%d failed') % failed)
+                    if finished > 0:
+                        s.append(_('%d done') % finished)
+                    if queued > 0:
+                        s.append(_('%d queued') % queued)
+                    text.append(' (' + ', '.join(s)+')')
+                self.labelDownloads.set_text(''.join(text))
+            elif gpodder.ui.diablo:
+                sum = downloading + failed + finished + queued + paused + others
                 if sum:
                     self.tool_downloads.set_label(_('Downloads (%d)') % sum)
                 else:
                     self.tool_downloads.set_label(_('Downloads'))
+            elif gpodder.ui.fremantle:
+                if downloading + queued > 0:
+                    self.button_downloads.set_value(_('%d active') % (downloading+queued))
+                elif failed > 0:
+                    self.button_downloads.set_value(_('%d failed') % failed)
+                elif paused > 0:
+                    self.button_downloads.set_value(_('%d paused') % paused)
+                else:
+                    self.button_downloads.set_value(_('None active'))
 
             title = [self.default_title]
 
@@ -1285,8 +1355,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def set_title(self, new_title):
-        self.default_title = new_title
-        self.gPodder.set_title(new_title)
+        if not gpodder.ui.fremantle:
+            self.default_title = new_title
+            self.gPodder.set_title(new_title)
 
     def update_episode_list_icons(self, urls=None, selected=False, all=False):
         """
@@ -1429,10 +1500,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(channel_urls)
 
     def play_or_download(self):
-        if self.wNotebook.get_current_page() > 0:
-            if gpodder.ui.desktop:
-                self.toolCancel.set_sensitive(True)
-            return
+        if not gpodder.ui.fremantle:
+            if self.wNotebook.get_current_page() > 0:
+                if gpodder.ui.desktop:
+                    self.toolCancel.set_sensitive(True)
+                return
 
         if self.currently_updating:
             return (False, False, False, False, False, False)
@@ -1479,16 +1551,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolTransfer.set_sensitive( can_transfer)
             self.toolCancel.set_sensitive( can_cancel)
 
-        self.item_cancel_download.set_sensitive(can_cancel)
-        self.itemDownloadSelected.set_sensitive(can_download)
-        self.itemOpenSelected.set_sensitive(can_play)
-        self.itemPlaySelected.set_sensitive(can_play)
-        self.itemDeleteSelected.set_sensitive(can_play and not can_download)
-        self.item_toggle_played.set_sensitive(can_play)
-        self.item_toggle_lock.set_sensitive(can_play)
-
-        self.itemOpenSelected.set_visible(open_instead_of_play)
-        self.itemPlaySelected.set_visible(not open_instead_of_play)
+        if not gpodder.ui.fremantle:
+            self.item_cancel_download.set_sensitive(can_cancel)
+            self.itemDownloadSelected.set_sensitive(can_download)
+            self.itemOpenSelected.set_sensitive(can_play)
+            self.itemPlaySelected.set_sensitive(can_play)
+            self.itemDeleteSelected.set_sensitive(can_play and not can_download)
+            self.item_toggle_played.set_sensitive(can_play)
+            self.item_toggle_lock.set_sensitive(can_play)
+            self.itemOpenSelected.set_visible(open_instead_of_play)
+            self.itemPlaySelected.set_visible(not open_instead_of_play)
 
         return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
 
@@ -1554,9 +1626,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                         pos = model.iter_next(pos)
 
-                if selected_iter is not None:
-                    selection.select_iter(selected_iter)
-                self.on_treeChannels_cursor_changed(self.treeChannels)
+                if not gpodder.ui.fremantle:
+                    if selected_iter is not None:
+                        selection.select_iter(selected_iter)
+                    self.on_treeChannels_cursor_changed(self.treeChannels)
             except:
                 log('Cannot select podcast in list', traceback=True, sender=self)
         self.channel_list_changed = False
@@ -1771,6 +1844,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # updated, not in other podcasts (for single-feed updates)
         episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
 
+        if gpodder.ui.fremantle:
+            if self._fremantle_update_banner is not None:
+                self._fremantle_update_banner.destroy()
+            hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+            hildon.hildon_gtk_window_set_progress_indicator(self.podcasts_window.main_window, False)
+            if episodes:
+                self.new_episodes_show(episodes)
+            else:
+                self.show_message(_('No new episodes. Please check for new episodes later.'), important=True)
+            return
+
         if self.tray_icon:
             self.tray_icon.set_status()
 
@@ -1837,6 +1921,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.notification(_('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'), widget=self.treeChannels)
                     log('Error: %s', str(e), sender=self, traceback=True)
 
+            if self.feed_cache_update_cancelled:
+                break
+
+            if gpodder.ui.fremantle:
+                if self._fremantle_update_banner is not None:
+                    progression = _('%d of %d podcasts updated') % (updated, total)
+                    util.idle_add(self._fremantle_update_banner.set_text, progression)
+                    util.idle_add(self._fremantle_update_banner.show)
+                continue
+
             # By the time we get here the update may have already been cancelled
             if not self.feed_cache_update_cancelled:
                 def update_progress():
@@ -1846,9 +1940,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
                     self.pbFeedUpdate.set_fraction(float(updated)/float(total))
                 util.idle_add(update_progress)
-
-            if self.feed_cache_update_cancelled:
-                break
 
         updated_urls = [c.url for c in channels]
         util.idle_add(self.update_feed_cache_finish_callback, updated_urls, select_url_afterwards)
@@ -1889,34 +1980,41 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
         
         self.updating_feed_cache = True
-        self.itemUpdate.set_sensitive(False)
-        self.itemUpdateChannel.set_sensitive(False)
 
-        if self.tray_icon:
-            self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
-        
         if channels is None:
             channels = self.channels
 
-        if len(channels) == 1:
-            text = _('Updating "%s"...') % channels[0].title
+        if gpodder.ui.fremantle:
+            hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
+            hildon.hildon_gtk_window_set_progress_indicator(self.podcasts_window.main_window, True)
+            self._fremantle_update_banner = hildon.hildon_banner_show_animation(self.main_window, \
+                '', _('Updating podcast feeds'))
         else:
-            text = _('Updating %d feeds...') % len(channels)
-        self.pbFeedUpdate.set_text(text)
-        self.pbFeedUpdate.set_fraction(0)
+            self.itemUpdate.set_sensitive(False)
+            self.itemUpdateChannel.set_sensitive(False)
 
-        self.feed_cache_update_cancelled = False
-        self.btnCancelFeedUpdate.show()
-        self.btnCancelFeedUpdate.set_sensitive(True)
-        if gpodder.ui.maemo:
-            self.toolbarSpacer.set_expand(False)
-            self.toolbarSpacer.set_draw(True)
-            self.btnUpdateSelectedFeed.hide()
-            self.toolFeedUpdateProgress.show_all()
-        else:
-            self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
-            self.hboxUpdateFeeds.show_all()
-        self.btnUpdateFeeds.hide()
+            if self.tray_icon:
+                self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
+            
+            if len(channels) == 1:
+                text = _('Updating "%s"...') % channels[0].title
+            else:
+                text = _('Updating %d feeds...') % len(channels)
+            self.pbFeedUpdate.set_text(text)
+            self.pbFeedUpdate.set_fraction(0)
+
+            self.feed_cache_update_cancelled = False
+            self.btnCancelFeedUpdate.show()
+            self.btnCancelFeedUpdate.set_sensitive(True)
+            if gpodder.ui.maemo:
+                self.toolbarSpacer.set_expand(False)
+                self.toolbarSpacer.set_draw(True)
+                self.btnUpdateSelectedFeed.hide()
+                self.toolFeedUpdateProgress.show_all()
+            else:
+                self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
+                self.hboxUpdateFeeds.show_all()
+            self.btnUpdateFeeds.hide()
 
         args = (channels, select_url_afterwards)
         threading.Thread(target=self.update_feed_cache_proc, args=args).start()
@@ -2319,11 +2417,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
     def update_item_device( self):
-        if self.config.device_type != 'none':
-            self.itemDevice.set_visible(True)
-            self.itemDevice.label = self.get_device_name()
-        else:
-            self.itemDevice.set_visible(False)
+        if not gpodder.ui.fremantle:
+            if self.config.device_type != 'none':
+                self.itemDevice.set_visible(True)
+                self.itemDevice.label = self.get_device_name()
+            else:
+                self.itemDevice.set_visible(False)
 
     def properties_closed( self):
         self.show_hide_tray_icon()
@@ -2450,8 +2549,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 result = (dialog.run() == gtk.RESPONSE_YES)
                 keep_episodes = cb_ask.get_active()
                 dialog.destroy()
-            elif gpodder.ui.maemo:
+            elif gpodder.ui.diablo:
                 result = self.show_confirmation(_('Do you really want to remove this podcast and all downloaded episodes?'))
+                keep_episodes = False
+            elif gpodder.ui.fremantle:
+                result = True
                 keep_episodes = False
 
             if result:
@@ -2479,11 +2581,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # we simply select the one that comes after it
                     select_url = self.channels[position+1].url
                 
+                title = self.active_channel.title
+
                 # Remove the channel
                 self.active_channel.delete(purge=not keep_episodes)
                 self.channels.remove(self.active_channel)
                 self.channel_list_changed = True
                 self.save_channels_opml()
+
+                if gpodder.ui.fremantle:
+                    self.show_message(_('Podcast removed: %s') % title)
 
                 # Re-load the channels and select the desired new channel
                 self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
@@ -2555,7 +2662,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemImportChannels_activate(self, widget, *args):
         dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                 add_urls_callback=self.add_podcast_list)
-        dir.download_opml_file(self.config.opml_url)
+        util.idle_add(dir.download_opml_file, self.config.opml_url)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
@@ -2842,9 +2949,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_podcasts_tab(self):
         if len(self.channels):
-            self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
+            if gpodder.ui.fremantle:
+                self.button_podcasts.set_value(_('%d subscriptions') % len(self.channels))
+            else:
+                self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
         else:
-            self.label2.set_text(_('Podcasts'))
+            if gpodder.ui.fremantle:
+                self.button_podcasts.set_value(_('No subscriptions'))
+            else:
+                self.label2.set_text(_('Podcasts'))
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
@@ -2922,7 +3035,6 @@ def main(options=None):
             BuilderWidget.use_fingerscroll = True
     elif gpodder.ui.fremantle:
         # FIXME: Move download_dir from ~/gPodder-Podcasts to default setting
-        BuilderWidget.use_fingerscroll = True
         pass
 
     gp = gPodder(bus_name, config)

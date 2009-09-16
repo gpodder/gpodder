@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--*- mode: xml -*-->
+<interface>
+  <object class="HildonStackableWindow" id="gPodderPodcasts">
+    <property name="title" translatable="yes">Podcasts</property>
+    <property name="visible">False</property>
+    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+    <property name="focus_on_map">True</property>
+    <property name="urgency_hint">False</property>
+    <signal name="delete_event" handler="on_delete_event"/>
+    <child>
+      <object class="HildonPannableArea" id="pannablearea">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+        <child>
+          <object class="GtkTreeView" id="treeview">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="headers_visible">False</property>
+            <property name="rules_hint">True</property>
+            <property name="reorderable">False</property>
+            <property name="fixed_height_mode">False</property>
+            <property name="hover_selection">False</property>
+            <property name="hover_expand">False</property>
+            <signal name="expose-event" handler="on_treeview_expose_event"/>
+            <signal name="row_activated" handler="on_podcast_selected"/>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="padding">0</property>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+      </packing>
+    </child>
+  </object>
+  <object class="GtkAction" id="action_update_feeds">
+    <property name="label" translatable="yes">Check for new episodes</property>
+    <signal name="activate" handler="on_update_feeds_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_subscribe">
+    <property name="label" translatable="yes">Add podcast via URL</property>
+    <signal name="activate" handler="on_subscribe_button_clicked"/>
+  </object>
+</interface>
