@@ -40,6 +40,12 @@ class gPodderEpisodes(BuilderWidget):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
+        for filter in (self.item_view_episodes_all, \
+                       self.item_view_episodes_undeleted, \
+                       self.item_view_episodes_downloaded):
+            button = gtk.ToggleButton()
+            filter.connect_proxy(button)
+            appmenu.add_filter(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
 

@@ -204,6 +204,8 @@ gPodderSettings = {
 
     'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)
       ('Internally used (current view mode)')),
+    'podcast_list_view_mode': (int, 1, # Only on Fremantle
+      ('Internally used (current view mode)')),
     'podcast_list_hide_boring': (bool, False,
       ('Hide podcasts in the main window for which the episode list is empty')),
 

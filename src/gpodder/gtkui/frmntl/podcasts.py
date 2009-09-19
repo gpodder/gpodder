@@ -35,6 +35,12 @@ class gPodderPodcasts(BuilderWidget):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
+        for filter in (self.item_view_podcasts_all, \
+                       self.item_view_podcasts_downloaded, \
+                       self.item_view_podcasts_unplayed):
+            button = gtk.ToggleButton()
+            filter.connect_proxy(button)
+            appmenu.add_filter(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
         # Work around Maemo bug #4718

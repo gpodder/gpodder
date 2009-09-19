@@ -235,7 +235,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     show_episode_shownotes=self.show_episode_shownotes, \
                     update_podcast_list_model=self.update_podcast_list_model, \
-                    on_itemRemoveChannel_activate=self.on_itemRemoveChannel_activate)
+                    on_itemRemoveChannel_activate=self.on_itemRemoveChannel_activate, \
+                    item_view_episodes_all=self.item_view_episodes_all, \
+                    item_view_episodes_unplayed=self.item_view_episodes_unplayed, \
+                    item_view_episodes_downloaded=self.item_view_episodes_downloaded, \
+                    item_view_episodes_undeleted=self.item_view_episodes_undeleted)
 
             def on_podcast_selected(channel):
                 self.active_channel = channel
@@ -247,7 +251,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     show_podcast_episodes=on_podcast_selected, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     on_itemAddChannel_activate=self.on_itemAddChannel_activate, \
-                    on_itemUpdate_activate=self.on_itemUpdate_activate)
+                    on_itemUpdate_activate=self.on_itemUpdate_activate, \
+                    item_view_podcasts_all=self.item_view_podcasts_all, \
+                    item_view_podcasts_downloaded=self.item_view_podcasts_downloaded, \
+                    item_view_podcasts_unplayed=self.item_view_podcasts_unplayed)
 
             self.downloads_window = gPodderDownloads(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
@@ -405,6 +412,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def init_podcast_list_treeview(self):
         # Set up podcast channel tree view widget
         self.treeChannels.set_search_equal_func(TreeViewHelper.make_search_equal_func(PodcastListModel))
+
+        if gpodder.ui.fremantle:
+            if self.config.podcast_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
+                self.item_view_podcasts_downloaded.set_active(True)
+            elif self.config.podcast_list_view_mode == EpisodeListModel.VIEW_UNPLAYED:
+                self.item_view_podcasts_unplayed.set_active(True)
+            else:
+                self.item_view_podcasts_all.set_active(True)
+            self.podcast_list_model.set_view_mode(self.config.podcast_list_view_mode)
 
         iconcolumn = gtk.TreeViewColumn('')
         iconcell = gtk.CellRendererPixbuf()
@@ -2401,6 +2417,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.podcast_list_model.set_view_mode(-1)
 
+    def on_item_view_podcasts_changed(self, radioaction, current):
+        # Only on Fremantle
+        if current == self.item_view_podcasts_all:
+            self.podcast_list_model.set_view_mode(-1)
+        elif current == self.item_view_podcasts_downloaded:
+            self.podcast_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
+        elif current == self.item_view_podcasts_unplayed:
+            self.podcast_list_model.set_view_mode(EpisodeListModel.VIEW_UNPLAYED)
+
+        self.config.podcast_list_view_mode = self.podcast_list_model.get_view_mode()
+
     def on_item_view_episodes_changed(self, radioaction, current):
         if current == self.item_view_episodes_all:
             self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
@@ -2413,7 +2440,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
 
-        if self.config.podcast_list_hide_boring:
+        if self.config.podcast_list_hide_boring and not gpodder.ui.fremantle:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
     def update_item_device( self):
