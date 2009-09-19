@@ -36,10 +36,9 @@ from gpodder.gtkui.opml import OpmlListModel
 
 from gpodder.gtkui.interface.common import BuilderWidget
 
+from gpodder.gtkui.frmntl.widgets import EditToolbarDeluxe
 
 class gPodderPodcastDirectory(BuilderWidget):
-    finger_friendly_widgets = ('button_subscribe')
-    
     def new(self):
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
@@ -56,7 +55,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         selection.connect('changed', self.on_selection_changed)
         selection.set_mode(gtk.SELECTION_MULTIPLE)
         selection.unselect_all()
-        appmenu = hildon.AppMenu()
+        self.app_menu = hildon.AppMenu()
         for action in (self.action_load_opml, \
                        self.action_load_toplist, \
                        self.action_load_search, \
@@ -65,11 +64,25 @@ class gPodderPodcastDirectory(BuilderWidget):
                        self.action_select_none):
             button = gtk.Button()
             action.connect_proxy(button)
-            appmenu.append(button)
-        self.main_window.set_app_menu(appmenu)
+            self.app_menu.append(button)
+        self.main_window.set_app_menu(self.app_menu)
 
-        # Work around Maemo bug #4718
-        self.button_subscribe.set_name('HildonButton-finger')
+        self.edit_toolbar = EditToolbarDeluxe(self.main_window.get_title(), \
+                _('Subscribe'))
+        self.edit_toolbar.connect('arrow-clicked', \
+                self.on_close_button_clicked)
+        self.edit_toolbar.connect('button-clicked', \
+                self.on_subscribe_button_clicked)
+        self.edit_toolbar.show_all()
+
+        # This method needs a EditToolbarDeluxe to work
+        self.edit_toolbar.set_button_sensitive(False)
+
+        self.main_window.set_edit_toolbar(self.edit_toolbar)
+        self.main_window.fullscreen()
+        self.main_window.show()
+
+        self.app_menu.popup(self.main_window)
 
     def on_selection_changed(self, selection):
         self.set_subscribe_button_sensitive()
@@ -107,7 +120,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         selection = self.treeview.get_selection()
         selection.unselect_all()
         self.treeview.set_sensitive(False)
-        self.button_subscribe.set_sensitive(False)
 
         banner = hildon.hildon_banner_show_animation(self.main_window, \
                 '', _('Loading podcast list, please wait'))
@@ -123,17 +135,24 @@ class gPodderPodcastDirectory(BuilderWidget):
                 model = OpmlListModel(importer)
             else:
                 model = None
-                self.notification(_('No podcasts found. Try another source.'), \
-                        important=True)
-
             def download_thread_finished():
                 if banner is not None:
                     banner.destroy()
                 hildon.hildon_gtk_window_set_progress_indicator(\
                         self.main_window, False)
+                self.action_select_all.set_property('visible', \
+                        model is not None)
+                self.action_select_none.set_property('visible', \
+                        model is not None)
                 self.treeview.set_model(model)
                 self.treeview.set_sensitive(True)
                 self.set_subscribe_button_sensitive()
+
+                if model is None:
+                    self.show_message(_('No podcasts found. Try another source.'), \
+                            important=True)
+                    self.app_menu.popup(self.main_window)
+
             util.idle_add(download_thread_finished)
 
         threading.Thread(target=download_thread_func).start()
@@ -149,7 +168,13 @@ class gPodderPodcastDirectory(BuilderWidget):
     def set_subscribe_button_sensitive(self):
         selection = self.treeview.get_selection()
         count = selection.count_selected_rows()
-        self.button_subscribe.set_sensitive(count > 0)
+        title = self.main_window.get_title()
+        if count == 1:
+            title += ' - %s' % (_('1 podcast selected'),)
+        elif count > 1:
+            title += ' - %s' % (_('%d podcasts selected') % count,)
+        self.edit_toolbar.set_label(title)
+        self.edit_toolbar.set_button_sensitive(count > 0)
 
     def on_subscribe_button_clicked(self, widget, *args):
         channel_urls = self.get_selected_channels()

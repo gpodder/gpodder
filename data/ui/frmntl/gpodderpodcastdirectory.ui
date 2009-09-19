@@ -3,78 +3,37 @@
 <interface>
   <object class="HildonStackableWindow" id="gPodderPodcastDirectory">
     <property name="title" translatable="yes">Add new podcasts</property>
-    <property name="visible">True</property>
+    <property name="visible">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
     <signal name="destroy" handler="on_close_button_clicked"/>
     <child>
-      <object class="GtkVBox" id="vbox">
-        <property name="border_width">6</property>
+      <object class="HildonPannableArea" id="scrolledwindow">
         <property name="visible">True</property>
-        <property name="spacing">20</property>
+        <property name="can_focus">True</property>
+        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
         <child>
-          <object class="HildonPannableArea" id="scrolledwindow">
+          <object class="GtkTreeView" id="treeview">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <child>
-              <object class="GtkTreeView" id="treeview">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="headers_visible">False</property>
-                <property name="rules_hint">True</property>
-                <property name="reorderable">False</property>
-                <property name="fixed_height_mode">False</property>
-                <property name="hover_selection">False</property>
-                <property name="hover_expand">False</property>
-                <property name="hildon-ui-mode">HILDON_UI_MODE_EDIT</property>
-              </object>
-            </child>
+            <property name="headers_visible">False</property>
+            <property name="rules_hint">True</property>
+            <property name="reorderable">False</property>
+            <property name="fixed_height_mode">False</property>
+            <property name="hover_selection">False</property>
+            <property name="hover_expand">False</property>
+            <property name="hildon-ui-mode">HILDON_UI_MODE_EDIT</property>
           </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHButtonBox" id="hbuttonbox">
-            <property name="visible">True</property>
-            <property name="homogeneous">False</property>
-            <property name="spacing">12</property>
-            <property name="border-width">0</property>
-            <property name="layout-style">end</property>
-            <child>
-              <object class="HildonButton" id="button_subscribe">
-                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="label" translatable="yes">Subscribe</property>
-                <property name="use_stock">True</property>
-                <property name="focus_on_click">True</property>
-                <signal handler="on_subscribe_button_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="padding">0</property>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-          </packing>
         </child>
       </object>
+      <packing>
+        <property name="padding">0</property>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+      </packing>
     </child>
   </object>
   <object class="GtkAction" id="action_load_opml">
@@ -97,10 +56,12 @@
   </object>
   <object class="GtkAction" id="action_select_all">
     <property name="label" translatable="yes">Select all</property>
+    <property name="visible">False</property>
     <signal name="activate" handler="on_select_all_button_clicked"/>
   </object>
   <object class="GtkAction" id="action_select_none">
     <property name="label" translatable="yes">Select none</property>
+    <property name="visible">False</property>
     <signal name="activate" handler="on_select_none_button_clicked"/>
   </object>
   <object class="GtkAction" id="action_close">

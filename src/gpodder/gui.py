@@ -2662,7 +2662,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemImportChannels_activate(self, widget, *args):
         dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                 add_urls_callback=self.add_podcast_list)
-        util.idle_add(dir.download_opml_file, self.config.opml_url)
+        if not gpodder.ui.fremantle:
+            util.idle_add(dir.download_opml_file, self.config.opml_url)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
