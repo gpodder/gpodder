@@ -375,14 +375,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_downloads.set_sensitive(True)
 
         # First-time users should be asked if they want to see the OPML
-        if not self.channels:
+        if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
 
     def on_button_subscribe_clicked(self, button):
         self.on_itemImportChannels_activate(button)
 
     def on_button_podcasts_clicked(self, widget):
-        self.podcasts_window.show()
+        if self.channels:
+            self.podcasts_window.show()
+        else:
+            gPodderWelcome(self.gPodder, \
+                    show_example_podcasts_callback=self.on_itemImportChannels_activate, \
+                    setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
@@ -798,8 +803,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.tray_icon.downloads_finished(self.download_tasks_seen)
                 if gpodder.ui.diablo:
                     hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
-                elif gpodder.ui.fremantle:
-                    self.show_message(_('All downloads finished'))
                 log('All downloads have finished.', sender=self)
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)
@@ -1679,6 +1682,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 banner = None
 
+            if gpodder.ui.fremantle:
+                hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
+
             self.currently_updating = True
             self.episode_list_model.clear()
             def do_update_episode_list_model():
@@ -1691,6 +1697,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 def on_episode_list_model_updated():
                     if banner is not None:
                         banner.destroy()
+                    if gpodder.ui.fremantle:
+                        hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
                     self.treeAvailable.columns_autosize()
                     self.currently_updating = False
                     self.play_or_download()

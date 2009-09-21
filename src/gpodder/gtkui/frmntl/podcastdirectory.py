@@ -60,8 +60,8 @@ class gPodderPodcastDirectory(BuilderWidget):
         selection.set_mode(gtk.SELECTION_MULTIPLE)
         selection.unselect_all()
         self.app_menu = hildon.AppMenu()
-        for action in (self.action_load_opml, \
-                       self.action_load_toplist, \
+        for action in (self.action_load_toplist, \
+                       self.action_load_opml, \
                        self.action_load_search, \
                        self.action_load_youtube, \
                        self.action_select_all, \
@@ -91,9 +91,6 @@ class gPodderPodcastDirectory(BuilderWidget):
     def on_treeview_expose_event(self, treeview, event):
         if event.window == treeview.get_bin_window():
             model = treeview.get_model()
-            if not self._is_updating:
-                return False
-
             if (model is not None and model.get_iter_first() is not None):
                 return False
 
@@ -103,7 +100,10 @@ class gPodderPodcastDirectory(BuilderWidget):
             ctx.clip()
             x, y, width, height, depth = event.window.get_geometry()
 
-            text = _('Downloading podcast list, please wait...')
+            if self._is_updating:
+                text = _('Downloading podcast list, please wait...')
+            else:
+                text = _('No podcasts')
 
             from gpodder.gtkui.frmntl import style
             font_desc = style.get_font_desc('LargeSystemFont')

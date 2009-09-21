@@ -38,7 +38,7 @@ class ProgressIndicator(object):
         self.title = title
         self.subtitle = subtitle
         self.cancellable = cancellable
-        self.parent = None
+        self.parent = parent
         self.dialog = None
         self.progressbar = None
         self.indicator = None
@@ -46,13 +46,20 @@ class ProgressIndicator(object):
         self._initial_progress = None
         self.source_id = gobject.timeout_add(self.DELAY, self._create_progress)
 
+    def _on_delete_event(self, window, event):
+        if self.cancellable:
+            self.dialog.response(gtk.RESPONSE_CANCEL)
+        return True
+
     def _create_progress(self):
         self.dialog = gtk.MessageDialog(self.parent, \
                 0, 0, gtk.BUTTONS_CANCEL, self.subtitle or self.title)
+        self.dialog.connect('delete-event', self._on_delete_event)
         if gpodder.ui.fremantle:
             import hildon
             hildon.hildon_gtk_window_set_progress_indicator(self.dialog, True)
         self.dialog.set_title(self.title)
+        self.dialog.set_deletable(self.cancellable)
         self.dialog.label.set_selectable(False)
 
         self.dialog.set_response_sensitive(gtk.RESPONSE_CANCEL, \
@@ -69,8 +76,11 @@ class ProgressIndicator(object):
             self.progressbar.set_text(self._initial_message)
 
         self.dialog.vbox.add(self.progressbar)
-        self.indicator = SpinningProgressIndicator()
-        self.dialog.set_image(self.indicator)
+        if gpodder.ui.fremantle:
+            self.dialog.set_image(gtk.Image())
+        else:
+            self.indicator = SpinningProgressIndicator()
+            self.dialog.set_image(self.indicator)
         self.dialog.show_all()
 
         gobject.source_remove(self.source_id)
