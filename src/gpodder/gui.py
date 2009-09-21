@@ -1431,7 +1431,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             raise ValueError('Invalid call to update_episode_list_icons')
 
     def episode_list_status_changed(self, episodes):
-        self.update_episode_list_icons([episode.url for episode in episodes])
+        self.update_episode_list_icons(set(e.url for e in episodes))
+        self.update_podcast_list_model(set(e.channel.url for e in episodes))
+        self.db.commit()
 
     def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
@@ -2881,7 +2883,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _playback_episodes=self.playback_episodes, \
                     _delete_episode_list=self.delete_episode_list, \
                     _episode_list_status_changed=self.episode_list_status_changed, \
-                    _cancel_task_list=self.cancel_task_list)
+                    _cancel_task_list=self.cancel_task_list, \
+                    _episode_is_downloading=self.episode_is_downloading)
         self.episode_shownotes_window.show(episode)
         if self.episode_is_downloading(episode):
             self.update_downloads_list()
