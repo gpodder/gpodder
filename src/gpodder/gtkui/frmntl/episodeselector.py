@@ -314,6 +314,11 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.remove_finished(urls)
         self.calculate_total_size()
 
+        # Close the window when there are no episodes left
+        model = self.treeviewEpisodes.get_model()
+        if model.get_iter_first() is None:
+            self.on_btnCancel_clicked(None)
+
     def get_selected_episodes( self, remove_episodes=False):
         selection = self.treeviewEpisodes.get_selection()
         model, paths = selection.get_selected_rows()
