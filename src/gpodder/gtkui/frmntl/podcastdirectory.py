@@ -101,7 +101,7 @@ class gPodderPodcastDirectory(BuilderWidget):
             x, y, width, height, depth = event.window.get_geometry()
 
             if self._is_updating:
-                text = _('Downloading podcast list, please wait...')
+                text = _('Loading podcast list')
             else:
                 text = _('No podcasts')
 

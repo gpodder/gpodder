@@ -121,7 +121,10 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.podcasts import gPodderPodcasts
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
+    from gpodder.gtkui.interface.common import Orientation
     have_trayicon = False
+
+    from gpodder.gtkui.frmntl.portrait import FremantleAutoRotation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 from gpodder.gtkui.interface.progress import ProgressIndicator
@@ -164,6 +167,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             appmenu.show_all()
             self.main_window.set_app_menu(appmenu)
             self._fremantle_update_banner = None
+
+            # Activate application-wide automatic portrait orientation
+            FremantleAutoRotation()
 
             self.bluetooth_available = False
         else:
@@ -391,6 +397,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
+
+    def on_window_orientation_changed(self, orientation):
+        old_container = self.main_window.get_child()
+        if orientation == Orientation.PORTRAIT:
+            container = gtk.VButtonBox()
+        else:
+            container = gtk.HButtonBox()
+        container.set_layout(old_container.get_layout())
+        for child in old_container.get_children():
+            if orientation == Orientation.LANDSCAPE:
+                child.set_alignment(0.5, 0.5, 0., 0.)
+                child.set_property('width-request', 200)
+            else:
+                child.set_alignment(0.5, 0.5, .9, 0.)
+                child.set_property('width-request', 350)
+            child.reparent(container)
+        container.show_all()
+        self.buttonbox = container
+        self.main_window.remove(old_container)
+        self.main_window.add(container)
 
     def on_treeview_podcasts_selection_changed(self, selection):
         model, iter = selection.get_selected()

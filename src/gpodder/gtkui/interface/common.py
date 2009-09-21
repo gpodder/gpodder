@@ -32,6 +32,10 @@ from gpodder.gtkui.base import GtkBuilderWidget
 
 from gpodder.gtkui.widgets import NotificationWindow
 
+# For gPodder on Fremantle
+class Orientation(object):
+    LANDSCAPE, PORTRAIT = range(2)
+
 try:
     import pynotify
     if pynotify.init('gPodder'):
@@ -58,7 +62,17 @@ class BuilderWidget(GtkBuilderWidget):
 
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
+
+        # Enable support for portrait mode changes on Maemo 5
+        if gpodder.ui.fremantle:
+            self._window_orientation = Orientation.LANDSCAPE
+
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
+
+        # Enable support for portrait mode changes on Maemo 5
+        if gpodder.ui.fremantle:
+            self.main_window.connect('configure-event', \
+                    self._on_configure_event_maemo)
 
         # Enable support for fullscreen toggle key on Maemo 4
         if gpodder.ui.diablo:
@@ -95,6 +109,20 @@ class BuilderWidget(GtkBuilderWidget):
                 if parent.window.get_state() & gtk.gdk.WINDOW_STATE_FULLSCREEN:
                     self.main_window.fullscreen()
                     self._maemo_fullscreen = True
+
+    def on_window_orientation_changed(self, orientation):
+        """Override this method to relayout a window for portrait mode."""
+        pass
+
+    def _on_configure_event_maemo(self, window, event):
+        if float(event.width)/float(event.height) < 1:
+            orientation = Orientation.PORTRAIT
+        else:
+            orientation = Orientation.LANDSCAPE
+
+        if orientation != self._window_orientation:
+            self.on_window_orientation_changed(orientation)
+            self._window_orientation = orientation
 
     def _on_key_press_event_maemo(self, widget, event):
         window_type = widget.get_type_hint()
