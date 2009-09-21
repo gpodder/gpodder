@@ -231,6 +231,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         if gpodder.ui.fremantle:
+            self.button_subscribe.set_name('HildonButton-thumb')
+            self.button_podcasts.set_name('HildonButton-thumb')
+            self.button_downloads.set_name('HildonButton-thumb')
+
+            hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
+            while gtk.events_pending():
+                gtk.main_iteration(False)
+
             self.episodes_window = gPodderEpisodes(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     show_episode_shownotes=self.show_episode_shownotes, \
@@ -262,10 +270,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeChannels = self.podcasts_window.treeview
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
-
-            self.button_subscribe.set_name('HildonButton-thumb')
-            self.button_podcasts.set_name('HildonButton-thumb')
-            self.button_downloads.set_name('HildonButton-thumb')
 
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
@@ -363,6 +367,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if len(old_episodes) > 0:
                 self.delete_episode_list(old_episodes, confirm=False)
                 self.update_podcast_list_model(set(e.channel.url for e in old_episodes))
+
+        if gpodder.ui.fremantle:
+            hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+            self.button_subscribe.set_sensitive(True)
+            self.button_podcasts.set_sensitive(True)
+            self.button_downloads.set_sensitive(True)
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
@@ -589,7 +599,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             role = getattr(treeview, TreeViewHelper.ROLE)
             ctx = event.window.cairo_create()
-            png = treeview.get_pango_context()
             ctx.rectangle(event.area.x, event.area.y,
                     event.area.width, event.area.height)
             ctx.clip()
@@ -601,7 +610,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     text = _('Loading episodes') + '...'
                 elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
-                    text = _('Select "View" > "All episodes" to show episodes')
+                    text = _('No episodes in current view')
                 else:
                     text = _('No episodes available')
             elif role == TreeViewHelper.ROLE_PODCASTS:
@@ -613,11 +622,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     text = _('No subscriptions')
             elif role == TreeViewHelper.ROLE_DOWNLOADS:
-                text = _('No downloads')
+                text = _('No active downloads')
             else:
                 raise Exception('on_treeview_expose_event: unknown role')
 
-            draw_text_box_centered(ctx, treeview, width, height, text)
+            if gpodder.ui.fremantle:
+                from gpodder.gtkui.frmntl import style
+                font_desc = style.get_font_desc('LargeSystemFont')
+            else:
+                font_desc = None
+
+            draw_text_box_centered(ctx, treeview, width, height, text, font_desc)
 
         return False
 
@@ -1661,8 +1676,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels and self.active_channel is not None:
             if gpodder.ui.diablo:
                 banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes'))
-            elif gpodder.ui.fremantle:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, '', _('Loading episodes'))
             else:
                 banner = None
 

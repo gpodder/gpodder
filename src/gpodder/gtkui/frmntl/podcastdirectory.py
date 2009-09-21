@@ -32,14 +32,18 @@ from gpodder import util
 from gpodder import opml
 from gpodder import youtube
 
-from gpodder.gtkui.opml import OpmlListModel
+from gpodder.gtkui.frmntl.opml import OpmlListModel
 
 from gpodder.gtkui.interface.common import BuilderWidget
 
 from gpodder.gtkui.frmntl.widgets import EditToolbarDeluxe
 
+from gpodder.gtkui.draw import draw_text_box_centered
+
 class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
+        self._is_updating = False
+
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
 
@@ -84,6 +88,30 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.app_menu.popup(self.main_window)
 
+    def on_treeview_expose_event(self, treeview, event):
+        if event.window == treeview.get_bin_window():
+            model = treeview.get_model()
+            if not self._is_updating:
+                return False
+
+            if (model is not None and model.get_iter_first() is not None):
+                return False
+
+            ctx = event.window.cairo_create()
+            ctx.rectangle(event.area.x, event.area.y,
+                    event.area.width, event.area.height)
+            ctx.clip()
+            x, y, width, height, depth = event.window.get_geometry()
+
+            text = _('Downloading podcast list, please wait...')
+
+            from gpodder.gtkui.frmntl import style
+            font_desc = style.get_font_desc('LargeSystemFont')
+            draw_text_box_centered(ctx, treeview, width, height, text, font_desc)
+
+        return False
+
+
     def on_selection_changed(self, selection):
         self.set_subscribe_button_sensitive()
 
@@ -119,10 +147,9 @@ class gPodderPodcastDirectory(BuilderWidget):
     def download_opml_file(self, url, use_youtube=False):
         selection = self.treeview.get_selection()
         selection.unselect_all()
-        self.treeview.set_sensitive(False)
-
-        banner = hildon.hildon_banner_show_animation(self.main_window, \
-                '', _('Loading podcast list, please wait'))
+        self.treeview.set_model(None)
+        self._is_updating = True
+        self.treeview.queue_draw()
         hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
 
         def download_thread_func():
@@ -136,8 +163,8 @@ class gPodderPodcastDirectory(BuilderWidget):
             else:
                 model = None
             def download_thread_finished():
-                if banner is not None:
-                    banner.destroy()
+                self._is_updating = False
+                self.treeview.queue_draw()
                 hildon.hildon_gtk_window_set_progress_indicator(\
                         self.main_window, False)
                 self.action_select_all.set_property('visible', \
@@ -145,7 +172,6 @@ class gPodderPodcastDirectory(BuilderWidget):
                 self.action_select_none.set_property('visible', \
                         model is not None)
                 self.treeview.set_model(model)
-                self.treeview.set_sensitive(True)
                 self.set_subscribe_button_sensitive()
 
                 if model is None:
