@@ -52,6 +52,8 @@ class gPodderShownotes(gPodderShownotesBase):
                        self.action_pause, \
                        self.action_resume, \
                        self.action_cancel, \
+                       self.action_mark_as_new, \
+                       self.action_mark_as_old, \
                        self.action_visit_website):
             button = gtk.Button()
             action.connect_proxy(button)
@@ -117,24 +119,27 @@ class gPodderShownotes(gPodderShownotesBase):
         self.text_buffer.set_text('')
 
     def on_episode_status_changed(self):
+        downloaded = self.episode.was_downloaded(and_exists=True)
+        downloading = self.task is not None and self.task.status in \
+                (self.task.QUEUED, self.task.DOWNLOADING, self.task.PAUSED)
+        can_set_new_mark = not downloaded and not downloading
+
         self.download_progress.set_property('visible', \
                 self.task is not None and \
                 self.task.status != self.task.CANCELLED)
-        self.action_play.set_visible(\
-                 self.episode.was_downloaded(and_exists=True))
-        self.action_delete.set_visible(\
-                self.episode.was_downloaded(and_exists=True))
-        self.action_download.set_visible((self.task is None and not \
-                self.episode.was_downloaded(and_exists=True)) or \
+        self.action_play.set_visible(downloaded)
+        self.action_delete.set_visible(downloaded)
+        self.action_download.set_visible(\
+                (self.task is None and not downloaded) or \
                 (self.task is not None and \
                  self.task.status in (self.task.CANCELLED, self.task.FAILED)))
         self.action_pause.set_visible(self.task is not None and \
                 self.task.status in (self.task.QUEUED, self.task.DOWNLOADING))
         self.action_resume.set_visible(self.task is not None and \
                 self.task.status == self.task.PAUSED)
-        self.action_cancel.set_visible(self.task is not None and \
-                self.task.status in (self.task.QUEUED, self.task.DOWNLOADING, \
-                    self.task.PAUSED))
+        self.action_cancel.set_visible(downloading)
+        self.action_mark_as_new.set_visible(can_set_new_mark and not self.episode_is_new())
+        self.action_mark_as_old.set_visible(can_set_new_mark and self.episode_is_new())
         self.action_visit_website.set_visible(self.episode is not None and \
                 self.episode.link is not None and \
                 self.episode.link != self.episode.url)

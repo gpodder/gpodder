@@ -73,4 +73,12 @@
     <property name="stock_id">gtk-close</property>
     <signal name="activate" handler="on_close_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_mark_as_new">
+    <property name="label" translatable="yes">Mark as new</property>
+    <signal name="activate" handler="on_mark_as_new_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_mark_as_old">
+    <property name="label" translatable="yes">Remove new mark</property>
+    <signal name="activate" handler="on_do_not_download_button_clicked"/>
+  </object>
 </interface>

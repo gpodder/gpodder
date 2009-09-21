@@ -421,17 +421,9 @@ class PodcastChannel(PodcastModelObject):
         By default, "downloading" is implemented so that it
         reports all episodes as not downloading.
         """
-        def check_is_new(episode):
-            """
-            For a given episode, returns True if it is to
-            be considered new or False if it is "not new".
-            """
-            return episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played and \
-                    not downloading(episode)
-
         return [episode for episode in self.db.load_episodes(self, \
-                factory=self.episode_factory) if check_is_new(episode)]
+                factory=self.episode_factory) if \
+                episode.check_is_new(downloading=downloading)]
 
     def update_m3u_playlist(self):
         # If the save_dir doesn't end with a slash (which it really should
@@ -944,6 +936,17 @@ class PodcastEpisode(PodcastModelObject):
         if ext == '' or util.file_type_by_extension(ext) is None:
             ext = util.extension_from_mimetype(self.mimetype)
         return ext
+
+    def check_is_new(self, downloading=lambda e: False):
+        """
+        Returns True if this episode is to be considered new.
+        "Downloading" should be a callback that gets an episode
+        as its parameter and returns True if the episode is
+        being downloaded at the moment.
+        """
+        return self.state == gpodder.STATE_NORMAL and \
+                not self.is_played and \
+                not downloading(self)
 
     def mark_new(self):
         self.state = gpodder.STATE_NORMAL

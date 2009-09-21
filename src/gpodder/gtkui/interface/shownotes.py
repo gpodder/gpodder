@@ -153,6 +153,15 @@ class gPodderShownotesBase(BuilderWidget):
 
     #############################################################
 
+    def episode_is_new(self):
+        if self.episode is None:
+            return False
+        else:
+            return self.episode.check_is_new(downloading=\
+                    self._episode_is_downloading)
+
+    #############################################################
+
     def show(self, episode):
         if self.main_window.get_property('visible'):
             self.episode = None
