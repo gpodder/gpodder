@@ -26,6 +26,7 @@
 
 import gtk
 import pango
+import pangocairo
 import cairo
 import StringIO
 
@@ -68,67 +69,68 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
             ctx.line_to(x+int(left_side_width)+offset, y)
 
 
-def draw_text_box_centered(ctx, widget, w_width, w_height, text):
+def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None):
     style = widget.rc_get_style()
     text_color = style.text[gtk.STATE_PRELIGHT]
     red, green, blue = text_color.red, text_color.green, text_color.blue
     text_color = [float(x)/65535. for x in (red, green, blue)]
     text_color.append(.5)
 
-    font_desc = style.font_desc
-    font_size = 14 #font_desc.get_size()/float(pango.SCALE)
-    font_name = font_desc.get_family()
+    if font_desc is None:
+        font_desc = style.font_desc
+        font_desc.set_size(14*pango.SCALE)
 
-    ctx.set_font_size(font_size)
-    ctx.select_font_face(font_name, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
-
-    text_extents = TextExtents(ctx, text)
-
-    width = text_extents.width
-    height = text_extents.height
+    pango_context = widget.create_pango_context()
+    layout = pango.Layout(pango_context)
+    layout.set_font_description(font_desc)
+    layout.set_text(text)
+    width, height = layout.get_pixel_size()
 
     ctx.move_to(w_width/2-width/2, w_height/2-height/2)
     ctx.set_source_rgba(*text_color)
-    ctx.show_text(text)
+    ctx.show_layout(layout)
 
 
-def draw_text_pill(left_text, right_text, x=0, y=0, border=5, radius=14):
+def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
     # Create temporary context to calculate the text size
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
 
     # Use GTK+ style of a normal Button
-    widget = gtk.Button()
+    widget = gtk.Label()
     style = widget.rc_get_style()
 
-    x_border = border
+    x_border = border*2
 
-    font_desc = style.font_desc
-    font_size = 1.2*float(font_desc.get_size())/float(pango.SCALE)
-    font_name = font_desc.get_family()
+    if font_desc is None:
+        font_desc = style.font_desc
+        font_desc.set_weight(pango.WEIGHT_BOLD)
 
-    xd, yd = ctx.device_to_user(font_size, font_size)
-    ctx.set_font_size((xd+yd)/2)
-    ctx.select_font_face(font_name, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    pango_context = widget.create_pango_context()
+    layout_left = pango.Layout(pango_context)
+    layout_left.set_font_description(font_desc)
+    layout_left.set_text(left_text)
+    layout_right = pango.Layout(pango_context)
+    layout_right.set_font_description(font_desc)
+    layout_right.set_text(right_text)
 
-    left_text_e = TextExtents(ctx, left_text)
-    right_text_e = TextExtents(ctx, right_text)
-    text_height = max(left_text_e.height, right_text_e.height)
+    width_left, height_left = layout_left.get_pixel_size()
+    width_right, height_right = layout_right.get_pixel_size()
+
+    text_height = max(height_left, height_right)
 
     image_height = int(y+text_height+border*2)
-    image_width = int(x+left_text_e.width+right_text_e.width+x_border*4)
+    image_width = int(x+width_left+width_right+x_border*4)
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
 
-    ctx = cairo.Context(surface)
-    ctx.set_font_size(font_size)
-    ctx.select_font_face(font_name, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    ctx = pangocairo.CairoContext(cairo.Context(surface))
 
     if left_text == '0':
         left_text = None
     if right_text == '0':
         right_text = None
 
-    left_side_width = left_text_e.width + x_border*2
-    right_side_width = right_text_e.width + x_border*2
+    left_side_width = width_left + x_border*2
+    right_side_width = width_right + x_border*2
 
     rect_width = left_side_width + right_side_width
     rect_height = text_height + border*2
@@ -154,12 +156,12 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=5, radius=14):
         ctx.set_line_width(1)
         ctx.stroke()
 
-        ctx.move_to(x+1+x_border-left_text_e.x_bearing, y+1+border+text_height)
+        ctx.move_to(x+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        ctx.show_text(left_text)
-        ctx.move_to(x+x_border-left_text_e.x_bearing, y+border+text_height)
+        ctx.show_layout(layout_left)
+        ctx.move_to(x-1+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        ctx.show_text(left_text)
+        ctx.show_layout(layout_left)
 
     if right_text is not None:
         draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
@@ -183,12 +185,12 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=5, radius=14):
         ctx.set_line_width(1)
         ctx.stroke()
 
-        ctx.move_to(x+1+x_border*3+left_text_e.width-right_text_e.x_bearing, y+1+border+text_height)
+        ctx.move_to(x+left_side_width+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        ctx.show_text(right_text)
-        ctx.move_to(x+x_border*3+left_text_e.width-right_text_e.x_bearing, y+border+text_height)
+        ctx.show_layout(layout_right)
+        ctx.move_to(x-1+left_side_width+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        ctx.show_text(right_text)
+        ctx.show_layout(layout_right)
 
     return surface
 
