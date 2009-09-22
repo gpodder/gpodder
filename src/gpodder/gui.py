@@ -1811,7 +1811,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         + '\n\n' + _('Do you want to visit the website now?')
                 message = message % (url, redirections[url])
                 if self.show_confirmation(message, title):
-                    util.open_website(error.data)
+                    util.open_website(url)
                 else:
                     break
 
