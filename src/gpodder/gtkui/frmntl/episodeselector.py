@@ -29,6 +29,7 @@ from gpodder import util
 from gpodder.liblogger import log
 
 from gpodder.gtkui.interface.common import BuilderWidget
+from gpodder.gtkui.interface.common import Orientation
 
 class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
@@ -241,6 +242,10 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
+
+    def on_window_orientation_changed(self, orientation):
+        self.labelTotalSize.set_property('visible', \
+                orientation == Orientation.LANDSCAPE)
 
     def on_selection_changed(self, selection):
         self.calculate_total_size()
