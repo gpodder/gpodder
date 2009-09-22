@@ -272,7 +272,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.downloads_window = gPodderDownloads(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
-                    on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked)
+                    on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked, \
+                    _for_each_task_set_status=self._for_each_task_set_status, \
+                    downloads_list_get_selection=self.downloads_list_get_selection)
             self.treeChannels = self.podcasts_window.treeview
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
@@ -975,6 +977,81 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return model, paths
 
+    def downloads_list_get_selection(self, model=None, paths=None):
+        if model is None and paths is None:
+            selection = self.treeDownloads.get_selection()
+            model, paths = selection.get_selected_rows()
+
+        can_queue, can_cancel, can_pause, can_remove = (True,)*4
+        selected_tasks = [(gtk.TreeRowReference(model, path), \
+                           model.get_value(model.get_iter(path), \
+                           DownloadStatusModel.C_TASK)) for path in paths]
+
+        for row_reference, task in selected_tasks:
+            if task.status not in (download.DownloadTask.PAUSED, \
+                    download.DownloadTask.FAILED, \
+                    download.DownloadTask.CANCELLED):
+                can_queue = False
+            if task.status not in (download.DownloadTask.PAUSED, \
+                    download.DownloadTask.QUEUED, \
+                    download.DownloadTask.DOWNLOADING):
+                can_cancel = False
+            if task.status not in (download.DownloadTask.QUEUED, \
+                    download.DownloadTask.DOWNLOADING):
+                can_pause = False
+            if task.status not in (download.DownloadTask.CANCELLED, \
+                    download.DownloadTask.FAILED, \
+                    download.DownloadTask.DONE):
+                can_remove = False
+
+        return selected_tasks, can_queue, can_cancel, can_pause, can_remove
+
+    def _for_each_task_set_status(self, tasks, status):
+        episode_urls = set()
+        model = self.treeDownloads.get_model()
+        for row_reference, task in tasks:
+            if status == download.DownloadTask.QUEUED:
+                # Only queue task when its paused/failed/cancelled
+                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED):
+                    self.download_queue_manager.add_task(task)
+                    self.enable_download_list_update()
+            elif status == download.DownloadTask.CANCELLED:
+                # Cancelling a download allowed when downloading/queued
+                if task.status in (task.QUEUED, task.DOWNLOADING):
+                    task.status = status
+                # Cancelling paused downloads requires a call to .run()
+                elif task.status == task.PAUSED:
+                    task.status = status
+                    # Call run, so the partial file gets deleted
+                    task.run()
+            elif status == download.DownloadTask.PAUSED:
+                # Pausing a download only when queued/downloading
+                if task.status in (task.DOWNLOADING, task.QUEUED):
+                    task.status = status
+            elif status is None:
+                # Remove the selected task - cancel downloading/queued tasks
+                if task.status in (task.QUEUED, task.DOWNLOADING):
+                    task.status = task.CANCELLED
+                model.remove(model.get_iter(row_reference.get_path()))
+                # Remember the URL, so we can tell the UI to update
+                try:
+                    # We don't "see" this task anymore - remove it;
+                    # this is needed, so update_episode_list_icons()
+                    # below gets the correct list of "seen" tasks
+                    self.download_tasks_seen.remove(task)
+                except KeyError, key_error:
+                    log('Cannot remove task from "seen" list: %s', task, sender=self)
+                episode_urls.add(task.url)
+                # Tell the task that it has been removed (so it can clean up)
+                task.removed_from_list()
+            else:
+                # We can (hopefully) simply set the task status here
+                task.status = status
+        # Tell the podcasts tab to update icons for our removed podcasts
+        self.update_episode_list_icons(episode_urls)
+        # Update the tab title and downloads list
+        self.update_downloads_list()
+
     def treeview_downloads_show_context_menu(self, treeview, event):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -984,86 +1061,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return not treeview.is_rubber_banding_active()
 
         if event.button == self.context_menu_mouse_button:
-            selected_tasks = [(gtk.TreeRowReference(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
+            selected_tasks, can_queue, can_cancel, can_pause, can_remove = \
+                    self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, stock_id, tasks, status):
+            def make_menu_item(label, stock_id, tasks, status, sensitive):
                 # This creates a menu item for selection-wide actions
-                def for_each_task_set_status(tasks, status):
-                    changed_episode_urls = []
-                    for row_reference, task in tasks:
-                        if status is not None:
-                            if status == download.DownloadTask.QUEUED:
-                                # Only queue task when its paused/failed/cancelled
-                                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED):
-                                    self.download_queue_manager.add_task(task)
-                                    self.enable_download_list_update()
-                            elif status == download.DownloadTask.CANCELLED:
-                                # Cancelling a download allowed when downloading/queued
-                                if task.status in (task.QUEUED, task.DOWNLOADING):
-                                    task.status = status
-                                # Cancelling paused downloads requires a call to .run()
-                                elif task.status == task.PAUSED:
-                                    task.status = status
-                                    # Call run, so the partial file gets deleted
-                                    task.run()
-                            elif status == download.DownloadTask.PAUSED:
-                                # Pausing a download only when queued/downloading
-                                if task.status in (task.DOWNLOADING, task.QUEUED):
-                                    task.status = status
-                            else:
-                                # We (hopefully) can simply set the task status here
-                                task.status = status
-                        else:
-                            # Remove the selected task - cancel downloading/queued tasks
-                            if task.status in (task.QUEUED, task.DOWNLOADING):
-                                task.status = task.CANCELLED
-                            model.remove(model.get_iter(row_reference.get_path()))
-                            # Remember the URL, so we can tell the UI to update
-                            try:
-                                # We don't "see" this task anymore - remove it;
-                                # this is needed, so update_episode_list_icons()
-                                # below gets the correct list of "seen" tasks
-                                self.download_tasks_seen.remove(task)
-                            except KeyError, key_error:
-                                log('Cannot remove task from "seen" list: %s', task, sender=self)
-                            changed_episode_urls.append(task.url)
-                            # Tell the task that it has been removed (so it can clean up)
-                            task.removed_from_list()
-                    # Tell the podcasts tab to update icons for our removed podcasts
-                    self.update_episode_list_icons(changed_episode_urls)
-                    # Update the tab title and downloads list
-                    self.update_downloads_list()
-                    return True
                 item = gtk.ImageMenuItem(label)
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda item: for_each_task_set_status(tasks, status))
-
-                # Determine if we should disable this menu item
-                for row_reference, task in tasks:
-                    if status == download.DownloadTask.QUEUED:
-                        if task.status not in (download.DownloadTask.PAUSED, \
-                                download.DownloadTask.FAILED, \
-                                download.DownloadTask.CANCELLED):
-                            item.set_sensitive(False)
-                            break
-                    elif status == download.DownloadTask.CANCELLED:
-                        if task.status not in (download.DownloadTask.PAUSED, \
-                                download.DownloadTask.QUEUED, \
-                                download.DownloadTask.DOWNLOADING):
-                            item.set_sensitive(False)
-                            break
-                    elif status == download.DownloadTask.PAUSED:
-                        if task.status not in (download.DownloadTask.QUEUED, \
-                                download.DownloadTask.DOWNLOADING):
-                            item.set_sensitive(False)
-                            break
-                    elif status is None:
-                        if task.status not in (download.DownloadTask.CANCELLED, \
-                                download.DownloadTask.FAILED, \
-                                download.DownloadTask.DONE):
-                            item.set_sensitive(False)
-                            break
-
+                item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status))
+                item.set_sensitive(sensitive)
                 return self.set_finger_friendly(item)
 
             menu = gtk.Menu()
@@ -1078,11 +1084,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.set_sensitive(False)
             menu.append(self.set_finger_friendly(item))
             menu.append(gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED))
-            menu.append(make_menu_item(_('Cancel'), gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED))
-            menu.append(make_menu_item(_('Pause'), gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED))
+            menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, can_queue))
+            menu.append(make_menu_item(_('Cancel'), gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
+            menu.append(make_menu_item(_('Pause'), gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED, can_pause))
             menu.append(gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None))
+            menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
 
             if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,

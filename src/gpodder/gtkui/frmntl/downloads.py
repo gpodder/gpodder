@@ -24,11 +24,17 @@ import gpodder
 
 _ = gpodder.gettext
 
+from gpodder.download import DownloadTask
+
 from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderDownloads(BuilderWidget):
     def new(self):
+        self._selected_tasks = []
+        selection = self.treeview.get_selection()
+        selection.connect('changed', self.on_selection_changed)
+
         appmenu = hildon.AppMenu()
         for action in (self.action_pause, \
                        self.action_resume, \
@@ -41,8 +47,18 @@ class gPodderDownloads(BuilderWidget):
             appmenu.append(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
-        # Work around Maemo bug #4718
-        #self.button_subscribe.set_name('HildonButton-finger')
+
+    def on_selection_changed(self, selection):
+        selected_tasks, can_queue, can_cancel, can_pause, can_remove = self.downloads_list_get_selection()
+        self._selected_tasks = selected_tasks
+        if selected_tasks:
+            self.action_pause.set_sensitive(can_pause)
+            self.action_resume.set_sensitive(can_queue)
+            self.action_cancel.set_sensitive(can_cancel)
+        else:
+            self.action_pause.set_sensitive(False)
+            self.action_resume.set_sensitive(False)
+            self.action_cancel.set_sensitive(False)
 
     def on_delete_event(self, widget, event):
         self.main_window.hide()
@@ -52,13 +68,13 @@ class gPodderDownloads(BuilderWidget):
         self.main_window.show()
 
     def on_pause_button_clicked(self, button):
-        pass
+        self._for_each_task_set_status(self._selected_tasks, DownloadTask.PAUSED)
 
     def on_resume_button_clicked(self, button):
-        pass
+        self._for_each_task_set_status(self._selected_tasks, DownloadTask.QUEUED)
 
     def on_cancel_button_clicked(self, button):
-        pass
+        self._for_each_task_set_status(self._selected_tasks, DownloadTask.CANCELLED)
 
     def on_cleanup_button_clicked(self, button):
         self.on_btnCleanUpDownloads_clicked(button)
