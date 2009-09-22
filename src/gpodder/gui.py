@@ -589,35 +589,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
         cell = gtk.CellRendererText()
         cell.set_property('ellipsize', pango.ELLIPSIZE_END)
         column.pack_start(cell, expand=True)
-        column.add_attribute(cell, 'text', DownloadStatusModel.C_NAME)
-
+        column.add_attribute(cell, 'markup', DownloadStatusModel.C_NAME)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        column.set_resizable(True)
         column.set_expand(True)
         self.treeDownloads.append_column(column)
 
         # Second column: Progress
-        column = gtk.TreeViewColumn(_('Progress'), gtk.CellRendererProgress(),
+        cell = gtk.CellRendererProgress()
+        cell.set_property('yalign', .5)
+        cell.set_property('ypad', 6)
+        column = gtk.TreeViewColumn(_('Progress'), cell,
                 value=DownloadStatusModel.C_PROGRESS, \
                 text=DownloadStatusModel.C_PROGRESS_TEXT)
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        column.set_expand(False)
+        column.set_property('min-width', 150)
+        column.set_property('max-width', 150)
         self.treeDownloads.append_column(column)
-
-        # Third column: Size
-        if gpodder.ui.desktop:
-            column = gtk.TreeViewColumn(_('Size'), gtk.CellRendererText(),
-                    text=DownloadStatusModel.C_SIZE_TEXT)
-            self.treeDownloads.append_column(column)
-
-        # Fourth column: Speed
-        column = gtk.TreeViewColumn(_('Speed'), gtk.CellRendererText(),
-                text=DownloadStatusModel.C_SPEED_TEXT)
-        self.treeDownloads.append_column(column)
-
-        if not gpodder.ui.fremantle:
-            # Fifth column: Status
-            column = gtk.TreeViewColumn(_('Status'), gtk.CellRendererText(),
-                    text=DownloadStatusModel.C_STATUS_TEXT)
-            self.treeDownloads.append_column(column)
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)

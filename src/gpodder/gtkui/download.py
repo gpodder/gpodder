@@ -39,13 +39,12 @@ _ = gpodder.gettext
 
 class DownloadStatusModel(gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
-    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_SIZE_TEXT, \
-            C_ICON_NAME, C_SPEED_TEXT, C_STATUS_TEXT = range(9)
+    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = range(6)
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        gtk.ListStore.__init__(self, object, str, str, int, str, str, str, str, str)
+        gtk.ListStore.__init__(self, object, str, str, int, str, str)
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
@@ -63,26 +62,30 @@ class DownloadStatusModel(gtk.ListStore):
             # Initial update request - update non-changing fields
             self.set(iter,
                     self.C_TASK, task,
-                    self.C_NAME, str(task),
                     self.C_URL, task.url)
 
         if task.status == task.FAILED:
-            status_message = _('Failed: %s') % (task.error_message,)
+            status_message = '%s: %s' % (\
+                    task.STATUS_MESSAGE[task.status], \
+                    task.error_message)
+        elif task.status == task.DOWNLOADING:
+            status_message = '%s (%s, %s/s)' % (\
+                    task.STATUS_MESSAGE[task.status], \
+                    util.format_filesize(task.total_size), \
+                    util.format_filesize(task.speed))
         else:
-            status_message = task.STATUS_MESSAGE[task.status]
-
-        if task.status == task.DOWNLOADING:
-            speed_message = '%s/s' % util.format_filesize(task.speed)
-        else:
-            speed_message = ''
+            status_message = '%s (%s)' % (\
+                    task.STATUS_MESSAGE[task.status], \
+                    util.format_filesize(task.total_size))
 
         self.set(iter,
+                self.C_NAME, '%s\n<small>%s - %s</small>' % (\
+                        task.markup_name, \
+                        status_message, \
+                        task.markup_podcast_name),
                 self.C_PROGRESS, 100.*task.progress,
                 self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
-                self.C_SIZE_TEXT, util.format_filesize(task.total_size),
-                self.C_ICON_NAME, self._status_ids[task.status],
-                self.C_SPEED_TEXT, speed_message,
-                self.C_STATUS_TEXT, status_message)
+                self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):
         iter = self.append()

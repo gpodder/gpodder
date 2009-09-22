@@ -526,6 +526,10 @@ class DownloadTask(object):
         self.__episode = episode
         self._config = config
 
+        # Set names for the downloads list
+        self.markup_name = saxutils.escape(self.__episode.title)
+        self.markup_podcast_name = saxutils.escape(self.__episode.channel.title)
+
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)
         self.tempname = self.filename + '.partial'
