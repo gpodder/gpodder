@@ -24,6 +24,8 @@ import gpodder
 
 _ = gpodder.gettext
 
+from gpodder import util
+
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 
@@ -43,14 +45,14 @@ class gPodderPodcasts(BuilderWidget):
             appmenu.add_filter(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
-        # Work around Maemo bug #4718
-        #self.button_subscribe.set_name('HildonButton-finger')
 
     def on_update_feeds_button_clicked(self, button):
-        self.on_itemUpdate_activate(button)
+        self.main_window.hide()
+        util.idle_add(self.on_itemUpdate_activate, button)
 
     def on_subscribe_button_clicked(self, button):
-        self.on_itemAddChannel_activate(button)
+        self.main_window.hide()
+        util.idle_add(self.on_itemAddChannel_activate, button)
     
     def on_podcast_selected(self, treeview, path, column):
         model = treeview.get_model()

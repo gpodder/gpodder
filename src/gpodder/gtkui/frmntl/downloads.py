@@ -69,12 +69,15 @@ class gPodderDownloads(BuilderWidget):
 
     def on_pause_button_clicked(self, button):
         self._for_each_task_set_status(self._selected_tasks, DownloadTask.PAUSED)
+        self.on_select_none_button_clicked(button)
 
     def on_resume_button_clicked(self, button):
         self._for_each_task_set_status(self._selected_tasks, DownloadTask.QUEUED)
+        self.on_select_none_button_clicked(button)
 
     def on_cancel_button_clicked(self, button):
         self._for_each_task_set_status(self._selected_tasks, DownloadTask.CANCELLED)
+        self.on_select_none_button_clicked(button)
 
     def on_cleanup_button_clicked(self, button):
         self.on_btnCleanUpDownloads_clicked(button)

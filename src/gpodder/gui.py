@@ -159,8 +159,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             appmenu = hildon.AppMenu()
             for action in (self.itemUpdate, \
-                           self.itemRemoveOldEpisodes, \
-                           self.itemPreferences):
+                    self.itemAddChannel, \
+                    self.itemRemoveOldEpisodes, \
+                    self.itemAbout):
                 button = gtk.Button()
                 action.connect_proxy(button)
                 appmenu.append(button)
@@ -1905,7 +1906,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self._fremantle_update_banner is not None:
                 self._fremantle_update_banner.destroy()
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
-            hildon.hildon_gtk_window_set_progress_indicator(self.podcasts_window.main_window, False)
+            self.update_podcasts_tab()
             if episodes:
                 self.new_episodes_show(episodes)
             else:
@@ -1982,10 +1983,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 break
 
             if gpodder.ui.fremantle:
-                if self._fremantle_update_banner is not None:
-                    progression = _('%d of %d podcasts updated') % (updated, total)
-                    util.idle_add(self._fremantle_update_banner.set_text, progression)
-                    util.idle_add(self._fremantle_update_banner.show)
+                self.button_podcasts.set_value(_('%d/%d updated') % (updated, total))
                 continue
 
             # By the time we get here the update may have already been cancelled
@@ -2043,7 +2041,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
-            hildon.hildon_gtk_window_set_progress_indicator(self.podcasts_window.main_window, True)
             self._fremantle_update_banner = hildon.hildon_banner_show_animation(self.main_window, \
                 '', _('Updating podcast feeds'))
         else:
@@ -2778,6 +2775,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 dlg.set_logo(gtk.gdk.pixbuf_new_from_file(gpodder.icon_file))
             except:
                 dlg.set_logo_icon_name('gpodder')
+        elif gpodder.ui.fremantle:
+            for parent in dlg.vbox.get_children():
+                for child in parent.get_children():
+                    if isinstance(child, gtk.Label):
+                        child.set_selectable(False)
         
         dlg.run()
 

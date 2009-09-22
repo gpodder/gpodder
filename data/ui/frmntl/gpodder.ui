@@ -7,6 +7,11 @@
     <property name="label" translatable="yes">Check for new episodes</property>
     <signal handler="on_itemUpdate_activate" name="activate"/>
   </object>
+  <object class="GtkAction" id="itemAbout">
+    <property name="stock_id">gtk-about</property>
+    <property name="name">itemAbout</property>
+    <signal handler="on_itemAbout_activate" name="activate"/>
+  </object>
   <object class="GtkAction" id="itemDownloadAllNew">
     <property name="stock_id">gtk-goto-bottom</property>
     <property name="name">itemDownloadAllNew</property>
