@@ -1520,6 +1520,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('Opening with system default: %s', filename, sender=self)
                 util.gui_open(filename)
             del groups['default']
+        elif gpodder.ui.maemo:
+            # When on Maemo and not opening with default, show a notification
+            # (no startup notification for Panucci / MPlayer yet...)
+            if len(episodes) == 1:
+                text = _('Opening %s') % episodes[0].title
+            else:
+                text = _('Opening %d episodes') % len(episodes)
+
+            banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
+
+            def destroy_banner_later(banner):
+                banner.destroy()
+                return False
+            gobject.timeout_add(5000, destroy_banner_later, banner)
 
         # For each type now, go and create play commands
         for group in groups:
@@ -1528,22 +1542,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 subprocess.Popen(command)
 
     def playback_episodes(self, episodes):
-        if gpodder.ui.maemo:
-            if len(episodes) == 1:
-                text = _('Opening %s') % episodes[0].title
-            else:
-                text = _('Opening %d episodes') % len(episodes)
-
-            if gpodder.ui.diablo:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
-            elif gpodder.ui.fremantle:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, '', text)
-
-            def destroy_banner_later(banner):
-                banner.destroy()
-                return False
-            gobject.timeout_add(5000, destroy_banner_later, banner)
-
         episodes = [e for e in episodes if \
                 e.was_downloaded(and_exists=True) or self.streaming_possible()]
 

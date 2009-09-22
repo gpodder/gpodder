@@ -1068,7 +1068,7 @@ def gui_open(filename):
        on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
-        if gpodder.ui.diablo:
+        if gpodder.ui.maemo:
             try:
                 import osso
             except ImportError, ie:
@@ -1076,16 +1076,12 @@ def gui_open(filename):
                 return False
 
             log('Using Nokia Media Player to open %s', filename)
-            context = osso.Context('gpodder_osso_sender', '1.0', False)
+            context = osso.Context('gPodder', gpodder.__version__, False)
             filename = filename.encode('utf-8')
             rpc = osso.Rpc(context)
             service, path = 'com.nokia.mediaplayer', '/com/nokia/mediaplayer'
-            if os.path.isfile(filename):
-                filename = 'file://' + filename
             rpc.rpc_run(service, path, service, 'mime_open', (filename,))
-            return True
-
-        if gpodder.win32:
+        elif gpodder.win32:
             os.startfile(filename)
         else:
             subprocess.Popen(['xdg-open', filename])
@@ -1101,7 +1097,15 @@ def open_website(url):
     browser. This uses Python's "webbrowser" module, so
     make sure your system is set up correctly.
     """
-    threading.Thread(target=webbrowser.open, args=(url,)).start()
+    if gpodder.ui.maemo:
+        import osso
+        context = osso.Context('gPodder', gpodder.__version__, False)
+        rpc = osso.Rpc(context)
+        rpc.rpc_run_with_defaults('osso_browser', \
+                                  'open_new_window', \
+                                  (url,))
+    else:
+        threading.Thread(target=webbrowser.open, args=(url,)).start()
 
 def sanitize_encoding(filename):
     r"""
