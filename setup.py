@@ -56,8 +56,8 @@ if not len(translation_files) and not 'clean' in sys.argv:
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
-inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui') + \
-                      glob.glob('data/ui/frmntl/*.ui')
+inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui')
+inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ]
 inst_desktop = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]
@@ -103,6 +103,7 @@ if target == DEFAULT or building_source:
 if target == MAEMO or building_source:
     data_files += [
       ('share/gpodder/ui/maemo', inst_share_ui_maemo),
+      ('share/gpodder/ui/frmntl', inst_share_ui_frmntl),
       ('share/applications/hildon', inst_desktop_maemo),
       ('share/icons/hicolor/scalable/apps', inst_icons_64),
       ('share/icons/hicolor/40x40/apps', inst_icons_40),
