@@ -97,6 +97,7 @@ if gpodder.ui.desktop:
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
     from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
+    from gpodder.gtkui.desktop.dependencymanager import gPodderDependencyManager
     try:
         from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
         have_trayicon = True
@@ -104,7 +105,6 @@ if gpodder.ui.desktop:
         log('Warning: Could not import gpodder.trayicon.', traceback=True)
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
-    from gpodder.gtkui.interface.dependencymanager import gPodderDependencyManager
 elif gpodder.ui.diablo:
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences

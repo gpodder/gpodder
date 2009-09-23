@@ -37,7 +37,7 @@ class gPodderDependencyManager(BuilderWidget):
         self.treeview_components.append_column(col_installed)
         self.treeview_components.set_model(DependencyModel(services.dependency_manager))
         self.btn_about.set_sensitive(False)
-        self.btn_install.set_sensitive(False)
+        self.btn_install.hide()
 
     def on_btn_about_clicked(self, widget):
         selection = self.treeview_components.get_selection()
@@ -51,7 +51,7 @@ class gPodderDependencyManager(BuilderWidget):
             if not available:
                 description += '\n\n'+_('Missing components:')+'\n\n'+missing
 
-            self.show_message(description, title)
+            self.show_message(description, title, important=True)
 
     def on_btn_install_clicked(self, widget):
         # TODO: Implement package manager integration
@@ -59,7 +59,7 @@ class gPodderDependencyManager(BuilderWidget):
 
     def on_treeview_components_cursor_changed(self, treeview):
         self.btn_about.set_sensitive(treeview.get_selection().count_selected_rows() > 0)
-        # TODO: If installing is possible, enable btn_install
+        # TODO: If installing is possible, show btn_install
 
     def on_gPodderDependencyManager_response(self, dialog, response_id):
         self.gPodderDependencyManager.destroy()
