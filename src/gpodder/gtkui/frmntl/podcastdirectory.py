@@ -60,11 +60,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         selection.set_mode(gtk.SELECTION_MULTIPLE)
         selection.unselect_all()
         self.app_menu = hildon.AppMenu()
-        for action in (self.action_load_toplist, \
-                       self.action_load_opml, \
-                       self.action_load_search, \
-                       self.action_load_youtube, \
-                       self.action_select_all, \
+        for action in (self.action_select_all, \
                        self.action_select_none):
             button = gtk.Button()
             action.connect_proxy(button)
@@ -86,7 +82,81 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.main_window.fullscreen()
         self.main_window.show()
 
-        self.app_menu.popup(self.main_window)
+    @classmethod
+    def show_add_podcast_picker(cls, parent, toplist_url, opml_url, \
+            add_urls_callback, subscribe_to_url_callback, \
+            my_gpodder_callback, show_text_edit_dialog):
+        dialog = gtk.Dialog(_('Select a source'), parent)
+        pannable_area = hildon.PannableArea()
+        pannable_area.set_size_request_policy(hildon.SIZE_REQUEST_CHILDREN)
+        dialog.vbox.pack_start(pannable_area, expand=True)
+        vbox = gtk.VBox(spacing=1)
+        pannable_area.add_with_viewport(vbox)
+
+        def load_opml_from_url(url):
+            if url is not None:
+                o = cls(parent, add_urls_callback=add_urls_callback)
+                o.download_opml_file(url)
+
+        def choice_enter_feed_url(widget):
+            dialog.destroy()
+            subscribe_to_url_callback()
+
+        def choice_load_opml_from_url(widget):
+            dialog.destroy()
+            url = show_text_edit_dialog(_('Load OPML file from the web'), \
+                    _('URL:'), is_url=True)
+            load_opml_from_url(url)
+
+        def choice_load_examples(widget):
+            dialog.destroy()
+            load_opml_from_url(opml_url)
+
+        def choice_load_toplist(widget):
+            dialog.destroy()
+            load_opml_from_url(toplist_url)
+
+        def choice_search_podcast_de(widget):
+            dialog.destroy()
+            search_term = show_text_edit_dialog(_('Search podcast.de'), \
+                    _('Search for:'))
+            if search_term is not None:
+                url = 'http://api.podcast.de/opml/podcasts/suche/%s' % \
+                        (urllib.quote(search_term),)
+                load_opml_from_url(url)
+
+        def choice_search_youtube(widget):
+            dialog.destroy()
+            search_term = show_text_edit_dialog(\
+                    _('Search YouTube user channels'), \
+                    _('Search for:'))
+            if search_term is not None:
+                url = 'youtube://%s' % (search_term,)
+                load_opml_from_url(url)
+
+        def choice_mygpodder(widget):
+            dialog.destroy()
+            my_gpodder_callback()
+
+        choices = (
+                (_('Podcast feed/website URL'), choice_enter_feed_url),
+                (_('OPML file from the web'), choice_load_opml_from_url),
+                (_('Example podcasts'), choice_load_examples),
+                (_('Podcast Top 50'), choice_load_toplist),
+                (_('Search podcast.de'), choice_search_podcast_de),
+                (_('Search YouTube users'), choice_search_youtube),
+                (_('Download from my.gpodder.org'), choice_mygpodder),
+        )
+
+        for caption, handler in choices:
+            button = hildon.Button(gtk.HILDON_SIZE_AUTO_WIDTH | \
+                    gtk.HILDON_SIZE_FINGER_HEIGHT, \
+                    hildon.BUTTON_ARRANGEMENT_VERTICAL)
+            button.set_text(caption, '')
+            button.connect('clicked', handler)
+            vbox.pack_start(button)
+
+        dialog.show_all()
 
     def on_treeview_expose_event(self, treeview, event):
         if event.window == treeview.get_bin_window():
@@ -121,31 +191,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         return [model.get_value(model.get_iter(path), \
                 OpmlListModel.C_URL) for path in paths]
 
-    def on_load_opml_button_clicked(self, widget):
-        url = self.show_text_edit_dialog(_('Load OPML file from the web'), \
-                _('URL:'), is_url=True)
-        if url is not None:
-            self.download_opml_file(url)
-    
-    def on_load_toplist_button_clicked(self, widget):
-        self.download_opml_file(self._config.toplist_url)
-    
-    def on_load_search_button_clicked(self, widget):
-        search_term = self.show_text_edit_dialog(_('Search podcast.de'), \
-                _('Search for:'))
-        if search_term is not None:
-            url = 'http://api.podcast.de/opml/podcasts/suche/%s' % \
-                    (urllib.quote(search_term),)
-            self.download_opml_file(url)
-
-    def on_load_youtube_button_clicked(self, widget):
-        search_term = self.show_text_edit_dialog(\
-                _('Search YouTube user channels'), \
-                _('Search for:'))
-        if search_term is not None:
-            self.download_opml_file(search_term, use_youtube=True)
-    
-    def download_opml_file(self, url, use_youtube=False):
+    def download_opml_file(self, url):
         selection = self.treeview.get_selection()
         selection.unselect_all()
         self.treeview.set_model(None)
@@ -154,8 +200,9 @@ class gPodderPodcastDirectory(BuilderWidget):
         hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
 
         def download_thread_func():
-            if use_youtube:
-                importer = youtube.find_youtube_channels(url)
+            if url.startswith('youtube://'):
+                importer = youtube.find_youtube_channels(\
+                        url[len('youtube://'):])
             else:
                 importer = opml.Importer(url)
 
@@ -178,7 +225,7 @@ class gPodderPodcastDirectory(BuilderWidget):
                 if model is None:
                     self.show_message(_('No podcasts found. Try another source.'), \
                             important=True)
-                    self.app_menu.popup(self.main_window)
+                    self.main_window.destroy()
 
             util.idle_add(download_thread_finished)
 
@@ -194,12 +241,15 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def set_subscribe_button_sensitive(self):
         selection = self.treeview.get_selection()
-        count = selection.count_selected_rows()
         title = self.main_window.get_title()
-        if count == 1:
-            title += ' - %s' % (_('1 podcast selected'),)
-        elif count > 1:
-            title += ' - %s' % (_('%d podcasts selected') % count,)
+        if selection:
+            count = selection.count_selected_rows()
+            if count == 1:
+                title += ' - %s' % (_('1 podcast selected'),)
+            elif count > 1:
+                title += ' - %s' % (_('%d podcasts selected') % count,)
+        else:
+            count = 0
         self.edit_toolbar.set_label(title)
         self.edit_toolbar.set_button_sensitive(count > 0)
 

@@ -159,7 +159,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             appmenu = hildon.AppMenu()
             for action in (self.itemUpdate, \
-                    self.itemAddChannel, \
                     self.itemRemoveOldEpisodes, \
                     self.itemAbout):
                 button = gtk.Button()
@@ -265,7 +264,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.podcasts_window = gPodderPodcasts(self.main_window, \
                     show_podcast_episodes=on_podcast_selected, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
-                    on_itemAddChannel_activate=self.on_itemAddChannel_activate, \
                     on_itemUpdate_activate=self.on_itemUpdate_activate, \
                     item_view_podcasts_all=self.item_view_podcasts_all, \
                     item_view_podcasts_downloaded=self.item_view_podcasts_downloaded, \
@@ -2524,7 +2522,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(_('gPodder can automatically upload your subscription list to my.gpodder.org when you close it. Do you want to enable this feature?'), _('Upload subscriptions on quit')):
                 self.config.my_gpodder_autoupload = True
     
-    def on_download_from_mygpo(self, widget):
+    def on_download_from_mygpo(self, widget=None):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(self.config.my_gpodder_username, self.config.my_gpodder_password)
             opml_data = client.download_subscriptions()
@@ -2572,7 +2570,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif widget is not None:
             self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
 
-    def on_itemAddChannel_activate(self, widget, *args):
+    def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \
                 add_urls_callback=self.add_podcast_list)
 
@@ -2725,9 +2723,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
-                add_urls_callback=self.add_podcast_list)
-        if not gpodder.ui.fremantle:
+        if gpodder.ui.fremantle:
+            gPodderPodcastDirectory.show_add_podcast_picker(self.main_window, \
+                    self.config.toplist_url, \
+                    self.config.opml_url, \
+                    self.add_podcast_list, \
+                    self.on_itemAddChannel_activate, \
+                    self.on_download_from_mygpo, \
+                    self.show_text_edit_dialog)
+        else:
+            dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
+                    add_urls_callback=self.add_podcast_list)
             util.idle_add(dir.download_opml_file, self.config.opml_url)
 
     def on_homepage_activate(self, widget, *args):
