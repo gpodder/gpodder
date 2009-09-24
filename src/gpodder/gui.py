@@ -124,7 +124,7 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.interface.common import Orientation
     have_trayicon = False
 
-    from gpodder.gtkui.frmntl.portrait import FremantleAutoRotation
+    from gpodder.gtkui.frmntl.portrait import FremantleRotation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 from gpodder.gtkui.interface.progress import ProgressIndicator
@@ -169,8 +169,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.main_window.set_app_menu(appmenu)
             self._fremantle_update_banner = None
 
-            # Activate application-wide automatic portrait orientation
-            FremantleAutoRotation()
+            # Initialize portrait mode / rotation manager
+            self._fremantle_rotation = FremantleRotation(self.main_window)
 
             self.bluetooth_available = False
         else:
