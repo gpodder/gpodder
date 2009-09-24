@@ -162,7 +162,9 @@ gpodder-icon-theme:
 
 clean:
 	python setup.py clean
-	rm -f src/gpodder/*.pyc src/gpodder/gtkui/*.pyc src/gpodder/gtkui/interface/*.pyc src/gpodder/gtkui/maemo/*.pyc src/gpodder/gtkui/desktop/*.pyc src/gpodder/*.pyo src/gpodder/*.bak MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
+	find src/ -name '*.pyc' -exec rm '{}' \;
+	find src/ -name '*.pyo' -exec rm '{}' \;
+	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
 	rm -rf build
 	make -C data/po clean
 
