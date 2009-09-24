@@ -44,6 +44,9 @@ class gPodderAddPodcast(BuilderWidget):
         self.entry_url.connect('activate', self.on_entry_url_activate)
         if gpodder.ui.fremantle:
             self.btn_add.set_name('HildonButton-finger')
+            # Deactivate capitalization and word completion (Maemo bug 5184)
+            self.entry_url.set_property('hildon-input-mode', \
+                    gtk.HILDON_GTK_INPUT_MODE_FULL)
         self.gPodderAddPodcast.show()
 
     def on_btn_close_clicked(self, widget):

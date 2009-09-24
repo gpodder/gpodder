@@ -122,7 +122,8 @@ class gPodderPodcastDirectory(BuilderWidget):
                 OpmlListModel.C_URL) for path in paths]
 
     def on_load_opml_button_clicked(self, widget):
-        url = self.show_text_edit_dialog(_('Load OPML file from the web'), _('URL:'))
+        url = self.show_text_edit_dialog(_('Load OPML file from the web'), \
+                _('URL:'), is_url=True)
         if url is not None:
             self.download_opml_file(url)
     

@@ -290,7 +290,8 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             raise Exception('Unknown interface type')
 
-    def show_text_edit_dialog(self, title, prompt, text=None, empty=False):
+    def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
+            is_url=False):
         dialog = gtk.Dialog(title, self.main_window, \
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
         
@@ -312,6 +313,11 @@ class BuilderWidget(GtkBuilderWidget):
         if gpodder.ui.fremantle:
             import hildon
             text_entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
+            if is_url:
+                # Disable word capitalization and word completion when
+                # requesting an URL to be entered (see Maemo bug 5184)
+                text_entry.set_property('hildon-input-mode', \
+                        gtk.HILDON_GTK_INPUT_MODE_FULL)
         else:
             text_entry = gtk.Entry()
         text_entry.set_activates_default(True)
