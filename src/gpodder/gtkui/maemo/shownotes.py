@@ -96,7 +96,9 @@ class gPodderShownotes(gPodderShownotesBase):
 
     def on_display_text(self):
         heading = self.episode.title
-        subheading = _('from %s') % (self.episode.channel.title)
+        subheading = '; '.join((self.episode.cute_pubdate(), \
+                self.episode.get_filesize_string(), \
+                self.episode.channel.title))
         description = self.episode.description
 
         self.text_buffer.insert_with_tags_by_name(\
