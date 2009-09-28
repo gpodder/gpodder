@@ -790,17 +790,21 @@ def get_real_url(url):
     """
     Gets the real URL of a file and resolves all redirects.
     """
-    username, password = username_password_from_url(url)
-    if username or password:
-        url = url_strip_authentication(url)
-        log('url=%s, username=%s, password=%s', url, username, password)
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, url, username, password)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
-        return opener.open(url).geturl()
-    else:
-        return urllib2.urlopen(url).geturl()
+    try:
+        username, password = username_password_from_url(url)
+        if username or password:
+            url = url_strip_authentication(url)
+            log('url=%s, username=%s, password=%s', url, username, password)
+            password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            password_mgr.add_password(None, url, username, password)
+            handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+            opener = urllib2.build_opener(handler)
+            return opener.open(url).geturl()
+        else:
+            return urllib2.urlopen(url).geturl()
+    except:
+        log('Error getting real url for %s', url, traceback=True)
+        return url
 
 
 def find_command( command):

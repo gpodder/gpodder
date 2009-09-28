@@ -771,7 +771,8 @@ class PodcastEpisode(PodcastModelObject):
                 xml.sax.saxutils.escape(self.channel.title))
 
     def age_in_days(self):
-        return util.file_age_in_days(self.local_filename(create=False))
+        return util.file_age_in_days(self.local_filename(create=False, \
+                check_only=True))
 
     def get_age_string(self):
         return util.file_age_to_string(self.age_in_days())
