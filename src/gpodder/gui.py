@@ -190,6 +190,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.tray_icon = None
         self.episode_shownotes_window = None
+        self.new_episodes_window = None
 
         if gpodder.ui.desktop:
             self.sync_ui = gPodderSyncUI(self.config, self.notification, \
@@ -2390,15 +2391,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         instructions = _('Select the episodes you want to download:')
 
-        gPodderEpisodeSelector(self.gPodder, title=_('New episodes available'), instructions=instructions, \
-                               episodes=episodes, columns=columns, selected_default=True, \
-                               stock_ok_button = 'gpodder-download', \
-                               callback=self.download_episode_list, \
-                               remove_callback=lambda e: e.mark_old(), \
-                               remove_action=_('Mark as old'), \
-                               remove_finished=self.episode_new_status_changed, \
-                               _config=self.config, \
-                               show_notification=show_notification)
+        if self.new_episodes_window is not None:
+            self.new_episodes_window.main_window.destroy()
+            self.new_episodes_window = None
+
+        def download_episodes_callback(episodes):
+            self.new_episodes_window = None
+            self.download_episode_list(episodes)
+
+        self.new_episodes_window = gPodderEpisodeSelector(self.gPodder, \
+                title=_('New episodes available'), \
+                instructions=instructions, \
+                episodes=episodes, \
+                columns=columns, \
+                selected_default=True, \
+                stock_ok_button = 'gpodder-download', \
+                callback=download_episodes_callback, \
+                remove_callback=lambda e: e.mark_old(), \
+                remove_action=_('Mark as old'), \
+                remove_finished=self.episode_new_status_changed, \
+                _config=self.config, \
+                show_notification=show_notification)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():
