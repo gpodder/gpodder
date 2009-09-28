@@ -173,9 +173,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.bluetooth_available = False
         else:
-            if gpodder.win32:
-                # FIXME: Implement e-mail sending of list in win32
-                self.item_email_subscriptions.set_sensitive(False)
             self.bluetooth_available = util.bluetooth_available()
             self.toolbar.set_property('visible', self.config.show_toolbar)
 
@@ -2304,21 +2301,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
-
-    def send_subscriptions(self):
-        try:
-            subprocess.Popen(['xdg-email', '--subject', _('My podcast subscriptions'),
-                                           '--attach', gpodder.subscription_file])
-        except:
-            return False
-
-        return True
-
-    def on_item_email_subscriptions_activate(self, widget):
-        if not self.channels:
-            self.show_message(_('Your subscription list is empty. Add some podcasts first.'), _('Could not send list'), widget=self.treeChannels)
-        elif not self.send_subscriptions():
-            self.show_message(_('There was an error sending your subscription list via e-mail.'), _('Could not send list'), important=True)
 
     def on_itemUpdateChannel_activate(self, widget=None):
         if self.active_channel is None:

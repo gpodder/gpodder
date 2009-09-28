@@ -154,13 +154,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="item_email_subscriptions">
-            <property name="name">item_email_subscriptions</property>
-            <property name="label" translatable="yes">Send list via e-mail</property>
-            <signal handler="on_item_email_subscriptions_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="itemUploadToMygpo">
             <property name="name">itemUploadToMygpo</property>
             <property name="label" translatable="yes">Upload to my.gpodder.org</property>
@@ -425,8 +418,6 @@
           <separator/>
           <menuitem action="item_import_from_file"/>
           <menuitem action="itemExportChannels"/>
-          <separator/>
-          <menuitem action="item_email_subscriptions"/>
           <separator/>
           <menuitem action="itemUploadToMygpo"/>
           <menuitem action="itemDownloadFromMygpo"/>
