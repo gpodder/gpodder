@@ -447,7 +447,11 @@ class PodcastChannel(PodcastModelObject):
         f = open(m3u_filename, 'w')
         f.write('#EXTM3U\n')
 
-        for episode in self.get_downloaded_episodes():
+        # Sort downloaded episodes by publication date, ascending
+        def older(episode_a, episode_b):
+            return cmp(episode_a.pubDate, episode_b.pubDate)
+
+        for episode in sorted(self.get_downloaded_episodes(), cmp=older):
             if episode.was_downloaded(and_exists=True):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
