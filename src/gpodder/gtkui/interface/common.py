@@ -318,6 +318,11 @@ class BuilderWidget(GtkBuilderWidget):
                 # requesting an URL to be entered (see Maemo bug 5184)
                 text_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
+        elif gpodder.ui.diablo:
+            import hildon
+            text_entry = gtk.Entry()
+            text_entry.set_property('hildon-input-mode', \
+                    'HILDON_GTK_INPUT_MODE_FULL')
         else:
             text_entry = gtk.Entry()
         text_entry.set_activates_default(True)
