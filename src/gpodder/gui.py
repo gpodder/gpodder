@@ -427,6 +427,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.clear()
 
     def on_treeview_button_pressed(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
         TreeViewHelper.save_button_press_event(treeview, event)
 
         if getattr(treeview, TreeViewHelper.ROLE) == \
@@ -437,12 +440,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 gpodder.ui.desktop
 
     def on_treeview_podcasts_button_released(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
         if gpodder.ui.maemo:
             return self.treeview_channels_handle_gestures(treeview, event)
 
         return self.treeview_channels_show_context_menu(treeview, event)
 
     def on_treeview_episodes_button_released(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
         if gpodder.ui.maemo:
             if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
                 return self.treeview_available_handle_gestures(treeview, event)
@@ -450,6 +459,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return self.treeview_available_show_context_menu(treeview, event)
 
     def on_treeview_downloads_button_released(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
         return self.treeview_downloads_show_context_menu(treeview, event)
 
     def init_podcast_list_treeview(self):
