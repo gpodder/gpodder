@@ -53,6 +53,14 @@ class gPodderChannel(BuilderWidget):
         menu.append(gtk.SeparatorMenuItem())
         menu.append(self.action_close.create_menu_item())
         self.main_window.set_menu(self.set_finger_friendly(menu))
+        self.main_window.connect('key-press-event', self._on_key_press_event)
+
+    def _on_key_press_event(self, widget, event):
+        if event.keyval == gtk.keysyms.Escape:
+            self.on_close_button_clicked(widget)
+            return True
+        else:
+            return False
 
     def title_updated(self):
         self.main_window.set_title(_('Edit %s') % self.channel.title)
