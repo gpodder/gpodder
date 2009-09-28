@@ -52,9 +52,8 @@ class gPodderShownotes(gPodderShownotesBase):
         menu.append(self.action_resume.create_menu_item())
         menu.append(self.action_cancel.create_menu_item())
         menu.append(gtk.SeparatorMenuItem())
+        menu.append(self.action_copy_text.create_menu_item())
         menu.append(self.action_visit_website.create_menu_item())
-        menu.append(gtk.SeparatorMenuItem())
-        menu.append(self.action_close.create_menu_item())
         self.main_window.set_menu(self.set_finger_friendly(menu))
 
     def _on_key_press_event(self, widget, event):
@@ -72,6 +71,17 @@ class gPodderShownotes(gPodderShownotesBase):
             return False
 
         return True
+
+    def on_copy_text_button_clicked(self, widget):
+        clip_selection = gtk.Clipboard(selection='PRIMARY')
+        def receive_selection_text(clipboard, text, data=None):
+            if text:
+                clip_clipboard = gtk.Clipboard(selection='CLIPBOARD')
+                clip_clipboard.set_text(text)
+                self.show_message(_('Text copied to clipboard.'))
+            else:
+                self.show_message(_('Selection is empty.'))
+        clip_selection.request_text(receive_selection_text)
 
     def on_scroll_down(self):
         if not hasattr(self.scrolled_window, 'get_vscrollbar'):
