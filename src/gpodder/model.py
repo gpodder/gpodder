@@ -205,6 +205,18 @@ class PodcastChannel(PodcastModelObject):
 
                 episode.save()
 
+        # Remove "unreachable" episodes - episodes that have not been
+        # downloaded and that the feed does not list as downloadable anymore
+        if self.id is not None:
+            seen_guids = set(e.guid for e in feed.entries if hasattr(e, 'guid'))
+            episodes_to_purge = (e for e in existing if \
+                    e.state != gpodder.STATE_DOWNLOADED and \
+                    e.guid not in seen_guids and e.guid is not None)
+            for episode in episodes_to_purge:
+                log('Episode removed from feed: %s (%s)', episode.title, \
+                        episode.guid, sender=self)
+                self.db.delete_episode_by_guid(episode.guid, self.id)
+
         # This *might* cause episodes to be skipped if there were more than
         # max_episodes_per_feed items added to the feed between updates.
         # The benefit is that it prevents old episodes from apearing as new

@@ -649,3 +649,14 @@ class Database(object):
         cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, gpodder.STATE_DOWNLOADED, ))
         self.lock.release()
 
+    def delete_episode_by_guid(self, guid, channel_id):
+        """
+        Deletes episodes that have a specific GUID for
+        a given channel. Used after feed updates for
+        episodes that have disappeared from the feed.
+        """
+        cur = self.cursor(lock=True)
+        cur.execute('DELETE FROM episodes WHERE channel_id = ? AND guid = ?', \
+                (channel_id, guid))
+        self.lock.release()
+
