@@ -29,16 +29,9 @@ import urlparse
 import urllib2
 
 def patch_feedparser():
-    """Fix a bug in feedparser 4.1
-    This replaces the mapContentType method of the
-    _FeedParserMixin class to correctly detect the
-    "plain" content type as "text/plain".
-
-    See also:
-    http://code.google.com/p/feedparser/issues/detail?id=80
-
-    Added by Thomas Perl for gPodder 2007-12-29
-    """
+    """Monkey-patch the Universal Feed Parser"""
+    # Detect the 'plain' content type as 'text/plain'
+    # http://code.google.com/p/feedparser/issues/detail?id=80
     def mapContentType2(self, contentType):
         contentType = contentType.lower()
         if contentType == 'text' or contentType == 'plain':
@@ -66,6 +59,11 @@ def patch_feedparser():
         feedparser._FeedParserMixin._start_media_content = _start_media_content
     except:
         pass
+
+    # Fix problem with the EA.com official podcast
+    # https://bugs.gpodder.org/show_bug.cgi?id=588
+    if '*/*' not in feedparser.ACCEPT_HEADER.split(','):
+        feedparser.ACCEPT_HEADER += ',*/*'
 
 patch_feedparser()
 
