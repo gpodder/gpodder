@@ -833,7 +833,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     util.run_external_command(self.config.cmd_all_downloads_complete)
             self.last_download_count = count
 
-            self.gPodder.set_title(' - '.join(title))
+            if not gpodder.ui.fremantle:
+                self.gPodder.set_title(' - '.join(title))
 
             self.update_episode_list_icons(episode_urls)
             if self.episode_shownotes_window is not None:
