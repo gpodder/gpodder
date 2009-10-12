@@ -159,7 +159,7 @@ def create_archive(backup_filename, fake_download_dir=True, add_cover_files=Fals
             if not os.path.exists(new_path):
                 os.makedirs(new_path)
             for filename in filenames:
-                if filename == 'cover' and add_cover_files:
+                if filename in ('cover', '.cover') and add_cover_files:
                     shutil.copy(os.path.join(dirpath, filename), os.path.join(new_path, filename))
                 else:
                     open(os.path.join(new_path, filename), 'w').close()

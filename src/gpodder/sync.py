@@ -486,6 +486,8 @@ class iPodDevice(Device):
 
         try:
             cover_filename = os.path.join(os.path.dirname(local_filename), 'cover')
+            if not os.path.exists(cover_filename):
+                cover_filename = os.path.join(os.path.dirname(local_filename), '.cover')
             if os.path.isfile(cover_filename):
                 gpod.itdb_track_set_thumbnails(track, cover_filename)
                 return True
@@ -699,6 +701,8 @@ class MP3PlayerDevice(Device):
         """
         try:
             cover_loc = os.path.join(os.path.dirname(local_filename), 'cover')
+            if not os.path.exists(cover_loc):
+                cover_loc = os.path.join(os.path.dirname(local_filename), '.cover')
             cover_dst = os.path.join(destination, cover_dst_name)
             if os.path.isfile(cover_loc):
                 log('Creating cover art file on player', sender=self)
