@@ -147,44 +147,71 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodder_delete_event" name="delete_event"/>
     <child>
-      <object class="GtkHButtonBox" id="buttonbox">
+      <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
-        <property name="layout-style">GTK_BUTTONBOX_SPREAD</property>
         <child>
-          <object class="HildonButton" id="button_subscribe">
-            <property name="title" translatable="True">Subscribe</property>
-            <property name="value" translatable="True">Add new podcasts</property>
-            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-            <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
+          <object class="GtkHButtonBox" id="buttonbox">
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
-            <property name="width-request">200</property>
-            <signal handler="on_button_subscribe_clicked" name="clicked"/>
+            <property name="layout-style">GTK_BUTTONBOX_SPREAD</property>
+            <child>
+              <object class="HildonButton" id="button_subscribe">
+                <property name="title" translatable="True">Subscribe</property>
+                <property name="value" translatable="True">Add new podcasts</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="width-request">200</property>
+                <signal handler="on_button_subscribe_clicked" name="clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="HildonButton" id="button_podcasts">
+                <property name="title" translatable="True">Podcasts</property>
+                <property name="value" translatable="True">Loading, please wait</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="width-request">250</property>
+                <signal handler="on_button_podcasts_clicked" name="clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="HildonButton" id="button_downloads">
+                <property name="title" translatable="True">Downloads</property>
+                <property name="value" translatable="True">None active</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="width-request">200</property>
+                <signal handler="on_button_downloads_clicked" name="clicked"/>
+              </object>
+            </child>
           </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">False</property>
+          </packing>
         </child>
         <child>
-          <object class="HildonButton" id="button_podcasts">
-            <property name="title" translatable="True">Podcasts</property>
-            <property name="value" translatable="True">Loading, please wait</property>
-            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-            <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
+          <object class="GtkEventBox" id="label_footer_eventbox">
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
-            <property name="width-request">200</property>
-            <signal handler="on_button_podcasts_clicked" name="clicked"/>
+            <signal handler="on_itemAbout_activate" name="button-press-event"/>
+            <child>
+              <object class="GtkLabel" id="label_footer">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">.5</property>
+                <property name="xpad">10</property>
+                <property name="ypad">10</property>
+              </object>
+            </child>
           </object>
-        </child>
-        <child>
-          <object class="HildonButton" id="button_downloads">
-            <property name="title" translatable="True">Downloads</property>
-            <property name="value" translatable="True">None active</property>
-            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-            <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
-            <property name="visible">True</property>
-            <property name="sensitive">False</property>
-            <property name="width-request">200</property>
-            <signal handler="on_button_downloads_clicked" name="clicked"/>
-          </object>
+          <packing>
+            <property name="expand">False</property>
+          </packing>
         </child>
       </object>
     </child>

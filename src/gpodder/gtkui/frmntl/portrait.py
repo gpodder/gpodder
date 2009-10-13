@@ -23,6 +23,11 @@ import dbus.glib
 import hildon
 import osso
 
+# Replace this with your own gettext() functionality
+import gpodder
+_ = gpodder.gettext
+
+
 class FremantleRotation(object):
     """thp's screen rotation for Maemo 5
 
@@ -36,6 +41,9 @@ class FremantleRotation(object):
     ALWAYS with the set_mode() method.
     """
     AUTOMATIC, NEVER, ALWAYS = range(3)
+
+    # Human-readable captions for the above constants
+    MODE_CAPTIONS = (_('Automatic'), _('Landscape'), _('Portrait'))
 
     # Privately-used constants
     _PORTRAIT, _LANDSCAPE = ('portrait', 'landscape')

@@ -23,6 +23,7 @@
 #  Thomas Perl <thp@perli.net>, 2007-11-25
 #
 
+import gpodder
 
 import gtk
 import pango
@@ -92,6 +93,8 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None)
 
 
 def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
+    if gpodder.ui.fremantle:
+        border += 3
     # Create temporary context to calculate the text size
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
 

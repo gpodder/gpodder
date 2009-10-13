@@ -46,6 +46,10 @@
     <property name="sensitive">False</property>
     <signal name="activate" handler="on_login_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_play_m3u">
+    <property name="label" translatable="yes">Play all downloads</property>
+    <signal name="activate" handler="on_play_m3u_button_clicked"/>
+  </object>
   <object class="GtkAction" id="action_website">
     <property name="label" translatable="yes">Visit website</property>
     <signal name="activate" handler="on_website_button_clicked"/>

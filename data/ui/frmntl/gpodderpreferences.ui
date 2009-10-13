@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--*- mode: xml -*-->
 <interface>
-  <object class="GtkListStore" id="combo_player_model">
+  <!-- <object class="GtkListStore" id="combo_player_model">
     <columns>
       <column type="gchararray"/>
     </columns>
@@ -12,148 +12,37 @@
       <column type="gchararray"/>
     </columns>
     <data/>
-  </object>
+  </object> -->
   <object class="GtkDialog" id="gPodderPreferences">
     <property name="title" translatable="yes">Preferences</property>
     <property name="modal">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
-        <property name="border_width">2</property>
         <property name="visible">True</property>
         <child>
-          <object class="GtkTable" id="table1">
-            <property name="border_width">12</property>
-            <property name="column_spacing">6</property>
-            <property name="n_columns">2</property>
-            <property name="n_rows">6</property>
-            <property name="row_spacing">6</property>
+          <object class="HildonPannableArea" id="pannable_area">
             <property name="visible">True</property>
+            <property name="size-request-policy">HILDON_SIZE_REQUEST_CHILDREN</property>
             <child>
-              <object class="GtkLabel" id="label_player">
-                <property name="label" translatable="yes">Audio player:</property>
+              <object class="GtkViewport" id="pannable_viewport">
                 <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="x_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_videoplayer">
-                <property name="label" translatable="yes">Video player:</property>
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="x_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="check_ask_on_quit">
-                <property name="is_focus">True</property>
-                <property name="label" translatable="yes">Ask before closing gPodder</property>
-                <property name="visible">True</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">4</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="check_enable_gestures">
-                <property name="label" translatable="yes">Use gestures (single selection)</property>
-                <property name="visible">True</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">5</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="combo_player">
-                <property name="active">0</property>
-                <property name="visible">True</property>
-                <property name="model">combo_player_model</property>
-                <signal handler="on_combo_player_changed" name="changed"/>
                 <child>
-                  <object class="GtkCellRendererText" id="renderer1"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
+                  <object class="GtkVBox" id="pannable_vbox">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="HildonPickerButton" id="picker_orientation">
+                        <property name="title" translatable="True">Display orientation</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_HORIZONTAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="value-changed" handler="on_picker_orientation_value_changed"/>
+                      </object>
+                    </child>
+                  </object>
                 </child>
               </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="combo_videoplayer">
-                <property name="active">0</property>
-                <property name="tearoff_title" translatable="yes">Nokia Media Player
-MPlayer</property>
-                <property name="visible">True</property>
-                <property name="model">combo_videoplayer_model</property>
-                <signal handler="on_combo_videoplayer_changed" name="changed"/>
-                <child>
-                  <object class="GtkCellRendererText" id="renderer2"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
-              </object>
-              <packing>
-                <property name="bottom_attach">2</property>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="position">2</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="action_area">
-            <property name="border_width">5</property>
-            <property name="layout_style">edge</property>
-            <property name="spacing">6</property>
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkButton" id="btn_gesture_info">
-                <property name="label">gtk-help</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_btn_gesture_info_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btn_close">
-                <property name="label">gtk-close</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_btn_close_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-          </packing>
         </child>
       </object>
     </child>

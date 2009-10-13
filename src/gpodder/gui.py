@@ -114,7 +114,7 @@ elif gpodder.ui.diablo:
     have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.maemo.channel import gPodderChannel
-    from gpodder.gtkui.maemo.preferences import gPodderPreferences
+    from gpodder.gtkui.frmntl.preferences import gPodderPreferences
     from gpodder.gtkui.frmntl.shownotes import gPodderShownotes
     from gpodder.gtkui.frmntl.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
@@ -161,7 +161,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for action in (self.itemUpdate, \
                     self.itemRemoveOldEpisodes, \
                     self.item_report_bug, \
-                    self.itemAbout):
+                    self.itemPreferences):
                 button = gtk.Button()
                 action.connect_proxy(button)
                 appmenu.append(button)
@@ -170,7 +170,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Initialize portrait mode / rotation manager
             self._fremantle_rotation = FremantleRotation('gPodder', \
-                    self.main_window, gpodder.__version__)
+                    self.main_window, \
+                    gpodder.__version__, \
+                    self.config.rotation_mode)
 
             self.bluetooth_available = False
         else:
@@ -240,9 +242,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_podcasts.set_name('HildonButton-thumb')
             self.button_downloads.set_name('HildonButton-thumb')
 
+            from gpodder.gtkui.frmntl import style
+            sub_font = style.get_font_desc('SmallSystemFont')
+            sub_color = style.get_color('SecondaryTextColor')
+            sub = (sub_font.to_string(), sub_color.to_string())
+            sub = '<span font_desc="%s" foreground="%s">%%s</span>' % sub
+            self.label_footer.set_markup(sub % gpodder.__copyright__)
+
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
             while gtk.events_pending():
                 gtk.main_iteration(False)
+
+            try:
+                # Try to get the real package version from dpkg
+                p = subprocess.Popen(['dpkg-query', '-W', '-f=${Version}', 'gpodder'], stdout=subprocess.PIPE)
+                version, _stderr = p.communicate()
+                del _stderr
+                del p
+            except:
+                version = gpodder.__version__
+            self.label_footer.set_markup(sub % ('v %s' % version))
 
             self.episodes_window = gPodderEpisodes(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
@@ -400,7 +419,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.downloads_window.show()
 
     def on_window_orientation_changed(self, orientation):
-        old_container = self.main_window.get_child()
+        parent = self.vbox
+        old_container = parent.get_children()[0]
         if orientation == Orientation.PORTRAIT:
             container = gtk.VButtonBox()
         else:
@@ -409,15 +429,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for child in old_container.get_children():
             if orientation == Orientation.LANDSCAPE:
                 child.set_alignment(0.5, 0.5, 0., 0.)
-                child.set_property('width-request', 200)
             else:
                 child.set_alignment(0.5, 0.5, .9, 0.)
-                child.set_property('width-request', 350)
             child.reparent(container)
         container.show_all()
         self.buttonbox = container
-        self.main_window.remove(old_container)
-        self.main_window.add(container)
+        parent.remove(old_container)
+        parent.add(container)
+        parent.reorder_child(container, 0)
 
     def on_treeview_podcasts_selection_changed(self, selection):
         model, iter = selection.get_selected()
@@ -864,6 +883,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
+        elif name == 'rotation_mode':
+            self._fremantle_rotation.set_mode(new_value)
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -2053,6 +2074,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
             hildon.hildon_banner_show_information(self.main_window, \
                     '', _('Updating podcast feeds'))
+            self.button_podcasts.set_value(_('Updating...'))
             self.button_subscribe.set_sensitive(False)
         else:
             self.itemUpdate.set_sensitive(False)
@@ -2096,7 +2118,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.config.on_quit_ask and self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
         elif self.config.on_quit_ask or downloading:
-            if gpodder.ui.maemo:
+            if gpodder.ui.fremantle:
+                self.close_gpodder()
+            elif gpodder.ui.diablo:
                 result = self.show_confirmation(_('Do you really want to quit gPodder now?'))
                 if result:
                     self.close_gpodder()
@@ -3127,8 +3151,7 @@ def main(options=None):
         if config.enable_fingerscroll:
             BuilderWidget.use_fingerscroll = True
     elif gpodder.ui.fremantle:
-        # FIXME: Move download_dir from ~/gPodder-Podcasts to default setting
-        pass
+        config.on_quit_ask = False
 
     gp = gPodder(bus_name, config)
 

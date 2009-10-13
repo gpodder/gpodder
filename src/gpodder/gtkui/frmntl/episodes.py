@@ -34,7 +34,7 @@ class gPodderEpisodes(BuilderWidget):
         self.channel = None
         appmenu = hildon.AppMenu()
         for action in (self.action_rename, \
-                       self.action_login, \
+                       self.action_play_m3u, \
                        self.action_website, \
                        self.action_unsubscribe):
             button = gtk.Button()
@@ -63,6 +63,10 @@ class gPodderEpisodes(BuilderWidget):
 
     def on_login_button_clicked(self, widget):
         self.show_message(_('Not supported yet.'), important=True)
+
+    def on_play_m3u_button_clicked(self, widget):
+        if self.channel is not None:
+            util.gui_open(self.channel.get_playlist_filename())
 
     def on_website_button_clicked(self, widget):
         if self.channel is not None:

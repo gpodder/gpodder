@@ -214,6 +214,9 @@ gPodderSettings = {
     'video_played_dbus': (bool, False,
       ('Set to True if the video player notifies gPodder about played episodes')),
 
+    'rotation_mode': (int, 0,
+      ('Internally used on Maemo 5 for the current rotation mode')),
+
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',
       ("The user's gPodder web services username.")),

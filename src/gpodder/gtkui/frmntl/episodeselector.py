@@ -137,7 +137,8 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.gPodderEpisodeSelector.set_title( self.title)
 
         if hasattr(self, 'instructions'):
-            self.show_message(self.instructions)
+            #self.show_message(self.instructions)
+            pass
 
         if self.remove_callback is not None:
             self.btnRemoveAction.show()
