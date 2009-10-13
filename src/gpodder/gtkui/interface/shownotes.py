@@ -103,8 +103,9 @@ class gPodderShownotesBase(BuilderWidget):
 
     def on_delete_button_clicked(self, widget=None):
         if self.episode and self.episode.was_downloaded(and_exists=True):
-            self._delete_episode_list([self.episode])
-            self.on_episode_status_changed()
+            if self._delete_episode_list([self.episode]):
+                self.on_episode_status_changed()
+                self.on_close_button_clicked()
 
     def on_mark_as_new_button_clicked(self, widget=None):
         if self.episode:

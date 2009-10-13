@@ -2169,7 +2169,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def delete_episode_list(self, episodes, confirm=True):
         if not episodes:
-            return
+            return False
 
         count = len(episodes)
 
@@ -2179,7 +2179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title = _('%s is locked') % saxutils.escape(episode.title)
                 message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
                 self.notification(message, title, widget=self.treeAvailable)
-                return
+                return False
 
             title = _('Remove %s?') % saxutils.escape(episode.title)
             message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
@@ -2193,13 +2193,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Episodes are locked')
             message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
             self.notification(message, title, widget=self.treeAvailable)
-            return
+            return False
         elif locked_count > 0:
             title = _('Remove %d out of %d episodes?') % (count-locked_count, count)
             message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
 
         if confirm and not self.show_confirmation(message, title):
-            return
+            return False
 
         episode_urls = set()
         channel_urls = set()
@@ -2224,6 +2224,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_icons(episode_urls)
         self.update_podcast_list_model(channel_urls)
         self.play_or_download()
+        return True
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
         if gpodder.ui.maemo:
