@@ -3078,7 +3078,7 @@ def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
 
-    if gpodder.ui.diablo:
+    if gpodder.ui.maemo:
         # Try to enable the custom icon theme for gPodder on Maemo
         settings = gtk.settings_get_default()
         settings.set_string_property('gtk-icon-theme-name', \
