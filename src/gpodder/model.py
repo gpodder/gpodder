@@ -32,6 +32,7 @@ from gpodder import corestats
 from gpodder.liblogger import log
 
 import os
+import re
 import glob
 import shutil
 import urllib
@@ -655,9 +656,20 @@ class PodcastEpisode(PodcastModelObject):
                     episode.url = link.href
                     break
 
+        # Still no luck finding an episode? Try to forcefully scan the
+        # HTML/plaintext contents of the entry for MP3 links
+        if not episode.url:
+            mp3s = re.compile(r'http://[^"]*\.mp3')
+            for content in entry.get('content', []):
+                html = content.value
+                for match in mp3s.finditer(html):
+                    episode.url = match.group(0)
+                    break
+                if episode.url:
+                    break
+
         if not episode.url:
             # This item in the feed has no downloadable enclosure
-            log('Episode has no URL: %s', entry, sender=episode)
             return None
 
         metainfo = None
