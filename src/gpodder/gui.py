@@ -160,6 +160,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             appmenu = hildon.AppMenu()
             for action in (self.itemUpdate, \
                     self.itemRemoveOldEpisodes, \
+                    self.item_report_bug, \
                     self.itemAbout):
                 button = gtk.Button()
                 action.connect_proxy(button)
@@ -378,6 +379,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_subscribe.set_sensitive(True)
             self.button_podcasts.set_sensitive(True)
             self.button_downloads.set_sensitive(True)
+            self.main_window.set_title(_('gPodder'))
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
@@ -2768,7 +2770,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg.set_name('gPodder')
         dlg.set_version(gpodder.__version__)
         dlg.set_copyright(gpodder.__copyright__)
-        dlg.set_website(gpodder.__url__)
+        dlg.set_comments(_('A podcast client with focus on usability'))
+        if not gpodder.ui.fremantle:
+            # Disable the URL label in Fremantle because of style issues
+            dlg.set_website(gpodder.__url__)
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect( 'response', lambda dlg, response: dlg.destroy())
 
@@ -2795,6 +2800,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for child in parent.get_children():
                     if isinstance(child, gtk.Label):
                         child.set_selectable(False)
+                        child.set_alignment(0.0, 0.5)
         
         dlg.run()
 
