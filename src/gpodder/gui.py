@@ -169,7 +169,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._fremantle_update_banner = None
 
             # Initialize portrait mode / rotation manager
-            self._fremantle_rotation = FremantleRotation(self.main_window)
+            self._fremantle_rotation = FremantleRotation('gPodder', \
+                    self.main_window, gpodder.__version__)
 
             self.bluetooth_available = False
         else:

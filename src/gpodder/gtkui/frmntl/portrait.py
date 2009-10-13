@@ -21,6 +21,7 @@ import dbus
 import dbus.glib
 
 import hildon
+import osso
 
 class FremantleRotation(object):
     """thp's screen rotation for Maemo 5
@@ -38,18 +39,37 @@ class FremantleRotation(object):
 
     # Privately-used constants
     _PORTRAIT, _LANDSCAPE = ('portrait', 'landscape')
+    _ENABLE_ACCEL = 'req_accelerometer_enable'
+    _DISABLE_ACCEL = 'req_accelerometer_disable'
 
-    def __init__(self, main_window=None):
+    # Defined in mce/dbus-names.h
+    _MCE_SERVICE = 'com.nokia.mce'
+    _MCE_REQUEST_PATH = '/com/nokia/mce/request'
+    _MCE_REQUEST_IF = 'com.nokia.mce.request'
+
+    def __init__(self, app_name, main_window=None, version='1.0', mode=0):
+        """Create a new rotation manager
+
+        app_name    ... The name of your application (for osso.Context)
+        main_window ... The root window (optional, hildon.StackableWindow)
+        version     ... The version of your application (optional, string)
+        mode        ... Initial mode for this manager (default: AUTOMATIC)
+        """
         self._orientation = None
         self._main_window = main_window
         self._stack = hildon.WindowStack.get_default()
-        self._mode = self.AUTOMATIC
+        self._mode = -1
         self._last_dbus_orientation = None
+        app_id = '-'.join((app_name, self.__class__.__name__))
+        self._osso_context = osso.Context(app_id, version, False)
+        program = hildon.Program.get_instance()
+        program.connect('notify::is-topmost', self._on_topmost_changed)
         system_bus = dbus.Bus.get_system()
         system_bus.add_signal_receiver(self._on_orientation_signal, \
                 signal_name='sig_device_orientation_ind', \
                 dbus_interface='com.nokia.mce.signal', \
                 path='/com/nokia/mce/signal')
+        self.set_mode(mode)
 
     def get_mode(self):
         """Get the currently-set rotation mode
@@ -71,15 +91,36 @@ class FremantleRotation(object):
             if self._mode == self.AUTOMATIC:
                 # Remember the current "automatic" orientation for later
                 self._last_dbus_orientation = self._orientation
-                if new_mode == self.NEVER:
-                    self._orientation_changed(self._LANDSCAPE)
-                elif new_mode == self.ALWAYS:
-                    self._orientation_changed(self._PORTRAIT)
+                # Tell MCE that we don't need the accelerometer anymore
+                self._send_mce_request(self._DISABLE_ACCEL)
+
+            if new_mode == self.NEVER:
+                self._orientation_changed(self._LANDSCAPE)
+            elif new_mode == self.ALWAYS:
+                self._orientation_changed(self._PORTRAIT)
             elif new_mode == self.AUTOMATIC:
                 # Restore the last-known "automatic" orientation
                 self._orientation_changed(self._last_dbus_orientation)
+                # Tell MCE that we need the accelerometer again
+                self._send_mce_request(self._ENABLE_ACCEL)
 
             self._mode = new_mode
+
+    def _send_mce_request(self, request):
+        rpc = osso.Rpc(self._osso_context)
+        rpc.rpc_run(self._MCE_SERVICE, \
+                    self._MCE_REQUEST_PATH, \
+                    self._MCE_REQUEST_IF, \
+                    request, \
+                    use_system_bus=True)
+
+    def _on_topmost_changed(self, program, property_spec):
+        # XXX: This seems to never get called on Fremantle(?)
+        if self._mode == self.AUTOMATIC:
+            if program.get_is_topmost():
+                self._send_mce_request(self._ENABLE_ACCEL)
+            else:
+                self._send_mce_request(self._DISABLE_ACCEL)
 
     def _get_main_window(self):
         if self._main_window:
