@@ -438,13 +438,22 @@ class PodcastChannel(PodcastModelObject):
                 factory=self.episode_factory) if \
                 episode.check_is_new(downloading=downloading)]
 
-    def update_m3u_playlist(self):
+    def get_playlist_filename(self):
         # If the save_dir doesn't end with a slash (which it really should
         # not, if the implementation is correct, we can just append .m3u :)
         assert self.save_dir[-1] != '/'
-        m3u_filename = self.save_dir+'.m3u'
-        log('Writing playlist to %s', m3u_filename, sender=self)
+        return self.save_dir+'.m3u'
 
+    def update_m3u_playlist(self):
+        m3u_filename = self.get_playlist_filename()
+
+        downloaded_episodes = self.get_downloaded_episodes()
+        if not downloaded_episodes:
+            log('No episodes - removing %s', m3u_filename, sender=self)
+            util.delete_file(m3u_filename)
+            return
+
+        log('Writing playlist to %s', m3u_filename, sender=self)
         f = open(m3u_filename, 'w')
         f.write('#EXTM3U\n')
 
@@ -452,7 +461,7 @@ class PodcastChannel(PodcastModelObject):
         def older(episode_a, episode_b):
             return cmp(episode_a.pubDate, episode_b.pubDate)
 
-        for episode in sorted(self.get_downloaded_episodes(), cmp=older):
+        for episode in sorted(downloaded_episodes, cmp=older):
             if episode.was_downloaded(and_exists=True):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
