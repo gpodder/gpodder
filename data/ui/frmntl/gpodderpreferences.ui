@@ -1,21 +1,8 @@
 <?xml version="1.0"?>
 <!--*- mode: xml -*-->
 <interface>
-  <!-- <object class="GtkListStore" id="combo_player_model">
-    <columns>
-      <column type="gchararray"/>
-    </columns>
-    <data/>
-  </object>
-  <object class="GtkListStore" id="combo_videoplayer_model">
-    <columns>
-      <column type="gchararray"/>
-    </columns>
-    <data/>
-  </object> -->
   <object class="GtkDialog" id="gPodderPreferences">
     <property name="title" translatable="yes">Preferences</property>
-    <property name="modal">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
@@ -32,10 +19,28 @@
                     <child>
                       <object class="HildonPickerButton" id="picker_orientation">
                         <property name="title" translatable="True">Display orientation</property>
-                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_HORIZONTAL</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
                         <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                         <property name="visible">True</property>
                         <signal name="value-changed" handler="on_picker_orientation_value_changed"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HildonPickerButton" id="picker_interval">
+                        <property name="title" translatable="True">Check for new episodes</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="value-changed" handler="on_picker_interval_value_changed"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HildonPickerButton" id="picker_download">
+                        <property name="title" translatable="True">When new episodes are found</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="value-changed" handler="on_picker_download_value_changed"/>
                       </object>
                     </child>
                   </object>

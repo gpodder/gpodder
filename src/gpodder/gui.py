@@ -384,7 +384,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.clean_up_downloads(delete_partial=True)
 
         # Start the auto-update procedure
-        self.auto_update_procedure(first_run=True)
+        self._auto_update_timer_source_id = None
+        if self.config.auto_update_feeds:
+            self.restart_auto_update_timer()
 
         # Delete old episodes if the user wishes to
         if self.config.auto_remove_old_episodes:
@@ -885,6 +887,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_episode_list_model()
         elif name == 'rotation_mode':
             self._fremantle_rotation.set_mode(new_value)
+        elif name in ('auto_update_feeds', 'auto_update_frequency'):
+            self.restart_auto_update_timer()
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -1939,9 +1943,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             self.update_podcasts_tab()
             if episodes:
-                self.new_episodes_show(episodes)
-            else:
-                self.show_message(_('No new episodes. Please check for new episodes later.'), important=True)
+                if self.config.auto_download == 'always':
+                    if len(episodes) == 1:
+                        title = _('Downloading one new episode.')
+                    else:
+                        title = _('Downloading %d new episodes.') % len(episodes)
+                    self.show_message(title)
+                    self.download_episode_list(episodes)
+                elif self.config.auto_download == 'queue':
+                    self.show_message(_('New episodes have been added to the download list.'))
+                    self.download_episode_list_paused(episodes)
+                else:
+                    self.new_episodes_show(episodes)
+            elif not self.config.auto_update_feeds:
+                self.show_message(_('No new episodes. Please check for new episodes later.'))
             return
 
         if self.tray_icon:
@@ -1974,8 +1989,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     title = _('Downloading %d new episodes.') % len(episodes)
 
-                if not gpodder.ui.fremantle:
-                    self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             else:
                 self.show_update_feeds_buttons()
@@ -2954,14 +2968,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.episode_is_downloading(episode):
             self.update_downloads_list()
 
-    def auto_update_procedure(self, first_run=False):
-        log('auto_update_procedure() got called', sender=self)
-        if not first_run and self.config.auto_update_feeds and self.is_iconified():
-            self.update_feed_cache(force_update=True)
+    def restart_auto_update_timer(self):
+        if self._auto_update_timer_source_id is not None:
+            log('Removing existing auto update timer.', sender=self)
+            gobject.source_remove(self._auto_update_timer_source_id)
+            self._auto_update_timer_source_id = None
 
-        next_update = 60*1000*self.config.auto_update_frequency
-        gobject.timeout_add(next_update, self.auto_update_procedure)
-        return False
+        if self.config.auto_update_feeds:
+            interval = 60*1000*self.config.auto_update_frequency
+            log('Setting up auto update timer with interval %d.', \
+                    self.config.auto_update_frequency, sender=self)
+            self._auto_update_timer_source_id = gobject.timeout_add(\
+                    interval, self._on_auto_update_timer)
+
+    def _on_auto_update_timer(self):
+        log('Auto update timer fired.', sender=self)
+        self.update_feed_cache(force_update=True)
+        return True
 
     def on_treeDownloads_row_activated(self, widget, *args):
         # Use the standard way of working on the treeview
