@@ -166,7 +166,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 appmenu.append(button)
             appmenu.show_all()
             self.main_window.set_app_menu(appmenu)
-            self._fremantle_update_banner = None
 
             # Initialize portrait mode / rotation manager
             self._fremantle_rotation = FremantleRotation('gPodder', \
@@ -1913,8 +1912,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
 
         if gpodder.ui.fremantle:
-            if self._fremantle_update_banner is not None:
-                self._fremantle_update_banner.destroy()
+            self.button_subscribe.set_sensitive(True)
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             self.update_podcasts_tab()
             if episodes:
@@ -2051,8 +2049,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
-            self._fremantle_update_banner = hildon.hildon_banner_show_animation(self.main_window, \
-                '', _('Updating podcast feeds'))
+            hildon.hildon_banner_show_information(self.main_window, \
+                    '', _('Updating podcast feeds'))
+            self.button_subscribe.set_sensitive(False)
         else:
             self.itemUpdate.set_sensitive(False)
             self.itemUpdateChannel.set_sensitive(False)
