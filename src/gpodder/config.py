@@ -225,6 +225,8 @@ gPodderSettings = {
     'my_gpodder_autoupload': (bool, False,
       ("Upload the user's podcast list to the gPodder web services when "
         "gPodder is closed.")),
+    'my_gpodder_service': (str, 'http://my.gpodder.org',
+      ('The base URL of the my.gpodder.org service.')),
 
     # Paned position
     'paned_position': ( int, 200,

@@ -84,14 +84,13 @@ def build_request(theurl, fields, files, txheaders=None):
 
 
 class MygPodderClient(object):
-    WEBSERVICE = 'http://my.gpodder.org'
-
-    def __init__(self, username, password):
+    def __init__(self, service_uri, username, password):
+        self.service_uri = service_uri
         self.username = username
         self.password = password
 
     def download_subscriptions(self):
-        theurl = self.WEBSERVICE+"/getlist"
+        theurl = self.service_uri+"/getlist"
         args = {'username': self.username, 'password': self.password}
         args = '&'.join(('%s=%s' % a for a in args.items()))
         url = theurl + '?' + args
@@ -99,7 +98,7 @@ class MygPodderClient(object):
         return opml_data
 
     def upload_subscriptions(self, filename):
-        theurl = self.WEBSERVICE+'/upload'
+        theurl = self.service_uri+'/upload'
         action = 'update-subscriptions'
         fields = {'username': self.username, 'password': self.password, 'action': 'update-subscriptions', 'protocol': '0'}
         opml_file = ('opml', 'subscriptions.opml', open(filename).read())
@@ -110,7 +109,7 @@ class MygPodderClient(object):
         success = False
 
         if '@GOTOMYGPODDER' in result:
-            webbrowser.open(self.WEBSERVICE, new=1)
+            webbrowser.open(self.service_uri, new=1)
             messages.append(_('Please have a look at the website for more information.'))
 
         if '@SUCCESS' in result:

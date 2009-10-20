@@ -2573,7 +2573,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     
     def on_download_from_mygpo(self, widget=None):
         if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(self.config.my_gpodder_username, self.config.my_gpodder_password)
+            client = my.MygPodderClient(self.config.my_gpodder_service, \
+                    self.config.my_gpodder_username, self.config.my_gpodder_password)
             opml_data = client.download_subscriptions()
             if len(opml_data) > 0:
                 fp = open(gpodder.subscription_file, 'w')
@@ -2603,7 +2604,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_upload_to_mygpo(self, widget):
         if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(self.config.my_gpodder_username, self.config.my_gpodder_password)
+            client = my.MygPodderClient(self.config.my_gpodder_service, \
+                    self.config.my_gpodder_username, self.config.my_gpodder_password)
             self.save_channels_opml()
             success, messages = client.upload_subscriptions(gpodder.subscription_file)
             if widget is not None:
