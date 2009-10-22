@@ -38,24 +38,10 @@ class Orientation(object):
 
 try:
     import pynotify
-    if pynotify.init('gPodder'):
-        try:
-            pynotify_server_info = pynotify.get_server_info()
-            pynotify_server = pynotify_server_info.get('name', 'unknown')
-            notify_server_from_canonical = (pynotify_server == 'notify-osd')
-            if notify_server_from_canonical:
-                print >>sys.stderr, 'Broken libnotify server found.'
-                print >>sys.stderr, '(notify-osd does not positioning)'
-        except:
-            print >>sys.stderr, 'Error detecting libnotify server.'
-            pynotify = None
-            notify_server_from_canonical = False
-    else:
+    if not pynotify.init('gPodder'):
         pynotify = None
-        notify_server_from_canonical = False
 except ImportError:
     pynotify = None
-    notify_server_from_canonical = False
 
 class BuilderWidget(GtkBuilderWidget):
     finger_friendly_widgets = []
@@ -208,7 +194,7 @@ class BuilderWidget(GtkBuilderWidget):
                     dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
                 dlg.run()
                 dlg.destroy()
-            elif pynotify is not None and not notify_server_from_canonical:
+            elif pynotify is not None:
                 if title is None:
                     title = 'gPodder'
                 notification = pynotify.Notification(title, message, gpodder.icon_file)
