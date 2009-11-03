@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.15.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-03 15:29+0100\n"
+"POT-Creation-Date: 2009-11-03 19:57+0100\n"
 "PO-Revision-Date: 2009-10-29 10:27+0100\n"
 "Last-Translator: Jim Nygård <jim@nygard.priv.no>\n"
 "Language-Team: Norwegian/Bokmaal <i18n-nb@lister.ping.uio.no>\n"
@@ -161,7 +161,7 @@ msgstr "Ingen aktive nedlastinger"
 #: src/gpodder/gui.py:790 src/gpodder/gui.py:808
 #: data/ui/desktop/gpodderpreferences.ui.h:27 data/ui/desktop/gpodder.ui.h:20
 #: data/ui/maemo/gpodder.ui.h:18 data/ui/frmntl/gpodderdownloads.ui.h:3
-#: data/ui/frmntl/gpodder.ui.h:8
+#: data/ui/frmntl/gpodder.ui.h:9
 msgid "Downloads"
 msgstr "Nedlastinger"
 
@@ -195,7 +195,7 @@ msgstr "Nedlastinger (%d)"
 msgid "%d paused"
 msgstr "%d pauset"
 
-#: src/gpodder/gui.py:817
+#: src/gpodder/gui.py:817 data/ui/frmntl/gpodder.ui.h:14
 msgid "None active"
 msgstr "Ingen aktive"
 
@@ -616,7 +616,7 @@ msgid "Select the episodes you want to delete:"
 msgstr "Velg de episodene du vil slette:"
 
 #: src/gpodder/gui.py:2298 data/ui/desktop/gpodder.ui.h:36
-#: data/ui/maemo/gpodder.ui.h:33 data/ui/frmntl/gpodder.ui.h:14
+#: data/ui/maemo/gpodder.ui.h:33 data/ui/frmntl/gpodder.ui.h:18
 msgid "Remove old episodes"
 msgstr "Fjern gamle episoder"
 
@@ -830,6 +830,7 @@ msgstr "Podcaster (%d)"
 
 #: src/gpodder/gui.py:3102 data/ui/desktop/gpodder.ui.h:33
 #: data/ui/maemo/gpodder.ui.h:30 data/ui/frmntl/gpodderpodcasts.ui.h:2
+#: data/ui/frmntl/gpodder.ui.h:16
 msgid "Podcasts"
 msgstr "Podcaster"
 
@@ -882,7 +883,7 @@ msgstr "Ingen beskrivelse tilgjengelig"
 msgid "unknown"
 msgstr "ukjent"
 
-#: src/gpodder/model.py:1078 data/ui/frmntl/gpodder.ui.h:16
+#: src/gpodder/model.py:1078 data/ui/frmntl/gpodder.ui.h:21
 msgid "Unplayed"
 msgstr "Ikke avspilt"
 
@@ -1047,59 +1048,59 @@ msgstr "%s lukket"
 msgid "Adding %s..."
 msgstr "Legger til %s"
 
-#: src/gpodder/util.py:317
+#: src/gpodder/util.py:340
 msgid "one day ago"
 msgstr "en dag siden"
 
-#: src/gpodder/util.py:319
+#: src/gpodder/util.py:342
 #, python-format
 msgid "%d days ago"
 msgstr "%d dager siden"
 
-#: src/gpodder/util.py:389
+#: src/gpodder/util.py:412
 msgid "Today"
 msgstr "Idag"
 
-#: src/gpodder/util.py:391
+#: src/gpodder/util.py:414
 msgid "Yesterday"
 msgstr "Igår"
 
-#: src/gpodder/util.py:434 src/gpodder/util.py:437
+#: src/gpodder/util.py:457 src/gpodder/util.py:460
 msgid "(unknown)"
 msgstr "(ukjent)"
 
-#: src/gpodder/util.py:979
+#: src/gpodder/util.py:1002
 msgid "0 seconds"
 msgstr "0 sekunder"
 
-#: src/gpodder/util.py:990
+#: src/gpodder/util.py:1013
 msgid "1 hour"
 msgstr "1 time"
 
-#: src/gpodder/util.py:992
+#: src/gpodder/util.py:1015
 #, python-format
 msgid "%i hours"
 msgstr "%i timer"
 
-#: src/gpodder/util.py:995
+#: src/gpodder/util.py:1018
 msgid "1 minute"
 msgstr "1 minutt"
 
-#: src/gpodder/util.py:997
+#: src/gpodder/util.py:1020
 #, python-format
 msgid "%i minutes"
 msgstr "%i minutter"
 
-#: src/gpodder/util.py:1000
+#: src/gpodder/util.py:1023
 msgid "1 second"
 msgstr "1 sekund"
 
-#: src/gpodder/util.py:1002
+#: src/gpodder/util.py:1025
 #, python-format
 msgid "%i seconds"
 msgstr "%i sekunder"
 
-#: src/gpodder/util.py:1005
+#: src/gpodder/util.py:1028
 msgid "and"
 msgstr "og"
 
@@ -1527,7 +1528,7 @@ msgstr "Rydder opp i filer"
 
 #: src/gpodder/gtkui/desktop/trayicon.py:90 data/ui/desktop/gpodder.ui.h:9
 #: data/ui/maemo/gpodder.ui.h:8 data/ui/frmntl/gpodderpodcasts.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:3
+#: data/ui/frmntl/gpodderpreferences.ui.h:1 data/ui/frmntl/gpodder.ui.h:4
 msgid "Check for new episodes"
 msgstr "Se etter nye episoder"
 
@@ -1745,7 +1746,7 @@ msgstr ""
 "episodene?"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:71
-#: data/ui/maemo/gpodderpodcastdirectory.ui.h:8
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:8 data/ui/frmntl/gpodder.ui.h:20
 msgid "Subscribe"
 msgstr "Abonner"
 
@@ -1777,7 +1778,7 @@ msgstr "Søk blant YouTube brukere"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:148
 #: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
-#: data/ui/frmntl/gpodder.ui.h:6
+#: data/ui/frmntl/gpodder.ui.h:7
 msgid "Download from my.gpodder.org"
 msgstr "Last ned fra my.gpodder.org"
 
@@ -2248,7 +2249,7 @@ msgid "Initializing..."
 msgstr "Initialiserer..."
 
 #: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:1
+#: data/ui/frmntl/gpodder.ui.h:2
 msgid "Add podcast via URL"
 msgstr "Legg til podcast fra URL"
 
@@ -2289,12 +2290,12 @@ msgid "Delete"
 msgstr "Slett"
 
 #: data/ui/desktop/gpodder.ui.h:15 data/ui/maemo/gpodder.ui.h:13
-#: data/ui/frmntl/gpodder.ui.h:5
+#: data/ui/frmntl/gpodder.ui.h:6
 msgid "Discover new podcasts"
 msgstr "Let etter nye podcaster"
 
 #: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
-#: data/ui/frmntl/gpodder.ui.h:7
+#: data/ui/frmntl/gpodder.ui.h:8
 msgid "Download new episodes"
 msgstr "Last ned nye episoder"
 
@@ -2307,7 +2308,7 @@ msgid "Episode descriptions"
 msgstr "Episodedetaljer"
 
 #: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
-#: data/ui/frmntl/gpodder.ui.h:9
+#: data/ui/frmntl/gpodder.ui.h:10
 msgid "Export to OPML file"
 msgstr "Eksporter til OPML-fil"
 
@@ -2316,12 +2317,12 @@ msgid "Go to gpodder.org"
 msgstr "Gå til gpodder.org"
 
 #: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
-#: data/ui/frmntl/gpodder.ui.h:10
+#: data/ui/frmntl/gpodder.ui.h:11
 msgid "Hide podcasts without episodes"
 msgstr "Gjem podcaster uten episoder"
 
 #: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
-#: data/ui/frmntl/gpodder.ui.h:11
+#: data/ui/frmntl/gpodder.ui.h:12
 msgid "Import from OPML file"
 msgstr "Importer fra OPML-fil"
 
@@ -2346,13 +2347,13 @@ msgid "Play"
 msgstr "Play"
 
 #: data/ui/desktop/gpodder.ui.h:32 data/ui/maemo/gpodder.ui.h:29
-#: data/ui/frmntl/gpodder.ui.h:12
+#: data/ui/frmntl/gpodder.ui.h:15
 msgid "Podcast settings"
 msgstr "Podcastinstillinger"
 
 #: data/ui/desktop/gpodder.ui.h:34 data/ui/maemo/gpodderpreferences.ui.h:5
-#: data/ui/maemo/gpodder.ui.h:31 data/ui/frmntl/gpodderpreferences.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:13
+#: data/ui/maemo/gpodder.ui.h:31 data/ui/frmntl/gpodderpreferences.ui.h:3
+#: data/ui/frmntl/gpodder.ui.h:17
 msgid "Preferences"
 msgstr "Innstillinger"
 
@@ -2361,7 +2362,7 @@ msgid "Quit"
 msgstr "Avslutt"
 
 #: data/ui/desktop/gpodder.ui.h:37 data/ui/maemo/gpodder.ui.h:34
-#: data/ui/frmntl/gpodder.ui.h:15
+#: data/ui/frmntl/gpodder.ui.h:19
 msgid "Report a problem"
 msgstr "Rapporter et problem"
 
@@ -2394,17 +2395,17 @@ msgid "Unplayed episodes"
 msgstr "Ikke avspilte episoder"
 
 #: data/ui/desktop/gpodder.ui.h:45 data/ui/maemo/gpodder.ui.h:39
-#: data/ui/frmntl/gpodderepisodes.ui.h:5 data/ui/frmntl/gpodder.ui.h:17
+#: data/ui/frmntl/gpodderepisodes.ui.h:5 data/ui/frmntl/gpodder.ui.h:22
 msgid "Unsubscribe"
 msgstr "Fjerne abonnementet"
 
 #: data/ui/desktop/gpodder.ui.h:46 data/ui/maemo/gpodder.ui.h:41
-#: data/ui/frmntl/gpodder.ui.h:18
+#: data/ui/frmntl/gpodder.ui.h:23
 msgid "Update podcast"
 msgstr "Oppdater podcast"
 
 #: data/ui/desktop/gpodder.ui.h:47 data/ui/maemo/gpodder.ui.h:43
-#: data/ui/frmntl/gpodder.ui.h:19
+#: data/ui/frmntl/gpodder.ui.h:24
 msgid "Upload to my.gpodder.org"
 msgstr "Last opp til my.gpodder.org"
 
@@ -2453,7 +2454,7 @@ msgstr "Hent omslagsbilde fra fil"
 msgid "Invert selection"
 msgstr "Inverter valgene"
 
-#: data/ui/maemo/gpodderpodcastdirectory.ui.h:1
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:1 data/ui/frmntl/gpodder.ui.h:1
 msgid "Add new podcasts"
 msgstr "Legg til nye podcaster"
 
@@ -2560,17 +2561,37 @@ msgstr "Angi brukernavn og passord"
 msgid "Select podcasts to add"
 msgstr "Slett podcaster fra enheten?"
 
+#: data/ui/frmntl/gpodderpreferences.ui.h:2
+#, fuzzy
+msgid "Display orientation"
+msgstr "Vis episodedetaljer"
+
+#: data/ui/frmntl/gpodderpreferences.ui.h:4
+#, fuzzy
+msgid "When new episodes are found"
+msgstr "En ny episoder tilgjengelig for nedlasting"
+
 #: data/ui/frmntl/gpoddershownotes.ui.h:5
 msgid "Remove new mark"
 msgstr "Merk som ikke ny"
 
-#: data/ui/frmntl/gpodder.ui.h:2
+#: data/ui/frmntl/gpodder.ui.h:3
 msgid "All"
 msgstr "Alle"
 
-#: data/ui/frmntl/gpodder.ui.h:4
+#: data/ui/frmntl/gpodder.ui.h:5
 msgid "Deleted"
 msgstr "Slettet"
+
+#: data/ui/frmntl/gpodder.ui.h:13
+#, fuzzy
+msgid "Loading, please wait"
+msgstr "Laster podcastlisten, vennligst vent"
+
+#: data/ui/frmntl/gpodder.ui.h:25
+#, fuzzy
+msgid "Welcome to gPodder!"
+msgstr "<b><big>Velkommen til gPodder</big></b>"
 
 #: data/ui/frmntl/gpodderwelcome.ui.h:2
 msgid "Download my list from my.gpodder.org"

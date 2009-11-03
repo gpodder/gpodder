@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-03 15:29+0100\n"
+"POT-Creation-Date: 2009-11-03 19:57+0100\n"
 "PO-Revision-Date: 2009-06-36 09:31+0100\n"
 "Last-Translator: filip <filip@disque-monde.org>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
@@ -165,7 +165,7 @@ msgstr "Ne jamais télécharger"
 #: src/gpodder/gui.py:790 src/gpodder/gui.py:808
 #: data/ui/desktop/gpodderpreferences.ui.h:27 data/ui/desktop/gpodder.ui.h:20
 #: data/ui/maemo/gpodder.ui.h:18 data/ui/frmntl/gpodderdownloads.ui.h:3
-#: data/ui/frmntl/gpodder.ui.h:8
+#: data/ui/frmntl/gpodder.ui.h:9
 msgid "Downloads"
 msgstr "Téléchargements"
 
@@ -199,7 +199,7 @@ msgstr "Téléchargement (%d)"
 msgid "%d paused"
 msgstr "En pause"
 
-#: src/gpodder/gui.py:817
+#: src/gpodder/gui.py:817 data/ui/frmntl/gpodder.ui.h:14
 #, fuzzy
 msgid "None active"
 msgstr "%d ont échoués"
@@ -647,7 +647,7 @@ msgid "Select the episodes you want to delete:"
 msgstr "Selectionnez les émissions que vous souhaitez télécharger maintenant."
 
 #: src/gpodder/gui.py:2298 data/ui/desktop/gpodder.ui.h:36
-#: data/ui/maemo/gpodder.ui.h:33 data/ui/frmntl/gpodder.ui.h:14
+#: data/ui/maemo/gpodder.ui.h:33 data/ui/frmntl/gpodder.ui.h:18
 msgid "Remove old episodes"
 msgstr "Supprimer les vieilles émissions"
 
@@ -871,6 +871,7 @@ msgstr "Podcasts (%d)"
 
 #: src/gpodder/gui.py:3102 data/ui/desktop/gpodder.ui.h:33
 #: data/ui/maemo/gpodder.ui.h:30 data/ui/frmntl/gpodderpodcasts.ui.h:2
+#: data/ui/frmntl/gpodder.ui.h:16
 msgid "Podcasts"
 msgstr "Podcasts"
 
@@ -927,7 +928,7 @@ msgstr "Description indisponible"
 msgid "unknown"
 msgstr "inconnu(e)"
 
-#: src/gpodder/model.py:1078 data/ui/frmntl/gpodder.ui.h:16
+#: src/gpodder/model.py:1078 data/ui/frmntl/gpodder.ui.h:21
 msgid "Unplayed"
 msgstr "Non lu"
 
@@ -1094,59 +1095,59 @@ msgstr "%s fermé"
 msgid "Adding %s..."
 msgstr "Ajout de %s..."
 
-#: src/gpodder/util.py:317
+#: src/gpodder/util.py:340
 msgid "one day ago"
 msgstr "Il y a un jour"
 
-#: src/gpodder/util.py:319
+#: src/gpodder/util.py:342
 #, python-format
 msgid "%d days ago"
 msgstr "Il y a %d jours"
 
-#: src/gpodder/util.py:389
+#: src/gpodder/util.py:412
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: src/gpodder/util.py:391
+#: src/gpodder/util.py:414
 msgid "Yesterday"
 msgstr "Hier"
 
-#: src/gpodder/util.py:434 src/gpodder/util.py:437
+#: src/gpodder/util.py:457 src/gpodder/util.py:460
 msgid "(unknown)"
 msgstr "(inconnu(e))"
 
-#: src/gpodder/util.py:979
+#: src/gpodder/util.py:1002
 msgid "0 seconds"
 msgstr "0 seconde"
 
-#: src/gpodder/util.py:990
+#: src/gpodder/util.py:1013
 msgid "1 hour"
 msgstr "1 heure"
 
-#: src/gpodder/util.py:992
+#: src/gpodder/util.py:1015
 #, python-format
 msgid "%i hours"
 msgstr "%i heures"
 
-#: src/gpodder/util.py:995
+#: src/gpodder/util.py:1018
 msgid "1 minute"
 msgstr "1 minute"
 
-#: src/gpodder/util.py:997
+#: src/gpodder/util.py:1020
 #, python-format
 msgid "%i minutes"
 msgstr "%i minutes"
 
-#: src/gpodder/util.py:1000
+#: src/gpodder/util.py:1023
 msgid "1 second"
 msgstr "1 seconde"
 
-#: src/gpodder/util.py:1002
+#: src/gpodder/util.py:1025
 #, python-format
 msgid "%i seconds"
 msgstr "%i secondes"
 
-#: src/gpodder/util.py:1005
+#: src/gpodder/util.py:1028
 msgid "and"
 msgstr "et"
 
@@ -1595,7 +1596,7 @@ msgstr "Nettoyage des fichiers"
 
 #: src/gpodder/gtkui/desktop/trayicon.py:90 data/ui/desktop/gpodder.ui.h:9
 #: data/ui/maemo/gpodder.ui.h:8 data/ui/frmntl/gpodderpodcasts.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:3
+#: data/ui/frmntl/gpodderpreferences.ui.h:1 data/ui/frmntl/gpodder.ui.h:4
 msgid "Check for new episodes"
 msgstr "Rechercher de nouvelles émissions"
 
@@ -1834,7 +1835,7 @@ msgstr ""
 "téléchargées ?"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:71
-#: data/ui/maemo/gpodderpodcastdirectory.ui.h:8
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:8 data/ui/frmntl/gpodder.ui.h:20
 #, fuzzy
 msgid "Subscribe"
 msgstr "A_bonnements"
@@ -1871,7 +1872,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:148
 #: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
-#: data/ui/frmntl/gpodder.ui.h:6
+#: data/ui/frmntl/gpodder.ui.h:7
 #, fuzzy
 msgid "Download from my.gpodder.org"
 msgstr "Télécharger la liste depuis my.gpodder.org"
@@ -2357,7 +2358,7 @@ msgid "Initializing..."
 msgstr "Initialisation..."
 
 #: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:1
+#: data/ui/frmntl/gpodder.ui.h:2
 #, fuzzy
 msgid "Add podcast via URL"
 msgstr "Ajout du flux : %s"
@@ -2401,13 +2402,13 @@ msgid "Delete"
 msgstr "Supprimer"
 
 #: data/ui/desktop/gpodder.ui.h:15 data/ui/maemo/gpodder.ui.h:13
-#: data/ui/frmntl/gpodder.ui.h:5
+#: data/ui/frmntl/gpodder.ui.h:6
 #, fuzzy
 msgid "Discover new podcasts"
 msgstr "Chercher de nouveaux flux"
 
 #: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
-#: data/ui/frmntl/gpodder.ui.h:7
+#: data/ui/frmntl/gpodder.ui.h:8
 msgid "Download new episodes"
 msgstr "Télécharger les nouvelles émissions"
 
@@ -2422,7 +2423,7 @@ msgid "Episode descriptions"
 msgstr "Afficher la description des épisodes"
 
 #: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
-#: data/ui/frmntl/gpodder.ui.h:9
+#: data/ui/frmntl/gpodder.ui.h:10
 #, fuzzy
 msgid "Export to OPML file"
 msgstr "Exporter au format OPML"
@@ -2432,13 +2433,13 @@ msgid "Go to gpodder.org"
 msgstr "Aller sur gpodder.org"
 
 #: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
-#: data/ui/frmntl/gpodder.ui.h:10
+#: data/ui/frmntl/gpodder.ui.h:11
 #, fuzzy
 msgid "Hide podcasts without episodes"
 msgstr "Supprimer le flux et ses émissions ?"
 
 #: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
-#: data/ui/frmntl/gpodder.ui.h:11
+#: data/ui/frmntl/gpodder.ui.h:12
 #, fuzzy
 msgid "Import from OPML file"
 msgstr "Importer depuis un OPML"
@@ -2464,14 +2465,14 @@ msgid "Play"
 msgstr "Lire"
 
 #: data/ui/desktop/gpodder.ui.h:32 data/ui/maemo/gpodder.ui.h:29
-#: data/ui/frmntl/gpodder.ui.h:12
+#: data/ui/frmntl/gpodder.ui.h:15
 #, fuzzy
 msgid "Podcast settings"
 msgstr "Podcasts"
 
 #: data/ui/desktop/gpodder.ui.h:34 data/ui/maemo/gpodderpreferences.ui.h:5
-#: data/ui/maemo/gpodder.ui.h:31 data/ui/frmntl/gpodderpreferences.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:13
+#: data/ui/maemo/gpodder.ui.h:31 data/ui/frmntl/gpodderpreferences.ui.h:3
+#: data/ui/frmntl/gpodder.ui.h:17
 msgid "Preferences"
 msgstr "Préférences"
 
@@ -2480,7 +2481,7 @@ msgid "Quit"
 msgstr "Quitter"
 
 #: data/ui/desktop/gpodder.ui.h:37 data/ui/maemo/gpodder.ui.h:34
-#: data/ui/frmntl/gpodder.ui.h:15
+#: data/ui/frmntl/gpodder.ui.h:19
 msgid "Report a problem"
 msgstr "Signaler un problème"
 
@@ -2515,18 +2516,18 @@ msgid "Unplayed episodes"
 msgstr "Téléchargement des émissions"
 
 #: data/ui/desktop/gpodder.ui.h:45 data/ui/maemo/gpodder.ui.h:39
-#: data/ui/frmntl/gpodderepisodes.ui.h:5 data/ui/frmntl/gpodder.ui.h:17
+#: data/ui/frmntl/gpodderepisodes.ui.h:5 data/ui/frmntl/gpodder.ui.h:22
 msgid "Unsubscribe"
 msgstr ""
 
 #: data/ui/desktop/gpodder.ui.h:46 data/ui/maemo/gpodder.ui.h:41
-#: data/ui/frmntl/gpodder.ui.h:18
+#: data/ui/frmntl/gpodder.ui.h:23
 #, fuzzy
 msgid "Update podcast"
 msgstr "Modifier le flux sélectionné"
 
 #: data/ui/desktop/gpodder.ui.h:47 data/ui/maemo/gpodder.ui.h:43
-#: data/ui/frmntl/gpodder.ui.h:19
+#: data/ui/frmntl/gpodder.ui.h:24
 #, fuzzy
 msgid "Upload to my.gpodder.org"
 msgstr "Envoyer vers my.gpodder.org"
@@ -2579,7 +2580,7 @@ msgstr "Supprimer de la liste"
 msgid "Invert selection"
 msgstr "Interdire la suppression"
 
-#: data/ui/maemo/gpodderpodcastdirectory.ui.h:1
+#: data/ui/maemo/gpodderpodcastdirectory.ui.h:1 data/ui/frmntl/gpodder.ui.h:1
 #, fuzzy
 msgid "Add new podcasts"
 msgstr "Ajouter un flux"
@@ -2698,18 +2699,38 @@ msgstr "Nom d'utilisateur et mot de passe nécessaires"
 msgid "Select podcasts to add"
 msgstr "Supprimer les podcasts du périphérique?"
 
+#: data/ui/frmntl/gpodderpreferences.ui.h:2
+#, fuzzy
+msgid "Display orientation"
+msgstr "Informations à propos l'épisode"
+
+#: data/ui/frmntl/gpodderpreferences.ui.h:4
+#, fuzzy
+msgid "When new episodes are found"
+msgstr "Pas de nouvelles émissions à télécharger"
+
 #: data/ui/frmntl/gpoddershownotes.ui.h:5
 msgid "Remove new mark"
 msgstr ""
 
-#: data/ui/frmntl/gpodder.ui.h:2
+#: data/ui/frmntl/gpodder.ui.h:3
 msgid "All"
 msgstr ""
 
-#: data/ui/frmntl/gpodder.ui.h:4
+#: data/ui/frmntl/gpodder.ui.h:5
 #, fuzzy
 msgid "Deleted"
 msgstr "Supprimer"
+
+#: data/ui/frmntl/gpodder.ui.h:13
+#, fuzzy
+msgid "Loading, please wait"
+msgstr "Erreur lors de la sauvegarde de la liste des flux"
+
+#: data/ui/frmntl/gpodder.ui.h:25
+#, fuzzy
+msgid "Welcome to gPodder!"
+msgstr "<b><big>Bienvenue dans gPodder</big></b>"
 
 #: data/ui/frmntl/gpodderwelcome.ui.h:2
 #, fuzzy
