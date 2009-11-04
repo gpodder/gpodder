@@ -2,23 +2,24 @@
 # gPodder translation template.
 # Copyright (C) 2006 Thomas Perl
 # This file is distributed under the same license as the gPodder package.
-#
 # Thomas Perl <thp@perli.net>, 2006.
 # Joel Calado <joelcalado@gmail.com>, 2007.
+# Eduardo Maroja <stuffmail@gmail.com>, 2009
 msgid ""
 msgstr ""
 "Project-Id-Version: pt\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-11-03 19:59+0100\n"
-"PO-Revision-Date: 2009-11-03 18:52-0300\n"
+"PO-Revision-Date: 2009-11-04 09:08-0300\n"
 "Last-Translator: Eduardo Maroja <stuffmail@gmail.com>\n"
-"Language-Team:  <pt_BR@li.org>\n"
+"Language-Team: Pt_Br Team\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Virtaal 0.3.1\n"
 "X-Rosetta-Export-Date: 2009-11-02 18:38:19-0300\n"
-
 
 #: src/gpodder/config.py:279
 msgid "No description available."
@@ -67,15 +68,15 @@ msgstr "Falhou"
 
 #: src/gpodder/download.py:479
 msgid "Cancelled"
-msgstr ""
+msgstr "Cancelado"
 
 #: src/gpodder/download.py:479
 msgid "Paused"
-msgstr ""
+msgstr "Pausado"
 
 #: src/gpodder/download.py:699
 msgid "Missing content from server"
-msgstr ""
+msgstr "Conteúdo do servidor esta faltando"
 
 #: src/gpodder/download.py:703
 #, python-format
@@ -91,6 +92,7 @@ msgstr "Erro de HTTP %s: %s"
 #, python-format
 msgid "Error: %s"
 msgstr "Erro: %s"
+
 #: src/gpodder/gui.py:229
 msgid "gPodder"
 msgstr "gPodder"
@@ -99,7 +101,7 @@ msgstr "gPodder"
 msgid ""
 "There are unfinished downloads from your last session.\n"
 "Pick the ones you want to continue downloading."
-msgstr "" 
+msgstr ""
 "Há downloads incolpletos da sua ultima sessão.\n"
 "Escolha quais você deseja continuar o download"
 
@@ -125,7 +127,7 @@ msgstr "Tamanho"
 #: src/gpodder/gui.py:531 src/gpodder/gui.py:2226 src/gpodder/gui.py:2387
 #: src/gpodder/gtkui/desktop/sync.py:202
 msgid "Released"
-msgstr "Lançado"
+msgstr "Publicado"
 
 #: src/gpodder/gui.py:564 src/gpodder/gui.py:1096 src/gpodder/gui.py:1397
 msgid "Close this menu"
@@ -583,7 +585,6 @@ msgstr ""
 "A seleção contem episódios protegidos, que não serão deletados."
 "Se você desejar ouvir novamente os episódios baixados, você terá que rebaixá-los."
 
-
 #: src/gpodder/gui.py:2224 src/gpodder/gui.py:2385
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:72
 #: src/gpodder/gtkui/desktop/sync.py:198
@@ -646,6 +647,7 @@ msgstr ""
 "Erro ao baixar %s:\n"
 "\n"
 "%s"
+
 #: src/gpodder/gui.py:2346
 msgid "Download error"
 msgstr "Erro de download"
@@ -751,11 +753,11 @@ msgstr "Arquivos OPML"
 
 #: src/gpodder/gui.py:2675
 msgid "Import from OPML"
-msgstr ""
+msgstr "Importar de um arquivo OPML"
 
 #: src/gpodder/gui.py:2689
 msgid "Import podcasts from OPML file"
-msgstr "Imnportar de aquivo OPML"
+msgstr "Importar podcasts de aquivo OPML"
 
 #: src/gpodder/gui.py:2696
 msgid "Nothing to export"
@@ -780,7 +782,7 @@ msgstr "Uma inscrição exportada"
 #: src/gpodder/gui.py:2718
 #, python-format
 msgid "%d subscriptions exported"
-msgstr "%d incrições exportadas"
+msgstr "%d inscrições exportadas"
 
 #: src/gpodder/gui.py:2719
 msgid "Your podcast list has been successfully exported."
@@ -796,7 +798,7 @@ msgstr "Exportação para OPML falhou"
 
 #: src/gpodder/gui.py:2763
 msgid "translator-credits"
-msgstr "Credito da Tradução"
+msgstr "Creditos da Tradução"
 
 #: src/gpodder/gui.py:2770
 msgid "Maintainer:"
@@ -849,7 +851,7 @@ msgstr "Não há episódios baixáveis no feed"
 #: src/gpodder/model.py:733
 #, python-format
 msgid "released %s"
-msgstr "Publicado em %s"
+msgstr "publicado em %s"
 
 #: src/gpodder/model.py:734 src/gpodder/model.py:750
 #: src/gpodder/gtkui/maemo/shownotes.py:99
@@ -860,20 +862,20 @@ msgstr "De %s"
 
 #: src/gpodder/model.py:743
 msgid "played"
-msgstr "Reproduzido"
+msgstr "reproduzido"
 
 #: src/gpodder/model.py:745
 msgid "unplayed"
-msgstr ""
+msgstr "não reproduzido"
 
 #: src/gpodder/model.py:748
 msgid "today"
-msgstr "Hoje"
+msgstr "hoje"
 
 #: src/gpodder/model.py:749
 #, python-format
 msgid "downloaded %s"
-msgstr "Baixado %s"
+msgstr "baixado %s"
 
 #: src/gpodder/model.py:768
 msgid "No description available"
@@ -881,7 +883,7 @@ msgstr "Descrição não disponível"
 
 #: src/gpodder/model.py:1013
 msgid "unknown"
-msgstr "Desconhecido"
+msgstr "desconhecido"
 
 #: src/gpodder/model.py:1040 data/ui/frmntl/gpodder.ui.h:15
 msgid "Unplayed"
@@ -889,7 +891,7 @@ msgstr "Não reproduzido"
 
 #: src/gpodder/my.py:114
 msgid "Please have a look at the website for more information."
-msgstr "Por favor de uma olhada no site para mais infromações."
+msgstr "Por favor de uma olhada no site para mais informações."
 
 #: src/gpodder/my.py:117
 msgid "Subscriptions uploaded."
@@ -953,7 +955,7 @@ msgstr ""
 
 #: src/gpodder/sync.py:71
 msgid "iPod video podcasts"
-msgstr ""
+msgstr "Podcasts de vídeo"
 
 #: src/gpodder/sync.py:71
 msgid ""
@@ -1006,7 +1008,7 @@ msgstr "Adicionando %s"
 #: src/gpodder/sync.py:386
 #, python-format
 msgid "Error copying %s: Not enough free disk space on %s"
-msgstr ""
+msgstr "Erro ao copiar %s: Não há espaço livre suficiente em %s"
 
 #: src/gpodder/sync.py:514
 msgid "Opening MP3 player"
@@ -1222,7 +1224,7 @@ msgstr "Recurso"
 
 #: src/gpodder/gtkui/desktop/dependencymanager.py:52
 msgid "Missing components:"
-msgstr ""
+msgstr "Componentes faltando:"
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:55
 msgid "Use"
@@ -1363,7 +1365,7 @@ msgstr "Formato Customizado"
 
 #: src/gpodder/gtkui/desktop/preferences.py:277
 msgid "Select iPod mountpoint"
-msgstr ""
+msgstr "Escolha o ponto de montagem do iPod"
 
 #: src/gpodder/gtkui/desktop/preferences.py:286
 msgid "Select folder for MP3 player"
@@ -1402,7 +1404,7 @@ msgstr "Não foi possível abrir o dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:79
 msgid "Please check the settings in the preferences dialog."
-msgstr ""
+msgstr "Por favor verifique as configurações na janela de preferências."
 
 #: src/gpodder/gtkui/desktop/sync.py:84
 msgid "Cannot sync to iPod"
@@ -1465,7 +1467,7 @@ msgstr "Deletar podcasts do dispositivo?"
 msgid ""
 "Do you really want to remove these episodes from your device? Episodes in "
 "your library will not be deleted."
-msgstr "" 
+msgstr ""
 "Você deseja remover estes episódios do seu dispositivo? episódios "
 "em sua biblioteca não serão apagados"
 
@@ -2090,6 +2092,7 @@ msgid ""
 msgstr ""
 "Se marcado, gPodder irá deletar episódios mais velhos do que os a quantide "
 "especificada de dias (na aba Downloads) a cara inicio do gPodder."
+
 #: data/ui/desktop/gpodderpreferences.ui.h:34
 msgid ""
 "If checked, gPodder will update the status of the episode as if it has been "
@@ -2364,7 +2367,7 @@ msgstr "_Ajuda"
 
 #: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
 msgid "_Podcasts"
-msgstr ""
+msgstr "_Podcasts"
 
 #: data/ui/desktop/gpodder.ui.h:53 data/ui/maemo/gpodder.ui.h:49
 msgid "_Subscriptions"
