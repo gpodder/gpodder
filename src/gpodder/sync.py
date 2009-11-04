@@ -563,10 +563,12 @@ class MP3PlayerDevice(Device):
                 log('Cannot create folder on MP3 player: %s', folder, sender=self)
                 return False
 
-        if (self._config.mp3_player_use_scrobbler_log and not episode.is_played
-                and [episode.channel.title, episode.title] in self.scrobbler_log):
-            log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
-            episode.mark(is_played=True)
+        if self._config.mp3_player_use_scrobbler_log and not episode.is_played:
+            # FIXME: This misses some things when channel.title<>album tag which is what
+            # the scrobbling entity will be using.
+            if [episode.channel.title, episode.title] in self.scrobbler_log:
+                log('Marking "%s" from "%s" as played', episode.title, episode.channel.title, sender=self)
+                episode.mark(is_played=True)
 
         if self._config.rockbox_copy_coverart and not os.path.exists(os.path.join(folder, 'cover.bmp')):
             log('Creating Rockbox album art for "%s"', episode.channel.title, sender=self)
@@ -737,14 +739,24 @@ class MP3PlayerDevice(Device):
             return False
 
         try:
-            # regex that can be used to get all the data from a scrobbler.log entry
-            entry_re = re.compile('^(.*)\t(.*)\t(.*)\t(.*)\t(.*)\t(.*)\t(.*)$')
+            # Scrobble Log Format: http://www.audioscrobbler.net/wiki/Portable_Player_Logging
+            # Notably some fields are optional so will appear as \t\t.
+            # Conforming scrobblers should strip any \t's from the actual fields.
             for entry in entries:
-                match_obj = re.match(entry_re, entry)
-                # L means at least 50% of the track was listened to (S means < 50%)
-                if match_obj and match_obj.group(6).strip().lower() == 'l':
-                    # append [artist_name, track_name]
-                    self.scrobbler_log.append([match_obj.group(1), match_obj.group(3)])
+                entry = entry.split('\t')
+                if len(entry)>=5:
+                    artist, album, track, pos, length, rating = entry[:6]
+                    # L means at least 50% of the track was listened to (S means < 50%)
+                    if 'L' in rating:
+                        # Whatever is writing the logs will only have the taginfo in the
+                        # file to work from. Mostly album~=channel name
+                        if len(track):
+                            self.scrobbler_log.append([album, track])
+                        else:
+                            log('Skipping logging of %s (missing track)', album)
+                else:
+                    log('Skipping scrobbler entry: %d elements %s', len(entry), entry)
+                    
         except:
             log('Error while parsing "%s".', log_file, sender=self)
 
