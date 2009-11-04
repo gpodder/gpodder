@@ -47,12 +47,15 @@ import xml.sax.saxutils
 _ = gpodder.gettext
 
 
+class CustomFeed(feedcore.ExceptionWithData): pass
+
 class gPodderFetcher(feedcore.Fetcher):
     """
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
     Proxy handler based on the current settings in gPodder and provides a
     convenience method (fetch_channel) for use by PodcastChannel objects.
     """
+    custom_handlers = []
 
     def __init__(self):
         feedcore.Fetcher.__init__(self, gpodder.user_agent)
@@ -64,6 +67,8 @@ class gPodderFetcher(feedcore.Fetcher):
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
+        for handler in self.custom_handlers:
+            handler(url)
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
@@ -151,6 +156,20 @@ class PodcastChannel(PodcastModelObject):
         Returns: A new PodcastEpisode object
         """
         return PodcastEpisode.create_from_dict(d, self)
+
+    def _consume_custom_feed(self, custom_feed, max_episodes=0):
+        self.title = custom_feed.get_title()
+        self.link = custom_feed.get_link()
+        self.description = custom_feed.get_description()
+        self.image = custom_feed.get_image()
+        self.pubDate = time.time()
+        self.save()
+
+        guids = [episode.guid for episode in self.get_all_episodes()]
+        self.count_new += custom_feed.get_new_episodes(self, guids)
+        self.save()
+
+        self.db.purge(max_episodes, self.id)
 
     def _consume_updated_feed(self, feed, max_episodes=0):
         self.parse_error = feed.get('bozo_exception', None)
@@ -253,6 +272,10 @@ class PodcastChannel(PodcastModelObject):
     def update(self, max_episodes=0):
         try:
             self.feed_fetcher.fetch_channel(self)
+        except CustomFeed, updated:
+            custom_feed = updated.data
+            self._consume_custom_feed(custom_feed, max_episodes)
+            self.save()
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
             self._consume_updated_feed(feed, max_episodes)

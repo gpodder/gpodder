@@ -137,6 +137,7 @@ def normalize_feed_url(url):
     PREFIXES = {
             'fb:': 'http://feeds2.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
+            'sc:': 'http://soundcloud.com/%s',
     }
 
     for prefix, expansion in PREFIXES.iteritems():

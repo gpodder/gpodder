@@ -70,6 +70,8 @@ from gpodder import download
 from gpodder import my
 from gpodder.liblogger import log
 
+from gpodder import soundcloud
+
 _ = gpodder.gettext
 
 from gpodder.model import PodcastChannel
