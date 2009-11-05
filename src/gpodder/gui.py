@@ -524,6 +524,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
 
+    def on_entry_search_episodes_changed(self, editable):
+        if self.hbox_search_episodes.get_property('visible'):
+            self.episode_list_model.set_search_term(editable.get_chars(0, -1))
+
+    def on_entry_search_episodes_key_press(self, editable, event):
+        if event.keyval == gtk.keysyms.Escape:
+            self.hide_episode_search()
+            return True
+
+    def hide_episode_search(self, *args):
+        self.hbox_search_episodes.hide()
+        self.entry_search_episodes.set_text('')
+        self.episode_list_model.set_search_term(None)
+        self.treeAvailable.grab_focus()
+
+    def show_episode_search(self, input_char):
+        self.entry_search_episodes.set_text(input_char)
+        self.hbox_search_episodes.show()
+        self.entry_search_episodes.grab_focus()
+        self.entry_search_episodes.set_position(-1)
+
     def init_episode_list_treeview(self):
         self.episode_list_model = EpisodeListModel()
 
@@ -571,7 +592,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             sizecolumn.set_visible(False)
             releasecolumn.set_visible(False)
 
-        self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
+        if gpodder.ui.desktop:
+            def on_key_press(treeview, event):
+                if event.keyval == gtk.keysyms.Escape:
+                    self.hide_episode_search()
+                else:
+                    unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
+                    if unicode_char_id == 0:
+                        return False
+                    input_char = unichr(unicode_char_id)
+                    self.show_episode_search(input_char)
+                return True
+            self.treeAvailable.connect('key-press-event', on_key_press)
+        else:
+            self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
 
         selection = self.treeAvailable.get_selection()
         if gpodder.ui.diablo:

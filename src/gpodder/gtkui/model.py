@@ -51,6 +51,7 @@ class EpisodeListModel(gtk.ListStore):
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
         self._view_mode = self.VIEW_ALL
+        self._search_term = None
         self._filter.set_visible_func(self._filter_visible_func)
 
         # "ICON" is used to mark icon names in source files
@@ -76,6 +77,11 @@ class EpisodeListModel(gtk.ListStore):
 
 
     def _filter_visible_func(self, model, iter):
+        # If searching is active, set visibility based on search text
+        if self._search_term is not None:
+            key = self._search_term.lower()
+            return any((key in model.get_value(iter, column).lower()) for column in self.SEARCH_COLUMNS)
+
         if self._view_mode == self.VIEW_ALL:
             return True
         elif self._view_mode == self.VIEW_UNDELETED:
@@ -108,6 +114,14 @@ class EpisodeListModel(gtk.ListStore):
     def get_view_mode(self):
         """Returns the currently-set view mode"""
         return self._view_mode
+
+    def set_search_term(self, new_term):
+        if self._search_term != new_term:
+            self._search_term = new_term
+            self._filter.refilter()
+
+    def get_search_term(self):
+        return self._search_term
 
 
     def add_from_channel(self, channel, downloading=None, \
