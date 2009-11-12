@@ -133,7 +133,7 @@ if gpodder.ui.maemo:
     import hildon
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCleanUpDownloads']
+    finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -271,7 +271,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item_view_episodes_all=self.item_view_episodes_all, \
                     item_view_episodes_unplayed=self.item_view_episodes_unplayed, \
                     item_view_episodes_downloaded=self.item_view_episodes_downloaded, \
-                    item_view_episodes_undeleted=self.item_view_episodes_undeleted)
+                    item_view_episodes_undeleted=self.item_view_episodes_undeleted, \
+                    on_entry_search_episodes_changed=self.on_entry_search_episodes_changed, \
+                    on_entry_search_episodes_key_press=self.on_entry_search_episodes_key_press, \
+                    hide_episode_search=self.hide_episode_search)
+
+            # Expose objects for episode list type-ahead find
+            self.hbox_search_episodes = self.episodes_window.hbox_search_episodes
+            self.entry_search_episodes = self.episodes_window.entry_search_episodes
+            self.button_search_episodes_clear = self.episodes_window.button_search_episodes_clear
 
             def on_podcast_selected(channel):
                 self.active_channel = channel
@@ -465,7 +473,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.maemo:
             return self.treeview_channels_handle_gestures(treeview, event)
-
         return self.treeview_channels_show_context_menu(treeview, event)
 
     def on_treeview_episodes_button_released(self, treeview, event):
@@ -540,8 +547,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeAvailable.grab_focus()
 
     def show_episode_search(self, input_char):
-        self.entry_search_episodes.set_text(input_char)
         self.hbox_search_episodes.show()
+        self.entry_search_episodes.set_text(input_char)
         self.entry_search_episodes.grab_focus()
         self.entry_search_episodes.set_position(-1)
 
@@ -592,20 +599,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
             sizecolumn.set_visible(False)
             releasecolumn.set_visible(False)
 
-        if gpodder.ui.desktop:
-            def on_key_press(treeview, event):
-                if event.keyval == gtk.keysyms.Escape:
-                    self.hide_episode_search()
-                else:
-                    unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
-                    if unicode_char_id == 0:
-                        return False
-                    input_char = unichr(unicode_char_id)
-                    self.show_episode_search(input_char)
-                return True
-            self.treeAvailable.connect('key-press-event', on_key_press)
-        else:
-            self.treeAvailable.set_search_equal_func(TreeViewHelper.make_search_equal_func(EpisodeListModel))
+        # Set up type-ahead find for the episode list
+        def on_key_press(treeview, event):
+            if event.keyval == gtk.keysyms.Escape:
+                self.hide_episode_search()
+            else:
+                unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
+                if unicode_char_id == 0:
+                    return False
+                input_char = unichr(unicode_char_id)
+                self.show_episode_search(input_char)
+            return True
+        self.treeAvailable.connect('key-press-event', on_key_press)
 
         selection = self.treeAvailable.get_selection()
         if gpodder.ui.diablo:

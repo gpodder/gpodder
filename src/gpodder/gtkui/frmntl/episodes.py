@@ -32,6 +32,8 @@ from gpodder.gtkui.model import EpisodeListModel
 class gPodderEpisodes(BuilderWidget):
     def new(self):
         self.channel = None
+        # Workaround for Maemo bug XXX
+        self.button_search_episodes_clear.set_name('HildonButton-thumb')
         appmenu = hildon.AppMenu()
         for action in (self.action_rename, \
                        self.action_play_m3u, \
@@ -86,9 +88,11 @@ class gPodderEpisodes(BuilderWidget):
     def on_delete_event(self, widget, event):
         self.main_window.hide()
         self.channel = None
+        self.hide_episode_search()
         return True
 
     def show(self):
         self.main_window.set_title(self.channel.title)
         self.main_window.show()
+        self.treeview.grab_focus()
 
