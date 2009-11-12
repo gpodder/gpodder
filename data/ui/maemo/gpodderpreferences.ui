@@ -137,6 +137,17 @@ MPlayer</property>
               </packing>
             </child>
             <child>
+              <object class="GtkButton" id="btn_advanced">
+                <property name="label" translatable="yes">Advanced...</property>
+                <property name="visible">True</property>
+                <signal handler="on_btn_advanced_clicked" name="clicked"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="btn_close">
                 <property name="label">gtk-close</property>
                 <property name="use_stock">True</property>
@@ -146,7 +157,6 @@ MPlayer</property>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
               </packing>
             </child>
           </object>

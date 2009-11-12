@@ -30,12 +30,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 class gPodderPreferences(BuilderWidget):
-    # Key press sequence to open advanced configuration editor
-    adv_keyseq = (gtk.keysyms.F6, gtk.keysyms.F6, \
-                  gtk.keysyms.F7, gtk.keysyms.F8, \
-                  gtk.keysyms.F7, gtk.keysyms.F6)
-
-    finger_friendly_widgets = ['btn_close', 'btn_gesture_info']
+    finger_friendly_widgets = ['btn_close', 'btn_gesture_info', 'btn_advanced']
 
     audio_players = [
             ('default', 'Media Player'),
@@ -47,12 +42,9 @@ class gPodderPreferences(BuilderWidget):
     ]
     
     def new(self):
-        self.adv_keyseq_pos = 0
-
         self._config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
         self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
 
-        self.main_window.connect('key-press-event', self.on_key_press)
         self.main_window.connect('destroy', lambda w: self.callback_finished())
 
         for item in self.audio_players:
@@ -95,19 +87,6 @@ class gPodderPreferences(BuilderWidget):
 
         self.gPodderPreferences.show()
 
-    def on_key_press(self, widget, event):
-        if event.keyval == self.adv_keyseq[self.adv_keyseq_pos]:
-            self.adv_keyseq_pos += 1
-            if self.adv_keyseq_pos == len(self.adv_keyseq):
-                self.adv_keyseq_pos = 0
-                self.show_message(_('Configuration editor activated'), _('Be careful'))
-                gPodderConfigEditor(self.gPodderPreferences, _config=self._config)
-                self.gPodderPreferences.destroy()
-            return True
-        else:
-            self.adv_keyseq_pos = 0
-        return False
-
     def on_combo_player_changed(self, combobox):
         index = combobox.get_active()
         if index < len(self.audio_players):
@@ -142,6 +121,10 @@ class gPodderPreferences(BuilderWidget):
         dialog.vbox.show_all()
         dialog.run()
         dialog.destroy()
+
+    def on_btn_advanced_clicked(self, button):
+        gPodderConfigEditor(self.main_window, _config=self._config)
+        self.main_window.destroy()
 
     def on_btn_close_clicked(self, widget):
         self.gPodderPreferences.destroy()
