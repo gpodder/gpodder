@@ -10,24 +10,56 @@
     <property name="urgency_hint">False</property>
     <signal name="delete_event" handler="on_delete_event"/>
     <child>
-      <object class="HildonPannableArea" id="pannablearea">
+      <object class="GtkVBox" id="vbox_podcasts">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+        <property name="spacing">6</property>
         <child>
-          <object class="GtkTreeView" id="treeview">
+          <object class="HildonPannableArea" id="pannablearea">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="headers_visible">False</property>
-            <property name="rules_hint">True</property>
-            <property name="reorderable">False</property>
-            <property name="fixed_height_mode">False</property>
-            <property name="hover_selection">False</property>
-            <property name="hover_expand">False</property>
-            <signal name="expose-event" handler="on_treeview_expose_event"/>
-            <signal name="row_activated" handler="on_podcast_selected"/>
+            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <child>
+              <object class="GtkTreeView" id="treeview">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="headers_visible">False</property>
+                <property name="rules_hint">True</property>
+                <property name="reorderable">False</property>
+                <property name="fixed_height_mode">False</property>
+                <property name="hover_selection">False</property>
+                <property name="hover_expand">False</property>
+                <signal name="expose-event" handler="on_treeview_expose_event"/>
+                <signal name="row_activated" handler="on_podcast_selected"/>
+              </object>
+            </child>
           </object>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox_search_podcasts">
+            <child>
+              <object class="HildonEntry" id="entry_search_podcasts">
+                <property name="visible">True</property>
+                <signal name="changed" handler="on_entry_search_podcasts_changed"/>
+                <signal name="key-press-event" handler="on_entry_search_podcasts_key_press"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="button_search_podcasts_clear">
+                <property name="visible">True</property>
+                <property name="icon-name">general_close</property>
+                <signal name="clicked" handler="hide_podcast_search"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+          </packing>
         </child>
       </object>
       <packing>

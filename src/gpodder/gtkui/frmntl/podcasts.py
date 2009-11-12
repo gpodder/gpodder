@@ -61,4 +61,5 @@ class gPodderPodcasts(BuilderWidget):
 
     def show(self):
         self.main_window.show()
+        self.treeview.grab_focus()
 

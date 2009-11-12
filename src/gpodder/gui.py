@@ -293,7 +293,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_itemUpdate_activate=self.on_itemUpdate_activate, \
                     item_view_podcasts_all=self.item_view_podcasts_all, \
                     item_view_podcasts_downloaded=self.item_view_podcasts_downloaded, \
-                    item_view_podcasts_unplayed=self.item_view_podcasts_unplayed)
+                    item_view_podcasts_unplayed=self.item_view_podcasts_unplayed, \
+                    on_entry_search_podcasts_changed=self.on_entry_search_podcasts_changed, \
+                    on_entry_search_podcasts_key_press=self.on_entry_search_podcasts_key_press, \
+                    hide_podcast_search=self.hide_podcast_search)
+
+            # Expose objects for podcast list type-ahead find
+            self.hbox_search_podcasts = self.podcasts_window.hbox_search_podcasts
+            self.entry_search_podcasts = self.podcasts_window.entry_search_podcasts
+            self.button_search_podcasts_clear = self.podcasts_window.button_search_podcasts_clear
 
             self.downloads_window = gPodderDownloads(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
@@ -491,10 +499,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return self.treeview_downloads_show_context_menu(treeview, event)
 
+    def on_entry_search_podcasts_changed(self, editable):
+        if self.hbox_search_podcasts.get_property('visible'):
+            self.podcast_list_model.set_search_term(editable.get_chars(0, -1))
+
+    def on_entry_search_podcasts_key_press(self, editable, event):
+        if event.keyval == gtk.keysyms.Escape:
+            self.hide_podcast_search()
+            return True
+
+    def hide_podcast_search(self, *args):
+        self.hbox_search_podcasts.hide()
+        self.entry_search_podcasts.set_text('')
+        self.podcast_list_model.set_search_term(None)
+        self.treeChannels.grab_focus()
+
+    def show_podcast_search(self, input_char):
+        self.hbox_search_podcasts.show()
+        self.entry_search_podcasts.insert_text(input_char, -1)
+        self.entry_search_podcasts.grab_focus()
+        self.entry_search_podcasts.set_position(-1)
+
     def init_podcast_list_treeview(self):
         # Set up podcast channel tree view widget
-        self.treeChannels.set_search_equal_func(TreeViewHelper.make_search_equal_func(PodcastListModel))
-
         if gpodder.ui.fremantle:
             if self.config.podcast_list_view_mode == EpisodeListModel.VIEW_DOWNLOADED:
                 self.item_view_podcasts_downloaded.set_active(True)
@@ -529,6 +556,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         selection.connect('changed', self.on_treeview_podcasts_selection_changed)
 
+        # Set up type-ahead find for the podcast list
+        def on_key_press(treeview, event):
+            if event.keyval == gtk.keysyms.Escape:
+                self.hide_podcast_search()
+            elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
+                self.hide_podcast_search()
+            else:
+                unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
+                if unicode_char_id == 0:
+                    return False
+                input_char = unichr(unicode_char_id)
+                self.show_podcast_search(input_char)
+            return True
+        self.treeChannels.connect('key-press-event', on_key_press)
+
         TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
 
     def on_entry_search_episodes_changed(self, editable):
@@ -548,7 +590,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def show_episode_search(self, input_char):
         self.hbox_search_episodes.show()
-        self.entry_search_episodes.set_text(input_char)
+        self.entry_search_episodes.insert_text(input_char, -1)
         self.entry_search_episodes.grab_focus()
         self.entry_search_episodes.set_position(-1)
 
@@ -602,6 +644,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
             if event.keyval == gtk.keysyms.Escape:
+                self.hide_episode_search()
+            elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
                 self.hide_episode_search()
             else:
                 unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)

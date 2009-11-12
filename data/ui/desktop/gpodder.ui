@@ -679,6 +679,33 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkHBox" id="hbox_search_podcasts">
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkEntry" id="entry_search_podcasts">
+                                <property name="visible">True</property>
+                                <signal name="changed" handler="on_entry_search_podcasts_changed"/>
+                                <signal name="key-press-event" handler="on_entry_search_podcasts_key_press"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkToolButton" id="button_search_podcasts_clear">
+                                <property name="visible">True</property>
+                                <property name="stock-id">gtk-clear</property>
+                                <signal name="clicked" handler="hide_podcast_search"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkVBox" id="vbox42">
                             <property name="visible">True</property>
                             <property name="homogeneous">False</property>
@@ -854,9 +881,9 @@
                               </object>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button_search_episodes_clear">
+                              <object class="GtkToolButton" id="button_search_episodes_clear">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Clear</property>
+                                <property name="stock-id">gtk-clear</property>
                                 <signal name="clicked" handler="hide_episode_search"/>
                               </object>
                               <packing>
