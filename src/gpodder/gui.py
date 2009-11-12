@@ -2803,7 +2803,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://gpodder.org/shop')
 
     def on_wishlist_activate(self, widget, *args):
-        util.open_website('http://www.amazon.de/gp/registry/2PD2MYGHE6857')
+        util.open_website('http://amzn.com/w/2L04WZKX274VB')
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
