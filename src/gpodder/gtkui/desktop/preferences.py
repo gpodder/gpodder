@@ -175,7 +175,7 @@ class gPodderPreferences(BuilderWidget):
     def on_btnCustomSyncNameHelp_clicked( self, widget):
         examples = [
                 '<i>{episode.title}</i> -&gt; <b>Interview with RMS</b>',
-                '<i>{episode.basename}</i> -&gt; <b>70908-interview-rms</b>',
+                '<i>{episode.filename}</i> -&gt; <b>70908-interview-rms</b>',
                 '<i>{episode.published}</i> -&gt; <b>20070908</b> (for 08.09.2007)',
                 '<i>{episode.pubtime}</i> -&gt; <b>1344</b> (for 13:44)',
                 '<i>{podcast.title}</i> -&gt; <b>The Interview Podcast</b>'
@@ -187,7 +187,7 @@ class gPodderPreferences(BuilderWidget):
                 '\n'.join( [ '   %s' % s for s in examples ])
         ]
 
-        self.show_message( '\n\n'.join( info), _('Custom format strings'))
+        self.show_message('\n\n'.join(info), _('Custom format strings'), important=True)
 
     def on_gPodderPreferences_destroy(self, widget, *args):
         self.on_btnOK_clicked( widget, *args)
