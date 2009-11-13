@@ -656,6 +656,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
+        if gpodder.ui.desktop:
+            self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
+                    (('text/uri-list', 0, 0),), gtk.gdk.ACTION_COPY)
+            def drag_data_get(tree, context, selection_data, info, timestamp):
+                uris = ['file://'+e.local_filename(create=False) \
+                        for e in self.get_selected_episodes() \
+                        if e.was_downloaded(and_exists=True)]
+                uris.append('') # for the trailing '\r\n'
+                selection_data.set(selection_data.target, 8, '\r\n'.join(uris))
+            self.treeAvailable.connect('drag-data-get', drag_data_get)
+
         selection = self.treeAvailable.get_selection()
         if gpodder.ui.diablo:
             if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
