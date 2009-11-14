@@ -20,7 +20,6 @@
 import gtk
 import gtk.gdk
 import pango
-import urllib2
 import threading
 
 from xml.sax import saxutils
@@ -96,7 +95,7 @@ class gPodderShownotes(gPodderShownotesBase):
             self.d.connect('link-clicked', lambda doc, url: util.open_website(url))
             def request_url(document, url, stream):
                 def opendata(url, stream):
-                    fp = urllib2.urlopen(url)
+                    fp = util.urlopen(url)
                     data = fp.read(1024*10)
                     while data != '':
                         stream.write(data)

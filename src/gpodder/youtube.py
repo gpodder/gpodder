@@ -127,7 +127,7 @@ def get_real_cover(url):
     if m is not None:
         username = m.group(1)
         api_url = 'http://gdata.youtube.com/feeds/api/users/%s?v=2' % username
-        data = urllib2.urlopen(api_url).read()
+        data = util.urlopen(api_url).read()
         match = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
         if match is not None:
             log('YouTube userpic for %s is: %s', url, match.group(1))
@@ -140,7 +140,7 @@ def get_real_episode_length(episode):
 
     if url != episode.url:
         try:
-            info = urllib2.urlopen(url).info()
+            info = util.urlopen(url).info()
             if 'content-length' in info:
                 return info['content-length']
         except urllib2.HTTPError:
@@ -154,7 +154,7 @@ def find_youtube_channels(string):
     url = 'http://www.youtube.com/results?search_query='+ urllib.quote(string, '') +'&search_type=search_users&aq=f'
 
     r = re.compile('>\s+<')
-    data = r.sub('><', urllib2.urlopen(url).read())
+    data = r.sub('><', util.urlopen(url).read())
 
     r1 = re.compile('<a href="/user/([^"]+)"[^>]*>([^<]+)</a>')
     m1 = r1.findall(data)

@@ -825,11 +825,18 @@ def get_real_url(url):
             opener = urllib2.build_opener(handler)
             return opener.open(url).geturl()
         else:
-            return urllib2.urlopen(url).geturl()
+            return urlopen(url).geturl()
     except:
         log('Error getting real url for %s', url, traceback=True)
         return url
 
+def urlopen(url):
+    """
+    An URL opener with the User-agent set to gPodder (with version)
+    """
+    headers = {'User-agent': gpodder.user_agent}
+    request = urllib2.Request(url, headers=headers)
+    return urllib2.urlopen(request)
 
 def find_command( command):
     """

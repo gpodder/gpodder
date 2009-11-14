@@ -27,6 +27,8 @@
 import gpodder
 _ = gpodder.gettext
 
+from gpodder import util
+
 ########################################################################
 # Based on upload_test.py
 # Copyright Michael Foord, 2004 & 2005.
@@ -80,6 +82,7 @@ def build_request(theurl, fields, files, txheaders=None):
     if not txheaders: txheaders = {}
     txheaders['Content-type'] = content_type
     txheaders['Content-length'] = str(len(body))
+    txheaders['User-agent'] = gpodder.user_agent
     return urllib2.Request(theurl, body, txheaders)
 
 
@@ -94,7 +97,7 @@ class MygPodderClient(object):
         args = {'username': self.username, 'password': self.password}
         args = '&'.join(('%s=%s' % a for a in args.items()))
         url = theurl + '?' + args
-        opml_data = urllib2.urlopen(url).read()
+        opml_data = util.urlopen(url).read()
         return opml_data
 
     def upload_subscriptions(self, filename):

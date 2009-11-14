@@ -35,7 +35,6 @@ from gpodder import youtube
 import gtk
 import os
 import threading
-import urllib2
 
 class DependencyModel(gtk.ListStore):
     C_NAME, C_DESCRIPTION, C_AVAILABLE_TEXT, C_AVAILABLE, C_MISSING = range(5)
@@ -155,7 +154,7 @@ class CoverDownloader(ObservableService):
                 try:
                     log('Trying to download: %s', url, sender=self)
 
-                    image_data = urllib2.urlopen(url).read()
+                    image_data = util.urlopen(url).read()
                 except:
                     log('Cannot get image from %s', url, sender=self)
 
