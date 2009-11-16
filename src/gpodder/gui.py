@@ -78,7 +78,6 @@ from gpodder.dbsqlite import Database
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.config import UIConfig
-from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
@@ -90,6 +89,8 @@ from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
 if gpodder.ui.desktop:
+    from gpodder.gtkui.download import DownloadStatusModel
+
     from gpodder.gtkui.desktop.sync import gPodderSyncUI
 
     from gpodder.gtkui.desktop.channel import gPodderChannel
@@ -106,6 +107,8 @@ if gpodder.ui.desktop:
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
 elif gpodder.ui.diablo:
+    from gpodder.gtkui.download import DownloadStatusModel
+
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.maemo.preferences import gPodderPreferences
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
@@ -113,6 +116,8 @@ elif gpodder.ui.diablo:
     from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
     have_trayicon = False
 elif gpodder.ui.fremantle:
+    from gpodder.gtkui.frmntl.model import DownloadStatusModel
+
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.frmntl.preferences import gPodderPreferences
     from gpodder.gtkui.frmntl.shownotes import gPodderShownotes

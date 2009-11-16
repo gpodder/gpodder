@@ -54,6 +54,9 @@ class DownloadStatusModel(gtk.ListStore):
         self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
         self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
+    def _format_message(self, episode, message, podcast):
+        return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
+
     def request_update(self, iter, task=None):
         if task is None:
             # Ongoing update request from UI - get task from model
@@ -79,10 +82,8 @@ class DownloadStatusModel(gtk.ListStore):
                     util.format_filesize(task.total_size))
 
         self.set(iter,
-                self.C_NAME, '%s\n<small>%s - %s</small>' % (\
-                        task.markup_name, \
-                        status_message, \
-                        task.markup_podcast_name),
+                self.C_NAME, self._format_message(task.markup_name, \
+                    status_message, task.markup_podcast_name),
                 self.C_PROGRESS, 100.*task.progress,
                 self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
                 self.C_ICON_NAME, self._status_ids[task.status])
