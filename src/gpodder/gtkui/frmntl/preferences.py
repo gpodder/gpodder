@@ -87,14 +87,16 @@ class gPodderPreferences(BuilderWidget):
         self.touch_selector_download.set_active(0, download_method_mapping[self._config.auto_download])
         self.picker_download.set_selector(self.touch_selector_download)
 
-        # Work around Maemo bug #4718
-        self.picker_orientation.set_name('HildonButton-finger')
-        self.picker_interval.set_name('HildonButton-finger')
-        self.picker_download.set_name('HildonButton-finger')
-
-        self.picker_orientation.set_alignment(0.5, 0.5, .9, 0.)
-        self.picker_interval.set_alignment(0.5, 0.5, .9, 0.)
-        self.picker_download.set_alignment(0.5, 0.5, .9, 0.)
+        # Fix the styling and layout of the picker buttons
+        for picker in (self.picker_orientation, \
+                       self.picker_interval, \
+                       self.picker_download):
+            # Work around Maemo bug #4718
+            picker.set_name('HildonButton-finger')
+            # Fix alignment problems (Maemo bug #6205)
+            picker.set_alignment(.0, .5, 1., 0.)
+            child = picker.get_child()
+            child.set_padding(0, 0, 12, 0)
 
         self.gPodderPreferences.show()
 
