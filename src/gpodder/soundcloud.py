@@ -23,7 +23,10 @@
 
 import gpodder
 
+_ = gpodder.gettext
+
 from gpodder import model
+from gpodder import util
 
 try:
     # For Python < 2.6, we use the "simplejson" add-on module
@@ -42,15 +45,6 @@ import re
 import email
 import email.Header
 
-
-def urlopen(url):
-    """URL request wrapper with User-Agent
-
-    A simple replacement for urllib2.urlopen() that
-    takes care of adding the User-Agent header.
-    """
-    request = urllib2.Request(url, headers={'User-Agent': gpodder.user_agent})
-    return urllib2.urlopen(request)
 
 def soundcloud_parsedate(s):
     """Parse a string into a unix timestamp
@@ -89,7 +83,7 @@ def get_metadata(url):
     URL. Will use the network connection to determine the
     metadata via the HTTP header fields.
     """
-    track_fp = urlopen(url)
+    track_fp = util.urlopen(url)
     headers = track_fp.info()
     filesize = headers['content-length'] or '0'
     filetype = headers['content-type'] or 'application/octet-stream'
@@ -98,86 +92,97 @@ def get_metadata(url):
     track_fp.close()
     return filesize, filetype, filename
 
-def get_coverart(username):
-    cache_file = os.path.join(gpodder.home, 'soundcloud.cache')
-    if os.path.exists(cache_file):
-        try:
-            cache = json.load(open(cache_file, 'r'))
-        except:
-            cache = {}
-    else:
-        cache = {}
 
-    if username in cache:
-        return cache[username]
-
-    image = None
-    try:
-        json_url = 'http://api.soundcloud.com/users/%s.json' % username
-        user_info = json.load(urlopen(json_url))
-        image = user_info.get('avatar_url', None)
-        cache[username] = image
-    finally:
-        json.dump(cache, open(cache_file, 'w'))
-
-    return image
-
-def get_tracks(username):
-    """Get a generator of tracks from a SC user
-
-    The generator will give you a dictionary for every
-    track it can find for its user."""
-    cache_file = os.path.join(gpodder.home, 'soundcloud.cache')
-    if os.path.exists(cache_file):
-        try:
-            cache = json.load(open(cache_file, 'r'))
-        except:
-            cache = {}
-    else:
-        cache = {}
-
-    try:
-        json_url = 'http://api.soundcloud.com/users/%s/tracks.json' % username
-        tracks = (track for track in json.load(urlopen(json_url)) \
-                if track['downloadable'])
-
-        for track in tracks:
-            url = track['download_url']
-            if url not in cache:
-                cache[url] = get_metadata(url)
-            filesize, filetype, filename = cache[url]
-
-            yield {
-                'title': track.get('title', track.get('permalink', 'Unknown track')),
-                'link': track.get('permalink_url', 'http://soundcloud.com/'+username),
-                'description': track.get('description', 'on Soundcloud'),
-                'url': track['download_url'],
-                'length': int(filesize),
-                'mimetype': filetype,
-                'guid': track.get('permalink', track.get('id')),
-                'pubDate': soundcloud_parsedate(track.get('created_at', None)),
-            }
-    finally:
-        json.dump(cache, open(cache_file, 'w'))
-
-class SoundcloudFeed(object):
+class SoundcloudUser(object):
     def __init__(self, username):
         self.username = username
+        self.cache_file = os.path.join(gpodder.home, 'soundcloud.cache')
+        if os.path.exists(self.cache_file):
+            try:
+                self.cache = json.load(open(self.cache_file, 'r'))
+            except:
+                self.cache = {}
+        else:
+            self.cache = {}
+
+    def commit_cache(self):
+        json.dump(self.cache, open(self.cache_file, 'w'))
+
+    def get_coverart(self):
+        key = ':'.join((self.username, 'avatar_url'))
+        if key in self.cache:
+            return self.cache[key]
+
+        image = None
+        try:
+            json_url = 'http://api.soundcloud.com/users/%s.json' % self.username
+            user_info = json.load(util.urlopen(json_url))
+            image = user_info.get('avatar_url', None)
+            self.cache[key] = image
+        finally:
+            self.commit_cache()
+
+        return image
+
+    def get_tracks(self):
+        """Get a generator of tracks from a SC user
+
+        The generator will give you a dictionary for every
+        track it can find for its user."""
+        try:
+            json_url = 'http://api.soundcloud.com/users/%s/tracks.json' % self.username
+            tracks = (track for track in json.load(util.urlopen(json_url)) \
+                    if track['downloadable'])
+
+            for track in tracks:
+                url = track['download_url']
+                if url not in self.cache:
+                    self.cache[url] = get_metadata(url)
+                filesize, filetype, filename = self.cache[url]
+
+                yield {
+                    'title': track.get('title', track.get('permalink', _('Unknown track'))),
+                    'link': track.get('permalink_url', 'http://soundcloud.com/'+self.username),
+                    'description': track.get('description', _('No description available')),
+                    'url': track['download_url'],
+                    'length': int(filesize),
+                    'mimetype': filetype,
+                    'guid': track.get('permalink', track.get('id')),
+                    'pubDate': soundcloud_parsedate(track.get('created_at', None)),
+                }
+        finally:
+            self.commit_cache()
+
+class SoundcloudFeed(object):
+    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)', re.I)
+
+    @classmethod
+    def handle_url(cls, url):
+        m = cls.URL_REGEX.match(url)
+        if m is not None:
+            subdomain, username = m.groups()
+            return cls(username)
+
+    def __init__(self, username):
+        self.username = username
+        self.sc_user = SoundcloudUser(username)
 
     def get_title(self):
-        return '%s on Soundcloud' % self.username
+        return _('%s on Soundcloud') % self.username
 
     def get_image(self):
-        return get_coverart(self.username)
+        return self.sc_user.get_coverart()
 
     def get_link(self):
         return 'http://soundcloud.com/%s' % self.username
 
     def get_description(self):
-        return 'Tracks published by %s on Soundcloud.' % self.username
+        return _('Tracks published by %s on Soundcloud.') % self.username
 
     def get_new_episodes(self, channel, guids):
-        tracks = [t for t in get_tracks(self.username) if t['guid'] not in guids]
+        tracks = [t for t in self.sc_user.get_tracks() \
+                             if t['guid'] not in guids]
+
         for track in tracks:
             episode = model.PodcastEpisode(channel)
             episode.update_from_dict(track)
@@ -185,14 +190,6 @@ class SoundcloudFeed(object):
 
         return len(tracks)
 
-
-def soundcloud_handler(url):
-    # XXX: Proper regular expression matching here, please
-    if url.startswith('http://soundcloud.com/') or \
-            url.startswith('http://www.soundcloud.com/'):
-        username = os.path.basename(url.rstrip('/'))
-        raise model.CustomFeed(SoundcloudFeed(username))
-
-# Register our URL handler with the gPodderFetcher service
-model.gPodderFetcher.custom_handlers.append(soundcloud_handler)
+# Register our URL handler
+model.register_custom_handler(SoundcloudFeed)
 

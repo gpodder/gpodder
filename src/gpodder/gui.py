@@ -70,8 +70,6 @@ from gpodder import download
 from gpodder import my
 from gpodder.liblogger import log
 
-from gpodder import soundcloud
-
 _ = gpodder.gettext
 
 from gpodder.model import PodcastChannel
@@ -3271,6 +3269,8 @@ def main(options=None):
         sys.exit(0)
 
     util.make_directory(gpodder.home)
+    gpodder.load_plugins()
+
     config = UIConfig(gpodder.config_file)
 
     if gpodder.ui.diablo:

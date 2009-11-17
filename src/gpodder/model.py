@@ -68,17 +68,25 @@ class gPodderFetcher(feedcore.Fetcher):
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
         for handler in self.custom_handlers:
-            handler(url)
+            custom_feed = handler.handle_url(url)
+            if custom_feed is not None:
+                raise CustomFeed(custom_feed)
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
         return youtube.get_real_channel_url(url)
+
+    @classmethod
+    def register(cls, handler):
+        cls.custom_handlers.append(handler)
 
 #    def _get_handlers(self):
 #        # Add a ProxyHandler for fetching data via a proxy server
 #        proxies = {'http': 'http://proxy.example.org:8080'}
 #        return[urllib2.ProxyHandler(proxies))]
 
+# The "register" method is exposed here for external usage
+register_custom_handler = gPodderFetcher.register
 
 class PodcastModelObject(object):
     """

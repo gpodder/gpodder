@@ -109,3 +109,6 @@ subscription_file = os.path.join(home, 'channels.opml')
 config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')
 
+def load_plugins():
+    from gpodder import soundcloud
+

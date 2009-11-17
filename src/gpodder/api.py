@@ -126,6 +126,7 @@ class PodcastClient(object):
         Connects to the database and loads the configuration.
         """
         util.make_directory(gpodder.home)
+        gpodder.load_plugins()
 
         self._db = dbsqlite.Database(gpodder.database_file)
         self._config = config.Config(gpodder.config_file)
