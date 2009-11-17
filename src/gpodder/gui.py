@@ -2665,11 +2665,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
     
-    def my_gpodder_offer_autoupload(self):
-        if not self.config.my_gpodder_autoupload:
-            if self.show_confirmation(_('gPodder can automatically upload your subscription list to my.gpodder.org when you close it. Do you want to enable this feature?'), _('Upload subscriptions on quit')):
-                self.config.my_gpodder_autoupload = True
-    
     def on_download_from_mygpo(self, widget=None):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(self.config.my_gpodder_service, \
@@ -2689,8 +2684,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 added = len(urls)
 
                 self.add_podcast_list(urls)
-
-                self.my_gpodder_offer_autoupload()
                 if added > 0:
                     self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'), widget=self.treeChannels)
                 elif widget is not None:
@@ -2713,7 +2706,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.config.my_gpodder_password = ''
                     self.on_upload_to_mygpo(widget)
                 else:
-                    self.my_gpodder_offer_autoupload()
                     self.show_message('\n'.join(messages), _('Results of upload'), widget=self.treeChannels)
             elif not success:
                 log('Upload to my.gpodder.org failed, but widget is None!', sender=self)
