@@ -133,7 +133,8 @@ class gPodderShownotes(gPodderShownotesBase):
                 (self.task is None and \
                  self.episode.was_downloaded(and_exists=True)) or \
                 (self.task is not None and self.task.status in \
-                 (self.task.DONE, self.task.CANCELLED)))
+                 (self.task.DONE, self.task.CANCELLED)) or \
+                 self._streaming_possible)
         self.action_delete.set_sensitive(\
                 self.episode.was_downloaded(and_exists=True))
         self.action_download.set_sensitive((self.task is None and not \

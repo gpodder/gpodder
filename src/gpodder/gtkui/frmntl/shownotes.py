@@ -127,7 +127,7 @@ class gPodderShownotes(gPodderShownotesBase):
         self.download_progress.set_property('visible', \
                 self.task is not None and \
                 self.task.status != self.task.CANCELLED)
-        self.action_play.set_visible(downloaded)
+        self.action_play.set_visible(downloaded or self._streaming_possible)
         self.action_delete.set_visible(downloaded)
         self.action_download.set_visible(\
                 (self.task is None and not downloaded) or \

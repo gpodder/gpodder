@@ -1611,9 +1611,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     shutil.rmtree(ddir, ignore_errors=True)
 
     def streaming_possible(self):
-        return self.config.player and \
-               self.config.player != 'default' and \
-               gpodder.ui.desktop
+        if gpodder.ui.desktop:
+            # User has to have a media player set on the Desktop, or else we
+            # would probably open the browser when giving a URL to xdg-open..
+            return (self.config.player and self.config.player != 'default')
+        elif gpodder.ui.maemo:
+            # On Maemo, the default is to use the Nokia Media Player, which is
+            # already able to deal with HTTP URLs the right way, so we
+            # unconditionally enable streaming always on Maemo
+            return True
+
+        return False
 
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
@@ -3056,7 +3064,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _delete_episode_list=self.delete_episode_list, \
                     _episode_list_status_changed=self.episode_list_status_changed, \
                     _cancel_task_list=self.cancel_task_list, \
-                    _episode_is_downloading=self.episode_is_downloading)
+                    _episode_is_downloading=self.episode_is_downloading, \
+                    _streaming_possible=self.streaming_possible())
         self.episode_shownotes_window.show(episode)
         if self.episode_is_downloading(episode):
             self.update_downloads_list()
