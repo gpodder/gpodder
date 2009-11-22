@@ -73,4 +73,12 @@
     <property name="label" translatable="yes">Check for new episodes</property>
     <signal name="activate" handler="on_update_feeds_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_upload_mygpo">
+    <property name="label" translatable="yes">Upload subscriptions</property>
+    <signal name="activate" handler="on_upload_to_mygpo"/>
+  </object>
+  <object class="GtkAction" id="action_download_mygpo">
+    <property name="label" translatable="yes">Download subscriptions</property>
+    <signal name="activate" handler="on_download_from_mygpo"/>
+  </object>
 </interface>

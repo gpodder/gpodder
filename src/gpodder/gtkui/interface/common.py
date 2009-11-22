@@ -345,24 +345,34 @@ class BuilderWidget(GtkBuilderWidget):
         """ An authentication dialog based on
                 http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
 
-        dialog = gtk.MessageDialog(
-            self.main_window,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_QUESTION,
-            gtk.BUTTONS_OK_CANCEL )
-
-        dialog.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_DIALOG))
-
-        dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
-        dialog.set_title(_('Authentication required'))
-        dialog.format_secondary_markup(message)
+        if gpodder.ui.fremantle:
+            dialog = gtk.Dialog(title, self.main_window,
+                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                    (str(_('Login')), gtk.RESPONSE_OK))
+            dialog.vbox.add(gtk.Label(message))
+        else:
+            dialog = gtk.MessageDialog(
+                self.main_window,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_QUESTION,
+                gtk.BUTTONS_CANCEL)
+            dialog.add_button(_('Login'), gtk.RESPONSE_OK)
+            dialog.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_DIALOG))
+            dialog.set_title(_('Authentication required'))
+            dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
+            dialog.format_secondary_markup(message)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         if register_callback is not None:
             dialog.add_button(_('New user'), gtk.RESPONSE_HELP)
 
-        username_entry = gtk.Entry()
-        password_entry = gtk.Entry()
+        if gpodder.ui.fremantle:
+            import hildon
+            username_entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
+            password_entry = hildon.Entry(gtk.HILDON_SIZE_AUTO)
+        else:
+            username_entry = gtk.Entry()
+            password_entry = gtk.Entry()
 
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)

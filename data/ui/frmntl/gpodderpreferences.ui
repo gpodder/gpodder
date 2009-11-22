@@ -43,6 +43,17 @@
                         <signal name="value-changed" handler="on_picker_download_value_changed"/>
                       </object>
                     </child>
+                    <child>
+                      <object class="HildonButton" id="button_mygpo">
+                        <property name="title" translatable="yes">Account on my.gpodder.org</property>
+                        <property name="value">...</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="style">HILDON_BUTTON_STYLE_PICKER</property>
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_button_mygpo_clicked"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

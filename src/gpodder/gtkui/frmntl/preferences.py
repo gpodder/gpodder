@@ -87,15 +87,18 @@ class gPodderPreferences(BuilderWidget):
         self.touch_selector_download.set_active(0, download_method_mapping[self._config.auto_download])
         self.picker_download.set_selector(self.touch_selector_download)
 
+        self.update_button_mygpo()
+
         # Fix the styling and layout of the picker buttons
-        for picker in (self.picker_orientation, \
+        for button in (self.picker_orientation, \
                        self.picker_interval, \
-                       self.picker_download):
+                       self.picker_download, \
+                       self.button_mygpo):
             # Work around Maemo bug #4718
-            picker.set_name('HildonButton-finger')
+            button.set_name('HildonButton-finger')
             # Fix alignment problems (Maemo bug #6205)
-            picker.set_alignment(.0, .5, 1., 0.)
-            child = picker.get_child()
+            button.set_alignment(.0, .5, 1., 0.)
+            child = button.get_child()
             child.set_padding(0, 0, 12, 0)
 
         self.gPodderPreferences.show()
@@ -120,4 +123,14 @@ class gPodderPreferences(BuilderWidget):
         active_index = self.touch_selector_download.get_active(0)
         new_value = self.DOWNLOAD_METHODS[active_index][0]
         self._config.auto_download = new_value
+
+    def update_button_mygpo(self):
+        if self._config.my_gpodder_username:
+            self.button_mygpo.set_value(self._config.my_gpodder_username)
+        else:
+            self.button_mygpo.set_value(_('Not logged in'))
+
+    def on_button_mygpo_clicked(self, button):
+        self.mygpo_login()
+        self.update_button_mygpo()
 

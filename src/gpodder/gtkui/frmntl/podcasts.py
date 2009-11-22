@@ -32,10 +32,11 @@ from gpodder.gtkui.model import PodcastListModel
 class gPodderPodcasts(BuilderWidget):
     def new(self):
         appmenu = hildon.AppMenu()
-        #for action in (self.action_update_feeds,):
-        #    button = gtk.Button()
-        #    action.connect_proxy(button)
-        #    appmenu.append(button)
+        for action in (self.action_download_mygpo, \
+                       self.action_upload_mygpo):
+            button = gtk.Button()
+            action.connect_proxy(button)
+            appmenu.append(button)
         for filter in (self.item_view_podcasts_all, \
                        self.item_view_podcasts_downloaded, \
                        self.item_view_podcasts_unplayed):

@@ -301,7 +301,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item_view_podcasts_unplayed=self.item_view_podcasts_unplayed, \
                     on_entry_search_podcasts_changed=self.on_entry_search_podcasts_changed, \
                     on_entry_search_podcasts_key_press=self.on_entry_search_podcasts_key_press, \
-                    hide_podcast_search=self.hide_podcast_search)
+                    hide_podcast_search=self.hide_podcast_search, \
+                    on_upload_to_mygpo=self.on_upload_to_mygpo, \
+                    on_download_from_mygpo=self.on_download_from_mygpo)
 
             # Expose objects for podcast list type-ahead find
             self.hbox_search_podcasts = self.podcasts_window.hbox_search_podcasts
@@ -2657,15 +2659,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemPreferences_activate(self, widget, *args):
         gPodderPreferences(self.gPodder, _config=self.config, \
                 callback_finished=self.properties_closed, \
-                user_apps_reader=self.user_apps_reader)
+                user_apps_reader=self.user_apps_reader, \
+                mygpo_login=lambda: self.require_my_gpodder_authentication(force_dialog=True))
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
 
-    def require_my_gpodder_authentication(self):
-        if not self.config.my_gpodder_username or not self.config.my_gpodder_password:
+    def require_my_gpodder_authentication(self, force_dialog=False):
+        if force_dialog or (not self.config.my_gpodder_username or not self.config.my_gpodder_password):
             success, authentication = self.show_login_dialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=self.config.my_gpodder_username, password=self.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
-            if success and authentication[0] and authentication[1]:
+            if success:
                 self.config.my_gpodder_username, self.config.my_gpodder_password = authentication
                 return True
             else:
