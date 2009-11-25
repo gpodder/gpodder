@@ -80,7 +80,7 @@ class EpisodeListModel(gtk.ListStore):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             key = self._search_term.lower()
-            return any((key in model.get_value(iter, column).lower()) for column in self.SEARCH_COLUMNS)
+            return any((key in (model.get_value(iter, column) or '').lower()) for column in self.SEARCH_COLUMNS)
 
         if self._view_mode == self.VIEW_ALL:
             return True
