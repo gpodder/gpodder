@@ -569,6 +569,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.hide_podcast_search()
             elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
                 self.hide_podcast_search()
+            elif event.state & gtk.gdk.CONTROL_MASK:
+                # Don't handle type-ahead when control is pressed (so shortcuts
+                # with the Ctrl key still work, e.g. Ctrl+A, ...)
+                return True
             else:
                 unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
                 if unicode_char_id == 0:
@@ -654,6 +658,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.hide_episode_search()
             elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
                 self.hide_episode_search()
+            elif event.state & gtk.gdk.CONTROL_MASK:
+                # Don't handle type-ahead when control is pressed (so shortcuts
+                # with the Ctrl key still work, e.g. Ctrl+A, ...)
+                return False
             else:
                 unicode_char_id = gtk.gdk.keyval_to_unicode(event.keyval)
                 if unicode_char_id == 0:
