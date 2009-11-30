@@ -37,7 +37,7 @@ class gPodderEpisodes(BuilderWidget):
         appmenu = hildon.AppMenu()
         for action in (self.action_rename, \
                        self.action_play_m3u, \
-                       self.action_website, \
+                       self.action_login, \
                        self.action_unsubscribe):
             button = gtk.Button()
             action.connect_proxy(button)
@@ -64,7 +64,13 @@ class gPodderEpisodes(BuilderWidget):
             self.update_podcast_list_model(urls=[self.channel.url])
 
     def on_login_button_clicked(self, widget):
-        self.show_message(_('Not supported yet.'), important=True)
+        accept, auth_data = self.show_login_dialog(_('Login to %s') % \
+                                                   self.channel.title, '', \
+                                                   self.channel.username, \
+                                                   self.channel.password)
+        if accept:
+            self.channel.username, self.channel.password = auth_data
+            self.channel.save()
 
     def on_play_m3u_button_clicked(self, widget):
         if self.channel is not None:
