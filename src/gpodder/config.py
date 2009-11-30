@@ -198,6 +198,8 @@ gPodderSettings = {
       ("Enable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',
       ("Episode double-click/enter action handler (shownotes, download, stream)")),
+    'on_drag_mark_played': (bool, False,
+      ("Mark episode as played when using drag'n'drop to copy/open it")),
 
     'feed_update_skipping': (bool, True,
       ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
