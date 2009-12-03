@@ -763,7 +763,8 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def title_markup(self):
-        return self.format_episode_row_markup(False)
+        return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(self.title),
+                          xml.sax.saxutils.escape(self.channel.title))
 
     @property
     def maemo_markup(self):
@@ -1067,11 +1068,6 @@ class PodcastEpisode(PodcastModelObject):
         return util.format_filesize(self.length)
 
     filesize_prop = property(fget=get_filesize_string)
-
-    def get_channel_title( self):
-        return self.channel.title
-
-    channel_prop = property(fget=get_channel_title)
 
     def get_played_string( self):
         if not self.is_played:

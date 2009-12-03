@@ -2394,7 +2394,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             columns = (
                 ('title_markup', None, None, _('Episode')),
-                ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
                 ('played_prop', None, None, _('Status')),
@@ -2540,7 +2539,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             columns = (
                 ('title_markup', None, None, _('Episode')),
-                ('channel_prop', None, None, _('Podcast')),
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
             )
