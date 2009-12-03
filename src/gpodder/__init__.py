@@ -109,6 +109,26 @@ subscription_file = os.path.join(home, 'channels.opml')
 config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')
 
+# Plugins to load by default
+DEFAULT_PLUGINS = ['gpodder.soundcloud']
+
 def load_plugins():
-    from gpodder import soundcloud
+    """Load (non-essential) plugin modules
+
+    This loads a default set of plugins, but you can use
+    the environment variable "GPODDER_PLUGINS" to modify
+    the list of plugins."""
+    global DEFAULT_PLUGINS
+    PLUGINS = os.environ.get('GPODDER_PLUGINS', None)
+    if PLUGINS is None:
+        PLUGINS = DEFAULT_PLUGINS
+    else:
+        PLUGINS = PLUGINS.split()
+    import imp
+    for plugin in PLUGINS:
+        try:
+            __import__(plugin)
+            print >>sys.stderr, 'Plugin loaded:', plugin
+        except Exception, e:
+            print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
 
