@@ -46,6 +46,16 @@ class gPodderPreferences(BuilderWidget):
             ('always', _('Download immediately')),
     )
 
+    AUDIO_PLAYERS = (
+            ('default', _('Media Player')),
+            ('panucci', _('Panucci')),
+    )
+
+    VIDEO_PLAYERS = (
+            ('default', _('Media Player')),
+            ('mplayer', _('MPlayer')),
+    )
+
     def new(self):
         self.main_window.connect('destroy', lambda w: self.callback_finished())
 
@@ -87,12 +97,40 @@ class gPodderPreferences(BuilderWidget):
         self.touch_selector_download.set_active(0, download_method_mapping[self._config.auto_download])
         self.picker_download.set_selector(self.touch_selector_download)
 
+        # Create a mapping from audio players to touch selector indices
+        audio_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.AUDIO_PLAYERS))
+
+        self.touch_selector_audio_player = hildon.TouchSelector(text=True)
+        for value, caption in self.AUDIO_PLAYERS:
+            self.touch_selector_audio_player.append_text(caption)
+
+        if self._config.player not in (x[0] for x in self.AUDIO_PLAYERS):
+            self._config.player = self.AUDIO_PLAYERS[0][0]
+
+        self.touch_selector_audio_player.set_active(0, audio_player_mapping[self._config.player])
+        self.picker_audio_player.set_selector(self.touch_selector_audio_player)
+
+        # Create a mapping from video players to touch selector indices
+        video_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.VIDEO_PLAYERS))
+
+        self.touch_selector_video_player = hildon.TouchSelector(text=True)
+        for value, caption in self.VIDEO_PLAYERS:
+            self.touch_selector_video_player.append_text(caption)
+
+        if self._config.videoplayer not in (x[0] for x in self.VIDEO_PLAYERS):
+            self._config.videoplayer = self.VIDEO_PLAYERS[0][0]
+
+        self.touch_selector_video_player.set_active(0, video_player_mapping[self._config.videoplayer])
+        self.picker_video_player.set_selector(self.touch_selector_video_player)
+
         self.update_button_mygpo()
 
         # Fix the styling and layout of the picker buttons
         for button in (self.picker_orientation, \
                        self.picker_interval, \
                        self.picker_download, \
+                       self.picker_audio_player, \
+                       self.picker_video_player, \
                        self.button_mygpo):
             # Work around Maemo bug #4718
             button.set_name('HildonButton-finger')
@@ -123,6 +161,16 @@ class gPodderPreferences(BuilderWidget):
         active_index = self.touch_selector_download.get_active(0)
         new_value = self.DOWNLOAD_METHODS[active_index][0]
         self._config.auto_download = new_value
+
+    def on_picker_audio_player_value_changed(self, *args):
+        active_index = self.touch_selector_audio_player.get_active(0)
+        new_value = self.AUDIO_PLAYERS[active_index][0]
+        self._config.player = new_value
+
+    def on_picker_video_player_value_changed(self, *args):
+        active_index = self.touch_selector_video_player.get_active(0)
+        new_value = self.VIDEO_PLAYERS[active_index][0]
+        self._config.videoplayer = new_value
 
     def update_button_mygpo(self):
         if self._config.my_gpodder_username:

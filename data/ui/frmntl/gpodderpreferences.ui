@@ -54,6 +54,29 @@
                         <signal name="clicked" handler="on_button_mygpo_clicked"/>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox_player_selection">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="HildonPickerButton" id="picker_audio_player">
+                            <property name="title" translatable="yes">Player for audio files</property>
+                            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                            <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                            <property name="visible">True</property>
+                            <signal name="value-changed" handler="on_picker_audio_player_value_changed"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="HildonPickerButton" id="picker_video_player">
+                            <property name="title" translatable="yes">Player for video files</property>
+                            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                            <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                            <property name="visible">True</property>
+                            <signal name="value-changed" handler="on_picker_video_player_value_changed"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
