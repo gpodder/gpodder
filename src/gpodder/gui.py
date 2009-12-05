@@ -1680,7 +1680,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 text = _('Opening %d episodes') % len(episodes)
 
-            banner = hildon.hildon_banner_show_animation(self.gPodder, None, text)
+            banner = hildon.hildon_banner_show_animation(self.gPodder, '', text)
 
             def destroy_banner_later(banner):
                 banner.destroy()
@@ -1701,7 +1701,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.playback_episodes_for_real(episodes)
         except Exception, e:
             log('Error in playback!', sender=self, traceback=True)
-            self.show_message( _('Please check your media player settings in the preferences dialog.'), _('Error opening player'), widget=self.toolPreferences)
+            if gpodder.ui.desktop:
+                self.show_message(_('Please check your media player settings in the preferences dialog.'), \
+                        _('Error opening player'), widget=self.toolPreferences)
+            else:
+                self.show_message(_('Please check your media player settings in the preferences dialog.'))
 
         channel_urls = set()
         episode_urls = set()
