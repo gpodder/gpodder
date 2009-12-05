@@ -282,7 +282,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_entry_search_episodes_key_press=self.on_entry_search_episodes_key_press, \
                     hide_episode_search=self.hide_episode_search, \
                     on_itemUpdateChannel_activate=self.on_itemUpdateChannel_activate, \
-                    playback_episodes=self.playback_episodes)
+                    playback_episodes=self.playback_episodes, \
+                    delete_episode_list=self.delete_episode_list, \
+                    episode_list_status_changed=self.episode_list_status_changed)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes

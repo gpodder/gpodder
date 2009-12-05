@@ -31,6 +31,7 @@
                 <property name="hover_expand">False</property>
                 <signal name="expose-event" handler="on_treeview_expose_event"/>
                 <signal name="row-activated" handler="on_episode_selected"/>
+                <signal name="button-press-event" handler="on_treeview_button_press"/>
               </object>
             </child>
           </object>
@@ -73,6 +74,20 @@
         <property name="fill">True</property>
       </packing>
     </child>
+  </object>
+  <object class="GtkAction" id="action_shownotes">
+    <property name="label" translatable="yes">Shownotes</property>
+    <signal name="activate" handler="on_shownotes_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_delete">
+    <property name="label" translatable="yes">Delete</property>
+    <signal name="activate" handler="on_delete_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_keep">
+    <signal name="activate" handler="on_keep_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_mark_as_old">
+    <signal name="activate" handler="on_mark_as_old_button_clicked"/>
   </object>
   <object class="GtkAction" id="action_rename">
     <property name="label" translatable="yes">Rename podcast</property>

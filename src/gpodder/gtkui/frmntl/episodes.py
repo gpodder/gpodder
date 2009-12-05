@@ -18,6 +18,7 @@
 #
 
 import gtk
+import gobject
 import hildon
 
 import gpodder
@@ -32,6 +33,19 @@ from gpodder.gtkui.model import EpisodeListModel
 class gPodderEpisodes(BuilderWidget):
     def new(self):
         self.channel = None
+
+        # Tap-and-hold (aka "long press") context menu
+        self.touched_episode = None
+        self.context_menu = gtk.Menu()
+        # "Emulate" hildon_gtk_menu_new
+        self.context_menu.set_name('hildon-context-sensitive-menu')
+        self.context_menu.append(self.action_shownotes.create_menu_item())
+        self.context_menu.append(self.action_delete.create_menu_item())
+        self.context_menu.append(self.action_keep.create_menu_item())
+        self.context_menu.append(self.action_mark_as_old.create_menu_item())
+        self.context_menu.show_all()
+        self.treeview.tap_and_hold_setup(self.context_menu)
+
         # Workaround for Maemo bug XXX
         self.button_search_episodes_clear.set_name('HildonButton-thumb')
         appmenu = hildon.AppMenu()
@@ -107,6 +121,43 @@ class gPodderEpisodes(BuilderWidget):
         self.channel = None
         self.hide_episode_search()
         return True
+
+    def on_treeview_button_press(self, widget, event):
+        result = self.treeview.get_path_at_pos(int(event.x), int(event.y))
+        if result is not None:
+            path, column, x, y = result
+            model = self.treeview.get_model()
+            episode = model.get_value(model.get_iter(path), \
+                    EpisodeListModel.C_EPISODE)
+            if episode.is_locked:
+                self.action_keep.set_property('label', _('Do not keep'))
+            else:
+                self.action_keep.set_property('label', _('Keep'))
+            if episode.is_played:
+                self.action_mark_as_old.set_property('label', _('Mark as new'))
+            else:
+                self.action_mark_as_old.set_property('label', _('Mark as old'))
+            self.touched_episode = episode
+        else:
+            self.touched_episode = None
+
+    def on_shownotes_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.show_episode_shownotes(self.touched_episode)
+
+    def on_delete_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.delete_episode_list([self.touched_episode])
+
+    def on_keep_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.touched_episode.mark(is_locked=not self.touched_episode.is_locked)
+            self.episode_list_status_changed([self.touched_episode])
+
+    def on_mark_as_old_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.touched_episode.mark(is_played=not self.touched_episode.is_played)
+            self.episode_list_status_changed([self.touched_episode])
 
     def show(self):
         self.main_window.set_title(self.channel.title)
