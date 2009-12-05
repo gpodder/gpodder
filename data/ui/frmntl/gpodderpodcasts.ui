@@ -14,6 +14,18 @@
         <property name="visible">True</property>
         <property name="spacing">6</property>
         <child>
+          <object class="HildonButton" id="button_subscribe">
+            <property name="title" translatable="yes">Add new podcast</property>
+            <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+            <property name="visible">True</property>
+            <signal name="clicked" handler="on_button_subscribe_clicked"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+          </packing>
+        </child>
+        <child>
           <object class="HildonPannableArea" id="pannablearea">
             <property name="visible">True</property>
             <property name="can_focus">True</property>

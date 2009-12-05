@@ -30,6 +30,8 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.model import PodcastListModel
 
 class gPodderPodcasts(BuilderWidget):
+    ICON_GENERAL_ADD = 'general_add'
+
     def new(self):
         appmenu = hildon.AppMenu()
         for action in (self.action_download_mygpo, \
@@ -44,6 +46,10 @@ class gPodderPodcasts(BuilderWidget):
             filter.connect_proxy(button)
             appmenu.add_filter(button)
         appmenu.show_all()
+        # Work around Maemo bug #4718
+        self.button_subscribe.set_name('HildonButton-finger')
+        self.button_subscribe.set_image(gtk.image_new_from_icon_name(\
+                self.ICON_GENERAL_ADD, gtk.ICON_SIZE_BUTTON))
         self.main_window.set_app_menu(appmenu)
 
     def on_update_feeds_button_clicked(self, button):

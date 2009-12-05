@@ -305,7 +305,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_entry_search_podcasts_key_press=self.on_entry_search_podcasts_key_press, \
                     hide_podcast_search=self.hide_podcast_search, \
                     on_upload_to_mygpo=self.on_upload_to_mygpo, \
-                    on_download_from_mygpo=self.on_download_from_mygpo)
+                    on_download_from_mygpo=self.on_download_from_mygpo, \
+                    on_button_subscribe_clicked=self.on_button_subscribe_clicked)
 
             # Expose objects for podcast list type-ahead find
             self.hbox_search_podcasts = self.podcasts_window.hbox_search_podcasts
