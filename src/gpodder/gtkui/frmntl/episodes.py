@@ -93,7 +93,14 @@ class gPodderEpisodes(BuilderWidget):
         model = treeview.get_model()
         episode = model.get_value(model.get_iter(path), \
                 EpisodeListModel.C_EPISODE)
-        self.show_episode_shownotes(episode)
+
+        # If the episode has just been downloaded and has
+        # not been played at all, play back directly
+        if episode.was_downloaded(and_exists=True) and \
+                not episode.is_played:
+            self.playback_episodes([episode])
+        else:
+            self.show_episode_shownotes(episode)
 
     def on_delete_event(self, widget, event):
         self.main_window.hide()
