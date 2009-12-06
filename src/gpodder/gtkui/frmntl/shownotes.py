@@ -46,9 +46,7 @@ class gPodderShownotes(gPodderShownotesBase):
 
         import hildon
         appmenu = hildon.AppMenu()
-        for action in (self.action_play, \
-                       self.action_delete, \
-                       self.action_download, \
+        for action in (self.action_download, \
                        self.action_pause, \
                        self.action_resume, \
                        self.action_cancel, \
@@ -61,6 +59,11 @@ class gPodderShownotes(gPodderShownotesBase):
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
 
+        # Work around Maemo bug #4718
+        self.button_play.set_name('HildonButton-finger')
+        self.button_delete.set_name('HildonButton-finger')
+        self.action_play.connect_proxy(self.button_play)
+        self.action_delete.connect_proxy(self.button_delete)
 
     def _on_key_press_event(self, widget, event):
         # Override to provide support for all hardware keys

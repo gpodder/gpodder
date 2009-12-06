@@ -6,7 +6,31 @@
         <property name="visible">True</property>
         <property name="border_width">6</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">6</property>
+        <property name="spacing">0</property>
+        <child>
+          <object class="GtkHBox" id="hbox_actions">
+            <property name="visible">True</property>
+            <child>
+              <object class="HildonButton" id="button_play">
+                <property name="title" translatable="yes">Play</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="HildonButton" id="button_delete">
+                <property name="title" translatable="yes">Delete</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+          </packing>
+        </child>
         <child>
           <object class="HildonPannableArea" id="scrolled_window">
             <property name="visible">True</property>
@@ -22,9 +46,6 @@
               </object>
             </child>
           </object>
-          <packing>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkProgressBar" id="download_progress">
@@ -32,7 +53,6 @@
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>
