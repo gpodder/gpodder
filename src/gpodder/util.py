@@ -638,7 +638,7 @@ def file_type_by_extension(extension):
         # For OGG, see http://wiki.xiph.org/MIME_Types_and_File_Extensions
         audio_types = ('.ogg', '.oga', '.spx', '.flac', '.axa', \
                        '.aac', '.m4a', '.m4b', '.wma')
-        video_types = ('.ogv', '.axv', \
+        video_types = ('.ogv', '.axv', '.mp4', \
                        '.mkv', '.m4v', '.divx', '.flv', '.wmv', '.3gp')
         _BUILTIN_FILE_TYPES = {}
         _BUILTIN_FILE_TYPES.update((ext, 'audio') for ext in audio_types)
