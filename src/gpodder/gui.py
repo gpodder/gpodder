@@ -3256,6 +3256,9 @@ def main(options=None):
         settings = gtk.settings_get_default()
         settings.set_string_property('gtk-icon-theme-name', \
                                      'gpodder', __file__)
+        # Extend the search path for the optified icon theme (Maemo 5)
+        icon_theme = gtk.icon_theme_get_default()
+        icon_theme.prepend_search_path('/opt/gpodder-icon-theme/')
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
