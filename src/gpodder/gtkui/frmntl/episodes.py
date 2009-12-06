@@ -38,7 +38,8 @@ class gPodderEpisodes(BuilderWidget):
         for action in (self.action_rename, \
                        self.action_play_m3u, \
                        self.action_login, \
-                       self.action_unsubscribe):
+                       self.action_unsubscribe, \
+                       self.action_update):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
@@ -79,6 +80,9 @@ class gPodderEpisodes(BuilderWidget):
     def on_website_button_clicked(self, widget):
         if self.channel is not None:
             util.open_website(self.channel.link)
+
+    def on_update_button_clicked(self, widget):
+        self.on_itemUpdateChannel_activate()
 
     def on_unsubscribe_button_clicked(self, widget):
         if self.show_confirmation(_('Really delete this podcast and all downloaded episodes?')):

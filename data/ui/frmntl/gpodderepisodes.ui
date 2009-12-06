@@ -94,4 +94,8 @@
     <property name="label" translatable="yes">Unsubscribe</property>
     <signal name="activate" handler="on_unsubscribe_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_update">
+    <property name="label" translatable="yes">Update feed</property>
+    <signal name="activate" handler="on_update_button_clicked"/>
+  </object>
 </interface>
