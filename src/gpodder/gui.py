@@ -2007,7 +2007,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel = PodcastChannel.load(self.db, url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
-                            download_dir=self.config.download_dir)
+                            download_dir=self.config.download_dir, \
+                            allow_empty_feeds=self.config.allow_empty_feeds)
 
                     try:
                         username, password = util.username_password_from_url(url)

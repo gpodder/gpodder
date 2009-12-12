@@ -159,7 +159,10 @@ class PodcastClient(object):
         the resulting object.
         """
         url = util.normalize_feed_url(url)
-        podcast = PodcastChannel.load(self._db, url, create=True, max_episodes=self._config.max_episodes_per_feed, download_dir=self._config.download_dir)
+        podcast = PodcastChannel.load(self._db, url, create=True, \
+                max_episodes=self._config.max_episodes_per_feed, \
+                download_dir=self._config.download_dir, \
+                allow_empty_feeds=self._config.allow_empty_feeds)
         if podcast is not None:
             if title is not None:
                 podcast.set_custom_title(title)
