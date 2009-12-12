@@ -23,6 +23,7 @@ import pango
 import urllib
 import threading
 import hildon
+import gobject
 
 import gpodder
 
@@ -108,6 +109,18 @@ class gPodderPodcastDirectory(BuilderWidget):
                     _('URL:'), is_url=True)
             load_opml_from_url(url)
 
+        def choice_load_opml_from_file(widget):
+            dialog.destroy()
+            dlg = gobject.new(hildon.FileChooserDialog, \
+                    action=gtk.FILE_CHOOSER_ACTION_OPEN)
+            dlg.set_title(_('Open OPML file'))
+            dlg.show_all()
+            dlg.run()
+            filename = dlg.get_filename()
+            dlg.hide()
+            if filename is not None:
+                load_opml_from_url(filename)
+
         def choice_load_examples(widget):
             dialog.destroy()
             load_opml_from_url(opml_url)
@@ -141,6 +154,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         choices = (
                 (_('Podcast feed/website URL'), choice_enter_feed_url),
                 (_('OPML file from the web'), choice_load_opml_from_url),
+                (_('Open OPML file'), choice_load_opml_from_file),
                 (_('Example podcasts'), choice_load_examples),
                 (_('Podcast Top 50'), choice_load_toplist),
                 (_('Search podcast.de'), choice_search_podcast_de),
