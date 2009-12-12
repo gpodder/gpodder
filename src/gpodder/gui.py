@@ -166,7 +166,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for action in (self.itemUpdate, \
                     self.itemRemoveOldEpisodes, \
                     self.item_report_bug, \
-                    self.itemPreferences):
+                    self.itemPreferences, \
+                    self.item_support):
                 button = gtk.Button()
                 action.connect_proxy(button)
                 appmenu.append(button)
@@ -2925,6 +2926,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wishlist_activate(self, widget, *args):
         util.open_website('http://amzn.com/w/2L04WZKX274VB')
+
+    def on_item_support_activate(self, widget):
+        util.open_website('http://gpodder.org/donate')
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()

@@ -7,6 +7,10 @@
     <property name="label" translatable="yes">Check for new episodes</property>
     <signal handler="on_itemUpdate_activate" name="activate"/>
   </object>
+  <object class="GtkAction" id="item_support">
+    <property name="label" translatable="yes">Support gPodder</property>
+    <signal handler="on_item_support_activate" name="activate"/>
+  </object>
   <object class="GtkAction" id="item_report_bug">
     <property name="label" translatable="yes">Report a problem</property>
     <property name="name">item_report_bug</property>
