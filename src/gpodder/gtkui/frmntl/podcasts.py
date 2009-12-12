@@ -50,6 +50,11 @@ class gPodderPodcasts(BuilderWidget):
         self.button_subscribe.set_name('HildonButton-finger')
         self.button_subscribe.set_image(gtk.image_new_from_icon_name(\
                 self.ICON_GENERAL_ADD, gtk.ICON_SIZE_BUTTON))
+
+        # Make the button scroll together with the TreeView contents
+        self.button_subscribe.reparent(self.treeview.get_action_area_box())
+        self.treeview.set_action_area_visible(True)
+
         self.main_window.set_app_menu(appmenu)
 
     def on_update_feeds_button_clicked(self, button):
