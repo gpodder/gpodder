@@ -2417,9 +2417,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selected = []
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
-                if not episode.is_locked:
+                # Disallow deletion of locked episodes that still exist
+                if not episode.is_locked or not episode.file_exists():
                     episodes.append(episode)
-                    selected.append(episode.is_played)
+                    # Automatically select played and file-less episodes
+                    selected.append(episode.is_played or \
+                                    not episode.file_exists())
 
         gPodderEpisodeSelector(self.gPodder, title = _('Remove old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
