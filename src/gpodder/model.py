@@ -516,7 +516,11 @@ class PodcastChannel(PodcastModelObject):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
     def find_unique_folder_name(self, foldername):
-        current_try = util.sanitize_filename(foldername, self.MAX_FOLDERNAME_LENGTH)
+        # Remove trailing dots to avoid errors on Windows (bug 600)
+        foldername = foldername.strip().rstrip('.')
+
+        current_try = util.sanitize_filename(foldername, \
+                self.MAX_FOLDERNAME_LENGTH)
         next_try_id = 2
 
         while True:
