@@ -46,14 +46,16 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
         self._config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
         self._config.connect_gtk_togglebutton('minimize_to_tray', self.minimize_to_tray)
+        self._config.connect_gtk_togglebutton('on_quit_systray', self.on_quit_systray)
         self._config.connect_gtk_togglebutton('enable_notifications', self.enable_notifications)
         self._config.connect_gtk_togglebutton('start_iconified', self.start_iconified)
         self._config.connect_gtk_togglebutton('ipod_delete_played_from_db', self.ipod_delete_played_from_db)
         self._config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         self._config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
         
-        self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())    
-        self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active()) 
+        self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())
+        self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active())
+        self.on_quit_systray.set_sensitive(self.display_tray_icon.get_active())
         
         self.entryCustomSyncName.set_sensitive( self.cbCustomSyncName.get_active())
 
@@ -157,6 +159,7 @@ class gPodderPreferences(BuilderWidget):
     def on_display_tray_icon_toggled( self, widget, *args):
         self.enable_notifications.set_sensitive(widget.get_active())    
         self.minimize_to_tray.set_sensitive(widget.get_active())    
+        self.on_quit_systray.set_sensitive(widget.get_active())
         
     def on_cbCustomSyncName_toggled( self, widget, *args):
         self.entryCustomSyncName.set_sensitive( widget.get_active())
