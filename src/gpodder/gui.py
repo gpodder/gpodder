@@ -589,6 +589,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeChannels.connect('key-press-event', on_key_press)
 
+        # Enable separators to the podcast list to separate special podcasts
+        # from others (this is used for the "all episodes" view)
+        self.treeChannels.set_row_separator_func(PodcastListModel.row_separator_func)
+
         TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
 
     def on_entry_search_episodes_changed(self, editable):
@@ -1009,6 +1013,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._fremantle_rotation.set_mode(new_value)
         elif name in ('auto_update_feeds', 'auto_update_frequency'):
             self.restart_auto_update_timer()
+        elif name == 'podcast_list_view_all':
+            # Force a update of the podcast list model
+            self.channel_list_changed = True
+            self.update_podcast_list_model()
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -1048,6 +1056,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 tooltip.set_text(description)
             elif role == TreeViewHelper.ROLE_PODCASTS:
                 channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
+                if channel is None:
+                    return False
                 channel.request_save_dir_size()
                 diskspace_str = util.format_filesize(channel.save_dir_size, 0)
                 error_str = model.get_value(iter, PodcastListModel.C_ERROR)
@@ -1263,6 +1273,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_channels_show_context_menu(self, treeview, event):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
+            return True
+
+        # Check for valid channel id, if there's no id then
+        # assume that it is a proxy channel or equivalent
+        # and cannot be operated with right click
+        if self.active_channel.id is None:
             return True
 
         if event.button == 3:
@@ -1834,7 +1850,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 select_url = model.get_value(iter, PodcastListModel.C_URL)
 
             # Update the podcast list model with new channels
-            self.podcast_list_model.set_channels(self.channels)
+            self.podcast_list_model.set_channels(self.db, self.config, self.channels)
 
             try:
                 selected_iter = model.get_iter_first()

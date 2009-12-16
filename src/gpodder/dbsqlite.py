@@ -232,6 +232,18 @@ class Database(object):
         unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id = ?', (gpodder.STATE_DOWNLOADED, False, id))
         return (total, deleted, new, downloaded, unplayed)
 
+    def get_total_count(self):
+        """Get statistics for all non-deleted channels
+
+        Returns a tuple (total, deleted, new, downloaded, unplayed)
+        """
+        total = self.__get__('SELECT COUNT(*) FROM episodes WHERE channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))')
+        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DELETED,))
+        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_NORMAL, False,))
+        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DOWNLOADED,))
+        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DOWNLOADED, False,))
+        return (total, deleted, new, downloaded, unplayed)
+
     def load_channels(self, factory=None, url=None):
         """
         Returns channel descriptions as a list of dictionaries or objects,

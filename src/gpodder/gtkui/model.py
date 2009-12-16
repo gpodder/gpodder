@@ -283,17 +283,60 @@ class EpisodeListModel(gtk.ListStore):
         return icon
 
 
+class PodcastChannelProxy(object):
+    def __init__(self, db, config, channels):
+        self._db = db
+        self._config = config
+        self.channels = channels
+        self.title =  _('All episodes')
+        self.description = _('from all podcasts')
+        self.parse_error = ''
+        self.url = ''
+        self.id = None
+        self._save_dir_size_set = False
+        self.save_dir_size = 0L
+        self.icon = None
+
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            log('Unsupported method call (%s)', name, sender=self)
+
+    def get_statistics(self):
+        # Get the total statistics for all channels from the database
+        return self._db.get_total_count()
+
+    def get_all_episodes(self):
+        """Returns a generator that yields every episode"""
+        for channel in self.channels:
+            for episode in channel.get_all_episodes():
+                yield episode
+
+    def request_save_dir_size(self):
+        if not self._save_dir_size_set:
+            self.update_save_dir_size()
+        self._save_dir_size_set = True
+
+    def update_save_dir_size(self):
+        self.save_dir_size = util.calculate_size(self._config.download_dir)
+
+
 class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
-            C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES = range(12)
+            C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR = range(13)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
+    @classmethod
+    def row_separator_func(cls, model, iter):
+        return model.get_value(iter, cls.C_SEPARATOR)
+
     def __init__(self, max_image_side, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool)
+                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool, bool)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -308,13 +351,14 @@ class PodcastListModel(gtk.ListStore):
             self._max_image_side = max_image_side
         self._cover_downloader = cover_downloader
 
-
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             key = self._search_term.lower()
             return any((key in model.get_value(iter, column).lower()) for column in self.SEARCH_COLUMNS)
 
+        if model.get_value(iter, self.C_SEPARATOR):
+            return True
         if self._view_mode == EpisodeListModel.VIEW_ALL:
             return model.get_value(iter, self.C_HAS_EPISODES)
         elif self._view_mode == EpisodeListModel.VIEW_UNDELETED:
@@ -356,6 +400,11 @@ class PodcastListModel(gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
+    def enable_separators(self, channeltree):
+        channeltree.set_row_separator_func(self._show_row_separator)
+
+    def _show_row_separator(self, model, iter):
+        return model.get_value(iter, self.C_SEPARATOR)
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
         """
@@ -427,15 +476,30 @@ class PodcastListModel(gtk.ListStore):
         else:
             return None
 
-    def set_channels(self, channels):
+    def set_channels(self, db, config, channels):
         # Clear the model and update the list of podcasts
         self.clear()
+
+        if config.podcast_list_view_all:
+            all_episodes = PodcastChannelProxy(db, config, channels)
+            iter = self.append()
+            self.set(iter, \
+                    self.C_URL, all_episodes.url, \
+                    self.C_CHANNEL, all_episodes, \
+                    self.C_COVER, all_episodes.icon, \
+                    self.C_SEPARATOR, False)
+            self.update_by_iter(iter)
+
+            iter = self.append()
+            self.set(iter, self.C_SEPARATOR, True)
+
         for channel in channels:
             iter = self.append()
             self.set(iter, \
                     self.C_URL, channel.url, \
                     self.C_CHANNEL, channel, \
-                    self.C_COVER, self._get_cover_image(channel))
+                    self.C_COVER, self._get_cover_image(channel), \
+                    self.C_SEPARATOR, False)
             self.update_by_iter(iter)
 
     def get_filter_path_from_url(self, url):
@@ -472,6 +536,8 @@ class PodcastListModel(gtk.ListStore):
     def update_by_iter(self, iter):
         # Given a GtkTreeIter, update volatile information
         channel = self.get_value(iter, self.C_CHANNEL)
+        if channel is None:
+            return
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
 
         pill_image = self._get_pill_image(channel, downloaded, unplayed)
