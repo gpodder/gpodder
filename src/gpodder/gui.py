@@ -2372,29 +2372,45 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if confirm and not self.show_confirmation(message, title):
             return False
 
-        episode_urls = set()
-        channel_urls = set()
-        for episode in episodes:
-            if episode.is_locked:
-                log('Not deleting episode (is locked): %s', episode.title)
-            else:
-                log('Deleting episode: %s', episode.title)
-                episode.delete_from_disk()
-                episode_urls.add(episode.url)
-                channel_urls.add(episode.channel.url)
+        progress = ProgressIndicator(_('Removing episodes'), \
+                _('Please wait while episodes are deleted'), \
+                parent=self.main_window)
 
-                # Tell the shownotes window that we have removed the episode
-                if self.episode_shownotes_window is not None and \
-                        self.episode_shownotes_window.episode is not None and \
-                        self.episode_shownotes_window.episode.url == episode.url:
-                    self.episode_shownotes_window._download_status_changed(None)
+        def finish_deletion(episode_urls, channel_urls):
+            progress.on_finished()
 
-        # Episodes have been deleted - persist the database
-        self.db.commit()
+            # Episodes have been deleted - persist the database
+            self.db.commit()
 
-        self.update_episode_list_icons(episode_urls)
-        self.update_podcast_list_model(channel_urls)
-        self.play_or_download()
+            self.update_episode_list_icons(episode_urls)
+            self.update_podcast_list_model(channel_urls)
+            self.play_or_download()
+
+        def thread_proc():
+            episode_urls = set()
+            channel_urls = set()
+
+            for idx, episode in enumerate(episodes):
+                progress.on_progress(float(idx)/float(len(episodes)))
+                if episode.is_locked:
+                    log('Not deleting episode (is locked): %s', episode.title)
+                else:
+                    log('Deleting episode: %s', episode.title)
+                    progress.on_message(_('Deleting: %s') % episode.title)
+                    episode.delete_from_disk()
+                    episode_urls.add(episode.url)
+                    channel_urls.add(episode.channel.url)
+
+                    # Tell the shownotes window that we have removed the episode
+                    if self.episode_shownotes_window is not None and \
+                            self.episode_shownotes_window.episode is not None and \
+                            self.episode_shownotes_window.episode.url == episode.url:
+                        util.idle_add(self.episode_shownotes_window._download_status_changed, None)
+
+            util.idle_add(finish_deletion, episode_urls, channel_urls)
+
+        threading.Thread(target=thread_proc).start()
+
         return True
 
     def on_itemRemoveOldEpisodes_activate( self, widget):
@@ -2797,43 +2813,53 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 keep_episodes = False
 
             if result:
-                # delete downloaded episodes only if checkbox is unchecked
-                if keep_episodes:
-                    log('Not removing downloaded episodes', sender=self)
-                else:
-                    self.active_channel.remove_downloaded()
+                progress = ProgressIndicator(_('Removing podcast'), \
+                        _('Please wait while the podcast is removed'), \
+                        parent=self.main_window)
 
-                # Clean up downloads and download directories
-                self.clean_up_downloads()
+                def finish_deletion(select_url):
+                    # Re-load the channels and select the desired new channel
+                    self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
+                    progress.on_finished()
 
-                # cancel any active downloads from this channel
-                for episode in self.active_channel.get_all_episodes():
-                    self.download_status_model.cancel_by_url(episode.url)
+                def thread_proc():
+                    # delete downloaded episodes only if checkbox is unchecked
+                    if keep_episodes:
+                        log('Not removing downloaded episodes', sender=self)
+                    else:
+                        progress.on_message(_('Removing downloaded episodes'))
+                        self.active_channel.remove_downloaded()
 
-                # get the URL of the podcast we want to select next
-                position = self.channels.index(self.active_channel)
-                if position == len(self.channels)-1:
-                    # this is the last podcast, so select the URL
-                    # of the item before this one (i.e. the "new last")
-                    select_url = self.channels[position-1].url
-                else:
-                    # there is a podcast after the deleted one, so
-                    # we simply select the one that comes after it
-                    select_url = self.channels[position+1].url
-                
-                title = self.active_channel.title
+                    # Clean up downloads and download directories
+                    self.clean_up_downloads()
 
-                # Remove the channel
-                self.active_channel.delete(purge=not keep_episodes)
-                self.channels.remove(self.active_channel)
-                self.channel_list_changed = True
-                self.save_channels_opml()
+                    # cancel any active downloads from this channel
+                    for episode in self.active_channel.get_all_episodes():
+                        util.idle_add(self.download_status_model.cancel_by_url,
+                                episode.url)
 
-                if gpodder.ui.fremantle:
-                    self.show_message(_('Podcast removed: %s') % title)
+                    # get the URL of the podcast we want to select next
+                    position = self.channels.index(self.active_channel)
+                    if position == len(self.channels)-1:
+                        # this is the last podcast, so select the URL
+                        # of the item before this one (i.e. the "new last")
+                        select_url = self.channels[position-1].url
+                    else:
+                        # there is a podcast after the deleted one, so
+                        # we simply select the one that comes after it
+                        select_url = self.channels[position+1].url
 
-                # Re-load the channels and select the desired new channel
-                self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
+                    # Remove the channel
+                    progress.on_message(_('Cleaning up database'))
+                    self.active_channel.delete(purge=not keep_episodes)
+                    self.channels.remove(self.active_channel)
+                    self.channel_list_changed = True
+                    self.save_channels_opml()
+
+                    # The remaining stuff is to be done in the GTK main thread
+                    util.idle_add(finish_deletion, select_url)
+
+                threading.Thread(target=thread_proc).start()
         except:
             log('There has been an error removing the channel.', traceback=True, sender=self)
         self.update_podcasts_tab()
