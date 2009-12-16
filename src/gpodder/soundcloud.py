@@ -137,7 +137,10 @@ class SoundcloudUser(object):
             for track in tracks:
                 url = track['download_url']
                 if url not in self.cache:
-                    self.cache[url] = get_metadata(url)
+                    try:
+                        self.cache[url] = get_metadata(url)
+                    except:
+                        continue
                 filesize, filetype, filename = self.cache[url]
 
                 yield {
