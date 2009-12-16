@@ -222,7 +222,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
             # When the amount of maximum downloads changes, notify the queue manager
-            changed_cb = lambda spinbutton: self.download_queue_manager.spawn_and_retire_threads()
+            changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
             self.spinMaxDownloads.connect('value-changed', changed_cb)
 
         self.default_title = 'gPodder'

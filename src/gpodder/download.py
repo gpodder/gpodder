@@ -339,24 +339,20 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
 
 class DownloadQueueWorker(threading.Thread):
-    def __init__(self, queue, exit_callback):
+    def __init__(self, queue, exit_callback, continue_check_callback):
         threading.Thread.__init__(self)
         self.queue = queue
         self.exit_callback = exit_callback
-        self.cancelled = False
-
-    def stop_accepting_tasks(self):
-        """
-        When this is called, the worker will not accept new tasks,
-        but quit when the current task has been finished.
-        """
-        if not self.cancelled:
-            self.cancelled = True
-            log('%s stopped accepting tasks.', self.getName(), sender=self)
+        self.continue_check_callback = continue_check_callback
 
     def run(self):
         log('Running new thread: %s', self.getName(), sender=self)
-        while not self.cancelled:
+        while True:
+            # Check if this thread is allowed to continue accepting tasks
+            if not self.continue_check_callback(self):
+                log('%s must not accept new tasks.', self.getName(), sender=self)
+                return
+
             try:
                 task = self.queue.pop()
                 log('%s is processing: %s', self.getName(), task, sender=self)
@@ -379,21 +375,27 @@ class DownloadQueueManager(object):
         with self.worker_threads_access:
             self.worker_threads.remove(worker_thread)
 
-    def spawn_and_retire_threads(self, request_new_thread=False):
+    def __continue_check_callback(self, worker_thread):
         with self.worker_threads_access:
             if len(self.worker_threads) > self._config.max_downloads and \
                     self._config.max_downloads_enabled:
-                # Tell the excessive amount of oldest worker threads to quit, but keep at least one
-                count = min(len(self.worker_threads)-1, len(self.worker_threads)-self._config.max_downloads)
-                for worker in self.worker_threads[:count]:
-                    worker.stop_accepting_tasks()
+                self.worker_threads.remove(worker_thread)
+                return False
+            else:
+                return True
 
-            if request_new_thread and (len(self.worker_threads) == 0 or \
+    def spawn_threads(self):
+        with self.worker_threads_access:
+            if not len(self.tasks):
+                return
+
+            if len(self.worker_threads) == 0 or \
                     len(self.worker_threads) < self._config.max_downloads or \
-                    not self._config.max_downloads_enabled):
+                    not self._config.max_downloads_enabled:
                 # We have to create a new thread here, there's work to do
                 log('I am going to spawn a new worker thread.', sender=self)
-                worker = DownloadQueueWorker(self.tasks, self.__exit_callback)
+                worker = DownloadQueueWorker(self.tasks, self.__exit_callback, \
+                        self.__continue_check_callback)
                 self.worker_threads.append(worker)
                 worker.start()
 
@@ -407,7 +409,7 @@ class DownloadQueueManager(object):
             task.episode.reload_from_db()
         task.status = DownloadTask.QUEUED
         self.tasks.appendleft(task)
-        self.spawn_and_retire_threads(request_new_thread=True)
+        self.spawn_threads()
 
 
 class DownloadTask(object):
