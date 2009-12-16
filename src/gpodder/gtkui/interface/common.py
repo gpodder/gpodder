@@ -48,6 +48,7 @@ class BuilderWidget(GtkBuilderWidget):
 
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
+        self._window_visible = False
 
         # Enable support for portrait mode changes on Maemo 5
         if gpodder.ui.fremantle:
@@ -73,6 +74,11 @@ class BuilderWidget(GtkBuilderWidget):
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
+
+        # Enable support for tracking visibility state
+        if gpodder.ui.desktop:
+            self.main_window.connect('visibility-notify-event', \
+                        self._on_window_state_event_visibility)
 
         # Set widgets to finger-friendly mode if on Maemo
         for widget_name in self.finger_friendly_widgets:
@@ -140,6 +146,14 @@ class BuilderWidget(GtkBuilderWidget):
 
         return False
 
+    def _on_window_state_event_visibility(self, widget, event):
+        if event.state & gtk.gdk.VISIBILITY_FULLY_OBSCURED:
+            self._window_visible = False
+        else:
+            self._window_visible = True
+
+        return False
+
     def _on_window_state_event_iconified(self, widget, event):
         if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
             if not self._window_iconified:
@@ -199,10 +213,12 @@ class BuilderWidget(GtkBuilderWidget):
                     title = 'gPodder'
                 notification = pynotify.Notification(title, message, gpodder.icon_file)
 
-                if widget and isinstance(widget, gtk.Widget):
-                    if not widget.window:
-                        widget = self.main_window
-                    notification.attach_to_widget(widget)
+                if not self._window_iconified and self.main_window.is_active:
+                    if self._window_visible:
+                        if widget and isinstance(widget, gtk.Widget):
+                            if not widget.window:
+                                widget = self.main_window
+                            notification.attach_to_widget(widget)
 
                 notification.show()
             else:
