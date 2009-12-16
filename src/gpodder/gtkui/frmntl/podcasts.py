@@ -35,7 +35,8 @@ class gPodderPodcasts(BuilderWidget):
     def new(self):
         appmenu = hildon.AppMenu()
         for action in (self.action_download_mygpo, \
-                       self.action_upload_mygpo):
+                       self.action_upload_mygpo, \
+                       self.action_unsubscribe):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)

@@ -161,7 +161,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.show_message(self.title)
 
         toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.set_fixed_size(50, -1)
+        toggle_cell.set_fixed_size(50, 50)
         self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
         
         next_column = self.COLUMN_ADDITIONAL

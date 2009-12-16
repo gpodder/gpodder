@@ -309,7 +309,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     hide_podcast_search=self.hide_podcast_search, \
                     on_upload_to_mygpo=self.on_upload_to_mygpo, \
                     on_download_from_mygpo=self.on_download_from_mygpo, \
-                    on_button_subscribe_clicked=self.on_button_subscribe_clicked)
+                    on_button_subscribe_clicked=self.on_button_subscribe_clicked, \
+                    on_unsubscribe=self.on_itemMassUnsubscribe_activate)
 
             # Expose objects for podcast list type-ahead find
             self.hbox_search_podcasts = self.podcasts_window.hbox_search_podcasts
@@ -2780,66 +2781,67 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 callback_closed=callback_closed, \
                 cover_downloader=self.cover_downloader)
 
-    def on_itemRemoveChannel_activate(self, widget, *args):
-        if self.active_channel is None:
-            title = _('No podcast selected')
-            message = _('Please select a podcast in the podcasts list to remove.')
-            self.show_message( message, title, widget=self.treeChannels)
+    def on_itemMassUnsubscribe_activate(self, item=None):
+        columns = (
+            ('title', None, None, _('Podcast')),
+        )
+
+        # We're abusing the Episode Selector for selecting Podcasts here,
+        # but it works and looks good, so why not? -- thp
+        gPodderEpisodeSelector(self.main_window, \
+                title=_('Remove podcasts'), \
+                instructions=_('Select the podcast you want to remove.'), \
+                episodes=self.channels, \
+                columns=columns, \
+                size_attribute=None, \
+                stock_ok_button=gtk.STOCK_DELETE, \
+                callback=self.remove_podcast_list, \
+                _config=self.config)
+
+    def remove_podcast_list(self, channels, confirm=True):
+        if not channels:
+            log('No podcasts selected for deletion', sender=self)
             return
 
-        try:
-            if gpodder.ui.desktop:
-                dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
-                dialog.add_button(gtk.STOCK_NO, gtk.RESPONSE_NO)
-                dialog.add_button(gtk.STOCK_YES, gtk.RESPONSE_YES)
+        if len(channels) == 1:
+            title = _('Removing podcast')
+            info = _('Please wait while the podcast is removed')
+            message = _('Do you really want to remove this podcast and its episodes?')
+        else:
+            title = _('Removing podcasts')
+            info = _('Please wait while the podcasts are removed')
+            message = _('Do you really want to remove the selected podcasts and their episodes?')
 
-                title = _('Remove podcast and episodes?')
-                message = _('Do you really want to remove <b>%s</b> and all downloaded episodes?') % saxutils.escape(self.active_channel.title)
-             
-                dialog.set_title(title)
-                dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            
-                cb_ask = gtk.CheckButton(_('Do not delete my downloaded episodes'))
-                dialog.vbox.pack_start(cb_ask)
-                cb_ask.show_all()
-                result = (dialog.run() == gtk.RESPONSE_YES)
-                keep_episodes = cb_ask.get_active()
-                dialog.destroy()
-            elif gpodder.ui.diablo:
-                result = self.show_confirmation(_('Do you really want to remove this podcast and all downloaded episodes?'))
-                keep_episodes = False
-            elif gpodder.ui.fremantle:
-                result = True
-                keep_episodes = False
+        if confirm and not self.show_confirmation(message, title):
+            return
 
-            if result:
-                progress = ProgressIndicator(_('Removing podcast'), \
-                        _('Please wait while the podcast is removed'), \
-                        parent=self.main_window)
+        progress = ProgressIndicator(title, info, parent=self.main_window)
 
-                def finish_deletion(select_url):
-                    # Re-load the channels and select the desired new channel
-                    self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
-                    progress.on_finished()
+        def finish_deletion(select_url):
+            # Re-load the channels and select the desired new channel
+            self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
+            progress.on_finished()
+            self.update_podcasts_tab()
 
-                def thread_proc():
-                    # delete downloaded episodes only if checkbox is unchecked
-                    if keep_episodes:
-                        log('Not removing downloaded episodes', sender=self)
-                    else:
-                        progress.on_message(_('Removing downloaded episodes'))
-                        self.active_channel.remove_downloaded()
+        def thread_proc():
+            select_url = None
 
-                    # Clean up downloads and download directories
-                    self.clean_up_downloads()
+            for idx, channel in enumerate(channels):
+                # Update the UI for correct status messages
+                progress.on_progress(float(idx)/float(len(channels)))
+                progress.on_message(_('Removing %s') % channel.title)
 
-                    # cancel any active downloads from this channel
-                    for episode in self.active_channel.get_all_episodes():
-                        util.idle_add(self.download_status_model.cancel_by_url,
-                                episode.url)
+                # Delete downloaded episodes
+                channel.remove_downloaded()
 
+                # cancel any active downloads from this channel
+                for episode in channel.get_all_episodes():
+                    util.idle_add(self.download_status_model.cancel_by_url,
+                            episode.url)
+
+                if len(channels) == 1:
                     # get the URL of the podcast we want to select next
-                    position = self.channels.index(self.active_channel)
+                    position = self.channels.index(channel)
                     if position == len(self.channels)-1:
                         # this is the last podcast, so select the URL
                         # of the item before this one (i.e. the "new last")
@@ -2849,20 +2851,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         # we simply select the one that comes after it
                         select_url = self.channels[position+1].url
 
-                    # Remove the channel
-                    progress.on_message(_('Cleaning up database'))
-                    self.active_channel.delete(purge=not keep_episodes)
-                    self.channels.remove(self.active_channel)
-                    self.channel_list_changed = True
-                    self.save_channels_opml()
+                # Remove the channel and clean the database entries
+                channel.delete(purge=True)
+                self.channels.remove(channel)
 
-                    # The remaining stuff is to be done in the GTK main thread
-                    util.idle_add(finish_deletion, select_url)
+            # Clean up downloads and download directories
+            self.clean_up_downloads()
 
-                threading.Thread(target=thread_proc).start()
-        except:
-            log('There has been an error removing the channel.', traceback=True, sender=self)
-        self.update_podcasts_tab()
+            self.channel_list_changed = True
+            self.save_channels_opml()
+
+            # The remaining stuff is to be done in the GTK main thread
+            util.idle_add(finish_deletion, select_url)
+
+        threading.Thread(target=thread_proc).start()
+
+    def on_itemRemoveChannel_activate(self, widget, *args):
+        if self.active_channel is None:
+            title = _('No podcast selected')
+            message = _('Please select a podcast in the podcasts list to remove.')
+            self.show_message( message, title, widget=self.treeChannels)
+            return
+
+        self.remove_podcast_list([self.active_channel])
 
     def get_opml_filter(self):
         filter = gtk.FileFilter()

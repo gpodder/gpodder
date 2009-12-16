@@ -93,4 +93,8 @@
     <property name="label" translatable="yes">Download subscriptions</property>
     <signal name="activate" handler="on_download_from_mygpo"/>
   </object>
+  <object class="GtkAction" id="action_unsubscribe">
+    <property name="label" translatable="yes">Unsubscribe</property>
+    <signal name="activate" handler="on_unsubscribe"/>
+  </object>
 </interface>

@@ -130,6 +130,13 @@
           </object>
         </child>
         <child>
+          <object class="GtkAction" id="itemMassUnsubscribe">
+            <property name="stock_id">gtk-remove</property>
+            <property name="label" translatable="yes">Remove multiple podcasts</property>
+            <signal handler="on_itemMassUnsubscribe_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="itemUpdateChannel">
             <property name="stock_id">gtk-refresh</property>
             <property name="name">itemUpdateChannel</property>
@@ -418,6 +425,8 @@
           <separator/>
           <menuitem action="item_import_from_file"/>
           <menuitem action="itemExportChannels"/>
+          <separator/>
+          <menuitem action="itemMassUnsubscribe"/>
           <separator/>
           <menuitem action="itemUploadToMygpo"/>
           <menuitem action="itemDownloadFromMygpo"/>
