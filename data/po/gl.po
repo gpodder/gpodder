@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-12 15:58+0100\n"
-"PO-Revision-Date: 2009-11-01 12:51+0200\n"
+"POT-Creation-Date: 2009-12-12 16:54+0100\n"
+"PO-Revision-Date: 2009-12-16 12:51+0200\n"
 "Last-Translator: Gonçalo Cordeiro <gonzalo@tagenata.com>\n"
 "Language-Team: Galician <localizacion@tagenata.com>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/gpodder/config.py:288
 msgid "No description available."
-msgstr "Sen descrición dispoñíbel."
+msgstr "Non hai ningunha descrición dispoñíbel."
 
 #: src/gpodder/console.py:32
 msgid "No device configured."
@@ -223,7 +223,7 @@ msgstr "Excepción non manexada"
 #: src/gpodder/gui.py:1050
 #, python-format
 msgid "Feedparser error: %s"
-msgstr "Erro ao procesar o feeds: %s"
+msgstr "Erro ao analizar o feed: %s"
 
 #: src/gpodder/gui.py:1064
 msgid "disk usage"
@@ -906,19 +906,18 @@ msgid "Display episode shownotes in HTML format using GTKHTML2."
 msgstr "Mostra os guións de episodios no formato HTML mediante o GTKHTML2."
 
 #: src/gpodder/soundcloud.py:144
-#, fuzzy
 msgid "Unknown track"
-msgstr "Descoñecido"
+msgstr "Pista descoñecida"
 
 #: src/gpodder/soundcloud.py:171
 #, python-format
 msgid "%s on Soundcloud"
-msgstr ""
+msgstr "%s no Soundcloud"
 
 #: src/gpodder/soundcloud.py:180
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
-msgstr ""
+msgstr "Pistas publicadas por %s no Soundcloud"
 
 #: src/gpodder/sync.py:68
 msgid "iPod synchronization"
@@ -1165,7 +1164,7 @@ msgstr "Nome de persoa usuaria"
 #: src/gpodder/gtkui/interface/common.py:351
 #: src/gpodder/gtkui/interface/common.py:359
 msgid "Login"
-msgstr ""
+msgstr "Iniciar sesión"
 
 #: src/gpodder/gtkui/interface/common.py:361
 msgid "Authentication required"
@@ -1743,9 +1742,9 @@ msgid "Podcast renamed: %s"
 msgstr "Renomeouse o podcast: %s"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:68
-#, fuzzy, python-format
+#, python-format
 msgid "Login to %s"
-msgstr "Inicie unha sesión en %s:"
+msgstr "Iniciar unha sesión en %s:"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:88
 msgid "Really delete this podcast and all downloaded episodes?"
@@ -1762,9 +1761,8 @@ msgstr "Seleccionar unha fonte"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:116
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:157
-#, fuzzy
 msgid "Open OPML file"
-msgstr "Ficheiros OPML"
+msgstr "Abrir ficheiros OPML"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:155
 msgid "Podcast feed/website URL"
@@ -1864,22 +1862,20 @@ msgstr "Descargar inmediatamente"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:50
 #: src/gpodder/gtkui/frmntl/preferences.py:55
-#, fuzzy
 msgid "Media Player"
-msgstr "<b>Reprodutor de son</b>"
+msgstr "Reprodutor multimedia"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:51
 msgid "Panucci"
-msgstr ""
+msgstr "Panucci"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:56
-#, fuzzy
 msgid "MPlayer"
-msgstr "reprodutor MP3"
+msgstr "MPlayer"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:179
 msgid "Not logged in"
-msgstr ""
+msgstr "Non iniciou unha sesión"
 
 #: data/ui/gpodderwelcome.ui.h:1
 msgid "<b><big>Welcome to gPodder</big></b>"
@@ -2116,9 +2112,8 @@ msgid "Check for new episodes on startup"
 msgstr "Verificar por episodios novos ao iniciar"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:18
-#, fuzzy
 msgid "Close to system notification area"
-msgstr "Mostrar a icona do gPodder na área de notificación do sistema"
+msgstr "Pechar para a área de notificación do sistema"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:19
 msgid "Command line:"
@@ -2185,13 +2180,12 @@ msgstr ""
 "indicado en \"Sincronizar no cartafol:\"."
 
 #: data/ui/desktop/gpodderpreferences.ui.h:34
-#, fuzzy
 msgid ""
 "If checked, gPodder will delete played episodes that are older than the "
 "specified amount of days (in the Downloads tab) on every startup."
 msgstr ""
-"Se está marcado o gPodder eliminará os episodios reproducidos anteriores á "
-"cantidade de días especificada (no separador Descargas) en cada inicio."
+"Se está marcado, o gPodder eliminará os episodios reproducidos que sexan máis antigos "
+"do que a cantidade de días especificada (no separador Descargas) en cada inicio."
 
 #: data/ui/desktop/gpodderpreferences.ui.h:35
 msgid ""
@@ -2355,9 +2349,8 @@ msgid "Export to OPML file"
 msgstr "Exportar a un ficheiro OPML"
 
 #: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
-#, fuzzy
 msgid "Filter:"
-msgstr "Fallou"
+msgstr "Filtro:"
 
 #: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
 msgid "Go to gpodder.org"
@@ -2498,9 +2491,8 @@ msgid "Set cover from file"
 msgstr "Definir a portada desde un ficheiro"
 
 #: data/ui/maemo/gpodderconfigeditor.ui.h:1
-#, fuzzy
 msgid "Configuration editor"
-msgstr "O editor de configuración está activado"
+msgstr "Editor de configuración"
 
 #: data/ui/maemo/gpodderepisodeselector.ui.h:1
 #: data/ui/maemo/gpodderpodcastdirectory.ui.h:2
@@ -2609,28 +2601,24 @@ msgid "Set username/password"
 msgstr "Definir o/a usuario/a e contrasinal"
 
 #: data/ui/frmntl/gpodderepisodes.ui.h:6
-#, fuzzy
 msgid "Update feed"
-msgstr "Actualizar o feed RSS"
+msgstr "Actualizar o feed"
 
 #: data/ui/frmntl/gpodderpodcastdirectory.ui.h:6
 msgid "Select podcasts to add"
 msgstr "Seleccione os podcast para engadir"
 
 #: data/ui/frmntl/gpodderpodcasts.ui.h:2
-#, fuzzy
 msgid "Download subscriptions"
-msgstr "Sen subscricións"
+msgstr "Descargar as subscricións"
 
 #: data/ui/frmntl/gpodderpodcasts.ui.h:4
-#, fuzzy
 msgid "Upload subscriptions"
-msgstr "Sen subscricións"
+msgstr "Enviar as subscricións"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:1
-#, fuzzy
 msgid "Account on my.gpodder.org"
-msgstr "Autenticarse no my.gpodder.org"
+msgstr "Conta en my.gpodder.org"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:3
 msgid "Display orientation"
@@ -2638,11 +2626,11 @@ msgstr "Orientación da pantalla"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:4
 msgid "Player for audio files"
-msgstr ""
+msgstr "Reprodutor para os ficheiros de audio"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:5
 msgid "Player for video files"
-msgstr ""
+msgstr "Reprodutor para os ficheiros de vídeo"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:7
 msgid "When new episodes are found"
@@ -2665,9 +2653,8 @@ msgid "Loading, please wait"
 msgstr "Cargando; agarde"
 
 #: data/ui/frmntl/gpodder.ui.h:21
-#, fuzzy
 msgid "Support gPodder"
-msgstr "Saír do gPodder"
+msgstr "Apoiar o gPodder"
 
 #: data/ui/frmntl/gpodder.ui.h:26
 msgid "Welcome to gPodder!"
