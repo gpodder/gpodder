@@ -1038,20 +1038,14 @@ def format_seconds_to_hour_min_sec(seconds):
     else:
         return result[0]
 
-def proxy_request(url, proxy=None, method='HEAD'):
-    if proxy is None or proxy.strip() == '':
-        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
-        conn = httplib.HTTPConnection(netloc)
-        start = len(scheme) + len('://') + len(netloc)
-        conn.request(method, url[start:])
-    else:
-        (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(proxy)
-        conn = httplib.HTTPConnection(netloc)
-        conn.request(method, url)
-
+def http_request(url, method='HEAD'):
+    (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
+    conn = httplib.HTTPConnection(netloc)
+    start = len(scheme) + len('://') + len(netloc)
+    conn.request(method, url[start:])
     return conn.getresponse()
 
-def get_episode_info_from_url(url, proxy=None):
+def get_episode_info_from_url(url):
     """
     Try to get information about a podcast episode by sending
     a HEAD request to the HTTP server and parsing the result.
@@ -1062,16 +1056,13 @@ def get_episode_info_from_url(url, proxy=None):
       "length": The size of the file in bytes
       "pubdate": The unix timestamp for the pubdate
 
-    If the "proxy" parameter is used, it has to be the URL 
-    of the HTTP proxy server to use, e.g. http://proxy:8080/
-    
     If there is an error, this function returns {}. This will
     only function with http:// and https:// URLs.
     """
     if not (url.startswith('http://') or url.startswith('https://')):
         return {}
 
-    r = proxy_request(url, proxy)
+    r = http_request(url)
     result = {}
 
     log('Trying to get metainfo for %s', url)

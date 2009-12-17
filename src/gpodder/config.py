@@ -223,6 +223,9 @@ gPodderSettings = {
     'rotation_mode': (int, 0,
       ('Internally used on Maemo 5 for the current rotation mode')),
 
+    'youtube_preferred_fmt_id': (int, 18,
+      ('The preferred video format that should be downloaded from YouTube.')),
+
     # Settings for my.gpodder.org
     'my_gpodder_username': (str, '',
       ("The user's gPodder web services username.")),

@@ -638,7 +638,8 @@ class DownloadTask(object):
 
         try:
             # Resolve URL and start downloading the episode
-            url = youtube.get_real_download_url(self.__episode.url)
+            url = youtube.get_real_download_url(self.__episode.url, \
+                    self._config.youtube_preferred_fmt_id)
             downloader =  DownloadURLOpener(self.__episode.channel)
             headers, real_url = downloader.retrieve_resume(url, \
                     self.tempname, reporthook=self.status_updated)

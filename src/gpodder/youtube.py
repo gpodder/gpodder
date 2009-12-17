@@ -32,14 +32,22 @@ import urllib2
 
 from xml.sax import saxutils
 
-def get_real_download_url(url, proxy=None):
+supported_formats = [
+    (22, '22/2000000/9/0/115', '1280x720 (HD)'),
+    (35, '35/640000/9/0/115', '640x360'),
+    (18, '18/512000/9/0/115', '480x270 (iPod)'),
+    (34, '34/0/9/0/115', '320x180'),
+    (5, '5/0/7/0/0', '320x180 (FLV)'),
+]
+
+def get_real_download_url(url, preferred_fmt_id=18):
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
         url = 'http://www.youtube.com/watch?v=' + vid
 
         while page is None:
-            req = util.proxy_request(url, proxy, method='GET')
+            req = util.http_request(url, method='GET')
             if 'location' in req.msg:
                 url = req.msg['location']
             else:
@@ -53,30 +61,36 @@ def get_real_download_url(url, proxy=None):
         else:
             formats_available = []
 
-        # This is the proritized list of formats that gPodder will
-        # use, depending on what is available from top to bottom.
-        format_priorities = [
-                '22/2000000/9/0/115', # 1280x720
-                '35/640000/9/0/115',  # 640x360
-                '18/512000/9/0/115',  # 480x270
-                '34/0/9/0/115',       # 320x180
-                '5/0/7/0/0',          # 320x180
-        ]
-
-        fmt_id = 5
-        for wanted in format_priorities:
-            if wanted in formats_available:
-                format, rest_ = wanted.split('/', 1)
-                fmt_id = int(format)
-                break
-
-        # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
-        # also use 13 and 17 here, but the quality is very low then. There
-        # seems to also be a 6, but I could not find a video with that yet.
         if gpodder.ui.diablo:
+            # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
+            # also use 13 and 17 here, but the quality is very low then. There
+            # seems to also be a 6, but I could not find a video with that yet.
             fmt_id = 5
         elif gpodder.ui.fremantle:
+            # This provides good quality video, seems to be always available
+            # and is playable fluently in Media Player
             fmt_id = 18
+        else:
+            # As a fallback, use fmt_id 18 (seems to be always available)
+            fmt_id = 18
+
+            # This will be set to True if the search below has already "seen"
+            # our preferred format, but has not yet found a suitable available
+            # format for the given video.
+            seen_preferred = False
+
+            for id, wanted, description in supported_formats:
+                # If we see our preferred format, accept formats below
+                if id == preferred_fmt_id:
+                    seen_preferred = True
+
+                # If the format is available and preferred (or lower),
+                # use the given format for our fmt_id
+                if wanted in formats_available and seen_preferred:
+                    log('Found available YouTube format: %s (fmt_id=%d)', \
+                            description, id)
+                    fmt_id = id
+                    break
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
         if r2:
@@ -134,19 +148,6 @@ def get_real_cover(url):
             return match.group(1)
 
     return None
-
-def get_real_episode_length(episode):
-    url = get_real_download_url(episode.url)
-
-    if url != episode.url:
-        try:
-            info = util.urlopen(url).info()
-            if 'content-length' in info:
-                return info['content-length']
-        except urllib2.HTTPError:
-            pass
-
-    return 0
 
 def find_youtube_channels(string):
     # FIXME: Make proper use of the YouTube API instead
