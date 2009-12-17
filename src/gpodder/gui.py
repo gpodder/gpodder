@@ -775,9 +775,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 text=DownloadStatusModel.C_PROGRESS_TEXT)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_expand(False)
+        self.treeDownloads.append_column(column)
         column.set_property('min-width', 150)
         column.set_property('max-width', 150)
-        self.treeDownloads.append_column(column)
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
