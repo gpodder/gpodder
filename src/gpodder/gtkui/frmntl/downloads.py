@@ -36,9 +36,7 @@ class gPodderDownloads(BuilderWidget):
         selection.connect('changed', self.on_selection_changed)
 
         appmenu = hildon.AppMenu()
-        for action in (self.action_select_all, \
-                       self.action_select_none, \
-                       self.action_pause, \
+        for action in (self.action_pause, \
                        self.action_resume, \
                        self.action_cancel):
             button = gtk.Button()
@@ -50,6 +48,12 @@ class gPodderDownloads(BuilderWidget):
         appmenu.append(button)
         self._config.connect_gtk_togglebutton('auto_cleanup_downloads', \
                 button)
+
+        for action in (self.action_select_all, \
+                       self.action_select_none):
+            button = gtk.Button()
+            action.connect_proxy(button)
+            appmenu.append(button)
 
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
