@@ -123,7 +123,6 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.shownotes import gPodderShownotes
     from gpodder.gtkui.frmntl.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
-    from gpodder.gtkui.frmntl.podcasts import gPodderPodcasts
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
     from gpodder.gtkui.interface.common import Orientation
@@ -139,6 +138,10 @@ if gpodder.ui.maemo:
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
+
+    ICON_GENERAL_ADD = 'general_add'
+    ICON_GENERAL_REFRESH = 'general_refresh'
+    ICON_GENERAL_CLOSE = 'general_close'
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -163,13 +166,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.app.add_window(self.main_window)
 
             appmenu = hildon.AppMenu()
-            for action in (self.itemUpdate, \
+
+            for filter in (self.item_view_podcasts_all, \
+                           self.item_view_podcasts_downloaded, \
+                           self.item_view_podcasts_unplayed):
+                button = gtk.ToggleButton()
+                filter.connect_proxy(button)
+                appmenu.add_filter(button)
+
+            for action in (self.itemPreferences, \
+                    self.item_downloads, \
                     self.itemRemoveOldEpisodes, \
-                    self.item_report_bug, \
-                    self.itemPreferences, \
-                    self.item_support):
-                button = gtk.Button()
+                    self.item_unsubscribe, \
+                    self.item_support, \
+                    self.item_report_bug):
+                button = hildon.Button(gtk.HILDON_SIZE_AUTO,\
+                        hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
                 action.connect_proxy(button)
+                if action == self.item_downloads:
+                    button.set_title(_('Downloads'))
+                    button.set_value(_('Idle'))
+                    self.button_downloads = button
                 appmenu.append(button)
             appmenu.show_all()
             self.main_window.set_app_menu(appmenu)
@@ -181,7 +198,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.config.rotation_mode)
 
             if self.config.rotation_mode == FremantleRotation.ALWAYS:
-                self.on_window_orientation_changed(Orientation.PORTRAIT)
+                util.idle_add(self.on_window_orientation_changed, \
+                        Orientation.PORTRAIT)
 
             self.bluetooth_available = False
         else:
@@ -247,9 +265,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         if gpodder.ui.fremantle:
-            self.button_subscribe.set_name('HildonButton-thumb')
-            self.button_podcasts.set_name('HildonButton-thumb')
-            self.button_downloads.set_name('HildonButton-thumb')
+            # Work around Maemo bug #4718
+            self.button_refresh.set_name('HildonButton-finger')
+            self.button_subscribe.set_name('HildonButton-finger')
+
+            self.button_refresh.set_sensitive(False)
+            self.button_subscribe.set_sensitive(False)
+
+            self.button_subscribe.set_image(gtk.image_new_from_icon_name(\
+                    self.ICON_GENERAL_ADD, gtk.ICON_SIZE_BUTTON))
+            self.button_refresh.set_image(gtk.image_new_from_icon_name(\
+                    self.ICON_GENERAL_REFRESH, gtk.ICON_SIZE_BUTTON))
+
+            # Make the button scroll together with the TreeView contents
+            action_area_box = self.treeChannels.get_action_area_box()
+            for child in self.buttonbox:
+                child.reparent(action_area_box)
+            self.vbox.remove(self.buttonbox)
+            action_area_box.set_spacing(2)
+            action_area_box.set_border_width(3)
+            self.treeChannels.set_action_area_visible(True)
 
             from gpodder.gtkui.frmntl import style
             sub_font = style.get_font_desc('SmallSystemFont')
@@ -271,6 +306,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             except:
                 version = gpodder.__version__
             self.label_footer.set_markup(sub % ('v %s' % version))
+            self.label_footer.hide()
 
             self.episodes_window = gPodderEpisodes(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
@@ -294,39 +330,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.entry_search_episodes = self.episodes_window.entry_search_episodes
             self.button_search_episodes_clear = self.episodes_window.button_search_episodes_clear
 
-            def on_podcast_selected(channel):
-                self.active_channel = channel
-                self.update_episode_list_model()
-                self.episodes_window.channel = self.active_channel
-                self.episodes_window.show()
-
-            self.podcasts_window = gPodderPodcasts(self.main_window, \
-                    show_podcast_episodes=on_podcast_selected, \
-                    on_treeview_expose_event=self.on_treeview_expose_event, \
-                    on_itemUpdate_activate=self.on_itemUpdate_activate, \
-                    item_view_podcasts_all=self.item_view_podcasts_all, \
-                    item_view_podcasts_downloaded=self.item_view_podcasts_downloaded, \
-                    item_view_podcasts_unplayed=self.item_view_podcasts_unplayed, \
-                    on_entry_search_podcasts_changed=self.on_entry_search_podcasts_changed, \
-                    on_entry_search_podcasts_key_press=self.on_entry_search_podcasts_key_press, \
-                    hide_podcast_search=self.hide_podcast_search, \
-                    on_upload_to_mygpo=self.on_upload_to_mygpo, \
-                    on_download_from_mygpo=self.on_download_from_mygpo, \
-                    on_button_subscribe_clicked=self.on_button_subscribe_clicked, \
-                    on_unsubscribe=self.on_itemMassUnsubscribe_activate)
-
-            # Expose objects for podcast list type-ahead find
-            self.hbox_search_podcasts = self.podcasts_window.hbox_search_podcasts
-            self.entry_search_podcasts = self.podcasts_window.entry_search_podcasts
-            self.button_search_podcasts_clear = self.podcasts_window.button_search_podcasts_clear
-
             self.downloads_window = gPodderDownloads(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked, \
                     _for_each_task_set_status=self._for_each_task_set_status, \
                     downloads_list_get_selection=self.downloads_list_get_selection, \
                     _config=self.config)
-            self.treeChannels = self.podcasts_window.treeview
+
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
 
@@ -436,48 +446,43 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+            self.button_refresh.set_sensitive(True)
             self.button_subscribe.set_sensitive(True)
-            self.button_podcasts.set_sensitive(True)
-            self.button_downloads.set_sensitive(True)
             self.main_window.set_title(_('gPodder'))
+            hildon.hildon_gtk_window_take_screenshot(self.main_window, True)
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
 
+    def on_podcast_selected(self, treeview, path, column):
+        # for Maemo 5's UI
+        model = treeview.get_model()
+        channel = model.get_value(model.get_iter(path), \
+                PodcastListModel.C_CHANNEL)
+        self.active_channel = channel
+        self.update_episode_list_model()
+        self.episodes_window.channel = self.active_channel
+        self.episodes_window.show()
+
     def on_button_subscribe_clicked(self, button):
         self.on_itemImportChannels_activate(button)
-
-    def on_button_podcasts_clicked(self, widget):
-        if self.channels:
-            self.podcasts_window.show()
-        else:
-            gPodderWelcome(self.gPodder, \
-                    show_example_podcasts_callback=self.on_itemImportChannels_activate, \
-                    setup_my_gpodder_callback=self.on_download_from_mygpo)
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
 
     def on_window_orientation_changed(self, orientation):
-        parent = self.vbox
-        old_container = parent.get_children()[0]
+        treeview = self.treeChannels
         if orientation == Orientation.PORTRAIT:
-            container = gtk.VButtonBox()
+            treeview.set_action_area_orientation(gtk.ORIENTATION_VERTICAL)
+            # Work around Maemo bug #4718
+            self.button_subscribe.set_name('HildonButton-thumb')
+            self.button_refresh.set_name('HildonButton-thumb')
         else:
-            container = gtk.HButtonBox()
-        container.set_layout(old_container.get_layout())
-        for child in old_container.get_children():
-            if orientation == Orientation.LANDSCAPE:
-                child.set_alignment(0.5, 0.5, 0., 0.)
-            else:
-                child.set_alignment(0.5, 0.5, .9, 0.)
-            child.reparent(container)
-        container.show_all()
-        self.buttonbox = container
-        parent.remove(old_container)
-        parent.add(container)
-        parent.reorder_child(container, 0)
+            treeview.set_action_area_orientation(gtk.ORIENTATION_HORIZONTAL)
+            # Work around Maemo bug #4718
+            self.button_subscribe.set_name('HildonButton-finger')
+            self.button_refresh.set_name('HildonButton-finger')
 
     def on_treeview_podcasts_selection_changed(self, selection):
         model, iter = selection.get_selected()
@@ -950,7 +955,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 elif paused > 0:
                     self.button_downloads.set_value(_('%d paused') % paused)
                 else:
-                    self.button_downloads.set_value(_('None active'))
+                    self.button_downloads.set_value(_('Idle'))
 
             title = [self.default_title]
 
@@ -2113,8 +2118,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             self.button_subscribe.set_sensitive(True)
+            self.button_refresh.set_image(gtk.image_new_from_icon_name(\
+                    self.ICON_GENERAL_REFRESH, gtk.ICON_SIZE_BUTTON))
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             self.update_podcasts_tab()
+            if self.feed_cache_update_cancelled:
+                return
+
             if episodes:
                 if self.config.auto_download == 'always':
                     if len(episodes) == 1:
@@ -2201,7 +2211,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 break
 
             if gpodder.ui.fremantle:
-                self.button_podcasts.set_value(_('%d/%d updated') % (updated, total))
+                util.idle_add(self.button_refresh.set_title, \
+                        _('%d/%d updated') % (updated, total))
                 continue
 
             # By the time we get here the update may have already been cancelled
@@ -2243,7 +2254,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_update_feeds_buttons()
 
     def update_feed_cache(self, channels=None, force_update=True, select_url_afterwards=None):
-        if self.updating_feed_cache: 
+        if self.updating_feed_cache:
+            if gpodder.ui.fremantle:
+                self.feed_cache_update_cancelled = True
             return
 
         if not force_update:
@@ -2259,10 +2272,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
-            hildon.hildon_banner_show_information(self.main_window, \
-                    '', _('Updating podcast feeds'))
-            self.button_podcasts.set_value(_('Updating...'))
+            self.button_refresh.set_title(_('Updating...'))
             self.button_subscribe.set_sensitive(False)
+            self.button_refresh.set_image(gtk.image_new_from_icon_name(\
+                    self.ICON_GENERAL_CLOSE, gtk.ICON_SIZE_BUTTON))
+            self.feed_cache_update_cancelled = False
         else:
             self.itemUpdate.set_sensitive(False)
             self.itemUpdateChannel.set_sensitive(False)
@@ -3299,12 +3313,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def update_podcasts_tab(self):
         if len(self.channels):
             if gpodder.ui.fremantle:
-                self.button_podcasts.set_value(_('%d subscriptions') % len(self.channels))
+                self.button_refresh.set_title(_('Check for new episodes'))
+                self.button_refresh.show()
             else:
                 self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
         else:
             if gpodder.ui.fremantle:
-                self.button_podcasts.set_value(_('No subscriptions'))
+                self.button_refresh.hide()
             else:
                 self.label2.set_text(_('Podcasts'))
 
