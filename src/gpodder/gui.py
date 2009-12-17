@@ -180,6 +180,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     gpodder.__version__, \
                     self.config.rotation_mode)
 
+            if self.config.rotation_mode == FremantleRotation.ALWAYS:
+                self.on_window_orientation_changed(Orientation.PORTRAIT)
+
             self.bluetooth_available = False
         else:
             self.bluetooth_available = util.bluetooth_available()
