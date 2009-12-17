@@ -151,7 +151,9 @@ class gPodderEpisodeSelector(BuilderWidget):
         # check/uncheck column
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect( 'toggled', self.toggle_cell_handler)
-        self.treeviewEpisodes.append_column( gtk.TreeViewColumn( '', toggle_cell, active=self.COLUMN_TOGGLE))
+        toggle_column = gtk.TreeViewColumn('', toggle_cell, active=self.COLUMN_TOGGLE)
+        toggle_column.set_clickable(True)
+        self.treeviewEpisodes.append_column(toggle_column)
         
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
@@ -159,6 +161,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             if next_column < self.COLUMN_ADDITIONAL + 1:
                 renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
             column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
+            column.set_clickable(False)
             column.set_resizable( True)
             # Only set "expand" on the first column
             if next_column < self.COLUMN_ADDITIONAL + 1:
@@ -173,6 +176,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             if sort_name is not None:
                 # add the sort column
                 column = gtk.TreeViewColumn()
+                column.set_clickable(False)
                 column.set_visible(False)
                 self.treeviewEpisodes.append_column( column)
                 next_column += 1
@@ -227,6 +231,11 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
+
+        # Focus the toggle column for Tab-focusing (bug 503)
+        path, column = self.treeviewEpisodes.get_cursor()
+        self.treeviewEpisodes.set_cursor(path, toggle_column)
+
         self.calculate_total_size()
 
     def treeview_episodes_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
@@ -375,6 +384,12 @@ class gPodderEpisodeSelector(BuilderWidget):
         model = self.treeviewEpisodes.get_model()
         if model.get_iter_first() is None:
             self.on_btnCancel_clicked(None)
+
+    def on_row_activated(self, treeview, path, view_column):
+        model = treeview.get_model()
+        iter = model.get_iter(path)
+        value = model.get_value(iter, self.COLUMN_TOGGLE)
+        model.set_value(iter, self.COLUMN_TOGGLE, not value)
 
     def get_selected_episodes( self, remove_episodes=False):
         selected_episodes = []
