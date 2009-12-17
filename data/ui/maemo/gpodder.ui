@@ -879,13 +879,12 @@
                         </packing>
                       </child>
                       <child>
-                        <object class="GtkButton" id="btnCleanUpDownloads">
+                        <object class="GtkToggleButton" id="btnCleanUpDownloads">
                           <property name="label" translatable="yes">Clean up</property>
                           <property name="visible">True</property>
                           <property name="can_focus">True</property>
                           <property name="receives_default">True</property>
                           <property name="image">imageCleanUpDownloads</property>
-                          <signal name="clicked" handler="on_btnCleanUpDownloads_clicked"/>
                         </object>
                         <packing>
                           <property name="position">7</property>

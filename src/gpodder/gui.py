@@ -321,7 +321,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked, \
                     _for_each_task_set_status=self._for_each_task_set_status, \
-                    downloads_list_get_selection=self.downloads_list_get_selection)
+                    downloads_list_get_selection=self.downloads_list_get_selection, \
+                    _config=self.config)
             self.treeChannels = self.podcasts_window.treeview
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
@@ -417,6 +418,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._auto_update_timer_source_id = None
         if self.config.auto_update_feeds:
             self.restart_auto_update_timer()
+
+        # Connect the auto cleanup button to the configuration
+        if gpodder.ui.desktop or gpodder.ui.diablo:
+            self.config.connect_gtk_togglebutton('auto_cleanup_downloads', \
+                    self.btnCleanUpDownloads)
 
         # Delete old episodes if the user wishes to
         if self.config.auto_remove_old_episodes:
@@ -818,13 +824,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gobject.timeout_add(1500, self.update_downloads_list)
             self.download_list_update_enabled = True
 
-    def on_btnCleanUpDownloads_clicked(self, button):
+    def on_btnCleanUpDownloads_clicked(self, button=None):
         model = self.download_status_model
 
         all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
         changed_episode_urls = []
         for row_reference, task in all_tasks:
-            if task.status in (task.DONE, task.CANCELLED, task.FAILED):
+            if task.status in (task.DONE, task.CANCELLED) or \
+                    (task.status == task.FAILED and gpodder.ui.fremantle):
                 model.remove(model.get_iter(row_reference.get_path()))
                 try:
                     # We don't "see" this task anymore - remove it;
@@ -847,7 +854,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_shownotes_window._download_status_changed(None)
 
         # Update the tab title and downloads list
-        self.update_downloads_list()
+        self.update_downloads_list(from_cleanup=True)
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
@@ -855,7 +862,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.wNotebook.set_current_page(0)
 
-    def update_downloads_list(self):
+    def update_downloads_list(self, from_cleanup=False):
         try:
             model = self.download_status_model
 
@@ -878,6 +885,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if model is None:
                 model = ()
 
+            failed_downloads = []
             for row in model:
                 self.download_status_model.request_update(row.iter)
 
@@ -897,6 +905,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     downloading += 1
                     total_speed += speed
                 elif status == download.DownloadTask.FAILED:
+                    failed_downloads.append(task)
                     failed += 1
                 elif status == download.DownloadTask.DONE:
                     finished += 1
@@ -968,7 +977,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Update the tray icon status and progress bar
                     self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
                     self.tray_icon.draw_progress_bar(percentage/100.)
-            elif self.last_download_count > 0:
+            elif self.last_download_count > 0 and not from_cleanup:
                 if self.tray_icon is not None:
                     # Update the tray icon status
                     self.tray_icon.set_status()
@@ -978,6 +987,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('All downloads have finished.', sender=self)
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)
+
+                if gpodder.ui.fremantle and failed:
+                    message = '\n'.join(['%s: %s' % (str(task), \
+                            task.error_message) for task in failed_downloads])
+                    self.show_message(message, _('Downloads failed'), important=True)
+
+                # Automatically remove finished downloads from the list
+                if self.config.auto_cleanup_downloads:
+                    self.on_btnCleanUpDownloads_clicked()
             self.last_download_count = count
 
             if not gpodder.ui.fremantle:
@@ -1017,6 +1035,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Force a update of the podcast list model
             self.channel_list_changed = True
             self.update_podcast_list_model()
+        elif name == 'auto_cleanup_downloads' and new_value:
+            # Always cleanup when this option is enabled
+            self.on_btnCleanUpDownloads_clicked()
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without

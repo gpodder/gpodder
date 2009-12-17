@@ -94,6 +94,8 @@ gPodderSettings = {
     'auto_update_frequency': (int, 20,
       ("The frequency (in minutes) at which gPodder will update all feeds "
         "if 'auto_update_feeds' is enabled.")),
+    'auto_cleanup_downloads': (bool, True,
+      ('Automatically removed cancelled and finished downloads from the list')),
     'episode_list_descriptions': (bool, True,
       ("Display the episode's description under the episode title in the GUI.")),
     'show_toolbar': (bool, True,
