@@ -208,27 +208,27 @@ class BuilderWidget(GtkBuilderWidget):
                     dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
                 dlg.run()
                 dlg.destroy()
-            elif pynotify is not None:
-                if title is None:
-                    title = 'gPodder'
-                notification = pynotify.Notification(title, message, gpodder.icon_file)
+            elif self.config.enable_notifications:
+                if pynotify is not None:
+                    if title is None:
+                        title = 'gPodder'
+                    notification = pynotify.Notification(title, message, gpodder.icon_file)
 
-                if not self._window_iconified and self.main_window.is_active:
-                    if self._window_visible:
-                        if widget and isinstance(widget, gtk.Widget):
-                            if not widget.window:
-                                widget = self.main_window
-                            notification.attach_to_widget(widget)
+                    if not self._window_iconified and self.main_window.is_active:
+                        if self._window_visible:
+                            if widget and isinstance(widget, gtk.Widget):
+                                if not widget.window:
+                                    widget = self.main_window
+                                notification.attach_to_widget(widget)
 
-                notification.show()
-            else:
-                if widget and isinstance(widget, gtk.Widget):
+                    notification.show()
+                elif widget and isinstance(widget, gtk.Widget):
                     if not widget.window:
                         widget = self.main_window
-                else:
-                    widget = self.main_window
-                notification = NotificationWindow(message, title, important=False, widget=widget)
-                notification.show_timeout()
+                    else:
+                        widget = self.main_window
+                    notification = NotificationWindow(message, title, important=False, widget=widget)
+                    notification.show_timeout()
 
     def set_finger_friendly(self, widget):
         """
