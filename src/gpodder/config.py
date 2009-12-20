@@ -127,6 +127,8 @@ gPodderSettings = {
     'enable_notifications': (bool, True,
       ("Let gPodder use notification bubbles when it can completed certain "
         "tasks like downloading an episode or finishing syncing to a device.")),
+    'notifications_attach_to_tray': (str, 'minimized',
+      ("Attach notifications to tray icon. (always, minimized)")),
     'on_quit_ask': (bool, True,
       ("Ask the user to confirm quitting the application.")),
     'auto_download': (str, 'never',

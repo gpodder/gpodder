@@ -213,13 +213,26 @@ class BuilderWidget(GtkBuilderWidget):
                     if title is None:
                         title = 'gPodder'
                     notification = pynotify.Notification(title, message, gpodder.icon_file)
+                    _notify_at_tray = False
+                    _notify_when = self.config.notifications_attach_to_tray
+                    _notify_attach = notification.attach_to_status_icon
 
-                    if not self._window_iconified and self.main_window.is_active:
+                    if _notify_when in ('minimized','always'):
+                        if getattr(self,'tray_icon',None) and self.tray_icon.is_embedded():
+                            _notify_at_tray = True
+
+                    if _notify_at_tray and _notify_when == 'always':
+                        _notify_attach(self.tray_icon)
+                    elif not self._window_iconified and self.main_window.is_active:
                         if self._window_visible:
                             if widget and isinstance(widget, gtk.Widget):
                                 if not widget.window:
                                     widget = self.main_window
                                 notification.attach_to_widget(widget)
+                        elif _notify_at_tray and _notify_when == 'minimized':
+                            _notify_attach(self.tray_icon)
+                    elif _notify_at_tray and _notify_when == 'minimized':
+                        _notify_attach(self.tray_icon)
 
                     notification.show()
                 elif widget and isinstance(widget, gtk.Widget):
