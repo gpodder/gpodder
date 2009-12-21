@@ -123,6 +123,12 @@ class EpisodeListModel(gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
+    def _format_description(self, episode, include_description=False, is_downloading=None):
+        if include_description:
+            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+                    xml.sax.saxutils.escape(episode.one_line_description()))
+        else:
+            return xml.sax.saxutils.escape(episode.title)
 
     def add_from_channel(self, channel, downloading=None, \
             include_description=False):
@@ -133,7 +139,6 @@ class EpisodeListModel(gtk.ListStore):
         is to be added to the episode row, or False if not)
         """
         def insert_and_update(episode):
-            description = episode.format_episode_row_markup(include_description)
             description_stripped = util.remove_html_tags(episode.description)
 
             iter = self.append()
@@ -143,7 +148,6 @@ class EpisodeListModel(gtk.ListStore):
                     self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                     self.C_EPISODE, episode, \
                     self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
-                    self.C_DESCRIPTION, description, \
                     self.C_DESCRIPTION_STRIPPED, description_stripped)
 
             self.update_by_iter(iter, downloading, include_description)
@@ -216,11 +220,13 @@ class EpisodeListModel(gtk.ListStore):
             status_icon = self._get_tree_icon(status_icon, show_bullet, \
                     show_padlock, show_missing, icon_size)
 
+        description = self._format_description(episode, include_description, downloading)
         self.set(iter, \
                 self.C_STATUS_ICON, status_icon, \
                 self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \
                 self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded, \
-                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed)
+                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
+                self.C_DESCRIPTION, description)
 
     def _get_tree_icon(self, icon_name, add_bullet=False, \
             add_padlock=False, add_missing=False, icon_size=32):
@@ -457,16 +463,15 @@ class PodcastListModel(gtk.ListStore):
         else:
             return None
 
-    def _format_description(self, channel, count_new):
+    def _format_description(self, channel, total, deleted, \
+            new, downloaded, unplayed):
         title_markup = xml.sax.saxutils.escape(channel.title)
-        if gpodder.ui.fremantle:
-            return title_markup
         description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         d = []
-        if count_new:
+        if new:
             d.append('<span weight="bold">')
         d.append(title_markup)
-        if count_new:
+        if new:
             d.append('</span>')
         return ''.join(d+['\n', '<small>', description_markup, '</small>'])
 
@@ -539,11 +544,13 @@ class PodcastListModel(gtk.ListStore):
         if channel is None:
             return
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
+        description = self._format_description(channel, total, deleted, new, \
+                downloaded, unplayed)
 
         pill_image = self._get_pill_image(channel, downloaded, unplayed)
         self.set(iter, \
                 self.C_TITLE, channel.title, \
-                self.C_DESCRIPTION, self._format_description(channel, new), \
+                self.C_DESCRIPTION, description, \
                 self.C_ERROR, self._format_error(channel), \
                 self.C_PILL, pill_image, \
                 self.C_PILL_VISIBLE, pill_image != None, \

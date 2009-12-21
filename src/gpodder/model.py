@@ -790,13 +790,6 @@ class PodcastEpisode(PodcastModelObject):
             self.save()
             self.db.commit()
 
-    def format_episode_row_markup(self, include_description=False):
-        if include_description:
-            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(self.title),
-                    xml.sax.saxutils.escape(self.one_line_description()))
-        else:
-            return xml.sax.saxutils.escape(self.title)
-
     @property
     def title_markup(self):
         return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(self.title),

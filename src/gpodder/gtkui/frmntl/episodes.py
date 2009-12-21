@@ -108,11 +108,17 @@ class gPodderEpisodes(BuilderWidget):
         episode = model.get_value(model.get_iter(path), \
                 EpisodeListModel.C_EPISODE)
 
-        # If the episode has just been downloaded and has
-        # not been played at all, play back directly
         if episode.was_downloaded(and_exists=True) and \
                 not episode.is_played:
+            # If the episode has just been downloaded and has
+            # not been played at all, play back directly
             self.playback_episodes([episode])
+        elif not episode.was_downloaded() and not episode.is_played and \
+                not self.episode_is_downloading(episode):
+            # If the episode has never been downloaded or played,
+            # it's considered new, and a touch will trigger a download
+            self.show_message(_('Downloading episode'))
+            self.download_episode_list([episode])
         else:
             self.show_episode_shownotes(episode)
 

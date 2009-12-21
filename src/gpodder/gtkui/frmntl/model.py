@@ -25,8 +25,12 @@
 import gpodder
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
+
+import cgi
 
 from gpodder.gtkui import download
+from gpodder.gtkui import model
 from gpodder.gtkui.frmntl import style
 
 class DownloadStatusModel(download.DownloadStatusModel):
@@ -44,4 +48,79 @@ class DownloadStatusModel(download.DownloadStatusModel):
 
     def _format_message(self, episode, message, podcast):
         return self._markup_template % (episode, message, podcast)
+
+
+class EpisodeListModel(model.EpisodeListModel):
+    def __init__(self):
+        model.EpisodeListModel.__init__(self)
+
+        normal_font = style.get_font_desc('SystemFont')
+        normal_color = style.get_color('DefaultTextColor')
+        normal = (normal_font.to_string(), normal_color.to_string())
+        self._normal_markup = '<span font_desc="%s" foreground="%s">%%s</span>' % normal
+
+        active_font = style.get_font_desc('SystemFont')
+        active_color = style.get_color('ActiveTextColor')
+        active = (active_font.to_string(), active_color.to_string())
+        self._active_markup = '<span font_desc="%s" foreground="%s">%%s</span>' % active
+
+        sub_font = style.get_font_desc('SmallSystemFont')
+        sub_color = style.get_color('SecondaryTextColor')
+        sub = (sub_font.to_string(), sub_color.to_string())
+        sub = '\n<span font_desc="%s" foreground="%s">%%s</span>' % sub
+
+        self._unplayed_markup = self._normal_markup + sub
+        self._active_markup += sub
+
+    def _format_description(self, episode, include_description=False, is_downloading=None):
+        if is_downloading is not None and is_downloading(episode):
+            sub = _('downloading')
+            return self._unplayed_markup % (cgi.escape(episode.title), sub)
+        elif episode.is_played:
+            return self._normal_markup % (cgi.escape(episode.title),)
+        else:
+            if episode.was_downloaded(and_exists=True):
+                sub = _('downloaded (click to play)')
+            else:
+                sub = _('new episode (click to download)')
+
+            return self._active_markup % (cgi.escape(episode.title), sub)
+
+
+class PodcastListModel(model.PodcastListModel):
+    def __init__(self, *args):
+        model.PodcastListModel.__init__(self, *args)
+
+        normal_font = style.get_font_desc('SystemFont')
+        normal_color = style.get_color('DefaultTextColor')
+        normal = (normal_font.to_string(), normal_color.to_string())
+        self._normal_markup = '<span font_desc="%s" foreground="%s">%%s</span>' % normal
+
+        active_font = style.get_font_desc('SystemFont')
+        active_color = style.get_color('ActiveTextColor')
+        active = (active_font.to_string(), active_color.to_string())
+        self._active_markup = '<span font_desc="%s" foreground="%s">%%s</span>' % active
+
+        sub_font = style.get_font_desc('SmallSystemFont')
+        sub_color = style.get_color('SecondaryTextColor')
+        sub = (sub_font.to_string(), sub_color.to_string())
+        sub = '\n<span font_desc="%s" foreground="%s">%%s</span>' % sub
+
+        self._unplayed_markup = self._normal_markup + sub
+        self._active_markup += sub
+
+    def _format_description(self, channel, total, deleted, \
+            new, downloaded, unplayed):
+        title_markup = cgi.escape(channel.title)
+        if not unplayed and not new:
+            return self._normal_markup % title_markup
+
+        new_text = N_('%d new episode', '%d new episodes', new) % new
+        unplayed_text = N_('%d unplayed download', '%d unplayed downloads', unplayed) % unplayed
+        if new and unplayed:
+            return self._active_markup % (title_markup, ', '.join((new_text, unplayed_text)))
+        elif new:
+            return self._active_markup % (title_markup, new_text)
+        elif unplayed:
+            return self._unplayed_markup % (title_markup, unplayed_text)
 

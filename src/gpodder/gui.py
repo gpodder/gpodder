@@ -118,6 +118,8 @@ elif gpodder.ui.diablo:
     have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.model import DownloadStatusModel
+    from gpodder.gtkui.frmntl.model import EpisodeListModel
+    from gpodder.gtkui.frmntl.model import PodcastListModel
 
     from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.frmntl.preferences import gPodderPreferences
@@ -324,7 +326,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_itemUpdateChannel_activate=self.on_itemUpdateChannel_activate, \
                     playback_episodes=self.playback_episodes, \
                     delete_episode_list=self.delete_episode_list, \
-                    episode_list_status_changed=self.episode_list_status_changed)
+                    episode_list_status_changed=self.episode_list_status_changed, \
+                    download_episode_list=self.download_episode_list, \
+                    episode_is_downloading=self.episode_is_downloading)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes
