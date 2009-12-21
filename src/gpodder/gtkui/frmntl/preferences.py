@@ -22,6 +22,7 @@ import gtk
 import gpodder
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder import util
 
@@ -33,9 +34,9 @@ import hildon
 class gPodderPreferences(BuilderWidget):
     UPDATE_INTERVALS = (
             (0, _('manually')),
-            (20, _('every %d minutes') % 20),
+            (20, N_('every %d minute', 'every %d minutes', 20) % 20),
             (60, _('hourly')),
-            (60*6, _('every %d hours') % 6),
+            (60*6, N_('every %d hour', 'every %d hours', 6) % 6),
             (60*24, _('daily')),
     )
 

@@ -72,6 +72,7 @@ textdomain = 'gpodder'
 locale_dir = gettext.bindtextdomain(textdomain)
 t = gettext.translation(textdomain, locale_dir, fallback=True)
 gettext = t.ugettext
+ngettext = t.ungettext
 del t
 
 # Set up textdomain for gtk.Builder (this accesses the C library functions)

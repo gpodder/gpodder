@@ -71,6 +71,7 @@ from gpodder import my
 from gpodder.liblogger import log
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder.model import PodcastChannel
 from gpodder.dbsqlite import Database
@@ -932,13 +933,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if downloading + failed + finished + queued > 0:
                     s = []
                     if downloading > 0:
-                        s.append(_('%d active') % downloading)
+                        s.append(N_('%d active', '%d active', downloading) % downloading)
                     if failed > 0:
-                        s.append(_('%d failed') % failed)
+                        s.append(N_('%d failed', '%d failed', failed) % failed)
                     if finished > 0:
-                        s.append(_('%d done') % finished)
+                        s.append(N_('%d done', '%d done', finished) % finished)
                     if queued > 0:
-                        s.append(_('%d queued') % queued)
+                        s.append(N_('%d queued', '%d queued', queued) % queued)
                     text.append(' (' + ', '.join(s)+')')
                 self.labelDownloads.set_text(''.join(text))
             elif gpodder.ui.diablo:
@@ -949,11 +950,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.tool_downloads.set_label(_('Downloads'))
             elif gpodder.ui.fremantle:
                 if downloading + queued > 0:
-                    self.button_downloads.set_value(_('%d active') % (downloading+queued))
+                    self.button_downloads.set_value(N_('%d active', '%d active', downloading+queued) % (downloading+queued))
                 elif failed > 0:
-                    self.button_downloads.set_value(_('%d failed') % failed)
+                    self.button_downloads.set_value(N_('%d failed', '%d failed', failed) % failed)
                 elif paused > 0:
-                    self.button_downloads.set_value(_('%d paused') % paused)
+                    self.button_downloads.set_value(N_('%d paused', '%d paused', paused) % paused)
                 else:
                     self.button_downloads.set_value(_('Idle'))
 
@@ -970,10 +971,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             count = downloading + queued
             if count > 0:
-                if count == 1:
-                    title.append( _('downloading one file'))
-                elif count > 1:
-                    title.append( _('downloading %d files') % count)
+                title.append(N_('downloading %d file', 'downloading %d files', count) % count)
 
                 if total_size > 0:
                     percentage = 100.0*done_size/total_size
@@ -1730,7 +1728,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if len(episodes) == 1:
                 text = _('Opening %s') % episodes[0].title
             else:
-                text = _('Opening %d episodes') % len(episodes)
+                count = len(episodes)
+                text = N_('Opening %d episode', 'Opening %d episodes', count) % count
 
             banner = hildon.hildon_banner_show_animation(self.gPodder, '', text)
 
@@ -2127,10 +2126,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if episodes:
                 if self.config.auto_download == 'always':
-                    if len(episodes) == 1:
-                        title = _('Downloading one new episode.')
-                    else:
-                        title = _('Downloading %d new episodes.') % len(episodes)
+                    count = len(episodes)
+                    title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
                     self.show_message(title)
                     self.download_episode_list(episodes)
                 elif self.config.auto_download == 'queue':
@@ -2162,16 +2159,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # btnCancelFeedUpdate is a normal gtk.Button
                 self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
         else:
+            count = len(episodes)
             # New episodes are available
             self.pbFeedUpdate.set_fraction(1.0)
             # Are we minimized and should we auto download?
             if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
-                if len(episodes) == 1:
-                    title = _('Downloading one new episode.')
-                else:
-                    title = _('Downloading %d new episodes.') % len(episodes)
-
+                title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
                 self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             else:
@@ -2180,11 +2174,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not self.config.do_not_show_new_episodes_dialog:
                     self.new_episodes_show(episodes, notification=True)
                 else:
-                    if len(episodes) == 1:
-                        message = _('One new episode is available for download') 
-                    else:
-                        message = _('%i new episodes are available for download' % len(episodes))
-                    
+                    message = N_('%d new episode available', '%d new episodes available', count) % count
                     self.pbFeedUpdate.set_text(message)
 
     def _update_cover(self, channel):
@@ -2283,11 +2273,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.tray_icon:
                 self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
-            
+
             if len(channels) == 1:
                 text = _('Updating "%s"...') % channels[0].title
             else:
-                text = _('Updating %d feeds...') % len(channels)
+                count = len(channels)
+                text = N_('Updating %d feed...', 'Updating %d feeds...', count) % count
             self.pbFeedUpdate.set_text(text)
             self.pbFeedUpdate.set_fraction(0)
 
@@ -2410,7 +2401,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Remove %s?') % saxutils.escape(episode.title)
             message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
         else:
-            title = _('Remove %d episodes?') % count
+            title = N_('Remove %d episode?', 'Remove %d episodes?', count) % count
             message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
 
         locked_count = sum(int(e.is_locked) for e in episodes if e.is_locked is not None)
@@ -2482,9 +2473,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('age_prop', None, None, _('Downloaded')),
             )
 
+        msg_older_than = N_('Select older than %d day', 'Select older than %d days', self.config.episode_old_age)
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
-                _('Select older than %d days') % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete:')
@@ -2980,10 +2972,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
             exporter = opml.Exporter( filename)
             if exporter.write(self.channels):
-                if len(self.channels) == 1:
-                    title = _('One subscription exported')
-                else:
-                    title = _('%d subscriptions exported') % len(self.channels)
+                count = len(self.channels)
+                title = N_('%d subscription exported', '%d subscriptions exported', count) % count
                 self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
             else:
                 self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'), important=True)

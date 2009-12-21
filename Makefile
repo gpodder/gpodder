@@ -134,7 +134,7 @@ data/ui/%.ui.h: $(subst .ui.h,.h,$@)
 	intltool-extract --type=gettext/glade $(subst .ui.h,.ui,$@)
 
 $(MESSAGESPOT): src/gpodder/*.py $(BINFILE) $(UIFILES_H) $(TRANSLATABLE_SOURCE)
-	xgettext -k_ -kN_ -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
+	xgettext -k_:1 -kN_:1,2 -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
 	sed -i'~' -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
 rosetta-upload: $(ROSETTA_ARCHIVE)

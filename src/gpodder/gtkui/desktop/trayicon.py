@@ -29,6 +29,7 @@ import gpodder
 from gpodder.liblogger import log
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder import services
 from gpodder import util
@@ -225,10 +226,7 @@ class GPodderStatusIcon(gtk.StatusIcon):
         more_episodes = len(episode_list) - max_episodes
         if more_episodes > 0:
             result.append('(...')
-            if more_episodes == 1:
-                result.append(_('one more episode'))
-            else:
-                result.append(_('%d more episodes') % more_episodes)
+            result.append(N_('%d more episode', '%d more episodes', more_episodes) % more_episodes)
             result.append('...)')
 
         return (''.join(result)).strip()

@@ -24,6 +24,7 @@ from xml.sax import saxutils
 import gpodder
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder import util
 from gpodder.liblogger import log
@@ -318,10 +319,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             text = []
             if count == 0: 
                 text.append(_('Nothing selected'))
-            elif count == 1:
-                text.append(_('One episode'))
-            else:
-                text.append(_('%d episodes') % count)
+            text.append(N_('%d episode', '%d episodes', count) % count)
             if total_size > 0: 
                 text.append(_('size: %s') % util.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))

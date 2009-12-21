@@ -28,6 +28,7 @@ import gobject
 import gpodder
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder import util
 from gpodder import opml
@@ -255,16 +256,14 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def set_subscribe_button_sensitive(self):
         selection = self.treeview.get_selection()
-        title = self.main_window.get_title()
+        title = [self.main_window.get_title()]
         if selection:
             count = selection.count_selected_rows()
-            if count == 1:
-                title += ' - %s' % (_('1 podcast selected'),)
-            elif count > 1:
-                title += ' - %s' % (_('%d podcasts selected') % count,)
+            text = N_('%d podcast selected', '%d podcasts selected', count)
+            title.append(text % count)
         else:
             count = 0
-        self.edit_toolbar.set_label(title)
+        self.edit_toolbar.set_label(' - '.join(title))
         self.edit_toolbar.set_button_sensitive(count > 0)
 
     def on_subscribe_button_clicked(self, widget, *args):

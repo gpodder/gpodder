@@ -61,6 +61,7 @@ import StringIO
 import xml.dom.minidom
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 
 # Try to detect OS encoding (by Leonid Ponomarev)
@@ -334,16 +335,14 @@ def file_age_to_string(days):
     >>> file_age_to_string(0)
     ''
     >>> file_age_to_string(1)
-    u'one day ago'
+    u'1 day ago'
     >>> file_age_to_string(2)
     u'2 days ago'
     """
-    if days == 1:
-        return _('one day ago')
-    elif days > 1:
-        return _('%d days ago') % days
-    else:
+    if days < 1:
         return ''
+    else:
+        return N_('%d day ago', '%d days ago', days) % days
 
 
 def get_free_disk_space_win32(path):
@@ -1008,7 +1007,7 @@ def format_seconds_to_hour_min_sec(seconds):
     """
 
     if seconds < 1:
-        return _('0 seconds')
+        return N_('%d second', '%d seconds', seconds) % seconds
 
     result = []
 
@@ -1018,20 +1017,14 @@ def format_seconds_to_hour_min_sec(seconds):
     minutes = seconds/60
     seconds = seconds%60
 
-    if hours == 1:
-        result.append(_('1 hour'))
-    elif hours > 1:
-        result.append(_('%i hours') % hours)
+    if hours:
+        result.append(N_('%d hour', '%d hours', hours) % hours)
 
-    if minutes == 1:
-        result.append(_('1 minute'))
-    elif minutes > 1:
-        result.append(_('%i minutes') % minutes)
+    if minutes:
+        result.append(N_('%d minute', '%d minutes', minutes) % minutes)
 
-    if seconds == 1:
-        result.append(_('1 second'))
-    elif seconds > 1:
-        result.append(_('%i seconds') % seconds)
+    if seconds:
+        result.append(N_('%d second', '%d seconds', seconds) % seconds)
 
     if len(result) > 1:
         return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))
