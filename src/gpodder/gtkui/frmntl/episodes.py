@@ -40,6 +40,7 @@ class gPodderEpisodes(BuilderWidget):
         # "Emulate" hildon_gtk_menu_new
         self.context_menu.set_name('hildon-context-sensitive-menu')
         self.context_menu.append(self.action_shownotes.create_menu_item())
+        self.context_menu.append(self.action_download.create_menu_item())
         self.context_menu.append(self.action_delete.create_menu_item())
         self.context_menu.append(self.action_keep.create_menu_item())
         self.context_menu.append(self.action_mark_as_old.create_menu_item())
@@ -135,14 +136,26 @@ class gPodderEpisodes(BuilderWidget):
             model = self.treeview.get_model()
             episode = model.get_value(model.get_iter(path), \
                     EpisodeListModel.C_EPISODE)
+
+            if episode.was_downloaded():
+                self.action_delete.set_property('visible', not episode.is_locked)
+                self.action_keep.set_property('visible', True)
+                self.action_download.set_property('visible', not episode.was_downloaded(and_exists=True))
+            else:
+                self.action_delete.set_property('visible', False)
+                self.action_keep.set_property('visible', False)
+                self.action_download.set_property('visible', True)
+
             if episode.is_locked:
                 self.action_keep.set_property('label', _('Do not keep'))
             else:
                 self.action_keep.set_property('label', _('Keep'))
+
             if episode.is_played:
                 self.action_mark_as_old.set_property('label', _('Mark as new'))
             else:
                 self.action_mark_as_old.set_property('label', _('Mark as old'))
+
             self.touched_episode = episode
         else:
             self.touched_episode = None
@@ -150,6 +163,11 @@ class gPodderEpisodes(BuilderWidget):
     def on_shownotes_button_clicked(self, widget):
         if self.touched_episode is not None:
             self.show_episode_shownotes(self.touched_episode)
+
+    def on_download_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.show_message(_('Downloading episode'))
+            self.download_episode_list([self.touched_episode])
 
     def on_delete_button_clicked(self, widget):
         if self.touched_episode is not None:

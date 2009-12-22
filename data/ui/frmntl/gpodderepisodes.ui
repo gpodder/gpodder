@@ -79,6 +79,10 @@
     <property name="label" translatable="yes">Shownotes</property>
     <signal name="activate" handler="on_shownotes_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_download">
+    <property name="label" translatable="yes">Download</property>
+    <signal name="activate" handler="on_download_button_clicked"/>
+  </object>
   <object class="GtkAction" id="action_delete">
     <property name="label" translatable="yes">Delete</property>
     <signal name="activate" handler="on_delete_button_clicked"/>
