@@ -633,6 +633,9 @@ class PodcastEpisode(PodcastModelObject):
 
         return self
 
+    def has_website_link(self):
+        return bool(self.link) and (self.link != self.url)
+
     @staticmethod
     def from_feedparser_entry( entry, channel):
         episode = PodcastEpisode( channel)

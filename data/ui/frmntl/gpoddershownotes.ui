@@ -1,36 +1,13 @@
 <?xml version="1.0"?>
 <interface>
   <object class="HildonStackableWindow" id="gPodderShownotes">
+    <property name="title" translatable="yes">Shownotes</property>
     <child>
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
         <property name="border_width">6</property>
         <property name="orientation">vertical</property>
         <property name="spacing">0</property>
-        <child>
-          <object class="GtkHBox" id="hbox_actions">
-            <property name="visible">True</property>
-            <child>
-              <object class="HildonButton" id="button_play">
-                <property name="title" translatable="yes">Play</property>
-                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                <property name="visible">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="HildonButton" id="button_delete">
-                <property name="title" translatable="yes">Delete</property>
-                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                <property name="visible">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-          </packing>
-        </child>
         <child>
           <object class="HildonPannableArea" id="scrolled_window">
             <property name="visible">True</property>
@@ -48,8 +25,15 @@
           </object>
         </child>
         <child>
-          <object class="GtkProgressBar" id="download_progress">
-            <property name="visible">False</property>
+          <object class="GtkHBox" id="hbox_actions">
+            <property name="visible">True</property>
+            <child>
+              <object class="HildonButton" id="button_visit_website">
+                <property name="visible">True</property>
+                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -58,47 +42,8 @@
       </object>
     </child>
   </object>
-  <object class="GtkAction" id="action_play">
-    <property name="stock_id">gtk-media-play</property>
-    <signal name="activate" handler="on_play_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_download">
-    <property name="label" translatable="yes">Download</property>
-    <property name="stock_id">gtk-go-down</property>
-    <signal name="activate" handler="on_download_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_pause">
-    <property name="label" translatable="yes">Pause download</property>
-    <property name="stock_id">gtk-media-pause</property>
-    <signal name="activate" handler="on_pause_download_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_resume">
-    <property name="label" translatable="yes">Resume download</property>
-    <signal name="activate" handler="on_resume_download_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_cancel">
-    <property name="label" translatable="yes">Cancel download</property>
-    <property name="stock_id">gtk-cancel</property>
-    <signal name="activate" handler="on_cancel_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_delete">
-    <property name="stock_id">gtk-delete</property>
-    <signal name="activate" handler="on_delete_button_clicked"/>
-  </object>
   <object class="GtkAction" id="action_visit_website">
     <property name="label" translatable="yes">Visit website</property>
     <signal name="activate" handler="on_visit_website_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_close">
-    <property name="stock_id">gtk-close</property>
-    <signal name="activate" handler="on_close_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_mark_as_new">
-    <property name="label" translatable="yes">Mark as new</property>
-    <signal name="activate" handler="on_mark_as_new_button_clicked"/>
-  </object>
-  <object class="GtkAction" id="action_mark_as_old">
-    <property name="label" translatable="yes">Remove new mark</property>
-    <signal name="activate" handler="on_do_not_download_button_clicked"/>
   </object>
 </interface>

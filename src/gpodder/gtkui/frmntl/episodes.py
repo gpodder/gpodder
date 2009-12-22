@@ -144,7 +144,7 @@ class gPodderEpisodes(BuilderWidget):
             else:
                 self.action_delete.set_property('visible', False)
                 self.action_keep.set_property('visible', False)
-                self.action_download.set_property('visible', True)
+                self.action_download.set_property('visible', not self.episode_is_downloading(episode))
 
             if episode.is_locked:
                 self.action_keep.set_property('label', _('Do not keep'))

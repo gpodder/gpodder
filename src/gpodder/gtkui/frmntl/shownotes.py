@@ -41,29 +41,10 @@ class gPodderShownotes(gPodderShownotesBase):
                 weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
         self.textview.set_buffer(self.text_buffer)
-        # Create the menu and set it for this window (Maybe move
-        # this to the .ui file if GtkBuilder allows this)
-
-        import hildon
-        appmenu = hildon.AppMenu()
-        for action in (self.action_download, \
-                       self.action_pause, \
-                       self.action_resume, \
-                       self.action_cancel, \
-                       self.action_mark_as_new, \
-                       self.action_mark_as_old, \
-                       self.action_visit_website):
-            button = gtk.Button()
-            action.connect_proxy(button)
-            appmenu.append(button)
-        appmenu.show_all()
-        self.main_window.set_app_menu(appmenu)
 
         # Work around Maemo bug #4718
-        self.button_play.set_name('HildonButton-finger')
-        self.button_delete.set_name('HildonButton-finger')
-        self.action_play.connect_proxy(self.button_play)
-        self.action_delete.connect_proxy(self.button_delete)
+        self.button_visit_website.set_name('HildonButton-finger')
+        self.action_visit_website.connect_proxy(self.button_visit_website)
 
     def _on_key_press_event(self, widget, event):
         # Override to provide support for all hardware keys
@@ -98,9 +79,8 @@ class gPodderShownotes(gPodderShownotesBase):
         vsb.set_value(vsb.get_value() - step)
 
     def on_show_window(self):
-        self.download_progress.set_fraction(0)
-        self.download_progress.set_text('')
-        self.main_window.set_title(self.episode.title)
+        self.action_visit_website.set_property('visible', \
+                self.episode.has_website_link())
 
     def on_display_text(self):
         heading = self.episode.title
@@ -120,38 +100,4 @@ class gPodderShownotes(gPodderShownotesBase):
     def on_hide_window(self):
         self.episode = None
         self.text_buffer.set_text('')
-
-    def on_episode_status_changed(self):
-        downloaded = self.episode.was_downloaded(and_exists=True)
-        downloading = self.task is not None and self.task.status in \
-                (self.task.QUEUED, self.task.DOWNLOADING, self.task.PAUSED)
-        can_set_new_mark = not downloaded and not downloading
-
-        self.download_progress.set_property('visible', \
-                self.task is not None and \
-                self.task.status != self.task.CANCELLED)
-        self.action_play.set_visible(downloaded or self._streaming_possible)
-        self.action_delete.set_visible(downloaded)
-        self.action_download.set_visible(\
-                (self.task is None and not downloaded) or \
-                (self.task is not None and \
-                 self.task.status in (self.task.CANCELLED, self.task.FAILED)))
-        self.action_pause.set_visible(self.task is not None and \
-                self.task.status in (self.task.QUEUED, self.task.DOWNLOADING))
-        self.action_resume.set_visible(self.task is not None and \
-                self.task.status == self.task.PAUSED)
-        self.action_cancel.set_visible(downloading)
-        self.action_mark_as_new.set_visible(can_set_new_mark and not self.episode_is_new())
-        self.action_mark_as_old.set_visible(can_set_new_mark and self.episode_is_new())
-        self.action_visit_website.set_visible(self.episode is not None and \
-                self.episode.link is not None and \
-                self.episode.link != self.episode.url)
-
-    def on_download_status_progress(self):
-        if self.task:
-            self.download_progress.set_fraction(self.task.progress)
-            self.download_progress.set_text('%s: %d%% (%s/s)' % ( \
-                    self.task.STATUS_MESSAGE[self.task.status], \
-                    100.*self.task.progress, \
-                    util.format_filesize(self.task.speed)))
 
