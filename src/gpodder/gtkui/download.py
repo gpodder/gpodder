@@ -132,3 +132,24 @@ class DownloadStatusModel(gtk.ListStore):
 
         return False
 
+
+class DownloadTaskMonitor(object):
+    """A helper class that abstracts download events"""
+    def __init__(self, episode, on_can_resume, on_can_pause, on_finished):
+        self.episode = episode
+        self._status = None
+        self._on_can_resume = on_can_resume
+        self._on_can_pause = on_can_pause
+        self._on_finished = on_finished
+
+    def task_updated(self, task):
+        if self.episode.url == task.episode.url and self._status != task.status:
+            if task.status in (task.DONE, task.FAILED, task.CANCELLED):
+                self._on_finished()
+            elif task.status == task.PAUSED:
+                self._on_can_resume()
+            elif task.status in (task.QUEUED, task.DOWNLOADING):
+                self._on_can_pause()
+            self._status = task.status
+
+

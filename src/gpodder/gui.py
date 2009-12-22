@@ -328,7 +328,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     delete_episode_list=self.delete_episode_list, \
                     episode_list_status_changed=self.episode_list_status_changed, \
                     download_episode_list=self.download_episode_list, \
-                    episode_is_downloading=self.episode_is_downloading)
+                    episode_is_downloading=self.episode_is_downloading, \
+                    show_episode_in_download_manager=self.show_episode_in_download_manager, \
+                    add_download_task_monitor=self.add_download_task_monitor, \
+                    remove_download_task_monitor=self.remove_download_task_monitor, \
+                    for_each_episode_set_task_status=self.for_each_episode_set_task_status)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes
@@ -366,6 +370,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.last_download_count = 0
+        self.download_task_monitors = set()
 
         # Subscribed channels
         self.active_channel = None
@@ -475,6 +480,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
+
+    def show_episode_in_download_manager(self, episode):
+        self.downloads_window.show()
+        model = self.treeDownloads.get_model()
+        selection = self.treeDownloads.get_selection()
+        selection.unselect_all()
+        it = model.get_iter_first()
+        while it is not None:
+            task = model.get_value(it, DownloadStatusModel.C_TASK)
+            if task.episode.url == episode.url:
+                selection.select_iter(it)
+                # FIXME: Scroll to selection in pannable area
+                break
+            it = model.iter_next(it)
+
+    def for_each_episode_set_task_status(self, episodes, status):
+        episode_urls = set(episode.url for episode in episodes)
+        model = self.treeDownloads.get_model()
+        selected_tasks = [(gtk.TreeRowReference(model, row.path), \
+                           model.get_value(row.iter, \
+                           DownloadStatusModel.C_TASK)) for row in model \
+                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url \
+                           in episode_urls]
+        self._for_each_task_set_status(selected_tasks, status)
 
     def on_window_orientation_changed(self, orientation):
         treeview = self.treeChannels
@@ -875,6 +904,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.wNotebook.set_current_page(0)
 
+    def add_download_task_monitor(self, monitor):
+        self.download_task_monitors.add(monitor)
+        model = self.download_status_model
+        if model is None:
+            model = ()
+        for row in model:
+            task = row[self.download_status_model.C_TASK]
+            monitor.task_updated(task)
+
+    def remove_download_task_monitor(self, monitor):
+        self.download_task_monitors.remove(monitor)
+
     def update_downloads_list(self, from_cleanup=False):
         try:
             model = self.download_status_model
@@ -904,6 +945,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 task = row[self.download_status_model.C_TASK]
                 speed, size, status, progress = task.speed, task.total_size, task.status, task.progress
+
+                # Let the download task monitors know of changes
+                for monitor in self.download_task_monitors:
+                    monitor.task_updated(task)
 
                 total_size += size
                 done_size += size*progress

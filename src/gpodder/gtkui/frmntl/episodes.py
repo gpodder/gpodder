@@ -30,9 +30,22 @@ from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.model import EpisodeListModel
 
+from gpodder.gtkui.frmntl.episodeactions import gPodderEpisodeActions
+
 class gPodderEpisodes(BuilderWidget):
     def new(self):
         self.channel = None
+
+        self.episode_actions = gPodderEpisodeActions(self.main_window, \
+                episode_list_status_changed=self.episode_list_status_changed, \
+                episode_is_downloading=self.episode_is_downloading, \
+                show_episode_shownotes=self.show_episode_shownotes, \
+                playback_episodes=self.playback_episodes, \
+                download_episode_list=self.download_episode_list, \
+                show_episode_in_download_manager=self.show_episode_in_download_manager, \
+                add_download_task_monitor=self.add_download_task_monitor, \
+                remove_download_task_monitor=self.remove_download_task_monitor, \
+                for_each_episode_set_task_status=self.for_each_episode_set_task_status)
 
         # Tap-and-hold (aka "long press") context menu
         self.touched_episode = None
@@ -108,20 +121,7 @@ class gPodderEpisodes(BuilderWidget):
         model = treeview.get_model()
         episode = model.get_value(model.get_iter(path), \
                 EpisodeListModel.C_EPISODE)
-
-        if episode.was_downloaded(and_exists=True) and \
-                not episode.is_played:
-            # If the episode has just been downloaded and has
-            # not been played at all, play back directly
-            self.playback_episodes([episode])
-        elif not episode.was_downloaded() and not episode.is_played and \
-                not self.episode_is_downloading(episode):
-            # If the episode has never been downloaded or played,
-            # it's considered new, and a touch will trigger a download
-            self.show_message(_('Downloading episode'))
-            self.download_episode_list([episode])
-        else:
-            self.show_episode_shownotes(episode)
+        self.episode_actions.show_episode(episode)
 
     def on_delete_event(self, widget, event):
         self.main_window.hide()
