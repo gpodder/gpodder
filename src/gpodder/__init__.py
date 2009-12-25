@@ -73,6 +73,11 @@ locale_dir = gettext.bindtextdomain(textdomain)
 t = gettext.translation(textdomain, locale_dir, fallback=True)
 gettext = t.ugettext
 ngettext = t.ungettext
+if win32:
+    # Workaround for bug 650
+    from gtk.glade import bindtextdomain
+    bindtextdomain(textdomain, locale_dir)
+    del bindtextdomain
 del t
 
 # Set up textdomain for gtk.Builder (this accesses the C library functions)
