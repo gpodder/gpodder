@@ -31,24 +31,20 @@
 #include <shellapi.h>
 #include <string.h>
 
-#define MAXPATH 8192
-#define PROGNAME "gPodder"
-#define MAIN_MODULE "gpodder.launcher"
+#include "gpodder.h"
+#include "migrate.h"
 
-#define BAILOUT(s) { \
-    MessageBox(NULL, s, "Error launching " PROGNAME, MB_OK); \
-    exit(1); \
-}
+#define MAIN_MODULE "gpodder.launcher"
 
 int main(int argc, char** argv)
 {
-    char path_env[MAXPATH];
-    char current_dir[MAXPATH];
+    char path_env[MAX_PATH];
+    char current_dir[MAX_PATH];
     char *endmarker = NULL;
     int i;
 
     /* Start with the dirname of the executable */
-    strncpy(current_dir, argv[0], MAXPATH);
+    strncpy(current_dir, argv[0], MAX_PATH);
     endmarker = strrchr(current_dir, '\\');
     if (endmarker == NULL) {
         endmarker = strrchr(current_dir, '/');
@@ -59,15 +55,17 @@ int main(int argc, char** argv)
         if (SetCurrentDirectory(current_dir) == 0) {
             BAILOUT("Cannot set current directory.");
         }
+        /* If possible, ask the user if (s)he wants to get portable */
+        migrate_to_portable(current_dir);
     }
-    
-    if (GetEnvironmentVariable("PATH", path_env, MAXPATH) == 0) {
+
+    if (GetEnvironmentVariable("PATH", path_env, MAX_PATH) == 0) {
         BAILOUT("Cannot get PATH environment variable.");
     }
 
     /* Add the "bin/" subfolder to the PATH variable */
-    strncpy(current_dir, ".\\bin;", MAXPATH);
-    strncat(current_dir, path_env, MAXPATH);
+    strncpy(current_dir, ".\\bin;", MAX_PATH);
+    strncat(current_dir, path_env, MAX_PATH);
 
     if (SetEnvironmentVariable("PATH", current_dir) == 0) {
         BAILOUT("Cannot set PATH environment variable.");

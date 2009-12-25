@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     locale_dir = os.path.join(data_dir, 'locale')
     ui_folder = os.path.join(data_dir, 'ui')
+    credits_file = os.path.join(data_dir, 'credits.txt')
     icon_file = os.path.join(data_dir, 'gpodder.svg')
 
     # Set up the path to translation files
@@ -59,9 +60,28 @@ if __name__ == '__main__':
     gpodder.ui_folders.append(ui_folder)
     gpodder.ui_folders.append(os.path.join(ui_folder, 'desktop'))
     gpodder.icon_file = icon_file
+    gpodder.credits_file = credits_file
     gpodder.ui.desktop = True
+
+    # Portable version support
+    if (os.path.exists('downloads') and os.path.exists('config')) or \
+       not os.path.exists(os.path.expanduser('~/.config/gpodder')):
+        home = os.path.join(os.getcwd(), 'config')
+        if not os.path.exists(home):
+            os.mkdir(home)
+        gpodder.home = home
+        gpodder.subscription_file = os.path.join(home, 'channels.opml')
+        gpodder.config_file = os.path.join(home, 'gpodder.conf')
+        gpodder.database_file = os.path.join(home, 'database.sqlite')
+        from gpodder import config
+        cfg = config.Config(gpodder.config_file)
+        cfg.download_dir = os.path.join(os.getcwd(), 'downloads')
+        cfg.save()
 
     from gpodder import gui
 
-    gui.main()
+    class options(object):
+        subscribe = None
+
+    gui.main(options)
 

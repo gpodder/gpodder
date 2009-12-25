@@ -23,11 +23,11 @@
 #
 
 CC=gcc
-LDFLAGS=-mwindows
+LDFLAGS=-mwindows -lkernel32 -lshell32
 
 all: gpodder
 
-gpodder: gpodder-res.o gpodder.o
+gpodder: gpodder-res.o gpodder.o migrate.o
 
 gpodder-res.o: gpodder.res
 	windres gpodder.res gpodder-res.o
