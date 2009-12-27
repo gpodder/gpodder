@@ -110,7 +110,12 @@ icon_file = None
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
 
 # Default locations for configuration and data files
-home = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
+default_home = os.path.expanduser(os.path.join('~', '.config', 'gpodder'))
+home = os.environ.get('GPODDER_HOME', None)
+if home is None:
+    home = default_home
+else:
+    print >>sys.stderr, 'Using', home, 'to store data (GPODDER_HOME is set)'
 subscription_file = os.path.join(home, 'channels.opml')
 config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')

@@ -276,6 +276,11 @@ class Config(dict):
         self.load()
         self.apply_fixes()
 
+        download_dir = os.environ.get('GPODDER_DOWNLOAD_DIR', None)
+        if download_dir is not None:
+            log('Setting download_dir from environment: %s', download_dir, sender=self)
+            self.download_dir = download_dir
+
         atexit.register( self.__atexit)
 
     def apply_fixes(self):

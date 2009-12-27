@@ -97,6 +97,23 @@
  If you have any problems, please visit the gPodder website or mail the 
  gPodder mailing list (see below for more information).
 
+ ================================
+ Portable mode / roaming profiles
+ ================================
+
+ You can set the environment variables GPODDER_HOME and GPODDER_DOWNLOAD_DIR
+ to point to locations for storing the database and downloaded files:
+
+    GPODDER_HOME ........... location for configuration and database
+    GPODDER_DOWNLOAD_DIR ... location for downloaded episodes
+
+ You can use this to have different configurations for gPodder or to put
+ gPodder's data directly on your MP3 player or USB disk, for example:
+
+    export GPODDER_HOME=/media/usbdisk/gpodder-data/
+    export GPODDER_DOWLOAD_DIR=/media/usbdisk/podcasts/
+    gpodder
+
  =========================================
  Feature requests, bug reports and patches
  =========================================

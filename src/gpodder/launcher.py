@@ -73,10 +73,8 @@ if __name__ == '__main__':
         gpodder.subscription_file = os.path.join(home, 'channels.opml')
         gpodder.config_file = os.path.join(home, 'gpodder.conf')
         gpodder.database_file = os.path.join(home, 'database.sqlite')
-        from gpodder import config
-        cfg = config.Config(gpodder.config_file)
-        cfg.download_dir = os.path.join(os.getcwd(), 'downloads')
-        cfg.save()
+        download_dir = os.path.join(os.getcwd(), 'downloads')
+        os.environ['GPODDER_DOWNLOAD_DIR'] = download_dir
 
     from gpodder import gui
 
