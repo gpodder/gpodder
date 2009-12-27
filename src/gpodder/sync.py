@@ -485,9 +485,8 @@ class iPodDevice(Device):
             log('Error getting cover using eyeD3', sender=self)
 
         try:
-            cover_filename = os.path.join(os.path.dirname(local_filename), 'cover')
-            if not os.path.exists(cover_filename):
-                cover_filename = os.path.join(os.path.dirname(local_filename), '.cover')
+            cover_filename = os.path.join(os.path.dirname(local_filename), 'folder.jpg')
+
             if os.path.isfile(cover_filename):
                 gpod.itdb_track_set_thumbnails(track, cover_filename)
                 return True

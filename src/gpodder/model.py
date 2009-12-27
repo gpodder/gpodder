@@ -594,12 +594,16 @@ class PodcastChannel(PodcastModelObject):
     
     @property
     def cover_file(self):
-        old_cover = os.path.join(self.save_dir, 'cover')
-        cover = os.path.join(self.save_dir, '.cover')
-        if os.path.exists(old_cover):
-            return old_cover
-        else:
-            return cover
+        new_name = os.path.join(self.save_dir, 'folder.jpg')
+        if not os.path.exists(new_name):
+            old_names = ('cover', '.cover')
+            for old_name in old_names:
+                filename = os.path.join(self.save_dir, old_name)
+                if os.path.exists(filename):
+                    shutil.move(filename, new_name)
+                    return new_name
+
+        return new_name
 
     def delete_episode_by_url(self, url):
         episode = self.db.load_episode(url, factory=self.episode_factory)
