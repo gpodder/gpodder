@@ -1125,10 +1125,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, id)
 
             if role == TreeViewHelper.ROLE_EPISODES:
-                description = model.get_value(iter, EpisodeListModel.C_DESCRIPTION_STRIPPED)
-                if len(description) > 400:
-                    description = description[:398]+'[...]'
-
+                description = model.get_value(iter, EpisodeListModel.C_TOOLTIP)
                 tooltip.set_text(description)
             elif role == TreeViewHelper.ROLE_PODCASTS:
                 channel = model.get_value(iter, PodcastListModel.C_CHANNEL)

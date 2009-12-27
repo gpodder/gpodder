@@ -36,11 +36,11 @@ import xml.sax.saxutils
 
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
-            C_PUBLISHED_TEXT, C_DESCRIPTION, C_DESCRIPTION_STRIPPED, \
+            C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED = range(11)
 
-    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION_STRIPPED)
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
@@ -148,7 +148,7 @@ class EpisodeListModel(gtk.ListStore):
                     self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                     self.C_EPISODE, episode, \
                     self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
-                    self.C_DESCRIPTION_STRIPPED, description_stripped)
+                    self.C_TOOLTIP, description_stripped)
 
             self.update_by_iter(iter, downloading, include_description)
 
@@ -184,24 +184,29 @@ class EpisodeListModel(gtk.ListStore):
         show_padlock = False
         show_missing = False
         status_icon = None
+        tooltip = ''
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
 
         if downloading is not None and downloading(episode):
+            tooltip = _('Downloading')
             status_icon = self.ICON_DOWNLOADING
             view_show_downloaded = True
             view_show_unplayed = True
         else:
             if episode.state == gpodder.STATE_DELETED:
+                tooltip = _('Deleted')
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
             elif episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played:
+                tooltip = _('New episode')
                 status_icon = self.ICON_NEW
                 view_show_downloaded = True
                 view_show_unplayed = True
             elif episode.state == gpodder.STATE_DOWNLOADED:
+                tooltip = []
                 view_show_downloaded = True
                 view_show_unplayed = not episode.is_played
                 show_bullet = not episode.is_played
@@ -210,11 +215,26 @@ class EpisodeListModel(gtk.ListStore):
 
                 file_type = episode.file_type()
                 if file_type == 'audio':
+                    tooltip.append(_('Downloaded episode'))
                     status_icon = self.ICON_AUDIO_FILE
                 elif file_type == 'video':
+                    tooltip.append(_('Downloaded video episode'))
                     status_icon = self.ICON_VIDEO_FILE
                 else:
+                    tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE
+
+                if show_missing:
+                    tooltip.append(_('missing file'))
+                else:
+                    if show_bullet:
+                        tooltip.append(_('never played'))
+                    else:
+                        tooltip.append(_('played'))
+                    if show_padlock:
+                        tooltip.append(_('deletion prevented'))
+
+                tooltip = ', '.join(tooltip)
 
         if status_icon is not None:
             status_icon = self._get_tree_icon(status_icon, show_bullet, \
@@ -226,7 +246,8 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \
                 self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded, \
                 self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
-                self.C_DESCRIPTION, description)
+                self.C_DESCRIPTION, description, \
+                self.C_TOOLTIP, tooltip)
 
     def _get_tree_icon(self, icon_name, add_bullet=False, \
             add_padlock=False, add_missing=False, icon_size=32):
