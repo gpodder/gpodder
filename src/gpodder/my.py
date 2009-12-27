@@ -92,6 +92,9 @@ class MygPodderClient(object):
         self.username = username
         self.password = password
 
+    def open_website(self):
+        webbrowser.open(self.service_uri, new=1)
+
     def download_subscriptions(self):
         theurl = self.service_uri+"/getlist"
         args = {'username': self.username, 'password': self.password}
@@ -112,7 +115,7 @@ class MygPodderClient(object):
         success = False
 
         if '@GOTOMYGPODDER' in result:
-            webbrowser.open(self.service_uri, new=1)
+            self.open_website()
             messages.append(_('Please have a look at the website for more information.'))
 
         if '@SUCCESS' in result:

@@ -2808,7 +2808,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return False
 
         return True
-    
+
+    def on_goto_mygpo(self, widget):
+        client = my.MygPodderClient(self.config.my_gpodder_service, \
+                self.config.my_gpodder_username, \
+                self.config.my_gpodder_password)
+        client.open_website()
+
     def on_download_from_mygpo(self, widget=None):
         if self.require_my_gpodder_authentication():
             client = my.MygPodderClient(self.config.my_gpodder_service, \

@@ -175,6 +175,12 @@
           </object>
         </child>
         <child>
+          <object class="GtkAction" id="item_goto_mygpo">
+            <property name="label" translatable="yes">Go to my.gpodder.org</property>
+            <signal handler="on_goto_mygpo" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="menuChannels">
             <property name="name">menuChannels</property>
             <property name="label" translatable="yes">_Episodes</property>
@@ -430,6 +436,7 @@
           <separator/>
           <menuitem action="itemUploadToMygpo"/>
           <menuitem action="itemDownloadFromMygpo"/>
+          <menuitem action="item_goto_mygpo"/>
         </menu>
         <menu action="menuChannels">
           <menuitem action="itemPlaySelected"/>
