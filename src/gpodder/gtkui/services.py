@@ -149,6 +149,10 @@ class CoverDownloader(ObservableService):
             if new_url is not None:
                 url = new_url
 
+            if url is None and channel.url.startswith("http://"):
+                # try to download the favicon directly at the root
+                url = "http://" + channel.link[7:].split("/")[0] + "/favicon.ico"
+
             if url is not None:
                 image_data = None
                 try:
