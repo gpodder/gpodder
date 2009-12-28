@@ -94,9 +94,6 @@ class gPodderSyncUI(object):
         device = sync.open_device(self._config)
         if device is not None:
             def after_device_sync_callback(device, successful_sync):
-                #if self.tray_icon:
-                #    self.tray_icon.release_synchronisation_device()
-         
                 if successful_sync:
                     title = _('Device synchronized')
                     message = _('Your device has been synchronized.')
@@ -158,9 +155,6 @@ class gPodderSyncUI(object):
             message = _('You need to free up %s.\nDo you want to continue?') \
                             % (util.format_filesize(total_size-free_space),)
             can_sync = self.show_confirmation(message, title)
-
-        #if self.tray_icon:
-        #    self.tray_icon.set_synchronisation_device(device)
 
         if can_sync:
             gPodderSyncProgress(self.parent_window, device=device)

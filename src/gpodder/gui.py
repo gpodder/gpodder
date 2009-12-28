@@ -1036,7 +1036,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.tray_icon is not None:
                     # Update the tray icon status
                     self.tray_icon.set_status()
-                    self.tray_icon.downloads_finished(self.download_tasks_seen)
+                if gpodder.ui.desktop:
+                    self.downloads_finished(self.download_tasks_seen)
                 if gpodder.ui.diablo:
                     hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
@@ -1245,6 +1246,50 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 can_remove = False
 
         return selected_tasks, can_queue, can_cancel, can_pause, can_remove
+
+    def downloads_finished(self, download_tasks_seen):
+        # FIXME: Filter all tasks that have already been reported
+        finished_downloads = [str(task) for task in download_tasks_seen if task.status == task.DONE]
+        failed_downloads = [str(task)+' ('+task.error_message+')' for task in download_tasks_seen if task.status == task.FAILED]
+
+        if finished_downloads and failed_downloads:
+            message = self.format_episode_list(finished_downloads, 5)
+            message += '\n\n<i>%s</i>\n' % _('These downloads failed:')
+            message += self.format_episode_list(failed_downloads, 5)
+            self.show_message(message, _('gPodder downloads finished'), True, widget=self.labelDownloads)
+        elif finished_downloads:
+            message = self.format_episode_list(finished_downloads)
+            self.show_message(message, _('gPodder downloads finished'), widget=self.labelDownloads)
+        elif failed_downloads:
+            message = self.format_episode_list(failed_downloads)
+            self.show_message(message, _('gPodder downloads failed'), True, widget=self.labelDownloads)
+
+    def format_episode_list(self, episode_list, max_episodes=10):
+        """
+        Format a list of episode names for notifications
+
+        Will truncate long episode names and limit the amount of
+        episodes displayed (max_episodes=10).
+
+        The episode_list parameter should be a list of strings.
+        """
+        MAX_TITLE_LENGTH = 100
+
+        result = []
+        for title in episode_list[:min(len(episode_list), max_episodes)]:
+            if len(title) > MAX_TITLE_LENGTH:
+                middle = (MAX_TITLE_LENGTH/2)-2
+                title = '%s...%s' % (title[0:middle], title[-middle:])
+            result.append(saxutils.escape(title))
+            result.append('\n')
+
+        more_episodes = len(episode_list) - max_episodes
+        if more_episodes > 0:
+            result.append('(...')
+            result.append(N_('%d more episode', '%d more episodes', more_episodes) % more_episodes)
+            result.append('...)')
+
+        return (''.join(result)).strip()
 
     def _for_each_task_set_status(self, tasks, status):
         episode_urls = set()

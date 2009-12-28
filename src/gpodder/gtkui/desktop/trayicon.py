@@ -64,8 +64,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         self.__icon_cache = {}
         self.__icon_filename = icon_filename
         self.__current_icon = -1
-        self.__synchronisation_device = None
-        self.__sync_progress = ''
 
         # try getting the icon
         try:
@@ -143,23 +141,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
             else:            
                 self.__gpodder.iconify_main_window()
 
-    def downloads_finished(self, download_tasks_seen):
-        # FIXME: Filter all tasks that have already been reported
-        finished_downloads = [str(task) for task in download_tasks_seen if task.status == task.DONE]
-        failed_downloads = [str(task)+' ('+task.error_message+')' for task in download_tasks_seen if task.status == task.FAILED]
-
-        if finished_downloads and failed_downloads:
-            message = self.format_episode_list(finished_downloads, 5)
-            message += '\n\n<i>%s</i>\n' % _('These downloads failed:')
-            message += self.format_episode_list(failed_downloads, 5)
-            self.send_notification(message, _('gPodder downloads finished'), True)
-        elif finished_downloads:
-            message = self.format_episode_list(finished_downloads)
-            self.send_notification(message, _('gPodder downloads finished'))
-        elif failed_downloads:
-            message = self.format_episode_list(failed_downloads)
-            self.send_notification(message, _('gPodder downloads failed'), True)
-
     def __get_status_icon(self, icon):
         if icon in self.__icon_cache:
             return self.__icon_cache[icon]
@@ -179,9 +160,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         log('Warning: Cannot create status icon: %s', icon, sender=self)
         return self.__icon
 
-    def send_notification(self, message, title=None, is_error=False):
-        self.__gpodder.show_message(message, title, is_error)
-        
     def set_status(self, status=None, tooltip=None):
         if status is None:
             if tooltip is None:
@@ -204,64 +182,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
                 self.__current_icon = icon
         self.set_tooltip(tooltip)
 
-    def format_episode_list(self, episode_list, max_episodes=10):
-        """
-        Format a list of episode names for notifications
-
-        Will truncate long episode names and limit the amount of
-        episodes displayed (max_episodes=10).
-
-        The episode_list parameter should be a list of strings.
-        """
-        MAX_TITLE_LENGTH = 100
-
-        result = []
-        for title in episode_list[:min(len(episode_list), max_episodes)]:
-            if len(title) > MAX_TITLE_LENGTH:
-                middle = (MAX_TITLE_LENGTH/2)-2
-                title = '%s...%s' % (title[0:middle], title[-middle:])
-            result.append(saxutils.escape(title))
-            result.append('\n')
- 
-        more_episodes = len(episode_list) - max_episodes
-        if more_episodes > 0:
-            result.append('(...')
-            result.append(N_('%d more episode', '%d more episodes', more_episodes) % more_episodes)
-            result.append('...)')
-
-        return (''.join(result)).strip()
-    
-    def set_synchronisation_device(self, synchronisation_device):
-        assert not self.__synchronisation_device, "a device was already set without have been released"
-        
-        self.__synchronisation_device = synchronisation_device
-        self.__synchronisation_device.register('progress', self.__on_synchronisation_progress)
-        self.__synchronisation_device.register('status', self.__on_synchronisation_status)
-        self.__synchronisation_device.register('done', self.__on_synchronisation_done)
-        
-    def release_synchronisation_device(self):
-        assert self.__synchronisation_device, "request for releasing a device which was never set"
-        
-        self.__synchronisation_device.unregister('progress', self.__on_synchronisation_progress)
-        self.__synchronisation_device.unregister('status', self.__on_synchronisation_status)
-        self.__synchronisation_device.unregister('done', self.__on_synchronisation_done)        
-        self.__synchronisation_device = None
-        
-    def __on_synchronisation_progress(self, pos, max, text=None):
-        if text is None:
-            text = _('%d of %d done') % (pos, max)
-        self.__sync_progress = text
-
-    def __on_synchronisation_status(self, status):
-        tooltip = _('%s\n%s') % (status, self.__sync_progress)
-        self.set_status(self.STATUS_SYNCHRONIZING, tooltip)
-        log("tooltip: %s", tooltip, sender=self) 
-
-    def __on_synchronisation_done(self):
-        # this might propably never appends so long gPodder synchronizes in a modal windows
-        self.send_notification(_('Your device has been updated by gPodder.'), _('Operation finished'))
-        self.set_status()
-        
     def draw_progress_bar(self, ratio):
         """
         Draw a progress bar on top of this tray icon.

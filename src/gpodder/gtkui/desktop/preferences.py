@@ -53,7 +53,6 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('mp3_player_delete_played', self.delete_episodes_marked_played)
         self._config.connect_gtk_togglebutton('disable_pre_sync_conversion', self.player_supports_ogg)
         
-        self.enable_notifications.set_sensitive(self.display_tray_icon.get_active())
         self.minimize_to_tray.set_sensitive(self.display_tray_icon.get_active())
         self.on_quit_systray.set_sensitive(self.display_tray_icon.get_active())
         
@@ -157,7 +156,6 @@ class gPodderPreferences(BuilderWidget):
         self.auto_update_frequency.set_sensitive(widget.get_active())
         
     def on_display_tray_icon_toggled( self, widget, *args):
-        self.enable_notifications.set_sensitive(widget.get_active())    
         self.minimize_to_tray.set_sensitive(widget.get_active())    
         self.on_quit_systray.set_sensitive(widget.get_active())
         
