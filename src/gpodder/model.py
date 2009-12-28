@@ -201,6 +201,11 @@ class PodcastChannel(PodcastModelObject):
             if hasattr(feed.feed.image, 'href') and feed.feed.image.href:
                 old = self.image
                 self.image = feed.feed.image.href
+            elif hasattr(feed.feed.image, 'url') and feed.feed.image.url:
+                old = self.image
+                self.image = feed.feed.image.url
+            else:
+                pass
 
         self.save()
 
