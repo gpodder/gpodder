@@ -28,9 +28,11 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder.liblogger import log
 
 from gpodder.gtkui import draw
 
+import os
 import gtk
 import xml.sax.saxutils
 
@@ -185,6 +187,7 @@ class EpisodeListModel(gtk.ListStore):
         show_padlock = False
         show_missing = False
         status_icon = None
+        status_icon_to_build_from_file = False
         tooltip = ''
         view_show_undeleted = True
         view_show_downloaded = False
@@ -223,7 +226,15 @@ class EpisodeListModel(gtk.ListStore):
                     status_icon = self.ICON_VIDEO_FILE
                 elif file_type == 'image':
                     tooltip.append(_('Downloaded image'))
-                    status_icon = self.ICON_IMAGE_FILE                    
+                    image_path = episode.local_filename(create=False,check_only=True)
+                    if image_path is not None:
+                        # set the status icon to the path itself (that
+                        # should be a good identifier anyway)
+                        status_icon = image_path
+                        status_icon_to_build_from_file = True
+                    else:
+                        # default is to use the generic image icon
+                        status_icon = self.ICON_IMAGE_FILE
                 else:
                     tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE
@@ -248,7 +259,7 @@ class EpisodeListModel(gtk.ListStore):
 
         if status_icon is not None:
             status_icon = self._get_tree_icon(status_icon, show_bullet, \
-                    show_padlock, show_missing, icon_size)
+                    show_padlock, show_missing, icon_size, status_icon_to_build_from_file)
 
         description = self._format_description(episode, include_description, downloading)
         self.set(iter, \
@@ -259,16 +270,56 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_DESCRIPTION, description, \
                 self.C_TOOLTIP, tooltip)
 
+    def _get_icon_from_image(self,image_path, icon_size):
+        """
+        Load an local image file and transform it into an icon.
+
+        Return a pixbuf scaled to the desired size and may return None
+        if the icon creation is impossible (file not found etc).
+        """
+        if not os.path.exists(image_path):
+            return None
+        # load image from disc (code adapted from CoverDownloader
+        # except that no download is needed here)
+        loader = gtk.gdk.PixbufLoader()
+        pixbuf = None
+        try:
+            loader.write(open(image_path, 'rb').read())
+            loader.close()
+            pixbuf = loader.get_pixbuf()
+        except:
+            log('Data error while loading image %s', image_path, sender=self)
+            return None
+        # Now scale the image with ratio (copied from _resize_pixbuf_keep_ratio)
+        # Resize if too wide
+        if pixbuf.get_width() > icon_size:
+            f = float(icon_size)/pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        # Resize if too high
+        if pixbuf.get_height() > icon_size:
+            f = float(icon_size)/pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        return pixbuf
+        
+        
     def _get_tree_icon(self, icon_name, add_bullet=False, \
-            add_padlock=False, add_missing=False, icon_size=32):
+            add_padlock=False, add_missing=False, icon_size=32, \
+            build_icon_from_file = False):
         """
         Loads an icon from the current icon theme at the specified
         size, suitable for display in a gtk.TreeView. Additional
         emblems can be added on top of the icon.
 
         Caching is used to speed up the icon lookup.
+        
+        The `build_icon_from_file` argument indicates (when True) that
+        the icon has to be created on the fly from a given image
+        file. The `icon_name` argument is then interpreted as the path
+        to this file. Those specific icons will *not be cached*.
         """
-
+        
         # Add all variables that modify the appearance of the icon, so
         # our cache does not return the same icons for different requests
         cache_id = (icon_name, add_bullet, add_padlock, add_missing, icon_size)
@@ -279,7 +330,10 @@ class EpisodeListModel(gtk.ListStore):
         icon_theme = gtk.icon_theme_get_default()
 
         try:
-            icon = icon_theme.load_icon(icon_name, icon_size, 0)
+            if build_icon_from_file:
+                icon = self._get_icon_from_image(icon_name,icon_size)
+            else:
+                icon = icon_theme.load_icon(icon_name, icon_size, 0)
         except:
             icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
 
