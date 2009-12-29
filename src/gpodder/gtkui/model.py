@@ -60,6 +60,7 @@ class EpisodeListModel(gtk.ListStore):
         self._icon_cache = {}
         self.ICON_AUDIO_FILE = ICON('audio-x-generic')
         self.ICON_VIDEO_FILE = ICON('video-x-generic')
+        self.ICON_IMAGE_FILE = ICON('image-x-generic')
         self.ICON_GENERIC_FILE = ICON('text-x-generic')
         self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
         self.ICON_DELETED = gtk.STOCK_DELETE
@@ -220,6 +221,9 @@ class EpisodeListModel(gtk.ListStore):
                 elif file_type == 'video':
                     tooltip.append(_('Downloaded video episode'))
                     status_icon = self.ICON_VIDEO_FILE
+                elif file_type == 'image':
+                    tooltip.append(_('Downloaded image'))
+                    status_icon = self.ICON_IMAGE_FILE                    
                 else:
                     tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE
@@ -228,9 +232,15 @@ class EpisodeListModel(gtk.ListStore):
                     tooltip.append(_('missing file'))
                 else:
                     if show_bullet:
-                        tooltip.append(_('never played'))
+                        if file_type == 'image':
+                            tooltip.append(_('never displayed'))
+                        else:
+                            tooltip.append(_('never played'))
                     else:
-                        tooltip.append(_('played'))
+                        if file_type == 'image':
+                            tooltip.append(_('displayed'))
+                        else:
+                            tooltip.append(_('played'))
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
 
