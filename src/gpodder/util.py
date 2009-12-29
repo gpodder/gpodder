@@ -653,7 +653,7 @@ def file_type_by_extension(extension):
 
     if type is not None and '/' in type:
         filetype, rest = type.split('/', 1)
-        if filetype in ('audio', 'video'):
+        if filetype in ('audio', 'video', 'image'):
             return filetype
     
     return None
