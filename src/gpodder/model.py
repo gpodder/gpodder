@@ -667,7 +667,7 @@ class PodcastEpisode(PodcastModelObject):
             enclosure = entry.enclosures[0]
             if len(entry.enclosures) > 1:
                 for e in entry.enclosures:
-                    if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/')):
+                    if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/') or e.type.startswith('image/')):
                         if util.normalize_feed_url(e.href) is not None:
                             log( 'Selected enclosure: %s', e.href, sender = episode)
                             enclosure = e
@@ -676,7 +676,7 @@ class PodcastEpisode(PodcastModelObject):
         elif hasattr(entry, 'media_content'):
             media = getattr(entry, 'media_content')
             for m in media:
-                if 'url' in m and 'type' in m and (m['type'].startswith('audio/') or m['type'].startswith('video/')):
+                if 'url' in m and 'type' in m and (m['type'].startswith('audio/') or m['type'].startswith('video/') or m['type'].startswith('image/')):
                     if util.normalize_feed_url(m['url']) is not None:
                         log('Selected media_content: %s', m['url'], sender = episode)
                         episode.url=util.normalize_feed_url(m['url'])
