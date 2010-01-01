@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder 0.8.0+svn20070122\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-22 00:18+0100\n"
-"PO-Revision-Date: 2010-01-01 14:08-0200\n"
+"PO-Revision-Date: 2010-01-01 14:42-0200\n"
 "Last-Translator: Silvio Sisto <sisto.silvio@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -384,39 +384,32 @@ msgstr[1] "Abriendo %d episodios"
 #: src/gpodder/gui.py:1756
 #: src/gpodder/gui.py:1759
 #: src/gpodder/gui.py:3164
-#, fuzzy
 msgid "Please check your media player settings in the preferences dialog."
-msgstr "El reproductor seleccionado no puede ser encontrado. Por favor verifique los ajustes de su reproductor en el dialogo de preferencias."
+msgstr "Por favor verifique los ajustes de su reproductor en el dialogo de preferencias."
 
 #: src/gpodder/gui.py:1757
-#, fuzzy
 msgid "Error opening player"
-msgstr "Error al abrir reproductor: %s"
+msgstr "Error al abrir reproductor"
 
 #: src/gpodder/gui.py:1978
-#, fuzzy
 msgid "Adding podcasts"
-msgstr "Agregando podcast: %s"
+msgstr "Agregando podcasts"
 
 #: src/gpodder/gui.py:1979
-#, fuzzy
 msgid "Please wait while episode information is downloaded."
-msgstr "Por favor espere mientras se convierte su configuración."
+msgstr "Por favor espere mientras se descarga información del episodio."
 
 #: src/gpodder/gui.py:1986
-#, fuzzy
 msgid "Existing subscriptions skipped"
-msgstr "Una subscripción exportada"
+msgstr "Subscripción existente omitida"
 
 #: src/gpodder/gui.py:1987
-#, fuzzy
 msgid "You are already subscribed to these podcasts:"
-msgstr "Ya estás suscrito a este podcast: %s"
+msgstr "Ya estás suscrito a estas podcasts:"
 
 #: src/gpodder/gui.py:1995
-#, fuzzy
 msgid "Podcast requires authentication"
-msgstr "El feed RSS requiere autenticación"
+msgstr "El podcast  requiere autenticación"
 
 #: src/gpodder/gui.py:1996
 #, python-format
@@ -425,9 +418,8 @@ msgstr "Por favor autenticarse en %s:"
 
 #: src/gpodder/gui.py:2004
 #: src/gpodder/gui.py:2078
-#, fuzzy
 msgid "Authentication failed"
-msgstr "Ha fallado la autenticación."
+msgstr "Ha fallado la autenticación"
 
 #: src/gpodder/gui.py:2014
 msgid "Website redirection detected"
@@ -439,23 +431,20 @@ msgid "The URL %s redirects to %s."
 msgstr "La URL %s redirige a %s."
 
 #: src/gpodder/gui.py:2016
-#, fuzzy
 msgid "Do you want to visit the website now?"
-msgstr "¿Realmente quieres salir de gPodder ahora?"
+msgstr "¿Quiere visitar el sitio web ahora?"
 
 #: src/gpodder/gui.py:2025
-#, fuzzy
 msgid "Could not add some podcasts"
-msgstr "No se pudo agregar el podcast."
+msgstr "No se pudo agregar algunas podcasts"
 
 #: src/gpodder/gui.py:2026
 msgid "Some podcasts could not be added to your list:"
 msgstr "Algunos podcasts no pudieron ser agregados a su lista."
 
 #: src/gpodder/gui.py:2028
-#, fuzzy
 msgid "Unknown"
-msgstr "desconocido"
+msgstr "Desconocido"
 
 #: src/gpodder/gui.py:2087
 msgid "Redirection detected"
@@ -463,23 +452,19 @@ msgstr "Redirección detectada"
 
 #: src/gpodder/gui.py:2130
 #: src/gpodder/gui.py:2168
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading %d new episode."
 msgid_plural "Downloading %d new episodes."
-msgstr[0] "Se descargaron %d nuevos episodios."
-msgstr[1] "Se descargaron %d nuevos episodios."
+msgstr[0] "Descargando %d nuevo episodio."
+msgstr[1] "Descargando %d nuevos episodios."
 
 #: src/gpodder/gui.py:2134
-#, fuzzy
 msgid "New episodes have been added to the download list."
-msgstr "No hay episodios nuevos para descargar."
+msgstr "Nuevos episodios fueron agregados a la lista de descarga."
 
 #: src/gpodder/gui.py:2139
-#, fuzzy
 msgid "No new episodes. Please check for new episodes later."
-msgstr ""
-"No hay nuevos episodios que descargar. \n"
-"Por favor prueba más tarde."
+msgstr "No hay nuevos episodios. Por favor busque nuevos episodios más tarde."
 
 #: src/gpodder/gui.py:2151
 msgid "No new episodes"
@@ -491,26 +476,25 @@ msgid "New episodes available"
 msgstr "Nuevos episodios disponibles"
 
 #: src/gpodder/gui.py:2177
-#, fuzzy, python-format
+#, python-format
 msgid "%d new episode available"
 msgid_plural "%d new episodes available"
-msgstr[0] "Nuevos episodios disponibles"
-msgstr[1] "Nuevos episodios disponibles"
+msgstr[0] "%d nuevo episodio disponible"
+msgstr[1] "%d nuevos episodios disponibles"
 
 #: src/gpodder/gui.py:2197
-#, fuzzy, python-format
+#, python-format
 msgid "There has been an error updating %s: %s"
-msgstr "Ha habido un error al abrir tu dispositivo."
+msgstr "Ha habido un error actualizando %s: %s"
 
 #: src/gpodder/gui.py:2197
-#, fuzzy
 msgid "Error while updating feed"
-msgstr "Error actualizando %s"
+msgstr "Error actualizando podcast"
 
 #: src/gpodder/gui.py:2205
-#, fuzzy, python-format
+#, python-format
 msgid "%d/%d updated"
-msgstr "Actualizados %d de %d canales"
+msgstr "%d/%d actualizados"
 
 #: src/gpodder/gui.py:2211
 #, python-format
@@ -522,9 +506,8 @@ msgid "Cancelling..."
 msgstr "Cancelando..."
 
 #: src/gpodder/gui.py:2265
-#, fuzzy
 msgid "Updating..."
-msgstr "Actualizando %s..."
+msgstr "Actualizando..."
 
 #: src/gpodder/gui.py:2278
 #, python-format
@@ -532,11 +515,11 @@ msgid "Updating \"%s\"..."
 msgstr "Actualizando %s..."
 
 #: src/gpodder/gui.py:2281
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %d feed..."
 msgid_plural "Updating %d feeds..."
-msgstr[0] "Actualizando %d feeds RSS..."
-msgstr[1] "Actualizando %d feeds RSS..."
+msgstr[0] "Actualizando %d podcast..."
+msgstr[1] "Actualizando %d podcasts..."
 
 #: src/gpodder/gui.py:2316
 #: src/gpodder/gui.py:2329
@@ -582,10 +565,10 @@ msgid "If you remove this episode, it will be deleted from your computer. If you
 msgstr "Si remueves este episodio, se borrará de tu computadora. Si quieres escuchar este episodio de nuevo, tendrás que descargarlo de nuevo."
 
 #: src/gpodder/gui.py:2404
-#, fuzzy, python-format
+#, python-format
 msgid "Remove %d episode?"
 msgid_plural "Remove %d episodes?"
-msgstr[0] "¿Eliminar %d episodios?"
+msgstr[0] "¿Eliminar %d episodio?"
 msgstr[1] "¿Eliminar %d episodios?"
 
 #: src/gpodder/gui.py:2405
@@ -610,29 +593,27 @@ msgid "The selection contains locked episodes that will not be deleted. If you w
 msgstr "La selección contiene episodios bloqueados. Éstos no serán borrados. Si deseas escuchar cualquiera de estos episodios de nuevo tendrás que descargarlos otra vez."
 
 #: src/gpodder/gui.py:2421
-#, fuzzy
 msgid "Removing episodes"
-msgstr "Descargando episodios"
+msgstr "Eliminando episodios"
 
 #: src/gpodder/gui.py:2422
-#, fuzzy
 msgid "Please wait while episodes are deleted"
-msgstr "Por favor espere mientras se convierte su configuración."
+msgstr "Por favor espere mientras se borran los episodios"
 
 #: src/gpodder/gui.py:2445
-#, fuzzy, python-format
+#, python-format
 msgid "Deleting: %s"
-msgstr "Abriendo %s"
+msgstr "Borrando:  %s"
 
 #: src/gpodder/gui.py:2473
 msgid "Downloaded"
 msgstr "Descargados"
 
 #: src/gpodder/gui.py:2476
-#, fuzzy, python-format
+#, python-format
 msgid "Select older than %d day"
 msgid_plural "Select older than %d days"
-msgstr[0] "Selecciona mas viejos que %d días"
+msgstr[0] "Selecciona mas viejos que %d día"
 msgstr[1] "Selecciona mas viejos que %d días"
 
 #: src/gpodder/gui.py:2478
