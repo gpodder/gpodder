@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder 0.8.0+svn20070122\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-22 00:18+0100\n"
-"PO-Revision-Date: 2010-01-02 15:37-0200\n"
+"PO-Revision-Date: 2010-01-02 15:46-0200\n"
 "Last-Translator: Silvio Sisto <sisto.silvio@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -804,10 +804,10 @@ msgid "Export to OPML"
 msgstr "Exportar a OPML"
 
 #: src/gpodder/gui.py:2976
-#, fuzzy, python-format
+#, python-format
 msgid "%d subscription exported"
 msgid_plural "%d subscriptions exported"
-msgstr[0] "%d suscripciones exportadas"
+msgstr[0] "%d suscripción exportada"
 msgstr[1] "%d suscripciones exportadas"
 
 #: src/gpodder/gui.py:2977
@@ -838,27 +838,24 @@ msgstr ""
 "  Ricardo González Castro <https://launchpad.net/~rickgc>"
 
 #: src/gpodder/gui.py:3034
-#, fuzzy
 msgid "Maintainer:"
-msgstr "Actual responsable:"
+msgstr "Responsable:"
 
 #: src/gpodder/gui.py:3040
 msgid "Patches, bug reports and donations by:"
 msgstr "Parches, informes de error y donaciones hechas por:"
 
 #: src/gpodder/gui.py:3133
-#, fuzzy
 msgid "Please select an episode from the episode list to display shownotes."
-msgstr "Por favor, seleccione un podcast de la lista para editar."
+msgstr "Por favor, seleccione un podcast de la lista para desplegar notas del episodio."
 
 #: src/gpodder/gui.py:3133
 msgid "No episode selected"
 msgstr "No hay episodios seleccionados"
 
 #: src/gpodder/gui.py:3164
-#, fuzzy
 msgid "Unable to stream episode"
-msgstr "un episodio mas"
+msgstr "Imposible reproducir el episodio"
 
 #: src/gpodder/gui.py:3306
 #: src/gpodder/gtkui/desktop/trayicon.py:91
@@ -884,9 +881,8 @@ msgid "D-Bus error: %s"
 msgstr "Error D-Bus: %s"
 
 #: src/gpodder/model.py:156
-#, fuzzy
 msgid "No downloadable episodes in feed"
-msgstr "Descargar todos los episodios nuevos"
+msgstr "No hay episodios descargables en el feed"
 
 #: src/gpodder/model.py:807
 #, python-format
@@ -1086,10 +1082,10 @@ msgid "Adding %s..."
 msgstr "Añadiendo %s..."
 
 #: src/gpodder/util.py:345
-#, fuzzy, python-format
+#, python-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
-msgstr[0] "hace %d días"
+msgstr[0] "hace %d día"
 msgstr[1] "hace %d días"
 
 #: src/gpodder/util.py:413
@@ -1107,25 +1103,25 @@ msgstr "(desconocido)"
 
 #: src/gpodder/util.py:1010
 #: src/gpodder/util.py:1027
-#, fuzzy, python-format
+#, python-format
 msgid "%d second"
 msgid_plural "%d seconds"
-msgstr[0] "%i segundos"
-msgstr[1] "%i segundos"
+msgstr[0] "%d segundo"
+msgstr[1] "%d segundos"
 
 #: src/gpodder/util.py:1021
-#, fuzzy, python-format
+#, python-format
 msgid "%d hour"
 msgid_plural "%d hours"
-msgstr[0] "%i horas"
-msgstr[1] "%i horas"
+msgstr[0] "%d hora"
+msgstr[1] "%d horas"
 
 #: src/gpodder/util.py:1024
-#, fuzzy, python-format
+#, python-format
 msgid "%d minute"
 msgid_plural "%d minutes"
-msgstr[0] "%i minutos"
-msgstr[1] "%i minutos"
+msgstr[0] "%d minuto"
+msgstr[1] "%d minutos"
 
 #: src/gpodder/util.py:1030
 msgid "and"
@@ -1281,7 +1277,6 @@ msgid "Reading files from %s"
 msgstr "Leyendo archivos desde %s"
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:79
-#, fuzzy
 msgid "Please wait your media file list is being read from device."
 msgstr "Por favor espere mientras gPodder lee la lista de archivos de su dispositivo."
 
@@ -1329,18 +1324,18 @@ msgstr "Nada seleccionado"
 #: src/gpodder/gtkui/desktop/episodeselector.py:322
 #: src/gpodder/gtkui/maemo/episodeselector.py:303
 #: src/gpodder/gtkui/frmntl/episodeselector.py:286
-#, fuzzy, python-format
+#, python-format
 msgid "%d episode"
 msgid_plural "%d episodes"
-msgstr[0] "%d mas episodios"
-msgstr[1] "%d mas episodios"
+msgstr[0] "%d episodio"
+msgstr[1] "%d episodios"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:324
 #: src/gpodder/gtkui/maemo/episodeselector.py:306
 #: src/gpodder/gtkui/frmntl/episodeselector.py:288
-#, fuzzy, python-format
+#, python-format
 msgid "size: %s"
-msgstr "tamaño total: %s"
+msgstr "tamaño: %s"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:92
 msgid "Search podcast.de:"
@@ -1412,47 +1407,40 @@ msgid "No device configured"
 msgstr "No se ha configurado ningún dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:74
-#, fuzzy
 msgid "Please set up your device in the preferences dialog."
-msgstr "El reproductor seleccionado no puede ser encontrado. Por favor verifique los ajustes de su reproductor en el dialogo de preferencias."
+msgstr "Por favor, configurar el dispositivo en el diálogo de preferencias."
 
 #: src/gpodder/gtkui/desktop/sync.py:78
 msgid "Cannot open device"
 msgstr "No se puede abrir dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:79
-#, fuzzy
 msgid "Please check the settings in the preferences dialog."
-msgstr "El reproductor seleccionado no puede ser encontrado. Por favor verifique los ajustes de su reproductor en el dialogo de preferencias."
+msgstr "Por favor, compruebe la configuración en el diálogo de preferencias."
 
 #: src/gpodder/gtkui/desktop/sync.py:84
-#, fuzzy
 msgid "Cannot sync to iPod"
-msgstr "No se puede sincronizar con el iPod"
+msgstr "No se puede sincronizar al iPod"
 
 #: src/gpodder/gtkui/desktop/sync.py:85
-#, fuzzy
 msgid "Please install python-gpod and restart gPodder."
-msgstr "Por favor notifique sobre este problema y reinicie gPodder:"
+msgstr "Por favor, instale python-gpod y reinicie gPodder."
 
 #: src/gpodder/gtkui/desktop/sync.py:89
 msgid "Cannot sync to MTP device"
 msgstr "No se puede sincronizar al dispositivo MTP"
 
 #: src/gpodder/gtkui/desktop/sync.py:90
-#, fuzzy
 msgid "Please install python-pymtp and restart gPodder."
-msgstr "Por favor instale los enlaces python libmtp (python-pymtp) y reinicie gPodder para continuar."
+msgstr "Por favor, instale python-pymtp y reinicie gPodder."
 
 #: src/gpodder/gtkui/desktop/sync.py:101
-#, fuzzy
 msgid "Device synchronized"
-msgstr "Sincronización dispositivo MTP"
+msgstr "Dispositivo sincronizado"
 
 #: src/gpodder/gtkui/desktop/sync.py:102
-#, fuzzy
 msgid "Your device has been synchronized."
-msgstr "Tu dispositivo ha sido actualizado por gPodder"
+msgstr "Su dispositivo ha sido actualizado."
 
 #: src/gpodder/gtkui/desktop/sync.py:105
 #: src/gpodder/gtkui/desktop/sync.py:223
@@ -1460,14 +1448,12 @@ msgid "Error closing device"
 msgstr "Error al cerrar el dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:106
-#, fuzzy
 msgid "Please check settings and permission."
-msgstr "Por favor verifica tus permisos y libera espacio en disco."
+msgstr "Por favor verifique la configuración y permisos."
 
 #: src/gpodder/gtkui/desktop/sync.py:157
-#, fuzzy
 msgid "Not enough space left on device"
-msgstr "No hay suficiente espacio en el dispositivo."
+msgstr "No hay suficiente espacio en el dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:158
 #, python-format
@@ -1610,33 +1596,29 @@ msgstr "Renombrar podcast"
 
 #: src/gpodder/gtkui/maemo/channel.py:84
 #: src/gpodder/gtkui/frmntl/episodes.py:73
-#, fuzzy
 msgid "New name:"
-msgstr "Nombre de usuario:"
+msgstr "Nuevo nombre:"
 
 #: src/gpodder/gtkui/maemo/channel.py:89
-#, fuzzy, python-format
+#, python-format
 msgid "New name: %s"
-msgstr "Canal: %s"
+msgstr "Nuevo nombre: %s"
 
 #: src/gpodder/gtkui/maemo/channel.py:90
-#, fuzzy
 msgid "Podcast renamed"
-msgstr "Podcasts"
+msgstr "Podcast renombrado"
 
 #: src/gpodder/gtkui/maemo/channel.py:93
-#, fuzzy
 msgid "Edit podcast authentication"
-msgstr "Autenticación por password"
+msgstr "Modificar inicio de sesión del podcast"
 
 #: src/gpodder/gtkui/maemo/channel.py:94
 msgid "Please enter your username and password."
 msgstr "Por favor ingrese su nombre de usuario y contraseña."
 
 #: src/gpodder/gtkui/maemo/channel.py:105
-#, fuzzy
 msgid "Username and password removed."
-msgstr "Requiere nombre de usuario y contraseña"
+msgstr "Datos de inicio de sesión eliminados."
 
 #: src/gpodder/gtkui/maemo/channel.py:106
 #: src/gpodder/gtkui/maemo/channel.py:109
