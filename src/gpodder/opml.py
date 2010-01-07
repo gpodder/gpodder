@@ -61,7 +61,7 @@ class Importer(object):
     contains workarounds to support odeo.com feeds.
     """
 
-    VALID_TYPES = ( 'rss', 'link' )
+    VALID_TYPES = ('rss', 'link')
 
     def __init__( self, url):
         """
@@ -76,7 +76,12 @@ class Importer(object):
                 doc = xml.dom.minidom.parseString(util.urlopen(url).read())
 
             for outline in doc.getElementsByTagName('outline'):
-                if outline.getAttribute('type') in self.VALID_TYPES and outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
+                # Make sure we are dealing with a valid link type (ignore case)
+                otl_type = outline.getAttribute('type')
+                if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
+                    continue
+
+                if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
                     channel = {
                         'url': outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
                         'title': outline.getAttribute('title') or outline.getAttribute('text') or outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
