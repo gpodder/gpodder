@@ -235,7 +235,8 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         # Focus the toggle column for Tab-focusing (bug 503)
         path, column = self.treeviewEpisodes.get_cursor()
-        self.treeviewEpisodes.set_cursor(path, toggle_column)
+        if path is not None:
+            self.treeviewEpisodes.set_cursor(path, toggle_column)
 
         self.calculate_total_size()
 
