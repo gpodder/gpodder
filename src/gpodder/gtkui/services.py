@@ -34,6 +34,7 @@ from gpodder import youtube
 
 import gtk
 import os
+import urlparse
 import threading
 
 class DependencyModel(gtk.ListStore):
@@ -149,9 +150,16 @@ class CoverDownloader(ObservableService):
             if new_url is not None:
                 url = new_url
 
-            if url is None and channel.url.startswith("http://"):
-                # try to download the favicon directly at the root
-                url = "http://" + channel.link[7:].split("/")[0] + "/favicon.ico"
+            if url is None and channel.link is not None and \
+                    channel.link.startswith('http://'):
+                # Try to use the favicon of the linked website's host
+                split_result = urlparse.urlsplit(channel.link)
+                scheme, netloc, path, query, fragment = split_result
+                path = '/favicon.ico'
+                query = ''
+                split_result = (scheme, netloc, path, query, fragment)
+                url = urlparse.urlunsplit(split_result)
+                log('Trying favicon: %s', url, sender=self)
 
             if url is not None:
                 image_data = None
