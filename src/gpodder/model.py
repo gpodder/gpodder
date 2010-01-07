@@ -198,14 +198,14 @@ class PodcastChannel(PodcastModelObject):
             self.pubDate = time.time()
 
         if hasattr(feed.feed, 'image'):
-            if hasattr(feed.feed.image, 'href') and feed.feed.image.href:
-                old = self.image
-                self.image = feed.feed.image.href
-            elif hasattr(feed.feed.image, 'url') and feed.feed.image.url:
-                old = self.image
-                self.image = feed.feed.image.url
-            else:
-                pass
+            for attribute in ('href', 'url'):
+                new_value = getattr(feed.feed.image, attribute, None)
+                if new_value is not None:
+                    log('Found cover art in %s: %s', attribute, new_value)
+                    self.image = new_value
+
+        if hasattr(feed.feed, 'icon'):
+            self.image = feed.feed.icon
 
         self.save()
 
