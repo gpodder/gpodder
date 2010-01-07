@@ -98,6 +98,8 @@ gPodderSettings = {
       ('Automatically removed cancelled and finished downloads from the list')),
     'episode_list_descriptions': (bool, True,
       ("Display the episode's description under the episode title in the GUI.")),
+    'episode_list_thumbnails': (bool, True,
+      ("Display thumbnails of downloaded image-feed episodes in the list")),
     'show_toolbar': (bool, True,
       ("Show the toolbar in the GUI's main window.")),
     'ipod_purge_old_episodes': (bool, False,

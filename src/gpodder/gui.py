@@ -1083,6 +1083,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
+        elif name == 'episode_list_thumbnails':
+            self.update_episode_list_icons(all=True)
         elif name == 'rotation_mode':
             self._fremantle_rotation.set_mode(new_value)
         elif name in ('auto_update_feeds', 'auto_update_frequency'):
@@ -1715,12 +1717,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
+        additional_args = (self.episode_is_downloading, \
+                self.config.episode_list_descriptions and gpodder.ui.desktop, \
+                self.config.episode_list_thumbnails and gpodder.ui.desktop)
+
         if urls is not None:
             # We have a list of URLs to walk through
-            self.episode_list_model.update_by_urls(urls, \
-                    self.episode_is_downloading, \
-                    self.config.episode_list_descriptions and \
-                    gpodder.ui.desktop)
+            self.episode_list_model.update_by_urls(urls, *additional_args)
         elif selected and not all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
@@ -1728,15 +1731,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for path in reversed(paths):
                 iter = model.get_iter(path)
                 self.episode_list_model.update_by_filter_iter(iter, \
-                        self.episode_is_downloading, \
-                        self.config.episode_list_descriptions and \
-                        gpodder.ui.desktop)
+                        *additional_args)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
-            self.episode_list_model.update_all(\
-                    self.episode_is_downloading, \
-                    self.config.episode_list_descriptions and \
-                    gpodder.ui.desktop)
+            self.episode_list_model.update_all(*additional_args)
         else:
             # Wrong/invalid call - have to specify at least one parameter
             raise ValueError('Invalid call to update_episode_list_icons')
@@ -2012,11 +2010,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.currently_updating = True
             self.episode_list_model.clear()
             def do_update_episode_list_model():
-                self.episode_list_model.add_from_channel(\
-                        self.active_channel, \
-                        self.episode_is_downloading, \
-                        self.config.episode_list_descriptions \
-                          and gpodder.ui.desktop)
+                additional_args = (self.episode_is_downloading, \
+                        self.config.episode_list_descriptions and gpodder.ui.desktop, \
+                        self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
 
                 def on_episode_list_model_updated():
                     if banner is not None:
