@@ -127,7 +127,7 @@ def normalize_feed_url(url):
     and lazy typists (see the source for details).
 
     >>> normalize_feed_url('fb:43FPodcast')
-    'http://feeds2.feedburner.com/43FPodcast'
+    'http://feeds.feedburner.com/43FPodcast'
     """
     if not url or len(url) < 8:
         return None
@@ -136,7 +136,7 @@ def normalize_feed_url(url):
     # keystrokes that you have to use.
     # Feel free to suggest other useful prefixes, and I'll add them here.
     PREFIXES = {
-            'fb:': 'http://feeds2.feedburner.com/%s',
+            'fb:': 'http://feeds.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
     }
