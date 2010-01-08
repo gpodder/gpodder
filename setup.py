@@ -61,6 +61,7 @@ inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ]
 inst_desktop = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]
+inst_share_dbus_services = ['data/org.gpodder.service']
 
 inst_icons    = [ 'data/gpodder.png' ]
 inst_icons_64 = [ 'data/icons/64/gpodder.png' ]
@@ -76,6 +77,7 @@ data_files = [
   ('share/gpodder/ui',     inst_share_ui),
   ('share/pixmaps',        inst_icons),
   ('share/gpodder',        inst_share_gpodder),
+  ('share/dbus-1/services',inst_share_dbus_services),
 ]
 
 packages = [

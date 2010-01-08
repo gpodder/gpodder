@@ -61,7 +61,9 @@ ui = UI()
 # D-Bus specific interface names
 dbus_bus_name = 'org.godder'
 dbus_gui_object_path = '/gui'
+dbus_podcasts_object_path = '/podcasts'
 dbus_interface = 'org.gpodder.interface'
+dbus_podcasts = 'org.gpodder.podcasts'
 
 # Set "win32" to True if we are on Windows
 win32 = (platform.system() == 'Windows')

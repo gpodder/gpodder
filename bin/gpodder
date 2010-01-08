@@ -132,12 +132,17 @@ if __name__ == '__main__':
 
     if have_dbus:
         # Try to find an already-running instance of gPodder
-        try:
-            session_bus = dbus.SessionBus()
-            remote_object = session_bus.get_object(gpodder.dbus_bus_name, gpodder.dbus_gui_object_path)
-            from gpodder.liblogger import log
-            log('Found gPodder GUI instance already running')
-        except dbus.exceptions.DBusException:
+        session_bus = dbus.SessionBus()
+
+        # Obtain a reference to an existing instance; don't call get_object if
+        # such an instance doesn't exist as it *will* create a new instance
+        if session_bus.name_has_owner(gpodder.dbus_bus_name):
+            try:
+                remote_object = session_bus.get_object(gpodder.dbus_bus_name, \
+                        gpodder.dbus_gui_object_path)
+            except dbus.exceptions.DBusException:
+                remote_object = None
+        else:
             remote_object = None
     else:
         # No D-Bus available :/

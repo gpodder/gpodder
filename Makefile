@@ -39,6 +39,9 @@ MANPAGE=doc/man/gpodder.1
 
 GPODDER_ICON_THEME=dist/gpodder
 
+GPODDER_SERVICE_FILE=data/org.gpodder.service
+GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
+
 DESTDIR ?= /
 PREFIX ?= /usr
 
@@ -85,7 +88,10 @@ releasetest: unittest
 	desktop-file-validate data/gpodder.desktop
 	make -C data/po validate
 
-install:
+$(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
+	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
+
+install: messages $(GPODDER_SERVICE_FILE)
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 ##########################################################################
@@ -129,7 +135,7 @@ clean:
 	python setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
-	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png .coverage
+	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png .coverage $(GPODDER_SERVICE_FILE)
 	rm -rf build
 	make -C data/po clean
 

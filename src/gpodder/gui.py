@@ -139,6 +139,8 @@ from gpodder.gtkui.interface.progress import ProgressIndicator
 if gpodder.ui.maemo:
     import hildon
 
+from gpodder.dbusproxy import DBusPodcastsProxy
+
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
 
@@ -148,6 +150,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
+        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
+                self.on_itemUpdate_activate, \
+                self.playback_episodes, \
+                self.download_episode_list, \
+                bus_name)
         self.db = Database(gpodder.database_file)
         self.config = config
         BuilderWidget.__init__(self, None)
