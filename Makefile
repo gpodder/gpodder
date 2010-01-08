@@ -36,24 +36,11 @@ TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 
 HELP2MAN=help2man
 MANPAGE=doc/man/gpodder.1
-GPODDERVERSION=`cat $(BINFILE) |grep ^__version__.*=|cut -d\" -f2`
 
 GPODDER_ICON_THEME=dist/gpodder
 
-ROSETTA_FILES=$(MESSAGESPOT) data/po/*.po
-ROSETTA_ARCHIVE=gpodder-rosetta-upload.tar.gz
-
-CHANGELOG=ChangeLog
-CHANGELOG_TMP=.ChangeLog.tmp
-CHANGELOG_EDT=.ChangeLog.edit
-CHANGELOG_BKP=.ChangeLog.backup
-EMAIL ?= $$USER@`hostname -f`
-
 DESTDIR ?= /
 PREFIX ?= /usr
-
-# default editor of user has not set "EDITOR" env variable
-EDITOR ?= vim
 
 ##########################################################################
 
@@ -66,17 +53,13 @@ help:
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
 	@echo 'make install         install gpodder into "$(PREFIX)"'
-	@echo 'make uninstall       uninstall gpodder from "$(PREFIX)"'
-	@echo 'make generators      generate manpage and icons (if needed)'
-	@echo 'make messages        rebuild messages.pot from new source'
-	@echo 'make rosetta-upload  generate a tarball of all translation files'
+	@echo 'make manpage         update manpage (on release)'
+	@echo 'make messages        update messages.pot + .po files + .mo files'
 	@echo 'make clean           remove generated+temp+*.py{c,o} files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo ''
 	@echo 'make install-git-menuitem   Add shortcuts to your menu for this git checkout'
 	@echo 'make remove-git-menuitem    Remove shortcuts created by "install-git-menuitem"'
-	@echo ''
-	@echo '(1) Please set environment variable "EMAIL" to your e-mail address'
 
 ##########################################################################
 
@@ -102,46 +85,28 @@ releasetest: unittest
 	desktop-file-validate data/gpodder.desktop
 	make -C data/po validate
 
-install: generators
+install:
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
-
-update-icons:
-	gtk-update-icon-cache -f -i $(PREFIX)/share/icons/hicolor/
-
-uninstall:
-	@echo "##########################################################################"
-	@echo "#  MAKE UNINSTALL STILL NOT READY FOR PRIME TIME, WILL DO MY BEST TO     #"
-	@echo "#  REMOVE FILES INSTALLED BY GPODDER. WATCH INSTALL PROCESS AND REMOVE   #"
-	@echo "#  THE REST OF THE PACKAGES MANUALLY TO COMPLETELY REMOVE GPODDER.       #"
-	@echo "##########################################################################"
-	rm -rf $(PREFIX)/share/gpodder $(PREFIX)/share/pixmaps/gpodder* $(PREFIX)/share/applications/gpodder.desktop $(PREFIX)/share/man/man1/gpodder.1 $(PREFIX)/bin/gpodder $(PREFIX)/lib/python?.?/site-packages/gpodder/ $(PREFIX)/share/locale/*/LC_MESSAGES/gpodder.mo
 
 ##########################################################################
 
-generators: $(MANPAGE)
-	make -C data/po update
+manpage: $(MANPAGE)
 
-messages: gen_gettext
-
-$(MANPAGE): src/gpodder/__init__.py
+$(MANPAGE): src/gpodder/__init__.py $(BINFILE)
 	$(HELP2MAN) --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
 
-gen_gettext: $(MESSAGESPOT)
-	make -C data/po generators
-	make -C data/po update
+##########################################################################
 
-data/ui/%.ui.h: $(subst .ui.h,.h,$@)
-	intltool-extract --type=gettext/glade $(subst .ui.h,.ui,$@)
+messages: $(MESSAGESPOT)
+	make -C data/po
 
-$(MESSAGESPOT): src/gpodder/*.py $(BINFILE) $(UIFILES_H) $(TRANSLATABLE_SOURCE)
+data/ui/%.ui.h: $(UIFILES)
+	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
+
+$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
 	xgettext -k_:1 -kN_:1,2 -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
-	sed -i'~' -e 's/SOME DESCRIPTIVE TITLE/gPodder translation template/g' -e 's/YEAR THE PACKAGE'"'"'S COPYRIGHT HOLDER/2006 Thomas Perl/g' -e 's/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR/Thomas Perl <thp@perli.net>, 2006/g' -e 's/PACKAGE VERSION/gPodder '$(GPODDERVERSION)'/g' -e 's/PACKAGE/gPodder/g' $(MESSAGESPOT)
 
-rosetta-upload: $(ROSETTA_ARCHIVE)
-	@echo 'You can now upload the archive to launchpad.net:  ' $(ROSETTA_ARCHIVE)
-
-$(ROSETTA_ARCHIVE):
-	tar czvf $(ROSETTA_ARCHIVE) $(ROSETTA_FILES)
+##########################################################################
 
 install-git-menuitem:
 	doc/dev/install-desktopentry.sh
@@ -164,7 +129,7 @@ clean:
 	python setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
-	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png $(ROSETTA_ARCHIVE) .coverage
+	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png .coverage
 	rm -rf build
 	make -C data/po clean
 
@@ -173,10 +138,10 @@ debclean:
 
 distclean: clean
 	rm -rf dist
- 
+
 ##########################################################################
 
-.PHONY: all test unittest release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help install-git-menuitem remove-git-menuitem
+.PHONY: all test unittest release releasetest install manpage clean distclean messages help install-git-menuitem remove-git-menuitem
 
 ##########################################################################
 

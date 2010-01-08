@@ -16,11 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-update:
-	for langfile in *.po; do echo 'Compiling translation:' $${langfile}; mkdir -p ../locale/`basename $${langfile} .po`/LC_MESSAGES/; msgfmt $${langfile} -o ../locale/`basename $${langfile} .po`/LC_MESSAGES/gpodder.mo; done
 
-generators:
-	for langfile in *.po; do echo -n $${langfile}; msgmerge -U $${langfile} ../messages.pot; done
+PO_FILES=$(wildcard *.po)
+MO_FILES=$(addsuffix LC_MESSAGES/gpodder.mo,$(addprefix ../locale/,$(subst .po,/,$(wildcard *.po))))
+POT_FILE=../messages.pot
+
+all: $(PO_FILES) $(MO_FILES)
+
+%.po: $(POT_FILE)
+	@echo "Merging $(notdir $<) -> $@"
+	@msgmerge --silent $@ $< --output-file=$@
+
+%.mo: $(PO_FILES)
+	@echo "Compiling $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -> $(notdir $@)"
+	@mkdir -p $(@D)
+	@msgfmt $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -o $@
 
 clean:
 	rm -rf ../locale *~ *.mo
@@ -31,5 +41,5 @@ statistics:
 validate:
 	./validate.sh
 
-.PHONY: update generators clean statistics validate
+.PHONY: all clean statistics validate
 
