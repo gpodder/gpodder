@@ -208,13 +208,13 @@ class BuilderWidget(GtkBuilderWidget):
                     dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
                 dlg.run()
                 dlg.destroy()
-            elif self.config.enable_notifications:
+            elif self._config.enable_notifications:
                 if pynotify is not None:
                     if title is None:
                         title = 'gPodder'
                     notification = pynotify.Notification(title, message, gpodder.icon_file)
                     _notify_at_tray = False
-                    _notify_when = self.config.notifications_attach_to_tray
+                    _notify_when = self._config.notifications_attach_to_tray
                     _notify_attach = notification.attach_to_status_icon
 
                     if _notify_when in ('minimized','always'):
