@@ -59,7 +59,7 @@ class UI(object):
 ui = UI()
 
 # D-Bus specific interface names
-dbus_bus_name = 'org.godder'
+dbus_bus_name = 'org.gpodder'
 dbus_gui_object_path = '/gui'
 dbus_podcasts_object_path = '/podcasts'
 dbus_interface = 'org.gpodder.interface'
