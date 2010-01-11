@@ -110,7 +110,7 @@ data/ui/%.ui.h: $(UIFILES)
 	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
 
 $(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
-	xgettext -k_:1 -kN_:1,2 -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
+	xgettext -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
 
 ##########################################################################
 
