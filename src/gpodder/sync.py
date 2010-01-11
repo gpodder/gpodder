@@ -204,7 +204,7 @@ class Device(services.ObservableService):
                 log('Marking as played on transfer: %s', track.url, sender=self)
                 track.mark(is_played=True)
 
-            if added and self._config.on_sync_delete:
+            if added and self._config.on_sync_delete and not track.is_locked:
                 log('Removing episode after transfer: %s', track.url, sender=self)
                 track.delete_from_disk()
         return True
