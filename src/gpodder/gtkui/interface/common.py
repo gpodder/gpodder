@@ -199,6 +199,9 @@ class BuilderWidget(GtkBuilderWidget):
                 hildon.hildon_banner_show_information(self.main_window, \
                         '', message)
         else:
+            # XXX: Dirty hack to get access to the gPodder-specific config object
+            config = getattr(self, '_config', getattr(self, 'config', None))
+
             if important:
                 dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
                 if title:
@@ -208,13 +211,13 @@ class BuilderWidget(GtkBuilderWidget):
                     dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
                 dlg.run()
                 dlg.destroy()
-            elif self._config.enable_notifications:
+            elif config is not None and config.enable_notifications:
                 if pynotify is not None:
                     if title is None:
                         title = 'gPodder'
                     notification = pynotify.Notification(title, message, gpodder.icon_file)
                     _notify_at_tray = False
-                    _notify_when = self._config.notifications_attach_to_tray
+                    _notify_when = config.notifications_attach_to_tray
                     _notify_attach = notification.attach_to_status_icon
 
                     if _notify_when in ('minimized','always'):
