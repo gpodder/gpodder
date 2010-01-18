@@ -703,11 +703,13 @@ class DownloadTask(object):
         except IOError, ioe:
             log( 'Error "%s" while downloading "%s": %s', ioe.strerror, self.__episode.title, ioe.filename, sender=self, traceback=True)
             self.status = DownloadTask.FAILED
-            self.error_message = _('I/O Error: %s: %s') % (ioe.strerror, ioe.filename)
+            d = {'error': ioe.strerror, 'filename': ioe.filename}
+            self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
         except gPodderDownloadHTTPError, gdhe:
             log( 'HTTP error %s while downloading "%s": %s', gdhe.error_code, self.__episode.title, gdhe.error_message, sender=self)
             self.status = DownloadTask.FAILED
-            self.error_message = _('HTTP Error %s: %s') % (gdhe.error_code, gdhe.error_message)
+            d = {'code': gdhe.error_code, 'message': gdhe.error_message}
+            self.error_message = _('HTTP Error %(code)s: %(message)s') % d
         except Exception, e:
             self.status = DownloadTask.FAILED
             self.error_message = _('Error: %s') % (e.message,)

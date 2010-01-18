@@ -39,7 +39,7 @@ class gPodderSyncProgress(BuilderWidget):
     
     def on_progress(self, pos, max, text=None):
         if text is None:
-            text = _('%d of %d done') % (pos, max)
+            text = _('%(position)d of %(count)d done') % {'position': pos, 'count': max}
         util.idle_add(self.progressbar.set_fraction, float(pos)/float(max))
         util.idle_add(self.progressbar.set_text, text)
 

@@ -383,7 +383,9 @@ class iPodDevice(Device):
 
         if util.calculate_size(original_filename) > self.get_free_space():
             log('Not enough space on %s, sync aborted...', self.mountpoint, sender = self)
-            self.errors.append( _('Error copying %s: Not enough free disk space on %s') % (episode.title, self.mountpoint))
+            d = {'episode': episode.title, 'mountpoint': self.mountpoint}
+            message =_('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
+            self.errors.append(message % d)
             self.cancelled = True
             return False
 
@@ -594,14 +596,16 @@ class MP3PlayerDevice(Device):
         try:
             out_file = open(to_file, 'wb')
         except IOError, ioerror:
-            self.errors.append(_('Error opening %s: %s') % (ioerror.filename, ioerror.strerror))
+            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
+            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
             return False
 
         try:
             in_file = open(from_file, 'rb')
         except IOError, ioerror:
-            self.errors.append(_('Error opening %s: %s') % (ioerror.filename, ioerror.strerror))
+            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
+            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
             return False
 

@@ -83,8 +83,12 @@ class gPodderConfigEditor(BuilderWidget):
         type_cute = model.get_value(iter, 1)
 
         if not self._config.update_field(name, new_text):
-            self.notification(_('Cannot set value of <b>%s</b> to <i>%s</i>.\n\nNeeded data type: %s') % (saxutils.escape(name), saxutils.escape(new_text), saxutils.escape(type_cute)), _('Error updating %s') % saxutils.escape(name))
-    
+            message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
+            d = {'field': saxutils.escape(name),
+                 'value': saxutils.escape(new_text),
+                 'datatype': saxutils.escape(type_cute)}
+            self.notification(message % d, _('Error setting option'))
+
     def value_toggled(self, renderer, path):
         model = self.configeditor.get_model()
         iter = model.get_iter(path)

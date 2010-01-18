@@ -2107,9 +2107,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Report website redirections
             for url in redirections:
                 title = _('Website redirection detected')
-                message = _('The URL %s redirects to %s.') \
+                message = _('The URL %(url)s redirects to %(target)s.') \
                         + '\n\n' + _('Do you want to visit the website now?')
-                message = message % (url, redirections[url])
+                message = message % {'url': url, 'target': redirections[url]}
                 if self.show_confirmation(message, title):
                     util.open_website(url)
                 else:
@@ -2289,7 +2289,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         log('Skipping update of %s (see feed_update_skipping)', channel.title, sender=self)
                     self._update_cover(channel)
                 except Exception, e:
-                    self.notification(_('There has been an error updating %s: %s') % (saxutils.escape(channel.url), saxutils.escape(str(e))), _('Error while updating feed'), widget=self.treeChannels)
+                    d = {'url': saxutils.escape(channel.url), 'message': saxutils.escape(str(e))}
+                    message = _('There has been an error updating %(url)s: %(message)s')
+                    self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
                     log('Error: %s', str(e), sender=self, traceback=True)
 
             if self.feed_cache_update_cancelled:
@@ -2297,13 +2299,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if gpodder.ui.fremantle:
                 util.idle_add(self.button_refresh.set_title, \
-                        _('%d/%d updated') % (updated, total))
+                        _('%(position)d/%(total)d updated') % {'position': updated, 'total': total})
                 continue
 
             # By the time we get here the update may have already been cancelled
             if not self.feed_cache_update_cancelled:
                 def update_progress():
-                    progression = _('Updated %s (%d/%d)') % (channel.title, updated, total)
+                    d = {'podcast': channel.title, 'position': updated, 'total': total}
+                    progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
                     self.pbFeedUpdate.set_text(progression)
                     if self.tray_icon:
                         self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
@@ -2507,7 +2510,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.notification(message, title, widget=self.treeAvailable)
             return False
         elif locked_count > 0:
-            title = _('Remove %d out of %d episodes?') % (count-locked_count, count)
+            title = _('Remove %(unlocked)d out of %(selected)d episodes?') % {'unlocked': count-locked_count, 'selected': count}
             message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
 
         if confirm and not self.show_confirmation(message, title):
@@ -2672,7 +2675,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     task = download.DownloadTask(episode, self.config)
                 except Exception, e:
-                    self.show_message(_('Download error while downloading %s:\n\n%s') % (episode.title, str(e)), _('Download error'), important=True)
+                    d = {'episode': episode.title, 'message': str(e)}
+                    message = _('Download error while downloading %(episode)s: %(message)s')
+                    self.show_message(message % d, _('Download error'), important=True)
                     log('Download error while downloading %s', episode.title, sender=self, traceback=True)
                     continue
 
@@ -2884,7 +2889,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 self.add_podcast_list(urls)
                 if added > 0:
-                    self.show_message(_('Added %d new subscriptions and skipped %d existing ones.') % (added, skipped), _('Result of subscription download'), widget=self.treeChannels)
+                    d = {'added': added, 'skipped': skipped}
+                    message = _('Added %(added)d new and skipped %(skipped)d existing subscriptions.')
+                    self.show_message(message % d, _('Result of subscription download'), widget=self.treeChannels)
                 elif widget is not None:
                     self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'), widget=self.treeChannels)
             else:

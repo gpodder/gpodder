@@ -36,7 +36,9 @@ def synchronize_device(db, config):
         print >>sys.stderr, s
 
     device.register('status', msg)
-    callback_progress = lambda i, n: msg(_('Synchronizing: %d of %d') % (i, n))
+    def callback_progress(index, count):
+        d = {'index': index, 'count': count}
+        msg(_('Synchronizing: %(index)s of %(count)s') % d)
     device.register('progress', callback_progress)
 
     if device.open():
