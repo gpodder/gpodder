@@ -909,7 +909,7 @@ class MTPDevice(Device):
 
             # send the file
             self.__MTPDevice.send_track_from_file(filename,
-                    episode.basename + episode.extension(),
+                    util.sanitize_filename(metadata.title),
                     metadata, 0, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
