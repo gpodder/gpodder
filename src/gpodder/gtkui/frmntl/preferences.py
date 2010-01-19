@@ -174,8 +174,8 @@ class gPodderPreferences(BuilderWidget):
         self._config.videoplayer = new_value
 
     def update_button_mygpo(self):
-        if self._config.my_gpodder_username:
-            self.button_mygpo.set_value(self._config.my_gpodder_username)
+        if self._config.mygpo_username:
+            self.button_mygpo.set_value(self._config.mygpo_username)
         else:
             self.button_mygpo.set_value(_('Not logged in'))
 

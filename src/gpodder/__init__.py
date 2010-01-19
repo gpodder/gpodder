@@ -41,6 +41,15 @@ except ImportError:
     sys.exit(1)
 del feedparser
 
+try:
+    import mygpoclient
+except ImportError:
+    print """
+  Error: Module "mygpoclient" not found. Please install "python-mygpoclient"
+         or download it from http://thpinfo.com/2010/mygpoclient/
+"""
+    sys.exit(1)
+del mygpoclient
 
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)

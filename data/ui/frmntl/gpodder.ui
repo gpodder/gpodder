@@ -89,16 +89,6 @@
     <property name="label" translatable="yes">Export to OPML file</property>
     <signal handler="on_itemExportChannels_activate" name="activate"/>
   </object>
-  <object class="GtkAction" id="itemUploadToMygpo">
-    <property name="name">itemUploadToMygpo</property>
-    <property name="label" translatable="yes">Upload to my.gpodder.org</property>
-    <signal handler="on_upload_to_mygpo" name="activate"/>
-  </object>
-  <object class="GtkAction" id="itemDownloadFromMygpo">
-    <property name="name">itemDownloadFromMygpo</property>
-    <property name="label" translatable="yes">Download from my.gpodder.org</property>
-    <signal handler="on_download_from_mygpo" name="activate"/>
-  </object>
   <object class="GtkRadioAction" id="item_view_podcasts_all">
     <property name="name">item_view_podcasts_all</property>
     <property name="label" translatable="yes">All</property>

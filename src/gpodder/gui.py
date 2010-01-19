@@ -18,6 +18,7 @@
 #
 
 import os
+import cgi
 import gtk
 import gtk.gdk
 import gobject
@@ -88,6 +89,7 @@ from gpodder.gtkui.draw import draw_text_box_centered
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
+from gpodder.gtkui.mygpodder import MygPodderSettings
 
 if gpodder.ui.desktop:
     from gpodder.gtkui.download import DownloadStatusModel
@@ -468,9 +470,87 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.main_window.set_title(_('gPodder'))
             hildon.hildon_gtk_window_take_screenshot(self.main_window, True)
 
+        # Set up the first instance of MygPoClient
+        self.mygpo_client = my.MygPoClient(self.config,
+                on_add_remove_podcasts=self.on_add_remove_podcasts_mygpo,
+                on_rewrite_url=self.on_rewrite_url_mygpo,
+                on_send_full_subscriptions=self.on_send_full_subscriptions)
+        util.idle_add(self.mygpo_client.schedule_podcast_sync)
+
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
+
+    def on_add_remove_podcasts_mygpo(self, add_urls, remove_urls):
+        existing_urls = [c.url for c in self.channels]
+
+        # Columns for the episode selector window - just one...
+        columns = (
+            ('description', None, None, _('Action')),
+        )
+
+        # A list of actions that have to be chosen from
+        actions = []
+
+        for url in add_urls:
+            if url not in existing_urls:
+                actions.append(my.Change(url, my.Change.ADD))
+
+        for url in remove_urls:
+            if url in existing_urls:
+                podcast_object = None
+                for podcast in self.channels:
+                    if podcast.url == url:
+                        podcast_object = podcast
+                        break
+                actions.append(my.Change(url, my.Change.REMOVE, podcast))
+
+        def execute_podcast_actions(selected):
+            subscribe_list = [a.url for a in selected if a.change == a.ADD]
+            remove_list = [a.podcast for a in selected if a.change == a.REMOVE]
+            # Apply the accepted changes locally
+            self.add_podcast_list(subscribe_list)
+            self.remove_podcast_list(remove_list, confirm=False)
+
+            unselected = [a for a in actions if a not in selected]
+            add_urls = [a.url for a in unselected if a.change == a.REMOVE]
+            remove_urls = [a.url for a in unselected if a.change == a.ADD]
+            # Revert the declined changes on the server
+            self.mygpo_client.on_subscribe(add_urls)
+            self.mygpo_client.on_unsubscribe(remove_urls)
+
+        def ask():
+            # We're abusing the Episode Selector again ;) -- thp
+            gPodderEpisodeSelector(self.main_window, \
+                    title=_('Confirm changes from my.gpodder.org'), \
+                    instructions=_('Select the actions you want to carry out.'), \
+                    episodes=actions, \
+                    columns=columns, \
+                    size_attribute=None, \
+                    stock_ok_button=gtk.STOCK_APPLY, \
+                    callback=execute_podcast_actions, \
+                    _config=self.config)
+
+        if actions:
+            util.idle_add(ask)
+
+    def on_rewrite_url_mygpo(self, old_url, new_url):
+        # Called by the mygpo client if a local URL needs to be fixed
+        if not new_url:
+            return
+
+        for channel in self.channels:
+            if channel.url == old_url:
+                log('Updating URL of %s to %s', channel, new_url, sender=self)
+                channel.url = new_url
+                channel.save()
+                self.channel_list_changed = True
+                util.idle_add(self.update_episode_list_model)
+                return
+
+    def on_send_full_subscriptions(self):
+        # Send the full subscription list to the my.gpodder.org client
+        self.mygpo_client.on_subscribe([c.url for c in self.channels])
 
     def on_podcast_selected(self, treeview, path, column):
         # for Maemo 5's UI
@@ -2123,6 +2203,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
+            # Upload subscription changes to my.gpodder.org
+            self.mygpo_client.on_subscribe(worked)
+
             # If at least one podcast has been added, save and update all
             if self.channel_list_changed:
                 self.save_channels_opml()
@@ -2451,9 +2534,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         if self.channels:
             if self.save_channels_opml():
-                if self.config.my_gpodder_autoupload:
-                    log('Uploading to my.gpodder.org on close', sender=self)
-                    util.idle_add(self.on_upload_to_mygpo, None)
+                pass # FIXME: Add mygpo synchronization here
             else:
                 self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'), important=True)
 
@@ -2652,7 +2733,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            gPodderWelcome(self.gPodder, center_on_widget=self.gPodder, show_example_podcasts_callback=self.on_itemImportChannels_activate, setup_my_gpodder_callback=self.on_download_from_mygpo)
+            gPodderWelcome(self.gPodder,
+                    center_on_widget=self.gPodder,
+                    show_example_podcasts_callback=self.on_itemImportChannels_activate,
+                    setup_my_gpodder_callback=self.on_mygpo_settings_activate)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -2847,76 +2931,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderPreferences(self.gPodder, _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
-                mygpo_login=lambda: self.require_my_gpodder_authentication(force_dialog=True))
+                mygpo_login=self.on_mygpo_settings_activate)
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
 
-    def require_my_gpodder_authentication(self, force_dialog=False):
-        if force_dialog or (not self.config.my_gpodder_username or not self.config.my_gpodder_password):
-            success, authentication = self.show_login_dialog(_('Login to my.gpodder.org'), _('Please enter your e-mail address and your password.'), username=self.config.my_gpodder_username, password=self.config.my_gpodder_password, username_prompt=_('E-Mail Address'), register_callback=lambda: util.open_website('http://my.gpodder.org/register'))
-            if success:
-                self.config.my_gpodder_username, self.config.my_gpodder_password = authentication
-                return True
-            else:
-                return False
-
-        return True
-
     def on_goto_mygpo(self, widget):
-        client = my.MygPodderClient(self.config.my_gpodder_service, \
-                self.config.my_gpodder_username, \
-                self.config.my_gpodder_password)
-        client.open_website()
+        self.mygpo_client.open_website()
 
-    def on_download_from_mygpo(self, widget=None):
-        if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(self.config.my_gpodder_service, \
-                    self.config.my_gpodder_username, self.config.my_gpodder_password)
-            opml_data = client.download_subscriptions()
-            if len(opml_data) > 0:
-                fp = open(gpodder.subscription_file, 'w')
-                fp.write(opml_data)
-                fp.close()
-                (added, skipped) = (0, 0)
-                i = opml.Importer(gpodder.subscription_file)
-
-                existing = [c.url for c in self.channels]
-                urls = [item['url'] for item in i.items if item['url'] not in existing]
-
-                skipped = len(i.items) - len(urls)
-                added = len(urls)
-
-                self.add_podcast_list(urls)
-                if added > 0:
-                    d = {'added': added, 'skipped': skipped}
-                    message = _('Added %(added)d new and skipped %(skipped)d existing subscriptions.')
-                    self.show_message(message % d, _('Result of subscription download'), widget=self.treeChannels)
-                elif widget is not None:
-                    self.show_message(_('Your local subscription list is up to date.'), _('Result of subscription download'), widget=self.treeChannels)
-            else:
-                self.config.my_gpodder_password = ''
-                self.on_download_from_mygpo(widget)
-        else:
-            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
-
-    def on_upload_to_mygpo(self, widget):
-        if self.require_my_gpodder_authentication():
-            client = my.MygPodderClient(self.config.my_gpodder_service, \
-                    self.config.my_gpodder_username, self.config.my_gpodder_password)
-            self.save_channels_opml()
-            success, messages = client.upload_subscriptions(gpodder.subscription_file)
-            if widget is not None:
-                if not success:
-                    self.show_message('\n'.join(messages), _('Results of upload'), important=True)
-                    self.config.my_gpodder_password = ''
-                    self.on_upload_to_mygpo(widget)
-                else:
-                    self.show_message('\n'.join(messages), _('Results of upload'), widget=self.treeChannels)
-            elif not success:
-                log('Upload to my.gpodder.org failed, but widget is None!', sender=self)
-        elif widget is not None:
-            self.show_message(_('Please set up your username and password first.'), _('Username and password needed'), important=True)
+    def on_mygpo_settings_activate(self, action=None):
+        settings = MygPodderSettings(self.main_window, config=self.config)
 
     def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \
@@ -2972,6 +2996,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         progress = ProgressIndicator(title, info, parent=self.main_window)
 
         def finish_deletion(select_url):
+            # Upload subscription list changes to the web service
+            self.mygpo_client.on_unsubscribe([c.url for c in channels])
+
             # Re-load the channels and select the desired new channel
             self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
             progress.on_finished()
@@ -2995,7 +3022,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if len(channels) == 1:
                     # get the URL of the podcast we want to select next
-                    position = self.channels.index(channel)
+                    if channel in self.channels:
+                        position = self.channels.index(channel)
+                    else:
+                        position = -1
+
                     if position == len(self.channels)-1:
                         # this is the last podcast, so select the URL
                         # of the item before this one (i.e. the "new last")
@@ -3095,7 +3126,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.config.opml_url, \
                     self.add_podcast_list, \
                     self.on_itemAddChannel_activate, \
-                    self.on_download_from_mygpo, \
+                    self.on_mygpo_settings_activate, \
                     self.show_text_edit_dialog)
         else:
             dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \

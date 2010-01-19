@@ -1,0 +1,248 @@
+<?xml version="1.0"?>
+<!--*- mode: xml -*-->
+<interface>
+  <object class="GtkDialog" id="MygPodderSettings">
+    <property name="default_height">260</property>
+    <property name="default_width">320</property>
+    <property context="yes" name="title" translatable="yes">my.gPodder.org settings</property>
+    <property name="type_hint">dialog</property>
+    <property name="visible">True</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="vbox">
+        <property name="border_width">2</property>
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkTable" id="table">
+            <property name="border_width">12</property>
+            <property name="column_spacing">6</property>
+            <property name="n_columns">3</property>
+            <property name="n_rows">9</property>
+            <property name="row_spacing">6</property>
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="label_general">
+                <property context="yes" name="label" translatable="yes">&lt;b&gt;General&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="visible">True</property>
+                <property name="xalign">0.0</property>
+              </object>
+              <packing>
+                <property name="right_attach">3</property>
+                <property name="y_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="checkbutton_enable">
+                <property context="yes" name="label" translatable="yes">Enable synchronization of subscription list</property>
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_username">
+                <property context="yes" name="label" translatable="yes">Username:</property>
+                <property name="visible">True</property>
+                <property name="xalign">1.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">3</property>
+                <property name="top_attach">2</property>
+                <property name="x_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_password">
+                <property context="yes" name="label" translatable="yes">Password:</property>
+                <property name="visible">True</property>
+                <property name="xalign">1.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">4</property>
+                <property name="top_attach">3</property>
+                <property name="x_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHSeparator" id="hseparator">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">5</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_device">
+                <property context="yes" name="label" translatable="yes">&lt;b&gt;Device configuration&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="visible">True</property>
+                <property name="xalign">0.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">6</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">5</property>
+                <property name="y_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_uid">
+                <property context="yes" name="label" translatable="yes">UID:</property>
+                <property name="visible">True</property>
+                <property name="xalign">1.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">7</property>
+                <property name="top_attach">6</property>
+                <property name="x_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_caption">
+                <property context="yes" name="label" translatable="yes">Caption:</property>
+                <property name="visible">True</property>
+                <property name="xalign">1.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">8</property>
+                <property name="top_attach">7</property>
+                <property name="x_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label_type">
+                <property context="yes" name="label" translatable="yes">Type:</property>
+                <property name="visible">True</property>
+                <property name="xalign">1.0</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">9</property>
+                <property name="top_attach">8</property>
+                <property name="x_options">fill</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_username">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">3</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_password">
+                <property name="visibility">False</property>
+                <property name="is_focus">True</property>
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_uid">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">7</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="entry_caption">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">8</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="combo_type">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="bottom_attach">9</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">8</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button_list_uids">
+                <property context="yes" name="label" translatable="yes">List UIDs</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <signal handler="on_button_list_uids_clicked" name="clicked"/>
+              </object>
+              <packing>
+                <property name="bottom_attach">7</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">6</property>
+                <property name="x_options">fill</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="action_area">
+            <property name="border_width">5</property>
+            <property name="layout_style">end</property>
+            <property name="spacing">6</property>
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="button_cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="use_stock">True</property>
+                <property name="visible">True</property>
+                <signal handler="on_button_cancel_clicked" name="clicked"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button_save">
+                <property name="label">gtk-save</property>
+                <property name="use_stock">True</property>
+                <property name="visible">True</property>
+                <signal handler="on_button_save_clicked" name="clicked"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

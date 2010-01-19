@@ -20,113 +20,260 @@
 
 
 #
-#  my.py -- "my gPodder" service client
-#  Thomas Perl <thp@gpodder.org>   2008-12-08
+#  my.py -- mygpo Client Abstraction for gPodder
+#  Thomas Perl <thp@gpodder.org>; 2010-01-19
 #
 
 import gpodder
 _ = gpodder.gettext
 
+import atexit
+import os
+import threading
+import time
+
+from gpodder.liblogger import log
+
 from gpodder import util
 
-########################################################################
-# Based on upload_test.py
-# Copyright Michael Foord, 2004 & 2005.
-# Released subject to the BSD License
-# Please see http://www.voidspace.org.uk/documents/BSD-LICENSE.txt
-# Scripts maintained at http://www.voidspace.org.uk/python/index.shtml
-# E-mail fuzzyman@voidspace.org.uk
-########################################################################
+from mygpoclient import api
 
-import urllib2
-import mimetypes
-import mimetools
-import webbrowser
-
-def encode_multipart_formdata(fields, files, BOUNDARY = '-----'+mimetools.choose_boundary()+'-----'):
-    """ Encodes fields and files for uploading.
-    fields is a sequence of (name, value) elements for regular form fields - or a dictionary.
-    files is a sequence of (name, filename, value) elements for data to be uploaded as files.
-    Return (content_type, body) ready for urllib2.Request instance
-    You can optionally pass in a boundary string to use or we'll let mimetools provide one.
-    """
-    CRLF = '\r\n'
-    L = []
-    if isinstance(fields, dict):
-        fields = fields.items()
-    for (key, value) in fields:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"' % key)
-        L.append('')
-        L.append(value)
-    for (key, filename, value) in files:
-        filetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
-        L.append('Content-Type: %s' % filetype)
-        L.append('')
-        L.append(value)
-    L.append('--' + BOUNDARY + '--')
-    L.append('')
-    body = CRLF.join(L)
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-    return content_type, body
-
-def build_request(theurl, fields, files, txheaders=None):
-    """Given the fields to set and the files to encode it returns a fully formed urllib2.Request object.
-    You can optionally pass in additional headers to encode into the opject. (Content-type and Content-length will be overridden if they are set).
-    fields is a sequence of (name, value) elements for regular form fields - or a dictionary.
-    files is a sequence of (name, filename, value) elements for data to be uploaded as files.
-    """
-    content_type, body = encode_multipart_formdata(fields, files)
-    if not txheaders: txheaders = {}
-    txheaders['Content-type'] = content_type
-    txheaders['Content-length'] = str(len(body))
-    txheaders['User-agent'] = gpodder.user_agent
-    return urllib2.Request(theurl, body, txheaders)
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 
-class MygPodderClient(object):
-    def __init__(self, service_uri, username, password):
-        self.service_uri = service_uri
-        self.username = username
-        self.password = password
+class Change(object):
+    ADD, REMOVE = range(2)
+
+    def __init__(self, url, change, podcast=None):
+        self.url = url
+        self.change = change
+        self.podcast = podcast
+
+    @property
+    def description(self):
+        if self.change == self.ADD:
+            return _('Add %s') % self.url
+        else:
+            return _('Remove %s') % self.podcast.title
+
+
+class Actions(object):
+    NONE = 0
+
+    SYNC_PODCASTS, \
+    UPLOAD_EPISODES, \
+    UPDATE_DEVICE = (1<<x for x in range(3))
+
+class MygPoClient(object):
+    CACHE_FILE = 'mygpo.queue.json'
+    FLUSH_TIMEOUT = 10
+    FLUSH_RETRIES = 3
+
+    def __init__(self, config,
+            on_rewrite_url=lambda old_url, new_url: None,
+            on_add_remove_podcasts=lambda add_urls, remove_urls: None,
+            on_send_full_subscriptions=lambda: None):
+        self._cache = {'actions': Actions.NONE,
+                       'add_podcasts': [],
+                       'remove_podcasts': [],
+                       'episodes': []}
+
+        self._config = config
+        self._client = None
+
+        # Callback for actions that need to be handled by the UI frontend
+        self._on_rewrite_url = on_rewrite_url
+        self._on_add_remove_podcasts = on_add_remove_podcasts
+        self._on_send_full_subscriptions = on_send_full_subscriptions
+
+        # Initialize the _client attribute and register with config
+        self.on_config_changed('mygpo_username')
+        assert self._client is not None
+        self._config.add_observer(self.on_config_changed)
+
+        # Initialize and load the local queue
+        self._cache_file = os.path.join(gpodder.home, self.CACHE_FILE)
+        try:
+            self._cache = json.loads(open(self._cache_file).read())
+        except Exception, e:
+            log('Cannot read cache file: %s', str(e), sender=self)
+
+        self._worker_thread = None
+        atexit.register(self._at_exit)
+
+        # Do the initial flush (in case any actions are queued)
+        self.flush()
+
+    def can_access_webservice(self):
+        return self._config.mygpo_enabled and self._config.mygpo_device_uid
+
+    def schedule_podcast_sync(self):
+        log('Scheduling podcast list sync', sender=self)
+        self.schedule(Actions.SYNC_PODCASTS)
+
+    def request_podcast_lists_in_cache(self):
+        if 'add_podcasts' not in self._cache:
+            self._cache['add_podcasts'] = []
+        if 'remove_podcasts' not in self._cache:
+            self._cache['remove_podcasts'] = []
+
+    def on_subscribe(self, urls):
+        self.request_podcast_lists_in_cache()
+        self._cache['add_podcasts'].extend(urls)
+        for url in urls:
+            if url in self._cache['remove_podcasts']:
+                self._cache['remove_podcasts'].remove(url)
+        self.schedule(Actions.SYNC_PODCASTS)
+        self.flush()
+
+    def on_unsubscribe(self, urls):
+        self.request_podcast_lists_in_cache()
+        self._cache['remove_podcasts'].extend(urls)
+        for url in urls:
+            if url in self._cache['add_podcasts']:
+                self._cache['add_podcasts'].remove(url)
+        self.schedule(Actions.SYNC_PODCASTS)
+        self.flush()
+
+    @property
+    def actions(self):
+        return self._cache.get('actions', Actions.NONE)
+
+    def _at_exit(self):
+        self._worker_proc(forced=True)
+
+    def _worker_proc(self, forced=False):
+        if not forced:
+            log('Worker thread waiting for timeout', sender=self)
+            time.sleep(self.FLUSH_TIMEOUT)
+
+        # Only work when enabled, UID set and allowed to work
+        if self.can_access_webservice() and \
+                (self._worker_thread is not None or forced):
+            self._worker_thread = None
+            log('Worker thread starting to work...', sender=self)
+            for retry in range(self.FLUSH_RETRIES):
+                if retry:
+                    log('Retrying flush queue...', sender=self)
+
+                # Update the device first, so it can be created if new
+                if self.actions & Actions.UPDATE_DEVICE:
+                    self.update_device()
+
+                if self.actions & Actions.SYNC_PODCASTS:
+                    self.synchronize_subscriptions()
+
+                if self.actions & Actions.UPLOAD_EPISODES:
+                    # TODO: Upload episode actions
+                    pass
+
+                if not self.actions:
+                    # No more pending actions. Ready to quit.
+                    break
+
+            log('Flush completed (result: %d)', self.actions, sender=self)
+            self._dump_cache_to_file()
+
+    def _dump_cache_to_file(self):
+        try:
+            fp = open(self._cache_file, 'w')
+            fp.write(json.dumps(self._cache))
+            fp.close()
+            # FIXME: Atomic file write would be nice ;)
+        except Exception, e:
+            log('Cannot dump cache to file: %s', str(e), sender=self)
+
+    def flush(self):
+        if not self.actions:
+            return
+
+        if self._worker_thread is None:
+            self._worker_thread = threading.Thread(target=self._worker_proc)
+            self._worker_thread.setDaemon(True)
+            self._worker_thread.start()
+        else:
+            log('Flush already queued', sender=self)
+
+    def schedule(self, action):
+        if 'actions' not in self._cache:
+            self._cache['actions'] = 0
+
+        self._cache['actions'] |= action
+        self.flush()
+
+    def done(self, action):
+        if 'actions' not in self._cache:
+            self._cache['actions'] = 0
+
+        if action == Actions.SYNC_PODCASTS:
+            self._cache['add_podcasts'] = []
+            self._cache['remove_podcasts'] = []
+
+        self._cache['actions'] &= ~action
+
+    def on_config_changed(self, name=None, old_value=None, new_value=None):
+        if name in ('mygpo_username', 'mygpo_password', 'mygpo_server'):
+            self._client = api.MygPodderClient(self._config.mygpo_username,
+                    self._config.mygpo_password, self._config.mygpo_server)
+            log('Reloading settings.', sender=self)
+        elif name.startswith('mygpo_device_'):
+            self.schedule(Actions.UPDATE_DEVICE)
+            if name == 'mygpo_device_uid':
+                # Reset everything because we have a new device ID
+                self._on_send_full_subscriptions()
+                self._cache['podcasts_since'] = 0
+
+    def synchronize_subscriptions(self):
+        try:
+            device_id = self._config.mygpo_device_uid
+            since = self._cache.get('podcasts_since', 0)
+
+            # Step 1: Pull updates from the server and notify the frontend
+            result = self._client.pull_subscriptions(device_id, since)
+            self._cache['podcasts_since'] = result.since
+            if result.add or result.remove:
+                log('Changes from server: add %d, remove %d', \
+                        len(result.add), \
+                        len(result.remove), \
+                        sender=self)
+                self._on_add_remove_podcasts(result.add, result.remove)
+
+            # Step 2: Push updates to the server and rewrite URLs (if any)
+            add = list(set(self._cache.get('add_podcasts', [])))
+            remove = list(set(self._cache.get('remove_podcasts', [])))
+            if add or remove:
+                # Only do a push request if something has changed
+                result = self._client.update_subscriptions(device_id, add, remove)
+                self._cache['podcasts_since'] = result.since
+
+                for old_url, new_url in result.update_urls:
+                    if new_url:
+                        log('URL %s rewritten: %s', old_url, new_url, sender=self)
+                        self._on_rewrite_url(old_url, new_url)
+
+            self.done(Actions.SYNC_PODCASTS)
+            return True
+        except Exception, e:
+            log('Cannot upload subscriptions: %s', str(e), sender=self, traceback=True)
+            return False
+
+    def update_device(self):
+        try:
+            log('Uploading device settings...', sender=self)
+            uid = self._config.mygpo_device_uid
+            caption = self._config.mygpo_device_caption
+            device_type = self._config.mygpo_device_type
+            self._client.update_device_settings(uid, caption, device_type)
+            log('Device settings uploaded.', sender=self)
+            self.done(Actions.UPDATE_DEVICE)
+            return True
+        except Exception, e:
+            log('Cannot update device %s: %s', uid, str(e), sender=self, traceback=True)
+            return False
 
     def open_website(self):
-        webbrowser.open(self.service_uri, new=1)
-
-    def download_subscriptions(self):
-        theurl = self.service_uri+"/getlist"
-        args = {'username': self.username, 'password': self.password}
-        args = '&'.join(('%s=%s' % a for a in args.items()))
-        url = theurl + '?' + args
-        opml_data = util.urlopen(url).read()
-        return opml_data
-
-    def upload_subscriptions(self, filename):
-        theurl = self.service_uri+'/upload'
-        action = 'update-subscriptions'
-        fields = {'username': self.username, 'password': self.password, 'action': 'update-subscriptions', 'protocol': '0'}
-        opml_file = ('opml', 'subscriptions.opml', open(filename).read())
-
-        result = urllib2.urlopen(build_request(theurl, fields, [opml_file])).read()
-        messages = []
-
-        success = False
-
-        if '@GOTOMYGPODDER' in result:
-            self.open_website()
-            messages.append(_('Please have a look at the website for more information.'))
-
-        if '@SUCCESS' in result:
-            messages.append(_('Subscriptions uploaded.'))
-            success = True
-        elif '@AUTHFAIL' in result:
-            messages.append(_('Authentication failed.'))
-        elif '@PROTOERROR' in result:
-            messages.append(_('Protocol error.'))
-        else:
-            messages.append(_('Unknown response.'))
-
-        return success, messages
+        util.open_website('http://' + self._config.mygpo_server)
 

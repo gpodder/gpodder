@@ -232,16 +232,23 @@ gPodderSettings = {
     'youtube_preferred_fmt_id': (int, 18,
       ('The preferred video format that should be downloaded from YouTube.')),
 
-    # Settings for my.gpodder.org
-    'my_gpodder_username': (str, '',
+    # my.gpodder.org general settings
+    'mygpo_username': (str, '',
       ("The user's gPodder web services username.")),
-    'my_gpodder_password': (str, '',
+    'mygpo_password': (str, '',
       ("The user's gPodder web services password.")),
-    'my_gpodder_autoupload': (bool, False,
-      ("Upload the user's podcast list to the gPodder web services when "
-        "gPodder is closed.")),
-    'my_gpodder_service': (str, 'http://my.gpodder.org',
-      ('The base URL of the my.gpodder.org service.')),
+    'mygpo_enabled': (bool, False,
+      ("Synchronize subscriptions with the web service.")),
+    'mygpo_server': (str, 'my.gpodder.org',
+      ('The hostname of the mygpo server in use.')),
+
+    # my.gpodder.org device-specific settings
+    'mygpo_device_uid': (str, '',
+      ("The UID that is assigned to this installation.")),
+    'mygpo_device_caption': (str, '',
+      ("The human-readable name of this installation.")),
+    'mygpo_device_type': (str, 'desktop',
+      ("The type of the device gPodder is running on.")),
 
     # Paned position
     'paned_position': ( int, 200,

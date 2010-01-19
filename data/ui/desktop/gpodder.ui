@@ -161,17 +161,10 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="itemUploadToMygpo">
-            <property name="name">itemUploadToMygpo</property>
-            <property name="label" translatable="yes">Upload to my.gpodder.org</property>
-            <signal handler="on_upload_to_mygpo" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemDownloadFromMygpo">
-            <property name="name">itemDownloadFromMygpo</property>
-            <property name="label" translatable="yes">Download from my.gpodder.org</property>
-            <signal handler="on_download_from_mygpo" name="activate"/>
+          <object class="GtkAction" id="item_mygpo_settings">
+            <property name="name">item_mygpo_settings</property>
+            <property name="label" translatable="yes">my.gpodder.org Settings</property>
+            <signal handler="on_mygpo_settings_activate" name="activate"/>
           </object>
         </child>
         <child>
@@ -434,8 +427,7 @@
           <separator/>
           <menuitem action="itemMassUnsubscribe"/>
           <separator/>
-          <menuitem action="itemUploadToMygpo"/>
-          <menuitem action="itemDownloadFromMygpo"/>
+          <menuitem action="item_mygpo_settings"/>
           <menuitem action="item_goto_mygpo"/>
         </menu>
         <menu action="menuChannels">
