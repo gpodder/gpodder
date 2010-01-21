@@ -107,7 +107,10 @@ class GtkBuilderWidget(object):
                 scroll.set_property('deceleration', .975)
             else:
                 scroll = hildon.PannableArea()
-            scroll.set_name(widget.get_name())
+
+            # The following call looks ugly, but see Gnome bug 591085
+            scroll.set_name(gtk.Buildable.get_name(widget))
+
             return scroll
 
         def container_get_child_pos(container, widget):
@@ -173,7 +176,9 @@ class GtkBuilderWidget(object):
             if isinstance(widget, gtk.ScrolledWindow):
                 widget = self._handle_scrolledwindow(widget)
 
-            widget_name = widget.get_name()
+            # The following call looks ugly, but see Gnome bug 591085
+            widget_name = gtk.Buildable.get_name(widget)
+
             widget_api_name = '_'.join(re.findall(tokenize.Name, widget_name))
             widget.set_name(widget_api_name)
             if hasattr(self, widget_api_name):
