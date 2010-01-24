@@ -550,7 +550,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_send_full_subscriptions(self):
         # Send the full subscription list to the my.gpodder.org client
-        self.mygpo_client.on_subscribe([c.url for c in self.channels])
+        # (this will overwrite the subscription list on the server)
+        indicator = ProgressIndicator(_('Uploading subscriptions'), \
+                _('Your subscriptions are being uploaded to the server.'), \
+                False, self.main_window)
+
+        try:
+            self.mygpo_client.set_subscriptions([c.url for c in self.channels])
+            util.idle_add(self.show_message, _('List uploaded successfully.'))
+        except Exception, e:
+            util.idle_add(self.show_message, str(e), \
+                    _('Error while uploading'), important=True)
+
+        util.idle_add(indicator.on_finished)
 
     def on_podcast_selected(self, treeview, path, column):
         # for Maemo 5's UI
@@ -2940,7 +2952,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client.open_website()
 
     def on_mygpo_settings_activate(self, action=None):
-        settings = MygPodderSettings(self.main_window, config=self.config)
+        settings = MygPodderSettings(self.main_window, \
+                config=self.config, \
+                mygpo_client=self.mygpo_client)
 
     def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \

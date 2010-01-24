@@ -21,12 +21,77 @@
 # Thomas Perl <thpinfo.com>; 2010-01-19
 
 import gtk
+import threading
 
 import gpodder
 
 _ = gpodder.gettext
 
+from gpodder import util
+
+from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.common import BuilderWidget
+
+
+class DeviceList(gtk.ListStore):
+    C_UID, C_CAPTION, C_DEVICE_TYPE, C_ICON_NAME = range(4)
+
+    def __init__(self, devices):
+        gtk.ListStore.__init__(self, str, str, str, str)
+        for uid, caption, device_type in devices:
+            if device_type == 'desktop':
+                icon_name = 'computer'
+            elif device_type == 'mobile':
+                icon_name = 'phone'
+            elif device_type == 'server':
+                icon_name = 'server'
+            elif device_type == 'laptop':
+                icon_name = 'stock_notebook'
+            else:
+                icon_name = 'audio-x-generic'
+            self.append((uid, caption, device_type, icon_name))
+
+class DeviceBrowser(gtk.Dialog):
+    def __init__(self, model, parent=None):
+        gtk.Dialog.__init__(self, _('Select a device'), parent)
+
+        self._model = model
+
+        hbox = gtk.HBox()
+        hbox.set_border_width(6)
+        hbox.set_spacing(6)
+        self.vbox.add(hbox)
+        hbox.pack_start(gtk.Label(_('Device:')), expand=False)
+
+        combobox = gtk.ComboBox()
+        hbox.add(combobox)
+        cell = gtk.CellRendererPixbuf()
+        combobox.pack_start(cell, expand=False)
+        combobox.add_attribute(cell, 'icon-name', DeviceList.C_ICON_NAME)
+        cell = gtk.CellRendererText()
+        combobox.pack_start(cell)
+        combobox.add_attribute(cell, 'text', DeviceList.C_CAPTION)
+
+        combobox.set_model(self._model)
+        combobox.set_active(0)
+        self._combobox = combobox
+
+        self.add_button(_('Cancel'), gtk.RESPONSE_CANCEL)
+        self.add_button(_('Use device'), gtk.RESPONSE_OK)
+
+    def get_selected(self):
+        result = None
+
+        self.show_all()
+        if self.run() == gtk.RESPONSE_OK:
+            active = self._combobox.get_active()
+            result = (self._model[active][DeviceList.C_UID],
+                      self._model[active][DeviceList.C_CAPTION],
+                      self._model[active][DeviceList.C_DEVICE_TYPE])
+        self.destroy()
+
+        return result
+
 
 class MygPodderSettings(BuilderWidget):
     # Valid types defined in mygpoclient.api.PodcastDevice
@@ -42,6 +107,9 @@ class MygPodderSettings(BuilderWidget):
     C_ID, C_CAPTION = range(2)
 
     def new(self):
+        # We need to have a MygPoClient instance available
+        assert getattr(self, 'mygpo_client', None) is not None
+
         active_index = 0
         self._model = gtk.ListStore(str, str)
         for index, data in enumerate(self.VALID_TYPES):
@@ -63,9 +131,38 @@ class MygPodderSettings(BuilderWidget):
         self.entry_caption.set_text(self.config.mygpo_device_caption)
         self.combo_type.set_active(active_index)
 
+        self.button_overwrite.set_sensitive(True)
+
+    def on_device_settings_changed(self, widget):
+        self.button_overwrite.set_sensitive(False)
+
+    def on_button_overwrite_clicked(self, button):
+        threading.Thread(target=self.mygpo_client.force_fresh_upload).start()
+
     def on_button_list_uids_clicked(self, button):
-        # FIXME: Not implemented yet
-        pass
+        indicator = ProgressIndicator(_('Downloading device list'),
+                _('Getting the list of devices from your account.'),
+                False, self.main_window)
+
+        def thread_proc():
+            devices = self.mygpo_client.get_devices()
+            indicator.on_finished()
+            def ui_callback(devices):
+                model = DeviceList(devices)
+                dialog = DeviceBrowser(model, self.main_window)
+                result = dialog.get_selected()
+                if result is not None:
+                    uid, caption, device_type = result
+                    self.entry_uid.set_text(uid)
+                    self.entry_caption.set_text(caption)
+                    for index, data in enumerate(self.VALID_TYPES):
+                        d_type, d_name = data
+                        if device_type == d_type:
+                            self.combo_type.set_active(index)
+                            break
+            util.idle_add(ui_callback, devices)
+
+        threading.Thread(target=thread_proc).start()
 
     def on_button_cancel_clicked(self, button):
         # Ignore changed settings and close
@@ -85,5 +182,4 @@ class MygPodderSettings(BuilderWidget):
         self.config.mygpo_device_type = device_type
 
         self.main_window.destroy()
-
 

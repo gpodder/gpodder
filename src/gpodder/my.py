@@ -69,7 +69,7 @@ class Actions(object):
 
 class MygPoClient(object):
     CACHE_FILE = 'mygpo.queue.json'
-    FLUSH_TIMEOUT = 10
+    FLUSH_TIMEOUT = 60
     FLUSH_RETRIES = 3
 
     def __init__(self, config,
@@ -119,6 +119,14 @@ class MygPoClient(object):
             self._cache['add_podcasts'] = []
         if 'remove_podcasts' not in self._cache:
             self._cache['remove_podcasts'] = []
+
+    def force_fresh_upload(self):
+        self._on_send_full_subscriptions()
+
+    def set_subscriptions(self, urls):
+        log('Uploading (overwriting) subscriptions...')
+        self._client.put_subscriptions(self._config.mygpo_device_uid, urls)
+        log('Subscription upload done.')
 
     def on_subscribe(self, urls):
         self.request_podcast_lists_in_cache()
@@ -223,7 +231,7 @@ class MygPoClient(object):
             self.schedule(Actions.UPDATE_DEVICE)
             if name == 'mygpo_device_uid':
                 # Reset everything because we have a new device ID
-                self._on_send_full_subscriptions()
+                threading.Thread(target=self.force_fresh_upload).start()
                 self._cache['podcasts_since'] = 0
 
     def synchronize_subscriptions(self):
@@ -273,6 +281,12 @@ class MygPoClient(object):
         except Exception, e:
             log('Cannot update device %s: %s', uid, str(e), sender=self, traceback=True)
             return False
+
+    def get_devices(self):
+        result = []
+        for d in self._client.get_devices():
+            result.append((d.device_id, d.caption, d.type))
+        return result
 
     def open_website(self):
         util.open_website('http://' + self._config.mygpo_server)

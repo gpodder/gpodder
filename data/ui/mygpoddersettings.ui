@@ -38,7 +38,7 @@
               </object>
               <packing>
                 <property name="bottom_attach">2</property>
-                <property name="right_attach">3</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
               </packing>
             </child>
@@ -67,8 +67,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkHSeparator" id="hseparator">
+              <object class="GtkButton" id="button_overwrite">
+                <property name="label" translatable="yes">Upload subscription list now (overwrite on server)</property>
                 <property name="visible">True</property>
+                <signal handler="on_button_overwrite_clicked" name="clicked"/>
               </object>
               <packing>
                 <property name="bottom_attach">5</property>
@@ -153,6 +155,7 @@
             <child>
               <object class="GtkEntry" id="entry_uid">
                 <property name="visible">True</property>
+                <signal handler="on_device_settings_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">7</property>
@@ -164,6 +167,7 @@
             <child>
               <object class="GtkEntry" id="entry_caption">
                 <property name="visible">True</property>
+                <signal handler="on_device_settings_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">8</property>
@@ -175,6 +179,7 @@
             <child>
               <object class="GtkComboBox" id="combo_type">
                 <property name="visible">True</property>
+                <signal handler="on_device_settings_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">9</property>
@@ -186,9 +191,8 @@
             </child>
             <child>
               <object class="GtkButton" id="button_list_uids">
-                <property context="yes" name="label" translatable="yes">List UIDs</property>
+                <property context="yes" name="label" translatable="yes">Select device</property>
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <signal handler="on_button_list_uids_clicked" name="clicked"/>
               </object>
               <packing>
