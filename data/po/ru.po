@@ -27,9 +27,9 @@ msgid "No device configured."
 msgstr "Устройство не настроено."
 
 #: src/gpodder/console.py:41
-#, fuzzy, python-format
+#, python-format
 msgid "Synchronizing: %(index)s of %(count)s"
-msgstr "Синхронизация: %d из %d"
+msgstr "Синхронизация: %(index)s из %(count)s"
 
 #: src/gpodder/console.py:55
 msgid "Device synchronized successfully."
@@ -76,14 +76,14 @@ msgid "Missing content from server"
 msgstr "Отсутствуют данные с сервера"
 
 #: src/gpodder/download.py:707
-#, fuzzy, python-format
+#, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "Ошибка ввода/вывода: %s: %s"
+msgstr "Ошибка ввода/вывода: %(error)s: %(filename)s"
 
 #: src/gpodder/download.py:712
-#, fuzzy, python-format
+#, python-format
 msgid "HTTP Error %(code)s: %(message)s"
-msgstr "Ошибка HTTP %s: %s"
+msgstr "Ошибка HTTP %(code)s: %(message)s"
 
 #: src/gpodder/download.py:715
 #, python-format
@@ -118,34 +118,28 @@ msgid "Action"
 msgstr ""
 
 #: src/gpodder/gui.py:525
-#, fuzzy
 msgid "Confirm changes from my.gpodder.org"
-msgstr "Загрузить с my.gpodder.org"
+msgstr "Сохранение полученных изменений с my.gpodder.org"
 
 #: src/gpodder/gui.py:526
-#, fuzzy
 msgid "Select the actions you want to carry out."
 msgstr "Выберите подкасты для удаления."
 
 #: src/gpodder/gui.py:554
-#, fuzzy
 msgid "Uploading subscriptions"
-msgstr "Сохранить подписки"
+msgstr "Сохранение подпискок"
 
 #: src/gpodder/gui.py:555
-#, fuzzy
 msgid "Your subscriptions are being uploaded to the server."
-msgstr "Подписки синхронизированы."
+msgstr "Подписки загружены на сервер."
 
 #: src/gpodder/gui.py:560
-#, fuzzy
 msgid "List uploaded successfully."
-msgstr "Обновление завершено"
+msgstr "Список успешно сохранен."
 
 #: src/gpodder/gui.py:563
-#, fuzzy
 msgid "Error while uploading"
-msgstr "Ошибка при обновлении подписки"
+msgstr "Ошибка при загрузке"
 
 #: src/gpodder/gui.py:789 src/gpodder/gui.py:2663
 #: src/gpodder/gtkui/desktop/dependencymanager.py:36
@@ -294,9 +288,8 @@ msgid "These downloads failed:"
 msgstr "Неудачные загрузки:"
 
 #: src/gpodder/gui.py:1360 src/gpodder/gui.py:1363
-#, fuzzy
 msgid "Downloads finished"
-msgstr "Все загрузки выполнены"
+msgstr "Загрузки выполнены"
 
 #: src/gpodder/gui.py:1390
 #, python-format
@@ -473,9 +466,8 @@ msgid "Website redirection detected"
 msgstr "Замечено перенаправление"
 
 #: src/gpodder/gui.py:2202
-#, fuzzy, python-format
 msgid "The URL %(url)s redirects to %(target)s."
-msgstr "%s ссылается на %s. "
+msgstr "%(url)s ссылается на %(target)s. "
 
 #: src/gpodder/gui.py:2203
 msgid "Do you want to visit the website now?"
@@ -530,18 +522,18 @@ msgstr[1] "%d новых выпуска"
 msgstr[2] "%d новых выпусков"
 
 #: src/gpodder/gui.py:2388
-#, fuzzy, python-format
+#, python-format
 msgid "There has been an error updating %(url)s: %(message)s"
-msgstr "Ошибка обновления %s: %s"
+msgstr "Произошла ошибка обновления %(url)s: %(message)s"
 
 #: src/gpodder/gui.py:2389
 msgid "Error while updating feed"
 msgstr "Ошибка при обновлении подписки"
 
 #: src/gpodder/gui.py:2397
-#, fuzzy, python-format
+#, python-format
 msgid "%(position)d/%(total)d updated"
-msgstr "%d/%d обновлено"
+msgstr "%(position)d/%(total)d обновлено"
 
 #: src/gpodder/gui.py:2404
 #, python-format
@@ -655,9 +647,9 @@ msgstr ""
 "подкаста. "
 
 #: src/gpodder/gui.py:2606
-#, fuzzy, python-format
+#, python-format
 msgid "Remove %(unlocked)d out of %(selected)d episodes?"
-msgstr "Удалить %d из %d выпусков?"
+msgstr "Удалить %(unlocked)d из %(selected)d выпусков?"
 
 #: src/gpodder/gui.py:2607
 msgid ""
@@ -714,12 +706,9 @@ msgid "Please select a podcast in the podcasts list to update."
 msgstr "Подкасты для обновления"
 
 #: src/gpodder/gui.py:2775
-#, fuzzy, python-format
+#, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
-msgstr ""
-"Ошибка загрузки %s:\n"
-"\n"
-"%s"
+msgstr "Произошла ошибка при загрузке %(episode)s: %(message)s"
 
 #: src/gpodder/gui.py:2776
 msgid "Download error"
@@ -943,12 +932,12 @@ msgid "Unplayed"
 msgstr "Не прослушан"
 
 #: src/gpodder/my.py:58
-#, fuzzy, python-format
+#, python-format
 msgid "Add %s"
 msgstr "Добавление %s"
 
 #: src/gpodder/my.py:60
-#, fuzzy, python-format
+#, python-format
 msgid "Remove %s"
 msgstr "Удалить %s?"
 
@@ -1065,9 +1054,9 @@ msgid "Adding %s"
 msgstr "Добавление %s"
 
 #: src/gpodder/sync.py:387
-#, fuzzy, python-format
+#, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "Ошибка копирования %s: Недостаточно свободного места на %s"
+msgstr "Ошибка при копировании %(episode)s: Недостаточно свободного места на %(mountpoint)s"
 
 #: src/gpodder/sync.py:517
 msgid "Opening MP3 player"
@@ -1078,9 +1067,9 @@ msgid "MP3 player opened"
 msgstr "MP3 плеер открыт"
 
 #: src/gpodder/sync.py:600 src/gpodder/sync.py:608
-#, fuzzy, python-format
+#, python-format
 msgid "Error opening %(filename)s: %(message)s"
-msgstr "Ошибка открытия %s: %s"
+msgstr "Ошибка открытия %(filename)s: %(message)s"
 
 #: src/gpodder/sync.py:860
 msgid "Opening the MTP device"
@@ -1233,48 +1222,44 @@ msgid "from all podcasts"
 msgstr "из всех подкастов"
 
 #: src/gpodder/gtkui/mygpodder.py:56
-#, fuzzy
 msgid "Select a device"
-msgstr "Источник"
+msgstr "Выберите устройство"
 
 #: src/gpodder/gtkui/mygpodder.py:64
-#, fuzzy
 msgid "Device:"
-msgstr "Устройство"
+msgstr "Устройство:"
 
 #: src/gpodder/gtkui/mygpodder.py:80
-#, fuzzy
 msgid "Use device"
-msgstr "Тип устройства:"
+msgstr "Использовать устройство"
 
 #: src/gpodder/gtkui/mygpodder.py:99
 msgid "Desktop"
-msgstr ""
+msgstr "Настольный"
 
 #: src/gpodder/gtkui/mygpodder.py:100
 msgid "Laptop"
-msgstr ""
+msgstr "Ноутбук"
 
 #: src/gpodder/gtkui/mygpodder.py:101
 msgid "Mobile phone"
-msgstr ""
+msgstr "Моб. телефон"
 
 #: src/gpodder/gtkui/mygpodder.py:102
 msgid "Server"
-msgstr ""
+msgstr "Сервер"
 
 #: src/gpodder/gtkui/mygpodder.py:103
 msgid "Other"
-msgstr ""
+msgstr "Другое"
 
 #: src/gpodder/gtkui/mygpodder.py:143
-#, fuzzy
 msgid "Downloading device list"
-msgstr "Загрузка выпусков"
+msgstr "Загрузка списка устройств"
 
 #: src/gpodder/gtkui/mygpodder.py:144
 msgid "Getting the list of devices from your account."
-msgstr ""
+msgstr "Получение списка устройств с сервера."
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1340,17 +1325,13 @@ msgid "Set to"
 msgstr "Значение"
 
 #: src/gpodder/gtkui/interface/configeditor.py:86
-#, fuzzy, python-format
+#, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
-msgstr ""
-"Невозможно установить значение <b>%s</b> как <i>%s</i>.\n"
-"\n"
-"Требуемый тип выражения: %s"
+msgstr "Невозможно установить %(field)s как %(value)s. Требуемый тип выражения: %(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:90
-#, fuzzy
 msgid "Error setting option"
-msgstr "Ошибка сохранения"
+msgstr "Ошибка установки параметра"
 
 #: src/gpodder/gtkui/desktop/channel.py:69
 msgid "Select new podcast cover artwork"
@@ -1529,9 +1510,9 @@ msgid "Loading shownotes..."
 msgstr "Загрузка шоунотов..."
 
 #: src/gpodder/gtkui/desktop/syncprogress.py:42
-#, fuzzy, python-format
+#, python-format
 msgid "%(position)d of %(count)d done"
-msgstr "%d/%d обновлено"
+msgstr "%(position)d/%(count)d обновлено"
 
 #: src/gpodder/gtkui/desktop/syncprogress.py:47
 #, python-format
@@ -2090,22 +2071,20 @@ msgid "gpodder"
 msgstr "gpodder"
 
 #: data/ui/mygpoddersettings.ui.h:1
-#, fuzzy
 msgid "<b>Device configuration</b>"
-msgstr "<b>Устройство</b>"
+msgstr "<b>Настройка устройства</b>"
 
 #: data/ui/mygpoddersettings.ui.h:2
-#, fuzzy
 msgid "<b>General</b>"
-msgstr "Основное"
+msgstr "<b>Основное</b>"
 
 #: data/ui/mygpoddersettings.ui.h:3
+#, fuzzy
 msgid "Caption:"
-msgstr ""
+msgstr "Заголовок:"
 
 #: data/ui/mygpoddersettings.ui.h:4
-#, fuzzy
-msgid "Enable synchronization of subscription list"
+msgid "<b>Enable synchronization of subscription list</b>"
 msgstr "<b>Настройки синхронизации</b>"
 
 #: data/ui/mygpoddersettings.ui.h:5 data/ui/desktop/gpodderchannel.ui.h:10
@@ -2113,31 +2092,28 @@ msgid "Password:"
 msgstr "Пароль:"
 
 #: data/ui/mygpoddersettings.ui.h:6
-#, fuzzy
 msgid "Select device"
-msgstr "Выбрать выпуски"
+msgstr "Выбрать устройство"
 
 #: data/ui/mygpoddersettings.ui.h:7
 msgid "Type:"
-msgstr ""
+msgstr "Тип:"
 
 #: data/ui/mygpoddersettings.ui.h:8
 msgid "UID:"
-msgstr ""
+msgstr "UID:"
 
 #: data/ui/mygpoddersettings.ui.h:9
-#, fuzzy
 msgid "Upload subscription list now (overwrite on server)"
-msgstr "Сохранять подписки при выходе"
+msgstr "Сохранить список подписок на сервер (он будет перезаписан)"
 
 #: data/ui/mygpoddersettings.ui.h:10 data/ui/desktop/gpodderchannel.ui.h:14
 msgid "Username:"
 msgstr "Пользователь:"
 
 #: data/ui/mygpoddersettings.ui.h:11
-#, fuzzy
 msgid "my.gPodder.org settings"
-msgstr "Настройки подкаста"
+msgstr "Настройки my.gPodder.org"
 
 #: data/ui/desktop/gpodderaddpodcast.ui.h:1
 #: data/ui/maemo/gpodderaddpodcast.ui.h:1
@@ -2692,9 +2668,8 @@ msgid "_View"
 msgstr "В_ид"
 
 #: data/ui/desktop/gpodder.ui.h:56 data/ui/maemo/gpodder.ui.h:52
-#, fuzzy
 msgid "my.gpodder.org Settings"
-msgstr "Открыть my.gpodder.org"
+msgstr "Настройки my.gpodder.org"
 
 #: data/ui/maemo/gpodderchannel.ui.h:1 data/ui/frmntl/gpodderchannel.ui.h:1
 msgid "Edit username/password"
