@@ -1098,9 +1098,23 @@ def gui_open(filename):
             log('Using Nokia Media Player to open %s', filename)
             context = osso.Context('gPodder', gpodder.__version__, False)
             filename = filename.encode('utf-8')
+
+            # Fix for Maemo bug 7162 (for episodes with "#" in filename)
+            filename = 'file://' + urllib.quote(filename)
+
             rpc = osso.Rpc(context)
-            service, path = 'com.nokia.mediaplayer', '/com/nokia/mediaplayer'
-            rpc.rpc_run(service, path, service, 'mime_open', (filename,))
+            app = 'mediaplayer'
+
+            _unneeded, extension = os.path.splitext(filename.lower())
+
+            # Fix for Maemo bug 5588 (use PDF viewer and images app)
+            if extension == '.pdf':
+                app = 'osso_pdfviewer'
+            elif extension in ('.jpg', '.jpeg', '.png'):
+                app = 'image_viewer'
+
+            svc, path = (x % app for x in ('com.nokia.%s', '/com/nokia/%s'))
+            rpc.rpc_run(svc, path, svc, 'mime_open', (filename,))
         elif gpodder.win32:
             os.startfile(filename)
         else:
