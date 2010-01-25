@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder 0.8.0+svn20070122\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-25 00:56+0100\n"
-"PO-Revision-Date: 2010-01-25 14:50-0300\n"
+"PO-Revision-Date: 2010-01-25 14:52-0300\n"
 "Last-Translator: Silvio Sisto <silvio.sisto@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -26,9 +26,9 @@ msgid "No device configured."
 msgstr "No hay ningún dispositivo configurado."
 
 #: src/gpodder/console.py:41
-#, fuzzy, python-format
+#, python-format
 msgid "Synchronizing: %(index)s of %(count)s"
-msgstr "Sincronizando: %d de %d"
+msgstr "Sincronizando: %(index)s de %(count)s"
 
 #: src/gpodder/console.py:55
 msgid "Device synchronized successfully."
@@ -76,14 +76,14 @@ msgid "Missing content from server"
 msgstr "Falta contenido en el servidor"
 
 #: src/gpodder/download.py:707
-#, fuzzy, python-format
+#, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "Error de Entrada/Salida: %s: %s"
+msgstr "Error de Entrada/Salida: %(error)s: %(filename)s"
 
 #: src/gpodder/download.py:712
-#, fuzzy, python-format
+#, python-format
 msgid "HTTP Error %(code)s: %(message)s"
-msgstr "Error HTTP %s: %s"
+msgstr "Error HTTP %(code)s: %(message)s"
 
 #: src/gpodder/download.py:715
 #, python-format
@@ -124,34 +124,28 @@ msgid "Action"
 msgstr "Acción"
 
 #: src/gpodder/gui.py:525
-#, fuzzy
 msgid "Confirm changes from my.gpodder.org"
-msgstr "Descargar desde my.gpodder.org"
+msgstr "Confirmar cambios a my.gpodder.org"
 
 #: src/gpodder/gui.py:526
-#, fuzzy
 msgid "Select the actions you want to carry out."
-msgstr "Seleccione el podcast que desea eliminar."
+msgstr "Seleccione las acciones que desea llevar a cabo."
 
 #: src/gpodder/gui.py:554
-#, fuzzy
 msgid "Uploading subscriptions"
-msgstr "_Suscripciones"
+msgstr "Subiendo suscripciones"
 
 #: src/gpodder/gui.py:555
-#, fuzzy
 msgid "Your subscriptions are being uploaded to the server."
-msgstr "Tu lista de suscripciones está al día."
+msgstr "Tu lista de suscripciones está siendo subida al servidor."
 
 #: src/gpodder/gui.py:560
-#, fuzzy
 msgid "List uploaded successfully."
-msgstr "Actualización exitosa"
+msgstr "Lista subida con éxito."
 
 #: src/gpodder/gui.py:563
-#, fuzzy
 msgid "Error while uploading"
-msgstr "Error actualizando podcast"
+msgstr "Error subiendo"
 
 #: src/gpodder/gui.py:789
 #: src/gpodder/gui.py:2663
@@ -310,9 +304,8 @@ msgstr "Estas descargas fallaron:"
 
 #: src/gpodder/gui.py:1360
 #: src/gpodder/gui.py:1363
-#, fuzzy
 msgid "Downloads finished"
-msgstr "Todas las descargas finalizadas"
+msgstr "Descargas finalizadas"
 
 #: src/gpodder/gui.py:1390
 #, python-format
