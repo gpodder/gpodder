@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder 0.8.0+svn20070122\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-01-25 00:56+0100\n"
-"PO-Revision-Date: 2010-01-25 14:45-0300\n"
+"PO-Revision-Date: 2010-01-25 14:50-0300\n"
 "Last-Translator: Silvio Sisto <silvio.sisto@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -503,9 +503,9 @@ msgid "Website redirection detected"
 msgstr "Redirección de sitio web detectada"
 
 #: src/gpodder/gui.py:2202
-#, fuzzy, python-format
+#, python-format
 msgid "The URL %(url)s redirects to %(target)s."
-msgstr "La URL %s redirige a %s."
+msgstr "La URL %(url)s redirige a %(target)s."
 
 #: src/gpodder/gui.py:2203
 msgid "Do you want to visit the website now?"
@@ -560,18 +560,18 @@ msgstr[0] "%d nuevo episodio disponible"
 msgstr[1] "%d nuevos episodios disponibles"
 
 #: src/gpodder/gui.py:2388
-#, fuzzy, python-format
+#, python-format
 msgid "There has been an error updating %(url)s: %(message)s"
-msgstr "Ha habido un error actualizando %s: %s"
+msgstr "Ha habido un error actualizando %(url)s: %(message)s"
 
 #: src/gpodder/gui.py:2389
 msgid "Error while updating feed"
 msgstr "Error actualizando podcast"
 
 #: src/gpodder/gui.py:2397
-#, fuzzy, python-format
+#, python-format
 msgid "%(position)d/%(total)d updated"
-msgstr "%d/%d actualizados"
+msgstr "%(position)d/%(total)d actualizados"
 
 #: src/gpodder/gui.py:2404
 #, python-format
@@ -661,9 +661,9 @@ msgid "The selected episodes are locked. Please unlock the episodes that you wan
 msgstr "Los episodios seleccionados están bloqueados. Por favor desbloquea los episodios que quieres borrar antes de intentar borrarlos."
 
 #: src/gpodder/gui.py:2606
-#, fuzzy, python-format
+#, python-format
 msgid "Remove %(unlocked)d out of %(selected)d episodes?"
-msgstr "¿Eliminar %d episodios de %d?"
+msgstr "¿Eliminar %(unlocked)d episodios de %(selected)d seleccionados?"
 
 #: src/gpodder/gui.py:2607
 msgid "The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them."
@@ -719,12 +719,9 @@ msgid "Please select a podcast in the podcasts list to update."
 msgstr "Por favor, seleccione un podcast de la lista para actualizar."
 
 #: src/gpodder/gui.py:2775
-#, fuzzy, python-format
+#, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
-msgstr ""
-"Error al bajar %s:\n"
-"\n"
-"%s"
+msgstr "Error al bajar %(episode)s: %(message)s"
 
 #: src/gpodder/gui.py:2776
 msgid "Download error"
@@ -959,14 +956,14 @@ msgid "Unplayed"
 msgstr "Sin reproducir"
 
 #: src/gpodder/my.py:58
-#, fuzzy, python-format
+#, python-format
 msgid "Add %s"
-msgstr "Añadiendo %s"
+msgstr "Añadir %s"
 
 #: src/gpodder/my.py:60
-#, fuzzy, python-format
+#, python-format
 msgid "Remove %s"
-msgstr "¿Eliminar %s?"
+msgstr "Eliminar %s"
 
 #: src/gpodder/services.py:121
 msgid "Send podcast episodes to Bluetooth devices. Needs Python Bluez bindings."
@@ -1061,9 +1058,9 @@ msgid "Adding %s"
 msgstr "Añadiendo %s"
 
 #: src/gpodder/sync.py:387
-#, fuzzy, python-format
+#, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "Error al copiar %s: No hay suficiente espacio de disco en %s"
+msgstr "Error al copiar %(episode)s: No hay suficiente espacio en %(mountpoint)s"
 
 #: src/gpodder/sync.py:517
 msgid "Opening MP3 player"
@@ -1075,9 +1072,9 @@ msgstr "reproductor MP3 abierto"
 
 #: src/gpodder/sync.py:600
 #: src/gpodder/sync.py:608
-#, fuzzy, python-format
+#, python-format
 msgid "Error opening %(filename)s: %(message)s"
-msgstr "Error al abrir %s: %s"
+msgstr "Error al abrir %(filename)s: %(message)s"
 
 #: src/gpodder/sync.py:860
 msgid "Opening the MTP device"
@@ -1180,24 +1177,20 @@ msgstr "Borrar"
 
 #: src/gpodder/gtkui/model.py:213
 #: src/gpodder/gtkui/frmntl/episodeactions.py:139
-#, fuzzy
 msgid "New episode"
-msgstr "Nuevos episodios:"
+msgstr "Nuevos episodio"
 
 #: src/gpodder/gtkui/model.py:227
-#, fuzzy
 msgid "Downloaded episode"
-msgstr "Descargar episodios nuevos"
+msgstr "Descargar episodio"
 
 #: src/gpodder/gtkui/model.py:230
-#, fuzzy
 msgid "Downloaded video episode"
-msgstr "Descargar episodios nuevos"
+msgstr "Descargar episodios de video"
 
 #: src/gpodder/gtkui/model.py:233
-#, fuzzy
 msgid "Downloaded image"
-msgstr "Descargados"
+msgstr "Imagen descargado"
 
 #: src/gpodder/gtkui/model.py:245
 msgid "Downloaded file"
