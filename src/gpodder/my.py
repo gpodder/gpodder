@@ -36,6 +36,10 @@ from gpodder.liblogger import log
 
 from gpodder import util
 
+# Append gPodder's user agent to mygpoclient's user agent
+import mygpoclient
+mygpoclient.user_agent += ' ' + gpodder.user_agent
+
 from mygpoclient import api
 
 try:
