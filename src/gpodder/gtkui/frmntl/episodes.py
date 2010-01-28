@@ -113,9 +113,8 @@ class gPodderEpisodes(BuilderWidget):
         self.on_itemUpdateChannel_activate()
 
     def on_unsubscribe_button_clicked(self, widget):
-        if self.show_confirmation(_('Really delete this podcast and all downloaded episodes?')):
-            self.on_delete_event(widget, None)
-            self.on_itemRemoveChannel_activate(widget)
+        self.on_delete_event(widget, None)
+        self.on_itemRemoveChannel_activate(widget)
 
     def on_episode_selected(self, treeview, path, column):
         model = treeview.get_model()
