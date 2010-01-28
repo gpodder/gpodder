@@ -58,7 +58,7 @@ class gPodderPreferences(BuilderWidget):
     )
 
     def new(self):
-        self.main_window.connect('destroy', lambda w: self.callback_finished())
+        self.main_window.connect('destroy', lambda w, self: self.callback_finished(), self)
 
         self.touch_selector_orientation = hildon.TouchSelector(text=True)
         for caption in FremantleRotation.MODE_CAPTIONS:
