@@ -44,6 +44,7 @@ class ProgressIndicator(object):
         self.indicator = None
         self._initial_message = None
         self._initial_progress = None
+        self._progress_set = False
         self.source_id = gobject.timeout_add(self.DELAY, self._create_progress)
 
     def _on_delete_event(self, window, event):
@@ -90,6 +91,8 @@ class ProgressIndicator(object):
     def _update_gui(self):
         if self.indicator:
             self.indicator.step_animation()
+        if not self._progress_set and self.progressbar:
+            self.progressbar.pulse()
         return True
 
     def on_message(self, message):
@@ -99,6 +102,7 @@ class ProgressIndicator(object):
             self._initial_message = message
 
     def on_progress(self, progress):
+        self._progress_set = True
         if self.progressbar:
             self.progressbar.set_fraction(progress)
         else:
