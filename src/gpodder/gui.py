@@ -1919,6 +1919,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
               (file_type == 'video' and not self.config.video_played_dbus):
                 # Mark episode as played in the database
                 episode.mark(is_played=True)
+                self.mygpo_client.on_playback([episode])
 
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
@@ -1952,6 +1953,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for command in util.format_desktop_command(group, groups[group]):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
+
+        # Flush updated episode status
+        self.mygpo_client.flush()
 
     def playback_episodes(self, episodes):
         episodes = [e for e in episodes if \
@@ -2654,6 +2658,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode_urls = set()
             channel_urls = set()
 
+            episodes_status_update = []
             for idx, episode in enumerate(episodes):
                 progress.on_progress(float(idx)/float(len(episodes)))
                 if episode.is_locked:
@@ -2664,12 +2669,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
+                    episodes_status_update.append(episode)
 
                     # Tell the shownotes window that we have removed the episode
                     if self.episode_shownotes_window is not None and \
                             self.episode_shownotes_window.episode is not None and \
                             self.episode_shownotes_window.episode.url == episode.url:
                         util.idle_add(self.episode_shownotes_window._download_status_changed, None)
+
+            # Notify the web service about the status update + upload
+            self.mygpo_client.on_delete(episodes_status_update)
+            self.mygpo_client.flush()
 
             util.idle_add(finish_deletion, episode_urls, channel_urls)
 
@@ -2812,10 +2822,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if add_paused:
                     task.status = task.PAUSED
                 else:
+                    self.mygpo_client.on_download([task.episode])
                     self.download_queue_manager.add_task(task)
 
                 self.download_status_model.register_task(task)
                 self.enable_download_list_update()
+
+        # Flush updated episode status
+        self.mygpo_client.flush()
 
     def cancel_task_list(self, tasks):
         if not tasks:

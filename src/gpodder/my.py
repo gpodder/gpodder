@@ -28,6 +28,7 @@ import gpodder
 _ = gpodder.gettext
 
 import atexit
+import datetime
 import os
 import threading
 import time
@@ -43,6 +44,7 @@ mygpoclient.user_agent += ' ' + gpodder.user_agent
 
 from mygpoclient import api
 
+from mygpoclient import util as mygpoutil
 
 
 # Database model classes
@@ -213,16 +215,41 @@ class MygPoClient(object):
         # After we've handled the reverse-actions, clean up
         self._store.remove(actions)
 
+    @property
+    def host(self):
+        return self._config.mygpo_server
+
+    @property
+    def device_id(self):
+        return self._config.mygpo_device_uid
+
     def can_access_webservice(self):
         return self._config.mygpo_enabled and self._config.mygpo_device_uid
 
     def set_subscriptions(self, urls):
         if self.can_access_webservice():
             log('Uploading (overwriting) subscriptions...')
-            self._client.put_subscriptions(self._config.mygpo_device_uid, urls)
+            self._client.put_subscriptions(self.device_id, urls)
             log('Subscription upload done.')
         else:
             raise Exception('Webservice access not enabled')
+
+    def _convert_episode(self, episode, action):
+        return EpisodeAction(episode.channel.url, \
+                episode.url, self.device_id, action, \
+                int(time.time()), None)
+
+    def on_delete(self, episodes):
+        log('Storing %d episode delete actions', len(episodes), sender=self)
+        self._store.save(self._convert_episode(e, 'delete') for e in episodes)
+
+    def on_download(self, episodes):
+        log('Storing %d episode download actions', len(episodes), sender=self)
+        self._store.save(self._convert_episode(e, 'download') for e in episodes)
+
+    def on_playback(self, episodes):
+        log('Storing %d episode playback actions', len(episodes), sender=self)
+        self._store.save(self._convert_episode(e, 'play') for e in episodes)
 
     def on_subscribe(self, urls):
         # Cancel previously-inserted "remove" actions
@@ -330,51 +357,56 @@ class MygPoClient(object):
             self._store.remove(self._store.load(UpdateDeviceAction))
 
             # Insert our new update action
-            action = UpdateDeviceAction(self._config.mygpo_device_uid, \
+            action = UpdateDeviceAction(self.device_id, \
                     self._config.mygpo_device_caption, \
                     self._config.mygpo_device_type)
             self._store.save(action)
 
     def synchronize_episodes(self, actions):
-        log('Info: Episode sync disabled at the moment.', sender=self)
-        return True
-
         log('Starting episode status sync.', sender=self)
 
         def convert_to_api(action):
+            dt = datetime.datetime.fromtimestamp(action.timestamp)
+            since = mygpoutil.datetime_to_iso8601(dt)
             return api.EpisodeAction(action.podcast_url, \
                     action.episode_url, action.action, \
-                    action.device_id, action.timestamp, \
+                    action.device_id, since, \
                     action.position)
 
         def convert_from_api(action):
+            dt = mygpoutil.iso8601_to_datetime(action.timestamp)
+            since = int(dt.strftime('%s'))
             return ReceivedEpisodeAction(action.podcast, \
                     action.episode, action.device, \
-                    action.action, action.timestamp, \
-                    action.position)
+                    action.action, since, action.position)
 
         try:
-            host = self._config.mygpo_server
-            device_id = self._config.mygpo_device_uid
+            save_since = True
 
             # Load the "since" value from the database
-            since_o = self._store.get(SinceValue, host=host, \
-                                                  device_id=device_id, \
+            since_o = self._store.get(SinceValue, host=self.host, \
+                                                  device_id=self.device_id, \
                                                   category=SinceValue.EPISODES)
 
             # Use a default since object for the first-time case
             if since_o is None:
-                since_o = SinceValue(host, device_id, SinceValue.EPISODES)
+                since_o = SinceValue(self.host, self.device_id, SinceValue.EPISODES)
 
             # Step 1: Download Episode actions
-            changes = self._client.download_episode_actions(since_o.since, \
-                    device_id=device_id)
+            try:
+                changes = self._client.download_episode_actions(since_o.since, \
+                        device_id=self.device_id)
 
-            received_actions = [convert_from_api(a) for a in changes.actions]
-            self._store.save(received_actions)
+                received_actions = [convert_from_api(a) for a in changes.actions]
+                self._store.save(received_actions)
 
-            # Save the "since" value for later use
-            self._store.update(since_o, since=changes.since)
+                # Save the "since" value for later use
+                self._store.update(since_o, since=changes.since)
+            except Exception, e:
+                log('Exception while polling for episodes.', sender=self, traceback=True)
+                save_since = False
+
+            # Step 2: Upload Episode actions
 
             # Convert actions to the mygpoclient format for uploading
             episode_actions = [convert_to_api(a) for a in actions]
@@ -382,8 +414,9 @@ class MygPoClient(object):
             # Upload the episodes and retrieve the new "since" value
             since = self._client.upload_episode_actions(episode_actions)
 
-            # Update the "since" value of the episodes
-            self._store.update(since_o, since)
+            if save_since:
+                # Update the "since" value of the episodes
+                self._store.update(since_o, since=since)
 
             # Actions have been uploaded to the server - remove them
             self._store.remove(actions)
@@ -396,20 +429,17 @@ class MygPoClient(object):
     def synchronize_subscriptions(self, actions):
         log('Starting subscription sync.', sender=self)
         try:
-            host = self._config.mygpo_server
-            device_id = self._config.mygpo_device_uid
-
             # Load the "since" value from the database
-            since_o = self._store.get(SinceValue, host=host, \
-                                                  device_id=device_id, \
+            since_o = self._store.get(SinceValue, host=self.host, \
+                                                  device_id=self.device_id, \
                                                   category=SinceValue.PODCASTS)
 
             # Use a default since object for the first-time case
             if since_o is None:
-                since_o = SinceValue(host, device_id, SinceValue.PODCASTS)
+                since_o = SinceValue(self.host, self.device_id, SinceValue.PODCASTS)
 
             # Step 1: Pull updates from the server and notify the frontend
-            result = self._client.pull_subscriptions(device_id, since_o.since)
+            result = self._client.pull_subscriptions(self.device_id, since_o.since)
 
             # Update the "since" value in the database
             self._store.update(since_o, since=result.since)
@@ -419,10 +449,12 @@ class MygPoClient(object):
             for url in result.add:
                 log('Received add action: %s', url, sender=self)
                 self._store.remove(ReceivedSubscribeAction.remove(url))
+                self._store.remove(ReceivedSubscribeAction.add(url))
                 self._store.save(ReceivedSubscribeAction.add(url))
             for url in result.remove:
                 log('Received remove action: %s', url, sender=self)
                 self._store.remove(ReceivedSubscribeAction.add(url))
+                self._store.remove(ReceivedSubscribeAction.remove(url))
                 self._store.save(ReceivedSubscribeAction.remove(url))
 
             # Step 2: Push updates to the server and rewrite URLs (if any)
@@ -434,7 +466,7 @@ class MygPoClient(object):
             if add or remove:
                 log('Uploading: +%d / -%d', len(add), len(remove), sender=self)
                 # Only do a push request if something has changed
-                result = self._client.update_subscriptions(device_id, add, remove)
+                result = self._client.update_subscriptions(self.device_id, add, remove)
 
                 # Update the "since" value in the database
                 self._store.update(since_o, since=result.since)

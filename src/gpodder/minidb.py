@@ -41,7 +41,11 @@ class Store(object):
         return class_.__name__, list(sorted(class_.__slots__))
 
     def _set(self, o, slot, value):
-        setattr(o, slot, o.__class__.__slots__[slot](value))
+        # Set a slot on the given object to value, doing a cast if
+        # necessary. The value None is special-cased and never cast.
+        if value is not None:
+            value = o.__class__.__slots__[slot](value)
+        setattr(o, slot, value)
 
     def commit(self):
         with self.lock:
@@ -82,6 +86,10 @@ class Store(object):
         with self.lock:
             self._register(o.__class__)
             table, slots = self._schema(o.__class__)
+
+            # Only save values that have values set (non-None values)
+            slots = [s for s in slots if getattr(o, s) is not None]
+
             values = [str(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
                 ', '.join(slots), ', '.join('?'*len(slots))), values)
@@ -95,6 +103,10 @@ class Store(object):
         with self.lock:
             self._register(o.__class__)
             table, slots = self._schema(o.__class__)
+
+            # Use "None" as wildcard selector in remove actions
+            slots = [s for s in slots if getattr(o, s, None) is not None]
+
             values = [getattr(o, slot) for slot in slots]
             self.db.execute('DELETE FROM %s WHERE %s' % (table,
                 ' AND '.join('%s=?'%s for s in slots)), values)
