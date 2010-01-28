@@ -389,12 +389,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
-        def read_apps():
-            time.sleep(3) # give other parts of gpodder a chance to start up
-            self.user_apps_reader.read()
-            util.idle_add(self.user_apps_reader.get_applications_as_model, 'audio', False)
-            util.idle_add(self.user_apps_reader.get_applications_as_model, 'video', False)
-        threading.Thread(target=read_apps).start()
+        threading.Thread(target=self.user_apps_reader.read).start()
 
         # Set the "Device" menu item for the first time
         if gpodder.ui.desktop:
@@ -471,17 +466,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             hildon.hildon_gtk_window_take_screenshot(self.main_window, True)
 
         # Set up the first instance of MygPoClient
-        self.mygpo_client = my.MygPoClient(self.config,
-                on_add_remove_podcasts=self.on_add_remove_podcasts_mygpo,
-                on_rewrite_url=self.on_rewrite_url_mygpo,
-                on_send_full_subscriptions=self.on_send_full_subscriptions)
-        util.idle_add(self.mygpo_client.schedule_podcast_sync)
+        self.mygpo_client = my.MygPoClient(self.config)
+
+        # Do the initial sync with the web service
+        util.idle_add(self.mygpo_client.flush, True)
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
 
-    def on_add_remove_podcasts_mygpo(self, add_urls, remove_urls):
+    def on_add_remove_podcasts_mygpo(self):
+        actions = self.mygpo_client.get_received_actions()
+        if not actions:
+            return False
+
         existing_urls = [c.url for c in self.channels]
 
         # Columns for the episode selector window - just one...
@@ -490,63 +488,80 @@ class gPodder(BuilderWidget, dbus.service.Object):
         )
 
         # A list of actions that have to be chosen from
-        actions = []
+        changes = []
 
-        for url in add_urls:
-            if url not in existing_urls:
-                actions.append(my.Change(url, my.Change.ADD))
+        # Actions that are ignored (already carried out)
+        ignored = []
 
-        for url in remove_urls:
-            if url in existing_urls:
+        for action in actions:
+            if action.is_add and action.url not in existing_urls:
+                changes.append(my.Change(action))
+            elif action.is_remove and action.url in existing_urls:
                 podcast_object = None
                 for podcast in self.channels:
-                    if podcast.url == url:
+                    if podcast.url == action.url:
                         podcast_object = podcast
                         break
-                actions.append(my.Change(url, my.Change.REMOVE, podcast))
+                changes.append(my.Change(action, podcast_object))
+            else:
+                log('Ignoring action: %s', action, sender=self)
+                ignored.append(action)
+
+        # Confirm all ignored changes
+        self.mygpo_client.confirm_received_actions(ignored)
 
         def execute_podcast_actions(selected):
-            subscribe_list = [a.url for a in selected if a.change == a.ADD]
-            remove_list = [a.podcast for a in selected if a.change == a.REMOVE]
+            add_list = [c.action.url for c in selected if c.action.is_add]
+            remove_list = [c.podcast for c in selected if c.action.is_remove]
+
             # Apply the accepted changes locally
-            self.add_podcast_list(subscribe_list)
+            self.add_podcast_list(add_list)
             self.remove_podcast_list(remove_list, confirm=False)
 
-            unselected = [a for a in actions if a not in selected]
-            add_urls = [a.url for a in unselected if a.change == a.REMOVE]
-            remove_urls = [a.url for a in unselected if a.change == a.ADD]
-            # Revert the declined changes on the server
-            self.mygpo_client.on_subscribe(add_urls)
-            self.mygpo_client.on_unsubscribe(remove_urls)
+            # All selected items are now confirmed
+            self.mygpo_client.confirm_received_actions(c.action for c in selected)
+
+            # Revert the changes on the server
+            rejected = [c.action for c in changes if c not in selected]
+            self.mygpo_client.reject_received_actions(rejected)
 
         def ask():
             # We're abusing the Episode Selector again ;) -- thp
             gPodderEpisodeSelector(self.main_window, \
                     title=_('Confirm changes from my.gpodder.org'), \
                     instructions=_('Select the actions you want to carry out.'), \
-                    episodes=actions, \
+                    episodes=changes, \
                     columns=columns, \
                     size_attribute=None, \
                     stock_ok_button=gtk.STOCK_APPLY, \
                     callback=execute_podcast_actions, \
                     _config=self.config)
 
-        if actions:
+        # There are some actions that need the user's attention
+        if changes:
             util.idle_add(ask)
+            return True
 
-    def on_rewrite_url_mygpo(self, old_url, new_url):
-        # Called by the mygpo client if a local URL needs to be fixed
-        if not new_url:
-            return
+        # We have no remaining actions - no selection happens
+        return False
 
-        for channel in self.channels:
-            if channel.url == old_url:
-                log('Updating URL of %s to %s', channel, new_url, sender=self)
-                channel.url = new_url
-                channel.save()
-                self.channel_list_changed = True
-                util.idle_add(self.update_episode_list_model)
-                return
+    def rewrite_urls_mygpo(self):
+        # Check if we have to rewrite URLs since the last add
+        rewritten_urls = self.mygpo_client.get_rewritten_urls()
+
+        for rewritten_url in rewritten_urls:
+            if not rewritten_url.new_url:
+                continue
+
+            for channel in self.channels:
+                if channel.url == rewritten_url.old_url:
+                    log('Updating URL of %s to %s', channel, \
+                            rewritten_url.new_url, sender=self)
+                    channel.url = rewritten_url.new_url
+                    channel.save()
+                    self.channel_list_changed = True
+                    util.idle_add(self.update_episode_list_model)
+                    break
 
     def on_send_full_subscriptions(self):
         # Send the full subscription list to the my.gpodder.org client
@@ -559,8 +574,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.set_subscriptions([c.url for c in self.channels])
             util.idle_add(self.show_message, _('List uploaded successfully.'))
         except Exception, e:
-            util.idle_add(self.show_message, str(e), \
-                    _('Error while uploading'), important=True)
+            def show_error(e):
+                message = str(e)
+                if not message:
+                    message = e.__class__.__name__
+                self.show_message(message, \
+                        _('Error while uploading'), \
+                        important=True)
+            util.idle_add(show_error, e)
 
         util.idle_add(indicator.on_finished)
 
@@ -2220,6 +2241,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If at least one podcast has been added, save and update all
             if self.channel_list_changed:
+                # Fix URLs if mygpo has rewritten them
+                self.rewrite_urls_mygpo()
+
                 self.save_channels_opml()
 
                 # If only one podcast was added, select it after the update
@@ -2447,7 +2471,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.channel_list_changed = True
             self.update_podcast_list_model(select_url=select_url_afterwards)
             return
-        
+
+        # Fix URLs if mygpo has rewritten them
+        self.rewrite_urls_mygpo()
+
         self.updating_feed_cache = True
 
         if channels is None:
@@ -2742,6 +2769,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_feed_cache(channels=[self.active_channel])
 
     def on_itemUpdate_activate(self, widget=None):
+        # Check if we have outstanding subscribe/unsubscribe actions
+        if self.on_add_remove_podcasts_mygpo():
+            log('Update cancelled (received server changes)', sender=self)
+            return
+
         if self.channels:
             self.update_feed_cache()
         else:
@@ -2954,7 +2986,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_mygpo_settings_activate(self, action=None):
         settings = MygPodderSettings(self.main_window, \
                 config=self.config, \
-                mygpo_client=self.mygpo_client)
+                mygpo_client=self.mygpo_client, \
+                on_send_full_subscriptions=self.on_send_full_subscriptions)
 
     def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \
@@ -3350,6 +3383,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_auto_update_timer(self):
         log('Auto update timer fired.', sender=self)
         self.update_feed_cache(force_update=True)
+
+        # Ask web service for sub changes (if enabled)
+        self.mygpo_client.flush()
+
         return True
 
     def on_treeDownloads_row_activated(self, widget, *args):

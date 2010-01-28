@@ -127,17 +127,47 @@ class MygPodderSettings(BuilderWidget):
         self.checkbutton_enable.set_active(self.config.mygpo_enabled)
         self.entry_username.set_text(self.config.mygpo_username)
         self.entry_password.set_text(self.config.mygpo_password)
-        self.entry_uid.set_text(self.config.mygpo_device_uid)
+        self.label_uid_value.set_label(self.config.mygpo_device_uid)
         self.entry_caption.set_text(self.config.mygpo_device_caption)
         self.combo_type.set_active(active_index)
 
-        self.button_overwrite.set_sensitive(True)
+        if gpodder.ui.fremantle:
+            self.checkbutton_enable.set_name('HildonButton-finger')
+            self.button_overwrite.set_name('HildonButton-finger')
+            self.button_list_uids.set_name('HildonButton-finger')
 
-    def on_device_settings_changed(self, widget):
-        self.button_overwrite.set_sensitive(False)
+        # Disable mygpo sync while the dialog is open
+        self._enable_mygpo = self.config.mygpo_enabled
+        self.config.mygpo_enabled = False
+
+    def on_enabled_toggled(self, widget):
+        # Only update indirectly (see on_delete_event)
+        self._enable_mygpo = widget.get_active()
+
+    def on_username_changed(self, widget):
+        self.config.mygpo_username = widget.get_text()
+
+    def on_password_changed(self, widget):
+        self.config.mygpo_password = widget.get_text()
+
+    def on_device_caption_changed(self, widget):
+        self.config.mygpo_device_caption = widget.get_text()
+
+    def on_device_type_changed(self, widget):
+        model = widget.get_model()
+        it = widget.get_active_iter()
+        device_type = model.get_value(it, self.C_ID)
+        self.config.mygpo_device_type = device_type
 
     def on_button_overwrite_clicked(self, button):
-        threading.Thread(target=self.mygpo_client.force_fresh_upload).start()
+        title = _('Replace subscription list on server')
+        message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
+        if self.show_confirmation(message, title):
+            def thread_proc():
+                self.config.mygpo_enabled = True
+                self.on_send_full_subscriptions()
+                self.config.mygpo_enabled = False
+            threading.Thread(target=thread_proc).start()
 
     def on_button_list_uids_clicked(self, button):
         indicator = ProgressIndicator(_('Downloading device list'),
@@ -145,15 +175,34 @@ class MygPodderSettings(BuilderWidget):
                 False, self.main_window)
 
         def thread_proc():
-            devices = self.mygpo_client.get_devices()
+            try:
+                devices = self.mygpo_client.get_devices()
+            except Exception, e:
+                indicator.on_finished()
+                def show_error(e):
+                    if str(e):
+                        message = str(e)
+                    else:
+                        message = e.__class__.__name__
+                    self.show_message(message,
+                            _('Error getting list'),
+                            important=True)
+                util.idle_add(show_error, e)
+                return
+
             indicator.on_finished()
+
             def ui_callback(devices):
                 model = DeviceList(devices)
                 dialog = DeviceBrowser(model, self.main_window)
                 result = dialog.get_selected()
                 if result is not None:
                     uid, caption, device_type = result
-                    self.entry_uid.set_text(uid)
+
+                    # Update config and label with new UID
+                    self.config.mygpo_device_uid = uid
+                    self.label_uid_value.set_label(uid)
+
                     self.entry_caption.set_text(caption)
                     for index, data in enumerate(self.VALID_TYPES):
                         d_type, d_name = data
@@ -164,22 +213,13 @@ class MygPodderSettings(BuilderWidget):
 
         threading.Thread(target=thread_proc).start()
 
-    def on_button_cancel_clicked(self, button):
-        # Ignore changed settings and close
-        self.main_window.destroy()
+    def on_delete_event(self, widget, event):
+        # Re-enable mygpo sync if the user has selected it
+        self.config.mygpo_enabled = self._enable_mygpo
+        # Flush settings for mygpo client now
+        self.mygpo_client.flush(now=True)
 
-    def on_button_save_clicked(self, button):
-        model = self.combo_type.get_model()
-        it = self.combo_type.get_active_iter()
-        device_type = model.get_value(it, self.C_ID)
-
-        # Update configuration and close
-        self.config.mygpo_enabled = self.checkbutton_enable.get_active()
-        self.config.mygpo_username = self.entry_username.get_text()
-        self.config.mygpo_password = self.entry_password.get_text()
-        self.config.mygpo_device_uid = self.entry_uid.get_text()
-        self.config.mygpo_device_caption = self.entry_caption.get_text()
-        self.config.mygpo_device_type = device_type
-
+    def on_button_close_clicked(self, button):
+        self.on_delete_event(self.main_window, None)
         self.main_window.destroy()
 

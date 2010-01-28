@@ -7,6 +7,7 @@
     <property context="yes" name="title" translatable="yes">my.gPodder.org settings</property>
     <property name="type_hint">dialog</property>
     <property name="visible">True</property>
+    <signal handler="on_delete_event" name="delete-event"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
         <property name="border_width">2</property>
@@ -20,25 +21,14 @@
             <property name="row_spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkLabel" id="label_general">
-                <property context="yes" name="label" translatable="yes">&lt;b&gt;General&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="right_attach">3</property>
-                <property name="y_options">fill</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkCheckButton" id="checkbutton_enable">
                 <property context="yes" name="label" translatable="yes">Enable synchronization of subscription list</property>
                 <property name="visible">True</property>
+                <signal handler="on_enabled_toggled" name="toggled"/>
               </object>
               <packing>
                 <property name="bottom_attach">2</property>
-                <property name="right_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
               </packing>
             </child>
@@ -68,7 +58,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button_overwrite">
-                <property name="label" translatable="yes">Upload subscription list now (overwrite on server)</property>
+                <property name="label" translatable="yes">Replace list on server with local subscriptions</property>
                 <property name="visible">True</property>
                 <signal handler="on_button_overwrite_clicked" name="clicked"/>
               </object>
@@ -94,7 +84,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_uid">
-                <property context="yes" name="label" translatable="yes">UID:</property>
+                <property context="yes" name="label" translatable="yes">Device ID:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -106,7 +96,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_caption">
-                <property context="yes" name="label" translatable="yes">Caption:</property>
+                <property context="yes" name="label" translatable="yes">Device Name:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -131,6 +121,7 @@
             <child>
               <object class="GtkEntry" id="entry_username">
                 <property name="visible">True</property>
+                <signal handler="on_username_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">3</property>
@@ -144,6 +135,7 @@
                 <property name="visibility">False</property>
                 <property name="is_focus">True</property>
                 <property name="visible">True</property>
+                <signal handler="on_password_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">4</property>
@@ -153,9 +145,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_uid">
+              <object class="GtkLabel" id="label_uid_value">
                 <property name="visible">True</property>
-                <signal handler="on_device_settings_changed" name="changed"/>
+                <property name="xalign">0.0</property>
               </object>
               <packing>
                 <property name="bottom_attach">7</property>
@@ -167,7 +159,7 @@
             <child>
               <object class="GtkEntry" id="entry_caption">
                 <property name="visible">True</property>
-                <signal handler="on_device_settings_changed" name="changed"/>
+                <signal handler="on_device_caption_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">8</property>
@@ -179,7 +171,7 @@
             <child>
               <object class="GtkComboBox" id="combo_type">
                 <property name="visible">True</property>
-                <signal handler="on_device_settings_changed" name="changed"/>
+                <signal handler="on_device_type_changed" name="changed"/>
               </object>
               <packing>
                 <property name="bottom_attach">9</property>
@@ -216,28 +208,15 @@
             <property name="spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkButton" id="button_cancel">
-                <property name="label">gtk-cancel</property>
+              <object class="GtkButton" id="button_close">
+                <property name="label">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="visible">True</property>
-                <signal handler="on_button_cancel_clicked" name="clicked"/>
+                <signal handler="on_button_close_clicked" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="button_save">
-                <property name="label">gtk-save</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_button_save_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
               </packing>
             </child>
           </object>

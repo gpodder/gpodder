@@ -243,9 +243,9 @@ gPodderSettings = {
       ('The hostname of the mygpo server in use.')),
 
     # my.gpodder.org device-specific settings
-    'mygpo_device_uid': (str, '',
+    'mygpo_device_uid': (str, util.get_hostname(),
       ("The UID that is assigned to this installation.")),
-    'mygpo_device_caption': (str, '',
+    'mygpo_device_caption': (str, _('gPodder on %s') % util.get_hostname(),
       ("The human-readable name of this installation.")),
     'mygpo_device_type': (str, 'desktop',
       ("The type of the device gPodder is running on.")),

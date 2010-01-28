@@ -170,7 +170,8 @@ class GtkBuilderWidget(object):
         is refered using self.vbox_dialog in the code.
         """
         for widget in self.builder.get_objects():
-            if not hasattr(widget, 'get_name'):
+            # Just to be safe - every widget from the builder is buildable
+            if not isinstance(widget, gtk.Buildable):
                 continue
 
             if isinstance(widget, gtk.ScrolledWindow):
@@ -180,12 +181,11 @@ class GtkBuilderWidget(object):
             widget_name = gtk.Buildable.get_name(widget)
 
             widget_api_name = '_'.join(re.findall(tokenize.Name, widget_name))
-            widget.set_name(widget_api_name)
             if hasattr(self, widget_api_name):
                 raise AttributeError("instance %s already has an attribute %s" % (self,widget_api_name))
             else:
                 setattr(self, widget_api_name, widget)
-    
+
     @property
     def main_window(self):
         """Returns the main window of this GtkBuilderWidget"""

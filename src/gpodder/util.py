@@ -38,6 +38,7 @@ import platform
 import glob
 import stat
 import shlex
+import socket
 
 import re
 import subprocess
@@ -1356,4 +1357,18 @@ def run_external_command(command_line):
             log('Command finished successfully: %s', command_line)
 
     threading.Thread(target=open_process, args=(command_line,)).start()
+
+def get_hostname():
+    """Return the hostname of this computer
+
+    This can be implemented in a different way on each
+    platform and should yield a unique-per-user device ID.
+    """
+    nodename = platform.node()
+
+    if nodename:
+        return nodename
+
+    # Fallback - but can this give us "localhost"?
+    return socket.gethostname()
 
