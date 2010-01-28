@@ -395,6 +395,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.ui.desktop:
             self.update_item_device()
 
+        # Set up the first instance of MygPoClient
+        self.mygpo_client = my.MygPoClient(self.config)
+
         # Now, update the feed cache, when everything's in place
         if not gpodder.ui.fremantle:
             self.btnUpdateFeeds.show()
@@ -464,9 +467,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_subscribe.set_sensitive(True)
             self.main_window.set_title(_('gPodder'))
             hildon.hildon_gtk_window_take_screenshot(self.main_window, True)
-
-        # Set up the first instance of MygPoClient
-        self.mygpo_client = my.MygPoClient(self.config)
 
         # Do the initial sync with the web service
         util.idle_add(self.mygpo_client.flush, True)
