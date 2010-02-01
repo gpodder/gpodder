@@ -4,9 +4,16 @@
 
 SOURCEFILE=$1
 VERSION=`echo $SOURCEFILE | sed -e 's/[^_]*_\(.*\)-[^-]*\.dsc/\1/g'`
-FOLDER=gpodder-${VERSION}
+FOLDER=`echo $SOURCEFILE | sed -e 's/\([^_]*\)_.*/\1/g'`-${VERSION}
 
-for DIST in intrepid hardy jaunty karmic; do
+# See https://wiki.ubuntu.com/DevelopmentCodeNames
+UBUNTU_RELEASES="intrepid jaunty karmic lucid"
+
+echo "SOURCEFILE = $SOURCEFILE"
+echo "VERSION    = $VERSION"
+echo "FOLDER     = $FOLDER"
+
+for DIST in $UBUNTU_RELEASES; do
     dpkg-source -x $SOURCEFILE
     cd $FOLDER
 
