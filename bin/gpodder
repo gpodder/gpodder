@@ -150,6 +150,7 @@ if __name__ == '__main__':
 
     if remote_object is not None:
         # An instance of GUI is already running
+        print >>sys.stderr, 'Existing instance running - activating via D-Bus.'
         remote_object.show_gui_window(dbus_interface=gpodder.dbus_interface)
         if options.subscribe:
             remote_object.subscribe_to_url(options.subscribe)
