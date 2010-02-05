@@ -3198,19 +3198,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website(gpodder.__url__)
 
     def on_wiki_activate(self, widget, *args):
-        util.open_website('http://wiki.gpodder.org/')
+        util.open_website('http://gpodder.org/wiki/User_Manual')
 
     def on_bug_tracker_activate(self, widget, *args):
         if gpodder.ui.maemo:
             util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
         else:
-            util.open_website('http://bugs.gpodder.org/')
-
-    def on_shop_activate(self, widget, *args):
-        util.open_website('http://gpodder.org/shop')
-
-    def on_wishlist_activate(self, widget, *args):
-        util.open_website('http://amzn.com/w/2L04WZKX274VB')
+            util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder')
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
