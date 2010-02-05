@@ -3211,6 +3211,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
+        dlg.set_transient_for(self.main_window)
         dlg.set_name('gPodder')
         dlg.set_version(gpodder.__version__)
         dlg.set_copyright(gpodder.__copyright__)
