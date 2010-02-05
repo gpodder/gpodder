@@ -94,6 +94,8 @@ class gPodderSyncUI(object):
         device = sync.open_device(self._config)
         if device is not None:
             def after_device_sync_callback(device, successful_sync):
+                if device.cancelled:
+                    log('Cancelled by user.', sender=self)
                 if successful_sync:
                     title = _('Device synchronized')
                     message = _('Your device has been synchronized.')
@@ -184,6 +186,7 @@ class gPodderSyncUI(object):
                 device.close()
             threading.Thread(target=sync_thread_func).start()
         else:
+            device.cancel()
             device.close()
 
     def on_cleanup_device(self):
