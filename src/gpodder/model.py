@@ -865,20 +865,6 @@ class PodcastEpisode(PodcastModelObject):
             return current_try
 
         while self.db.episode_filename_exists(current_try):
-            if next_try_id == 2 and not youtube.is_video_link(url):
-                # If we arrive here, current_try has a collision, so
-                # try to resolve the URL for a better basename
-                log('Filename collision: %s - trying to resolve...', current_try, sender=self)
-                url = util.get_real_url(self.channel.authenticate_url(url))
-                episode_filename, extension_UNUSED = util.filename_from_url(url)
-                current_try = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)+extension
-                if not self.db.episode_filename_exists(current_try) and current_try:
-                    log('Filename %s is available - collision resolved.', current_try, sender=self)
-                    return current_try
-                else:
-                    filename = episode_filename
-                    log('Continuing search with %s as basename...', filename, sender=self)
-
             current_try = '%s (%d)%s' % (filename, next_try_id, extension)
             next_try_id += 1
 
@@ -959,7 +945,7 @@ class PodcastEpisode(PodcastModelObject):
             # Use the video title for YouTube downloads
             for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
                 if self.url.startswith(yt_url):
-                    fn_template = os.path.basename(self.title)
+                    fn_template = util.sanitize_filename(os.path.basename(self.title), self.MAX_FILENAME_LENGTH)
 
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):
