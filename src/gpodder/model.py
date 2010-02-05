@@ -494,11 +494,7 @@ class PodcastChannel(PodcastModelObject):
         f = open(m3u_filename, 'w')
         f.write('#EXTM3U\n')
 
-        # Sort downloaded episodes by publication date, ascending
-        def older(episode_a, episode_b):
-            return cmp(episode_a.pubDate, episode_b.pubDate)
-
-        for episode in sorted(downloaded_episodes, cmp=older):
+        for episode in PodcastEpisode.sort_by_pubdate(downloaded_episodes):
             if episode.was_downloaded(and_exists=True):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
@@ -627,6 +623,15 @@ class PodcastChannel(PodcastModelObject):
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
+
+    @staticmethod
+    def sort_by_pubdate(episodes, reverse=False):
+        """Sort a list of PodcastEpisode objects chronologically
+
+        Returns a iterable, sorted sequence of the episodes
+        """
+        key_pubdate = lambda e: e.pubDate
+        return sorted(episodes, key=key_pubdate, reverse=reverse)
 
     def reload_from_db(self):
         """

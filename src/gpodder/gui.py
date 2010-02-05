@@ -75,6 +75,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder.model import PodcastChannel
+from gpodder.model import PodcastEpisode
 from gpodder.dbsqlite import Database
 
 from gpodder.gtkui.model import PodcastListModel
@@ -1958,8 +1959,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client.flush()
 
     def playback_episodes(self, episodes):
-        episodes = [e for e in episodes if \
-                e.was_downloaded(and_exists=True) or self.streaming_possible()]
+        # We need to create a list, because we run through it more than once
+        episodes = list(PodcastEpisode.sort_by_pubdate(e for e in episodes if \
+               e.was_downloaded(and_exists=True) or self.streaming_possible()))
 
         try:
             self.playback_episodes_for_real(episodes)
