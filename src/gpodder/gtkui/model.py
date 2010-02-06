@@ -34,6 +34,7 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
+import gio
 import xml.sax.saxutils
 
 class EpisodeListModel(gtk.ListStore):
@@ -197,6 +198,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
+        icon_theme = gtk.icon_theme_get_default()
 
         if downloading is not None and downloading(episode):
             tooltip = _('Downloading')
@@ -221,6 +223,7 @@ class EpisodeListModel(gtk.ListStore):
                 show_bullet = not episode.is_played
                 show_padlock = episode.is_locked
                 show_missing = not episode.file_exists()
+                filename = episode.local_filename(create=False, check_only=True)
 
                 file_type = episode.file_type()
                 if file_type == 'audio':
@@ -235,15 +238,24 @@ class EpisodeListModel(gtk.ListStore):
 
                     # Optional thumbnailing for image downloads
                     if generate_thumbnails:
-                        image_path = episode.local_filename(create=False, check_only=True)
-                        if image_path is not None:
+                        if filename is not None:
                             # set the status icon to the path itself (that
                             # should be a good identifier anyway)
-                            status_icon = image_path
+                            status_icon = filename
                             status_icon_to_build_from_file = True
                 else:
                     tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE
+
+                # Try to find a themed icon for this file
+                if filename is not None:
+                    file = gio.File(filename)
+                    file_info = file.query_info('*')
+                    icon = file_info.get_icon()
+                    for icon_name in icon.get_names():
+                        if icon_theme.has_icon(icon_name):
+                            status_icon = icon_name
+                            break
 
                 if show_missing:
                     tooltip.append(_('missing file'))
@@ -251,13 +263,17 @@ class EpisodeListModel(gtk.ListStore):
                     if show_bullet:
                         if file_type == 'image':
                             tooltip.append(_('never displayed'))
-                        else:
+                        elif file_type in ('audio', 'video'):
                             tooltip.append(_('never played'))
+                        else:
+                            tooltip.append(_('never opened'))
                     else:
                         if file_type == 'image':
                             tooltip.append(_('displayed'))
-                        else:
+                        elif file_type in ('audio', 'video'):
                             tooltip.append(_('played'))
+                        else:
+                            tooltip.append(_('opened'))
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
 
