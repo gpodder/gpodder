@@ -1100,8 +1100,9 @@ def gui_open(filename):
             context = osso.Context('gPodder', gpodder.__version__, False)
             filename = filename.encode('utf-8')
 
-            # Fix for Maemo bug 7162 (for episodes with "#" in filename)
-            filename = 'file://' + urllib.quote(filename)
+            # Fix for Maemo bug 7162 (for local files with "#" in filename)
+            if filename.startswith('/'):
+                filename = 'file://' + urllib.quote(filename)
 
             rpc = osso.Rpc(context)
             app = 'mediaplayer'
