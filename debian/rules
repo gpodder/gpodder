@@ -37,15 +37,15 @@ clean:
 	${SETUP} clean --all
 	rm -rf build dist
 	dh_clean
-	make clean
+	PYTHON=$(PYTHON) make clean
 
 install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	make -C data/po
-	make data/org.gpodder.service
+	PYTHON=$(PYTHON) make -C data/po
+	PYTHON=$(PYTHON) make data/org.gpodder.service
 	${SETUP} install --no-compile --root='$(DESTDIR)' --prefix='$(PREFIX)'
 
 binary-arch:
