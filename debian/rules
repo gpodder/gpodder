@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+DOCS		= README
+
+PYTHON		= /usr/bin/python2.5
+SETUP		= TARGET=maemo ${PYTHON} setup.py
+
+DEBPACKAGE	= gpodder
+DESTDIR		= debian/${DEBPACKAGE}
+PREFIX		= usr
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	dh_testdir
+	${SETUP} build
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	${SETUP} clean --all
+	rm -rf build dist
+	dh_clean
+	make clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	make -C data/po
+	make data/org.gpodder.service
+	${SETUP} install --no-compile --root='$(DESTDIR)' --prefix='$(PREFIX)'
+
+binary-arch:
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs $(DOCS)
+	dh_installman
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	maemo-optify
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep
+
+.PHONY: build clean binary-indep binary-arch binary install configure
+

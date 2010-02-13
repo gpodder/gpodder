@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# We have to update the icon cache
+gtk-update-icon-cache -f /usr/share/icons/hicolor
+
+# maemo-select-menu-location not available on Fremantle
+#oldversion="$2"
+#if [ -z "$oldversion" ]; then
+#	maemo-select-menu-location gpodder.desktop
+#fi
+
+#DEBHELPER#
+
