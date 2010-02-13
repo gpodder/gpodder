@@ -45,6 +45,8 @@ GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 DESTDIR ?= /
 PREFIX ?= /usr
 
+PYTHON ?= python
+
 ##########################################################################
 
 all: help
@@ -52,7 +54,6 @@ all: help
 help:
 	@echo 'make test            run gpodder in local directory'
 	@echo 'make unittest        run doctests + unittests'
-	@echo 'make mtest           run gpodder (for maemo scratchbox)'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
 	@echo 'make install         install gpodder into "$(PREFIX)"'
@@ -72,17 +73,13 @@ test:
 	$(BINFILE) --verbose
 
 unittest:
-	PYTHONPATH=src/ python -m gpodder.unittests
-
-mtest:
-	@# in maemo scratchbox, we need this for osso/hildon
-	run-standalone.sh python2.5 $(BINFILE) --maemo --verbose
+	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
 deb:
 	debuild
 
 release: distclean
-	python setup.py sdist
+	$(PYTHON) setup.py sdist
 
 releasetest: unittest
 	desktop-file-validate data/gpodder.desktop
@@ -92,7 +89,7 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
 
 install: messages $(GPODDER_SERVICE_FILE)
-	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 ##########################################################################
 
@@ -123,16 +120,16 @@ remove-git-menuitem:
 gpodder-icon-theme:
 	rm -rf $(GPODDER_ICON_THEME)
 	mkdir -p $(GPODDER_ICON_THEME)
-	python doc/dev/icon-theme/list-icon-names.py >$(GPODDER_ICON_THEME)/names
+	$(PYTHON) doc/dev/icon-theme/list-icon-names.py >$(GPODDER_ICON_THEME)/names
 	(cd $(GPODDER_ICON_THEME) && \
-	    python ../../doc/dev/icon-theme/pack-icons.py && \
-	    python ../../doc/dev/icon-theme/create-index.py >index.theme && \
+	    $(PYTHON) ../../doc/dev/icon-theme/pack-icons.py && \
+	    $(PYTHON) ../../doc/dev/icon-theme/create-index.py >index.theme && \
 	    rm -f names)
 
 ##########################################################################
 
 clean:
-	python setup.py clean
+	$(PYTHON) setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
 	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png .coverage $(GPODDER_SERVICE_FILE)
