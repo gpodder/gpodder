@@ -250,12 +250,13 @@ class EpisodeListModel(gtk.ListStore):
                 # Try to find a themed icon for this file
                 if filename is not None:
                     file = gio.File(filename)
-                    file_info = file.query_info('*')
-                    icon = file_info.get_icon()
-                    for icon_name in icon.get_names():
-                        if icon_theme.has_icon(icon_name):
-                            status_icon = icon_name
-                            break
+                    if file.query_exists():
+                        file_info = file.query_info('*')
+                        icon = file_info.get_icon()
+                        for icon_name in icon.get_names():
+                            if icon_theme.has_icon(icon_name):
+                                status_icon = icon_name
+                                break
 
                 if show_missing:
                     tooltip.append(_('missing file'))
