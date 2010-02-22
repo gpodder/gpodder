@@ -2075,10 +2075,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
+        if self.config.podcast_list_view_all and not self.channel_list_changed:
+            # Update "all episodes" view in any case (if enabled)
+            self.podcast_list_model.update_first_row()
+
         if selected:
             # very cheap! only update selected channel
             if iter is not None:
-                self.podcast_list_model.update_by_filter_iter(iter)
+                # If we have selected the "all episodes" view, we have
+                # to update all channels for selected episodes:
+                if self.config.podcast_list_view_all and \
+                        self.podcast_list_model.iter_is_first_row(iter):
+                    urls = self.get_podcast_urls_from_selected_episodes()
+                    self.podcast_list_model.update_by_urls(urls)
+                else:
+                    # Otherwise just update the selected row (a podcast)
+                    self.podcast_list_model.update_by_filter_iter(iter)
         elif not self.channel_list_changed:
             # we can keep the model, but have to update some
             if urls is None:
@@ -3306,6 +3318,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
+
+    def get_podcast_urls_from_selected_episodes(self):
+        """Get a set of podcast URLs based on the selected episodes"""
+        return set(episode.channel.url for episode in \
+                self.get_selected_episodes())
 
     def get_selected_episodes(self):
         """Get a list of selected episodes from treeAvailable"""

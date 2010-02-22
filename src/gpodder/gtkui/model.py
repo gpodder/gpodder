@@ -632,11 +632,20 @@ class PodcastListModel(gtk.ListStore):
                     return row.path
         return None
 
+    def update_first_row(self):
+        # Update the first row in the model (for "all episodes" updates)
+        self.update_by_iter(self.get_iter_first())
+
     def update_by_urls(self, urls):
         # Given a list of URLs, update each matching row
         for row in self:
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter)
+
+    def iter_is_first_row(self, iter):
+        iter = self._filter.convert_iter_to_child_iter(iter)
+        path = self.get_path(iter)
+        return (path == (0,))
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
