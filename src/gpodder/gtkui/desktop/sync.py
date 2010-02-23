@@ -96,7 +96,7 @@ class gPodderSyncUI(object):
             def after_device_sync_callback(device, successful_sync):
                 if device.cancelled:
                     log('Cancelled by user.', sender=self)
-                if successful_sync:
+                elif successful_sync:
                     title = _('Device synchronized')
                     message = _('Your device has been synchronized.')
                     self.notification(message, title)
