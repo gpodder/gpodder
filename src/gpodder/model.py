@@ -780,7 +780,18 @@ class PodcastEpisode(PodcastModelObject):
 
         self.state = gpodder.STATE_NORMAL
         self.is_played = False
+
+        # Initialize the "is_locked" property
+        self._is_locked = False
         self.is_locked = channel.channel_is_locked
+
+    def get_is_locked(self):
+        return self._is_locked
+
+    def set_is_locked(self, is_locked):
+        self._is_locked = bool(is_locked)
+
+    is_locked = property(fget=get_is_locked, fset=set_is_locked)
 
     def save(self):
         if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
