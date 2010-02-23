@@ -34,8 +34,13 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
-import gio
 import xml.sax.saxutils
+
+try:
+    import gio
+    have_gio = True
+except ImportError:
+    have_gio = False
 
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
@@ -248,7 +253,7 @@ class EpisodeListModel(gtk.ListStore):
                     status_icon = self.ICON_GENERIC_FILE
 
                 # Try to find a themed icon for this file
-                if filename is not None:
+                if filename is not None and have_gio:
                     file = gio.File(filename)
                     if file.query_exists():
                         file_info = file.query_info('*')
