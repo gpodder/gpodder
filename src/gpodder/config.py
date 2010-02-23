@@ -207,7 +207,7 @@ gPodderSettings = {
     'on_drag_mark_played': (bool, False,
       ("Mark episode as played when using drag'n'drop to copy/open it")),
 
-    'feed_update_skipping': (bool, True,
+    'feed_update_skipping': (bool, False,
       ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
     'allow_empty_feeds': (bool, False,
       ('Allow subscribing to feeds without episodes')),
