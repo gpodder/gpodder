@@ -414,7 +414,7 @@ class PodcastChannelProxy(object):
         self.id = None
         self._save_dir_size_set = False
         self.save_dir_size = 0L
-        self.icon = None
+        self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
 
     def __getattribute__(self, name):
         try:
@@ -453,7 +453,7 @@ class PodcastListModel(gtk.ListStore):
     def row_separator_func(cls, model, iter):
         return model.get_value(iter, cls.C_SEPARATOR)
 
-    def __init__(self, max_image_side, cover_downloader):
+    def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool, bool)
 
@@ -467,7 +467,7 @@ class PodcastListModel(gtk.ListStore):
         if gpodder.ui.fremantle:
             self._max_image_side = 64
         else:
-            self._max_image_side = max_image_side
+            self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
     def _filter_visible_func(self, model, iter):
@@ -604,7 +604,7 @@ class PodcastListModel(gtk.ListStore):
             self.set(iter, \
                     self.C_URL, all_episodes.url, \
                     self.C_CHANNEL, all_episodes, \
-                    self.C_COVER, all_episodes.icon, \
+                    self.C_COVER, self._get_cover_image(all_episodes), \
                     self.C_SEPARATOR, False)
             self.update_by_iter(iter)
 

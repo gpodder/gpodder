@@ -135,12 +135,15 @@ class CoverDownloader(ObservableService):
         self.remove_cover(channel)
         self.request_cover(channel, custom_url)
 
+    def get_default_cover(self, channel):
+        # "randomly" choose a cover based on the podcast title
+        basename = 'podcast-%d.png' % (hash(channel.title)%5)
+        filename = os.path.join(gpodder.images_folder, basename)
+        return gtk.gdk.pixbuf_new_from_file(filename)
+
     def __get_cover(self, channel, url, async=False, avoid_downloading=False):
         if not async and avoid_downloading and not os.path.exists(channel.cover_file):
-            return (channel.url, None)
-
-        loader = gtk.gdk.PixbufLoader()
-        pixbuf = None
+            return (channel.url, self.get_default_cover(channel))
 
         if not os.path.exists(channel.cover_file):
             if url is None:
@@ -181,16 +184,12 @@ class CoverDownloader(ObservableService):
 
         if os.path.exists(channel.cover_file):
             try:
-                loader.write(open(channel.cover_file, 'rb').read())
-                loader.close()
-                pixbuf = loader.get_pixbuf()
+                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file)
             except:
                 log('Data error while loading %s', channel.cover_file, sender=self)
-        else:
-            try:
-                loader.close()
-            except:
-                pass
+
+        if pixbuf is None:
+            pixbuf = self.get_default_cover(channel)
 
         if async:
             self.notify('cover-available', channel.url, pixbuf)

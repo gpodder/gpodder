@@ -184,8 +184,6 @@ gPodderSettings = {
       ("The name of the coverart file accepted by the user's FS-based player.")),
     'custom_player_coverart_format' : (str, 'JPEG',
       ("The image format accepted by the user's FS-based player.")),
-    'podcast_list_icon_size': (int, 32,
-      ("The width of the icon used in the podcast channel list.")),
     'cmd_all_downloads_complete': (str, '',
       ("The path to a command that gets run after all downloads are completed.")),
     'cmd_download_complete': (str, '',

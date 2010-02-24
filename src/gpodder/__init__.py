@@ -116,6 +116,7 @@ del SOCKET_TIMEOUT
 ui_folders = []
 credits_file = None
 icon_file = None
+images_folder = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)

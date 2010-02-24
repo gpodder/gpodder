@@ -272,7 +272,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader = CoverDownloader()
 
         # Generate list models for podcasts and their episodes
-        self.podcast_list_model = PodcastListModel(self.config.podcast_list_icon_size, self.cover_downloader)
+        self.podcast_list_model = PodcastListModel(self.cover_downloader)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
