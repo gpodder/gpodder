@@ -493,7 +493,7 @@ class MygPoClient(object):
             log('Device settings uploaded.', sender=self)
             return True
         except Exception, e:
-            log('Cannot update device %s: %s', uid, str(e), sender=self, traceback=True)
+            log('Cannot update device %s: %s', self.device_id, str(e), sender=self, traceback=True)
             return False
 
     def get_devices(self):
