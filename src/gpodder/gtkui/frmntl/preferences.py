@@ -145,6 +145,11 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_view_all_episodes)
         self.pannable_vbox.add(self.check_view_all_episodes)
 
+        self.check_feed_update_skipping = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.check_feed_update_skipping.set_label(_('Feed update heuristics (skip rarely updated podcasts)'))
+        self._config.connect_gtk_togglebutton('feed_update_skipping', self.check_feed_update_skipping)
+        self.pannable_vbox.add(self.check_feed_update_skipping)
+
         self.gPodderPreferences.show_all()
 
     def on_picker_orientation_value_changed(self, *args):
