@@ -216,7 +216,7 @@ gPodderSettings = {
       ('Internally used (current view mode)')),
     'podcast_list_hide_boring': (bool, False,
       ('Hide podcasts in the main window for which the episode list is empty')),
-    'podcast_list_view_all': (bool, False,
+    'podcast_list_view_all': (bool, True,
       ('Show an additional entry in the podcast list that contains all episodes')),
 
     'audio_played_dbus': (bool, False,

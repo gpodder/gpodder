@@ -226,6 +226,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
+        self.preferences_dialog = None
         self.config.add_observer(self.on_config_changed)
 
         self.tray_icon = None
@@ -246,6 +247,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.desktop:
             self.show_hide_tray_icon()
+            self.itemShowAllEpisodes.set_active(self.config.podcast_list_view_all)
             self.itemShowToolbar.set_active(self.config.show_toolbar)
             self.itemShowDescription.set_active(self.config.episode_list_descriptions)
 
@@ -1199,7 +1201,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # that's why we require the restart of gPodder in the message.
             return False
 
-    def on_config_changed(self, name, old_value, new_value):
+    def on_config_changed(self, *args):
+        util.idle_add(self._on_config_changed, *args)
+
+    def _on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
@@ -1213,7 +1218,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'podcast_list_view_all':
             # Force a update of the podcast list model
             self.channel_list_changed = True
+            if gpodder.ui.fremantle and self.preferences_dialog is not None:
+                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, True)
+                while gtk.events_pending():
+                    gtk.main_iteration(False)
             self.update_podcast_list_model()
+            if gpodder.ui.fremantle and self.preferences_dialog is not None:
+                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, False)
         elif name == 'auto_cleanup_downloads' and new_value:
             # Always cleanup when this option is enabled
             self.on_btnCleanUpDownloads_clicked()
@@ -2941,6 +2952,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
 
+    def on_itemShowAllEpisodes_activate(self, widget):
+        self.config.podcast_list_view_all = widget.get_active()
+
     def on_itemShowToolbar_activate(self, widget):
         self.config.show_toolbar = self.itemShowToolbar.get_active()
 
@@ -2989,6 +3003,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.itemDevice.set_visible(False)
 
     def properties_closed( self):
+        self.preferences_dialog = None
         self.show_hide_tray_icon()
         self.update_item_device()
         if gpodder.ui.maemo:
@@ -3000,7 +3015,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
-        gPodderPreferences(self.gPodder, _config=self.config, \
+        self.preferences_dialog = gPodderPreferences(self.gPodder, \
+                _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
                 mygpo_login=self.on_mygpo_settings_activate)

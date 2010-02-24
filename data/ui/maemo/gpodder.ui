@@ -259,6 +259,13 @@
           </object>
         </child>
         <child>
+          <object class="GtkToggleAction" id="itemShowAllEpisodes">
+            <property name="active">True</property>
+            <property name="label" translatable="yes">Show "All episodes" in podcast list</property>
+            <signal handler="on_itemShowAllEpisodes_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkToggleAction" id="itemShowToolbar">
             <property name="active">True</property>
             <property name="visible">False</property>
@@ -399,6 +406,8 @@
           <menuitem action="item_episode_details"/>
         </menu>
         <menu action="menuView">
+          <menuitem action="itemShowAllEpisodes"/>
+          <separator/>
           <menuitem action="itemShowToolbar"/>
           <menuitem action="itemShowDescription"/>
           <separator/>

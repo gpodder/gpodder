@@ -140,7 +140,12 @@ class gPodderPreferences(BuilderWidget):
             child = button.get_child()
             child.set_padding(0, 0, 12, 0)
 
-        self.gPodderPreferences.show()
+        self.check_view_all_episodes = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.check_view_all_episodes.set_label(_('Show "All episodes" in podcast list'))
+        self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_view_all_episodes)
+        self.pannable_vbox.add(self.check_view_all_episodes)
+
+        self.gPodderPreferences.show_all()
 
     def on_picker_orientation_value_changed(self, *args):
         self._config.rotation_mode = self.touch_selector_orientation.get_active(0)
