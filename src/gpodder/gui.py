@@ -213,9 +213,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.config.rotation_mode == FremantleRotation.ALWAYS:
                 util.idle_add(self.on_window_orientation_changed, \
                         Orientation.PORTRAIT)
+                self._last_orientation = Orientation.PORTRAIT
+            else:
+                self._last_orientation = Orientation.LANDSCAPE
 
             self.bluetooth_available = False
         else:
+            self._last_orientation = Orientation.LANDSCAPE
             self.bluetooth_available = util.bluetooth_available()
             self.toolbar.set_property('visible', self.config.show_toolbar)
 
@@ -629,6 +633,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._for_each_task_set_status(selected_tasks, status)
 
     def on_window_orientation_changed(self, orientation):
+        self._last_orientation = orientation
+        if self.preferences_dialog is not None:
+            self.preferences_dialog.on_window_orientation_changed(orientation)
+
         treeview = self.treeChannels
         if orientation == Orientation.PORTRAIT:
             treeview.set_action_area_orientation(gtk.ORIENTATION_VERTICAL)
@@ -3019,7 +3027,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
-                mygpo_login=self.on_mygpo_settings_activate)
+                mygpo_login=self.on_mygpo_settings_activate, \
+                on_itemAbout_activate=self.on_itemAbout_activate, \
+                on_wiki_activate=self.on_wiki_activate)
+
+        # Initial message to relayout window (in case it's opened in portrait mode
+        self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
