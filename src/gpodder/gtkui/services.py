@@ -182,6 +182,7 @@ class CoverDownloader(ObservableService):
                     except IOError, ioe:
                         log('Cannot save image due to I/O error', sender=self, traceback=True)
 
+        pixbuf = None
         if os.path.exists(channel.cover_file):
             try:
                 pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file)
