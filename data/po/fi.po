@@ -5,10 +5,10 @@
 # Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>, 2009-2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder 0.13.9\n"
+"Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-25 01:57+0100\n"
-"PO-Revision-Date: 2010-02-01 19:39+0200\n"
+"PO-Revision-Date: 2010-02-25 13:33+0200\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <laatu@lokalisointi.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,9 +17,9 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/gpodder/config.py:246
-#, fuzzy, python-format
+#, python-format
 msgid "gPodder on %s"
-msgstr "gPodder on löytänyt %s"
+msgstr "gPodder koneella %s"
 
 #: src/gpodder/config.py:309
 msgid "No description available."
@@ -924,13 +924,12 @@ msgid "Remove %s"
 msgstr "Poista %s"
 
 #: src/gpodder/services.py:121
-#, fuzzy
 msgid ""
 "Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto "
 "command from gnome-bluetooth."
 msgstr ""
-"Lähettää podcast-jaksoja Bluetooth-laitteille. Vaatii Python Bluez -"
-"liitokset."
+"Lähettää podcast-jaksoja Bluetooth-laitteille. Tarvitsee bluetooth-sendto-"
+"komennon gnome-bluetooth-paketista."
 
 #: src/gpodder/services.py:122
 msgid "HTML episode shownotes"
@@ -1185,18 +1184,16 @@ msgid "never played"
 msgstr "ei koskaan soitettu"
 
 #: src/gpodder/gtkui/model.py:275
-#, fuzzy
 msgid "never opened"
-msgstr "ei koskaan soitettu"
+msgstr "ei koskaan avattu"
 
 #: src/gpodder/gtkui/model.py:278
 msgid "displayed"
 msgstr "näytetty"
 
 #: src/gpodder/gtkui/model.py:282
-#, fuzzy
 msgid "opened"
-msgstr "Laite %s on avattu"
+msgstr "avattu"
 
 #: src/gpodder/gtkui/model.py:284
 msgid "deletion prevented"
@@ -1244,15 +1241,16 @@ msgid "Other"
 msgstr "Muu"
 
 #: src/gpodder/gtkui/mygpodder.py:163
-#, fuzzy
 msgid "Replace subscription list on server"
-msgstr "Lähetä tilausluettelo nyt (korvaa palvelimella oleva)"
+msgstr "Korvaa palvelimella oleva tilausluettelo"
 
 #: src/gpodder/gtkui/mygpodder.py:164
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
+"Palvelimelta poistetaan podcastit, joita ei ole lisätty paikalliseen "
+"gPodderiin. Jatketaanko?"
 
 #: src/gpodder/gtkui/mygpodder.py:173
 msgid "Downloading device list"
@@ -1263,9 +1261,8 @@ msgid "Getting the list of devices from your account."
 msgstr "Noudetaan laiteluetteloa tililtäsi."
 
 #: src/gpodder/gtkui/mygpodder.py:188
-#, fuzzy
 msgid "Error getting list"
-msgstr "Virhe kirjoitettaessa soittolistaa"
+msgstr "Virhe noudettaessa luetteloa"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -2024,7 +2021,7 @@ msgstr "Käyttöohje"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:65
 msgid "About"
-msgstr ""
+msgstr "Tietoja"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:89
 #, python-format
@@ -2033,12 +2030,11 @@ msgstr "joka %d. minuutti"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:149
 msgid "Enable feed update heuristics"
-msgstr ""
+msgstr "Ota käyttöön syötteiden päivitysheuristiikat"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:155
-#, fuzzy
 msgid "Show \"All episodes\" view"
-msgstr "Näytä jaksoluettelo"
+msgstr "Näytä ”Kaikki jaksot” -näkymä"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:205
 msgid "Not logged in"
@@ -2073,14 +2069,12 @@ msgid "<b>Device configuration</b>"
 msgstr "<b>Laiteasetukset</b>"
 
 #: data/ui/mygpoddersettings.ui.h:2 data/ui/frmntl/mygpoddersettings.ui.h:2
-#, fuzzy
 msgid "Device ID:"
-msgstr "Laite:"
+msgstr "Laitteen tunniste:"
 
 #: data/ui/mygpoddersettings.ui.h:3 data/ui/frmntl/mygpoddersettings.ui.h:3
-#, fuzzy
 msgid "Device Name:"
-msgstr "Laite:"
+msgstr "Laitteen nimi:"
 
 #: data/ui/mygpoddersettings.ui.h:4 data/ui/frmntl/mygpoddersettings.ui.h:4
 msgid "Enable synchronization of subscription list"
@@ -2093,7 +2087,7 @@ msgstr "Salasana:"
 
 #: data/ui/mygpoddersettings.ui.h:6 data/ui/frmntl/mygpoddersettings.ui.h:6
 msgid "Replace list on server with local subscriptions"
-msgstr ""
+msgstr "Korvaa palvelimella oleva luettelo paikallisilla tilauksilla"
 
 #: data/ui/mygpoddersettings.ui.h:7 data/ui/frmntl/mygpoddersettings.ui.h:7
 msgid "Select device"
@@ -2465,9 +2459,8 @@ msgid "minutes"
 msgstr "minuutti"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:1
-#, fuzzy
 msgid "C_ancel download"
-msgstr "Peruuta lataus"
+msgstr "_Peru lataus"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:3
 msgid "_Download"
@@ -2620,9 +2613,8 @@ msgstr "Valitse ja poista jaksot laitteelta"
 
 #: data/ui/desktop/gpodder.ui.h:41 data/ui/maemo/gpodderpreferences.ui.h:7
 #: data/ui/maemo/gpodder.ui.h:37
-#, fuzzy
 msgid "Show \"All episodes\" in podcast list"
-msgstr "Näytä jaksoluettelo"
+msgstr "Näytä ”Kaikki jaksot” podcast-luettelossa"
 
 #: data/ui/desktop/gpodder.ui.h:42 data/ui/maemo/gpodder.ui.h:38
 msgid "Show deleted episodes"
@@ -2745,7 +2737,7 @@ msgstr "Videosoitin:"
 #: data/ui/maemo/gpoddershownotes.ui.h:1
 #: data/ui/frmntl/gpodderepisodeactions.ui.h:2
 msgid "Cancel download"
-msgstr "Peruuta lataus"
+msgstr "Peru lataus"
 
 #: data/ui/maemo/gpoddershownotes.ui.h:2
 msgid "Copy selected text"
@@ -2826,23 +2818,20 @@ msgid "Account on my.gpodder.org"
 msgstr "Tili my.gpodder.orgissa"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:3
-#, fuzzy
 msgid "Display and view settings"
-msgstr "Näytön suunta"
+msgstr "Näkymäasetukset"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:4
 msgid "Display orientation"
 msgstr "Näytön suunta"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:5
-#, fuzzy
 msgid "Feed updating and downloads"
-msgstr "%d soittamaton lataus"
+msgstr "Syötteiden päivittäminen ja lataukset"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:6
-#, fuzzy
 msgid "Helper applications"
-msgstr "Oletussovellus"
+msgstr "Avustavat ohjelmat"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:7
 msgid "Player for audio files"
@@ -2853,9 +2842,8 @@ msgid "Player for video files"
 msgstr "Videotiedostojen soitin"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:10
-#, fuzzy
 msgid "Synchronization"
-msgstr "<b>Synkronointi</b>"
+msgstr "Synkronointi"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:11
 msgid "When new episodes are found"
