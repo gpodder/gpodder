@@ -131,10 +131,11 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
-    from gpodder.gtkui.interface.common import Orientation
     have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
+
+from gpodder.gtkui.interface.common import Orientation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 from gpodder.gtkui.interface.progress import ProgressIndicator
