@@ -130,15 +130,6 @@ class gPodderPodcastDirectory(BuilderWidget):
             dialog.destroy()
             load_opml_from_url(toplist_url)
 
-        def choice_search_podcast_de(widget):
-            dialog.destroy()
-            search_term = show_text_edit_dialog(_('Search podcast.de'), \
-                    _('Search for:'))
-            if search_term is not None:
-                url = 'http://api.podcast.de/opml/podcasts/suche/%s' % \
-                        (urllib.quote(search_term),)
-                load_opml_from_url(url)
-
         def choice_search_youtube(widget):
             dialog.destroy()
             search_term = show_text_edit_dialog(\
@@ -158,7 +149,6 @@ class gPodderPodcastDirectory(BuilderWidget):
                 (_('Open OPML file'), choice_load_opml_from_file),
                 (_('Example podcasts'), choice_load_examples),
                 (_('Podcast Top 50'), choice_load_toplist),
-                (_('Search podcast.de'), choice_search_podcast_de),
                 (_('Search YouTube users'), choice_search_youtube),
                 (_('Download from my.gpodder.org'), choice_mygpodder),
         )

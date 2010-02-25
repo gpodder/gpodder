@@ -64,7 +64,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         submenu = gtk.Menu()
         submenu.append(self.action_load_opml.create_menu_item())
         submenu.append(self.action_load_toplist.create_menu_item())
-        submenu.append(self.action_load_search.create_menu_item())
         submenu.append(self.action_load_youtube.create_menu_item())
         item.set_submenu(submenu)
         menu.append(item)
@@ -112,14 +111,6 @@ class gPodderPodcastDirectory(BuilderWidget):
     def on_load_toplist_button_clicked(self, widget):
         self.download_opml_file(self._config.toplist_url)
     
-    def on_load_search_button_clicked(self, widget):
-        search_term = self.show_text_edit_dialog(_('Search podcast.de'), \
-                _('Search for:'))
-        if search_term is not None:
-            url = 'http://api.podcast.de/opml/podcasts/suche/%s' % \
-                    (urllib.quote(search_term),)
-            self.download_opml_file(url)
-
     def on_load_youtube_button_clicked(self, widget):
         search_term = self.show_text_edit_dialog(\
                 _('Search YouTube user channels'), \
