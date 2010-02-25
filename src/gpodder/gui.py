@@ -243,7 +243,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.main_window, self.show_confirmation, \
                     self.update_episode_list_icons, \
                     self.update_podcast_list_model, self.toolPreferences, \
-                    gPodderEpisodeSelector)
+                    gPodderEpisodeSelector, \
+                    self.commit_changes_to_database)
         else:
             self.sync_ui = None
 
@@ -2938,8 +2939,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         self.sync_ui.on_synchronize_episodes(self.channels, episodes)
-        # The sync process might have updated the status of episodes,
-        # therefore persist the database here to avoid losing data
+
+    def commit_changes_to_database(self):
+        """This will be called after the sync process is finished"""
         self.db.commit()
 
     def on_cleanup_ipod_activate(self, widget, *args):
