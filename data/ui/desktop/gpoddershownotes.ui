@@ -64,33 +64,10 @@
             </child>
             <child>
               <object class="GtkButton" id="btnDownload">
+                <property name="label" translatable="yes">_Download</property>
+                <property name="use_underline">True</property>
                 <property name="visible">True</property>
                 <signal handler="on_download_button_clicked" name="clicked"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment185">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="GtkHBox" id="hbox1">
-                        <property name="visible">True</property>
-                        <child>
-                          <object class="GtkImage" id="image1">
-                            <property name="stock">gtk-go-down</property>
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label28">
-                            <property name="label" translatable="yes">Download</property>
-                            <property name="visible">True</property>
-                          </object>
-                          <packing>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
               </object>
               <packing>
                 <property name="position">1</property>
@@ -98,8 +75,8 @@
             </child>
             <child>
               <object class="GtkButton" id="btnCancel">
-                <property name="label">gtk-cancel</property>
-                <property name="use_stock">True</property>
+                <property name="label" translatable="yes">C_ancel download</property>
+                <property name="use_underline">True</property>
                 <property name="visible">True</property>
                 <signal handler="on_cancel_button_clicked" name="clicked"/>
               </object>
