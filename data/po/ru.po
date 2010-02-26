@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 2.0+git\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-25 01:57+0100\n"
-"PO-Revision-Date: 2010-01-25 04:26+0300\n"
+"POT-Creation-Date: 2010-02-26 15:05+0300\n"
+"PO-Revision-Date: 2010-02-26 15:06+0300\n"
 "Last-Translator: Maxim Prohorov <prohorov.max@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -96,9 +96,9 @@ msgid "Error: %s"
 msgstr "Ошибка: %s"
 
 #: src/gpodder/gui.py:201 src/gpodder/gui.py:1114 src/gpodder/gui.py:1132
-#: data/ui/desktop/gpodderpreferences.ui.h:28 data/ui/desktop/gpodder.ui.h:18
-#: data/ui/maemo/gpodder.ui.h:16 data/ui/frmntl/gpodderdownloads.ui.h:3
-#: data/ui/frmntl/gpodder.ui.h:8
+#: data/ui/desktop/gpodder.ui.h:18 data/ui/desktop/gpodderpreferences.ui.h:28
+#: data/ui/maemo/gpodder.ui.h:16 data/ui/frmntl/gpodder.ui.h:8
+#: data/ui/frmntl/gpodderdownloads.ui.h:3
 msgid "Downloads"
 msgstr "Загрузки"
 
@@ -305,7 +305,7 @@ msgstr[1] "%d выпуска"
 msgstr[2] "%d выпусков"
 
 #: src/gpodder/gui.py:1506 src/gpodder/gui.py:1817
-#: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
+#: data/ui/desktop/gpodder.ui.h:20 data/ui/desktop/gpoddershownotes.ui.h:2
 #: data/ui/maemo/gpodder.ui.h:18
 msgid "Episode details"
 msgstr "Детали выпуска"
@@ -314,9 +314,10 @@ msgstr "Детали выпуска"
 #: src/gpodder/gtkui/desktop/episodeselector.py:147
 #: src/gpodder/gtkui/maemo/episodeselector.py:150
 #: src/gpodder/gtkui/frmntl/episodeselector.py:151
+#: data/ui/desktop/gpodder.ui.h:15
 #: data/ui/desktop/gpodderpodcastdirectory.ui.h:1
-#: data/ui/desktop/gpodder.ui.h:15 data/ui/maemo/gpoddershownotes.ui.h:3
-#: data/ui/maemo/gpodder.ui.h:13 data/ui/frmntl/gpodderepisodeactions.ui.h:3
+#: data/ui/maemo/gpodder.ui.h:13 data/ui/maemo/gpoddershownotes.ui.h:3
+#: data/ui/frmntl/gpodderepisodeactions.ui.h:3
 #: data/ui/frmntl/gpodderepisodes.ui.h:2
 msgid "Download"
 msgstr "Загрузка"
@@ -867,7 +868,7 @@ msgstr "Невозможно воспроизвести"
 
 #: src/gpodder/gui.py:3556 src/gpodder/gtkui/desktop/trayicon.py:89
 #: data/ui/desktop/gpodder.ui.h:8 data/ui/maemo/gpodder.ui.h:7
-#: data/ui/frmntl/gpodderpreferences.ui.h:2 data/ui/frmntl/gpodder.ui.h:4
+#: data/ui/frmntl/gpodder.ui.h:4 data/ui/frmntl/gpodderpreferences.ui.h:2
 msgid "Check for new episodes"
 msgstr "Проверить обновления"
 
@@ -946,13 +947,12 @@ msgid "Remove %s"
 msgstr "Удалить %s?"
 
 #: src/gpodder/services.py:121
-#, fuzzy
 msgid ""
 "Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto "
 "command from gnome-bluetooth."
 msgstr ""
 "Возможность отправлять выпуски на устройства поддерживающие Bluetooth "
-"используя <b>python-bluez</b>"
+"используя <b>gnome-bluetooth</b>"
 
 #: src/gpodder/services.py:122
 msgid "HTML episode shownotes"
@@ -1534,16 +1534,6 @@ msgstr "Подождите пожалуйста..."
 msgid "Loading shownotes..."
 msgstr "Загрузка шоунотов..."
 
-#: src/gpodder/gtkui/desktop/syncprogress.py:42
-#, python-format
-msgid "%(position)d of %(count)d done"
-msgstr "%(position)d/%(count)d обновлено"
-
-#: src/gpodder/gtkui/desktop/syncprogress.py:47
-#, python-format
-msgid "Processing (%d%%)"
-msgstr "Обработка (%d%%)"
-
 #: src/gpodder/gtkui/desktop/sync.py:75
 msgid "No device configured"
 msgstr "Устройство не настроено"
@@ -1658,6 +1648,16 @@ msgstr "Невозможно настроить плейлист MTP-устро�
 #: src/gpodder/gtkui/desktop/sync.py:261
 msgid "This feature is not available for MTP devices."
 msgstr "Эта возможность недоступна для MTP-устройств."
+
+#: src/gpodder/gtkui/desktop/syncprogress.py:42
+#, python-format
+msgid "%(position)d of %(count)d done"
+msgstr "%(position)d/%(count)d обновлено"
+
+#: src/gpodder/gtkui/desktop/syncprogress.py:47
+#, python-format
+msgid "Processing (%d%%)"
+msgstr "Обработка (%d%%)"
 
 #: src/gpodder/gtkui/desktop/trayicon.py:50
 msgid "gPodder media aggregator"
@@ -2055,7 +2055,7 @@ msgstr "Сп_равка"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:65
 msgid "About"
-msgstr ""
+msgstr "О программе"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:89
 #, python-format
@@ -2064,12 +2064,11 @@ msgstr "каждые %d минут"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:149
 msgid "Enable feed update heuristics"
-msgstr ""
+msgstr "Эвристическое обновление подписок"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:155
-#, fuzzy
 msgid "Show \"All episodes\" view"
-msgstr "Список выпусков"
+msgstr "Показывать Вид /\"Все выпуски\""
 
 #: src/gpodder/gtkui/frmntl/preferences.py:205
 msgid "Not logged in"
@@ -2140,6 +2139,208 @@ msgstr "Пользователь:"
 #: data/ui/mygpoddersettings.ui.h:10 data/ui/frmntl/mygpoddersettings.ui.h:10
 msgid "my.gPodder.org settings"
 msgstr "Настройки my.gPodder.org"
+
+#: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
+#: data/ui/frmntl/gpodder.ui.h:2
+msgid "Add podcast via URL"
+msgstr "Добавить по ссылке"
+
+#: data/ui/desktop/gpodder.ui.h:2
+#: data/ui/desktop/gpodderdependencymanager.ui.h:1
+#: data/ui/maemo/gpodder.ui.h:2
+msgid "Additional components"
+msgstr "Возможности"
+
+#: data/ui/desktop/gpodder.ui.h:5 data/ui/maemo/gpodder.ui.h:5
+msgid "Change delete lock"
+msgstr "Возможность удаления"
+
+#: data/ui/desktop/gpodder.ui.h:6 data/ui/maemo/gpodder.ui.h:6
+msgid "Change played status"
+msgstr "Статус выпуска"
+
+#: data/ui/desktop/gpodder.ui.h:7
+msgid "Check for Updates"
+msgstr "Проверить обновления"
+
+#: data/ui/desktop/gpodder.ui.h:9 data/ui/maemo/gpodder.ui.h:8
+msgid "Clean up"
+msgstr "Очистка"
+
+#: data/ui/desktop/gpodder.ui.h:10 data/ui/maemo/gpodder.ui.h:9
+msgid "Close"
+msgstr "Закрыть окно"
+
+#: data/ui/desktop/gpodder.ui.h:11
+msgid "Copy selected episodes to device"
+msgstr "Отправить на устройство"
+
+#: data/ui/desktop/gpodder.ui.h:12 data/ui/maemo/gpodder.ui.h:10
+#: data/ui/frmntl/gpodderepisodes.ui.h:1
+msgid "Delete"
+msgstr "Удалить"
+
+#: data/ui/desktop/gpodder.ui.h:13 data/ui/desktop/gpodderpreferences.ui.h:26
+#: data/ui/maemo/gpodder.ui.h:11
+msgid "Device"
+msgstr "Устройство"
+
+#: data/ui/desktop/gpodder.ui.h:14 data/ui/maemo/gpodder.ui.h:12
+#: data/ui/frmntl/gpodder.ui.h:6
+msgid "Discover new podcasts"
+msgstr "Поиск подкастов"
+
+#: data/ui/desktop/gpodder.ui.h:16 data/ui/maemo/gpodder.ui.h:14
+#: data/ui/frmntl/gpodder.ui.h:7
+msgid "Download new episodes"
+msgstr "Загрузить новые выпуски"
+
+#: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
+msgid "Downloaded episodes"
+msgstr "Загруженные выпуски"
+
+#: data/ui/desktop/gpodder.ui.h:19 data/ui/maemo/gpodder.ui.h:17
+msgid "Episode descriptions"
+msgstr "Детали выпуска(шоуноты)"
+
+#: data/ui/desktop/gpodder.ui.h:21 data/ui/maemo/gpodder.ui.h:19
+#: data/ui/frmntl/gpodder.ui.h:9
+msgid "Export to OPML file"
+msgstr "Экспорт в OPML"
+
+#: data/ui/desktop/gpodder.ui.h:22 data/ui/maemo/gpodder.ui.h:20
+msgid "Filter:"
+msgstr "Фильтр:"
+
+#: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
+msgid "Go to gpodder.org"
+msgstr "Открыть gpodder.org"
+
+#: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
+msgid "Go to my.gpodder.org"
+msgstr "Открыть my.gpodder.org"
+
+#: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
+#: data/ui/frmntl/gpodder.ui.h:10
+msgid "Hide podcasts without episodes"
+msgstr "Скрыть подкасты без выпусков"
+
+#: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
+#: data/ui/frmntl/gpodder.ui.h:11
+msgid "Import from OPML file"
+msgstr "Импорт из OPML"
+
+#: data/ui/desktop/gpodder.ui.h:27 data/ui/maemo/gpodder.ui.h:25
+msgid "KiB/s"
+msgstr "КиБ/с"
+
+#: data/ui/desktop/gpodder.ui.h:28
+msgid "Limit downloads to"
+msgstr "Макс. активных"
+
+#: data/ui/desktop/gpodder.ui.h:29
+msgid "Limit rate to"
+msgstr "Огр. скорость"
+
+#: data/ui/desktop/gpodder.ui.h:30
+msgid "Manage device playlist"
+msgstr "Редактировать плейлист"
+
+#: data/ui/desktop/gpodder.ui.h:31 data/ui/maemo/gpodder.ui.h:28
+msgid "Open"
+msgstr "Открыть"
+
+#: data/ui/desktop/gpodder.ui.h:33 data/ui/maemo/gpodder.ui.h:30
+#: data/ui/frmntl/gpodder.ui.h:12
+msgid "Podcast settings"
+msgstr "Настройки подкаста"
+
+#: data/ui/desktop/gpodder.ui.h:35 data/ui/maemo/gpodder.ui.h:32
+#: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/frmntl/gpodder.ui.h:13
+#: data/ui/frmntl/gpodderpreferences.ui.h:9
+msgid "Preferences"
+msgstr "Настройки"
+
+#: data/ui/desktop/gpodder.ui.h:36 data/ui/maemo/gpodder.ui.h:33
+msgid "Quit"
+msgstr "Выход"
+
+#: data/ui/desktop/gpodder.ui.h:37
+msgid "Remove multiple podcasts"
+msgstr "Удалить подкасты"
+
+#: data/ui/desktop/gpodder.ui.h:39 data/ui/maemo/gpodder.ui.h:36
+#: data/ui/frmntl/gpodder.ui.h:15
+msgid "Report a problem"
+msgstr "Сообщить об ошибке"
+
+#: data/ui/desktop/gpodder.ui.h:40
+msgid "Select and remove episodes from device"
+msgstr "Удалить выпуски с устройства"
+
+#: data/ui/desktop/gpodder.ui.h:41 data/ui/maemo/gpodder.ui.h:37
+#: data/ui/maemo/gpodderpreferences.ui.h:7
+msgid "Show \"All episodes\" in podcast list"
+msgstr "Показывать Вид /\"Все выпуски\""
+
+#: data/ui/desktop/gpodder.ui.h:42 data/ui/maemo/gpodder.ui.h:38
+msgid "Show deleted episodes"
+msgstr "Показывать удаленные выпуски"
+
+#: data/ui/desktop/gpodder.ui.h:43 data/ui/maemo/gpodder.ui.h:39
+msgid "Show toolbar"
+msgstr "Панель инструментов"
+
+#: data/ui/desktop/gpodder.ui.h:44 data/ui/maemo/gpodder.ui.h:40
+#: data/ui/frmntl/gpodder.ui.h:16
+msgid "Support gPodder"
+msgstr "Поддержка gPodder"
+
+#: data/ui/desktop/gpodder.ui.h:45
+msgid "Sync episodes to device"
+msgstr "Синхронизировать"
+
+#: data/ui/desktop/gpodder.ui.h:46
+msgid "Transfer"
+msgstr "Передача"
+
+#: data/ui/desktop/gpodder.ui.h:47 data/ui/maemo/gpodder.ui.h:41
+msgid "Unplayed episodes"
+msgstr "Не прослушанные выпуски"
+
+#: data/ui/desktop/gpodder.ui.h:48 data/ui/maemo/gpodder.ui.h:42
+#: data/ui/frmntl/gpodder.ui.h:18 data/ui/frmntl/gpodderepisodes.ui.h:8
+msgid "Unsubscribe"
+msgstr "Удалить"
+
+#: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:44
+#: data/ui/frmntl/gpodder.ui.h:19
+msgid "Update podcast"
+msgstr "Обновить подкаст"
+
+#: data/ui/desktop/gpodder.ui.h:51 data/ui/maemo/gpodder.ui.h:47
+msgid "_Episodes"
+msgstr "_Выпуски"
+
+#: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
+msgid "_Help"
+msgstr "По_мощь"
+
+#: data/ui/desktop/gpodder.ui.h:53 data/ui/maemo/gpodder.ui.h:49
+msgid "_Podcasts"
+msgstr "_Подкасты"
+
+#: data/ui/desktop/gpodder.ui.h:54 data/ui/maemo/gpodder.ui.h:50
+msgid "_Subscriptions"
+msgstr "П_одписки"
+
+#: data/ui/desktop/gpodder.ui.h:55 data/ui/maemo/gpodder.ui.h:51
+msgid "_View"
+msgstr "В_ид"
+
+#: data/ui/desktop/gpodder.ui.h:56 data/ui/maemo/gpodder.ui.h:52
+msgid "my.gpodder.org Settings"
+msgstr "Настройки my.gpodder.org"
 
 #: data/ui/desktop/gpodderaddpodcast.ui.h:1
 #: data/ui/maemo/gpodderaddpodcast.ui.h:1
@@ -2216,11 +2417,6 @@ msgstr "Показать все"
 #: data/ui/desktop/gpodderconfigeditor.ui.h:3
 msgid "gPodder Configuration Editor"
 msgstr "Редактор Настроек gPodder"
-
-#: data/ui/desktop/gpodderdependencymanager.ui.h:1
-#: data/ui/desktop/gpodder.ui.h:2 data/ui/maemo/gpodder.ui.h:2
-msgid "Additional components"
-msgstr "Возможности"
 
 #: data/ui/desktop/gpodderdependencymanager.ui.h:2
 msgid "Install package"
@@ -2377,11 +2573,6 @@ msgstr "Удалять из gPodder выпуски, прослушанные н�
 msgid "Delete played episodes on startup after"
 msgstr "Удалять прослушанные выпуски старше чем"
 
-#: data/ui/desktop/gpodderpreferences.ui.h:26 data/ui/desktop/gpodder.ui.h:13
-#: data/ui/maemo/gpodder.ui.h:11
-msgid "Device"
-msgstr "Устройство"
-
 #: data/ui/desktop/gpodderpreferences.ui.h:27
 msgid "Do nothing"
 msgstr "Ничего не делать"
@@ -2491,14 +2682,12 @@ msgid "minutes"
 msgstr "минут"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:1
-#, fuzzy
 msgid "C_ancel download"
-msgstr "Отмена"
+msgstr "О_тмена загрузки"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:3
-#, fuzzy
 msgid "_Download"
-msgstr "Загрузка"
+msgstr "_Загрузка"
 
 #: data/ui/desktop/gpoddersyncprogress.ui.h:1
 msgid "<b><big>Synchronizing Podcasts</big></b>"
@@ -2518,197 +2707,21 @@ msgstr "Выпуски копируются на устройство"
 msgid "Initializing..."
 msgstr "Инициализация..."
 
-#: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:2
-msgid "Add podcast via URL"
-msgstr "Добавить по ссылке"
+#: data/ui/maemo/gpodder.ui.h:26
+msgid "Limit DLs to"
+msgstr "Загр. одновременно"
 
-#: data/ui/desktop/gpodder.ui.h:5 data/ui/maemo/gpodder.ui.h:5
-msgid "Change delete lock"
-msgstr "Возможность удаления"
+#: data/ui/maemo/gpodder.ui.h:27
+msgid "Max."
+msgstr "Макс."
 
-#: data/ui/desktop/gpodder.ui.h:6 data/ui/maemo/gpodder.ui.h:6
-msgid "Change played status"
-msgstr "Статус выпуска"
+#: data/ui/maemo/gpodder.ui.h:43
+msgid "Update all"
+msgstr "Обновить все"
 
-#: data/ui/desktop/gpodder.ui.h:7
-msgid "Check for Updates"
-msgstr "Проверить обновления"
-
-#: data/ui/desktop/gpodder.ui.h:9 data/ui/maemo/gpodder.ui.h:8
-msgid "Clean up"
-msgstr "Очистка"
-
-#: data/ui/desktop/gpodder.ui.h:10 data/ui/maemo/gpodder.ui.h:9
-msgid "Close"
-msgstr "Закрыть окно"
-
-#: data/ui/desktop/gpodder.ui.h:11
-msgid "Copy selected episodes to device"
-msgstr "Отправить на устройство"
-
-#: data/ui/desktop/gpodder.ui.h:12 data/ui/maemo/gpodder.ui.h:10
-#: data/ui/frmntl/gpodderepisodes.ui.h:1
-msgid "Delete"
-msgstr "Удалить"
-
-#: data/ui/desktop/gpodder.ui.h:14 data/ui/maemo/gpodder.ui.h:12
-#: data/ui/frmntl/gpodder.ui.h:6
-msgid "Discover new podcasts"
-msgstr "Поиск подкастов"
-
-#: data/ui/desktop/gpodder.ui.h:16 data/ui/maemo/gpodder.ui.h:14
-#: data/ui/frmntl/gpodder.ui.h:7
-msgid "Download new episodes"
-msgstr "Загрузить новые выпуски"
-
-#: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
-msgid "Downloaded episodes"
-msgstr "Загруженные выпуски"
-
-#: data/ui/desktop/gpodder.ui.h:19 data/ui/maemo/gpodder.ui.h:17
-msgid "Episode descriptions"
-msgstr "Детали выпуска(шоуноты)"
-
-#: data/ui/desktop/gpodder.ui.h:21 data/ui/maemo/gpodder.ui.h:19
-#: data/ui/frmntl/gpodder.ui.h:9
-msgid "Export to OPML file"
-msgstr "Экспорт в OPML"
-
-#: data/ui/desktop/gpodder.ui.h:22 data/ui/maemo/gpodder.ui.h:20
-msgid "Filter:"
-msgstr "Фильтр:"
-
-#: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
-msgid "Go to gpodder.org"
-msgstr "Открыть gpodder.org"
-
-#: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
-msgid "Go to my.gpodder.org"
-msgstr "Открыть my.gpodder.org"
-
-#: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
-#: data/ui/frmntl/gpodder.ui.h:10
-msgid "Hide podcasts without episodes"
-msgstr "Скрыть подкасты без выпусков"
-
-#: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
-#: data/ui/frmntl/gpodder.ui.h:11
-msgid "Import from OPML file"
-msgstr "Импорт из OPML"
-
-#: data/ui/desktop/gpodder.ui.h:27 data/ui/maemo/gpodder.ui.h:25
-msgid "KiB/s"
-msgstr "КиБ/с"
-
-#: data/ui/desktop/gpodder.ui.h:28
-msgid "Limit downloads to"
-msgstr "Макс. активных"
-
-#: data/ui/desktop/gpodder.ui.h:29
-msgid "Limit rate to"
-msgstr "Огр. скорость"
-
-#: data/ui/desktop/gpodder.ui.h:30
-msgid "Manage device playlist"
-msgstr "Редактировать плейлист"
-
-#: data/ui/desktop/gpodder.ui.h:31 data/ui/maemo/gpodder.ui.h:28
-msgid "Open"
-msgstr "Открыть"
-
-#: data/ui/desktop/gpodder.ui.h:33 data/ui/maemo/gpodder.ui.h:30
-#: data/ui/frmntl/gpodder.ui.h:12
-msgid "Podcast settings"
-msgstr "Настройки подкаста"
-
-#: data/ui/desktop/gpodder.ui.h:35 data/ui/maemo/gpodderpreferences.ui.h:6
-#: data/ui/maemo/gpodder.ui.h:32 data/ui/frmntl/gpodderpreferences.ui.h:9
-#: data/ui/frmntl/gpodder.ui.h:13
-msgid "Preferences"
-msgstr "Настройки"
-
-#: data/ui/desktop/gpodder.ui.h:36 data/ui/maemo/gpodder.ui.h:33
-msgid "Quit"
-msgstr "Выход"
-
-#: data/ui/desktop/gpodder.ui.h:37
-msgid "Remove multiple podcasts"
-msgstr "Удалить подкасты"
-
-#: data/ui/desktop/gpodder.ui.h:39 data/ui/maemo/gpodder.ui.h:36
-#: data/ui/frmntl/gpodder.ui.h:15
-msgid "Report a problem"
-msgstr "Сообщить об ошибке"
-
-#: data/ui/desktop/gpodder.ui.h:40
-msgid "Select and remove episodes from device"
-msgstr "Удалить выпуски с устройства"
-
-#: data/ui/desktop/gpodder.ui.h:41 data/ui/maemo/gpodderpreferences.ui.h:7
-#: data/ui/maemo/gpodder.ui.h:37
-#, fuzzy
-msgid "Show \"All episodes\" in podcast list"
-msgstr "Список выпусков"
-
-#: data/ui/desktop/gpodder.ui.h:42 data/ui/maemo/gpodder.ui.h:38
-msgid "Show deleted episodes"
-msgstr "Показывать удаленные выпуски"
-
-#: data/ui/desktop/gpodder.ui.h:43 data/ui/maemo/gpodder.ui.h:39
-msgid "Show toolbar"
-msgstr "Панель инструментов"
-
-#: data/ui/desktop/gpodder.ui.h:44 data/ui/maemo/gpodder.ui.h:40
-#: data/ui/frmntl/gpodder.ui.h:16
-msgid "Support gPodder"
-msgstr "Поддержка gPodder"
-
-#: data/ui/desktop/gpodder.ui.h:45
-msgid "Sync episodes to device"
-msgstr "Синхронизировать"
-
-#: data/ui/desktop/gpodder.ui.h:46
-msgid "Transfer"
-msgstr "Передача"
-
-#: data/ui/desktop/gpodder.ui.h:47 data/ui/maemo/gpodder.ui.h:41
-msgid "Unplayed episodes"
-msgstr "Не прослушанные выпуски"
-
-#: data/ui/desktop/gpodder.ui.h:48 data/ui/maemo/gpodder.ui.h:42
-#: data/ui/frmntl/gpodderepisodes.ui.h:8 data/ui/frmntl/gpodder.ui.h:18
-msgid "Unsubscribe"
-msgstr "Удалить"
-
-#: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:44
-#: data/ui/frmntl/gpodder.ui.h:19
-msgid "Update podcast"
-msgstr "Обновить подкаст"
-
-#: data/ui/desktop/gpodder.ui.h:51 data/ui/maemo/gpodder.ui.h:47
-msgid "_Episodes"
-msgstr "_Выпуски"
-
-#: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
-msgid "_Help"
-msgstr "По_мощь"
-
-#: data/ui/desktop/gpodder.ui.h:53 data/ui/maemo/gpodder.ui.h:49
-msgid "_Podcasts"
-msgstr "_Подкасты"
-
-#: data/ui/desktop/gpodder.ui.h:54 data/ui/maemo/gpodder.ui.h:50
-msgid "_Subscriptions"
-msgstr "П_одписки"
-
-#: data/ui/desktop/gpodder.ui.h:55 data/ui/maemo/gpodder.ui.h:51
-msgid "_View"
-msgstr "В_ид"
-
-#: data/ui/desktop/gpodder.ui.h:56 data/ui/maemo/gpodder.ui.h:52
-msgid "my.gpodder.org Settings"
-msgstr "Настройки my.gpodder.org"
+#: data/ui/maemo/gpodder.ui.h:45
+msgid "Update selected"
+msgstr "Обновить выбранное"
 
 #: data/ui/maemo/gpodderchannel.ui.h:1 data/ui/frmntl/gpodderchannel.ui.h:1
 msgid "Edit username/password"
@@ -2778,21 +2791,17 @@ msgstr "Отмена"
 msgid "Copy selected text"
 msgstr "Скопировать текст"
 
-#: data/ui/maemo/gpodder.ui.h:26
-msgid "Limit DLs to"
-msgstr "Загр. одновременно"
+#: data/ui/frmntl/gpodder.ui.h:1
+msgid "Add new podcast"
+msgstr "Добавить новый подкаст"
 
-#: data/ui/maemo/gpodder.ui.h:27
-msgid "Max."
-msgstr "Макс."
+#: data/ui/frmntl/gpodder.ui.h:3
+msgid "All"
+msgstr "Все"
 
-#: data/ui/maemo/gpodder.ui.h:43
-msgid "Update all"
-msgstr "Обновить все"
-
-#: data/ui/maemo/gpodder.ui.h:45
-msgid "Update selected"
-msgstr "Обновить выбранное"
+#: data/ui/frmntl/gpodder.ui.h:20
+msgid "Welcome to gPodder!"
+msgstr "Добро пожаловать в gPodder!"
 
 #: data/ui/frmntl/gpodderdownloads.ui.h:1
 msgid "Automatic clean-up"
@@ -2853,23 +2862,20 @@ msgid "Account on my.gpodder.org"
 msgstr "Вход на my.gpodder.org"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:3
-#, fuzzy
 msgid "Display and view settings"
-msgstr "Ориентация дисплея"
+msgstr "Настройки отображения"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:4
 msgid "Display orientation"
 msgstr "Ориентация дисплея"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:5
-#, fuzzy
 msgid "Feed updating and downloads"
-msgstr "%d не прослушанный выпуск"
+msgstr "Подписка обновляется"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:6
-#, fuzzy
 msgid "Helper applications"
-msgstr "Приложение по-умолчанию"
+msgstr "Вспомогательные приложения"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:7
 msgid "Player for audio files"
@@ -2880,25 +2886,12 @@ msgid "Player for video files"
 msgstr "Проигрыватель видео"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:10
-#, fuzzy
 msgid "Synchronization"
-msgstr "<b>Синхронизация</b>"
+msgstr "Синхронизация"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:11
 msgid "When new episodes are found"
 msgstr "Когда найдены новые выпуски"
-
-#: data/ui/frmntl/gpodder.ui.h:1
-msgid "Add new podcast"
-msgstr "Добавить новый подкаст"
-
-#: data/ui/frmntl/gpodder.ui.h:3
-msgid "All"
-msgstr "Все"
-
-#: data/ui/frmntl/gpodder.ui.h:20
-msgid "Welcome to gPodder!"
-msgstr "Добро пожаловать в gPodder!"
 
 #: data/ui/frmntl/gpodderwelcome.ui.h:2
 msgid "Download my list from my.gpodder.org"
