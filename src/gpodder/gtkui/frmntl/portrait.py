@@ -55,6 +55,11 @@ class FremantleRotation(object):
     _MCE_REQUEST_PATH = '/com/nokia/mce/request'
     _MCE_REQUEST_IF = 'com.nokia.mce.request'
 
+    # sysfs device name for the keyboard slider switch
+    KBD_SLIDER = '/sys/devices/platform/gpio-switch/slide/state'
+    _KBD_OPEN = 'open'
+    _KBD_CLOSED = 'closed'
+
     def __init__(self, app_name, main_window=None, version='1.0', mode=0):
         """Create a new rotation manager
 
@@ -68,6 +73,7 @@ class FremantleRotation(object):
         self._stack = hildon.WindowStack.get_default()
         self._mode = -1
         self._last_dbus_orientation = None
+        self._keyboard_state = self._get_keyboard_state()
         app_id = '-'.join((app_name, self.__class__.__name__))
         self._osso_context = osso.Context(app_id, version, False)
         program = hildon.Program.get_instance()
@@ -77,6 +83,10 @@ class FremantleRotation(object):
                 signal_name='sig_device_orientation_ind', \
                 dbus_interface='com.nokia.mce.signal', \
                 path='/com/nokia/mce/signal')
+        system_bus.add_signal_receiver(self._on_keyboard_signal, \
+                signal_name='Condition', \
+                dbus_interface='org.freedesktop.Hal.Device', \
+                path='/org/freedesktop/Hal/devices/platform_slide')
         self.set_mode(mode)
 
     def get_mode(self):
@@ -104,7 +114,8 @@ class FremantleRotation(object):
 
             if new_mode == self.NEVER:
                 self._orientation_changed(self._LANDSCAPE)
-            elif new_mode == self.ALWAYS:
+            elif new_mode == self.ALWAYS and \
+                    self._keyboard_state != self._KBD_OPEN:
                 self._orientation_changed(self._PORTRAIT)
             elif new_mode == self.AUTOMATIC:
                 # Restore the last-known "automatic" orientation
@@ -160,13 +171,33 @@ class FremantleRotation(object):
 
         self._orientation = orientation
 
+    def _get_keyboard_state(self):
+        return open(self.KBD_SLIDER).read().strip()
+
+    def _keyboard_state_changed(self):
+        state = self._get_keyboard_state()
+
+        if state == self._KBD_OPEN:
+            self._orientation_changed(self._LANDSCAPE)
+        elif state == self._KBD_CLOSED:
+            if self._mode == self.AUTOMATIC:
+                self._orientation_changed(self._last_dbus_orientation)
+            elif self._mode == self.ALWAYS:
+                self._orientation_changed(self._PORTRAIT)
+
+        self._keyboard_state = state
+
+    def _on_keyboard_signal(self, condition, button_name):
+        if condition == 'ButtonPressed' and button_name == 'cover':
+            self._keyboard_state_changed()
+
     def _on_orientation_signal(self, orientation, stand, face, x, y, z):
         if orientation in (self._PORTRAIT, self._LANDSCAPE):
-            if self._mode == self.AUTOMATIC:
+            if self._mode == self.AUTOMATIC and \
+                    self._keyboard_state != self._KBD_OPEN:
                 # Automatically set the rotation based on hardware orientation
                 self._orientation_changed(orientation)
-            else:
-                # Ignore orientation changes for non-automatic modes, but save
-                # the current orientation for "automatic" mode later on
-                self._last_dbus_orientation = orientation
+
+            # Save the current orientation for "automatic" mode later on
+            self._last_dbus_orientation = orientation
 

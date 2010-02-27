@@ -42,6 +42,7 @@ if __name__ == '__main__':
     locale_dir = os.path.join(data_dir, 'locale')
     ui_folder = os.path.join(data_dir, 'ui')
     credits_file = os.path.join(data_dir, 'credits.txt')
+    images_folder = os.path.join(data_dir, 'images')
     icon_file = os.path.join(data_dir, 'gpodder.svg')
 
     # Set up the path to translation files
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     gpodder.ui_folders.append(os.path.join(ui_folder, 'desktop'))
     gpodder.icon_file = icon_file
     gpodder.credits_file = credits_file
+    gpodder.images_folder = images_folder
     gpodder.ui.desktop = True
 
     # Portable version support

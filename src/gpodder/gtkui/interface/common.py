@@ -218,7 +218,11 @@ class BuilderWidget(GtkBuilderWidget):
                     notification = pynotify.Notification(title, message, gpodder.icon_file)
                     _notify_at_tray = False
                     _notify_when = config.notifications_attach_to_tray
-                    _notify_attach = notification.attach_to_status_icon
+                    try:
+                        _notify_attach = notification.attach_to_status_icon
+                    except AttributeError:
+                        # Workaround for bug 860 - don't attach to status icon
+                        _notify_attach = lambda icon: None
 
                     if _notify_when in ('minimized','always'):
                         if getattr(self,'tray_icon',None) and self.tray_icon.is_embedded():

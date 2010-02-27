@@ -17,12 +17,30 @@
                   <object class="GtkVBox" id="pannable_vbox">
                     <property name="visible">True</property>
                     <child>
+                      <object class="GtkFrame" id="frame_display">
+                        <property name="label" translatable="yes">Display and view settings</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="HildonPickerButton" id="picker_orientation">
                         <property name="title" translatable="yes">Display orientation</property>
                         <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
                         <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                         <property name="visible">True</property>
                         <signal name="value-changed" handler="on_picker_orientation_value_changed"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="placeholder0">
+                        <property name="label"></property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_downloads">
+                        <property name="label" translatable="yes">Feed updating and downloads</property>
+                        <property name="visible">True</property>
                       </object>
                     </child>
                     <child>
@@ -44,6 +62,18 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkLabel" id="placeholder1">
+                        <property name="label"></property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_sync">
+                        <property name="label" translatable="yes">Synchronization</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="HildonButton" id="button_mygpo">
                         <property name="title" translatable="yes">Account on my.gpodder.org</property>
                         <property name="value">...</property>
@@ -55,26 +85,33 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbox_player_selection">
+                      <object class="GtkLabel" id="placeholder2">
+                        <property name="label"></property>
                         <property name="visible">True</property>
-                        <child>
-                          <object class="HildonPickerButton" id="picker_audio_player">
-                            <property name="title" translatable="yes">Player for audio files</property>
-                            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                            <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                            <property name="visible">True</property>
-                            <signal name="value-changed" handler="on_picker_audio_player_value_changed"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="HildonPickerButton" id="picker_video_player">
-                            <property name="title" translatable="yes">Player for video files</property>
-                            <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                            <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                            <property name="visible">True</property>
-                            <signal name="value-changed" handler="on_picker_video_player_value_changed"/>
-                          </object>
-                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_apps">
+                        <property name="label" translatable="yes">Helper applications</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HildonPickerButton" id="picker_audio_player">
+                        <property name="title" translatable="yes">Player for audio files</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="value-changed" handler="on_picker_audio_player_value_changed"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HildonPickerButton" id="picker_video_player">
+                        <property name="title" translatable="yes">Player for video files</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="value-changed" handler="on_picker_video_player_value_changed"/>
                       </object>
                     </child>
                   </object>

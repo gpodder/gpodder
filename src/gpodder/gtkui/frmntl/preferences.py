@@ -27,6 +27,7 @@ N_ = gpodder.ngettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
+from gpodder.gtkui.interface.common import Orientation
 from gpodder.gtkui.frmntl.portrait import FremantleRotation
 
 import hildon
@@ -59,6 +60,10 @@ class gPodderPreferences(BuilderWidget):
 
     def new(self):
         self.main_window.connect('destroy', lambda w, self: self.callback_finished(), self)
+        self.wiki_button = self.main_window.add_button(_('User manual'), 1)
+        self.wiki_button.connect('clicked', self.on_wiki_activate)
+        self.about_button = self.main_window.add_button(_('About'), 2)
+        self.about_button.connect('clicked', self.on_itemAbout_activate)
 
         self.touch_selector_orientation = hildon.TouchSelector(text=True)
         for caption in FremantleRotation.MODE_CAPTIONS:
@@ -140,7 +145,27 @@ class gPodderPreferences(BuilderWidget):
             child = button.get_child()
             child.set_padding(0, 0, 12, 0)
 
-        self.gPodderPreferences.show()
+        self.check_feed_update_skipping = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.check_feed_update_skipping.set_label(_('Enable feed update heuristics'))
+        self._config.connect_gtk_togglebutton('feed_update_skipping', self.check_feed_update_skipping)
+        self.pannable_vbox.add(self.check_feed_update_skipping)
+        self.pannable_vbox.reorder_child(self.check_feed_update_skipping, 6)
+
+        self.check_view_all_episodes = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.check_view_all_episodes.set_label(_('Show "All episodes" view'))
+        self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_view_all_episodes)
+        self.pannable_vbox.add(self.check_view_all_episodes)
+        self.pannable_vbox.reorder_child(self.check_view_all_episodes, 2)
+
+        self.gPodderPreferences.show_all()
+
+    def on_window_orientation_changed(self, orientation):
+        if orientation == Orientation.PORTRAIT:
+            self.wiki_button.hide()
+            self.about_button.hide()
+        else:
+            self.wiki_button.show()
+            self.about_button.show()
 
     def on_picker_orientation_value_changed(self, *args):
         self._config.rotation_mode = self.touch_selector_orientation.get_active(0)

@@ -62,6 +62,7 @@ if __name__ == '__main__':
     locale_dir = os.path.join(prefix, 'share', 'locale')
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
     credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
+    images_folder = os.path.join(prefix, 'share', 'gpodder')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
     # The existence of this file tells us we're running on Maemo
@@ -76,6 +77,7 @@ if __name__ == '__main__':
         locale_dir = os.path.join(data_dir, 'locale')
         ui_folder = os.path.join(data_dir, 'ui')
         credits_file = os.path.join(data_dir, 'credits.txt')
+        images_folder = os.path.join(data_dir, 'images')
         icon_file = os.path.join(data_dir, 'gpodder.svg')
 
     # Set up the path to translation files
@@ -89,6 +91,7 @@ if __name__ == '__main__':
     # Set up paths to folder with GtkBuilder files and gpodder.svg
     gpodder.ui_folders.append(ui_folder)
     gpodder.credits_file = credits_file
+    gpodder.images_folder = images_folder
     gpodder.icon_file = icon_file
 
     s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )

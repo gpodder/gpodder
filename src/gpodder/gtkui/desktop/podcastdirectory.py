@@ -38,7 +38,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderPodcastDirectory(BuilderWidget):
     finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
-    (MODE_DOWNLOAD, MODE_SEARCH) = range(2)
     
     def new(self):
         if hasattr(self, 'custom_title'):
@@ -56,8 +55,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.setup_treeview(self.treeviewChannelChooser)
         self.setup_treeview(self.treeviewTopPodcastsChooser)
         self.setup_treeview(self.treeviewYouTubeChooser)
-
-        self.current_mode = self.MODE_DOWNLOAD
 
         self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
 
@@ -78,23 +75,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         model = self.get_treeview().get_model()
         model[path][OpmlListModel.C_SELECTED] = not model[path][OpmlListModel.C_SELECTED]
         self.btnOK.set_sensitive(bool(len(self.get_selected_channels())))
-
-    def on_entryURL_changed(self, editable):
-        old_mode = self.current_mode
-        self.current_mode = not editable.get_text().lower().startswith('http://')
-        if self.current_mode == old_mode:
-            return
-
-        if self.current_mode == self.MODE_SEARCH:
-            self.btnDownloadOpml.set_property('image', None)
-            self.btnDownloadOpml.set_label(gtk.STOCK_FIND)
-            self.btnDownloadOpml.set_use_stock(True)
-            self.labelOpmlUrl.set_text(_('Search podcast.de:'))
-        else:
-            self.btnDownloadOpml.set_label(_('Download'))
-            self.btnDownloadOpml.set_image(gtk.image_new_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_BUTTON))
-            self.btnDownloadOpml.set_use_stock(False)
-            self.labelOpmlUrl.set_text(_('OPML:'))
 
     def get_selected_channels(self, tab=None):
         channels = []
@@ -137,8 +117,6 @@ class gPodderPodcastDirectory(BuilderWidget):
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
             url = self.entryURL.get_text()
-            if not os.path.isfile(url) and not url.lower().startswith('http://'):
-                url = 'http://api.podcast.de/opml/podcasts/suche/%s' % (urllib.quote(url),)
             model = OpmlListModel(opml.Importer(url))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))

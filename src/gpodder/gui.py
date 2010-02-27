@@ -75,6 +75,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder.model import PodcastChannel
+from gpodder.model import PodcastEpisode
 from gpodder.dbsqlite import Database
 
 from gpodder.gtkui.model import PodcastListModel
@@ -130,10 +131,11 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
-    from gpodder.gtkui.interface.common import Orientation
     have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
+
+from gpodder.gtkui.interface.common import Orientation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 from gpodder.gtkui.interface.progress import ProgressIndicator
@@ -212,9 +214,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.config.rotation_mode == FremantleRotation.ALWAYS:
                 util.idle_add(self.on_window_orientation_changed, \
                         Orientation.PORTRAIT)
+                self._last_orientation = Orientation.PORTRAIT
+            else:
+                self._last_orientation = Orientation.LANDSCAPE
 
             self.bluetooth_available = False
         else:
+            self._last_orientation = Orientation.LANDSCAPE
             self.bluetooth_available = util.bluetooth_available()
             self.toolbar.set_property('visible', self.config.show_toolbar)
 
@@ -225,6 +231,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
+        self.preferences_dialog = None
         self.config.add_observer(self.on_config_changed)
 
         self.tray_icon = None
@@ -236,7 +243,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.main_window, self.show_confirmation, \
                     self.update_episode_list_icons, \
                     self.update_podcast_list_model, self.toolPreferences, \
-                    gPodderEpisodeSelector)
+                    gPodderEpisodeSelector, \
+                    self.commit_changes_to_database)
         else:
             self.sync_ui = None
 
@@ -245,6 +253,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.desktop:
             self.show_hide_tray_icon()
+            self.itemShowAllEpisodes.set_active(self.config.podcast_list_view_all)
             self.itemShowToolbar.set_active(self.config.show_toolbar)
             self.itemShowDescription.set_active(self.config.episode_list_descriptions)
 
@@ -271,7 +280,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cover_downloader = CoverDownloader()
 
         # Generate list models for podcasts and their episodes
-        self.podcast_list_model = PodcastListModel(self.config.podcast_list_icon_size, self.cover_downloader)
+        self.podcast_list_model = PodcastListModel(self.cover_downloader)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.register('cover-removed', self.cover_file_removed)
@@ -626,6 +635,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._for_each_task_set_status(selected_tasks, status)
 
     def on_window_orientation_changed(self, orientation):
+        self._last_orientation = orientation
+        if self.preferences_dialog is not None:
+            self.preferences_dialog.on_window_orientation_changed(orientation)
+
         treeview = self.treeChannels
         if orientation == Orientation.PORTRAIT:
             treeview.set_action_area_orientation(gtk.ORIENTATION_VERTICAL)
@@ -1198,7 +1211,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # that's why we require the restart of gPodder in the message.
             return False
 
-    def on_config_changed(self, name, old_value, new_value):
+    def on_config_changed(self, *args):
+        util.idle_add(self._on_config_changed, *args)
+
+    def _on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
         elif name == 'episode_list_descriptions':
@@ -1212,7 +1228,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'podcast_list_view_all':
             # Force a update of the podcast list model
             self.channel_list_changed = True
+            if gpodder.ui.fremantle and self.preferences_dialog is not None:
+                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, True)
+                while gtk.events_pending():
+                    gtk.main_iteration(False)
             self.update_podcast_list_model()
+            if gpodder.ui.fremantle and self.preferences_dialog is not None:
+                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, False)
         elif name == 'auto_cleanup_downloads' and new_value:
             # Always cleanup when this option is enabled
             self.on_btnCleanUpDownloads_clicked()
@@ -1958,8 +1980,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client.flush()
 
     def playback_episodes(self, episodes):
-        episodes = [e for e in episodes if \
-                e.was_downloaded(and_exists=True) or self.streaming_possible()]
+        # We need to create a list, because we run through it more than once
+        episodes = list(PodcastEpisode.sort_by_pubdate(e for e in episodes if \
+               e.was_downloaded(and_exists=True) or self.streaming_possible()))
 
         try:
             self.playback_episodes_for_real(episodes)
@@ -2073,10 +2096,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
+        if self.config.podcast_list_view_all and not self.channel_list_changed:
+            # Update "all episodes" view in any case (if enabled)
+            self.podcast_list_model.update_first_row()
+
         if selected:
             # very cheap! only update selected channel
             if iter is not None:
-                self.podcast_list_model.update_by_filter_iter(iter)
+                # If we have selected the "all episodes" view, we have
+                # to update all channels for selected episodes:
+                if self.config.podcast_list_view_all and \
+                        self.podcast_list_model.iter_is_first_row(iter):
+                    urls = self.get_podcast_urls_from_selected_episodes()
+                    self.podcast_list_model.update_by_urls(urls)
+                else:
+                    # Otherwise just update the selected row (a podcast)
+                    self.podcast_list_model.update_by_filter_iter(iter)
         elif not self.channel_list_changed:
             # we can keep the model, but have to update some
             if urls is None:
@@ -2626,7 +2661,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = N_('Remove %d episode?', 'Remove %d episodes?', count) % count
             message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
 
-        locked_count = sum(int(e.is_locked) for e in episodes if e.is_locked is not None)
+        locked_count = sum(e.is_locked for e in episodes)
 
         if count == locked_count:
             title = _('Episodes are locked')
@@ -2904,8 +2939,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         self.sync_ui.on_synchronize_episodes(self.channels, episodes)
-        # The sync process might have updated the status of episodes,
-        # therefore persist the database here to avoid losing data
+
+    def commit_changes_to_database(self):
+        """This will be called after the sync process is finished"""
         self.db.commit()
 
     def on_cleanup_ipod_activate(self, widget, *args):
@@ -2926,6 +2962,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.tray_icon.set_visible(self.is_iconified())
         elif self.tray_icon:
             self.tray_icon.set_visible(True)
+
+    def on_itemShowAllEpisodes_activate(self, widget):
+        self.config.podcast_list_view_all = widget.get_active()
 
     def on_itemShowToolbar_activate(self, widget):
         self.config.show_toolbar = self.itemShowToolbar.get_active()
@@ -2975,6 +3014,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.itemDevice.set_visible(False)
 
     def properties_closed( self):
+        self.preferences_dialog = None
         self.show_hide_tray_icon()
         self.update_item_device()
         if gpodder.ui.maemo:
@@ -2986,10 +3026,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
-        gPodderPreferences(self.gPodder, _config=self.config, \
+        self.preferences_dialog = gPodderPreferences(self.gPodder, \
+                _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
-                mygpo_login=self.on_mygpo_settings_activate)
+                mygpo_login=self.on_mygpo_settings_activate, \
+                on_itemAbout_activate=self.on_itemAbout_activate, \
+                on_wiki_activate=self.on_wiki_activate)
+
+        # Initial message to relayout window (in case it's opened in portrait mode
+        self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
 
     def on_itemDependencies_activate(self, widget):
         gPodderDependencyManager(self.gPodder)
@@ -3211,6 +3257,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.AboutDialog()
+        dlg.set_transient_for(self.main_window)
         dlg.set_name('gPodder')
         dlg.set_version(gpodder.__version__)
         dlg.set_copyright(gpodder.__copyright__)
@@ -3303,6 +3350,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_btnEditChannel_clicked(self, widget, *args):
         self.on_itemEditChannel_activate( widget, args)
+
+    def get_podcast_urls_from_selected_episodes(self):
+        """Get a set of podcast URLs based on the selected episodes"""
+        return set(episode.channel.url for episode in \
+                self.get_selected_episodes())
 
     def get_selected_episodes(self):
         """Get a list of selected episodes from treeAvailable"""

@@ -40,7 +40,8 @@ class gPodderSyncUI(object):
             update_episode_list_icons, \
             update_podcast_list_model, \
             preferences_widget, \
-            episode_selector_class):
+            episode_selector_class, \
+            commit_changes_to_database):
         self._config = config
         self.notification = notification
         self.parent_window = parent_window
@@ -49,6 +50,7 @@ class gPodderSyncUI(object):
         self.update_podcast_list_model = update_podcast_list_model
         self.preferences_widget = preferences_widget
         self.episode_selector_class = episode_selector_class
+        self.commit_changes_to_database = commit_changes_to_database
 
     def _filter_sync_episodes(self, channels, only_downloaded=True):
         """Return a list of episodes for device synchronization
@@ -94,7 +96,9 @@ class gPodderSyncUI(object):
         device = sync.open_device(self._config)
         if device is not None:
             def after_device_sync_callback(device, successful_sync):
-                if successful_sync:
+                if device.cancelled:
+                    log('Cancelled by user.', sender=self)
+                elif successful_sync:
                     title = _('Device synchronized')
                     message = _('Your device has been synchronized.')
                     self.notification(message, title)
@@ -111,6 +115,7 @@ class gPodderSyncUI(object):
                     channel_urls.add(episode.channel.url)
                 util.idle_add(self.update_episode_list_icons, episode_urls)
                 util.idle_add(self.update_podcast_list_model, channel_urls)
+                util.idle_add(self.commit_changes_to_database)
             device.register('post-done', after_device_sync_callback)
 
         if device is None:
@@ -184,6 +189,7 @@ class gPodderSyncUI(object):
                 device.close()
             threading.Thread(target=sync_thread_func).start()
         else:
+            device.cancel()
             device.close()
 
     def on_cleanup_device(self):

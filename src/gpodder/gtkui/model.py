@@ -36,6 +36,12 @@ import os
 import gtk
 import xml.sax.saxutils
 
+try:
+    import gio
+    have_gio = True
+except ImportError:
+    have_gio = False
+
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
@@ -197,6 +203,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
+        icon_theme = gtk.icon_theme_get_default()
 
         if downloading is not None and downloading(episode):
             tooltip = _('Downloading')
@@ -221,6 +228,7 @@ class EpisodeListModel(gtk.ListStore):
                 show_bullet = not episode.is_played
                 show_padlock = episode.is_locked
                 show_missing = not episode.file_exists()
+                filename = episode.local_filename(create=False, check_only=True)
 
                 file_type = episode.file_type()
                 if file_type == 'audio':
@@ -235,15 +243,25 @@ class EpisodeListModel(gtk.ListStore):
 
                     # Optional thumbnailing for image downloads
                     if generate_thumbnails:
-                        image_path = episode.local_filename(create=False, check_only=True)
-                        if image_path is not None:
+                        if filename is not None:
                             # set the status icon to the path itself (that
                             # should be a good identifier anyway)
-                            status_icon = image_path
+                            status_icon = filename
                             status_icon_to_build_from_file = True
                 else:
                     tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE
+
+                # Try to find a themed icon for this file
+                if filename is not None and have_gio:
+                    file = gio.File(filename)
+                    if file.query_exists():
+                        file_info = file.query_info('*')
+                        icon = file_info.get_icon()
+                        for icon_name in icon.get_names():
+                            if icon_theme.has_icon(icon_name):
+                                status_icon = icon_name
+                                break
 
                 if show_missing:
                     tooltip.append(_('missing file'))
@@ -251,13 +269,17 @@ class EpisodeListModel(gtk.ListStore):
                     if show_bullet:
                         if file_type == 'image':
                             tooltip.append(_('never displayed'))
-                        else:
+                        elif file_type in ('audio', 'video'):
                             tooltip.append(_('never played'))
+                        else:
+                            tooltip.append(_('never opened'))
                     else:
                         if file_type == 'image':
                             tooltip.append(_('displayed'))
-                        else:
+                        elif file_type in ('audio', 'video'):
                             tooltip.append(_('played'))
+                        else:
+                            tooltip.append(_('opened'))
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
 
@@ -392,7 +414,7 @@ class PodcastChannelProxy(object):
         self.id = None
         self._save_dir_size_set = False
         self.save_dir_size = 0L
-        self.icon = None
+        self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
 
     def __getattribute__(self, name):
         try:
@@ -431,7 +453,7 @@ class PodcastListModel(gtk.ListStore):
     def row_separator_func(cls, model, iter):
         return model.get_value(iter, cls.C_SEPARATOR)
 
-    def __init__(self, max_image_side, cover_downloader):
+    def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool, bool)
 
@@ -445,7 +467,7 @@ class PodcastListModel(gtk.ListStore):
         if gpodder.ui.fremantle:
             self._max_image_side = 64
         else:
-            self._max_image_side = max_image_side
+            self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
     def _filter_visible_func(self, model, iter):
@@ -582,7 +604,7 @@ class PodcastListModel(gtk.ListStore):
             self.set(iter, \
                     self.C_URL, all_episodes.url, \
                     self.C_CHANNEL, all_episodes, \
-                    self.C_COVER, all_episodes.icon, \
+                    self.C_COVER, self._get_cover_image(all_episodes), \
                     self.C_SEPARATOR, False)
             self.update_by_iter(iter)
 
@@ -616,11 +638,20 @@ class PodcastListModel(gtk.ListStore):
                     return row.path
         return None
 
+    def update_first_row(self):
+        # Update the first row in the model (for "all episodes" updates)
+        self.update_by_iter(self.get_iter_first())
+
     def update_by_urls(self, urls):
         # Given a list of URLs, update each matching row
         for row in self:
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter)
+
+    def iter_is_first_row(self, iter):
+        iter = self._filter.convert_iter_to_child_iter(iter)
+        path = self.get_path(iter)
+        return (path == (0,))
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))

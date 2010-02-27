@@ -494,11 +494,7 @@ class PodcastChannel(PodcastModelObject):
         f = open(m3u_filename, 'w')
         f.write('#EXTM3U\n')
 
-        # Sort downloaded episodes by publication date, ascending
-        def older(episode_a, episode_b):
-            return cmp(episode_a.pubDate, episode_b.pubDate)
-
-        for episode in sorted(downloaded_episodes, cmp=older):
+        for episode in PodcastEpisode.sort_by_pubdate(downloaded_episodes):
             if episode.was_downloaded(and_exists=True):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
@@ -627,6 +623,15 @@ class PodcastChannel(PodcastModelObject):
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
+
+    @staticmethod
+    def sort_by_pubdate(episodes, reverse=False):
+        """Sort a list of PodcastEpisode objects chronologically
+
+        Returns a iterable, sorted sequence of the episodes
+        """
+        key_pubdate = lambda e: e.pubDate
+        return sorted(episodes, key=key_pubdate, reverse=reverse)
 
     def reload_from_db(self):
         """
@@ -775,7 +780,18 @@ class PodcastEpisode(PodcastModelObject):
 
         self.state = gpodder.STATE_NORMAL
         self.is_played = False
+
+        # Initialize the "is_locked" property
+        self._is_locked = False
         self.is_locked = channel.channel_is_locked
+
+    def get_is_locked(self):
+        return self._is_locked
+
+    def set_is_locked(self, is_locked):
+        self._is_locked = bool(is_locked)
+
+    is_locked = property(fget=get_is_locked, fset=set_is_locked)
 
     def save(self):
         if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
@@ -865,20 +881,6 @@ class PodcastEpisode(PodcastModelObject):
             return current_try
 
         while self.db.episode_filename_exists(current_try):
-            if next_try_id == 2 and not youtube.is_video_link(url):
-                # If we arrive here, current_try has a collision, so
-                # try to resolve the URL for a better basename
-                log('Filename collision: %s - trying to resolve...', current_try, sender=self)
-                url = util.get_real_url(self.channel.authenticate_url(url))
-                episode_filename, extension_UNUSED = util.filename_from_url(url)
-                current_try = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)+extension
-                if not self.db.episode_filename_exists(current_try) and current_try:
-                    log('Filename %s is available - collision resolved.', current_try, sender=self)
-                    return current_try
-                else:
-                    filename = episode_filename
-                    log('Continuing search with %s as basename...', filename, sender=self)
-
             current_try = '%s (%d)%s' % (filename, next_try_id, extension)
             next_try_id += 1
 
@@ -959,7 +961,7 @@ class PodcastEpisode(PodcastModelObject):
             # Use the video title for YouTube downloads
             for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
                 if self.url.startswith(yt_url):
-                    fn_template = os.path.basename(self.title)
+                    fn_template = util.sanitize_filename(os.path.basename(self.title), self.MAX_FILENAME_LENGTH)
 
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):

@@ -184,8 +184,6 @@ gPodderSettings = {
       ("The name of the coverart file accepted by the user's FS-based player.")),
     'custom_player_coverart_format' : (str, 'JPEG',
       ("The image format accepted by the user's FS-based player.")),
-    'podcast_list_icon_size': (int, 32,
-      ("The width of the icon used in the podcast channel list.")),
     'cmd_all_downloads_complete': (str, '',
       ("The path to a command that gets run after all downloads are completed.")),
     'cmd_download_complete': (str, '',
@@ -207,7 +205,7 @@ gPodderSettings = {
     'on_drag_mark_played': (bool, False,
       ("Mark episode as played when using drag'n'drop to copy/open it")),
 
-    'feed_update_skipping': (bool, True,
+    'feed_update_skipping': (bool, False,
       ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
     'allow_empty_feeds': (bool, False,
       ('Allow subscribing to feeds without episodes')),
@@ -218,7 +216,7 @@ gPodderSettings = {
       ('Internally used (current view mode)')),
     'podcast_list_hide_boring': (bool, False,
       ('Hide podcasts in the main window for which the episode list is empty')),
-    'podcast_list_view_all': (bool, False,
+    'podcast_list_view_all': (bool, True,
       ('Show an additional entry in the podcast list that contains all episodes')),
 
     'audio_played_dbus': (bool, False,
