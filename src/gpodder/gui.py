@@ -54,7 +54,7 @@ except ImportError:
                 pass
         class service:
             @staticmethod
-            def method(interface):
+            def method(*args, **kwargs):
                 return lambda x: x
             class BusName:
                 def __init__(self, *args, **kwargs):
