@@ -218,26 +218,43 @@ class PodcastChannel(PodcastModelObject):
         else:
             entries = feed.entries
 
+        # Title + PubDate hashes for existing episodes
+        existing_dupes = dict((e.duplicate_id(), e) for e in existing)
+
+        # GUID-based existing episode list
+        existing_guids = dict((e.guid, e) for e in existing)
+
         # Search all entries for new episodes
         for entry in entries:
-            episode = None
-
             try:
                 episode = PodcastEpisode.from_feedparser_entry(entry, self)
+                if episode is not None and not episode.title:
+                    episode.title, ext = os.path.splitext(os.path.basename(episode.url))
             except Exception, e:
-                log('Cannot instantiate episode "%s": %s. Skipping.', entry.get('id', '(no id available)'), e, sender=self, traceback=True)
+                log('Cannot instantiate episode: %s. Skipping.', e, sender=self, traceback=True)
+                continue
 
-            if episode:
-                self.count_new += 1
+            if episode is None:
+                continue
 
-                for ex in existing:
-                    if ex.guid == episode.guid or episode.is_duplicate(ex):
-                        for k in ('title', 'url', 'description', 'link', 'pubDate', 'guid'):
-                            setattr(ex, k, getattr(episode, k))
-                        self.count_new -= 1
-                        episode = ex
+            # Detect (and update) existing episode based on GUIDs
+            existing_episode = existing_guids.get(episode.guid, None)
+            if existing_episode:
+                existing_episode.update_from(episode)
+                existing_episode.save()
+                continue
 
-                episode.save()
+            # Detect (and update) existing episode based on duplicate ID
+            existing_episode = existing_dupes.get(episode.duplicate_id(), None)
+            if existing_episode:
+                if existing_episode.is_duplicate(episode):
+                    existing_episode.update_from(episode)
+                    existing_episode.save()
+                    continue
+
+            # Otherwise we have found a new episode to store in the DB
+            self.count_new += 1
+            episode.save()
 
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
@@ -651,116 +668,84 @@ class PodcastEpisode(PodcastModelObject):
         return bool(self.link) and (self.link != self.url)
 
     @staticmethod
-    def from_feedparser_entry( entry, channel):
-        episode = PodcastEpisode( channel)
+    def from_feedparser_entry(entry, channel):
+        episode = PodcastEpisode(channel)
 
-        episode.title = entry.get( 'title', util.get_first_line( util.remove_html_tags( entry.get( 'summary', ''))))
-        episode.link = entry.get( 'link', '')
-        episode.description = ''
+        episode.title = entry.get('title', '')
+        episode.link = entry.get('link', '')
+        episode.description = entry.get('summary', '')
 
-        # Get the episode description (prefer summary, then subtitle)
-        for key in ('summary', 'subtitle', 'link'):
-            if key in entry:
-                episode.description = entry[key]
-            if episode.description:
-                break
+        # Fallback to subtitle if summary is not available0
+        if not episode.description:
+            episode.description = entry.get('subtitle', '')
 
-        episode.guid = entry.get( 'id', '')
-        if entry.get( 'updated_parsed', None):
+        episode.guid = entry.get('id', '')
+        if entry.get('updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
-        if episode.title == '':
-            log( 'Warning: Episode has no title, adding anyways.. (Feed Is Buggy!)', sender = episode)
+        # Enclosures
+        for e in entry.get('enclosures', ()):
+            episode.mimetype = e.get('type', 'application/octet-stream')
+            if '/' not in episode.mimetype:
+                continue
 
-        enclosure = None
-        if hasattr(entry, 'enclosures') and len(entry.enclosures) > 0:
-            enclosure = entry.enclosures[0]
-            if len(entry.enclosures) > 1:
-                for e in entry.enclosures:
-                    if hasattr( e, 'href') and hasattr( e, 'length') and hasattr( e, 'type') and (e.type.startswith('audio/') or e.type.startswith('video/') or e.type.startswith('image/')):
-                        if util.normalize_feed_url(e.href) is not None:
-                            log( 'Selected enclosure: %s', e.href, sender = episode)
-                            enclosure = e
-                            break
-            episode.url = util.normalize_feed_url( enclosure.get( 'href', ''))
-        elif hasattr(entry, 'media_content'):
-            media = getattr(entry, 'media_content')
-            for m in media:
-                if 'url' in m and 'type' in m and (m['type'].startswith('audio/') or m['type'].startswith('video/') or m['type'].startswith('image/')):
-                    if util.normalize_feed_url(m['url']) is not None:
-                        log('Selected media_content: %s', m['url'], sender = episode)
-                        episode.url=util.normalize_feed_url(m['url'])
-                        episode.mimetype=m['type']
-                        if 'fileSize' in m:
-                            episode.length=int(m['fileSize'])
-                        break
-        elif hasattr(entry, 'links'):
-            for link in entry.links:
-                if not hasattr(link, 'href'):
-                    continue
+            episode.url = util.normalize_feed_url(e.get('href', ''))
+            if not episode.url:
+                continue
 
-                # YouTube-specific workaround
-                if youtube.is_video_link(link.href):
-                    episode.url = link.href
-                    break
-
-                # Check if we can resolve this link to a audio/video file
-                filename, extension = util.filename_from_url(link.href)
-                file_type = util.file_type_by_extension(extension)
-                if file_type is None and hasattr(link, 'type'):
-                    extension = util.extension_from_mimetype(link.type)
-                    file_type = util.file_type_by_extension(extension)
-
-                # The link points to a audio or video file - use it!
-                if file_type is not None:
-                    log('Adding episode with link to file type "%s".', \
-                            file_type, sender=episode)
-                    episode.url = link.href
-                    break
-
-        # Still no luck finding an episode? Try to forcefully scan the
-        # HTML/plaintext contents of the entry for MP3 links
-        if not episode.url:
-            mp3s = re.compile(r'http://[^"]*\.mp3')
-            for content in entry.get('content', []):
-                html = content.value
-                for match in mp3s.finditer(html):
-                    episode.url = match.group(0)
-                    break
-                if episode.url:
-                    break
-
-        if not episode.url:
-            # This item in the feed has no downloadable enclosure
-            return None
-
-        metainfo = None
-        if not episode.pubDate:
-            metainfo = util.get_episode_info_from_url(episode.url)
-            if 'pubdate' in metainfo:
-                try:
-                    episode.pubDate = int(float(metainfo['pubdate']))
-                except:
-                    log('Cannot convert pubDate "%s" in from_feedparser_entry.', str(metainfo['pubdate']), traceback=True)
-
-        if hasattr(enclosure, 'length'):
             try:
-                episode.length = int(enclosure.length)
-                if episode.length == 0:
-                    raise ValueError('Zero-length is not acceptable')
-            except ValueError, ve:
-                log('Invalid episode length: %s (%s)', enclosure.length, ve.message)
+                episode.length = int(e.length) or -1
+            except:
                 episode.length = -1
 
-        if hasattr( enclosure, 'type'):
-            episode.mimetype = enclosure.type
+            return episode
 
-        if episode.title == '':
-            ( filename, extension ) = os.path.splitext( os.path.basename( episode.url))
-            episode.title = filename
+        # Media RSS content
+        for m in entry.get('media_content', ()):
+            episode.mimetype = m.get('type', 'application/octet-stream')
+            if '/' not in episode.mimetype:
+                continue
 
-        return episode
+            episode.url = util.normalize_feed_url(m.get('url', ''))
+            if not episode.url:
+                continue
 
+            try:
+                episode.length = int(m.fileSize) or -1
+            except:
+                episode.length = -1
+
+            return episode
+
+        # Brute-force detection of any links
+        for l in entry.get('links', ()):
+            episode.url = util.normalize_feed_url(l.get('href', ''))
+            if not episode.url:
+                continue
+
+            if youtube.is_video_link(episode.url):
+                return episode
+
+            # Check if we can resolve this link to a audio/video file
+            filename, extension = util.filename_from_url(episode.url)
+            file_type = util.file_type_by_extension(extension)
+            if file_type is None and hasattr(l, 'type'):
+                extension = util.extension_from_mimetype(l.type)
+                file_type = util.file_type_by_extension(extension)
+
+            # The link points to a audio or video file - use it!
+            if file_type is not None:
+                return episode
+
+        # Scan MP3 links in description text
+        mp3s = re.compile(r'http://[^"]*\.mp3')
+        for content in entry.get('content', ()):
+            html = content.value
+            for match in mp3s.finditer(html):
+                episode.url = match.group(0)
+                return episode
+
+        return None
 
     def __init__(self, channel):
         self.db = channel.db
@@ -1119,10 +1104,17 @@ class PodcastEpisode(PodcastModelObject):
         return ''
 
     played_prop = property(fget=get_played_string)
-    
-    def is_duplicate( self, episode ):
+
+    def is_duplicate(self, episode):
         if self.title == episode.title and self.pubDate == episode.pubDate:
             log('Possible duplicate detected: %s', self.title)
             return True
         return False
+
+    def duplicate_id(self):
+        return hash((self.title, self.pubDate))
+
+    def update_from(self, episode):
+        for k in ('title', 'url', 'description', 'link', 'pubDate', 'guid'):
+            setattr(self, k, getattr(episode, k))
 
