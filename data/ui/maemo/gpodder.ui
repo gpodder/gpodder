@@ -288,7 +288,7 @@
         <child>
           <object class="GtkRadioAction" id="item_view_episodes_all">
             <property name="name">item_view_episodes_all</property>
-            <property name="label" translatable="yes">Show deleted episodes</property>
+            <property name="label" translatable="yes">All episodes</property>
             <signal handler="on_item_view_episodes_changed" name="changed"/>
           </object>
         </child>
@@ -297,7 +297,7 @@
             <property name="active">True</property>
             <property name="group">item_view_episodes_all</property>
             <property name="name">item_view_episodes_undeleted</property>
-            <property name="label" translatable="yes">All episodes</property>
+            <property name="label" translatable="yes">Hide deleted episodes</property>
             <signal handler="on_item_view_episodes_changed" name="changed"/>
           </object>
         </child>
