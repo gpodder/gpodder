@@ -56,7 +56,10 @@ class UserApplication(object):
         if self.icon is not None:
             # Load it from an absolute filename
             if os.path.exists(self.icon):
-                return gtk.gdk.pixbuf_new_from_file_at_size(self.icon, 24, 24)
+                try:
+                    return gtk.gdk.pixbuf_new_from_file_at_size(self.icon, 24, 24)
+                except gobject.GError, ge:
+                    pass
 
             # Load it from the current icon theme
             (icon_name, extension) = os.path.splitext(os.path.basename(self.icon))
