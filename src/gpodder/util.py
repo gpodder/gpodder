@@ -1012,6 +1012,8 @@ def format_seconds_to_hour_min_sec(seconds):
 
     result = []
 
+    seconds = int(seconds)
+
     hours = seconds/3600
     seconds = seconds%3600
 
