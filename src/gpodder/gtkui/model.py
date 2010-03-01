@@ -52,9 +52,16 @@ class EpisodeListModel(gtk.ListStore):
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
+    # In which steps the UI is updated for "loading" animations
+    _UI_UPDATE_STEP = .03
+
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 gtk.gdk.Pixbuf, str, str, str, bool, bool, bool)
+
+        # Update progress (if we're currently being updated)
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -102,6 +109,12 @@ class EpisodeListModel(gtk.ListStore):
 
         return True
 
+    def get_update_progress(self):
+        return self._update_progress
+
+    def reset_update_progress(self):
+        self._update_progress = 0.
+
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -140,29 +153,43 @@ class EpisodeListModel(gtk.ListStore):
             return xml.sax.saxutils.escape(episode.title)
 
     def add_from_channel(self, channel, downloading=None, \
-            include_description=False, generate_thumbnails=False):
+            include_description=False, generate_thumbnails=False, \
+            treeview=None):
         """
         Add episode from the given channel to this model.
         Downloading should be a callback.
         include_description should be a boolean value (True if description
         is to be added to the episode row, or False if not)
         """
-        def insert_and_update(episode):
-            description_stripped = util.remove_html_tags(episode.description)
 
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
+        if treeview is not None:
+            util.idle_add(treeview.queue_draw)
+
+        episodes = list(channel.get_all_episodes())
+        count = len(episodes)
+
+        for position, episode in enumerate(episodes):
             iter = self.append()
             self.set(iter, \
                     self.C_URL, episode.url, \
                     self.C_TITLE, episode.title, \
                     self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                     self.C_EPISODE, episode, \
-                    self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
-                    self.C_TOOLTIP, description_stripped)
+                    self.C_PUBLISHED_TEXT, episode.cute_pubdate())
+            self.update_by_iter(iter, downloading, include_description, \
+                    generate_thumbnails, reload_from_db=False)
 
-            self.update_by_iter(iter, downloading, include_description, generate_thumbnails)
-
-        for episode in channel.get_all_episodes():
-            util.idle_add(insert_and_update, episode)
+            self._update_progress = float(position+1)/count
+            if treeview is not None and \
+                    (self._update_progress > self._last_redraw_progress + self._UI_UPDATE_STEP or position+1 == count):
+                def in_gtk_main_thread():
+                    treeview.queue_draw()
+                    while gtk.events_pending():
+                        gtk.main_iteration(False)
+                util.idle_add(in_gtk_main_thread)
+                self._last_redraw_progress = self._update_progress
 
     def update_all(self, downloading=None, include_description=False, \
             generate_thumbnails=False):
@@ -185,9 +212,10 @@ class EpisodeListModel(gtk.ListStore):
                 downloading, include_description, generate_thumbnails)
 
     def update_by_iter(self, iter, downloading=None, include_description=False, \
-            generate_thumbnails=False):
+            generate_thumbnails=False, reload_from_db=True):
         episode = self.get_value(iter, self.C_EPISODE)
-        episode.reload_from_db()
+        if reload_from_db:
+            episode.reload_from_db()
 
         if include_description or gpodder.ui.maemo:
             icon_size = 32

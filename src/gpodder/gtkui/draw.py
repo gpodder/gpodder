@@ -70,7 +70,7 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
             ctx.line_to(x+int(left_side_width)+offset, y)
 
 
-def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None):
+def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
     style = widget.rc_get_style()
     text_color = style.text[gtk.STATE_PRELIGHT]
     red, green, blue = text_color.red, text_color.green, text_color.blue
@@ -90,6 +90,16 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None)
     ctx.move_to(w_width/2-width/2, w_height/2-height/2)
     ctx.set_source_rgba(*text_color)
     ctx.show_layout(layout)
+
+    # Draw an optional progress bar below the text (same width)
+    if add_progress is not None:
+        bar_height = 10
+        ctx.set_source_rgba(*text_color)
+        ctx.set_line_width(1.)
+        ctx.rectangle(w_width/2-width/2-.5, w_height/2+height-.5, width+1, bar_height+1)
+        ctx.stroke()
+        ctx.rectangle(w_width/2-width/2, w_height/2+height, int(width*add_progress), bar_height)
+        ctx.fill()
 
 
 def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):

@@ -798,6 +798,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.entry_search_episodes.set_position(-1)
 
     def init_episode_list_treeview(self):
+        # For loading the list model
+        self.empty_episode_list_model = EpisodeListModel()
         self.episode_list_model = EpisodeListModel()
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
@@ -962,10 +964,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ctx.clip()
 
             x, y, width, height, depth = event.window.get_geometry()
+            progress = None
 
             if role == TreeViewHelper.ROLE_EPISODES:
                 if self.currently_updating:
                     text = _('Loading episodes') + '...'
+                    progress = self.episode_list_model.get_update_progress()
                 elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
                     text = _('No episodes in current view')
@@ -990,7 +994,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 font_desc = None
 
-            draw_text_box_centered(ctx, treeview, width, height, text, font_desc)
+            draw_text_box_centered(ctx, treeview, width, height, text, font_desc, progress)
 
         return False
 
@@ -2171,10 +2175,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.currently_updating = True
             self.episode_list_model.clear()
+            self.episode_list_model.reset_update_progress()
+            self.treeAvailable.set_model(self.empty_episode_list_model)
             def do_update_episode_list_model():
                 additional_args = (self.episode_is_downloading, \
                         self.config.episode_list_descriptions and gpodder.ui.desktop, \
-                        self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                        self.config.episode_list_thumbnails and gpodder.ui.desktop, \
+                        self.treeAvailable)
                 self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
 
                 def on_episode_list_model_updated():
@@ -2182,6 +2189,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         banner.destroy()
                     if gpodder.ui.fremantle:
                         hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
+                    self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
                     self.treeAvailable.columns_autosize()
                     self.currently_updating = False
                     self.play_or_download()
