@@ -195,9 +195,6 @@ gPodderSettings = {
       ("Enable fancy gestures on Maemo.")),
     'sync_disks_after_transfer': (bool, True,
       ("Call 'sync' after tranfering episodes to a device.")),
-    'resume_ask_every_episode': (bool, False,
-      ("If there are episode downloads that can be resumed, ask whether or "
-        "not to resume every single one.")),
     'enable_fingerscroll': (bool, False,
       ("Enable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',
