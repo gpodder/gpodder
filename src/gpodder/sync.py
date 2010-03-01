@@ -294,6 +294,7 @@ class iPodDevice(Device):
 
         self.itdb.mountpoint = self.mountpoint
         self.podcasts_playlist = gpod.itdb_playlist_podcasts(self.itdb)
+        self.master_playlist = gpod.itdb_playlist_mpl(self.itdb)
 
         if self.podcasts_playlist:
             self.notify('status', _('iPod opened'))
@@ -437,6 +438,7 @@ class iPodDevice(Device):
         self.set_cover_art(track, local_filename)
 
         gpod.itdb_track_add(self.itdb, track, -1)
+        gpod.itdb_playlist_add_track(self.master_playlist, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
         gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
 
