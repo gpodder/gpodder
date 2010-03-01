@@ -2459,7 +2459,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self._update_cover(channel)
                 except Exception, e:
                     d = {'url': saxutils.escape(channel.url), 'message': saxutils.escape(str(e))}
-                    message = _('There has been an error updating %(url)s: %(message)s')
+                    if d['message']:
+                        message = _('Error while updating %(url)s: %(message)s')
+                    else:
+                        message = _('The feed at %(url)s could not be updated.')
                     self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
                     log('Error: %s', str(e), sender=self, traceback=True)
 
