@@ -464,8 +464,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.btnCleanUpDownloads)
 
         # Delete old episodes if the user wishes to
-        if self.config.auto_remove_old_episodes:
-            old_episodes = self.get_old_episodes()
+        if self.config.auto_remove_played_episodes or \
+                self.config.auto_remove_unplayed_episodes:
+            old_episodes = list(self.get_expired_episodes())
             if len(old_episodes) > 0:
                 self.delete_episode_list(old_episodes, confirm=False)
                 self.update_podcast_list_model(set(e.channel.url for e in old_episodes))
@@ -2646,14 +2647,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.quit()
         sys.exit(0)
 
-    def get_old_episodes(self):
-        episodes = []
+    def get_expired_episodes(self):
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
-                if episode.age_in_days() > self.config.episode_old_age and \
-                        not episode.is_locked and episode.is_played:
-                    episodes.append(episode)
-        return episodes
+                # Never consider locked episodes as old
+                if episode.is_locked:
+                    continue
+
+                # Never consider fresh episodes as old
+                if episode.age_in_days() < self.config.episode_old_age:
+                    continue
+
+                # Do not delete played episodes (except if configured)
+                if episode.is_played:
+                    if not self.config.auto_remove_played_episodes:
+                        continue
+
+                # Do not delete unplayed episodes (except if configured)
+                if not episode.is_played:
+                    if not self.config.auto_remove_unplayed_episodes:
+                        continue
+
+                yield episode
 
     def delete_episode_list(self, episodes, confirm=True):
         if not episodes:

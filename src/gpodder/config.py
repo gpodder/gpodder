@@ -71,8 +71,7 @@ gPodderSettings = {
       ("Set a global speed limit (in KB/s) when downloading files. "
         "Requires 'limit_rate'.")),
     'episode_old_age': ( int, 7,
-      ("The number of days before an episode is considered old. "
-        "Must be used in conjunction with 'auto_remove_old_episodes'.")),
+      ("The number of days before an episode is considered old.")),
 
     # Boolean config flags
     'update_on_startup': ( bool, False,
@@ -86,8 +85,10 @@ gPodderSettings = {
       ("After syncing an episode, mark it as played in gPodder.")),
     'on_sync_delete': ( bool, False,
       ("After syncing an episode, delete it from gPodder.")),
-    'auto_remove_old_episodes': ( bool, False,
-      ("Remove episodes older than 'episode_old_age' days on startup.")),
+    'auto_remove_played_episodes': ( bool, False,
+      ("Auto-remove old episodes that are played.")),
+    'auto_remove_unplayed_episodes': ( bool, False,
+      ("Auto-remove old episodes that are unplayed.")),
     'auto_update_feeds': (bool, False,
       ("Automatically update feeds when gPodder is minimized. "
         "See 'auto_update_frequency' and 'auto_download'.")),

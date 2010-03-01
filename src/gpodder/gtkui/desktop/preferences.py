@@ -41,7 +41,7 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton( 'on_sync_mark_played', self.on_sync_mark_played)
         self._config.connect_gtk_togglebutton( 'on_sync_delete', self.on_sync_delete)
         self._config.connect_gtk_spinbutton('episode_old_age', self.episode_old_age)
-        self._config.connect_gtk_togglebutton('auto_remove_old_episodes', self.auto_remove_old_episodes)
+        self._config.connect_gtk_togglebutton('auto_remove_played_episodes', self.auto_remove_old_episodes)
         self._config.connect_gtk_togglebutton('auto_update_feeds', self.auto_update_feeds)
         self._config.connect_gtk_spinbutton('auto_update_frequency', self.auto_update_frequency)
         self._config.connect_gtk_togglebutton('display_tray_icon', self.display_tray_icon)
