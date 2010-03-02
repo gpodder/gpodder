@@ -1,1493 +1,407 @@
 <?xml version="1.0"?>
+<!--*- mode: xml -*-->
 <interface>
-  <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="value">20</property>
-    <property name="lower">1</property>
-    <property name="upper">3600</property>
-    <property name="step_increment">1</property>
+  <object class="GtkAdjustment" id="adjustment_episode_limit">
+    <property name="upper">1000</property>
+    <property name="lower">100</property>
+    <property name="page_increment">10</property>
+    <property name="step_increment">10</property>
+    <property name="page_size">0</property>
+    <property name="value">200</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment2">
+  <object class="GtkAdjustment" id="adjustment_update_interval">
+    <property name="upper">360</property>
+    <property name="lower">0</property>
+    <property name="page_increment">1</property>
+    <property name="step_increment">1</property>
+    <property name="page_size">0</property>
+    <property name="value">0</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment_expiration">
+    <property name="upper">30</property>
+    <property name="lower">0</property>
+    <property name="page_increment">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_size">0</property>
     <property name="value">7</property>
-    <property name="lower">1</property>
-    <property name="upper">60</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkListStore" id="model1">
-    <columns>
-      <!-- column-name gchararray -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">None</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">iPod</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Filesystem-based MP3 player</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">MTP-based player</col>
-      </row>
-    </data>
   </object>
   <object class="GtkDialog" id="gPodderPreferences">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">gPodder Preferences</property>
     <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
+    <property name="has-separator">False</property>
+    <property name="window-position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="default_height">260</property>
+    <property name="default_width">320</property>
+    <property context="yes" name="title" translatable="yes">Preferences</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
-    <signal name="destroy" handler="on_gPodderPreferences_destroy"/>
+    <signal name="destroy" handler="on_dialog_destroy"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vBoxMain">
+      <object class="GtkVBox" id="vbox">
+        <property name="border_width">2</property>
         <property name="visible">True</property>
         <child>
-          <object class="GtkNotebook" id="notebookProperties">
+          <object class="GtkNotebook" id="notebook">
+            <property name="border_width">6</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="border_width">10</property>
-            <property name="tab_pos">left</property>
             <child>
-              <object class="GtkTable" id="table2">
+              <object class="GtkVBox" id="vbox_general">
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
                 <property name="visible">True</property>
-                <property name="border_width">10</property>
-                <property name="n_rows">14</property>
-                <property name="n_columns">3</property>
-                <property name="column_spacing">5</property>
-                <property name="row_spacing">5</property>
                 <child>
-                  <object class="GtkLabel" id="labelCustomCommand">
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Command line:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="openApp">
-                    <property name="can_focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label74">
+                  <object class="GtkTable" id="table_players">
+                    <property name="column_spacing">6</property>
+                    <property name="n_columns">3</property>
+                    <property name="n_rows">2</property>
+                    <property name="row_spacing">6</property>
                     <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Audio Media Player&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2411">
-                    <property name="visible">True</property>
-                    <property name="xpad">6</property>
-                    <property name="icon_name">audio-x-generic</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="comboAudioPlayerApp">
-                    <property name="visible">True</property>
-                    <signal name="changed" handler="on_comboAudioPlayerApp_changed"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="openVideoApp">
-                    <property name="can_focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2928">
-                    <property name="visible">True</property>
-                    <property name="xpad">6</property>
-                    <property name="icon_name">video-x-generic</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="comboVideoPlayerApp">
-                    <property name="visible">True</property>
-                    <signal name="changed" handler="on_comboVideoPlayerApp_changed"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label114">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Video Media Player&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator20">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="y_padding">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label88">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Automatic download of episode list&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="updateonstartup">
-                    <property name="label" translatable="yes">Check for new episodes on startup</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox41">
-                    <property name="visible">True</property>
-                    <property name="spacing">5</property>
                     <child>
-                      <object class="GtkCheckButton" id="auto_update_feeds">
-                        <property name="label" translatable="yes">Check for new episodes every</property>
+                      <object class="GtkLabel" id="label_audio_player">
+                        <property context="yes" name="label" translatable="yes">Audio player:</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_auto_update_feeds_toggled"/>
+                        <property name="xalign">0.0</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
+                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="auto_update_frequency">
+                      <object class="GtkLabel" id="label_video_player">
+                        <property context="yes" name="label" translatable="yes">Video player:</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="adjustment">adjustment1</property>
-                        <property name="climb_rate">1</property>
+                        <property name="xalign">0.0</property>
+                      </object>
+                      <packing>
+                        <property name="bottom_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="x_options">fill</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="combo_audio_player_app">
+                        <property name="visible">True</property>
+                        <signal name="changed" handler="on_combo_audio_player_app_changed"/>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="combo_video_player_app">
+                        <property name="visible">True</property>
+                        <signal name="changed" handler="on_combo_video_player_app_changed"/>
+                      </object>
+                      <packing>
+                        <property name="bottom_attach">2</property>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button_audio_player">
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_button_audio_player_clicked"/>
+                        <child>
+                          <object class="GtkImage" id="image3">
+                            <property name="stock">gtk-edit</property>
+                            <property name="visible">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="x_options">fill</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button_video_player">
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_button_video_player_clicked"/>
+                        <child>
+                          <object class="GtkImage" id="image4">
+                            <property name="stock">gtk-edit</property>
+                            <property name="visible">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="bottom_attach">2</property>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                        <property name="top_attach">1</property>
+                        <property name="x_options">fill</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHSeparator" id="hseparator_general">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_enable_notifications">
+                    <property name="is_focus">True</property>
+                    <property context="yes" name="label" translatable="yes">Enable notification bubbles</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_show_tray_icon">
+                    <property context="yes" name="label" translatable="yes">Show icon in system tray</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="tab-label" translatable="yes">General</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox_updating">
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkHBox" id="hbox_updating_interval">
+                    <property name="spacing">6</property>
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label_update_interval">
+                        <property context="yes" name="label" translatable="yes">Update interval:</property>
+                        <property name="visible">True</property>
+                        <property name="xalign">0.0</property>
+                        <property name="yalign">0.1</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHScale" id="hscale_update_interval">
+                        <property name="digits">0</property>
+                        <property name="is_focus">True</property>
+                        <property name="restrict_to_fill_level">False</property>
+                        <property name="value_pos">bottom</property>
+                        <property name="visible">True</property>
+                        <property name="adjustment">adjustment_update_interval</property>
+                        <signal name="format-value" handler="format_update_interval_value"/>
+                        <signal name="value-changed" handler="on_update_interval_value_changed"/>
                       </object>
                       <packing>
                         <property name="position">1</property>
                       </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_update_on_startup">
+                    <property context="yes" name="label" translatable="yes">Check for new episodes on startup</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHSeparator" id="hseparator_updating">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox_episode_limit">
+                    <property name="spacing">6</property>
+                    <property name="visible">True</property>
                     <child>
-                      <object class="GtkLabel" id="label111">
+                      <object class="GtkLabel" id="label_episode_limit">
+                        <property context="yes" name="label" translatable="yes">Maximum number of episodes per podcast:</property>
                         <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">minutes</property>
+                        <property name="xalign">0.0</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="spinbutton_episode_limit">
+                        <property name="adjustment">adjustment_episode_limit</property>
+                        <property context="yes" name="text" translatable="yes">0</property>
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
+                    <property name="expand">False</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="image2420">
+                  <object class="GtkHSeparator" id="hseparator_updating2">
                     <property name="visible">True</property>
-                    <property name="stock">gtk-refresh</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="labelCustomVideoCommand">
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Command line:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-            </child>
-            <child type="tab">
-              <object class="GtkVBox" id="vbox5">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkImage" id="image2413">
-                    <property name="visible">True</property>
-                    <property name="icon_name">gtk-properties</property>
-                    <property name="icon-size">3</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label76">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">General</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox_auto_download">
+                    <property name="spacing">6</property>
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label_auto_download">
+                        <property context="yes" name="label" translatable="yes">When new episodes are found:</property>
+                        <property name="visible">True</property>
+                        <property name="xalign">0.0</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="combo_auto_download">
+                        <property name="visible">True</property>
+                        <signal name="changed" handler="on_combo_auto_download_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
               <packing>
-                <property name="tab_fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkTable" id="tableDownloadsProperties">
-                <property name="visible">True</property>
-                <property name="border_width">10</property>
-                <property name="n_rows">11</property>
-                <property name="n_columns">4</property>
-                <property name="column_spacing">5</property>
-                <property name="row_spacing">3</property>
-                <child>
-                  <object class="GtkLabel" id="label108">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Clean-up&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label110">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">days</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="episode_old_age">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="adjustment">adjustment2</property>
-                    <property name="climb_rate">1</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2872">
-                    <property name="visible">True</property>
-                    <property name="icon_name">gtk-clear</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="auto_remove_old_episodes">
-                    <property name="label" translatable="yes">Delete played episodes on startup after</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">If checked, gPodder will delete played episodes that are older than the specified amount of days (in the Downloads tab) on every startup.</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator19">
-                    <property name="visible">False</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="y_padding">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label75">
-                    <property name="visible">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Download Folder&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2412">
-                    <property name="visible">False</property>
-                    <property name="icon_name">media-floppy</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFileChooserButton" id="chooserDownloadTo">
-                    <property name="visible">False</property>
-                    <property name="sensitive">False</property>
-                    <property name="action">select-folder</property>
-                    <property name="title" translatable="yes">Select download folder</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
+                <property name="tab-label" translatable="yes">Updating</property>
                 <property name="position">1</property>
               </packing>
             </child>
-            <child type="tab">
-              <object class="GtkVBox" id="vbox6">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkImage" id="image2414">
-                    <property name="visible">True</property>
-                    <property name="icon_name">gtk-go-down</property>
-                    <property name="icon-size">3</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label77">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Downloads</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-                <property name="tab_fill">False</property>
-              </packing>
-            </child>
             <child>
-              <object class="GtkTable" id="table5">
-                <property name="visible">True</property>
-                <property name="border_width">10</property>
-                <property name="n_rows">13</property>
-                <property name="n_columns">4</property>
-                <property name="column_spacing">5</property>
-                <property name="row_spacing">5</property>
-                <child>
-                  <object class="GtkLabel" id="filesystemLabel">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Sync to folder:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="ipodLabel">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">iPod mountpoint:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label50">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Type of device:</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2424">
-                    <property name="visible">True</property>
-                    <property name="icon_name">multimedia-player</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options"></property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="x_padding">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_filesystemMountpoint">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_btn_FilesystemMountpoint_clicked"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment12">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkHBox" id="hbox18">
-                            <property name="visible">True</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="filesystemIcon">
-                                <property name="visible">True</property>
-                                <property name="stock">gtk-directory</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="filesystemMountpoint">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">/path/to/fs-based-player</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_iPodMountpoint">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_btn_iPodMountpoint_clicked"/>
-                    <child>
-                      <object class="GtkAlignment" id="alignment11">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <child>
-                          <object class="GtkHBox" id="hbox17">
-                            <property name="visible">True</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="ipodIcon">
-                                <property name="visible">True</property>
-                                <property name="icon_name">gnome-dev-ipod</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="iPodMountpoint">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">/path/to/ipod</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="comboboxDeviceType">
-                    <property name="visible">True</property>
-                    <property name="model">model1</property>
-                    <signal name="changed" handler="on_comboboxDeviceType_changed"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="renderer1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label89">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Device Configuration&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="labelSyncOptions">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Synchronization Options&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="cbChannelSubfolder">
-                    <property name="label" translatable="yes">Create a subfolder for each podcast</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">If checked, a subfolder will be created for each podcast synchronized. If not checked, all episodes will be copied directly to the folder specified by "Sync to folder:".</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="cbCustomSyncName">
-                    <property name="label" translatable="yes">Custom filename:</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_cbCustomSyncName_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="entryCustomSyncName">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btnCustomSyncNameHelp">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <signal name="clicked" handler="on_btnCustomSyncNameHelp_clicked"/>
-                    <child>
-                      <object class="GtkImage" id="image2630">
-                        <property name="visible">True</property>
-                        <property name="stock">gtk-info</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">9</property>
-                    <property name="bottom_attach">10</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="only_sync_not_played">
-                    <property name="label" translatable="yes">Only sync tracks that have not been played</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_only_sync_not_played_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="separatorSyncOptions">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                    <property name="y_padding">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkTable" id="table11">
-                    <property name="visible">True</property>
-                    <property name="n_rows">3</property>
-                    <property name="n_columns">2</property>
-                    <property name="column_spacing">10</property>
-                    <property name="row_spacing">5</property>
-                    <child>
-                      <object class="GtkLabel" id="label_after_sync">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">After synchronization:</property>
-                      </object>
-                      <packing>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="on_sync_leave">
-                        <property name="label" translatable="yes">Do nothing</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="on_sync_delete">
-                        <property name="label" translatable="yes">Delete episode from gPodder</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <property name="group">on_sync_leave</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="on_sync_mark_played">
-                        <property name="label" translatable="yes">Mark episode as played</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="tooltip_text" translatable="yes">If checked, gPodder will update the status of the episode as if it has been played locally after copying it to your device</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <property name="group">on_sync_leave</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="y_padding">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="ipod_delete_played_from_db">
-                    <property name="label" translatable="yes">Delete episodes played on iPod from gPodder</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">12</property>
-                    <property name="bottom_attach">13</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="player_supports_ogg">
-                    <property name="label" translatable="yes">My player supports OGG</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">If checked, OGG files will not be converted to MP3 before being transfered.</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">12</property>
-                    <property name="bottom_attach">13</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="imageSyncOptions">
-                    <property name="visible">True</property>
-                    <property name="icon_name">palm-pilot-sync</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">11</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="x_padding">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="delete_episodes_marked_played">
-                    <property name="label" translatable="yes">Delete episodes on device that have been marked played in gPodder</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_delete_episodes_marked_played_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkVBox" id="vbox7">
+              <object class="GtkVBox" id="vbox_downloads">
+                <property name="border_width">12</property>
+                <property name="spacing">6</property>
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkImage" id="image2415">
+                  <object class="GtkHBox" id="hbox_expiration">
+                    <property name="spacing">6</property>
                     <property name="visible">True</property>
-                    <property name="icon_name">multimedia-player</property>
-                    <property name="icon-size">3</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label78">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Device</property>
+                    <child>
+                      <object class="GtkLabel" id="label_expiration">
+                        <property context="yes" name="label" translatable="yes">Remove played episodes:</property>
+                        <property name="visible">True</property>
+                        <property name="xalign">0.0</property>
+                        <property name="yalign">0.1</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHScale" id="hscale_expiration">
+                        <property name="digits">0</property>
+                        <property name="is_focus">True</property>
+                        <property name="value_pos">bottom</property>
+                        <property name="visible">True</property>
+                        <property name="adjustment">adjustment_expiration</property>
+                        <signal name="format-value" handler="format_expiration_value"/>
+                        <signal name="value-changed" handler="on_expiration_value_changed"/>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_expiration_unplayed">
+                    <property context="yes" name="label" translatable="yes">Also remove unplayed episodes</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="tab-label" translatable="yes">Clean-up</property>
                 <property name="position">2</property>
-                <property name="tab_fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkTable" id="table12">
-                <property name="visible">True</property>
-                <property name="border_width">10</property>
-                <property name="n_rows">10</property>
-                <property name="n_columns">2</property>
-                <property name="column_spacing">5</property>
-                <property name="row_spacing">5</property>
-                <child>
-                  <object class="GtkLabel" id="label113">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Notification Area Integration&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="display_tray_icon">
-                    <property name="label" translatable="yes">Show gPodder icon in the system notification area</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_display_tray_icon_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="minimize_to_tray">
-                    <property name="label" translatable="yes">Only show tray icon when minimized</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2874">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-dialog-info</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">5</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="enable_notifications">
-                    <property name="label" translatable="yes">Enable notification bubbles</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label126">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Advanced window options&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">6</property>
-                    <property name="bottom_attach">7</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator18">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">5</property>
-                    <property name="bottom_attach">6</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                    <property name="y_padding">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="start_iconified">
-                    <property name="label" translatable="yes">Start gPodder minimized</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">8</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image3208">
-                    <property name="visible">True</property>
-                    <property name="icon_name">gnome-panel-window-list</property>
-                    <property name="icon-size">6</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">7</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="comboboxAutoDownload">
-                    <property name="visible">True</property>
-                    <property name="model">liststore1</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">8</property>
-                    <property name="bottom_attach">9</property>
-                    <property name="y_options">GTK_FILL</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="on_quit_systray">
-                    <property name="label" translatable="yes">Close to system notification area</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                    <property name="x_options">GTK_FILL</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child type="tab">
-              <object class="GtkVBox" id="vbox11">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkImage" id="image2873">
-                    <property name="visible">True</property>
-                    <property name="icon_name">gnome-panel-notification-area</property>
-                    <property name="icon-size">3</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label112">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Tray Icon</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-                <property name="tab_fill">False</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="hbuttonbox3">
+          <object class="GtkHButtonBox" id="action_area">
+            <property name="border_width">5</property>
+            <property name="layout_style">end</property>
+            <property name="spacing">6</property>
             <property name="visible">True</property>
             <child>
-              <object class="GtkButton" id="btnConfigEditor">
+              <object class="GtkButton" id="button_advanced">
+                <property context="yes" name="label" translatable="yes">Edit config</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">False</property>
-                <signal name="clicked" handler="on_btnConfigEditor_clicked"/>
-                <child>
-                  <object class="GtkAlignment" id="alignment25">
-                    <property name="visible">True</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <child>
-                      <object class="GtkHBox" id="hbox39">
-                        <property name="visible">True</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkImage" id="image3165">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-preferences</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label122">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Advanced...</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+                <signal name="clicked" handler="on_button_advanced_clicked"/>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btnOK">
+              <object class="GtkButton" id="button_close">
                 <property name="label">gtk-close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_btnOK_clicked"/>
+                <property name="visible">True</property>
+                <signal name="clicked" handler="on_button_close_clicked"/>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
             <property name="pack_type">end</property>
-            <property name="position">0</property>
           </packing>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">btnConfigEditor</action-widget>
-      <action-widget response="0">btnOK</action-widget>
-    </action-widgets>
-  </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name option -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Never automatically download new episodes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Automatically download new episodes when gPodder is minimized</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Always automatically download new episodes</col>
-      </row>
-    </data>
   </object>
 </interface>

@@ -464,8 +464,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.btnCleanUpDownloads)
 
         # Delete old episodes if the user wishes to
-        if self.config.auto_remove_played_episodes or \
-                self.config.auto_remove_unplayed_episodes:
+        if self.config.auto_remove_played_episodes and \
+                self.config.episode_old_age > 0:
             old_episodes = list(self.get_expired_episodes())
             if len(old_episodes) > 0:
                 self.delete_episode_list(old_episodes, confirm=False)
@@ -2433,6 +2433,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
                 self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
+            elif self.config.auto_download == 'queue':
+                self.download_episode_list_paused(episodes)
+                title = N_('%d new episode added to download list.', '%d new episodes added to download list.', count) % count
+                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                self.show_update_feeds_buttons()
             else:
                 self.show_update_feeds_buttons()
                 # New episodes are available and we are not minimized
@@ -3055,13 +3060,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
-        self.preferences_dialog = gPodderPreferences(self.gPodder, \
+        self.preferences_dialog = gPodderPreferences(self.main_window, \
                 _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
                 mygpo_login=self.on_mygpo_settings_activate, \
                 on_itemAbout_activate=self.on_itemAbout_activate, \
-                on_wiki_activate=self.on_wiki_activate)
+                on_wiki_activate=self.on_wiki_activate, \
+                parent_window=self.main_window)
 
         # Initial message to relayout window (in case it's opened in portrait mode
         self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
@@ -3462,7 +3468,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gobject.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if self.config.auto_update_feeds:
+        if self.config.auto_update_feeds and \
+                self.config.auto_update_frequency:
             interval = 60*1000*self.config.auto_update_frequency
             log('Setting up auto update timer with interval %d.', \
                     self.config.auto_update_frequency, sender=self)

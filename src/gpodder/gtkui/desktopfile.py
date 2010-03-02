@@ -45,6 +45,37 @@ userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
 
+class PlayerListModel(gtk.ListStore):
+    C_ICON, C_NAME, C_COMMAND, C_CUSTOM = range(4)
+
+    def __init__(self):
+        gtk.ListStore.__init__(self, gtk.gdk.Pixbuf, str, str, bool)
+
+    def insert_app(self, pixbuf, name, command):
+        self.append((pixbuf, name, command, False))
+
+    def get_command(self, index):
+        return self[index][self.C_COMMAND]
+
+    def get_index(self, value):
+        for index, row in enumerate(self):
+            if value == row[self.C_COMMAND]:
+                return index
+
+        last_row = self[-1]
+        name = _('Command: %s') % value
+        if last_row[self.C_CUSTOM]:
+            last_row[self.C_COMMAND] = value
+            last_row[self.C_NAME] = name
+        else:
+            self.append((None, name, value, True))
+
+        return len(self)-1
+
+    @classmethod
+    def is_separator(cls, model, iter):
+        return model.get_value(iter, cls.C_COMMAND) == ''
+
 class UserApplication(object):
     def __init__(self, name, cmd, mime, icon):
         self.name = name
@@ -75,12 +106,10 @@ class UserAppsReader(object):
     def __init__(self, mimetypes):
         self.apps = []
         self.mimetypes = mimetypes
-        self.__model_cache = {}
         self.__has_read = False
         self.__finished = threading.Event()
         self.__has_sep = False
         self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_OPEN))
-        self.apps.append(UserApplication(_('Custom command'), '', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_EXECUTE))
 
     def add_separator(self):
         self.apps.append(UserApplication('', '', ';'.join((mime+'/*' for mime in self.mimetypes)), ''))
@@ -121,19 +150,12 @@ class UserAppsReader(object):
         except:
             return
 
-    def get_applications_as_model(self, mimetype, return_model=True):
+    def get_model(self, mimetype):
         self.__finished.wait()
-        if mimetype not in self.__model_cache:
-            result = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gtk.gdk.Pixbuf)
-            for app in self.apps:
-                if app.is_mime(mimetype):
-                    result.append([app.name, app.cmd, app.get_icon()])
-            self.__model_cache[mimetype] = result
-        else:
-            log('Using cached application list model for %s', mimetype, sender=self)
 
-        if return_model:
-            return self.__model_cache[mimetype]
-        else:
-            return False
+        model = PlayerListModel()
+        for app in self.apps:
+            if app.is_mime(mimetype):
+                model.insert_app(app.get_icon(), app.name, app.cmd)
+        return model
 

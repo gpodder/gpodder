@@ -329,7 +329,10 @@ class BuilderWidget(GtkBuilderWidget):
             ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.set_has_separator(False)
-        dialog.set_default_size(650, -1)
+        if gpodder.ui.desktop:
+            dialog.set_default_size(300, -1)
+        else:
+            dialog.set_default_size(650, -1)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         if gpodder.ui.fremantle:
