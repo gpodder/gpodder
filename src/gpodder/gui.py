@@ -428,25 +428,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         _('Some episodes have not finished downloading in a previous session.'), \
                         False, self.main_window)
                 indicator.on_message(N_('%d partial file', '%d partial files', count) % count)
-                for index, f in enumerate(partial_files):
-                    indicator.on_progress(float(index)/count)
-                    correct_name = f[:-len('.partial')] # strip ".partial"
-                    log('Searching episode for file: %s', correct_name, sender=self)
-                    found_episode = False
-                    for c in self.channels:
-                        for e in c.get_all_episodes():
-                            if e.local_filename(create=False, check_only=True) == correct_name:
-                                indicator.on_message(e.title)
-                                log('Found episode: %s', e.title, sender=self)
-                                resumable_episodes.append(e)
-                                found_episode = True
-                            if found_episode:
-                                break
-                        if found_episode:
+
+                candidates = [f[:-len('.partial')] for f in partial_files]
+                found = 0
+
+                for c in self.channels:
+                    for e in c.get_all_episodes():
+                        filename = e.local_filename(create=False, check_only=True)
+                        if filename in candidates:
+                            log('Found episode: %s', e.title, sender=self)
+                            found += 1
+                            indicator.on_message(e.title)
+                            indicator.on_progress(float(found)/count)
+                            candidates.remove(filename)
+                            partial_files.remove(filename+'.partial')
+                            resumable_episodes.append(e)
+
+                        if not candidates:
                             break
-                    if not found_episode:
-                        log('Partial file without episode: %s', f, sender=self)
-                        util.delete_file(f)
+
+                    if not candidates:
+                        break
+
+                for f in partial_files:
+                    log('Partial file without episode: %s', f, sender=self)
+                    util.delete_file(f)
 
                 util.idle_add(indicator.on_finished)
 
