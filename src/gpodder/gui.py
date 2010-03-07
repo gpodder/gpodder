@@ -969,7 +969,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if role == TreeViewHelper.ROLE_EPISODES:
                 if self.currently_updating:
-                    text = _('Loading episodes') + '...'
+                    text = _('Loading episodes')
                     progress = self.episode_list_model.get_update_progress()
                 elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
