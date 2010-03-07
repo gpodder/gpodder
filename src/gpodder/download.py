@@ -339,17 +339,26 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
 
 class DownloadQueueWorker(threading.Thread):
-    def __init__(self, queue, exit_callback, continue_check_callback):
+    def __init__(self, queue, exit_callback, continue_check_callback, minimum_tasks):
         threading.Thread.__init__(self)
         self.queue = queue
         self.exit_callback = exit_callback
         self.continue_check_callback = continue_check_callback
 
+        # The minimum amount of tasks that should be downloaded by this worker
+        # before using the continue_check_callback to determine if it might
+        # continue accepting tasks. This can be used to forcefully start a
+        # download, even if a download limit is in effect.
+        self.minimum_tasks = minimum_tasks
+
     def run(self):
         log('Running new thread: %s', self.getName(), sender=self)
         while True:
             # Check if this thread is allowed to continue accepting tasks
-            if not self.continue_check_callback(self):
+            # (But only after reducing minimum_tasks to zero - see above)
+            if self.minimum_tasks > 0:
+                self.minimum_tasks -= 1
+            elif not self.continue_check_callback(self):
                 log('%s must not accept new tasks.', self.getName(), sender=self)
                 return
 
@@ -384,18 +393,32 @@ class DownloadQueueManager(object):
             else:
                 return True
 
-    def spawn_threads(self):
+    def spawn_threads(self, force_start=False):
+        """Spawn new worker threads if necessary
+
+        If force_start is True, forcefully spawn a thread and
+        let it process at least one episodes, even if a download
+        limit is in effect at the moment.
+        """
         with self.worker_threads_access:
             if not len(self.tasks):
                 return
 
-            if len(self.worker_threads) == 0 or \
+            if force_start or len(self.worker_threads) == 0 or \
                     len(self.worker_threads) < self._config.max_downloads or \
                     not self._config.max_downloads_enabled:
                 # We have to create a new thread here, there's work to do
                 log('I am going to spawn a new worker thread.', sender=self)
+
+                # The new worker should process at least one task (the one
+                # that we want to forcefully start) if force_start is True.
+                if force_start:
+                    minimum_tasks = 1
+                else:
+                    minimum_tasks = 0
+
                 worker = DownloadQueueWorker(self.tasks, self.__exit_callback, \
-                        self.__continue_check_callback)
+                        self.__continue_check_callback, minimum_tasks)
                 self.worker_threads.append(worker)
                 worker.start()
 
@@ -403,13 +426,31 @@ class DownloadQueueManager(object):
         with self.worker_threads_access:
             return len(self.worker_threads) > 0
 
-    def add_task(self, task):
+    def add_task(self, task, force_start=False):
+        """Add a new task to the download queue
+
+        If force_start is True, ignore the download limit
+        and forcefully start the download right away.
+        """
         if task.status != DownloadTask.INIT:
             # This task is old so update episode from db
             task.episode.reload_from_db()
+
+            # Remove the task from its current position in the
+            # download queue (if any) to avoid race conditions
+            # where two worker threads download the same file
+            try:
+                self.tasks.remove(task)
+            except ValueError, e:
+                pass
         task.status = DownloadTask.QUEUED
-        self.tasks.appendleft(task)
-        self.spawn_threads()
+        if force_start:
+            # Add the task to be taken on next pop
+            self.tasks.append(task)
+        else:
+            # Add the task to the end of the queue
+            self.tasks.appendleft(task)
+        self.spawn_threads(force_start)
 
 
 class DownloadTask(object):

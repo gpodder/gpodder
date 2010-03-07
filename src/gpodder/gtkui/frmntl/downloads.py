@@ -59,7 +59,7 @@ class gPodderDownloads(BuilderWidget):
         self.main_window.set_app_menu(appmenu)
 
     def on_selection_changed(self, selection):
-        selected_tasks, can_queue, can_cancel, can_pause, can_remove = self.downloads_list_get_selection()
+        selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = self.downloads_list_get_selection()
         self._selected_tasks = selected_tasks
         if selected_tasks:
             self.action_pause.set_sensitive(can_pause)

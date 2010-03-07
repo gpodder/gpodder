@@ -1375,12 +1375,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selection = self.treeDownloads.get_selection()
             model, paths = selection.get_selected_rows()
 
-        can_queue, can_cancel, can_pause, can_remove = (True,)*4
+        can_queue, can_cancel, can_pause, can_remove, can_force = (True,)*5
         selected_tasks = [(gtk.TreeRowReference(model, path), \
                            model.get_value(model.get_iter(path), \
                            DownloadStatusModel.C_TASK)) for path in paths]
 
         for row_reference, task in selected_tasks:
+            if task.status != download.DownloadTask.QUEUED:
+                can_force = False
             if task.status not in (download.DownloadTask.PAUSED, \
                     download.DownloadTask.FAILED, \
                     download.DownloadTask.CANCELLED):
@@ -1397,7 +1399,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     download.DownloadTask.DONE):
                 can_remove = False
 
-        return selected_tasks, can_queue, can_cancel, can_pause, can_remove
+        return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
 
     def downloads_finished(self, download_tasks_seen):
         # FIXME: Filter all tasks that have already been reported
@@ -1443,14 +1445,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return (''.join(result)).strip()
 
-    def _for_each_task_set_status(self, tasks, status):
+    def _for_each_task_set_status(self, tasks, status, force_start=False):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
             if status == download.DownloadTask.QUEUED:
-                # Only queue task when its paused/failed/cancelled
-                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED):
-                    self.download_queue_manager.add_task(task)
+                # Only queue task when its paused/failed/cancelled (or forced)
+                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED) or force_start:
+                    self.download_queue_manager.add_task(task, force_start)
                     self.enable_download_list_update()
             elif status == download.DownloadTask.CANCELLED:
                 # Cancelling a download allowed when downloading/queued
@@ -1498,14 +1500,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return not treeview.is_rubber_banding_active()
 
         if event.button == self.context_menu_mouse_button:
-            selected_tasks, can_queue, can_cancel, can_pause, can_remove = \
+            selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, stock_id, tasks, status, sensitive):
+            def make_menu_item(label, stock_id, tasks, status, sensitive, force_start=False):
                 # This creates a menu item for selection-wide actions
                 item = gtk.ImageMenuItem(label)
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status))
+                item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
                 item.set_sensitive(sensitive)
                 return self.set_finger_friendly(item)
 
@@ -1521,7 +1523,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.set_sensitive(False)
             menu.append(self.set_finger_friendly(item))
             menu.append(gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, can_queue))
+            if can_force:
+                menu.append(make_menu_item(_('Start download now'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, True, True))
+            else:
+                menu.append(make_menu_item(_('Download'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, can_queue, False))
             menu.append(make_menu_item(_('Cancel'), gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
             menu.append(make_menu_item(_('Pause'), gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED, can_pause))
             menu.append(gtk.SeparatorMenuItem())
@@ -2864,14 +2869,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
 
-    def download_episode_list(self, episodes, add_paused=False):
+    def download_episode_list(self, episodes, add_paused=False, force_start=False):
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
             if not episode.was_downloaded(and_exists=True):
                 task_exists = False
                 for task in self.download_tasks_seen:
                     if episode.url == task.url and task.status not in (task.DOWNLOADING, task.QUEUED):
-                        self.download_queue_manager.add_task(task)
+                        self.download_queue_manager.add_task(task, force_start)
                         self.enable_download_list_update()
                         task_exists = True
                         continue
@@ -2892,7 +2897,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     task.status = task.PAUSED
                 else:
                     self.mygpo_client.on_download([task.episode])
-                    self.download_queue_manager.add_task(task)
+                    self.download_queue_manager.add_task(task, force_start)
 
                 self.download_status_model.register_task(task)
                 self.enable_download_list_update()
