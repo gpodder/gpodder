@@ -170,7 +170,7 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        if self._config.sync_disks_after_transfer:
+        if self._config.sync_disks_after_transfer and not gpodder.win32:
             successful_sync = (os.system('sync') == 0)
         else:
             log('Not syncing disks. Unmount your device before unplugging.', sender=self)
