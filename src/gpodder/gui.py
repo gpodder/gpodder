@@ -414,44 +414,68 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.update_feed_cache(force_update=self.config.update_on_startup)
 
-        # Look for partial file downloads
-        partial_files = glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
-
-        # Message area
         self.message_area = None
 
-        resumable_episodes = []
-        if len(partial_files) > 0:
-            for f in partial_files:
-                correct_name = f[:-len('.partial')] # strip ".partial"
-                log('Searching episode for file: %s', correct_name, sender=self)
-                found_episode = False
-                for c in self.channels:
-                    for e in c.get_all_episodes():
-                        if e.local_filename(create=False, check_only=True) == correct_name:
-                            log('Found episode: %s', e.title, sender=self)
-                            resumable_episodes.append(e)
-                            found_episode = True
+        def find_partial_downloads():
+            # Look for partial file downloads
+            partial_files = glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
+            count = len(partial_files)
+            resumable_episodes = []
+            if count:
+                if not gpodder.ui.fremantle:
+                    util.idle_add(self.wNotebook.set_current_page, 1)
+                indicator = ProgressIndicator(_('Loading incomplete downloads'), \
+                        _('Some episodes have not finished downloading in a previous session.'), \
+                        False, self.main_window)
+                indicator.on_message(N_('%d partial file', '%d partial files', count) % count)
+                for index, f in enumerate(partial_files):
+                    indicator.on_progress(float(index)/count)
+                    correct_name = f[:-len('.partial')] # strip ".partial"
+                    log('Searching episode for file: %s', correct_name, sender=self)
+                    found_episode = False
+                    for c in self.channels:
+                        for e in c.get_all_episodes():
+                            if e.local_filename(create=False, check_only=True) == correct_name:
+                                indicator.on_message(e.title)
+                                log('Found episode: %s', e.title, sender=self)
+                                resumable_episodes.append(e)
+                                found_episode = True
+                            if found_episode:
+                                break
                         if found_episode:
                             break
-                    if found_episode:
-                        break
-                if not found_episode:
-                    log('Partial file without episode: %s', f, sender=self)
-                    util.delete_file(f)
+                    if not found_episode:
+                        log('Partial file without episode: %s', f, sender=self)
+                        util.delete_file(f)
 
-            if len(resumable_episodes):
-                self.download_episode_list_paused(resumable_episodes)
-                if not gpodder.ui.fremantle:
-                    self.message_area = SimpleMessageArea(_('There are unfinished downloads from your last session.\nPick the ones you want to continue downloading.'))
-                    self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
-                    self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
-                    self.message_area.show_all()
-                    self.wNotebook.set_current_page(1)
+                util.idle_add(indicator.on_finished)
 
-            self.clean_up_downloads(delete_partial=False)
-        else:
-            self.clean_up_downloads(delete_partial=True)
+                if len(resumable_episodes):
+                    def offer_resuming():
+                        self.download_episode_list_paused(resumable_episodes)
+                        if not gpodder.ui.fremantle:
+                            resume_all = gtk.Button(_('Resume all'))
+                            #resume_all.set_border_width(0)
+                            def on_resume_all(button):
+                                selection = self.treeDownloads.get_selection()
+                                selection.select_all()
+                                selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = self.downloads_list_get_selection()
+                                selection.unselect_all()
+                                self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+                                self.message_area.hide()
+                            resume_all.connect('clicked', on_resume_all)
+
+                            self.message_area = SimpleMessageArea(_('Incomplete downloads from a previous session were found.'), (resume_all,))
+                            self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
+                            self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
+                            self.message_area.show_all()
+                        self.clean_up_downloads(delete_partial=False)
+                    util.idle_add(offer_resuming)
+                elif not gpodder.ui.fremantle:
+                    self.wNotebook.set_current_page(0)
+            else:
+                util.idle_add(self.clean_up_downloads, True)
+        threading.Thread(target=find_partial_downloads).start()
 
         # Start the auto-update procedure
         self._auto_update_timer_source_id = None
