@@ -28,6 +28,7 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder import model
 from gpodder.liblogger import log
 
 from gpodder.gtkui import draw
@@ -68,6 +69,9 @@ class EpisodeListModel(gtk.ListStore):
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._filter.set_visible_func(self._filter_visible_func)
+
+        # Are we currently showing the "all episodes" view?
+        self._all_episodes_view = False
 
         # "ICON" is used to mark icon names in source files
         ICON = lambda x: x
@@ -146,7 +150,10 @@ class EpisodeListModel(gtk.ListStore):
         return self._search_term
 
     def _format_description(self, episode, include_description=False, is_downloading=None):
-        if include_description:
+        if include_description and self._all_episodes_view:
+            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+                    _('from %s') % xml.sax.saxutils.escape(episode.channel.title))
+        elif include_description:
             return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
                     xml.sax.saxutils.escape(episode.one_line_description()))
         else:
@@ -166,6 +173,8 @@ class EpisodeListModel(gtk.ListStore):
         self._last_redraw_progress = 0.
         if treeview is not None:
             util.idle_add(treeview.queue_draw)
+
+        self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
         episodes = list(channel.get_all_episodes())
         count = len(episodes)
@@ -431,6 +440,8 @@ class EpisodeListModel(gtk.ListStore):
 
 
 class PodcastChannelProxy(object):
+    ALL_EPISODES_PROXY = True
+
     def __init__(self, db, config, channels):
         self._db = db
         self._config = config
@@ -456,9 +467,12 @@ class PodcastChannelProxy(object):
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                yield episode
+        def all_episodes():
+            for channel in self.channels:
+                for episode in channel.get_all_episodes():
+                    episode._all_episodes_view = True
+                    yield episode
+        return model.PodcastEpisode.sort_by_pubdate(all_episodes(), reverse=True)
 
     def request_save_dir_size(self):
         if not self._save_dir_size_set:
