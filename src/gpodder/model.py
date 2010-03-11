@@ -117,6 +117,7 @@ class PodcastModelObject(object):
 class PodcastChannel(PodcastModelObject):
     """holds data for a complete channel"""
     MAX_FOLDERNAME_LENGTH = 150
+    SECONDS_PER_WEEK = 7*24*60*60
 
     feed_fetcher = gPodderFetcher()
 
@@ -224,6 +225,9 @@ class PodcastChannel(PodcastModelObject):
         # GUID-based existing episode list
         existing_guids = dict((e.guid, e) for e in existing)
 
+        # Get most recent pubDate of all episodes
+        last_pubdate = self.db.get_last_pubdate(self) or 0
+
         # Search all entries for new episodes
         for entry in entries:
             try:
@@ -252,8 +256,15 @@ class PodcastChannel(PodcastModelObject):
                     existing_episode.save()
                     continue
 
-            # Otherwise we have found a new episode to store in the DB
-            self.count_new += 1
+            # Workaround for bug 340: If the episode has been
+            # published earlier than one week before the most
+            # recent existing episode, do not mark it as new.
+            if episode.pubDate < last_pubdate - self.SECONDS_PER_WEEK:
+                log('Episode with old date: %s', episode.title, sender=self)
+                episode.is_played = True
+            else:
+                self.count_new += 1
+
             episode.save()
 
         # Remove "unreachable" episodes - episodes that have not been
@@ -365,7 +376,6 @@ class PodcastChannel(PodcastModelObject):
         self.image = None
         self.pubDate = 0
         self.parse_error = None
-        self.newest_pubdate_cached = None
         self.foldername = None
         self.auto_foldername = 1 # automatically generated foldername
 
