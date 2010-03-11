@@ -2072,7 +2072,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if episode.was_downloaded():
                     can_play = episode.was_downloaded(and_exists=True)
-                    can_delete = True
                     is_played = episode.is_played
                     is_locked = episode.is_locked
                     if not can_play:
@@ -2086,6 +2085,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_download = can_download and not can_cancel
             can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
             can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
+            can_delete = not can_cancel
 
         if gpodder.ui.desktop:
             if open_instead_of_play:
@@ -2102,7 +2102,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemDownloadSelected.set_sensitive(can_download)
             self.itemOpenSelected.set_sensitive(can_play)
             self.itemPlaySelected.set_sensitive(can_play)
-            self.itemDeleteSelected.set_sensitive(can_play and not can_download)
+            self.itemDeleteSelected.set_sensitive(can_delete or not can_cancel)
             self.item_toggle_played.set_sensitive(can_play)
             self.item_toggle_lock.set_sensitive(can_play)
             self.itemOpenSelected.set_visible(open_instead_of_play)
