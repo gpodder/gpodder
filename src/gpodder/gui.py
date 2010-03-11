@@ -2769,7 +2769,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     log('Not deleting episode (is locked): %s', episode.title)
                 else:
                     log('Deleting episode: %s', episode.title)
-                    progress.on_message(_('Deleting: %s') % episode.title)
+                    progress.on_message(episode.title)
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
@@ -3187,7 +3187,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for idx, channel in enumerate(channels):
                 # Update the UI for correct status messages
                 progress.on_progress(float(idx)/float(len(channels)))
-                progress.on_message(_('Removing %s') % channel.title)
+                progress.on_message(channel.title)
 
                 # Delete downloaded episodes
                 channel.remove_downloaded()
