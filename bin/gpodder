@@ -114,6 +114,11 @@ if __name__ == '__main__':
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
 
+    # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
+    if sys.platform == 'darwin':
+        parser.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
+                          help=_('Mac OS X application process number'))
+
     (options, args) = parser.parse_args(sys.argv)
 
     if options.fremantle or options.diablo:
