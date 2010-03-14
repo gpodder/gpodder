@@ -776,7 +776,12 @@ class MTPDevice(Device):
     def __init__(self, config):
         Device.__init__(self, config)
         self.__model_name = None
-        self.__MTPDevice = pymtp.MTP()
+        try:
+            self.__MTPDevice = pymtp.MTP()
+        except NameError, e:
+            # pymtp not available / not installed (see bug 924)
+            log('pymtp not found: %s', str(e), sender=self)
+            self.__MTPDevice = None
 
     def __callback(self, sent, total):
         if self.cancelled:
@@ -851,13 +856,16 @@ class MTPDevice(Device):
         """
 
         if self.__model_name:
-             return self.__model_name
+            return self.__model_name
+
+        if self.__MTPDevice is None:
+            return _('MTP device')
 
         self.__model_name = self.__MTPDevice.get_devicename() # actually libmtp.Get_Friendlyname
         if not self.__model_name or self.__model_name == "?????":
             self.__model_name = self.__MTPDevice.get_modelname()
         if not self.__model_name:
-            self.__model_name = "MTP device"
+            self.__model_name = _('MTP device')
 
         return self.__model_name
 
@@ -963,5 +971,8 @@ class MTPDevice(Device):
         return tracks
 
     def get_free_space(self):
-        return self.__MTPDevice.get_freespace()
+        if self.__MTPDevice is not None:
+            return self.__MTPDevice.get_freespace()
+        else:
+            return 0
 
