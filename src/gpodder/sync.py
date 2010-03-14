@@ -27,6 +27,7 @@ import gpodder
 from gpodder import util
 from gpodder import services
 from gpodder import libconverter
+from gpodder import gstreamer
 
 from gpodder.liblogger import log
 
@@ -94,6 +95,10 @@ def open_device(config):
         return None
 
 def get_track_length(filename):
+    length = gstreamer.get_track_length(filename)
+    if length is not None:
+        return length
+
     if util.find_command('mplayer') is not None:
         try:
             mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
