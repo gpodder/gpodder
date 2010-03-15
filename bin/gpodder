@@ -37,6 +37,8 @@ import platform
 
 import gettext
 
+import subprocess
+
 try:
     import dbus
     import dbus.glib
@@ -79,6 +81,16 @@ if __name__ == '__main__':
         credits_file = os.path.join(data_dir, 'credits.txt')
         images_folder = os.path.join(data_dir, 'images')
         icon_file = os.path.join(data_dir, 'gpodder.svg')
+
+	# on OSX, read from the defaults database the locale of the user
+    if platform.system() == 'Darwin' and 'LANG' not in os.environ:
+        locale_cmd = ('defaults', 'read', 'NSGlobalDomain', 'AppleLocale')
+        process = subprocess.Popen(locale_cmd, stdout=subprocess.PIPE)
+        output, error_output = process.communicate()
+        # the output is a string like 'fr_FR', and we need 'fr_FR.utf-8'
+        user_locale = output.strip() + '.UTF-8'
+        os.environ['LANG'] = user_locale
+        print >>sys.stderr, 'Setting locale to', user_locale
 
     # Set up the path to translation files
     gettext.bindtextdomain('gpodder', locale_dir)
