@@ -239,6 +239,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.new_episodes_window = None
 
         if gpodder.ui.desktop:
+            # Mac OS X-specific UI tweaks: Native main menu integration
+            # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
+            if getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
+                try:
+                    import igemacintegration as igemi
+
+                    # Move the menu bar from the window to the Mac menu bar
+                    self.mainMenu.hide()
+                    igemi.ige_mac_menu_set_menu_bar(self.mainMenu)
+
+                    # Reparent some items to the "Application" menu
+                    for widget in ('/mainMenu/menuHelp/itemAbout', \
+                                   '/mainMenu/menuPodcasts/itemPreferences'):
+                        item = self.uimanager1.get_widget(widget)
+                        group = igemi.ige_mac_menu_add_app_menu_group()
+                        igemi.ige_mac_menu_add_app_menu_item(group, item, None)
+
+                    quit_widget = '/mainMenu/menuPodcasts/itemQuit'
+                    quit_item = self.uimanager1.get_widget(quit_widget)
+                    igemi.ige_mac_menu_set_quit_menu_item(quit_item)
+                except ImportError:
+                    print >>sys.stderr, """
+                    Warning: ige-mac-integration not found - no native menus.
+                    """
+
             self.sync_ui = gPodderSyncUI(self.config, self.notification, \
                     self.main_window, self.show_confirmation, \
                     self.update_episode_list_icons, \
