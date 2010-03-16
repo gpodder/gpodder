@@ -82,7 +82,7 @@ if __name__ == '__main__':
         images_folder = os.path.join(data_dir, 'images')
         icon_file = os.path.join(data_dir, 'gpodder.svg')
 
-	# on OSX, read from the defaults database the locale of the user
+    # on Mac OS X, read from the defaults database the locale of the user
     if platform.system() == 'Darwin' and 'LANG' not in os.environ:
         locale_cmd = ('defaults', 'read', 'NSGlobalDomain', 'AppleLocale')
         process = subprocess.Popen(locale_cmd, stdout=subprocess.PIPE)
