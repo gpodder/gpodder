@@ -142,55 +142,82 @@ class gPodderSyncUI(object):
         else:
             sync_all_episodes = False
 
-        # make sure we have enough space on the device
-        can_sync = True
-        total_size = 0
-        free_space = max(device.get_free_space(), 0)
-        for episode in episodes:
-            if not device.episode_on_device(episode) and not \
-                    (sync_all_episodes and \
-                     self._config.only_sync_not_played and \
-                     episode.is_played):
+        def check_free_space():
+            # "Will we add this episode to the device?"
+            def will_add(episode):
+                # If already on-device, it won't take up any space
+                if device.episode_on_device(episode):
+                    return False
+
+                # Might not be synced if it's played already
+                if sync_all_episodes and \
+                        self._config.only_sync_not_played and \
+                        episode.is_played:
+                    return False
+
+                # In all other cases, we expect the episode to be
+                # synchronized to the device, so "answer" positive
+                return True
+
+            # "What is the file size of this episode?"
+            def file_size(episode):
                 filename = episode.local_filename(create=False)
-                if filename is not None:
-                    total_size += util.calculate_size(str(filename))
+                if filename is None:
+                    return 0
+                return util.calculate_size(str(filename))
 
-        if total_size > free_space:
-            title = _('Not enough space left on device')
-            message = _('You need to free up %s.\nDo you want to continue?') \
-                            % (util.format_filesize(total_size-free_space),)
-            can_sync = self.show_confirmation(message, title)
+            # Calculate total size of sync and free space on device
+            total_size = sum(file_size(e) for e in episodes if will_add(e))
+            free_space = max(device.get_free_space(), 0)
 
-        if can_sync:
+            if total_size > free_space:
+                title = _('Not enough space left on device')
+                message = _('You need to free up %s.\nDo you want to continue?') \
+                                % (util.format_filesize(total_size-free_space),)
+                if not self.show_confirmation(message, title):
+                    device.cancel()
+                    device.close()
+                    return
+
+            # Finally start the synchronization process
             gPodderSyncProgress(self.parent_window, device=device)
             def sync_thread_func():
                 if sync_all_episodes:
                     device.add_tracks(episodes)
-                    # 'only_sync_not_played' must be used or else all the
-                    # played tracks will be copied then immediately deleted
-                    if self._config.mp3_player_delete_played and \
-                            self._config.only_sync_not_played:
-                        all_episodes = self._filter_sync_episodes(channels, \
-                                only_downloaded=False)
-                        episodes_on_device = device.get_all_tracks()
-                        for local_episode in all_episodes:
-                            episode = device.episode_on_device(local_episode)
-                            if episode is None:
-                                continue
-                            
-                            if local_episode.state == gpodder.STATE_DELETED \
-                                    or (local_episode.is_played and \
-                                        not local_episode.is_locked):
-                                log('Removing episode from device: %s',
-                                        episode.title, sender=self)
-                                device.remove_track(episode)
                 else:
                     device.add_tracks(episodes, force_played=True)
                 device.close()
             threading.Thread(target=sync_thread_func).start()
-        else:
-            device.cancel()
-            device.close()
+
+        # This function is used to remove files from the device
+        def cleanup_episodes():
+            # 'only_sync_not_played' must be used or else all the
+            # played tracks will be copied then immediately deleted
+            if self._config.mp3_player_delete_played and \
+                    self._config.only_sync_not_played:
+                all_episodes = self._filter_sync_episodes(channels, \
+                        only_downloaded=False)
+                episodes_on_device = device.get_all_tracks()
+                for local_episode in all_episodes:
+                    episode = device.episode_on_device(local_episode)
+                    if episode is None:
+                        continue
+
+                    if local_episode.state == gpodder.STATE_DELETED \
+                            or (local_episode.is_played and \
+                                not local_episode.is_locked):
+                        log('Removing episode from device: %s',
+                                episode.title, sender=self)
+                        device.remove_track(episode)
+
+            # When this is done, start the callback in the UI code
+            util.idle_add(check_free_space)
+
+        # This will run the following chain of actions:
+        #  1. Remove old episodes (in worker thread)
+        #  2. Check for free space (in UI thread)
+        #  3. Sync the device (in UI thread)
+        threading.Thread(target=cleanup_episodes).start()
 
     def on_cleanup_device(self):
         columns = (
