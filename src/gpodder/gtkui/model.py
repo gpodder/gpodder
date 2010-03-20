@@ -516,7 +516,8 @@ class PodcastListModel(gtk.ListStore):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             key = self._search_term.lower()
-            return any((key in model.get_value(iter, column).lower()) for column in self.SEARCH_COLUMNS)
+            columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
+            return any((key in c.lower() for c in columns if c is not None))
 
         if model.get_value(iter, self.C_SEPARATOR):
             return True
