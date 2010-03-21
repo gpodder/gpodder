@@ -18,6 +18,7 @@
 #
 
 import os
+import platform
 import cgi
 import gtk
 import gtk.gdk
@@ -3725,6 +3726,13 @@ def main(options=None):
     # Handle options
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
+
+    # mac OS X stuff :
+    # handle "subscribe to podcast" events from firefox
+    if platform.system() == 'Darwin':
+        from gpodder import gpodderosx
+        gpodderosx.register_handlers(gp)
+    # end mac OS X stuff
 
     gp.run()
 
