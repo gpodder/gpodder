@@ -129,6 +129,7 @@ class gPodderPreferences(BuilderWidget):
             self.hscale_expiration.set_value(0)
 
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
+        self._config.connect_gtk_togglebutton('auto_cleanup_downloads', self.checkbutton_auto_cleanup_downloads)
 
     def on_dialog_destroy(self, widget):
         if self.callback_finished:

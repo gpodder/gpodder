@@ -513,11 +513,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.auto_update_feeds:
             self.restart_auto_update_timer()
 
-        # Connect the auto cleanup button to the configuration
-        if gpodder.ui.desktop or gpodder.ui.diablo:
-            self.config.connect_gtk_togglebutton('auto_cleanup_downloads', \
-                    self.btnCleanUpDownloads)
-
         # Delete old episodes if the user wishes to
         if self.config.auto_remove_played_episodes and \
                 self.config.episode_old_age > 0:
@@ -1063,10 +1058,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         model = self.download_status_model
 
         all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
-        changed_episode_urls = []
+        changed_episode_urls = set()
         for row_reference, task in all_tasks:
-            if task.status in (task.DONE, task.CANCELLED) or \
-                    (task.status == task.FAILED and gpodder.ui.fremantle):
+            if task.status in (task.DONE, task.CANCELLED):
                 model.remove(model.get_iter(row_reference.get_path()))
                 try:
                     # We don't "see" this task anymore - remove it;
@@ -1075,7 +1069,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_tasks_seen.remove(task)
                 except KeyError, key_error:
                     log('Cannot remove task from "seen" list: %s', task, sender=self)
-                changed_episode_urls.append(task.url)
+                changed_episode_urls.add(task.url)
                 # Tell the task that it has been removed (so it can clean up)
                 task.removed_from_list()
 
@@ -1089,7 +1083,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_shownotes_window._download_status_changed(None)
 
         # Update the tab title and downloads list
-        self.update_downloads_list(from_cleanup=True)
+        self.update_downloads_list()
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
@@ -1109,7 +1103,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def remove_download_task_monitor(self, monitor):
         self.download_task_monitors.remove(monitor)
 
-    def update_downloads_list(self, from_cleanup=False):
+    def update_downloads_list(self):
         try:
             model = self.download_status_model
 
@@ -1172,14 +1166,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if gpodder.ui.desktop:
                 text = [_('Downloads')]
-                if downloading + failed + finished + queued > 0:
+                if downloading + failed + queued > 0:
                     s = []
                     if downloading > 0:
                         s.append(N_('%d active', '%d active', downloading) % downloading)
                     if failed > 0:
                         s.append(N_('%d failed', '%d failed', failed) % failed)
-                    if finished > 0:
-                        s.append(N_('%d done', '%d done', finished) % finished)
                     if queued > 0:
                         s.append(N_('%d queued', '%d queued', queued) % queued)
                     text.append(' (' + ', '.join(s)+')')
@@ -1225,7 +1217,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Update the tray icon status and progress bar
                     self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
                     self.tray_icon.draw_progress_bar(percentage/100.)
-            elif self.last_download_count > 0 and not from_cleanup:
+            elif self.last_download_count > 0:
                 if self.tray_icon is not None:
                     # Update the tray icon status
                     self.tray_icon.set_status()
@@ -1241,10 +1233,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     message = '\n'.join(['%s: %s' % (str(task), \
                             task.error_message) for task in failed_downloads])
                     self.show_message(message, _('Downloads failed'), important=True)
-
-                # Automatically remove finished downloads from the list
-                if self.config.auto_cleanup_downloads:
-                    self.on_btnCleanUpDownloads_clicked()
             self.last_download_count = count
 
             if not gpodder.ui.fremantle:
@@ -1295,9 +1283,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model()
             if gpodder.ui.fremantle and self.preferences_dialog is not None:
                 hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, False)
-        elif name == 'auto_cleanup_downloads' and new_value:
-            # Always cleanup when this option is enabled
-            self.on_btnCleanUpDownloads_clicked()
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -3410,6 +3395,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.message_area.hide()
                 self.message_area = None
         else:
+            # Remove finished episodes
+            if self.config.auto_cleanup_downloads:
+                self.on_btnCleanUpDownloads_clicked()
+
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
             if gpodder.ui.desktop:

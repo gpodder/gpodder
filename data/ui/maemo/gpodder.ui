@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--*- mode: xml -*-->
 <interface>
-  <object class="GtkImage" id="imageCleanUpDownloads">
-    <property name="visible">True</property>
-    <property name="stock">gtk-clear</property>
-  </object>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">10240</property>
     <property name="lower">0.5</property>
@@ -868,28 +864,7 @@
                             <property name="position">5</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkVSeparator" id="vseparator2">
-                            <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
-                          </object>
-                        <packing>
-                          <property name="position">6</property>
-                        </packing>
-                      </child>
-                      <child>
-                        <object class="GtkToggleButton" id="btnCleanUpDownloads">
-                          <property name="label" translatable="yes">Clean up</property>
-                          <property name="visible">True</property>
-                          <property name="can_focus">True</property>
-                          <property name="receives_default">True</property>
-                          <property name="image">imageCleanUpDownloads</property>
-                        </object>
-                        <packing>
-                          <property name="position">7</property>
-                        </packing>
-                      </child>
-                    </object>
+                      </object>
                       <packing>
                         <property name="padding">0</property>
                         <property name="expand">False</property>
