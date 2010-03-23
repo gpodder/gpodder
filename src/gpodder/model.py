@@ -820,10 +820,14 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def maemo_markup(self):
-        return ('<b>%s</b>\n<small>%s; '+_('released %s')+ \
+        if self.length > 0:
+            length_str = '%s; ' % self.filesize_prop
+        else:
+            length_str = ''
+        return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
                 '; '+_('from %s')+'</small>') % (\
                 xml.sax.saxutils.escape(self.title), \
-                xml.sax.saxutils.escape(self.filesize_prop), \
+                xml.sax.saxutils.escape(length_str), \
                 xml.sax.saxutils.escape(self.pubdate_prop), \
                 xml.sax.saxutils.escape(self.channel.title))
 
