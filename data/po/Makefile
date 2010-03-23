@@ -18,16 +18,24 @@
 #
 
 PO_FILES=$(wildcard *.po)
-MO_FILES=$(addsuffix LC_MESSAGES/gpodder.mo,$(addprefix ../locale/,$(subst .po,/,$(wildcard *.po))))
 POT_FILE=../messages.pot
 
-all: $(PO_FILES) $(MO_FILES)
+# Check for $LINGUAS presence.
+ifeq ($(origin LINGUAS), undefined)
+	PO_INSTALL=$(PO_FILES)
+else
+	PO_INSTALL=$(addsuffix .po,$(filter $(subst .po,,$(PO_FILES)),$(LINGUAS)))
+endif
+
+MO_FILES=$(addsuffix /LC_MESSAGES/gpodder.mo,$(addprefix ../locale/,$(subst .po,,$(PO_INSTALL))))
+
+all: $(PO_INSTALL) $(MO_FILES)
 
 %.po: $(POT_FILE)
 	@echo "Merging $(notdir $<) -> $@"
 	@msgmerge --silent $@ $< --output-file=$@
 
-%.mo: $(PO_FILES)
+%.mo: $(PO_INSTALL)
 	@echo "Compiling $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -> $(notdir $@)"
 	@mkdir -p $(@D)
 	@msgfmt $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -o $@
