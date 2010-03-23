@@ -203,7 +203,7 @@ gPodderSettings = {
 
     'feed_update_skipping': (bool, False,
       ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
-    'allow_empty_feeds': (bool, False,
+    'allow_empty_feeds': (bool, True,
       ('Allow subscribing to feeds without episodes')),
 
     'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)
