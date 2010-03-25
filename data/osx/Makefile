@@ -26,6 +26,14 @@ RESOURCESDIR=$(APPDIR)/Contents/Resources
 # current version of gPodder
 VERSION=2.3
 
+# set OSXVERSION to darwin8 to get the Mac OS X Tiger version of the plist.
+OSXVERSION=darwin8
+ifeq ($(OSXVERSION),darwin8)
+PLIST=Info-10.4.plist
+else
+PLIST=Info.plist
+endif
+
 all:$(BINDIR)/gpodder\
 	$(RESOURCESDIR)/icon.icns\
 	$(APPDIR)/Contents/PkgInfo\
@@ -46,7 +54,7 @@ $(RESOURCESDIR)/icon.icns: icon.icns $(RESOURCESDIR)
 $(APPDIR)/Contents/PkgInfo: PkgInfo $(RESOURCESDIR)
 	install $< $@
 
-$(APPDIR)/Contents/Info.plist: Info.plist $(APPDIR)/Contents
+$(APPDIR)/Contents/Info.plist: $(PLIST) $(APPDIR)/Contents
 	sed "s|__VERSION__|$(VERSION)|g" $< > $@
 
 clean:
