@@ -32,7 +32,7 @@
     <property name="window-position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="default_height">260</property>
     <property name="default_width">320</property>
-    <property context="yes" name="title" translatable="yes">Preferences</property>
+    <property name="title" translatable="yes">Preferences</property>
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_dialog_destroy"/>
     <child internal-child="vbox">
@@ -57,7 +57,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label_audio_player">
-                        <property context="yes" name="label" translatable="yes">Audio player:</property>
+                        <property name="label" translatable="yes">Audio player:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                       </object>
@@ -67,7 +67,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="label_video_player">
-                        <property context="yes" name="label" translatable="yes">Video player:</property>
+                        <property name="label" translatable="yes">Video player:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                       </object>
@@ -152,7 +152,7 @@
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_enable_notifications">
                     <property name="is_focus">True</property>
-                    <property context="yes" name="label" translatable="yes">Enable notification bubbles</property>
+                    <property name="label" translatable="yes">Enable notification bubbles</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -162,7 +162,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_show_tray_icon">
-                    <property context="yes" name="label" translatable="yes">Show icon in system tray</property>
+                    <property name="label" translatable="yes">Show icon in system tray</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -186,7 +186,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label_update_interval">
-                        <property context="yes" name="label" translatable="yes">Update interval:</property>
+                        <property name="label" translatable="yes">Update interval:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                         <property name="yalign">0.1</property>
@@ -217,7 +217,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_update_on_startup">
-                    <property context="yes" name="label" translatable="yes">Check for new episodes on startup</property>
+                    <property name="label" translatable="yes">Check for new episodes on startup</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -240,7 +240,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label_episode_limit">
-                        <property context="yes" name="label" translatable="yes">Maximum number of episodes per podcast:</property>
+                        <property name="label" translatable="yes">Maximum number of episodes per podcast:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                       </object>
@@ -279,7 +279,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label_auto_download">
-                        <property context="yes" name="label" translatable="yes">When new episodes are found:</property>
+                        <property name="label" translatable="yes">When new episodes are found:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                       </object>
@@ -319,7 +319,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="label_expiration">
-                        <property context="yes" name="label" translatable="yes">Remove played episodes:</property>
+                        <property name="label" translatable="yes">Remove played episodes:</property>
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                         <property name="yalign">0.1</property>
@@ -349,7 +349,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_expiration_unplayed">
-                    <property context="yes" name="label" translatable="yes">Also remove unplayed episodes</property>
+                    <property name="label" translatable="yes">Also remove unplayed episodes</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -368,7 +368,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_auto_cleanup_downloads">
-                    <property context="yes" name="label" translatable="yes">Remove finished downloads from the downloads tab</property>
+                    <property name="label" translatable="yes">Remove finished downloads from the downloads tab</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -408,7 +408,7 @@ See &lt;a href="http://gpodder.org/bug/955"&gt;http://gpodder.org/bug/955&lt;/a&
             <property name="visible">True</property>
             <child>
               <object class="GtkButton" id="button_advanced">
-                <property context="yes" name="label" translatable="yes">Edit config</property>
+                <property name="label" translatable="yes">Edit config</property>
                 <property name="visible">True</property>
                 <signal name="clicked" handler="on_button_advanced_clicked"/>
               </object>
