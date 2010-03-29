@@ -1,4 +1,4 @@
-# gPodder translation template.
+# Finnish translation of gPodder.
 # Copyright (C) 2006 Thomas Perl
 # This file is distributed under the same license as the gPodder package.
 # Thomas Perl <thp@perli.net>, 2006.
@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-29 00:31+0200\n"
-"PO-Revision-Date: 2010-02-25 13:33+0200\n"
+"PO-Revision-Date: 2010-03-29 13:17+0300\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <laatu@lokalisointi.org>\n"
 "MIME-Version: 1.0\n"
@@ -108,29 +108,27 @@ msgid "gPodder"
 msgstr "gPodder"
 
 #: src/gpodder/gui.py:452
-#, fuzzy
 msgid "Loading incomplete downloads"
-msgstr "Älä lataa"
+msgstr "Ladataan keskeneräiset lataukset"
 
 #: src/gpodder/gui.py:453
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr ""
+msgstr "Joidenkin jaksojen lataaminen jäi kesken aiemmalla käyttökerralla."
 
 #: src/gpodder/gui.py:455
 #, python-format
 msgid "%d partial file"
 msgid_plural "%d partial files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d keskeneräinen tiedosto"
+msgstr[1] "%d keskeneräistä tiedostoa"
 
 #: src/gpodder/gui.py:488
-#, fuzzy
 msgid "Resume all"
-msgstr "Jatka latausta"
+msgstr "Jatka kaikkien latausta"
 
 #: src/gpodder/gui.py:499
 msgid "Incomplete downloads from a previous session were found."
-msgstr ""
+msgstr "Löydettiin keskeneräisiä latauksia aiemmasta käyttökerrasta."
 
 #: src/gpodder/gui.py:547
 msgid "Action"
@@ -311,9 +309,8 @@ msgid "Episode details"
 msgstr "Jakson tiedot"
 
 #: src/gpodder/gui.py:1567
-#, fuzzy
 msgid "Start download now"
-msgstr "Rajoita latauksien määrä:"
+msgstr "Aloita lataaminen nyt"
 
 #: src/gpodder/gui.py:1569 src/gpodder/gui.py:1798
 #: src/gpodder/gtkui/desktop/episodeselector.py:147
@@ -521,11 +518,11 @@ msgid "New episodes available"
 msgstr "Uusia jaksoja on saatavilla"
 
 #: src/gpodder/gui.py:2483
-#, fuzzy, python-format
+#, python-format
 msgid "%d new episode added to download list."
 msgid_plural "%d new episodes added to download list."
-msgstr[0] "Uusia jaksoja on lisätty latausluetteloon."
-msgstr[1] "Uusia jaksoja on lisätty latausluetteloon."
+msgstr[0] "%d uusi jakso on lisätty latausluetteloon."
+msgstr[1] "%d uutta jaksoa on lisätty latausluetteloon."
 
 #: src/gpodder/gui.py:2492
 #, python-format
@@ -535,14 +532,14 @@ msgstr[0] "%d uusi jakso on saatavilla"
 msgstr[1] "%d uutta jaksoa on saatavilla"
 
 #: src/gpodder/gui.py:2514
-#, fuzzy, python-format
+#, python-format
 msgid "Error while updating %(url)s: %(message)s"
-msgstr "Virhe avattaessa tiedostoa %(filename)s: %(message)s"
+msgstr "Virhe päivitettäessä %(url)s: %(message)s"
 
 #: src/gpodder/gui.py:2516
-#, fuzzy, python-format
+#, python-format
 msgid "The feed at %(url)s could not be updated."
-msgstr "Hakemiston %s luominen epäonnistui"
+msgstr "Osoitteessa %(url)s olevaa syötettä ei voitu päivittää."
 
 #: src/gpodder/gui.py:2517
 msgid "Error while updating feed"
@@ -1075,9 +1072,8 @@ msgid "Error opening %(filename)s: %(message)s"
 msgstr "Virhe avattaessa tiedostoa %(filename)s: %(message)s"
 
 #: src/gpodder/sync.py:862 src/gpodder/sync.py:868
-#, fuzzy
 msgid "MTP device"
-msgstr "Käytä laitetta"
+msgstr "MTP-laite"
 
 #: src/gpodder/sync.py:875
 msgid "Opening the MTP device"
@@ -1164,9 +1160,9 @@ msgid "String"
 msgstr "Merkkijono"
 
 #: src/gpodder/gtkui/desktopfile.py:66
-#, fuzzy, python-format
+#, python-format
 msgid "Command: %s"
-msgstr "Komentorivi:"
+msgstr "Komento: %s"
 
 #: src/gpodder/gtkui/desktopfile.py:112
 msgid "Default application"
@@ -1508,9 +1504,8 @@ msgid "Add to download list"
 msgstr "Lisää latausluetteloon"
 
 #: src/gpodder/gtkui/desktop/preferences.py:46
-#, fuzzy
 msgid "Download if minimized"
-msgstr "Lataukset ovat valmiita"
+msgstr "Lataa kun pienennetty"
 
 #: src/gpodder/gtkui/desktop/preferences.py:47
 #: src/gpodder/gtkui/frmntl/preferences.py:48
@@ -1518,25 +1513,21 @@ msgid "Download immediately"
 msgstr "Lataa heti"
 
 #: src/gpodder/gtkui/desktop/preferences.py:154
-#, fuzzy
 msgid "Configure audio player"
-msgstr "Asetusten muokkain"
+msgstr "Lataa heti"
 
 #: src/gpodder/gtkui/desktop/preferences.py:155
 #: src/gpodder/gtkui/desktop/preferences.py:165
-#, fuzzy
 msgid "Command:"
-msgstr "Komentorivi:"
+msgstr "Kommentti:"
 
 #: src/gpodder/gtkui/desktop/preferences.py:164
-#, fuzzy
 msgid "Configure video player"
-msgstr "Videosoitin:"
+msgstr "Videosoittimen asetukset"
 
 #: src/gpodder/gtkui/desktop/preferences.py:176
-#, fuzzy
 msgid "manual only"
-msgstr "manuaalisesti"
+msgstr "vain manuaalisesti"
 
 #: src/gpodder/gtkui/desktop/preferences.py:192
 #: src/gpodder/gtkui/frmntl/preferences.py:37
@@ -1547,8 +1538,8 @@ msgstr "manuaalisesti"
 #, python-format
 msgid "after %d day"
 msgid_plural "after %d days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d päivän jälkeen"
+msgstr[1] "%d päivän jälkeen"
 
 #: src/gpodder/gtkui/desktop/shownotes.py:73
 msgid "Please wait..."
@@ -2281,9 +2272,8 @@ msgid "_YouTube"
 msgstr "_YouTube"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:1
-#, fuzzy
 msgid "Also remove unplayed episodes"
-msgstr "Poista vanhat jaksot"
+msgstr "Poista myös soittamattomat jaksot"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:2
 #: data/ui/maemo/gpodderpreferences.ui.h:3
@@ -2296,25 +2286,26 @@ msgstr "Etsi uusia jaksoja käynnistettäessä"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:4
 #: data/ui/frmntl/gpodderdownloads.ui.h:2
-#, fuzzy
 msgid "Clean-up"
 msgstr "Siivous"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:5
 msgid ""
 "Config UI missing. Use \"Edit config\" below.\n"
-"See <a href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a> "
-"for details."
+"See <a href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a> for "
+"details."
 msgstr ""
+"Asetuskäyttöliittymä puuttuu. Käytä ”Muokkaa asetuksia”.\n"
+"Lisätietoja on osoitteessa <a "
+"href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a>."
 
 #: data/ui/desktop/gpodderpreferences.ui.h:7
-#, fuzzy
 msgid "Devices"
-msgstr "Laite"
+msgstr "Laitteet"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:8
 msgid "Edit config"
-msgstr ""
+msgstr "Muokkaa asetuksia"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:9
 msgid "Enable notification bubbles"
@@ -2322,7 +2313,7 @@ msgstr "Käytä huomautuksia"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:11
 msgid "Maximum number of episodes per podcast:"
-msgstr ""
+msgstr "Suurin jaksojen määrä / podcast:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:12 data/ui/desktop/gpodder.ui.h:35
 #: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/maemo/gpodder.ui.h:32
@@ -2332,27 +2323,23 @@ msgstr "Ominaisuudet"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:13
 msgid "Remove finished downloads from the downloads tab"
-msgstr ""
+msgstr "Poista valmistuneet lataukset latausvälilehdeltä"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:14
-#, fuzzy
 msgid "Remove played episodes:"
-msgstr "Poista vanhat jaksot"
+msgstr "Poista soitetut jaksot:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:15
-#, fuzzy
 msgid "Show icon in system tray"
 msgstr "Näytä kuvake ilmoitusalueella"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:16
-#, fuzzy
 msgid "Update interval:"
-msgstr "Päivitä kaikki"
+msgstr "Päivitysväli:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:17
-#, fuzzy
 msgid "Updating"
-msgstr "Päivitetään..."
+msgstr "Päivitetään"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:18
 #: data/ui/maemo/gpodderpreferences.ui.h:9
@@ -2360,9 +2347,8 @@ msgid "Video player:"
 msgstr "Videosoitin:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:19
-#, fuzzy
 msgid "When new episodes are found:"
-msgstr "Kun uusia jaksoja on löydetty"
+msgstr "Kun uusia jaksoja on löydetty:"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:1
 msgid "C_ancel download"
@@ -2460,9 +2446,8 @@ msgid "Go to my.gpodder.org"
 msgstr "Mene my.gpodder.org-osoitteeseen"
 
 #: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
-#, fuzzy
 msgid "Hide deleted episodes"
-msgstr "Näytä poistetut jaksot"
+msgstr "Piilota poistetut jaksot"
 
 #: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
 #: data/ui/frmntl/gpodder.ui.h:10
