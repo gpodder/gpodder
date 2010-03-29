@@ -38,16 +38,11 @@ class gPodderDownloads(BuilderWidget):
         appmenu = hildon.AppMenu()
         for action in (self.action_pause, \
                        self.action_resume, \
-                       self.action_cancel):
+                       self.action_cancel, \
+                       self.action_cleanup):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
-
-        button = hildon.CheckButton(gtk.HILDON_SIZE_AUTO)
-        self.action_auto_cleanup.connect_proxy(button)
-        appmenu.append(button)
-        self._config.connect_gtk_togglebutton('auto_cleanup_downloads', \
-                button)
 
         for action in (self.action_select_all, \
                        self.action_select_none):
@@ -59,7 +54,7 @@ class gPodderDownloads(BuilderWidget):
         self.main_window.set_app_menu(appmenu)
 
     def on_selection_changed(self, selection):
-        selected_tasks, can_queue, can_cancel, can_pause, can_remove = self.downloads_list_get_selection()
+        selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = self.downloads_list_get_selection()
         self._selected_tasks = selected_tasks
         if selected_tasks:
             self.action_pause.set_sensitive(can_pause)
@@ -75,6 +70,10 @@ class gPodderDownloads(BuilderWidget):
         return True
 
     def show(self):
+        # Remove finished episodes
+        if self._config.auto_cleanup_downloads:
+            self.on_btnCleanUpDownloads_clicked()
+
         self.main_window.show()
 
     def on_pause_button_clicked(self, button):
@@ -90,7 +89,7 @@ class gPodderDownloads(BuilderWidget):
         self.on_select_none_button_clicked(button)
 
     def on_cleanup_button_clicked(self, button):
-        self.on_btnCleanUpDownloads_clicked(button, remove_failed=True)
+        self.on_btnCleanUpDownloads_clicked(button)
 
     def on_select_all_button_clicked(self, button):
         selection = self.treeview.get_selection()

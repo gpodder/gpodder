@@ -26,6 +26,7 @@
 
 import gtk
 import gobject
+import pango
 
 from xml.sax import saxutils
 
@@ -35,7 +36,7 @@ class SimpleMessageArea(gtk.HBox):
     Original C source code:
     http://svn.gnome.org/viewvc/gedit/trunk/gedit/gedit-message-area.c
     """
-    def __init__(self, message):
+    def __init__(self, message, buttons=()):
         gtk.HBox.__init__(self, spacing=6)
         self.set_border_width(6)
         self.__in_style_set = False
@@ -45,19 +46,14 @@ class SimpleMessageArea(gtk.HBox):
         self.__label = gtk.Label()
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
+        self.__label.set_ellipsize(pango.ELLIPSIZE_END)
         self.__label.set_markup('<b>%s</b>' % saxutils.escape(message))
         self.pack_start(self.__label, expand=True, fill=True)
 
-        self.__image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
-        self.__button = gtk.ToolButton(self.__image)
-        self.__button.set_border_width(0)
-        self.__button.connect('clicked', self.__button_clicked)
-        vbox = gtk.VBox()
-        vbox.pack_start(self.__button, expand=True, fill=False)
-        self.pack_start(vbox, expand=False, fill=False)
-
-    def get_button(self):
-        return self.__button
+        hbox = gtk.HBox()
+        for button in buttons:
+            hbox.pack_start(button, expand=True, fill=False)
+        self.pack_start(hbox, expand=False, fill=False)
 
     def set_markup(self, markup, line_wrap=True):
         self.__label.set_markup(markup)
@@ -65,7 +61,7 @@ class SimpleMessageArea(gtk.HBox):
 
     def __style_set(self, widget, previous_style):
         if self.__in_style_set:
-            return 
+            return
 
         w = gtk.Window(gtk.WINDOW_POPUP)
         w.set_name('gtk-tooltip')
@@ -87,9 +83,6 @@ class SimpleMessageArea(gtk.HBox):
                 gtk.SHADOW_OUT, None, widget, "tooltip",
                 rect.x, rect.y, rect.width, rect.height)
         return False
-    
-    def __button_clicked(self, toolbutton):
-        self.hide_all()
 
 class NotificationWindow(gtk.Window):
     """A quick substitution widget for pynotify notifications."""
@@ -103,8 +96,6 @@ class NotificationWindow(gtk.Window):
         arrow.set_padding(6, 0)
         message_area.pack_start(arrow, False)
         message_area.reorder_child(arrow, 0)
-        button = message_area.get_button()
-        button.connect('clicked', lambda b: self._hide_and_destroy())
         if title is not None:
             message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (saxutils.escape(title), saxutils.escape(message)))
         else:

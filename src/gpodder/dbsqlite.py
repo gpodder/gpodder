@@ -603,6 +603,16 @@ class Database(object):
             self.log("find_channel_id(%s)", url)
             return self.__get__("SELECT id FROM channels WHERE url = ?", (url, ))
 
+    def get_last_pubdate(self, channel):
+        """
+        Look up the highest "pubDate" value for
+        all episodes of the given podcast.
+        """
+        return self.__get__("""
+                SELECT MAX(pubDate) FROM episodes
+                WHERE channel_id = ?
+                """, (channel.id, ))
+
     def force_last_new(self, channel):
         old = self.__get__("""SELECT COUNT(*) FROM episodes WHERE channel_id = ?
             AND state IN (?, ?)""", (channel.id, gpodder.STATE_DOWNLOADED,

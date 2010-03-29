@@ -4,7 +4,7 @@
   <object class="GtkDialog" id="MygPodderSettings">
     <property name="default_height">260</property>
     <property name="default_width">320</property>
-    <property context="yes" name="title" translatable="yes">my.gPodder.org settings</property>
+    <property name="title" translatable="yes">my.gPodder.org settings</property>
     <property name="type_hint">dialog</property>
     <property name="visible">True</property>
     <signal handler="on_delete_event" name="delete-event"/>
@@ -22,7 +22,7 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkCheckButton" id="checkbutton_enable">
-                <property context="yes" name="label" translatable="yes">Enable synchronization of subscription list</property>
+                <property name="label" translatable="yes">Enable synchronization of subscription list</property>
                 <property name="visible">True</property>
                 <signal handler="on_enabled_toggled" name="toggled"/>
               </object>
@@ -34,7 +34,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_username">
-                <property context="yes" name="label" translatable="yes">Username:</property>
+                <property name="label" translatable="yes">Username:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -46,7 +46,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_password">
-                <property context="yes" name="label" translatable="yes">Password:</property>
+                <property name="label" translatable="yes">Password:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -70,7 +70,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_device">
-                <property context="yes" name="label" translatable="yes">&lt;b&gt;Device configuration&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;Device configuration&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
                 <property name="visible">True</property>
                 <property name="xalign">0.0</property>
@@ -84,7 +84,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_uid">
-                <property context="yes" name="label" translatable="yes">Device ID:</property>
+                <property name="label" translatable="yes">Device ID:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -96,7 +96,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_caption">
-                <property context="yes" name="label" translatable="yes">Device Name:</property>
+                <property name="label" translatable="yes">Device Name:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -108,7 +108,7 @@
             </child>
             <child>
               <object class="GtkLabel" id="label_type">
-                <property context="yes" name="label" translatable="yes">Type:</property>
+                <property name="label" translatable="yes">Type:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
@@ -183,7 +183,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button_list_uids">
-                <property context="yes" name="label" translatable="yes">Select device</property>
+                <property name="label" translatable="yes">Select device</property>
                 <property name="visible">True</property>
                 <signal handler="on_button_list_uids_clicked" name="clicked"/>
               </object>

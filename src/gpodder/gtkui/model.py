@@ -28,6 +28,7 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder import model
 from gpodder.liblogger import log
 
 from gpodder.gtkui import draw
@@ -52,15 +53,25 @@ class EpisodeListModel(gtk.ListStore):
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
+    # In which steps the UI is updated for "loading" animations
+    _UI_UPDATE_STEP = .03
+
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 gtk.gdk.Pixbuf, str, str, str, bool, bool, bool)
+
+        # Update progress (if we're currently being updated)
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._filter.set_visible_func(self._filter_visible_func)
+
+        # Are we currently showing the "all episodes" view?
+        self._all_episodes_view = False
 
         # "ICON" is used to mark icon names in source files
         ICON = lambda x: x
@@ -102,6 +113,12 @@ class EpisodeListModel(gtk.ListStore):
 
         return True
 
+    def get_update_progress(self):
+        return self._update_progress
+
+    def reset_update_progress(self):
+        self._update_progress = 0.
+
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -133,36 +150,55 @@ class EpisodeListModel(gtk.ListStore):
         return self._search_term
 
     def _format_description(self, episode, include_description=False, is_downloading=None):
-        if include_description:
+        if include_description and self._all_episodes_view:
+            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+                    _('from %s') % xml.sax.saxutils.escape(episode.channel.title))
+        elif include_description:
             return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
                     xml.sax.saxutils.escape(episode.one_line_description()))
         else:
             return xml.sax.saxutils.escape(episode.title)
 
     def add_from_channel(self, channel, downloading=None, \
-            include_description=False, generate_thumbnails=False):
+            include_description=False, generate_thumbnails=False, \
+            treeview=None):
         """
         Add episode from the given channel to this model.
         Downloading should be a callback.
         include_description should be a boolean value (True if description
         is to be added to the episode row, or False if not)
         """
-        def insert_and_update(episode):
-            description_stripped = util.remove_html_tags(episode.description)
 
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
+        if treeview is not None:
+            util.idle_add(treeview.queue_draw)
+
+        self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
+
+        episodes = list(channel.get_all_episodes())
+        count = len(episodes)
+
+        for position, episode in enumerate(episodes):
             iter = self.append()
             self.set(iter, \
                     self.C_URL, episode.url, \
                     self.C_TITLE, episode.title, \
                     self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                     self.C_EPISODE, episode, \
-                    self.C_PUBLISHED_TEXT, episode.cute_pubdate(), \
-                    self.C_TOOLTIP, description_stripped)
+                    self.C_PUBLISHED_TEXT, episode.cute_pubdate())
+            self.update_by_iter(iter, downloading, include_description, \
+                    generate_thumbnails, reload_from_db=False)
 
-            self.update_by_iter(iter, downloading, include_description, generate_thumbnails)
-
-        for episode in channel.get_all_episodes():
-            util.idle_add(insert_and_update, episode)
+            self._update_progress = float(position+1)/count
+            if treeview is not None and \
+                    (self._update_progress > self._last_redraw_progress + self._UI_UPDATE_STEP or position+1 == count):
+                def in_gtk_main_thread():
+                    treeview.queue_draw()
+                    while gtk.events_pending():
+                        gtk.main_iteration(False)
+                util.idle_add(in_gtk_main_thread)
+                self._last_redraw_progress = self._update_progress
 
     def update_all(self, downloading=None, include_description=False, \
             generate_thumbnails=False):
@@ -185,9 +221,10 @@ class EpisodeListModel(gtk.ListStore):
                 downloading, include_description, generate_thumbnails)
 
     def update_by_iter(self, iter, downloading=None, include_description=False, \
-            generate_thumbnails=False):
+            generate_thumbnails=False, reload_from_db=True):
         episode = self.get_value(iter, self.C_EPISODE)
-        episode.reload_from_db()
+        if reload_from_db:
+            episode.reload_from_db()
 
         if include_description or gpodder.ui.maemo:
             icon_size = 32
@@ -403,6 +440,8 @@ class EpisodeListModel(gtk.ListStore):
 
 
 class PodcastChannelProxy(object):
+    ALL_EPISODES_PROXY = True
+
     def __init__(self, db, config, channels):
         self._db = db
         self._config = config
@@ -428,9 +467,12 @@ class PodcastChannelProxy(object):
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                yield episode
+        def all_episodes():
+            for channel in self.channels:
+                for episode in channel.get_all_episodes():
+                    episode._all_episodes_view = True
+                    yield episode
+        return model.PodcastEpisode.sort_by_pubdate(all_episodes(), reverse=True)
 
     def request_save_dir_size(self):
         if not self._save_dir_size_set:
@@ -474,7 +516,8 @@ class PodcastListModel(gtk.ListStore):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             key = self._search_term.lower()
-            return any((key in model.get_value(iter, column).lower()) for column in self.SEARCH_COLUMNS)
+            columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
+            return any((key in c.lower() for c in columns if c is not None))
 
         if model.get_value(iter, self.C_SEPARATOR):
             return True

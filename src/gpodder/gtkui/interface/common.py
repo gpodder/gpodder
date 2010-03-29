@@ -215,32 +215,8 @@ class BuilderWidget(GtkBuilderWidget):
                 if pynotify is not None:
                     if title is None:
                         title = 'gPodder'
-                    notification = pynotify.Notification(title, message, gpodder.icon_file)
-                    _notify_at_tray = False
-                    _notify_when = config.notifications_attach_to_tray
-                    try:
-                        _notify_attach = notification.attach_to_status_icon
-                    except AttributeError:
-                        # Workaround for bug 860 - don't attach to status icon
-                        _notify_attach = lambda icon: None
-
-                    if _notify_when in ('minimized','always'):
-                        if getattr(self,'tray_icon',None) and self.tray_icon.is_embedded():
-                            _notify_at_tray = True
-
-                    if _notify_at_tray and _notify_when == 'always':
-                        _notify_attach(self.tray_icon)
-                    elif not self._window_iconified and self.main_window.is_active:
-                        if self._window_visible:
-                            if widget and isinstance(widget, gtk.Widget):
-                                if not widget.window:
-                                    widget = self.main_window
-                                notification.attach_to_widget(widget)
-                        elif _notify_at_tray and _notify_when == 'minimized':
-                            _notify_attach(self.tray_icon)
-                    elif _notify_at_tray and _notify_when == 'minimized':
-                        _notify_attach(self.tray_icon)
-
+                    notification = pynotify.Notification(title, message,\
+                            gpodder.icon_file)
                     notification.show()
                 elif widget and isinstance(widget, gtk.Widget):
                     if not widget.window:
@@ -329,7 +305,10 @@ class BuilderWidget(GtkBuilderWidget):
             ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
 
         dialog.set_has_separator(False)
-        dialog.set_default_size(650, -1)
+        if gpodder.ui.desktop:
+            dialog.set_default_size(300, -1)
+        else:
+            dialog.set_default_size(650, -1)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         if gpodder.ui.fremantle:

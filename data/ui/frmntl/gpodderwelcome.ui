@@ -3,7 +3,7 @@
 <interface>
   <object class="GtkDialog" id="gPodderWelcome">
     <property name="modal">True</property>
-    <property context="yes" name="title" translatable="yes">Your podcast list is empty. What do you want to do?</property>
+    <property name="title" translatable="yes">Your podcast list is empty. What do you want to do?</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
@@ -15,7 +15,7 @@
             <property name="visible">True</property>
             <child>
               <object class="HildonButton" id="btnOPML">
-                <property context="yes" name="label" translatable="yes">Choose from a list of example podcasts</property>
+                <property name="label" translatable="yes">Choose from a list of example podcasts</property>
                 <property name="visible">True</property>
                 <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
                 <signal handler="on_show_example_podcasts" name="clicked"/>
@@ -23,7 +23,7 @@
             </child>
             <child>
               <object class="HildonButton" id="btnMygPodder">
-                <property context="yes" name="label" translatable="yes">Download my list from my.gpodder.org</property>
+                <property name="label" translatable="yes">Download my list from my.gpodder.org</property>
                 <property name="visible">True</property>
                 <property name="size">HILDON_SIZE_THUMB_HEIGHT</property>
                 <signal handler="on_setup_my_gpodder" name="clicked"/>

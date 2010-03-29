@@ -172,7 +172,11 @@ class FremantleRotation(object):
         self._orientation = orientation
 
     def _get_keyboard_state(self):
-        return open(self.KBD_SLIDER).read().strip()
+        # For sbox, if the device does not exist assume that it's closed
+        try:
+            return open(self.KBD_SLIDER).read().strip()
+        except IOError:
+            return self._KBD_CLOSED
 
     def _keyboard_state_changed(self):
         state = self._get_keyboard_state()

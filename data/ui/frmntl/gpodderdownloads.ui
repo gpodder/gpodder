@@ -49,8 +49,9 @@
     <property name="label" translatable="yes">Cancel selected</property>
     <signal name="activate" handler="on_cancel_button_clicked"/>
   </object>
-  <object class="GtkToggleAction" id="action_auto_cleanup">
-    <property name="label" translatable="yes">Automatic clean-up</property>
+  <object class="GtkAction" id="action_cleanup">
+    <property name="label" translatable="yes">Clean-up</property>
+    <signal name="activate" handler="on_cleanup_button_clicked"/>
   </object>
   <object class="GtkAction" id="action_select_all">
     <property name="label" translatable="yes">Select all</property>

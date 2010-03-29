@@ -27,6 +27,7 @@ import gpodder
 from gpodder import util
 from gpodder import services
 from gpodder import libconverter
+from gpodder import gstreamer
 
 from gpodder.liblogger import log
 
@@ -94,6 +95,10 @@ def open_device(config):
         return None
 
 def get_track_length(filename):
+    length = gstreamer.get_track_length(filename)
+    if length is not None:
+        return length
+
     if util.find_command('mplayer') is not None:
         try:
             mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
@@ -170,7 +175,7 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        if self._config.sync_disks_after_transfer:
+        if self._config.sync_disks_after_transfer and not gpodder.win32:
             successful_sync = (os.system('sync') == 0)
         else:
             log('Not syncing disks. Unmount your device before unplugging.', sender=self)
@@ -289,6 +294,7 @@ class iPodDevice(Device):
 
         self.itdb.mountpoint = self.mountpoint
         self.podcasts_playlist = gpod.itdb_playlist_podcasts(self.itdb)
+        self.master_playlist = gpod.itdb_playlist_mpl(self.itdb)
 
         if self.podcasts_playlist:
             self.notify('status', _('iPod opened'))
@@ -432,6 +438,7 @@ class iPodDevice(Device):
         self.set_cover_art(track, local_filename)
 
         gpod.itdb_track_add(self.itdb, track, -1)
+        gpod.itdb_playlist_add_track(self.master_playlist, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
         gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
 
@@ -769,7 +776,12 @@ class MTPDevice(Device):
     def __init__(self, config):
         Device.__init__(self, config)
         self.__model_name = None
-        self.__MTPDevice = pymtp.MTP()
+        try:
+            self.__MTPDevice = pymtp.MTP()
+        except NameError, e:
+            # pymtp not available / not installed (see bug 924)
+            log('pymtp not found: %s', str(e), sender=self)
+            self.__MTPDevice = None
 
     def __callback(self, sent, total):
         if self.cancelled:
@@ -844,13 +856,16 @@ class MTPDevice(Device):
         """
 
         if self.__model_name:
-             return self.__model_name
+            return self.__model_name
+
+        if self.__MTPDevice is None:
+            return _('MTP device')
 
         self.__model_name = self.__MTPDevice.get_devicename() # actually libmtp.Get_Friendlyname
         if not self.__model_name or self.__model_name == "?????":
             self.__model_name = self.__MTPDevice.get_modelname()
         if not self.__model_name:
-            self.__model_name = "MTP device"
+            self.__model_name = _('MTP device')
 
         return self.__model_name
 
@@ -909,7 +924,7 @@ class MTPDevice(Device):
 
             # send the file
             self.__MTPDevice.send_track_from_file(filename,
-                    util.sanitize_filename(metadata.title),
+                    util.sanitize_filename(metadata.title)+episode.extension(),
                     metadata, 0, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
@@ -956,5 +971,8 @@ class MTPDevice(Device):
         return tracks
 
     def get_free_space(self):
-        return self.__MTPDevice.get_freespace()
+        if self.__MTPDevice is not None:
+            return self.__MTPDevice.get_freespace()
+        else:
+            return 0
 

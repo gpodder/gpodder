@@ -71,8 +71,7 @@ gPodderSettings = {
       ("Set a global speed limit (in KB/s) when downloading files. "
         "Requires 'limit_rate'.")),
     'episode_old_age': ( int, 7,
-      ("The number of days before an episode is considered old. "
-        "Must be used in conjunction with 'auto_remove_old_episodes'.")),
+      ("The number of days before an episode is considered old.")),
 
     # Boolean config flags
     'update_on_startup': ( bool, False,
@@ -86,8 +85,10 @@ gPodderSettings = {
       ("After syncing an episode, mark it as played in gPodder.")),
     'on_sync_delete': ( bool, False,
       ("After syncing an episode, delete it from gPodder.")),
-    'auto_remove_old_episodes': ( bool, False,
-      ("Remove episodes older than 'episode_old_age' days on startup.")),
+    'auto_remove_played_episodes': ( bool, False,
+      ("Auto-remove old episodes that are played.")),
+    'auto_remove_unplayed_episodes': ( bool, False,
+      ("Auto-remove old episodes that are unplayed.")),
     'auto_update_feeds': (bool, False,
       ("Automatically update feeds when gPodder is minimized. "
         "See 'auto_update_frequency' and 'auto_download'.")),
@@ -129,8 +130,6 @@ gPodderSettings = {
     'enable_notifications': (bool, True,
       ("Let gPodder use notification bubbles when it can completed certain "
         "tasks like downloading an episode or finishing syncing to a device.")),
-    'notifications_attach_to_tray': (str, 'minimized',
-      ("Attach notifications to tray icon. (always, minimized)")),
     'on_quit_ask': (bool, True,
       ("Ask the user to confirm quitting the application.")),
     'auto_download': (str, 'never',
@@ -195,9 +194,6 @@ gPodderSettings = {
       ("Enable fancy gestures on Maemo.")),
     'sync_disks_after_transfer': (bool, True,
       ("Call 'sync' after tranfering episodes to a device.")),
-    'resume_ask_every_episode': (bool, False,
-      ("If there are episode downloads that can be resumed, ask whether or "
-        "not to resume every single one.")),
     'enable_fingerscroll': (bool, False,
       ("Enable the use of finger-scrollable widgets on Maemo.")),
     'double_click_episode_action': (str, 'shownotes',
@@ -207,7 +203,7 @@ gPodderSettings = {
 
     'feed_update_skipping': (bool, False,
       ('Skip podcasts that are unlikely to have new episodes when updating feeds.')),
-    'allow_empty_feeds': (bool, False,
+    'allow_empty_feeds': (bool, True,
       ('Allow subscribing to feeds without episodes')),
 
     'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)

@@ -77,9 +77,12 @@ class DownloadStatusModel(gtk.ListStore):
                     util.format_filesize(task.total_size), \
                     util.format_filesize(task.speed))
         else:
-            status_message = '%s (%s)' % (\
-                    task.STATUS_MESSAGE[task.status], \
-                    util.format_filesize(task.total_size))
+            if task.total_size > 0:
+                status_message = '%s (%s)' % (\
+                        task.STATUS_MESSAGE[task.status], \
+                        util.format_filesize(task.total_size))
+            else:
+                status_message = task.STATUS_MESSAGE[task.status]
 
         self.set(iter,
                 self.C_NAME, self._format_message(task.markup_name, \

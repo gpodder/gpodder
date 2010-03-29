@@ -37,6 +37,8 @@ import platform
 
 import gettext
 
+import subprocess
+
 try:
     import dbus
     import dbus.glib
@@ -52,7 +54,7 @@ from optparse import OptionParser
 if __name__ == '__main__':
     # Paths to important files
     gpodder_script = sys.argv[0]
-    if os.path.islink(gpodder_script):
+    while os.path.islink(gpodder_script):
         gpodder_script = os.readlink(gpodder_script)
     gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
     prefix = os.path.abspath(os.path.normpath(gpodder_dir))
@@ -79,6 +81,16 @@ if __name__ == '__main__':
         credits_file = os.path.join(data_dir, 'credits.txt')
         images_folder = os.path.join(data_dir, 'images')
         icon_file = os.path.join(data_dir, 'gpodder.svg')
+
+    # on Mac OS X, read from the defaults database the locale of the user
+    if platform.system() == 'Darwin' and 'LANG' not in os.environ:
+        locale_cmd = ('defaults', 'read', 'NSGlobalDomain', 'AppleLocale')
+        process = subprocess.Popen(locale_cmd, stdout=subprocess.PIPE)
+        output, error_output = process.communicate()
+        # the output is a string like 'fr_FR', and we need 'fr_FR.utf-8'
+        user_locale = output.strip() + '.UTF-8'
+        os.environ['LANG'] = user_locale
+        print >>sys.stderr, 'Setting locale to', user_locale
 
     # Set up the path to translation files
     gettext.bindtextdomain('gpodder', locale_dir)
@@ -113,6 +125,11 @@ if __name__ == '__main__':
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
+
+    # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
+    if sys.platform == 'darwin':
+        parser.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
+                          help=_('Mac OS X application process number'))
 
     (options, args) = parser.parse_args(sys.argv)
 

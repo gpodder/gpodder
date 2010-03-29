@@ -29,12 +29,16 @@
  Dependencies
  ============
 
-   * python (>= 2.5)
+   * python (>= 2.5) with sqlite3 support
    * python-gtk2 (>= 2.12)
    * python-feedparser
-   * python-mygpoclient (http://thpinfo.com/2010/mygpoclient/)
+   * python-mygpoclient (>= 1.2; http://thpinfo.com/2010/mygpoclient/)
    * python-dbus (optional, but highly recommended)
- 
+
+ If your Python installation does not come with "sqlite3" support,
+ you can either re-compile Python with support for sqlite3 or use
+ the "pysqlite" package from http://code.google.com/p/pysqlite/
+
  Additional dependencies for iPod synchronization support:
 
    * One of the following metadata libraries:
@@ -67,6 +71,10 @@
  Additional dependencies for gPodder on Windows:
 
    * PyWin32 (http://sourceforge.net/projects/pywin32/)
+
+ Additional dependencies for gPodder on Mac OS X:
+
+   * ige-mac-integration (optional; when using the quartz GDK backend)
 
  Additional dependencies for the Soundcloud plug-in:
 

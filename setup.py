@@ -41,13 +41,24 @@ if 'TARGET' in os.environ:
 else:
     target = DEFAULT
 
-# search for translations and repare to install
+# search for translations, taking $LINGUAS into account
 translation_files = []
-for mofile in glob.glob('data/locale/*/LC_MESSAGES/gpodder.mo'):
-    modir = os.path.dirname(mofile).replace('data', 'share')
-    translation_files.append((modir, [mofile]))
+linguas = os.environ.get('LINGUAS', None)
+if linguas is not None:
+    linguas = linguas.split()
 
-if not len(translation_files) and not 'clean' in sys.argv:
+for mofile in glob.glob('data/locale/*/LC_MESSAGES/gpodder.mo'):
+    _, _, lang, _ = mofile.split('/', 3)
+
+    # Only install if either $LINGUAS it not set or the
+    # language is specified in the $LINGUAS variable
+    if linguas is None or lang in linguas:
+        modir = os.path.dirname(mofile).replace('data', 'share')
+        translation_files.append((modir, [mofile]))
+
+if not len(translation_files) and \
+        'clean' not in sys.argv and \
+        linguas not in (None, []):
     print >>sys.stderr, """
     Warning: No translation files. (Did you forget to run "make messages"?)
     """
