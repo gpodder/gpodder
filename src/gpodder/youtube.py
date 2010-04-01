@@ -93,6 +93,9 @@ def get_real_download_url(url, preferred_fmt_id=18):
                     break
 
         r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
+        if not r2:
+            r2 = re.compile('.*&t=([^&]+)').search(page)
+
         if r2:
             next = 'http://www.youtube.com/get_video?video_id=' + vid + '&t=' + r2.group(1) + '&fmt=%d' % fmt_id
             log('YouTube link resolved: %s => %s', url, next)
