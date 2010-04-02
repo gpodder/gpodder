@@ -72,7 +72,10 @@ def get_real_download_url(url, preferred_fmt_id=18):
         elif gpodder.ui.fremantle:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
-            fmt_id = 18
+            if preferred_fmt_id == 5:
+                fmt_id = 5
+            else:
+                fmt_id = 18
         else:
             # As a fallback, use fmt_id 18 (seems to be always available)
             fmt_id = 18

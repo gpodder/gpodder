@@ -2001,13 +2001,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if filename is None or not os.path.exists(filename):
                 filename = episode.url
                 if youtube.is_video_link(filename):
+                    fmt_id = self.config.youtube_preferred_fmt_id
                     if gpodder.ui.fremantle:
-                        self.show_message(_('Streaming of YouTube videos not supported.'), important=True)
-                        if len(episodes) == 1:
-                            return
-                        continue
-                    filename = youtube.get_real_download_url(filename, \
-                            self.config.youtube_preferred_fmt_id)
+                        fmt_id = 5
+                    filename = youtube.get_real_download_url(filename, fmt_id)
             groups[player].append(filename)
 
         # Open episodes with system default player
@@ -2220,11 +2217,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
-            if gpodder.ui.diablo:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes'))
-            else:
-                banner = None
-
             if gpodder.ui.fremantle:
                 hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
 
@@ -2240,8 +2232,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
 
                 def on_episode_list_model_updated():
-                    if banner is not None:
-                        banner.destroy()
                     if gpodder.ui.fremantle:
                         hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
                     self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
