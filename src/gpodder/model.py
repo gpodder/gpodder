@@ -1059,8 +1059,12 @@ class PodcastEpisode(PodcastModelObject):
         else:
             return self.title
 
-    def file_type( self):
-        return util.file_type_by_extension( self.extension() )
+    def file_type(self):
+        # Assume all YouTube links are video files
+        if youtube.is_video_link(self.url):
+            return 'video'
+
+        return util.file_type_by_extension(self.extension())
 
     @property
     def basename( self):

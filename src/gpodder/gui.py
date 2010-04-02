@@ -69,6 +69,7 @@ from gpodder import util
 from gpodder import opml
 from gpodder import download
 from gpodder import my
+from gpodder import youtube
 from gpodder.liblogger import log
 
 _ = gpodder.gettext
@@ -1999,6 +2000,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
                 filename = episode.url
+                if youtube.is_video_link(filename):
+                    if gpodder.ui.fremantle:
+                        self.show_message(_('Streaming of YouTube videos not supported.'), important=True)
+                        if len(episodes) == 1:
+                            return
+                        continue
+                    filename = youtube.get_real_download_url(filename, \
+                            self.config.youtube_preferred_fmt_id)
             groups[player].append(filename)
 
         # Open episodes with system default player
