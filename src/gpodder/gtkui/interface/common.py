@@ -183,7 +183,12 @@ class BuilderWidget(GtkBuilderWidget):
                 if title is None:
                     title = 'gPodder'
                 pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
-                hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
+                try:
+                    hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
+                except TypeError:
+                    # We're probably running the Diablo UI on Maemo 5 :)
+                    hildon.hildon_banner_show_information(self.main_window, \
+                            '', message)
         elif gpodder.ui.fremantle:
             import hildon
             if important:
@@ -274,7 +279,12 @@ class BuilderWidget(GtkBuilderWidget):
             return response == gtk.RESPONSE_YES
         elif gpodder.ui.diablo:
             import hildon
-            dlg = hildon.Note('confirmation', (self.main_window, message))
+            try:
+                dlg = hildon.Note('confirmation', (self.main_window, message))
+            except TypeError:
+                # Kludgy workaround: We're running the Diablo UI on Maemo 5 :)
+                dlg = hildon.hildon_note_new_confirmation(self.main_window, \
+                        message)
             response = dlg.run()
             dlg.destroy()
             return response == gtk.RESPONSE_OK

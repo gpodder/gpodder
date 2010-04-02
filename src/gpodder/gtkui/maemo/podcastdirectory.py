@@ -125,7 +125,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.button_cancel.set_sensitive(False)
         banner = hildon.hildon_banner_show_animation(self.main_window, \
-                None, _('Loading podcast list, please wait'))
+                '', _('Loading podcast list, please wait'))
 
         def download_thread_func():
             if use_youtube:
