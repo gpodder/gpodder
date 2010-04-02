@@ -588,7 +588,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def ask():
             # We're abusing the Episode Selector again ;) -- thp
             gPodderEpisodeSelector(self.main_window, \
-                    title=_('Confirm changes from my.gpodder.org'), \
+                    title=_('Confirm changes from gpodder.net'), \
                     instructions=_('Select the actions you want to carry out.'), \
                     episodes=changes, \
                     columns=columns, \
@@ -624,7 +624,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
 
     def on_send_full_subscriptions(self):
-        # Send the full subscription list to the my.gpodder.org client
+        # Send the full subscription list to the gpodder.net client
         # (this will overwrite the subscription list on the server)
         indicator = ProgressIndicator(_('Uploading subscriptions'), \
                 _('Your subscriptions are being uploaded to the server.'), \
@@ -2332,7 +2332,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
-            # Upload subscription changes to my.gpodder.org
+            # Upload subscription changes to gpodder.net
             self.mygpo_client.on_subscribe(worked)
 
             # If at least one podcast has been added, save and update all
