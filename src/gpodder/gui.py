@@ -1225,7 +1225,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if gpodder.ui.desktop:
                     self.downloads_finished(self.download_tasks_seen)
                 if gpodder.ui.diablo:
-                    hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
+                    hildon.hildon_banner_show_information(self.gPodder, '', 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)

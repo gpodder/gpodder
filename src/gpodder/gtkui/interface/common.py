@@ -176,7 +176,15 @@ class BuilderWidget(GtkBuilderWidget):
         if gpodder.ui.diablo:
             import hildon
             if important:
-                dlg = hildon.Note('information', (self.main_window, message))
+                try:
+                    dlg = hildon.Note('information', (self.main_window, message))
+                except TypeError:
+                    if title is None:
+                        message = message
+                    else:
+                        message = '%s\n%s' % (title, message)
+                    dlg = hildon.hildon_note_new_information(self.main_window, \
+                            message)
                 dlg.run()
                 dlg.destroy()
             else:
