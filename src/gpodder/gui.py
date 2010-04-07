@@ -2723,37 +2723,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not episodes:
             return False
 
-        count = len(episodes)
+        episodes = [e for e in episodes if not e.is_locked]
 
-        if count == 1:
-            episode = episodes[0]
-            if episode.is_locked:
-                title = _('%s is locked') % saxutils.escape(episode.title)
-                message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
-                self.notification(message, title, widget=self.treeAvailable)
-                return False
-
-            title = _('Remove %s?') % saxutils.escape(episode.title)
-            message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
-        else:
-            title = N_('Remove %d episode?', 'Remove %d episodes?', count) % count
-            message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
-
-        locked_count = sum(e.is_locked for e in episodes)
-
-        if count == locked_count:
+        if not episodes:
             title = _('Episodes are locked')
             message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
             self.notification(message, title, widget=self.treeAvailable)
             return False
-        elif locked_count > 0:
-            title = _('Remove %(unlocked)d out of %(selected)d episodes?') % {'unlocked': count-locked_count, 'selected': count}
-            message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
+
+        count = len(episodes)
+        title = N_('Delete %d episode?', 'Delete %d episodes?', count) % count
+        message = _('Deleting episodes removes downloaded files.')
+
+        if gpodder.ui.fremantle:
+            message = '\n'.join([title, message])
 
         if confirm and not self.show_confirmation(message, title):
             return False
 
-        progress = ProgressIndicator(_('Removing episodes'), \
+        progress = ProgressIndicator(_('Deleting episodes'), \
                 _('Please wait while episodes are deleted'), \
                 parent=self.main_window)
 
@@ -2833,7 +2821,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     selected.append(episode.is_played or \
                                     not episode.file_exists())
 
-        gPodderEpisodeSelector(self.gPodder, title = _('Remove old episodes'), instructions = instructions, \
+        gPodderEpisodeSelector(self.gPodder, title = _('Delete old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
