@@ -2035,6 +2035,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
 
+        # Persist episode status changes to the database
+        self.db.commit()
+
         # Flush updated episode status
         self.mygpo_client.flush()
 
