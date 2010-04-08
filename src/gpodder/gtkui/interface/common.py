@@ -230,7 +230,11 @@ class BuilderWidget(GtkBuilderWidget):
                         title = 'gPodder'
                     notification = pynotify.Notification(title, message,\
                             gpodder.icon_file)
-                    notification.show()
+                    try:
+                        notification.show()
+                    except:
+                        # See http://gpodder.org/bug/966
+                        pass
                 elif widget and isinstance(widget, gtk.Widget):
                     if not widget.window:
                         widget = self.main_window
