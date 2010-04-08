@@ -533,6 +533,13 @@ def extension_from_mimetype(mimetype):
     """
     Simply guesses what the file extension should be from the mimetype
     """
+    MIMETYPE_EXTENSIONS = {
+            # This is required for YouTube downloads on Maemo 5
+            'video/x-flv': '.flv',
+            'video/mp4': '.mp4',
+    }
+    if mimetype in MIMETYPE_EXTENSIONS:
+        return MIMETYPE_EXTENSIONS[mimetype]
     return mimetypes.guess_extension(mimetype) or ''
 
 
