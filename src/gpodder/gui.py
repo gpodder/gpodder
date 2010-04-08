@@ -2122,7 +2122,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemDownloadSelected.set_sensitive(can_download)
             self.itemOpenSelected.set_sensitive(can_play)
             self.itemPlaySelected.set_sensitive(can_play)
-            self.itemDeleteSelected.set_sensitive(can_delete or not can_cancel)
+            self.itemDeleteSelected.set_sensitive(can_delete)
             self.item_toggle_played.set_sensitive(can_play)
             self.item_toggle_lock.set_sensitive(can_play)
             self.itemOpenSelected.set_visible(open_instead_of_play)
