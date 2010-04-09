@@ -687,15 +687,17 @@ class DownloadTask(object):
 
             new_mimetype = headers.get('content-type', self.__episode.mimetype)
             old_mimetype = self.__episode.mimetype
-            if new_mimetype != old_mimetype:
+            _basename, ext = os.path.splitext(self.filename)
+            if new_mimetype != old_mimetype or util.wrong_extension(ext):
                 log('Correcting mime type: %s => %s', old_mimetype, new_mimetype, sender=self)
                 old_extension = self.__episode.extension()
                 self.__episode.mimetype = new_mimetype
                 new_extension = self.__episode.extension()
 
-                # If the desired filename extension changed due to the new mimetype,
-                # we force an update of the local filename to fix the extension
-                if old_extension != new_extension:
+                # If the desired filename extension changed due to the new
+                # mimetype, we force an update of the local filename to fix the
+                # extension.
+                if old_extension != new_extension or util.wrong_extension(ext):
                     self.filename = self.__episode.local_filename(create=True, force_update=True)
 
             # TODO: Check if "real_url" is different from "url" and if it is,

@@ -529,6 +529,52 @@ def remove_html_tags(html):
     return result.strip()
 
 
+def wrong_extension(extension):
+    """
+    Determine if a given extension looks like it's
+    wrong (e.g. empty, extremely long or spaces)
+
+    Returns True if the extension most likely is a
+    wrong one and should be replaced.
+
+    >>> wrong_extension('.mp3')
+    False
+    >>> wrong_extension('.divx')
+    False
+    >>> wrong_extension('mp3')
+    True
+    >>> wrong_extension('')
+    True
+    >>> wrong_extension('.12 - Everybody')
+    True
+    >>> wrong_extension('.mp3 ')
+    True
+    >>> wrong_extension('.')
+    True
+    >>> wrong_extension('.42')
+    True
+    """
+    if not extension:
+        return True
+    elif len(extension) > 5:
+        return True
+    elif ' ' in extension:
+        return True
+    elif extension == '.':
+        return True
+    elif not extension.startswith('.'):
+        return True
+    else:
+        try:
+            # ".<number>" is an invalid extension
+            float(extension)
+            return True
+        except:
+            pass
+
+    return False
+
+
 def extension_from_mimetype(mimetype):
     """
     Simply guesses what the file extension should be from the mimetype
