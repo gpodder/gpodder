@@ -35,7 +35,10 @@ class GstFile:
     def run(self, filename):
         gobject.idle_add(self.on_idle, filename)
         self.mainloop.run()
-        return self.result / gst.MSECOND
+        if self.result is not None:
+            return self.result / gst.MSECOND
+        else:
+            return None
 
     def on_idle(self, filename):
         d = Discoverer(filename)
