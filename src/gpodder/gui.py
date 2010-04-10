@@ -505,7 +505,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.clean_up_downloads(delete_partial=False)
                     util.idle_add(offer_resuming)
                 elif not gpodder.ui.fremantle:
-                    self.wNotebook.set_current_page(0)
+                    util.idle_add(self.wNotebook.set_current_page, 0)
             else:
                 util.idle_add(self.clean_up_downloads, True)
         threading.Thread(target=find_partial_downloads).start()
