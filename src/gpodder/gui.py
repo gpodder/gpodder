@@ -18,6 +18,7 @@
 #
 
 import os
+import platform
 import cgi
 import gtk
 import gtk.gdk
@@ -69,6 +70,7 @@ from gpodder import util
 from gpodder import opml
 from gpodder import download
 from gpodder import my
+from gpodder import youtube
 from gpodder.liblogger import log
 
 _ = gpodder.gettext
@@ -503,7 +505,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.clean_up_downloads(delete_partial=False)
                     util.idle_add(offer_resuming)
                 elif not gpodder.ui.fremantle:
-                    self.wNotebook.set_current_page(0)
+                    util.idle_add(self.wNotebook.set_current_page, 0)
             else:
                 util.idle_add(self.clean_up_downloads, True)
         threading.Thread(target=find_partial_downloads).start()
@@ -588,7 +590,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def ask():
             # We're abusing the Episode Selector again ;) -- thp
             gPodderEpisodeSelector(self.main_window, \
-                    title=_('Confirm changes from my.gpodder.org'), \
+                    title=_('Confirm changes from gpodder.net'), \
                     instructions=_('Select the actions you want to carry out.'), \
                     episodes=changes, \
                     columns=columns, \
@@ -624,7 +626,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
 
     def on_send_full_subscriptions(self):
-        # Send the full subscription list to the my.gpodder.org client
+        # Send the full subscription list to the gpodder.net client
         # (this will overwrite the subscription list on the server)
         indicator = ProgressIndicator(_('Uploading subscriptions'), \
                 _('Your subscriptions are being uploaded to the server.'), \
@@ -1224,7 +1226,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if gpodder.ui.desktop:
                     self.downloads_finished(self.download_tasks_seen)
                 if gpodder.ui.diablo:
-                    hildon.hildon_banner_show_information(self.gPodder, None, 'gPodder: %s' % _('All downloads finished'))
+                    hildon.hildon_banner_show_information(self.gPodder, '', 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)
@@ -1999,6 +2001,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
                 filename = episode.url
+                if youtube.is_video_link(filename):
+                    fmt_id = self.config.youtube_preferred_fmt_id
+                    if gpodder.ui.fremantle:
+                        fmt_id = 5
+                    filename = youtube.get_real_download_url(filename, fmt_id)
             groups[player].append(filename)
 
         # Open episodes with system default player
@@ -2028,6 +2035,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for command in util.format_desktop_command(group, groups[group]):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
+
+        # Persist episode status changes to the database
+        self.db.commit()
 
         # Flush updated episode status
         self.mygpo_client.flush()
@@ -2112,7 +2122,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemDownloadSelected.set_sensitive(can_download)
             self.itemOpenSelected.set_sensitive(can_play)
             self.itemPlaySelected.set_sensitive(can_play)
-            self.itemDeleteSelected.set_sensitive(can_delete or not can_cancel)
+            self.itemDeleteSelected.set_sensitive(can_delete)
             self.item_toggle_played.set_sensitive(can_play)
             self.item_toggle_lock.set_sensitive(can_play)
             self.itemOpenSelected.set_visible(open_instead_of_play)
@@ -2211,11 +2221,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
-            if gpodder.ui.diablo:
-                banner = hildon.hildon_banner_show_animation(self.gPodder, None, _('Loading episodes'))
-            else:
-                banner = None
-
             if gpodder.ui.fremantle:
                 hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
 
@@ -2231,8 +2236,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
 
                 def on_episode_list_model_updated():
-                    if banner is not None:
-                        banner.destroy()
                     if gpodder.ui.fremantle:
                         hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
                     self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
@@ -2332,7 +2335,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
-            # Upload subscription changes to my.gpodder.org
+            # Upload subscription changes to gpodder.net
             self.mygpo_client.on_subscribe(worked)
 
             # If at least one podcast has been added, save and update all
@@ -2724,37 +2727,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not episodes:
             return False
 
-        count = len(episodes)
+        episodes = [e for e in episodes if not e.is_locked]
 
-        if count == 1:
-            episode = episodes[0]
-            if episode.is_locked:
-                title = _('%s is locked') % saxutils.escape(episode.title)
-                message = _('You cannot delete this locked episode. You must unlock it before you can delete it.')
-                self.notification(message, title, widget=self.treeAvailable)
-                return False
-
-            title = _('Remove %s?') % saxutils.escape(episode.title)
-            message = _("If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it.")
-        else:
-            title = N_('Remove %d episode?', 'Remove %d episodes?', count) % count
-            message = _('If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question.')
-
-        locked_count = sum(e.is_locked for e in episodes)
-
-        if count == locked_count:
+        if not episodes:
             title = _('Episodes are locked')
             message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
             self.notification(message, title, widget=self.treeAvailable)
             return False
-        elif locked_count > 0:
-            title = _('Remove %(unlocked)d out of %(selected)d episodes?') % {'unlocked': count-locked_count, 'selected': count}
-            message = _('The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them.')
+
+        count = len(episodes)
+        title = N_('Delete %d episode?', 'Delete %d episodes?', count) % count
+        message = _('Deleting episodes removes downloaded files.')
+
+        if gpodder.ui.fremantle:
+            message = '\n'.join([title, message])
 
         if confirm and not self.show_confirmation(message, title):
             return False
 
-        progress = ProgressIndicator(_('Removing episodes'), \
+        progress = ProgressIndicator(_('Deleting episodes'), \
                 _('Please wait while episodes are deleted'), \
                 parent=self.main_window)
 
@@ -2834,7 +2825,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     selected.append(episode.is_played or \
                                     not episode.file_exists())
 
-        gPodderEpisodeSelector(self.gPodder, title = _('Remove old episodes'), instructions = instructions, \
+        gPodderEpisodeSelector(self.gPodder, title = _('Delete old episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
@@ -3735,6 +3726,13 @@ def main(options=None):
     # Handle options
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
+
+    # mac OS X stuff :
+    # handle "subscribe to podcast" events from firefox
+    if platform.system() == 'Darwin':
+        from gpodder import gpodderosx
+        gpodderosx.register_handlers(gp)
+    # end mac OS X stuff
 
     gp.run()
 

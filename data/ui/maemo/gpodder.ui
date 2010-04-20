@@ -46,7 +46,7 @@
           <object class="GtkAction" id="itemRemoveOldEpisodes">
             <property name="stock_id">gtk-delete</property>
             <property name="name">itemRemoveOldEpisodes</property>
-            <property name="label" translatable="yes">Remove old episodes</property>
+            <property name="label" translatable="yes">Delete old episodes</property>
             <signal handler="on_itemRemoveOldEpisodes_activate" name="activate"/>
           </object>
           <accelerator/>
@@ -160,13 +160,13 @@
         <child>
           <object class="GtkAction" id="item_mygpo_settings">
             <property name="name">item_mygpo_settings</property>
-            <property name="label" translatable="yes">my.gpodder.org Settings</property>
+            <property name="label" translatable="yes">gpodder.net Settings</property>
             <signal handler="on_mygpo_settings_activate" name="activate"/>
           </object>
         </child>
         <child>
           <object class="GtkAction" id="item_goto_mygpo">
-            <property name="label" translatable="yes">Go to my.gpodder.org</property>
+            <property name="label" translatable="yes">Go to gpodder.net</property>
             <signal handler="on_goto_mygpo" name="activate"/>
           </object>
         </child>
@@ -402,8 +402,6 @@
           <menuitem action="item_episode_details"/>
         </menu>
         <menu action="menuView">
-          <menuitem action="itemShowAllEpisodes"/>
-          <separator/>
           <menuitem action="itemShowToolbar"/>
           <menuitem action="itemShowDescription"/>
           <separator/>
@@ -521,7 +519,7 @@
         </child>
         <child>
           <object class="GtkToolButton" id="toolQuit">
-            <property name="visible">True</property>
+            <property name="visible">False</property>
             <property name="stock_id">gtk-quit</property>
             <property name="is_important">False</property>
             <signal handler="on_gPodder_delete_event" name="clicked"/>

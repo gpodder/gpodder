@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# gpodder.gtkui.mygpodder- UI code for my.gpodder.org settings
+# gpodder.gtkui.mygpodder- UI code for gpodder.net settings
 # Thomas Perl <thpinfo.com>; 2010-01-19
 
 import gtk

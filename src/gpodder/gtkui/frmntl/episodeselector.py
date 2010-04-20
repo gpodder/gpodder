@@ -21,6 +21,7 @@ import gtk
 import hildon
 import pango
 from xml.sax import saxutils
+import re
 
 import gpodder
 _ = gpodder.gettext
@@ -31,6 +32,8 @@ from gpodder.liblogger import log
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import Orientation
+
+from gpodder.gtkui.frmntl import style
 
 class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
@@ -163,6 +166,21 @@ class gPodderEpisodeSelector(BuilderWidget):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
+        # Determine the styling for the list items
+        head_font = style.get_font_desc('SystemFont')
+        head_color = style.get_color('ButtonTextColor')
+        head = (head_font.to_string(), head_color.to_string())
+        head = '<span font_desc="%s" foreground="%s">%%s</span>' % head
+        sub_font = style.get_font_desc('SmallSystemFont')
+        sub_color = style.get_color('SecondaryTextColor')
+        sub = (sub_font.to_string(), sub_color.to_string())
+        sub = '<span font_desc="%s" foreground="%s">%%s</span>' % sub
+        self._markup_template = '\n'.join((head, sub))
+
+        # This regex gets the two lines of the normal Maemo markup,
+        # as used on Maemo 4 (see maemo_markup() in gpodder.model)
+        markup_re = re.compile(r'<b>(.*)</b>\n<small>(.*)</small>')
+
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = gtk.CellRendererText()
@@ -205,7 +223,14 @@ class gPodderEpisodeSelector(BuilderWidget):
                     tooltip = None
             row = [ index, tooltip, self.selected[index] ]
             for name, sort_name, sort_type, caption in self.columns:
-                if not hasattr(episode, name):
+                if name.startswith('maemo_') and name.endswith('markup'):
+                    # This will fetch the Maemo 4 markup from the object
+                    # and then filter the two lines (using markup_re.match)
+                    # and use the markup template to create Maemo 5 markup
+                    markup = getattr(episode, name)
+                    args = markup_re.match(markup).groups()
+                    row.append(self._markup_template % args)
+                elif not hasattr(episode, name):
                     log('Warning: Missing attribute "%s"', name, sender=self)
                     row.append(None)
                 else:

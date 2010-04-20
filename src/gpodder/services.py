@@ -119,5 +119,5 @@ dependency_manager = DependencyManager()
 
 # Register non-module-specific dependencies here
 dependency_manager.depend_on(_('Bluetooth file transfer'), _('Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto command from gnome-bluetooth.'), [], ['bluetooth-sendto'])
-dependency_manager.depend_on(_('HTML episode shownotes'), _('Display episode shownotes in HTML format using GTKHTML2.'), ['gtkhtml2'], [])
+dependency_manager.depend_on(_('HTML episode shownotes'), _('Display episode shownotes in HTML format using WebKit.'), ['webkit'], [])
 
