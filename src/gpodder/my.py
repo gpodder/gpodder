@@ -108,7 +108,8 @@ class UpdateDeviceAction(object):
 
 class EpisodeAction(object):
     __slots__ = {'podcast_url': str, 'episode_url': str, 'device_id': str,
-                 'action': str, 'timestamp': int, 'position': str}
+                 'action': str, 'timestamp': int,
+                 'started': int, 'position': int, 'total': int}
 
     def __init__(self, podcast_url, episode_url, device_id, \
             action, timestamp, position):
