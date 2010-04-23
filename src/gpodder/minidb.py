@@ -88,7 +88,7 @@ class Store(object):
             table, slots = self._schema(o.__class__)
 
             # Only save values that have values set (non-None values)
-            slots = [s for s in slots if getattr(o, s) is not None]
+            slots = [s for s in slots if getattr(o, s, None) is not None]
 
             values = [str(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
