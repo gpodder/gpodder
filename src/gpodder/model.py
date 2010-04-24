@@ -350,8 +350,8 @@ class PodcastChannel(PodcastModelObject):
 
         self.db.commit()
 
-    def delete(self, purge=True):
-        self.db.delete_channel(self, purge)
+    def delete(self):
+        self.db.delete_channel(self)
 
     def save(self):
         self.db.save_channel(self)
@@ -651,6 +651,33 @@ class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
 
+    def _get_played(self):
+        return self.is_played
+
+    def _set_played(self, played):
+        self.is_played = played
+
+    # Alias "is_played" to "played" for DB column mapping
+    played = property(fget=_get_played, fset=_set_played)
+
+    def _get_locked(self):
+        return self.is_locked
+
+    def _set_locked(self, locked):
+        self.is_locked = locked
+
+    # Alias "is_locked" to "locked" for DB column mapping
+    locked = property(fget=_get_locked, fset=_set_locked)
+
+    def _get_channel_id(self):
+        return self.channel.id
+
+    def _set_channel_id(self, channel_id):
+        assert self.channel.id == channel_id
+
+    # Accessor for the "channel_id" DB column
+    channel_id = property(fget=_get_channel_id, fset=_set_channel_id)
+
     @staticmethod
     def sort_by_pubdate(episodes, reverse=False):
         """Sort a list of PodcastEpisode objects chronologically
@@ -780,6 +807,11 @@ class PodcastEpisode(PodcastModelObject):
         self._is_locked = False
         self.is_locked = channel.channel_is_locked
 
+        # Time attributes
+        self.total_time = 0
+        self.current_position = 0
+        self.current_position_updated = time.time()
+
     def get_is_locked(self):
         return self._is_locked
 
@@ -795,7 +827,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def set_state(self, state):
         self.state = state
-        self.db.mark_episode(self.url, state=self.state, is_played=self.is_played, is_locked=self.is_locked)
+        self.db.update_episode_state(self)
 
     def mark(self, state=None, is_played=None, is_locked=None):
         if state is not None:
@@ -804,7 +836,7 @@ class PodcastEpisode(PodcastModelObject):
             self.is_played = is_played
         if is_locked is not None:
             self.is_locked = is_locked
-        self.db.mark_episode(self.url, state=state, is_played=is_played, is_locked=is_locked)
+        self.db.update_episode_state(self)
 
     def mark_downloaded(self, save=False):
         self.state = gpodder.STATE_DOWNLOADED
@@ -1032,11 +1064,11 @@ class PodcastEpisode(PodcastModelObject):
     def mark_new(self):
         self.state = gpodder.STATE_NORMAL
         self.is_played = False
-        self.db.mark_episode(self.url, state=self.state, is_played=self.is_played)
+        self.db.update_episode_state(self)
 
     def mark_old(self):
         self.is_played = True
-        self.db.mark_episode(self.url, is_played=True)
+        self.db.update_episode_state(self)
 
     def file_exists(self):
         filename = self.local_filename(create=False, check_only=True)

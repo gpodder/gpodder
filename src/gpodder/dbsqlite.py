@@ -16,8 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# dbsqlite.py -- SQLite interface
-# Justin Forest <justin.forest@gmail.com> 2008-06-13
+
+#
+# dbsqlite.py -- SQLite persistence layer for gPodder
+#
+# 2008-06-13 Justin Forest <justin.forest@gmail.com>
+# 2010-04-24 Thomas Perl <thp@gpodder.org>
+#
 
 import gpodder
 _ = gpodder.gettext
@@ -42,21 +47,81 @@ if not have_sqlite:
     sys.exit(1)
 
 from gpodder.liblogger import log
-from email.Utils import mktime_tz
-from email.Utils import parsedate_tz
-from email.Utils import formatdate
-from threading import RLock
+
 import string
+import threading
 import re
 
 class Database(object):
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
+    # Column names and types for the channels table
+    TABLE_CHANNELS = "channels"
+    SCHEMA_CHANNELS = (
+            ('id', 'INTEGER PRIMARY KEY'),
+            ('url', 'TEXT'), # Feed (RSS/Atom) URL of the podcast
+            ('title', 'TEXT'), # Podcast name
+            ('override_title', 'TEXT'), # Podcast name if user-defined
+            ('link', 'TEXT'), # Website URL for the podcast
+            ('description', 'TEXT'), # Description of podcast contents
+            ('image', 'TEXT'), # URL to cover art for the image
+            ('pubDate', 'INTEGER'), # Date and time of last feed publication
+            ('sync_to_devices', 'INTEGER'), # 1 if syncing to devices is enabled, 0 otherwise
+            ('device_playlist_name', 'TEXT'), # Name of the playlist on the device for syncing
+            ('username', 'TEXT'), # Username for HTTP authentication (feed update + downloads)
+            ('password', 'TEXT'), # Password for HTTP authentication (feed update + downloads)
+            ('last_modified', 'TEXT'), # Last-modified HTTP header from last update
+            ('etag', 'TEXT'), # ETag HTTP header from last update
+            ('channel_is_locked', 'INTEGER'), # 1 if deletion is prevented, 0 otherwise
+            ('foldername', 'TEXT'), # Folder name (basename) to put downloaded episodes
+            ('auto_foldername', 'INTEGER'), # 1 if the foldername was auto-generated, 0 otherwise
+            ('release_expected', 'INTEGER'), # Statistic value for when a new release is expected
+            ('release_deviation', 'INTEGER'), # Deviation of the release cycle differences
+            ('updated_timestamp', 'INTEGER'), # Timestamp of the last feed update
+    )
+    INDEX_CHANNELS = (
+            ('foldername', 'UNIQUE INDEX'),
+            ('url', 'UNIQUE INDEX'),
+            ('sync_to_devices', 'INDEX'),
+            ('title', 'INDEX'),
+    )
+
+    # Column names and types for the episodes table
+    TABLE_EPISODES = 'episodes'
+    SCHEMA_EPISODES = (
+            ('id', 'INTEGER PRIMARY KEY'),
+            ('channel_id', 'INTEGER'), # Foreign key: ID of the podcast of this episode
+            ('url', 'TEXT'), # Download URL of the media file
+            ('title', 'TEXT'), # Episode title
+            ('length', 'INTEGER'), # File length of the media file in bytes
+            ('mimetype', 'TEXT'), # Mime type of the media file
+            ('guid', 'TEXT'), # GUID of the episode item
+            ('description', 'TEXT'), # Longer text description
+            ('link', 'TEXT'), # Website URL for the episode
+            ('pubDate', 'INTEGER'), # Date and time of publication
+            ('state', 'INTEGER'), # Download state (see gpodder.STATE_* constants)
+            ('played', 'INTEGER'), # 1 if it's new or played, 0 otherwise
+            ('locked', 'INTEGER'), # 1 if deletion is prevented, 0 otherwise
+            ('filename', 'TEXT'), # Filename for the downloaded file (or NULL)
+            ('auto_filename', 'INTEGER'), # 1 if the filename was auto-generated, 0 otherwise
+            ('total_time', 'INTEGER'), # Length in seconds
+            ('current_position', 'INTEGER'), # Current playback position
+            ('current_position_updated', 'INTEGER'), # Set to NOW when updating current_position
+    )
+    INDEX_EPISODES = (
+            ('guid', 'UNIQUE INDEX'),
+            ('filename', 'UNIQUE INDEX'),
+            ('channel_id', 'INDEX'),
+            ('pubDate', 'INDEX'),
+            ('state', 'INDEX'),
+            ('played', 'INDEX'),
+            ('locked', 'INDEX'),
+    )
+
     def __init__(self, filename):
         self.database_file = filename
-        self.channel_map = {}
         self._db = None
-        self.lock = RLock()
+        self.lock = threading.RLock()
 
     def close(self):
         self.commit()
@@ -71,12 +136,11 @@ class Database(object):
         self._db = None
 
     def log(self, message, *args, **kwargs):
-        if False:
-            try:
-                message = message % args
-                log('%s', message, sender=self)
-            except TypeError, e:
-                log('Exception in log(): %s: %s', e, message, sender=self)
+        try:
+            message = message % args
+            log('%s', message, sender=self)
+        except TypeError, e:
+            log('Exception in log(): %s: %s', e, message, sender=self)
 
     def purge(self, max_episodes, channel_id):
         """
@@ -143,6 +207,37 @@ class Database(object):
             log('Error commiting changes: %s', e, sender=self, traceback=True)
         self.lock.release()
 
+    def _remove_deleted_channels(self):
+        """Remove deleted podcasts and episodes (upgrade from gPodder <= 2.5)
+
+        If the database has been created with gPodder <= 2.5, it could
+        be possible that podcasts have been deleted where metadata and
+        episodes are kept.
+
+        We don't support this kind of "information keeping" anymore, so
+        simply go ahead and remove all podcast marked as "deleted" and
+        their corresponding episodes to slim down the database.
+        """
+        cur = self.cursor(lock=True)
+        cur.execute("PRAGMA table_info(%s)" % self.TABLE_CHANNELS)
+        available = cur.fetchall()
+        if available:
+            ID, NAME, TYPE, NULL, DEFAULT = range(5)
+            existing = set(column[NAME] for column in available)
+
+            channel_ids = []
+            if 'deleted' in existing:
+                cur.execute('SELECT id FROM %s WHERE deleted = ?' % self.TABLE_CHANNELS, (1,))
+                for row in cur.fetchall():
+                    channel_ids.append(row[0])
+
+            # Remove all deleted channels from the database
+            for id in channel_ids:
+                self.log('Removing deleted channel with ID %d', id)
+                cur.execute('DELETE FROM %s WHERE id = ?' % self.TABLE_CHANNELS, (id,))
+                cur.execute('DELETE FROM %s WHERE channel_id = ?' % self.TABLE_EPISODES, (id,))
+        self.lock.release()
+
     def __check_schema(self):
         """
         Creates all necessary tables and indexes that don't exist.
@@ -151,69 +246,21 @@ class Database(object):
 
         cur = self.cursor(lock=True)
 
-        self.upgrade_table("channels", (
-            ("id", "INTEGER PRIMARY KEY"),
-            ("url", "TEXT"),
-            ("title", "TEXT"),
-            ("override_title", "TEXT"),
-            ("link", "TEXT"),
-            ("description", "TEXT"),
-            ("image", "TEXT"),
-            ("pubDate", "INTEGER"),
-            ("sync_to_devices", "INTEGER"),
-            ("device_playlist_name", "TEXT"),
-            ("username", "TEXT"),
-            ("password", "TEXT"),
-            ("last_modified", "TEXT"),
-            ("etag", "TEXT"),
-            ("deleted", "INTEGER"),
-            ("channel_is_locked", "INTEGER"),
-            ("foldername", "TEXT"),
-            ("auto_foldername", "INTEGER"),
-            ("release_expected", "INTEGER"),
-            ("release_deviation", "INTEGER"),
-            ("updated_timestamp", "INTEGER"),
-            ))
+        # If a "deleted" column exists in the channel table, remove all
+        # corresponding channels and their episodes and remove it
+        self._remove_deleted_channels()
 
-        self.upgrade_table("episodes", (
-            ("id", "INTEGER PRIMARY KEY"),
-            ("channel_id", "INTEGER"),
-            ("url", "TEXT"),
-            ("title", "TEXT"),
-            ("length", "INTEGER"),
-            ("mimetype", "TEXT"),
-            ("guid", "TEXT"),
-            ("description", "TEXT"),
-            ("link", "TEXT"),
-            ("pubDate", "INTEGER"),
-            ("state", "INTEGER"),
-            ("played", "INTEGER"),
-            ("locked", "INTEGER"),
-            ("filename", "TEXT"),
-            ("auto_filename", "INTEGER"),
-            ))
+        # Create tables and possibly add newly-added columns
+        self.upgrade_table(self.TABLE_CHANNELS, self.SCHEMA_CHANNELS, self.INDEX_CHANNELS)
+        self.upgrade_table(self.TABLE_EPISODES, self.SCHEMA_EPISODES, self.INDEX_EPISODES)
 
-        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_foldername ON channels (foldername)""")
-        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_url ON channels (url)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_sync_to_devices ON channels (sync_to_devices)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_title ON channels (title)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_deleted ON channels (deleted)""")
-
-        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_guid ON episodes (guid)""")
-        cur.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_filename ON episodes (filename)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_channel_id ON episodes (channel_id)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_pubDate ON episodes (pubDate)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_state ON episodes (state)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_played ON episodes (played)""")
-        cur.execute("""CREATE INDEX IF NOT EXISTS idx_locked ON episodes (locked)""")
-
-        cur.execute("""CREATE TEMPORARY VIEW episodes_downloaded AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 1 GROUP BY channel_id""")
-        cur.execute("""CREATE TEMPORARY VIEW episodes_new AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE state = 0 AND played = 0 GROUP BY channel_id""")
-        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed AS SELECT channel_id, COUNT(*) AS count FROM episodes WHERE played = 0 AND state = %d GROUP BY channel_id""" % gpodder.STATE_DOWNLOADED)
+        cur.execute("""CREATE TEMPORARY VIEW episodes_downloaded AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d GROUP BY channel_id""" % (gpodder.STATE_DOWNLOADED,))
+        cur.execute("""CREATE TEMPORARY VIEW episodes_new        AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d AND played = 0 GROUP BY channel_id""" % (gpodder.STATE_NORMAL,))
+        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed   AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d AND played = 0 GROUP BY channel_id""" % (gpodder.STATE_DOWNLOADED,))
 
         # Make sure deleted episodes are played, to simplify querying statistics.
         try:
-            cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (gpodder.STATE_DELETED, ))
+            cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (gpodder.STATE_DELETED,))
         except OperationalError:
             pass
 
@@ -233,15 +280,15 @@ class Database(object):
         return (total, deleted, new, downloaded, unplayed)
 
     def get_total_count(self):
-        """Get statistics for all non-deleted channels
+        """Get statistics for episodes in all channels
 
         Returns a tuple (total, deleted, new, downloaded, unplayed)
         """
-        total = self.__get__('SELECT COUNT(*) FROM episodes WHERE channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))')
-        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DELETED,))
-        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_NORMAL, False,))
-        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DOWNLOADED,))
-        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id IN (SELECT id FROM channels WHERE (deleted IS NULL OR deleted=0))', (gpodder.STATE_DOWNLOADED, False,))
+        total = self.__get__('SELECT COUNT(*) FROM episodes')
+        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ?', (gpodder.STATE_DELETED,))
+        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ?', (gpodder.STATE_NORMAL, False,))
+        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ?', (gpodder.STATE_DOWNLOADED,))
+        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ?', (gpodder.STATE_DOWNLOADED, False,))
         return (total, deleted, new, downloaded, unplayed)
 
     def load_channels(self, factory=None, url=None):
@@ -254,72 +301,20 @@ class Database(object):
         self.log("load_channels()")
 
         cur = self.cursor(lock=True)
-        cur.execute("""
-            SELECT
-                id,
-                url,
-                title,
-                override_title,
-                link,
-                description,
-                image,
-                pubDate,
-                sync_to_devices,
-                device_playlist_name,
-                username,
-                password,
-                last_modified,
-                etag,
-                channel_is_locked,
-                foldername,
-                auto_foldername,
-                release_expected,
-                release_deviation,
-                updated_timestamp
-            FROM
-                channels
-            WHERE
-                (deleted IS NULL OR deleted = 0)
-            ORDER BY
-                title COLLATE UNICODE
-                """)
+        cur.execute('SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_CHANNELS)
 
         stats = self.stats()
 
         result = []
+        keys = list(desc[0] for desc in cur.description)
         for row in cur.fetchall():
-            channel = {
-                'id': row[0],
-                'url': row[1],
-                'title': row[2],
-                'override_title': row[3],
-                'link': row[4],
-                'description': row[5],
-                'image': row[6],
-                'pubDate': self.__formatdate__(row[7]),
-                'sync_to_devices': row[8],
-                'device_playlist_name': row[9],
-                'username': row[10],
-                'password': row[11],
-                'last_modified': row[12],
-                'etag': row[13],
-                'channel_is_locked': row[14],
-                'foldername': row[15],
-                'auto_foldername': row[16],
-                'release_expected': row[17],
-                'release_deviation': row[18],
-                'updated_timestamp': row[19],
-                }
+            channel = dict(zip(keys, row))
 
-            if row[0] in stats:
-                channel['count_downloaded'] = stats[row[0]][0]
-                channel['count_new'] = stats[row[0]][1]
-                channel['count_unplayed'] = stats[row[0]][2]
-
-            if url is None:
-                # Maintain url/id relation for faster updates (otherwise
-                # we'd need to issue an extra query to find the channel id).
-                self.channel_map[channel['url']] = channel['id']
+            channel_id = channel['id']
+            if channel_id in stats:
+                channel['count_downloaded'] = stats[channel_id][0]
+                channel['count_new'] = stats[channel_id][1]
+                channel['count_unplayed'] = stats[channel_id][2]
 
             if url is None or url == channel['url']:
                 if factory is None:
@@ -341,7 +336,6 @@ class Database(object):
             LEFT JOIN episodes_downloaded d ON d.channel_id = c.id
             LEFT JOIN episodes_new n ON n.channel_id = c.id
             LEFT JOIN episodes_unplayed u ON u.channel_id = c.id
-            WHERE c.deleted = 0
             """)
 
         data = {}
@@ -355,36 +349,16 @@ class Database(object):
         return data
 
     def save_channel(self, c):
-        if c.id is None:
-            c.id = self.find_channel_id(c.url)
+        self._save_object(c, self.TABLE_CHANNELS, self.SCHEMA_CHANNELS)
+
+    def delete_channel(self, channel):
+        assert c.id is not None
 
         cur = self.cursor(lock=True)
-        self.log("save_channel((%s)%s)", c.id or "new", c.url)
+        self.log("delete_channel(%d), %s", channel.id, channel.url)
 
-        if c.id is None:
-            cur.execute("INSERT INTO channels (url, title, override_title, link, description, image, pubDate, sync_to_devices, device_playlist_name, username, password, last_modified, etag, channel_is_locked, foldername, auto_foldername, release_expected, release_deviation, updated_timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.foldername, c.auto_foldername, c.release_expected, c.release_deviation, c.updated_timestamp))
-            self.channel_map[c.url] = cur.lastrowid
-        else:
-            cur.execute("UPDATE channels SET url = ?, title = ?, override_title = ?, link = ?, description = ?, image = ?, pubDate = ?, sync_to_devices = ?, device_playlist_name = ?, username = ?, password = ?, last_modified = ?, etag = ?, channel_is_locked = ?, foldername = ?, auto_foldername = ?, release_expected = ?, release_deviation = ?, updated_timestamp = ?, deleted = 0 WHERE id = ?", (c.url, c.title, c.override_title, c.link, c.description, c.image, self.__mktime__(c.pubDate), c.sync_to_devices, c.device_playlist_name, c.username, c.password, c.last_modified, c.etag, c.channel_is_locked, c.foldername, c.auto_foldername, c.release_expected, c.release_deviation, c.updated_timestamp, c.id, ))
-
-        cur.close()
-        self.lock.release()
-
-    def delete_channel(self, channel, purge=False):
-        if channel.id is None:
-            channel.id = self.find_channel_id(channel.url)
-
-        cur = self.cursor(lock=True)
-        self.log("delete_channel((%d)%s), purge=%d", channel.id, channel.url, purge)
-
-        if purge:
-            cur.execute("DELETE FROM channels WHERE id = ?", (channel.id, ))
-            cur.execute("DELETE FROM episodes WHERE channel_id = ?", (channel.id, ))
-            if channel.url in self.channel_map:
-                del self.channel_map[channel.url]
-        else:
-            cur.execute("UPDATE channels SET deleted = 1 WHERE id = ?", (channel.id, ))
-            cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state <> ?", (channel.id, gpodder.STATE_DOWNLOADED))
+        cur.execute("DELETE FROM channels WHERE id = ?", (channel.id, ))
+        cur.execute("DELETE FROM episodes WHERE channel_id = ?", (channel.id, ))
 
         cur.close()
         # Commit changes
@@ -392,7 +366,7 @@ class Database(object):
         self.lock.release()
 
     def __read_episodes(self, factory=None, where=None, params=None, commit=True):
-        sql = "SELECT url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, filename, auto_filename, id FROM episodes"
+        sql = "SELECT * FROM episodes"
 
         if where:
             sql = "%s %s" % (sql, where)
@@ -404,23 +378,9 @@ class Database(object):
         cur.execute(sql, params)
 
         result = []
+        keys = list(desc[0] for desc in cur.description)
         for row in cur.fetchall():
-            episode = {
-                'url': row[0],
-                'title': row[1],
-                'length': row[2],
-                'mimetype': row[3],
-                'guid': row[4],
-                'description': row[5],
-                'link': row[6],
-                'pubDate': row[7],
-                'state': row[8],
-                'is_played': row[9],
-                'is_locked': row[10],
-                'filename': row[11],
-                'auto_filename': row[12],
-                'id': row[13],
-                }
+            episode = dict(zip(keys, row))
             if episode['state'] is None:
                 episode['state'] = gpodder.STATE_NORMAL
             if factory is None:
@@ -433,8 +393,7 @@ class Database(object):
         return result
 
     def load_episodes(self, channel, factory=None, limit=1000, state=None):
-        if channel.id is None:
-            channel.id = self.find_channel_id(channel.url)
+        assert channel.id is not None
 
         self.log("load_episodes((%d)%s)", channel.id, channel.url)
 
@@ -457,71 +416,47 @@ class Database(object):
             return None
 
     def save_episode(self, e):
+        assert e.channel_id
+
         if not e.guid:
-            log('Refusing to save an episode without guid: %s', e)
+            self.log('Refusing to save an episode without guid: %s', e)
             return
 
+        self._save_object(e, self.TABLE_EPISODES, self.SCHEMA_EPISODES)
+
+    def _save_object(self, o, table, schema):
         self.lock.acquire()
-
-        self.log("save_episode((%s)%s)", e.id, e.guid)
-
         try:
             cur = self.cursor()
-            channel_id = self.find_channel_id(e.channel.url)
+            columns = [name for name, typ in schema if name != 'id']
+            values = [getattr(o, name) for name in columns]
 
-            if e.id is None:
-                e.id = self.__get__("SELECT id FROM episodes WHERE guid = ?", (e.guid, ))
-                self.log("save_episode() -- looking up id")
-
-            if e.id is None:
-                cur.execute("INSERT INTO episodes (channel_id, url, title, length, mimetype, guid, description, link, pubDate, state, played, locked, filename, auto_filename) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (channel_id, e.url, e.title, e.length, e.mimetype, e.guid, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.filename, e.auto_filename, ))
-                e.id = cur.lastrowid
+            if o.id is None:
+                qmarks = ', '.join('?'*len(columns))
+                sql = 'INSERT INTO %s (%s) VALUES (%s)' % (table, ', '.join(columns), qmarks)
+                cur.execute(sql, values)
+                o.id = cur.lastrowid
             else:
-                cur.execute("UPDATE episodes SET title = ?, length = ?, mimetype = ?, description = ?, link = ?, pubDate = ?, state = ?, played = ?, locked = ?, filename = ?, auto_filename = ? WHERE id = ?", (e.title, e.length, e.mimetype, e.description, e.link, self.__mktime__(e.pubDate), e.state, e.is_played, e.is_locked, e.filename, e.auto_filename, e.id, ))
+                qmarks = ', '.join('%s = ?' % name for name in columns)
+                values.append(o.id)
+                sql = 'UPDATE %s SET %s WHERE id = ?' % (table, qmarks)
+                cur.execute(sql, values)
         except Exception, e:
-            log('save_episode() failed: %s', e, sender=self)
+            log('Cannot save %s to %s: %s', o, table, e, sender=self, traceback=True)
 
         cur.close()
         self.lock.release()
 
-    def mark_episode(self, url, state=None, is_played=None, is_locked=None, toggle=False):
+    def update_episode_state(self, episode):
+        assert episode.id is not None
+
         cur = self.cursor(lock=True)
-        cur.execute("SELECT state, played, locked FROM episodes WHERE url = ?", (url, ))
-
-        self.log("mark_episode(%s, state=%s, played=%s, locked=%s)", url, state, is_played, is_locked)
-
-        try:
-            ( cur_state, cur_played, cur_locked ) = cur.fetchone()
-        except:
-            # This only happens when we try to mark an unknown episode,
-            # which is typical for database upgrade, so we just ignore it.
-            cur.close()
-            self.lock.release()
-            return
-
-        if toggle:
-            if is_played:
-                cur_played = not cur_played
-            if is_locked:
-                cur_locked = not cur_locked
-        else:
-            if state is not None:
-                cur_state = state
-            if is_played is not None:
-                cur_played = is_played
-            if is_locked is not None:
-                cur_locked = is_locked
-
+        cur.execute('UPDATE episodes SET state = ?, played = ?, locked = ? WHERE id = ?', (episode.state, episode.is_played, episode.is_locked, episode.id))
         cur.close()
-
-        cur = self.cursor()
-        cur.execute("UPDATE episodes SET state = ?, played = ?, locked = ? WHERE url = ?", (cur_state, cur_played, cur_locked, url, ))
-        cur.close()
-
         self.lock.release()
 
     def update_channel_lock(self, channel):
-        log("update_channel_lock(%s, locked=%s)", channel.url, channel.channel_is_locked, sender=self)
+        self.log("update_channel_lock(%s, locked=%s)", channel.url, channel.channel_is_locked)
 
         cur = self.cursor(lock=True)
         cur.execute("UPDATE channels SET channel_is_locked = ? WHERE url = ?", (channel.channel_is_locked, channel.url, ))
@@ -551,24 +486,6 @@ class Database(object):
         else:
             return row[0]
 
-    def __mktime__(self, date):
-        if isinstance(date, float) or isinstance(date, int):
-            return date
-        if date is None or '' == date:
-            return None
-        try:
-            return mktime_tz(parsedate_tz(date))
-        except TypeError:
-            log('Could not convert "%s" to a unix timestamp.', date)
-            return None
-
-    def __formatdate__(self, date):
-        try:
-            return formatdate(date, localtime=1)
-        except TypeError:
-            log('Could not convert "%s" to a string date.', date)
-            return None
-
     def channel_foldername_exists(self, foldername):
         """
         Returns True if a foldername for a channel exists.
@@ -590,18 +507,6 @@ class Database(object):
         False otherwise.
         """
         return self.__get__("SELECT id FROM episodes WHERE filename = ?", (filename,)) is not None
-
-    def find_channel_id(self, url):
-        """
-        Looks up the channel id in the map (which lists all undeleted
-        channels), then tries to look it up in the database, including
-        deleted channels.
-        """
-        if url in self.channel_map.keys():
-            return self.channel_map[url]
-        else:
-            self.log("find_channel_id(%s)", url)
-            return self.__get__("SELECT id FROM channels WHERE url = ?", (url, ))
 
     def get_last_pubdate(self, channel):
         """
@@ -638,7 +543,7 @@ class Database(object):
         cur.close()
         self.lock.release()
 
-    def upgrade_table(self, table_name, fields):
+    def upgrade_table(self, table_name, fields, index_list):
         """
         Creates a table or adds fields to it.
         """
@@ -647,17 +552,23 @@ class Database(object):
         cur.execute("PRAGMA table_info(%s)" % table_name)
         available = cur.fetchall()
 
-        if not len(available):
+        if not available:
             log('Creating table %s', table_name, sender=self)
-            sql = "CREATE TABLE %s (%s)" % (table_name, ", ".join([a+" "+b for (a,b) in fields]))
+            columns = ', '.join(' '.join(f) for f in fields)
+            sql = "CREATE TABLE %s (%s)" % (table_name, columns)
             cur.execute(sql)
         else:
-            available = [row[1] for row in available]
+            # Table info columns, as returned by SQLite
+            ID, NAME, TYPE, NULL, DEFAULT = range(5)
+            existing = set(column[NAME] for column in available)
 
             for field_name, field_type in fields:
-                if field_name not in available:
-                    log('Adding column %s to %s (%s)', table_name, field_name, field_type, sender=self)
+                if field_name not in existing:
+                    log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
                     cur.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type))
+
+        for column, typ in index_list:
+            cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
 
         self.lock.release()
 
@@ -667,7 +578,7 @@ class Database(object):
         Currently used when a channel URL is changed.
         """
         cur = self.cursor(lock=True)
-        log('Deleting old episodes from channel #%d' % channel_id)
+        log('Deleting old episodes from channel #%d' % channel_id, sender=self)
         cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, gpodder.STATE_DOWNLOADED, ))
         self.lock.release()
 

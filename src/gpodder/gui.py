@@ -3215,7 +3215,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         select_url = self.channels[position+1].url
 
                 # Remove the channel and clean the database entries
-                channel.delete(purge=True)
+                channel.delete()
                 self.channels.remove(channel)
 
             # Clean up downloads and download directories
