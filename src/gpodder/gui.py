@@ -2827,7 +2827,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     selected.append(episode.is_played or \
                                     not episode.file_exists())
 
-        gPodderEpisodeSelector(self.gPodder, title = _('Delete old episodes'), instructions = instructions, \
+        gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
