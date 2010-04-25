@@ -60,8 +60,13 @@ class gPodderPreferences(BuilderWidget):
     )
 
     def new(self):
-        self.main_window.connect('destroy', lambda w, self: self.callback_finished(), self)
+        # Store the current configuration options in case we cancel later
+        self._config_backup = self._config.get_backup()
+        self._do_restore_config = True
+        self.main_window.connect('destroy', self.on_destroy)
+
         self.save_button = self.main_window.add_button(gtk.STOCK_SAVE, 1)
+        self.save_button.connect('clicked', self.on_save_button_clicked)
 
         self.touch_selector_orientation = hildon.TouchSelector(text=True)
         for caption in FremantleRotation.MODE_CAPTIONS:
@@ -145,7 +150,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.check_view_all_episodes = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
         self.check_view_all_episodes.set_label(_('Show "All episodes" view'))
-        self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_view_all_episodes)
+        self.check_view_all_episodes.set_active(self._config.podcast_list_view_all)
         self.pannable_vbox.add(self.check_view_all_episodes)
         self.pannable_vbox.reorder_child(self.check_view_all_episodes, 2)
 
@@ -191,4 +196,16 @@ class gPodderPreferences(BuilderWidget):
     def on_button_mygpo_clicked(self, button):
         self.mygpo_login()
         self.update_button_mygpo()
+
+    def on_destroy(self, window):
+        if self._do_restore_config:
+            self._config.restore_backup(self._config_backup)
+        else:
+            self._config.podcast_list_view_all = self.check_view_all_episodes.get_active()
+
+        self.callback_finished()
+
+    def on_save_button_clicked(self, button):
+        self._do_restore_config = False
+        self.main_window.destroy()
 

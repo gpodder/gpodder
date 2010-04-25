@@ -1277,13 +1277,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'podcast_list_view_all':
             # Force a update of the podcast list model
             self.channel_list_changed = True
-            if gpodder.ui.fremantle and self.preferences_dialog is not None:
-                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, True)
+            if gpodder.ui.fremantle:
+                hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
                 while gtk.events_pending():
                     gtk.main_iteration(False)
             self.update_podcast_list_model()
-            if gpodder.ui.fremantle and self.preferences_dialog is not None:
-                hildon.hildon_gtk_window_set_progress_indicator(self.preferences_dialog.main_window, False)
+            if gpodder.ui.fremantle:
+                hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without

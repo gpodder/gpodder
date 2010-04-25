@@ -351,6 +351,25 @@ class Config(dict):
         if self.__save_thread is not None:
             self.save()
 
+    def get_backup(self):
+        """Create a backup of the current settings
+
+        Returns a dictionary with the current settings which can
+        be used with "restore_backup" (see below) to restore the
+        state of the configuration object at a future point in time.
+        """
+        return dict(self)
+
+    def restore_backup(self, backup):
+        """Restore a previously-created backup
+
+        Restore a previously-created configuration backup (created
+        with "get_backup" above) and notify any observer about the
+        changed settings.
+        """
+        for key, value in backup.iteritems():
+            setattr(self, key, value)
+
     def save(self, filename=None):
         if filename is None:
             filename = self.__filename
