@@ -30,6 +30,7 @@ import pango
 import pangocairo
 import cairo
 import StringIO
+import math
 
 
 class TextExtents(object):
@@ -70,6 +71,21 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_
             ctx.line_to(x+int(left_side_width)+offset, y)
 
 
+def rounded_rectangle(ctx, x, y, width, height, radius=4.):
+    """Simple rounded rectangle algorithmn
+
+    http://www.cairographics.org/samples/rounded_rectangle/
+    """
+    degrees = math.pi / 180.
+    ctx.new_sub_path()
+    if width > radius:
+        ctx.arc(x + width - radius, y + radius, radius, -90. * degrees, 0)
+        ctx.arc(x + width - radius, y + height - radius, radius, 0, 90. * degrees)
+        ctx.arc(x + radius, y + height - radius, radius, 90. * degrees, 180. * degrees)
+        ctx.arc(x + radius, y + radius, radius, 180. * degrees, 270. * degrees)
+    ctx.close_path()
+
+
 def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
     style = widget.rc_get_style()
     text_color = style.text[gtk.STATE_PRELIGHT]
@@ -96,9 +112,9 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
         bar_height = 10
         ctx.set_source_rgba(*text_color)
         ctx.set_line_width(1.)
-        ctx.rectangle(w_width/2-width/2-.5, w_height/2+height-.5, width+1, bar_height+1)
+        rounded_rectangle(ctx, w_width/2-width/2-.5, w_height/2+height-.5, width+1, bar_height+1)
         ctx.stroke()
-        ctx.rectangle(w_width/2-width/2, w_height/2+height, int(width*add_progress), bar_height)
+        rounded_rectangle(ctx, w_width/2-width/2, w_height/2+height, int(width*add_progress)+.5, bar_height)
         ctx.fill()
 
 
@@ -234,7 +250,6 @@ def cairo_surface_to_pixbuf(s):
 
     pixbuf = pbl.get_pixbuf()
     return pixbuf
-
 
 def progressbar_pixbuf(width, height, percentage):
     COLOR_BG = (.4, .4, .4, .4)
