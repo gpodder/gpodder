@@ -133,7 +133,7 @@ gPodderSettings = {
     'on_quit_ask': (bool, True,
       ("Ask the user to confirm quitting the application.")),
     'auto_download': (str, 'never',
-      ("Auto download episodes (never, minimized, always)")),
+      ("Auto download episodes (never, minimized, always) - Fremantle also supports 'quiet'")),
     'do_not_show_new_episodes_dialog': (bool, False,
       ("Do not show the new episodes dialog after updating feed cache when "
         "gPodder is not minimized")),

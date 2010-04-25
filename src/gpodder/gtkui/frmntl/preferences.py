@@ -34,14 +34,15 @@ import hildon
 
 class gPodderPreferences(BuilderWidget):
     UPDATE_INTERVALS = (
-            (0, _('manually')),
-            (20, N_('every %d minute', 'every %d minutes', 20) % 20),
-            (60, _('hourly')),
-            (60*6, N_('every %d hour', 'every %d hours', 6) % 6),
-            (60*24, _('daily')),
+            (0, _('Manually')),
+            (20, N_('Every %d minute', 'Every %d minutes', 20) % 20),
+            (60, _('Hourly')),
+            (60*6, N_('Every %d hour', 'Every %d hours', 6) % 6),
+            (60*24, _('Daily')),
     )
 
     DOWNLOAD_METHODS = (
+            ('quiet', _('Do nothing')),
             ('never', _('Show episode list')),
             ('queue', _('Add to download list')),
 #            ('wifi', _('Download when on Wi-Fi')),
@@ -60,10 +61,7 @@ class gPodderPreferences(BuilderWidget):
 
     def new(self):
         self.main_window.connect('destroy', lambda w, self: self.callback_finished(), self)
-        self.wiki_button = self.main_window.add_button(_('User manual'), 1)
-        self.wiki_button.connect('clicked', self.on_wiki_activate)
-        self.about_button = self.main_window.add_button(_('About'), 2)
-        self.about_button.connect('clicked', self.on_itemAbout_activate)
+        self.save_button = self.main_window.add_button(gtk.STOCK_SAVE, 1)
 
         self.touch_selector_orientation = hildon.TouchSelector(text=True)
         for caption in FremantleRotation.MODE_CAPTIONS:
@@ -86,7 +84,7 @@ class gPodderPreferences(BuilderWidget):
             self.touch_selector_interval.set_active(0, minute_index_mapping[interval])
         else:
             self._custom_interval = self._config.auto_update_frequency
-            self.touch_selector_interval.append_text(_('every %d minutes') % interval)
+            self.touch_selector_interval.append_text(N_('Every %d minute', 'Every %d minutes', interval) % interval)
             self.touch_selector_interval.set_active(0, len(self.UPDATE_INTERVALS))
         self.picker_interval.set_selector(self.touch_selector_interval)
 
@@ -145,12 +143,6 @@ class gPodderPreferences(BuilderWidget):
             child = button.get_child()
             child.set_padding(0, 0, 12, 0)
 
-        self.check_feed_update_skipping = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
-        self.check_feed_update_skipping.set_label(_('Enable feed update heuristics'))
-        self._config.connect_gtk_togglebutton('feed_update_skipping', self.check_feed_update_skipping)
-        self.pannable_vbox.add(self.check_feed_update_skipping)
-        self.pannable_vbox.reorder_child(self.check_feed_update_skipping, 6)
-
         self.check_view_all_episodes = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
         self.check_view_all_episodes.set_label(_('Show "All episodes" view'))
         self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_view_all_episodes)
@@ -158,14 +150,6 @@ class gPodderPreferences(BuilderWidget):
         self.pannable_vbox.reorder_child(self.check_view_all_episodes, 2)
 
         self.gPodderPreferences.show_all()
-
-    def on_window_orientation_changed(self, orientation):
-        if orientation == Orientation.PORTRAIT:
-            self.wiki_button.hide()
-            self.about_button.hide()
-        else:
-            self.wiki_button.show()
-            self.about_button.show()
 
     def on_picker_orientation_value_changed(self, *args):
         self._config.rotation_mode = self.touch_selector_orientation.get_active(0)

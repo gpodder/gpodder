@@ -194,8 +194,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.item_downloads, \
                     self.itemRemoveOldEpisodes, \
                     self.item_unsubscribe, \
-                    self.item_support, \
-                    self.item_report_bug):
+                    self.itemAbout):
                 button = hildon.Button(gtk.HILDON_SIZE_AUTO,\
                         hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
                 action.connect_proxy(button)
@@ -2438,7 +2437,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return
 
             if episodes:
-                if self.config.auto_download == 'always':
+                if self.config.auto_download == 'quiet' and not self.config.auto_update_feeds:
+                    # New episodes found, but we should do nothing
+                    self.show_message(_('New episodes are available.'))
+                elif self.config.auto_download == 'always':
                     count = len(episodes)
                     title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
                     self.show_message(title)
@@ -3101,8 +3103,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
                 mygpo_login=self.on_mygpo_settings_activate, \
-                on_itemAbout_activate=self.on_itemAbout_activate, \
-                on_wiki_activate=self.on_wiki_activate, \
                 parent_window=self.main_window)
 
         # Initial message to relayout window (in case it's opened in portrait mode
@@ -3327,15 +3327,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://gpodder.org/donate')
 
     def on_itemAbout_activate(self, widget, *args):
+        if gpodder.ui.fremantle:
+            from gpodder.gtkui.frmntl.about import HeAboutDialog
+            HeAboutDialog.present(self.main_window,
+                                 'gPodder',
+                                 'gpodder',
+                                 gpodder.__version__,
+                                 _('A podcast client with focus on usability'),
+                                 gpodder.__copyright__,
+                                 gpodder.__url__,
+                                 'http://bugs.maemo.org/enter_bug.cgi?product=gPodder',
+                                 'http://gpodder.org/donate')
+            return
+
         dlg = gtk.AboutDialog()
         dlg.set_transient_for(self.main_window)
         dlg.set_name('gPodder')
         dlg.set_version(gpodder.__version__)
         dlg.set_copyright(gpodder.__copyright__)
         dlg.set_comments(_('A podcast client with focus on usability'))
-        if not gpodder.ui.fremantle:
-            # Disable the URL label in Fremantle because of style issues
-            dlg.set_website(gpodder.__url__)
+        dlg.set_website(gpodder.__url__)
         dlg.set_translator_credits( _('translator-credits'))
         dlg.connect( 'response', lambda dlg, response: dlg.destroy())
 
@@ -3357,13 +3368,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 dlg.set_logo(gtk.gdk.pixbuf_new_from_file(gpodder.icon_file))
             except:
                 dlg.set_logo_icon_name('gpodder')
-        elif gpodder.ui.fremantle:
-            for parent in dlg.vbox.get_children():
-                for child in parent.get_children():
-                    if isinstance(child, gtk.Label):
-                        child.set_selectable(False)
-                        child.set_alignment(0.0, 0.5)
-        
+
         dlg.run()
 
     def on_wNotebook_switch_page(self, widget, *args):
@@ -3720,6 +3725,7 @@ def main(options=None):
             BuilderWidget.use_fingerscroll = True
     elif gpodder.ui.fremantle:
         config.on_quit_ask = False
+        config.feed_update_skipping = False
 
     gp = gPodder(bus_name, config)
 
