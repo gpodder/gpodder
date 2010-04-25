@@ -352,7 +352,7 @@ class Database(object):
         self._save_object(c, self.TABLE_CHANNELS, self.SCHEMA_CHANNELS)
 
     def delete_channel(self, channel):
-        assert c.id is not None
+        assert channel.id is not None
 
         cur = self.cursor(lock=True)
         self.log("delete_channel(%d), %s", channel.id, channel.url)
