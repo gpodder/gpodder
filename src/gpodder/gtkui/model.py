@@ -470,12 +470,11 @@ class PodcastChannelProxy(object):
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        def all_episodes():
-            for channel in self.channels:
-                for episode in channel.get_all_episodes():
-                    episode._all_episodes_view = True
-                    yield episode
-        return model.PodcastEpisode.sort_by_pubdate(all_episodes(), reverse=True)
+        channel_lookup_map = dict((c.id, c) for c in self.channels)
+        all_episodes = self._db.load_all_episodes(channel_lookup_map)
+        for episode in all_episodes:
+            episode._all_episodes_view = True
+            yield episode
 
     def request_save_dir_size(self):
         if not self._save_dir_size_set:

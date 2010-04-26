@@ -358,6 +358,19 @@ class Database(object):
         self.db.commit()
         self.lock.release()
 
+    def load_all_episodes(self, channel_mapping, limit=10000):
+        self.log('Loading all episodes from the database')
+        sql = 'SELECT * FROM %s ORDER BY pubDate DESC LIMIT ?' % (self.TABLE_EPISODES,)
+        args = (limit,)
+        cur = self.cursor(lock=True)
+        cur.execute(sql, args)
+        keys = [desc[0] for desc in cur.description]
+        id_index = keys.index('channel_id')
+        result = map(lambda row: channel_mapping[row[id_index]].episode_factory(dict(zip(keys, row))), cur)
+        cur.close()
+        self.lock.release()
+        return result
+
     def load_episodes(self, channel, factory=lambda x: x, limit=1000, state=None):
         assert channel.id is not None
 
