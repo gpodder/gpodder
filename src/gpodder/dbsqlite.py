@@ -462,10 +462,11 @@ class Database(object):
         self.lock.release()
 
     def update_channel_lock(self, channel):
+        assert channel.id is not None
         self.log("update_channel_lock(%s, locked=%s)", channel.url, channel.channel_is_locked)
 
         cur = self.cursor(lock=True)
-        cur.execute("UPDATE channels SET channel_is_locked = ? WHERE url = ?", (channel.channel_is_locked, channel.url, ))
+        cur.execute("UPDATE channels SET channel_is_locked = ? WHERE id = ?", (channel.channel_is_locked, channel.id, ))
         cur.close()
 
         self.lock.release()
@@ -499,14 +500,6 @@ class Database(object):
         """
         return self.__get__("SELECT id FROM channels WHERE foldername = ?", (foldername,)) is not None
 
-    def remove_foldername_if_deleted_channel(self, foldername):
-        cur = self.cursor(lock=True)
-        self.log('Setting foldername=NULL for folder "%s"', foldername)
-        cur.execute('UPDATE channels SET foldername=NULL ' + \
-                    'WHERE foldername=? AND deleted=1', (foldername,))
-        cur.close()
-        self.lock.release()
-
     def episode_filename_exists(self, filename):
         """
         Returns True if a filename for an episode exists.
@@ -519,32 +512,23 @@ class Database(object):
         Look up the highest "pubDate" value for
         all episodes of the given podcast.
         """
-        return self.__get__("""
-                SELECT MAX(pubDate) FROM episodes
-                WHERE channel_id = ?
-                """, (channel.id, ))
+        return self.__get__('SELECT MAX(pubDate) FROM episodes WHERE channel_id = ?', (channel.id,))
 
     def force_last_new(self, channel):
-        old = self.__get__("""SELECT COUNT(*) FROM episodes WHERE channel_id = ?
-            AND state IN (?, ?)""", (channel.id, gpodder.STATE_DOWNLOADED,
-            gpodder.STATE_DELETED))
-
+        """
+        Only set the most-recent episode as "new"; this
+        should be called when a new podcast is added.
+        """
         cur = self.cursor(lock=True)
 
-        self.log("force_last_new((%d)%s)", channel.id, channel.url)
-
-        if old > 0:
-            cur.execute("""
-                UPDATE episodes SET played = 1 WHERE channel_id = ?
-                AND played = 0 AND pubDate < (SELECT MAX(pubDate)
-                FROM episodes WHERE channel_id = ? AND state IN (?, ?))""",
-                (channel.id, channel.id, gpodder.STATE_DOWNLOADED,
-                gpodder.STATE_DELETED, ))
-        else:
-            cur.execute("""
-                UPDATE episodes SET played = 1 WHERE channel_id = ?
-                AND pubDate <> (SELECT MAX(pubDate) FROM episodes
-                WHERE channel_id = ?)""", (channel.id, channel.id, ))
+        cur.execute("""
+        UPDATE episodes
+        SET played = ?
+        WHERE channel_id = ? AND
+              pubDate < (SELECT MAX(pubDate)
+                         FROM episodes
+                         WHERE channel_id = ?)
+        """, (True, channel.id, channel.id))
 
         cur.close()
         self.lock.release()
@@ -576,16 +560,6 @@ class Database(object):
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
 
-        self.lock.release()
-
-    def delete_empty_episodes(self, channel_id):
-        """
-        Deletes episodes which haven't been downloaded.
-        Currently used when a channel URL is changed.
-        """
-        cur = self.cursor(lock=True)
-        log('Deleting old episodes from channel #%d' % channel_id, sender=self)
-        cur.execute("DELETE FROM episodes WHERE channel_id = ? AND state != ?", (channel_id, gpodder.STATE_DOWNLOADED, ))
         self.lock.release()
 
     def delete_episode_by_guid(self, guid, channel_id):

@@ -538,9 +538,6 @@ class PodcastChannel(PodcastModelObject):
         next_try_id = 2
 
         while True:
-            if not os.path.exists(os.path.join(self.download_dir, current_try)):
-                self.db.remove_foldername_if_deleted_channel(current_try)
-
             if self.db.channel_foldername_exists(current_try):
                 current_try = '%s (%d)' % (foldername, next_try_id)
                 next_try_id += 1
