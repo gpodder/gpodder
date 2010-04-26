@@ -266,11 +266,25 @@ class Database(object):
 
         Returns a tuple (total, deleted, new, downloaded, unplayed)
         """
-        total = self.__get__('SELECT COUNT(*) FROM episodes WHERE channel_id = ?', (id,))
-        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id = ?', (gpodder.STATE_DELETED, id))
-        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id = ?', (gpodder.STATE_NORMAL, False, id))
-        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND channel_id = ?', (gpodder.STATE_DOWNLOADED, id))
-        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ? AND channel_id = ?', (gpodder.STATE_DOWNLOADED, False, id))
+        total, deleted, new, downloaded, unplayed = 0, 0, 0, 0, 0
+
+        cur = self.cursor(lock=True)
+        cur.execute('SELECT COUNT(*), state, played FROM episodes WHERE channel_id = ? GROUP BY state, played', (id,))
+        for count, state, played in cur:
+            total += count
+            if state == gpodder.STATE_DELETED:
+                deleted += count
+            elif state == gpodder.STATE_NORMAL and not played:
+                new += count
+            elif state == gpodder.STATE_DOWNLOADED and not played:
+                downloaded += count
+                unplayed += count
+            elif state == gpodder.STATE_DOWNLOADED:
+                downloaded += count
+
+        cur.close()
+        self.lock.release()
+
         return (total, deleted, new, downloaded, unplayed)
 
     def get_total_count(self):
@@ -278,11 +292,25 @@ class Database(object):
 
         Returns a tuple (total, deleted, new, downloaded, unplayed)
         """
-        total = self.__get__('SELECT COUNT(*) FROM episodes')
-        deleted = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ?', (gpodder.STATE_DELETED,))
-        new = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ?', (gpodder.STATE_NORMAL, False,))
-        downloaded = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ?', (gpodder.STATE_DOWNLOADED,))
-        unplayed = self.__get__('SELECT COUNT(*) FROM episodes WHERE state = ? AND played = ?', (gpodder.STATE_DOWNLOADED, False,))
+        total, deleted, new, downloaded, unplayed = 0, 0, 0, 0, 0
+
+        cur = self.cursor(lock=True)
+        cur.execute('SELECT COUNT(*), state, played FROM episodes GROUP BY state, played')
+        for count, state, played in cur:
+            total += count
+            if state == gpodder.STATE_DELETED:
+                deleted += count
+            elif state == gpodder.STATE_NORMAL and not played:
+                new += count
+            elif state == gpodder.STATE_DOWNLOADED and not played:
+                downloaded += count
+                unplayed += count
+            elif state == gpodder.STATE_DOWNLOADED:
+                downloaded += count
+
+        cur.close()
+        self.lock.release()
+
         return (total, deleted, new, downloaded, unplayed)
 
     def load_channels(self, factory=None, url=None):
