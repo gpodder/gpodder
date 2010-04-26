@@ -492,7 +492,7 @@ class PodcastChannel(PodcastModelObject):
         reports all episodes as not downloading.
         """
         return [episode for episode in self.db.load_episodes(self, \
-                factory=self.episode_factory) if \
+                factory=self.episode_factory, state=gpodder.STATE_NORMAL) if \
                 episode.check_is_new(downloading=downloading)]
 
     def get_playlist_filename(self):

@@ -358,47 +358,25 @@ class Database(object):
         self.db.commit()
         self.lock.release()
 
-    def __read_episodes(self, factory=None, where=None, params=None, commit=True):
-        sql = "SELECT * FROM episodes"
+    def load_episodes(self, channel, factory=lambda x: x, limit=1000, state=None):
+        assert channel.id is not None
 
-        if where:
-            sql = "%s %s" % (sql, where)
+        self.log('Loading episodes for channel %d', channel.id)
 
-        if params is None:
-            params = ()
+        if state is None:
+            sql = 'SELECT * FROM %s WHERE channel_id = ? ORDER BY pubDate DESC LIMIT ?' % (self.TABLE_EPISODES,)
+            args = (channel.id, limit)
+        else:
+            sql = 'SELECT * FROM %s WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?' % (self.TABLE_EPISODES,)
+            args = (channel.id, state, limit)
 
         cur = self.cursor(lock=True)
-        cur.execute(sql, params)
-
-        result = []
-        keys = list(desc[0] for desc in cur.description)
-        for row in cur:
-            episode = dict(zip(keys, row))
-            if episode['state'] is None:
-                episode['state'] = gpodder.STATE_NORMAL
-            if factory is None:
-                result.append(episode)
-            else:
-                result.append(factory(episode, self))
-
+        cur.execute(sql, args)
+        keys = [desc[0] for desc in cur.description]
+        result = map(lambda row: factory(dict(zip(keys, row)), self), cur)
         cur.close()
         self.lock.release()
         return result
-
-    def load_episodes(self, channel, factory=None, limit=1000, state=None):
-        assert channel.id is not None
-
-        self.log("load_episodes((%d)%s)", channel.id, channel.url)
-
-        if state is None:
-            return self.__read_episodes(factory = factory, where = """
-                WHERE channel_id = ? AND state = ? OR id IN
-                (SELECT id FROM episodes WHERE channel_id = ?
-                ORDER BY pubDate DESC LIMIT ?)
-                ORDER BY pubDate DESC
-                """, params = (channel.id, gpodder.STATE_DOWNLOADED, channel.id, limit, ))
-        else:
-            return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, state, limit, ))
 
     def load_episode(self, id):
         """Load episode as dictionary by its id
