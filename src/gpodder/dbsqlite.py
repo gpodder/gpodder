@@ -400,12 +400,25 @@ class Database(object):
         else:
             return self.__read_episodes(factory = factory, where = " WHERE channel_id = ? AND state = ? ORDER BY pubDate DESC LIMIT ?", params = (channel.id, state, limit, ))
 
-    def load_episode(self, url, factory=None):
-        self.log("load_episode(%s)", url)
-        list = self.__read_episodes(factory=factory, where=' WHERE url=? LIMIT ?', params=(url, 1))
-        if list:
-            return list[0]
-        else:
+    def load_episode(self, id):
+        """Load episode as dictionary by its id
+
+        This will return the data for an episode as
+        dictionary or None if it does not exist.
+        """
+        assert id is not None
+
+        cur = self.cursor(lock=True)
+        cur.execute('SELECT * from %s WHERE id = ? LIMIT 1' % (self.TABLE_EPISODES,), (id,))
+        try:
+            d = dict(zip((desc[0] for desc in cur.description), cur.fetchone()))
+            cur.close()
+            self.log('Loaded episode %d from DB', id)
+            self.lock.release()
+            return d
+        except:
+            cur.close()
+            self.lock.release()
             return None
 
     def save_episode(self, e):

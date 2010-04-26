@@ -675,10 +675,8 @@ class PodcastEpisode(PodcastModelObject):
         been updated (e.g. the filename has been set after a
         download where it was not set before the download)
         """
-        d = self.db.load_episode(self.url)
-        if d is not None:
-            self.update_from_dict(d)
-
+        d = self.db.load_episode(self.id)
+        self.update_from_dict(d or {})
         return self
 
     def has_website_link(self):
