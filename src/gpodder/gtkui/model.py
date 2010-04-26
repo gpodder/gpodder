@@ -320,6 +320,9 @@ class EpisodeListModel(gtk.ListStore):
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
 
+                if episode.total_time > 0:
+                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time)))
+
                 tooltip = ', '.join(tooltip)
 
         if status_icon is not None:

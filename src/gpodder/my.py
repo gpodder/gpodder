@@ -30,6 +30,7 @@ _ = gpodder.gettext
 import atexit
 import datetime
 import os
+import sys
 import threading
 import time
 
@@ -41,6 +42,19 @@ from gpodder import minidb
 # Append gPodder's user agent to mygpoclient's user agent
 import mygpoclient
 mygpoclient.user_agent += ' ' + gpodder.user_agent
+
+MYGPOCLIENT_REQUIRED = '1.4'
+
+if not hasattr(mygpoclient, 'require_version') or \
+        not mygpoclient.require_version(MYGPOCLIENT_REQUIRED):
+    print >>sys.stderr, """
+    Please upgrade your mygpoclient library.
+    See http://thpinfo.com/2010/mygpoclient/
+
+    Required version:  %s
+    Installed version: %s
+    """ % (MYGPOCLIENT_REQUIRED, mygpoclient.__version__)
+    sys.exit(1)
 
 from mygpoclient import api
 
@@ -112,13 +126,15 @@ class EpisodeAction(object):
                  'started': int, 'position': int, 'total': int}
 
     def __init__(self, podcast_url, episode_url, device_id, \
-            action, timestamp, position):
+            action, timestamp, started, position, total):
         self.podcast_url = podcast_url
         self.episode_url = episode_url
         self.device_id = device_id
         self.action = action
         self.timestamp = timestamp
+        self.started = started
         self.position = position
+        self.total = total
 
 # New entity name for "received" actions
 class ReceivedEpisodeAction(EpisodeAction): pass
@@ -235,10 +251,15 @@ class MygPoClient(object):
         else:
             raise Exception('Webservice access not enabled')
 
+    def _convert_played_episode(self, episode, start, end, total):
+        return EpisodeAction(episode.channel.url, \
+                episode.url, self.device_id, 'play', \
+                int(time.time()), start, end, total)
+
     def _convert_episode(self, episode, action):
         return EpisodeAction(episode.channel.url, \
                 episode.url, self.device_id, action, \
-                int(time.time()), None)
+                int(time.time()), None, None, None)
 
     def on_delete(self, episodes):
         log('Storing %d episode delete actions', len(episodes), sender=self)
@@ -247,6 +268,10 @@ class MygPoClient(object):
     def on_download(self, episodes):
         log('Storing %d episode download actions', len(episodes), sender=self)
         self._store.save(self._convert_episode(e, 'download') for e in episodes)
+
+    def on_playback_full(self, episode, start, end, total):
+        log('Storing full episode playback action', sender=self)
+        self._store.save(self._convert_played_episode(episode, start, end, total))
 
     def on_playback(self, episodes):
         log('Storing %d episode playback actions', len(episodes), sender=self)
@@ -372,14 +397,15 @@ class MygPoClient(object):
             return api.EpisodeAction(action.podcast_url, \
                     action.episode_url, action.action, \
                     action.device_id, since, \
-                    action.position)
+                    action.started, action.position, action.total)
 
         def convert_from_api(action):
             dt = mygpoutil.iso8601_to_datetime(action.timestamp)
             since = int(dt.strftime('%s'))
             return ReceivedEpisodeAction(action.podcast, \
                     action.episode, action.device, \
-                    action.action, since, action.position)
+                    action.action, since, \
+                    action.started, action.position, action.total)
 
         try:
             save_since = True

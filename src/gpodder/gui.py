@@ -71,6 +71,7 @@ from gpodder import opml
 from gpodder import download
 from gpodder import my
 from gpodder import youtube
+from gpodder import player
 from gpodder.liblogger import log
 
 _ = gpodder.gettext
@@ -229,6 +230,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not gpodder.ui.fremantle:
             self.config.connect_gtk_paned('paned_position', self.channelPaned)
         self.main_window.show()
+
+        self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -535,6 +538,40 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
+
+    def on_played(self, start, end, total, file_uri):
+        """Handle the "played" signal from a media player"""
+        log('Received play action: %s (%d, %d, %d)', file_uri, start, end, total, sender=self)
+        filename = file_uri[len('file://'):]
+        # FIXME: Optimize this by querying the database more directly
+        for channel in self.channels:
+            for episode in channel.get_all_episodes():
+                fn = episode.local_filename(create=False, check_only=True)
+                if fn == filename:
+                    file_type = episode.file_type()
+                    # Automatically enable D-Bus played status mode
+                    if file_type == 'audio':
+                        self.config.audio_played_dbus = True
+                    elif file_type == 'video':
+                        self.config.video_played_dbus = True
+
+                    now = time.time()
+                    if total > 0:
+                        episode.total_time = total
+                    if episode.current_position_updated is None or \
+                            now > episode.current_position_updated:
+                        episode.current_position = end
+                        episode.current_position_updated = now
+                    episode.mark(is_played=True)
+                    episode.save()
+                    self.db.commit()
+                    self.update_episode_list_icons([episode.url])
+                    self.update_podcast_list_model([episode.channel.url])
+
+                    # Submit this action to the webservice
+                    self.mygpo_client.on_playback_full(episode, \
+                            start, end, total)
+                    return
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -1266,6 +1303,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
+        elif name == 'videoplayer':
+            self.config.video_played_dbus = False
+        elif name == 'player':
+            self.config.audio_played_dbus = False
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
         elif name == 'episode_list_thumbnails':
