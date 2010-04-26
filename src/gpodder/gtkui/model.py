@@ -176,7 +176,9 @@ class EpisodeListModel(gtk.ListStore):
 
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
-        episodes = list(channel.get_all_episodes())
+        episodes = channel.get_all_episodes()
+        if not isinstance(episodes, list):
+            episodes = list(episodes)
         count = len(episodes)
 
         for position, episode in enumerate(episodes):
@@ -471,10 +473,7 @@ class PodcastChannelProxy(object):
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
         channel_lookup_map = dict((c.id, c) for c in self.channels)
-        all_episodes = self._db.load_all_episodes(channel_lookup_map)
-        for episode in all_episodes:
-            episode._all_episodes_view = True
-            yield episode
+        return self._db.load_all_episodes(channel_lookup_map)
 
     def request_save_dir_size(self):
         if not self._save_dir_size_set:
