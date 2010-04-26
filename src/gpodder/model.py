@@ -626,17 +626,12 @@ class PodcastChannel(PodcastModelObject):
 
         return new_name
 
-    def delete_episode_by_url(self, url):
-        episode = self.db.load_episode(url, factory=self.episode_factory)
+    def delete_episode(self, episode):
+        filename = episode.local_filename(create=False, check_only=True)
+        if filename is not None:
+            util.delete_file(filename)
 
-        if episode is not None:
-            filename = episode.local_filename(create=False)
-            if filename is not None:
-                util.delete_file(filename)
-            else:
-                log('Cannot delete episode: %s (I have no filename!)', episode.title, sender=self)
-            episode.set_state(gpodder.STATE_DELETED)
-
+        episode.set_state(gpodder.STATE_DELETED)
         self.update_m3u_playlist()
 
 
@@ -891,7 +886,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def delete_from_disk(self):
         try:
-            self.channel.delete_episode_by_url(self.url)
+            self.channel.delete_episode(self)
         except:
             log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 

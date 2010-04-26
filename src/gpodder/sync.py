@@ -326,7 +326,7 @@ class iPodDevice(Device):
                 if gtrack.playcount > 0:
                     if delete_from_db and not gtrack.rating:
                         log('Deleting episode from db %s', gtrack.title, sender=self)
-                        channel.delete_episode_by_url(gtrack.podcasturl)
+                        channel.delete_episode(episode)
                     else:
                         log('Marking episode as played %s', gtrack.title, sender=self)
                         episode.mark(is_played=True)
