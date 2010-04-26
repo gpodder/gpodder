@@ -176,7 +176,6 @@ class PodcastChannel(PodcastModelObject):
         self.save()
 
         guids = [episode.guid for episode in self.get_all_episodes()]
-        self.count_new += custom_feed.get_new_episodes(self, guids)
         self.save()
 
         self.db.purge(max_episodes, self.id)
@@ -262,8 +261,6 @@ class PodcastChannel(PodcastModelObject):
             if episode.pubDate < last_pubdate - self.SECONDS_PER_WEEK:
                 log('Episode with old date: %s', episode.title, sender=self)
                 episode.is_played = True
-            else:
-                self.count_new += 1
 
             episode.save()
 
@@ -393,10 +390,6 @@ class PodcastChannel(PodcastModelObject):
 
         self.save_dir_size = 0
         self.__save_dir_size_set = False
-
-        self.count_downloaded = 0
-        self.count_new = 0
-        self.count_unplayed = 0
 
         self.channel_is_locked = False
 

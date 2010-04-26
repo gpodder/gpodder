@@ -252,10 +252,6 @@ class Database(object):
         self.upgrade_table(self.TABLE_CHANNELS, self.SCHEMA_CHANNELS, self.INDEX_CHANNELS)
         self.upgrade_table(self.TABLE_EPISODES, self.SCHEMA_EPISODES, self.INDEX_EPISODES)
 
-        cur.execute("""CREATE TEMPORARY VIEW episodes_downloaded AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d GROUP BY channel_id""" % (gpodder.STATE_DOWNLOADED,))
-        cur.execute("""CREATE TEMPORARY VIEW episodes_new        AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d AND played = 0 GROUP BY channel_id""" % (gpodder.STATE_NORMAL,))
-        cur.execute("""CREATE TEMPORARY VIEW episodes_unplayed   AS SELECT channel_id, COUNT(id) AS count FROM episodes WHERE state = %d AND played = 0 GROUP BY channel_id""" % (gpodder.STATE_DOWNLOADED,))
-
         # Make sure deleted episodes are played, to simplify querying statistics.
         try:
             cur.execute("UPDATE episodes SET played = 1 WHERE state = ?", (gpodder.STATE_DELETED,))
@@ -301,18 +297,10 @@ class Database(object):
         cur = self.cursor(lock=True)
         cur.execute('SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_CHANNELS)
 
-        stats = self.stats()
-
         result = []
         keys = list(desc[0] for desc in cur.description)
         for row in cur:
             channel = dict(zip(keys, row))
-
-            channel_id = channel['id']
-            if channel_id in stats:
-                channel['count_downloaded'] = stats[channel_id][0]
-                channel['count_new'] = stats[channel_id][1]
-                channel['count_unplayed'] = stats[channel_id][2]
 
             if url is None or url == channel['url']:
                 if factory is None:
@@ -324,27 +312,6 @@ class Database(object):
         self.lock.release()
 
         return result
-
-    def stats(self):
-        cur = self.cursor(lock=True)
-        self.log("stats()")
-        cur.execute("""
-            SELECT c.id, d.count, n.count, u.count
-            FROM channels c
-            LEFT JOIN episodes_downloaded d ON d.channel_id = c.id
-            LEFT JOIN episodes_new n ON n.channel_id = c.id
-            LEFT JOIN episodes_unplayed u ON u.channel_id = c.id
-            """)
-
-        data = {}
-
-        for row in cur:
-            data[row[0]] = (row[1] or 0, row[2] or 0, row[3] or 0)
-
-        cur.close()
-        self.lock.release()
-
-        return data
 
     def save_channel(self, c):
         self._save_object(c, self.TABLE_CHANNELS, self.SCHEMA_CHANNELS)
