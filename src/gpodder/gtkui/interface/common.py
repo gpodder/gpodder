@@ -204,7 +204,17 @@ class BuilderWidget(GtkBuilderWidget):
                     message = message
                 else:
                     message = '%s\n%s' % (title, message)
-                dlg = hildon.hildon_note_new_information(self.main_window, \
+
+                # Determine the topmost visible window and attach the
+                # message to that window to avoid Maemo Bug 10030
+                stack = hildon.WindowStack.get_default()
+                visible_windows = stack.get_windows()
+                if visible_windows:
+                    parent_window = visible_windows[0]
+                else:
+                    parent_window = self.main_window
+
+                dlg = hildon.hildon_note_new_information(parent_window, \
                         message)
                 dlg.run()
                 dlg.destroy()
