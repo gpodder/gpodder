@@ -225,17 +225,15 @@ class Database(object):
             ID, NAME, TYPE, NULL, DEFAULT = range(5)
             existing = set(column[NAME] for column in available)
 
-            channel_ids = []
             if 'deleted' in existing:
                 cur.execute('SELECT id FROM %s WHERE deleted = ?' % self.TABLE_CHANNELS, (1,))
-                for row in cur.fetchall():
-                    channel_ids.append(row[0])
+                channel_ids = [id for (id,) in cur]
 
-            # Remove all deleted channels from the database
-            for id in channel_ids:
-                self.log('Removing deleted channel with ID %d', id)
-                cur.execute('DELETE FROM %s WHERE id = ?' % self.TABLE_CHANNELS, (id,))
-                cur.execute('DELETE FROM %s WHERE channel_id = ?' % self.TABLE_EPISODES, (id,))
+                # Remove all deleted channels from the database
+                for id in channel_ids:
+                    self.log('Removing deleted channel with ID %d', id)
+                    cur.execute('DELETE FROM %s WHERE id = ?' % self.TABLE_CHANNELS, (id,))
+                    cur.execute('DELETE FROM %s WHERE channel_id = ?' % self.TABLE_EPISODES, (id,))
         self.lock.release()
 
     def __check_schema(self):
@@ -307,7 +305,7 @@ class Database(object):
 
         result = []
         keys = list(desc[0] for desc in cur.description)
-        for row in cur.fetchall():
+        for row in cur:
             channel = dict(zip(keys, row))
 
             channel_id = channel['id']
@@ -340,7 +338,7 @@ class Database(object):
 
         data = {}
 
-        for row in cur.fetchall():
+        for row in cur:
             data[row[0]] = (row[1] or 0, row[2] or 0, row[3] or 0)
 
         cur.close()
@@ -379,7 +377,7 @@ class Database(object):
 
         result = []
         keys = list(desc[0] for desc in cur.description)
-        for row in cur.fetchall():
+        for row in cur:
             episode = dict(zip(keys, row))
             if episode['state'] is None:
                 episode['state'] = gpodder.STATE_NORMAL

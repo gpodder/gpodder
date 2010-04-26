@@ -128,7 +128,7 @@ class Store(object):
                 for attr, value in zip(slots, row):
                     self._set(o, attr, value)
                 return o
-            return [apply(row) for row in cur.fetchall()]
+            return [apply(row) for row in cur]
 
     def get(self, class_, **kwargs):
         result = self.load(class_, **kwargs)
