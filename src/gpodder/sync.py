@@ -196,8 +196,7 @@ class Device(services.ObservableService):
                 log('Excluding %s from sync', track.title, sender=self)
                 tracklist.remove(track)
 
-        compare_episodes = lambda a, b: cmp(a.pubDate, b.pubDate)
-        for id, track in enumerate(sorted(tracklist, cmp=compare_episodes)):
+        for id, track in enumerate(sorted(tracklist, key=lambda e: e.pubDate)):
             if self.cancelled:
                 return False
 
