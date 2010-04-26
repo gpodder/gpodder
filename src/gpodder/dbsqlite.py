@@ -440,6 +440,15 @@ class Database(object):
         cur.close()
         self.lock.release()
 
+    def save_downloaded_episode(self, episode):
+        assert episode.id is not None
+
+        cur = self.cursor(lock=True)
+        cur.execute('UPDATE episodes SET state = ?, played = ?, length = ? WHERE id = ?', \
+                (episode.state, episode.is_played, episode.length, episode.id))
+        cur.close()
+        self.lock.release()
+
     def update_episode_state(self, episode):
         assert episode.id is not None
 

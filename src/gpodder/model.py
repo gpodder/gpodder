@@ -526,13 +526,6 @@ class PodcastChannel(PodcastModelObject):
 
         f.close()
 
-    def addDownloadedItem(self, item):
-        log('addDownloadedItem(%s)', item.url)
-
-        if not item.was_downloaded():
-            item.mark_downloaded(save=True)
-            self.update_m3u_playlist()
-
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
@@ -632,7 +625,6 @@ class PodcastChannel(PodcastModelObject):
             util.delete_file(filename)
 
         episode.set_state(gpodder.STATE_DELETED)
-        self.update_m3u_playlist()
 
 
 class PodcastEpisode(PodcastModelObject):
@@ -813,6 +805,13 @@ class PodcastEpisode(PodcastModelObject):
             self.state = gpodder.STATE_DOWNLOADED
         self.db.save_episode(self)
 
+    def on_downloaded(self, filename):
+        self.state = gpodder.STATE_DOWNLOADED
+        self.is_played = False
+        self.length = os.path.getsize(filename)
+        self.db.save_downloaded_episode(self)
+        self.db.commit()
+
     def set_state(self, state):
         self.state = state
         self.db.update_episode_state(self)
@@ -825,13 +824,6 @@ class PodcastEpisode(PodcastModelObject):
         if is_locked is not None:
             self.is_locked = is_locked
         self.db.update_episode_state(self)
-
-    def mark_downloaded(self, save=False):
-        self.state = gpodder.STATE_DOWNLOADED
-        self.is_played = False
-        if save:
-            self.save()
-            self.db.commit()
 
     @property
     def title_markup(self):
