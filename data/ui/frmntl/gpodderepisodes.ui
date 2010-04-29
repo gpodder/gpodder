@@ -117,4 +117,12 @@
     <property name="label" translatable="yes">Update feed</property>
     <signal name="activate" handler="on_update_button_clicked"/>
   </object>
+  <object class="GtkAction" id="action_check_for_new_episodes">
+    <property name="label" translatable="yes">Check for new episodes</property>
+    <signal name="activate" handler="on_check_for_new_episodes_button_clicked"/>
+  </object>
+  <object class="GtkAction" id="action_delete_episodes">
+    <property name="label" translatable="yes">Delete episodes</property>
+    <signal name="activate" handler="on_delete_episodes_button_clicked"/>
+  </object>
 </interface>

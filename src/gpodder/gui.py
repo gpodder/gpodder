@@ -379,7 +379,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     show_episode_in_download_manager=self.show_episode_in_download_manager, \
                     add_download_task_monitor=self.add_download_task_monitor, \
                     remove_download_task_monitor=self.remove_download_task_monitor, \
-                    for_each_episode_set_task_status=self.for_each_episode_set_task_status)
+                    for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
+                    on_delete_episodes_button_clicked=self.on_itemRemoveOldEpisodes_activate, \
+                    on_itemUpdate_activate=self.on_itemUpdate_activate)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes

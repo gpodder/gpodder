@@ -29,6 +29,7 @@ from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.model import EpisodeListModel
+from gpodder.gtkui.model import PodcastChannelProxy
 
 from gpodder.gtkui.frmntl.episodeactions import gPodderEpisodeActions
 
@@ -67,7 +68,9 @@ class gPodderEpisodes(BuilderWidget):
                        self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
-                       self.action_update):
+                       self.action_update, \
+                       self.action_check_for_new_episodes, \
+                       self.action_delete_episodes):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
@@ -182,7 +185,25 @@ class gPodderEpisodes(BuilderWidget):
             self.touched_episode.mark(is_played=not self.touched_episode.is_played)
             self.episode_list_status_changed([self.touched_episode])
 
+    def on_check_for_new_episodes_button_clicked(self, widget):
+        self.show_message(_('Checking for new episodes...'))
+        self.on_itemUpdate_activate(widget)
+
     def show(self):
+        # Check if we are displaying the "all episodes" view
+        all_episodes = isinstance(self.channel, PodcastChannelProxy)
+
+        for action in (self.action_rename, \
+                       self.action_play_m3u, \
+                       self.action_login, \
+                       self.action_unsubscribe, \
+                       self.action_update):
+            action.set_visible(not all_episodes)
+
+        for action in (self.action_check_for_new_episodes, \
+                       self.action_delete_episodes):
+            action.set_visible(all_episodes)
+
         self.main_window.set_title(self.channel.title)
         self.main_window.show()
         self.treeview.grab_focus()
