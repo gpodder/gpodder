@@ -698,6 +698,11 @@ class PodcastEpisode(PodcastModelObject):
         # Enclosures
         for e in entry.get('enclosures', ()):
             episode.mimetype = e.get('type', 'application/octet-stream')
+            if episode.mimetype == '':
+                # See Maemo bug 10036
+                log('Fixing empty mimetype in ugly feed', sender=episode)
+                episode.mimetype = 'application/octet-stream'
+
             if '/' not in episode.mimetype:
                 continue
 
