@@ -43,7 +43,7 @@ class HeAboutDialog(gtk.Dialog):
         self.set_title(_('About'))
 
         self.image_icon = gtk.Image()
-        self.label_app_name = gtk.Label(app_name)
+        self.label_app_name = gtk.Label()
         self.label_version = gtk.Label()
         self.label_description = gtk.Label()
         self.label_copyright = gtk.Label()
