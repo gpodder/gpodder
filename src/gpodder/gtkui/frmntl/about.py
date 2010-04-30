@@ -22,7 +22,6 @@
 
 import hildon
 import gtk
-import gobject
 import dbus
 
 import gpodder
@@ -41,8 +40,7 @@ class HeAboutDialog(gtk.Dialog):
         self.bugtracker_url = None
         self.donate_url = None
 
-        app_name = gobject.get_application_name()
-        self.set_title(_('About %s') % app_name)
+        self.set_title(_('About'))
 
         self.image_icon = gtk.Image()
         self.label_app_name = gtk.Label(app_name)
