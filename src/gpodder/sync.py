@@ -150,7 +150,6 @@ def get_track_length(filename):
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
 
-
 class SyncTrack(object):
     """
     This represents a track that is on a device. You need
@@ -491,7 +490,10 @@ class iPodDevice(Device):
         gpod.itdb_track_add(self.itdb, track, -1)
         gpod.itdb_playlist_add_track(self.master_playlist, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
-        gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
+        copied = gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
+
+        if copied and gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_file_copied_to_ipod(self, local_filename)
 
         # If the file has been converted, delete the temporary file here
         if local_filename != original_filename:
@@ -648,7 +650,10 @@ class MP3PlayerDevice(Device):
 
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding), sender=self)
-            return self.copy_file_progress(from_file, to_file)
+            copied = self.copy_file_progress(from_file, to_file)
+            if copied and gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_file_copied_to_filesystem(self, from_file, to_file)
+            return copied
 
         return True
 
@@ -992,9 +997,11 @@ class MTPDevice(Device):
                 folder_id = self.__MTPDevice.mkdir(folder_name)
 
             # send the file
-            self.__MTPDevice.send_track_from_file(filename,
-                    util.sanitize_filename(metadata.title)+episode.extension(),
+            to_file = util.sanitize_filename(metadata.title) + episode.extension()
+            self.__MTPDevice.send_track_from_file(filename, to_file,
                     metadata, folder_id, callback=self.__callback)
+            if gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_file_copied_to_mtp(self, filename, to_file)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False
