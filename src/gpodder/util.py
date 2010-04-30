@@ -476,22 +476,16 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
     return ('%.'+str(digits)+'f %s') % (used_value, used_unit)
 
 
-def delete_file( path):
-    """
-    Tries to delete the given filename and silently 
-    ignores deletion errors (if the file doesn't exist).
-    Also deletes extracted cover files if they exist.
-    """
-    log( 'Trying to delete: %s', path)
-    try:
-        os.unlink( path)
-        # Remove any extracted cover art that might exist
-        for cover_file in glob.glob( '%s.cover.*' % ( path, )):
-            os.unlink( cover_file)
+def delete_file(filename):
+    """Delete a file from the filesystem
 
+    Errors (permissions errors or file not found)
+    are silently ignored.
+    """
+    try:
+        os.remove(filename)
     except:
         pass
-
 
 
 def remove_html_tags(html):
