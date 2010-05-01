@@ -106,28 +106,32 @@ class gPodderPreferences(BuilderWidget):
         self.touch_selector_download.set_active(0, download_method_mapping[self._config.auto_download])
         self.picker_download.set_selector(self.touch_selector_download)
 
+        # Determine possible audio and video players (only installed ones)
+        self.audio_players = [(c, l) for c, l in self.AUDIO_PLAYERS if c == 'default' or util.find_command(c)]
+        self.video_players = [(c, l) for c, l in self.VIDEO_PLAYERS if c == 'default' or util.find_command(c)]
+
         # Create a mapping from audio players to touch selector indices
-        audio_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.AUDIO_PLAYERS))
+        audio_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.audio_players))
 
         self.touch_selector_audio_player = hildon.TouchSelector(text=True)
-        for value, caption in self.AUDIO_PLAYERS:
+        for value, caption in self.audio_players:
             self.touch_selector_audio_player.append_text(caption)
 
-        if self._config.player not in (x[0] for x in self.AUDIO_PLAYERS):
-            self._config.player = self.AUDIO_PLAYERS[0][0]
+        if self._config.player not in (x[0] for x in self.audio_players):
+            self._config.player = self.audio_players[0][0]
 
         self.touch_selector_audio_player.set_active(0, audio_player_mapping[self._config.player])
         self.picker_audio_player.set_selector(self.touch_selector_audio_player)
 
         # Create a mapping from video players to touch selector indices
-        video_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.VIDEO_PLAYERS))
+        video_player_mapping = dict((b, a) for a, b in enumerate(x[0] for x in self.video_players))
 
         self.touch_selector_video_player = hildon.TouchSelector(text=True)
-        for value, caption in self.VIDEO_PLAYERS:
+        for value, caption in self.video_players:
             self.touch_selector_video_player.append_text(caption)
 
-        if self._config.videoplayer not in (x[0] for x in self.VIDEO_PLAYERS):
-            self._config.videoplayer = self.VIDEO_PLAYERS[0][0]
+        if self._config.videoplayer not in (x[0] for x in self.video_players):
+            self._config.videoplayer = self.video_players[0][0]
 
         self.touch_selector_video_player.set_active(0, video_player_mapping[self._config.videoplayer])
         self.picker_video_player.set_selector(self.touch_selector_video_player)
@@ -179,12 +183,12 @@ class gPodderPreferences(BuilderWidget):
 
     def on_picker_audio_player_value_changed(self, *args):
         active_index = self.touch_selector_audio_player.get_active(0)
-        new_value = self.AUDIO_PLAYERS[active_index][0]
+        new_value = self.audio_players[active_index][0]
         self._config.player = new_value
 
     def on_picker_video_player_value_changed(self, *args):
         active_index = self.touch_selector_video_player.get_active(0)
-        new_value = self.VIDEO_PLAYERS[active_index][0]
+        new_value = self.video_players[active_index][0]
         self._config.videoplayer = new_value
 
     def update_button_mygpo(self):
