@@ -2027,6 +2027,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # videos to fit the screen (looks much nicer than w/ black border)
                     if player == 'mplayer' and util.find_command('gpodder-mplayer'):
                         player = 'gpodder-mplayer'
+                elif gpodder.ui.fremantle and player == 'mplayer':
+                    player = 'mplayer -fs %F'
             elif file_type == 'audio' and self.config.player and \
                     self.config.player != 'default':
                 player = self.config.player
