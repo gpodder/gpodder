@@ -2770,17 +2770,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 yield episode
 
-    def delete_episode_list(self, episodes, confirm=True):
+    def delete_episode_list(self, episodes, confirm=True, skip_locked=True):
         if not episodes:
             return False
 
-        episodes = [e for e in episodes if not e.is_locked]
+        if skip_locked:
+            episodes = [e for e in episodes if not e.is_locked]
 
-        if not episodes:
-            title = _('Episodes are locked')
-            message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
-            self.notification(message, title, widget=self.treeAvailable)
-            return False
+            if not episodes:
+                title = _('Episodes are locked')
+                message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+                self.notification(message, title, widget=self.treeAvailable)
+                return False
 
         count = len(episodes)
         title = N_('Delete %d episode?', 'Delete %d episodes?', count) % count
@@ -3614,12 +3615,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cancel_task_list(self.download_tasks_seen)
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
-        if self.wNotebook.get_current_page() == 1:
-            # Downloads tab visibile - skip (for now)
-            return
-
         episodes = self.get_selected_episodes()
-        self.delete_episode_list(episodes)
+        if len(episodes) == 1:
+            self.delete_episode_list(episodes, skip_locked=False)
+        else:
+            self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown
