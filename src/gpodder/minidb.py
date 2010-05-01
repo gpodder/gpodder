@@ -28,7 +28,16 @@
 # For Python 2.5, we need to request the "with" statement
 from __future__ import with_statement
 
-import sqlite3.dbapi2 as sqlite
+import sys
+
+try:
+    import sqlite3.dbapi2 as sqlite
+except ImportError:
+    try:
+        from pysqlite2 import dbapi2 as sqlite
+    except ImportError:
+        raise Exception('Please install SQLite3 support.')
+
 
 import threading
 
