@@ -1720,6 +1720,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         self.podcast_list_model.add_cover_by_url(channel_url, pixbuf)
 
+    def save_episodes_as_file(self, episodes):
+        for episode in episodes:
+            self.save_episode_as_file(episode)
+
     def save_episode_as_file(self, episode):
         PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
         if episode.was_downloaded(and_exists=True):
@@ -1824,6 +1828,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_locked = any(e.is_locked for e in episodes)
             any_played = any(e.is_played for e in episodes)
             one_is_new = any(e.state == gpodder.STATE_NORMAL and not e.is_played for e in episodes)
+            downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
+            downloading = any(self.episode_is_downloading(e) for e in episodes)
 
             menu = gtk.Menu()
 
@@ -1831,10 +1837,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if open_instead_of_play:
                 item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
-            else:
+            elif downloaded:
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
+            else:
+                item = gtk.ImageMenuItem(_('Stream'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
 
-            item.set_sensitive(can_play)
+            item.set_sensitive(can_play and not downloading)
             item.connect('activate', self.on_playback_selected_episodes)
             menu.append(self.set_finger_friendly(item))
 
@@ -1854,59 +1863,54 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(self.set_finger_friendly(item))
 
-            if one_is_new:
-                item = gtk.ImageMenuItem(_('Do not download'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: self.mark_selected_episodes_old())
-                menu.append(self.set_finger_friendly(item))
-            elif can_download:
-                item = gtk.ImageMenuItem(_('Mark as new'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_ABOUT, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: self.mark_selected_episodes_new())
-                menu.append(self.set_finger_friendly(item))
-
             ICON = lambda x: x
 
             # Ok, this probably makes sense to only display for downloaded files
-            if can_play and not can_download:
-                menu.append( gtk.SeparatorMenuItem())
-                item = gtk.ImageMenuItem(_('Save to disk'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_SAVE_AS, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: [self.save_episode_as_file(e) for e in episodes])
-                menu.append(self.set_finger_friendly(item))
+            if downloaded:
+                menu.append(gtk.SeparatorMenuItem())
+                share_item = gtk.MenuItem(_('Send to'))
+                menu.append(share_item)
+                share_menu = gtk.Menu()
+
+                item = gtk.ImageMenuItem(_('Local folder'))
+                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
+                item.connect('activate', lambda w, ee: self.save_episodes_as_file(ee), episodes)
+                share_menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
-                    item = gtk.ImageMenuItem(_('Send via bluetooth'))
+                    item = gtk.ImageMenuItem(_('Bluetooth device'))
                     item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.copy_episodes_bluetooth(episodes))
-                    menu.append(self.set_finger_friendly(item))
+                    item.connect('activate', lambda w, ee: self.copy_episodes_bluetooth(ee), episodes)
+                    share_menu.append(self.set_finger_friendly(item))
                 if can_transfer:
-                    item = gtk.ImageMenuItem(_('Transfer to %s') % self.get_device_name())
+                    item = gtk.ImageMenuItem(self.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name(ICON('multimedia-player'), gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.on_sync_to_ipod_activate(w, episodes))
+                    item.connect('activate', lambda w, ee: self.on_sync_to_ipod_activate(w, ee), episodes)
+                    share_menu.append(self.set_finger_friendly(item))
+
+                share_item.set_submenu(share_menu)
+
+            if (downloaded or one_is_new or can_download) and not downloading:
+                menu.append(gtk.SeparatorMenuItem())
+                if one_is_new:
+                    item = gtk.CheckMenuItem(_('New'))
+                    item.set_active(True)
+                    item.connect('activate', lambda w: self.mark_selected_episodes_old())
+                    menu.append(self.set_finger_friendly(item))
+                elif can_download:
+                    item = gtk.CheckMenuItem(_('New'))
+                    item.set_active(False)
+                    item.connect('activate', lambda w: self.mark_selected_episodes_new())
                     menu.append(self.set_finger_friendly(item))
 
-            if can_play:
-                menu.append( gtk.SeparatorMenuItem())
-                if any_played:
-                    item = gtk.ImageMenuItem(_('Mark as unplayed'))
-                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_CANCEL, gtk.ICON_SIZE_MENU))
-                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, False))
-                    menu.append(self.set_finger_friendly(item))
-                else:
-                    item = gtk.ImageMenuItem(_('Mark as played'))
-                    item.set_image( gtk.image_new_from_stock( gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU))
-                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, True))
+                if downloaded:
+                    item = gtk.CheckMenuItem(_('Played'))
+                    item.set_active(any_played)
+                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, not any_played))
                     menu.append(self.set_finger_friendly(item))
 
-                if any_locked:
-                    item = gtk.ImageMenuItem(_('Allow deletion'))
-                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, False))
-                    menu.append(self.set_finger_friendly(item))
-                else:
-                    item = gtk.ImageMenuItem(_('Prohibit deletion'))
-                    item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, True))
+                    item = gtk.CheckMenuItem(_('Keep episode'))
+                    item.set_active(any_locked)
+                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
                     menu.append(self.set_finger_friendly(item))
 
             menu.append(gtk.SeparatorMenuItem())
@@ -1916,13 +1920,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
             menu.append(self.set_finger_friendly(item))
 
-            # If we have it, also add episode website link
-            if episodes[0].link and episodes[0].link != episodes[0].url:
-                item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name(ICON('web-browser'), gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: util.open_website(episodes[0].link))
-                menu.append(self.set_finger_friendly(item))
-            
             if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
