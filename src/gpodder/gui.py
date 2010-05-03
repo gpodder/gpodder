@@ -3148,7 +3148,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
                 mygpo_login=self.on_mygpo_settings_activate, \
-                parent_window=self.main_window)
+                parent_window=self.main_window, \
+                mygpo_client=self.mygpo_client, \
+                on_send_full_subscriptions=self.on_send_full_subscriptions)
 
         # Initial message to relayout window (in case it's opened in portrait mode
         self.preferences_dialog.on_window_orientation_changed(self._last_orientation)

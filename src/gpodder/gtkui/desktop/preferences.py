@@ -19,6 +19,7 @@
 
 import gtk
 import pango
+import threading
 
 import gpodder
 
@@ -131,7 +132,24 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
         self._config.connect_gtk_togglebutton('auto_cleanup_downloads', self.checkbutton_auto_cleanup_downloads)
 
+        # Initialize the UI state with configuration settings
+        self.checkbutton_enable.set_active(self._config.mygpo_enabled)
+        self.entry_username.set_text(self._config.mygpo_username)
+        self.entry_password.set_text(self._config.mygpo_password)
+        self.entry_caption.set_text(self._config.mygpo_device_caption)
+
+        # Disable mygpo sync while the dialog is open
+        self._enable_mygpo = self._config.mygpo_enabled
+        self._config.mygpo_enabled = False
+
     def on_dialog_destroy(self, widget):
+        # Re-enable mygpo sync if the user has selected it
+        self._config.mygpo_enabled = self._enable_mygpo
+        # Make sure the device is successfully created/updated
+        self.mygpo_client.create_device()
+        # Flush settings for mygpo client now
+        self.mygpo_client.flush(now=True)
+
         if self.callback_finished:
             self.callback_finished()
 
@@ -205,4 +223,27 @@ class gPodderPreferences(BuilderWidget):
             self._config.episode_old_age = value
 
         self.checkbutton_expiration_unplayed.set_sensitive(value > 0)
+
+    def on_enabled_toggled(self, widget):
+        # Only update indirectly (see on_dialog_destroy)
+        self._enable_mygpo = widget.get_active()
+
+    def on_username_changed(self, widget):
+        self._config.mygpo_username = widget.get_text()
+
+    def on_password_changed(self, widget):
+        self._config.mygpo_password = widget.get_text()
+
+    def on_device_caption_changed(self, widget):
+        self._config.mygpo_device_caption = widget.get_text()
+
+    def on_button_overwrite_clicked(self, button):
+        title = _('Replace subscription list on server')
+        message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
+        if self.show_confirmation(message, title):
+            def thread_proc():
+                self._config.mygpo_enabled = True
+                self.on_send_full_subscriptions()
+                self._config.mygpo_enabled = False
+            threading.Thread(target=thread_proc).start()
 

@@ -183,6 +183,21 @@ class MygPoClient(object):
         self._worker_thread = None
         atexit.register(self._at_exit)
 
+    def create_device(self):
+        """Uploads the device changes to the server
+
+        This should be called when device settings change
+        or when the mygpo client functionality is enabled.
+        """
+        # Remove all previous device update actions
+        self._store.remove(self._store.load(UpdateDeviceAction))
+
+        # Insert our new update action
+        action = UpdateDeviceAction(self.device_id, \
+                self._config.mygpo_device_caption, \
+                self._config.mygpo_device_type)
+        self._store.save(action)
+
     def get_rewritten_urls(self):
         """Returns a list of rewritten URLs for uploads
 
@@ -379,14 +394,8 @@ class MygPoClient(object):
                     self._config.mygpo_password, self._config.mygpo_server)
             log('Reloading settings.', sender=self)
         elif name.startswith('mygpo_device_'):
-            # Remove all previous device update actions
-            self._store.remove(self._store.load(UpdateDeviceAction))
-
-            # Insert our new update action
-            action = UpdateDeviceAction(self.device_id, \
-                    self._config.mygpo_device_caption, \
-                    self._config.mygpo_device_type)
-            self._store.save(action)
+            # Update or create the device
+            self.create_device()
 
     def synchronize_episodes(self, actions):
         log('Starting episode status sync.', sender=self)
