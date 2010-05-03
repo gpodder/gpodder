@@ -226,9 +226,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.treeviewEpisodes.columns_autosize()
         self.calculate_total_size()
 
-        selection = self.treeviewEpisodes.get_selection()
-        selection.connect('changed', self.on_selection_changed)
-
         menu = gtk.Menu()
         menu.append(self.action_select_all.create_menu_item())
         menu.append(self.action_select_none.create_menu_item())
@@ -257,16 +254,13 @@ class gPodderEpisodeSelector(BuilderWidget):
         else:
             return False
 
-    def on_selection_changed(self, selection):
+    def on_treeview_button_release(self, widget, event):
+        selection = widget.get_selection()
         model, iter = selection.get_selected()
         if iter is not None:
             model.set_value(iter, self.COLUMN_TOGGLE, \
                     not model.get_value(iter, self.COLUMN_TOGGLE))
         self.calculate_total_size()
-
-    def on_treeview_button_release(self, widget, event):
-        selection = widget.get_selection()
-        self.on_selection_changed(widget.get_selection())
 
     def on_select_all_button_clicked(self, widget):
         for row in self.model:
