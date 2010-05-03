@@ -1422,3 +1422,20 @@ def get_hostname():
     # Fallback - but can this give us "localhost"?
     return socket.gethostname()
 
+def detect_device_type():
+    """Device type detection for gpodder.net
+
+    This function tries to detect on which
+    kind of device gPodder is running on.
+
+    Possible return values:
+    desktop, laptop, mobile, server, other
+    """
+    if gpodder.ui.maemo:
+        return 'mobile'
+    elif glob.glob('/proc/acpi/battery/*'):
+        # Linux: If we have a battery, assume Laptop
+        return 'laptop'
+
+    return 'desktop'
+

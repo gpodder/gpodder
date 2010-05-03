@@ -3771,6 +3771,8 @@ def main(options=None):
         config.on_quit_ask = False
         config.feed_update_skipping = False
 
+    config.mygpo_device_type = util.detect_device_type()
+
     gp = gPodder(bus_name, config)
 
     # Handle options
