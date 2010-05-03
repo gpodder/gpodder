@@ -177,6 +177,17 @@ class gPodderEpisodeSelector(BuilderWidget):
         sub = '<span font_desc="%s" foreground="%s">%%s</span>' % sub
         self._markup_template = '\n'.join((head, sub))
 
+        # Context menu stuff for the treeview (shownotes)
+        self.touched_episode = None
+        if hasattr(self, 'show_episode_shownotes'):
+            self.context_menu = gtk.Menu()
+            # "Emulate" hildon_gtk_menu_new
+            self.context_menu.set_name('hildon-context-sensitive-menu')
+            self.context_menu.append(self.action_shownotes.create_menu_item())
+            self.context_menu.show_all()
+            self.treeviewEpisodes.connect('button-press-event', self.on_treeview_button_press)
+            self.treeviewEpisodes.tap_and_hold_setup(self.context_menu)
+
         # This regex gets the two lines of the normal Maemo markup,
         # as used on Maemo 4 (see maemo_markup() in gpodder.model)
         markup_re = re.compile(r'<b>(.*)</b>\n<small>(.*)</small>')
@@ -277,6 +288,17 @@ class gPodderEpisodeSelector(BuilderWidget):
     def on_selection_changed(self, selection):
         self.calculate_total_size()
 
+    def on_treeview_button_press(self, widget, event):
+        result = self.treeviewEpisodes.get_path_at_pos(int(event.x), int(event.y))
+        if result is not None:
+            path, column, x, y = result
+            (index,) = path
+            self.action_shownotes.set_property('visible', True)
+            self.touched_episode = self.episodes[index]
+        else:
+            self.action_shownotes.set_property('visible', False)
+            self.touched_episode = None
+
     def on_treeview_button_release(self, widget, event):
         selection = widget.get_selection()
         self.on_selection_changed(widget.get_selection())
@@ -293,6 +315,10 @@ class gPodderEpisodeSelector(BuilderWidget):
 
     def on_close_button_clicked(self, widget):
         self.on_btnCancel_clicked(widget)
+
+    def on_shownotes_button_clicked(self, widget):
+        if self.touched_episode is not None:
+            self.show_episode_shownotes(self.touched_episode)
 
     def calculate_total_size( self):
         if self.size_attribute is not None:
