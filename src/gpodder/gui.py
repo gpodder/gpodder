@@ -457,7 +457,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     util.idle_add(self.wNotebook.set_current_page, 1)
                 indicator = ProgressIndicator(_('Loading incomplete downloads'), \
                         _('Some episodes have not finished downloading in a previous session.'), \
-                        False, self.main_window)
+                        False, self.get_dialog_parent())
                 indicator.on_message(N_('%d partial file', '%d partial files', count) % count)
 
                 candidates = [f[:-len('.partial')] for f in partial_files]
@@ -668,7 +668,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # (this will overwrite the subscription list on the server)
         indicator = ProgressIndicator(_('Uploading subscriptions'), \
                 _('Your subscriptions are being uploaded to the server.'), \
-                False, self.main_window)
+                False, self.get_dialog_parent())
 
         try:
             self.mygpo_client.set_subscriptions([c.url for c in self.channels])
@@ -2325,7 +2325,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         progress = ProgressIndicator(_('Adding podcasts'), \
                 _('Please wait while episode information is downloaded.'), \
-                parent=self.main_window)
+                parent=self.get_dialog_parent())
 
         def on_after_update():
             progress.on_finished()
@@ -2792,7 +2792,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         progress = ProgressIndicator(_('Deleting episodes'), \
                 _('Please wait while episodes are deleted'), \
-                parent=self.main_window)
+                parent=self.get_dialog_parent())
 
         def finish_deletion(episode_urls, channel_urls):
             progress.on_finished()
@@ -3218,7 +3218,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if confirm and not self.show_confirmation(message, title):
             return
 
-        progress = ProgressIndicator(title, info, parent=self.main_window)
+        progress = ProgressIndicator(title, info, parent=self.get_dialog_parent())
 
         def finish_deletion(select_url):
             # Upload subscription list changes to the web service

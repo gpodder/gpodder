@@ -172,6 +172,23 @@ class BuilderWidget(GtkBuilderWidget):
     def notification(self, message, title=None, important=False, widget=None):
         util.idle_add(self.show_message, message, title, important, widget)
 
+    def get_dialog_parent(self):
+        """Return a gtk.Window that should be the parent of dialogs
+
+        On non-Fremantle environments, this simply returns the main
+        window of this dialog. On Fremantle, it tries to determine
+        the topmost window from the window stack if possible.
+        """
+        if gpodder.ui.fremantle:
+            # Determine the topmost visible window and attach the
+            # message to that window to avoid Maemo Bug 10030
+            stack = hildon.WindowStack.get_default()
+            visible_windows = stack.get_windows()
+            if visible_windows:
+                parent_window = visible_windows[0]
+
+        return self.main_window
+
     def show_message(self, message, title=None, important=False, widget=None):
         if gpodder.ui.diablo:
             import hildon
@@ -205,16 +222,8 @@ class BuilderWidget(GtkBuilderWidget):
                 else:
                     message = '%s\n%s' % (title, message)
 
-                # Determine the topmost visible window and attach the
-                # message to that window to avoid Maemo Bug 10030
-                stack = hildon.WindowStack.get_default()
-                visible_windows = stack.get_windows()
-                if visible_windows:
-                    parent_window = visible_windows[0]
-                else:
-                    parent_window = self.main_window
-
-                dlg = hildon.hildon_note_new_information(parent_window, \
+                dlg = hildon.hildon_note_new_information( \
+                        self.get_dialog_parent(), \
                         message)
                 dlg.run()
                 dlg.destroy()
@@ -312,7 +321,7 @@ class BuilderWidget(GtkBuilderWidget):
             return response == gtk.RESPONSE_OK
         elif gpodder.ui.fremantle:
             import hildon
-            dlg = hildon.hildon_note_new_confirmation(self.main_window, \
+            dlg = hildon.hildon_note_new_confirmation(self.get_dialog_parent(), \
                     message)
             response = dlg.run()
             dlg.destroy()
@@ -322,7 +331,7 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
             is_url=False):
-        dialog = gtk.Dialog(title, self.main_window, \
+        dialog = gtk.Dialog(title, self.get_dialog_parent(), \
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
         
         if gpodder.ui.fremantle:
