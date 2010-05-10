@@ -390,6 +390,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         value = model.get_value(iter, self.COLUMN_TOGGLE)
         model.set_value(iter, self.COLUMN_TOGGLE, not value)
 
+        self.calculate_total_size()
+
     def get_selected_episodes( self, remove_episodes=False):
         selected_episodes = []
 
