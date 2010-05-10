@@ -462,9 +462,13 @@ class BuilderWidget(GtkBuilderWidget):
             response = dialog.run()
 
         password_entry.set_visibility(True)
+        username = username_entry.get_text()
+        password = password_entry.get_text()
+        success = (response == gtk.RESPONSE_OK)
+
         dialog.destroy()
 
-        return response == gtk.RESPONSE_OK, ( username_entry.get_text(), password_entry.get_text() )
+        return (success, (username, password))
 
     def show_copy_dialog(self, src_filename, dst_filename=None, dst_directory=None, title=_('Select destination')):
         if dst_filename is None:
