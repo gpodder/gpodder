@@ -390,10 +390,11 @@ class BuilderWidget(GtkBuilderWidget):
 
         dialog.show_all()
         response = dialog.run()
+        result = text_entry.get_text()
         dialog.destroy()
 
         if response == gtk.RESPONSE_OK:
-            return text_entry.get_text()
+            return result
         else:
             return None
 
