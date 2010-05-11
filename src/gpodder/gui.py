@@ -1875,17 +1875,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 item = gtk.ImageMenuItem(_('Local folder'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w, ee: self.save_episodes_as_file(ee), episodes)
+                item.connect('button-press-event', lambda w, ee: self.save_episodes_as_file(episodes))
                 share_menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
                     item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w, ee: self.copy_episodes_bluetooth(ee), episodes)
+                    item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(self.set_finger_friendly(item))
                 if can_transfer:
                     item = gtk.ImageMenuItem(self.get_device_name())
                     item.set_image(gtk.image_new_from_icon_name(ICON('multimedia-player'), gtk.ICON_SIZE_MENU))
-                    item.connect('activate', lambda w, ee: self.on_sync_to_ipod_activate(w, ee), episodes)
+                    item.connect('button-press-event', lambda w, ee: self.on_sync_to_ipod_activate(w, episodes))
                     share_menu.append(self.set_finger_friendly(item))
 
                 share_item.set_submenu(share_menu)
