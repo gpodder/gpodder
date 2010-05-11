@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder 2.0+git\n"
+"Project-Id-Version: gPodder 2.5+git\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-05-05 00:53+0200\n"
-"PO-Revision-Date: 2010-03-30 20:24+0300\n"
+"PO-Revision-Date: 2010-05-11 18:04+0400\n"
 "Last-Translator: Maxim Prohorov <prohorov.max@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -115,8 +115,7 @@ msgstr "Возобновление загрузки"
 
 #: src/gpodder/gui.py:459
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr ""
-"Со времени предыдущего запуска программы остались незавершённые загрузки."
+msgstr "Со времени предыдущего запуска программы остались незавершённые загрузки."
 
 #: src/gpodder/gui.py:461
 #, python-format
@@ -394,22 +393,20 @@ msgid "Stream"
 msgstr "Поток"
 
 #: src/gpodder/gui.py:1871
-#, fuzzy
 msgid "Send to"
-msgstr "Значение"
+msgstr "Отправить"
 
 #: src/gpodder/gui.py:1875
 msgid "Local folder"
-msgstr ""
+msgstr "Каталог"
 
 #: src/gpodder/gui.py:1880
-#, fuzzy
 msgid "Bluetooth device"
-msgstr "Выбрать устройство"
+msgstr "Bluetooth"
 
 #: src/gpodder/gui.py:1895 src/gpodder/gui.py:1900
 msgid "New"
-msgstr ""
+msgstr "Новый"
 
 #: src/gpodder/gui.py:1906 src/gpodder/gtkui/frmntl/episodeactions.py:193
 msgid "Played"
@@ -499,9 +496,8 @@ msgid "Redirection detected"
 msgstr "Перенаправление"
 
 #: src/gpodder/gui.py:2484
-#, fuzzy
 msgid "New episodes are available."
-msgstr "Доступны новые выпуски"
+msgstr "Доступны новые выпуски."
 
 #: src/gpodder/gui.py:2487 src/gpodder/gui.py:2525
 #, python-format
@@ -673,9 +669,8 @@ msgstr "Выпуски для удаления:"
 #: src/gpodder/gui.py:2873 data/ui/desktop/gpodder.ui.h:12
 #: data/ui/maemo/gpodder.ui.h:10 data/ui/frmntl/gpodderepisodes.ui.h:3
 #: data/ui/frmntl/gpodder.ui.h:5
-#, fuzzy
 msgid "Delete episodes"
-msgstr "Удалить старые выпуски"
+msgstr "Удалить выпуски"
 
 #: src/gpodder/gui.py:2925 src/gpodder/gui.py:3176 src/gpodder/gui.py:3281
 msgid "No podcast selected"
@@ -922,7 +917,7 @@ msgid ""
 "command from gnome-bluetooth."
 msgstr ""
 "Возможность отправлять выпуски на устройства поддерживающие Bluetooth "
-"используя <b>gnome-bluetooth</b>"
+"используя gnome-bluetooth"
 
 #: src/gpodder/services.py:122
 msgid "HTML episode shownotes"
@@ -930,9 +925,7 @@ msgstr "Детали выпуска в HTML"
 
 #: src/gpodder/services.py:122
 msgid "Display episode shownotes in HTML format using WebKit."
-msgstr ""
-"Возможность просматривать детали выпуска (шоуноты) в виде HTML используя "
-"WebKit"
+msgstr "Возможность просматривать детали выпуска (шоуноты) в виде HTML используя WebKit"
 
 #: src/gpodder/soundcloud.py:147
 msgid "Unknown track"
@@ -954,8 +947,7 @@ msgstr "Синхронизация с iPod"
 
 #: src/gpodder/sync.py:69
 msgid "Support synchronization of podcasts to Apple iPod devices via libgpod."
-msgstr ""
-"Возможность синхронизации подкастов с Apple iPod используя <b>libgpod</b>"
+msgstr "Возможность синхронизации подкастов с Apple iPod используя libgpod."
 
 #: src/gpodder/sync.py:70
 msgid "MTP device synchronization"
@@ -967,7 +959,7 @@ msgid ""
 "Protocol via pymtp."
 msgstr ""
 "Возможность синхронизации подкастов с устройствами поддерживающими Media "
-"Transfer Protocol ( MTP ) используя <b>pymtp</b>"
+"Transfer Protocol ( MTP ) используя pymtp."
 
 #: src/gpodder/sync.py:71
 msgid "iPod OGG converter"
@@ -978,8 +970,8 @@ msgid ""
 "Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec "
 "and LAME."
 msgstr ""
-"Возможность конвертации подкастов формата OGG в MP3 используя <b>oggdec</b> "
-"и <b>LAME</b> "
+"Возможность конвертации подкастов формата OGG в MP3 используя oggdec"
+"и LAME."
 
 #: src/gpodder/sync.py:72
 msgid "iPod video podcasts"
@@ -989,7 +981,7 @@ msgstr "Видео-подкасты для iPod"
 msgid ""
 "Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
 msgstr ""
-"Возможность определения длины видеофайла с помощью <b>MPlayer</b> для "
+"Возможность определения длины видеофайла с помощью MPlayer для "
 "синхронизации с Apple iPod устройствами."
 
 #: src/gpodder/sync.py:73
@@ -1002,7 +994,7 @@ msgid ""
 "firmware. Needs Python Imaging."
 msgstr ""
 "Возможность копирования обложек подкастов на устройство с прошивкой Rockbox "
-"используя <b>Python Imaging Library (PIL)</b>"
+"используя Python Imaging Library (PIL)"
 
 #: src/gpodder/sync.py:174
 msgid "Cancelled by user"
@@ -1786,24 +1778,21 @@ msgid "Selection is empty."
 msgstr "Ничего не выбрано."
 
 #: src/gpodder/gtkui/frmntl/about.py:43
-#, fuzzy
 msgid "About"
 msgstr "О программе"
 
 #: src/gpodder/gtkui/frmntl/about.py:87
-#, fuzzy, python-format
+#, python-format
 msgid "About %s"
-msgstr "О программе"
+msgstr "О %s"
 
 #: src/gpodder/gtkui/frmntl/about.py:108
-#, fuzzy
 msgid "Report bug"
 msgstr "Сообщить об ошибке"
 
 #: src/gpodder/gtkui/frmntl/about.py:113
-#, fuzzy
 msgid "Donate"
-msgstr "Загружено"
+msgstr "Пожертвования"
 
 #: src/gpodder/gtkui/frmntl/episodeactions.py:65
 #, python-format
@@ -1876,9 +1865,8 @@ msgid "Downloading episode"
 msgstr "Загрузка выпуска"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:189
-#, fuzzy
 msgid "Checking for new episodes..."
-msgstr "Проверить обновления"
+msgstr "Поиск новых выпусков..."
 
 #: src/gpodder/gtkui/frmntl/model.py:77
 msgid "in downloads list"
@@ -1981,36 +1969,33 @@ msgid "Portrait"
 msgstr "Портретный"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:37
-#, fuzzy
 msgid "Manually"
-msgstr "вручную"
+msgstr "Вручную"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:38
 #: src/gpodder/gtkui/frmntl/preferences.py:92
-#, fuzzy, python-format
+#, python-format
 msgid "Every %d minute"
 msgid_plural "Every %d minutes"
-msgstr[0] "каждую %d минуту"
-msgstr[1] "каждые %d минуты"
-msgstr[2] "каждые %d минут"
+msgstr[0] "Каждую %d минуту"
+msgstr[1] "Каждые %d минуты"
+msgstr[2] "Каждые %d минут"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:39
-#, fuzzy
 msgid "Hourly"
-msgstr "ежечасно"
+msgstr "Ежечасно"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:40
-#, fuzzy, python-format
+#, python-format
 msgid "Every %d hour"
 msgid_plural "Every %d hours"
-msgstr[0] "каждый %d час"
-msgstr[1] "каждые %d часа"
-msgstr[2] "каждые %d часов"
+msgstr[0] "Каждый %d час"
+msgstr[1] "Каждые %d часа"
+msgstr[2] "Каждые %d часов"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:41
-#, fuzzy
 msgid "Daily"
-msgstr "ежедневно"
+msgstr "Ежедневно"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:53
 #: src/gpodder/gtkui/frmntl/preferences.py:58
@@ -2058,14 +2043,12 @@ msgid "gpodder"
 msgstr "gpodder"
 
 #: data/ui/mygpoddersettings.ui.h:1 data/ui/desktop/gpodderpreferences.ui.h:8
-#, fuzzy
 msgid "Device name:"
-msgstr "Имя:"
+msgstr "Имя устройства:"
 
 #: data/ui/mygpoddersettings.ui.h:2
-#, fuzzy
 msgid "My gpodder.net account"
-msgstr "Настройки gPodder.net"
+msgstr "Аккаунт gpodder.net"
 
 #: data/ui/mygpoddersettings.ui.h:3 data/ui/desktop/gpodderchannel.ui.h:10
 #: data/ui/desktop/gpodderpreferences.ui.h:14
@@ -2080,7 +2063,7 @@ msgstr "Сохранить список подписок на сервере"
 
 #: data/ui/mygpoddersettings.ui.h:5 data/ui/desktop/gpodderpreferences.ui.h:19
 msgid "Synchronize subscriptions and episode actions"
-msgstr ""
+msgstr "Синхронизировать подписки и действия над ними"
 
 #: data/ui/mygpoddersettings.ui.h:6 data/ui/desktop/gpodderchannel.ui.h:14
 #: data/ui/desktop/gpodderpreferences.ui.h:22
@@ -2299,9 +2282,8 @@ msgid "When new episodes are found:"
 msgstr "Когда найдены новые выпуски:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:25
-#, fuzzy
 msgid "gpodder.net"
-msgstr "Открыть gpodder.net"
+msgstr "gpodder.net"
 
 #: data/ui/desktop/gpoddershownotes.ui.h:1
 msgid "C_ancel download"
@@ -2491,9 +2473,8 @@ msgid "User manual"
 msgstr "Сп_равка"
 
 #: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:45
-#, fuzzy
 msgid "Website"
-msgstr "Сайт:"
+msgstr "Вебсайт"
 
 #: data/ui/desktop/gpodder.ui.h:50 data/ui/maemo/gpodder.ui.h:46
 msgid "_Episodes"
@@ -2676,9 +2657,8 @@ msgid "Player for video files"
 msgstr "Проигрыватель видео"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:9 data/ui/frmntl/gpodder.ui.h:15
-#, fuzzy
 msgid "Settings"
-msgstr "Опции"
+msgstr "Настройки"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:10
 msgid "Synchronization"
