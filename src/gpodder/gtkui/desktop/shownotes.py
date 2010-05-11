@@ -19,6 +19,7 @@
 
 import gtk
 import gtk.gdk
+import gobject
 import pango
 import threading
 import os
@@ -28,6 +29,8 @@ from xml.sax import saxutils
 import gpodder
 
 _ = gpodder.gettext
+
+from gpodder.liblogger import log
 
 from gpodder import util
 
@@ -56,8 +59,13 @@ class gPodderShownotes(gPodderShownotesBase):
         if self._config.enable_html_shownotes:
             try:
                 import webkit
-                setattr(self, 'have_webkit', True)
-                setattr(self, 'htmlview', webkit.WebView())
+                webview_signals = gobject.signal_list_names(webkit.WebView)
+                if 'navigation-policy-decision-requested' in webview_signals:
+                    setattr(self, 'have_webkit', True)
+                    setattr(self, 'htmlview', webkit.WebView())
+                else:
+                    log('Your WebKit is too old (see bug 1001).', sender=self)
+                    setattr(self, 'have_webkit', False)
 
                 def navigation_policy_decision(wv, fr, req, action, decision):
                     REASON_LINK_CLICKED, REASON_OTHER = 0, 5
