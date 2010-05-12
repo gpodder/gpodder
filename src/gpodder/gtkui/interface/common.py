@@ -407,7 +407,10 @@ class BuilderWidget(GtkBuilderWidget):
             dialog = gtk.Dialog(title, self.main_window,
                     gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     (str(_('Login')), gtk.RESPONSE_OK))
-            dialog.vbox.add(gtk.Label(message))
+            label = gtk.Label(message)
+            label.set_alignment(0., .5)
+            label.set_padding(0, 5)
+            dialog.vbox.add(label)
         else:
             dialog = gtk.MessageDialog(
                 self.main_window,
