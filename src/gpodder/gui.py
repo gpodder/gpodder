@@ -2941,7 +2941,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gPodderWelcome(self.gPodder,
                     center_on_widget=self.gPodder,
                     show_example_podcasts_callback=self.on_itemImportChannels_activate,
-                    setup_my_gpodder_callback=self.on_mygpo_settings_activate)
+                    setup_my_gpodder_callback=self.on_download_subscriptions_from_mygpo)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -3161,6 +3161,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_goto_mygpo(self, widget):
         self.mygpo_client.open_website()
 
+    def on_download_subscriptions_from_mygpo(self, action=None):
+        title = _('Login to gpodder.net')
+        message = _('Please login to download your subscriptions.')
+        success, (username, password) = self.show_login_dialog(title, message, \
+                self.config.mygpo_username, self.config.mygpo_password)
+        if not success:
+            return
+
+        self.config.mygpo_username = username
+        self.config.mygpo_password = password
+
+        dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
+                custom_title=_('Subscriptions on gpodder.net'), \
+                add_urls_callback=self.add_podcast_list, \
+                hide_url_entry=True)
+
+        # TODO: Refactor this into "gpodder.my" or mygpoclient, so that
+        #       we do not have to hardcode the URL here
+        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo_username
+        url = util.url_add_authentication(OPML_URL, \
+                self.config.mygpo_username, \
+                self.config.mygpo_password)
+        dir.download_opml_file(url)
+
     def on_mygpo_settings_activate(self, action=None):
         settings = MygPodderSettings(self.main_window, \
                 config=self.config, \
@@ -3351,7 +3375,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.config.opml_url, \
                     self.add_podcast_list, \
                     self.on_itemAddChannel_activate, \
-                    self.on_mygpo_settings_activate, \
+                    self.on_download_subscriptions_from_mygpo, \
                     self.show_text_edit_dialog)
         else:
             dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \

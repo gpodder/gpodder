@@ -858,33 +858,34 @@ def url_add_authentication(url, username, password):
     return urlparse.urlunsplit(url_parts)
 
 
+def urlopen(url):
+    """
+    An URL opener with the User-agent set to gPodder (with version)
+    """
+    username, password = username_password_from_url(url)
+    if username is not None or password is not None:
+        url = url_strip_authentication(url)
+        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr.add_password(None, url, username, password)
+        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib2.build_opener(handler)
+    else:
+        opener = urllib2.build_opener()
+
+    headers = {'User-agent': gpodder.user_agent}
+    request = urllib2.Request(url, headers=headers)
+    return opener.open(request)
+
 def get_real_url(url):
     """
     Gets the real URL of a file and resolves all redirects.
     """
     try:
-        username, password = username_password_from_url(url)
-        if username or password:
-            url = url_strip_authentication(url)
-            log('url=%s, username=%s, password=%s', url, username, password)
-            password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-            password_mgr.add_password(None, url, username, password)
-            handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-            opener = urllib2.build_opener(handler)
-            return opener.open(url).geturl()
-        else:
-            return urlopen(url).geturl()
+        return urlopen(url).geturl()
     except:
         log('Error getting real url for %s', url, traceback=True)
         return url
 
-def urlopen(url):
-    """
-    An URL opener with the User-agent set to gPodder (with version)
-    """
-    headers = {'User-agent': gpodder.user_agent}
-    request = urllib2.Request(url, headers=headers)
-    return urllib2.urlopen(request)
 
 def find_command( command):
     """
