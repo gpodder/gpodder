@@ -642,7 +642,7 @@ class PodcastListModel(gtk.ListStore):
         # Clear the model and update the list of podcasts
         self.clear()
 
-        if config.podcast_list_view_all:
+        if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
             iter = self.append()
             self.set(iter, \
