@@ -182,6 +182,7 @@ class BuilderWidget(GtkBuilderWidget):
         if gpodder.ui.fremantle:
             # Determine the topmost visible window and attach the
             # message to that window to avoid Maemo Bug 10030
+            import hildon
             stack = hildon.WindowStack.get_default()
             visible_windows = stack.get_windows()
             if visible_windows:
