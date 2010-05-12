@@ -177,6 +177,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 child.reparent(menu)
             self.main_window.set_menu(self.set_finger_friendly(menu))
             self.bluetooth_available = False
+            self._last_orientation = Orientation.LANDSCAPE
         elif gpodder.ui.fremantle:
             import hildon
             self.app = hildon.Program()
