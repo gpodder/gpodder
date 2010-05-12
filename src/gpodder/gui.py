@@ -93,7 +93,6 @@ from gpodder.gtkui.draw import draw_text_box_centered
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
-from gpodder.gtkui.mygpodder import MygPodderSettings
 
 if gpodder.ui.desktop:
     from gpodder.gtkui.download import DownloadStatusModel
@@ -121,6 +120,7 @@ elif gpodder.ui.diablo:
     from gpodder.gtkui.maemo.shownotes import gPodderShownotes
     from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
+    from gpodder.gtkui.maemo.mygpodder import MygPodderSettings
     have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.model import DownloadStatusModel
@@ -3148,7 +3148,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _config=self.config, \
                 callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
-                mygpo_login=self.on_mygpo_settings_activate, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
                 on_send_full_subscriptions=self.on_send_full_subscriptions)
@@ -3187,6 +3186,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dir.download_opml_file(url)
 
     def on_mygpo_settings_activate(self, action=None):
+        # This dialog is only used for Maemo 4
+        if not gpodder.ui.diablo:
+            return
+
         settings = MygPodderSettings(self.main_window, \
                 config=self.config, \
                 mygpo_client=self.mygpo_client, \

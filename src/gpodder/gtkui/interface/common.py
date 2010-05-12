@@ -435,12 +435,17 @@ class BuilderWidget(GtkBuilderWidget):
             username_entry = gtk.Entry()
             password_entry = gtk.Entry()
 
-        if gpodder.ui.maemo:
-            # Disable input capitalization for the login fields
+        # Disable input capitalization for the login fields
+        if gpodder.ui.fremantle:
             username_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
             password_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
+        elif gpodder.ui.diablo:
+            username_entry.set_property('hildon-input-mode', \
+                        'HILDON_GTK_INPUT_MODE_FULL')
+            password_entry.set_property('hildon-input-mode', \
+                        'HILDON_GTK_INPUT_MODE_FULL')
 
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)

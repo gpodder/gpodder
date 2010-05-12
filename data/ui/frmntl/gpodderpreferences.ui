@@ -69,19 +69,92 @@
                     </child>
                     <child>
                       <object class="GtkFrame" id="frame_sync">
-                        <property name="label" translatable="yes">Synchronization</property>
+                        <property name="label" translatable="yes">gpodder.net Synchronization</property>
                         <property name="visible">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="HildonButton" id="button_mygpo">
-                        <property name="title" translatable="yes">Account on gpodder.net</property>
-                        <property name="value">...</property>
-                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                        <property name="style">HILDON_BUTTON_STYLE_PICKER</property>
+                      <object class="HildonCheckButton" id="button_enable_mygpo">
+                        <property name="label" translatable="yes">Synchronize with gpodder.net</property>
                         <property name="visible">True</property>
-                        <signal name="clicked" handler="on_button_mygpo_clicked"/>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_HORIZONTAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <signal name="toggled" handler="on_button_enable_mygpo_toggled"/>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkTable" id="table_mygpo">
+                        <property name="column_spacing">6</property>
+                        <property name="n_columns">2</property>
+                        <property name="n_rows">3</property>
+                        <property name="row_spacing">6</property>
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="label_username">
+                            <property context="yes" name="label" translatable="yes">Username:</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">1.0</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">fill</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label_password">
+                            <property context="yes" name="label" translatable="yes">Password:</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">1.0</property>
+                          </object>
+                          <packing>
+                            <property name="bottom_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="x_options">fill</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label_device">
+                            <property context="yes" name="label" translatable="yes">Device name:</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">1.0</property>
+                          </object>
+                          <packing>
+                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">2</property>
+                            <property name="x_options">fill</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HildonEntry" id="entry_mygpo_username">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HildonEntry" id="entry_mygpo_password">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="bottom_attach">2</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HildonEntry" id="entry_mygpo_device">
+                            <property name="visible">True</property>
+                          </object>
+                          <packing>
+                            <property name="bottom_attach">3</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                     <child>

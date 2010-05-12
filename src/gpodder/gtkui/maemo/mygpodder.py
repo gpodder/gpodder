@@ -50,10 +50,12 @@ class MygPodderSettings(BuilderWidget):
         #self.label_uid_value.set_label(self.config.mygpo_device_uid)
         self.entry_caption.set_text(self.config.mygpo_device_caption)
 
-        if gpodder.ui.fremantle:
-            self.checkbutton_enable.set_name('HildonButton-finger')
-            self.button_overwrite.set_name('HildonButton-finger')
-            #self.button_list_uids.set_name('HildonButton-finger')
+        # Disable input capitalization for the login fields
+        self.entry_username.set_property('hildon-input-mode', \
+                    'HILDON_GTK_INPUT_MODE_FULL')
+        self.entry_password.set_property('hildon-input-mode', \
+                    'HILDON_GTK_INPUT_MODE_FULL')
+        self.entry_password.set_visibility(False)
 
         # Disable mygpo sync while the dialog is open
         self._enable_mygpo = self.config.mygpo_enabled

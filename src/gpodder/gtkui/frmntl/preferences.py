@@ -136,15 +136,12 @@ class gPodderPreferences(BuilderWidget):
         self.touch_selector_video_player.set_active(0, video_player_mapping[self._config.videoplayer])
         self.picker_video_player.set_selector(self.touch_selector_video_player)
 
-        self.update_button_mygpo()
-
         # Fix the styling and layout of the picker buttons
         for button in (self.picker_orientation, \
                        self.picker_interval, \
                        self.picker_download, \
                        self.picker_audio_player, \
-                       self.picker_video_player, \
-                       self.button_mygpo):
+                       self.picker_video_player):
             # Work around Maemo bug #4718
             button.set_name('HildonButton-finger')
             # Fix alignment problems (Maemo bug #6205)
@@ -152,11 +149,26 @@ class gPodderPreferences(BuilderWidget):
             child = button.get_child()
             child.set_padding(0, 0, 12, 0)
 
+        self.button_enable_mygpo.set_name('HildonCheckButton-finger')
+
         self.check_view_all_episodes = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
         self.check_view_all_episodes.set_label(_('Show "All episodes" view'))
         self.check_view_all_episodes.set_active(self._config.podcast_list_view_all)
         self.pannable_vbox.add(self.check_view_all_episodes)
         self.pannable_vbox.reorder_child(self.check_view_all_episodes, 2)
+
+        # Disable capitalization word completion
+        self.entry_mygpo_username.set_property('hildon-input-mode', \
+                gtk.HILDON_GTK_INPUT_MODE_FULL)
+        self.entry_mygpo_password.set_property('hildon-input-mode', \
+                gtk.HILDON_GTK_INPUT_MODE_FULL)
+
+        self.entry_mygpo_password.set_visibility(False)
+
+        self.button_enable_mygpo.set_active(self._config.mygpo_enabled)
+        self.entry_mygpo_username.set_text(self._config.mygpo_username)
+        self.entry_mygpo_password.set_text(self._config.mygpo_password)
+        self.entry_mygpo_device.set_text(self._config.mygpo_device_caption)
 
         self.gPodderPreferences.show_all()
 
@@ -191,21 +203,20 @@ class gPodderPreferences(BuilderWidget):
         new_value = self.video_players[active_index][0]
         self._config.videoplayer = new_value
 
-    def update_button_mygpo(self):
-        if self._config.mygpo_username:
-            self.button_mygpo.set_value(self._config.mygpo_username)
-        else:
-            self.button_mygpo.set_value(_('Not logged in'))
-
-    def on_button_mygpo_clicked(self, button):
-        self.mygpo_login()
-        self.update_button_mygpo()
-
     def on_destroy(self, window):
         if self._do_restore_config:
             self._config.restore_backup(self._config_backup)
         else:
             self._config.podcast_list_view_all = self.check_view_all_episodes.get_active()
+            self._config.mygpo_enabled = self.button_enable_mygpo.get_active()
+            self._config.mygpo_username = self.entry_mygpo_username.get_text()
+            self._config.mygpo_password = self.entry_mygpo_password.get_text()
+            self._config.mygpo_device_caption = self.entry_mygpo_device.get_text()
+
+            # Make sure the device is successfully created/updated
+            self.mygpo_client.create_device()
+            # Flush settings for mygpo client now
+            self.mygpo_client.flush(now=True)
 
         self.callback_finished()
 
