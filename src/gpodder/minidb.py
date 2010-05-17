@@ -50,8 +50,9 @@ class Store(object):
     def _set(self, o, slot, value):
         # Set a slot on the given object to value, doing a cast if
         # necessary. The value None is special-cased and never cast.
-        if value is not None:
-            value = o.__class__.__slots__[slot](value)
+        cls = o.__class__.__slots__[slot]
+        if value is not None and cls != str and cls != unicode:
+            value = cls(value)
         setattr(o, slot, value)
 
     def commit(self):
@@ -97,7 +98,12 @@ class Store(object):
             # Only save values that have values set (non-None values)
             slots = [s for s in slots if getattr(o, s, None) is not None]
 
-            values = [str(getattr(o, slot)) for slot in slots]
+            def convert(v):
+                if isinstance(v, str) or isinstance(v, unicode):
+                    return v
+                else:
+                    return str(v)
+            values = [convert(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
                 ', '.join(slots), ', '.join('?'*len(slots))), values)
 
