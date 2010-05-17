@@ -20,7 +20,6 @@
 import gtk
 import hildon
 import pango
-from xml.sax import saxutils
 import re
 
 import gpodder

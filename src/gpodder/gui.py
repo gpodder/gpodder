@@ -19,7 +19,6 @@
 
 import os
 import platform
-import cgi
 import gtk
 import gtk.gdk
 import gobject
@@ -29,8 +28,6 @@ import shutil
 import subprocess
 import glob
 import time
-import urllib
-import urllib2
 import tempfile
 import collections
 import threading

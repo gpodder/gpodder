@@ -37,8 +37,6 @@ except ImportError:
     import json
 
 import os
-import urllib2
-import sys
 import time
 
 import re

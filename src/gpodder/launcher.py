@@ -31,7 +31,6 @@ Thomas Perl <thpinfo.com>; 2009-05-09
 import sys
 import os
 import os.path
-import platform
 
 import gettext
 

@@ -44,7 +44,6 @@ import re
 import subprocess
 from htmlentitydefs import entitydefs
 import time
-import locale
 import gzip
 import datetime
 import threading

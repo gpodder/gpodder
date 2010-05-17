@@ -24,7 +24,6 @@
 
 
 import gtk
-import gobject
 
 import xml.sax.saxutils
 import urllib

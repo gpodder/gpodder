@@ -24,9 +24,6 @@
 
 import gpodder
 
-import os
-
-from gpodder import model
 from gpodder import util
 
 try:

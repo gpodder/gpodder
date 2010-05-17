@@ -20,7 +20,6 @@
 import gtk
 import os
 import shutil
-import sys
 
 import gpodder
 
@@ -362,7 +361,6 @@ class BuilderWidget(GtkBuilderWidget):
                 text_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
         elif gpodder.ui.diablo:
-            import hildon
             text_entry = gtk.Entry()
             text_entry.set_property('hildon-input-mode', \
                     'HILDON_GTK_INPUT_MODE_FULL')

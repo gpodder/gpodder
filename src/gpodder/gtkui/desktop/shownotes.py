@@ -21,7 +21,6 @@ import gtk
 import gtk.gdk
 import gobject
 import pango
-import threading
 import os
 
 from xml.sax import saxutils
@@ -34,7 +33,6 @@ from gpodder.liblogger import log
 
 from gpodder import util
 
-from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 
 
@@ -112,7 +110,6 @@ class gPodderShownotes(gPodderShownotesBase):
         self.main_window.set_title(self.episode.title)
 
         if self.have_webkit:
-            import webkit
             self.htmlview.load_html_string('<html><head></head><body><em>%s</em></body></html>' % _('Loading shownotes...'), '')
         else:
             self.b = gtk.TextBuffer()
@@ -127,7 +124,6 @@ class gPodderShownotes(gPodderShownotesBase):
         if self.have_webkit:
             global SHOWNOTES_HTML_TEMPLATE
 
-            import webkit
             args = (
                     saxutils.escape(heading),
                     saxutils.escape(subheading),
@@ -149,7 +145,6 @@ class gPodderShownotes(gPodderShownotesBase):
     def on_hide_window(self):
         self.episode = None
         if self.have_webkit:
-            import webkit
             self.htmlview.load_html_string('', '')
         else:
             self.textview.get_buffer().set_text('')

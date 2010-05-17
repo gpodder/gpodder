@@ -75,12 +75,7 @@ services.dependency_manager.depend_on(_('Rockbox cover art support'), _('Copy po
 import os
 import os.path
 import glob
-import shutil
-import sys
 import time
-import string
-import email.Utils
-import re
 
 
 def open_device(config):

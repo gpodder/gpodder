@@ -20,16 +20,12 @@
 # gpodder.gtkui.mygpodder- UI code for gpodder.net settings
 # Thomas Perl <thpinfo.com>; 2010-01-19
 
-import gtk
 import threading
 
 import gpodder
 
 _ = gpodder.gettext
 
-from gpodder import util
-
-from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.common import BuilderWidget
 
 

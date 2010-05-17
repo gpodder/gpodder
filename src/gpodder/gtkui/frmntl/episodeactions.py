@@ -18,7 +18,6 @@
 #
 
 import gtk
-import gobject
 import hildon
 import pango
 import cgi

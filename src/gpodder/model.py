@@ -35,8 +35,6 @@ import os
 import re
 import glob
 import shutil
-import urllib
-import urlparse
 import time
 import datetime
 import rfc822

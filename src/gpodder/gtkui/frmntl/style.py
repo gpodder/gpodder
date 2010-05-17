@@ -19,7 +19,6 @@
 
 
 import gtk
-import hildon
 
 # See the Fremantle Master Layout Guide for more information:
 # http://tinyurl.com/fremantle-master-layout-guide

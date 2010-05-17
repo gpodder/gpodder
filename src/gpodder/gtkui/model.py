@@ -28,7 +28,6 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
-from gpodder import model
 from gpodder.liblogger import log
 
 from gpodder.gtkui import draw

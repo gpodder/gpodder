@@ -24,9 +24,6 @@
 
 
 import gtk
-import gobject
-
-import gpodder
 
 import xml.sax.saxutils
 import urllib

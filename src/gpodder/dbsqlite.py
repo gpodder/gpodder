@@ -48,7 +48,6 @@ if not have_sqlite:
 
 from gpodder.liblogger import log
 
-import string
 import threading
 import re
 

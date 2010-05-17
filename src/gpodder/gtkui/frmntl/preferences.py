@@ -27,7 +27,6 @@ N_ = gpodder.ngettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.interface.common import Orientation
 from gpodder.gtkui.frmntl.portrait import FremantleRotation
 
 import hildon

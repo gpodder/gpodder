@@ -24,10 +24,11 @@
 
 import doctest
 import unittest
-import gettext
 import sys
 
 try:
+    # Unused here locally, but we import it to be able to give an early
+    # warning about this missing dependency in order to avoid bogus errors.
     import minimock
 except ImportError, e:
     print >>sys.stderr, """

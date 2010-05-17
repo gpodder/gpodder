@@ -19,7 +19,6 @@
 
 import gtk
 import pango
-from xml.sax import saxutils
 
 import gpodder
 

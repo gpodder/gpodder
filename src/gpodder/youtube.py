@@ -28,9 +28,6 @@ from gpodder.liblogger import log
 
 import re
 import urllib
-import urllib2
-
-from xml.sax import saxutils
 
 supported_formats = [
     (22, '22/2000000/9/0/115', '1280x720 (HD)'),

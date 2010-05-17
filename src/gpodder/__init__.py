@@ -147,7 +147,6 @@ def load_plugins():
         PLUGINS = DEFAULT_PLUGINS
     else:
         PLUGINS = PLUGINS.split()
-    import imp
     for plugin in PLUGINS:
         try:
             __import__(plugin)

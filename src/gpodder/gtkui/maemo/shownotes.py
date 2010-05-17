@@ -20,10 +20,6 @@
 import gtk
 import gtk.gdk
 import pango
-import urllib2
-import threading
-
-from xml.sax import saxutils
 
 import gpodder
 
@@ -31,7 +27,6 @@ _ = gpodder.gettext
 
 from gpodder import util
 
-from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 
 class gPodderShownotes(gPodderShownotesBase):
