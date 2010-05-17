@@ -202,7 +202,7 @@ class Database(object):
         try:
             self.log("COMMIT")
             self.db.commit()
-        except ProgrammingError, e:
+        except Exception, e:
             log('Error commiting changes: %s', e, sender=self, traceback=True)
         self.lock.release()
 
