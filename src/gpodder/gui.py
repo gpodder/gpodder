@@ -2547,11 +2547,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
                 try:
-                    # Update if timeout is not reached or we update a single podcast or skipping is disabled
-                    if channel.query_automatic_update() or total == 1 or not self.config.feed_update_skipping:
-                        channel.update(max_episodes=self.config.max_episodes_per_feed)
-                    else:
-                        log('Skipping update of %s (see feed_update_skipping)', channel.title, sender=self)
+                    channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception, e:
                     d = {'url': saxutils.escape(channel.url), 'message': saxutils.escape(str(e))}
@@ -3796,7 +3792,6 @@ def main(options=None):
             BuilderWidget.use_fingerscroll = True
     elif gpodder.ui.fremantle:
         config.on_quit_ask = False
-        config.feed_update_skipping = False
 
     config.mygpo_device_type = util.detect_device_type()
 
