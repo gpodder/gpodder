@@ -2812,7 +2812,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
                 progress.on_progress(float(idx)/float(len(episodes)))
-                if episode.is_locked:
+                if episode.is_locked and skip_locked:
                     log('Not deleting episode (is locked): %s', episode.title)
                 else:
                     log('Deleting episode: %s', episode.title)
