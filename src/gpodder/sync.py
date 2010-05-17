@@ -224,7 +224,7 @@ class Device(services.ObservableService):
             local_filename = libconverter.converters.convert(filename, callback=callback_status)
 
             if local_filename is None:
-                log('Cannot convert %s', original_filename, sender=self)
+                log('Cannot convert %s', filename, sender=self)
                 return filename
 
             return str(local_filename)

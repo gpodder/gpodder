@@ -43,9 +43,8 @@ RRECT_LEFT_SIDE = 1
 RRECT_RIGHT_SIDE = 2
 
 def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_to_draw=0, close=False):
-    if left_side_width is None:
-        left_side_width = flw/2
-    
+    assert left_side_width is not None
+
     x = int(x)
     offset = 0
     if close: offset = 0.5
