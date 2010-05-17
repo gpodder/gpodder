@@ -310,10 +310,6 @@ class MygPoClient(object):
 
         self.flush()
 
-    @property
-    def actions(self):
-        return self._cache.get('actions', Actions.NONE)
-
     def _at_exit(self):
         self._worker_proc(forced=True)
         self._store.commit()
