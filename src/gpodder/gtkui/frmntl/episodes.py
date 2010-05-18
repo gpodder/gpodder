@@ -55,6 +55,7 @@ class gPodderEpisodes(BuilderWidget):
         self.context_menu.append(self.action_shownotes.create_menu_item())
         self.context_menu.append(self.action_download.create_menu_item())
         self.context_menu.append(self.action_delete.create_menu_item())
+        self.context_menu.append(gtk.SeparatorMenuItem())
         self.context_menu.append(self.action_keep.create_menu_item())
         self.context_menu.append(self.action_mark_as_old.create_menu_item())
         self.context_menu.show_all()
@@ -147,15 +148,10 @@ class gPodderEpisodes(BuilderWidget):
                 self.action_keep.set_property('visible', False)
                 self.action_download.set_property('visible', not self.episode_is_downloading(episode))
 
-            if episode.is_locked:
-                self.action_keep.set_property('label', _('Do not keep'))
-            else:
-                self.action_keep.set_property('label', _('Keep'))
+            self.touched_episode = None
 
-            if episode.is_played:
-                self.action_mark_as_old.set_property('label', _('Mark as new'))
-            else:
-                self.action_mark_as_old.set_property('label', _('Mark as old'))
+            self.action_keep.set_active(episode.is_locked)
+            self.action_mark_as_old.set_active(not episode.is_played)
 
             self.touched_episode = episode
         else:
