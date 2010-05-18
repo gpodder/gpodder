@@ -697,8 +697,14 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get('updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
+        enclosures = entry.get('enclosures', ())
+        audio_available = any(e.get('type', '').startswith('audio/') \
+                for e in enclosures)
+        video_available = any(e.get('type', '').startswith('video/') \
+                for e in enclosures)
+
         # Enclosures
-        for e in entry.get('enclosures', ()):
+        for e in enclosures:
             episode.mimetype = e.get('type', 'application/octet-stream')
             if episode.mimetype == '':
                 # See Maemo bug 10036
@@ -706,6 +712,11 @@ class PodcastEpisode(PodcastModelObject):
                 episode.mimetype = 'application/octet-stream'
 
             if '/' not in episode.mimetype:
+                continue
+
+            # Skip images in feeds if audio or video is available (bug 979)
+            if episode.mimetype.startswith('image/') and \
+                    (audio_available or video_available):
                 continue
 
             episode.url = util.normalize_feed_url(e.get('href', ''))
