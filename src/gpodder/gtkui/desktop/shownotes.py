@@ -124,10 +124,16 @@ class gPodderShownotes(gPodderShownotesBase):
         if self.have_webkit:
             global SHOWNOTES_HTML_TEMPLATE
 
+            # Get the description - if it looks like plaintext, replace the
+            # newline characters with line breaks for the HTML view
+            description = self.episode.description
+            if '<' not in description:
+                description = description.replace('\n', '<br>')
+
             args = (
                     saxutils.escape(heading),
                     saxutils.escape(subheading),
-                    self.episode.description,
+                    description,
             )
             url = os.path.dirname(self.episode.channel.url)
             self.htmlview.load_html_string(SHOWNOTES_HTML_TEMPLATE % args, url)
