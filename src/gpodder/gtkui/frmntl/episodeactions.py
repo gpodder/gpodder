@@ -33,7 +33,6 @@ from gpodder.download import DownloadTask
 
 class gPodderEpisodeActions(BuilderWidget):
     BUTTON_HEIGHT = gtk.HILDON_SIZE_FINGER_HEIGHT
-    CHOICE_AUTOREMOVE, CHOICE_KEEP = range(2)
     CHOICE_MARK_NEW, CHOICE_MARK_OLD = range(2)
     MODE_NOT_DOWNLOADED, MODE_DOWNLOADING, MODE_DOWNLOADED = range(3)
     MODE_RESUME, MODE_PAUSE = range(2)
@@ -45,7 +44,7 @@ class gPodderEpisodeActions(BuilderWidget):
         self.download_task_monitor = None
         self.action_table = None
         self.should_set_new_value = False
-        self.should_set_keep_value = False
+        self.new_keep_value = False
 
         sub_font = style.get_font_desc('SmallSystemFont')
         sub_color = style.get_color('SecondaryTextColor')
@@ -175,13 +174,10 @@ class gPodderEpisodeActions(BuilderWidget):
     def create_ui_downloaded(self):
         play_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
         shownotes_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
-        autoremove_button = hildon.GtkRadioButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH)
-        keep_button = hildon.GtkRadioButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH, autoremove_button)
-
-        keep_actions = gtk.HBox(homogeneous=True)
-        for button in (autoremove_button, keep_button):
-            button.set_mode(False)
-            keep_actions.add(button)
+        delete_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        keep_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH)
+        keep_button.set_label(_('Keep episode'))
+        keep_button.connect('toggled', self.on_keep_toggled)
 
         if self.episode.is_played:
             self.action_play.set_property('label', _('Continue playback'))
@@ -193,21 +189,18 @@ class gPodderEpisodeActions(BuilderWidget):
 
         self.action_play.connect_proxy(play_button)
         self.action_shownotes.connect_proxy(shownotes_button)
-        self.radio_action_autoremove.connect_proxy(autoremove_button)
-        self.radio_action_keep.connect_proxy(keep_button)
+        self.action_delete.connect_proxy(delete_button)
 
-        autoremove_button.set_active(not self.episode.is_locked)
         keep_button.set_active(self.episode.is_locked)
+        self.new_keep_value = self.episode.is_locked
 
-        keep_row = gtk.HBox()
-        keep_row.set_spacing(10)
-        keep_row.pack_start(gtk.Label(_('Delete strategy:')), expand=False)
-        keep_row.pack_start(keep_actions, expand=True, fill=True)
+        self.action_delete.set_sensitive(not self.new_keep_value)
 
         table = gtk.Table(2, 2, True)
         table.attach(play_button, 0, 1, 0, 1)
         table.attach(shownotes_button, 1, 2, 0, 1)
-        table.attach(keep_row, 0, 2, 1, 2)
+        table.attach(delete_button, 0, 1, 1, 2)
+        table.attach(keep_button, 1, 2, 1, 2)
         return table
 
     def on_cancel_button_clicked(self, button):
@@ -220,6 +213,13 @@ class gPodderEpisodeActions(BuilderWidget):
         else:
             self.for_each_episode_set_task_status((self.episode,), DownloadTask.QUEUED)
 
+    def on_delete_button_clicked(self, button):
+        episodes = [self.episode]
+
+        # on_delete_event means the "dialog delete event"
+        self.on_delete_event(button)
+
+        self.delete_episode_list(episodes)
 
     def on_shownotes_button_clicked(self, button):
         self.on_delete_event(button)
@@ -240,8 +240,9 @@ class gPodderEpisodeActions(BuilderWidget):
     def on_mark_new_changed(self, action, current):
         self.should_set_new_value = True
 
-    def on_autoremove_changed(self, action, current):
-        self.should_set_keep_value = True
+    def on_keep_toggled(self, action):
+        self.new_keep_value = action.get_active()
+        self.action_delete.set_sensitive(not self.new_keep_value)
 
     def on_delete_event(self, widget, event=None):
         self.remove_download_task_monitor(self.download_task_monitor)
@@ -260,8 +261,7 @@ class gPodderEpisodeActions(BuilderWidget):
                        self.action_open_downloads, \
                        self.radio_action_mark_new, \
                        self.radio_action_mark_old, \
-                       self.radio_action_autoremove, \
-                       self.radio_action_keep):
+                       self.action_delete):
             for proxy in action.get_proxies():
                 action.disconnect_proxy(proxy)
 
@@ -276,16 +276,9 @@ class gPodderEpisodeActions(BuilderWidget):
                     not self.episode.is_played:
                 self.episode.mark(is_played=True)
                 changed = True
-        if self.should_set_keep_value:
-            value = self.radio_action_autoremove.get_current_value()
-            if value == self.CHOICE_AUTOREMOVE and \
-                    self.episode.is_locked:
-                self.episode.mark(is_locked=False)
-                changed = True
-            elif value == self.CHOICE_KEEP and \
-                    not self.episode.is_locked:
-                self.episode.mark(is_locked=True)
-                changed = True
+        if self.new_keep_value != self.episode.is_locked:
+            self.episode.mark(is_locked=self.new_keep_value)
+            changed = True
 
         if changed:
             self.episode_list_status_changed([self.episode])

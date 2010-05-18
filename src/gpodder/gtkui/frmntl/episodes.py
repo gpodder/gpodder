@@ -45,7 +45,8 @@ class gPodderEpisodes(BuilderWidget):
                 show_episode_in_download_manager=self.show_episode_in_download_manager, \
                 add_download_task_monitor=self.add_download_task_monitor, \
                 remove_download_task_monitor=self.remove_download_task_monitor, \
-                for_each_episode_set_task_status=self.for_each_episode_set_task_status)
+                for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
+                delete_episode_list=self.delete_episode_list)
 
         # Tap-and-hold (aka "long press") context menu
         self.touched_episode = None
