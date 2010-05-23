@@ -24,9 +24,6 @@
 
 import gpodder
 
-import os
-
-from gpodder import model
 from gpodder import util
 
 try:
@@ -91,6 +88,21 @@ class DBusPodcastsProxy(dbus.service.Object):
             return (title, url, description, cover_file)
 
         return [podcast_to_tuple(p) for p in self._get_podcasts()]
+
+    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='ss')
+    def get_episode_title(self, url):
+        if url.startswith('file://'):
+            url = url[len('file://'):]
+
+        # TODO: Implement for non-local URLs (for streaming, etc..)
+
+        for podcast in self._get_podcasts():
+            if url.startswith(podcast.save_dir):
+                for episode in podcast.get_downloaded_episodes():
+                    if episode.local_filename(create=False) == url:
+                        return episode.title, podcast.title
+
+        return ('', '')
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='a(sssssbbb)')
     def get_episodes(self, url):

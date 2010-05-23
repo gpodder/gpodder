@@ -40,11 +40,8 @@ from gpodder import util
 
 import xml.dom.minidom
 
-import urllib
-import urllib2
 import os.path
 import os
-import platform
 import shutil
 
 from email.Utils import formatdate

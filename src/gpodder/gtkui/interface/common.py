@@ -20,7 +20,6 @@
 import gtk
 import os
 import shutil
-import sys
 
 import gpodder
 
@@ -172,6 +171,24 @@ class BuilderWidget(GtkBuilderWidget):
     def notification(self, message, title=None, important=False, widget=None):
         util.idle_add(self.show_message, message, title, important, widget)
 
+    def get_dialog_parent(self):
+        """Return a gtk.Window that should be the parent of dialogs
+
+        On non-Fremantle environments, this simply returns the main
+        window of this dialog. On Fremantle, it tries to determine
+        the topmost window from the window stack if possible.
+        """
+        if gpodder.ui.fremantle:
+            # Determine the topmost visible window and attach the
+            # message to that window to avoid Maemo Bug 10030
+            import hildon
+            stack = hildon.WindowStack.get_default()
+            visible_windows = stack.get_windows()
+            if visible_windows:
+                parent_window = visible_windows[0]
+
+        return self.main_window
+
     def show_message(self, message, title=None, important=False, widget=None):
         if gpodder.ui.diablo:
             import hildon
@@ -204,7 +221,9 @@ class BuilderWidget(GtkBuilderWidget):
                     message = message
                 else:
                     message = '%s\n%s' % (title, message)
-                dlg = hildon.hildon_note_new_information(self.main_window, \
+
+                dlg = hildon.hildon_note_new_information( \
+                        self.get_dialog_parent(), \
                         message)
                 dlg.run()
                 dlg.destroy()
@@ -302,7 +321,7 @@ class BuilderWidget(GtkBuilderWidget):
             return response == gtk.RESPONSE_OK
         elif gpodder.ui.fremantle:
             import hildon
-            dlg = hildon.hildon_note_new_confirmation(self.main_window, \
+            dlg = hildon.hildon_note_new_confirmation(self.get_dialog_parent(), \
                     message)
             response = dlg.run()
             dlg.destroy()
@@ -312,7 +331,7 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
             is_url=False):
-        dialog = gtk.Dialog(title, self.main_window, \
+        dialog = gtk.Dialog(title, self.get_dialog_parent(), \
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
         
         if gpodder.ui.fremantle:
@@ -342,7 +361,6 @@ class BuilderWidget(GtkBuilderWidget):
                 text_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
         elif gpodder.ui.diablo:
-            import hildon
             text_entry = gtk.Entry()
             text_entry.set_property('hildon-input-mode', \
                     'HILDON_GTK_INPUT_MODE_FULL')
@@ -371,10 +389,11 @@ class BuilderWidget(GtkBuilderWidget):
 
         dialog.show_all()
         response = dialog.run()
+        result = text_entry.get_text()
         dialog.destroy()
 
         if response == gtk.RESPONSE_OK:
-            return text_entry.get_text()
+            return result
         else:
             return None
 
@@ -386,7 +405,10 @@ class BuilderWidget(GtkBuilderWidget):
             dialog = gtk.Dialog(title, self.main_window,
                     gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     (str(_('Login')), gtk.RESPONSE_OK))
-            dialog.vbox.add(gtk.Label(message))
+            label = gtk.Label(message)
+            label.set_alignment(0., .5)
+            label.set_padding(0, 5)
+            dialog.vbox.add(label)
         else:
             dialog = gtk.MessageDialog(
                 self.main_window,
@@ -411,12 +433,17 @@ class BuilderWidget(GtkBuilderWidget):
             username_entry = gtk.Entry()
             password_entry = gtk.Entry()
 
-        if gpodder.ui.maemo:
-            # Disable input capitalization for the login fields
+        # Disable input capitalization for the login fields
+        if gpodder.ui.fremantle:
             username_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
             password_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
+        elif gpodder.ui.diablo:
+            username_entry.set_property('hildon-input-mode', \
+                        'HILDON_GTK_INPUT_MODE_FULL')
+            password_entry.set_property('hildon-input-mode', \
+                        'HILDON_GTK_INPUT_MODE_FULL')
 
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)
@@ -452,9 +479,13 @@ class BuilderWidget(GtkBuilderWidget):
             response = dialog.run()
 
         password_entry.set_visibility(True)
+        username = username_entry.get_text()
+        password = password_entry.get_text()
+        success = (response == gtk.RESPONSE_OK)
+
         dialog.destroy()
 
-        return response == gtk.RESPONSE_OK, ( username_entry.get_text(), password_entry.get_text() )
+        return (success, (username, password))
 
     def show_copy_dialog(self, src_filename, dst_filename=None, dst_directory=None, title=_('Select destination')):
         if dst_filename is None:

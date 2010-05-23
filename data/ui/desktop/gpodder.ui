@@ -46,7 +46,7 @@
           <object class="GtkAction" id="itemRemoveOldEpisodes">
             <property name="stock_id">gtk-delete</property>
             <property name="name">itemRemoveOldEpisodes</property>
-            <property name="label" translatable="yes">Delete old episodes</property>
+            <property name="label" translatable="yes">Delete episodes</property>
             <signal handler="on_itemRemoveOldEpisodes_activate" name="activate"/>
           </object>
           <accelerator key="K" modifiers="GDK_CONTROL_MASK"/>
@@ -154,13 +154,6 @@
             <property name="name">itemExportChannels</property>
             <property name="label" translatable="yes">Export to OPML file</property>
             <signal handler="on_itemExportChannels_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_mygpo_settings">
-            <property name="name">item_mygpo_settings</property>
-            <property name="label" translatable="yes">gpodder.net Settings</property>
-            <signal handler="on_mygpo_settings_activate" name="activate"/>
           </object>
         </child>
         <child>
@@ -370,7 +363,7 @@
         <child>
           <object class="GtkAction" id="homepage">
             <property name="name">homepage</property>
-            <property name="label" translatable="yes">Go to gpodder.org</property>
+            <property name="label" translatable="yes">Website</property>
             <signal handler="on_homepage_activate" name="activate"/>
           </object>
         </child>
@@ -422,9 +415,6 @@
           <menuitem action="itemExportChannels"/>
           <separator/>
           <menuitem action="itemMassUnsubscribe"/>
-          <separator/>
-          <menuitem action="item_mygpo_settings"/>
-          <menuitem action="item_goto_mygpo"/>
         </menu>
         <menu action="menuChannels">
           <menuitem action="itemPlaySelected"/>
@@ -461,6 +451,7 @@
         </menu>
         <menu action="menuHelp">
           <menuitem action="wiki"/>
+          <menuitem action="item_goto_mygpo"/>
           <separator/>
           <menuitem action="homepage"/>
           <menuitem action="bug_tracker"/>

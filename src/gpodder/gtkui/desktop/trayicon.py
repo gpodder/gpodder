@@ -23,7 +23,6 @@
 
 
 import gtk
-import datetime
 
 import gpodder
 from gpodder.liblogger import log
@@ -31,12 +30,7 @@ from gpodder.liblogger import log
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-from gpodder import services
-from gpodder import util
-
 from gpodder.gtkui import draw
-
-from xml.sax import saxutils
 
 class GPodderStatusIcon(gtk.StatusIcon):
     """ this class display a status icon in the system tray

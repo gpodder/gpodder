@@ -75,12 +75,7 @@ services.dependency_manager.depend_on(_('Rockbox cover art support'), _('Copy po
 import os
 import os.path
 import glob
-import shutil
-import sys
 import time
-import string
-import email.Utils
-import re
 
 
 def open_device(config):
@@ -196,8 +191,7 @@ class Device(services.ObservableService):
                 log('Excluding %s from sync', track.title, sender=self)
                 tracklist.remove(track)
 
-        compare_episodes = lambda a, b: cmp(a.pubDate, b.pubDate)
-        for id, track in enumerate(sorted(tracklist, cmp=compare_episodes)):
+        for id, track in enumerate(sorted(tracklist, key=lambda e: e.pubDate)):
             if self.cancelled:
                 return False
 
@@ -230,7 +224,7 @@ class Device(services.ObservableService):
             local_filename = libconverter.converters.convert(filename, callback=callback_status)
 
             if local_filename is None:
-                log('Cannot convert %s', original_filename, sender=self)
+                log('Cannot convert %s', filename, sender=self)
                 return filename
 
             return str(local_filename)
@@ -327,7 +321,7 @@ class iPodDevice(Device):
                 if gtrack.playcount > 0:
                     if delete_from_db and not gtrack.rating:
                         log('Deleting episode from db %s', gtrack.title, sender=self)
-                        channel.delete_episode_by_url(gtrack.podcasturl)
+                        channel.delete_episode(episode)
                     else:
                         log('Marking episode as played %s', gtrack.title, sender=self)
                         episode.mark(is_played=True)
@@ -712,9 +706,7 @@ class MP3PlayerDevice(Device):
         convert the cover file to a Bitmap file, which Rockbox needs.
         """
         try:
-            cover_loc = os.path.join(os.path.dirname(local_filename), 'cover')
-            if not os.path.exists(cover_loc):
-                cover_loc = os.path.join(os.path.dirname(local_filename), '.cover')
+            cover_loc = os.path.join(os.path.dirname(local_filename), 'folder.jpg')
             cover_dst = os.path.join(destination, cover_dst_name)
             if os.path.isfile(cover_loc):
                 log('Creating cover art file on player', sender=self)

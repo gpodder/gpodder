@@ -28,12 +28,6 @@ import gpodder
 from gpodder.liblogger import log
 
 from gpodder import util
-from gpodder import download
-
-import threading
-import time
-import urllib2
-import os
 
 _ = gpodder.gettext
 

@@ -18,7 +18,6 @@
 #
 
 import gtk
-import gobject
 import hildon
 
 import gpodder
@@ -29,6 +28,7 @@ from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.model import EpisodeListModel
+from gpodder.gtkui.model import PodcastChannelProxy
 
 from gpodder.gtkui.frmntl.episodeactions import gPodderEpisodeActions
 
@@ -45,7 +45,8 @@ class gPodderEpisodes(BuilderWidget):
                 show_episode_in_download_manager=self.show_episode_in_download_manager, \
                 add_download_task_monitor=self.add_download_task_monitor, \
                 remove_download_task_monitor=self.remove_download_task_monitor, \
-                for_each_episode_set_task_status=self.for_each_episode_set_task_status)
+                for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
+                delete_episode_list=self.delete_episode_list)
 
         # Tap-and-hold (aka "long press") context menu
         self.touched_episode = None
@@ -55,6 +56,7 @@ class gPodderEpisodes(BuilderWidget):
         self.context_menu.append(self.action_shownotes.create_menu_item())
         self.context_menu.append(self.action_download.create_menu_item())
         self.context_menu.append(self.action_delete.create_menu_item())
+        self.context_menu.append(gtk.SeparatorMenuItem())
         self.context_menu.append(self.action_keep.create_menu_item())
         self.context_menu.append(self.action_mark_as_old.create_menu_item())
         self.context_menu.show_all()
@@ -67,7 +69,9 @@ class gPodderEpisodes(BuilderWidget):
                        self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
-                       self.action_update):
+                       self.action_update, \
+                       self.action_check_for_new_episodes, \
+                       self.action_delete_episodes):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
@@ -145,15 +149,10 @@ class gPodderEpisodes(BuilderWidget):
                 self.action_keep.set_property('visible', False)
                 self.action_download.set_property('visible', not self.episode_is_downloading(episode))
 
-            if episode.is_locked:
-                self.action_keep.set_property('label', _('Do not keep'))
-            else:
-                self.action_keep.set_property('label', _('Keep'))
+            self.touched_episode = None
 
-            if episode.is_played:
-                self.action_mark_as_old.set_property('label', _('Mark as new'))
-            else:
-                self.action_mark_as_old.set_property('label', _('Mark as old'))
+            self.action_keep.set_active(episode.is_locked)
+            self.action_mark_as_old.set_active(not episode.is_played)
 
             self.touched_episode = episode
         else:
@@ -182,7 +181,25 @@ class gPodderEpisodes(BuilderWidget):
             self.touched_episode.mark(is_played=not self.touched_episode.is_played)
             self.episode_list_status_changed([self.touched_episode])
 
+    def on_check_for_new_episodes_button_clicked(self, widget):
+        self.show_message(_('Checking for new episodes...'))
+        self.on_itemUpdate_activate(widget)
+
     def show(self):
+        # Check if we are displaying the "all episodes" view
+        all_episodes = isinstance(self.channel, PodcastChannelProxy)
+
+        for action in (self.action_rename, \
+                       self.action_play_m3u, \
+                       self.action_login, \
+                       self.action_unsubscribe, \
+                       self.action_update):
+            action.set_visible(not all_episodes)
+
+        for action in (self.action_check_for_new_episodes, \
+                       self.action_delete_episodes):
+            action.set_visible(all_episodes)
+
         self.main_window.set_title(self.channel.title)
         self.main_window.show()
         self.treeview.grab_focus()

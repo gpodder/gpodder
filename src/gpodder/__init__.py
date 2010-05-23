@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.5'
-__date__      = '2010-04-20'
+__version__   = '2.6'
+__date__      = '2010-05-23'
 __copyright__ = '© 2005-2010 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -147,7 +147,6 @@ def load_plugins():
         PLUGINS = DEFAULT_PLUGINS
     else:
         PLUGINS = PLUGINS.split()
-    import imp
     for plugin in PLUGINS:
         try:
             __import__(plugin)

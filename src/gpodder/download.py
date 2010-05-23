@@ -720,10 +720,9 @@ class DownloadTask(object):
 
             shutil.move(self.tempname, self.filename)
 
-            # Get the _real_ filesize once we actually have the file
-            self.__episode.length = os.path.getsize(self.filename)
-            self.__episode.channel.addDownloadedItem(self.__episode)
-            
+            # Model- and database-related updates after a download has finished
+            self.__episode.on_downloaded(self.filename)
+
             # If a user command has been defined, execute the command setting some environment variables
             if len(self._config.cmd_download_complete) > 0:
                 os.environ["GPODDER_EPISODE_URL"]=self.__episode.url or ''

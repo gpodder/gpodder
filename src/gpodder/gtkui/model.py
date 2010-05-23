@@ -28,7 +28,6 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
-from gpodder import model
 from gpodder.liblogger import log
 
 from gpodder.gtkui import draw
@@ -176,7 +175,9 @@ class EpisodeListModel(gtk.ListStore):
 
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
-        episodes = list(channel.get_all_episodes())
+        episodes = channel.get_all_episodes()
+        if not isinstance(episodes, list):
+            episodes = list(episodes)
         count = len(episodes)
 
         for position, episode in enumerate(episodes):
@@ -319,6 +320,9 @@ class EpisodeListModel(gtk.ListStore):
                             tooltip.append(_('opened'))
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
+
+                if episode.total_time > 0:
+                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time)))
 
                 tooltip = ', '.join(tooltip)
 
@@ -467,12 +471,8 @@ class PodcastChannelProxy(object):
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        def all_episodes():
-            for channel in self.channels:
-                for episode in channel.get_all_episodes():
-                    episode._all_episodes_view = True
-                    yield episode
-        return model.PodcastEpisode.sort_by_pubdate(all_episodes(), reverse=True)
+        channel_lookup_map = dict((c.id, c) for c in self.channels)
+        return self._db.load_all_episodes(channel_lookup_map)
 
     def request_save_dir_size(self):
         if not self._save_dir_size_set:
@@ -641,7 +641,7 @@ class PodcastListModel(gtk.ListStore):
         # Clear the model and update the list of podcasts
         self.clear()
 
-        if config.podcast_list_view_all:
+        if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
             iter = self.append()
             self.set(iter, \

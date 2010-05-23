@@ -37,8 +37,6 @@ except ImportError:
     import json
 
 import os
-import urllib2
-import sys
 import time
 
 import re
@@ -130,12 +128,13 @@ class SoundcloudUser(object):
         The generator will give you a dictionary for every
         track it can find for its user."""
         try:
-            json_url = 'http://api.soundcloud.com/users/%s/tracks.json' % self.username
+            json_url = 'http://api.soundcloud.com/users/%s/tracks.json?filter=downloadable' % self.username
             tracks = (track for track in json.load(util.urlopen(json_url)) \
                     if track['downloadable'])
 
             for track in tracks:
-                url = track['download_url']
+                # Prefer stream URL (MP3), fallback to download URL
+                url = track.get('stream_url', track['download_url'])
                 if url not in self.cache:
                     try:
                         self.cache[url] = get_metadata(url)
@@ -147,7 +146,7 @@ class SoundcloudUser(object):
                     'title': track.get('title', track.get('permalink', _('Unknown track'))),
                     'link': track.get('permalink_url', 'http://soundcloud.com/'+self.username),
                     'description': track.get('description', _('No description available')),
-                    'url': track['download_url'],
+                    'url': url,
                     'length': int(filesize),
                     'mimetype': filetype,
                     'guid': track.get('permalink', track.get('id')),

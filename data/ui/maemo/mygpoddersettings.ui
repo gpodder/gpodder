@@ -2,11 +2,11 @@
 <!--*- mode: xml -*-->
 <interface>
   <object class="GtkDialog" id="MygPodderSettings">
-    <property name="default_height">260</property>
     <property name="default_width">320</property>
-    <property name="title" translatable="yes">gpodder.net settings</property>
+    <property name="title" translatable="yes">My gpodder.net account</property>
     <property name="type_hint">dialog</property>
     <property name="visible">True</property>
+    <property name="modal">True</property>
     <signal handler="on_delete_event" name="delete-event"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox">
@@ -14,15 +14,15 @@
         <property name="visible">True</property>
         <child>
           <object class="GtkTable" id="table">
-            <property name="border_width">12</property>
+            <property name="border_width">6</property>
             <property name="column_spacing">6</property>
             <property name="n_columns">3</property>
-            <property name="n_rows">9</property>
+            <property name="n_rows">7</property>
             <property name="row_spacing">6</property>
             <property name="visible">True</property>
             <child>
               <object class="GtkCheckButton" id="checkbutton_enable">
-                <property name="label" translatable="yes">Enable synchronization of subscription list</property>
+                <property name="label" translatable="yes">Synchronize subscriptions and episode actions</property>
                 <property name="visible">True</property>
                 <signal handler="on_enabled_toggled" name="toggled"/>
               </object>
@@ -63,58 +63,20 @@
                 <signal handler="on_button_overwrite_clicked" name="clicked"/>
               </object>
               <packing>
-                <property name="bottom_attach">5</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_device">
-                <property name="label" translatable="yes">&lt;b&gt;Device configuration&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
                 <property name="bottom_attach">6</property>
                 <property name="right_attach">3</property>
                 <property name="top_attach">5</property>
-                <property name="y_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_uid">
-                <property name="label" translatable="yes">Device ID:</property>
-                <property name="visible">True</property>
-                <property name="xalign">1.0</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">7</property>
-                <property name="top_attach">6</property>
-                <property name="x_options">fill</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel" id="label_caption">
-                <property name="label" translatable="yes">Device Name:</property>
+                <property name="label" translatable="yes">Device name:</property>
                 <property name="visible">True</property>
                 <property name="xalign">1.0</property>
               </object>
               <packing>
-                <property name="bottom_attach">8</property>
-                <property name="top_attach">7</property>
-                <property name="x_options">fill</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label_type">
-                <property name="label" translatable="yes">Type:</property>
-                <property name="visible">True</property>
-                <property name="xalign">1.0</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">9</property>
-                <property name="top_attach">8</property>
+                <property name="bottom_attach">5</property>
+                <property name="top_attach">4</property>
                 <property name="x_options">fill</property>
               </packing>
             </child>
@@ -145,55 +107,15 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label_uid_value">
-                <property name="visible">True</property>
-                <property name="xalign">0.0</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">7</property>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">6</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkEntry" id="entry_caption">
                 <property name="visible">True</property>
                 <signal handler="on_device_caption_changed" name="changed"/>
               </object>
               <packing>
-                <property name="bottom_attach">8</property>
+                <property name="bottom_attach">5</property>
                 <property name="left_attach">1</property>
                 <property name="right_attach">3</property>
-                <property name="top_attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="combo_type">
-                <property name="visible">True</property>
-                <signal handler="on_device_type_changed" name="changed"/>
-              </object>
-              <packing>
-                <property name="bottom_attach">9</property>
-                <property name="left_attach">1</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">8</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="button_list_uids">
-                <property name="label" translatable="yes">Select device</property>
-                <property name="visible">True</property>
-                <signal handler="on_button_list_uids_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="bottom_attach">7</property>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">6</property>
-                <property name="x_options">fill</property>
-                <property name="y_options"></property>
+                <property name="top_attach">4</property>
               </packing>
             </child>
           </object>

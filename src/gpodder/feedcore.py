@@ -24,10 +24,6 @@
 
 import feedparser
 
-import urllib
-import urlparse
-import urllib2
-
 def patch_feedparser():
     """Monkey-patch the Universal Feed Parser"""
     # Detect the 'plain' content type as 'text/plain'

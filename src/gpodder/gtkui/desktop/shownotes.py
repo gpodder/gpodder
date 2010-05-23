@@ -19,8 +19,8 @@
 
 import gtk
 import gtk.gdk
+import gobject
 import pango
-import threading
 import os
 
 from xml.sax import saxutils
@@ -29,9 +29,10 @@ import gpodder
 
 _ = gpodder.gettext
 
+from gpodder.liblogger import log
+
 from gpodder import util
 
-from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 
 
@@ -56,8 +57,13 @@ class gPodderShownotes(gPodderShownotesBase):
         if self._config.enable_html_shownotes:
             try:
                 import webkit
-                setattr(self, 'have_webkit', True)
-                setattr(self, 'htmlview', webkit.WebView())
+                webview_signals = gobject.signal_list_names(webkit.WebView)
+                if 'navigation-policy-decision-requested' in webview_signals:
+                    setattr(self, 'have_webkit', True)
+                    setattr(self, 'htmlview', webkit.WebView())
+                else:
+                    log('Your WebKit is too old (see bug 1001).', sender=self)
+                    setattr(self, 'have_webkit', False)
 
                 def navigation_policy_decision(wv, fr, req, action, decision):
                     REASON_LINK_CLICKED, REASON_OTHER = 0, 5
@@ -104,7 +110,6 @@ class gPodderShownotes(gPodderShownotesBase):
         self.main_window.set_title(self.episode.title)
 
         if self.have_webkit:
-            import webkit
             self.htmlview.load_html_string('<html><head></head><body><em>%s</em></body></html>' % _('Loading shownotes...'), '')
         else:
             self.b = gtk.TextBuffer()
@@ -119,11 +124,16 @@ class gPodderShownotes(gPodderShownotesBase):
         if self.have_webkit:
             global SHOWNOTES_HTML_TEMPLATE
 
-            import webkit
+            # Get the description - if it looks like plaintext, replace the
+            # newline characters with line breaks for the HTML view
+            description = self.episode.description
+            if '<' not in description:
+                description = description.replace('\n', '<br>')
+
             args = (
                     saxutils.escape(heading),
                     saxutils.escape(subheading),
-                    self.episode.description,
+                    description,
             )
             url = os.path.dirname(self.episode.channel.url)
             self.htmlview.load_html_string(SHOWNOTES_HTML_TEMPLATE % args, url)
@@ -141,7 +151,6 @@ class gPodderShownotes(gPodderShownotesBase):
     def on_hide_window(self):
         self.episode = None
         if self.have_webkit:
-            import webkit
             self.htmlview.load_html_string('', '')
         else:
             self.textview.get_buffer().set_text('')

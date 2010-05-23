@@ -25,6 +25,8 @@ _ = gpodder.gettext
 
 from gpodder.gtkui.interface.common import BuilderWidget
 
+from gpodder import util
+
 
 class gPodderAddPodcast(BuilderWidget):
     finger_friendly_widgets = ['btn_close', 'btn_add' 'btn_paste']
@@ -51,6 +53,21 @@ class gPodderAddPodcast(BuilderWidget):
             self.entry_url.set_property('hildon-input-mode', \
                     'HILDON_GTK_INPUT_MODE_FULL')
         self.gPodderAddPodcast.show()
+
+        # Fill the entry if a valid URL is in the clipboard
+        clipboard = gtk.Clipboard(selection='PRIMARY')
+        def receive_clipboard_text(clipboard, text, second_try):
+            if text is not None:
+                url = util.normalize_feed_url(text)
+                if url is not None:
+                    self.entry_url.set_text(url)
+                    self.entry_url.set_position(-1)
+                    return
+
+            if not second_try:
+                clipboard = gtk.Clipboard()
+                clipboard.request_text(receive_clipboard_text, True)
+        clipboard.request_text(receive_clipboard_text, False)
 
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcast.destroy()

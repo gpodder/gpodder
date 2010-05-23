@@ -35,8 +35,6 @@ import os
 import re
 import glob
 import shutil
-import urllib
-import urlparse
 import time
 import datetime
 import rfc822
@@ -176,7 +174,10 @@ class PodcastChannel(PodcastModelObject):
         self.save()
 
         guids = [episode.guid for episode in self.get_all_episodes()]
-        self.count_new += custom_feed.get_new_episodes(self, guids)
+
+        # Insert newly-found episodes into the database
+        custom_feed.get_new_episodes(self, guids)
+
         self.save()
 
         self.db.purge(max_episodes, self.id)
@@ -262,8 +263,6 @@ class PodcastChannel(PodcastModelObject):
             if episode.pubDate < last_pubdate - self.SECONDS_PER_WEEK:
                 log('Episode with old date: %s', episode.title, sender=self)
                 episode.is_played = True
-            else:
-                self.count_new += 1
 
             episode.save()
 
@@ -350,8 +349,8 @@ class PodcastChannel(PodcastModelObject):
 
         self.db.commit()
 
-    def delete(self, purge=True):
-        self.db.delete_channel(self, purge)
+    def delete(self):
+        self.db.delete_channel(self)
 
     def save(self):
         self.db.save_channel(self)
@@ -393,10 +392,6 @@ class PodcastChannel(PodcastModelObject):
 
         self.save_dir_size = 0
         self.__save_dir_size_set = False
-
-        self.count_downloaded = 0
-        self.count_new = 0
-        self.count_unplayed = 0
 
         self.channel_is_locked = False
 
@@ -499,7 +494,7 @@ class PodcastChannel(PodcastModelObject):
         reports all episodes as not downloading.
         """
         return [episode for episode in self.db.load_episodes(self, \
-                factory=self.episode_factory) if \
+                factory=self.episode_factory, state=gpodder.STATE_NORMAL) if \
                 episode.check_is_new(downloading=downloading)]
 
     def get_playlist_filename(self):
@@ -533,13 +528,6 @@ class PodcastChannel(PodcastModelObject):
 
         f.close()
 
-    def addDownloadedItem(self, item):
-        log('addDownloadedItem(%s)', item.url)
-
-        if not item.was_downloaded():
-            item.mark_downloaded(save=True)
-            self.update_m3u_playlist()
-
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
@@ -552,9 +540,6 @@ class PodcastChannel(PodcastModelObject):
         next_try_id = 2
 
         while True:
-            if not os.path.exists(os.path.join(self.download_dir, current_try)):
-                self.db.remove_foldername_if_deleted_channel(current_try)
-
             if self.db.channel_foldername_exists(current_try):
                 current_try = '%s (%d)' % (foldername, next_try_id)
                 next_try_id += 1
@@ -633,23 +618,44 @@ class PodcastChannel(PodcastModelObject):
 
         return new_name
 
-    def delete_episode_by_url(self, url):
-        episode = self.db.load_episode(url, factory=self.episode_factory)
+    def delete_episode(self, episode):
+        filename = episode.local_filename(create=False, check_only=True)
+        if filename is not None:
+            util.delete_file(filename)
 
-        if episode is not None:
-            filename = episode.local_filename(create=False)
-            if filename is not None:
-                util.delete_file(filename)
-            else:
-                log('Cannot delete episode: %s (I have no filename!)', episode.title, sender=self)
-            episode.set_state(gpodder.STATE_DELETED)
-
-        self.update_m3u_playlist()
+        episode.set_state(gpodder.STATE_DELETED)
 
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
+
+    def _get_played(self):
+        return self.is_played
+
+    def _set_played(self, played):
+        self.is_played = played
+
+    # Alias "is_played" to "played" for DB column mapping
+    played = property(fget=_get_played, fset=_set_played)
+
+    def _get_locked(self):
+        return self.is_locked
+
+    def _set_locked(self, locked):
+        self.is_locked = locked
+
+    # Alias "is_locked" to "locked" for DB column mapping
+    locked = property(fget=_get_locked, fset=_set_locked)
+
+    def _get_channel_id(self):
+        return self.channel.id
+
+    def _set_channel_id(self, channel_id):
+        assert self.channel.id == channel_id
+
+    # Accessor for the "channel_id" DB column
+    channel_id = property(fget=_get_channel_id, fset=_set_channel_id)
 
     @staticmethod
     def sort_by_pubdate(episodes, reverse=False):
@@ -668,10 +674,8 @@ class PodcastEpisode(PodcastModelObject):
         been updated (e.g. the filename has been set after a
         download where it was not set before the download)
         """
-        d = self.db.load_episode(self.url)
-        if d is not None:
-            self.update_from_dict(d)
-
+        d = self.db.load_episode(self.id)
+        self.update_from_dict(d or {})
         return self
 
     def has_website_link(self):
@@ -693,10 +697,26 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get('updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
+        enclosures = entry.get('enclosures', ())
+        audio_available = any(e.get('type', '').startswith('audio/') \
+                for e in enclosures)
+        video_available = any(e.get('type', '').startswith('video/') \
+                for e in enclosures)
+
         # Enclosures
-        for e in entry.get('enclosures', ()):
+        for e in enclosures:
             episode.mimetype = e.get('type', 'application/octet-stream')
+            if episode.mimetype == '':
+                # See Maemo bug 10036
+                log('Fixing empty mimetype in ugly feed', sender=episode)
+                episode.mimetype = 'application/octet-stream'
+
             if '/' not in episode.mimetype:
+                continue
+
+            # Skip images in feeds if audio or video is available (bug 979)
+            if episode.mimetype.startswith('image/') and \
+                    (audio_available or video_available):
                 continue
 
             episode.url = util.normalize_feed_url(e.get('href', ''))
@@ -780,6 +800,11 @@ class PodcastEpisode(PodcastModelObject):
         self._is_locked = False
         self.is_locked = channel.channel_is_locked
 
+        # Time attributes
+        self.total_time = 0
+        self.current_position = 0
+        self.current_position_updated = time.time()
+
     def get_is_locked(self):
         return self._is_locked
 
@@ -793,9 +818,16 @@ class PodcastEpisode(PodcastModelObject):
             self.state = gpodder.STATE_DOWNLOADED
         self.db.save_episode(self)
 
+    def on_downloaded(self, filename):
+        self.state = gpodder.STATE_DOWNLOADED
+        self.is_played = False
+        self.length = os.path.getsize(filename)
+        self.db.save_downloaded_episode(self)
+        self.db.commit()
+
     def set_state(self, state):
         self.state = state
-        self.db.mark_episode(self.url, state=self.state, is_played=self.is_played, is_locked=self.is_locked)
+        self.db.update_episode_state(self)
 
     def mark(self, state=None, is_played=None, is_locked=None):
         if state is not None:
@@ -804,14 +836,7 @@ class PodcastEpisode(PodcastModelObject):
             self.is_played = is_played
         if is_locked is not None:
             self.is_locked = is_locked
-        self.db.mark_episode(self.url, state=state, is_played=is_played, is_locked=is_locked)
-
-    def mark_downloaded(self, save=False):
-        self.state = gpodder.STATE_DOWNLOADED
-        self.is_played = False
-        if save:
-            self.save()
-            self.db.commit()
+        self.db.update_episode_state(self)
 
     @property
     def title_markup(self):
@@ -866,7 +891,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def delete_from_disk(self):
         try:
-            self.channel.delete_episode_by_url(self.url)
+            self.channel.delete_episode(self)
         except:
             log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
 
@@ -1032,11 +1057,11 @@ class PodcastEpisode(PodcastModelObject):
     def mark_new(self):
         self.state = gpodder.STATE_NORMAL
         self.is_played = False
-        self.db.mark_episode(self.url, state=self.state, is_played=self.is_played)
+        self.db.update_episode_state(self)
 
     def mark_old(self):
         self.is_played = True
-        self.db.mark_episode(self.url, is_played=True)
+        self.db.update_episode_state(self)
 
     def file_exists(self):
         filename = self.local_filename(create=False, check_only=True)

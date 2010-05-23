@@ -176,6 +176,119 @@
               </packing>
             </child>
             <child>
+              <object class="GtkTable" id="mygpo_config">
+                <property name="border_width">6</property>
+                <property name="column_spacing">6</property>
+                <property name="n_columns">3</property>
+                <property name="n_rows">7</property>
+                <property name="row_spacing">6</property>
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_enable">
+                    <property name="label" translatable="yes">Synchronize subscriptions and episode actions</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_enabled_toggled" name="toggled"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">2</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_username">
+                    <property name="label" translatable="yes">Username:</property>
+                    <property name="visible">True</property>
+                    <property name="xalign">1.0</property>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">3</property>
+                    <property name="top_attach">2</property>
+                    <property name="x_options">fill</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_password">
+                    <property name="label" translatable="yes">Password:</property>
+                    <property name="visible">True</property>
+                    <property name="xalign">1.0</property>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">3</property>
+                    <property name="x_options">fill</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_overwrite">
+                    <property name="label" translatable="yes">Replace list on server with local subscriptions</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_button_overwrite_clicked" name="clicked"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">6</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_caption">
+                    <property name="label" translatable="yes">Device name:</property>
+                    <property name="visible">True</property>
+                    <property name="xalign">1.0</property>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">4</property>
+                    <property name="x_options">fill</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_username">
+                    <property name="visible">True</property>
+                    <signal handler="on_username_changed" name="changed"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">3</property>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_password">
+                    <property name="visibility">False</property>
+                    <property name="is_focus">True</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_password_changed" name="changed"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">4</property>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_caption">
+                    <property name="visible">True</property>
+                    <signal handler="on_device_caption_changed" name="changed"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">5</property>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="tab-label" translatable="yes">gpodder.net</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+
+            <child>
               <object class="GtkVBox" id="vbox_updating">
                 <property name="border_width">12</property>
                 <property name="spacing">6</property>
@@ -305,7 +418,7 @@
               </object>
               <packing>
                 <property name="tab-label" translatable="yes">Updating</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -379,7 +492,7 @@
               </object>
               <packing>
                 <property name="tab-label" translatable="yes">Clean-up</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -392,7 +505,7 @@ See &lt;a href="http://gpodder.org/bug/955"&gt;http://gpodder.org/bug/955&lt;/a&
               </object>
               <packing>
                 <property name="tab-label" translatable="yes">Devices</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>
