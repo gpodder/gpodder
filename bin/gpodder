@@ -133,6 +133,18 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args(sys.argv)
 
+    # Detect if we are running on Maemo 5 and if it's the case, do
+    # force the "fremantle" option on automatically, so that clueless
+    # users won't be reporting bogus bugs if they try to start gPodder
+    # from the command line without the "--fremantle" switch :)
+    if not options.fremantle and not options.diablo:
+        try:
+            if 'Maemo 5' in open('/etc/issue').read():
+                options.fremantle = True
+                print >>sys.stderr, 'Auto-detected: Maemo 5 (--fremantle)'
+        except:
+            pass
+
     if options.fremantle or options.diablo:
         gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
 
