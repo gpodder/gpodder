@@ -2928,7 +2928,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        self.update_feed_cache(channels=[self.active_channel])
+        # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
+        if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+            self.update_feed_cache()
+        else:
+            self.update_feed_cache(channels=[self.active_channel])
 
     def on_itemUpdate_activate(self, widget=None):
         # Check if we have outstanding subscribe/unsubscribe actions
@@ -3494,8 +3498,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if gpodder.ui.maemo:
                 self.set_title(self.active_channel.title)
-            self.itemEditChannel.set_visible(True)
-            self.itemRemoveChannel.set_visible(True)
+
+            # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
+            if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+                self.itemEditChannel.set_visible(False)
+                self.itemRemoveChannel.set_visible(False)
+            else:
+                self.itemEditChannel.set_visible(True)
+                self.itemRemoveChannel.set_visible(True)
         else:
             self.active_channel = None
             self.itemEditChannel.set_visible(False)
