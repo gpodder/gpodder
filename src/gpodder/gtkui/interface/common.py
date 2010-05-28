@@ -228,7 +228,7 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.run()
                 dlg.destroy()
             else:
-                hildon.hildon_banner_show_information(self.main_window, \
+                hildon.hildon_banner_show_information(self.get_dialog_parent(), \
                         '', message)
         else:
             # XXX: Dirty hack to get access to the gPodder-specific config object
