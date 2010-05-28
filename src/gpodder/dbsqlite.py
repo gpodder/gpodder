@@ -235,6 +235,20 @@ class Database(object):
                     cur.execute('DELETE FROM %s WHERE channel_id = ?' % self.TABLE_EPISODES, (id,))
         self.lock.release()
 
+    def _remove_orphaned_episodes(self):
+        """Remove episodes without a corresponding podcast
+
+        In some weird circumstances, it can happen that episodes are
+        left in the database that do not have a fitting podcast in the
+        database. This is an inconsistency. We simply delete the
+        episode information in this case, as we can't find a podcast.
+        """
+        cur = self.cursor(lock=True)
+        sql = 'DELETE FROM %s WHERE channel_id NOT IN ' + \
+                '(SELECT DISTINCT id FROM %s)'
+        cur.execute(sql % (self.TABLE_EPISODES, self.TABLE_CHANNELS,))
+        self.lock.release()
+
     def __check_schema(self):
         """
         Creates all necessary tables and indexes that don't exist.
@@ -246,6 +260,7 @@ class Database(object):
         # If a "deleted" column exists in the channel table, remove all
         # corresponding channels and their episodes and remove it
         self._remove_deleted_channels()
+        self._remove_orphaned_episodes()
 
         # Create tables and possibly add newly-added columns
         self.upgrade_table(self.TABLE_CHANNELS, self.SCHEMA_CHANNELS, self.INDEX_CHANNELS)
