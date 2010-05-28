@@ -2124,7 +2124,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (model, paths) = selection.get_selected_rows()
          
             for path in paths:
-                episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                try:
+                    episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                except TypeError, te:
+                    log('Invalid episode at path %s', str(path), sender=self)
+                    continue
 
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
