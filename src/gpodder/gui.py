@@ -2472,7 +2472,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_refresh.set_image(gtk.image_new_from_icon_name(\
                     self.ICON_GENERAL_REFRESH, gtk.ICON_SIZE_BUTTON))
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+            hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
             self.update_podcasts_tab()
+            self.update_episode_list_model()
             if self.feed_cache_update_cancelled:
                 return
 
@@ -2627,6 +2629,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
+            hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
             self.button_refresh.set_title(_('Updating...'))
             self.button_subscribe.set_sensitive(False)
             self.button_refresh.set_image(gtk.image_new_from_icon_name(\

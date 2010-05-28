@@ -65,11 +65,11 @@ class gPodderEpisodes(BuilderWidget):
         # Workaround for Maemo bug XXX
         self.button_search_episodes_clear.set_name('HildonButton-thumb')
         appmenu = hildon.AppMenu()
-        for action in (self.action_rename, \
+        for action in (self.action_update, \
+                       self.action_rename, \
                        self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
-                       self.action_update, \
                        self.action_check_for_new_episodes, \
                        self.action_delete_episodes):
             button = gtk.Button()
