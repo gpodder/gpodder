@@ -105,7 +105,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         def choice_load_opml_from_url(widget):
             dialog.destroy()
             url = show_text_edit_dialog(_('Load OPML file from the web'), \
-                    _('URL:'), is_url=True)
+                    _('URL:'), is_url=True, affirmative_text=_('Load'))
             load_opml_from_url(url)
 
         def choice_load_opml_from_file(widget):
@@ -132,7 +132,7 @@ class gPodderPodcastDirectory(BuilderWidget):
             dialog.destroy()
             search_term = show_text_edit_dialog(\
                     _('Search YouTube user channels'), \
-                    _('Search for:'))
+                    _('Search for:'), affirmative_text=_('Search'))
             if search_term is not None:
                 url = 'youtube://%s' % (search_term,)
                 load_opml_from_url(url)

@@ -87,8 +87,10 @@ class gPodderEpisodes(BuilderWidget):
     def on_rename_button_clicked(self, widget):
         if self.channel is None:
             return
+
         new_title = self.show_text_edit_dialog(_('Rename podcast'), \
-                _('New name:'), self.channel.title)
+                _('New name:'), self.channel.title, \
+                affirmative_text=_('Rename'))
         if new_title is not None and new_title != self.channel.title:
             self.channel.set_custom_title(new_title)
             self.main_window.set_title(self.channel.title)
