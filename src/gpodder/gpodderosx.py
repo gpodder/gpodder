@@ -24,7 +24,7 @@ from gpodder import util
 
 def aeKeyword(fourCharCode):
     """transform four character code into a long"""
-    return struct.unpack('L', fourCharCode)[0]
+    return struct.unpack('I', fourCharCode)[0]
 
 
 # for the kCoreEventClass, kAEOpenDocuments, ... constants
