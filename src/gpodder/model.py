@@ -679,7 +679,8 @@ class PodcastEpisode(PodcastModelObject):
         return self
 
     def has_website_link(self):
-        return bool(self.link) and (self.link != self.url)
+        return bool(self.link) and (self.link != self.url or \
+                youtube.is_video_link(self.link))
 
     @staticmethod
     def from_feedparser_entry(entry, channel):
