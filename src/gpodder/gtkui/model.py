@@ -705,7 +705,10 @@ class PodcastListModel(gtk.ListStore):
 
     def update_by_iter(self, iter):
         # Given a GtkTreeIter, update volatile information
-        channel = self.get_value(iter, self.C_CHANNEL)
+        try:
+            channel = self.get_value(iter, self.C_CHANNEL)
+        except TypeError, te:
+            return
         if channel is None:
             return
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
