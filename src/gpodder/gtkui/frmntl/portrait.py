@@ -161,7 +161,11 @@ class FremantleRotation(object):
             # Ignore repeated requests
             return
 
-        flags = hildon.PORTRAIT_MODE_SUPPORT
+        flags = 0
+
+        if orientation != self._LANDSCAPE:
+            flags |= hildon.PORTRAIT_MODE_SUPPORT
+
         if orientation == self._PORTRAIT:
             flags |= hildon.PORTRAIT_MODE_REQUEST
 
