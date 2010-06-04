@@ -1503,6 +1503,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(failed_downloads)
             self.show_message(message, _('Downloads failed'), True, widget=self.labelDownloads)
 
+        # Open torrent files right after download (bug 1029)
+        if self.config.open_torrent_after_download:
+            for task in download_tasks_seen:
+                if task.status != task.DONE:
+                    continue
+
+                episode = task.episode
+                if episode.mimetype != 'application/x-bittorrent':
+                    continue
+
+                self.playback_episodes([episode])
+
+
     def format_episode_list(self, episode_list, max_episodes=10):
         """
         Format a list of episode names for notifications
