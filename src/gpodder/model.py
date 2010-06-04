@@ -28,6 +28,7 @@ from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
 from gpodder import corestats
+from gpodder import gstreamer
 
 from gpodder.liblogger import log
 
@@ -690,6 +691,13 @@ class PodcastEpisode(PodcastModelObject):
         episode.link = entry.get('link', '')
         episode.description = entry.get('summary', '')
 
+        try:
+            # Parse iTunes-specific podcast duration metadata
+            total_time = util.parse_time(entry.get('itunes_duration', ''))
+            episode.total_time = total_time
+        except:
+            pass
+
         # Fallback to subtitle if summary is not available0
         if not episode.description:
             episode.description = entry.get('subtitle', '')
@@ -804,7 +812,7 @@ class PodcastEpisode(PodcastModelObject):
         # Time attributes
         self.total_time = 0
         self.current_position = 0
-        self.current_position_updated = time.time()
+        self.current_position_updated = 0
 
     def get_is_locked(self):
         return self._is_locked
@@ -823,6 +831,22 @@ class PodcastEpisode(PodcastModelObject):
         self.state = gpodder.STATE_DOWNLOADED
         self.is_played = False
         self.length = os.path.getsize(filename)
+
+        if not self.total_time:
+            try:
+                length = gstreamer.get_track_length(filename)
+                if length is not None:
+                    length = int(length/1000)
+                    log('Detected media length: %d seconds', length, \
+                            sender=self)
+                    self.total_time = length
+                    self.db.save_episode(self)
+                    self.db.commit()
+                    return
+            except Exception, e:
+                log('Error while detecting media length: %s', str(e), \
+                        sender=self)
+
         self.db.save_downloaded_episode(self)
         self.db.commit()
 

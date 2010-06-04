@@ -1039,8 +1039,55 @@ def bluetooth_send_file(filename):
     else:
         log('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
-        
-        
+
+
+def format_time(value):
+    """Format a seconds value to a string
+
+    >>> format_time(0)
+    '00:00'
+    >>> format_time(20)
+    '00:20'
+    >>> format_time(3600)
+    '01:00:00'
+    >>> format_time(10921)
+    '03:02:01'
+    """
+    dt = datetime.datetime.utcfromtimestamp(value)
+    if dt.hour == 0:
+        return dt.strftime('%M:%S')
+    else:
+        return dt.strftime('%H:%M:%S')
+
+
+def parse_time(value):
+    """Parse a time string into seconds
+    >>> parse_time('00:00')
+    0
+    >>> parse_time('00:00:00')
+    0
+    >>> parse_time('00:20')
+    20
+    >>> parse_time('00:00:20')
+    20
+    >>> parse_time('01:00:00')
+    3600
+    >>> parse_time('03:02:01')
+    10921
+    """
+    if not value:
+        raise ValueError('Invalid value: %s' % (str(value),))
+
+    for format in ('%H:%M:%S', '%M:%S'):
+        try:
+            t = time.strptime(value, format)
+            return (t.tm_hour * 60 + t.tm_min) * 60 + t.tm_sec
+        except ValueError, ve:
+            continue
+
+    return int(value)
+
+
 def format_seconds_to_hour_min_sec(seconds):
     """
     Take the number of seconds and format it into a
