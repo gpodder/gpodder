@@ -109,6 +109,20 @@ class Store(object):
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
                 ', '.join(slots), ', '.join('?'*len(slots))), values)
 
+    def delete(self, class_, **kwargs):
+        with self.lock:
+            self._register(class_)
+            table, slots = self._schema(class_)
+            sql = 'DELETE FROM %s' % (table,)
+            if kwargs:
+                sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
+            try:
+                print sql, repr(kwargs.values())
+                self.db.execute(sql, kwargs.values())
+                return True
+            except Exception, e:
+                return False
+
     def remove(self, o):
         if hasattr(o, '__iter__'):
             for child in o:
@@ -136,7 +150,6 @@ class Store(object):
             try:
                 cur = self.db.execute(sql, kwargs.values())
             except Exception, e:
-                print sql
                 raise
             def apply(row):
                 o = class_.__new__(class_)
