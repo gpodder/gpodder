@@ -209,6 +209,17 @@ class MygPoClient(object):
         self._store.remove(rewritten_urls)
         return rewritten_urls
 
+    def get_episode_actions(self, updated_urls):
+        for podcast_url in updated_urls:
+            for action in self._store.load(ReceivedEpisodeAction, \
+                    podcast_url=podcast_url):
+                yield action
+
+            # Remove all episode actions belonging to this URL
+            self._store.delete(ReceivedEpisodeAction, \
+                    podcast_url=podcast_url)
+            self._store.commit()
+
     def get_received_actions(self):
         """Returns a list of ReceivedSubscribeAction objects
 
@@ -413,8 +424,6 @@ class MygPoClient(object):
                     action.started, action.position, action.total)
 
         try:
-            save_since = True
-
             # Load the "since" value from the database
             since_o = self._store.get(SinceValue, host=self.host, \
                                                   device_id=self.device_id, \
@@ -426,29 +435,25 @@ class MygPoClient(object):
 
             # Step 1: Download Episode actions
             try:
-                changes = self._client.download_episode_actions(since_o.since, \
-                        device_id=self.device_id)
+                changes = self._client.download_episode_actions(since_o.since)
 
                 received_actions = [convert_from_api(a) for a in changes.actions]
+                log('Received %d episode actions', len(received_actions), \
+                        sender=self)
                 self._store.save(received_actions)
 
                 # Save the "since" value for later use
                 self._store.update(since_o, since=changes.since)
             except Exception, e:
                 log('Exception while polling for episodes.', sender=self, traceback=True)
-                save_since = False
 
             # Step 2: Upload Episode actions
 
             # Convert actions to the mygpoclient format for uploading
             episode_actions = [convert_to_api(a) for a in actions]
 
-            # Upload the episodes and retrieve the new "since" value
-            since = self._client.upload_episode_actions(episode_actions)
-
-            if save_since:
-                # Update the "since" value of the episodes
-                self._store.update(since_o, since=since)
+            # Upload the episode actions
+            self._client.upload_episode_actions(episode_actions)
 
             # Actions have been uploaded to the server - remove them
             self._store.remove(actions)

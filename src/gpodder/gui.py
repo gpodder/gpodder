@@ -2459,11 +2459,77 @@ class gPodder(BuilderWidget, dbus.service.Object):
         exporter = opml.Exporter(gpodder.subscription_file)
         return exporter.write(self.channels)
 
+    def find_episode(self, podcast_url, episode_url):
+        """Find an episode given its podcast and episode URL
+
+        The function will return a PodcastEpisode object if
+        the episode is found, or None if it's not found.
+        """
+        for podcast in self.channels:
+            if podcast_url == podcast.url:
+                for episode in podcast.get_all_episodes():
+                    if episode_url == episode.url:
+                        return episode
+
+        return None
+
+    def process_received_episode_actions(self, updated_urls):
+        """Process/merge episode actions from gpodder.net
+
+        This function will merge all changes received from
+        the server to the local database and update the
+        status of the affected episodes as necessary.
+        """
+        indicator = ProgressIndicator(_('Merging episode actions'), \
+                _('Episode actions from gpodder.net are merged.'), \
+                False, self.get_dialog_parent())
+
+        for idx, action in enumerate(self.mygpo_client.get_episode_actions(updated_urls)):
+            if action.action == 'play':
+                episode = self.find_episode(action.podcast_url, \
+                                            action.episode_url)
+
+                if episode is not None:
+                    log('Play action for %s', episode.url, sender=self)
+                    episode.mark(is_played=True)
+
+                    if action.timestamp > episode.current_position_updated:
+                        log('Updating position for %s', episode.url, sender=self)
+                        episode.current_position = action.position
+                        episode.current_position_updated = action.timestamp
+
+                    if action.total:
+                        log('Updating total time for %s', episode.url, sender=self)
+                        episode.total_time = action.total
+
+                    episode.save()
+            elif action.action == 'delete':
+                episode = self.find_episode(action.podcast_url, \
+                                            action.episode_url)
+
+                if episode is not None:
+                    if not episode.was_downloaded(and_exists=True):
+                        # Set the episode to a "deleted" state
+                        log('Marking as deleted: %s', episode.url, sender=self)
+                        episode.delete_from_disk()
+                        episode.save()
+
+            indicator.on_message(N_('%d action processed', '%d actions processed', idx) % idx)
+            gtk.main_iteration(False)
+
+        indicator.on_finished()
+        self.db.commit()
+
+
     def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
         self.db.commit()
         self.updating_feed_cache = False
 
         self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
+
+        # Process received episode actions for all updated URLs
+        self.process_received_episode_actions(updated_urls)
+
         self.channel_list_changed = True
         self.update_podcast_list_model(select_url=select_url_afterwards)
 
