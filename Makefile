@@ -132,7 +132,9 @@ clean:
 	$(PYTHON) setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
-	rm -f MANIFEST PKG-INFO $(UIFILES_H) data/messages.pot~ data/gpodder-??x??.png .coverage $(GPODDER_SERVICE_FILE)
+	find data/ui/ -name '*.ui.h' -exec rm '{}' \;
+	rm -f MANIFEST PKG-INFO data/messages.pot~
+	rm -f data/gpodder-??x??.png .coverage $(GPODDER_SERVICE_FILE)
 	rm -rf build
 	make -C data/po clean
 
