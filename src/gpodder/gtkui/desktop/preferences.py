@@ -66,6 +66,52 @@ class NewEpisodeActionList(gtk.ListStore):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
 
+class DeviceTypeActionList(gtk.ListStore):
+    C_CAPTION, C_DEVICE_TYPE = range(2)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, str)
+        self._config = config
+        self.append((_('None'), 'none'))
+        self.append((_('IPod'), 'ipod'))
+        self.append((_('Filesystem'), 'filesystem'))
+        self.append((_('Mtp'), 'mtp'))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.device_type == row[self.C_DEVICE_TYPE]:
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.device_type = self[index][self.C_DEVICE_TYPE]
+
+class OnSyncActionList(gtk.ListStore):
+    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = range(3)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, bool, bool)
+        self._config = config
+        self.append((_('Do nothing'), False, False))
+        self.append((_('Mark it as played'), False, True))
+        self.append((_('Delete it from gPodder'), True, False))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.on_sync_delete and row[self.C_ON_SYNC_DELETE]:
+                return index
+            if self._config.on_sync_mark_played and row[self.C_ON_SYNC_MARK_PLAYED] \
+                    and not self._config.on_sync_delete:
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.on_sync_delete = self[index][self.C_ON_SYNC_DELETE]
+        self._config.on_sync_mark_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
+
+
 class gPodderPreferences(BuilderWidget):
     def new(self):
         if not hasattr(self, 'callback_finished'):
@@ -131,6 +177,22 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
         self._config.connect_gtk_togglebutton('auto_cleanup_downloads', self.checkbutton_auto_cleanup_downloads)
+
+        self.device_type_model = DeviceTypeActionList(self._config)
+        self.combobox_device_type.set_model(self.device_type_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_device_type.pack_start(cellrenderer, True)
+        self.combobox_device_type.add_attribute(cellrenderer, 'text', DeviceTypeActionList.C_CAPTION)
+        self.combobox_device_type.set_active(self.device_type_model.get_index())
+
+        self.on_sync_model = OnSyncActionList(self._config)
+        self.combobox_on_sync.set_model(self.on_sync_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_on_sync.pack_start(cellrenderer, True)
+        self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
+        self.combobox_on_sync.set_active(self.on_sync_model.get_index())
+
+        self._config.connect_gtk_togglebutton('only_sync_not_played', self.checkbutton_only_sync_not_played)
 
         # Initialize the UI state with configuration settings
         self.checkbutton_enable.set_active(self._config.mygpo_enabled)
@@ -203,6 +265,39 @@ class gPodderPreferences(BuilderWidget):
     def on_combo_auto_download_changed(self, widget):
         index = self.combo_auto_download.get_active()
         self.auto_download_model.set_index(index)
+
+    def on_combobox_on_sync_changed(self, widget):
+        index = self.combobox_on_sync.get_active()
+        self.on_sync_model.set_index(index)
+
+    def on_combobox_device_type_changed(self, widget):
+        index = self.combobox_device_type.get_active()
+        self.device_type_model.set_index(index)
+        if index == 0:
+            self.btn_filesystemMountpoint.set_label('')
+            self.btn_filesystemMountpoint.set_sensitive(False)
+        if index == 1:
+            self.btn_filesystemMountpoint.set_label(self._config.ipod_mount)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+            self._config.connect_gtk_togglebutton('ipod_purge_old_episodes', self.checkbutton_delete_played)
+        if index == 2:
+            self.btn_filesystemMountpoint.set_label(self._config.mp3_player_folder)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+            self._config.connect_gtk_togglebutton('mp3_player_delete_played', self.checkbutton_delete_played)
+        if index == 3:
+            self.btn_filesystemMountpoint.set_label('')
+            self.btn_filesystemMountpoint.set_sensitive(False)
+
+
+    def on_btn_device_mountpoint_clicked(self, widget):
+        fs = gtk.FileChooserDialog( title = _('Select folder for mount point'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            self.btn_filesystemMountpoint.set_label( fs.get_filename())
+            print fs.get_filename()
+        fs.destroy()
 
     def format_expiration_value(self, scale, value):
         value = int(value)
