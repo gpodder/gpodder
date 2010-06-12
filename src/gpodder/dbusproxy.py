@@ -94,10 +94,12 @@ class DBusPodcastsProxy(dbus.service.Object):
         if url.startswith('file://'):
             url = url[len('file://'):]
 
-        # TODO: Implement for non-local URLs (for streaming, etc..)
-
         for podcast in self._get_podcasts():
-            if url.startswith(podcast.save_dir):
+            if '://' in url:
+                for episode in podcast.get_all_episodes():
+                    if episode.url == url:
+                        return episode.title, podcast.title
+            elif url.startswith(podcast.save_dir):
                 for episode in podcast.get_downloaded_episodes():
                     if episode.local_filename(create=False) == url:
                         return episode.title, podcast.title

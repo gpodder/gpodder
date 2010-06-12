@@ -546,7 +546,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for channel in self.channels:
             for episode in channel.get_all_episodes():
                 fn = episode.local_filename(create=False, check_only=True)
-                if fn == filename:
+                if fn == filename or episode.url == file_uri:
                     file_type = episode.file_type()
                     # Automatically enable D-Bus played status mode
                     if file_type == 'audio':
