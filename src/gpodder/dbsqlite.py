@@ -405,6 +405,46 @@ class Database(object):
         self.lock.release()
         return result
 
+    def load_single_episode(self, channel, factory=lambda x: x, **kwargs):
+        """Load one episode with keywords
+
+        Return an episode object (created by "factory") for a
+        given channel. You can use keyword arguments to specify
+        the attributes that the episode object should have.
+
+        Example:
+        db.load_single_episode(channel, url='x')
+
+        This will search all episodes belonging to "channel"
+        and return the first one where the "url" column is "x".
+
+        Returns None if the episode cannot be found.
+        """
+        assert channel.id is not None
+
+        # Inject channel_id into query to reduce search space
+        kwargs['channel_id'] = channel.id
+
+        # We need to have the keys in the same order as the values, so
+        # we use items() and unzip the resulting list into two ordered lists
+        keys, args = zip(*kwargs.items())
+
+        sql = 'SELECT * FROM %s WHERE %s LIMIT 1' % (self.TABLE_EPISODES, \
+                ' AND '.join('%s=?' % k for k in keys))
+
+        cur = self.cursor(lock=True)
+        cur.execute(sql, args)
+        keys = [desc[0] for desc in cur.description]
+        row = cur.fetchone()
+        if row:
+            result = factory(dict(zip(keys, row)), self)
+        else:
+            result = None
+
+        cur.close()
+        self.lock.release()
+        return result
+
     def load_episode(self, id):
         """Load episode as dictionary by its id
 
@@ -425,6 +465,22 @@ class Database(object):
             cur.close()
             self.lock.release()
             return None
+
+    def get_channel_id_from_episode_url(self, url):
+        """Return the (first) associated channel ID given an episode URL"""
+        assert url is not None
+
+        cur = self.cursor(lock=True)
+        cur.execute('SELECT channel_id FROM %s WHERE url = ? LIMIT 1' % (self.TABLE_EPISODES,), (url,))
+        try:
+            row = cur.fetchone()
+            if row is not None:
+                self.log('Found channel ID: %d', int(row[0]), sender=self)
+                return int(row[0])
+        finally:
+            self.lock.release()
+
+        return None
 
     def save_episode(self, e):
         assert e.channel_id

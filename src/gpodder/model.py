@@ -529,6 +529,14 @@ class PodcastChannel(PodcastModelObject):
 
         f.close()
 
+    def get_episode_by_url(self, url):
+        return self.db.load_single_episode(self, \
+                factory=self.episode_factory, url=url)
+
+    def get_episode_by_filename(self, filename):
+        return self.db.load_single_episode(self, \
+                factory=self.episode_factory, filename=filename)
+
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 

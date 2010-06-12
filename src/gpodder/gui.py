@@ -158,6 +158,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.on_itemUpdate_activate, \
                 self.playback_episodes, \
                 self.download_episode_list, \
+                self.episode_object_by_uri, \
                 bus_name)
         self.db = Database(gpodder.database_file)
         self.config = config
@@ -538,39 +539,70 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
 
+    def episode_object_by_uri(self, uri):
+        """Get an episode object given a local or remote URI
+
+        This can be used to quickly access an episode object
+        when all we have is its download filename or episode
+        URL (e.g. from external D-Bus calls / signals, etc..)
+        """
+        if uri.startswith('/'):
+            uri = 'file://' + uri
+
+        prefix = 'file://' + self.config.download_dir
+
+        if uri.startswith(prefix):
+            # File is on the local filesystem in the download folder
+            filename = uri[len(prefix):]
+            file_parts = [x for x in filename.split(os.sep) if x]
+
+            if len(file_parts) == 2:
+                dir_name, filename = file_parts
+                channels = [c for c in self.channels if c.foldername == dir_name]
+                if len(channels) == 1:
+                    channel = channels[0]
+                    return channel.get_episode_by_filename(filename)
+        else:
+            # Possibly remote file - search the database for a podcast
+            channel_id = self.db.get_channel_id_from_episode_url(uri)
+
+            if channel_id is not None:
+                channels = [c for c in self.channels if c.id == channel_id]
+                if len(channels) == 1:
+                    channel = channels[0]
+                    return channel.get_episode_by_url(uri)
+
+        return None
+
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
         log('Received play action: %s (%d, %d, %d)', file_uri, start, end, total, sender=self)
-        filename = file_uri[len('file://'):]
-        # FIXME: Optimize this by querying the database more directly
-        for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                fn = episode.local_filename(create=False, check_only=True)
-                if fn == filename or episode.url == file_uri:
-                    file_type = episode.file_type()
-                    # Automatically enable D-Bus played status mode
-                    if file_type == 'audio':
-                        self.config.audio_played_dbus = True
-                    elif file_type == 'video':
-                        self.config.video_played_dbus = True
+        episode = self.episode_object_by_uri(file_uri)
 
-                    now = time.time()
-                    if total > 0:
-                        episode.total_time = total
-                    if episode.current_position_updated is None or \
-                            now > episode.current_position_updated:
-                        episode.current_position = end
-                        episode.current_position_updated = now
-                    episode.mark(is_played=True)
-                    episode.save()
-                    self.db.commit()
-                    self.update_episode_list_icons([episode.url])
-                    self.update_podcast_list_model([episode.channel.url])
+        if episode is not None:
+            file_type = episode.file_type()
+            # Automatically enable D-Bus played status mode
+            if file_type == 'audio':
+                self.config.audio_played_dbus = True
+            elif file_type == 'video':
+                self.config.video_played_dbus = True
 
-                    # Submit this action to the webservice
-                    self.mygpo_client.on_playback_full(episode, \
-                            start, end, total)
-                    return
+            now = time.time()
+            if total > 0:
+                episode.total_time = total
+            if episode.current_position_updated is None or \
+                    now > episode.current_position_updated:
+                episode.current_position = end
+                episode.current_position_updated = now
+            episode.mark(is_played=True)
+            episode.save()
+            self.db.commit()
+            self.update_episode_list_icons([episode.url])
+            self.update_podcast_list_model([episode.channel.url])
+
+            # Submit this action to the webservice
+            self.mygpo_client.on_playback_full(episode, \
+                    start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
