@@ -117,7 +117,6 @@ class Store(object):
             if kwargs:
                 sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
             try:
-                print sql, repr(kwargs.values())
                 self.db.execute(sql, kwargs.values())
                 return True
             except Exception, e:
