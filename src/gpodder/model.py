@@ -1169,6 +1169,9 @@ class PodcastEpisode(PodcastModelObject):
             log( 'Could not get filesize for %s.', self.url)
 
     def get_play_info_string(self):
+        if self.current_position > 0 and \
+                self.total_time == self.current_position:
+            return '%s (%s)' % (_('Finished'), self.get_duration_string(),)
         if self.current_position > 0:
             return '%s / %s' % (self.get_position_string(), \
                     self.get_duration_string())
