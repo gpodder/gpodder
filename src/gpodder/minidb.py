@@ -154,9 +154,12 @@ class Store(object):
             def apply(row):
                 o = class_.__new__(class_)
                 for attr, value in zip(slots, row):
-                    self._set(o, attr, value)
+                    try:
+                        self._set(o, attr, value)
+                    except ValueError, ve:
+                        return None
                 return o
-            return [apply(row) for row in cur]
+            return filter(lambda x: x is not None, [apply(row) for row in cur])
 
     def get(self, class_, **kwargs):
         result = self.load(class_, **kwargs)
