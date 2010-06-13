@@ -2095,7 +2095,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     filename = youtube.get_real_download_url(filename, fmt_id)
 
             # If Panucci is configured, use D-Bus on Maemo to call it
-            if player == 'panucci' and gpodder.ui.maemo:
+            if player == 'panucci':
                 try:
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
                     PANUCCI_PATH = '/panucciInterface'
