@@ -2093,6 +2093,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if gpodder.ui.fremantle:
                         fmt_id = 5
                     filename = youtube.get_real_download_url(filename, fmt_id)
+
+            # If Panucci is configured, use D-Bus on Maemo to call it
+            if player == 'panucci' and gpodder.ui.maemo:
+                try:
+                    PANUCCI_NAME = 'org.panucci.panucciInterface'
+                    PANUCCI_PATH = '/panucciInterface'
+                    PANUCCI_INTF = 'org.panucci.panucciInterface'
+                    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+                    o = session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
+                    i = dbus.Interface(o, PANUCCI_INTF)
+
+                    def on_reply(*args):
+                        pass
+
+                    def on_error(err):
+                        log('Exception in D-Bus call: %s', str(err), \
+                                sender=self)
+
+                    # Determine the playback resume position - if the file
+                    # was played 100%, we simply start from the beginning
+                    resume_position = episode.current_position
+                    if resume_position == episode.total_time:
+                        resume_position = 0
+
+                    # This method only exists in Panucci > 0.9 ('new Panucci')
+                    i.playback_from(filename, resume_position, \
+                            reply_handler=on_reply, error_handler=on_error)
+
+                    continue # This file was handled by the D-Bus call
+                except Exception, e:
+                    log('Error calling Panucci using D-Bus', sender=self, traceback=True)
+
             groups[player].append(filename)
 
         # Open episodes with system default player
@@ -2101,7 +2133,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('Opening with system default: %s', filename, sender=self)
                 util.gui_open(filename)
             del groups['default']
-        elif gpodder.ui.maemo:
+        elif gpodder.ui.maemo and groups:
             # When on Maemo and not opening with default, show a notification
             # (no startup notification for Panucci / MPlayer yet...)
             if len(episodes) == 1:
