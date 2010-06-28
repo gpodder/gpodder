@@ -611,9 +611,15 @@ class PodcastChannel(PodcastModelObject):
     
     save_dir = property(fget=get_save_dir)
 
-    def remove_downloaded( self):
-        shutil.rmtree( self.save_dir, True)
-    
+    def remove_downloaded(self):
+        # Remove the playlist file if it exists
+        m3u_filename = self.get_playlist_filename()
+        if os.path.exists(m3u_filename):
+            util.delete_file(m3u_filename)
+
+        # Remove the download directory
+        shutil.rmtree(self.save_dir, True)
+
     @property
     def cover_file(self):
         new_name = os.path.join(self.save_dir, 'folder.jpg')
