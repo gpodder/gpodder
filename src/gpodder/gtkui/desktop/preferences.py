@@ -74,9 +74,9 @@ class DeviceTypeActionList(gtk.ListStore):
         gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
-        self.append((_('IPod'), 'ipod'))
-        self.append((_('Filesystem'), 'filesystem'))
-        self.append((_('Mtp'), 'mtp'))
+        self.append((_('iPod'), 'ipod'))
+        self.append((_('Filesystem-based'), 'filesystem'))
+        self.append((_('MTP'), 'mtp'))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -288,6 +288,10 @@ class gPodderPreferences(BuilderWidget):
             self.btn_filesystemMountpoint.set_label('')
             self.btn_filesystemMountpoint.set_sensitive(False)
 
+        children = self.btn_filesystemMountpoint.get_children()
+        if children:
+            label = children.pop()
+            label.set_alignment(0., .5)
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = gtk.FileChooserDialog( title = _('Select folder for mount point'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
@@ -295,8 +299,15 @@ class gPodderPreferences(BuilderWidget):
         fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
         fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
         if fs.run() == gtk.RESPONSE_OK:
-            self.btn_filesystemMountpoint.set_label( fs.get_filename())
-            print fs.get_filename()
+            filename = fs.get_filename()
+            if self._config.device_type == 'filesystem':
+                self._config.mp3_player_folder = filename
+            elif self._config.device_type == 'ipod':
+                self._config.ipod_mount = filename
+
+            # Request an update of the mountpoint button
+            self.on_combobox_device_type_changed(None)
+
         fs.destroy()
 
     def format_expiration_value(self, scale, value):
