@@ -67,7 +67,6 @@ class gPodderEpisodes(BuilderWidget):
         appmenu = hildon.AppMenu()
         for action in (self.action_update, \
                        self.action_rename, \
-                       self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
                        self.action_check_for_new_episodes, \
@@ -106,10 +105,6 @@ class gPodderEpisodes(BuilderWidget):
         if accept:
             self.channel.username, self.channel.password = auth_data
             self.channel.save()
-
-    def on_play_m3u_button_clicked(self, widget):
-        if self.channel is not None:
-            util.gui_open(self.channel.get_playlist_filename())
 
     def on_website_button_clicked(self, widget):
         if self.channel is not None:
@@ -192,7 +187,6 @@ class gPodderEpisodes(BuilderWidget):
         all_episodes = isinstance(self.channel, PodcastChannelProxy)
 
         for action in (self.action_rename, \
-                       self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
                        self.action_update):
