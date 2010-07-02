@@ -61,6 +61,7 @@ help:
 	@echo 'make messages        update messages.pot + .po files + .mo files'
 	@echo 'make clean           remove generated+temp+*.py{c,o} files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
+	@echo 'make headlink        print URL for the current Git head'
 	@echo ''
 	@echo 'make install-git-menuitem   Add shortcuts to your menu for this git checkout'
 	@echo 'make remove-git-menuitem    Remove shortcuts created by "install-git-menuitem"'
@@ -128,6 +129,16 @@ gpodder-icon-theme:
 
 ##########################################################################
 
+# This only works in a Git working commit, and assumes that the local Git
+# HEAD has already been pushed to the main repository. It's mainly useful
+# for the gPodder maintainer to quickly generate a commit link that can be
+# posted online in bug trackers and mailing lists.
+
+headlink:
+	@echo http://gpodder.org/commit/`git show-ref HEAD | head -c8`
+
+##########################################################################
+
 clean:
 	$(PYTHON) setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
@@ -146,7 +157,7 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: all test unittest release releasetest install manpage clean distclean messages help install-git-menuitem remove-git-menuitem
+.PHONY: all test unittest release releasetest install manpage clean distclean messages help install-git-menuitem remove-git-menuitem headlink
 
 ##########################################################################
 
