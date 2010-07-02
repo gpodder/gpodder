@@ -213,6 +213,8 @@ def username_password_from_url(url):
     ('i/o', 'P@ss:')
     >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
     ('\xc3\xb6sterreich', None)
+    >>> username_password_from_url('http://w%20x:y%20z@example.org/')
+    ('w x', 'y z')
     """
     if type(url) not in (str, unicode):
         raise ValueError('URL has to be a string or unicode object.')
@@ -836,14 +838,16 @@ def url_add_authentication(url, username, password):
     'http://c:d@x.org/'
     >>> url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@:', 'i/')
     'http://P%40%3A:i%2F@cx.lan'
+    >>> url_add_authentication('http://x.org/', 'a b', 'c d')
+    'http://a%20b:c%20d@x.org/'
     """
     if username is None or username == '':
         return url
 
-    username = urllib.quote_plus(username)
+    username = urllib.quote(username, safe='')
 
     if password is not None:
-        password = urllib.quote_plus(password)
+        password = urllib.quote(password, safe='')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
