@@ -348,12 +348,14 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.UnknownStatusCode
             raise
 
+        gpodder.user_extensions.call('channel_updated', self)
         self.db.commit()
 
     def delete(self):
         self.db.delete_channel(self)
 
     def save(self):
+        gpodder.user_extensions.call('channel_save', self)
         self.db.save_channel(self)
 
     def get_statistics(self):
@@ -839,6 +841,7 @@ class PodcastEpisode(PodcastModelObject):
     def save(self):
         if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
             self.state = gpodder.STATE_DOWNLOADED
+        gpodder.user_extensions.call('episode_save', self)
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):

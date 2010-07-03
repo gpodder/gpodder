@@ -117,6 +117,7 @@ ui_folders = []
 credits_file = None
 icon_file = None
 images_folder = None
+user_extensions = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
@@ -153,4 +154,3 @@ def load_plugins():
             print >>sys.stderr, 'Plugin loaded:', plugin
         except Exception, e:
             print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
-
