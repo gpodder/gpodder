@@ -8,13 +8,15 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-30 03:52+0200\n"
-"PO-Revision-Date: 2010-05-18 20:39+0300\n"
+"PO-Revision-Date: 2010-07-04 00:48+0300\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: gnome-fi-laatu@lists.sourceforge.net\n"
+"Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.6.1\n"
 
 #: src/gpodder/config.py:242
 #, python-format
@@ -487,21 +489,19 @@ msgid "Redirection detected"
 msgstr "Uudelleenohjaus tunnistettiin"
 
 #: src/gpodder/gui.py:2567
-#, fuzzy
 msgid "Merging episode actions"
-msgstr "Korjataan kanavan %s jaksoja"
+msgstr "Yhdistetään jaksotoimintoja"
 
 #: src/gpodder/gui.py:2568
-#, fuzzy
 msgid "Episode actions from gpodder.net are merged."
-msgstr "Lataa tilaukset gpodder.netistä"
+msgstr "Jaksotoiminnot on yhdistetty gpodder.netistä"
 
 #: src/gpodder/gui.py:2601
-#, fuzzy, python-format
+#, python-format
 msgid "%d action processed"
 msgid_plural "%d actions processed"
-msgstr[0] "%d tilaus vietiin"
-msgstr[1] "%d tilausta vietiin"
+msgstr[0] "%d toiminto käsitelty"
+msgstr[1] "%d toimintoa käsitelty"
 
 #: src/gpodder/gui.py:2638
 msgid "New episodes are available."
@@ -950,14 +950,14 @@ msgid "Tracks published by %s on Soundcloud."
 msgstr "Käyttäjän %s julkaisemat kappaleet Soundcloudissa."
 
 #: src/gpodder/soundcloud.py:204
-#, fuzzy, python-format
+#, python-format
 msgid "%s's favorites on Soundcloud"
-msgstr "Käyttäjätunnus %s Soundcloudissa"
+msgstr "Käyttäjän %s suosikit Soundcloudissa"
 
 #: src/gpodder/soundcloud.py:210
-#, fuzzy, python-format
+#, python-format
 msgid "Tracks favorited by %s on Soundcloud."
-msgstr "Käyttäjän %s julkaisemat kappaleet Soundcloudissa."
+msgstr "Käyttäjän %s suosikit Soundcloudissa."
 
 #: src/gpodder/sync.py:69
 msgid "iPod synchronization"
@@ -1453,23 +1453,20 @@ msgid "None"
 msgstr "Ei mitään"
 
 #: src/gpodder/gtkui/desktop/preferences.py:78
-#, fuzzy
 msgid "Filesystem-based"
-msgstr "Tiedostojärjestelmäpohjainen MP3-soitin"
+msgstr "Tiedostojärjestelmäpohjainen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:79
 msgid "MTP"
-msgstr ""
+msgstr "MTP"
 
 #: src/gpodder/gtkui/desktop/preferences.py:98
-#, fuzzy
 msgid "Mark it as played"
 msgstr "Merkitse soitetuksi"
 
 #: src/gpodder/gtkui/desktop/preferences.py:99
-#, fuzzy
 msgid "Delete it from gPodder"
-msgstr "Poista jakso gPodderista"
+msgstr "Poista gPodderista"
 
 #: src/gpodder/gtkui/desktop/preferences.py:234
 msgid "Configure audio player"
@@ -1489,9 +1486,8 @@ msgid "manual only"
 msgstr "vain manuaalisesti"
 
 #: src/gpodder/gtkui/desktop/preferences.py:297
-#, fuzzy
 msgid "Select folder for mount point"
-msgstr "Valitse iPodin liitospiste"
+msgstr "Valitse liitospisteenä käytettävä kansio"
 
 #: src/gpodder/gtkui/desktop/preferences.py:316
 msgid "manually"
@@ -1869,9 +1865,8 @@ msgid "Play"
 msgstr "Toista"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:92
-#, fuzzy
 msgid "Rename"
-msgstr "Käyttäjätunnus"
+msgstr "Nimeä uudelleen"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:97
 #, python-format
@@ -1928,7 +1923,7 @@ msgstr "Valitse lähde"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:108
 msgid "Load"
-msgstr ""
+msgstr "Lataa"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:115
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:147
@@ -1936,9 +1931,8 @@ msgid "Open OPML file"
 msgstr "Avaa OPML-tiedosto"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:135
-#, fuzzy
 msgid "Search"
-msgstr "Etsi:"
+msgstr "Etsi"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:145
 msgid "Podcast feed/website URL"
@@ -2215,9 +2209,8 @@ msgid "_YouTube"
 msgstr "_YouTube"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:1
-#, fuzzy
 msgid "After syncing an episode:"
-msgstr "Avataan %d jakso"
+msgstr "Jakson synkronoinnin jälkeen:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:2
 msgid "Also remove unplayed episodes"
@@ -2248,9 +2241,8 @@ msgid "Device name:"
 msgstr "Laitteen nimi:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:8
-#, fuzzy
 msgid "Device type:"
-msgstr "Laitteen nimi:"
+msgstr "Laitteen tyyppi:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:9
 msgid "Devices"
@@ -2269,14 +2261,12 @@ msgid "Maximum number of episodes per podcast:"
 msgstr "Suurin jaksojen määrä / podcast:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:14
-#, fuzzy
 msgid "Mountpoint:"
-msgstr "iPod-liitospiste:"
+msgstr "Liitospiste:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:15
-#, fuzzy
 msgid "Only sync unplayed episodes"
-msgstr "Soittamattomat jaksot"
+msgstr "Synkronoi vain soittamattomat jaksot"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:17 data/ui/desktop/gpodder.ui.h:35
 #: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/maemo/gpodder.ui.h:32
@@ -2288,9 +2278,8 @@ msgid "Remove finished downloads from the downloads tab"
 msgstr "Poista valmistuneet lataukset latausvälilehdeltä"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:19
-#, fuzzy
 msgid "Remove played episodes from device"
-msgstr "Poista podcastit laitteelta"
+msgstr "Poista soitetut jaksot laitteelta"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:20
 #: data/ui/maemo/mygpoddersettings.ui.h:4
