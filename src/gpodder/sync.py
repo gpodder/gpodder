@@ -339,8 +339,14 @@ class iPodDevice(Device):
         tracks = []
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             filename = gpod.itdb_filename_on_ipod(track)
-            length = util.calculate_size(filename)
 
+            if filename is None:
+                # This can happen if the episode is deleted on the device
+                log('Episode has no file: %s', track.title, sender=self)
+                self.remove_track_gpod(track)
+                continue
+
+            length = util.calculate_size(filename)
             timestamp = util.file_modification_timestamp(filename)
             modified = util.format_date(timestamp)
             released = gpod.itdb_time_mac_to_host(track.time_released)
