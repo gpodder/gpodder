@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder 2.5+git\n"
+"Project-Id-Version: gPodder 2.7+git\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-30 03:52+0200\n"
-"PO-Revision-Date: 2010-05-11 18:04+0400\n"
+"PO-Revision-Date: 2010-07-05 00:07+0400\n"
 "Last-Translator: Maxim Prohorov <prohorov.max@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -498,22 +498,20 @@ msgid "Redirection detected"
 msgstr "Перенаправление"
 
 #: src/gpodder/gui.py:2567
-#, fuzzy
 msgid "Merging episode actions"
-msgstr "Удаление выпусков"
+msgstr "Синхронизация действий"
 
 #: src/gpodder/gui.py:2568
-#, fuzzy
 msgid "Episode actions from gpodder.net are merged."
-msgstr "Загрузить мои подписки с gpodder.net"
+msgstr "Действия над эпизодами синхронизированы."
 
 #: src/gpodder/gui.py:2601
-#, fuzzy, python-format
+#, python-format
 msgid "%d action processed"
 msgid_plural "%d actions processed"
-msgstr[0] "%d подписка экспортирована"
-msgstr[1] "%d подписки экспортированы"
-msgstr[2] "%d подписок экспортировано"
+msgstr[0] "%d действие обработано"
+msgstr[1] "%d действия обработано"
+msgstr[2] "%d действий обработано"
 
 #: src/gpodder/gui.py:2638
 msgid "New episodes are available."
@@ -726,19 +724,16 @@ msgid "No new episodes available"
 msgstr "Нет новых выпусков"
 
 #: src/gpodder/gui.py:3324
-#, fuzzy
 msgid "Login to gpodder.net"
-msgstr "Открыть gpodder.net"
+msgstr "Зайти на gpodder.net"
 
 #: src/gpodder/gui.py:3325
-#, fuzzy
 msgid "Please login to download your subscriptions."
-msgstr "Загрузить подписки"
+msgstr "Авторизуйтесь, чтобы загрузить подписки"
 
 #: src/gpodder/gui.py:3335
-#, fuzzy
 msgid "Subscriptions on gpodder.net"
-msgstr "Подписки сохранены."
+msgstr "Подписки на gpodder.net"
 
 #: src/gpodder/gui.py:3364
 msgid "Please select a podcast in the podcasts list to edit."
@@ -979,14 +974,14 @@ msgid "Tracks published by %s on Soundcloud."
 msgstr "Композиции %s на Soundcloud"
 
 #: src/gpodder/soundcloud.py:204
-#, fuzzy, python-format
+#, python-format
 msgid "%s's favorites on Soundcloud"
-msgstr "%s на Soundcloud"
+msgstr "Избранное %s на Soundcloud"
 
 #: src/gpodder/soundcloud.py:210
-#, fuzzy, python-format
+#, python-format
 msgid "Tracks favorited by %s on Soundcloud."
-msgstr "Композиции %s на Soundcloud"
+msgstr "Избранные треки %s на Soundcloud"
 
 #: src/gpodder/sync.py:69
 msgid "iPod synchronization"
@@ -1487,23 +1482,20 @@ msgid "None"
 msgstr "Нет"
 
 #: src/gpodder/gtkui/desktop/preferences.py:78
-#, fuzzy
 msgid "Filesystem-based"
-msgstr "MP3 плеер с файловой системой"
+msgstr "С файловой системой"
 
 #: src/gpodder/gtkui/desktop/preferences.py:79
 msgid "MTP"
-msgstr ""
+msgstr "MTP"
 
 #: src/gpodder/gtkui/desktop/preferences.py:98
-#, fuzzy
 msgid "Mark it as played"
-msgstr "Уже прослушано"
+msgstr "Отметить как прослушанный"
 
 #: src/gpodder/gtkui/desktop/preferences.py:99
-#, fuzzy
 msgid "Delete it from gPodder"
-msgstr "Удалить выпуск из gPodder"
+msgstr "Удалить выпуск"
 
 #: src/gpodder/gtkui/desktop/preferences.py:234
 msgid "Configure audio player"
@@ -1523,9 +1515,8 @@ msgid "manual only"
 msgstr "только вручную"
 
 #: src/gpodder/gtkui/desktop/preferences.py:297
-#, fuzzy
 msgid "Select folder for mount point"
-msgstr "Точка монтирования для iPod: "
+msgstr "Укажите точку монтирования"
 
 #: src/gpodder/gtkui/desktop/preferences.py:316
 msgid "manually"
@@ -1902,9 +1893,8 @@ msgid "Play"
 msgstr "Воспроизвести"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:92
-#, fuzzy
 msgid "Rename"
-msgstr "Имя пользователя"
+msgstr "Переименовать"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:97
 #, python-format
@@ -1963,7 +1953,7 @@ msgstr "Источник"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:108
 msgid "Load"
-msgstr ""
+msgstr "Загрузить"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:115
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:147
@@ -1971,9 +1961,8 @@ msgid "Open OPML file"
 msgstr "Открыть файл OPML"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:135
-#, fuzzy
 msgid "Search"
-msgstr "Искать: "
+msgstr "Поиск"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:145
 msgid "Podcast feed/website URL"
@@ -2253,9 +2242,8 @@ msgid "_YouTube"
 msgstr "_YouTube"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:1
-#, fuzzy
 msgid "After syncing an episode:"
-msgstr "Открытие %d выпуска"
+msgstr "После синхронизации выпуска:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:2
 msgid "Also remove unplayed episodes"
@@ -2286,9 +2274,8 @@ msgid "Device name:"
 msgstr "Имя устройства:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:8
-#, fuzzy
 msgid "Device type:"
-msgstr "Имя устройства:"
+msgstr "Тип устройства:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:9
 msgid "Devices"
@@ -2300,21 +2287,19 @@ msgstr "Расширенные"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:11
 msgid "Enable notification bubbles"
-msgstr "Показывать всплывающие уведомления "
+msgstr "Всплывающие уведомления "
 
 #: data/ui/desktop/gpodderpreferences.ui.h:13
 msgid "Maximum number of episodes per podcast:"
 msgstr "Ограничить количество выпусков в подкасте:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:14
-#, fuzzy
 msgid "Mountpoint:"
-msgstr "Точка монтирования iPod"
+msgstr "Путь к устройству:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:15
-#, fuzzy
 msgid "Only sync unplayed episodes"
-msgstr "Не прослушанные выпуски"
+msgstr "Не синхронизировать прослушанные выпуски"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:17 data/ui/desktop/gpodder.ui.h:35
 #: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/maemo/gpodder.ui.h:32
@@ -2326,9 +2311,8 @@ msgid "Remove finished downloads from the downloads tab"
 msgstr "Автоматически очищать вкладку Загрузки"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:19
-#, fuzzy
 msgid "Remove played episodes from device"
-msgstr "Удалить подкасты с устройства"
+msgstr "Удалять прослушанные выпуски с устройства"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:20
 #: data/ui/maemo/mygpoddersettings.ui.h:4
@@ -2337,7 +2321,7 @@ msgstr "Сохранить список подписок на сервере"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:21
 msgid "Show icon in system tray"
-msgstr "Показывать значок в области уведомлений"
+msgstr "Значок в области уведомлений"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:22
 #: data/ui/maemo/mygpoddersettings.ui.h:5
@@ -2734,18 +2718,16 @@ msgid "Settings"
 msgstr "Настройки"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:11
-#, fuzzy
 msgid "Synchronize with gpodder.net"
-msgstr "Синхронизация с устройством"
+msgstr "Синхронизация с gpodder.net"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:13
 msgid "When new episodes are found"
 msgstr "Когда найдены новые выпуски"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:14
-#, fuzzy
 msgid "gpodder.net Synchronization"
-msgstr "Синхронизация с iPod"
+msgstr "Синхронизация с gpodder.net"
 
 #: data/ui/frmntl/gpodder.ui.h:1
 msgid "Add new podcast"
