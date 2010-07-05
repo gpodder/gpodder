@@ -1016,11 +1016,28 @@ def bluetooth_available():
     Returns True or False depending on the availability
     of bluetooth functionality on the system.
     """
-    if find_command('bluetooth-sendto') or \
+    if gpodder.ui.maemo:
+        return True
+    elif find_command('bluetooth-sendto') or \
             find_command('gnome-obex-send'):
         return True
     else:
         return False
+
+def bluetooth_send_files_maemo(filenames):
+    """Maemo implementation of Bluetooth file transfer
+
+    Takes a list of (absolute and local) filenames that are
+    submitted to the Maemo Bluetooth UI for file transfer.
+
+    This method works in Diablo and also in Fremantle.
+    """
+    import dbus
+    bus = dbus.SystemBus()
+    o = bus.get_object('com.nokia.bt_ui', '/com/nokia/bt_ui', False)
+    i = dbus.Interface(o, 'com.nokia.bt_ui')
+    i.show_send_file_dlg(['file://'+f for f in filenames])
+    return True
 
 
 def bluetooth_send_file(filename):

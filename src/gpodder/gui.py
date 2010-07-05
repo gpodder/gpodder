@@ -175,7 +175,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for child in self.main_menu.get_children():
                 child.reparent(menu)
             self.main_window.set_menu(self.set_finger_friendly(menu))
-            self.bluetooth_available = False
             self._last_orientation = Orientation.LANDSCAPE
         elif gpodder.ui.fremantle:
             import hildon
@@ -219,12 +218,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self._last_orientation = Orientation.PORTRAIT
             else:
                 self._last_orientation = Orientation.LANDSCAPE
-
-            self.bluetooth_available = False
         else:
             self._last_orientation = Orientation.LANDSCAPE
-            self.bluetooth_available = util.bluetooth_available()
             self.toolbar.set_property('visible', self.config.show_toolbar)
+
+        self.bluetooth_available = util.bluetooth_available()
 
         self.config.connect_gtk_window(self.gPodder, 'main_window')
         if not gpodder.ui.fremantle:
@@ -1794,6 +1792,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
 
+        if gpodder.ui.maemo:
+            util.bluetooth_send_files_maemo([e.local_filename(create=False) \
+                    for e in episodes_to_copy])
+            return True
+
         def convert_and_send_thread(episode):
             for episode in episodes:
                 filename = episode.local_filename(create=False)
@@ -1935,7 +1938,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
-                    item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
+                    if gpodder.ui.maemo:
+                        icon_name = ICON('qgn_list_filesys_bluetooth')
+                    else:
+                        icon_name = ICON('bluetooth')
+                    item.set_image(gtk.image_new_from_icon_name(icon_name, gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(self.set_finger_friendly(item))
                 if can_transfer:
