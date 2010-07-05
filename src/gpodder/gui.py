@@ -1732,6 +1732,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append( gtk.SeparatorMenuItem())
 
+            if self.config.device_type != 'none':
+                item = gtk.MenuItem(_('Synchronize to device'))
+                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes()))
+                menu.append(item)
+                menu.append(gtk.SeparatorMenuItem())
+
             item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
             item.connect( 'activate', self.on_itemEditChannel_activate)
             menu.append( item)
