@@ -139,9 +139,15 @@ if __name__ == '__main__':
     # from the command line without the "--fremantle" switch :)
     if not options.fremantle and not options.diablo:
         try:
-            if 'Maemo 5' in open('/etc/issue').read():
+            etc_issue = open('/etc/issue').read()
+            if 'Maemo 5' in etc_issue:
                 options.fremantle = True
                 print >>sys.stderr, 'Auto-detected: Maemo 5 (--fremantle)'
+            elif 'Internet Tablet OS: maemo Linux based OS2008' in etc_issue:
+                options.diablo = True
+                print >>sys.stderr, 'Auto-detected: Maemo OS2008 (--maemo)'
+
+            del etc_issue
         except:
             pass
 
