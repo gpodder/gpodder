@@ -144,7 +144,7 @@ if gpodder.ui.maemo:
     import hildon
 
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder import extensions
+from gpodder import hooks
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
@@ -3941,7 +3941,12 @@ def main(options=None):
     gpodder.load_plugins()
 
     config = UIConfig(gpodder.config_file)
-    gpodder.user_extensions = extensions.ExtensionManager(gpodder)
+
+    # Load hook modules and install the hook manager globally
+    # if modules have been found an instantiated by the manager
+    user_hooks = hooks.HookManager()
+    if user_hooks.has_modules():
+        gpodder.user_hooks = user_hooks
 
     if gpodder.ui.diablo:
         # Detect changing of SD cards between mmc1/mmc2 if a gpodder
