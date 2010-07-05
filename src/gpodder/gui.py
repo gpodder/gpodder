@@ -1926,7 +1926,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
                 share_item = gtk.MenuItem(_('Send to'))
-                menu.append(share_item)
+                menu.append(self.set_finger_friendly(share_item))
                 share_menu = gtk.Menu()
 
                 item = gtk.ImageMenuItem(_('Local folder'))
