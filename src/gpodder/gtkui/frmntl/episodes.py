@@ -65,11 +65,10 @@ class gPodderEpisodes(BuilderWidget):
         # Workaround for Maemo bug XXX
         self.button_search_episodes_clear.set_name('HildonButton-thumb')
         appmenu = hildon.AppMenu()
-        for action in (self.action_rename, \
-                       self.action_play_m3u, \
+        for action in (self.action_update, \
+                       self.action_rename, \
                        self.action_login, \
                        self.action_unsubscribe, \
-                       self.action_update, \
                        self.action_check_for_new_episodes, \
                        self.action_delete_episodes):
             button = gtk.Button()
@@ -87,8 +86,10 @@ class gPodderEpisodes(BuilderWidget):
     def on_rename_button_clicked(self, widget):
         if self.channel is None:
             return
+
         new_title = self.show_text_edit_dialog(_('Rename podcast'), \
-                _('New name:'), self.channel.title)
+                _('New name:'), self.channel.title, \
+                affirmative_text=_('Rename'))
         if new_title is not None and new_title != self.channel.title:
             self.channel.set_custom_title(new_title)
             self.main_window.set_title(self.channel.title)
@@ -104,10 +105,6 @@ class gPodderEpisodes(BuilderWidget):
         if accept:
             self.channel.username, self.channel.password = auth_data
             self.channel.save()
-
-    def on_play_m3u_button_clicked(self, widget):
-        if self.channel is not None:
-            util.gui_open(self.channel.get_playlist_filename())
 
     def on_website_button_clicked(self, widget):
         if self.channel is not None:
@@ -140,12 +137,12 @@ class gPodderEpisodes(BuilderWidget):
             episode = model.get_value(model.get_iter(path), \
                     EpisodeListModel.C_EPISODE)
 
+            self.action_delete.set_property('visible', not episode.is_locked)
+
             if episode.was_downloaded():
-                self.action_delete.set_property('visible', not episode.is_locked)
                 self.action_keep.set_property('visible', True)
                 self.action_download.set_property('visible', not episode.was_downloaded(and_exists=True))
             else:
-                self.action_delete.set_property('visible', False)
                 self.action_keep.set_property('visible', False)
                 self.action_download.set_property('visible', not self.episode_is_downloading(episode))
 
@@ -190,7 +187,6 @@ class gPodderEpisodes(BuilderWidget):
         all_episodes = isinstance(self.channel, PodcastChannelProxy)
 
         for action in (self.action_rename, \
-                       self.action_play_m3u, \
                        self.action_login, \
                        self.action_unsubscribe, \
                        self.action_update):

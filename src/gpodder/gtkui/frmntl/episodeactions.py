@@ -122,9 +122,9 @@ class gPodderEpisodeActions(BuilderWidget):
         self.main_window.show_all()
 
     def create_ui_not_downloaded(self):
-        download_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        download_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
         shownotes_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
-        play_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        play_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
         mark_new_button = hildon.GtkRadioButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH)
         mark_old_button = hildon.GtkRadioButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH, mark_new_button)
 
@@ -142,6 +142,14 @@ class gPodderEpisodeActions(BuilderWidget):
         self.action_play.connect_proxy(play_button)
         self.radio_action_mark_new.connect_proxy(mark_new_button)
         self.radio_action_mark_old.connect_proxy(mark_old_button)
+
+        if self.episode.length > 0:
+            download_button.set_title(self.action_download.props.label)
+            download_button.set_value(self.episode.get_filesize_string())
+
+        if self.episode.total_time > 0:
+            play_button.set_title(self.action_play.props.label)
+            play_button.set_value(self.episode.get_play_info_string())
 
         mark_new_button.set_active(not self.episode.is_played)
         mark_old_button.set_active(self.episode.is_played)
@@ -172,24 +180,24 @@ class gPodderEpisodeActions(BuilderWidget):
         return table
 
     def create_ui_downloaded(self):
-        play_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
+        play_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
         shownotes_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
         delete_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
         keep_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH)
         keep_button.set_label(_('Keep episode'))
         keep_button.connect('toggled', self.on_keep_toggled)
 
-        if self.episode.is_played:
-            self.action_play.set_property('label', _('Continue playback'))
-        else:
-            self.action_play.set_property('label', _('Play'))
-
+        self.action_play.set_property('label', _('Play'))
         self.radio_action_mark_new.set_property('label', _('Unplayed'))
         self.radio_action_mark_old.set_property('label', _('Played'))
 
         self.action_play.connect_proxy(play_button)
         self.action_shownotes.connect_proxy(shownotes_button)
         self.action_delete.connect_proxy(delete_button)
+
+        if self.episode.total_time > 0:
+            play_button.set_title(self.action_play.props.label)
+            play_button.set_value(self.episode.get_play_info_string())
 
         keep_button.set_active(self.episode.is_locked)
         self.new_keep_value = self.episode.is_locked

@@ -70,10 +70,6 @@ class gPodderDownloads(BuilderWidget):
         return True
 
     def show(self):
-        # Remove finished episodes
-        if self._config.auto_cleanup_downloads:
-            self.on_btnCleanUpDownloads_clicked()
-
         self.main_window.show()
 
     def on_pause_button_clicked(self, button):
@@ -89,7 +85,7 @@ class gPodderDownloads(BuilderWidget):
         self.on_select_none_button_clicked(button)
 
     def on_cleanup_button_clicked(self, button):
-        self.on_btnCleanUpDownloads_clicked(button)
+        self.cleanup_downloads()
 
     def on_select_all_button_clicked(self, button):
         selection = self.treeview.get_selection()

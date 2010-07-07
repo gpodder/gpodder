@@ -291,7 +291,9 @@ class gPodderEpisodeSelector(BuilderWidget):
         result = self.treeviewEpisodes.get_path_at_pos(int(event.x), int(event.y))
         if result is not None:
             path, column, x, y = result
-            (index,) = path
+            model = self.treeviewEpisodes.get_model()
+            index = model.get_value(model.get_iter(path), self.COLUMN_INDEX)
+
             self.action_shownotes.set_property('visible', True)
             self.touched_episode = self.episodes[index]
         else:

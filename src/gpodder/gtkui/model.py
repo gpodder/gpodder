@@ -237,25 +237,25 @@ class EpisodeListModel(gtk.ListStore):
         show_missing = False
         status_icon = None
         status_icon_to_build_from_file = False
-        tooltip = ''
+        tooltip = []
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
         icon_theme = gtk.icon_theme_get_default()
 
         if downloading is not None and downloading(episode):
-            tooltip = _('Downloading')
+            tooltip.append(_('Downloading'))
             status_icon = self.ICON_DOWNLOADING
             view_show_downloaded = True
             view_show_unplayed = True
         else:
             if episode.state == gpodder.STATE_DELETED:
-                tooltip = _('Deleted')
+                tooltip.append(_('Deleted'))
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
             elif episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played:
-                tooltip = _('New episode')
+                tooltip.append(_('New episode'))
                 status_icon = self.ICON_NEW
                 view_show_downloaded = True
                 view_show_unplayed = True
@@ -321,10 +321,15 @@ class EpisodeListModel(gtk.ListStore):
                     if show_padlock:
                         tooltip.append(_('deletion prevented'))
 
-                if episode.total_time > 0:
-                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time)))
+                if episode.total_time > 0 and episode.current_position:
+                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time),))
 
-                tooltip = ', '.join(tooltip)
+        if episode.total_time:
+            total_time = util.format_time(episode.total_time)
+            if total_time:
+                tooltip.append(total_time)
+
+        tooltip = ', '.join(tooltip)
 
         if status_icon is not None:
             status_icon = self._get_tree_icon(status_icon, show_bullet, \
@@ -705,7 +710,10 @@ class PodcastListModel(gtk.ListStore):
 
     def update_by_iter(self, iter):
         # Given a GtkTreeIter, update volatile information
-        channel = self.get_value(iter, self.C_CHANNEL)
+        try:
+            channel = self.get_value(iter, self.C_CHANNEL)
+        except TypeError, te:
+            return
         if channel is None:
             return
         total, deleted, new, downloaded, unplayed = channel.get_statistics()

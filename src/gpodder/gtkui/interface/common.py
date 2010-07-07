@@ -228,7 +228,7 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.run()
                 dlg.destroy()
             else:
-                hildon.hildon_banner_show_information(self.main_window, \
+                hildon.hildon_banner_show_information(self.get_dialog_parent(), \
                         '', message)
         else:
             # XXX: Dirty hack to get access to the gPodder-specific config object
@@ -330,20 +330,14 @@ class BuilderWidget(GtkBuilderWidget):
             raise Exception('Unknown interface type')
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
-            is_url=False):
+            is_url=False, affirmative_text=gtk.STOCK_OK):
         dialog = gtk.Dialog(title, self.get_dialog_parent(), \
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
-        
-        if gpodder.ui.fremantle:
-            import hildon
-            button = hildon.Button(gtk.HILDON_SIZE_AUTO_WIDTH | \
-                    gtk.HILDON_SIZE_FINGER_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
-            button.set_text(_('OK'), '')
-            dialog.add_action_widget(button, gtk.RESPONSE_OK)
-        else:
-            cancel_button = dialog.add_button(gtk.STOCK_CANCEL, \
-                    gtk.RESPONSE_CANCEL)
-            ok_button = dialog.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+
+        if not gpodder.ui.fremantle:
+            dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+
+        dialog.add_button(affirmative_text, gtk.RESPONSE_OK)
 
         dialog.set_has_separator(False)
         if gpodder.ui.desktop:

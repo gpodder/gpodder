@@ -58,11 +58,13 @@ class DBusPodcastsProxy(dbus.service.Object):
     #DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
     def __init__(self, get_podcast_list, \
             check_for_updates, playback_episodes, \
-            download_episodes, bus_name):
+            download_episodes, episode_from_uri, \
+            bus_name):
         self._get_podcasts = get_podcast_list
         self._on_check_for_updates = check_for_updates
         self._playback_episodes = playback_episodes
         self._download_episodes = download_episodes
+        self._episode_from_uri = episode_from_uri
         dbus.service.Object.__init__(self, \
                 object_path=gpodder.dbus_podcasts_object_path, \
                 bus_name=bus_name)
@@ -91,16 +93,10 @@ class DBusPodcastsProxy(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='ss')
     def get_episode_title(self, url):
-        if url.startswith('file://'):
-            url = url[len('file://'):]
+        episode = self._episode_from_uri(url)
 
-        # TODO: Implement for non-local URLs (for streaming, etc..)
-
-        for podcast in self._get_podcasts():
-            if url.startswith(podcast.save_dir):
-                for episode in podcast.get_downloaded_episodes():
-                    if episode.local_filename(create=False) == url:
-                        return episode.title, podcast.title
+        if episode is not None:
+            return episode.title, episode.channel.title
 
         return ('', '')
 

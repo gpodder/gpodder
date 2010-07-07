@@ -28,6 +28,7 @@ from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
 from gpodder import corestats
+from gpodder import gstreamer
 
 from gpodder.liblogger import log
 
@@ -347,12 +348,17 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.UnknownStatusCode
             raise
 
+        if gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_podcast_updated(self)
+
         self.db.commit()
 
     def delete(self):
         self.db.delete_channel(self)
 
     def save(self):
+        if gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_podcast_save(self)
         self.db.save_channel(self)
 
     def get_statistics(self):
@@ -528,6 +534,14 @@ class PodcastChannel(PodcastModelObject):
 
         f.close()
 
+    def get_episode_by_url(self, url):
+        return self.db.load_single_episode(self, \
+                factory=self.episode_factory, url=url)
+
+    def get_episode_by_filename(self, filename):
+        return self.db.load_single_episode(self, \
+                factory=self.episode_factory, filename=filename)
+
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
@@ -602,9 +616,15 @@ class PodcastChannel(PodcastModelObject):
     
     save_dir = property(fget=get_save_dir)
 
-    def remove_downloaded( self):
-        shutil.rmtree( self.save_dir, True)
-    
+    def remove_downloaded(self):
+        # Remove the playlist file if it exists
+        m3u_filename = self.get_playlist_filename()
+        if os.path.exists(m3u_filename):
+            util.delete_file(m3u_filename)
+
+        # Remove the download directory
+        shutil.rmtree(self.save_dir, True)
+
     @property
     def cover_file(self):
         new_name = os.path.join(self.save_dir, 'folder.jpg')
@@ -679,7 +699,8 @@ class PodcastEpisode(PodcastModelObject):
         return self
 
     def has_website_link(self):
-        return bool(self.link) and (self.link != self.url)
+        return bool(self.link) and (self.link != self.url or \
+                youtube.is_video_link(self.link))
 
     @staticmethod
     def from_feedparser_entry(entry, channel):
@@ -688,6 +709,13 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = entry.get('title', '')
         episode.link = entry.get('link', '')
         episode.description = entry.get('summary', '')
+
+        try:
+            # Parse iTunes-specific podcast duration metadata
+            total_time = util.parse_time(entry.get('itunes_duration', ''))
+            episode.total_time = total_time
+        except:
+            pass
 
         # Fallback to subtitle if summary is not available0
         if not episode.description:
@@ -803,7 +831,7 @@ class PodcastEpisode(PodcastModelObject):
         # Time attributes
         self.total_time = 0
         self.current_position = 0
-        self.current_position_updated = time.time()
+        self.current_position_updated = 0
 
     def get_is_locked(self):
         return self._is_locked
@@ -816,12 +844,30 @@ class PodcastEpisode(PodcastModelObject):
     def save(self):
         if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
             self.state = gpodder.STATE_DOWNLOADED
+        if gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_episode_save(self)
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):
         self.state = gpodder.STATE_DOWNLOADED
         self.is_played = False
         self.length = os.path.getsize(filename)
+
+        if not self.total_time:
+            try:
+                length = gstreamer.get_track_length(filename)
+                if length is not None:
+                    length = int(length/1000)
+                    log('Detected media length: %d seconds', length, \
+                            sender=self)
+                    self.total_time = length
+                    self.db.save_episode(self)
+                    self.db.commit()
+                    return
+            except Exception, e:
+                log('Error while detecting media length: %s', str(e), \
+                        sender=self)
+
         self.db.save_downloaded_episode(self)
         self.db.commit()
 
@@ -1134,6 +1180,22 @@ class PodcastEpisode(PodcastModelObject):
             self.length = os.path.getsize(filename)
         except:
             log( 'Could not get filesize for %s.', self.url)
+
+    def get_play_info_string(self):
+        if self.current_position > 0 and \
+                self.total_time <= self.current_position:
+            return '%s (%s)' % (_('Finished'), self.get_duration_string(),)
+        if self.current_position > 0:
+            return '%s / %s' % (self.get_position_string(), \
+                    self.get_duration_string())
+        else:
+            return self.get_duration_string()
+
+    def get_position_string(self):
+        return util.format_time(self.current_position)
+
+    def get_duration_string(self):
+        return util.format_time(self.total_time)
 
     def get_filesize_string(self):
         return util.format_filesize(self.length)

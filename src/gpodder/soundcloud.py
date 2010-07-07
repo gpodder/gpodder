@@ -122,13 +122,14 @@ class SoundcloudUser(object):
 
         return image
 
-    def get_tracks(self):
+    def get_tracks(self, feed):
         """Get a generator of tracks from a SC user
 
         The generator will give you a dictionary for every
         track it can find for its user."""
         try:
-            json_url = 'http://api.soundcloud.com/users/%s/tracks.json?filter=downloadable' % self.username
+            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable' \
+                    % { "user":self.username, "feed":feed }
             tracks = (track for track in json.load(util.urlopen(json_url)) \
                     if track['downloadable'])
 
@@ -156,7 +157,7 @@ class SoundcloudUser(object):
             self.commit_cache()
 
 class SoundcloudFeed(object):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)', re.I)
+    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
     def handle_url(cls, url):
@@ -182,7 +183,7 @@ class SoundcloudFeed(object):
         return _('Tracks published by %s on Soundcloud.') % self.username
 
     def get_new_episodes(self, channel, guids):
-        tracks = [t for t in self.sc_user.get_tracks() \
+        tracks = [t for t in self.sc_user.get_tracks('tracks') \
                              if t['guid'] not in guids]
 
         for track in tracks:
@@ -192,6 +193,33 @@ class SoundcloudFeed(object):
 
         return len(tracks)
 
-# Register our URL handler
-model.register_custom_handler(SoundcloudFeed)
+class SoundcloudFavFeed(SoundcloudFeed):
+    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
 
+
+    def __init__(self, username):
+        super(SoundcloudFavFeed,self).__init__(username)
+
+    def get_title(self):
+        return _('%s\'s favorites on Soundcloud') % self.username
+
+    def get_link(self):
+        return 'http://soundcloud.com/%s/favorites' % self.username
+
+    def get_description(self):
+        return _('Tracks favorited by %s on Soundcloud.') % self.username
+
+    def get_new_episodes(self, channel, guids):
+        tracks = [t for t in self.sc_user.get_tracks('favorites') \
+                             if t['guid'] not in guids]
+
+        for track in tracks:
+            episode = model.PodcastEpisode(channel)
+            episode.update_from_dict(track)
+            episode.save()
+
+        return len(tracks)
+
+# Register our URL handlers
+model.register_custom_handler(SoundcloudFeed)
+model.register_custom_handler(SoundcloudFavFeed)

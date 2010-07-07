@@ -213,6 +213,8 @@ def username_password_from_url(url):
     ('i/o', 'P@ss:')
     >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
     ('\xc3\xb6sterreich', None)
+    >>> username_password_from_url('http://w%20x:y%20z@example.org/')
+    ('w x', 'y z')
     """
     if type(url) not in (str, unicode):
         raise ValueError('URL has to be a string or unicode object.')
@@ -836,14 +838,16 @@ def url_add_authentication(url, username, password):
     'http://c:d@x.org/'
     >>> url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@:', 'i/')
     'http://P%40%3A:i%2F@cx.lan'
+    >>> url_add_authentication('http://x.org/', 'a b', 'c d')
+    'http://a%20b:c%20d@x.org/'
     """
     if username is None or username == '':
         return url
 
-    username = urllib.quote_plus(username)
+    username = urllib.quote(username, safe='')
 
     if password is not None:
-        password = urllib.quote_plus(password)
+        password = urllib.quote(password, safe='')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
@@ -1012,11 +1016,28 @@ def bluetooth_available():
     Returns True or False depending on the availability
     of bluetooth functionality on the system.
     """
-    if find_command('bluetooth-sendto') or \
+    if gpodder.ui.maemo:
+        return True
+    elif find_command('bluetooth-sendto') or \
             find_command('gnome-obex-send'):
         return True
     else:
         return False
+
+def bluetooth_send_files_maemo(filenames):
+    """Maemo implementation of Bluetooth file transfer
+
+    Takes a list of (absolute and local) filenames that are
+    submitted to the Maemo Bluetooth UI for file transfer.
+
+    This method works in Diablo and also in Fremantle.
+    """
+    import dbus
+    bus = dbus.SystemBus()
+    o = bus.get_object('com.nokia.bt_ui', '/com/nokia/bt_ui', False)
+    i = dbus.Interface(o, 'com.nokia.bt_ui')
+    i.show_send_file_dlg(['file://'+f for f in filenames])
+    return True
 
 
 def bluetooth_send_file(filename):
@@ -1039,8 +1060,55 @@ def bluetooth_send_file(filename):
     else:
         log('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
-        
-        
+
+
+def format_time(value):
+    """Format a seconds value to a string
+
+    >>> format_time(0)
+    '00:00'
+    >>> format_time(20)
+    '00:20'
+    >>> format_time(3600)
+    '01:00:00'
+    >>> format_time(10921)
+    '03:02:01'
+    """
+    dt = datetime.datetime.utcfromtimestamp(value)
+    if dt.hour == 0:
+        return dt.strftime('%M:%S')
+    else:
+        return dt.strftime('%H:%M:%S')
+
+
+def parse_time(value):
+    """Parse a time string into seconds
+    >>> parse_time('00:00')
+    0
+    >>> parse_time('00:00:00')
+    0
+    >>> parse_time('00:20')
+    20
+    >>> parse_time('00:00:20')
+    20
+    >>> parse_time('01:00:00')
+    3600
+    >>> parse_time('03:02:01')
+    10921
+    """
+    if not value:
+        raise ValueError('Invalid value: %s' % (str(value),))
+
+    for format in ('%H:%M:%S', '%M:%S'):
+        try:
+            t = time.strptime(value, format)
+            return (t.tm_hour * 60 + t.tm_min) * 60 + t.tm_sec
+        except ValueError, ve:
+            continue
+
+    return int(value)
+
+
 def format_seconds_to_hour_min_sec(seconds):
     """
     Take the number of seconds and format it into a

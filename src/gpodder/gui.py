@@ -144,6 +144,7 @@ if gpodder.ui.maemo:
     import hildon
 
 from gpodder.dbusproxy import DBusPodcastsProxy
+from gpodder import hooks
 
 class gPodder(BuilderWidget, dbus.service.Object):
     finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
@@ -158,6 +159,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.on_itemUpdate_activate, \
                 self.playback_episodes, \
                 self.download_episode_list, \
+                self.episode_object_by_uri, \
                 bus_name)
         self.db = Database(gpodder.database_file)
         self.config = config
@@ -173,7 +175,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for child in self.main_menu.get_children():
                 child.reparent(menu)
             self.main_window.set_menu(self.set_finger_friendly(menu))
-            self.bluetooth_available = False
             self._last_orientation = Orientation.LANDSCAPE
         elif gpodder.ui.fremantle:
             import hildon
@@ -217,12 +218,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self._last_orientation = Orientation.PORTRAIT
             else:
                 self._last_orientation = Orientation.LANDSCAPE
-
-            self.bluetooth_available = False
         else:
             self._last_orientation = Orientation.LANDSCAPE
-            self.bluetooth_available = util.bluetooth_available()
             self.toolbar.set_property('visible', self.config.show_toolbar)
+
+        self.bluetooth_available = util.bluetooth_available()
 
         self.config.connect_gtk_window(self.gPodder, 'main_window')
         if not gpodder.ui.fremantle:
@@ -388,7 +388,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.downloads_window = gPodderDownloads(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
-                    on_btnCleanUpDownloads_clicked=self.on_btnCleanUpDownloads_clicked, \
+                    cleanup_downloads=self.cleanup_downloads, \
                     _for_each_task_set_status=self._for_each_task_set_status, \
                     downloads_list_get_selection=self.downloads_list_get_selection, \
                     _config=self.config)
@@ -416,7 +416,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
-        self.last_download_count = 0
         self.download_task_monitors = set()
 
         # Subscribed channels
@@ -539,39 +538,74 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
 
+    def episode_object_by_uri(self, uri):
+        """Get an episode object given a local or remote URI
+
+        This can be used to quickly access an episode object
+        when all we have is its download filename or episode
+        URL (e.g. from external D-Bus calls / signals, etc..)
+        """
+        if uri.startswith('/'):
+            uri = 'file://' + uri
+
+        prefix = 'file://' + self.config.download_dir
+
+        if uri.startswith(prefix):
+            # File is on the local filesystem in the download folder
+            filename = uri[len(prefix):]
+            file_parts = [x for x in filename.split(os.sep) if x]
+
+            if len(file_parts) == 2:
+                dir_name, filename = file_parts
+                channels = [c for c in self.channels if c.foldername == dir_name]
+                if len(channels) == 1:
+                    channel = channels[0]
+                    return channel.get_episode_by_filename(filename)
+        else:
+            # Possibly remote file - search the database for a podcast
+            channel_id = self.db.get_channel_id_from_episode_url(uri)
+
+            if channel_id is not None:
+                channels = [c for c in self.channels if c.id == channel_id]
+                if len(channels) == 1:
+                    channel = channels[0]
+                    return channel.get_episode_by_url(uri)
+
+        return None
+
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
+        if start == 0 and end == 0 and total == 0:
+            # Ignore bogus play event
+            return
+
         log('Received play action: %s (%d, %d, %d)', file_uri, start, end, total, sender=self)
-        filename = file_uri[len('file://'):]
-        # FIXME: Optimize this by querying the database more directly
-        for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                fn = episode.local_filename(create=False, check_only=True)
-                if fn == filename:
-                    file_type = episode.file_type()
-                    # Automatically enable D-Bus played status mode
-                    if file_type == 'audio':
-                        self.config.audio_played_dbus = True
-                    elif file_type == 'video':
-                        self.config.video_played_dbus = True
+        episode = self.episode_object_by_uri(file_uri)
 
-                    now = time.time()
-                    if total > 0:
-                        episode.total_time = total
-                    if episode.current_position_updated is None or \
-                            now > episode.current_position_updated:
-                        episode.current_position = end
-                        episode.current_position_updated = now
-                    episode.mark(is_played=True)
-                    episode.save()
-                    self.db.commit()
-                    self.update_episode_list_icons([episode.url])
-                    self.update_podcast_list_model([episode.channel.url])
+        if episode is not None:
+            file_type = episode.file_type()
+            # Automatically enable D-Bus played status mode
+            if file_type == 'audio':
+                self.config.audio_played_dbus = True
+            elif file_type == 'video':
+                self.config.video_played_dbus = True
 
-                    # Submit this action to the webservice
-                    self.mygpo_client.on_playback_full(episode, \
-                            start, end, total)
-                    return
+            now = time.time()
+            if total > 0:
+                episode.total_time = total
+            if episode.current_position_updated is None or \
+                    now > episode.current_position_updated:
+                episode.current_position = end
+                episode.current_position_updated = now
+            episode.mark(is_played=True)
+            episode.save()
+            self.db.commit()
+            self.update_episode_list_icons([episode.url])
+            self.update_podcast_list_model([episode.channel.url])
+
+            # Submit this action to the webservice
+            self.mygpo_client.on_playback_full(episode, \
+                    start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -1089,10 +1123,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def enable_download_list_update(self):
         if not self.download_list_update_enabled:
+            self.update_downloads_list()
             gobject.timeout_add(1500, self.update_downloads_list)
             self.download_list_update_enabled = True
 
-    def on_btnCleanUpDownloads_clicked(self, button=None):
+    def cleanup_downloads(self):
         model = self.download_status_model
 
         all_tasks = [(gtk.TreeRowReference(model, row.path), row[0]) for row in model]
@@ -1120,8 +1155,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_shownotes_window.episode.url in changed_episode_urls:
             self.episode_shownotes_window._download_status_changed(None)
 
-        # Update the tab title and downloads list
-        self.update_downloads_list()
+        # Update the downloads list one more time
+        self.update_downloads_list(can_call_cleanup=False)
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
@@ -1141,7 +1176,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def remove_download_task_monitor(self, monitor):
         self.download_task_monitors.remove(monitor)
 
-    def update_downloads_list(self):
+    def update_downloads_list(self, can_call_cleanup=True):
         try:
             model = self.download_status_model
 
@@ -1255,7 +1290,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Update the tray icon status and progress bar
                     self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
                     self.tray_icon.draw_progress_bar(percentage/100.)
-            elif self.last_download_count > 0:
+            else:
                 if self.tray_icon is not None:
                     # Update the tray icon status
                     self.tray_icon.set_status()
@@ -1271,7 +1306,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     message = '\n'.join(['%s: %s' % (str(task), \
                             task.error_message) for task in failed_downloads])
                     self.show_message(message, _('Downloads failed'), important=True)
-            self.last_download_count = count
+
+                # Remove finished episodes
+                if self.config.auto_cleanup_downloads and can_call_cleanup:
+                    self.cleanup_downloads()
+
+                # Stop updating the download list here
+                self.download_list_update_enabled = False
 
             if not gpodder.ui.fremantle:
                 self.gPodder.set_title(' - '.join(title))
@@ -1285,9 +1326,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_or_download()
             if channel_urls:
                 self.update_podcast_list_model(channel_urls)
-
-            if not self.download_queue_manager.are_queued_or_active_tasks():
-                self.download_list_update_enabled = False
 
             return self.download_list_update_enabled
         except Exception, e:
@@ -1500,6 +1538,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(failed_downloads)
             self.show_message(message, _('Downloads failed'), True, widget=self.labelDownloads)
 
+        # Open torrent files right after download (bug 1029)
+        if self.config.open_torrent_after_download:
+            for task in download_tasks_seen:
+                if task.status != task.DONE:
+                    continue
+
+                episode = task.episode
+                if episode.mimetype != 'application/x-bittorrent':
+                    continue
+
+                self.playback_episodes([episode])
+
+
     def format_episode_list(self, episode_list, max_episodes=10):
         """
         Format a list of episode names for notifications
@@ -1679,6 +1730,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append( gtk.SeparatorMenuItem())
 
+            if self.config.device_type != 'none':
+                item = gtk.MenuItem(_('Synchronize to device'))
+                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes()))
+                menu.append(item)
+                menu.append(gtk.SeparatorMenuItem())
+
             item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
             item.connect( 'activate', self.on_itemEditChannel_activate)
             menu.append( item)
@@ -1734,6 +1791,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
+
+        if gpodder.ui.maemo:
+            util.bluetooth_send_files_maemo([e.local_filename(create=False) \
+                    for e in episodes_to_copy])
+            return True
 
         def convert_and_send_thread(episode):
             for episode in episodes:
@@ -1867,7 +1929,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
                 share_item = gtk.MenuItem(_('Send to'))
-                menu.append(share_item)
+                menu.append(self.set_finger_friendly(share_item))
                 share_menu = gtk.Menu()
 
                 item = gtk.ImageMenuItem(_('Local folder'))
@@ -1876,7 +1938,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu.append(self.set_finger_friendly(item))
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
-                    item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
+                    if gpodder.ui.maemo:
+                        icon_name = ICON('qgn_list_filesys_bluetooth')
+                    else:
+                        icon_name = ICON('bluetooth')
+                    item.set_image(gtk.image_new_from_icon_name(icon_name, gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(self.set_finger_friendly(item))
                 if can_transfer:
@@ -2045,6 +2111,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if gpodder.ui.fremantle:
                         fmt_id = 5
                     filename = youtube.get_real_download_url(filename, fmt_id)
+
+            # If Panucci is configured, use D-Bus on Maemo to call it
+            if player == 'panucci':
+                try:
+                    PANUCCI_NAME = 'org.panucci.panucciInterface'
+                    PANUCCI_PATH = '/panucciInterface'
+                    PANUCCI_INTF = 'org.panucci.panucciInterface'
+                    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+                    o = session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
+                    i = dbus.Interface(o, PANUCCI_INTF)
+
+                    def on_reply(*args):
+                        pass
+
+                    def on_error(err):
+                        log('Exception in D-Bus call: %s', str(err), \
+                                sender=self)
+
+                    # Determine the playback resume position - if the file
+                    # was played 100%, we simply start from the beginning
+                    resume_position = episode.current_position
+                    if resume_position == episode.total_time:
+                        resume_position = 0
+
+                    # This method only exists in Panucci > 0.9 ('new Panucci')
+                    i.playback_from(filename, resume_position, \
+                            reply_handler=on_reply, error_handler=on_error)
+
+                    continue # This file was handled by the D-Bus call
+                except Exception, e:
+                    log('Error calling Panucci using D-Bus', sender=self, traceback=True)
+
             groups[player].append(filename)
 
         # Open episodes with system default player
@@ -2053,7 +2151,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('Opening with system default: %s', filename, sender=self)
                 util.gui_open(filename)
             del groups['default']
-        elif gpodder.ui.maemo:
+        elif gpodder.ui.maemo and groups:
             # When on Maemo and not opening with default, show a notification
             # (no startup notification for Panucci / MPlayer yet...)
             if len(episodes) == 1:
@@ -2124,7 +2222,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (model, paths) = selection.get_selected_rows()
          
             for path in paths:
-                episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                try:
+                    episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                except TypeError, te:
+                    log('Invalid episode at path %s', str(path), sender=self)
+                    continue
 
                 if episode.file_type() not in ('audio', 'video'):
                     open_instead_of_play = True
@@ -2455,11 +2557,77 @@ class gPodder(BuilderWidget, dbus.service.Object):
         exporter = opml.Exporter(gpodder.subscription_file)
         return exporter.write(self.channels)
 
+    def find_episode(self, podcast_url, episode_url):
+        """Find an episode given its podcast and episode URL
+
+        The function will return a PodcastEpisode object if
+        the episode is found, or None if it's not found.
+        """
+        for podcast in self.channels:
+            if podcast_url == podcast.url:
+                for episode in podcast.get_all_episodes():
+                    if episode_url == episode.url:
+                        return episode
+
+        return None
+
+    def process_received_episode_actions(self, updated_urls):
+        """Process/merge episode actions from gpodder.net
+
+        This function will merge all changes received from
+        the server to the local database and update the
+        status of the affected episodes as necessary.
+        """
+        indicator = ProgressIndicator(_('Merging episode actions'), \
+                _('Episode actions from gpodder.net are merged.'), \
+                False, self.get_dialog_parent())
+
+        for idx, action in enumerate(self.mygpo_client.get_episode_actions(updated_urls)):
+            if action.action == 'play':
+                episode = self.find_episode(action.podcast_url, \
+                                            action.episode_url)
+
+                if episode is not None:
+                    log('Play action for %s', episode.url, sender=self)
+                    episode.mark(is_played=True)
+
+                    if action.timestamp > episode.current_position_updated:
+                        log('Updating position for %s', episode.url, sender=self)
+                        episode.current_position = action.position
+                        episode.current_position_updated = action.timestamp
+
+                    if action.total:
+                        log('Updating total time for %s', episode.url, sender=self)
+                        episode.total_time = action.total
+
+                    episode.save()
+            elif action.action == 'delete':
+                episode = self.find_episode(action.podcast_url, \
+                                            action.episode_url)
+
+                if episode is not None:
+                    if not episode.was_downloaded(and_exists=True):
+                        # Set the episode to a "deleted" state
+                        log('Marking as deleted: %s', episode.url, sender=self)
+                        episode.delete_from_disk()
+                        episode.save()
+
+            indicator.on_message(N_('%d action processed', '%d actions processed', idx) % idx)
+            gtk.main_iteration(False)
+
+        indicator.on_finished()
+        self.db.commit()
+
+
     def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
         self.db.commit()
         self.updating_feed_cache = False
 
         self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
+
+        # Process received episode actions for all updated URLs
+        self.process_received_episode_actions(updated_urls)
+
         self.channel_list_changed = True
         self.update_podcast_list_model(select_url=select_url_afterwards)
 
@@ -2472,7 +2640,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_refresh.set_image(gtk.image_new_from_icon_name(\
                     self.ICON_GENERAL_REFRESH, gtk.ICON_SIZE_BUTTON))
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+            hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
             self.update_podcasts_tab()
+            self.update_episode_list_model()
             if self.feed_cache_update_cancelled:
                 return
 
@@ -2627,6 +2797,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
+            hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
             self.button_refresh.set_title(_('Updating...'))
             self.button_subscribe.set_sensitive(False)
             self.button_refresh.set_image(gtk.image_new_from_icon_name(\
@@ -2921,7 +3092,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        self.update_feed_cache(channels=[self.active_channel])
+        # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
+        if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+            self.update_feed_cache()
+        else:
+            self.update_feed_cache(channels=[self.active_channel])
 
     def on_itemUpdate_activate(self, widget=None):
         # Check if we have outstanding subscribe/unsubscribe actions
@@ -2941,6 +3116,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_episode_list(episodes, True)
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False):
+        enable_update = False
+
         for episode in episodes:
             log('Downloading episode: %s', episode.title, sender = self)
             if not episode.was_downloaded(and_exists=True):
@@ -2948,7 +3125,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url and task.status not in (task.DOWNLOADING, task.QUEUED):
                         self.download_queue_manager.add_task(task, force_start)
-                        self.enable_download_list_update()
+                        enable_update = True
                         task_exists = True
                         continue
 
@@ -2971,7 +3148,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_queue_manager.add_task(task, force_start)
 
                 self.download_status_model.register_task(task)
-                self.enable_download_list_update()
+                enable_update = True
+
+        if enable_update:
+            self.enable_download_list_update()
 
         # Flush updated episode status
         self.mygpo_client.flush()
@@ -3459,10 +3639,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.message_area.hide()
                 self.message_area = None
         else:
-            # Remove finished episodes
-            if self.config.auto_cleanup_downloads:
-                self.on_btnCleanUpDownloads_clicked()
-
             self.menuChannels.set_sensitive(False)
             self.menuSubscriptions.set_sensitive(False)
             if gpodder.ui.desktop:
@@ -3487,8 +3663,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if gpodder.ui.maemo:
                 self.set_title(self.active_channel.title)
-            self.itemEditChannel.set_visible(True)
-            self.itemRemoveChannel.set_visible(True)
+
+            # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
+            if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+                self.itemEditChannel.set_visible(False)
+                self.itemRemoveChannel.set_visible(False)
+            else:
+                self.itemEditChannel.set_visible(True)
+                self.itemRemoveChannel.set_visible(True)
         else:
             self.active_channel = None
             self.itemEditChannel.set_visible(False)
@@ -3772,6 +3954,12 @@ def main(options=None):
     gpodder.load_plugins()
 
     config = UIConfig(gpodder.config_file)
+
+    # Load hook modules and install the hook manager globally
+    # if modules have been found an instantiated by the manager
+    user_hooks = hooks.HookManager()
+    if user_hooks.has_modules():
+        gpodder.user_hooks = user_hooks
 
     if gpodder.ui.diablo:
         # Detect changing of SD cards between mmc1/mmc2 if a gpodder

@@ -7,7 +7,7 @@ VERSION=`echo $SOURCEFILE | sed -e 's/[^_]*_\(.*\)-[^-]*\.dsc/\1/g'`
 FOLDER=`echo $SOURCEFILE | sed -e 's/\([^_]*\)_.*/\1/g'`-${VERSION}
 
 # See https://wiki.ubuntu.com/DevelopmentCodeNames
-UBUNTU_RELEASES="intrepid jaunty karmic lucid"
+UBUNTU_RELEASES="jaunty karmic lucid maverick"
 
 echo "SOURCEFILE = $SOURCEFILE"
 echo "VERSION    = $VERSION"

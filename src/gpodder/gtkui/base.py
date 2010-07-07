@@ -53,7 +53,7 @@ class GtkBuilderWidget(object):
         self.builder = gtk.Builder()
         self.builder.set_translation_domain(textdomain)
 
-        print >>sys.stderr, 'Creating new from file', self.__class__.__name__
+        #print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
         ui_file = '%s.ui' % self.__class__.__name__.lower()
 

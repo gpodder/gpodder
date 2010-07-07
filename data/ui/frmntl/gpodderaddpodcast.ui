@@ -6,25 +6,6 @@
     <property name="default_width">650</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vboxmain">
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="hbuttonbox">
-            <child>
-              <object class="HildonButton" id="btn_add">
-                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-                <property name="visible">True</property>
-                <property name="sensitive">false</property>
-                <property name="label">gtk-add</property>
-                <property name="use_stock">True</property>
-                <signal handler="on_btn_add_clicked" name="clicked"/>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkHBox" id="hboxurlentry">
             <property name="visible">True</property>

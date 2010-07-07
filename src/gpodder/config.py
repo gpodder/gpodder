@@ -200,6 +200,8 @@ gPodderSettings = {
       ("Episode double-click/enter action handler (shownotes, download, stream)")),
     'on_drag_mark_played': (bool, False,
       ("Mark episode as played when using drag'n'drop to copy/open it")),
+    'open_torrent_after_download': (bool, False,
+      ("Automatically open torrents after they have finished downloading")),
 
     'allow_empty_feeds': (bool, True,
       ('Allow subscribing to feeds without episodes')),

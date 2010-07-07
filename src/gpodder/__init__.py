@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.6'
-__date__      = '2010-05-23'
+__version__   = '2.7'
+__date__      = '2010-07-07'
 __copyright__ = '© 2005-2010 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -117,6 +117,7 @@ ui_folders = []
 credits_file = None
 icon_file = None
 images_folder = None
+user_hooks = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
