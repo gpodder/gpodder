@@ -260,11 +260,14 @@ class Database(object):
         # If a "deleted" column exists in the channel table, remove all
         # corresponding channels and their episodes and remove it
         self._remove_deleted_channels()
-        self._remove_orphaned_episodes()
 
         # Create tables and possibly add newly-added columns
         self.upgrade_table(self.TABLE_CHANNELS, self.SCHEMA_CHANNELS, self.INDEX_CHANNELS)
         self.upgrade_table(self.TABLE_EPISODES, self.SCHEMA_EPISODES, self.INDEX_EPISODES)
+
+        # Remove orphaned episodes (episodes without a corresponding
+        # channel object) from the database to keep the DB clean
+        self._remove_orphaned_episodes()
 
         # Make sure deleted episodes are played, to simplify querying statistics.
         try:
