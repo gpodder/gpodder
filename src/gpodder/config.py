@@ -111,6 +111,8 @@ gPodderSettings = {
       ("Remove episodes from gPodder if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
         "the device by the user to prevent deletion).")),
+    'ipod_write_gtkpod_extended': (bool, False,
+      ("Write gtkpod extended database.")),
     'mp3_player_delete_played': (bool, False,
       ("Removes episodes from an FS-based device that have been marked as "
         "played in gPodder. Note: only works if 'only_sync_not_played' is "
