@@ -29,12 +29,15 @@ from gpodder.liblogger import log
 import re
 import urllib
 
+# See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+# Currently missing: the WebM 480p and 720 formats; 3GP profile
 supported_formats = [
-    (22, '22/2000000/9/0/115', '1280x720 (HD)'),
-    (35, '35/640000/9/0/115', '640x360'),
-    (18, '18/512000/9/0/115', '480x270 (iPod)'),
-    (34, '34/0/9/0/115', '320x180'),
-    (5, '5/0/7/0/0', '320x180 (FLV)'),
+    (37, '37/1920x1080/9/0/115', '1920x1080 (HD)'),
+    (22, '22/1280x720/9/0/115', '1280x720 (HD)'),
+    (35, '35/854x480/9/0/115', '854x480'),
+    (34, '34/640x360/9/0/115', '640x360'),
+    (18, '18/480x360/9/0/115', '480x360 (iPod)'),
+    (5, '5/320x240/7/0/0', '320x240 (FLV)'),
 ]
 
 def get_real_download_url(url, preferred_fmt_id=18):
