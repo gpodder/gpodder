@@ -519,20 +519,8 @@ class PodcastChannel(PodcastModelObject):
             return
 
         log('Writing playlist to %s', m3u_filename, sender=self)
-        f = open(m3u_filename, 'w')
-        f.write('#EXTM3U\n')
-
-        for episode in PodcastEpisode.sort_by_pubdate(downloaded_episodes):
-            if episode.was_downloaded(and_exists=True):
-                filename = episode.local_filename(create=False)
-                assert filename is not None
-
-                if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                    filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
-                f.write(filename+'\n')
-
-        f.close()
+        util.write_m3u_playlist(m3u_filename, \
+                PodcastEpisode.sort_by_pubdate(downloaded_episodes))
 
     def get_episode_by_url(self, url):
         return self.db.load_single_episode(self, \
@@ -1162,7 +1150,19 @@ class PodcastEpisode(PodcastModelObject):
         except:
             log('Cannot format pubDate (time) for "%s".', self.title, sender=self)
             return '0000'
-    
+
+    def playlist_title(self):
+        """Return a title for this episode in a playlist
+
+        The title will be composed of the podcast name, the
+        episode name and the publication date. The return
+        value is the canonical representation of this episode
+        in playlists (for example, M3U playlists).
+        """
+        return '%s - %s (%s)' % (self.channel.title, \
+                self.title, \
+                self.cute_pubdate())
+
     def cute_pubdate(self):
         result = util.format_date(self.pubDate)
         if result is None:

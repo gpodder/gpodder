@@ -1507,3 +1507,39 @@ def detect_device_type():
 
     return 'desktop'
 
+
+def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
+    """Create an M3U playlist from a episode list
+
+    If the parameter "extm3u" is False, the list of
+    episodes should be a list of filenames, and no
+    extended information will be written into the
+    M3U files (#EXTM3U / #EXTINF).
+
+    If the parameter "extm3u" is True (default), then the
+    list of episodes should be PodcastEpisode objects,
+    as the extended metadata will be taken from them.
+    """
+    f = open(m3u_filename, 'w')
+
+    if extm3u:
+        # Mandatory header for extended playlists
+        f.write('#EXTM3U\n')
+
+    for episode in episodes:
+        if not extm3u:
+            # Episode objects are strings that contain file names
+            f.write(episode+'\n')
+            continue
+
+        if episode.was_downloaded(and_exists=True):
+            filename = episode.local_filename(create=False)
+            assert filename is not None
+
+            if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
+                filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
+            f.write('#EXTINF:0,'+episode.playlist_title()+'\n')
+            f.write(filename+'\n')
+
+    f.close()
+

@@ -2147,9 +2147,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Open episodes with system default player
         if 'default' in groups:
-            for filename in groups['default']:
-                log('Opening with system default: %s', filename, sender=self)
-                util.gui_open(filename)
+            if gpodder.ui.maemo:
+                # The Nokia Media Player app does not support receiving multiple
+                # file names via D-Bus, so we simply place all file names into a
+                # temporary M3U playlist and open that with the Media Player.
+                m3u_filename = os.path.join(gpodder.home, 'gpodder_open_with.m3u')
+                util.write_m3u_playlist(m3u_filename, groups['default'], extm3u=False)
+                util.gui_open(m3u_filename)
+            else:
+                for filename in groups['default']:
+                    log('Opening with system default: %s', filename, sender=self)
+                    util.gui_open(filename)
             del groups['default']
         elif gpodder.ui.maemo and groups:
             # When on Maemo and not opening with default, show a notification
