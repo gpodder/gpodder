@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Example hooks script for gPodder.
-# To use, copy it as a Python script into ~/.config/gpodder/hooks.py
+# To use, copy it as a Python script into ~/.config/gpodder/hooks/mySetOfHooks.py
 # See the module "gpodder.hooks" for a description of when each hook
 # gets called and what the parameters of each hook are.
 
