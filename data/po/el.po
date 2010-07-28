@@ -30,7 +30,7 @@ msgstr "Δεν έχει ρυθμιστεί καμία συσκευή."
 #: src/gpodder/console.py:41
 #, python-format
 msgid "Synchronizing: %(index)s of %(count)s"
-msgstr ""
+msgstr "Γίνεται συγχρονισμός: %(index)s από %(count)s"
 
 #: src/gpodder/console.py:55
 msgid "Device synchronized successfully."
@@ -79,12 +79,12 @@ msgstr "Λείπει περιεχόμενο από τον διακομιστή"
 #: src/gpodder/download.py:749
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
-msgstr ""
+msgstr "Σφάλμα I/O: %(error)s: %(filename)s"
 
 #: src/gpodder/download.py:754
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
-msgstr ""
+msgstr "Σφάλμα HTTP %(code)s: %(message)s"
 
 #: src/gpodder/download.py:757
 #, python-format
@@ -107,7 +107,7 @@ msgstr "gPodder"
 
 #: src/gpodder/gui.py:456
 msgid "Loading incomplete downloads"
-msgstr ""
+msgstr "Γίνεται φόρτωση μη ολοκληρωμένων λήψεων"
 
 #: src/gpodder/gui.py:457
 msgid "Some episodes have not finished downloading in a previous session."
@@ -117,8 +117,8 @@ msgstr "Δεν έχει ολοκληρωθεί η λήψη ορισμένων ε
 #, python-format
 msgid "%d partial file"
 msgid_plural "%d partial files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d ατελές αρχείο"
+msgstr[1] "%d ατελή αρχεία"
 
 #: src/gpodder/gui.py:492
 msgid "Resume all"
@@ -130,7 +130,7 @@ msgstr "Βρέθηκαν ατελείς λήψεις από προηγούμεν
 
 #: src/gpodder/gui.py:620
 msgid "Action"
-msgstr ""
+msgstr "Ενέργεια"
 
 #: src/gpodder/gui.py:664
 msgid "Confirm changes from gpodder.net"
@@ -213,25 +213,25 @@ msgid "No active downloads"
 msgstr "Δεν υπάρχουν ενεργές λήψεις"
 
 #: src/gpodder/gui.py:1246 src/gpodder/gui.py:1261
-#, python-format
+#, python-format, fuzzy
 msgid "%d active"
 msgid_plural "%d active"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d ενεργό"
+msgstr[1] "%d ενεργά"
 
 #: src/gpodder/gui.py:1248 src/gpodder/gui.py:1263
 #, python-format
 msgid "%d failed"
 msgid_plural "%d failed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Απέτυχε %d"
+msgstr[1] "Απέτυχαν %d"
 
 #: src/gpodder/gui.py:1250
 #, python-format
 msgid "%d queued"
 msgid_plural "%d queued"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d σε αναμονή"
+msgstr[1] "%d σε αναμονή"
 
 #: src/gpodder/gui.py:1256
 #, python-format
@@ -242,15 +242,15 @@ msgstr "Λήψεις (%d)"
 #, python-format
 msgid "%d paused"
 msgid_plural "%d paused"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d σε παύση"
+msgstr[1] "%d σε παύση"
 
 #: src/gpodder/gui.py:1282
 #, python-format
 msgid "downloading %d file"
 msgid_plural "downloading %d files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "γίνεται λήψη %d αρχείου"
+msgstr[1] "γίνεται λήψη %d αρχείων"
 
 #: src/gpodder/gui.py:1301
 msgid "All downloads finished"
@@ -265,8 +265,9 @@ msgid "Please report this problem and restart gPodder:"
 msgstr "Παρακαλώ αναφέρετε αυτό το πρόβλημα και επανεκκινήστε το gPodder:"
 
 #: src/gpodder/gui.py:1334
+#, fuzzy
 msgid "Unhandled exception"
-msgstr ""
+msgstr "Εξαίρεση που δεν αντιμετωπίστηκε"
 
 #: src/gpodder/gui.py:1412
 #, python-format
@@ -297,8 +298,8 @@ msgstr "Οι λήψεις τελείωσαν"
 #, python-format
 msgid "%d more episode"
 msgid_plural "%d more episodes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ακόμα %d επεισόδιο"
+msgstr[1] "Ακόμα %d επεισόδια"
 
 #: src/gpodder/gui.py:1650 src/gpodder/gui.py:1968
 #: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
@@ -407,24 +408,24 @@ msgid "Keep episode"
 msgstr "Κρατείστε το επεισόδιο"
 
 #: src/gpodder/gui.py:2144
-#, python-format
+#, python-format, fuzzy
 msgid "Opening %s"
-msgstr ""
+msgstr "Γίνεται άνοιγμα %s"
 
 #: src/gpodder/gui.py:2147
 #, python-format
 msgid "Opening %d episode"
 msgid_plural "Opening %d episodes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Γίνεται άνοιγμα %d επεισοδίου"
+msgstr[1] "Γίνεται άνοιγμα %d επεισοδίων"
 
 #: src/gpodder/gui.py:2178 src/gpodder/gui.py:2181 src/gpodder/gui.py:3726
 msgid "Please check your media player settings in the preferences dialog."
-msgstr ""
+msgstr "Παρακαλώ ελέγξτε τις ρυθμίσεις του αναπαραγωγέα των πολυμέσων σας στο παράθυρο διαλόγου των προτιμήσεων."
 
 #: src/gpodder/gui.py:2179
 msgid "Error opening player"
-msgstr ""
+msgstr "Σφάλμα κατά το άνοιγμα του αναπαραγωγέα"
 
 #: src/gpodder/gui.py:2412
 msgid "Adding podcasts"
@@ -432,7 +433,7 @@ msgstr "Γίνεται προσθήκη podcasts"
 
 #: src/gpodder/gui.py:2413
 msgid "Please wait while episode information is downloaded."
-msgstr ""
+msgstr "Παρακαλώ περιμένετε ενώ γίνεται λήψη των πληροφοριών του επεισοδίου."
 
 #: src/gpodder/gui.py:2420
 msgid "Existing subscriptions skipped"
