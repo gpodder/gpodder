@@ -205,6 +205,15 @@ gPodderSettings = {
     'open_torrent_after_download': (bool, False,
       ("Automatically open torrents after they have finished downloading")),
 
+    'mtp_audio_folder': (str, '',
+      ("The relative path to where audio podcasts are stored on an MTP device.")),
+    'mtp_video_folder': (str, '',
+      ("The relative path to where video podcasts are stored on an MTP device.")),
+    'mtp_image_folder': (str, '',
+      ("The relative path to where image podcasts are stored on an MTP device.")),
+    'mtp_podcast_folders': (bool, False,
+      ("Whether to create a folder per podcast on MTP devices.")),
+
     'allow_empty_feeds': (bool, True,
       ('Allow subscribing to feeds without episodes')),
 

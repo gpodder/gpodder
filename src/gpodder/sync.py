@@ -72,6 +72,50 @@ import os.path
 import glob
 import time
 
+if pymtp_available:
+    class MTP(pymtp.MTP):
+        sep = os.path.sep
+
+        def __init__(self):
+            pymtp.MTP.__init__(self)
+            self.folders = {}
+
+        def connect(self):
+            pymtp.MTP.connect(self)
+            self.folders = self.unfold(self.mtp.LIBMTP_Get_Folder_List(self.device))
+
+        def get_folder_list(self):
+            return self.folders
+
+        def unfold(self, folder, path=''):
+            result = {}
+            while folder:
+                folder = folder.contents
+                name = self.sep.join([path, folder.name]).lstrip(self.sep)
+                result[name] = folder.folder_id
+                if folder.child:
+                    result.update(self.unfold(folder.child, name))
+                folder = folder.sibling
+            return result
+
+        def mkdir(self, path):
+            folder_id = 0
+            prefix = []
+            parts = path.split(self.sep)
+            while parts:
+                prefix.append(parts[0])
+                tmpath = self.sep.join(prefix)
+                if self.folders.has_key(tmpath):
+                    folder_id = self.folders[tmpath]
+                else:
+                    folder_id = self.create_folder(parts[0], parent=folder_id)
+                    # log('Creating subfolder %s in %s (id=%u)' % (parts[0], self.sep.join(prefix), folder_id))
+                    tmpath = self.sep.join(prefix + [parts[0]])
+                    self.folders[tmpath] = folder_id
+                # log(">>> %s = %s" % (tmpath, folder_id))
+                del parts[0]
+            # log('MTP.mkdir: %s = %u' % (path, folder_id))
+            return folder_id
 
 def open_device(config):
     device_type = config.device_type
@@ -784,7 +828,7 @@ class MTPDevice(Device):
         Device.__init__(self, config)
         self.__model_name = None
         try:
-            self.__MTPDevice = pymtp.MTP()
+            self.__MTPDevice = MTP()
         except NameError, e:
             # pymtp not available / not installed (see bug 924)
             log('pymtp not found: %s', str(e), sender=self)
@@ -929,10 +973,28 @@ class MTPDevice(Device):
             metadata.date = self.__date_to_mtp(episode.pubDate)
             metadata.duration = get_track_length(str(filename))
 
+            folder_name = ''
+            if episode.mimetype.startswith('audio/') and self._config.mtp_audio_folder:
+                folder_name = self._config.mtp_audio_folder
+            if episode.mimetype.startswith('video/') and self._config.mtp_video_folder:
+                folder_name = self._config.mtp_video_folder
+            if episode.mimetype.startswith('image/') and self._config.mtp_image_folder:
+                folder_name = self._config.mtp_image_folder
+
+            if folder_name != '' and self._config.mtp_podcast_folders:
+                folder_name += os.path.sep + str(episode.channel.title)
+
+            # log('Target MTP folder: %s' % folder_name)
+
+            if folder_name == '':
+                folder_id = 0
+            else:
+                folder_id = self.__MTPDevice.mkdir(folder_name)
+
             # send the file
             self.__MTPDevice.send_track_from_file(filename,
                     util.sanitize_filename(metadata.title)+episode.extension(),
-                    metadata, 0, callback=self.__callback)
+                    metadata, folder_id, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False
