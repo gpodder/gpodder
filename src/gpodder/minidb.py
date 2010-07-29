@@ -81,6 +81,12 @@ class Store(object):
                 self.db.execute('CREATE TABLE %s (%s)' % (table,
                         ', '.join('%s TEXT'%s for s in slots)))
 
+    def convert(self, v):
+        if isinstance(v, str) or isinstance(v, unicode):
+            return v
+        else:
+            return str(v)
+
     def update(self, o, **kwargs):
         self.remove(o)
         for k, v in kwargs.items():
@@ -100,12 +106,7 @@ class Store(object):
             # Only save values that have values set (non-None values)
             slots = [s for s in slots if getattr(o, s, None) is not None]
 
-            def convert(v):
-                if isinstance(v, str) or isinstance(v, unicode):
-                    return v
-                else:
-                    return str(v)
-            values = [convert(getattr(o, slot)) for slot in slots]
+            values = [self.convert(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
                 ', '.join(slots), ', '.join('?'*len(slots))), values)
 
@@ -135,7 +136,7 @@ class Store(object):
             # Use "None" as wildcard selector in remove actions
             slots = [s for s in slots if getattr(o, s, None) is not None]
 
-            values = [getattr(o, slot) for slot in slots]
+            values = [self.convert(getattr(o, slot)) for slot in slots]
             self.db.execute('DELETE FROM %s WHERE %s' % (table,
                 ' AND '.join('%s=?'%s for s in slots)), values)
 
