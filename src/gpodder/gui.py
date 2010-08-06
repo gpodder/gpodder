@@ -2142,6 +2142,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     log('Error calling Panucci using D-Bus', sender=self, traceback=True)
+            elif player == 'MediaBox' and gpodder.ui.maemo:
+                try:
+                    MEDIABOX_NAME = 'de.pycage.mediabox'
+                    MEDIABOX_PATH = '/de/pycage/mediabox/control'
+                    MEDIABOX_INTF = 'de.pycage.mediabox.control'
+                    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+                    o = session_bus.get_object(MEDIABOX_NAME, MEDIABOX_PATH)
+                    i = dbus.Interface(o, MEDIABOX_INTF)
+
+                    def on_reply(*args):
+                        pass
+
+                    def on_error(err):
+                        log('Exception in D-Bus call: %s', str(err), \
+                                sender=self)
+
+                    i.load(filename, '%s/x-unknown' % file_type, \
+                            reply_handler=on_reply, error_handler=on_error)
+
+                    continue # This file was handled by the D-Bus call
+                except Exception, e:
+                    log('Error calling MediaBox using D-Bus', sender=self, traceback=True)
 
             groups[player].append(filename)
 
