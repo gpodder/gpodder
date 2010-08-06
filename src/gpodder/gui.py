@@ -3406,7 +3406,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=self.channels, \
                 columns=columns, \
                 size_attribute=None, \
-                stock_ok_button=gtk.STOCK_DELETE, \
+                stock_ok_button=_('Remove'), \
                 callback=self.remove_podcast_list, \
                 _config=self.config)
 
