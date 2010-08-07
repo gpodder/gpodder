@@ -1694,55 +1694,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             ICON = lambda x: x
 
-            item = gtk.ImageMenuItem( _('Open download folder'))
-            item.set_image( gtk.image_new_from_icon_name(ICON('folder-open'), gtk.ICON_SIZE_MENU))
-            item.connect('activate', lambda x: util.gui_open(self.active_channel.save_dir))
-            menu.append( item)
-
-            item = gtk.ImageMenuItem( _('Update Feed'))
+            item = gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
-            item.connect('activate', self.on_itemUpdateChannel_activate )
-            item.set_sensitive( not self.updating_feed_cache )
-            menu.append( item)
-
-            item = gtk.ImageMenuItem(_('Update M3U playlist'))
-            item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
-            item.connect('activate', self.update_m3u_playlist_clicked)
+            item.connect('activate', self.on_itemUpdateChannel_activate)
+            item.set_sensitive(not self.updating_feed_cache)
             menu.append(item)
 
-            if self.active_channel.link:
-                item = gtk.ImageMenuItem(_('Visit website'))
-                item.set_image(gtk.image_new_from_icon_name(ICON('web-browser'), gtk.ICON_SIZE_MENU))
-                item.connect('activate', lambda w: util.open_website(self.active_channel.link))
-                menu.append(item)
+            menu.append(gtk.SeparatorMenuItem())
 
-            if self.active_channel.channel_is_locked:
-                item = gtk.ImageMenuItem(_('Allow deletion of all episodes'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                item.connect('activate', self.on_channel_toggle_lock_activate)
-                menu.append(self.set_finger_friendly(item))
-            else:
-                item = gtk.ImageMenuItem(_('Prohibit deletion of all episodes'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_MENU))
-                item.connect('activate', self.on_channel_toggle_lock_activate)
-                menu.append(self.set_finger_friendly(item))
+            item = gtk.CheckMenuItem(_('Keep episodes'))
+            item.set_active(self.active_channel.channel_is_locked)
+            item.connect('activate', self.on_channel_toggle_lock_activate)
+            menu.append(self.set_finger_friendly(item))
 
-
-            menu.append( gtk.SeparatorMenuItem())
+            item = gtk.ImageMenuItem(_('Remove podcast'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+            item.connect( 'activate', self.on_itemRemoveChannel_activate)
+            menu.append( item)
 
             if self.config.device_type != 'none':
                 item = gtk.MenuItem(_('Synchronize to device'))
                 item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes()))
                 menu.append(item)
-                menu.append(gtk.SeparatorMenuItem())
 
-            item = gtk.ImageMenuItem(gtk.STOCK_EDIT)
-            item.connect( 'activate', self.on_itemEditChannel_activate)
-            menu.append( item)
+            menu.append( gtk.SeparatorMenuItem())
 
-            item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
-            item.connect( 'activate', self.on_itemRemoveChannel_activate)
-            menu.append( item)
+            item = gtk.ImageMenuItem(_('Podcast details'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
+            item.connect('activate', self.on_itemEditChannel_activate)
+            menu.append(item)
 
             menu.show_all()
             # Disable tooltips while we are showing the menu, so 
