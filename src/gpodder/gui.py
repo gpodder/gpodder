@@ -102,6 +102,7 @@ if gpodder.ui.desktop:
     from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.desktop.dependencymanager import gPodderDependencyManager
+    from gpodder.gtkui.interface.progress import ProgressIndicator
     try:
         from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
         have_trayicon = True
@@ -118,6 +119,7 @@ elif gpodder.ui.diablo:
     from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.maemo.mygpodder import MygPodderSettings
+    from gpodder.gtkui.interface.progress import ProgressIndicator
     have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.model import DownloadStatusModel
@@ -131,6 +133,7 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
+    from gpodder.gtkui.frmntl.progress import ProgressIndicator
     have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
@@ -138,7 +141,6 @@ elif gpodder.ui.fremantle:
 from gpodder.gtkui.interface.common import Orientation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
-from gpodder.gtkui.interface.progress import ProgressIndicator
 
 if gpodder.ui.maemo:
     import hildon
@@ -2397,7 +2399,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             threading.Thread(target=do_update_episode_list_model).start()
         else:
             self.episode_list_model.clear()
-    
+
+    @dbus.service.method(gpodder.dbus_interface)
     def offer_new_episodes(self, channels=None):
         new_episodes = self.get_new_episodes(channels)
         if new_episodes:
@@ -2669,7 +2672,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.show_message(_('New episodes have been added to the download list.'))
                     self.download_episode_list_paused(episodes)
                 else:
-                    self.new_episodes_show(episodes)
+                    try:
+                        import pynotify
+                        pynotify.init('gPodder')
+                        n = pynotify.Notification('gPodder', _('New episodes available'), 'gpodder')
+                        n.set_urgency(pynotify.URGENCY_CRITICAL)
+                        n.set_hint('dbus-callback-default', ' '.join([
+                            gpodder.dbus_bus_name,
+                            gpodder.gui_object_path,
+                            gpodder.dbus_interface,
+                            'offer_new_episodes',
+                        ]))
+                        n.set_hint('led-pattern', 'PatternCommunicationCall')
+                        n.show()
+                    except Exception, e:
+                        log('Error: %s', str(e), sender=self, traceback=True)
+                        self.new_episodes_show(episodes)
             elif not self.config.auto_update_feeds:
                 self.show_message(_('No new episodes. Please check for new episodes later.'))
             return
@@ -3905,7 +3923,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
-        self.gPodder.present()
+        parent = self.get_dialog_parent()
+        parent.present()
 
     @dbus.service.method(gpodder.dbus_interface)
     def subscribe_to_url(self, url):
