@@ -139,6 +139,7 @@ def normalize_feed_url(url):
             'fb:': 'http://feeds.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
+            'fm4od:': 'http://onapp1.orf.at/webcam/fm4/fod/%s.xspf',
     }
 
     for prefix, expansion in PREFIXES.iteritems():
@@ -495,6 +496,9 @@ def remove_html_tags(html):
     named entities with the corresponding character, so the 
     HTML text can be displayed in a simple text view.
     """
+    if html is None:
+        return None
+
     # If we would want more speed, we could make these global
     re_strip_tags = re.compile('<[^>]*>')
     re_unicode_entities = re.compile('&#(\d{2,4});')

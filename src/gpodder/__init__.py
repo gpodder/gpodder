@@ -135,7 +135,7 @@ config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')
 
 # Plugins to load by default
-DEFAULT_PLUGINS = ['gpodder.soundcloud']
+DEFAULT_PLUGINS = ['gpodder.soundcloud', 'gpodder.xspf']
 
 def load_plugins():
     """Load (non-essential) plugin modules

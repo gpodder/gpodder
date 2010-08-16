@@ -917,7 +917,7 @@ class PodcastEpisode(PodcastModelObject):
     age_prop = property(fget=get_age_string)
 
     def one_line_description( self):
-        lines = util.remove_html_tags(self.description).strip().splitlines()
+        lines = util.remove_html_tags(self.description or '').strip().splitlines()
         if not lines or lines[0] == '':
             return _('No description available')
         else:
