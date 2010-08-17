@@ -137,6 +137,7 @@ elif gpodder.ui.fremantle:
     have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
+    from gpodder.gtkui.frmntl.mafw import MafwPlaybackMonitor
 
 from gpodder.gtkui.interface.common import Orientation
 
@@ -232,6 +233,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.main_window.show()
 
         self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
+
+        if gpodder.ui.fremantle:
+            # Create a D-Bus monitoring object that takes care of
+            # tracking MAFW (Nokia Media Player) playback events
+            # and sends episode playback status events via D-Bus
+            session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
+            self.mafw_monitor = MafwPlaybackMonitor(session_bus)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
