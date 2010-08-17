@@ -595,6 +595,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             now = time.time()
             if total > 0:
                 episode.total_time = total
+            elif total == 0:
+                # Assume the episode's total time for the action
+                total = episode.total_time
             if episode.current_position_updated is None or \
                     now > episode.current_position_updated:
                 episode.current_position = end
