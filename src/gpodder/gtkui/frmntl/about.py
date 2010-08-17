@@ -114,7 +114,7 @@ class HeAboutDialog(gtk.Dialog):
         self.donate_url = url
 
     def open_webbrowser(self, url):
-        bus = dbus.SessionBus()
+        bus = gpodder.dbus_session_bus
         proxy = bus.get_object('com.nokia.osso_browser', '/com/nokia/osso_browser/request', 'com.nokia.osso_browser')
         proxy.load_url(url, dbus_interface='com.nokia.osso_browser')
 

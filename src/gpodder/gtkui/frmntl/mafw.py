@@ -31,9 +31,13 @@
 import gtk
 import gobject
 import dbus
+import dbus.mainloop
 import dbus.service
+import dbus.glib
 import urllib
 import time
+
+import gpodder
 
 class gPodderPlayer(dbus.service.Object):
     # Empty class with method definitions to send D-Bus signals
@@ -59,7 +63,6 @@ class MafwPlaybackMonitor(object):
     MAFW_RENDERER_SIGNAL_STATE = 'state_changed'
 
     MAFW_SENDER_PATH = '/org/gpodder/maemo/mafw'
-    MAFW_SENDER_NAME = 'org.gpodder.maemo.mafw'
 
     class MafwPlayState(object):
         Stopped = 0
@@ -75,7 +78,7 @@ class MafwPlaybackMonitor(object):
         self._start_position = 0
 
         self._player = gPodderPlayer(self.MAFW_SENDER_PATH, \
-            dbus.service.BusName(self.MAFW_SENDER_NAME, self.bus))
+            dbus.service.BusName(gpodder.dbus_bus_name, self.bus))
 
         state, object_id = self.get_status()
 
@@ -110,6 +113,10 @@ class MafwPlaybackMonitor(object):
                    # Fake stop-of-old / start-of-new
                    self.on_state_changed(-1)
                    self.on_state_changed(self.MafwPlayState.Playing)
+
+        # We have to return True here, or otherwise this filter
+        # would eat all D-Bus method calls to other objects.
+        return True
 
     def object_id_to_filename(self, object_id):
         # Naive, but works for now...
@@ -176,12 +183,4 @@ class MafwPlaybackMonitor(object):
                 if self._start_position != position:
                     self._player.PlaybackStopped(self._start_position, position, 0, self._filename)
                 self._is_playing = False
-
-
-if __name__ == "__main__":
-    from dbus.mainloop.glib import DBusGMainLoop
-    DBusGMainLoop(set_as_default=True)
-    bus = dbus.SessionBus()
-    monitor = MafwPlaybackMonitor(bus)
-    gtk.main()
 

@@ -49,7 +49,8 @@ except ImportError:
                 pass
         class glib:
             class DBusGMainLoop:
-                pass
+                def __init__(self, *args, **kwargs):
+                    pass
         class service:
             @staticmethod
             def method(*args, **kwargs):
@@ -238,8 +239,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Create a D-Bus monitoring object that takes care of
             # tracking MAFW (Nokia Media Player) playback events
             # and sends episode playback status events via D-Bus
-            session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
-            self.mafw_monitor = MafwPlaybackMonitor(session_bus)
+            self.mafw_monitor = MafwPlaybackMonitor(gpodder.dbus_session_bus)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -2115,8 +2115,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
                     PANUCCI_PATH = '/panucciInterface'
                     PANUCCI_INTF = 'org.panucci.panucciInterface'
-                    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
-                    o = session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
+                    o = gpodder.dbus_session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
                     i = dbus.Interface(o, PANUCCI_INTF)
 
                     def on_reply(*args):
@@ -2144,8 +2143,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     MEDIABOX_NAME = 'de.pycage.mediabox'
                     MEDIABOX_PATH = '/de/pycage/mediabox/control'
                     MEDIABOX_INTF = 'de.pycage.mediabox.control'
-                    session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
-                    o = session_bus.get_object(MEDIABOX_NAME, MEDIABOX_PATH)
+                    o = gpodder.dbus_session_bus.get_object(MEDIABOX_NAME, MEDIABOX_PATH)
                     i = dbus.Interface(o, MEDIABOX_INTF)
 
                     def on_reply(*args):
@@ -2694,11 +2692,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         n.set_urgency(pynotify.URGENCY_CRITICAL)
                         n.set_hint('dbus-callback-default', ' '.join([
                             gpodder.dbus_bus_name,
-                            gpodder.gui_object_path,
+                            gpodder.dbus_gui_object_path,
                             gpodder.dbus_interface,
                             'offer_new_episodes',
                         ]))
-                        n.set_hint('led-pattern', 'PatternCommunicationCall')
+                        n.set_category('gpodder-new-episodes')
                         n.show()
                     except Exception, e:
                         log('Error: %s', str(e), sender=self, traceback=True)
@@ -3982,8 +3980,10 @@ def main(options=None):
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
     try:
-        session_bus = dbus.SessionBus(mainloop=dbus.glib.DBusGMainLoop())
-        bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=session_bus)
+        dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
+        gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
+
+        bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
     except dbus.exceptions.DBusException, dbe:
         log('Warning: Cannot get "on the bus".', traceback=True)
         dlg = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, \
