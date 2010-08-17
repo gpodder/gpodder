@@ -580,6 +580,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
+        elif end < start + 5:
+            # Ignore "less than five seconds" segments,
+            # as they can happen with seeking, etc...
+            return
 
         log('Received play action: %s (%d, %d, %d)', file_uri, start, end, total, sender=self)
         episode = self.episode_object_by_uri(file_uri)
