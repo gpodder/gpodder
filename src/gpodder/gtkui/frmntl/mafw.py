@@ -55,6 +55,51 @@ class gPodderPlayer(dbus.service.Object):
             file_uri):
         pass
 
+class MafwResumeHandler(object):
+    # Simple state machine for handling resume with MAFW
+    #
+    # NoResume ... No desire to resume / error state ("do nothing")
+    # Init ....... Want to resume, filename and position set
+    # Loaded ..... The correct filename has been loaded
+    # Seekable ... The media is seekable (metadata "is-seekable" is True)
+    # Playing .... The media is being played back (state_changed with 1)
+    # Done ....... The "resume" action has been carried out
+    NoResume, Init, Loaded, Seekable, Playing, Done = range(6)
+
+    def __init__(self, playback_monitor):
+        self.playback_monitor = playback_monitor
+        self.state = MafwResumeHandler.NoResume
+        self.filename = None
+        self.position = None
+
+    def set_resume_point(self, filename, position):
+        self.filename = filename
+        self.position = position
+        if self.position:
+            self.state = MafwResumeHandler.Init
+        else:
+            self.state = MafwResumeHandler.NoResume
+
+    def on_media_changed(self, filename):
+        if self.state == MafwResumeHandler.Init:
+            if filename.startswith('file://'):
+                filename = urllib.unquote(filename[len('file://'):])
+            if self.filename == filename:
+                self.state = MafwResumeHandler.Loaded
+
+    def on_metadata_changed(self, key, value):
+        if self.state == MafwResumeHandler.Loaded:
+            if key == 'is-seekable' and value == True:
+                self.state = MafwResumeHandler.Seekable
+
+    def on_state_changed(self, new_state):
+        if self.state == MafwResumeHandler.Seekable:
+            if new_state == 1:
+                self.state = MafwResumeHandler.Playing
+                self.playback_monitor.set_position(self.position)
+                self.state = MafwResumeHandler.Done
+
+
 class MafwPlaybackMonitor(object):
     MAFW_RENDERER_OBJECT = 'com.nokia.mafw.renderer.Mafw-Gst-Renderer-Plugin.gstrenderer'
     MAFW_RENDERER_PATH = '/com/nokia/mafw/renderer/gstrenderer'
@@ -78,6 +123,8 @@ class MafwPlaybackMonitor(object):
         self._start_time = time.time()
         self._start_position = 0
         self._duration = 0
+
+        self._resume_handler = MafwResumeHandler(self)
 
         self._player = gPodderPlayer(self.MAFW_SENDER_PATH, \
             dbus.service.BusName(gpodder.dbus_bus_name, self.bus))
@@ -105,26 +152,28 @@ class MafwPlaybackMonitor(object):
                 None, \
                 self.MAFW_RENDERER_PATH)
 
-        # Capture requests to the renderer where the position is to
-        # be set to something else (or when it is to be stopped),
-        # because we don't get normal signals in these cases
-        bus.add_match_string("type='method_call',destination='com.nokia.mafw.renderer.Mafw-Gst-Renderer-Plugin.gstrenderer',path='/com/nokia/mafw/renderer/gstrenderer',interface='com.nokia.mafw.renderer'")
+        # Capture requests to the renderer where the position is to be set to
+        # something else because we don't get normal signals in these cases
+        bus.add_match_string("type='method_call',destination='com.nokia.mafw.renderer.Mafw-Gst-Renderer-Plugin.gstrenderer',path='/com/nokia/mafw/renderer/gstrenderer',interface='com.nokia.mafw.renderer',member='set_position'")
         bus.add_message_filter(self._message_filter)
 
-    def _message_filter(self, bus, message):
-        if message.get_path() == self.MAFW_RENDERER_PATH and \
-               message.get_interface() == self.MAFW_RENDERER_INTERFACE and \
-               message.get_destination() == self.MAFW_RENDERER_OBJECT and \
-               message.get_type() == 1: # message type 1 == method call?
-           if message.get_member() in ('set_position', 'stop'):
-               if self._is_playing:
-                   # Fake stop-of-old / start-of-new
-                   self.on_state_changed(-1)
-                   self.on_state_changed(self.MafwPlayState.Playing)
+    def set_resume_point(self, filename, position):
+        self._resume_handler.set_resume_point(filename, position)
 
-        # We have to return True here, or otherwise this filter
-        # would eat all D-Bus method calls to other objects.
-        return True
+    def _message_filter(self, bus, message):
+        try:
+            # message type 1 = dbus.lowlevel.MESSAGE_TYPE_METHOD_CALL
+            if message.get_path() == self.MAFW_RENDERER_PATH and \
+                    message.get_interface() == self.MAFW_RENDERER_INTERFACE and \
+                    message.get_destination() == self.MAFW_RENDERER_OBJECT and \
+                    message.get_type() == 1 and \
+                    message.get_member() == 'set_position' and \
+                    self._is_playing:
+                # Fake stop-of-old / start-of-new
+                self.on_state_changed(-1)
+                self.on_state_changed(self.MafwPlayState.Playing)
+        finally:
+            return 1 # = dbus.lowlevel.HANDLER_RESULT_NOT_YET_HANDLED
 
     def object_id_to_filename(self, object_id):
         # Naive, but works for now...
@@ -148,6 +197,8 @@ class MafwPlaybackMonitor(object):
 
     def set_position(self, position):
         self.renderer.set_position(0, position)
+        self._start_position = position
+        self._start_time = time.time()
         return False
 
     def get_status(self):
@@ -166,6 +217,8 @@ class MafwPlaybackMonitor(object):
             self.on_state_changed(self.MafwPlayState.Playing)
         else:
             self._filename = self.object_id_to_filename(object_id)
+
+        self._resume_handler.on_media_changed(self._filename)
 
     def on_state_changed(self, state):
         if state == self.MafwPlayState.Playing:
@@ -196,9 +249,13 @@ class MafwPlaybackMonitor(object):
                             position, self._duration, self._filename)
                 self._is_playing = False
 
+        self._resume_handler.on_state_changed(state)
+
     def on_metadata_changed(self, key, count, value):
         if key == 'duration':
             # Remember the duration of the media - right now, we don't care
             # if this is for the right file, as we re-set the internally-saved
             # duration when the media is changed (see on_media_changed above)
             self._duration = int(value)
+        elif key == 'is-seekable':
+            self._resume_handler.on_metadata_changed(key, value)

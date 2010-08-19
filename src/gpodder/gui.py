@@ -2109,6 +2109,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         fmt_id = 5
                     filename = youtube.get_real_download_url(filename, fmt_id)
 
+            # Determine the playback resume position - if the file
+            # was played 100%, we simply start from the beginning
+            resume_position = episode.current_position
+            if resume_position == episode.total_time:
+                resume_position = 0
+
+            if gpodder.ui.fremantle:
+                self.mafw_monitor.set_resume_point(filename, resume_position)
+
             # If Panucci is configured, use D-Bus on Maemo to call it
             if player == 'panucci':
                 try:
@@ -2124,12 +2133,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     def on_error(err):
                         log('Exception in D-Bus call: %s', str(err), \
                                 sender=self)
-
-                    # Determine the playback resume position - if the file
-                    # was played 100%, we simply start from the beginning
-                    resume_position = episode.current_position
-                    if resume_position == episode.total_time:
-                        resume_position = 0
 
                     # This method only exists in Panucci > 0.9 ('new Panucci')
                     i.playback_from(filename, resume_position, \
