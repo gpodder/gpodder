@@ -61,6 +61,7 @@ class MafwPlaybackMonitor(object):
     MAFW_RENDERER_INTERFACE = 'com.nokia.mafw.renderer'
     MAFW_RENDERER_SIGNAL_MEDIA = 'media_changed'
     MAFW_RENDERER_SIGNAL_STATE = 'state_changed'
+    MAFW_RENDERER_SIGNAL_METADATA = 'metadata_changed'
 
     MAFW_SENDER_PATH = '/org/gpodder/maemo/mafw'
 
@@ -76,6 +77,7 @@ class MafwPlaybackMonitor(object):
         self._is_playing = False
         self._start_time = time.time()
         self._start_position = 0
+        self._duration = 0
 
         self._player = gPodderPlayer(self.MAFW_SENDER_PATH, \
             dbus.service.BusName(gpodder.dbus_bus_name, self.bus))
@@ -93,6 +95,12 @@ class MafwPlaybackMonitor(object):
 
         self.bus.add_signal_receiver(self.on_state_changed, \
                 self.MAFW_RENDERER_SIGNAL_STATE, \
+                self.MAFW_RENDERER_INTERFACE, \
+                None, \
+                self.MAFW_RENDERER_PATH)
+
+        self.bus.add_signal_receiver(self.on_metadata_changed, \
+                self.MAFW_RENDERER_SIGNAL_METADATA, \
                 self.MAFW_RENDERER_INTERFACE, \
                 None, \
                 self.MAFW_RENDERER_PATH)
@@ -148,6 +156,9 @@ class MafwPlaybackMonitor(object):
         return (state, object_id)
 
     def on_media_changed(self, position, object_id):
+        # We don't know the duration for newly-loaded files at first
+        self._duration = 0
+
         if self._is_playing:
             # Fake stop-of-old / start-of-new
             self.on_state_changed(-1) # (see below where we catch the "-1")
@@ -181,6 +192,13 @@ class MafwPlaybackMonitor(object):
                     # assume that the media file has advanced the same amount.
                     position = self._start_position + (time.time()-self._start_time)
                 if self._start_position != position:
-                    self._player.PlaybackStopped(self._start_position, position, 0, self._filename)
+                    self._player.PlaybackStopped(self._start_position, \
+                            position, self._duration, self._filename)
                 self._is_playing = False
 
+    def on_metadata_changed(self, key, count, value):
+        if key == 'duration':
+            # Remember the duration of the media - right now, we don't care
+            # if this is for the right file, as we re-set the internally-saved
+            # duration when the media is changed (see on_media_changed above)
+            self._duration = int(value)
