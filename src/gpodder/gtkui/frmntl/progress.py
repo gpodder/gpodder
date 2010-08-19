@@ -58,7 +58,7 @@ class ProgressIndicator(object):
             if self._message_set:
                 text.append('\n')
                 text.append(self._message)
-            if self._progress_set:
+            if self._progress_set and self._progress > .01:
                 text.append(' (%.0f%%)' % (self._progress*100.,))
             self.dialog.set_text(''.join(text))
 
