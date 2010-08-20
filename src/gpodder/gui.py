@@ -1097,7 +1097,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if (model is not None and model.get_iter_first() is not None):
                 return False
 
-            role = getattr(treeview, TreeViewHelper.ROLE)
+            role = getattr(treeview, TreeViewHelper.ROLE, None)
+            if role is None:
+                return False
+
             ctx = event.window.cairo_create()
             ctx.rectangle(event.area.x, event.area.y,
                     event.area.width, event.area.height)
