@@ -20,6 +20,7 @@
 import gtk
 import pango
 import threading
+import urllib
 import hildon
 
 import gpodder
@@ -62,6 +63,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         submenu = gtk.Menu()
         submenu.append(self.action_load_opml.create_menu_item())
         submenu.append(self.action_load_toplist.create_menu_item())
+        submenu.append(self.action_search_mygpo.create_menu_item())
         submenu.append(self.action_load_youtube.create_menu_item())
         item.set_submenu(submenu)
         menu.append(item)
@@ -108,7 +110,15 @@ class gPodderPodcastDirectory(BuilderWidget):
     
     def on_load_toplist_button_clicked(self, widget):
         self.download_opml_file(self._config.toplist_url)
-    
+
+    def on_search_mygpo_button_clicked(self, widget):
+        search_term = self.show_text_edit_dialog(\
+                _('Search on gpodder.net'), \
+                _('Search for:'))
+        if search_term is not None:
+            self.download_opml_file('http://gpodder.net/search.opml?q=%s' % ( \
+                    urllib.quote(search_term),))
+
     def on_load_youtube_button_clicked(self, widget):
         search_term = self.show_text_edit_dialog(\
                 _('Search YouTube user channels'), \
