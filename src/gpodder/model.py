@@ -132,7 +132,8 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
-            max_episodes=0, download_dir=None, allow_empty_feeds=False):
+            max_episodes=0, download_dir=None, allow_empty_feeds=False, \
+            mimetype_prefs=''):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
@@ -146,7 +147,7 @@ class PodcastChannel(PodcastModelObject):
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
 
-            tmp.update(max_episodes)
+            tmp.update(max_episodes, mimetype_prefs)
             tmp.save()
             db.force_last_new(tmp)
             # Subscribing to empty feeds should yield an error (except if
@@ -183,7 +184,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.db.purge(max_episodes, self.id)
 
-    def _consume_updated_feed(self, feed, max_episodes=0):
+    def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         self.parse_error = feed.get('bozo_exception', None)
 
         self.title = feed.feed.get('title', self.url)
@@ -233,7 +234,7 @@ class PodcastChannel(PodcastModelObject):
         # Search all entries for new episodes
         for entry in entries:
             try:
-                episode = PodcastEpisode.from_feedparser_entry(entry, self)
+                episode = PodcastEpisode.from_feedparser_entry(entry, self, mimetype_prefs)
                 if episode is not None and not episode.title:
                     episode.title, ext = os.path.splitext(os.path.basename(episode.url))
             except Exception, e:
@@ -311,7 +312,7 @@ class PodcastChannel(PodcastModelObject):
         return updated < one_day_ago or \
                 (expected < now and updated < lastcheck)
 
-    def update(self, max_episodes=0):
+    def update(self, max_episodes=0, mimetype_prefs=''):
         try:
             self.feed_fetcher.fetch_channel(self)
         except CustomFeed, updated:
@@ -320,13 +321,13 @@ class PodcastChannel(PodcastModelObject):
             self.save()
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
-            self._consume_updated_feed(feed, max_episodes)
+            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NewLocation, updated:
             feed = updated.data
             self.url = feed.href
-            self._consume_updated_feed(feed, max_episodes)
+            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NotModified, updated:
@@ -691,7 +692,7 @@ class PodcastEpisode(PodcastModelObject):
                 youtube.is_video_link(self.link))
 
     @staticmethod
-    def from_feedparser_entry(entry, channel):
+    def from_feedparser_entry(entry, channel, mimetype_prefs=''):
         episode = PodcastEpisode(channel)
 
         episode.title = entry.get('title', '')
@@ -719,8 +720,25 @@ class PodcastEpisode(PodcastModelObject):
         video_available = any(e.get('type', '').startswith('video/') \
                 for e in enclosures)
 
+        # Create the list of preferred mime types
+        mimetype_prefs = mimetype_prefs.split(',')
+
+        def calculate_preference_value(enclosure):
+            """Calculate preference value of an enclosure
+
+            This is based on mime types and allows users to prefer
+            certain mime types over others (e.g. MP3 over AAC, ...)
+            """
+            mimetype = enclosure.get('type', None)
+            try:
+                # If the mime type is found, return its (zero-based) index
+                return mimetype_prefs.index(mimetype)
+            except ValueError:
+                # If it is not found, assume it comes after all listed items
+                return len(mimetype_prefs)
+
         # Enclosures
-        for e in enclosures:
+        for e in sorted(enclosures, key=calculate_preference_value):
             episode.mimetype = e.get('type', 'application/octet-stream')
             if episode.mimetype == '':
                 # See Maemo bug 10036

@@ -2544,7 +2544,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
                             download_dir=self.config.download_dir, \
-                            allow_empty_feeds=self.config.allow_empty_feeds)
+                            allow_empty_feeds=self.config.allow_empty_feeds, \
+                            mimetype_prefs=self.config.mimetype_prefs)
 
                     try:
                         username, password = util.username_password_from_url(url)
@@ -2764,7 +2765,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for updated, channel in enumerate(channels):
             if not self.feed_cache_update_cancelled:
                 try:
-                    channel.update(max_episodes=self.config.max_episodes_per_feed)
+                    channel.update(max_episodes=self.config.max_episodes_per_feed, \
+                            mimetype_prefs=self.config.mimetype_prefs)
                     self._update_cover(channel)
                 except Exception, e:
                     d = {'url': saxutils.escape(channel.url), 'message': saxutils.escape(str(e))}

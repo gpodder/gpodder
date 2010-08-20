@@ -249,6 +249,10 @@ gPodderSettings = {
     # Paned position
     'paned_position': ( int, 200,
       ("The width of the channel list.")),
+
+    # Preferred mime types for podcasts with multiple content types
+    'mimetype_prefs': (str, '',
+      ("A comma-separated list of mimetypes, descending order of preference")),
 }
 
 # Helper function to add window-specific properties (position and size)

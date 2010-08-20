@@ -80,7 +80,8 @@ class Podcast(object):
         Downloads the podcast feed (using the feed cache), and
         adds new episodes and updated information to the database.
         """
-        self._podcast.update(self._manager._config.max_episodes_per_feed)
+        self._podcast.update(self._manager._config.max_episodes_per_feed, \
+                self._config.mimetype_prefs)
 
 
 
@@ -162,7 +163,8 @@ class PodcastClient(object):
         podcast = PodcastChannel.load(self._db, url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
                 download_dir=self._config.download_dir, \
-                allow_empty_feeds=self._config.allow_empty_feeds)
+                allow_empty_feeds=self._config.allow_empty_feeds, \
+                mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:
             if title is not None:
                 podcast.set_custom_title(title)
