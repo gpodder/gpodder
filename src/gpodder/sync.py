@@ -51,11 +51,6 @@ except:
     log('(gpodder.sync) Could not find pymtp.')
 
 try:
-    import mad
-except:
-    log('(gpodder.sync) Could not find pymad')
-
-try:
     import eyeD3
 except:
     log( '(gpodder.sync) Could not find eyeD3')
@@ -66,7 +61,7 @@ except:
     log('(gpodder.sync) Could not find Python Imaging Library (PIL)')
 
 # Register our dependencies for the synchronization module
-services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'mad', 'eyeD3'], [])
+services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'gst'], [])
 services.dependency_manager.depend_on(_('MTP device synchronization'), _('Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp.'), ['pymtp'], [])
 services.dependency_manager.depend_on(_('iPod OGG converter'), _('Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME.'), [], ['oggdec', 'lame'])
 services.dependency_manager.depend_on(_('iPod video podcasts'), _('Detect video lengths via MPlayer, to synchronize video podcasts to iPods.'), [], ['mplayer'])
@@ -103,12 +98,6 @@ def get_track_length(filename):
     else:
         log('Please install MPlayer for track length detection.')
 
-    try:
-        mad_info = mad.MadFile(filename)
-        return int(mad_info.total_time())
-    except:
-        pass
-    
     try:
         eyed3_info = eyeD3.Mp3AudioFile(filename)
         return int(eyed3_info.getPlayTime()*1000)
