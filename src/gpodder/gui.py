@@ -47,6 +47,8 @@ except ImportError:
         class SessionBus:
             def __init__(self, *args, **kwargs):
                 pass
+            def add_signal_receiver(self, *args, **kwargs):
+                pass
         class glib:
             class DBusGMainLoop:
                 def __init__(self, *args, **kwargs):
