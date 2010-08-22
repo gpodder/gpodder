@@ -54,29 +54,29 @@ import re
 class Database(object):
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
-    # Column names and types for the channels table
+    # Column names, types, required and default values for the channels table
     TABLE_CHANNELS = "channels"
     SCHEMA_CHANNELS = (
-            ('id', 'INTEGER PRIMARY KEY'),
-            ('url', 'TEXT'), # Feed (RSS/Atom) URL of the podcast
-            ('title', 'TEXT'), # Podcast name
-            ('override_title', 'TEXT'), # Podcast name if user-defined
-            ('link', 'TEXT'), # Website URL for the podcast
-            ('description', 'TEXT'), # Description of podcast contents
-            ('image', 'TEXT'), # URL to cover art for the image
-            ('pubDate', 'INTEGER'), # Date and time of last feed publication
-            ('sync_to_devices', 'INTEGER'), # 1 if syncing to devices is enabled, 0 otherwise
-            ('device_playlist_name', 'TEXT'), # Name of the playlist on the device for syncing
-            ('username', 'TEXT'), # Username for HTTP authentication (feed update + downloads)
-            ('password', 'TEXT'), # Password for HTTP authentication (feed update + downloads)
-            ('last_modified', 'TEXT'), # Last-modified HTTP header from last update
-            ('etag', 'TEXT'), # ETag HTTP header from last update
-            ('channel_is_locked', 'INTEGER'), # 1 if deletion is prevented, 0 otherwise
-            ('foldername', 'TEXT'), # Folder name (basename) to put downloaded episodes
-            ('auto_foldername', 'INTEGER'), # 1 if the foldername was auto-generated, 0 otherwise
-            ('release_expected', 'INTEGER'), # Statistic value for when a new release is expected
-            ('release_deviation', 'INTEGER'), # Deviation of the release cycle differences
-            ('updated_timestamp', 'INTEGER'), # Timestamp of the last feed update
+            ('id', 'INTEGER PRIMARY KEY', True, '-1'),
+            ('url', 'TEXT', True, "''"), # Feed (RSS/Atom) URL of the podcast
+            ('title', 'TEXT', True, "''"), # Podcast name
+            ('override_title', 'TEXT', True, "''"), # Podcast name if user-defined
+            ('link', 'TEXT', True, "''"), # Website URL for the podcast
+            ('description', 'TEXT', False, None), # Description of podcast contents
+            ('image', 'TEXT', False, None), # URL to cover art for the image
+            ('pubDate', 'INTEGER', True, '0'), # Date and time of last feed publication
+            ('sync_to_devices', 'INTEGER', True, '1'), # 1 if syncing to devices is enabled, 0 otherwise
+            ('device_playlist_name', 'TEXT', True, "'gPodder'"), # Name of the playlist on the device for syncing
+            ('username', 'TEXT', True, "''"), # Username for HTTP authentication (feed update + downloads)
+            ('password', 'TEXT', True, "''"), # Password for HTTP authentication (feed update + downloads)
+            ('last_modified', 'TEXT', False, None), # Last-modified HTTP header from last update
+            ('etag', 'TEXT', False, None), # ETag HTTP header from last update
+            ('channel_is_locked', 'INTEGER', True, '0'), # 1 if deletion is prevented, 0 otherwise
+            ('foldername', 'TEXT', True, "''"), # Folder name (basename) to put downloaded episodes
+            ('auto_foldername', 'INTEGER', True, '1'), # 1 if the foldername was auto-generated, 0 otherwise
+            ('release_expected', 'INTEGER', True, '0'), # Statistic value for when a new release is expected
+            ('release_deviation', 'INTEGER', True, '0'), # Deviation of the release cycle differences
+            ('updated_timestamp', 'INTEGER', True, '0'), # Timestamp of the last feed update
     )
     INDEX_CHANNELS = (
             ('foldername', 'UNIQUE INDEX'),
@@ -88,24 +88,24 @@ class Database(object):
     # Column names and types for the episodes table
     TABLE_EPISODES = 'episodes'
     SCHEMA_EPISODES = (
-            ('id', 'INTEGER PRIMARY KEY'),
-            ('channel_id', 'INTEGER'), # Foreign key: ID of the podcast of this episode
-            ('url', 'TEXT'), # Download URL of the media file
-            ('title', 'TEXT'), # Episode title
-            ('length', 'INTEGER'), # File length of the media file in bytes
-            ('mimetype', 'TEXT'), # Mime type of the media file
-            ('guid', 'TEXT'), # GUID of the episode item
-            ('description', 'TEXT'), # Longer text description
-            ('link', 'TEXT'), # Website URL for the episode
-            ('pubDate', 'INTEGER'), # Date and time of publication
-            ('state', 'INTEGER'), # Download state (see gpodder.STATE_* constants)
-            ('played', 'INTEGER'), # 1 if it's new or played, 0 otherwise
-            ('locked', 'INTEGER'), # 1 if deletion is prevented, 0 otherwise
-            ('filename', 'TEXT'), # Filename for the downloaded file (or NULL)
-            ('auto_filename', 'INTEGER'), # 1 if the filename was auto-generated, 0 otherwise
-            ('total_time', 'INTEGER'), # Length in seconds
-            ('current_position', 'INTEGER'), # Current playback position
-            ('current_position_updated', 'INTEGER'), # Set to NOW when updating current_position
+            ('id', 'INTEGER PRIMARY KEY', True, '-1'),
+            ('channel_id', 'INTEGER', True, '-1'), # Foreign key: ID of the podcast of this episode
+            ('url', 'TEXT', True, "''"), # Download URL of the media file
+            ('title', 'TEXT', True, "''"), # Episode title
+            ('length', 'INTEGER', True, '0'), # File length of the media file in bytes
+            ('mimetype', 'TEXT', True, "''"), # Mime type of the media file
+            ('guid', 'TEXT', True, "''"), # GUID of the episode item
+            ('description', 'TEXT', True, "''"), # Longer text description
+            ('link', 'TEXT', True, "''"), # Website URL for the episode
+            ('pubDate', 'INTEGER', True, '0'), # Date and time of publication
+            ('state', 'INTEGER', True, '0'), # Download state (see gpodder.STATE_* constants)
+            ('played', 'INTEGER', True, '1'), # 1 if it's new or played, 0 otherwise
+            ('locked', 'INTEGER', True, '0'), # 1 if deletion is prevented, 0 otherwise
+            ('filename', 'TEXT', False, None), # Filename for the downloaded file (or NULL)
+            ('auto_filename', 'INTEGER', True, '0'), # 1 if the filename was auto-generated, 0 otherwise
+            ('total_time', 'INTEGER', True, '0'), # Length in seconds
+            ('current_position', 'INTEGER', True, '0'), # Current playback position
+            ('current_position_updated', 'INTEGER', True, '0'), # Set to NOW when updating current_position
     )
     INDEX_EPISODES = (
             ('guid', 'UNIQUE INDEX'),
@@ -221,7 +221,7 @@ class Database(object):
         cur.execute("PRAGMA table_info(%s)" % self.TABLE_CHANNELS)
         available = cur.fetchall()
         if available:
-            ID, NAME, TYPE, NULL, DEFAULT = range(5)
+            ID, NAME, TYPE, NOTNULL, DEFAULT = range(5)
             existing = set(column[NAME] for column in available)
 
             if 'deleted' in existing:
@@ -498,7 +498,7 @@ class Database(object):
         self.lock.acquire()
         try:
             cur = self.cursor()
-            columns = [name for name, typ in schema if name != 'id']
+            columns = [name for name, typ, required, default in schema if name != 'id']
             values = [getattr(o, name) for name in columns]
 
             if o.id is None:
@@ -606,6 +606,40 @@ class Database(object):
         cur.close()
         self.lock.release()
 
+    def recreate_table(self, cur, table_name, fields, index_list):
+        log('Rename table %s', table_name, sender=self)
+        new_table_name = table_name + "_save"
+        cur.execute("ALTER TABLE %s RENAME TO %s" % (table_name, new_table_name))
+        #log("ALTER TABLE %s RENAME TO %s" % (table_name, new_table_name))
+
+        log('Delete existing indices', sender=self)
+        for column, typ in index_list:
+            cur.execute('DROP INDEX IF EXISTS idx_%s' % (column))
+
+        self.create_table(cur, table_name, fields)
+
+        log('Correct NULL values in the existing data', sender=self)
+        columns = set((column, default) for column, typ, required, default in fields if required)
+        for column, default in columns:
+            cur.execute('UPDATE %s SET %s = %s where %s IS NULL' % (new_table_name, column, default, column))
+
+        log('Copy data from table %s to table %s' % (new_table_name, table_name), sender=self)
+        columns = ', '.join(f[0] for f in fields)
+        cur.execute("INSERT INTO %(tab)s (%(col)s) SELECT %(col)s FROM %(new_tab)s" %
+            {'tab': table_name, 'col': columns, 'new_tab': new_table_name})
+
+    def create_table(self, cur, table_name, fields):
+        log('Creating table %s', table_name, sender=self)
+        columns = ''
+        for column, typ, required, default in fields:
+            if required:
+                columns += '\n  %s %s NOT NULL DEFAULT %s,' % (column, typ, default)
+            else:
+                columns += '\n  %s %s,' % (column, typ)
+        columns = columns.rstrip(',')
+        sql = "CREATE TABLE %s (%s)" % (table_name, columns)
+        cur.execute(sql)
+
     def upgrade_table(self, table_name, fields, index_list):
         """
         Creates a table or adds fields to it.
@@ -616,19 +650,22 @@ class Database(object):
         available = cur.fetchall()
 
         if not available:
-            log('Creating table %s', table_name, sender=self)
-            columns = ', '.join(' '.join(f) for f in fields)
-            sql = "CREATE TABLE %s (%s)" % (table_name, columns)
-            cur.execute(sql)
+            self.create_table(cur, table_name, fields)
+
         else:
             # Table info columns, as returned by SQLite
-            ID, NAME, TYPE, NULL, DEFAULT = range(5)
-            existing = set(column[NAME] for column in available)
+            ID, NAME, TYPE, NOTNULL, DEFAULT = range(5)
+            exists_notnull_column = any(bool(column[NOTNULL]) for column in available)
 
-            for field_name, field_type in fields:
-                if field_name not in existing:
-                    log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
-                    cur.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type))
+            if not exists_notnull_column:
+                self.recreate_table(cur, table_name, fields, index_list)
+
+            else:
+                existing = set(column[NAME] for column in available)
+                for field_name, field_type, field_null, field_default in fields:
+                    if field_name not in existing:
+                        log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
+                        cur.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type))
 
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
