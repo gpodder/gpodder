@@ -20,6 +20,7 @@
 import gtk
 import pango
 import threading
+import urllib
 
 import gpodder
 
@@ -115,6 +116,8 @@ class gPodderPodcastDirectory(BuilderWidget):
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
             url = self.entryURL.get_text()
+            if '://' not in url:
+                url = 'http://gpodder.net/search.opml?q=' + urllib.quote(url)
             model = OpmlListModel(opml.Importer(url))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
