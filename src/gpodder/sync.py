@@ -558,6 +558,8 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
+        folder = util.sanitize_encoding(folder)
+
         from_file = util.sanitize_encoding(self.convert_track(episode))
         filename_base = util.sanitize_filename(episode.sync_filename(self._config.custom_sync_name_enabled, self._config.custom_sync_name), self._config.mp3_player_max_filename_length)
 
@@ -569,7 +571,7 @@ class MP3PlayerDevice(Device):
         if os.path.splitext(to_file)[0] == '':
             to_file = os.path.basename(from_file)
 
-        to_file = os.path.join(folder, to_file)
+        to_file = util.sanitize_encoding(os.path.join(folder, to_file))
 
         if not os.path.exists(folder):
             try:
