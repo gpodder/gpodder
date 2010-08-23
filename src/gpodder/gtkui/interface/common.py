@@ -257,7 +257,7 @@ class BuilderWidget(GtkBuilderWidget):
                 elif widget and isinstance(widget, gtk.Widget):
                     if not widget.window:
                         widget = self.main_window
-                    else:
+                    elif not gpodder.win32:
                         widget = self.main_window
                     notification = NotificationWindow(message, title, important=False, widget=widget)
                     notification.show_timeout()
