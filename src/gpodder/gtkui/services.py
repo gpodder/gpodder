@@ -185,7 +185,7 @@ class CoverDownloader(ObservableService):
         pixbuf = None
         if os.path.exists(channel.cover_file):
             try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file)
+                pixbuf = gtk.gdk.pixbuf_new_from_file(util.sanitize_encoding(channel.cover_file))
             except:
                 log('Data error while loading %s', channel.cover_file, sender=self)
 
