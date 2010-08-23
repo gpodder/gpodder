@@ -360,6 +360,9 @@ class PodcastChannel(PodcastModelObject):
     def save(self):
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_save(self)
+        if self.foldername is None:
+            # get_save_dir() finds a unique value for foldername
+            self.get_save_dir()
         self.db.save_channel(self)
 
     def get_statistics(self):
