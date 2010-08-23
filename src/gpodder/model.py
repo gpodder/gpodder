@@ -929,6 +929,8 @@ class PodcastEpisode(PodcastModelObject):
         return util.file_age_in_days(self.local_filename(create=False, \
                 check_only=True))
 
+    age_int_prop = property(fget=age_in_days)
+
     def get_age_string(self):
         return util.file_age_to_string(self.age_in_days())
 

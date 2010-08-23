@@ -3064,7 +3064,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
                 ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
                 ('played_prop', None, None, _('Status')),
-                ('age_prop', None, None, _('Downloaded')),
+                ('age_prop', 'age_int_prop', gobject.TYPE_INT, _('Downloaded')),
             )
 
         msg_older_than = N_('Select older than %d day', 'Select older than %d days', self.config.episode_old_age)
