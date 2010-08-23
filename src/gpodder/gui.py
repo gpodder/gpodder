@@ -2531,7 +2531,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.update_podcasts_tab()
 
                 # Offer to download new episodes
-                self.offer_new_episodes(channels=[c for c in self.channels if c.url in worked])
+                episodes = []
+                for podcast in self.channels:
+                    if podcast.url in worked:
+                        episodes.extend(podcast.get_all_episodes())
+
+                if episodes:
+                    episodes = list(PodcastEpisode.sort_by_pubdate(episodes, \
+                            reverse=True))
+                    self.new_episodes_show(episodes, \
+                            selected=[e.check_is_new() for e in episodes])
+
 
         def thread_proc():
             # After the initial sorting and splitting, try all queued podcasts
@@ -3225,7 +3235,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def new_episodes_show(self, episodes, notification=False):
+    def new_episodes_show(self, episodes, notification=False, selected=None):
         if gpodder.ui.maemo:
             columns = (
                 ('maemo_markup', None, None, _('Episode')),
@@ -3249,12 +3259,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.new_episodes_window = None
             self.download_episode_list(episodes)
 
+        if selected is None:
+            # Select all by default
+            selected = [True]*len(episodes)
+
         self.new_episodes_window = gPodderEpisodeSelector(self.gPodder, \
                 title=_('New episodes available'), \
                 instructions=instructions, \
                 episodes=episodes, \
                 columns=columns, \
-                selected_default=True, \
+                selected=selected, \
                 stock_ok_button = 'gpodder-download', \
                 callback=download_episodes_callback, \
                 remove_callback=lambda e: e.mark_old(), \
