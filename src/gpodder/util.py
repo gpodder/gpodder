@@ -39,6 +39,7 @@ import glob
 import stat
 import shlex
 import socket
+import sys
 
 import re
 import subprocess
@@ -64,22 +65,24 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
-# Try to detect OS encoding (by Leonid Ponomarev)
-if gpodder.ui.maemo:
-    encoding = 'utf8'
-else:
-    encoding = 'iso-8859-15'
+# Native filesystem encoding detection
+encoding = sys.getfilesystemencoding()
 
-if 'LANG' in os.environ and '.' in os.environ['LANG']:
-    lang = os.environ['LANG']
-    (language, encoding) = lang.rsplit('.', 1)
-    log('Detected encoding: %s', encoding)
-    enc = encoding
-else:
-    # Using iso-8859-15 here as (hopefully) sane default
-    # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
-    log('Using ISO-8859-15 as encoding. If this')
-    log('is incorrect, please set your $LANG variable.')
+if encoding is None:
+    if 'LANG' in os.environ and '.' in os.environ['LANG']:
+        lang = os.environ['LANG']
+        (language, encoding) = lang.rsplit('.', 1)
+        log('Detected encoding: %s', encoding)
+    elif gpodder.ui.maemo:
+        encoding = 'utf-8'
+    elif gpodder.win32:
+        # To quote http://docs.python.org/howto/unicode.html:
+        # ,,on Windows, Python uses the name "mbcs" to refer
+        #   to whatever the currently configured encoding is``
+        encoding = 'mbcs'
+    else:
+        encoding = 'iso-8859-15'
+        log('Assuming encoding: ISO-8859-15 ($LANG not set).')
 
 
 # Used by file_type_by_extension()
