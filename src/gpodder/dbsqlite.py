@@ -662,10 +662,13 @@ class Database(object):
 
             else:
                 existing = set(column[NAME] for column in available)
-                for field_name, field_type, field_null, field_default in fields:
+                for field_name, field_type, field_required, field_default in fields:
                     if field_name not in existing:
                         log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
-                        cur.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type))
+                        sql = "ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type)
+                        if field_required:
+                            sql += " NOT NULL DEFAULT %s" % (field_default)
+                        cur.execute(sql)
 
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
