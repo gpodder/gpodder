@@ -187,7 +187,9 @@ class PodcastChannel(PodcastModelObject):
     def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         self.parse_error = feed.get('bozo_exception', None)
 
-        self.title = feed.feed.get('title', self.url)
+        # Replace multi-space and newlines with single space (Maemo bug 11173)
+        self.title = re.sub('\s+', ' ', feed.feed.get('title', self.url))
+
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
         # Start YouTube-specific title FIX
@@ -698,7 +700,8 @@ class PodcastEpisode(PodcastModelObject):
     def from_feedparser_entry(entry, channel, mimetype_prefs=''):
         episode = PodcastEpisode(channel)
 
-        episode.title = entry.get('title', '')
+        # Replace multi-space and newlines with single space (Maemo bug 11173)
+        episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
         episode.description = entry.get('summary', '')
 
@@ -906,10 +909,10 @@ class PodcastEpisode(PodcastModelObject):
             length_str = ''
         return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
                 '; '+_('from %s')+'</small>') % (\
-                xml.sax.saxutils.escape(self.title), \
+                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.title)), \
                 xml.sax.saxutils.escape(length_str), \
                 xml.sax.saxutils.escape(self.pubdate_prop), \
-                xml.sax.saxutils.escape(self.channel.title))
+                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.channel.title)))
 
     @property
     def maemo_remove_markup(self):
