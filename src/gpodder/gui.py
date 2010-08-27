@@ -2135,9 +2135,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     def on_reply(*args):
                         pass
 
-                    def on_error(err):
+                    def error_handler(filename, err):
                         log('Exception in D-Bus call: %s', str(err), \
                                 sender=self)
+
+                        # Fallback: use the command line client
+                        for command in util.format_desktop_command('panucci', \
+                                [filename]):
+                            log('Executing: %s', repr(command), sender=self)
+                            subprocess.Popen(command)
+
+                    on_error = lambda err: error_handler(filename, err)
 
                     # This method only exists in Panucci > 0.9 ('new Panucci')
                     i.playback_from(filename, resume_position, \
