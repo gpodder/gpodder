@@ -147,7 +147,7 @@ class FM4OnDemandPlaylist(object):
             episode = model.PodcastEpisode(channel)
             episode.update_from_dict({
                 'title': title,
-                'link': None,
+                'link': '',
                 'description': '',
                 'url': url,
                 'length': int(filesize),
