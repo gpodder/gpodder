@@ -178,6 +178,8 @@ class MafwPlaybackMonitor(object):
     def object_id_to_filename(self, object_id):
         # Naive, but works for now...
         if object_id.startswith('localtagfs::'):
+            if isinstance(object_id, unicode):
+                object_id = object_id.encode('utf-8')
             return 'file://'+urllib.quote(urllib.unquote(object_id[object_id.index('%2F'):]))
         elif object_id.startswith('urisource::'):
             return object_id[len('urisource::'):]
