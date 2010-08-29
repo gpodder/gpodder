@@ -1,13 +1,48 @@
 #! /bin/sh
 
-# We have to update the icon cache
+# Update the icon cache
 gtk-update-icon-cache -f /usr/share/icons/hicolor
 
-# maemo-select-menu-location not available on Fremantle
-#oldversion="$2"
-#if [ -z "$oldversion" ]; then
-#	maemo-select-menu-location gpodder.desktop
-#fi
+# Add gPodder to the notification bubble settings
+NOTIFICATIONS_CONF="/etc/hildon-desktop/notification-groups.conf"
+NOTIFICATIONS_KEY="gpodder-new-episodes"
+
+# If you are reading this and want to start complaining
+# about why this is tampering with a configuration file
+# of another package, my reasons are as follows:
+#
+# 1.) hildon-home could have been made configurable and
+#     provide a folder ("notification-groups.d") into which
+#     apps can install their own, additional settings. This
+#     is not the case, so we have to inject our data here.
+# 2.) Even if someone were to write a patch against hildon-home
+#     to add said feature, it won't appear in a Maemo firmware
+#     upgrade in a reasonable time frame, given the maintenance
+#     status of Maemo 5 / Fremantle as of August 2010.
+# 3.) There is no way to layer notifications on top of a visible
+#     window without an entry in this file (the "Destination"
+#     key is key (sic) here...), which is a requirement for me
+
+if ! grep -q "$NOTIFICATIONS_KEY" "$NOTIFICATIONS_CONF"; then
+    echo -n "Updating $NOTIFICATIONS_CONF..."
+    cat >>$NOTIFICATIONS_CONF << EOF
+
+### BEGIN Added by gpodder postinst ###
+
+[gpodder-new-episodes]
+Destination=Gpodder
+Icon=gpodder
+Title-Text-Empty=gPodder
+Secondary-Text=New episodes available
+Text-Domain=gpodder
+LED-Pattern=PatternCommonNotification
+
+### END Added by gpodder postinst ###
+
+EOF
+    echo "done."
+fi
+
 
 #DEBHELPER#
 
