@@ -181,13 +181,18 @@ class EpisodeListModel(gtk.ListStore):
         count = len(episodes)
 
         for position, episode in enumerate(episodes):
-            iter = self.append()
-            self.set(iter, \
-                    self.C_URL, episode.url, \
-                    self.C_TITLE, episode.title, \
-                    self.C_FILESIZE_TEXT, self._format_filesize(episode), \
-                    self.C_EPISODE, episode, \
-                    self.C_PUBLISHED_TEXT, episode.cute_pubdate())
+            iter = self.append((episode.url, \
+                    episode.title, \
+                    self._format_filesize(episode), \
+                    episode, \
+                    None, \
+                    episode.cute_pubdate(), \
+                    '', \
+                    '', \
+                    True, \
+                    True, \
+                    True))
+
             self.update_by_iter(iter, downloading, include_description, \
                     generate_thumbnails, reload_from_db=False)
 
@@ -646,26 +651,22 @@ class PodcastListModel(gtk.ListStore):
         # Clear the model and update the list of podcasts
         self.clear()
 
+        def channel_to_row(channel):
+            return (channel.url, '', '', None, channel, \
+                    self._get_cover_image(channel), '', True, True, True, \
+                    True, True, False)
+
         if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
-            iter = self.append()
-            self.set(iter, \
-                    self.C_URL, all_episodes.url, \
-                    self.C_CHANNEL, all_episodes, \
-                    self.C_COVER, self._get_cover_image(all_episodes), \
-                    self.C_SEPARATOR, False)
+            iter = self.append(channel_to_row(all_episodes))
             self.update_by_iter(iter)
 
-            iter = self.append()
-            self.set(iter, self.C_SEPARATOR, True)
+            # Separator item
+            self.append(('', '', '', None, None, None, '', True, True, \
+                    True, True, True, True))
 
         for channel in channels:
-            iter = self.append()
-            self.set(iter, \
-                    self.C_URL, channel.url, \
-                    self.C_CHANNEL, channel, \
-                    self.C_COVER, self._get_cover_image(channel), \
-                    self.C_SEPARATOR, False)
+            iter = self.append(channel_to_row(channel))
             self.update_by_iter(iter)
 
     def get_filter_path_from_url(self, url):

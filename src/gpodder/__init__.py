@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.7'
-__date__      = '2010-07-07'
+__version__   = '2.8'
+__date__      = '2010-08-28'
 __copyright__ = '© 2005-2010 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -73,6 +73,7 @@ dbus_gui_object_path = '/gui'
 dbus_podcasts_object_path = '/podcasts'
 dbus_interface = 'org.gpodder.interface'
 dbus_podcasts = 'org.gpodder.podcasts'
+dbus_session_bus = None
 
 # Set "win32" to True if we are on Windows
 win32 = (platform.system() == 'Windows')
@@ -134,7 +135,7 @@ config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')
 
 # Plugins to load by default
-DEFAULT_PLUGINS = ['gpodder.soundcloud']
+DEFAULT_PLUGINS = ['gpodder.soundcloud', 'gpodder.xspf']
 
 def load_plugins():
     """Load (non-essential) plugin modules

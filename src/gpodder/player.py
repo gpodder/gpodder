@@ -31,6 +31,7 @@ except ImportError:
     # Import Mock D-Bus interfaces when D-Bus bindings are not installed
     from gpodder.gui import dbus
 
+import gpodder
 
 class MediaPlayerDBusReceiver(object):
     INTERFACE = 'org.gpodder.player'
@@ -40,7 +41,7 @@ class MediaPlayerDBusReceiver(object):
     def __init__(self, on_play_event):
         self.on_play_event = on_play_event
 
-        self.bus = dbus.SessionBus()
+        self.bus = gpodder.dbus_session_bus
         self.bus.add_signal_receiver(self.on_playback_started, \
                                      self.SIGNAL_STARTED, \
                                      self.INTERFACE, \

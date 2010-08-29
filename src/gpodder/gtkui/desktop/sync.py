@@ -223,9 +223,9 @@ class gPodderSyncUI(object):
         columns = (
                 ('title', None, None, _('Episode')),
                 ('podcast', None, None, _('Podcast')),
-                ('filesize', None, None, _('Size')),
+                ('filesize', 'length', int, _('Size')),
                 ('modified', 'modified_sort', int, _('Copied')),
-                ('playcount', None, None, _('Play count')),
+                ('playcount', 'playcount', int, _('Play count')),
                 ('released', None, None, _('Released')),
         )
 

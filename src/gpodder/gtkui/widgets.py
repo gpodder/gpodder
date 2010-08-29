@@ -55,7 +55,14 @@ class SimpleMessageArea(gtk.HBox):
             hbox.pack_start(button, expand=True, fill=False)
         self.pack_start(hbox, expand=False, fill=False)
 
-    def set_markup(self, markup, line_wrap=True):
+    def set_markup(self, markup, line_wrap=True, min_width=3, max_width=100):
+        # The longest line should determine the size of the label
+        width_chars = max(len(line) for line in markup.splitlines())
+
+        # Enforce upper and lower limits for the width
+        width_chars = max(min_width, min(max_width, width_chars))
+
+        self.__label.set_width_chars(width_chars)
         self.__label.set_markup(markup)
         self.__label.set_line_wrap(line_wrap)
 

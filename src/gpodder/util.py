@@ -39,6 +39,7 @@ import glob
 import stat
 import shlex
 import socket
+import sys
 
 import re
 import subprocess
@@ -64,22 +65,24 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
-# Try to detect OS encoding (by Leonid Ponomarev)
-if gpodder.ui.maemo:
-    encoding = 'utf8'
-else:
-    encoding = 'iso-8859-15'
+# Native filesystem encoding detection
+encoding = sys.getfilesystemencoding()
 
-if 'LANG' in os.environ and '.' in os.environ['LANG']:
-    lang = os.environ['LANG']
-    (language, encoding) = lang.rsplit('.', 1)
-    log('Detected encoding: %s', encoding)
-    enc = encoding
-else:
-    # Using iso-8859-15 here as (hopefully) sane default
-    # see http://en.wikipedia.org/wiki/ISO/IEC_8859-1
-    log('Using ISO-8859-15 as encoding. If this')
-    log('is incorrect, please set your $LANG variable.')
+if encoding is None:
+    if 'LANG' in os.environ and '.' in os.environ['LANG']:
+        lang = os.environ['LANG']
+        (language, encoding) = lang.rsplit('.', 1)
+        log('Detected encoding: %s', encoding)
+    elif gpodder.ui.maemo:
+        encoding = 'utf-8'
+    elif gpodder.win32:
+        # To quote http://docs.python.org/howto/unicode.html:
+        # ,,on Windows, Python uses the name "mbcs" to refer
+        #   to whatever the currently configured encoding is``
+        encoding = 'mbcs'
+    else:
+        encoding = 'iso-8859-15'
+        log('Assuming encoding: ISO-8859-15 ($LANG not set).')
 
 
 # Used by file_type_by_extension()
@@ -139,6 +142,7 @@ def normalize_feed_url(url):
             'fb:': 'http://feeds.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
+            'fm4od:': 'http://onapp1.orf.at/webcam/fm4/fod/%s.xspf',
     }
 
     for prefix, expansion in PREFIXES.iteritems():
@@ -495,6 +499,9 @@ def remove_html_tags(html):
     named entities with the corresponding character, so the 
     HTML text can be displayed in a simple text view.
     """
+    if html is None:
+        return None
+
     # If we would want more speed, we could make these global
     re_strip_tags = re.compile('<[^>]*>')
     re_unicode_entities = re.compile('&#(\d{2,4});')
@@ -1506,4 +1513,40 @@ def detect_device_type():
         return 'laptop'
 
     return 'desktop'
+
+
+def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
+    """Create an M3U playlist from a episode list
+
+    If the parameter "extm3u" is False, the list of
+    episodes should be a list of filenames, and no
+    extended information will be written into the
+    M3U files (#EXTM3U / #EXTINF).
+
+    If the parameter "extm3u" is True (default), then the
+    list of episodes should be PodcastEpisode objects,
+    as the extended metadata will be taken from them.
+    """
+    f = open(m3u_filename, 'w')
+
+    if extm3u:
+        # Mandatory header for extended playlists
+        f.write('#EXTM3U\n')
+
+    for episode in episodes:
+        if not extm3u:
+            # Episode objects are strings that contain file names
+            f.write(episode+'\n')
+            continue
+
+        if episode.was_downloaded(and_exists=True):
+            filename = episode.local_filename(create=False)
+            assert filename is not None
+
+            if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
+                filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
+            f.write('#EXTINF:0,'+episode.playlist_title()+'\n')
+            f.write(filename+'\n')
+
+    f.close()
 

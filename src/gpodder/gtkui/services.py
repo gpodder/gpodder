@@ -76,7 +76,7 @@ class CoverDownloader(ObservableService):
     """
 
     # Maximum width/height of the cover in pixels
-    MAX_SIZE = 400
+    MAX_SIZE = 360
 
     def __init__(self):
         signal_names = ['cover-available', 'cover-removed']
@@ -185,12 +185,24 @@ class CoverDownloader(ObservableService):
         pixbuf = None
         if os.path.exists(channel.cover_file):
             try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file)
+                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file.decode(util.encoding, 'ignore'))
             except:
                 log('Data error while loading %s', channel.cover_file, sender=self)
 
         if pixbuf is None:
             pixbuf = self.get_default_cover(channel)
+
+        # Resize if width is too large
+        if pixbuf.get_width() > self.MAX_SIZE:
+            f = float(self.MAX_SIZE)/pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+
+        # Resize if height is too large
+        if pixbuf.get_height() > self.MAX_SIZE:
+            f = float(self.MAX_SIZE)/pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
 
         if async:
             self.notify('cover-available', channel.url, pixbuf)

@@ -111,6 +111,8 @@ gPodderSettings = {
       ("Remove episodes from gPodder if they've been marked as played "
         "on the device and they have no rating set (the rating can be set on "
         "the device by the user to prevent deletion).")),
+    'ipod_write_gtkpod_extended': (bool, False,
+      ("Write gtkpod extended database.")),
     'mp3_player_delete_played': (bool, False,
       ("Removes episodes from an FS-based device that have been marked as "
         "played in gPodder. Note: only works if 'only_sync_not_played' is "
@@ -203,6 +205,15 @@ gPodderSettings = {
     'open_torrent_after_download': (bool, False,
       ("Automatically open torrents after they have finished downloading")),
 
+    'mtp_audio_folder': (str, '',
+      ("The relative path to where audio podcasts are stored on an MTP device.")),
+    'mtp_video_folder': (str, '',
+      ("The relative path to where video podcasts are stored on an MTP device.")),
+    'mtp_image_folder': (str, '',
+      ("The relative path to where image podcasts are stored on an MTP device.")),
+    'mtp_podcast_folders': (bool, False,
+      ("Whether to create a folder per podcast on MTP devices.")),
+
     'allow_empty_feeds': (bool, True,
       ('Allow subscribing to feeds without episodes')),
 
@@ -247,6 +258,10 @@ gPodderSettings = {
     # Paned position
     'paned_position': ( int, 200,
       ("The width of the channel list.")),
+
+    # Preferred mime types for podcasts with multiple content types
+    'mimetype_prefs': (str, '',
+      ("A comma-separated list of mimetypes, descending order of preference")),
 }
 
 # Helper function to add window-specific properties (position and size)

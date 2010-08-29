@@ -35,10 +35,12 @@ class gPodderPreferences(BuilderWidget):
     audio_players = [
             ('default', 'Media Player'),
             ('panucci', 'Panucci'),
+            ('MediaBox', _('MediaBox')),
     ]
     video_players = [
             ('default', 'Media Player'),
             ('mplayer', 'MPlayer'),
+            ('MediaBox', _('MediaBox')),
     ]
     
     def new(self):

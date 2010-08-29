@@ -21,6 +21,7 @@ import gtk
 import pango
 import threading
 import hildon
+import urllib
 import gobject
 
 import gpodder
@@ -108,6 +109,15 @@ class gPodderPodcastDirectory(BuilderWidget):
                     _('URL:'), is_url=True, affirmative_text=_('Load'))
             load_opml_from_url(url)
 
+        def choice_search_mygpo(widget):
+            dialog.destroy()
+            search_term = show_text_edit_dialog(\
+                    _('Search on gpodder.net'), \
+                    _('Search for:'), affirmative_text=_('Search'))
+            if search_term is not None:
+                url = 'http://gpodder.net/search.opml?q=%s' % (urllib.quote(search_term),)
+                load_opml_from_url(url)
+
         def choice_load_opml_from_file(widget):
             dialog.destroy()
             dlg = gobject.new(hildon.FileChooserDialog, \
@@ -144,6 +154,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         choices = (
                 (_('Podcast feed/website URL'), choice_enter_feed_url),
                 (_('OPML file from the web'), choice_load_opml_from_url),
+                (_('Search on gpodder.net'), choice_search_mygpo),
                 (_('Open OPML file'), choice_load_opml_from_file),
                 (_('Example podcasts'), choice_load_examples),
                 (_('Podcast Top 50'), choice_load_toplist),

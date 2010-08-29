@@ -132,7 +132,8 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
-            max_episodes=0, download_dir=None, allow_empty_feeds=False):
+            max_episodes=0, download_dir=None, allow_empty_feeds=False, \
+            mimetype_prefs=''):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
@@ -146,7 +147,7 @@ class PodcastChannel(PodcastModelObject):
                 tmp.username = authentication_tokens[0]
                 tmp.password = authentication_tokens[1]
 
-            tmp.update(max_episodes)
+            tmp.update(max_episodes, mimetype_prefs)
             tmp.save()
             db.force_last_new(tmp)
             # Subscribing to empty feeds should yield an error (except if
@@ -183,10 +184,12 @@ class PodcastChannel(PodcastModelObject):
 
         self.db.purge(max_episodes, self.id)
 
-    def _consume_updated_feed(self, feed, max_episodes=0):
+    def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         self.parse_error = feed.get('bozo_exception', None)
 
-        self.title = feed.feed.get('title', self.url)
+        # Replace multi-space and newlines with single space (Maemo bug 11173)
+        self.title = re.sub('\s+', ' ', feed.feed.get('title', self.url))
+
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
         # Start YouTube-specific title FIX
@@ -233,7 +236,7 @@ class PodcastChannel(PodcastModelObject):
         # Search all entries for new episodes
         for entry in entries:
             try:
-                episode = PodcastEpisode.from_feedparser_entry(entry, self)
+                episode = PodcastEpisode.from_feedparser_entry(entry, self, mimetype_prefs)
                 if episode is not None and not episode.title:
                     episode.title, ext = os.path.splitext(os.path.basename(episode.url))
             except Exception, e:
@@ -311,7 +314,7 @@ class PodcastChannel(PodcastModelObject):
         return updated < one_day_ago or \
                 (expected < now and updated < lastcheck)
 
-    def update(self, max_episodes=0):
+    def update(self, max_episodes=0, mimetype_prefs=''):
         try:
             self.feed_fetcher.fetch_channel(self)
         except CustomFeed, updated:
@@ -320,13 +323,13 @@ class PodcastChannel(PodcastModelObject):
             self.save()
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
-            self._consume_updated_feed(feed, max_episodes)
+            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NewLocation, updated:
             feed = updated.data
             self.url = feed.href
-            self._consume_updated_feed(feed, max_episodes)
+            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NotModified, updated:
@@ -359,6 +362,9 @@ class PodcastChannel(PodcastModelObject):
     def save(self):
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_save(self)
+        if self.foldername is None:
+            # get_save_dir() finds a unique value for foldername
+            self.get_save_dir()
         self.db.save_channel(self)
 
     def get_statistics(self):
@@ -519,20 +525,8 @@ class PodcastChannel(PodcastModelObject):
             return
 
         log('Writing playlist to %s', m3u_filename, sender=self)
-        f = open(m3u_filename, 'w')
-        f.write('#EXTM3U\n')
-
-        for episode in PodcastEpisode.sort_by_pubdate(downloaded_episodes):
-            if episode.was_downloaded(and_exists=True):
-                filename = episode.local_filename(create=False)
-                assert filename is not None
-
-                if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                    filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-                f.write('#EXTINF:0,'+self.title+' - '+episode.title+' ('+episode.cute_pubdate()+')\n')
-                f.write(filename+'\n')
-
-        f.close()
+        util.write_m3u_playlist(m3u_filename, \
+                PodcastEpisode.sort_by_pubdate(downloaded_episodes))
 
     def get_episode_by_url(self, url):
         return self.db.load_single_episode(self, \
@@ -703,10 +697,11 @@ class PodcastEpisode(PodcastModelObject):
                 youtube.is_video_link(self.link))
 
     @staticmethod
-    def from_feedparser_entry(entry, channel):
+    def from_feedparser_entry(entry, channel, mimetype_prefs=''):
         episode = PodcastEpisode(channel)
 
-        episode.title = entry.get('title', '')
+        # Replace multi-space and newlines with single space (Maemo bug 11173)
+        episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
         episode.description = entry.get('summary', '')
 
@@ -731,8 +726,25 @@ class PodcastEpisode(PodcastModelObject):
         video_available = any(e.get('type', '').startswith('video/') \
                 for e in enclosures)
 
+        # Create the list of preferred mime types
+        mimetype_prefs = mimetype_prefs.split(',')
+
+        def calculate_preference_value(enclosure):
+            """Calculate preference value of an enclosure
+
+            This is based on mime types and allows users to prefer
+            certain mime types over others (e.g. MP3 over AAC, ...)
+            """
+            mimetype = enclosure.get('type', None)
+            try:
+                # If the mime type is found, return its (zero-based) index
+                return mimetype_prefs.index(mimetype)
+            except ValueError:
+                # If it is not found, assume it comes after all listed items
+                return len(mimetype_prefs)
+
         # Enclosures
-        for e in enclosures:
+        for e in sorted(enclosures, key=calculate_preference_value):
             episode.mimetype = e.get('type', 'application/octet-stream')
             if episode.mimetype == '':
                 # See Maemo bug 10036
@@ -897,10 +909,10 @@ class PodcastEpisode(PodcastModelObject):
             length_str = ''
         return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
                 '; '+_('from %s')+'</small>') % (\
-                xml.sax.saxutils.escape(self.title), \
+                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.title)), \
                 xml.sax.saxutils.escape(length_str), \
                 xml.sax.saxutils.escape(self.pubdate_prop), \
-                xml.sax.saxutils.escape(self.channel.title))
+                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.channel.title)))
 
     @property
     def maemo_remove_markup(self):
@@ -923,13 +935,15 @@ class PodcastEpisode(PodcastModelObject):
         return util.file_age_in_days(self.local_filename(create=False, \
                 check_only=True))
 
+    age_int_prop = property(fget=age_in_days)
+
     def get_age_string(self):
         return util.file_age_to_string(self.age_in_days())
 
     age_prop = property(fget=get_age_string)
 
     def one_line_description( self):
-        lines = util.remove_html_tags(self.description).strip().splitlines()
+        lines = util.remove_html_tags(self.description or '').strip().splitlines()
         if not lines or lines[0] == '':
             return _('No description available')
         else:
@@ -1162,7 +1176,19 @@ class PodcastEpisode(PodcastModelObject):
         except:
             log('Cannot format pubDate (time) for "%s".', self.title, sender=self)
             return '0000'
-    
+
+    def playlist_title(self):
+        """Return a title for this episode in a playlist
+
+        The title will be composed of the podcast name, the
+        episode name and the publication date. The return
+        value is the canonical representation of this episode
+        in playlists (for example, M3U playlists).
+        """
+        return '%s - %s (%s)' % (self.channel.title, \
+                self.title, \
+                self.cute_pubdate())
+
     def cute_pubdate(self):
         result = util.format_date(self.pubDate)
         if result is None:

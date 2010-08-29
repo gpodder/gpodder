@@ -60,7 +60,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
             r3 = re.compile('&fmt_map=([^&]+).*').search(page)
 
         if r3:
-            formats_available = urllib.unquote(r3.group(1)).split(',')
+            formats_available = urllib.unquote(r3.group(1)).replace('\\/', '/').split(',')
         else:
             formats_available = []
 

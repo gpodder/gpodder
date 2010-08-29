@@ -51,11 +51,6 @@ except:
     log('(gpodder.sync) Could not find pymtp.')
 
 try:
-    import mad
-except:
-    log('(gpodder.sync) Could not find pymad')
-
-try:
     import eyeD3
 except:
     log( '(gpodder.sync) Could not find eyeD3')
@@ -66,7 +61,7 @@ except:
     log('(gpodder.sync) Could not find Python Imaging Library (PIL)')
 
 # Register our dependencies for the synchronization module
-services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'mad', 'eyeD3'], [])
+services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'gst'], [])
 services.dependency_manager.depend_on(_('MTP device synchronization'), _('Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp.'), ['pymtp'], [])
 services.dependency_manager.depend_on(_('iPod OGG converter'), _('Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME.'), [], ['oggdec', 'lame'])
 services.dependency_manager.depend_on(_('iPod video podcasts'), _('Detect video lengths via MPlayer, to synchronize video podcasts to iPods.'), [], ['mplayer'])
@@ -77,6 +72,50 @@ import os.path
 import glob
 import time
 
+if pymtp_available:
+    class MTP(pymtp.MTP):
+        sep = os.path.sep
+
+        def __init__(self):
+            pymtp.MTP.__init__(self)
+            self.folders = {}
+
+        def connect(self):
+            pymtp.MTP.connect(self)
+            self.folders = self.unfold(self.mtp.LIBMTP_Get_Folder_List(self.device))
+
+        def get_folder_list(self):
+            return self.folders
+
+        def unfold(self, folder, path=''):
+            result = {}
+            while folder:
+                folder = folder.contents
+                name = self.sep.join([path, folder.name]).lstrip(self.sep)
+                result[name] = folder.folder_id
+                if folder.child:
+                    result.update(self.unfold(folder.child, name))
+                folder = folder.sibling
+            return result
+
+        def mkdir(self, path):
+            folder_id = 0
+            prefix = []
+            parts = path.split(self.sep)
+            while parts:
+                prefix.append(parts[0])
+                tmpath = self.sep.join(prefix)
+                if self.folders.has_key(tmpath):
+                    folder_id = self.folders[tmpath]
+                else:
+                    folder_id = self.create_folder(parts[0], parent=folder_id)
+                    # log('Creating subfolder %s in %s (id=%u)' % (parts[0], self.sep.join(prefix), folder_id))
+                    tmpath = self.sep.join(prefix + [parts[0]])
+                    self.folders[tmpath] = folder_id
+                # log(">>> %s = %s" % (tmpath, folder_id))
+                del parts[0]
+            # log('MTP.mkdir: %s = %u' % (path, folder_id))
+            return folder_id
 
 def open_device(config):
     device_type = config.device_type
@@ -103,12 +142,6 @@ def get_track_length(filename):
     else:
         log('Please install MPlayer for track length detection.')
 
-    try:
-        mad_info = mad.MadFile(filename)
-        return int(mad_info.total_time())
-    except:
-        pass
-    
     try:
         eyed3_info = eyeD3.Mp3AudioFile(filename)
         return int(eyed3_info.getPlayTime()*1000)
@@ -305,6 +338,24 @@ class iPodDevice(Device):
             self.notify('status', _('Saving iPod database'))
             gpod.itdb_write(self.itdb, None)
             self.itdb = None
+            
+            if self._config.ipod_write_gtkpod_extended:
+                self.notify('status', _('Writing extended gtkpod database'))
+                ext_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB.ext')
+                idb_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB')
+                if os.path.exists(ext_filename) and os.path.exists(idb_filename):
+                    try:
+                        db = gpod.ipod.Database(self.mountpoint)
+                        gpod.gtkpod.parse(ext_filename, db, idb_filename)
+                        gpod.gtkpod.write(ext_filename, db, idb_filename)
+                        db.close()
+                    except:
+                        log('Error when writing iTunesDB.ext', sender=self, traceback=True)
+                else:
+                    log('I could not find %s or %s. Will not update extended gtkpod DB.', ext_filename, idb_filename, sender=self)
+            else:
+                log('Not writing extended gtkpod DB. Set "ipod_write_gpod_extended" to True if I should write it.', sender=self)            
+            
             
         Device.close(self)
         return True
@@ -551,6 +602,8 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
+        folder = util.sanitize_encoding(folder)
+
         from_file = util.sanitize_encoding(self.convert_track(episode))
         filename_base = util.sanitize_filename(episode.sync_filename(self._config.custom_sync_name_enabled, self._config.custom_sync_name), self._config.mp3_player_max_filename_length)
 
@@ -562,7 +615,7 @@ class MP3PlayerDevice(Device):
         if os.path.splitext(to_file)[0] == '':
             to_file = os.path.basename(from_file)
 
-        to_file = os.path.join(folder, to_file)
+        to_file = util.sanitize_encoding(os.path.join(folder, to_file))
 
         if not os.path.exists(folder):
             try:
@@ -775,7 +828,7 @@ class MTPDevice(Device):
         Device.__init__(self, config)
         self.__model_name = None
         try:
-            self.__MTPDevice = pymtp.MTP()
+            self.__MTPDevice = MTP()
         except NameError, e:
             # pymtp not available / not installed (see bug 924)
             log('pymtp not found: %s', str(e), sender=self)
@@ -920,10 +973,28 @@ class MTPDevice(Device):
             metadata.date = self.__date_to_mtp(episode.pubDate)
             metadata.duration = get_track_length(str(filename))
 
+            folder_name = ''
+            if episode.mimetype.startswith('audio/') and self._config.mtp_audio_folder:
+                folder_name = self._config.mtp_audio_folder
+            if episode.mimetype.startswith('video/') and self._config.mtp_video_folder:
+                folder_name = self._config.mtp_video_folder
+            if episode.mimetype.startswith('image/') and self._config.mtp_image_folder:
+                folder_name = self._config.mtp_image_folder
+
+            if folder_name != '' and self._config.mtp_podcast_folders:
+                folder_name += os.path.sep + str(episode.channel.title)
+
+            # log('Target MTP folder: %s' % folder_name)
+
+            if folder_name == '':
+                folder_id = 0
+            else:
+                folder_id = self.__MTPDevice.mkdir(folder_name)
+
             # send the file
             self.__MTPDevice.send_track_from_file(filename,
                     util.sanitize_filename(metadata.title)+episode.extension(),
-                    metadata, 0, callback=self.__callback)
+                    metadata, folder_id, callback=self.__callback)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False

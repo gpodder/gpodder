@@ -77,6 +77,7 @@ inst_share_dbus_services = ['data/org.gpodder.service']
 inst_icons    = [ 'data/gpodder.png' ]
 inst_icons_64 = [ 'data/icons/64/gpodder.png' ]
 inst_icons_40 = [ 'data/icons/40/gpodder.png' ]
+inst_icons_32 = [ 'data/icons/32/gpodder.png' ]
 inst_icons_26 = [ 'data/icons/26/gpodder.png' ]
 inst_icons_24 = [ 'data/icons/24/gpodder.png' ]
 inst_icons_22 = [ 'data/icons/22/gpodder.png' ]
@@ -120,7 +121,9 @@ if target == MAEMO or building_source:
       ('share/applications/hildon', inst_desktop_maemo),
       ('share/icons/hicolor/scalable/apps', inst_icons_64),
       ('share/icons/hicolor/40x40/apps', inst_icons_40),
+      ('share/icons/hicolor/32x32/apps', inst_icons_32),
       ('share/icons/hicolor/26x26/apps', inst_icons_26),
+      ('share/icons/hicolor/16x16/apps', inst_icons_16),
     ]
     packages += [
       'gpodder.gtkui.maemo',
