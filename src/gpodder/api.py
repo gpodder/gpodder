@@ -81,7 +81,7 @@ class Podcast(object):
         adds new episodes and updated information to the database.
         """
         self._podcast.update(self._manager._config.max_episodes_per_feed, \
-                self._config.mimetype_prefs)
+                self._manager._config.mimetype_prefs)
 
 
 
