@@ -3111,8 +3111,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 show_episode_shownotes=self.show_episode_shownotes)
 
     def on_selected_episodes_status_changed(self):
-        self.update_episode_list_icons(selected=True)
+        # The order of the updates here is important! When "All episodes" is
+        # selected, the update of the podcast list model depends on the episode
+        # list selection to determine which podcasts are affected. Updating
+        # the episode list could remove the selection if a filter is active.
         self.update_podcast_list_model(selected=True)
+        self.update_episode_list_icons(selected=True)
         self.db.commit()
 
     def mark_selected_episodes_new(self):
