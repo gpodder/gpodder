@@ -2802,7 +2802,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if gpodder.ui.fremantle:
                 util.idle_add(self.button_refresh.set_title, \
-                        _('%(position)d/%(total)d updated') % {'position': updated, 'total': total})
+                        _('%(position)d/%(total)d updated') % {'position': updated+1, 'total': total})
                 continue
 
             # By the time we get here the update may have already been cancelled
