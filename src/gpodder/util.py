@@ -65,6 +65,9 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
+import locale
+locale.setlocale(locale.LC_ALL, '')
+
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
 
@@ -433,7 +436,7 @@ def format_date(timestamp):
 
     if diff < 7:
         # Weekday name
-        return str(timestamp.strftime('%A'))
+        return str(timestamp.strftime('%A').decode(encoding))
     else:
         # Locale's appropriate date representation
         return str(timestamp.strftime('%x'))
