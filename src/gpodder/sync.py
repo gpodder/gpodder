@@ -45,10 +45,10 @@ except:
 
 pymtp_available = True
 try:
-    import pymtp
+    import gpodder.gpopymtp as pymtp
 except:
     pymtp_available = False
-    log('(gpodder.sync) Could not find pymtp.')
+    log('(gpodder.sync) Could not load gpopymtp (libmtp not installed?).')
 
 try:
     import eyeD3
@@ -62,7 +62,6 @@ except:
 
 # Register our dependencies for the synchronization module
 services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'gst'], [])
-services.dependency_manager.depend_on(_('MTP device synchronization'), _('Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp.'), ['pymtp'], [])
 services.dependency_manager.depend_on(_('iPod OGG converter'), _('Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME.'), [], ['oggdec', 'lame'])
 services.dependency_manager.depend_on(_('iPod video podcasts'), _('Detect video lengths via MPlayer, to synchronize video podcasts to iPods.'), [], ['mplayer'])
 services.dependency_manager.depend_on(_('Rockbox cover art support'), _('Copy podcast cover art to filesystem-based MP3 players running Rockbox.org firmware. Needs Python Imaging.'), ['Image'], [])
