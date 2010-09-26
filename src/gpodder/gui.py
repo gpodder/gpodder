@@ -3951,6 +3951,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def uniconify_main_window(self):
         if self.is_iconified():
+            # We need to hide and then show the window in WMs like Metacity
+            # or KWin4 to move the window to the active workspace
+            # (see http://gpodder.org/bug/1125)
+            self.gPodder.hide()
+            self.gPodder.show()
             self.gPodder.present()
  
     def iconify_main_window(self):
