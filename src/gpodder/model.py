@@ -704,7 +704,11 @@ class PodcastEpisode(PodcastModelObject):
         # Replace multi-space and newlines with single space (Maemo bug 11173)
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
-        episode.description = entry.get('summary', '')
+        if 'content' in entry and len(entry['content']) and \
+                entry['content'][0].type == 'text/html':
+            episode.description = entry['content'][0].value
+        else:
+            episode.description = entry.get('summary', '')
 
         try:
             # Parse iTunes-specific podcast duration metadata
