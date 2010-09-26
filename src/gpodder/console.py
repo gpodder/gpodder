@@ -50,6 +50,9 @@ def synchronize_device(db, config):
                     if e.was_downloaded(and_exists=True)]
             device.add_tracks(episodes)
 
+        if config.ipod_purge_old_episodes:
+            device.purge()
+
         db.commit()
         device.close()
         print >>sys.stderr, _('Device synchronized successfully.')
