@@ -37,6 +37,7 @@
     info URL                      Show information about feed at URL
     list                          List all subscribed podcasts
     update                        Refresh all feeds (check for new episodes)
+    update URL                    Refresh the feed at URL
 
   Episode management
   ------------------
@@ -180,11 +181,20 @@ class gPodderCli(object):
 
         return True
 
-    def update(self):
-        for podcast in self.client.get_podcasts():
-            print 'Updating', podcast.title
-            podcast.update()
-        print 'Done.'
+    def update(self, url=None):
+        if url is None:
+            for podcast in self.client.get_podcasts():
+                if podcast.update_enabled():
+                    print 'Updating', podcast.title
+                    podcast.update()
+            print 'Done.'
+        else:
+            for podcast in self.client.get_podcasts():
+                if podcast.url == url:
+                    # Don't need to check for update_enabled()
+                    print 'Updating', podcast.title
+                    podcast.update()
+            print 'Done.'
 
         return True
 

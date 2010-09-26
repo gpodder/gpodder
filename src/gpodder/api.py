@@ -74,6 +74,16 @@ class Podcast(object):
         self._podcast.delete()
         self._podcast = None
 
+    def update_enabled(self):
+        """Check if this feed has updates enabled
+
+        This function will return True if the podcast has feed
+        updates enabled. If the user pauses a subscription, the
+        feed updates are disabled, and the podcast should be
+        excluded from automatic updates.
+        """
+        return self._podcast.feed_update_enabled
+
     def update(self):
         """Updates this podcast by downloading the feed
 
