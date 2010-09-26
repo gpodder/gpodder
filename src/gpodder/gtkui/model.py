@@ -46,7 +46,7 @@ class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
-            C_VIEW_SHOW_UNPLAYED = range(11)
+            C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED = range(13)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -57,7 +57,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool)
+                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool, int, int)
 
         # Update progress (if we're currently being updated)
         self._update_progress = 0.
@@ -65,6 +65,7 @@ class EpisodeListModel(gtk.ListStore):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
+        self._sorter = gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._filter.set_visible_func(self._filter_visible_func)
@@ -134,7 +135,7 @@ class EpisodeListModel(gtk.ListStore):
         as this model can have some filters set that should
         be reflected in the UI.
         """
-        return self._filter
+        return self._sorter
 
     def set_view_mode(self, new_mode):
         """Sets a new view mode for this model
@@ -200,7 +201,9 @@ class EpisodeListModel(gtk.ListStore):
                     '', \
                     True, \
                     True, \
-                    True))
+                    True, \
+                    episode.length, \
+                    episode.pubDate))
 
             self.update_by_iter(iter, downloading, include_description, \
                     generate_thumbnails, reload_from_db=False)
@@ -232,6 +235,7 @@ class EpisodeListModel(gtk.ListStore):
             include_description=False, generate_thumbnails=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
+        iter = self._sorter.convert_iter_to_child_iter(None, iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
                 downloading, include_description, generate_thumbnails)
 

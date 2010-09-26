@@ -970,15 +970,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn(_('Episode'), namecell, markup=EpisodeListModel.C_DESCRIPTION)
+        namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
         sizecell = gtk.CellRendererText()
         sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
+        sizecolumn.set_sort_column_id(EpisodeListModel.C_FILESIZE)
 
         releasecell = gtk.CellRendererText()
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
+        releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
         for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
             itemcolumn.set_reorderable(True)
