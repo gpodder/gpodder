@@ -77,6 +77,7 @@ class SimpleMessageArea(gtk.HBox):
 
         self.__in_style_set = True
         self.set_style(style)
+        self.__label.set_style(style)
         self.__in_style_set = False
 
         w.destroy()
