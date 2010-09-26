@@ -82,7 +82,7 @@ class CoverDownloader(ObservableService):
         signal_names = ['cover-available', 'cover-removed']
         ObservableService.__init__(self, signal_names)
 
-    def request_cover(self, channel, custom_url=None):
+    def request_cover(self, channel, custom_url=None, avoid_downloading=False):
         """
         Sends an asynchronous request to download a
         cover for the specific channel.
@@ -94,9 +94,14 @@ class CoverDownloader(ObservableService):
         If you specify a custom_url, the cover will
         be downloaded from the specified URL and not
         taken from the channel metadata.
+
+        The optional parameter "avoid_downloading",
+        when true, will make sure we return only
+        already-downloaded covers and return None
+        when we have no cover on the local disk.
         """
         log('cover download request for %s', channel.url, sender=self)
-        args = [channel, custom_url, True]
+        args = [channel, custom_url, True, avoid_downloading]
         threading.Thread(target=self.__get_cover, args=args).start()
 
     def get_cover(self, channel, custom_url=None, avoid_downloading=False):
@@ -134,6 +139,10 @@ class CoverDownloader(ObservableService):
         """
         self.remove_cover(channel)
         self.request_cover(channel, custom_url)
+
+    def reload_cover_from_disk(self, channel):
+        self.notify('cover-removed', channel.url)
+        self.request_cover(channel, None, True)
 
     def get_default_cover(self, channel):
         # "randomly" choose a cover based on the podcast title
@@ -205,7 +214,7 @@ class CoverDownloader(ObservableService):
             pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
 
         if async:
-            self.notify('cover-available', channel.url, pixbuf)
+            self.notify('cover-available', channel, pixbuf)
         else:
             return (channel.url, pixbuf)
 

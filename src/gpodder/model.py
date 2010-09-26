@@ -410,6 +410,7 @@ class PodcastChannel(PodcastModelObject):
         self.release_expected = time.time()
         self.release_deviation = 0
         self.updated_timestamp = 0
+        self.feed_update_enabled = True
 
     def calculate_publish_behaviour(self):
         episodes = self.db.load_episodes(self, factory=self.episode_factory, limit=30)

@@ -531,6 +531,12 @@ class PodcastListModel(gtk.ListStore):
             self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
+        # "ICON" is used to mark icon names in source files
+        ICON = lambda x: x
+
+        #self.ICON_DISABLED = ICON('emblem-unreadable')
+        self.ICON_DISABLED = ICON('gtk-media-pause')
+
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
@@ -625,12 +631,36 @@ class PodcastListModel(gtk.ListStore):
 
         return self._resize_pixbuf_keep_ratio(url, pixbuf) or pixbuf
 
-    def _get_cover_image(self, channel):
+    def _overlay_pixbuf(self, pixbuf, icon):
+        try:
+            icon_theme = gtk.icon_theme_get_default()
+            emblem = icon_theme.load_icon(icon, self._max_image_side/2, 0)
+            (width, height) = (emblem.get_width(), emblem.get_height())
+            xpos = pixbuf.get_width() - width
+            ypos = pixbuf.get_height() - height
+            if ypos < 0:
+                # need to resize overlay for none standard icon size
+                emblem = icon_theme.load_icon(icon, pixbuf.get_height() - 1, 0)
+                (width, height) = (emblem.get_width(), emblem.get_height())
+                xpos = pixbuf.get_width() - width
+                ypos = pixbuf.get_height() - height
+            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+        except:
+            pass
+
+        return pixbuf
+
+    def _get_cover_image(self, channel, add_overlay=False):
         if self._cover_downloader is None:
             return None
 
         pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
-        return self._resize_pixbuf(channel.url, pixbuf)
+        pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
+        if add_overlay and not channel.feed_update_enabled:
+            pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
+            pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
+
+        return pixbuf_overlay
 
     def _get_pill_image(self, channel, count_downloaded, count_unplayed):
         if count_unplayed > 0 or count_downloaded > 0:
@@ -641,7 +671,10 @@ class PodcastListModel(gtk.ListStore):
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
         title_markup = xml.sax.saxutils.escape(channel.title)
-        description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
+        if channel.feed_update_enabled:
+            description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
+        else:
+            description_markup = xml.sax.saxutils.escape(_('Subscription paused.'))
         d = []
         if new:
             d.append('<span weight="bold">')
@@ -660,9 +693,9 @@ class PodcastListModel(gtk.ListStore):
         # Clear the model and update the list of podcasts
         self.clear()
 
-        def channel_to_row(channel):
+        def channel_to_row(channel, add_overlay=False):
             return (channel.url, '', '', None, channel, \
-                    self._get_cover_image(channel), '', True, True, True, \
+                    self._get_cover_image(channel, add_overlay), '', True, True, True, \
                     True, True, False)
 
         if config.podcast_list_view_all and channels:
@@ -675,7 +708,7 @@ class PodcastListModel(gtk.ListStore):
                     True, True, True, True))
 
         for channel in channels:
-            iter = self.append(channel_to_row(channel))
+            iter = self.append(channel_to_row(channel, True))
             self.update_by_iter(iter)
 
     def get_filter_path_from_url(self, url):
@@ -742,11 +775,15 @@ class PodcastListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \
                 self.C_HAS_EPISODES, total > 0)
 
-    def add_cover_by_url(self, url, pixbuf):
+    def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
-        pixbuf = self._resize_pixbuf(url, pixbuf)
+        pixbuf = self._resize_pixbuf(channel.url, pixbuf)
+        if not channel.feed_update_enabled:
+            pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
+            pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)
+
         for row in self:
-            if row[self.C_URL] == url:
+            if row[self.C_URL] == channel.url:
                 row[self.C_COVER] = pixbuf
                 break
 

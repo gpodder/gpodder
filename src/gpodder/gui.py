@@ -1769,13 +1769,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         self.podcast_list_model.delete_cover_by_url(channel_url)
     
-    def cover_download_finished(self, channel_url, pixbuf):
+    def cover_download_finished(self, channel, pixbuf):
         """
         The Cover Downloader calls this when it has finished
         downloading (or registering, if already downloaded)
         a new channel cover, which is ready for displaying.
         """
-        self.podcast_list_model.add_cover_by_url(channel_url, pixbuf)
+        self.podcast_list_model.add_cover_by_channel(channel, pixbuf)
 
     def save_episodes_as_file(self, episodes):
         for episode in episodes:
@@ -2862,7 +2862,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.updating_feed_cache = True
 
         if channels is None:
-            channels = self.channels
+            # Only update podcasts for which updates are enabled
+            channels = [c for c in self.channels if c.feed_update_enabled]
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
