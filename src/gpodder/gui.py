@@ -880,11 +880,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.pack_start(namecell, True)
         namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
 
-        iconcell = gtk.CellRendererPixbuf()
-        iconcell.set_property('xalign', 1.0)
-        namecolumn.pack_start(iconcell, False)
-        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
-        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        if gpodder.ui.fremantle:
+            countcell = gtk.CellRendererText()
+            from gpodder.gtkui.frmntl import style
+            countcell.set_property('font-desc', style.get_font_desc('EmpSystemFont'))
+            countcell.set_property('foreground-gdk', style.get_color('SecondaryTextColor'))
+            countcell.set_property('alignment', pango.ALIGN_RIGHT)
+            countcell.set_property('xalign', 1.)
+            countcell.set_property('xpad', 5)
+            namecolumn.pack_start(countcell, False)
+            namecolumn.add_attribute(countcell, 'text', PodcastListModel.C_DOWNLOADS)
+            namecolumn.add_attribute(countcell, 'visible', PodcastListModel.C_DOWNLOADS)
+        else:
+            iconcell = gtk.CellRendererPixbuf()
+            iconcell.set_property('xalign', 1.0)
+            namecolumn.pack_start(iconcell, False)
+            namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
+            namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+
         self.treeChannels.append_column(namecolumn)
 
         self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())

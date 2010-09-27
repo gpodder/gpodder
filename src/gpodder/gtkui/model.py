@@ -511,7 +511,8 @@ class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
-            C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR = range(13)
+            C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
+            C_DOWNLOADS = range(14)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -521,7 +522,8 @@ class PodcastListModel(gtk.ListStore):
 
     def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, bool, bool)
+                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
+                bool, bool, int)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -701,7 +703,7 @@ class PodcastListModel(gtk.ListStore):
         def channel_to_row(channel, add_overlay=False):
             return (channel.url, '', '', None, channel, \
                     self._get_cover_image(channel, add_overlay), '', True, True, True, \
-                    True, True, False)
+                    True, True, False, 0)
 
         if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
@@ -710,7 +712,7 @@ class PodcastListModel(gtk.ListStore):
 
             # Separator item
             self.append(('', '', '', None, None, None, '', True, True, \
-                    True, True, True, True))
+                    True, True, True, True, 0))
 
         for channel in channels:
             iter = self.append(channel_to_row(channel, True))
@@ -768,7 +770,12 @@ class PodcastListModel(gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
-        pill_image = self._get_pill_image(channel, downloaded, unplayed)
+        if gpodder.ui.fremantle:
+            # We don't display the pill, so don't generate it
+            pill_image = None
+        else:
+            pill_image = self._get_pill_image(channel, downloaded, unplayed)
+
         self.set(iter, \
                 self.C_TITLE, channel.title, \
                 self.C_DESCRIPTION, description, \
@@ -778,7 +785,8 @@ class PodcastListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \
-                self.C_HAS_EPISODES, total > 0)
+                self.C_HAS_EPISODES, total > 0, \
+                self.C_DOWNLOADS, downloaded)
 
     def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
