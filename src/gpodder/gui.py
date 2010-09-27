@@ -982,11 +982,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn = gtk.TreeViewColumn(_('Episode'), namecell, markup=EpisodeListModel.C_DESCRIPTION)
+        namecolumn = gtk.TreeViewColumn(_('Episode'))
+        namecolumn.pack_start(namecell, True)
+        namecolumn.add_attribute(namecell, 'markup', EpisodeListModel.C_DESCRIPTION)
         namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
+
+        if gpodder.ui.fremantle:
+            from gpodder.gtkui.frmntl import style
+            timecell = gtk.CellRendererText()
+            timecell.set_property('font-desc', style.get_font_desc('SystemFont'))
+            timecell.set_property('foreground-gdk', style.get_color('SecondaryTextColor'))
+            timecell.set_property('alignment', pango.ALIGN_RIGHT)
+            timecell.set_property('xalign', 1.)
+            timecell.set_property('xpad', 5)
+            namecolumn.pack_start(timecell, False)
+            namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
+            namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME1_VISIBLE)
+
+            # Add another cell renderer to fix a sizing issue (one renderer
+            # only renders short text and the other one longer text to avoid
+            # having titles of episodes unnecessarily cut off)
+            timecell = gtk.CellRendererText()
+            timecell.set_property('font-desc', style.get_font_desc('SystemFont'))
+            timecell.set_property('foreground-gdk', style.get_color('SecondaryTextColor'))
+            timecell.set_property('alignment', pango.ALIGN_RIGHT)
+            timecell.set_property('xalign', 1.)
+            timecell.set_property('xpad', 5)
+            namecolumn.pack_start(timecell, False)
+            namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
+            namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME2_VISIBLE)
 
         sizecell = gtk.CellRendererText()
         sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)

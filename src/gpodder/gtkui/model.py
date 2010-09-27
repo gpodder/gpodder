@@ -46,7 +46,8 @@ class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
-            C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED = range(13)
+            C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
+            C_TIME, C_TIME1_VISIBLE, C_TIME2_VISIBLE = range(16)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -57,7 +58,8 @@ class EpisodeListModel(gtk.ListStore):
 
     def __init__(self):
         gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool, int, int)
+                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool, \
+                int, int, str, bool, bool)
 
         # Update progress (if we're currently being updated)
         self._update_progress = 0.
@@ -203,7 +205,10 @@ class EpisodeListModel(gtk.ListStore):
                     True, \
                     True, \
                     episode.length, \
-                    episode.pubDate))
+                    episode.pubDate, \
+                    episode.get_play_info_string(), \
+                    episode.total_time and not episode.current_position, \
+                    episode.total_time and episode.current_position))
 
             self.update_by_iter(iter, downloading, include_description, \
                     generate_thumbnails, reload_from_db=False)
@@ -360,7 +365,10 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded, \
                 self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
                 self.C_DESCRIPTION, description, \
-                self.C_TOOLTIP, tooltip)
+                self.C_TOOLTIP, tooltip, \
+                self.C_TIME, episode.get_play_info_string(), \
+                self.C_TIME1_VISIBLE, episode.total_time and not episode.current_position, \
+                self.C_TIME2_VISIBLE, episode.total_time and episode.current_position)
 
     def _get_icon_from_image(self,image_path, icon_size):
         """
