@@ -152,7 +152,6 @@ def load_plugins():
     for plugin in PLUGINS:
         try:
             __import__(plugin)
-            print >>sys.stderr, 'Plugin loaded:', plugin
         except Exception, e:
             print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
 
