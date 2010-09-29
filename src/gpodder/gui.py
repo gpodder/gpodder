@@ -803,6 +803,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_subscribe.set_name('HildonButton-finger')
             self.button_refresh.set_name('HildonButton-finger')
 
+        if gpodder.ui.fremantle:
+            self.fancy_progress_bar.relayout()
+
     def on_treeview_podcasts_selection_changed(self, selection):
         model, iter = selection.get_selected()
         if iter is None:
@@ -2907,7 +2910,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.feed_cache_update_cancelled:
             self.pbFeedUpdate.set_text(_('Cancelling...'))
             self.feed_cache_update_cancelled = True
-            self.btnCancelFeedUpdate.set_sensitive(False)
+            if not gpodder.ui.fremantle:
+                self.btnCancelFeedUpdate.set_sensitive(False)
         else:
             self.show_update_feeds_buttons()
 

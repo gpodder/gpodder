@@ -145,8 +145,8 @@ class FancyProgressBar(object):
 
     def show(self):
         if self.state != FancyProgressBar.SHOW:
-            self.event_box.show()
             self.state = FancyProgressBar.SHOW
+            self.hbox_animation_actor.show()
             self.offset = float(self.height)
             gobject.timeout_add(FancyProgressBar.STEP, self.on_timeout)
 
@@ -158,13 +158,22 @@ class FancyProgressBar(object):
             gobject.timeout_add(FancyProgressBar.STEP, self.on_timeout)
 
     def on_timeout(self):
+        result = True
+
         if self.state == FancyProgressBar.SHOW:
             self.offset *= .9
+            if self.offset < 2:
+                self.event_box.show()
+                self.offset = 0.
+                result = False
         elif self.state == FancyProgressBar.HIDE:
             self.offset *= 1.1
+            if self.offset >= self.height:
+                self.offset = float(self.height)
+                self.hbox_animation_actor.hide()
+                result = False
 
         self.relayout()
 
-        return (self.offset > 0 and self.offset < self.height)
-
+        return result
 
