@@ -1577,7 +1577,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 can_queue = False
             if task.status not in (download.DownloadTask.PAUSED, \
                     download.DownloadTask.QUEUED, \
-                    download.DownloadTask.DOWNLOADING):
+                    download.DownloadTask.DOWNLOADING, \
+                    download.DownloadTask.FAILED):
                 can_cancel = False
             if task.status not in (download.DownloadTask.QUEUED, \
                     download.DownloadTask.DOWNLOADING):
@@ -1659,8 +1660,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Cancelling a download allowed when downloading/queued
                 if task.status in (task.QUEUED, task.DOWNLOADING):
                     task.status = status
-                # Cancelling paused downloads requires a call to .run()
-                elif task.status == task.PAUSED:
+                # Cancelling paused/failed downloads requires a call to .run()
+                elif task.status in (task.PAUSED, task.FAILED):
                     task.status = status
                     # Call run, so the partial file gets deleted
                     task.run()
