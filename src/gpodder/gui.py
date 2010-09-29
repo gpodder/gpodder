@@ -2758,6 +2758,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.feed_cache_update_cancelled:
                 return
 
+            def application_in_foreground():
+                try:
+                    return any(w.get_property('is-topmost') for w in hildon.WindowStack.get_default().get_windows())
+                except Exception, e:
+                    log('Could not determine is-topmost', traceback=True)
+                    # When in doubt, assume not in foreground
+                    return False
+
             if episodes:
                 if self.config.auto_download == 'quiet' and not self.config.auto_update_feeds:
                     # New episodes found, but we should do nothing
@@ -2770,6 +2778,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 elif self.config.auto_download == 'queue':
                     self.show_message(_('New episodes have been added to the download list.'))
                     self.download_episode_list_paused(episodes)
+                elif application_in_foreground():
+                    if not self._fremantle_notification_visible:
+                        self.new_episodes_show(episodes)
                 elif not self._fremantle_notification_visible:
                     try:
                         import pynotify
