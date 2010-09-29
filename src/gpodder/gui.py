@@ -137,6 +137,7 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.episodes import gPodderEpisodes
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
     from gpodder.gtkui.frmntl.progress import ProgressIndicator
+    from gpodder.gtkui.frmntl.widgets import FancyProgressBar
     have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
@@ -157,7 +158,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     ICON_GENERAL_ADD = 'general_add'
     ICON_GENERAL_REFRESH = 'general_refresh'
-    ICON_GENERAL_CLOSE = 'general_close'
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -348,6 +348,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             action_area_box.set_spacing(2)
             action_area_box.set_border_width(3)
             self.treeChannels.set_action_area_visible(True)
+
+            # Set up a very nice progress bar setup
+            self.fancy_progress_bar = FancyProgressBar(self.main_window, \
+                    self.on_btnCancelFeedUpdate_clicked)
+            self.pbFeedUpdate = self.fancy_progress_bar.progress_bar
+            self.pbFeedUpdate.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
+            self.vbox.pack_start(self.fancy_progress_bar.event_box, False)
 
             from gpodder.gtkui.frmntl import style
             sub_font = style.get_font_desc('SmallSystemFont')
@@ -2741,9 +2748,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
 
         if gpodder.ui.fremantle:
+            self.fancy_progress_bar.hide()
             self.button_subscribe.set_sensitive(True)
-            self.button_refresh.set_image(gtk.image_new_from_icon_name(\
-                    self.ICON_GENERAL_REFRESH, gtk.ICON_SIZE_BUTTON))
+            self.button_refresh.set_sensitive(True)
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
             self.update_podcasts_tab()
@@ -2854,15 +2861,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.feed_cache_update_cancelled:
                 break
 
-            if gpodder.ui.fremantle:
-                util.idle_add(self.button_refresh.set_title, \
-                        _('%(position)d/%(total)d updated') % {'position': updated+1, 'total': total})
-                continue
-
             # By the time we get here the update may have already been cancelled
             if not self.feed_cache_update_cancelled:
                 def update_progress():
-                    d = {'podcast': channel.title, 'position': updated, 'total': total}
+                    d = {'podcast': channel.title, 'position': updated+1, 'total': total}
                     progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
                     self.pbFeedUpdate.set_text(progression)
                     if self.tray_icon:
@@ -2922,10 +2924,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
             hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
-            self.button_refresh.set_title(_('Updating...'))
+            self.fancy_progress_bar.show()
             self.button_subscribe.set_sensitive(False)
-            self.button_refresh.set_image(gtk.image_new_from_icon_name(\
-                    self.ICON_GENERAL_CLOSE, gtk.ICON_SIZE_BUTTON))
+            self.button_refresh.set_sensitive(False)
             self.feed_cache_update_cancelled = False
         else:
             self.itemUpdate.set_sensitive(False)
@@ -2933,14 +2934,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.tray_icon:
                 self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
-
-            if len(channels) == 1:
-                text = _('Updating "%s"...') % channels[0].title
-            else:
-                count = len(channels)
-                text = N_('Updating %d feed...', 'Updating %d feeds...', count) % count
-            self.pbFeedUpdate.set_text(text)
-            self.pbFeedUpdate.set_fraction(0)
 
             self.feed_cache_update_cancelled = False
             self.btnCancelFeedUpdate.show()
@@ -2954,6 +2947,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
                 self.hboxUpdateFeeds.show_all()
             self.btnUpdateFeeds.hide()
+
+        if len(channels) == 1:
+            text = _('Updating "%s"...') % channels[0].title
+        else:
+            count = len(channels)
+            text = N_('Updating %d feed...', 'Updating %d feeds...', count) % count
+        self.pbFeedUpdate.set_text(text)
+        self.pbFeedUpdate.set_fraction(0)
 
         args = (channels, select_url_afterwards)
         threading.Thread(target=self.update_feed_cache_proc, args=args).start()
