@@ -224,6 +224,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self._last_orientation = Orientation.PORTRAIT
             else:
                 self._last_orientation = Orientation.LANDSCAPE
+
+            # Flag set when a notification is being shown (Maemo bug 11235)
+            self._fremantle_notification_visible = False
         else:
             self._last_orientation = Orientation.LANDSCAPE
             self.toolbar.set_property('visible', self.config.show_toolbar)
@@ -2474,6 +2477,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @dbus.service.method(gpodder.dbus_interface)
     def offer_new_episodes(self, channels=None):
+        if gpodder.ui.fremantle:
+            # Assume that when this function is called that the
+            # notification is not shown anymore (Maemo bug 11345)
+            self._fremantle_notification_visible = False
+
         new_episodes = self.get_new_episodes(channels)
         if new_episodes:
             self.new_episodes_show(new_episodes)
@@ -2754,7 +2762,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 elif self.config.auto_download == 'queue':
                     self.show_message(_('New episodes have been added to the download list.'))
                     self.download_episode_list_paused(episodes)
-                else:
+                elif not self._fremantle_notification_visible:
                     try:
                         import pynotify
                         pynotify.init('gPodder')
@@ -2768,9 +2776,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         ]))
                         n.set_category('gpodder-new-episodes')
                         n.show()
+                        self._fremantle_notification_visible = True
                     except Exception, e:
                         log('Error: %s', str(e), sender=self, traceback=True)
                         self.new_episodes_show(episodes)
+                        self._fremantle_notification_visible = False
             elif not self.config.auto_update_feeds:
                 self.show_message(_('No new episodes. Please check for new episodes later.'))
             return
