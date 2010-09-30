@@ -75,14 +75,23 @@ class EpisodeListModel(model.EpisodeListModel):
     def _format_description(self, episode, include_description=False, is_downloading=None):
         if is_downloading is not None and is_downloading(episode):
             sub = _('in downloads list')
+            if self._all_episodes_view:
+                sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
             return self._unplayed_markup % (cgi.escape(episode.title), sub)
         elif episode.is_played:
-            return self._normal_markup % (cgi.escape(episode.title),)
+            if self._all_episodes_view:
+                sub = _('from %s') % cgi.escape(episode.channel.title,)
+                return self._unplayed_markup % (cgi.escape(episode.title), sub)
+            else:
+                return self._normal_markup % (cgi.escape(episode.title),)
         else:
             if episode.was_downloaded(and_exists=True):
                 sub = _('unplayed download')
             else:
                 sub = _('new episode')
+
+            if self._all_episodes_view:
+                sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
 
             return self._active_markup % (cgi.escape(episode.title), sub)
 
