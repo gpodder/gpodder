@@ -1212,9 +1212,20 @@ class PodcastEpisode(PodcastModelObject):
         except:
             log( 'Could not get filesize for %s.', self.url)
 
+    def is_finished(self):
+        """Return True if this episode is considered "finished playing"
+
+        An episode is considered "finished" when there is a
+        current position mark on the track, and when the
+        current position is greater than 99 percent of the
+        total time or inside the last 10 seconds of a track.
+        """
+        return self.current_position > 0 and \
+                (self.current_position + 10 >= self.total_time or \
+                 self.current_position >= self.total_time*.99)
+
     def get_play_info_string(self):
-        if self.current_position > 0 and \
-                self.total_time <= self.current_position:
+        if self.is_finished():
             return '%s (%s)' % (_('Finished'), self.get_duration_string(),)
         if self.current_position > 0:
             return '%s / %s' % (self.get_position_string(), \
