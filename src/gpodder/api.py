@@ -32,6 +32,7 @@ from gpodder import console
 
 from gpodder import dbsqlite
 from gpodder import config
+from gpodder import youtube
 
 class Podcast(object):
     """API interface of gPodder podcasts
@@ -93,7 +94,40 @@ class Podcast(object):
         self._podcast.update(self._manager._config.max_episodes_per_feed, \
                 self._manager._config.mimetype_prefs)
 
+    def feed_update_status_msg(self):
+        """Show the feed update status
+ 
+        Display the feed update current status.
+        """
+        if self._podcast.feed_update_enabled:
+            return "enabled"
+        else:
+            return "disabled"
 
+    def feed_update_status(self):
+        """Return the feed update status
+
+        Return the feed update current status.
+        """
+        return self._podcast.feed_update_enabled
+
+    def disable(self):
+        """Toogle the feed update to disable
+
+        Change the feed update status to disable only if currently enable.
+        """
+        if self._podcast.feed_update_enabled:
+            self._podcast.feed_update_enabled = False
+            self._podcast.save()
+
+    def enable(self):
+        """Toogle the feed update to disable
+
+        Change the feed update status to disable only if currently enable.
+        """
+        if not self._podcast.feed_update_enabled:
+            self._podcast.feed_update_enabled = True
+            self._podcast.save()
 
 class Episode(object):
     """API interface of gPodder episodes
@@ -202,4 +236,12 @@ class PodcastClient(object):
         self._db.commit()
         return True
 
+    def youtube_url_resolver(self, url): 
+        """Resolve the Youtube URL
 
+        WARNING: API subject to change.
+        """
+        yurl = youtube.get_real_download_url(url, \
+            self._config.youtube_preferred_fmt_id)
+
+        return yurl
