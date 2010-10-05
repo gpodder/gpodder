@@ -23,6 +23,7 @@ import gtk
 import gtk.gdk
 import gobject
 import pango
+import random
 import sys
 import shutil
 import subprocess
@@ -142,6 +143,7 @@ elif gpodder.ui.fremantle:
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
     from gpodder.gtkui.frmntl.mafw import MafwPlaybackMonitor
+    from gpodder.gtkui.frmntl.hints import HINT_STRINGS
 
 from gpodder.gtkui.interface.common import Orientation
 
@@ -209,6 +211,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     button.set_value(_('Idle'))
                     self.button_downloads = button
                 appmenu.append(button)
+
+            def show_hint(button):
+                self.show_message(random.choice(HINT_STRINGS), important=True)
+
+            button = hildon.Button(gtk.HILDON_SIZE_AUTO,\
+                    hildon.BUTTON_ARRANGEMENT_HORIZONTAL)
+            button.set_title(_('Hint of the day'))
+            button.connect('clicked', show_hint)
+            appmenu.append(button)
+
             appmenu.show_all()
             self.main_window.set_app_menu(appmenu)
 
