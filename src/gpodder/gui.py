@@ -2883,7 +2883,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.pbFeedUpdate.set_text(progression)
                     if self.tray_icon:
                         self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
-                    self.pbFeedUpdate.set_fraction(float(updated)/float(total))
+                    self.pbFeedUpdate.set_fraction(float(updated+1)/float(total))
                 util.idle_add(update_progress)
 
         updated_urls = [c.url for c in channels]
