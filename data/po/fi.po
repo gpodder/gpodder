@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-05 19:58+0200\n"
-"PO-Revision-Date: 2010-07-04 00:48+0300\n"
+"PO-Revision-Date: 2010-10-06 00:43+0300\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
-"Language-Team: gnome-fi-laatu@lists.sourceforge.net\n"
+"Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
+"Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fi\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.6.1\n"
 
@@ -107,7 +107,7 @@ msgstr "Jouten"
 
 #: src/gpodder/gui.py:220
 msgid "Hint of the day"
-msgstr ""
+msgstr "Päivän vinkki"
 
 #: src/gpodder/gui.py:332 src/gpodder/gui.py:565
 msgid "gPodder"
@@ -653,9 +653,8 @@ msgid "Select played"
 msgstr "Valitse soitetut"
 
 #: src/gpodder/gui.py:3174
-#, fuzzy
 msgid "Select finished"
-msgstr "Tyhjennä valinta"
+msgstr "Valitse valmiit"
 
 #: src/gpodder/gui.py:3178
 msgid "Select the episodes you want to delete:"
@@ -1221,9 +1220,8 @@ msgid "from all podcasts"
 msgstr "kaikista podcasteista"
 
 #: src/gpodder/gtkui/model.py:692
-#, fuzzy
 msgid "Subscription paused."
-msgstr "_Tilaukset"
+msgstr "Tilaus on keskeytetty."
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1556,9 +1554,8 @@ msgid "Cannot sync to MTP device"
 msgstr "Ei voi synkronoida MTP-laitteeseen"
 
 #: src/gpodder/gtkui/desktop/sync.py:92
-#, fuzzy
 msgid "Please install libmtp and restart gPodder."
-msgstr "Asenna python-pymtp ja käynnistä gPodder uudelleen."
+msgstr "Asenna libmtp ja käynnistä gPodder uudelleen."
 
 #: src/gpodder/gtkui/desktop/sync.py:102
 msgid "Device synchronized"
@@ -1906,104 +1903,136 @@ msgid ""
 "Sign up for gpodder.net to synchronize (and backup) your subscriptions to "
 "the cloud."
 msgstr ""
+"Liity gpodder.net-sivustolle tilauksien synkronoimiseksi (ja "
+"varmuuskopioimiseksi) verkkopalveluun."
 
 #: src/gpodder/gtkui/frmntl/hints.py:26
 msgid "Bulk-deleting episodes is possible from the main window menu."
-msgstr ""
+msgstr "Useita jaksoja voi poistaa kerralla pääikkunan valikosta."
 
 #: src/gpodder/gtkui/frmntl/hints.py:27
 msgid ""
 "To save power, automatic updates are only enabled while gPodder is running."
 msgstr ""
+"Virran säästämiseksi automaattiset päivitykset ovat käytössä vain, kun "
+"gPodder on käynnissä."
 
 #: src/gpodder/gtkui/frmntl/hints.py:28
 msgid "Subscribe to YouTube users and download their videos to your device."
 msgstr ""
+"Tilaa YouTube-käyttäjien tilejä ja lataa heidän videoitaan laitteeseesi."
 
 #: src/gpodder/gtkui/frmntl/hints.py:29
 msgid ""
 "Use the shortcut URL yt:<username> to quickly subscribe to a YouTube user."
 msgstr ""
+"YouTube-käyttäjän tilin tilaamiseen voi käyttää pikaosoitetta "
+"yt:<käyttäjätunnus>."
 
 #: src/gpodder/gtkui/frmntl/hints.py:30
 msgid ""
 "Search for your fields of interest in the gpodder.net directory to find "
 "interesting content."
 msgstr ""
+"Löydä mielenkiintoista sisältöä tekemällä hakuja gpodder.net-hakemistosta."
 
 #: src/gpodder/gtkui/frmntl/hints.py:31
 msgid ""
 "Longpress on an episode to access a menu with useful episode-related "
 "functions."
 msgstr ""
+"Pitkä painallus avaa valikon, jossa on hyödyllisiä jaksoihin liittyviä "
+"toimintoja."
 
 #: src/gpodder/gtkui/frmntl/hints.py:32
-#, fuzzy
 msgid ""
 "Longpress on an episode in 'New episodes available' to display its shownotes."
-msgstr "Valitse luettelosta jakso, jonka jaksotiedot näytetään."
+msgstr ""
+"Pitkä painallus jakson kohdalla ”Uusia jaksoja on saatavilla” -ikkunassa "
+"näyttää jakson tiedot."
 
 #: src/gpodder/gtkui/frmntl/hints.py:33
 msgid ""
 "Use the hardware keyboard to filter down lists - simply start typing in the "
 "podcast or episode list."
 msgstr ""
+"Käytä näppäimistöä luettelotietojen suodattamiseen - kirjoita podcast- tai "
+"jaksoluettelossa."
 
 #: src/gpodder/gtkui/frmntl/hints.py:34
 msgid ""
 "The top row of the menu in each list window lets you set the filter for it."
 msgstr ""
+"Jokaisen luetteloikkunan valikon ylin rivi mahdollistaa suotimen "
+"asettamisen."
 
 #: src/gpodder/gtkui/frmntl/hints.py:35
 msgid ""
 "Use fb:<name> as a shorthand for Feedburner URLs (feeds.feedburner.com/"
 "<name>)"
 msgstr ""
+"Käytä lyhytosoitetta fb:<nimi> Feedburner-osoitteiden lisäämiseen "
+"(feeds.feedburner.com/<nimi>)"
 
 #: src/gpodder/gtkui/frmntl/hints.py:36
 msgid ""
 "Episodes marked as 'Keep episode' will never be displayed in the 'Delete "
 "episodes' list."
 msgstr ""
+"Jaksoja, jotka on merkitty ”Säilytä jakso”, ei koskaan näytetä ”Poista "
+"jaksot” -luettelossa."
 
 #: src/gpodder/gtkui/frmntl/hints.py:37
 msgid ""
 "Use gpodder.net to share your subscription list with friends via a private "
 "or public URL."
 msgstr ""
+"Käytä gpodder.net-sivustoa tilausluettelon jakamiseen kavereiden kanssa "
+"julkisella tai yksityisellä osoitteella."
 
 #: src/gpodder/gtkui/frmntl/hints.py:38
 msgid ""
 "Found a problem? Report it at bugs.maemo.org (Extras / gPodder), so we can "
 "fix it in the next release."
 msgstr ""
+"Löysitkö ongelman? Raportoi se osoitteeseen bugs.maemo.org (Extras / "
+"gPodder), jotta voimme korjata sen seuraavaan versioon."
 
 #: src/gpodder/gtkui/frmntl/hints.py:39
 msgid ""
 "Got a feature request? Let us know at bugs.maemo.org (Extras / gPodder)!"
 msgstr ""
+"Onko sinulla ominaisuuspyyntö? Kerro meille osoitteessa bugs.maemo.org "
+"(Extras / gPodder)!"
 
 #: src/gpodder/gtkui/frmntl/hints.py:40
 msgid "Want to support gPodder? Use the 'donate' button in the about dialog."
 msgstr ""
+"Haluatko tukea gPodderia? Käytä Tietoja-ikkunassa olevaa "
+"”lahjoita”-painiketta."
 
 #: src/gpodder/gtkui/frmntl/hints.py:41
 msgid ""
 "Use Media Player as your audio and video player for position tracking "
 "support."
 msgstr ""
+"Käytä Mediasoitinta ääni- ja videosoittimena, niin gPodder pystyy seuraamaan "
+"jaksojen edistymistä."
 
 #: src/gpodder/gtkui/frmntl/hints.py:42
 msgid ""
 "The 'Delete episodes' dialog has some useful presets in its menu - check "
 "them out!"
 msgstr ""
+"”Poista jaksot” -ikkunan valikossa on käteviä esiasetuksia - käy katsomassa!"
 
 #: src/gpodder/gtkui/frmntl/hints.py:43
 msgid ""
 "Use search-as-you-type in the 'All episodes' list to quickly find a specific "
 "episode."
 msgstr ""
+"Käytä kirjoittamalla hakemista ”Kaikki jaksot” -luettelossa tietyn jakson "
+"löytämiseen nopeasti."
 
 #: src/gpodder/gtkui/frmntl/model.py:77
 msgid "in downloads list"
@@ -2206,9 +2235,8 @@ msgid "Cover"
 msgstr "Kansikuva"
 
 #: data/ui/desktop/gpodderchannel.ui.h:6
-#, fuzzy
 msgid "Disable feed updates (pause subscription)"
-msgstr "Ota käyttöön syötteiden päivitysheuristiikat"
+msgstr "Poista syötteiden päivitysheuristiikat käytöstä (katkaise tilaus)"
 
 #: data/ui/desktop/gpodderchannel.ui.h:7
 msgid "Download to:"
@@ -2836,14 +2864,12 @@ msgid "Print debugging output to stdout"
 msgstr "Tulosta vianjäljitystietoja vakiotulosteeseen"
 
 #: bin/gpodder:124
-#, fuzzy
 msgid "Force using the Maemo 4 user interface"
-msgstr "Käynnistä Maemo 4 -käyttöliittymä"
+msgstr "Pakota Maemo 4 -käyttöliittymä käyttöön"
 
 #: bin/gpodder:128
-#, fuzzy
 msgid "Force using the Maemo 5 user interface"
-msgstr "Käynnistä Maemo 5 -käyttöliittymä"
+msgstr "Pakota Maemo 5 -käyttöliittymä käyttöön"
 
 #~ msgid "%(position)d/%(total)d updated"
 #~ msgstr "%(position)d/%(total)d päivitetty"
