@@ -1,9 +1,9 @@
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 00:33+0200\n"
+"POT-Creation-Date: 2010-10-05 12:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Alkinoos <hellene.atheist@gmail.com>\n"
 "Language-Team: Greek\n"
@@ -32,11 +32,11 @@ msgstr "Δεν έχει ρυθμιστεί καμία συσκευή."
 msgid "Synchronizing: %(index)s of %(count)s"
 msgstr "Γίνεται συγχρονισμός: %(index)s από %(count)s"
 
-#: src/gpodder/console.py:55
+#: src/gpodder/console.py:58
 msgid "Device synchronized successfully."
 msgstr "Η συσκευή συγχρονίστηκε με επιτυχία."
 
-#: src/gpodder/console.py:58
+#: src/gpodder/console.py:61
 msgid "Error: Cannot open device!"
 msgstr "Σφάλμα: Αδυναμία ανοίγματος της συσκευής!"
 
@@ -52,13 +52,11 @@ msgstr "Προστέθηκε"
 msgid "Queued"
 msgstr "Σε αναμονή"
 
-#: src/gpodder/download.py:521
-#: src/gpodder/gtkui/model.py:252
+#: src/gpodder/download.py:521 src/gpodder/gtkui/model.py:270
 msgid "Downloading"
 msgstr "Γίνεται λήψη"
 
-#: src/gpodder/download.py:522
-#: src/gpodder/model.py:1210
+#: src/gpodder/download.py:522 src/gpodder/model.py:1231
 msgid "Finished"
 msgstr "Τελείωσε"
 
@@ -93,89 +91,83 @@ msgstr "Σφάλμα HTTP %(code)s: %(message)s"
 msgid "Error: %s"
 msgstr "Σφάλμα: %s"
 
-#: src/gpodder/gui.py:208
-#: src/gpodder/gui.py:1263
-#: src/gpodder/gui.py:1279
-#: data/ui/desktop/gpodder.ui.h:18
-#: data/ui/maemo/gpodder.ui.h:16
-#: data/ui/frmntl/gpodderdownloads.ui.h:3
-#: data/ui/frmntl/gpodder.ui.h:9
+#: src/gpodder/gui.py:210 src/gpodder/gui.py:1331 src/gpodder/gui.py:1347
+#: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
+#: data/ui/frmntl/gpodderdownloads.ui.h:3 data/ui/frmntl/gpodder.ui.h:9
 msgid "Downloads"
 msgstr "Λήψεις"
 
-#: src/gpodder/gui.py:209
-#: src/gpodder/gui.py:1288
+#: src/gpodder/gui.py:211 src/gpodder/gui.py:1356
 msgid "Idle"
 msgstr "Σε αδράνεια"
 
-#: src/gpodder/gui.py:317
-#: src/gpodder/gui.py:543
+#: src/gpodder/gui.py:220
+msgid "Hint of the day"
+msgstr ""
+
+#: src/gpodder/gui.py:332 src/gpodder/gui.py:565
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gui.py:467
+#: src/gpodder/gui.py:489
 msgid "Loading incomplete downloads"
 msgstr "Γίνεται φόρτωση μη ολοκληρωμένων λήψεων"
 
-#: src/gpodder/gui.py:468
+#: src/gpodder/gui.py:490
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr "Δεν έχει ολοκληρωθεί η λήψη ορισμένων επεισοδίων σε προηγούμενη συνεδρία."
+msgstr ""
+"Δεν έχει ολοκληρωθεί η λήψη ορισμένων επεισοδίων σε προηγούμενη συνεδρία."
 
-#: src/gpodder/gui.py:470
+#: src/gpodder/gui.py:492
 #, python-format
 msgid "%d partial file"
 msgid_plural "%d partial files"
 msgstr[0] "%d ατελές αρχείο"
 msgstr[1] "%d ατελή αρχεία"
 
-#: src/gpodder/gui.py:503
+#: src/gpodder/gui.py:525
 msgid "Resume all"
 msgstr "Συνέχιση όλων"
 
-#: src/gpodder/gui.py:514
+#: src/gpodder/gui.py:536
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Βρέθηκαν ατελείς λήψεις από προηγούμενη συνεδρία."
 
-#: src/gpodder/gui.py:638
+#: src/gpodder/gui.py:660
 msgid "Action"
 msgstr "Ενέργεια"
 
-#: src/gpodder/gui.py:682
+#: src/gpodder/gui.py:704
 msgid "Confirm changes from gpodder.net"
 msgstr "Επιβεβαίωση αλλαγών από gpodder.net"
 
-#: src/gpodder/gui.py:683
+#: src/gpodder/gui.py:705
 msgid "Select the actions you want to carry out."
 msgstr "Επιλέξτε τις ενέργειες που θέλετε να πραγματοποιήσετε."
 
-#: src/gpodder/gui.py:720
+#: src/gpodder/gui.py:742
 msgid "Uploading subscriptions"
 msgstr "Μεταφόρτωση συνδρομών"
 
-#: src/gpodder/gui.py:721
+#: src/gpodder/gui.py:743
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "Οι συνδρομές σας μεταφορτώνονται στο διακομιστή."
 
-#: src/gpodder/gui.py:726
+#: src/gpodder/gui.py:748
 msgid "List uploaded successfully."
 msgstr "Η λίστα μεταφορτώθηκε με επιτυχία."
 
-#: src/gpodder/gui.py:733
+#: src/gpodder/gui.py:755
 msgid "Error while uploading"
 msgstr "Σφάλμα κατά τη μεταφόρτωση"
 
-#: src/gpodder/gui.py:967
-#: src/gpodder/gui.py:3076
+#: src/gpodder/gui.py:1005 src/gpodder/gui.py:3167
 #: src/gpodder/gtkui/desktop/dependencymanager.py:36
 msgid "Status"
 msgstr "Κατάσταση"
 
-#: src/gpodder/gui.py:972
-#: src/gpodder/gui.py:1062
-#: src/gpodder/gui.py:3069
-#: src/gpodder/gui.py:3073
-#: src/gpodder/gui.py:3241
-#: src/gpodder/gui.py:3246
+#: src/gpodder/gui.py:1010 src/gpodder/gui.py:1130 src/gpodder/gui.py:3160
+#: src/gpodder/gui.py:3164 src/gpodder/gui.py:3337 src/gpodder/gui.py:3342
 #: src/gpodder/gtkui/desktop/episodeselector.py:134
 #: src/gpodder/gtkui/desktop/sync.py:224
 #: src/gpodder/gtkui/maemo/episodeselector.py:133
@@ -183,726 +175,699 @@ msgstr "Κατάσταση"
 msgid "Episode"
 msgstr "Επεισόδιο"
 
-#: src/gpodder/gui.py:978
-#: src/gpodder/gui.py:3074
-#: src/gpodder/gui.py:3247
+#: src/gpodder/gui.py:1044 src/gpodder/gui.py:3165 src/gpodder/gui.py:3343
 #: src/gpodder/gtkui/desktop/sync.py:226
 msgid "Size"
 msgstr "Μέγεθος"
 
-#: src/gpodder/gui.py:981
-#: src/gpodder/gui.py:3075
-#: src/gpodder/gui.py:3248
+#: src/gpodder/gui.py:1048 src/gpodder/gui.py:3166 src/gpodder/gui.py:3344
 #: src/gpodder/gtkui/desktop/sync.py:229
 msgid "Released"
 msgstr "Κυκλοφόρησε"
 
-#: src/gpodder/gui.py:1046
-#: src/gpodder/gui.py:1694
-#: src/gpodder/gui.py:1993
+#: src/gpodder/gui.py:1114 src/gpodder/gui.py:1763 src/gpodder/gui.py:2062
 msgid "Close this menu"
 msgstr "Κλείσε αυτό το μενού"
 
-#: src/gpodder/gui.py:1084
+#: src/gpodder/gui.py:1152
 msgid "Progress"
 msgstr "Πρόοδος"
 
-#: src/gpodder/gui.py:1116
+#: src/gpodder/gui.py:1184
 msgid "Loading episodes"
 msgstr "Γίνεται φόρτωση των επεισοδίων"
 
-#: src/gpodder/gui.py:1120
+#: src/gpodder/gui.py:1188
 msgid "No episodes in current view"
 msgstr "Δεν υπάρχουν επεισόδια στην τρέχουσα προβολή"
 
-#: src/gpodder/gui.py:1122
+#: src/gpodder/gui.py:1190
 msgid "No episodes available"
 msgstr "Δεν υπάρχουν διαθέσιμα επεισόδια"
 
-#: src/gpodder/gui.py:1128
+#: src/gpodder/gui.py:1196
 msgid "No podcasts in this view"
 msgstr "Δεν υπάρχουν podcasts σε αυτήν την προβολή"
 
-#: src/gpodder/gui.py:1130
+#: src/gpodder/gui.py:1198
 msgid "No subscriptions"
 msgstr "Δεν υπάρχουν συνδρομές"
 
-#: src/gpodder/gui.py:1132
+#: src/gpodder/gui.py:1200
 msgid "No active downloads"
 msgstr "Δεν υπάρχουν ενεργές λήψεις"
 
-#: src/gpodder/gui.py:1267
-#: src/gpodder/gui.py:1282
+#: src/gpodder/gui.py:1335 src/gpodder/gui.py:1350
 #, python-format
 msgid "%d active"
 msgid_plural "%d active"
 msgstr[0] "%d ενεργή"
 msgstr[1] "%d ενεργές"
 
-#: src/gpodder/gui.py:1269
-#: src/gpodder/gui.py:1284
+#: src/gpodder/gui.py:1337 src/gpodder/gui.py:1352
 #, python-format
 msgid "%d failed"
 msgid_plural "%d failed"
 msgstr[0] "Απέτυχε %d"
 msgstr[1] "Απέτυχαν %d"
 
-#: src/gpodder/gui.py:1271
+#: src/gpodder/gui.py:1339
 #, python-format
 msgid "%d queued"
 msgid_plural "%d queued"
 msgstr[0] "%d σε αναμονή"
 msgstr[1] "%d σε αναμονή"
 
-#: src/gpodder/gui.py:1277
+#: src/gpodder/gui.py:1345
 #, python-format
 msgid "Downloads (%d)"
 msgstr "Λήψεις (%d)"
 
-#: src/gpodder/gui.py:1286
+#: src/gpodder/gui.py:1354
 #, python-format
 msgid "%d paused"
 msgid_plural "%d paused"
 msgstr[0] "%d σε παύση"
 msgstr[1] "%d σε παύση"
 
-#: src/gpodder/gui.py:1303
+#: src/gpodder/gui.py:1371
 #, python-format
 msgid "downloading %d file"
 msgid_plural "downloading %d files"
 msgstr[0] "γίνεται λήψη %d αρχείου"
 msgstr[1] "γίνεται λήψη %d αρχείων"
 
-#: src/gpodder/gui.py:1322
+#: src/gpodder/gui.py:1390
 msgid "All downloads finished"
 msgstr "Τελείωσαν όλες οι λήψεις"
 
-#: src/gpodder/gui.py:1330
-#: src/gpodder/gui.py:1561
+#: src/gpodder/gui.py:1398 src/gpodder/gui.py:1630
 msgid "Downloads failed"
 msgstr "Αποτυχία λήψεων"
 
-#: src/gpodder/gui.py:1355
+#: src/gpodder/gui.py:1423
 msgid "Please report this problem and restart gPodder:"
 msgstr "Παρακαλώ αναφέρετε αυτό το πρόβλημα και επανεκκινήστε το gPodder:"
 
-#: src/gpodder/gui.py:1355
+#: src/gpodder/gui.py:1423
 msgid "Unhandled exception"
 msgstr "Εξαίρεση που δεν αντιμετωπίστηκε"
 
-#: src/gpodder/gui.py:1433
+#: src/gpodder/gui.py:1501
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Σφάλμα στην ανάλυση της ροής: %s"
 
-#: src/gpodder/gui.py:1447
+#: src/gpodder/gui.py:1515
 msgid "disk usage"
 msgstr "χρήση δίσκου"
 
-#: src/gpodder/gui.py:1482
+#: src/gpodder/gui.py:1550
 msgid "Updated M3U playlist in download folder."
 msgstr "Ενημερώθηκε η λίστα αναπαραγωγής M3U στο φάκελο λήψεων."
 
-#: src/gpodder/gui.py:1482
+#: src/gpodder/gui.py:1550
 msgid "Updated playlist"
 msgstr "Ενημερώθηκε η λίστα αναπαραγωγής"
 
-#: src/gpodder/gui.py:1553
+#: src/gpodder/gui.py:1622
 msgid "These downloads failed:"
 msgstr "Αυτές οι λήψεις απέτυχαν:"
 
-#: src/gpodder/gui.py:1555
-#: src/gpodder/gui.py:1558
+#: src/gpodder/gui.py:1624 src/gpodder/gui.py:1627
 msgid "Downloads finished"
 msgstr "Οι λήψεις τελείωσαν"
 
-#: src/gpodder/gui.py:1598
+#: src/gpodder/gui.py:1667
 #, python-format
 msgid "%d more episode"
 msgid_plural "%d more episodes"
 msgstr[0] "Ακόμα %d επεισόδιο"
 msgstr[1] "Ακόμα %d επεισόδια"
 
-#: src/gpodder/gui.py:1671
-#: src/gpodder/gui.py:1984
-#: data/ui/desktop/gpoddershownotes.ui.h:2
-#: data/ui/desktop/gpodder.ui.h:20
+#: src/gpodder/gui.py:1740 src/gpodder/gui.py:2053
+#: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
 #: data/ui/maemo/gpodder.ui.h:18
 msgid "Episode details"
 msgstr "Λεπτομέρειες επεισοδίου"
 
-#: src/gpodder/gui.py:1682
+#: src/gpodder/gui.py:1751
 msgid "Start download now"
 msgstr "Εκκίνηση λήψης τώρα"
 
-#: src/gpodder/gui.py:1684
-#: src/gpodder/gui.py:1913
+#: src/gpodder/gui.py:1753 src/gpodder/gui.py:1982
 #: src/gpodder/gtkui/desktop/episodeselector.py:147
 #: src/gpodder/gtkui/maemo/episodeselector.py:149
 #: src/gpodder/gtkui/frmntl/episodeselector.py:153
 #: data/ui/desktop/gpodderpodcastdirectory.ui.h:1
-#: data/ui/desktop/gpodder.ui.h:15
-#: data/ui/maemo/gpoddershownotes.ui.h:3
-#: data/ui/maemo/gpodder.ui.h:13
-#: data/ui/frmntl/gpodderepisodeactions.ui.h:3
+#: data/ui/desktop/gpodder.ui.h:15 data/ui/maemo/gpoddershownotes.ui.h:3
+#: data/ui/maemo/gpodder.ui.h:13 data/ui/frmntl/gpodderepisodeactions.ui.h:3
 #: data/ui/frmntl/gpodderepisodes.ui.h:4
 msgid "Download"
 msgstr "Λήψη"
 
-#: src/gpodder/gui.py:1685
-#: data/ui/desktop/gpodder.ui.h:4
+#: src/gpodder/gui.py:1754 data/ui/desktop/gpodder.ui.h:4
 #: data/ui/maemo/gpodder.ui.h:4
 msgid "Cancel"
 msgstr "Ακύρωση"
 
-#: src/gpodder/gui.py:1686
+#: src/gpodder/gui.py:1755
 msgid "Pause"
 msgstr "Παύση"
 
-#: src/gpodder/gui.py:1688
+#: src/gpodder/gui.py:1757
 msgid "Remove from list"
 msgstr "Αφαίρεση από τη λίστα"
 
-#: src/gpodder/gui.py:1719
-#: data/ui/desktop/gpodder.ui.h:47
-#: data/ui/maemo/gpodder.ui.h:42
-#: data/ui/frmntl/gpodder.ui.h:20
+#: src/gpodder/gui.py:1788 data/ui/desktop/gpodder.ui.h:47
+#: data/ui/maemo/gpodder.ui.h:42 data/ui/frmntl/gpodder.ui.h:20
 msgid "Update podcast"
 msgstr "Ενημέρωση podcast"
 
-#: src/gpodder/gui.py:1727
+#: src/gpodder/gui.py:1796
 msgid "Keep episodes"
 msgstr "Κρατείστε τα επεισόδια"
 
-#: src/gpodder/gui.py:1732
+#: src/gpodder/gui.py:1801
 msgid "Remove podcast"
 msgstr "Αφαίρεση podcast"
 
-#: src/gpodder/gui.py:1738
-#: src/gpodder/gtkui/desktop/trayicon.py:95
+#: src/gpodder/gui.py:1807 src/gpodder/gtkui/desktop/trayicon.py:95
 msgid "Synchronize to device"
 msgstr "Συγχρονίστε με τη συσκευή"
 
-#: src/gpodder/gui.py:1744
+#: src/gpodder/gui.py:1813
 msgid "Podcast details"
 msgstr "Λεπτομέρειες του podcast"
 
-#: src/gpodder/gui.py:1817
+#: src/gpodder/gui.py:1886
 msgid "Error converting file."
 msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
 
-#: src/gpodder/gui.py:1817
-#: src/gpodder/services.py:115
+#: src/gpodder/gui.py:1886 src/gpodder/services.py:115
 msgid "Bluetooth file transfer"
 msgstr "Μεταφορά αρχείου μέσω Bluetooth"
 
-#: src/gpodder/gui.py:1825
-#: src/gpodder/gtkui/desktop/preferences.py:77
+#: src/gpodder/gui.py:1894 src/gpodder/gtkui/desktop/preferences.py:77
 msgid "iPod"
 msgstr "iPod"
 
-#: src/gpodder/gui.py:1827
+#: src/gpodder/gui.py:1896
 msgid "MP3 player"
 msgstr "Αναπαραγωγέας MP3"
 
-#: src/gpodder/gui.py:1905
-#: src/gpodder/gtkui/frmntl/episodeactions.py:136
+#: src/gpodder/gui.py:1974 src/gpodder/gtkui/frmntl/episodeactions.py:136
 msgid "Stream"
 msgstr "Αναπαραγωγή"
 
-#: src/gpodder/gui.py:1933
+#: src/gpodder/gui.py:2002
 msgid "Send to"
 msgstr "Αποστολή προς"
 
-#: src/gpodder/gui.py:1937
+#: src/gpodder/gui.py:2006
 msgid "Local folder"
 msgstr "Τοπικός φάκελος"
 
-#: src/gpodder/gui.py:1942
+#: src/gpodder/gui.py:2011
 msgid "Bluetooth device"
 msgstr "Συσκευή Bluetooth"
 
-#: src/gpodder/gui.py:1961
-#: src/gpodder/gui.py:1966
+#: src/gpodder/gui.py:2030 src/gpodder/gui.py:2035
 #: data/ui/frmntl/gpodderepisodes.ui.h:7
 msgid "New"
 msgstr "Νέο"
 
-#: src/gpodder/gui.py:1972
-#: src/gpodder/gtkui/frmntl/episodeactions.py:192
+#: src/gpodder/gui.py:2041 src/gpodder/gtkui/frmntl/episodeactions.py:191
 msgid "Played"
 msgstr "Αναπαραχθέν"
 
-#: src/gpodder/gui.py:1977
-#: src/gpodder/gtkui/frmntl/episodeactions.py:187
+#: src/gpodder/gui.py:2046 src/gpodder/gtkui/frmntl/episodeactions.py:186
 msgid "Keep episode"
 msgstr "Κρατείστε το επεισόδιο"
 
-#: src/gpodder/gui.py:2191
+#: src/gpodder/gui.py:2268
 #, python-format
 msgid "Opening %s"
 msgstr "Γίνεται άνοιγμα του %s"
 
-#: src/gpodder/gui.py:2194
+#: src/gpodder/gui.py:2271
 #, python-format
 msgid "Opening %d episode"
 msgid_plural "Opening %d episodes"
 msgstr[0] "Γίνεται άνοιγμα %d επεισοδίου"
 msgstr[1] "Γίνεται άνοιγμα %d επεισοδίων"
 
-#: src/gpodder/gui.py:2225
-#: src/gpodder/gui.py:2228
-#: src/gpodder/gui.py:3805
+#: src/gpodder/gui.py:2302 src/gpodder/gui.py:2305 src/gpodder/gui.py:3901
 msgid "Please check your media player settings in the preferences dialog."
-msgstr "Παρακαλώ ελέγξτε τις ρυθμίσεις του αναπαραγωγέα των μέσων σας στο παράθυρο διαλόγου των προτιμήσεων."
+msgstr ""
+"Παρακαλώ ελέγξτε τις ρυθμίσεις του αναπαραγωγέα των μέσων σας στο παράθυρο "
+"διαλόγου των προτιμήσεων."
 
-#: src/gpodder/gui.py:2226
+#: src/gpodder/gui.py:2303
 msgid "Error opening player"
 msgstr "Σφάλμα κατά το άνοιγμα του αναπαραγωγέα"
 
-#: src/gpodder/gui.py:2460
+#: src/gpodder/gui.py:2542
 msgid "Adding podcasts"
 msgstr "Γίνεται προσθήκη podcasts"
 
-#: src/gpodder/gui.py:2461
+#: src/gpodder/gui.py:2543
 msgid "Please wait while episode information is downloaded."
 msgstr "Παρακαλώ περιμένετε ενώ γίνεται λήψη των πληροφοριών του επεισοδίου."
 
-#: src/gpodder/gui.py:2468
+#: src/gpodder/gui.py:2550
 msgid "Existing subscriptions skipped"
 msgstr "Οι υπάρχουσες συνδρομές παραλείφθηκαν"
 
-#: src/gpodder/gui.py:2469
+#: src/gpodder/gui.py:2551
 msgid "You are already subscribed to these podcasts:"
 msgstr "Έχετε ήδη γίνει συνδρομητής σε αυτά τα podcasts:"
 
-#: src/gpodder/gui.py:2477
+#: src/gpodder/gui.py:2559
 msgid "Podcast requires authentication"
 msgstr "Το Podcast απαιτεί πιστοποίηση"
 
-#: src/gpodder/gui.py:2478
+#: src/gpodder/gui.py:2560
 #, python-format
 msgid "Please login to %s:"
 msgstr "Παρακαλώ συνδεθείτε στο %s:"
 
-#: src/gpodder/gui.py:2486
-#: src/gpodder/gui.py:2577
+#: src/gpodder/gui.py:2568 src/gpodder/gui.py:2659
 msgid "Authentication failed"
 msgstr "Η πιστοποίηση απέτυχε"
 
-#: src/gpodder/gui.py:2496
+#: src/gpodder/gui.py:2578
 msgid "Website redirection detected"
 msgstr "Εντοπίστηκε ανακατεύθυνση ιστότοπου"
 
-#: src/gpodder/gui.py:2497
+#: src/gpodder/gui.py:2579
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "Η διεύθυνση (URL) %(url)s ανακατευθύνει προς %(target)s."
 
-#: src/gpodder/gui.py:2498
+#: src/gpodder/gui.py:2580
 msgid "Do you want to visit the website now?"
 msgstr "Θέλεις να επισκεφθείς τον ιστότοπο τώρα;"
 
-#: src/gpodder/gui.py:2507
+#: src/gpodder/gui.py:2589
 msgid "Could not add some podcasts"
 msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
 
-#: src/gpodder/gui.py:2508
+#: src/gpodder/gui.py:2590
 msgid "Some podcasts could not be added to your list:"
 msgstr "Ορισμένα podcasts δεν θα μπορούσαν να προστεθούν στη λίστα σας:"
 
-#: src/gpodder/gui.py:2510
+#: src/gpodder/gui.py:2592
 msgid "Unknown"
 msgstr "Άγνωστο"
 
-#: src/gpodder/gui.py:2586
+#: src/gpodder/gui.py:2668
 msgid "Redirection detected"
 msgstr "Ανίχνευση αυτόματης εκτροπής"
 
-#: src/gpodder/gui.py:2626
+#: src/gpodder/gui.py:2708
 msgid "Merging episode actions"
 msgstr "Γίνεται συγχώνευση ενεργειών επεισοδίου"
 
-#: src/gpodder/gui.py:2627
+#: src/gpodder/gui.py:2709
 msgid "Episode actions from gpodder.net are merged."
 msgstr "Οι ενέργειες επεισοδίου από το gpodder.net συγχωνεύτηκαν."
 
-#: src/gpodder/gui.py:2660
+#: src/gpodder/gui.py:2742
 #, python-format
 msgid "%d action processed"
 msgid_plural "%d actions processed"
 msgstr[0] "Επεξεργάστηκε %d ενέργεια"
 msgstr[1] "Επεξεργάστηκαν %d ενέργειες"
 
-#: src/gpodder/gui.py:2697
+#: src/gpodder/gui.py:2787
 msgid "New episodes are available."
 msgstr "Νέα επεισόδια είναι διαθέσιμα."
 
-#: src/gpodder/gui.py:2700
-#: src/gpodder/gui.py:2753
+#: src/gpodder/gui.py:2790 src/gpodder/gui.py:2848
 #, python-format
 msgid "Downloading %d new episode."
 msgid_plural "Downloading %d new episodes."
 msgstr[0] "Γίνεται λήψη %d νέου επεισοδίου."
 msgstr[1] "Γίνεται λήψη %d νέων επεισοδίων."
 
-#: src/gpodder/gui.py:2704
+#: src/gpodder/gui.py:2794
 msgid "New episodes have been added to the download list."
 msgstr "Νέα επεισόδια προστέθηκαν στη λίστα λήψεων."
 
-#: src/gpodder/gui.py:2710
-#: src/gpodder/gui.py:2754
-#: src/gpodder/gui.py:2759
-#: src/gpodder/gui.py:3267
+#: src/gpodder/gui.py:2803 src/gpodder/gui.py:2849 src/gpodder/gui.py:2854
+#: src/gpodder/gui.py:3363
 msgid "New episodes available"
 msgstr "Νέα επεισόδια είναι διαθέσιμα"
 
-#: src/gpodder/gui.py:2724
+#: src/gpodder/gui.py:2819
 msgid "No new episodes. Please check for new episodes later."
-msgstr "Δεν υπάρχουν νέα επεισόδια. Παρακαλούμε ελέγξτε για νέα επεισόδια αργότερα."
+msgstr ""
+"Δεν υπάρχουν νέα επεισόδια. Παρακαλούμε ελέγξτε για νέα επεισόδια αργότερα."
 
-#: src/gpodder/gui.py:2736
+#: src/gpodder/gui.py:2831
 msgid "No new episodes"
 msgstr "Δεν υπάρχουν νέα επεισόδια"
 
-#: src/gpodder/gui.py:2758
+#: src/gpodder/gui.py:2853
 #, python-format
 msgid "%d new episode added to download list."
 msgid_plural "%d new episodes added to download list."
 msgstr[0] "%d νέο επεισόδιο προστέθηκε στη λίστα λήψεων."
 msgstr[1] "%d νέα επεισόδια προστέθηκαν στη λίστα λήψεων."
 
-#: src/gpodder/gui.py:2767
+#: src/gpodder/gui.py:2862
 #, python-format
 msgid "%d new episode available"
 msgid_plural "%d new episodes available"
 msgstr[0] "%d νέο επεισόδιο διαθέσιμο"
 msgstr[1] "%d νέα επεισόδια διαθέσιμα"
 
-#: src/gpodder/gui.py:2786
+#: src/gpodder/gui.py:2881
 #, python-format
 msgid "Error while updating %(url)s: %(message)s"
 msgstr "Σφάλμα κατά τη διάρκεια της ενημέρωσης του %(url)s: %(message)s"
 
-#: src/gpodder/gui.py:2788
+#: src/gpodder/gui.py:2883
 #, python-format
 msgid "The feed at %(url)s could not be updated."
 msgstr "Η ροή στο %(url)s δεν ήταν δυνατό να ενημερωθεί."
 
-#: src/gpodder/gui.py:2789
+#: src/gpodder/gui.py:2884
 msgid "Error while updating feed"
 msgstr "Σφάλμα κατά την ενημέρωση της ροής"
 
-#: src/gpodder/gui.py:2797
-#, python-format
-msgid "%(position)d/%(total)d updated"
-msgstr "Ενημερώθηκαν %(position)d/%(total)d"
-
-#: src/gpodder/gui.py:2804
+#: src/gpodder/gui.py:2894
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "Ενημερώθηκε το %(podcast)s (%(position)d/%(total)d)"
 
-#: src/gpodder/gui.py:2833
+#: src/gpodder/gui.py:2923
 msgid "Cancelling..."
 msgstr "Γίνεται ακύρωση..."
 
-#: src/gpodder/gui.py:2862
-msgid "Updating..."
-msgstr "Γίνεται ενημέρωση..."
-
-#: src/gpodder/gui.py:2875
+#: src/gpodder/gui.py:2979
 #, python-format
 msgid "Updating \"%s\"..."
 msgstr "Γίνεται ενημέρωση του \"%s\"..."
 
-#: src/gpodder/gui.py:2878
+#: src/gpodder/gui.py:2982
 #, python-format
 msgid "Updating %d feed..."
 msgid_plural "Updating %d feeds..."
 msgstr[0] "Γίνεται ενημέρωση %d ροής..."
 msgstr[1] "Γίνεται ενημέρωση %d ροών..."
 
-#: src/gpodder/gui.py:2913
-#: src/gpodder/gui.py:2926
+#: src/gpodder/gui.py:3004 src/gpodder/gui.py:3017
 msgid "Do you really want to quit gPodder now?"
 msgstr "Θέλετε πραγματικά να κλείσετε το gPodder τώρα;"
 
-#: src/gpodder/gui.py:2922
+#: src/gpodder/gui.py:3013
 msgid "Quit gPodder"
 msgstr "Έξοδος από το gPodder"
 
-#: src/gpodder/gui.py:2924
-msgid "You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?"
-msgstr "Γίνεται λήψη επεισοδίων. Μπορείτε να συνεχίσετε τις λήψεις την επόμενη φορά που θα ξεκινήσετε το gPodder. Θέλετε να το κλείσετε τώρα;"
+#: src/gpodder/gui.py:3015
+msgid ""
+"You are downloading episodes. You can resume downloads the next time you "
+"start gPodder. Do you want to quit now?"
+msgstr ""
+"Γίνεται λήψη επεισοδίων. Μπορείτε να συνεχίσετε τις λήψεις την επόμενη φορά "
+"που θα ξεκινήσετε το gPodder. Θέλετε να το κλείσετε τώρα;"
 
-#: src/gpodder/gui.py:2931
+#: src/gpodder/gui.py:3022
 msgid "Don't ask me again"
 msgstr "Να μην ερωτηθώ ξανά"
 
-#: src/gpodder/gui.py:2955
+#: src/gpodder/gui.py:3046
 msgid "Please check your permissions and free disk space."
 msgstr "Παρακαλώ ελέγξτε τα δικαιώματα σας και τον ελεύθερο χώρο στο δίσκο."
 
-#: src/gpodder/gui.py:2955
+#: src/gpodder/gui.py:3046
 msgid "Error saving podcast list"
 msgstr "Σφάλμα κατά την αποθήκευση της λίστας των podcasts"
 
-#: src/gpodder/gui.py:3004
+#: src/gpodder/gui.py:3095
 msgid "Episodes are locked"
 msgstr "Τα επεισόδια είναι κλειδωμέμα"
 
-#: src/gpodder/gui.py:3005
-msgid "The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them."
-msgstr "Τα επιλεγμένα επεισόδια είναι κλειδωμένα. Παρακαλώ να ξεκλειδώσετε τα επεισόδια που θέλετε να διαγράψετε πριν προσπαθήσετε να τα διαγράψετε."
+#: src/gpodder/gui.py:3096
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+"Τα επιλεγμένα επεισόδια είναι κλειδωμένα. Παρακαλώ να ξεκλειδώσετε τα "
+"επεισόδια που θέλετε να διαγράψετε πριν προσπαθήσετε να τα διαγράψετε."
 
-#: src/gpodder/gui.py:3010
+#: src/gpodder/gui.py:3101
 #, python-format
 msgid "Delete %d episode?"
 msgid_plural "Delete %d episodes?"
 msgstr[0] "Να διαγραφεί %d επεισόδιο;"
 msgstr[1] "Να διαγραφούν %d επεισόδια;"
 
-#: src/gpodder/gui.py:3011
+#: src/gpodder/gui.py:3102
 msgid "Deleting episodes removes downloaded files."
 msgstr "Η διαγραφή των επεισοδίων αφαιρεί τα ληφθέντα αρχεία."
 
-#: src/gpodder/gui.py:3019
+#: src/gpodder/gui.py:3110
 msgid "Deleting episodes"
 msgstr "Γίνεται διαγραφή επεισοδίων"
 
-#: src/gpodder/gui.py:3020
+#: src/gpodder/gui.py:3111
 msgid "Please wait while episodes are deleted"
 msgstr "Παρακαλώ περιμένετε καθώς τα επεισόδια διαγράφονται"
 
-#: src/gpodder/gui.py:3077
+#: src/gpodder/gui.py:3168
 msgid "Downloaded"
 msgstr "Ληφθέντα"
 
-#: src/gpodder/gui.py:3080
+#: src/gpodder/gui.py:3171
 #, python-format
 msgid "Select older than %d day"
 msgid_plural "Select older than %d days"
 msgstr[0] "Επιλέξτε παλαιότερα από %d ημέρα"
 msgstr[1] "Επιλέξτε παλαιότερα από %d ημέρες"
 
-#: src/gpodder/gui.py:3082
+#: src/gpodder/gui.py:3173
 msgid "Select played"
 msgstr "Επιλογή αναπαραχθέντων"
 
-#: src/gpodder/gui.py:3086
+#: src/gpodder/gui.py:3174
+#, fuzzy
+msgid "Select finished"
+msgstr "Αποεπιλογή όλων"
+
+#: src/gpodder/gui.py:3178
 msgid "Select the episodes you want to delete:"
 msgstr "Επιλέξτε τα επεισόδια που θέλετε να διαγράψετε:"
 
-#: src/gpodder/gui.py:3099
-#: data/ui/desktop/gpodder.ui.h:12
-#: data/ui/maemo/gpodder.ui.h:10
-#: data/ui/frmntl/gpodderepisodes.ui.h:3
+#: src/gpodder/gui.py:3191 data/ui/desktop/gpodder.ui.h:12
+#: data/ui/maemo/gpodder.ui.h:10 data/ui/frmntl/gpodderepisodes.ui.h:3
 #: data/ui/frmntl/gpodder.ui.h:5
 msgid "Delete episodes"
 msgstr "Διαγραφή επεισοδίων"
 
-#: src/gpodder/gui.py:3151
-#: src/gpodder/gui.py:3442
-#: src/gpodder/gui.py:3547
+#: src/gpodder/gui.py:3247 src/gpodder/gui.py:3538 src/gpodder/gui.py:3643
 msgid "No podcast selected"
 msgstr "Δεν έχει επιλεγεί κανένα podcast"
 
-#: src/gpodder/gui.py:3152
+#: src/gpodder/gui.py:3248
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για ενημέρωση."
 
-#: src/gpodder/gui.py:3200
+#: src/gpodder/gui.py:3296
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Σφάλμα κατά τη διάρκεια της λήψης %(episode)s: %(message)s"
 
-#: src/gpodder/gui.py:3201
+#: src/gpodder/gui.py:3297
 msgid "Download error"
 msgstr "Σφάλμα λήψης"
 
-#: src/gpodder/gui.py:3252
+#: src/gpodder/gui.py:3348
 msgid "Select the episodes you want to download:"
 msgstr "Επιλέξτε τα επεισόδια που θέλετε να κατεβάσετε:"
 
-#: src/gpodder/gui.py:3275
+#: src/gpodder/gui.py:3371
 msgid "Mark as old"
 msgstr "Σημείωση ως παλιό"
 
-#: src/gpodder/gui.py:3283
+#: src/gpodder/gui.py:3379
 msgid "Please check for new episodes later."
 msgstr "Παρακαλώ ελέγξτε για νέα επεισόδια αργότερα."
 
-#: src/gpodder/gui.py:3284
+#: src/gpodder/gui.py:3380
 msgid "No new episodes available"
 msgstr "Δεν υπάρχουν νέα επεισόδια διαθέσιμα"
 
-#: src/gpodder/gui.py:3403
+#: src/gpodder/gui.py:3499
 msgid "Login to gpodder.net"
 msgstr "Σύνδεση στο gpodder.net"
 
-#: src/gpodder/gui.py:3404
+#: src/gpodder/gui.py:3500
 msgid "Please login to download your subscriptions."
 msgstr "Παρακαλώ συνδεθείτε για να κάνετε λήψη των συνδρομών σας"
 
-#: src/gpodder/gui.py:3414
+#: src/gpodder/gui.py:3510
 msgid "Subscriptions on gpodder.net"
 msgstr "Συνδρομές στο gpodder.net"
 
-#: src/gpodder/gui.py:3443
+#: src/gpodder/gui.py:3539
 msgid "Please select a podcast in the podcasts list to edit."
-msgstr "Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το επεξεργαστείτε."
+msgstr ""
+"Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το "
+"επεξεργαστείτε."
 
-#: src/gpodder/gui.py:3455
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:68
+#: src/gpodder/gui.py:3551 src/gpodder/gtkui/desktop/podcastdirectory.py:68
 #: src/gpodder/gtkui/desktop/sync.py:225
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gui.py:3461
-#: data/ui/desktop/gpodder.ui.h:37
-#: data/ui/maemo/gpodder.ui.h:34
-#: data/ui/frmntl/gpodder.ui.h:14
+#: src/gpodder/gui.py:3557 data/ui/desktop/gpodder.ui.h:37
+#: data/ui/maemo/gpodder.ui.h:34 data/ui/frmntl/gpodder.ui.h:14
 msgid "Remove podcasts"
 msgstr "Αφαίρεση podcasts"
 
-#: src/gpodder/gui.py:3462
+#: src/gpodder/gui.py:3558
 msgid "Select the podcast you want to remove."
 msgstr "Επιλέξτε το podcast που θέλετε να αφαιρέσετε."
 
-#: src/gpodder/gui.py:3466
-#: src/gpodder/gtkui/desktop/episodeselector.py:107
+#: src/gpodder/gui.py:3562 src/gpodder/gtkui/desktop/episodeselector.py:107
 #: src/gpodder/gtkui/maemo/episodeselector.py:106
 #: src/gpodder/gtkui/frmntl/episodeselector.py:110
 msgid "Remove"
 msgstr "Αφαίρεση"
 
-#: src/gpodder/gui.py:3476
+#: src/gpodder/gui.py:3572
 msgid "Removing podcast"
 msgstr "Γίνεται αφαίρεση του podcast"
 
-#: src/gpodder/gui.py:3477
+#: src/gpodder/gui.py:3573
 msgid "Please wait while the podcast is removed"
 msgstr "Παρακαλώ περιμένετε ενώ το podcast αφαιρείται"
 
-#: src/gpodder/gui.py:3478
+#: src/gpodder/gui.py:3574
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "Θέλετε πραγματικά να αφαιρέσετε αυτό το podcast και τα επεισόδιά του;"
 
-#: src/gpodder/gui.py:3480
+#: src/gpodder/gui.py:3576
 msgid "Removing podcasts"
 msgstr "Γίνεται αφαίρεση των podcasts"
 
-#: src/gpodder/gui.py:3481
+#: src/gpodder/gui.py:3577
 msgid "Please wait while the podcasts are removed"
 msgstr "Παρακαλώ περιμένετε ενώ τα podcasts αφαιρούνται"
 
-#: src/gpodder/gui.py:3482
+#: src/gpodder/gui.py:3578
 msgid "Do you really want to remove the selected podcasts and their episodes?"
-msgstr "Θέλετε πραγματικά να αφαιρέσετε τα επιλεγμένα podcasts και τα επεισόδιά τους;"
+msgstr ""
+"Θέλετε πραγματικά να αφαιρέσετε τα επιλεγμένα podcasts και τα επεισόδιά τους;"
 
-#: src/gpodder/gui.py:3548
+#: src/gpodder/gui.py:3644
 msgid "Please select a podcast in the podcasts list to remove."
-msgstr "Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το αφαιρέσετε."
+msgstr ""
+"Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το αφαιρέσετε."
 
-#: src/gpodder/gui.py:3558
+#: src/gpodder/gui.py:3654
 msgid "OPML files"
 msgstr "Αρχεία OPML"
 
-#: src/gpodder/gui.py:3565
+#: src/gpodder/gui.py:3661
 msgid "Import from OPML"
 msgstr "Εισαγωγή από OPML"
 
-#: src/gpodder/gui.py:3579
+#: src/gpodder/gui.py:3675
 msgid "Import podcasts from OPML file"
 msgstr "Εισαγωγή podcasts από αρχείο OPML"
 
-#: src/gpodder/gui.py:3586
+#: src/gpodder/gui.py:3682
 msgid "Nothing to export"
 msgstr "Δεν υπάρχει τίποτα προς εξαγωγή"
 
-#: src/gpodder/gui.py:3587
-msgid "Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list."
-msgstr "Η λίστα των συνδρομών podcast είναι άδεια. Παρακαλούμε να γίνετε συνδρομητής σε κάποια podcasts πρώτα πριν προσπαθήσετε να εξάγετε τη λίστα συνδρομών σας."
+#: src/gpodder/gui.py:3683
+msgid ""
+"Your list of podcast subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Η λίστα των συνδρομών podcast είναι άδεια. Παρακαλούμε να γίνετε συνδρομητής "
+"σε κάποια podcasts πρώτα πριν προσπαθήσετε να εξάγετε τη λίστα συνδρομών σας."
 
-#: src/gpodder/gui.py:3593
+#: src/gpodder/gui.py:3689
 msgid "Export to OPML"
 msgstr "Εξαγωγή σε OPML"
 
-#: src/gpodder/gui.py:3606
+#: src/gpodder/gui.py:3702
 #, python-format
 msgid "%d subscription exported"
 msgid_plural "%d subscriptions exported"
 msgstr[0] "Εξάχθηκε %d συνδρομή"
 msgstr[1] "Εξάχθηκαν %d συνδρομές"
 
-#: src/gpodder/gui.py:3607
+#: src/gpodder/gui.py:3703
 msgid "Your podcast list has been successfully exported."
 msgstr "Ο κατάλογος των podcast σας έχει εξαχθεί με επιτυχία."
 
-#: src/gpodder/gui.py:3609
+#: src/gpodder/gui.py:3705
 msgid "Could not export OPML to file. Please check your permissions."
-msgstr "Δεν ήταν δυνατή η εξαγωγή OPML σε αρχείο. Παρακαλώ ελέγξτε τα δικαιώματα σας."
+msgstr ""
+"Δεν ήταν δυνατή η εξαγωγή OPML σε αρχείο. Παρακαλώ ελέγξτε τα δικαιώματα σας."
 
-#: src/gpodder/gui.py:3609
+#: src/gpodder/gui.py:3705
 msgid "OPML export failed"
 msgstr "Αποτυχία εξαγωγής OPML"
 
-#: src/gpodder/gui.py:3649
-#: src/gpodder/gui.py:3661
+#: src/gpodder/gui.py:3745 src/gpodder/gui.py:3757
 msgid "A podcast client with focus on usability"
 msgstr "Ένα πρόγραμμα podcast με έμφαση στην ευχρηστία"
 
-#: src/gpodder/gui.py:3663
+#: src/gpodder/gui.py:3759
 msgid "translator-credits"
 msgstr "μεταφραστής-πιστώσεις"
 
-#: src/gpodder/gui.py:3670
+#: src/gpodder/gui.py:3766
 msgid "Maintainer:"
 msgstr "Συντηρητής:"
 
-#: src/gpodder/gui.py:3676
+#: src/gpodder/gui.py:3772
 msgid "Patches, bug reports and donations by:"
 msgstr "Διορθώσεις, αναφορές σφαλμάτων και δωρεές από:"
 
-#: src/gpodder/gui.py:3774
+#: src/gpodder/gui.py:3870
 msgid "Please select an episode from the episode list to display shownotes."
-msgstr "Παρακαλώ επιλέξτε ένα επεισόδιο από τη λίστα επεισοδίων για να εμφανιστούν οι σημειώσεις επεισοδίου."
+msgstr ""
+"Παρακαλώ επιλέξτε ένα επεισόδιο από τη λίστα επεισοδίων για να εμφανιστούν "
+"οι σημειώσεις επεισοδίου."
 
-#: src/gpodder/gui.py:3774
+#: src/gpodder/gui.py:3870
 msgid "No episode selected"
 msgstr "Δεν επιλέχθηκε κανένα επεισόδιο"
 
-#: src/gpodder/gui.py:3805
+#: src/gpodder/gui.py:3901
 msgid "Unable to stream episode"
 msgstr "Δεν είναι δυνατή η αναπαραγωγή επεισοδίου"
 
-#: src/gpodder/gui.py:3951
-#: src/gpodder/gtkui/desktop/trayicon.py:83
-#: data/ui/desktop/gpodder.ui.h:8
-#: data/ui/maemo/gpodder.ui.h:7
+#: src/gpodder/gui.py:4052 src/gpodder/gtkui/desktop/trayicon.py:83
+#: data/ui/desktop/gpodder.ui.h:8 data/ui/maemo/gpodder.ui.h:7
 #: data/ui/frmntl/gpodderepisodes.ui.h:1
-#: data/ui/frmntl/gpodderpreferences.ui.h:1
-#: data/ui/frmntl/gpodder.ui.h:4
+#: data/ui/frmntl/gpodderpreferences.ui.h:1 data/ui/frmntl/gpodder.ui.h:4
 msgid "Check for new episodes"
 msgstr "Έλεγχος για νέα επεισόδια"
 
-#: src/gpodder/gui.py:3954
+#: src/gpodder/gui.py:4055
 #, python-format
 msgid "Podcasts (%d)"
 msgstr "Podcasts (%d)"
 
-#: src/gpodder/gui.py:3959
-#: data/ui/desktop/gpodder.ui.h:34
+#: src/gpodder/gui.py:4060 data/ui/desktop/gpodder.ui.h:34
 #: data/ui/maemo/gpodder.ui.h:31
 msgid "Podcasts"
 msgstr "Podcasts"
 
-#: src/gpodder/gui.py:4014
+#: src/gpodder/gui.py:4115
 msgid "Cannot start gPodder"
 msgstr "Δεν είναι δυνατή η εκκίνηση του gPodder"
 
-#: src/gpodder/gui.py:4015
+#: src/gpodder/gui.py:4116
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "Σφάλμα D-Bus: %s"
@@ -911,48 +876,45 @@ msgstr "Σφάλμα D-Bus: %s"
 msgid "No downloadable episodes in feed"
 msgstr "Δεν υπάρχουν επεισόδια προς λήψη στη ροή"
 
-#: src/gpodder/model.py:907
+#: src/gpodder/model.py:915
 #, python-format
 msgid "released %s"
 msgstr "κυκλοφόρησε %s"
 
-#: src/gpodder/model.py:908
-#: src/gpodder/model.py:924
-#: src/gpodder/gtkui/model.py:154
+#: src/gpodder/model.py:916 src/gpodder/model.py:934
+#: src/gpodder/gtkui/model.py:166 src/gpodder/gtkui/frmntl/model.py:79
+#: src/gpodder/gtkui/frmntl/model.py:83 src/gpodder/gtkui/frmntl/model.py:94
 #: src/gpodder/gtkui/frmntl/shownotes.py:82
 #, python-format
 msgid "from %s"
 msgstr "από το %s"
 
-#: src/gpodder/model.py:917
-#: src/gpodder/gtkui/model.py:323
+#: src/gpodder/model.py:927 src/gpodder/gtkui/model.py:341
 msgid "played"
 msgstr "αναπαραχθέν"
 
-#: src/gpodder/model.py:919
+#: src/gpodder/model.py:929
 msgid "unplayed"
 msgstr "μη αναπαραχθέν"
 
-#: src/gpodder/model.py:922
+#: src/gpodder/model.py:932
 msgid "today"
 msgstr "σήμερα"
 
-#: src/gpodder/model.py:923
+#: src/gpodder/model.py:933
 #, python-format
 msgid "downloaded %s"
 msgstr "έγινε λήψη %s"
 
-#: src/gpodder/model.py:945
-#: src/gpodder/soundcloud.py:149
+#: src/gpodder/model.py:955 src/gpodder/soundcloud.py:149
 msgid "No description available"
 msgstr "Δεν υπάρχει διαθέσιμη περιγραφή"
 
-#: src/gpodder/model.py:1192
+#: src/gpodder/model.py:1202
 msgid "unknown"
 msgstr "άγνωστο"
 
-#: src/gpodder/model.py:1230
-#: src/gpodder/gtkui/frmntl/episodeactions.py:191
+#: src/gpodder/model.py:1251 src/gpodder/gtkui/frmntl/episodeactions.py:190
 #: data/ui/frmntl/gpodder.ui.h:18
 msgid "Unplayed"
 msgstr "Μη αναπαραχθέν"
@@ -968,8 +930,12 @@ msgid "Remove %s"
 msgstr "Αφαίρεση %s"
 
 #: src/gpodder/services.py:115
-msgid "Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto command from gnome-bluetooth."
-msgstr "Αποστολή επεισοδίων podcast σε συσκευές Bluetooth. Χρειάζεται την εντολή bluetooth-sendto από το gnome-bluetooth."
+msgid ""
+"Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto "
+"command from gnome-bluetooth."
+msgstr ""
+"Αποστολή επεισοδίων podcast σε συσκευές Bluetooth. Χρειάζεται την εντολή "
+"bluetooth-sendto από το gnome-bluetooth."
 
 #: src/gpodder/services.py:116
 msgid "HTML episode shownotes"
@@ -1009,168 +975,168 @@ msgstr "Συγχρονισμός του iPod"
 
 #: src/gpodder/sync.py:64
 msgid "Support synchronization of podcasts to Apple iPod devices via libgpod."
-msgstr "Υποστήριξη συγχρονισμού των podcasts για συσκευές Apple iPod μέσω libgpod."
+msgstr ""
+"Υποστήριξη συγχρονισμού των podcasts για συσκευές Apple iPod μέσω libgpod."
 
 #: src/gpodder/sync.py:65
-msgid "MTP device synchronization"
-msgstr "Συγχρονισμός συσκευής MTP"
-
-#: src/gpodder/sync.py:65
-msgid "Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp."
-msgstr "Υποστήριξη συγχρονισμού των podcasts σε συσκευές που χρησιμοποιούν το Πρωτόκολλο Μεταφοράς Μέσων (Media Transfer Protocol) μέσω pymtp."
-
-#: src/gpodder/sync.py:66
 msgid "iPod OGG converter"
 msgstr "Μετατροπέας iPod OGG"
 
-#: src/gpodder/sync.py:66
-msgid "Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME."
-msgstr "Μετατρέψτε podcasts OGG σε αρχεία MP3 κατά το συγχρονισμό με iPods χρησιμοποιώντας oggdec και LAME."
+#: src/gpodder/sync.py:65
+msgid ""
+"Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec "
+"and LAME."
+msgstr ""
+"Μετατρέψτε podcasts OGG σε αρχεία MP3 κατά το συγχρονισμό με iPods "
+"χρησιμοποιώντας oggdec και LAME."
 
-#: src/gpodder/sync.py:67
+#: src/gpodder/sync.py:66
 msgid "iPod video podcasts"
 msgstr "Βίντεο podcasts iPod"
 
-#: src/gpodder/sync.py:67
-msgid "Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
-msgstr "Ανιχνεύστε τα μήκη των βίντεο μέσω MPlayer, για να συγχρονίσετε τα βίντεο podcasts με iPods."
+#: src/gpodder/sync.py:66
+msgid ""
+"Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
+msgstr ""
+"Ανιχνεύστε τα μήκη των βίντεο μέσω MPlayer, για να συγχρονίσετε τα βίντεο "
+"podcasts με iPods."
 
-#: src/gpodder/sync.py:68
+#: src/gpodder/sync.py:67
 msgid "Rockbox cover art support"
 msgstr "Υποστήριξη εξώφυλλων Rockbox"
 
-#: src/gpodder/sync.py:68
-msgid "Copy podcast cover art to filesystem-based MP3 players running Rockbox.org firmware. Needs Python Imaging."
-msgstr "Αντιγράψτε το εξώφυλλο του podcast σε αναπαραγωγείς MP3 που βασίζονται σε σύστημα αρχείων και τρέχουν το firmware του Rockbox.org. Χρειάζεται το Python Imaging."
+#: src/gpodder/sync.py:67
+msgid ""
+"Copy podcast cover art to filesystem-based MP3 players running Rockbox.org "
+"firmware. Needs Python Imaging."
+msgstr ""
+"Αντιγράψτε το εξώφυλλο του podcast σε αναπαραγωγείς MP3 που βασίζονται σε "
+"σύστημα αρχείων και τρέχουν το firmware του Rockbox.org. Χρειάζεται το "
+"Python Imaging."
 
-#: src/gpodder/sync.py:202
+#: src/gpodder/sync.py:200
 msgid "Cancelled by user"
 msgstr "Ακυρώθηκε από το χρήστη"
 
-#: src/gpodder/sync.py:205
+#: src/gpodder/sync.py:203
 msgid "Writing data to disk"
 msgstr "Γίνεται εγγραφή δεδομένων στο δίσκο"
 
-#: src/gpodder/sync.py:317
+#: src/gpodder/sync.py:315
 msgid "Opening iPod database"
 msgstr "Άνοιγμα της βάσης δεδομένων του iPod"
 
-#: src/gpodder/sync.py:327
+#: src/gpodder/sync.py:325
 msgid "iPod opened"
 msgstr "Το iPod άνοιξε"
 
-#: src/gpodder/sync.py:338
+#: src/gpodder/sync.py:336
 msgid "Saving iPod database"
 msgstr "Γίνεται αποθήκευση της βάσης δεδομένων του iPod"
 
-#: src/gpodder/sync.py:343
+#: src/gpodder/sync.py:341
 msgid "Writing extended gtkpod database"
 msgstr "Γίνεται εγγραφή εκτεταμένης βάσης δεδομένων του gtkpod"
 
-#: src/gpodder/sync.py:411
-#: src/gpodder/sync.py:731
-#: src/gpodder/sync.py:1005
+#: src/gpodder/sync.py:409 src/gpodder/sync.py:735 src/gpodder/sync.py:1011
 #, python-format
 msgid "Removing %s"
 msgstr "Γίνεται αφαίρεση %s"
 
-#: src/gpodder/sync.py:426
-#: src/gpodder/sync.py:594
+#: src/gpodder/sync.py:424 src/gpodder/sync.py:595
 #, python-format
 msgid "Adding %s"
 msgstr "Γίνεται πρόσθεση %s"
 
-#: src/gpodder/sync.py:444
+#: src/gpodder/sync.py:442
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "Σφάλμα κατά την αντιγραφή %(episode)s: Δεν υπάρχει αρκετός ελεύθερος χώρος στο %(mountpoint)s"
+msgstr ""
+"Σφάλμα κατά την αντιγραφή %(episode)s: Δεν υπάρχει αρκετός ελεύθερος χώρος "
+"στο %(mountpoint)s"
 
-#: src/gpodder/sync.py:575
+#: src/gpodder/sync.py:576
 msgid "Opening MP3 player"
 msgstr "Άνοιγμα του αναπαραγωγέα MP3"
 
-#: src/gpodder/sync.py:577
+#: src/gpodder/sync.py:578
 msgid "MP3 player opened"
 msgstr "Ο αναπαραγωγέας MP3 άνοιξε"
 
-#: src/gpodder/sync.py:660
-#: src/gpodder/sync.py:668
+#: src/gpodder/sync.py:664 src/gpodder/sync.py:672
 #, python-format
 msgid "Error opening %(filename)s: %(message)s"
 msgstr "Σφάλμα κατά το άνοιγμα %(filename)s: %(message)s"
 
-#: src/gpodder/sync.py:913
-#: src/gpodder/sync.py:919
+#: src/gpodder/sync.py:917 src/gpodder/sync.py:923
 msgid "MTP device"
 msgstr "Συσκευή MTP"
 
-#: src/gpodder/sync.py:926
+#: src/gpodder/sync.py:930
 msgid "Opening the MTP device"
 msgstr "Άνοιγμα της συσκευής MTP"
 
-#: src/gpodder/sync.py:936
+#: src/gpodder/sync.py:940
 #, python-format
 msgid "%s opened"
 msgstr "Το %s άνοιξε"
 
-#: src/gpodder/sync.py:941
+#: src/gpodder/sync.py:945
 #, python-format
 msgid "Closing %s"
 msgstr "Γίνεται κλείσιμο %s"
 
-#: src/gpodder/sync.py:949
+#: src/gpodder/sync.py:953
 #, python-format
 msgid "%s closed"
 msgstr "Το %s έκλεισε"
 
-#: src/gpodder/sync.py:954
+#: src/gpodder/sync.py:958
 #, python-format
 msgid "Adding %s..."
 msgstr "Γίνεται πρόσθεση %s..."
 
-#: src/gpodder/util.py:351
+#: src/gpodder/util.py:354
 #, python-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "Πριν από %d ημέρα"
 msgstr[1] "Πριν από %d ημέρες"
 
-#: src/gpodder/util.py:419
+#: src/gpodder/util.py:422
 msgid "Today"
 msgstr "Σήμερα"
 
-#: src/gpodder/util.py:421
+#: src/gpodder/util.py:424
 msgid "Yesterday"
 msgstr "Χθες"
 
-#: src/gpodder/util.py:464
-#: src/gpodder/util.py:467
+#: src/gpodder/util.py:467 src/gpodder/util.py:470
 msgid "(unknown)"
 msgstr "(άγνωστο)"
 
-#: src/gpodder/util.py:1133
-#: src/gpodder/util.py:1152
+#: src/gpodder/util.py:1136 src/gpodder/util.py:1155
 #, python-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d δευτερόλεπτο"
 msgstr[1] "%d δευτερόλεπτα"
 
-#: src/gpodder/util.py:1146
+#: src/gpodder/util.py:1149
 #, python-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d ώρα"
 msgstr[1] "%d ώρες"
 
-#: src/gpodder/util.py:1149
+#: src/gpodder/util.py:1152
 #, python-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d λεπτό"
 msgstr[1] "%d λεπτά"
 
-#: src/gpodder/util.py:1155
+#: src/gpodder/util.py:1158
 msgid "and"
 msgstr "και"
 
@@ -1199,69 +1165,72 @@ msgstr "Εντολή: %s"
 msgid "Default application"
 msgstr "Προεπιλεγμένη εφαρμογή"
 
-#: src/gpodder/gtkui/model.py:258
-#: data/ui/frmntl/gpodder.ui.h:6
+#: src/gpodder/gtkui/model.py:276 data/ui/frmntl/gpodder.ui.h:6
 msgid "Deleted"
 msgstr "Διαγράφηκε"
 
-#: src/gpodder/gtkui/model.py:263
+#: src/gpodder/gtkui/model.py:281
 #: src/gpodder/gtkui/frmntl/episodeactions.py:137
 msgid "New episode"
 msgstr "Νέο επεισόδιο"
 
-#: src/gpodder/gtkui/model.py:278
+#: src/gpodder/gtkui/model.py:296
 msgid "Downloaded episode"
 msgstr "Κατεβασμένο επεισόδιο"
 
-#: src/gpodder/gtkui/model.py:281
+#: src/gpodder/gtkui/model.py:299
 msgid "Downloaded video episode"
 msgstr "Κατεβασμένο επεισόδιο-βίντεο"
 
-#: src/gpodder/gtkui/model.py:284
+#: src/gpodder/gtkui/model.py:302
 msgid "Downloaded image"
 msgstr "Κατεβασμένη εικόνα"
 
-#: src/gpodder/gtkui/model.py:295
+#: src/gpodder/gtkui/model.py:313
 msgid "Downloaded file"
 msgstr "Κατεβασμένο αρχείο"
 
-#: src/gpodder/gtkui/model.py:310
+#: src/gpodder/gtkui/model.py:328
 msgid "missing file"
 msgstr "το αρχείο λείπει"
 
-#: src/gpodder/gtkui/model.py:314
+#: src/gpodder/gtkui/model.py:332
 msgid "never displayed"
 msgstr "ποτέ δεν εμφανίστηκε"
 
-#: src/gpodder/gtkui/model.py:316
+#: src/gpodder/gtkui/model.py:334
 msgid "never played"
 msgstr "ποτέ δεν αναπαράχθηκε"
 
-#: src/gpodder/gtkui/model.py:318
+#: src/gpodder/gtkui/model.py:336
 msgid "never opened"
 msgstr "ποτέ δεν ανοίχτηκε"
 
-#: src/gpodder/gtkui/model.py:321
+#: src/gpodder/gtkui/model.py:339
 msgid "displayed"
 msgstr "εμφανίστηκε"
 
-#: src/gpodder/gtkui/model.py:325
+#: src/gpodder/gtkui/model.py:343
 msgid "opened"
 msgstr "ανοίχτηκε"
 
-#: src/gpodder/gtkui/model.py:327
+#: src/gpodder/gtkui/model.py:345
 msgid "deletion prevented"
 msgstr "η διαγραφή εμποδίστηκε"
 
-#: src/gpodder/gtkui/model.py:463
-#: data/ui/desktop/gpodder.ui.h:3
+#: src/gpodder/gtkui/model.py:484 data/ui/desktop/gpodder.ui.h:3
 #: data/ui/maemo/gpodder.ui.h:3
 msgid "All episodes"
 msgstr "Όλα τα επεισόδια"
 
-#: src/gpodder/gtkui/model.py:464
+#: src/gpodder/gtkui/model.py:485
 msgid "from all podcasts"
 msgstr "από όλα τα podcasts"
+
+#: src/gpodder/gtkui/model.py:692
+#, fuzzy
+msgid "Subscription paused."
+msgstr "_Συνδρομές"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1281,11 +1250,11 @@ msgstr "Το python module \"%s\" δεν είναι εγκατεστημένο"
 msgid "Command \"%s\" not installed"
 msgstr "Η εντολή \"%s\" δεν είναι εγκατεστημένη"
 
-#: src/gpodder/gtkui/interface/addpodcast.py:83
+#: src/gpodder/gtkui/interface/addpodcast.py:85
 msgid "Nothing to paste."
 msgstr "Δεν υπάρχει τίποτα προς επικόλληση."
 
-#: src/gpodder/gtkui/interface/addpodcast.py:83
+#: src/gpodder/gtkui/interface/addpodcast.py:85
 msgid "Clipboard is empty"
 msgstr "Το πρόχειρο είναι άδειο"
 
@@ -1325,28 +1294,32 @@ msgstr "Ορισμός ως"
 #: src/gpodder/gtkui/interface/configeditor.py:86
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
-msgstr "Αδυναμία ορισμού %(field)s ως %(value)s. Απαιτείται τύπος δεδομένων: %(datatype)s"
+msgstr ""
+"Αδυναμία ορισμού %(field)s ως %(value)s. Απαιτείται τύπος δεδομένων: %"
+"(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:90
 msgid "Error setting option"
 msgstr "Σφάλμα στη ρύθμιση επιλογής"
 
-#: src/gpodder/gtkui/desktop/channel.py:69
+#: src/gpodder/gtkui/desktop/channel.py:70
 msgid "Select new podcast cover artwork"
 msgstr "Επιλέξτε νέο εξώφυλλο podcast"
 
-#: src/gpodder/gtkui/desktop/channel.py:90
+#: src/gpodder/gtkui/desktop/channel.py:91
 msgid "You can only drop a single image or URL here."
 msgstr "Μπορείτε να τοποθετήσετε μία μόνο εικόνα ή διεύθυνση (URL) εδώ."
 
-#: src/gpodder/gtkui/desktop/channel.py:90
-#: src/gpodder/gtkui/desktop/channel.py:99
+#: src/gpodder/gtkui/desktop/channel.py:91
+#: src/gpodder/gtkui/desktop/channel.py:100
 msgid "Drag and drop"
 msgstr "Σύρετε και τοποθετήστε"
 
-#: src/gpodder/gtkui/desktop/channel.py:99
+#: src/gpodder/gtkui/desktop/channel.py:100
 msgid "You can only drop local files and http:// URLs here."
-msgstr "Μπορείτε να τοποθετήσετε μόνο τοπικά αρχεία και http:// διευθύνσεις (URLs) εδώ."
+msgstr ""
+"Μπορείτε να τοποθετήσετε μόνο τοπικά αρχεία και http:// διευθύνσεις (URLs) "
+"εδώ."
 
 #: src/gpodder/gtkui/desktop/dependencymanager.py:34
 msgid "Feature"
@@ -1371,7 +1344,9 @@ msgstr "Γίνεται ανάγνωση αρχείων από %s"
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:79
 msgid "Please wait your media file list is being read from device."
-msgstr "Παρακαλώ περιμένετε ενώ γίνεται ανάγνωση της λίστας αρχείων μέσων από τη συσκευή."
+msgstr ""
+"Παρακαλώ περιμένετε ενώ γίνεται ανάγνωση της λίστας αρχείων μέσων από τη "
+"συσκευή."
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:140
 #, python-format
@@ -1439,7 +1414,8 @@ msgstr "μέγεθος: %s"
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:112
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:123
 msgid "The specified URL does not provide any valid OPML podcast items."
-msgstr "Η συγκεκριμένη διεύθυνση (URL) δεν παρέχει έγκυρα αντικείμενα podcast OPML."
+msgstr ""
+"Η συγκεκριμένη διεύθυνση (URL) δεν παρέχει έγκυρα αντικείμενα podcast OPML."
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:112
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:123
@@ -1448,7 +1424,8 @@ msgstr "Δε βρέθηκαν ροές"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:116
 msgid "There are no YouTube channels that would match this query."
-msgstr "Δεν υπάρχουν κανάλια YouTube, τα οποία θα ταίριαζαν με αυτό το ερώτημα."
+msgstr ""
+"Δεν υπάρχουν κανάλια YouTube, τα οποία θα ταίριαζαν με αυτό το ερώτημα."
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:116
 msgid "No channels found"
@@ -1538,8 +1515,12 @@ msgstr "Αντικαταστήστε τη λίστα συνδρομών στο �
 
 #: src/gpodder/gtkui/desktop/preferences.py:348
 #: src/gpodder/gtkui/maemo/mygpodder.py:75
-msgid "Remote podcasts that have not been added locally will be removed on the server. Continue?"
-msgstr "Απομακρυσμένα podcasts που δεν έχουν προστεθεί τοπικά θα αφαιρεθούν από το διακομιστή. Θέλετε να συνεχίσετε;"
+msgid ""
+"Remote podcasts that have not been added locally will be removed on the "
+"server. Continue?"
+msgstr ""
+"Απομακρυσμένα podcasts που δεν έχουν προστεθεί τοπικά θα αφαιρεθούν από το "
+"διακομιστή. Θέλετε να συνεχίσετε;"
 
 #: src/gpodder/gtkui/desktop/shownotes.py:109
 msgid "Please wait..."
@@ -1565,7 +1546,8 @@ msgstr "Καμία συσκευή δεν έχει ρυθμιστεί"
 
 #: src/gpodder/gtkui/desktop/sync.py:76
 msgid "Please set up your device in the preferences dialog."
-msgstr "Παρακαλώ ρυθμίστε τη συσκευή σας στο παράθυρο διαλόγου των προτιμήσεων."
+msgstr ""
+"Παρακαλώ ρυθμίστε τη συσκευή σας στο παράθυρο διαλόγου των προτιμήσεων."
 
 #: src/gpodder/gtkui/desktop/sync.py:80
 msgid "Cannot open device"
@@ -1588,7 +1570,8 @@ msgid "Cannot sync to MTP device"
 msgstr "Αδυναμία συγχρονισμού με τη συσκευή MTP"
 
 #: src/gpodder/gtkui/desktop/sync.py:92
-msgid "Please install python-pymtp and restart gPodder."
+#, fuzzy
+msgid "Please install libmtp and restart gPodder."
 msgstr "Παρακαλώ εγκαταστήστε το python-pymtp και επανεκκινήστε το gPodder."
 
 #: src/gpodder/gtkui/desktop/sync.py:102
@@ -1599,8 +1582,7 @@ msgstr "Η συσκευή συγχρονίστηκε"
 msgid "Your device has been synchronized."
 msgstr "Η συσκευή σας έχει συγχρονιστεί."
 
-#: src/gpodder/gtkui/desktop/sync.py:106
-#: src/gpodder/gtkui/desktop/sync.py:250
+#: src/gpodder/gtkui/desktop/sync.py:106 src/gpodder/gtkui/desktop/sync.py:250
 msgid "Error closing device"
 msgstr "Σφάλμα κατά το κλείσιμο της συσκευής"
 
@@ -1634,8 +1616,12 @@ msgid "Delete podcasts from device?"
 msgstr "Να διαγραφούν τα podcasts από τη συσκευή;"
 
 #: src/gpodder/gtkui/desktop/sync.py:244
-msgid "Do you really want to remove these episodes from your device? Episodes in your library will not be deleted."
-msgstr "Θέλετε πραγματικά να αφαιρέσετε αυτά τα επεισόδια από τη συσκευή σας; Τα επεισόδια στη βιβλιοθήκη σας δε θα διαγραφούν."
+msgid ""
+"Do you really want to remove these episodes from your device? Episodes in "
+"your library will not be deleted."
+msgstr ""
+"Θέλετε πραγματικά να αφαιρέσετε αυτά τα επεισόδια από τη συσκευή σας; Τα "
+"επεισόδια στη βιβλιοθήκη σας δε θα διαγραφούν."
 
 #: src/gpodder/gtkui/desktop/sync.py:251
 msgid "There has been an error closing your device."
@@ -1703,10 +1689,8 @@ msgid "Edit %s"
 msgstr "Επεξεργασία %s"
 
 #: src/gpodder/gtkui/maemo/channel.py:83
-#: src/gpodder/gtkui/frmntl/episodes.py:90
-#: data/ui/maemo/gpodderchannel.ui.h:3
-#: data/ui/frmntl/gpodderchannel.ui.h:3
-#: data/ui/frmntl/gpodderepisodes.ui.h:8
+#: src/gpodder/gtkui/frmntl/episodes.py:90 data/ui/maemo/gpodderchannel.ui.h:3
+#: data/ui/frmntl/gpodderchannel.ui.h:3 data/ui/frmntl/gpodderepisodes.ui.h:8
 msgid "Rename podcast"
 msgstr "Μετονομασία podcast"
 
@@ -1858,10 +1842,8 @@ msgstr "Σχετικά με"
 msgid "About %s"
 msgstr "Σχετικά με %s"
 
-#: src/gpodder/gtkui/frmntl/about.py:103
-#: data/ui/maemo/gpodderchannel.ui.h:5
-#: data/ui/maemo/gpoddershownotes.ui.h:6
-#: data/ui/frmntl/gpodderchannel.ui.h:5
+#: src/gpodder/gtkui/frmntl/about.py:103 data/ui/maemo/gpodderchannel.ui.h:5
+#: data/ui/maemo/gpoddershownotes.ui.h:6 data/ui/frmntl/gpodderchannel.ui.h:5
 #: data/ui/frmntl/gpodderepisodes.ui.h:12
 #: data/ui/frmntl/gpoddershownotes.ui.h:2
 msgid "Visit website"
@@ -1906,9 +1888,8 @@ msgstr "Γίνεται λήψη %s"
 msgid "Old episode"
 msgstr "Παλιό επεισόδιο"
 
-#: src/gpodder/gtkui/frmntl/episodeactions.py:190
-#: data/ui/desktop/gpodder.ui.h:32
-#: data/ui/maemo/gpodder.ui.h:29
+#: src/gpodder/gtkui/frmntl/episodeactions.py:189
+#: data/ui/desktop/gpodder.ui.h:32 data/ui/maemo/gpodder.ui.h:29
 msgid "Play"
 msgstr "Αναπαραγωγή"
 
@@ -1934,26 +1915,132 @@ msgstr "Γίνεται λήψη επεισοδίου"
 msgid "Checking for new episodes..."
 msgstr "Γίνεται έλεγχος για νέα επεισόδια..."
 
+#: src/gpodder/gtkui/frmntl/hints.py:25
+msgid ""
+"Sign up for gpodder.net to synchronize (and backup) your subscriptions to "
+"the cloud."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:26
+msgid "Bulk-deleting episodes is possible from the main window menu."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:27
+msgid ""
+"To save power, automatic updates are only enabled while gPodder is running."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:28
+msgid "Subscribe to YouTube users and download their videos to your device."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:29
+msgid ""
+"Use the shortcut URL yt:<username> to quickly subscribe to a YouTube user."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:30
+msgid ""
+"Search for your fields of interest in the gpodder.net directory to find "
+"interesting content."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:31
+msgid ""
+"Longpress on an episode to access a menu with useful episode-related "
+"functions."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:32
+#, fuzzy
+msgid ""
+"Longpress on an episode in 'New episodes available' to display its shownotes."
+msgstr ""
+"Παρακαλώ επιλέξτε ένα επεισόδιο από τη λίστα επεισοδίων για να εμφανιστούν "
+"οι σημειώσεις επεισοδίου."
+
+#: src/gpodder/gtkui/frmntl/hints.py:33
+msgid ""
+"Use the hardware keyboard to filter down lists - simply start typing in the "
+"podcast or episode list."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:34
+msgid ""
+"The top row of the menu in each list window lets you set the filter for it."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:35
+msgid ""
+"Use fb:<name> as a shorthand for Feedburner URLs (feeds.feedburner.com/"
+"<name>)"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:36
+msgid ""
+"Episodes marked as 'Keep episode' will never be displayed in the 'Delete "
+"episodes' list."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:37
+msgid ""
+"Use gpodder.net to share your subscription list with friends via a private "
+"or public URL."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:38
+msgid ""
+"Found a problem? Report it at bugs.maemo.org (Extras / gPodder), so we can "
+"fix it in the next release."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:39
+msgid ""
+"Got a feature request? Let us know at bugs.maemo.org (Extras / gPodder)!"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:40
+msgid "Want to support gPodder? Use the 'donate' button in the about dialog."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:41
+msgid ""
+"Use Media Player as your audio and video player for position tracking "
+"support."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:42
+msgid ""
+"The 'Delete episodes' dialog has some useful presets in its menu - check "
+"them out!"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:43
+msgid ""
+"Use search-as-you-type in the 'All episodes' list to quickly find a specific "
+"episode."
+msgstr ""
+
 #: src/gpodder/gtkui/frmntl/model.py:77
 msgid "in downloads list"
 msgstr "στη λίστα των λήψεων"
 
-#: src/gpodder/gtkui/frmntl/model.py:83
+#: src/gpodder/gtkui/frmntl/model.py:89
 msgid "unplayed download"
 msgstr "μη αναπαραχθείσα λήψη"
 
-#: src/gpodder/gtkui/frmntl/model.py:85
+#: src/gpodder/gtkui/frmntl/model.py:91
 msgid "new episode"
 msgstr "νέο επεισόδιο"
 
-#: src/gpodder/gtkui/frmntl/model.py:118
+#: src/gpodder/gtkui/frmntl/model.py:127
 #, python-format
 msgid "%d new episode"
 msgid_plural "%d new episodes"
 msgstr[0] "%d νέο επεισόδιο"
 msgstr[1] "%d νέα επεισόδια"
 
-#: src/gpodder/gtkui/frmntl/model.py:119
+#: src/gpodder/gtkui/frmntl/model.py:128
 #, python-format
 msgid "%d unplayed download"
 msgid_plural "%d unplayed downloads"
@@ -2088,8 +2175,7 @@ msgstr "Εμφάνιση της προβολής \"Όλα τα επεισόδι�
 msgid "<b><big>Welcome to gPodder</big></b>"
 msgstr "<b><big>Καλώς ορίσατε στο gPodder</big></b>"
 
-#: data/ui/gpodderwelcome.ui.h:2
-#: data/ui/frmntl/gpodderwelcome.ui.h:1
+#: data/ui/gpodderwelcome.ui.h:2 data/ui/frmntl/gpodderwelcome.ui.h:1
 msgid "Choose from a list of example podcasts"
 msgstr "Επιλέξτε από μία λίστα με παραδείγματα podcasts"
 
@@ -2136,57 +2222,62 @@ msgid "Cover"
 msgstr "Εξώφυλλο"
 
 #: data/ui/desktop/gpodderchannel.ui.h:6
+msgid "Disable feed updates (pause subscription)"
+msgstr ""
+
+#: data/ui/desktop/gpodderchannel.ui.h:7
 msgid "Download to:"
 msgstr "Λήψη στο:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:7
+#: data/ui/desktop/gpodderchannel.ui.h:8
 msgid "Feed URL:"
 msgstr "Διεύθυνση (URL) ροής:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:8
+#: data/ui/desktop/gpodderchannel.ui.h:9
 #: data/ui/desktop/gpodderpreferences.ui.h:12
 msgid "General"
 msgstr "Γενικά"
 
-#: data/ui/desktop/gpodderchannel.ui.h:9
+#: data/ui/desktop/gpodderchannel.ui.h:10
 msgid "Go to website"
 msgstr "Μετάβαση στον ιστότοπο"
 
-#: data/ui/desktop/gpodderchannel.ui.h:10
+#: data/ui/desktop/gpodderchannel.ui.h:11
 #: data/ui/desktop/gpodderpreferences.ui.h:16
 #: data/ui/maemo/mygpoddersettings.ui.h:3
 #: data/ui/frmntl/gpodderpreferences.ui.h:6
 msgid "Password:"
 msgstr "Κωδικός πρόσβασης:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:11
+#: data/ui/desktop/gpodderchannel.ui.h:12
 msgid "Playlist name:"
 msgstr "Όνομα λίστας αναπαραγωγής:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:12
-msgid "Skip this podcast when syncing to my device"
-msgstr "Παράλειψη αυτού του podcast όταν γίνεται συγχρονισμός με τη συσκευή μου"
-
 #: data/ui/desktop/gpodderchannel.ui.h:13
+msgid "Skip this podcast when syncing to my device"
+msgstr ""
+"Παράλειψη αυτού του podcast όταν γίνεται συγχρονισμός με τη συσκευή μου"
+
+#: data/ui/desktop/gpodderchannel.ui.h:14
 msgid "Title:"
 msgstr "Τίτλος:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:14
+#: data/ui/desktop/gpodderchannel.ui.h:15
 #: data/ui/desktop/gpodderpreferences.ui.h:25
 #: data/ui/maemo/mygpoddersettings.ui.h:6
 #: data/ui/frmntl/gpodderpreferences.ui.h:12
 msgid "Username:"
 msgstr "Όνομα χρήστη:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:15
+#: data/ui/desktop/gpodderchannel.ui.h:16
 msgid "Website:"
 msgstr "Ιστότοπος:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:16
+#: data/ui/desktop/gpodderchannel.ui.h:17
 msgid "gPodder Podcast Editor"
 msgstr "Επεξεργαστής Podcast του gPodder"
 
-#: data/ui/desktop/gpodderchannel.ui.h:17
+#: data/ui/desktop/gpodderchannel.ui.h:18
 msgid "website label"
 msgstr "επιγραφή ιστότοπου"
 
@@ -2200,8 +2291,7 @@ msgid "gPodder Configuration Editor"
 msgstr "Επεξεργαστής ρυθμίσεων gPodder"
 
 #: data/ui/desktop/gpodderdependencymanager.ui.h:1
-#: data/ui/desktop/gpodder.ui.h:2
-#: data/ui/maemo/gpodder.ui.h:2
+#: data/ui/desktop/gpodder.ui.h:2 data/ui/maemo/gpodder.ui.h:2
 msgid "Additional components"
 msgstr "Πρόσθετα στοιχεία"
 
@@ -2215,7 +2305,9 @@ msgstr "<b><big>Διαχειριστής λίστας αναπαραγωγής</
 
 #: data/ui/desktop/gpodderdeviceplaylist.ui.h:2
 msgid "Create your playlist by selecting and sorting these episodes."
-msgstr "Δημιουργήστε τη λίστα αναπαραγωγής σας επιλέγοντας και ταξινομώντας αυτά τα επεισόδια."
+msgstr ""
+"Δημιουργήστε τη λίστα αναπαραγωγής σας επιλέγοντας και ταξινομώντας αυτά τα "
+"επεισόδια."
 
 #: data/ui/desktop/gpodderdeviceplaylist.ui.h:3
 msgid "Manage playlist on MP3 player"
@@ -2319,10 +2411,8 @@ msgstr "Σημείο προσάρτησης:"
 msgid "Only sync unplayed episodes"
 msgstr "Συγχρονισμός μόνο των μη αναπαραχθέντων επεισοδίων"
 
-#: data/ui/desktop/gpodderpreferences.ui.h:17
-#: data/ui/desktop/gpodder.ui.h:35
-#: data/ui/maemo/gpodderpreferences.ui.h:6
-#: data/ui/maemo/gpodder.ui.h:32
+#: data/ui/desktop/gpodderpreferences.ui.h:17 data/ui/desktop/gpodder.ui.h:35
+#: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/maemo/gpodder.ui.h:32
 msgid "Preferences"
 msgstr "Προτιμήσεις"
 
@@ -2386,26 +2476,27 @@ msgid "Copying Files To Device"
 msgstr "Γίνεται αντιγραφή αρχείων στη συσκευή"
 
 #: data/ui/desktop/gpoddersyncprogress.ui.h:3
-msgid "Episodes marked for synchronization are now transferred to your player device."
-msgstr "Επεισόδια που σημειώθηκαν για συγχρονισμό έχουν πλέον μεταφερθεί στη συσκευή αναπαραγωγής σας."
+msgid ""
+"Episodes marked for synchronization are now transferred to your player "
+"device."
+msgstr ""
+"Επεισόδια που σημειώθηκαν για συγχρονισμό έχουν πλέον μεταφερθεί στη συσκευή "
+"αναπαραγωγής σας."
 
 #: data/ui/desktop/gpoddersyncprogress.ui.h:4
 msgid "Initializing..."
 msgstr "Γίνεται έναρξη..."
 
-#: data/ui/desktop/gpodder.ui.h:1
-#: data/ui/maemo/gpodder.ui.h:1
+#: data/ui/desktop/gpodder.ui.h:1 data/ui/maemo/gpodder.ui.h:1
 #: data/ui/frmntl/gpodder.ui.h:2
 msgid "Add podcast via URL"
 msgstr "Προσθήκη podcast μέσω της διεύθυνσης (URL)"
 
-#: data/ui/desktop/gpodder.ui.h:5
-#: data/ui/maemo/gpodder.ui.h:5
+#: data/ui/desktop/gpodder.ui.h:5 data/ui/maemo/gpodder.ui.h:5
 msgid "Change delete lock"
 msgstr "Αλλαγή στο κλείδωμα της διαγραφής"
 
-#: data/ui/desktop/gpodder.ui.h:6
-#: data/ui/maemo/gpodder.ui.h:6
+#: data/ui/desktop/gpodder.ui.h:6 data/ui/maemo/gpodder.ui.h:6
 msgid "Change played status"
 msgstr "Αλλαγή στην κατάσταση αναπαραχθέντος"
 
@@ -2413,8 +2504,7 @@ msgstr "Αλλαγή στην κατάσταση αναπαραχθέντος"
 msgid "Check for Updates"
 msgstr "Έλεγχος για ενημερώσεις"
 
-#: data/ui/desktop/gpodder.ui.h:9
-#: data/ui/maemo/gpodder.ui.h:8
+#: data/ui/desktop/gpodder.ui.h:9 data/ui/maemo/gpodder.ui.h:8
 msgid "Close"
 msgstr "Κλείσιμο"
 
@@ -2422,75 +2512,62 @@ msgstr "Κλείσιμο"
 msgid "Copy selected episodes to device"
 msgstr "Αντιγραφή επιλεγμένων επεισοδίων στη συσκευή"
 
-#: data/ui/desktop/gpodder.ui.h:11
-#: data/ui/maemo/gpodder.ui.h:9
+#: data/ui/desktop/gpodder.ui.h:11 data/ui/maemo/gpodder.ui.h:9
 #: data/ui/frmntl/gpodderepisodeactions.ui.h:2
 #: data/ui/frmntl/gpodderepisodes.ui.h:2
 msgid "Delete"
 msgstr "Διαγραφή"
 
-#: data/ui/desktop/gpodder.ui.h:13
-#: data/ui/maemo/gpodder.ui.h:11
+#: data/ui/desktop/gpodder.ui.h:13 data/ui/maemo/gpodder.ui.h:11
 msgid "Device"
 msgstr "Συσκευή"
 
-#: data/ui/desktop/gpodder.ui.h:14
-#: data/ui/maemo/gpodder.ui.h:12
+#: data/ui/desktop/gpodder.ui.h:14 data/ui/maemo/gpodder.ui.h:12
 #: data/ui/frmntl/gpodder.ui.h:7
 msgid "Discover new podcasts"
 msgstr "Ανακαλύψτε νέα podcasts"
 
-#: data/ui/desktop/gpodder.ui.h:16
-#: data/ui/maemo/gpodder.ui.h:14
+#: data/ui/desktop/gpodder.ui.h:16 data/ui/maemo/gpodder.ui.h:14
 #: data/ui/frmntl/gpodder.ui.h:8
 msgid "Download new episodes"
 msgstr "Λήψη νέων επεισοδίων"
 
-#: data/ui/desktop/gpodder.ui.h:17
-#: data/ui/maemo/gpodder.ui.h:15
+#: data/ui/desktop/gpodder.ui.h:17 data/ui/maemo/gpodder.ui.h:15
 msgid "Downloaded episodes"
 msgstr "Ληφθέντα επεισόδια"
 
-#: data/ui/desktop/gpodder.ui.h:19
-#: data/ui/maemo/gpodder.ui.h:17
+#: data/ui/desktop/gpodder.ui.h:19 data/ui/maemo/gpodder.ui.h:17
 msgid "Episode descriptions"
 msgstr "Περιγραφές επεισοδίου"
 
-#: data/ui/desktop/gpodder.ui.h:21
-#: data/ui/maemo/gpodder.ui.h:19
+#: data/ui/desktop/gpodder.ui.h:21 data/ui/maemo/gpodder.ui.h:19
 #: data/ui/frmntl/gpodder.ui.h:10
 msgid "Export to OPML file"
 msgstr "Εξαγωγή σε αρχείο OPML"
 
-#: data/ui/desktop/gpodder.ui.h:22
-#: data/ui/maemo/gpodder.ui.h:20
+#: data/ui/desktop/gpodder.ui.h:22 data/ui/maemo/gpodder.ui.h:20
 msgid "Filter:"
 msgstr "Φίλτρο:"
 
-#: data/ui/desktop/gpodder.ui.h:23
-#: data/ui/maemo/gpodder.ui.h:21
+#: data/ui/desktop/gpodder.ui.h:23 data/ui/maemo/gpodder.ui.h:21
 msgid "Go to gpodder.net"
 msgstr "Μετάβαση στο gpodder.net"
 
-#: data/ui/desktop/gpodder.ui.h:24
-#: data/ui/maemo/gpodder.ui.h:22
+#: data/ui/desktop/gpodder.ui.h:24 data/ui/maemo/gpodder.ui.h:22
 msgid "Hide deleted episodes"
 msgstr "Απόκρυψη διαγραμμένων επεισοδίων"
 
-#: data/ui/desktop/gpodder.ui.h:25
-#: data/ui/maemo/gpodder.ui.h:23
+#: data/ui/desktop/gpodder.ui.h:25 data/ui/maemo/gpodder.ui.h:23
 #: data/ui/frmntl/gpodder.ui.h:11
 msgid "Hide podcasts without episodes"
 msgstr "Απόκρυψη των podcasts χωρίς επεισόδια"
 
-#: data/ui/desktop/gpodder.ui.h:26
-#: data/ui/maemo/gpodder.ui.h:24
+#: data/ui/desktop/gpodder.ui.h:26 data/ui/maemo/gpodder.ui.h:24
 #: data/ui/frmntl/gpodder.ui.h:12
 msgid "Import from OPML file"
 msgstr "Εισαγωγή από αρχείο OPML"
 
-#: data/ui/desktop/gpodder.ui.h:27
-#: data/ui/maemo/gpodder.ui.h:25
+#: data/ui/desktop/gpodder.ui.h:27 data/ui/maemo/gpodder.ui.h:25
 msgid "KiB/s"
 msgstr "KiB/s"
 
@@ -2506,24 +2583,20 @@ msgstr "Περιορισμός ταχύτητας σε"
 msgid "Manage device playlist"
 msgstr "Διαχείριση της λίστας αναπαραγωγής της συσκευής"
 
-#: data/ui/desktop/gpodder.ui.h:31
-#: data/ui/maemo/gpodder.ui.h:28
+#: data/ui/desktop/gpodder.ui.h:31 data/ui/maemo/gpodder.ui.h:28
 msgid "Open"
 msgstr "Άνοιγμα"
 
-#: data/ui/desktop/gpodder.ui.h:33
-#: data/ui/maemo/gpodder.ui.h:30
+#: data/ui/desktop/gpodder.ui.h:33 data/ui/maemo/gpodder.ui.h:30
 #: data/ui/frmntl/gpodder.ui.h:13
 msgid "Podcast settings"
 msgstr "Ρυθμίσεις του podcast"
 
-#: data/ui/desktop/gpodder.ui.h:36
-#: data/ui/maemo/gpodder.ui.h:33
+#: data/ui/desktop/gpodder.ui.h:36 data/ui/maemo/gpodder.ui.h:33
 msgid "Quit"
 msgstr "Έξοδος"
 
-#: data/ui/desktop/gpodder.ui.h:38
-#: data/ui/maemo/gpodder.ui.h:35
+#: data/ui/desktop/gpodder.ui.h:38 data/ui/maemo/gpodder.ui.h:35
 #: data/ui/frmntl/gpodder.ui.h:15
 msgid "Report a problem"
 msgstr "Αναφορά ενός προβλήματος"
@@ -2532,19 +2605,16 @@ msgstr "Αναφορά ενός προβλήματος"
 msgid "Select and remove episodes from device"
 msgstr "Επιλογή και αφαίρεση επεισοδίων από τη συσκευή"
 
-#: data/ui/desktop/gpodder.ui.h:40
-#: data/ui/maemo/gpodderpreferences.ui.h:7
+#: data/ui/desktop/gpodder.ui.h:40 data/ui/maemo/gpodderpreferences.ui.h:7
 #: data/ui/maemo/gpodder.ui.h:36
 msgid "Show \"All episodes\" in podcast list"
 msgstr "Εμφάνιση \"Όλα τα επεισόδια\" στη λίστα των podcast"
 
-#: data/ui/desktop/gpodder.ui.h:41
-#: data/ui/maemo/gpodder.ui.h:37
+#: data/ui/desktop/gpodder.ui.h:41 data/ui/maemo/gpodder.ui.h:37
 msgid "Show toolbar"
 msgstr "Εμφάνιση γραμμής εργαλείων"
 
-#: data/ui/desktop/gpodder.ui.h:42
-#: data/ui/maemo/gpodder.ui.h:38
+#: data/ui/desktop/gpodder.ui.h:42 data/ui/maemo/gpodder.ui.h:38
 #: data/ui/frmntl/gpodder.ui.h:17
 msgid "Support gPodder"
 msgstr "Υποστήριξη gPodder"
@@ -2557,65 +2627,52 @@ msgstr "Συγχρονισμός επεισοδίων με τη συσκευή"
 msgid "Transfer"
 msgstr "Μεταφορά"
 
-#: data/ui/desktop/gpodder.ui.h:45
-#: data/ui/maemo/gpodder.ui.h:39
+#: data/ui/desktop/gpodder.ui.h:45 data/ui/maemo/gpodder.ui.h:39
 msgid "Unplayed episodes"
 msgstr "Μη αναπαραχθέντα επεισόδια"
 
-#: data/ui/desktop/gpodder.ui.h:46
-#: data/ui/maemo/gpodder.ui.h:40
-#: data/ui/frmntl/gpodderepisodes.ui.h:11
-#: data/ui/frmntl/gpodder.ui.h:19
+#: data/ui/desktop/gpodder.ui.h:46 data/ui/maemo/gpodder.ui.h:40
+#: data/ui/frmntl/gpodderepisodes.ui.h:11 data/ui/frmntl/gpodder.ui.h:19
 msgid "Unsubscribe"
 msgstr "Κατάργηση συνδρομής"
 
-#: data/ui/desktop/gpodder.ui.h:48
-#: data/ui/maemo/gpodder.ui.h:44
+#: data/ui/desktop/gpodder.ui.h:48 data/ui/maemo/gpodder.ui.h:44
 msgid "User manual"
 msgstr "Εγχειρίδιο χρήστη"
 
-#: data/ui/desktop/gpodder.ui.h:49
-#: data/ui/maemo/gpodder.ui.h:45
+#: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:45
 msgid "Website"
 msgstr "Ιστότοπος"
 
-#: data/ui/desktop/gpodder.ui.h:50
-#: data/ui/maemo/gpodder.ui.h:46
+#: data/ui/desktop/gpodder.ui.h:50 data/ui/maemo/gpodder.ui.h:46
 msgid "_Episodes"
 msgstr "_Επεισόδια"
 
-#: data/ui/desktop/gpodder.ui.h:51
-#: data/ui/maemo/gpodder.ui.h:47
+#: data/ui/desktop/gpodder.ui.h:51 data/ui/maemo/gpodder.ui.h:47
 msgid "_Help"
 msgstr "_Βοήθεια"
 
-#: data/ui/desktop/gpodder.ui.h:52
-#: data/ui/maemo/gpodder.ui.h:48
+#: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
 msgid "_Podcasts"
 msgstr "_Podcasts"
 
-#: data/ui/desktop/gpodder.ui.h:53
-#: data/ui/maemo/gpodder.ui.h:49
+#: data/ui/desktop/gpodder.ui.h:53 data/ui/maemo/gpodder.ui.h:49
 msgid "_Subscriptions"
 msgstr "_Συνδρομές"
 
-#: data/ui/desktop/gpodder.ui.h:54
-#: data/ui/maemo/gpodder.ui.h:50
+#: data/ui/desktop/gpodder.ui.h:54 data/ui/maemo/gpodder.ui.h:50
 msgid "_View"
 msgstr "_Προβολή"
 
-#: data/ui/maemo/gpodderchannel.ui.h:1
-#: data/ui/frmntl/gpodderchannel.ui.h:1
+#: data/ui/maemo/gpodderchannel.ui.h:1 data/ui/frmntl/gpodderchannel.ui.h:1
 msgid "Edit username/password"
 msgstr "Επεξεργασία ονόματος χρήστη/κωδικού πρόσβασης"
 
-#: data/ui/maemo/gpodderchannel.ui.h:2
-#: data/ui/frmntl/gpodderchannel.ui.h:2
+#: data/ui/maemo/gpodderchannel.ui.h:2 data/ui/frmntl/gpodderchannel.ui.h:2
 msgid "Reload cover image"
 msgstr "Επαναφόρτωση εικόνας εξώφυλλου"
 
-#: data/ui/maemo/gpodderchannel.ui.h:4
-#: data/ui/frmntl/gpodderchannel.ui.h:4
+#: data/ui/maemo/gpodderchannel.ui.h:4 data/ui/frmntl/gpodderchannel.ui.h:4
 msgid "Set cover from file"
 msgstr "Ορισμός εξώφυλλου από αρχείο"
 
@@ -2758,8 +2815,7 @@ msgstr "Αναπαραγωγέας για αρχεία ήχου"
 msgid "Player for video files"
 msgstr "Αναπαραγωγέας για αρχεία βίντεο"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:10
-#: data/ui/frmntl/gpodder.ui.h:16
+#: data/ui/frmntl/gpodderpreferences.ui.h:10 data/ui/frmntl/gpodder.ui.h:16
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
@@ -2795,30 +2851,53 @@ msgstr "Λήψη της λίστας μου από το gpodder.net"
 msgid "Your podcast list is empty. What do you want to do?"
 msgstr "Η λίστα των podcasts σας είναι άδεια. Τι θέλετε να κάνετε;"
 
-#: bin/gpodder:116
+#: bin/gpodder:120
 msgid "Print debugging output to stdout"
 msgstr "Εκτύπωση της εξαγόμενης αποσφαλμάτωσης στην πρότυπη έξοδο"
 
-#: bin/gpodder:120
-msgid "Start the Maemo 4 user interface"
+#: bin/gpodder:124
+#, fuzzy
+msgid "Force using the Maemo 4 user interface"
 msgstr "Έναρξη της διεπαφής χρήστη Maemo 4"
 
-#: bin/gpodder:124
-msgid "Start the Maemo 5 user interface"
+#: bin/gpodder:128
+#, fuzzy
+msgid "Force using the Maemo 5 user interface"
 msgstr "Έναρξη της διεπαφής χρήστη Maemo 5"
+
+#~ msgid "%(position)d/%(total)d updated"
+#~ msgstr "Ενημερώθηκαν %(position)d/%(total)d"
+
+#~ msgid "Updating..."
+#~ msgstr "Γίνεται ενημέρωση..."
+
+#~ msgid "MTP device synchronization"
+#~ msgstr "Συγχρονισμός συσκευής MTP"
+
+#~ msgid ""
+#~ "Support synchronization of podcasts to devices using the Media Transfer "
+#~ "Protocol via pymtp."
+#~ msgstr ""
+#~ "Υποστήριξη συγχρονισμού των podcasts σε συσκευές που χρησιμοποιούν το "
+#~ "Πρωτόκολλο Μεταφοράς Μέσων (Media Transfer Protocol) μέσω pymtp."
 
 #~ msgid "Open download folder"
 #~ msgstr "Άνοιγμα φακέλου λήψεων"
+
 #~ msgid "Update Feed"
 #~ msgstr "Ενημέρωση Ροής"
+
 #~ msgid "Update M3U playlist"
 #~ msgstr "Ενημέρωση λίστα αναπαραγωγής M3U"
+
 #~ msgid "Allow deletion of all episodes"
 #~ msgstr "Επίτρεψε τη διαγραφή όλων των επεισοδίων"
+
 #~ msgid "Prohibit deletion of all episodes"
 #~ msgstr "Απότρεψε τη διαγραφή όλων των επεισοδίων"
+
 #~ msgid "OPML:"
 #~ msgstr "OPML:"
+
 #~ msgid "Remove multiple podcasts"
 #~ msgstr "Αφαίρεση πολλαπλών podcasts"
-

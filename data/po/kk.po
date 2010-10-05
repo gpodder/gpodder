@@ -2,12 +2,12 @@
 # Copyright (C) 2010 gpodder team
 # This file is distributed under the same license as the PACKAGE package.
 # Baurzhan Muftakhidinov <baurthefirst@gmail.com>, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-24 00:33+0200\n"
+"POT-Creation-Date: 2010-10-05 12:46+0200\n"
 "PO-Revision-Date: 2010-04-09 00:40+0600\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <kk_KZ@googlegroups.com>\n"
@@ -34,11 +34,11 @@ msgstr "Бірде-бір құрылғы бапталмаған."
 msgid "Synchronizing: %(index)s of %(count)s"
 msgstr "Синхронизация: %(index)s, барлығы %(count)s"
 
-#: src/gpodder/console.py:55
+#: src/gpodder/console.py:58
 msgid "Device synchronized successfully."
 msgstr "Құрылғы сәтті синхрондалды."
 
-#: src/gpodder/console.py:58
+#: src/gpodder/console.py:61
 msgid "Error: Cannot open device!"
 msgstr "Қате: Құрылғыны ашу мүмкін емес!"
 
@@ -54,11 +54,11 @@ msgstr "Қосылған"
 msgid "Queued"
 msgstr "Кезекте"
 
-#: src/gpodder/download.py:521 src/gpodder/gtkui/model.py:252
+#: src/gpodder/download.py:521 src/gpodder/gtkui/model.py:270
 msgid "Downloading"
 msgstr "Жүктелуде"
 
-#: src/gpodder/download.py:522 src/gpodder/model.py:1210
+#: src/gpodder/download.py:522 src/gpodder/model.py:1231
 msgid "Finished"
 msgstr "Аяқталған"
 
@@ -93,77 +93,81 @@ msgstr "HTTP қатесі %(code)s: %(message)s"
 msgid "Error: %s"
 msgstr "Қате: %s"
 
-#: src/gpodder/gui.py:208 src/gpodder/gui.py:1263 src/gpodder/gui.py:1279
+#: src/gpodder/gui.py:210 src/gpodder/gui.py:1331 src/gpodder/gui.py:1347
 #: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
 #: data/ui/frmntl/gpodderdownloads.ui.h:3 data/ui/frmntl/gpodder.ui.h:9
 msgid "Downloads"
 msgstr "Жүктемелер"
 
-#: src/gpodder/gui.py:209 src/gpodder/gui.py:1288
+#: src/gpodder/gui.py:211 src/gpodder/gui.py:1356
 msgid "Idle"
 msgstr "Іссіз"
 
-#: src/gpodder/gui.py:317 src/gpodder/gui.py:543
+#: src/gpodder/gui.py:220
+msgid "Hint of the day"
+msgstr ""
+
+#: src/gpodder/gui.py:332 src/gpodder/gui.py:565
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gui.py:467
+#: src/gpodder/gui.py:489
 msgid "Loading incomplete downloads"
 msgstr "Толық емес жүктемелерді алу"
 
-#: src/gpodder/gui.py:468
+#: src/gpodder/gui.py:490
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Алдындағы сессияда кейбір жүктемелер аяқталмаған."
 
-#: src/gpodder/gui.py:470
+#: src/gpodder/gui.py:492
 #, python-format
 msgid "%d partial file"
 msgid_plural "%d partial files"
 msgstr[0] "%d толық емес файл"
 
-#: src/gpodder/gui.py:503
+#: src/gpodder/gui.py:525
 msgid "Resume all"
 msgstr "Барлығын жалғастыру"
 
-#: src/gpodder/gui.py:514
+#: src/gpodder/gui.py:536
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Алдындағы сессиядан қалған аяқталмаған жүктемелер бар."
 
-#: src/gpodder/gui.py:638
+#: src/gpodder/gui.py:660
 msgid "Action"
 msgstr "Әрекет"
 
-#: src/gpodder/gui.py:682
+#: src/gpodder/gui.py:704
 msgid "Confirm changes from gpodder.net"
 msgstr "gpodder.net-тен өзгерістерді растаңыз"
 
-#: src/gpodder/gui.py:683
+#: src/gpodder/gui.py:705
 msgid "Select the actions you want to carry out."
 msgstr "Орындау үішн әрекетті таңдаңыз."
 
-#: src/gpodder/gui.py:720
+#: src/gpodder/gui.py:742
 msgid "Uploading subscriptions"
 msgstr "Жазылуларды жүктеу"
 
-#: src/gpodder/gui.py:721
+#: src/gpodder/gui.py:743
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "Жазылуларыңыз серверге жүктелуде."
 
-#: src/gpodder/gui.py:726
+#: src/gpodder/gui.py:748
 msgid "List uploaded successfully."
 msgstr "Тізім сәтті жүктелді."
 
-#: src/gpodder/gui.py:733
+#: src/gpodder/gui.py:755
 msgid "Error while uploading"
 msgstr "Жүктеу кезінде қате кетті"
 
-#: src/gpodder/gui.py:967 src/gpodder/gui.py:3076
+#: src/gpodder/gui.py:1005 src/gpodder/gui.py:3167
 #: src/gpodder/gtkui/desktop/dependencymanager.py:36
 msgid "Status"
 msgstr "Күйі"
 
-#: src/gpodder/gui.py:972 src/gpodder/gui.py:1062 src/gpodder/gui.py:3069
-#: src/gpodder/gui.py:3073 src/gpodder/gui.py:3241 src/gpodder/gui.py:3246
+#: src/gpodder/gui.py:1010 src/gpodder/gui.py:1130 src/gpodder/gui.py:3160
+#: src/gpodder/gui.py:3164 src/gpodder/gui.py:3337 src/gpodder/gui.py:3342
 #: src/gpodder/gtkui/desktop/episodeselector.py:134
 #: src/gpodder/gtkui/desktop/sync.py:224
 #: src/gpodder/gtkui/maemo/episodeselector.py:133
@@ -171,141 +175,141 @@ msgstr "Күйі"
 msgid "Episode"
 msgstr "Эпизод"
 
-#: src/gpodder/gui.py:978 src/gpodder/gui.py:3074 src/gpodder/gui.py:3247
+#: src/gpodder/gui.py:1044 src/gpodder/gui.py:3165 src/gpodder/gui.py:3343
 #: src/gpodder/gtkui/desktop/sync.py:226
 msgid "Size"
 msgstr "Өлшемі"
 
-#: src/gpodder/gui.py:981 src/gpodder/gui.py:3075 src/gpodder/gui.py:3248
+#: src/gpodder/gui.py:1048 src/gpodder/gui.py:3166 src/gpodder/gui.py:3344
 #: src/gpodder/gtkui/desktop/sync.py:229
 msgid "Released"
 msgstr "Шыққан"
 
-#: src/gpodder/gui.py:1046 src/gpodder/gui.py:1694 src/gpodder/gui.py:1993
+#: src/gpodder/gui.py:1114 src/gpodder/gui.py:1763 src/gpodder/gui.py:2062
 msgid "Close this menu"
 msgstr "Бұл мәзірді жабу"
 
-#: src/gpodder/gui.py:1084
+#: src/gpodder/gui.py:1152
 msgid "Progress"
 msgstr "Барысы"
 
-#: src/gpodder/gui.py:1116
+#: src/gpodder/gui.py:1184
 msgid "Loading episodes"
 msgstr "Эпизодтар жүктелуде"
 
-#: src/gpodder/gui.py:1120
+#: src/gpodder/gui.py:1188
 msgid "No episodes in current view"
 msgstr "Ағымдағы көріністе эпизодтар жоқ"
 
-#: src/gpodder/gui.py:1122
+#: src/gpodder/gui.py:1190
 msgid "No episodes available"
 msgstr "Қолжетерлік эпизодтар жоқ"
 
-#: src/gpodder/gui.py:1128
+#: src/gpodder/gui.py:1196
 msgid "No podcasts in this view"
 msgstr "Бұл көріністе подкасттар жоқ"
 
-#: src/gpodder/gui.py:1130
+#: src/gpodder/gui.py:1198
 msgid "No subscriptions"
 msgstr "Жазылулар жоқ"
 
-#: src/gpodder/gui.py:1132
+#: src/gpodder/gui.py:1200
 msgid "No active downloads"
 msgstr "Белсенді жүктемелер жоқ"
 
-#: src/gpodder/gui.py:1267 src/gpodder/gui.py:1282
+#: src/gpodder/gui.py:1335 src/gpodder/gui.py:1350
 #, python-format
 msgid "%d active"
 msgid_plural "%d active"
 msgstr[0] "%d белсенді"
 
-#: src/gpodder/gui.py:1269 src/gpodder/gui.py:1284
+#: src/gpodder/gui.py:1337 src/gpodder/gui.py:1352
 #, python-format
 msgid "%d failed"
 msgid_plural "%d failed"
 msgstr[0] "%d сәтсіз"
 
-#: src/gpodder/gui.py:1271
+#: src/gpodder/gui.py:1339
 #, python-format
 msgid "%d queued"
 msgid_plural "%d queued"
 msgstr[0] "%d кезекте"
 
-#: src/gpodder/gui.py:1277
+#: src/gpodder/gui.py:1345
 #, python-format
 msgid "Downloads (%d)"
 msgstr "Жүктемелер (%d)"
 
-#: src/gpodder/gui.py:1286
+#: src/gpodder/gui.py:1354
 #, python-format
 msgid "%d paused"
 msgid_plural "%d paused"
 msgstr[0] "%d аялдатылған"
 
-#: src/gpodder/gui.py:1303
+#: src/gpodder/gui.py:1371
 #, python-format
 msgid "downloading %d file"
 msgid_plural "downloading %d files"
 msgstr[0] "%d файл жүктелуде"
 
-#: src/gpodder/gui.py:1322
+#: src/gpodder/gui.py:1390
 msgid "All downloads finished"
 msgstr "Барлық жүктемелер аяқталған"
 
-#: src/gpodder/gui.py:1330 src/gpodder/gui.py:1561
+#: src/gpodder/gui.py:1398 src/gpodder/gui.py:1630
 msgid "Downloads failed"
 msgstr "Жүктемелер сәтсіз"
 
-#: src/gpodder/gui.py:1355
+#: src/gpodder/gui.py:1423
 msgid "Please report this problem and restart gPodder:"
 msgstr "Осы ақаулық жөнінде хабарлап, gPodder-ді қайта қосыңыз:"
 
-#: src/gpodder/gui.py:1355
+#: src/gpodder/gui.py:1423
 msgid "Unhandled exception"
 msgstr "Басқарылмайтын төтеншелік"
 
-#: src/gpodder/gui.py:1433
+#: src/gpodder/gui.py:1501
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Таспа өңдеуіш қатесі: %s"
 
-#: src/gpodder/gui.py:1447
+#: src/gpodder/gui.py:1515
 msgid "disk usage"
 msgstr "дискті қолдану"
 
-#: src/gpodder/gui.py:1482
+#: src/gpodder/gui.py:1550
 msgid "Updated M3U playlist in download folder."
 msgstr "Жүктемелер бумасында M3U ойнау тізімі жаңартылған."
 
-#: src/gpodder/gui.py:1482
+#: src/gpodder/gui.py:1550
 msgid "Updated playlist"
 msgstr "Ойнау тізімі жаңартылған"
 
-#: src/gpodder/gui.py:1553
+#: src/gpodder/gui.py:1622
 msgid "These downloads failed:"
 msgstr "Бұл жүктемелер сәтсіз:"
 
-#: src/gpodder/gui.py:1555 src/gpodder/gui.py:1558
+#: src/gpodder/gui.py:1624 src/gpodder/gui.py:1627
 msgid "Downloads finished"
 msgstr "Жүктемелер аяқталған"
 
-#: src/gpodder/gui.py:1598
+#: src/gpodder/gui.py:1667
 #, python-format
 msgid "%d more episode"
 msgid_plural "%d more episodes"
 msgstr[0] "тағы %d эпизод"
 
-#: src/gpodder/gui.py:1671 src/gpodder/gui.py:1984
+#: src/gpodder/gui.py:1740 src/gpodder/gui.py:2053
 #: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
 #: data/ui/maemo/gpodder.ui.h:18
 msgid "Episode details"
 msgstr "Эпизод ақпараты"
 
-#: src/gpodder/gui.py:1682
+#: src/gpodder/gui.py:1751
 msgid "Start download now"
 msgstr "Жүктеп алуды қазір бастау"
 
-#: src/gpodder/gui.py:1684 src/gpodder/gui.py:1913
+#: src/gpodder/gui.py:1753 src/gpodder/gui.py:1982
 #: src/gpodder/gtkui/desktop/episodeselector.py:147
 #: src/gpodder/gtkui/maemo/episodeselector.py:149
 #: src/gpodder/gtkui/frmntl/episodeselector.py:153
@@ -316,521 +320,530 @@ msgstr "Жүктеп алуды қазір бастау"
 msgid "Download"
 msgstr "Жүктеп алу"
 
-#: src/gpodder/gui.py:1685 data/ui/desktop/gpodder.ui.h:4
+#: src/gpodder/gui.py:1754 data/ui/desktop/gpodder.ui.h:4
 #: data/ui/maemo/gpodder.ui.h:4
 msgid "Cancel"
 msgstr "Бас тарту"
 
-#: src/gpodder/gui.py:1686
+#: src/gpodder/gui.py:1755
 msgid "Pause"
 msgstr "Аялдату"
 
-#: src/gpodder/gui.py:1688
+#: src/gpodder/gui.py:1757
 msgid "Remove from list"
 msgstr "Тізімнен өшіру"
 
-#: src/gpodder/gui.py:1719 data/ui/desktop/gpodder.ui.h:47
+#: src/gpodder/gui.py:1788 data/ui/desktop/gpodder.ui.h:47
 #: data/ui/maemo/gpodder.ui.h:42 data/ui/frmntl/gpodder.ui.h:20
 msgid "Update podcast"
 msgstr "Подкастты жаңарту"
 
-#: src/gpodder/gui.py:1727
+#: src/gpodder/gui.py:1796
 msgid "Keep episodes"
 msgstr "Эпизодтарды ұстау"
 
-#: src/gpodder/gui.py:1732
+#: src/gpodder/gui.py:1801
 msgid "Remove podcast"
 msgstr "Подкастты өшіру"
 
-#: src/gpodder/gui.py:1738 src/gpodder/gtkui/desktop/trayicon.py:95
+#: src/gpodder/gui.py:1807 src/gpodder/gtkui/desktop/trayicon.py:95
 msgid "Synchronize to device"
 msgstr "Құрылғыға синхрондау"
 
-#: src/gpodder/gui.py:1744
+#: src/gpodder/gui.py:1813
 msgid "Podcast details"
 msgstr "Подкаст ақпараты"
 
-#: src/gpodder/gui.py:1817
+#: src/gpodder/gui.py:1886
 msgid "Error converting file."
 msgstr "Файлды түрлендіру қатемен аяқталды."
 
-#: src/gpodder/gui.py:1817 src/gpodder/services.py:115
+#: src/gpodder/gui.py:1886 src/gpodder/services.py:115
 msgid "Bluetooth file transfer"
 msgstr "Bluetooth файлдармен алмасу"
 
-#: src/gpodder/gui.py:1825 src/gpodder/gtkui/desktop/preferences.py:77
+#: src/gpodder/gui.py:1894 src/gpodder/gtkui/desktop/preferences.py:77
 msgid "iPod"
 msgstr "iPod"
 
-#: src/gpodder/gui.py:1827
+#: src/gpodder/gui.py:1896
 msgid "MP3 player"
 msgstr "MP3 плеері"
 
-#: src/gpodder/gui.py:1905 src/gpodder/gtkui/frmntl/episodeactions.py:136
+#: src/gpodder/gui.py:1974 src/gpodder/gtkui/frmntl/episodeactions.py:136
 msgid "Stream"
 msgstr "Ағын"
 
-#: src/gpodder/gui.py:1933
+#: src/gpodder/gui.py:2002
 msgid "Send to"
 msgstr "Жіберу"
 
-#: src/gpodder/gui.py:1937
+#: src/gpodder/gui.py:2006
 msgid "Local folder"
 msgstr "Жергілікті бума"
 
-#: src/gpodder/gui.py:1942
+#: src/gpodder/gui.py:2011
 msgid "Bluetooth device"
 msgstr "Bluetooth құрылғысы"
 
-#: src/gpodder/gui.py:1961 src/gpodder/gui.py:1966
+#: src/gpodder/gui.py:2030 src/gpodder/gui.py:2035
 #: data/ui/frmntl/gpodderepisodes.ui.h:7
 msgid "New"
 msgstr "Жаңа"
 
-#: src/gpodder/gui.py:1972 src/gpodder/gtkui/frmntl/episodeactions.py:192
+#: src/gpodder/gui.py:2041 src/gpodder/gtkui/frmntl/episodeactions.py:191
 msgid "Played"
 msgstr "Ойналған"
 
-#: src/gpodder/gui.py:1977 src/gpodder/gtkui/frmntl/episodeactions.py:187
+#: src/gpodder/gui.py:2046 src/gpodder/gtkui/frmntl/episodeactions.py:186
 msgid "Keep episode"
 msgstr "Эпизодты ұстау"
 
-#: src/gpodder/gui.py:2191
+#: src/gpodder/gui.py:2268
 #, python-format
 msgid "Opening %s"
 msgstr "%s ашу"
 
-#: src/gpodder/gui.py:2194
+#: src/gpodder/gui.py:2271
 #, python-format
 msgid "Opening %d episode"
 msgid_plural "Opening %d episodes"
 msgstr[0] "%d эпизод ашылуда"
 
-#: src/gpodder/gui.py:2225 src/gpodder/gui.py:2228 src/gpodder/gui.py:3805
+#: src/gpodder/gui.py:2302 src/gpodder/gui.py:2305 src/gpodder/gui.py:3901
 msgid "Please check your media player settings in the preferences dialog."
 msgstr "Баптаулар терезесіндегі медиа плеер баптауларын тексеріңіз."
 
-#: src/gpodder/gui.py:2226
+#: src/gpodder/gui.py:2303
 msgid "Error opening player"
 msgstr "Плеерді ашу сәтсіз"
 
-#: src/gpodder/gui.py:2460
+#: src/gpodder/gui.py:2542
 msgid "Adding podcasts"
 msgstr "Подкасттар қосылуда"
 
-#: src/gpodder/gui.py:2461
+#: src/gpodder/gui.py:2543
 msgid "Please wait while episode information is downloaded."
 msgstr "Эпизод ақпараты жүктелгенше күте тұрыңыз."
 
-#: src/gpodder/gui.py:2468
+#: src/gpodder/gui.py:2550
 msgid "Existing subscriptions skipped"
 msgstr "Бар болып тұрған жазылу ескерілмеді"
 
-#: src/gpodder/gui.py:2469
+#: src/gpodder/gui.py:2551
 msgid "You are already subscribed to these podcasts:"
 msgstr "Сіз келесі подкасттарға жазулы тұрсыз:"
 
-#: src/gpodder/gui.py:2477
+#: src/gpodder/gui.py:2559
 msgid "Podcast requires authentication"
 msgstr "Подкаст аутентификацияны сұрап тұр"
 
-#: src/gpodder/gui.py:2478
+#: src/gpodder/gui.py:2560
 #, python-format
 msgid "Please login to %s:"
 msgstr "%s сайтына кіріңіз:"
 
-#: src/gpodder/gui.py:2486 src/gpodder/gui.py:2577
+#: src/gpodder/gui.py:2568 src/gpodder/gui.py:2659
 msgid "Authentication failed"
 msgstr "Аутентификация сәтсіз"
 
-#: src/gpodder/gui.py:2496
+#: src/gpodder/gui.py:2578
 msgid "Website redirection detected"
 msgstr "Веб сайт қайта бағдарлауы анықталды"
 
-#: src/gpodder/gui.py:2497
+#: src/gpodder/gui.py:2579
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "%(url)s URL-ы %(target)s бағдарлап тұр."
 
-#: src/gpodder/gui.py:2498
+#: src/gpodder/gui.py:2580
 msgid "Do you want to visit the website now?"
 msgstr "Веб сайтқа өтуді қазір қалайсыз ба?"
 
-#: src/gpodder/gui.py:2507
+#: src/gpodder/gui.py:2589
 msgid "Could not add some podcasts"
 msgstr "Кейбір подкасттарды қосу мүмкін емес"
 
-#: src/gpodder/gui.py:2508
+#: src/gpodder/gui.py:2590
 msgid "Some podcasts could not be added to your list:"
 msgstr "Кейбір подкасттарды тізіміңізге қосу мүмкін емес:"
 
-#: src/gpodder/gui.py:2510
+#: src/gpodder/gui.py:2592
 msgid "Unknown"
 msgstr "Белгісіз"
 
-#: src/gpodder/gui.py:2586
+#: src/gpodder/gui.py:2668
 msgid "Redirection detected"
 msgstr "Қайта бағдарлау анықталды"
 
-#: src/gpodder/gui.py:2626
+#: src/gpodder/gui.py:2708
 msgid "Merging episode actions"
 msgstr "Эпизод әрекеттерін біріктіру"
 
-#: src/gpodder/gui.py:2627
+#: src/gpodder/gui.py:2709
 msgid "Episode actions from gpodder.net are merged."
 msgstr "gpodder.net-тен эпизод әрекеттері біріктірілді."
 
-#: src/gpodder/gui.py:2660
+#: src/gpodder/gui.py:2742
 #, python-format
 msgid "%d action processed"
 msgid_plural "%d actions processed"
 msgstr[0] "%d әрекет орындалды"
 
-#: src/gpodder/gui.py:2697
+#: src/gpodder/gui.py:2787
 msgid "New episodes are available."
 msgstr "Жаңа эпизодтар бар."
 
-#: src/gpodder/gui.py:2700 src/gpodder/gui.py:2753
+#: src/gpodder/gui.py:2790 src/gpodder/gui.py:2848
 #, python-format
 msgid "Downloading %d new episode."
 msgid_plural "Downloading %d new episodes."
 msgstr[0] "%d жаңа эпизод жүктелуде."
 
-#: src/gpodder/gui.py:2704
+#: src/gpodder/gui.py:2794
 msgid "New episodes have been added to the download list."
 msgstr "Бірде-бір жаңа эпизод жүктемелер тізіміне қосылмады."
 
-#: src/gpodder/gui.py:2710 src/gpodder/gui.py:2754 src/gpodder/gui.py:2759
-#: src/gpodder/gui.py:3267
+#: src/gpodder/gui.py:2803 src/gpodder/gui.py:2849 src/gpodder/gui.py:2854
+#: src/gpodder/gui.py:3363
 msgid "New episodes available"
 msgstr "Жаңа эпизодтар бар"
 
-#: src/gpodder/gui.py:2724
+#: src/gpodder/gui.py:2819
 msgid "No new episodes. Please check for new episodes later."
 msgstr "Жаңа эпизодтар жоқ. Кейін тексеріп көріңіз."
 
-#: src/gpodder/gui.py:2736
+#: src/gpodder/gui.py:2831
 msgid "No new episodes"
 msgstr "Жаңа эпизодтар жоқ"
 
-#: src/gpodder/gui.py:2758
+#: src/gpodder/gui.py:2853
 #, python-format
 msgid "%d new episode added to download list."
 msgid_plural "%d new episodes added to download list."
 msgstr[0] "%d жаңа эпизод жүктемелер тізіміне қосылды."
 
-#: src/gpodder/gui.py:2767
+#: src/gpodder/gui.py:2862
 #, python-format
 msgid "%d new episode available"
 msgid_plural "%d new episodes available"
 msgstr[0] "%d жаңа эпизод бар"
 
-#: src/gpodder/gui.py:2786
+#: src/gpodder/gui.py:2881
 #, python-format
 msgid "Error while updating %(url)s: %(message)s"
 msgstr "Жаңарту қатесі %(url)s: %(message)s"
 
-#: src/gpodder/gui.py:2788
+#: src/gpodder/gui.py:2883
 #, python-format
 msgid "The feed at %(url)s could not be updated."
 msgstr "%(url)s адресіндегі таспаларды жаңарту мүмкін емес."
 
-#: src/gpodder/gui.py:2789
+#: src/gpodder/gui.py:2884
 msgid "Error while updating feed"
 msgstr "Таспаны жаңарту сәтсіз"
 
-#: src/gpodder/gui.py:2797
-#, python-format
-msgid "%(position)d/%(total)d updated"
-msgstr "%(position)d/%(total)d жаңартылды"
-
-#: src/gpodder/gui.py:2804
+#: src/gpodder/gui.py:2894
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "Жаңартылған %(podcast)s (%(position)d/%(total)d)"
 
-#: src/gpodder/gui.py:2833
+#: src/gpodder/gui.py:2923
 msgid "Cancelling..."
 msgstr "Бас тарту..."
 
-#: src/gpodder/gui.py:2862
-msgid "Updating..."
-msgstr "Жаңарту..."
-
-#: src/gpodder/gui.py:2875
+#: src/gpodder/gui.py:2979
 #, python-format
 msgid "Updating \"%s\"..."
 msgstr "Жаңартылуда \"%s\"..."
 
-#: src/gpodder/gui.py:2878
+#: src/gpodder/gui.py:2982
 #, python-format
 msgid "Updating %d feed..."
 msgid_plural "Updating %d feeds..."
 msgstr[0] "%d таспа жаңартылуда..."
 
-#: src/gpodder/gui.py:2913 src/gpodder/gui.py:2926
+#: src/gpodder/gui.py:3004 src/gpodder/gui.py:3017
 msgid "Do you really want to quit gPodder now?"
 msgstr "gPodder-дан шығуды шынымен қалайсыз ба?"
 
-#: src/gpodder/gui.py:2922
+#: src/gpodder/gui.py:3013
 msgid "Quit gPodder"
 msgstr "gPodder-дан шығу"
 
-#: src/gpodder/gui.py:2924
-msgid "You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?"
-msgstr "Қазір жүктеліп жатқан эпизодтар бар. Жүктемелерді gPodder келесі қосылғанда жалғастыра аласыз. Шығуды қалайсыз ба?"
+#: src/gpodder/gui.py:3015
+msgid ""
+"You are downloading episodes. You can resume downloads the next time you "
+"start gPodder. Do you want to quit now?"
+msgstr ""
+"Қазір жүктеліп жатқан эпизодтар бар. Жүктемелерді gPodder келесі қосылғанда "
+"жалғастыра аласыз. Шығуды қалайсыз ба?"
 
-#: src/gpodder/gui.py:2931
+#: src/gpodder/gui.py:3022
 msgid "Don't ask me again"
 msgstr "Мені келесіде сұрамау"
 
-#: src/gpodder/gui.py:2955
+#: src/gpodder/gui.py:3046
 msgid "Please check your permissions and free disk space."
 msgstr "Рұқсаттарыңызды мен дискідегі бос орынды тексеріңіз."
 
-#: src/gpodder/gui.py:2955
+#: src/gpodder/gui.py:3046
 msgid "Error saving podcast list"
 msgstr "Подкасттар тізімін сақтау сәтсіз"
 
-#: src/gpodder/gui.py:3004
+#: src/gpodder/gui.py:3095
 msgid "Episodes are locked"
 msgstr "Эпизодтар блокталған"
 
-#: src/gpodder/gui.py:3005
-msgid "The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them."
-msgstr "Таңдалған эпизодтар блокталған болып тұр. Өшіру үшін оларды блоктаудан босатыңыз."
+#: src/gpodder/gui.py:3096
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+"Таңдалған эпизодтар блокталған болып тұр. Өшіру үшін оларды блоктаудан "
+"босатыңыз."
 
-#: src/gpodder/gui.py:3010
+#: src/gpodder/gui.py:3101
 #, python-format
 msgid "Delete %d episode?"
 msgid_plural "Delete %d episodes?"
 msgstr[0] "%d эпизодты өшіру керек пе?"
 
-#: src/gpodder/gui.py:3011
+#: src/gpodder/gui.py:3102
 msgid "Deleting episodes removes downloaded files."
 msgstr "Эпизодтарды өшіру жүктелінген файлдарды да өшіреді."
 
-#: src/gpodder/gui.py:3019
+#: src/gpodder/gui.py:3110
 msgid "Deleting episodes"
 msgstr "Эпизодтарды өшіру"
 
-#: src/gpodder/gui.py:3020
+#: src/gpodder/gui.py:3111
 msgid "Please wait while episodes are deleted"
 msgstr "Эпизодтар өшірілгенше күте тұрыңыз"
 
-#: src/gpodder/gui.py:3077
+#: src/gpodder/gui.py:3168
 msgid "Downloaded"
 msgstr "Жүктелген"
 
-#: src/gpodder/gui.py:3080
+#: src/gpodder/gui.py:3171
 #, python-format
 msgid "Select older than %d day"
 msgid_plural "Select older than %d days"
 msgstr[0] "%d күннен ескісін таңдау"
 
-#: src/gpodder/gui.py:3082
+#: src/gpodder/gui.py:3173
 msgid "Select played"
 msgstr "Ойналғанды таңдау"
 
-#: src/gpodder/gui.py:3086
+#: src/gpodder/gui.py:3174
+#, fuzzy
+msgid "Select finished"
+msgstr "Ештеңе таңдамау"
+
+#: src/gpodder/gui.py:3178
 msgid "Select the episodes you want to delete:"
 msgstr "Өшіргіңіз келетін эпизодтарды таңдаңыз:"
 
-#: src/gpodder/gui.py:3099 data/ui/desktop/gpodder.ui.h:12
+#: src/gpodder/gui.py:3191 data/ui/desktop/gpodder.ui.h:12
 #: data/ui/maemo/gpodder.ui.h:10 data/ui/frmntl/gpodderepisodes.ui.h:3
 #: data/ui/frmntl/gpodder.ui.h:5
 msgid "Delete episodes"
 msgstr "Эпизодтарды өшіру"
 
-#: src/gpodder/gui.py:3151 src/gpodder/gui.py:3442 src/gpodder/gui.py:3547
+#: src/gpodder/gui.py:3247 src/gpodder/gui.py:3538 src/gpodder/gui.py:3643
 msgid "No podcast selected"
 msgstr "Подкаст таңдалмады"
 
-#: src/gpodder/gui.py:3152
+#: src/gpodder/gui.py:3248
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Жаңарту үшін тізімнен подкастты таңдаңыз."
 
-#: src/gpodder/gui.py:3200
+#: src/gpodder/gui.py:3296
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Жүктеу қатесі %(episode)s: %(message)s"
 
-#: src/gpodder/gui.py:3201
+#: src/gpodder/gui.py:3297
 msgid "Download error"
 msgstr "Жүктеп алу қатесі"
 
-#: src/gpodder/gui.py:3252
+#: src/gpodder/gui.py:3348
 msgid "Select the episodes you want to download:"
 msgstr "Жүктегіңіз келетін эпизодтарды таңдаңыз:"
 
-#: src/gpodder/gui.py:3275
+#: src/gpodder/gui.py:3371
 msgid "Mark as old"
 msgstr "Ескі деп белгілеу"
 
-#: src/gpodder/gui.py:3283
+#: src/gpodder/gui.py:3379
 msgid "Please check for new episodes later."
 msgstr "Жаңа эпизодтарды кейін тексеріңіз."
 
-#: src/gpodder/gui.py:3284
+#: src/gpodder/gui.py:3380
 msgid "No new episodes available"
 msgstr "Жаңа эпизодтар жоқ"
 
-#: src/gpodder/gui.py:3403
+#: src/gpodder/gui.py:3499
 msgid "Login to gpodder.net"
 msgstr "Gpodder.net сайтына кіру"
 
-#: src/gpodder/gui.py:3404
+#: src/gpodder/gui.py:3500
 msgid "Please login to download your subscriptions."
 msgstr "Жазылуларыңызды жүктеп алу үшін сайтқа кіріңіз."
 
-#: src/gpodder/gui.py:3414
+#: src/gpodder/gui.py:3510
 msgid "Subscriptions on gpodder.net"
 msgstr "Gpodder.net-гі жазылулар."
 
-#: src/gpodder/gui.py:3443
+#: src/gpodder/gui.py:3539
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Подкасттар тізімінен түзету үшін біреуін таңдаңыз."
 
-#: src/gpodder/gui.py:3455 src/gpodder/gtkui/desktop/podcastdirectory.py:68
+#: src/gpodder/gui.py:3551 src/gpodder/gtkui/desktop/podcastdirectory.py:68
 #: src/gpodder/gtkui/desktop/sync.py:225
 msgid "Podcast"
 msgstr "Подкаст"
 
-#: src/gpodder/gui.py:3461 data/ui/desktop/gpodder.ui.h:37
+#: src/gpodder/gui.py:3557 data/ui/desktop/gpodder.ui.h:37
 #: data/ui/maemo/gpodder.ui.h:34 data/ui/frmntl/gpodder.ui.h:14
 msgid "Remove podcasts"
 msgstr "Подкасттарды өшіру"
 
-#: src/gpodder/gui.py:3462
+#: src/gpodder/gui.py:3558
 msgid "Select the podcast you want to remove."
 msgstr "Өшіргіңіз келетін подкастты таңдаңыз."
 
-#: src/gpodder/gui.py:3466 src/gpodder/gtkui/desktop/episodeselector.py:107
+#: src/gpodder/gui.py:3562 src/gpodder/gtkui/desktop/episodeselector.py:107
 #: src/gpodder/gtkui/maemo/episodeselector.py:106
 #: src/gpodder/gtkui/frmntl/episodeselector.py:110
 msgid "Remove"
 msgstr "Өшіру"
 
-#: src/gpodder/gui.py:3476
+#: src/gpodder/gui.py:3572
 msgid "Removing podcast"
 msgstr "Подкасттар өшірілуде"
 
-#: src/gpodder/gui.py:3477
+#: src/gpodder/gui.py:3573
 msgid "Please wait while the podcast is removed"
 msgstr "Подкаст өшірілгенше күте тұрыңыз"
 
-#: src/gpodder/gui.py:3478
+#: src/gpodder/gui.py:3574
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "Осы подкаст пен оның бар эпизодтарын өшіруді шынымен қалайсыз ба?"
 
-#: src/gpodder/gui.py:3480
+#: src/gpodder/gui.py:3576
 msgid "Removing podcasts"
 msgstr "Подкасттарды өшіру"
 
-#: src/gpodder/gui.py:3481
+#: src/gpodder/gui.py:3577
 msgid "Please wait while the podcasts are removed"
 msgstr "Подкасттар өшірілгенше күте тұрыңыз"
 
-#: src/gpodder/gui.py:3482
+#: src/gpodder/gui.py:3578
 msgid "Do you really want to remove the selected podcasts and their episodes?"
-msgstr "Таңдалған подкаст пен оның барлық эпизодтарын өшіруді шынымен қалайсыз ба?"
+msgstr ""
+"Таңдалған подкаст пен оның барлық эпизодтарын өшіруді шынымен қалайсыз ба?"
 
-#: src/gpodder/gui.py:3548
+#: src/gpodder/gui.py:3644
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Подкасттар тізімінен өшіру үшін біреуін таңдаңыз."
 
-#: src/gpodder/gui.py:3558
+#: src/gpodder/gui.py:3654
 msgid "OPML files"
 msgstr "OPML файлдары"
 
-#: src/gpodder/gui.py:3565
+#: src/gpodder/gui.py:3661
 msgid "Import from OPML"
 msgstr "OPML файлынан импорттау"
 
-#: src/gpodder/gui.py:3579
+#: src/gpodder/gui.py:3675
 msgid "Import podcasts from OPML file"
 msgstr "Подкасттарды OPML файлынан импорттау"
 
-#: src/gpodder/gui.py:3586
+#: src/gpodder/gui.py:3682
 msgid "Nothing to export"
 msgstr "Экспортталатын ешнәрсе жоқ"
 
-#: src/gpodder/gui.py:3587
-msgid "Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list."
-msgstr "Сіздің подкасттар тізіміңіз бос. Экспорттау алдында бірнеше подкастқа жазылуыңыз керек."
+#: src/gpodder/gui.py:3683
+msgid ""
+"Your list of podcast subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Сіздің подкасттар тізіміңіз бос. Экспорттау алдында бірнеше подкастқа "
+"жазылуыңыз керек."
 
-#: src/gpodder/gui.py:3593
+#: src/gpodder/gui.py:3689
 msgid "Export to OPML"
 msgstr "OPML файлына экспорттау"
 
-#: src/gpodder/gui.py:3606
+#: src/gpodder/gui.py:3702
 #, python-format
 msgid "%d subscription exported"
 msgid_plural "%d subscriptions exported"
 msgstr[0] "%d жазылу экспортталды"
 
-#: src/gpodder/gui.py:3607
+#: src/gpodder/gui.py:3703
 msgid "Your podcast list has been successfully exported."
 msgstr "Сіздің подкасттар тізіміңіз сәтті экспортталды."
 
-#: src/gpodder/gui.py:3609
+#: src/gpodder/gui.py:3705
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "OPML файлға экспорты сәтсіз. Рұқсаттарыңызды тексеріңіз."
 
-#: src/gpodder/gui.py:3609
+#: src/gpodder/gui.py:3705
 msgid "OPML export failed"
 msgstr "OPML экспорты сәтсіз"
 
-#: src/gpodder/gui.py:3649 src/gpodder/gui.py:3661
+#: src/gpodder/gui.py:3745 src/gpodder/gui.py:3757
 msgid "A podcast client with focus on usability"
 msgstr "Қолдану ыңғайлығын мақсат қылған подкаст қолданбасы"
 
-#: src/gpodder/gui.py:3663
+#: src/gpodder/gui.py:3759
 msgid "translator-credits"
 msgstr "Baurzhan Muftakhidinov <baurthefirst@gmail.com> 2010"
 
-#: src/gpodder/gui.py:3670
+#: src/gpodder/gui.py:3766
 msgid "Maintainer:"
 msgstr "Жауапты:"
 
-#: src/gpodder/gui.py:3676
+#: src/gpodder/gui.py:3772
 msgid "Patches, bug reports and donations by:"
 msgstr "Түзетулер, ақаулық хабарламалар мен ақшалай көмектескен:"
 
-#: src/gpodder/gui.py:3774
+#: src/gpodder/gui.py:3870
 msgid "Please select an episode from the episode list to display shownotes."
 msgstr "Ақпаратын қарау үшін эпизодтың біреуін таңдаңыз."
 
-#: src/gpodder/gui.py:3774
+#: src/gpodder/gui.py:3870
 msgid "No episode selected"
 msgstr "Эпизод таңдалмады"
 
-#: src/gpodder/gui.py:3805
+#: src/gpodder/gui.py:3901
 msgid "Unable to stream episode"
 msgstr "Эпизодты ағынды ойнату мүмкін емес"
 
-#: src/gpodder/gui.py:3951 src/gpodder/gtkui/desktop/trayicon.py:83
+#: src/gpodder/gui.py:4052 src/gpodder/gtkui/desktop/trayicon.py:83
 #: data/ui/desktop/gpodder.ui.h:8 data/ui/maemo/gpodder.ui.h:7
 #: data/ui/frmntl/gpodderepisodes.ui.h:1
 #: data/ui/frmntl/gpodderpreferences.ui.h:1 data/ui/frmntl/gpodder.ui.h:4
 msgid "Check for new episodes"
 msgstr "Жаңа эпизодтарға тексеру"
 
-#: src/gpodder/gui.py:3954
+#: src/gpodder/gui.py:4055
 #, python-format
 msgid "Podcasts (%d)"
 msgstr "Подкасттар (%d)"
 
-#: src/gpodder/gui.py:3959 data/ui/desktop/gpodder.ui.h:34
+#: src/gpodder/gui.py:4060 data/ui/desktop/gpodder.ui.h:34
 #: data/ui/maemo/gpodder.ui.h:31
 msgid "Podcasts"
 msgstr "Подкасттар"
 
-#: src/gpodder/gui.py:4014
+#: src/gpodder/gui.py:4115
 msgid "Cannot start gPodder"
 msgstr "gPodder қосу мүмкін емес"
 
-#: src/gpodder/gui.py:4015
+#: src/gpodder/gui.py:4116
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "D-Bus қатесі: %s"
@@ -839,43 +852,45 @@ msgstr "D-Bus қатесі: %s"
 msgid "No downloadable episodes in feed"
 msgstr "Таспада жүктеуге болатын эпизодтар жоқ"
 
-#: src/gpodder/model.py:907
+#: src/gpodder/model.py:915
 #, python-format
 msgid "released %s"
 msgstr "%s шыққан"
 
-#: src/gpodder/model.py:908 src/gpodder/model.py:924
-#: src/gpodder/gtkui/model.py:154 src/gpodder/gtkui/frmntl/shownotes.py:82
+#: src/gpodder/model.py:916 src/gpodder/model.py:934
+#: src/gpodder/gtkui/model.py:166 src/gpodder/gtkui/frmntl/model.py:79
+#: src/gpodder/gtkui/frmntl/model.py:83 src/gpodder/gtkui/frmntl/model.py:94
+#: src/gpodder/gtkui/frmntl/shownotes.py:82
 #, python-format
 msgid "from %s"
 msgstr "қайдан: %s"
 
-#: src/gpodder/model.py:917 src/gpodder/gtkui/model.py:323
+#: src/gpodder/model.py:927 src/gpodder/gtkui/model.py:341
 msgid "played"
 msgstr "ойналған"
 
-#: src/gpodder/model.py:919
+#: src/gpodder/model.py:929
 msgid "unplayed"
 msgstr "ойналмаған"
 
-#: src/gpodder/model.py:922
+#: src/gpodder/model.py:932
 msgid "today"
 msgstr "бүгін"
 
-#: src/gpodder/model.py:923
+#: src/gpodder/model.py:933
 #, python-format
 msgid "downloaded %s"
 msgstr "жүктелген %s"
 
-#: src/gpodder/model.py:945 src/gpodder/soundcloud.py:149
+#: src/gpodder/model.py:955 src/gpodder/soundcloud.py:149
 msgid "No description available"
 msgstr "Анықтамасы жоқ"
 
-#: src/gpodder/model.py:1192
+#: src/gpodder/model.py:1202
 msgid "unknown"
 msgstr "белгісіз"
 
-#: src/gpodder/model.py:1230 src/gpodder/gtkui/frmntl/episodeactions.py:191
+#: src/gpodder/model.py:1251 src/gpodder/gtkui/frmntl/episodeactions.py:190
 #: data/ui/frmntl/gpodder.ui.h:18
 msgid "Unplayed"
 msgstr "Ойналмаған"
@@ -891,8 +906,12 @@ msgid "Remove %s"
 msgstr "Өшіру %s"
 
 #: src/gpodder/services.py:115
-msgid "Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto command from gnome-bluetooth."
-msgstr "Подкаст эпизодтарын Bluetooth құрылғыларға жіберу. Gnome-bluetooth құрамынан bluetooth-sendto командасын талап етеді."
+msgid ""
+"Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto "
+"command from gnome-bluetooth."
+msgstr ""
+"Подкаст эпизодтарын Bluetooth құрылғыларға жіберу. Gnome-bluetooth құрамынан "
+"bluetooth-sendto командасын талап етеді."
 
 #: src/gpodder/services.py:116
 msgid "HTML episode shownotes"
@@ -935,154 +954,157 @@ msgid "Support synchronization of podcasts to Apple iPod devices via libgpod."
 msgstr "Apple iPod-пен синхронизация, libgpod арқылы."
 
 #: src/gpodder/sync.py:65
-msgid "MTP device synchronization"
-msgstr "MTP құрылғы синхронизациясы"
-
-#: src/gpodder/sync.py:65
-msgid "Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp."
-msgstr "Media Transfer Protocol қолданып, pymtp арқылы құрылғыларға подкасттарды синхрондау."
-
-#: src/gpodder/sync.py:66
 msgid "iPod OGG converter"
 msgstr "iPod OGG түрлендіргіші"
 
-#: src/gpodder/sync.py:66
-msgid "Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME."
-msgstr "iPod-қа синхрондау үшін OGG подкасттарды MP3 файлдарға түрлендіру, oggdec пен LAME қолдану арқылы."
+#: src/gpodder/sync.py:65
+msgid ""
+"Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec "
+"and LAME."
+msgstr ""
+"iPod-қа синхрондау үшін OGG подкасттарды MP3 файлдарға түрлендіру, oggdec "
+"пен LAME қолдану арқылы."
 
-#: src/gpodder/sync.py:67
+#: src/gpodder/sync.py:66
 msgid "iPod video podcasts"
 msgstr "iPod видео подкасттары"
 
-#: src/gpodder/sync.py:67
-msgid "Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
-msgstr "Видео ұзықтығын MPlayer арқылы анықтау, видео подкасттарды iPod-қа синхрондау үшін."
+#: src/gpodder/sync.py:66
+msgid ""
+"Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
+msgstr ""
+"Видео ұзықтығын MPlayer арқылы анықтау, видео подкасттарды iPod-қа "
+"синхрондау үшін."
 
-#: src/gpodder/sync.py:68
+#: src/gpodder/sync.py:67
 msgid "Rockbox cover art support"
 msgstr "Rockbox альбом сырты қолдауы"
 
-#: src/gpodder/sync.py:68
-msgid "Copy podcast cover art to filesystem-based MP3 players running Rockbox.org firmware. Needs Python Imaging."
-msgstr "Подкаст альбом сыртын файлдық жүйе негізіндегі Rockbox.org бағдарламалы MP3 плеерлерге көшіру. Python Imaging талап етеді."
+#: src/gpodder/sync.py:67
+msgid ""
+"Copy podcast cover art to filesystem-based MP3 players running Rockbox.org "
+"firmware. Needs Python Imaging."
+msgstr ""
+"Подкаст альбом сыртын файлдық жүйе негізіндегі Rockbox.org бағдарламалы MP3 "
+"плеерлерге көшіру. Python Imaging талап етеді."
 
-#: src/gpodder/sync.py:202
+#: src/gpodder/sync.py:200
 msgid "Cancelled by user"
 msgstr "Пайдаланушы болдырмады"
 
-#: src/gpodder/sync.py:205
+#: src/gpodder/sync.py:203
 msgid "Writing data to disk"
 msgstr "Дискіге ақпаратты жазу"
 
-#: src/gpodder/sync.py:317
+#: src/gpodder/sync.py:315
 msgid "Opening iPod database"
 msgstr "iPod дереққорын ашу"
 
-#: src/gpodder/sync.py:327
+#: src/gpodder/sync.py:325
 msgid "iPod opened"
 msgstr "iPod ашылды"
 
-#: src/gpodder/sync.py:338
+#: src/gpodder/sync.py:336
 msgid "Saving iPod database"
 msgstr "iPod дерекқорын сақтау"
 
-#: src/gpodder/sync.py:343
+#: src/gpodder/sync.py:341
 msgid "Writing extended gtkpod database"
 msgstr "Кеңейтілген gtkpod дерекқорын жазу"
 
-#: src/gpodder/sync.py:411 src/gpodder/sync.py:731 src/gpodder/sync.py:1005
+#: src/gpodder/sync.py:409 src/gpodder/sync.py:735 src/gpodder/sync.py:1011
 #, python-format
 msgid "Removing %s"
 msgstr "%s өшірілуде"
 
-#: src/gpodder/sync.py:426 src/gpodder/sync.py:594
+#: src/gpodder/sync.py:424 src/gpodder/sync.py:595
 #, python-format
 msgid "Adding %s"
 msgstr "Қосылуда %s"
 
-#: src/gpodder/sync.py:444
+#: src/gpodder/sync.py:442
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
 msgstr "%(episode)s көшіру сәтсіз: %(mountpoint)s жерінде бос орын қалмады"
 
-#: src/gpodder/sync.py:575
+#: src/gpodder/sync.py:576
 msgid "Opening MP3 player"
 msgstr "MP3 плеері ашылуда"
 
-#: src/gpodder/sync.py:577
+#: src/gpodder/sync.py:578
 msgid "MP3 player opened"
 msgstr "MP3 плеері ашылды"
 
-#: src/gpodder/sync.py:660 src/gpodder/sync.py:668
+#: src/gpodder/sync.py:664 src/gpodder/sync.py:672
 #, python-format
 msgid "Error opening %(filename)s: %(message)s"
 msgstr "Ашу қатесі %(filename)s: %(message)s"
 
-#: src/gpodder/sync.py:913 src/gpodder/sync.py:919
+#: src/gpodder/sync.py:917 src/gpodder/sync.py:923
 msgid "MTP device"
 msgstr "MTP құрылғысы"
 
-#: src/gpodder/sync.py:926
+#: src/gpodder/sync.py:930
 msgid "Opening the MTP device"
 msgstr "MTP құрылғысы ашылуда"
 
-#: src/gpodder/sync.py:936
+#: src/gpodder/sync.py:940
 #, python-format
 msgid "%s opened"
 msgstr "%s ашылды"
 
-#: src/gpodder/sync.py:941
+#: src/gpodder/sync.py:945
 #, python-format
 msgid "Closing %s"
 msgstr "Жабылуда %s"
 
-#: src/gpodder/sync.py:949
+#: src/gpodder/sync.py:953
 #, python-format
 msgid "%s closed"
 msgstr "%s жабылған"
 
-#: src/gpodder/sync.py:954
+#: src/gpodder/sync.py:958
 #, python-format
 msgid "Adding %s..."
 msgstr "Қосылуда %s..."
 
-#: src/gpodder/util.py:351
+#: src/gpodder/util.py:354
 #, python-format
 msgid "%d day ago"
 msgid_plural "%d days ago"
 msgstr[0] "%d күн бұрын"
 
-#: src/gpodder/util.py:419
+#: src/gpodder/util.py:422
 msgid "Today"
 msgstr "Бүгін"
 
-#: src/gpodder/util.py:421
+#: src/gpodder/util.py:424
 msgid "Yesterday"
 msgstr "Кеше"
 
-#: src/gpodder/util.py:464 src/gpodder/util.py:467
+#: src/gpodder/util.py:467 src/gpodder/util.py:470
 msgid "(unknown)"
 msgstr "(белгісіз)"
 
-#: src/gpodder/util.py:1133 src/gpodder/util.py:1152
+#: src/gpodder/util.py:1136 src/gpodder/util.py:1155
 #, python-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d секунд"
 
-#: src/gpodder/util.py:1146
+#: src/gpodder/util.py:1149
 #, python-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d сағат"
 
-#: src/gpodder/util.py:1149
+#: src/gpodder/util.py:1152
 #, python-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d минут"
 
-#: src/gpodder/util.py:1155
+#: src/gpodder/util.py:1158
 msgid "and"
 msgstr "және"
 
@@ -1111,67 +1133,72 @@ msgstr "Команда: %s"
 msgid "Default application"
 msgstr "Негізгі қолданба"
 
-#: src/gpodder/gtkui/model.py:258 data/ui/frmntl/gpodder.ui.h:6
+#: src/gpodder/gtkui/model.py:276 data/ui/frmntl/gpodder.ui.h:6
 msgid "Deleted"
 msgstr "Өшірілген"
 
-#: src/gpodder/gtkui/model.py:263
+#: src/gpodder/gtkui/model.py:281
 #: src/gpodder/gtkui/frmntl/episodeactions.py:137
 msgid "New episode"
 msgstr "Жаңа эпизод"
 
-#: src/gpodder/gtkui/model.py:278
+#: src/gpodder/gtkui/model.py:296
 msgid "Downloaded episode"
 msgstr "Жүктеліп алынған эпизод"
 
-#: src/gpodder/gtkui/model.py:281
+#: src/gpodder/gtkui/model.py:299
 msgid "Downloaded video episode"
 msgstr "Жүктеліп алынған видео эпизод"
 
-#: src/gpodder/gtkui/model.py:284
+#: src/gpodder/gtkui/model.py:302
 msgid "Downloaded image"
 msgstr "Жүктеліп алынған сурет"
 
-#: src/gpodder/gtkui/model.py:295
+#: src/gpodder/gtkui/model.py:313
 msgid "Downloaded file"
 msgstr "Жүктеліп алынған файл"
 
-#: src/gpodder/gtkui/model.py:310
+#: src/gpodder/gtkui/model.py:328
 msgid "missing file"
 msgstr "файл жоқ"
 
-#: src/gpodder/gtkui/model.py:314
+#: src/gpodder/gtkui/model.py:332
 msgid "never displayed"
 msgstr "бұрын көрсетілмеген"
 
-#: src/gpodder/gtkui/model.py:316
+#: src/gpodder/gtkui/model.py:334
 msgid "never played"
 msgstr "бұрын ойналмаған"
 
-#: src/gpodder/gtkui/model.py:318
+#: src/gpodder/gtkui/model.py:336
 msgid "never opened"
 msgstr "бұрын ашылмаған"
 
-#: src/gpodder/gtkui/model.py:321
+#: src/gpodder/gtkui/model.py:339
 msgid "displayed"
 msgstr "көрсетілген"
 
-#: src/gpodder/gtkui/model.py:325
+#: src/gpodder/gtkui/model.py:343
 msgid "opened"
 msgstr "ашылған"
 
-#: src/gpodder/gtkui/model.py:327
+#: src/gpodder/gtkui/model.py:345
 msgid "deletion prevented"
 msgstr "өшіруге рұқсат жоқ"
 
-#: src/gpodder/gtkui/model.py:463 data/ui/desktop/gpodder.ui.h:3
+#: src/gpodder/gtkui/model.py:484 data/ui/desktop/gpodder.ui.h:3
 #: data/ui/maemo/gpodder.ui.h:3
 msgid "All episodes"
 msgstr "Барлық эпизодтар"
 
-#: src/gpodder/gtkui/model.py:464
+#: src/gpodder/gtkui/model.py:485
 msgid "from all podcasts"
 msgstr "барлық подкасттардан"
+
+#: src/gpodder/gtkui/model.py:692
+#, fuzzy
+msgid "Subscription paused."
+msgstr "Жаз_ылулар"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1191,11 +1218,11 @@ msgstr "Python модулі \"%s\" орнатылмаған"
 msgid "Command \"%s\" not installed"
 msgstr "\"%s\" командасы орнатылмаған"
 
-#: src/gpodder/gtkui/interface/addpodcast.py:83
+#: src/gpodder/gtkui/interface/addpodcast.py:85
 msgid "Nothing to paste."
 msgstr "Кірістіру үішн ешнәрсе жоқ."
 
-#: src/gpodder/gtkui/interface/addpodcast.py:83
+#: src/gpodder/gtkui/interface/addpodcast.py:85
 msgid "Clipboard is empty"
 msgstr "Алмасу буфері бос"
 
@@ -1235,26 +1262,28 @@ msgstr "Мәнге орнату"
 #: src/gpodder/gtkui/interface/configeditor.py:86
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
-msgstr "%(field)s қазір %(value)s мәніне орнату мүмкін емес. Керек ақпарат түрі: %(datatype)s"
+msgstr ""
+"%(field)s қазір %(value)s мәніне орнату мүмкін емес. Керек ақпарат түрі: %"
+"(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:90
 msgid "Error setting option"
 msgstr "Опцияны орнату сәтсіз"
 
-#: src/gpodder/gtkui/desktop/channel.py:69
+#: src/gpodder/gtkui/desktop/channel.py:70
 msgid "Select new podcast cover artwork"
 msgstr "Подкаст үшін жаңа сыртын таңдаңыз"
 
-#: src/gpodder/gtkui/desktop/channel.py:90
+#: src/gpodder/gtkui/desktop/channel.py:91
 msgid "You can only drop a single image or URL here."
 msgstr "Осында тек бір сурет не URL әкеліп тастай аласыз,"
 
-#: src/gpodder/gtkui/desktop/channel.py:90
-#: src/gpodder/gtkui/desktop/channel.py:99
+#: src/gpodder/gtkui/desktop/channel.py:91
+#: src/gpodder/gtkui/desktop/channel.py:100
 msgid "Drag and drop"
 msgstr "Ұстап апару мен тастау"
 
-#: src/gpodder/gtkui/desktop/channel.py:99
+#: src/gpodder/gtkui/desktop/channel.py:100
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Осында тек жергілікті файлдарды мен http:// URL әкеліп тастай аласыз."
 
@@ -1446,8 +1475,11 @@ msgstr "Сервердегі тізімді алмастыру"
 
 #: src/gpodder/gtkui/desktop/preferences.py:348
 #: src/gpodder/gtkui/maemo/mygpodder.py:75
-msgid "Remote podcasts that have not been added locally will be removed on the server. Continue?"
-msgstr "Жергілікті қосылмаған подкасттар серверден де өшіріледі. Жалғастырамыз ба?"
+msgid ""
+"Remote podcasts that have not been added locally will be removed on the "
+"server. Continue?"
+msgstr ""
+"Жергілікті қосылмаған подкасттар серверден де өшіріледі. Жалғастырамыз ба?"
 
 #: src/gpodder/gtkui/desktop/shownotes.py:109
 msgid "Please wait..."
@@ -1496,7 +1528,8 @@ msgid "Cannot sync to MTP device"
 msgstr "MTP құрылғысына синхрондау мүмкін емес"
 
 #: src/gpodder/gtkui/desktop/sync.py:92
-msgid "Please install python-pymtp and restart gPodder."
+#, fuzzy
+msgid "Please install libmtp and restart gPodder."
 msgstr "Python-pymtp орнатып, gPodder-ды қайта қосыңыз."
 
 #: src/gpodder/gtkui/desktop/sync.py:102
@@ -1541,8 +1574,12 @@ msgid "Delete podcasts from device?"
 msgstr "Подкасттарды құрылғыдан өшіру керек пе?"
 
 #: src/gpodder/gtkui/desktop/sync.py:244
-msgid "Do you really want to remove these episodes from your device? Episodes in your library will not be deleted."
-msgstr "Осы эпизодтарды құрылғыңыздан өшіруді шынымен қалайсыз ба? Жинағыңыздағы эпизодтар өшірілмейді."
+msgid ""
+"Do you really want to remove these episodes from your device? Episodes in "
+"your library will not be deleted."
+msgstr ""
+"Осы эпизодтарды құрылғыңыздан өшіруді шынымен қалайсыз ба? Жинағыңыздағы "
+"эпизодтар өшірілмейді."
 
 #: src/gpodder/gtkui/desktop/sync.py:251
 msgid "There has been an error closing your device."
@@ -1809,7 +1846,7 @@ msgstr "Жүктелуде %s"
 msgid "Old episode"
 msgstr "Ескі эпизод"
 
-#: src/gpodder/gtkui/frmntl/episodeactions.py:190
+#: src/gpodder/gtkui/frmntl/episodeactions.py:189
 #: data/ui/desktop/gpodder.ui.h:32 data/ui/maemo/gpodder.ui.h:29
 msgid "Play"
 msgstr "Ойнату"
@@ -1836,25 +1873,129 @@ msgstr "Эпизод жүктелуде"
 msgid "Checking for new episodes..."
 msgstr "Жаңа эпизодтарға тексеру..."
 
+#: src/gpodder/gtkui/frmntl/hints.py:25
+msgid ""
+"Sign up for gpodder.net to synchronize (and backup) your subscriptions to "
+"the cloud."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:26
+msgid "Bulk-deleting episodes is possible from the main window menu."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:27
+msgid ""
+"To save power, automatic updates are only enabled while gPodder is running."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:28
+msgid "Subscribe to YouTube users and download their videos to your device."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:29
+msgid ""
+"Use the shortcut URL yt:<username> to quickly subscribe to a YouTube user."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:30
+msgid ""
+"Search for your fields of interest in the gpodder.net directory to find "
+"interesting content."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:31
+msgid ""
+"Longpress on an episode to access a menu with useful episode-related "
+"functions."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:32
+#, fuzzy
+msgid ""
+"Longpress on an episode in 'New episodes available' to display its shownotes."
+msgstr "Ақпаратын қарау үшін эпизодтың біреуін таңдаңыз."
+
+#: src/gpodder/gtkui/frmntl/hints.py:33
+msgid ""
+"Use the hardware keyboard to filter down lists - simply start typing in the "
+"podcast or episode list."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:34
+msgid ""
+"The top row of the menu in each list window lets you set the filter for it."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:35
+msgid ""
+"Use fb:<name> as a shorthand for Feedburner URLs (feeds.feedburner.com/"
+"<name>)"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:36
+msgid ""
+"Episodes marked as 'Keep episode' will never be displayed in the 'Delete "
+"episodes' list."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:37
+msgid ""
+"Use gpodder.net to share your subscription list with friends via a private "
+"or public URL."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:38
+msgid ""
+"Found a problem? Report it at bugs.maemo.org (Extras / gPodder), so we can "
+"fix it in the next release."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:39
+msgid ""
+"Got a feature request? Let us know at bugs.maemo.org (Extras / gPodder)!"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:40
+msgid "Want to support gPodder? Use the 'donate' button in the about dialog."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:41
+msgid ""
+"Use Media Player as your audio and video player for position tracking "
+"support."
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:42
+msgid ""
+"The 'Delete episodes' dialog has some useful presets in its menu - check "
+"them out!"
+msgstr ""
+
+#: src/gpodder/gtkui/frmntl/hints.py:43
+msgid ""
+"Use search-as-you-type in the 'All episodes' list to quickly find a specific "
+"episode."
+msgstr ""
+
 #: src/gpodder/gtkui/frmntl/model.py:77
 msgid "in downloads list"
 msgstr "жүктемелер тізімінде"
 
-#: src/gpodder/gtkui/frmntl/model.py:83
+#: src/gpodder/gtkui/frmntl/model.py:89
 msgid "unplayed download"
 msgstr "ойналмаған эпизод"
 
-#: src/gpodder/gtkui/frmntl/model.py:85
+#: src/gpodder/gtkui/frmntl/model.py:91
 msgid "new episode"
 msgstr "жаңа эпизод"
 
-#: src/gpodder/gtkui/frmntl/model.py:118
+#: src/gpodder/gtkui/frmntl/model.py:127
 #, python-format
 msgid "%d new episode"
 msgid_plural "%d new episodes"
 msgstr[0] "%d жаңа эпизод"
 
-#: src/gpodder/gtkui/frmntl/model.py:119
+#: src/gpodder/gtkui/frmntl/model.py:128
 #, python-format
 msgid "%d unplayed download"
 msgid_plural "%d unplayed downloads"
@@ -2032,57 +2173,62 @@ msgid "Cover"
 msgstr "Сырты"
 
 #: data/ui/desktop/gpodderchannel.ui.h:6
+#, fuzzy
+msgid "Disable feed updates (pause subscription)"
+msgstr "Таспаны ақылды жаңарту тәсілін іске қосу"
+
+#: data/ui/desktop/gpodderchannel.ui.h:7
 msgid "Download to:"
 msgstr "Сақталатын орны:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:7
+#: data/ui/desktop/gpodderchannel.ui.h:8
 msgid "Feed URL:"
 msgstr "Таспа URL-ы:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:8
+#: data/ui/desktop/gpodderchannel.ui.h:9
 #: data/ui/desktop/gpodderpreferences.ui.h:12
 msgid "General"
 msgstr "Жалпы"
 
-#: data/ui/desktop/gpodderchannel.ui.h:9
+#: data/ui/desktop/gpodderchannel.ui.h:10
 msgid "Go to website"
 msgstr "Веб сайтқа өту"
 
-#: data/ui/desktop/gpodderchannel.ui.h:10
+#: data/ui/desktop/gpodderchannel.ui.h:11
 #: data/ui/desktop/gpodderpreferences.ui.h:16
 #: data/ui/maemo/mygpoddersettings.ui.h:3
 #: data/ui/frmntl/gpodderpreferences.ui.h:6
 msgid "Password:"
 msgstr "Пароль:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:11
+#: data/ui/desktop/gpodderchannel.ui.h:12
 msgid "Playlist name:"
 msgstr "Ойнау тізім аты:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:12
+#: data/ui/desktop/gpodderchannel.ui.h:13
 msgid "Skip this podcast when syncing to my device"
 msgstr "Менің құрылғыма синхронизация кезінде бұл подкастты аттап өту"
 
-#: data/ui/desktop/gpodderchannel.ui.h:13
+#: data/ui/desktop/gpodderchannel.ui.h:14
 msgid "Title:"
 msgstr "Тақырыбы:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:14
+#: data/ui/desktop/gpodderchannel.ui.h:15
 #: data/ui/desktop/gpodderpreferences.ui.h:25
 #: data/ui/maemo/mygpoddersettings.ui.h:6
 #: data/ui/frmntl/gpodderpreferences.ui.h:12
 msgid "Username:"
 msgstr "Пайдаланушы аты:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:15
+#: data/ui/desktop/gpodderchannel.ui.h:16
 msgid "Website:"
 msgstr "Веб сайт:"
 
-#: data/ui/desktop/gpodderchannel.ui.h:16
+#: data/ui/desktop/gpodderchannel.ui.h:17
 msgid "gPodder Podcast Editor"
 msgstr "gPodder подкаст түзетушісі"
 
-#: data/ui/desktop/gpodderchannel.ui.h:17
+#: data/ui/desktop/gpodderchannel.ui.h:18
 msgid "website label"
 msgstr "веб сайт белгісі"
 
@@ -2279,7 +2425,9 @@ msgid "Copying Files To Device"
 msgstr "Файлдар құрылғыға көшірілуде"
 
 #: data/ui/desktop/gpoddersyncprogress.ui.h:3
-msgid "Episodes marked for synchronization are now transferred to your player device."
+msgid ""
+"Episodes marked for synchronization are now transferred to your player "
+"device."
 msgstr "Синхрондалу белгісі бар эпизодтар құрылғыға көшірілуде."
 
 #: data/ui/desktop/gpoddersyncprogress.ui.h:4
@@ -2650,17 +2798,35 @@ msgstr "Менің тізімімді gpodder.net-тен жүктеп алу"
 msgid "Your podcast list is empty. What do you want to do?"
 msgstr "Подкаст тізіміңіз бос. Не істегіңіз келеді?"
 
-#: bin/gpodder:116
+#: bin/gpodder:120
 msgid "Print debugging output to stdout"
 msgstr "Жөндеу ақпаратын шығысқа шығару"
 
-#: bin/gpodder:120
-msgid "Start the Maemo 4 user interface"
+#: bin/gpodder:124
+#, fuzzy
+msgid "Force using the Maemo 4 user interface"
 msgstr "Maemo 4 пайдаланушы интерфейсін қосу"
 
-#: bin/gpodder:124
-msgid "Start the Maemo 5 user interface"
+#: bin/gpodder:128
+#, fuzzy
+msgid "Force using the Maemo 5 user interface"
 msgstr "Maemo 5 пайдаланушы интерфейсін қосу"
+
+#~ msgid "%(position)d/%(total)d updated"
+#~ msgstr "%(position)d/%(total)d жаңартылды"
+
+#~ msgid "Updating..."
+#~ msgstr "Жаңарту..."
+
+#~ msgid "MTP device synchronization"
+#~ msgstr "MTP құрылғы синхронизациясы"
+
+#~ msgid ""
+#~ "Support synchronization of podcasts to devices using the Media Transfer "
+#~ "Protocol via pymtp."
+#~ msgstr ""
+#~ "Media Transfer Protocol қолданып, pymtp арқылы құрылғыларға подкасттарды "
+#~ "синхрондау."
 
 #~ msgid "Open download folder"
 #~ msgstr "Жүктемелер бумасын ашу"
@@ -2688,10 +2854,12 @@ msgstr "Maemo 5 пайдаланушы интерфейсін қосу"
 
 #~ msgid ""
 #~ "Config UI missing. Use \"Edit config\" below.\n"
-#~ "See <a href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a> for details."
+#~ "See <a href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a> "
+#~ "for details."
 #~ msgstr ""
 #~ "Баптау бөлімі жоқ. Төмендегі \"Баптауды түзету\" қолданыңыз.\n"
-#~ "Көбірек білу үшін <a href=\"http://gpodder.org/bug/955\">http://gpodder.org/bug/955</a> қараңыз."
+#~ "Көбірек білу үшін <a href=\"http://gpodder.org/bug/955\">http://gpodder."
+#~ "org/bug/955</a> қараңыз."
 
 #~ msgid "Play all downloads"
 #~ msgstr "Барлық жүктемелерді ойнау"
@@ -2801,29 +2969,44 @@ msgstr "Maemo 5 пайдаланушы интерфейсін қосу"
 #~ msgid "every %d minutes"
 #~ msgstr "әр %d минут сайын"
 
-#~ msgid "Enable feed update heuristics"
-#~ msgstr "Таспаны ақылды жаңарту тәсілін іске қосу"
-
 #~ msgid "%s is locked"
 #~ msgstr "%s құпталған"
 
-#~ msgid "You cannot delete this locked episode. You must unlock it before you can delete it."
-#~ msgstr "Құпталған эпизодты өшіре алмайсыз. Алдымен оны құптаудан босатуыңыз керек."
+#~ msgid ""
+#~ "You cannot delete this locked episode. You must unlock it before you can "
+#~ "delete it."
+#~ msgstr ""
+#~ "Құпталған эпизодты өшіре алмайсыз. Алдымен оны құптаудан босатуыңыз керек."
 
 #~ msgid "Remove %s?"
 #~ msgstr "%s өшіру керек пе?"
 
-#~ msgid "If you remove this episode, it will be deleted from your computer. If you want to listen to this episode again, you will have to re-download it."
-#~ msgstr "Эпизодты өшірсеңіз, ол компьютеріңізден жойылады. Оны қайта тындаймын десеңіз, қайтадан жүктеп алу керек болады."
+#~ msgid ""
+#~ "If you remove this episode, it will be deleted from your computer. If you "
+#~ "want to listen to this episode again, you will have to re-download it."
+#~ msgstr ""
+#~ "Эпизодты өшірсеңіз, ол компьютеріңізден жойылады. Оны қайта тындаймын "
+#~ "десеңіз, қайтадан жүктеп алу керек болады."
 
-#~ msgid "If you remove these episodes, they will be deleted from your computer. If you want to listen to any of these episodes again, you will have to re-download the episodes in question."
-#~ msgstr "Бұл эпизодтарды өшірсеңіз, олар компьютеріңізден жойылады. Олардың біреуін қайта тындаймын десеңіз, қайтадан жүктеп алу керек болады."
+#~ msgid ""
+#~ "If you remove these episodes, they will be deleted from your computer. If "
+#~ "you want to listen to any of these episodes again, you will have to re-"
+#~ "download the episodes in question."
+#~ msgstr ""
+#~ "Бұл эпизодтарды өшірсеңіз, олар компьютеріңізден жойылады. Олардың "
+#~ "біреуін қайта тындаймын десеңіз, қайтадан жүктеп алу керек болады."
 
 #~ msgid "Remove %(unlocked)d out of %(selected)d episodes?"
-#~ msgstr "%(unlocked)d құпталмаған эпизодты, %(selected)d таңдалған ішінен, өшіру керек пе?"
+#~ msgstr ""
+#~ "%(unlocked)d құпталмаған эпизодты, %(selected)d таңдалған ішінен, өшіру "
+#~ "керек пе?"
 
-#~ msgid "The selection contains locked episodes that will not be deleted. If you want to listen to the deleted episodes, you will have to re-download them."
-#~ msgstr "Таңдалғанның ішінде құпталған эпизодтар бар, олар өшірілмейді. Өшірілген эпизодтарды қайта тындағыңыз келсе, оларды қайта жүктеп алу керек болады."
+#~ msgid ""
+#~ "The selection contains locked episodes that will not be deleted. If you "
+#~ "want to listen to the deleted episodes, you will have to re-download them."
+#~ msgstr ""
+#~ "Таңдалғанның ішінде құпталған эпизодтар бар, олар өшірілмейді. Өшірілген "
+#~ "эпизодтарды қайта тындағыңыз келсе, оларды қайта жүктеп алу керек болады."
 
 #~ msgid "Removing episodes"
 #~ msgstr "Эпизодтар өшірілуде"
@@ -2851,11 +3034,18 @@ msgstr "Maemo 5 пайдаланушы интерфейсін қосу"
 #~ msgid "Custom command"
 #~ msgstr "Таңдауыңызша"
 
-#~ msgid "You can specify a custom format string for the file names on your MP3 player here."
-#~ msgstr "Өзіңіздің MP3 плееріңіздегі файлдар аттарын таңдауыңызша баптай аласыз."
+#~ msgid ""
+#~ "You can specify a custom format string for the file names on your MP3 "
+#~ "player here."
+#~ msgstr ""
+#~ "Өзіңіздің MP3 плееріңіздегі файлдар аттарын таңдауыңызша баптай аласыз."
 
-#~ msgid "The format string will be used to generate a file name on your device. The file extension (e.g. \".mp3\") will be added automatically."
-#~ msgstr "Осы пішім жолы құрылғыңыздағы файлдар аттарын орнату үшін қолданылады. Файлдар кеңейтілуі, (мыс. \".mp3\"), авто қосылады."
+#~ msgid ""
+#~ "The format string will be used to generate a file name on your device. "
+#~ "The file extension (e.g. \".mp3\") will be added automatically."
+#~ msgstr ""
+#~ "Осы пішім жолы құрылғыңыздағы файлдар аттарын орнату үшін қолданылады. "
+#~ "Файлдар кеңейтілуі, (мыс. \".mp3\"), авто қосылады."
 
 #~ msgid "Custom format strings"
 #~ msgstr "Таңдауыңызша пішімді жолдар"
@@ -2926,17 +3116,36 @@ msgstr "Maemo 5 пайдаланушы интерфейсін қосу"
 #~ msgid "Delete played episodes on startup after"
 #~ msgstr "Қосылғанда, ойналған эпизодтарды өшіру, ескілеу болса"
 
-#~ msgid "If checked, OGG files will not be converted to MP3 before being transfered."
-#~ msgstr "Белгіленген болса, синхронизация алдында OGG файлдары MP3-ға түрлендірілмейді."
+#~ msgid ""
+#~ "If checked, OGG files will not be converted to MP3 before being "
+#~ "transfered."
+#~ msgstr ""
+#~ "Белгіленген болса, синхронизация алдында OGG файлдары MP3-ға "
+#~ "түрлендірілмейді."
 
-#~ msgid "If checked, a subfolder will be created for each podcast synchronized. If not checked, all episodes will be copied directly to the folder specified by \"Sync to folder:\"."
-#~ msgstr "Белгіленген болса, әр синхрондалған подкаст үшін жеке ішкі бума жасалады. Болмаса, барлығы да \"Бумаға сақтау:\" мәнімен анықталған бумаға көшіріледі."
+#~ msgid ""
+#~ "If checked, a subfolder will be created for each podcast synchronized. If "
+#~ "not checked, all episodes will be copied directly to the folder specified "
+#~ "by \"Sync to folder:\"."
+#~ msgstr ""
+#~ "Белгіленген болса, әр синхрондалған подкаст үшін жеке ішкі бума жасалады. "
+#~ "Болмаса, барлығы да \"Бумаға сақтау:\" мәнімен анықталған бумаға "
+#~ "көшіріледі."
 
-#~ msgid "If checked, gPodder will delete played episodes that are older than the specified amount of days (in the Downloads tab) on every startup."
-#~ msgstr "Белгіленген болса, gPodder әр қосылған кезде тағайындалған күндер санынан үлкен (Баптаулардағы Жүктемелер бетін қараңыз) подкасттарды өшіріп отырады."
+#~ msgid ""
+#~ "If checked, gPodder will delete played episodes that are older than the "
+#~ "specified amount of days (in the Downloads tab) on every startup."
+#~ msgstr ""
+#~ "Белгіленген болса, gPodder әр қосылған кезде тағайындалған күндер санынан "
+#~ "үлкен (Баптаулардағы Жүктемелер бетін қараңыз) подкасттарды өшіріп "
+#~ "отырады."
 
-#~ msgid "If checked, gPodder will update the status of the episode as if it has been played locally after copying it to your device"
-#~ msgstr "Белгіленген болса, подкастты құрылғыға көшіргеннен кейін gPodder оны жергілікті ойналған сияқты деп белгілейді"
+#~ msgid ""
+#~ "If checked, gPodder will update the status of the episode as if it has "
+#~ "been played locally after copying it to your device"
+#~ msgstr ""
+#~ "Белгіленген болса, подкастты құрылғыға көшіргеннен кейін gPodder оны "
+#~ "жергілікті ойналған сияқты деп белгілейді"
 
 #~ msgid "MTP-based player"
 #~ msgstr "MTP негізіндегі плеер"
