@@ -3159,6 +3159,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         msg_older_than = N_('Select older than %d day', 'Select older than %d days', self.config.episode_old_age)
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
+                _('Select finished'): lambda episode: episode.is_finished(),
                 msg_older_than % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 

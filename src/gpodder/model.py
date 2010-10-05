@@ -921,7 +921,9 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def maemo_remove_markup(self):
-        if self.is_played:
+        if self.total_time and self.current_position:
+            played_string = self.get_play_info_string()
+        elif self.is_played:
             played_string = _('played')
         else:
             played_string = _('unplayed')
