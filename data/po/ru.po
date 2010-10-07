@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder 2.7+git\n"
+"Project-Id-Version: gPodder 2.9+git\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-05 19:58+0200\n"
-"PO-Revision-Date: 2010-08-24 23:07+0400\n"
+"PO-Revision-Date: 2010-10-07 20:35+0400\n"
 "Last-Translator: Maxim Prohorov <prohorov.max@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Poedit-Language: Russian\n"
 
 #: src/gpodder/config.py:253
 #, python-format
@@ -107,7 +106,7 @@ msgstr "Бездействие"
 
 #: src/gpodder/gui.py:220
 msgid "Hint of the day"
-msgstr ""
+msgstr "Полезный совет"
 
 #: src/gpodder/gui.py:332 src/gpodder/gui.py:565
 msgid "gPodder"
@@ -671,9 +670,8 @@ msgid "Select played"
 msgstr "Выбрать прослушанные"
 
 #: src/gpodder/gui.py:3174
-#, fuzzy
 msgid "Select finished"
-msgstr "Сброс выбора"
+msgstr "Выбрать завершенные"
 
 #: src/gpodder/gui.py:3178
 msgid "Select the episodes you want to delete:"
@@ -1247,9 +1245,8 @@ msgid "from all podcasts"
 msgstr "из всех подкастов"
 
 #: src/gpodder/gtkui/model.py:692
-#, fuzzy
 msgid "Subscription paused."
-msgstr "П_одписки"
+msgstr "Подписка приостановлена"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1550,7 +1547,7 @@ msgstr "Загрузка шоунотов..."
 #: src/gpodder/gtkui/desktop/syncprogress.py:40
 #, python-format
 msgid "%(position)d of %(count)d done"
-msgstr "%(position)d/%(count)d обновлено"
+msgstr "%(position)d из %(count)d обновлено"
 
 #: src/gpodder/gtkui/desktop/syncprogress.py:45
 #, python-format
@@ -1586,9 +1583,8 @@ msgid "Cannot sync to MTP device"
 msgstr "Синхронизация с MTP-устройством невозможна"
 
 #: src/gpodder/gtkui/desktop/sync.py:92
-#, fuzzy
 msgid "Please install libmtp and restart gPodder."
-msgstr "Установите python-pymtp и перезапустите программу."
+msgstr "Установите libmtp и перезапустите программу."
 
 #: src/gpodder/gtkui/desktop/sync.py:102
 msgid "Device synchronized"
@@ -1869,7 +1865,7 @@ msgstr "Сообщить об ошибке"
 
 #: src/gpodder/gtkui/frmntl/about.py:113
 msgid "Donate"
-msgstr "Пожертвования"
+msgstr "Пожертвование"
 
 #: src/gpodder/gtkui/frmntl/episodeactions.py:63
 #, python-format
@@ -1933,105 +1929,104 @@ msgstr "Поиск новых выпусков..."
 msgid ""
 "Sign up for gpodder.net to synchronize (and backup) your subscriptions to "
 "the cloud."
-msgstr ""
+msgstr "Создайте аккаунт на gpodder.net для синхронизации и резервного копирования подписок."
 
 #: src/gpodder/gtkui/frmntl/hints.py:26
 msgid "Bulk-deleting episodes is possible from the main window menu."
-msgstr ""
+msgstr "С помощью пункта меню 'Подписки/Удалить подкасты' можно удалить несколько подкастов за раз."
 
 #: src/gpodder/gtkui/frmntl/hints.py:27
 msgid ""
 "To save power, automatic updates are only enabled while gPodder is running."
-msgstr ""
+msgstr "Автоматическое обновление работает только при запущенном gPodder"
 
 #: src/gpodder/gtkui/frmntl/hints.py:28
 msgid "Subscribe to YouTube users and download their videos to your device."
-msgstr ""
+msgstr "Подпишитесь на RSS-ленту пользователя YouTube и получайте новые видео прямо на ваше устройство."
 
 #: src/gpodder/gtkui/frmntl/hints.py:29
 msgid ""
 "Use the shortcut URL yt:<username> to quickly subscribe to a YouTube user."
-msgstr ""
+msgstr "Используйте короткий URL yt:<имя-пользователя> для того чтобы быстро подписаться на пользователя YouTube."
 
 #: src/gpodder/gtkui/frmntl/hints.py:30
 msgid ""
 "Search for your fields of interest in the gpodder.net directory to find "
 "interesting content."
-msgstr ""
+msgstr "Воспользуйтесь каталогом и поиском подкастов на gpodder.net"
 
 #: src/gpodder/gtkui/frmntl/hints.py:31
 msgid ""
 "Longpress on an episode to access a menu with useful episode-related "
 "functions."
-msgstr ""
+msgstr "Нажмите и удерживайте на выпуске для просмотра возможных действий."
 
 #: src/gpodder/gtkui/frmntl/hints.py:32
-#, fuzzy
 msgid ""
 "Longpress on an episode in 'New episodes available' to display its shownotes."
-msgstr "Выберите выпуск для показа деталей (шоунотов)"
+msgstr "В окне загрузки новых выпусков нажмите и удерживайте на выпуске в для показа деталей (шоунотов)"
 
 #: src/gpodder/gtkui/frmntl/hints.py:33
 msgid ""
 "Use the hardware keyboard to filter down lists - simply start typing in the "
 "podcast or episode list."
-msgstr ""
+msgstr "Используйте клавиатурный ввод чтобы быстро найти нужный выпуск/подкаст. "
 
 #: src/gpodder/gtkui/frmntl/hints.py:34
 msgid ""
 "The top row of the menu in each list window lets you set the filter for it."
-msgstr ""
+msgstr "Нажав на заголовок столбца вы отсортируете список по нему."
 
 #: src/gpodder/gtkui/frmntl/hints.py:35
 msgid ""
 "Use fb:<name> as a shorthand for Feedburner URLs (feeds.feedburner.com/"
 "<name>)"
-msgstr ""
+msgstr "Используйте короткий URL fb:<имя> для подписки на RSS-ленту feeds.feedburner.com/<имя>"
 
 #: src/gpodder/gtkui/frmntl/hints.py:36
 msgid ""
 "Episodes marked as 'Keep episode' will never be displayed in the 'Delete "
 "episodes' list."
-msgstr ""
+msgstr "Выпуски защищенные от удаления не будут показываться в диалоге 'Удалить выпуски'"
 
 #: src/gpodder/gtkui/frmntl/hints.py:37
 msgid ""
 "Use gpodder.net to share your subscription list with friends via a private "
 "or public URL."
-msgstr ""
+msgstr "Поделитесь подкастами из вашего профиля на gpodder.net публичным/приватным URL"
 
 #: src/gpodder/gtkui/frmntl/hints.py:38
 msgid ""
 "Found a problem? Report it at bugs.maemo.org (Extras / gPodder), so we can "
 "fix it in the next release."
-msgstr ""
+msgstr "Нашли ошибку? Сообщите о ней на bugs.maemo.org (Extras / gPodder)"
 
 #: src/gpodder/gtkui/frmntl/hints.py:39
 msgid ""
 "Got a feature request? Let us know at bugs.maemo.org (Extras / gPodder)!"
-msgstr ""
+msgstr "Есть идея как улучшить gPodder? Сообщите о ней на bugs.maemo.org (Extras / gPodder)"
 
 #: src/gpodder/gtkui/frmntl/hints.py:40
 msgid "Want to support gPodder? Use the 'donate' button in the about dialog."
-msgstr ""
+msgstr "Поддержите gPodder! Нажмите на 'Пожертвование' в диалоге 'О программе'"
 
 #: src/gpodder/gtkui/frmntl/hints.py:41
 msgid ""
 "Use Media Player as your audio and video player for position tracking "
 "support."
-msgstr ""
+msgstr "Используйте 'Медиа Плеер' для возможности продолжить слушать подкаст с того места на котором он был прерван."
 
 #: src/gpodder/gtkui/frmntl/hints.py:42
 msgid ""
 "The 'Delete episodes' dialog has some useful presets in its menu - check "
 "them out!"
-msgstr ""
+msgstr "Вы можете воспользоваться шаблонами действий в диалоге 'Удалить выпуски'"
 
 #: src/gpodder/gtkui/frmntl/hints.py:43
 msgid ""
 "Use search-as-you-type in the 'All episodes' list to quickly find a specific "
 "episode."
-msgstr ""
+msgstr "Используйте клавиатурный ввод чтобы быстро найти нужный выпуск/подкаст. "
 
 #: src/gpodder/gtkui/frmntl/model.py:77
 msgid "in downloads list"
@@ -2174,7 +2169,7 @@ msgstr "Ежедневно"
 #: src/gpodder/gtkui/frmntl/preferences.py:52
 #: src/gpodder/gtkui/frmntl/preferences.py:58
 msgid "Media Player"
-msgstr "Аудио плеер"
+msgstr "Медиа Плеер"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:53
 msgid "Panucci"
@@ -2239,9 +2234,8 @@ msgid "Cover"
 msgstr "Обложка"
 
 #: data/ui/desktop/gpodderchannel.ui.h:6
-#, fuzzy
 msgid "Disable feed updates (pause subscription)"
-msgstr "Эвристическое обновление подписок"
+msgstr "Приостановить обновление подписки"
 
 #: data/ui/desktop/gpodderchannel.ui.h:7
 msgid "Download to:"
@@ -2651,7 +2645,7 @@ msgstr "Удалить"
 
 #: data/ui/desktop/gpodder.ui.h:48 data/ui/maemo/gpodder.ui.h:44
 msgid "User manual"
-msgstr "Сп_равка"
+msgstr "Руководство"
 
 #: data/ui/desktop/gpodder.ui.h:49 data/ui/maemo/gpodder.ui.h:45
 msgid "Website"
@@ -2663,7 +2657,7 @@ msgstr "_Выпуски"
 
 #: data/ui/desktop/gpodder.ui.h:51 data/ui/maemo/gpodder.ui.h:47
 msgid "_Help"
-msgstr "По_мощь"
+msgstr "_Справка"
 
 #: data/ui/desktop/gpodder.ui.h:52 data/ui/maemo/gpodder.ui.h:48
 msgid "_Podcasts"
@@ -2869,17 +2863,12 @@ msgid "Print debugging output to stdout"
 msgstr "Отладочная информация в stdout"
 
 #: bin/gpodder:124
-#, fuzzy
 msgid "Force using the Maemo 4 user interface"
 msgstr "Запустить интерфейс для Maemo 4"
 
 #: bin/gpodder:128
-#, fuzzy
 msgid "Force using the Maemo 5 user interface"
 msgstr "Запустить интерфейс для Maemo 5"
-
-#~ msgid "%(position)d/%(total)d updated"
-#~ msgstr "%(position)d/%(total)d обновлено"
 
 #~ msgid "Updating..."
 #~ msgstr "Обновление..."
