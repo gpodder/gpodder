@@ -2924,7 +2924,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.feed_cache_update_cancelled = True
             if not gpodder.ui.fremantle:
                 self.btnCancelFeedUpdate.set_sensitive(False)
-        else:
+        elif not gpodder.ui.fremantle:
             self.show_update_feeds_buttons()
 
     def update_feed_cache(self, channels=None, force_update=True, select_url_afterwards=None):
