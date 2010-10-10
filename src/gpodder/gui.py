@@ -2833,6 +2833,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.feed_cache_update_cancelled = True
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
+            self.itemUpdate.set_sensitive(True)
             if gpodder.ui.maemo:
                 # btnCancelFeedUpdate is a ToolButton on Maemo
                 self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
