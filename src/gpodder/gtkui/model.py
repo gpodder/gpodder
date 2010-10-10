@@ -435,7 +435,14 @@ class EpisodeListModel(gtk.ListStore):
             else:
                 icon = icon_theme.load_icon(icon_name, icon_size, 0)
         except:
-            icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, icon_size, 0)
+            try:
+                log('Missing icon in theme: %s', icon_name, sender=self)
+                icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, \
+                        icon_size, 0)
+            except:
+                log('Please install the GNOME icon theme.', sender=self)
+                icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, \
+                        True, 8, icon_size, icon_size)
 
         if icon and (add_bullet or add_padlock or add_missing):
             # We'll modify the icon, so use .copy()
