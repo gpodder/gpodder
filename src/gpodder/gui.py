@@ -2718,7 +2718,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     log('Play action for %s', episode.url, sender=self)
                     episode.mark(is_played=True)
 
-                    if action.timestamp > episode.current_position_updated:
+                    if action.timestamp > episode.current_position_updated and \
+                            action.position is not None:
                         log('Updating position for %s', episode.url, sender=self)
                         episode.current_position = action.position
                         episode.current_position_updated = action.timestamp
