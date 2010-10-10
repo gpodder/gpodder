@@ -1462,13 +1462,6 @@ def run_external_command(command_line):
     call the notification function with two arguments - the
     first being the error message and the second being the
     title to be used for the error message.
-
-    >>> from minimock import mock, Mock, restore
-    >>> mock('subprocess.Popen', returns=Mock('subprocess.Popen'))
-    >>> run_external_command('testprogramm')
-    Called subprocess.Popen('testprogramm', shell=True)
-    Called subprocess.Popen.wait()
-    >>> restore()
     """
 
     def open_process(command_line):
