@@ -44,6 +44,10 @@ import email
 import email.Header
 
 
+# gPodder's consumer key for the Soundcloud API
+CONSUMER_KEY = 'zrweghtEtnZLpXf3mlm8mQ'
+
+
 def soundcloud_parsedate(s):
     """Parse a string into a unix timestamp
 
@@ -107,13 +111,14 @@ class SoundcloudUser(object):
         json.dump(self.cache, open(self.cache_file, 'w'))
 
     def get_coverart(self):
+        global CONSUMER_KEY
         key = ':'.join((self.username, 'avatar_url'))
         if key in self.cache:
             return self.cache[key]
 
         image = None
         try:
-            json_url = 'http://api.soundcloud.com/users/%s.json' % self.username
+            json_url = 'http://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
             user_info = json.load(util.urlopen(json_url))
             image = user_info.get('avatar_url', None)
             self.cache[key] = image
@@ -127,9 +132,10 @@ class SoundcloudUser(object):
 
         The generator will give you a dictionary for every
         track it can find for its user."""
+        global CONSUMER_KEY
         try:
-            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable' \
-                    % { "user":self.username, "feed":feed }
+            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s' \
+                    % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
             tracks = (track for track in json.load(util.urlopen(json_url)) \
                     if track['downloadable'])
 

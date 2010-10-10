@@ -42,7 +42,7 @@ if __name__ == '__main__':
     ui_folder = os.path.join(data_dir, 'ui')
     credits_file = os.path.join(data_dir, 'credits.txt')
     images_folder = os.path.join(data_dir, 'images')
-    icon_file = os.path.join(data_dir, 'gpodder.svg')
+    icon_file = os.path.join(data_dir, 'gpodder.png')
 
     # Set up the path to translation files
     gettext.bindtextdomain('gpodder', locale_dir)

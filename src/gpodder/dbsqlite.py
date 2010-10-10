@@ -77,6 +77,7 @@ class Database(object):
             ('release_expected', 'INTEGER', True, '0'), # Statistic value for when a new release is expected
             ('release_deviation', 'INTEGER', True, '0'), # Deviation of the release cycle differences
             ('updated_timestamp', 'INTEGER', True, '0'), # Timestamp of the last feed update
+            ('feed_update_enabled', 'INTEGER', True, '1'), # 0 to skip this feed when checking for new episodes
     )
     INDEX_CHANNELS = (
             ('foldername', 'UNIQUE INDEX'),

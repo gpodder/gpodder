@@ -37,6 +37,7 @@
     info URL                      Show information about feed at URL
     list                          List all subscribed podcasts
     update                        Refresh all feeds (check for new episodes)
+    update URL                    Refresh the feed at URL
 
   Episode management
   ------------------
@@ -57,6 +58,9 @@
                                   from that channel will be displayed
 
     delete URL                    Delete the downloaded episode at URL
+
+    disable URL                   Mark the feed as disabled
+    enable URL                    Mark the feed as enabled
 
   Portable device synchronization
   -------------------------------
@@ -145,33 +149,50 @@ class gPodderCli(object):
 
         return True
 
+    def _episodesList(self, podcast):
+        def status_str(episode):
+            if episode.is_new:
+                return ' * '
+            if episode.is_downloaded:
+                return ' ▉ '
+            if episode.is_deleted:
+                return ' ░ '
+    
+            return '   '
+
+        episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
+	return episodes
+
     def info(self, url):
         podcast = self.client.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
-            title, url = podcast.title, podcast.url
-            def status_str(episode):
-                if episode.is_new:
-                    return ' * '
-                if episode.is_downloaded:
-                    return ' ▉ '
-                if episode.is_deleted:
-                    return ' ░ '
-
-                return '   '
-
-            episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
+            title, url, status = podcast.title, podcast.url, podcast.feed_update_status_msg()
+            episodes = self._episodesList(podcast)
             episodes = '\n      '.join(episodes)
             print >>sys.stdout, """
     Title: %(title)s
     URL: %(url)s
+    Feed update is %(status)s
 
     Episodes:
       %(episodes)s
 """ % locals()
 
+        return True
+
+    def episodes(self, url=None):
+        for podcast in self.client.get_podcasts():
+            podcast_printed = False
+            if url is None or podcast.url == url:
+                episodes = self._episodesList(podcast)
+                episodes = '\n      '.join(episodes)
+                print >>sys.stdout, """
+    Episodes from %s:
+      %s
+""" % (podcast.url, episodes)
         return True
 
     def list(self):
@@ -180,47 +201,86 @@ class gPodderCli(object):
 
         return True
 
-    def update(self):
+    def update(self, url=None):
         for podcast in self.client.get_podcasts():
-            print 'Updating', podcast.title
-            podcast.update()
-        print 'Done.'
+            if url is None and podcast.update_enabled():
+               print 'Updating', podcast.title
+               podcast.update()
+               print 'Done.'
+            elif podcast.url == url:
+               # Don't need to check for update_enabled()
+               print 'Updating', podcast.title
+               podcast.update()
+               print 'Done.'
 
         return True
 
-    def pending(self):
+    def pending(self, url=None):
         count = 0
         for podcast in self.client.get_podcasts():
             podcast_printed = False
-            for episode in podcast.get_episodes():
-                if episode.is_new:
-                    if not podcast_printed:
-                        print podcast.title
-                        podcast_printed = True
-                    print '   ', episode.title
-                    count += 1
+            if url is None or podcast.url == url:
+                for episode in podcast.get_episodes():
+                    if episode.is_new:
+                        if not podcast_printed:
+                            print podcast.title
+                            podcast_printed = True
+                        print '   ', episode.title
+                        count += 1
 
         print count, 'episodes pending.'
         return True
 
-    def download(self):
+    def download(self, url=None):
         count = 0
         for podcast in self.client.get_podcasts():
             podcast_printed = False
-            for episode in podcast.get_episodes():
-                if episode.is_new:
-                    if not podcast_printed:
-                        print podcast.title
-                        podcast_printed = True
-                    print '   ', episode.title
-                    episode.download()
-                    count += 1
+            if url is None or podcast.url == url:
+                for episode in podcast.get_episodes():
+                    if episode.is_new:
+                        if not podcast_printed:
+                            print podcast.title
+                            podcast_printed = True
+                        print '   ', episode.title
+                        episode.download()
+                        count += 1
 
         print count, 'episodes downloaded.'
         return True
 
+    def disable(self, url):
+        podcast = self.client.get_podcast(url)
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            podcast.disable()
+            self.client.finish()
+            self._error(_('Disabling feed update from %s.') % url)
+
+        return True
+
+    def enable(self, url):
+        podcast = self.client.get_podcast(url)
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            podcast.enable()
+            self.client.finish()
+            self._error(_('Enabling feed update from %s.') % url)
+
+        return True
+
+
+
     def sync(self):
         self.client.synchronize_device()
+        
+
+    def youtube_resolve(self, url):
+        yurl = self.client.youtube_url_resolver(url)
+        print "Youtube URL %s resolved to %s" % (url, yurl)
         return True
 
     # -------------------------------------------------------------------
@@ -257,6 +317,7 @@ class gPodderCli(object):
             if inspect.ismethod(func) and name == command:
                 return self._checkargs(func, command_line)
 
+        self._error(_('The requested function is not available.'))
         return False
 
 

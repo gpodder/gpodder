@@ -410,6 +410,7 @@ class PodcastChannel(PodcastModelObject):
         self.release_expected = time.time()
         self.release_deviation = 0
         self.updated_timestamp = 0
+        self.feed_update_enabled = True
 
     def calculate_publish_behaviour(self):
         episodes = self.db.load_episodes(self, factory=self.episode_factory, limit=30)
@@ -703,7 +704,11 @@ class PodcastEpisode(PodcastModelObject):
         # Replace multi-space and newlines with single space (Maemo bug 11173)
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
-        episode.description = entry.get('summary', '')
+        if 'content' in entry and len(entry['content']) and \
+                entry['content'][0].type == 'text/html':
+            episode.description = entry['content'][0].value
+        else:
+            episode.description = entry.get('summary', '')
 
         try:
             # Parse iTunes-specific podcast duration metadata
@@ -916,7 +921,9 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def maemo_remove_markup(self):
-        if self.is_played:
+        if self.total_time and self.current_position:
+            played_string = self.get_play_info_string()
+        elif self.is_played:
             played_string = _('played')
         else:
             played_string = _('unplayed')
@@ -1207,9 +1214,20 @@ class PodcastEpisode(PodcastModelObject):
         except:
             log( 'Could not get filesize for %s.', self.url)
 
+    def is_finished(self):
+        """Return True if this episode is considered "finished playing"
+
+        An episode is considered "finished" when there is a
+        current position mark on the track, and when the
+        current position is greater than 99 percent of the
+        total time or inside the last 10 seconds of a track.
+        """
+        return self.current_position > 0 and \
+                (self.current_position + 10 >= self.total_time or \
+                 self.current_position >= self.total_time*.99)
+
     def get_play_info_string(self):
-        if self.current_position > 0 and \
-                self.total_time <= self.current_position:
+        if self.is_finished():
             return '%s (%s)' % (_('Finished'), self.get_duration_string(),)
         if self.current_position > 0:
             return '%s / %s' % (self.get_position_string(), \

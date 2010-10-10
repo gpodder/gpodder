@@ -49,7 +49,10 @@
 
  Additional dependencies for MTP-based device synchronization support:
 
-   * python-pymtp (libmtp's Python bindings; nick125.com/projects/pymtp)
+   * libmtp (>= 1.0.0)
+     Please note that the previously-required "pymtp" module is now included in
+     the gPodder distribution as "gpodder.gpopymtp", and therefore no longer
+     needed as special dependency. You still need a recent version of libmtp.
 
  Additional dependencies for converting OGGs to MP3s on iPod sync:
  
@@ -99,8 +102,8 @@
  Extract the tar archive somewhere into your home directory and cd into 
  the directory where you extracted it, for example:
 
-   tar xzvf gpodder-2.8.tar.gz
-   cd gpodder-2.8/
+   tar xzvf gpodder-2.9.tar.gz
+   cd gpodder-2.9/
    make install
 
  If you have any problems, please visit the gPodder website or mail the 

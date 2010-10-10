@@ -142,7 +142,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
-        adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
+        adjustment_update_interval.upper = len(self.update_interval_presets)-1
         if self._config.auto_update_frequency in self.update_interval_presets:
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
@@ -151,7 +151,7 @@ class gPodderPreferences(BuilderWidget):
             self.update_interval_presets.append(self._config.auto_update_frequency)
             self.update_interval_presets.sort()
 
-            adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
+            adjustment_update_interval.upper = len(self.update_interval_presets)-1
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
 
@@ -169,7 +169,7 @@ class gPodderPreferences(BuilderWidget):
             adjustment_expiration = self.hscale_expiration.get_adjustment()
             if self._config.episode_old_age > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
-                adjustment_expiration.set_upper(self._config.episode_old_age)
+                adjustment_expiration.upper = self._config.episode_old_age
 
             self.hscale_expiration.set_value(self._config.episode_old_age)
         else:

@@ -33,6 +33,7 @@ class gPodderChannel(BuilderWidget):
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)
+        self.cbSkipFeedUpdate.set_active(not self.channel.feed_update_enabled)
 
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
@@ -103,11 +104,14 @@ class gPodderChannel(BuilderWidget):
 
     def on_btnOK_clicked(self, widget, *args):
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
+        self.channel.feed_update_enabled = not self.cbSkipFeedUpdate.get_active()
         self.channel.device_playlist_name = self.musicPlaylist.get_text()
         self.channel.set_custom_title(self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
         self.channel.password = self.FeedPassword.get_text()
         self.channel.save()
+
+        self.cover_downloader.reload_cover_from_disk(self.channel)
 
         self.gPodderChannel.destroy()
         self.callback_closed()

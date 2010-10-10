@@ -45,10 +45,10 @@ except:
 
 pymtp_available = True
 try:
-    import pymtp
+    import gpodder.gpopymtp as pymtp
 except:
     pymtp_available = False
-    log('(gpodder.sync) Could not find pymtp.')
+    log('(gpodder.sync) Could not load gpopymtp (libmtp not installed?).')
 
 try:
     import eyeD3
@@ -62,7 +62,6 @@ except:
 
 # Register our dependencies for the synchronization module
 services.dependency_manager.depend_on(_('iPod synchronization'), _('Support synchronization of podcasts to Apple iPod devices via libgpod.'), ['gpod', 'gst'], [])
-services.dependency_manager.depend_on(_('MTP device synchronization'), _('Support synchronization of podcasts to devices using the Media Transfer Protocol via pymtp.'), ['pymtp'], [])
 services.dependency_manager.depend_on(_('iPod OGG converter'), _('Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec and LAME.'), [], ['oggdec', 'lame'])
 services.dependency_manager.depend_on(_('iPod video podcasts'), _('Detect video lengths via MPlayer, to synchronize video podcasts to iPods.'), [], ['mplayer'])
 services.dependency_manager.depend_on(_('Rockbox cover art support'), _('Copy podcast cover art to filesystem-based MP3 players running Rockbox.org firmware. Needs Python Imaging.'), ['Image'], [])
@@ -149,7 +148,6 @@ def get_track_length(filename):
         pass
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
-
 
 class SyncTrack(object):
     """
@@ -491,7 +489,10 @@ class iPodDevice(Device):
         gpod.itdb_track_add(self.itdb, track, -1)
         gpod.itdb_playlist_add_track(self.master_playlist, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
-        gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
+        copied = gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
+
+        if copied and gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_file_copied_to_ipod(self, local_filename)
 
         # If the file has been converted, delete the temporary file here
         if local_filename != original_filename:
@@ -648,7 +649,10 @@ class MP3PlayerDevice(Device):
 
         if not os.path.exists(to_file):
             log('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding), sender=self)
-            return self.copy_file_progress(from_file, to_file)
+            copied = self.copy_file_progress(from_file, to_file)
+            if copied and gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_file_copied_to_filesystem(self, from_file, to_file)
+            return copied
 
         return True
 
@@ -953,7 +957,7 @@ class MTPDevice(Device):
     def add_track(self, episode):
         self.notify('status', _('Adding %s...') % episode.title)
         filename = str(self.convert_track(episode))
-        log("sending " + filename + " (" + episode.title + ").", sender=self)
+        log("sending %s (%s).", filename, episode.title, sender=self)
 
         try:
             # verify free space
@@ -992,9 +996,11 @@ class MTPDevice(Device):
                 folder_id = self.__MTPDevice.mkdir(folder_name)
 
             # send the file
-            self.__MTPDevice.send_track_from_file(filename,
-                    util.sanitize_filename(metadata.title)+episode.extension(),
+            to_file = util.sanitize_filename(metadata.title) + episode.extension()
+            self.__MTPDevice.send_track_from_file(filename, to_file,
                     metadata, folder_id, callback=self.__callback)
+            if gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_file_copied_to_mtp(self, filename, to_file)
         except:
             log('unable to add episode %s', episode.title, sender=self, traceback=True)
             return False

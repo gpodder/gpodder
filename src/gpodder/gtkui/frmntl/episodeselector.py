@@ -360,6 +360,11 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.calculate_total_size()
 
     def on_remove_action_activate(self, widget):
+        # Show progress icon and make sure the UI is updated already
+        hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+
         episodes = self.get_selected_episodes(remove_episodes=True)
 
         urls = []
@@ -370,6 +375,9 @@ class gPodderEpisodeSelector(BuilderWidget):
         if self.remove_finished is not None:
             self.remove_finished(urls)
         self.calculate_total_size()
+
+        # Hide the progress indicator after the update has finished
+        hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
 
         # Close the window when there are no episodes left
         model = self.treeviewEpisodes.get_model()
@@ -399,6 +407,13 @@ class gPodderEpisodeSelector(BuilderWidget):
     def on_btnOK_clicked( self, widget):
         selected = self.get_selected_episodes()
         self.gPodderEpisodeSelector.destroy()
+
+        # Process UI events to make the window disappear quickly,
+        # because the callback below can take quite some time if
+        # for example downloads are being started from it.
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+
         if self.callback is not None:
             self.callback(selected)
 

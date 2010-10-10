@@ -89,7 +89,7 @@ class gPodderSyncUI(object):
             return
         elif self._config.device_type == 'mtp' and not sync.pymtp_available:
             title = _('Cannot sync to MTP device')
-            message = _('Please install python-pymtp and restart gPodder.')
+            message = _('Please install libmtp and restart gPodder.')
             self.notification(message, title, important=True)
             return
 

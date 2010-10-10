@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.8'
-__date__      = '2010-08-28'
+__version__   = '2.9'
+__date__      = '2010-10-10'
 __copyright__ = '© 2005-2010 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -152,7 +152,6 @@ def load_plugins():
     for plugin in PLUGINS:
         try:
             __import__(plugin)
-            print >>sys.stderr, 'Plugin loaded:', plugin
         except Exception, e:
             print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
 
