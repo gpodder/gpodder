@@ -588,6 +588,9 @@ class DownloadTask(object):
         self.__limit_rate_value = self._config.limit_rate_value
         self.__limit_rate = self._config.limit_rate
 
+        # Callbacks
+        self._progress_updated = lambda x: None
+
         # If the tempname already exists, set progress accordingly
         if os.path.exists(self.tempname):
             try:
@@ -601,6 +604,9 @@ class DownloadTask(object):
             # files for resuming when the file is queued
             open(self.tempname, 'w').close()
 
+    def add_progress_callback(self, callback):
+        self._progress_updated = callback
+
     def status_updated(self, count, blockSize, totalSize):
         # We see a different "total size" while downloading,
         # so correct the total size variable in the thread
@@ -609,6 +615,7 @@ class DownloadTask(object):
 
         if self.total_size > 0:
             self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+            self._progress_updated(self.progress)
 
         self.calculate_speed(count, blockSize)
 

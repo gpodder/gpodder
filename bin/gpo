@@ -27,57 +27,34 @@
 """
   Usage: gpo [COMMAND] [params...]
 
-  Subscription management
-  -----------------------
+  - Subscription management -
 
-    subscribe URL [TITLE]         Subscribe to a new feed at URL (as TITLE)
-    rename URL TITLE              Rename feed at URL to TITLE
-    unsubscribe URL               Unsubscribe from feed at URL
+    subscribe URL [TITLE]      Subscribe to a new feed at URL (as TITLE)
+    rename URL TITLE           Rename feed at URL to TITLE
+    unsubscribe URL            Unsubscribe from feed at URL
+    enable URL                 Enable feed updates for the feed at URL
+    disable URL                Disable feed updates for the feed at URL
 
-    info URL                      Show information about feed at URL
-    list                          List all subscribed podcasts
-    update                        Refresh all feeds (check for new episodes)
-    update URL                    Refresh the feed at URL
+    info URL                   Show information about feed at URL
+    list                       List all subscribed podcasts
+    update [URL]               Check for new episodes (all or only at URL)
 
-  Episode management
-  ------------------
+  - Episode management -
 
-    download [URL]                Download all new (=pending) episodes; if
-                                  URL is an episode URL, download only one
-                                  episode; if it's a channel URL, download
-                                  all pending episodes from that channel
-    pending [URL]                 Show episodes that are marked as new; if
-                                  URL is given, show only pending downloads
-                                  from the channel at this URL
-    queue URL                     Add episode at URL to pending episodes
-    skip URL                      Remove episode at URL from pending episodes
+    download [URL]             Download new episodes (all or only from URL)
+    pending [URL]              List new episodes (all or only from URL)
+    episodes [URL]             List episodes (all or only from URL)
 
-    details URL                   Show information about episode at URL
-    episodes [URL]                Show a list of all episodes; if URL is given
-                                  it should be a channel URL and only episodes
-                                  from that channel will be displayed
+  - Other commands -
 
-    delete URL                    Delete the downloaded episode at URL
-
-    disable URL                   Mark the feed as disabled
-    enable URL                    Mark the feed as enabled
-
-  Portable device synchronization
-  -------------------------------
-
-    device                        Show information about your device
-    sync                          Synchronize downloaded episodes to device
-
-  Helper commands
-  ---------------
-
-    youtube resolve [URL]         Resolve the YouTube URL to a download URL
-    youtube download [URL]        Download a video from YouTube via its URL
+    sync                       Synchronize downloaded episodes to device
+    youtube [URL]              Resolve the YouTube URL to a download URL
 
 """
 
 import sys
 import os
+import re
 import inspect
 
 gpodder_script = sys.argv[0]
@@ -102,11 +79,42 @@ _ = gpodder.gettext
 # and as a motivation to provide all functionality in the API :)
 from gpodder import api
 
+def inred(x):
+    return '\033[91m' + x + '\033[0m'
 
+def ingreen(x):
+    return '\033[92m' + x + '\033[0m'
+
+def inblue(x):
+    return '\033[94m' + x + '\033[0m'
 
 class gPodderCli(object):
+    COLUMNS = 80
+
     def __init__(self):
         self.client = api.PodcastClient()
+        self._current_action = ''
+
+    def _start_action(self, msg, *args):
+        line = msg % args
+        if len(line) > self.COLUMNS-7:
+            line = line[:self.COLUMNS-7-3] + '...'
+        else:
+            line = line + (' '*(self.COLUMNS-7-len(line)))
+        self._current_action = line
+        sys.stdout.write(line)
+        sys.stdout.flush()
+
+    def _update_action(self, progress):
+        progress = '%3.0f%%' % (progress*100.,)
+        result = '['+inblue(progress)+']'
+        sys.stdout.write('\r' + self._current_action + result)
+        sys.stdout.flush()
+
+    def _finish_action(self, success=True):
+        result = '['+ingreen('DONE')+']' if success else '['+inred('FAIL')+']'
+        print '\r' + self._current_action + result
+        self._current_action = ''
 
     # -------------------------------------------------------------------
 
@@ -204,14 +212,14 @@ class gPodderCli(object):
     def update(self, url=None):
         for podcast in self.client.get_podcasts():
             if url is None and podcast.update_enabled():
-               print 'Updating', podcast.title
-               podcast.update()
-               print 'Done.'
+                self._start_action('Updating %s', podcast.title)
+                podcast.update()
+                self._finish_action()
             elif podcast.url == url:
-               # Don't need to check for update_enabled()
-               print 'Updating', podcast.title
-               podcast.update()
-               print 'Done.'
+                # Don't need to check for update_enabled()
+                self._start_action('Updating %s', podcast.title)
+                podcast.update()
+                self._finish_action()
 
         return True
 
@@ -239,10 +247,11 @@ class gPodderCli(object):
                 for episode in podcast.get_episodes():
                     if episode.is_new:
                         if not podcast_printed:
-                            print podcast.title
+                            print inblue(podcast.title)
                             podcast_printed = True
-                        print '   ', episode.title
-                        episode.download()
+                        self._start_action('Downloading %s', episode.title)
+                        episode.download(self._update_action)
+                        self._finish_action()
                         count += 1
 
         print count, 'episodes downloaded.'
@@ -272,21 +281,18 @@ class gPodderCli(object):
 
         return True
 
-
-
     def sync(self):
         self.client.synchronize_device()
-        
 
-    def youtube_resolve(self, url):
+    def youtube(self, url):
         yurl = self.client.youtube_url_resolver(url)
-        print "Youtube URL %s resolved to %s" % (url, yurl)
+        print yurl
         return True
 
     # -------------------------------------------------------------------
 
     def _error(self, *args):
-        print >>sys.stderr, ' '.join(args)
+        print >>sys.stderr, inred(' '.join(args))
 
     def _info(self, *args):
         print >>sys.stdout, ' '.join(args)
@@ -321,8 +327,13 @@ class gPodderCli(object):
         return False
 
 
+def stylize(s):
+    s = re.sub(r'    .{27}', lambda m: inblue(m.group(0)), s)
+    s = re.sub(r'  - .*', lambda m: ingreen(m.group(0)), s)
+    return s
+
 if __name__ == '__main__':
     cli = gPodderCli()
-    cli._parse(sys.argv[1:]) or sys.stderr.write(__doc__)
+    cli._parse(sys.argv[1:]) or sys.stderr.write(stylize(__doc__))
 
 
