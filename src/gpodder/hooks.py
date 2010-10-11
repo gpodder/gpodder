@@ -141,6 +141,16 @@ class HookManager(object):
         pass
 
     @call_hooks
+    def on_episode_downloaded(self, episode):
+        """Called when an episode has been downloaded
+
+        You can retrieve the filename via episode.local_filename(False)
+
+        @param episode: A gpodder.model.PodcastEpisode instance
+        """
+        pass
+
+    @call_hooks
     def on_file_copied_to_filesystem(self, device, from_file, to_file):
         """Called when an episode is copied to the MP3PlayerDevice device
 
