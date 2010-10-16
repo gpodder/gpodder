@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gPodder 2.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-05 19:58+0200\n"
-"PO-Revision-Date: 2010-10-16 18:36+0100\n"
+"PO-Revision-Date: 2010-10-16 19:27+0100\n"
 "Last-Translator: Fred Kwame Ayanful <fred.ayanful@gmail.com>\n"
 "Language-Team: gpodder team <gpodder-devel@lists.berlios.de>\n"
 "MIME-Version: 1.0\n"
@@ -158,11 +158,11 @@ msgstr "Chargement des abonnements"
 
 #: src/gpodder/gui.py:743
 msgid "Your subscriptions are being uploaded to the server."
-msgstr "Vos abonnements sont chargés sur le serveur."
+msgstr "Vos abonnements sont en cours de chargement sur le serveur."
 
 #: src/gpodder/gui.py:748
 msgid "List uploaded successfully."
-msgstr "Liste transferée avec succès."
+msgstr "Liste chargé avec succès."
 
 #: src/gpodder/gui.py:755
 msgid "Error while uploading"
@@ -261,7 +261,7 @@ msgstr[1] "%d en file d'attente"
 #: src/gpodder/gui.py:1345
 #, python-format
 msgid "Downloads (%d)"
-msgstr "Téléchargement (%d)"
+msgstr "Téléchargements (%d)"
 
 #: src/gpodder/gui.py:1354
 #, python-format
@@ -274,8 +274,8 @@ msgstr[1] "%d en pause"
 #, python-format
 msgid "downloading %d file"
 msgid_plural "downloading %d files"
-msgstr[0] "télécharge %d fichier"
-msgstr[1] "télécharge %d fichiers"
+msgstr[0] "téléchargement en cours d' %d fichier"
+msgstr[1] "téléchargement en cours de  %d fichiers"
 
 #: src/gpodder/gui.py:1390
 msgid "All downloads finished"
@@ -297,7 +297,7 @@ msgstr "Exception non prise en compte"
 #: src/gpodder/gui.py:1501
 #, python-format
 msgid "Feedparser error: %s"
-msgstr "Erreur du parseur de flux: %s"
+msgstr "Erreur lors de l'analyse du flux: %s"
 
 #: src/gpodder/gui.py:1515
 msgid "disk usage"
@@ -305,7 +305,7 @@ msgstr "Utilisation du disque"
 
 #: src/gpodder/gui.py:1550
 msgid "Updated M3U playlist in download folder."
-msgstr "Liste de lecture mise à jour dans le répertoire de téléchargement."
+msgstr "Liste de lecture M3U mise à jour dans le répertoire de téléchargement."
 
 #: src/gpodder/gui.py:1550
 msgid "Updated playlist"
@@ -318,14 +318,14 @@ msgstr "Ces téléchargements ont échoués:"
 #: src/gpodder/gui.py:1624
 #: src/gpodder/gui.py:1627
 msgid "Downloads finished"
-msgstr "Tous les téléchargements sont terminés"
+msgstr "Téléchargement terminé"
 
 #: src/gpodder/gui.py:1667
 #, python-format
 msgid "%d more episode"
 msgid_plural "%d more episodes"
-msgstr[0] "%d autre épisode"
-msgstr[1] "%d autres épisodes"
+msgstr[0] "%d épisode supplémentaire"
+msgstr[1] "%d épisodes supplémentaire"
 
 #: src/gpodder/gui.py:1740
 #: src/gpodder/gui.py:2053
@@ -372,7 +372,7 @@ msgstr "Supprimer de la liste"
 #: data/ui/maemo/gpodder.ui.h:42
 #: data/ui/frmntl/gpodder.ui.h:20
 msgid "Update podcast"
-msgstr "Mettre à jour le podcasr"
+msgstr "Mettre à jour le podcast"
 
 #: src/gpodder/gui.py:1796
 msgid "Keep episodes"
@@ -398,7 +398,7 @@ msgstr "Erreur lors de la conversion du fichier."
 #: src/gpodder/gui.py:1886
 #: src/gpodder/services.py:115
 msgid "Bluetooth file transfer"
-msgstr "Transfert par bluetooth"
+msgstr "Transfert fichier par Bluetooth"
 
 #: src/gpodder/gui.py:1894
 #: src/gpodder/gtkui/desktop/preferences.py:77
@@ -445,7 +445,7 @@ msgstr "Conserver l'épisode"
 #: src/gpodder/gui.py:2268
 #, python-format
 msgid "Opening %s"
-msgstr "Ouverture de %s"
+msgstr "Ouverture %s"
 
 #: src/gpodder/gui.py:2271
 #, python-format
@@ -466,7 +466,7 @@ msgstr "Erreur lors de l'ouverture du lecteur"
 
 #: src/gpodder/gui.py:2542
 msgid "Adding podcasts"
-msgstr "Ajout des podcasts"
+msgstr "Ajout des podcasts en cours"
 
 #: src/gpodder/gui.py:2543
 msgid "Please wait while episode information is downloaded."
@@ -482,7 +482,7 @@ msgstr "Vous êtes déjà abonné à ces podcasts:"
 
 #: src/gpodder/gui.py:2559
 msgid "Podcast requires authentication"
-msgstr "Autentification par mot de passe nécessaire pour ce podcast"
+msgstr "Autentification nécessaire pour ce podcast"
 
 #: src/gpodder/gui.py:2560
 #, python-format
@@ -496,12 +496,12 @@ msgstr "L'autentification a échouée"
 
 #: src/gpodder/gui.py:2578
 msgid "Website redirection detected"
-msgstr "Une redirection vers un site web a été detectée"
+msgstr "Une redirection vers un site web a été détectée"
 
 #: src/gpodder/gui.py:2579
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
-msgstr "L'adresse %(url)s est redirigée  vers %(target)s."
+msgstr "L'adresse %(url)s redirigé vers %(target)s."
 
 #: src/gpodder/gui.py:2580
 msgid "Do you want to visit the website now?"
@@ -513,7 +513,7 @@ msgstr "Certains podcasts ne peuvent être ajoutés."
 
 #: src/gpodder/gui.py:2590
 msgid "Some podcasts could not be added to your list:"
-msgstr "Quelques podcasts n'ont pu re ajoutés à votre liste:"
+msgstr "Quelques podcasts n'ont pu être ajoutés à votre liste:"
 
 #: src/gpodder/gui.py:2592
 msgid "Unknown"
@@ -525,7 +525,7 @@ msgstr "Une redirection a été detectée"
 
 #: src/gpodder/gui.py:2708
 msgid "Merging episode actions"
-msgstr "Réparation des l'émissions dans %s"
+msgstr "Actions de fusion des épisodes"
 
 #: src/gpodder/gui.py:2709
 msgid "Episode actions from gpodder.net are merged."
@@ -547,12 +547,12 @@ msgstr " De nouveaux épisodes sont disponibles."
 #, python-format
 msgid "Downloading %d new episode."
 msgid_plural "Downloading %d new episodes."
-msgstr[0] " Téléchargement de %d nouvel épisode."
-msgstr[1] " Téléchargement de %d nouveaux épisodes."
+msgstr[0] " Téléchargement de %d nouvel épisode en cours."
+msgstr[1] " Téléchargement de %d nouveaux épisodes en cours."
 
 #: src/gpodder/gui.py:2794
 msgid "New episodes have been added to the download list."
-msgstr "Les nouveaux épisodes ont été ajoutés à la liste des téléchargement."
+msgstr "De nouveaux épisodes ont été ajoutés à la liste des téléchargement."
 
 #: src/gpodder/gui.py:2803
 #: src/gpodder/gui.py:2849
@@ -591,7 +591,7 @@ msgstr "Erreur lors de la ma mise à jour de %(url)s: %(message)s"
 #: src/gpodder/gui.py:2883
 #, python-format
 msgid "The feed at %(url)s could not be updated."
-msgstr "Le Podcast à %(url)s n'as pas su être mis à jour."
+msgstr "Le Podcast à %(url)s n'as pas pu être mis à jour."
 
 #: src/gpodder/gui.py:2884
 msgid "Error while updating feed"
@@ -600,28 +600,28 @@ msgstr "Erreur lors de la mise à jour du flux"
 #: src/gpodder/gui.py:2894
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
-msgstr "Mis à jour %(podcast)s (%(position)d/%(total)d)"
+msgstr "Mis à jour %(podcast)s (%(position)d/%(total)d) éffectué"
 
 #: src/gpodder/gui.py:2923
 msgid "Cancelling..."
-msgstr "Annulation..."
+msgstr "Annulation en cours..."
 
 #: src/gpodder/gui.py:2979
 #, python-format
 msgid "Updating \"%s\"..."
-msgstr "Mise à jour de \"%s\"..."
+msgstr "Mise à jour de \"%s\"en cours ... "
 
 #: src/gpodder/gui.py:2982
 #, python-format
 msgid "Updating %d feed..."
 msgid_plural "Updating %d feeds..."
-msgstr[0] "Mise à jour de %d flux..."
-msgstr[1] "Mise à jour de %d flux..."
+msgstr[0] "Mise à jour de %d flux en cours..."
+msgstr[1] "Mise à jour des %d flux en cours..."
 
 #: src/gpodder/gui.py:3004
 #: src/gpodder/gui.py:3017
 msgid "Do you really want to quit gPodder now?"
-msgstr "Voulez vous vraiment quitter gPodder ?"
+msgstr "Voulez vous vraiment quitter gPodder maintenant?"
 
 #: src/gpodder/gui.py:3013
 msgid "Quit gPodder"
@@ -629,11 +629,11 @@ msgstr "Quitter gPodder"
 
 #: src/gpodder/gui.py:3015
 msgid "You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?"
-msgstr "Des épisodes sont en cours de téléchargement. Vous pourrez reprendre ces téléchargement lorsque vous redémarrerez gPodder. Voulez vous quitter maintenant?"
+msgstr "Des épisodes sont en cours de téléchargement. Vous pourrez reprendre ces téléchargement lorsque vous redémarrerez gPodder la prochaine fois. Voulez vous quitter maintenant?"
 
 #: src/gpodder/gui.py:3022
 msgid "Don't ask me again"
-msgstr "Ne plus jamais me demander"
+msgstr "Ne plus me demander"
 
 #: src/gpodder/gui.py:3046
 msgid "Please check your permissions and free disk space."
@@ -641,7 +641,7 @@ msgstr "Vérifier les autorisations d'accès et l'espace disque disponible."
 
 #: src/gpodder/gui.py:3046
 msgid "Error saving podcast list"
-msgstr "Erreur lors de la sauvegarde de la liste des flux"
+msgstr "Erreur lors de la sauvegarde de la liste des podcast"
 
 #: src/gpodder/gui.py:3095
 msgid "Episodes are locked"
@@ -664,7 +664,7 @@ msgstr "La Suppression des episodes retirera également les fichiers télécharg
 
 #: src/gpodder/gui.py:3110
 msgid "Deleting episodes"
-msgstr "Suppressions des épisodes"
+msgstr "Suppressions des épisodes en cours"
 
 #: src/gpodder/gui.py:3111
 msgid "Please wait while episodes are deleted"
@@ -672,7 +672,7 @@ msgstr "Veuillez patienter pendant que les épisodes sont supprimés"
 
 #: src/gpodder/gui.py:3168
 msgid "Downloaded"
-msgstr "Téléchargée"
+msgstr "Téléchargé"
 
 #: src/gpodder/gui.py:3171
 #, python-format
@@ -683,7 +683,7 @@ msgstr[1] "Sélectionner les plus vieux que %d jours"
 
 #: src/gpodder/gui.py:3173
 msgid "Select played"
-msgstr "Sélectionner les épisodes déjà écoutés"
+msgstr "Sélectionner les lu"
 
 #: src/gpodder/gui.py:3174
 msgid "Select finished"
@@ -691,7 +691,7 @@ msgstr "Sélectionner les terminés"
 
 #: src/gpodder/gui.py:3178
 msgid "Select the episodes you want to delete:"
-msgstr "Selectionnez les épisodes à effacer:"
+msgstr "Selectionnez les épisodes à supprimer:"
 
 #: src/gpodder/gui.py:3191
 #: data/ui/desktop/gpodder.ui.h:12
@@ -705,7 +705,7 @@ msgstr "Supprimer des épisodes"
 #: src/gpodder/gui.py:3538
 #: src/gpodder/gui.py:3643
 msgid "No podcast selected"
-msgstr "Pas de flux sélectionné"
+msgstr "Pas de podcast sélectionné"
 
 #: src/gpodder/gui.py:3248
 msgid "Please select a podcast in the podcasts list to update."
