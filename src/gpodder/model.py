@@ -220,7 +220,17 @@ class PodcastChannel(PodcastModelObject):
 
         # We can limit the maximum number of entries that gPodder will parse
         if max_episodes > 0 and len(feed.entries) > max_episodes:
-            entries = feed.entries[:max_episodes]
+            # We have to sort the entries in descending chronological order,
+            # because if the feed lists items in ascending order and has >
+            # max_episodes old episodes, new episodes will not be shown.
+            # See also: gPodder Bug 1186
+            try:
+                entries = sorted(feed.entries, \
+                        key=lambda x: x.get('updated_parsed', (0,)*9), \
+                        reverse=True)[:max_episodes]
+            except Exception, e:
+                log('Could not sort episodes: %s', e, sender=self, traceback=True)
+                entries = feed.entries[:max_episodes]
         else:
             entries = feed.entries
 
