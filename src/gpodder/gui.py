@@ -2249,7 +2249,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Open episodes with system default player
         if 'default' in groups:
-            if gpodder.ui.maemo:
+            if gpodder.ui.maemo and len(groups['default']) > 1:
                 # The Nokia Media Player app does not support receiving multiple
                 # file names via D-Bus, so we simply place all file names into a
                 # temporary M3U playlist and open that with the Media Player.
