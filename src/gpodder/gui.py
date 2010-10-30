@@ -3391,6 +3391,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episodes
 
+    @dbus.service.method(gpodder.dbus_interface)
+    def start_device_synchronization(self):
+        """Public D-Bus API for starting Device sync (Desktop only)
+
+        This method can be called to initiate a synchronization with
+        a configured protable media player. This only works for the
+        Desktop version of gPodder and does nothing on Maemo.
+        """
+        if gpodder.ui.desktop:
+            self.on_sync_to_ipod_activate(None)
+            return True
+
+        return False
+
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         self.sync_ui.on_synchronize_episodes(self.channels, episodes)
 
