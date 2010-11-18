@@ -101,6 +101,10 @@ class BuilderWidget(GtkBuilderWidget):
                     self.main_window.fullscreen()
                     self._maemo_fullscreen = True
 
+    def _handle_menu_bar(self, menu_bar):
+        for child in menu_bar.get_children():
+            self.set_finger_friendly(child)
+
     def on_window_orientation_changed(self, orientation):
         """Override this method to relayout a window for portrait mode."""
         pass
@@ -273,7 +277,7 @@ class BuilderWidget(GtkBuilderWidget):
         if widget is None:
             return None
 
-        if gpodder.ui.diablo or gpodder.ui.fremantle:
+        if gpodder.ui.maemo or self.use_fingerscroll:
             if isinstance(widget, gtk.Misc):
                 widget.set_padding(0, 5)
             elif isinstance(widget, gtk.Button):
