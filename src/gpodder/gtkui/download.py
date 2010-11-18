@@ -70,23 +70,29 @@ class DownloadStatusModel(gtk.ListStore):
                     task.STATUS_MESSAGE[task.status], \
                     task.error_message)
         elif task.status == task.DOWNLOADING:
-            status_message = '%s (%s, %s/s)' % (\
+            status_message = '%s (%.0f%%, %s/s)' % (\
                     task.STATUS_MESSAGE[task.status], \
-                    util.format_filesize(task.total_size), \
+                    task.progress*100, \
                     util.format_filesize(task.speed))
         else:
-            if task.total_size > 0:
-                status_message = '%s (%s)' % (\
-                        task.STATUS_MESSAGE[task.status], \
-                        util.format_filesize(task.total_size))
-            else:
-                status_message = task.STATUS_MESSAGE[task.status]
+            status_message = task.STATUS_MESSAGE[task.status]
+
+        if task.progress > 0:
+            progress_message = ' / '.join((\
+                    util.format_filesize(task.progress*task.total_size, \
+                        digits=1), \
+                    util.format_filesize(task.total_size, digits=1)))
+        elif task.total_size > 0:
+            progress_message = util.format_filesize(task.total_size, \
+                    digits=1)
+        else:
+            progress_message = ('unknown size')
 
         self.set(iter,
                 self.C_NAME, self._format_message(task.markup_name, \
                     status_message, task.markup_podcast_name),
-                self.C_PROGRESS, 100.*task.progress,
-                self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
+                self.C_PROGRESS, 100.*task.progress, \
+                self.C_PROGRESS_TEXT, progress_message, \
                 self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):
