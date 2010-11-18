@@ -77,11 +77,18 @@ class DownloadStatusModel(gtk.ListStore):
         else:
             status_message = task.STATUS_MESSAGE[task.status]
 
-        if task.progress > 0:
-            progress_message = ' / '.join((\
-                    util.format_filesize(task.progress*task.total_size, \
-                        digits=1), \
-                    util.format_filesize(task.total_size, digits=1)))
+        if task.progress > 0 and task.progress < 1:
+            current = util.format_filesize(task.progress*task.total_size, digits=1)
+            total = util.format_filesize(task.total_size, digits=1)
+
+            # Remove unit from current if same as in total
+            # (does: "12 MiB / 24 MiB" => "12 / 24 MiB")
+            current = current.split()
+            if current[-1] == total.split()[-1]:
+                current.pop()
+            current = ' '.join(current)
+
+            progress_message = ' / '.join((current, total))
         elif task.total_size > 0:
             progress_message = util.format_filesize(task.total_size, \
                     digits=1)
