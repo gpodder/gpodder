@@ -34,7 +34,6 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
-import pango
 import xml.sax.saxutils
 
 try:
@@ -43,193 +42,29 @@ try:
 except ImportError:
     have_gio = False
 
-class EpisodeListModel(gtk.GenericTreeModel):
-    N_COLUMNS = 17
-
+class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME1_VISIBLE, C_TIME2_VISIBLE, \
-            C_LOCKED = range(N_COLUMNS)
+            C_LOCKED = range(17)
 
-    DATA_TYPES = (str, str, str, object, str   , str, str, \
-            str, bool, bool, bool, int, int, str, bool, bool, \
-            bool)
-
-    SEARCH_COLUMNS = (C_TITLE,)
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
-    # ---------------------
-
-    def on_get_flags(self):
-        return gtk.TREE_MODEL_LIST_ONLY
-
-    def on_get_n_columns(self):
-        return self.N_COLUMNS
-
-    def on_get_column_type(self, index):
-        return self.DATA_TYPES[index]
-
-    def on_get_iter(self, path):
-        return path[0]
-
-    def on_get_path(self, rowref):
-        return (rowref,)
-
-    def on_get_value(self, rowref, column):
-        if rowref >= len(self._episodes):
-            return None
-
-        episode = self._episodes[rowref]
-        downloading = self._downloading
-
-        if column == self.C_URL:
-            return episode.url
-        elif column == self.C_TITLE:
-            return episode.title
-        elif column == self.C_FILESIZE_TEXT:
-            return self._format_filesize(episode)
-        elif column == self.C_EPISODE:
-            return episode
-        elif column == self.C_STATUS_ICON:
-            if downloading(episode):
-                return self.ICON_DOWNLOADING
-            elif episode.state == gpodder.STATE_DELETED:
-                return self.ICON_DELETED
-            elif episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played and \
-                    not downloading(episode):
-                return self.ICON_NEW
-            elif episode.state == gpodder.STATE_DOWNLOADED:
-                filename = episode.local_filename(create=False, \
-                        check_only=True)
-
-                file_type = episode.file_type()
-                if file_type == 'audio':
-                    status_icon = self.ICON_AUDIO_FILE
-                elif file_type == 'video':
-                    status_icon = self.ICON_VIDEO_FILE
-                elif file_type == 'image':
-                    status_icon = self.ICON_IMAGE_FILE
-                else:
-                    status_icon = self.ICON_GENERIC_FILE
-
-                if gpodder.ui.maemo:
-                    return status_icon
-
-                icon_theme = gtk.icon_theme_get_default()
-                if filename is not None and have_gio:
-                    file = gio.File(filename)
-                    if file.query_exists():
-                        file_info = file.query_info('*')
-                        icon = file_info.get_icon()
-                        for icon_name in icon.get_names():
-                            if icon_theme.has_icon(icon_name):
-                                return icon_name
-
-                return status_icon
-
-            return None
-        elif column == self.C_PUBLISHED_TEXT:
-            return episode.cute_pubdate()
-        elif column == self.C_DESCRIPTION:
-            return self._format_description(episode, \
-                    self._include_description, \
-                    self._downloading)
-        elif column == self.C_TOOLTIP:
-            if downloading(episode):
-                return _('Downloading')
-            elif episode.state == gpodder.STATE_DELETED:
-                return _('Deleted')
-            elif episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played:
-                return _('New episode')
-            elif episode.state == gpodder.STATE_DOWNLOADED:
-                file_type = episode.file_type()
-                if not episode.file_exists():
-                    return _('missing file')
-                if file_type == 'audio':
-                    return _('Downloaded episode')
-                elif file_type == 'video':
-                    return _('Downloaded video episode')
-                elif file_type == 'image':
-                    return _('Downloaded image')
-                else:
-                    return _('Downloaded file')
-
-            return ''
-        elif column == self.C_VIEW_SHOW_UNDELETED:
-            return episode.state != gpodder.STATE_DELETED or downloading(episode)
-        elif column == self.C_VIEW_SHOW_DOWNLOADED:
-            return episode.state == gpodder.STATE_DOWNLOADED or \
-                    (episode.state == gpodder.STATE_NORMAL and \
-                     not episode.is_played) or \
-                    downloading(episode)
-        elif column == self.C_VIEW_SHOW_UNPLAYED:
-            return (not episode.is_played and (episode.state in \
-                    (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
-                    downloading(episode)
-        elif column == self.C_FILESIZE:
-            return episode.length
-        elif column == self.C_PUBLISHED:
-            return episode.pubDate
-        elif column == self.C_TIME:
-            return episode.get_play_info_string()
-        elif column == self.C_TIME1_VISIBLE:
-            return (episode.total_time and not episode.current_position)
-        elif column == self.C_TIME2_VISIBLE:
-            return (episode.total_time and episode.current_position)
-        elif column == self.C_LOCKED:
-            return episode.is_locked and \
-                    episode.state== gpodder.STATE_DOWNLOADED and \
-                    episode.file_exists()
-
-        raise Exception('could not find column index: ' + str(column))
-
-    def on_iter_next(self, rowref):
-        if len(self._episodes) > rowref + 1:
-            return rowref + 1
-
-        return None
-
-    def on_iter_children(self, parent):
-        if parent is None:
-            if self._episodes:
-                return 0
-
-        return None
-
-    def on_iter_has_child(self, rowref):
-        return False
-
-    def on_iter_n_children(self, rowref):
-        if rowref is None:
-            return len(self._episodes)
-
-        return 0
-
-    def on_iter_nth_child(self, parent, n):
-        if parent is None:
-            return n
-
-        return None
-
-    def on_iter_parent(self, child):
-        return None
-
-    # ---------------------
-
+    # In which steps the UI is updated for "loading" animations
+    _UI_UPDATE_STEP = .03
 
     def __init__(self):
-        gtk.GenericTreeModel.__init__(self)
+        gtk.ListStore.__init__(self, str, str, str, object, \
+                str, str, str, str, bool, bool, bool, \
+                int, int, str, bool, bool, bool)
 
-        self._downloading = None
-        self._include_description = False
-        self._generate_thumbnails = False
-
-        self._episodes = []
+        # Update progress (if we're currently being updated)
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -251,18 +86,10 @@ class EpisodeListModel(gtk.GenericTreeModel):
         self.ICON_GENERIC_FILE = ICON('text-x-generic')
         self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
         self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_NEW = gtk.STOCK_ABOUT
         self.ICON_UNPLAYED = ICON('emblem-new')
         self.ICON_LOCKED = ICON('emblem-readonly')
         self.ICON_MISSING = ICON('emblem-unreadable')
-        self.ICON_NEW = gtk.STOCK_ABOUT
-
-        if gpodder.ui.fremantle:
-            self.ICON_AUDIO_FILE = ICON('general_audio_file')
-            self.ICON_VIDEO_FILE = ICON('general_video_file')
-            self.ICON_IMAGE_FILE = ICON('general_image')
-            self.ICON_GENERIC_FILE = ICON('filemanager_unknown_file')
-            self.ICON_DOWNLOADING = ICON('email_inbox')
-            self.ICON_DELETED = ICON('camera_delete_dimmed')
 
         if 'KDE_FULL_SESSION' in os.environ:
             # Workaround until KDE adds all the freedesktop icons
@@ -298,6 +125,12 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         return True
 
+    def get_update_progress(self):
+        return self._update_progress
+
+    def reset_update_progress(self):
+        self._update_progress = 0.
+
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -329,23 +162,21 @@ class EpisodeListModel(gtk.GenericTreeModel):
         return self._search_term
 
     def _format_description(self, episode, include_description=False, is_downloading=None):
+        a, b = '', ''
+        if episode.state != gpodder.STATE_DELETED and not episode.is_played:
+            a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
                     _('from %s') % xml.sax.saxutils.escape(episode.channel.title))
         elif include_description:
-            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
                     xml.sax.saxutils.escape(episode.one_line_description()))
         else:
             return xml.sax.saxutils.escape(episode.title)
 
-    def clear(self):
-        count = len(self._episodes)
-        for i in reversed(range(count)):
-            self.emit('row-deleted', (i,))
-            self._episodes.pop()
-
     def replace_from_channel(self, channel, downloading=None, \
-            include_description=False, generate_thumbnails=False):
+            include_description=False, generate_thumbnails=False, \
+            treeview=None):
         """
         Add episode from the given channel to this model.
         Downloading should be a callback.
@@ -353,47 +184,65 @@ class EpisodeListModel(gtk.GenericTreeModel):
         is to be added to the episode row, or False if not)
         """
 
-        self._downloading = downloading
-        self._include_description = include_description
-        self._generate_thumbnails = generate_thumbnails
+        # Remove old episodes in the list store
+        self.clear()
+
+        self._update_progress = 0.
+        self._last_redraw_progress = 0.
+        if treeview is not None:
+            util.idle_add(treeview.queue_draw)
 
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
-        old_length = len(self._episodes)
-        self._episodes = channel.get_all_episodes()
-        new_length = len(self._episodes)
+        episodes = channel.get_all_episodes()
+        if not isinstance(episodes, list):
+            episodes = list(episodes)
+        count = len(episodes)
 
-        for i in range(min(old_length, new_length)):
-            self.emit('row-changed', (i,), self.create_tree_iter(i))
+        for position, episode in enumerate(episodes):
+            iter = self.append((episode.url, \
+                    episode.title, \
+                    self._format_filesize(episode), \
+                    episode, \
+                    None, \
+                    episode.cute_pubdate(), \
+                    '', \
+                    '', \
+                    True, \
+                    True, \
+                    True, \
+                    episode.length, \
+                    episode.pubDate, \
+                    episode.get_play_info_string(), \
+                    episode.total_time and not episode.current_position, \
+                    episode.total_time and episode.current_position, \
+                    episode.is_locked))
 
-        if old_length > new_length:
-            for i in reversed(range(new_length, old_length)):
-                self.emit('row-deleted', (i,))
-        elif old_length < new_length:
-            for i in range(old_length, new_length):
-                self.emit('row-inserted', (i,), self.create_tree_iter(i))
+            self.update_by_iter(iter, downloading, include_description, \
+                    generate_thumbnails, reload_from_db=False)
 
+            self._update_progress = float(position+1)/count
+            if treeview is not None and \
+                    (self._update_progress > self._last_redraw_progress + self._UI_UPDATE_STEP or position+1 == count):
+                def in_gtk_main_thread():
+                    treeview.queue_draw()
+                    while gtk.events_pending():
+                        gtk.main_iteration(False)
+                util.idle_add(in_gtk_main_thread)
+                self._last_redraw_progress = self._update_progress
 
     def update_all(self, downloading=None, include_description=False, \
             generate_thumbnails=False):
-
-        self._downloading = downloading
-        self._include_description = include_description
-        self._generate_thumbnails = generate_thumbnails
-
-        for i in range(len(self._episodes)):
-            self.emit('row-changed', (i,), self.create_tree_iter(i))
+        for row in self:
+            self.update_by_iter(row.iter, downloading, include_description, \
+                    generate_thumbnails)
 
     def update_by_urls(self, urls, downloading=None, include_description=False, \
             generate_thumbnails=False):
-
-        self._downloading = downloading
-        self._include_description = include_description
-        self._generate_thumbnails = generate_thumbnails
-
-        for index, episode in enumerate(self._episodes):
-            if episode.url in urls:
-                self.emit('row-changed', (index,), self.create_tree_iter(index))
+        for row in self:
+            if row[self.C_URL] in urls:
+                self.update_by_iter(row.iter, downloading, include_description, \
+                        generate_thumbnails)
 
     def update_by_filter_iter(self, iter, downloading=None, \
             include_description=False, generate_thumbnails=False):
@@ -405,17 +254,126 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
     def update_by_iter(self, iter, downloading=None, include_description=False, \
             generate_thumbnails=False, reload_from_db=True):
-
-        self._downloading = downloading
-        self._include_description = include_description
-        self._generate_thumbnails = generate_thumbnails
-
-        index = self.get_user_data(iter)
-        episode = self._episodes[index]
+        episode = self.get_value(iter, self.C_EPISODE)
         if reload_from_db:
             episode.reload_from_db()
 
-        self.emit('row-changed', (index,), self.create_tree_iter(index))
+        if include_description or gpodder.ui.maemo:
+            icon_size = 32
+        else:
+            icon_size = 16
+
+        show_bullet = False
+        show_padlock = False
+        show_missing = False
+        status_icon = None
+        status_icon_to_build_from_file = False
+        tooltip = []
+        view_show_undeleted = True
+        view_show_downloaded = False
+        view_show_unplayed = False
+        icon_theme = gtk.icon_theme_get_default()
+
+        if downloading is not None and downloading(episode):
+            tooltip.append(_('Downloading'))
+            status_icon = self.ICON_DOWNLOADING
+            view_show_downloaded = True
+            view_show_unplayed = True
+        else:
+            if episode.state == gpodder.STATE_DELETED:
+                tooltip.append(_('Deleted'))
+                status_icon = self.ICON_DELETED
+                view_show_undeleted = False
+            elif episode.state == gpodder.STATE_NORMAL and \
+                    not episode.is_played:
+                tooltip.append(_('New episode'))
+                status_icon = self.ICON_NEW
+                view_show_downloaded = True
+                view_show_unplayed = True
+            elif episode.state == gpodder.STATE_DOWNLOADED:
+                tooltip = []
+                view_show_downloaded = True
+                view_show_unplayed = not episode.is_played
+                show_bullet = not episode.is_played
+                show_padlock = episode.is_locked
+                show_missing = not episode.file_exists()
+                filename = episode.local_filename(create=False, check_only=True)
+
+                file_type = episode.file_type()
+                if file_type == 'audio':
+                    tooltip.append(_('Downloaded episode'))
+                    status_icon = self.ICON_AUDIO_FILE
+                elif file_type == 'video':
+                    tooltip.append(_('Downloaded video episode'))
+                    status_icon = self.ICON_VIDEO_FILE
+                elif file_type == 'image':
+                    tooltip.append(_('Downloaded image'))
+                    status_icon = self.ICON_IMAGE_FILE
+
+                    # Optional thumbnailing for image downloads
+                    if generate_thumbnails:
+                        if filename is not None:
+                            # set the status icon to the path itself (that
+                            # should be a good identifier anyway)
+                            status_icon = filename
+                            status_icon_to_build_from_file = True
+                else:
+                    tooltip.append(_('Downloaded file'))
+                    status_icon = self.ICON_GENERIC_FILE
+
+                # Try to find a themed icon for this file
+                if filename is not None and have_gio:
+                    file = gio.File(filename)
+                    if file.query_exists():
+                        file_info = file.query_info('*')
+                        icon = file_info.get_icon()
+                        for icon_name in icon.get_names():
+                            if icon_theme.has_icon(icon_name):
+                                status_icon = icon_name
+                                break
+
+                if show_missing:
+                    tooltip.append(_('missing file'))
+                else:
+                    if show_bullet:
+                        if file_type == 'image':
+                            tooltip.append(_('never displayed'))
+                        elif file_type in ('audio', 'video'):
+                            tooltip.append(_('never played'))
+                        else:
+                            tooltip.append(_('never opened'))
+                    else:
+                        if file_type == 'image':
+                            tooltip.append(_('displayed'))
+                        elif file_type in ('audio', 'video'):
+                            tooltip.append(_('played'))
+                        else:
+                            tooltip.append(_('opened'))
+                    if show_padlock:
+                        tooltip.append(_('deletion prevented'))
+
+                if episode.total_time > 0 and episode.current_position:
+                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time),))
+
+        if episode.total_time:
+            total_time = util.format_time(episode.total_time)
+            if total_time:
+                tooltip.append(total_time)
+
+        tooltip = ', '.join(tooltip)
+
+        description = self._format_description(episode, include_description, downloading)
+        self.set(iter, \
+                self.C_STATUS_ICON, status_icon, \
+                self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \
+                self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded, \
+                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
+                self.C_DESCRIPTION, description, \
+                self.C_TOOLTIP, tooltip, \
+                self.C_TIME, episode.get_play_info_string(), \
+                self.C_TIME1_VISIBLE, episode.total_time and not episode.current_position, \
+                self.C_TIME2_VISIBLE, episode.total_time and episode.current_position, \
+                self.C_LOCKED, episode.is_locked)
 
     def _get_icon_from_image(self,image_path, icon_size):
         """
@@ -569,132 +527,23 @@ class PodcastChannelProxy(object):
         self.save_dir_size = util.calculate_size(self._config.download_dir)
 
 
-class PodcastListModel(gtk.GenericTreeModel):
-    N_COLUMNS = 14
-
+class PodcastListModel(gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS = range(N_COLUMNS)
+            C_DOWNLOADS = range(14)
 
-    DATA_TYPES = (str, str, str, gtk.gdk.Pixbuf, object, \
-            gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
-            bool, bool, int)
-
-    SEARCH_COLUMNS = (C_TITLE,)
-
-    class Separator: pass
-
-    # ---------------------
-
-    def on_get_flags(self):
-        return gtk.TREE_MODEL_LIST_ONLY
-
-    def on_get_n_columns(self):
-        return self.N_COLUMNS
-
-    def on_get_column_type(self, index):
-        return self.DATA_TYPES[index]
-
-    def on_get_iter(self, path):
-        return path[0]
-
-    def on_get_path(self, rowref):
-        return (rowref,)
-
-    def on_get_value(self, rowref, column):
-        if rowref >= len(self._podcasts):
-            return None
-
-        channel = self._podcasts[rowref]
-
-        if channel is self.Separator and column != self.C_SEPARATOR:
-            return None
-
-        if column == self.C_URL:
-            return channel.url
-        elif column == self.C_TITLE:
-            return channel.title
-        elif column == self.C_DESCRIPTION:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return self._format_description(channel, total, deleted, new, \
-                    downloaded, unplayed)
-        elif column == self.C_PILL:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return self._get_pill_image(channel, downloaded, unplayed)
-        elif column == self.C_CHANNEL:
-            return channel
-        elif column == self.C_COVER:
-            return self._get_cover_image(channel, True)
-        elif column == self.C_ERROR:
-            return self._format_error(channel)
-        elif column == self.C_PILL_VISIBLE:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return (unplayed > 0 or downloaded > 0)
-        elif column == self.C_VIEW_SHOW_UNDELETED:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return (total - deleted > 0)
-        elif column == self.C_VIEW_SHOW_DOWNLOADED:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return (downloaded + new > 0)
-        elif column == self.C_VIEW_SHOW_UNPLAYED:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return (unplayed + new > 0)
-        elif column == self.C_HAS_EPISODES:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return total > 0
-        elif column == self.C_SEPARATOR:
-            return (channel is self.Separator)
-        elif column == self.C_DOWNLOADS:
-            total, deleted, new, downloaded, unplayed = channel.get_statistics()
-            return downloaded
-
-        raise Exception('could not find column index: ' + str(column))
-
-    def on_iter_next(self, rowref):
-        if len(self._podcasts) > rowref + 1:
-            return rowref + 1
-
-        return None
-
-    def on_iter_children(self, parent):
-        if parent is None:
-            if len(self._podcasts):
-                return 0
-
-        return None
-
-    def on_iter_has_child(self, rowref):
-        return False
-
-    def on_iter_n_children(self, rowref):
-        if rowref is None:
-            return len(self._podcasts)
-
-        return 0
-
-    def on_iter_nth_child(self, parent, n):
-        if parent is None:
-            return n
-
-        return None
-
-    def on_iter_parent(self, child):
-        return None
-
-    # ---------------------
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     @classmethod
     def row_separator_func(cls, model, iter):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        gtk.GenericTreeModel.__init__(self)
-
-        # The internal data storage - a simple list of podcasts
-        self._podcasts = []
-        self._coverart = {}
+        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
+                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
+                bool, bool, int)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -712,6 +561,7 @@ class PodcastListModel(gtk.GenericTreeModel):
         # "ICON" is used to mark icon names in source files
         ICON = lambda x: x
 
+        #self.ICON_DISABLED = ICON('emblem-unreadable')
         self.ICON_DISABLED = ICON('gtk-media-pause')
 
     def _filter_visible_func(self, model, iter):
@@ -867,20 +717,26 @@ class PodcastListModel(gtk.GenericTreeModel):
             return None
 
     def set_channels(self, db, config, channels):
-        old_length = len(self._podcasts)
-        self._podcasts = [PodcastChannelProxy(db, config, channels), \
-                self.Separator] + channels
-        new_length = len(self._podcasts)
+        # Clear the model and update the list of podcasts
+        self.clear()
 
-        for i in range(min(old_length, new_length)):
-            self.emit('row-changed', (i,), self.create_tree_iter(i))
+        def channel_to_row(channel, add_overlay=False):
+            return (channel.url, '', '', None, channel, \
+                    self._get_cover_image(channel, add_overlay), '', True, True, True, \
+                    True, True, False, 0)
 
-        if old_length > new_length:
-            for i in reversed(range(new_length, old_length)):
-                self.emit('row-deleted', (i,))
-        elif old_length < new_length:
-            for i in range(old_length, new_length):
-                self.emit('row-inserted', (i,), self.create_tree_iter(i))
+        if config.podcast_list_view_all and channels:
+            all_episodes = PodcastChannelProxy(db, config, channels)
+            iter = self.append(channel_to_row(all_episodes))
+            self.update_by_iter(iter)
+
+            # Separator item
+            self.append(('', '', '', None, None, None, '', True, True, \
+                    True, True, True, True, 0))
+
+        for channel in channels:
+            iter = self.append(channel_to_row(channel, True))
+            self.update_by_iter(iter)
 
     def get_filter_path_from_url(self, url):
         # Return the path of the filtered model for a given URL
@@ -895,23 +751,20 @@ class PodcastListModel(gtk.GenericTreeModel):
         if url is None:
             return None
 
-        for index, channel in enumerate(self._podcasts):
-            if channel.url == url:
-                return (index,)
-
+        for row in self:
+            if row[self.C_URL] == url:
+                    return row.path
         return None
 
     def update_first_row(self):
         # Update the first row in the model (for "all episodes" updates)
-        self.emit('row-changed', (0,), self.create_tree_iter(0))
+        self.update_by_iter(self.get_iter_first())
 
     def update_by_urls(self, urls):
         # Given a list of URLs, update each matching row
-        for index, channel in enumerate(self._podcasts):
-            if channel is self.Separator:
-                continue
-            if channel.url in urls:
-                self.emit('row-changed', (index,), self.create_tree_iter(index))
+        for row in self:
+            if row[self.C_URL] in urls:
+                self.update_by_iter(row.iter)
 
     def iter_is_first_row(self, iter):
         iter = self._filter.convert_iter_to_child_iter(iter)
@@ -922,12 +775,38 @@ class PodcastListModel(gtk.GenericTreeModel):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
 
     def update_all(self):
-        for i in range(len(self._podcasts)):
-            self.emit('row-changed', (i,), self.create_tree_iter(i))
+        for row in self:
+            self.update_by_iter(row.iter)
 
     def update_by_iter(self, iter):
-        iter = self.get_user_data(iter)
-        self.emit('row-changed', (iter,), self.create_tree_iter(iter))
+        # Given a GtkTreeIter, update volatile information
+        try:
+            channel = self.get_value(iter, self.C_CHANNEL)
+        except TypeError, te:
+            return
+        if channel is None:
+            return
+        total, deleted, new, downloaded, unplayed = channel.get_statistics()
+        description = self._format_description(channel, total, deleted, new, \
+                downloaded, unplayed)
+
+        if gpodder.ui.fremantle:
+            # We don't display the pill, so don't generate it
+            pill_image = None
+        else:
+            pill_image = self._get_pill_image(channel, downloaded, unplayed)
+
+        self.set(iter, \
+                self.C_TITLE, channel.title, \
+                self.C_DESCRIPTION, description, \
+                self.C_ERROR, self._format_error(channel), \
+                self.C_PILL, pill_image, \
+                self.C_PILL_VISIBLE, pill_image != None, \
+                self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
+                self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
+                self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \
+                self.C_HAS_EPISODES, total > 0, \
+                self.C_DOWNLOADS, downloaded)
 
     def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
@@ -936,21 +815,19 @@ class PodcastListModel(gtk.GenericTreeModel):
             pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
             pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)
 
-        for index, chan in enumerate(self._podcasts):
-            if chan is self.Separator:
-                continue
-            if channel.url == chan.url:
-                self.emit('row-changed', (index,), \
-                        self.create_tree_iter(index))
+        for row in self:
+            if row[self.C_URL] == channel.url:
+                row[self.C_COVER] = pixbuf
+                break
 
     def delete_cover_by_url(self, url):
+        # Remove the cover from the model
+        for row in self:
+            if row[self.C_URL] == url:
+                row[self.C_COVER] = None
+                break
+
+        # Remove the cover from the cache
         if url in self._cover_cache:
             del self._cover_cache[url]
-
-            for index, channel in enumerate(self._podcasts):
-                if channel is self.Separator:
-                    continue
-                if url == channel.url:
-                    self.emit('row-changed', (index,), \
-                            self.create_tree_iter(index))
 
