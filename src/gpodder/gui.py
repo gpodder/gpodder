@@ -978,7 +978,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.empty_episode_list_model = EpisodeListModel()
         self.episode_list_model = EpisodeListModel()
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
@@ -997,16 +996,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = gtk.CellRendererPixbuf()
+        iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
         if gpodder.ui.maemo:
             iconcell.set_fixed_size(50, 50)
-            status_column_label = ''
         else:
-            status_column_label = _('Status')
-        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=EpisodeListModel.C_STATUS_ICON)
+            iconcell.set_fixed_size(40, -1)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn(_('Episode'))
+        namecolumn.pack_start(iconcell, False)
+        namecolumn.add_attribute(iconcell, 'icon-name', EpisodeListModel.C_STATUS_ICON)
         namecolumn.pack_start(namecell, True)
         namecolumn.add_attribute(namecell, 'markup', EpisodeListModel.C_DESCRIPTION)
         namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
@@ -1039,7 +1039,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
             namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
             namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME2_VISIBLE)
 
+        lockcell = gtk.CellRendererPixbuf()
+        lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        if gpodder.ui.fremantle:
+            lockcell.set_property('icon-name', 'general_locked')
+        else:
+            lockcell.set_property('icon-name', 'emblem-readonly')
+
+        namecolumn.pack_start(lockcell, False)
+        namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
+
         sizecell = gtk.CellRendererText()
+        sizecell.set_property('xalign', 1)
         sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
         sizecolumn.set_sort_column_id(EpisodeListModel.C_FILESIZE)
 
@@ -1047,7 +1058,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
-        for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
+        for itemcolumn in (namecolumn, sizecolumn, releasecolumn):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
 
@@ -1128,9 +1139,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         cell = gtk.CellRendererPixbuf()
         if gpodder.ui.maemo:
             cell.set_fixed_size(50, 50)
-        cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        cell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
         column.pack_start(cell, expand=False)
-        column.add_attribute(cell, 'stock-id', \
+        column.add_attribute(cell, 'icon-name', \
                 DownloadStatusModel.C_ICON_NAME)
 
         cell = gtk.CellRendererText()
@@ -1151,8 +1162,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_expand(False)
         self.treeDownloads.append_column(column)
-        column.set_property('min-width', 150)
-        column.set_property('max-width', 150)
+        if gpodder.ui.maemo:
+            column.set_property('min-width', 200)
+            column.set_property('max-width', 200)
+        else:
+            column.set_property('min-width', 150)
+            column.set_property('max-width', 150)
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
@@ -1178,7 +1193,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if role == TreeViewHelper.ROLE_EPISODES:
                 if self.currently_updating:
                     text = _('Loading episodes')
-                    progress = self.episode_list_model.get_update_progress()
                 elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
                     text = _('No episodes in current view')
@@ -1204,6 +1218,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 font_desc = None
 
             draw_text_box_centered(ctx, treeview, width, height, text, font_desc, progress)
+
+            if role == TreeViewHelper.ROLE_EPISODES and \
+                    self.currently_updating:
+                return True
 
         return False
 
@@ -2472,25 +2490,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
 
             self.currently_updating = True
-            self.episode_list_model.clear()
-            self.episode_list_model.reset_update_progress()
-            self.treeAvailable.set_model(self.empty_episode_list_model)
-            def do_update_episode_list_model():
+            self.treeAvailable.hide()
+
+            def update():
                 additional_args = (self.episode_is_downloading, \
                         self.config.episode_list_descriptions and gpodder.ui.desktop, \
-                        self.config.episode_list_thumbnails and gpodder.ui.desktop, \
-                        self.treeAvailable)
-                self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
+                        self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                self.episode_list_model.replace_from_channel(self.active_channel, *additional_args)
 
-                def on_episode_list_model_updated():
-                    if gpodder.ui.fremantle:
-                        hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
-                    self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
-                    self.treeAvailable.columns_autosize()
-                    self.currently_updating = False
-                    self.play_or_download()
-                util.idle_add(on_episode_list_model_updated)
-            threading.Thread(target=do_update_episode_list_model).start()
+                self.treeAvailable.get_selection().unselect_all()
+                self.treeAvailable.show()
+                util.idle_add(self.treeAvailable.scroll_to_point, 0, 0)
+                self.currently_updating = False
+                self.play_or_download()
+
+                if gpodder.ui.fremantle:
+                    util.idle_add(hildon.hildon_gtk_window_set_progress_indicator,
+                            self.episodes_window.main_window, False)
+
+            util.idle_add(update)
         else:
             self.episode_list_model.clear()
 

@@ -52,6 +52,14 @@ class DownloadStatusModel(gtk.ListStore):
         self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
         self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
+        ICON = lambda x: x
+
+        if gpodder.ui.fremantle:
+            self._status_ids[download.DownloadTask.DOWNLOADING] = ICON('email_inbox')
+            self._status_ids[download.DownloadTask.FAILED] = ICON('general_stop')
+            self._status_ids[download.DownloadTask.PAUSED] = ICON('camera_video_pause')
+            self._status_ids[download.DownloadTask.DONE] = ICON('general_tickmark_checked')
+
     def _format_message(self, episode, message, podcast):
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
