@@ -105,6 +105,10 @@ class BuilderWidget(GtkBuilderWidget):
         for child in menu_bar.get_children():
             self.set_finger_friendly(child)
 
+
+    def _handle_button(self, button):
+        self.set_finger_friendly(button)
+
     def on_window_orientation_changed(self, orientation):
         """Override this method to relayout a window for portrait mode."""
         pass
