@@ -2,8 +2,8 @@
 # gPodder Qt demo app in 100 lines of Python (line width < 80)
 # Thomas Perl <thpinfo.com>; 2010-01-15
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PySide.QtGui import *
+from PySide.QtCore import *
 
 import sys
 import os
@@ -27,8 +27,8 @@ class gPodderListModel(QAbstractListModel):
 
     def data(self, index, role):
         if index.isValid() and role == Qt.DisplayRole:
-            return QVariant(self._format(self.get_object(index)))
-        return QVariant()
+            return self._format(self.get_object(index))
+        return None
 
     def _format(self, o):
         return o.title.decode('utf-8')
