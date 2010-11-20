@@ -1009,9 +1009,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.add_attribute(iconcell, 'icon-name', EpisodeListModel.C_STATUS_ICON)
         namecolumn.pack_start(namecell, True)
         namecolumn.add_attribute(namecell, 'markup', EpisodeListModel.C_DESCRIPTION)
-        namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
-        namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        namecolumn.set_resizable(True)
+        if gpodder.ui.fremantle:
+            namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        else:
+            namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
+            namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+            namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
         if gpodder.ui.fremantle:
@@ -1058,13 +1061,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
-        for itemcolumn in (namecolumn, sizecolumn, releasecolumn):
-            itemcolumn.set_reorderable(True)
-            self.treeAvailable.append_column(itemcolumn)
+        namecolumn.set_reorderable(True)
+        self.treeAvailable.append_column(namecolumn)
 
-        if gpodder.ui.maemo:
-            sizecolumn.set_visible(False)
-            releasecolumn.set_visible(False)
+        if not gpodder.ui.maemo:
+            for itemcolumn in (sizecolumn, releasecolumn):
+                itemcolumn.set_reorderable(True)
+                self.treeAvailable.append_column(itemcolumn)
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):

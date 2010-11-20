@@ -34,6 +34,8 @@ from gpodder.gtkui import download
 from gpodder.gtkui import model
 from gpodder.gtkui.frmntl import style
 
+from gpodder import util
+
 class DownloadStatusModel(download.DownloadStatusModel):
     def __init__(self):
         download.DownloadStatusModel.__init__(self)
@@ -143,9 +145,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif column == self.C_PUBLISHED_TEXT:
             return episode.cute_pubdate()
         elif column == self.C_DESCRIPTION:
-            return self._format_description(episode, \
-                    self._include_description, \
-                    self._downloading)
+            return self._format_description(episode)
         elif column == self.C_TOOLTIP:
             return ''
         elif column == self.C_VIEW_SHOW_UNDELETED:
@@ -171,7 +171,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
             return (episode.total_time and episode.current_position)
         elif column == self.C_LOCKED:
             return episode.is_locked and \
-                    episode.state== gpodder.STATE_DOWNLOADED and \
+                    episode.state == gpodder.STATE_DOWNLOADED and \
                     episode.file_exists()
 
         raise Exception('could not find column index: ' + str(column))
@@ -233,33 +233,16 @@ class EpisodeListModel(gtk.GenericTreeModel):
         ICON = lambda x: x
 
         self._icon_cache = {}
-        self.ICON_AUDIO_FILE = ICON('audio-x-generic')
-        self.ICON_VIDEO_FILE = ICON('video-x-generic')
-        self.ICON_IMAGE_FILE = ICON('image-x-generic')
-        self.ICON_GENERIC_FILE = ICON('text-x-generic')
-        self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-        self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_AUDIO_FILE = ICON('general_audio_file')
+        self.ICON_VIDEO_FILE = ICON('general_video_file')
+        self.ICON_IMAGE_FILE = ICON('general_image')
+        self.ICON_GENERIC_FILE = ICON('filemanager_unknown_file')
+        self.ICON_DOWNLOADING = ICON('email_inbox')
+        self.ICON_DELETED = ICON('camera_delete')
         self.ICON_UNPLAYED = ICON('emblem-new')
         self.ICON_LOCKED = ICON('emblem-readonly')
         self.ICON_MISSING = ICON('emblem-unreadable')
         self.ICON_NEW = gtk.STOCK_ABOUT
-
-        if gpodder.ui.fremantle:
-            self.ICON_AUDIO_FILE = ICON('general_audio_file')
-            self.ICON_VIDEO_FILE = ICON('general_video_file')
-            self.ICON_IMAGE_FILE = ICON('general_image')
-            self.ICON_GENERIC_FILE = ICON('filemanager_unknown_file')
-            self.ICON_DOWNLOADING = ICON('email_inbox')
-            self.ICON_DELETED = ICON('camera_delete_dimmed')
-
-        if 'KDE_FULL_SESSION' in os.environ:
-            # Workaround until KDE adds all the freedesktop icons
-            # See https://bugs.kde.org/show_bug.cgi?id=233505 and
-            #     http://gpodder.org/bug/553
-            self.ICON_DELETED = ICON('archive-remove')
-            self.ICON_UNPLAYED = ICON('vcs-locally-modified')
-            self.ICON_LOCKED = ICON('emblem-locked')
-            self.ICON_MISSING = ICON('vcs-conflicting')
 
         normal_font = style.get_font_desc('SystemFont')
         normal_color = style.get_color('DefaultTextColor')
@@ -336,8 +319,8 @@ class EpisodeListModel(gtk.GenericTreeModel):
         return self._search_term
 
 
-    def _format_description(self, episode, include_description=False, is_downloading=None):
-        if is_downloading is not None and is_downloading(episode):
+    def _format_description(self, episode):
+        if self._downloading(episode):
             sub = _('in downloads list')
             if self._all_episodes_view:
                 sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
