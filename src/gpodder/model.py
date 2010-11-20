@@ -959,12 +959,17 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
-    def one_line_description( self):
-        lines = util.remove_html_tags(self.description or '').strip().splitlines()
-        if not lines or lines[0] == '':
+    def one_line_description(self):
+        MAX_LINE_LENGTH = 120
+        desc = util.remove_html_tags(self.description or '')
+        desc = re.sub('\n', ' ', desc).strip()
+        if not desc:
             return _('No description available')
         else:
-            return ' '.join(lines)
+            if len(desc) > MAX_LINE_LENGTH:
+                return desc[:MAX_LINE_LENGTH] + '...'
+            else:
+                return desc
 
     def delete_from_disk(self):
         try:

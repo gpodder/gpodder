@@ -1481,7 +1481,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
-        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or (column is not None and column != treeview.get_columns()[0]):
+        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (column is not None and column != treeview.get_columns()[0]):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
             return False
 
@@ -2493,7 +2493,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, True)
 
             self.currently_updating = True
-            self.treeAvailable.hide()
+            self.episode_list_model.clear()
 
             def update():
                 additional_args = (self.episode_is_downloading, \
@@ -2502,13 +2502,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_list_model.replace_from_channel(self.active_channel, *additional_args)
 
                 self.treeAvailable.get_selection().unselect_all()
-                self.treeAvailable.show()
-                util.idle_add(self.treeAvailable.scroll_to_point, 0, 0)
+                self.treeAvailable.scroll_to_point(0, 0)
+
                 self.currently_updating = False
                 self.play_or_download()
 
                 if gpodder.ui.fremantle:
-                    util.idle_add(hildon.hildon_gtk_window_set_progress_indicator,
+                    hildon.hildon_gtk_window_set_progress_indicator(\
                             self.episodes_window.main_window, False)
 
             util.idle_add(update)
