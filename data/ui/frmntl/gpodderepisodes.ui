@@ -42,6 +42,16 @@
           </packing>
         </child>
         <child>
+          <object class="GtkLabel" id="empty_label">
+            <property name="visible">False</property>
+          </object>
+          <packing>
+            <property name="padding">0</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkHBox" id="hbox_search_episodes">
             <child>
               <object class="HildonEntry" id="entry_search_episodes">

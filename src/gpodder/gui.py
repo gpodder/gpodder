@@ -978,7 +978,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.episode_list_model = EpisodeListModel()
+        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -1087,6 +1087,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_episode_search(input_char)
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
+        if gpodder.ui.fremantle:
+            self.episodes_window.main_window.connect('key-press-event', on_key_press)
 
         if gpodder.ui.desktop and not self.config.enable_fingerscroll:
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
@@ -1221,10 +1223,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 font_desc = None
 
             draw_text_box_centered(ctx, treeview, width, height, text, font_desc, progress)
-
-            if role == TreeViewHelper.ROLE_EPISODES and \
-                    self.currently_updating:
-                return True
 
         return False
 
@@ -2487,6 +2485,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episode.url in (task.url for task in self.download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED))
 
+    def on_episode_list_filter_changed(self, has_episodes):
+        if gpodder.ui.fremantle:
+            if has_episodes:
+                self.episodes_window.empty_label.hide()
+                self.episodes_window.pannablearea.show()
+            else:
+                if self.config.episode_list_view_mode != \
+                        EpisodeListModel.VIEW_ALL:
+                    text = _('No episodes in current view')
+                else:
+                    text = _('No episodes available')
+                self.episodes_window.empty_label.set_text(text)
+                self.episodes_window.pannablearea.hide()
+                self.episodes_window.empty_label.show()
+
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
             if gpodder.ui.fremantle:
@@ -2494,6 +2507,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.currently_updating = True
             self.episode_list_model.clear()
+            if gpodder.ui.fremantle:
+                self.episodes_window.pannablearea.hide()
+                self.episodes_window.empty_label.set_text(_('Loading episodes'))
+                self.episodes_window.empty_label.show()
 
             def update():
                 additional_args = (self.episode_is_downloading, \
@@ -3477,15 +3494,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_view_episodes_changed(self, radioaction, current):
         if current == self.item_view_episodes_all:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_ALL
         elif current == self.item_view_episodes_undeleted:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNDELETED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_UNDELETED
         elif current == self.item_view_episodes_downloaded:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_DOWNLOADED
         elif current == self.item_view_episodes_unplayed:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNPLAYED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_UNPLAYED
 
-        self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
+        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
 
         if self.config.podcast_list_hide_boring and not gpodder.ui.fremantle:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)

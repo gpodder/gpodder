@@ -210,10 +210,14 @@ class EpisodeListModel(gtk.GenericTreeModel):
     # ---------------------
 
 
-    def __init__(self):
+    def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.GenericTreeModel.__init__(self)
 
-        self._downloading = None
+        # Callback for when the filter / list changes, gets one parameter
+        # (has_episodes) that is True if the list has any episodes
+        self._on_filter_changed = on_filter_changed
+
+        self._downloading = lambda x: False
         self._include_description = False
         self._generate_thumbnails = False
 
@@ -287,6 +291,37 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         return True
 
+    def has_episodes(self):
+        """Returns True if episodes are visible (filtered)
+
+        If episodes are visible with the current filter
+        applied, return True (otherwise return False).
+        """
+
+        # XXX: This must be kept in sync with the behaviour of _filter_visible_func
+        if self._search_term is not None:
+            key = self._search_term.lower()
+            is_visible = lambda episode: key in (episode.title or '').lower()
+        elif self._view_mode == self.VIEW_ALL:
+            return bool(self._episodes)
+        elif self._view_mode == self.VIEW_UNDELETED:
+            is_visible = lambda episode: episode.state != gpodder.STATE_DELETED or \
+                    self._downloading(episode)
+        elif self._view_mode == self.VIEW_DOWNLOADED:
+            is_visible = lambda episode: episode.state == gpodder.STATE_DOWNLOADED or \
+                    (episode.state == gpodder.STATE_NORMAL and \
+                     not episode.is_played) or \
+                    self._downloading(episode)
+        elif self._view_mode == self.VIEW_UNPLAYED:
+            is_visible = lambda episode: (not episode.is_played and (episode.state in \
+                    (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
+                    self._downloading(episode)
+        else:
+            log('Should never reach this in has_episodes()!', sender=self)
+            return True
+
+        return any(is_visible(episode) for episode in self._episodes)
+
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -304,6 +339,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_view_mode(self):
         """Returns the currently-set view mode"""
@@ -313,6 +349,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
         if self._search_term != new_term:
             self._search_term = new_term
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_search_term(self):
         return self._search_term
@@ -375,6 +412,8 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif old_length < new_length:
             for i in range(old_length, new_length):
                 self.emit('row-inserted', (i,), self.create_tree_iter(i))
+
+        self._on_filter_changed(self.has_episodes())
 
 
     def update_all(self, downloading=None, include_description=False, \

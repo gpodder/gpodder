@@ -57,14 +57,14 @@ class EpisodeListModel(gtk.ListStore):
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 
-    def __init__(self):
+    def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
                 int, int, str, bool, bool, bool)
 
-        # Update progress (if we're currently being updated)
-        self._update_progress = 0.
-        self._last_redraw_progress = 0.
+        # Callback for when the filter / list changes, gets one parameter
+        # (has_episodes) that is True if the list has any episodes
+        self._on_filter_changed = on_filter_changed
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -125,12 +125,6 @@ class EpisodeListModel(gtk.ListStore):
 
         return True
 
-    def get_update_progress(self):
-        return self._update_progress
-
-    def reset_update_progress(self):
-        self._update_progress = 0.
-
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -140,6 +134,14 @@ class EpisodeListModel(gtk.ListStore):
         """
         return self._sorter
 
+    def has_episodes(self):
+        """Returns True if episodes are visible (filtered)
+
+        If episodes are visible with the current filter
+        applied, return True (otherwise return False).
+        """
+        return bool(len(self._filter))
+
     def set_view_mode(self, new_mode):
         """Sets a new view mode for this model
 
@@ -148,6 +150,7 @@ class EpisodeListModel(gtk.ListStore):
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_view_mode(self):
         """Returns the currently-set view mode"""
@@ -157,6 +160,7 @@ class EpisodeListModel(gtk.ListStore):
         if self._search_term != new_term:
             self._search_term = new_term
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_search_term(self):
         return self._search_term
@@ -187,8 +191,6 @@ class EpisodeListModel(gtk.ListStore):
         # Remove old episodes in the list store
         self.clear()
 
-        self._update_progress = 0.
-        self._last_redraw_progress = 0.
         if treeview is not None:
             util.idle_add(treeview.queue_draw)
 
@@ -221,15 +223,7 @@ class EpisodeListModel(gtk.ListStore):
             self.update_by_iter(iter, downloading, include_description, \
                     generate_thumbnails, reload_from_db=False)
 
-            self._update_progress = float(position+1)/count
-            if treeview is not None and \
-                    (self._update_progress > self._last_redraw_progress + self._UI_UPDATE_STEP or position+1 == count):
-                def in_gtk_main_thread():
-                    treeview.queue_draw()
-                    while gtk.events_pending():
-                        gtk.main_iteration(False)
-                util.idle_add(in_gtk_main_thread)
-                self._last_redraw_progress = self._update_progress
+        self._on_filter_changed(self.has_episodes())
 
     def update_all(self, downloading=None, include_description=False, \
             generate_thumbnails=False):

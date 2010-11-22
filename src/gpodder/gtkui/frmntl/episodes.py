@@ -36,6 +36,12 @@ class gPodderEpisodes(BuilderWidget):
     def new(self):
         self.channel = None
 
+        # Styling for the label that appears when the list is empty
+        hildon.hildon_helper_set_logical_font(self.empty_label, \
+                'LargeSystemFont')
+        hildon.hildon_helper_set_logical_color(self.empty_label, \
+                gtk.RC_FG, gtk.STATE_NORMAL, 'SecondaryTextColor')
+
         self.episode_actions = gPodderEpisodeActions(self.main_window, \
                 episode_list_status_changed=self.episode_list_status_changed, \
                 episode_is_downloading=self.episode_is_downloading, \
