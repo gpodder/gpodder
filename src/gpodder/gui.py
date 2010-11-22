@@ -3748,8 +3748,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_import_from_file_activate(self, widget, filename=None):
         if filename is None:
             if gpodder.ui.desktop or gpodder.ui.fremantle:
-                # FIXME: Hildonization on Fremantle
-                dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+                dlg = gtk.FileChooserDialog(title=_('Import from OPML'), \
+                        parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
                 dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
             elif gpodder.ui.diablo:
