@@ -188,6 +188,13 @@ class gPodderEpisodes(BuilderWidget):
         self.show_message(_('Checking for new episodes...'))
         self.on_itemUpdate_activate(widget)
 
+    def on_delete_episodes_button_clicked(self, widget):
+        all_episodes = isinstance(self.channel, PodcastChannelProxy)
+        if all_episodes:
+            self.show_delete_episodes_window()
+        else:
+            self.show_delete_episodes_window(self.channel)
+
     def show(self):
         # Check if we are displaying the "all episodes" view
         all_episodes = isinstance(self.channel, PodcastChannelProxy)
@@ -198,9 +205,8 @@ class gPodderEpisodes(BuilderWidget):
                        self.action_update):
             action.set_visible(not all_episodes)
 
-        for action in (self.action_check_for_new_episodes, \
-                       self.action_delete_episodes):
-            action.set_visible(all_episodes)
+        self.action_check_for_new_episodes.set_visible(all_episodes)
+        self.action_delete_episodes.set_visible(True)
 
         self.main_window.set_title(self.channel.title)
         self.main_window.show()

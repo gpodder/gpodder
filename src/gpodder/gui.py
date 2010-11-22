@@ -415,8 +415,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     add_download_task_monitor=self.add_download_task_monitor, \
                     remove_download_task_monitor=self.remove_download_task_monitor, \
                     for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
-                    on_delete_episodes_button_clicked=self.on_itemRemoveOldEpisodes_activate, \
-                    on_itemUpdate_activate=self.on_itemUpdate_activate)
+                    on_itemUpdate_activate=self.on_itemUpdate_activate, \
+                    show_delete_episodes_window=self.show_delete_episodes_window)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes
@@ -3219,7 +3219,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
-    def on_itemRemoveOldEpisodes_activate( self, widget):
+    def on_itemRemoveOldEpisodes_activate(self, widget):
+        self.show_delete_episodes_window()
+
+    def show_delete_episodes_window(self, channel=None):
+        """Offer deletion of episodes
+
+        If channel is None, offer deletion of all episodes.
+        Otherwise only offer deletion of episodes in the channel.
+        """
         if gpodder.ui.maemo:
             columns = (
                 ('maemo_remove_markup', None, None, _('Episode')),
@@ -3242,16 +3250,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         instructions = _('Select the episodes you want to delete:')
 
+        if channel is None:
+            channels = self.channels
+        else:
+            channels = [channel]
+
         episodes = []
-        selected = []
-        for channel in self.channels:
+        for channel in channels:
             for episode in channel.get_downloaded_episodes():
                 # Disallow deletion of locked episodes that still exist
                 if not episode.is_locked or not episode.file_exists():
                     episodes.append(episode)
-                    # Automatically select played and file-less episodes
-                    selected.append(episode.is_played or \
-                                    not episode.file_exists())
+
+        selected = [e for e in episodes if episode.is_played or not episode.file_exists()]
 
         gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
