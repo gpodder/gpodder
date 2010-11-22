@@ -315,7 +315,7 @@ class gPodderPreferences(BuilderWidget):
         if value == 0:
             return _('manually')
         else:
-            return N_('after %d day', 'after %d days', value) % value
+            return N_('after %(count)d day', 'after %(count)d days', value) % {'count':value}
 
     def on_expiration_value_changed(self, range):
         value = int(range.get_value())

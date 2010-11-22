@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.9.2+svn20070611\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-22 21:35+0100\n"
+"POT-Creation-Date: 2010-11-22 21:51+0100\n"
 "PO-Revision-Date: 2010-03-16 21:25+0300\n"
 "Last-Translator: Boryslav Larin <brabadu@gmail.com>\n"
 "Language-Team: Украинский <brabadu@gmail.com>\n"
@@ -125,9 +125,9 @@ msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Деякі епізоди недозавантажились минулого разу"
 
 #: src/gpodder/gui.py:500
-#, python-format
-msgid "%d partial file"
-msgid_plural "%d partial files"
+#, fuzzy, python-format
+msgid "%(count)d partial file"
+msgid_plural "%(count)d partial files"
 msgstr[0] "%d частковий файл"
 msgstr[1] "%d часткових файли"
 msgstr[2] "%d часткових файлів"
@@ -220,25 +220,25 @@ msgid "No active downloads"
 msgstr "Немає активних завантажень"
 
 #: src/gpodder/gui.py:1380 src/gpodder/gui.py:1395
-#, python-format
-msgid "%d active"
-msgid_plural "%d active"
+#, fuzzy, python-format
+msgid "%(count)d active"
+msgid_plural "%(count)d active"
 msgstr[0] "%d активне"
 msgstr[1] "%d активні"
 msgstr[2] "%d активних"
 
 #: src/gpodder/gui.py:1382 src/gpodder/gui.py:1397
-#, python-format
-msgid "%d failed"
-msgid_plural "%d failed"
+#, fuzzy, python-format
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
 msgstr[0] "%d не завантажено"
 msgstr[1] "%d не завантажено"
 msgstr[2] "%d не завантажено"
 
 #: src/gpodder/gui.py:1384
-#, python-format
-msgid "%d queued"
-msgid_plural "%d queued"
+#, fuzzy, python-format
+msgid "%(count)d queued"
+msgid_plural "%(count)d queued"
 msgstr[0] "%d в черзі"
 msgstr[1] "%d в черзі"
 msgstr[2] "%d в черзі"
@@ -249,17 +249,17 @@ msgid "Downloads (%d)"
 msgstr "Завантаження (%d)"
 
 #: src/gpodder/gui.py:1399
-#, python-format
-msgid "%d paused"
-msgid_plural "%d paused"
+#, fuzzy, python-format
+msgid "%(count)d paused"
+msgid_plural "%(count)d paused"
 msgstr[0] "%d призупинено"
 msgstr[1] "%d призупинено"
 msgstr[2] "%d призупинено"
 
 #: src/gpodder/gui.py:1416
-#, python-format
-msgid "downloading %d file"
-msgid_plural "downloading %d files"
+#, fuzzy, python-format
+msgid "downloading %(count)d file"
+msgid_plural "downloading %(count)d files"
 msgstr[0] "завантажую %d файл"
 msgstr[1] "завантажую %d файли"
 msgstr[2] "завантажую %d файлів"
@@ -306,9 +306,9 @@ msgid "Downloads finished"
 msgstr "Всі завантаження завершено"
 
 #: src/gpodder/gui.py:1712
-#, python-format
-msgid "%d more episode"
-msgid_plural "%d more episodes"
+#, fuzzy, python-format
+msgid "%(count)d more episode"
+msgid_plural "%(count)d more episodes"
 msgstr[0] "ще %d епізод"
 msgstr[1] "ще %d епізоди"
 msgstr[2] "ще %d епізодів"
@@ -419,9 +419,9 @@ msgid "Opening %s"
 msgstr "Відкриваю %s"
 
 #: src/gpodder/gui.py:2316
-#, python-format
-msgid "Opening %d episode"
-msgid_plural "Opening %d episodes"
+#, fuzzy, python-format
+msgid "Opening %(count)d episode"
+msgid_plural "Opening %(count)d episodes"
 msgstr[0] "Відкриваю %d епізод"
 msgstr[1] "Відкриваю %d епізоди"
 msgstr[2] "Відкриваю %d епізодів\t"
@@ -502,9 +502,9 @@ msgid "Episode actions from gpodder.net are merged."
 msgstr "Дії над епізодами злиті з даними з gpodder.net."
 
 #: src/gpodder/gui.py:2807
-#, python-format
-msgid "%d action processed"
-msgid_plural "%d actions processed"
+#, fuzzy, python-format
+msgid "%(count)d action processed"
+msgid_plural "%(count)d actions processed"
 msgstr[0] "%d дія обробляється"
 msgstr[1] "%d дії обробляються"
 msgstr[2] "%d дій обробляються"
@@ -514,9 +514,9 @@ msgid "New episodes are available."
 msgstr "Доступні нові епізоди."
 
 #: src/gpodder/gui.py:2855 src/gpodder/gui.py:2914
-#, python-format
-msgid "Downloading %d new episode."
-msgid_plural "Downloading %d new episodes."
+#, fuzzy, python-format
+msgid "Downloading %(count)d new episode."
+msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "Завантажую %d новий епізод."
 msgstr[1] "Завантажую %d нових епізоди."
 msgstr[2] "Завантажую %d нових епізодів."
@@ -540,17 +540,17 @@ msgid "No new episodes"
 msgstr "Немає нових епізодів"
 
 #: src/gpodder/gui.py:2919
-#, python-format
-msgid "%d new episode added to download list."
-msgid_plural "%d new episodes added to download list."
+#, fuzzy, python-format
+msgid "%(count)d new episode added to download list."
+msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "%d новий епізод доданий до списку завантаження."
 msgstr[1] "%d нових епізоди додані до списку завантаження."
 msgstr[2] "%d нових епізодів додано до списку завантаження."
 
 #: src/gpodder/gui.py:2928
-#, python-format
-msgid "%d new episode available"
-msgid_plural "%d new episodes available"
+#, fuzzy, python-format
+msgid "%(count)d new episode available"
+msgid_plural "%(count)d new episodes available"
 msgstr[0] "Наявний %d новий епізод"
 msgstr[1] "Наявні %d нові епізоди"
 msgstr[2] "Наявні %d нових епізодів"
@@ -584,9 +584,9 @@ msgid "Updating \"%s\"..."
 msgstr "Оновлюю \"%s\"..."
 
 #: src/gpodder/gui.py:3048
-#, python-format
-msgid "Updating %d feed..."
-msgid_plural "Updating %d feeds..."
+#, fuzzy, python-format
+msgid "Updating %(count)d feed..."
+msgid_plural "Updating %(count)d feeds..."
 msgstr[0] "Оновлюю %d потік..."
 msgstr[1] "Оновлюю %d потоки..."
 msgstr[2] "Оновлюю %d потоків\t..."
@@ -629,9 +629,9 @@ msgstr ""
 "отримати можливість видалити їх."
 
 #: src/gpodder/gui.py:3158
-#, python-format
-msgid "Delete %d episode?"
-msgid_plural "Delete %d episodes?"
+#, fuzzy, python-format
+msgid "Delete %(count)d episode?"
+msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "Видалити %d епізод?"
 msgstr[1] "Видалити %d епізоди?"
 msgstr[2] "Видалити %d епізодів?"
@@ -657,9 +657,9 @@ msgid "Downloaded"
 msgstr "Завантажено"
 
 #: src/gpodder/gui.py:3236
-#, python-format
-msgid "Select older than %d day"
-msgid_plural "Select older than %d days"
+#, fuzzy, python-format
+msgid "Select older than %(count)d day"
+msgid_plural "Select older than %(count)d days"
 msgstr[0] "Обрати старші за %d день"
 msgstr[1] "Обрати старші за %d дні"
 msgstr[2] "Обрати старші за %d днів\t"
@@ -808,9 +808,9 @@ msgid "Export to OPML"
 msgstr "Експортувати в OPML"
 
 #: src/gpodder/gui.py:3784
-#, python-format
-msgid "%d subscription exported"
-msgid_plural "%d subscriptions exported"
+#, fuzzy, python-format
+msgid "%(count)d subscription exported"
+msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "%d підписку експортовано"
 msgstr[1] "%d підписки експортовано"
 msgstr[2] "%d підписок експортовано"
@@ -1105,9 +1105,9 @@ msgid "Adding %s..."
 msgstr "Додаю %s..."
 
 #: src/gpodder/util.py:354
-#, python-format
-msgid "%d day ago"
-msgid_plural "%d days ago"
+#, fuzzy, python-format
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
 msgstr[0] "%d день тому"
 msgstr[1] "%d дні тому"
 msgstr[2] "%d днів тому"
@@ -1125,25 +1125,25 @@ msgid "(unknown)"
 msgstr "(невідомо)"
 
 #: src/gpodder/util.py:1136 src/gpodder/util.py:1155
-#, python-format
-msgid "%d second"
-msgid_plural "%d seconds"
+#, fuzzy, python-format
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
 msgstr[0] "%d секунда"
 msgstr[1] "%d секунди"
 msgstr[2] "%d секунд"
 
 #: src/gpodder/util.py:1149
-#, python-format
-msgid "%d hour"
-msgid_plural "%d hours"
+#, fuzzy, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
 msgstr[0] "%d година"
 msgstr[1] "%d години"
 msgstr[2] "%d годин"
 
 #: src/gpodder/util.py:1152
-#, python-format
-msgid "%d minute"
-msgid_plural "%d minutes"
+#, fuzzy, python-format
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
 msgstr[0] "%d хвилина"
 msgstr[1] "%d хвилини"
 msgstr[2] "%d хвилин\t"
@@ -1407,9 +1407,9 @@ msgstr "Нічого не обрано"
 #: src/gpodder/gtkui/desktop/episodeselector.py:323
 #: src/gpodder/gtkui/maemo/episodeselector.py:296
 #: src/gpodder/gtkui/frmntl/episodeselector.py:338
-#, python-format
-msgid "%d episode"
-msgid_plural "%d episodes"
+#, fuzzy, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
 msgstr[0] "%d episode"
 msgstr[1] "%d episodes"
 msgstr[2] "%d епізодів\t"
@@ -1512,9 +1512,9 @@ msgstr "вручну"
 
 #: src/gpodder/gtkui/desktop/preferences.py:318
 #: src/gpodder/gtkui/frmntl/preferences.py:243
-#, python-format
-msgid "after %d day"
-msgid_plural "after %d days"
+#, fuzzy, python-format
+msgid "after %(count)d day"
+msgid_plural "after %(count)d days"
 msgstr[0] "через %d день"
 msgstr[1] "через %d дні"
 msgstr[2] "через %d днів"
@@ -2079,17 +2079,17 @@ msgid "new episode"
 msgstr "новий епізод"
 
 #: src/gpodder/gtkui/frmntl/model.py:607
-#, python-format
-msgid "%d new episode"
-msgid_plural "%d new episodes"
+#, fuzzy, python-format
+msgid "%(count)d new episode"
+msgid_plural "%(count)d new episodes"
 msgstr[0] "%d новий епізод"
 msgstr[1] "%d нових епізоди"
 msgstr[2] "%d нових епізодів"
 
 #: src/gpodder/gtkui/frmntl/model.py:608
-#, python-format
-msgid "%d unplayed download"
-msgid_plural "%d unplayed downloads"
+#, fuzzy, python-format
+msgid "%(count)d unplayed download"
+msgid_plural "%(count)d unplayed downloads"
 msgstr[0] "%d невідтворенне завантаження"
 msgstr[1] "%d невідтворених завантаження"
 msgstr[2] "%d невідтворених завантажень"
@@ -2156,9 +2156,9 @@ msgid "No podcasts found. Try another source."
 msgstr "Не знайдено жодних потоків. Спробуйте інше джерело."
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:261
-#, python-format
-msgid "%d podcast selected"
-msgid_plural "%d podcasts selected"
+#, fuzzy, python-format
+msgid "%(count)d podcast selected"
+msgid_plural "%(count)d podcasts selected"
 msgstr[0] "%d podcast selected"
 msgstr[1] "%d podcasts selected"
 msgstr[2] "%d подкастів обрано\t"
@@ -2181,9 +2181,9 @@ msgstr "Вручну"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:37
 #: src/gpodder/gtkui/frmntl/preferences.py:93
-#, python-format
-msgid "Every %d minute"
-msgid_plural "Every %d minutes"
+#, fuzzy, python-format
+msgid "Every %(count)d minute"
+msgid_plural "Every %(count)d minutes"
 msgstr[0] "Кожну %d хвилину"
 msgstr[1] "Кожні %d хвилини"
 msgstr[2] "Кожні %d хвилин\t"
@@ -2193,9 +2193,9 @@ msgid "Hourly"
 msgstr "Щогодинно"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:39
-#, python-format
-msgid "Every %d hour"
-msgid_plural "Every %d hours"
+#, fuzzy, python-format
+msgid "Every %(count)d hour"
+msgid_plural "Every %(count)d hours"
 msgstr[0] "Кожну %d годину"
 msgstr[1] "Кожні %d години"
 msgstr[2] "Кожні %d годин"

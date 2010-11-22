@@ -351,7 +351,7 @@ def file_age_to_string(days):
     if days < 1:
         return ''
     else:
-        return N_('%d day ago', '%d days ago', days) % days
+        return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
 
 
 def get_free_disk_space_win32(path):
@@ -1133,7 +1133,7 @@ def format_seconds_to_hour_min_sec(seconds):
     """
 
     if seconds < 1:
-        return N_('%d second', '%d seconds', seconds) % seconds
+        return N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds}
 
     result = []
 
@@ -1146,13 +1146,13 @@ def format_seconds_to_hour_min_sec(seconds):
     seconds = seconds%60
 
     if hours:
-        result.append(N_('%d hour', '%d hours', hours) % hours)
+        result.append(N_('%(count)d hour', '%(count)d hours', hours) % {'count':hours})
 
     if minutes:
-        result.append(N_('%d minute', '%d minutes', minutes) % minutes)
+        result.append(N_('%(count)d minute', '%(count)d minutes', minutes) % {'count':minutes})
 
     if seconds:
-        result.append(N_('%d second', '%d seconds', seconds) % seconds)
+        result.append(N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds})
 
     if len(result) > 1:
         return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))

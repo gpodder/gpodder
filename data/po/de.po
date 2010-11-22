@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-22 21:35+0100\n"
+"POT-Creation-Date: 2010-11-22 21:51+0100\n"
 "PO-Revision-Date: 2010-05-23 18:41+0100\n"
 "Last-Translator: Thomas Perl <thp@gpodder.org>\n"
 "Language-Team: gPodder Team <gpodder-devel@lists.berlios.de>\n"
@@ -123,9 +123,9 @@ msgstr ""
 "Einige Episoden wurden das letzte Mal nicht vollständig heruntergeladen."
 
 #: src/gpodder/gui.py:500
-#, python-format
-msgid "%d partial file"
-msgid_plural "%d partial files"
+#, fuzzy, python-format
+msgid "%(count)d partial file"
+msgid_plural "%(count)d partial files"
 msgstr[0] "%d unvollständige Datei"
 msgstr[1] "%d unvollständige Dateien"
 
@@ -217,23 +217,23 @@ msgid "No active downloads"
 msgstr "Keine aktiven Downloads"
 
 #: src/gpodder/gui.py:1380 src/gpodder/gui.py:1395
-#, python-format
-msgid "%d active"
-msgid_plural "%d active"
+#, fuzzy, python-format
+msgid "%(count)d active"
+msgid_plural "%(count)d active"
 msgstr[0] "%d aktiv"
 msgstr[1] "%d aktiv"
 
 #: src/gpodder/gui.py:1382 src/gpodder/gui.py:1397
-#, python-format
-msgid "%d failed"
-msgid_plural "%d failed"
+#, fuzzy, python-format
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
 msgstr[0] "%d fehlgeschlagen"
 msgstr[1] "%d fehlgeschlagen"
 
 #: src/gpodder/gui.py:1384
-#, python-format
-msgid "%d queued"
-msgid_plural "%d queued"
+#, fuzzy, python-format
+msgid "%(count)d queued"
+msgid_plural "%(count)d queued"
 msgstr[0] "%d eingereiht"
 msgstr[1] "%d eingereiht"
 
@@ -243,16 +243,16 @@ msgid "Downloads (%d)"
 msgstr "Downloads (%d)"
 
 #: src/gpodder/gui.py:1399
-#, python-format
-msgid "%d paused"
-msgid_plural "%d paused"
+#, fuzzy, python-format
+msgid "%(count)d paused"
+msgid_plural "%(count)d paused"
 msgstr[0] "%d pausiert"
 msgstr[1] "%d pausiert"
 
 #: src/gpodder/gui.py:1416
-#, python-format
-msgid "downloading %d file"
-msgid_plural "downloading %d files"
+#, fuzzy, python-format
+msgid "downloading %(count)d file"
+msgid_plural "downloading %(count)d files"
 msgstr[0] "lade %d Datei herunter"
 msgstr[1] "lade %d Dateien herunter"
 
@@ -298,9 +298,9 @@ msgid "Downloads finished"
 msgstr "Downloads abgeschlossen"
 
 #: src/gpodder/gui.py:1712
-#, python-format
-msgid "%d more episode"
-msgid_plural "%d more episodes"
+#, fuzzy, python-format
+msgid "%(count)d more episode"
+msgid_plural "%(count)d more episodes"
 msgstr[0] "%d weitere Episode"
 msgstr[1] "%d weitere Episoden"
 
@@ -410,9 +410,9 @@ msgid "Opening %s"
 msgstr "Öffne %s"
 
 #: src/gpodder/gui.py:2316
-#, python-format
-msgid "Opening %d episode"
-msgid_plural "Opening %d episodes"
+#, fuzzy, python-format
+msgid "Opening %(count)d episode"
+msgid_plural "Opening %(count)d episodes"
 msgstr[0] "Öffne %d Episode"
 msgstr[1] "Öffne %d Episoden"
 
@@ -491,9 +491,9 @@ msgid "Episode actions from gpodder.net are merged."
 msgstr "Episoden-Aktionen von gpodder.net werden verarbeitet."
 
 #: src/gpodder/gui.py:2807
-#, python-format
-msgid "%d action processed"
-msgid_plural "%d actions processed"
+#, fuzzy, python-format
+msgid "%(count)d action processed"
+msgid_plural "%(count)d actions processed"
 msgstr[0] "%d Aktion verarbeitet"
 msgstr[1] "%d Aktionen verarbeitet"
 
@@ -502,9 +502,9 @@ msgid "New episodes are available."
 msgstr "Neue Episoden sind verfügbar."
 
 #: src/gpodder/gui.py:2855 src/gpodder/gui.py:2914
-#, python-format
-msgid "Downloading %d new episode."
-msgid_plural "Downloading %d new episodes."
+#, fuzzy, python-format
+msgid "Downloading %(count)d new episode."
+msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "Lade %d neue Episode herunter."
 msgstr[1] "Lade %d neue Episoden herunter."
 
@@ -526,16 +526,16 @@ msgid "No new episodes"
 msgstr "Keine neuen Episoden"
 
 #: src/gpodder/gui.py:2919
-#, python-format
-msgid "%d new episode added to download list."
-msgid_plural "%d new episodes added to download list."
+#, fuzzy, python-format
+msgid "%(count)d new episode added to download list."
+msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "%d neue Episode zur Download-Liste hinzugefügt."
 msgstr[1] "%d neue Episoden zur Download-Liste hinzugefügt."
 
 #: src/gpodder/gui.py:2928
-#, python-format
-msgid "%d new episode available"
-msgid_plural "%d new episodes available"
+#, fuzzy, python-format
+msgid "%(count)d new episode available"
+msgid_plural "%(count)d new episodes available"
 msgstr[0] "%d neue Episode verfügbar"
 msgstr[1] "%d neue Episoden verfügbar"
 
@@ -568,9 +568,9 @@ msgid "Updating \"%s\"..."
 msgstr "Aktualisiere \"%s\"..."
 
 #: src/gpodder/gui.py:3048
-#, python-format
-msgid "Updating %d feed..."
-msgid_plural "Updating %d feeds..."
+#, fuzzy, python-format
+msgid "Updating %(count)d feed..."
+msgid_plural "Updating %(count)d feeds..."
 msgstr[0] "Aktualisiere %d Feed..."
 msgstr[1] "Aktualisiere %d Feeds..."
 
@@ -611,9 +611,9 @@ msgstr ""
 "Episoden, die Sie löschen wollen auf, bevor Sie versuchen, sie zu löschen."
 
 #: src/gpodder/gui.py:3158
-#, python-format
-msgid "Delete %d episode?"
-msgid_plural "Delete %d episodes?"
+#, fuzzy, python-format
+msgid "Delete %(count)d episode?"
+msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "%d Episode löschen?"
 msgstr[1] "%d Episoden löschen?"
 
@@ -638,9 +638,9 @@ msgid "Downloaded"
 msgstr "Heruntergeladen"
 
 #: src/gpodder/gui.py:3236
-#, python-format
-msgid "Select older than %d day"
-msgid_plural "Select older than %d days"
+#, fuzzy, python-format
+msgid "Select older than %(count)d day"
+msgid_plural "Select older than %(count)d days"
 msgstr[0] "Älter als %d Tag auswählen"
 msgstr[1] "Älter als %d Tage auswählen"
 
@@ -789,9 +789,9 @@ msgid "Export to OPML"
 msgstr "Als OPML-Datei exportieren"
 
 #: src/gpodder/gui.py:3784
-#, python-format
-msgid "%d subscription exported"
-msgid_plural "%d subscriptions exported"
+#, fuzzy, python-format
+msgid "%(count)d subscription exported"
+msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "%d Abonnement exportiert"
 msgstr[1] "%d Abonnements exportiert"
 
@@ -1087,9 +1087,9 @@ msgid "Adding %s..."
 msgstr "Füge %s hinzu..."
 
 #: src/gpodder/util.py:354
-#, python-format
-msgid "%d day ago"
-msgid_plural "%d days ago"
+#, fuzzy, python-format
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
 msgstr[0] "vor %d Tag"
 msgstr[1] "vor %d Tagen"
 
@@ -1106,23 +1106,23 @@ msgid "(unknown)"
 msgstr "(unbekannt)"
 
 #: src/gpodder/util.py:1136 src/gpodder/util.py:1155
-#, python-format
-msgid "%d second"
-msgid_plural "%d seconds"
+#, fuzzy, python-format
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
 msgstr[0] "%i Sekunde"
 msgstr[1] "%i Sekunden"
 
 #: src/gpodder/util.py:1149
-#, python-format
-msgid "%d hour"
-msgid_plural "%d hours"
+#, fuzzy, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
 msgstr[0] "%i Stunde"
 msgstr[1] "%i Stunden"
 
 #: src/gpodder/util.py:1152
-#, python-format
-msgid "%d minute"
-msgid_plural "%d minutes"
+#, fuzzy, python-format
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
 msgstr[0] "%i Minute"
 msgstr[1] "%i Minuten"
 
@@ -1383,9 +1383,9 @@ msgstr "Nichts ausgewählt"
 #: src/gpodder/gtkui/desktop/episodeselector.py:323
 #: src/gpodder/gtkui/maemo/episodeselector.py:296
 #: src/gpodder/gtkui/frmntl/episodeselector.py:338
-#, python-format
-msgid "%d episode"
-msgid_plural "%d episodes"
+#, fuzzy, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
 msgstr[0] "%d Episode"
 msgstr[1] "%d Episoden"
 
@@ -1487,9 +1487,9 @@ msgstr "manuell"
 
 #: src/gpodder/gtkui/desktop/preferences.py:318
 #: src/gpodder/gtkui/frmntl/preferences.py:243
-#, python-format
-msgid "after %d day"
-msgid_plural "after %d days"
+#, fuzzy, python-format
+msgid "after %(count)d day"
+msgid_plural "after %(count)d days"
 msgstr[0] "nach %d Tag"
 msgstr[1] "nach %d Tagen"
 
@@ -2055,16 +2055,16 @@ msgid "new episode"
 msgstr "neue Episode"
 
 #: src/gpodder/gtkui/frmntl/model.py:607
-#, python-format
-msgid "%d new episode"
-msgid_plural "%d new episodes"
+#, fuzzy, python-format
+msgid "%(count)d new episode"
+msgid_plural "%(count)d new episodes"
 msgstr[0] "%i neue Episode"
 msgstr[1] "%i neue Episoden"
 
 #: src/gpodder/gtkui/frmntl/model.py:608
-#, python-format
-msgid "%d unplayed download"
-msgid_plural "%d unplayed downloads"
+#, fuzzy, python-format
+msgid "%(count)d unplayed download"
+msgid_plural "%(count)d unplayed downloads"
 msgstr[0] "%d ungespielter Download"
 msgstr[1] "%d ungespielte Downloads"
 
@@ -2130,9 +2130,9 @@ msgid "No podcasts found. Try another source."
 msgstr "Keine Podcasts gefunden. Probieren Sie eine andere Quelle."
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:261
-#, python-format
-msgid "%d podcast selected"
-msgid_plural "%d podcasts selected"
+#, fuzzy, python-format
+msgid "%(count)d podcast selected"
+msgid_plural "%(count)d podcasts selected"
 msgstr[0] "%d Podcast ausgewählt"
 msgstr[1] "%d Podcasts ausgewählt"
 
@@ -2154,9 +2154,9 @@ msgstr "Manuell"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:37
 #: src/gpodder/gtkui/frmntl/preferences.py:93
-#, python-format
-msgid "Every %d minute"
-msgid_plural "Every %d minutes"
+#, fuzzy, python-format
+msgid "Every %(count)d minute"
+msgid_plural "Every %(count)d minutes"
 msgstr[0] "Jede Minute (%d)"
 msgstr[1] "Alle %d Minuten"
 
@@ -2165,9 +2165,9 @@ msgid "Hourly"
 msgstr "Stündlich"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:39
-#, python-format
-msgid "Every %d hour"
-msgid_plural "Every %d hours"
+#, fuzzy, python-format
+msgid "Every %(count)d hour"
+msgid_plural "Every %(count)d hours"
 msgstr[0] "Jede Stunde (%d)"
 msgstr[1] "Alle %d Stunden"
 

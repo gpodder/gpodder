@@ -335,7 +335,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             if count == 0: 
                 text.append(_('Nothing selected'))
             else:
-                text.append(N_('%d episode', '%d episodes', count) % count)
+                text.append(N_('%(count)d episode', '%(count)d episodes', count) % {'count':count})
             if total_size > 0: 
                 text.append(_('size: %s') % util.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))

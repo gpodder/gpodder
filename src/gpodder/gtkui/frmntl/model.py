@@ -604,8 +604,8 @@ class PodcastListModel(model.PodcastListModel):
         if not unplayed and not new:
             return self._normal_markup % title_markup
 
-        new_text = N_('%d new episode', '%d new episodes', new) % new
-        unplayed_text = N_('%d unplayed download', '%d unplayed downloads', unplayed) % unplayed
+        new_text = N_('%(count)d new episode', '%(count)d new episodes', new) % {'count':new}
+        unplayed_text = N_('%(count)d unplayed download', '%(count)d unplayed downloads', unplayed) % {'count':unplayed}
         if new and unplayed:
             return self._active_markup % (title_markup, ', '.join((new_text, unplayed_text)))
         elif new:
