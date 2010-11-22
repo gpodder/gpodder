@@ -141,7 +141,9 @@ class SoundcloudUser(object):
 
             for track in tracks:
                 # Prefer stream URL (MP3), fallback to download URL
-                url = track.get('stream_url', track['download_url'])
+                url = track.get('stream_url', track['download_url']) + \
+                    '?consumer_key=%(consumer_key)s' \
+                    % { 'consumer_key': CONSUMER_KEY }
                 if url not in self.cache:
                     try:
                         self.cache[url] = get_metadata(url)
