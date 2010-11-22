@@ -2500,7 +2500,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                         pos = model.iter_next(pos)
 
-                if not gpodder.ui.fremantle:
+                if not gpodder.ui.maemo:
                     if selected_iter is not None:
                         selection.select_iter(selected_iter)
                     self.on_treeChannels_cursor_changed(self.treeChannels)
