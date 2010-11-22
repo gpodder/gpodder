@@ -176,7 +176,7 @@ class EpisodeListModel(gtk.ListStore):
             return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
                     xml.sax.saxutils.escape(episode.one_line_description()))
         else:
-            return xml.sax.saxutils.escape(episode.title)
+            return ''.join((a, xml.sax.saxutils.escape(episode.title), b))
 
     def replace_from_channel(self, channel, downloading=None, \
             include_description=False, generate_thumbnails=False, \
