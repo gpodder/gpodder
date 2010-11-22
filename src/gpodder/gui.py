@@ -3063,7 +3063,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # but not when we are using "Quit" in the menu or toolbar
         if self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
-        elif self.config.on_quit_ask or downloading:
+        elif downloading:
             if gpodder.ui.fremantle:
                 self.close_gpodder()
             elif gpodder.ui.diablo:
@@ -3077,25 +3077,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             quit_button = dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
 
             title = _('Quit gPodder')
-            if downloading:
-                message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
-            else:
-                message = _('Do you really want to quit gPodder now?')
+            message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
 
             dialog.set_title(title)
             dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            if not downloading:
-                cb_ask = gtk.CheckButton(_("Don't ask me again"))
-                dialog.vbox.pack_start(cb_ask)
-                cb_ask.show_all()
 
             quit_button.grab_focus()
             result = dialog.run()
             dialog.destroy()
 
             if result == gtk.RESPONSE_CLOSE:
-                if not downloading and cb_ask.get_active() == True:
-                    self.config.on_quit_ask = False
                 self.close_gpodder()
         else:
             self.close_gpodder()
@@ -4235,8 +4226,6 @@ def main(options=None):
                     break
                 else:
                     log('Downloads NOT FOUND in %s', dir)
-    elif gpodder.ui.fremantle:
-        config.on_quit_ask = False
 
     if config.enable_fingerscroll:
         BuilderWidget.use_fingerscroll = True

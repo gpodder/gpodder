@@ -132,8 +132,6 @@ gPodderSettings = {
     'enable_notifications': (bool, True,
       ("Let gPodder use notification bubbles when it can completed certain "
         "tasks like downloading an episode or finishing syncing to a device.")),
-    'on_quit_ask': (bool, True,
-      ("Ask the user to confirm quitting the application.")),
     'auto_download': (str, 'never',
       ("Auto download episodes (never, minimized, always) - Fremantle also supports 'quiet'")),
     'do_not_show_new_episodes_dialog': (bool, False,
