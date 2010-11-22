@@ -27,7 +27,6 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
-from gpodder import corestats
 from gpodder import gstreamer
 
 from gpodder.liblogger import log
@@ -303,26 +302,8 @@ class PodcastChannel(PodcastModelObject):
 
     def _update_etag_modified(self, feed):
         self.updated_timestamp = time.time()
-        self.calculate_publish_behaviour()
         self.etag = feed.headers.get('etag', self.etag)
         self.last_modified = feed.headers.get('last-modified', self.last_modified)
-
-    def query_automatic_update(self):
-        """Query if this channel should be updated automatically
-
-        Returns True if the update should happen in automatic
-        mode or False if this channel should be skipped (timeout
-        not yet reached or release not expected right now).
-        """
-        updated = self.updated_timestamp
-        expected = self.release_expected
-
-        now = time.time()
-        one_day_ago = now - 60*60*24
-        lastcheck = now - 60*10
-
-        return updated < one_day_ago or \
-                (expected < now and updated < lastcheck)
 
     def update(self, max_episodes=0, mimetype_prefs=''):
         try:
@@ -417,29 +398,11 @@ class PodcastChannel(PodcastModelObject):
 
         self.channel_is_locked = False
 
-        self.release_expected = time.time()
-        self.release_deviation = 0
+        self.release_expected = time.time() # <= DEPRECATED
+        self.release_deviation = 0 # <= DEPRECATED
         self.updated_timestamp = 0
+
         self.feed_update_enabled = True
-
-    def calculate_publish_behaviour(self):
-        episodes = self.db.load_episodes(self, factory=self.episode_factory, limit=30)
-        if len(episodes) < 3:
-            return
-
-        deltas = []
-        latest = max(e.pubDate for e in episodes)
-        for index in range(len(episodes)-1):
-            if episodes[index].pubDate != 0 and episodes[index+1].pubDate != 0:
-                deltas.append(episodes[index].pubDate - episodes[index+1].pubDate)
-
-        if len(deltas) > 1:
-            stats = corestats.Stats(deltas)
-            self.release_expected = min([latest+stats.stdev(), latest+(stats.min()+stats.avg())*.5])
-            self.release_deviation = stats.stdev()
-        else:
-            self.release_expected = latest
-            self.release_deviation = 0
 
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
