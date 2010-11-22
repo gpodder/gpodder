@@ -161,6 +161,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     ICON_GENERAL_ADD = 'general_add'
     ICON_GENERAL_REFRESH = 'general_refresh'
 
+    # Delay until live search is started after typing stop
+    LIVE_SEARCH_DELAY = 200
+
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
@@ -429,6 +432,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
+
+        # Source IDs for timeouts for search-as-you-type
+        self._podcast_list_search_timeout = None
+        self._episode_list_search_timeout = None
 
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
@@ -862,7 +869,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_entry_search_podcasts_changed(self, editable):
         if self.hbox_search_podcasts.get_property('visible'):
-            self.podcast_list_model.set_search_term(editable.get_chars(0, -1))
+            def set_search_term(self, text):
+                self.podcast_list_model.set_search_term(text)
+                self._podcast_list_search_timeout = None
+                return False
+
+            if self._podcast_list_search_timeout is not None:
+                gobject.source_remove(self._podcast_list_search_timeout)
+            self._podcast_list_search_timeout = gobject.timeout_add(\
+                    self.LIVE_SEARCH_DELAY, \
+                    set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_podcasts_key_press(self, editable, event):
         if event.keyval == gtk.keysyms.Escape:
@@ -870,6 +886,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def hide_podcast_search(self, *args):
+        if self._podcast_list_search_timeout is not None:
+            gobject.source_remove(self._podcast_list_search_timeout)
+            self._podcast_list_search_timeout = None
         self.hbox_search_podcasts.hide()
         self.entry_search_podcasts.set_text('')
         self.podcast_list_model.set_search_term(None)
@@ -957,7 +976,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_entry_search_episodes_changed(self, editable):
         if self.hbox_search_episodes.get_property('visible'):
-            self.episode_list_model.set_search_term(editable.get_chars(0, -1))
+            def set_search_term(self, text):
+                self.episode_list_model.set_search_term(text)
+                self._episode_list_search_timeout = None
+                return False
+
+            if self._episode_list_search_timeout is not None:
+                gobject.source_remove(self._episode_list_search_timeout)
+            self._episode_list_search_timeout = gobject.timeout_add(\
+                    self.LIVE_SEARCH_DELAY, \
+                    set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_episodes_key_press(self, editable, event):
         if event.keyval == gtk.keysyms.Escape:
@@ -965,6 +993,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def hide_episode_search(self, *args):
+        if self._episode_list_search_timeout is not None:
+            gobject.source_remove(self._episode_list_search_timeout)
+            self._episode_list_search_timeout = None
         self.hbox_search_episodes.hide()
         self.entry_search_episodes.set_text('')
         self.episode_list_model.set_search_term(None)
@@ -1087,8 +1118,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_episode_search(input_char)
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
-        if gpodder.ui.fremantle:
-            self.episodes_window.main_window.connect('key-press-event', on_key_press)
 
         if gpodder.ui.desktop and not self.config.enable_fingerscroll:
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
