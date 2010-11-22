@@ -171,6 +171,16 @@ class gPodderPreferences(BuilderWidget):
         self.entry_mygpo_password.set_text(self._config.mygpo_password)
         self.entry_mygpo_device.set_text(self._config.mygpo_device_caption)
 
+        if self._config.auto_remove_played_episodes:
+            adjustment_expiration = self.hscale_expiration.get_adjustment()
+            if self._config.episode_old_age > adjustment_expiration.upper:
+                # Patch the adjustment to include the higher current value
+                adjustment_expiration.upper = self._config.episode_old_age
+
+            self.hscale_expiration.set_value(self._config.episode_old_age)
+        else:
+            self.hscale_expiration.set_value(0)
+
         self.gPodderPreferences.show_all()
 
     def on_picker_orientation_value_changed(self, *args):
@@ -224,4 +234,23 @@ class gPodderPreferences(BuilderWidget):
     def on_save_button_clicked(self, button):
         self._do_restore_config = False
         self.main_window.destroy()
+
+    def format_expiration_value(self, scale, value):
+        value = int(value)
+        if value == 0:
+            return _('manually')
+        else:
+            return N_('after %d day', 'after %d days', value) % value
+
+    def on_expiration_value_changed(self, range):
+        value = int(range.get_value())
+
+        if value == 0:
+            self._config.auto_remove_played_episodes = False
+        else:
+            self._config.auto_remove_played_episodes = True
+            self._config.episode_old_age = value
+
+        self._config.auto_remove_unplayed_episodes = False
+
 

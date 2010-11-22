@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <!--*- mode: xml -*-->
 <interface>
+  <object class="GtkAdjustment" id="adjustment_expiration">
+    <property name="upper">30</property>
+    <property name="lower">0</property>
+    <property name="page_increment">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_size">0</property>
+    <property name="value">7</property>
+  </object>
   <object class="GtkDialog" id="gPodderPreferences">
     <property name="title" translatable="yes">Settings</property>
     <child internal-child="vbox">
@@ -184,6 +192,29 @@
                         <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
                         <property name="visible">True</property>
                         <signal name="value-changed" handler="on_picker_video_player_value_changed"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="placeholder3">
+                        <property name="label"></property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_cleanup">
+                        <property name="label" translatable="yes">Delete played episodes on startup</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkHScale" id="hscale_expiration">
+                        <property name="digits">0</property>
+                        <property name="is_focus">True</property>
+                        <property name="value_pos">bottom</property>
+                        <property name="visible">True</property>
+                        <property name="adjustment">adjustment_expiration</property>
+                        <signal name="format-value" handler="format_expiration_value"/>
+                        <signal name="value-changed" handler="on_expiration_value_changed"/>
                       </object>
                     </child>
                   </object>
