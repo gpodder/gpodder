@@ -221,7 +221,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._sorter = gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._filter.set_visible_func(self._filter_visible_func)
@@ -295,7 +294,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
         as this model can have some filters set that should
         be reflected in the UI.
         """
-        return self._sorter
+        return self._filter
 
     def set_view_mode(self, new_mode):
         """Sets a new view mode for this model
@@ -403,7 +402,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
             include_description=False, generate_thumbnails=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
-        iter = self._sorter.convert_iter_to_child_iter(None, iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
                 downloading, include_description, generate_thumbnails)
 
