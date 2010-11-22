@@ -22,7 +22,10 @@
 # Thomas Perl, 2010-01-28
 
 # based on: "ORM wie eine Kirchenmaus - a very poor ORM implementation
-#            by thp, 2009-11-29 (thpinfo.com/about)"
+#            by thp, 2009-11-29 (thp.io/about)"
+
+# This module is also available separately at:
+#    http://thp.io/2010/minidb/
 
 
 # For Python 2.5, we need to request the "with" statement

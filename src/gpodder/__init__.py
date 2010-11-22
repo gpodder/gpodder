@@ -46,7 +46,7 @@ try:
 except ImportError:
     print """
   Error: Module "mygpoclient" not found. Please install "python-mygpoclient"
-         or download it from http://thpinfo.com/2010/mygpoclient/
+         or download it from http://thp.io/2010/mygpoclient/
 """
     sys.exit(1)
 del mygpoclient

@@ -19,7 +19,7 @@
 
 #
 # Generic feed fetching module for aggregators
-# Thomas Perl <thpinfo.com>; 2009-06-11
+# Thomas Perl <thp@gpodder.org>; 2009-06-11
 #
 
 import feedparser

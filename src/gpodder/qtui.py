@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # gPodder Qt demo app in 100 lines of Python (line width < 80)
-# Thomas Perl <thpinfo.com>; 2010-01-15
+# Thomas Perl <thp@gpodder.org>; 2010-01-15
 
 from PySide.QtGui import *
 from PySide.QtCore import *

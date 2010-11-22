@@ -3855,7 +3855,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # items to the about dialog (credits and logo)
             app_authors = [
                     _('Maintainer:'),
-                    'Thomas Perl <thpinfo.com>',
+                    'Thomas Perl <thp.io>',
             ]
 
             if os.path.exists(gpodder.credits_file):

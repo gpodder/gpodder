@@ -21,7 +21,7 @@
 /**
  * gPodder Launcher for Win32
  * Set up environment variables and start the Python Interpreter
- * Thomas Perl <thpinfo.com>; 2009-04-29
+ * Thomas Perl <thp@gpodder.org>; 2009-04-29
  **/
 
 
