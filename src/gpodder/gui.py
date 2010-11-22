@@ -416,7 +416,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     remove_download_task_monitor=self.remove_download_task_monitor, \
                     for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
                     on_itemUpdate_activate=self.on_itemUpdate_activate, \
-                    show_delete_episodes_window=self.show_delete_episodes_window)
+                    show_delete_episodes_window=self.show_delete_episodes_window, \
+                    cover_downloader=self.cover_downloader)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes

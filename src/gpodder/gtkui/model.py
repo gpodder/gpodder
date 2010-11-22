@@ -695,7 +695,7 @@ class PodcastListModel(gtk.ListStore):
         if channel.feed_update_enabled:
             description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         else:
-            description_markup = xml.sax.saxutils.escape(_('Subscription paused.'))
+            description_markup = xml.sax.saxutils.escape(_('Subscription paused'))
         d = []
         if new:
             d.append('<span weight="bold">')

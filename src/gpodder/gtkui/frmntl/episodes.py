@@ -80,6 +80,12 @@ class gPodderEpisodes(BuilderWidget):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
+
+        self.pause_sub_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.pause_sub_button.set_label(_('Pause subscription'))
+        self.pause_sub_button.connect('toggled', self.on_pause_subscription_button_toggled)
+        appmenu.append(self.pause_sub_button)
+
         for filter in (self.item_view_episodes_all, \
                        self.item_view_episodes_undeleted, \
                        self.item_view_episodes_downloaded):
@@ -88,6 +94,15 @@ class gPodderEpisodes(BuilderWidget):
             appmenu.add_filter(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
+
+    def on_pause_subscription_button_toggled(self, widget):
+        new_value = not widget.get_active()
+        print 'toggled with new value = ', new_value
+        if new_value != self.channel.feed_update_enabled:
+            self.channel.feed_update_enabled = new_value
+            self.cover_downloader.reload_cover_from_disk(self.channel)
+            self.channel.save()
+            self.update_podcast_list_model(urls=[self.channel.url])
 
     def on_rename_button_clicked(self, widget):
         if self.channel is None:
@@ -207,6 +222,9 @@ class gPodderEpisodes(BuilderWidget):
 
         self.action_check_for_new_episodes.set_visible(all_episodes)
         self.action_delete_episodes.set_visible(True)
+
+        self.pause_sub_button.set_active(\
+                not self.channel.feed_update_enabled)
 
         self.main_window.set_title(self.channel.title)
         self.main_window.show()

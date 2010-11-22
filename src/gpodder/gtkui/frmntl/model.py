@@ -595,6 +595,12 @@ class PodcastListModel(model.PodcastListModel):
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
         title_markup = cgi.escape(channel.title)
+        if not channel.feed_update_enabled:
+            disabled_text = cgi.escape(_('Subscription paused'))
+            if new:
+                return self._active_markup % (title_markup, disabled_text)
+            else:
+                return self._unplayed_markup % (title_markup, disabled_text)
         if not unplayed and not new:
             return self._normal_markup % title_markup
 
