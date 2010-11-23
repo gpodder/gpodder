@@ -256,7 +256,7 @@ class gPodderPreferences(BuilderWidget):
         value = int(value)
         if value == 0:
             return _('manual only')
-        elif value > 0 and len(self.update_interval_presets) < value:
+        elif value > 0 and len(self.update_interval_presets) > value:
             return util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
         else:
             return str(value)
