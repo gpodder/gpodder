@@ -194,6 +194,9 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('only_sync_not_played', self.checkbutton_only_sync_not_played)
 
+        # Have to do this before calling set_active on checkbutton_enable
+        self._enable_mygpo = self._config.mygpo_enabled
+
         # Initialize the UI state with configuration settings
         self.checkbutton_enable.set_active(self._config.mygpo_enabled)
         self.entry_username.set_text(self._config.mygpo_username)
@@ -201,7 +204,6 @@ class gPodderPreferences(BuilderWidget):
         self.entry_caption.set_text(self._config.mygpo_device_caption)
 
         # Disable mygpo sync while the dialog is open
-        self._enable_mygpo = self._config.mygpo_enabled
         self._config.mygpo_enabled = False
 
     def on_dialog_destroy(self, widget):
@@ -254,8 +256,10 @@ class gPodderPreferences(BuilderWidget):
         value = int(value)
         if value == 0:
             return _('manual only')
+        elif value > 0 and len(self.update_interval_presets) < value:
+            return util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
         else:
-            return util.format_seconds_to_hour_min_sec(self.update_interval_presets[int(value)]*60)
+            return str(value)
 
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
