@@ -435,6 +435,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         for index, episode in enumerate(self._episodes):
             if episode.url in urls:
+                episode.reload_from_db()
                 self.emit('row-changed', (index,), self.create_tree_iter(index))
 
     def update_by_filter_iter(self, iter, downloading=None, \
