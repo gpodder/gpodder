@@ -22,12 +22,13 @@
 # Amiad Bareli <amiadb [at] gmail>, 2010.
 # Amiad Bareli <amiadb [at] gmail>, 2010.
 # Amiad Bareli <amiadb [at] gmail>, 2010.
+# Amiad Bareli <amiadb [at] gmail>, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: 2.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-22 21:51+0100\n"
-"PO-Revision-Date: 2010-10-20 01:04+0200\n"
+"PO-Revision-Date: 2010-11-23 18:56+0300\n"
 "Last-Translator: Amiad Bareli <amiadb [at] gmail>\n"
 "Language-Team: Hebrew\n"
 "Language: he\n"
@@ -147,11 +148,11 @@ msgid "Some episodes have not finished downloading in a previous session."
 msgstr "הורדת מספר פרקים לא הסתיימה בהפעלה הקודמת."
 
 #: src/gpodder/gui.py:500
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
-msgstr[0] "%d קובץ חלקי"
-msgstr[1] "%d קבצים חלקיים"
+msgstr[0] "קובץ חלקי אחד"
+msgstr[1] "%(count)d קבצים חלקיים"
 
 #: src/gpodder/gui.py:533
 msgid "Resume all"
@@ -241,25 +242,25 @@ msgid "No active downloads"
 msgstr "אין הורדות פעילות"
 
 #: src/gpodder/gui.py:1380 src/gpodder/gui.py:1395
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
-msgstr[0] "%d פעילה"
-msgstr[1] "%d פעילות"
+msgstr[0] "אחת פעילה"
+msgstr[1] "%(count)d פעילות"
 
 #: src/gpodder/gui.py:1382 src/gpodder/gui.py:1397
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d failed"
 msgid_plural "%(count)d failed"
-msgstr[0] "%d נכשלה"
-msgstr[1] "%d נכשלו"
+msgstr[0] "אחת נכשלה"
+msgstr[1] "%(count)d נכשלו"
 
 #: src/gpodder/gui.py:1384
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
-msgstr[0] "%d ממתינה"
-msgstr[1] "%d ממתינות"
+msgstr[0] "אחת ממתינה"
+msgstr[1] "%(count)d ממתינות"
 
 #: src/gpodder/gui.py:1390
 #, python-format
@@ -267,18 +268,18 @@ msgid "Downloads (%d)"
 msgstr "הורדות (%d)"
 
 #: src/gpodder/gui.py:1399
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d paused"
 msgid_plural "%(count)d paused"
-msgstr[0] "%d מושהה"
-msgstr[1] "%d מושהות"
+msgstr[0] "אחת מושהה"
+msgstr[1] "%(count)d מושהות"
 
 #: src/gpodder/gui.py:1416
-#, fuzzy, python-format
+#, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
-msgstr[0] "מוריד קובץ %d "
-msgstr[1] "מוריד קובצי %d"
+msgstr[0] "מוריד קובץ אחד "
+msgstr[1] "מוריד %(count)d קבצים"
 
 #: src/gpodder/gui.py:1435
 msgid "All downloads finished"
@@ -322,11 +323,11 @@ msgid "Downloads finished"
 msgstr "ההורדות הסתיימו"
 
 #: src/gpodder/gui.py:1712
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
-msgstr[0] "%d עוד פרק"
-msgstr[1] "%d עוד פרקים"
+msgstr[0] "אחד עוד פרק"
+msgstr[1] "עוד %(count)d פרקים"
 
 #: src/gpodder/gui.py:1785 src/gpodder/gui.py:2098
 #: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
@@ -434,11 +435,11 @@ msgid "Opening %s"
 msgstr "פותח את %s"
 
 #: src/gpodder/gui.py:2316
-#, fuzzy, python-format
+#, python-format
 msgid "Opening %(count)d episode"
 msgid_plural "Opening %(count)d episodes"
-msgstr[0] "פותח פרק %d"
-msgstr[1] "פותח פרקים %d"
+msgstr[0] "פותח פרק אחד"
+msgstr[1] "פותח %(count)d פרקים"
 
 #: src/gpodder/gui.py:2347 src/gpodder/gui.py:2350 src/gpodder/gui.py:3983
 msgid "Please check your media player settings in the preferences dialog."
@@ -515,22 +516,22 @@ msgid "Episode actions from gpodder.net are merged."
 msgstr "פעולות פרק מ־gpodder.net הושוו"
 
 #: src/gpodder/gui.py:2807
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d action processed"
 msgid_plural "%(count)d actions processed"
-msgstr[0] "הפעולה %d מעובדת"
-msgstr[1] "הפעולות %d מעובדות"
+msgstr[0] "פעולה אחת מעובדת"
+msgstr[1] "%(count)d פעולות מעובדות"
 
 #: src/gpodder/gui.py:2852
 msgid "New episodes are available."
 msgstr "פרקים חדשים זמינים."
 
 #: src/gpodder/gui.py:2855 src/gpodder/gui.py:2914
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
-msgstr[0] "מוריד %d פרק חדש."
-msgstr[1] "מוריד %d פרקים חדשים."
+msgstr[0] "מוריד פרק חדש."
+msgstr[1] "מוריד %(count)d פרקים חדשים."
 
 #: src/gpodder/gui.py:2859
 msgid "New episodes have been added to the download list."
@@ -550,18 +551,18 @@ msgid "No new episodes"
 msgstr "אין פרקים חדשים"
 
 #: src/gpodder/gui.py:2919
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
-msgstr[0] "%d פרק חדש נוסף לרשימת ההורדות."
-msgstr[1] "%d פרקים חדשים נוספו לרשימת ההורדות."
+msgstr[0] "פרק חדש נוסף לרשימת ההורדות."
+msgstr[1] "%(count)d פרקים חדשים נוספו לרשימת ההורדות."
 
 #: src/gpodder/gui.py:2928
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
-msgstr[0] "%d פרק חדש זמין"
-msgstr[1] "%d פרקים חדשים זמינים"
+msgstr[0] "פרק חדש זמין"
+msgstr[1] "%(count)d פרקים חדשים זמינים"
 
 #: src/gpodder/gui.py:2947
 #, python-format
@@ -592,11 +593,11 @@ msgid "Updating \"%s\"..."
 msgstr "מעדכן את \"%s\"..."
 
 #: src/gpodder/gui.py:3048
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
-msgstr[0] "מעדכן הזנה... (%d)"
-msgstr[1] "מעדכן %d הזנות..."
+msgstr[0] "מעדכן הזנה..."
+msgstr[1] "מעדכן %(count)d הזנות..."
 
 #: src/gpodder/gui.py:3070
 msgid "Do you really want to quit gPodder now?"
@@ -633,11 +634,11 @@ msgid ""
 msgstr "הפרקים שבחרת נעולים. שחרר את הנעילה שלהם כדי שתוכל למחוק אותם."
 
 #: src/gpodder/gui.py:3158
-#, fuzzy, python-format
+#, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
-msgstr[0] "למחוק פרק %d?"
-msgstr[1] "למחוק %d פרקים?"
+msgstr[0] "למחוק פרק?"
+msgstr[1] "למחוק %(count)d פרקים?"
 
 #: src/gpodder/gui.py:3159
 msgid "Deleting episodes removes downloaded files."
@@ -660,11 +661,11 @@ msgid "Downloaded"
 msgstr "הורד"
 
 #: src/gpodder/gui.py:3236
-#, fuzzy, python-format
+#, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
-msgstr[0] "בחר ישן יותר מיום אחד (%d)"
-msgstr[1] "בחר ישן יותר מ־%d ימים"
+msgstr[0] "בחר ישן יותר מיום אחד"
+msgstr[1] "בחר ישן יותר מ־%(count)d ימים"
 
 #: src/gpodder/gui.py:3238
 msgid "Select played"
@@ -808,11 +809,11 @@ msgid "Export to OPML"
 msgstr "ייצא לקובץ OPML"
 
 #: src/gpodder/gui.py:3784
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
-msgstr[0] "הרשמה אחת יוצאה (%d)"
-msgstr[1] "%d הרשמות יוצאו"
+msgstr[0] "הרשמה אחת יוצאה"
+msgstr[1] "%(count)d הרשמות יוצאו"
 
 #: src/gpodder/gui.py:3785
 msgid "Your podcast list has been successfully exported."
@@ -994,8 +995,8 @@ msgid ""
 "Convert OGG podcasts to MP3 files on synchronization to iPods using oggdec "
 "and LAME."
 msgstr ""
-"המרת פודקסטים מסוג OGG לקובצי MP3 לצורך סנכרון ל־iPod בשימוש עם oggdec ו־"
-"LAME."
+"המרת פודקסטים מסוג OGG לקובצי MP3 לצורך סנכרון ל־iPod בשימוש עם oggdec "
+"ו־LAME."
 
 #: src/gpodder/sync.py:66
 msgid "iPod video podcasts"
@@ -1099,11 +1100,11 @@ msgid "Adding %s..."
 msgstr "מוסיף את %s..."
 
 #: src/gpodder/util.py:354
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d day ago"
 msgid_plural "%(count)d days ago"
-msgstr[0] "לפני יום (%d)"
-msgstr[1] "לפני %d ימים"
+msgstr[0] "לפני יום"
+msgstr[1] "לפני %(count)d ימים"
 
 #: src/gpodder/util.py:422
 msgid "Today"
@@ -1118,25 +1119,25 @@ msgid "(unknown)"
 msgstr "(לא ידוע)"
 
 #: src/gpodder/util.py:1136 src/gpodder/util.py:1155
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
-msgstr[0] "שנייה (%d)"
-msgstr[1] "%d שניות"
+msgstr[0] "שנייה אחת"
+msgstr[1] "%(count)d שניות"
 
 #: src/gpodder/util.py:1149
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
-msgstr[0] "%d שעה"
-msgstr[1] "%d שעות"
+msgstr[0] "שעה אחת"
+msgstr[1] "%(count)d שעות"
 
 #: src/gpodder/util.py:1152
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
-msgstr[0] "דקה (%d)"
-msgstr[1] "%d דקות"
+msgstr[0] "דקה אחת"
+msgstr[1] "%(count)d דקות"
 
 #: src/gpodder/util.py:1158
 msgid "and"
@@ -1230,9 +1231,8 @@ msgid "from all podcasts"
 msgstr "מכל הפודקסטים"
 
 #: src/gpodder/gtkui/model.py:698 src/gpodder/gtkui/frmntl/model.py:599
-#, fuzzy
 msgid "Subscription paused"
-msgstr "הרשמה מושהת."
+msgstr "הרשמה מושהת"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1395,11 +1395,11 @@ msgstr "לא נבחר דבר"
 #: src/gpodder/gtkui/desktop/episodeselector.py:323
 #: src/gpodder/gtkui/maemo/episodeselector.py:296
 #: src/gpodder/gtkui/frmntl/episodeselector.py:338
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d episode"
 msgid_plural "%(count)d episodes"
-msgstr[0] "פרק אחד (%d)"
-msgstr[1] "%d פרקים"
+msgstr[0] "פרק אחד"
+msgstr[1] "%(count)d פרקים"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:325
 #: src/gpodder/gtkui/maemo/episodeselector.py:299
@@ -1499,11 +1499,11 @@ msgstr "ידנית"
 
 #: src/gpodder/gtkui/desktop/preferences.py:318
 #: src/gpodder/gtkui/frmntl/preferences.py:243
-#, fuzzy, python-format
+#, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
-msgstr[0] "אחרי יום (%d)"
-msgstr[1] "אחרי %d ימים"
+msgstr[0] "אחרי יום אחד"
+msgstr[1] "אחרי %(count)d ימים"
 
 #: src/gpodder/gtkui/desktop/preferences.py:347
 #: src/gpodder/gtkui/maemo/mygpodder.py:74
@@ -1887,9 +1887,8 @@ msgid "Play"
 msgstr "נגן"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:85
-#, fuzzy
 msgid "Pause subscription"
-msgstr "אין הרשמות"
+msgstr "השהה הרשמה"
 
 #: src/gpodder/gtkui/frmntl/episodes.py:113
 msgid "Rename"
@@ -2045,18 +2044,18 @@ msgid "new episode"
 msgstr "פרק חדש"
 
 #: src/gpodder/gtkui/frmntl/model.py:607
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
-msgstr[0] "%d פרק חדש"
-msgstr[1] "%d פרקים חדשים"
+msgstr[0] "פרק חדש אחד"
+msgstr[1] "%(count)d פרקים חדשים"
 
 #: src/gpodder/gtkui/frmntl/model.py:608
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d unplayed download"
 msgid_plural "%(count)d unplayed downloads"
-msgstr[0] "%d הורדה שלא הושמעה"
-msgstr[1] "%d הורדות שלא הושמעו"
+msgstr[0] "הורדה אחת שלא הושמעה"
+msgstr[1] "%(count)d הורדות שלא הושמעו"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:72
 #: data/ui/maemo/gpodderpodcastdirectory.ui.h:8
@@ -2120,11 +2119,11 @@ msgid "No podcasts found. Try another source."
 msgstr "לא נמצאו פודקסטים. נסה מקור אחר."
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:261
-#, fuzzy, python-format
+#, python-format
 msgid "%(count)d podcast selected"
 msgid_plural "%(count)d podcasts selected"
-msgstr[0] "פודקסט %d נבחר "
-msgstr[1] "%d פודקסטים נבחרו"
+msgstr[0] "פודקסט אחד נבחר "
+msgstr[1] "%(count)d פודקסטים נבחרו"
 
 #: src/gpodder/gtkui/frmntl/portrait.py:46
 msgid "Automatic"
@@ -2144,22 +2143,22 @@ msgstr "ידני"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:37
 #: src/gpodder/gtkui/frmntl/preferences.py:93
-#, fuzzy, python-format
+#, python-format
 msgid "Every %(count)d minute"
 msgid_plural "Every %(count)d minutes"
-msgstr[0] "כל דקה (%d)"
-msgstr[1] "כל %d דקות"
+msgstr[0] "כל דקה"
+msgstr[1] "כל %(count)d דקות"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:38
 msgid "Hourly"
 msgstr "כל שעה"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:39
-#, fuzzy, python-format
+#, python-format
 msgid "Every %(count)d hour"
 msgid_plural "Every %(count)d hours"
-msgstr[0] "כל שעה (%d)"
-msgstr[1] "כל %d שעות"
+msgstr[0] "כל שעה"
+msgstr[1] "כל %(count)d שעות"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:40
 msgid "Daily"
@@ -2794,9 +2793,8 @@ msgid "Select podcasts to add"
 msgstr "בחר פודקסטים להוספה"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:2
-#, fuzzy
 msgid "Delete played episodes on startup"
-msgstr "מחק פרקים שהושמעו"
+msgstr "מחק בהפעלה פרקים שהושמעו"
 
 #: data/ui/frmntl/gpodderpreferences.ui.h:4
 msgid "Display and view settings"
