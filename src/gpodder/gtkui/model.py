@@ -47,8 +47,8 @@ class EpisodeListModel(gtk.ListStore):
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
-            C_TIME, C_TIME1_VISIBLE, C_TIME2_VISIBLE, \
-            C_LOCKED = range(17)
+            C_TIME, C_TIME_VISIBLE, \
+            C_LOCKED = range(16)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -365,8 +365,7 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_DESCRIPTION, description, \
                 self.C_TOOLTIP, tooltip, \
                 self.C_TIME, episode.get_play_info_string(), \
-                self.C_TIME1_VISIBLE, episode.total_time and not episode.current_position, \
-                self.C_TIME2_VISIBLE, episode.total_time and episode.current_position, \
+                self.C_TIME_VISIBLE, episode.total_time, \
                 self.C_LOCKED, episode.is_locked)
 
     def _get_icon_from_image(self,image_path, icon_size):
