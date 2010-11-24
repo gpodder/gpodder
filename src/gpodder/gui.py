@@ -361,8 +361,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for child in self.buttonbox:
                 child.reparent(action_area_box)
             self.vbox.remove(self.buttonbox)
-            action_area_box.set_spacing(2)
-            action_area_box.set_border_width(3)
             self.treeChannels.set_action_area_visible(True)
 
             # Set up a very nice progress bar setup

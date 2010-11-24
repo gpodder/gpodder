@@ -10,9 +10,13 @@
     <property name="urgency_hint">False</property>
     <signal name="delete_event" handler="on_delete_event"/>
     <child>
+      <object class="GtkHBox" id="outer_hbox">
+        <property name="visible">True</property>
+    <child>
       <object class="GtkVBox" id="vbox_episodes">
         <property name="visible">True</property>
         <property name="spacing">6</property>
+        <property name="border_width">4</property>
         <child>
           <object class="HildonPannableArea" id="pannablearea">
             <property name="visible">True</property>
@@ -77,6 +81,11 @@
             <property name="fill">True</property>
           </packing>
         </child>
+      </object>
+        <packing>
+          <property name="padding">12</property>
+        </packing>
+    </child>
       </object>
     </child>
   </object>

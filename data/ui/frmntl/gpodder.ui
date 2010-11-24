@@ -148,8 +148,12 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodder_delete_event" name="delete_event"/>
     <child>
+      <object class="GtkHBox" id="outer_hbox">
+        <property name="visible">True</property>
+    <child>
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
+        <property name="border_width">4</property>
         <child>
           <object class="GtkHBox" id="buttonbox">
             <property name="visible">True</property>
@@ -261,6 +265,11 @@
             <property name="expand">False</property>
           </packing>
         </child>
+      </object>
+        <packing>
+          <property name="padding">12</property>
+        </packing>
+    </child>
       </object>
     </child>
   </object>
