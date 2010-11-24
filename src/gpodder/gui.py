@@ -3267,7 +3267,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not episode.is_locked or not episode.file_exists():
                     episodes.append(episode)
 
-        selected = [e for e in episodes if episode.is_played or not episode.file_exists()]
+        selected = [e.is_played or not e.file_exists() for e in episodes]
 
         gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
