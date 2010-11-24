@@ -97,7 +97,6 @@ class gPodderEpisodes(BuilderWidget):
 
     def on_pause_subscription_button_toggled(self, widget):
         new_value = not widget.get_active()
-        print 'toggled with new value = ', new_value
         if new_value != self.channel.feed_update_enabled:
             self.channel.feed_update_enabled = new_value
             self.cover_downloader.reload_cover_from_disk(self.channel)
@@ -222,6 +221,11 @@ class gPodderEpisodes(BuilderWidget):
 
         self.action_check_for_new_episodes.set_visible(all_episodes)
         self.action_delete_episodes.set_visible(True)
+
+        if all_episodes:
+            self.pause_sub_button.hide()
+        else:
+            self.pause_sub_button.show()
 
         self.pause_sub_button.set_active(\
                 not self.channel.feed_update_enabled)
