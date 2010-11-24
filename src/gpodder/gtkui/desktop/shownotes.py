@@ -118,7 +118,7 @@ class gPodderShownotes(gPodderShownotesBase):
     def on_display_text(self):
         # Now do the stuff that takes a bit longer...
         heading = self.episode.title
-        subheading = 'from %s' % (self.episode.channel.title)
+        subheading = _('from %s') % (self.episode.channel.title)
         description = self.episode.description
 
         if self.have_webkit:
