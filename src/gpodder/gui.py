@@ -2221,7 +2221,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if resume_position == episode.total_time:
                 resume_position = 0
 
-            if gpodder.ui.fremantle:
+            # Only on Maemo 5, and only if the episode isn't finished yet
+            if gpodder.ui.fremantle and not episode.is_finished():
                 self.mafw_monitor.set_resume_point(filename, resume_position)
 
             # If Panucci is configured, use D-Bus on Maemo to call it
