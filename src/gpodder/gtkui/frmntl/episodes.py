@@ -36,6 +36,12 @@ class gPodderEpisodes(BuilderWidget):
     def new(self):
         self.channel = None
 
+        # Styling for the label that appears when the list is empty
+        hildon.hildon_helper_set_logical_font(self.empty_label, \
+                'LargeSystemFont')
+        hildon.hildon_helper_set_logical_color(self.empty_label, \
+                gtk.RC_FG, gtk.STATE_NORMAL, 'SecondaryTextColor')
+
         self.episode_actions = gPodderEpisodeActions(self.main_window, \
                 episode_list_status_changed=self.episode_list_status_changed, \
                 episode_is_downloading=self.episode_is_downloading, \
@@ -74,6 +80,12 @@ class gPodderEpisodes(BuilderWidget):
             button = gtk.Button()
             action.connect_proxy(button)
             appmenu.append(button)
+
+        self.pause_sub_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.pause_sub_button.set_label(_('Pause subscription'))
+        self.pause_sub_button.connect('toggled', self.on_pause_subscription_button_toggled)
+        appmenu.append(self.pause_sub_button)
+
         for filter in (self.item_view_episodes_all, \
                        self.item_view_episodes_undeleted, \
                        self.item_view_episodes_downloaded):
@@ -82,6 +94,14 @@ class gPodderEpisodes(BuilderWidget):
             appmenu.add_filter(button)
         appmenu.show_all()
         self.main_window.set_app_menu(appmenu)
+
+    def on_pause_subscription_button_toggled(self, widget):
+        new_value = not widget.get_active()
+        if new_value != self.channel.feed_update_enabled:
+            self.channel.feed_update_enabled = new_value
+            self.cover_downloader.reload_cover_from_disk(self.channel)
+            self.channel.save()
+            self.update_podcast_list_model(urls=[self.channel.url])
 
     def on_rename_button_clicked(self, widget):
         if self.channel is None:
@@ -182,6 +202,13 @@ class gPodderEpisodes(BuilderWidget):
         self.show_message(_('Checking for new episodes...'))
         self.on_itemUpdate_activate(widget)
 
+    def on_delete_episodes_button_clicked(self, widget):
+        all_episodes = isinstance(self.channel, PodcastChannelProxy)
+        if all_episodes:
+            self.show_delete_episodes_window()
+        else:
+            self.show_delete_episodes_window(self.channel)
+
     def show(self):
         # Check if we are displaying the "all episodes" view
         all_episodes = isinstance(self.channel, PodcastChannelProxy)
@@ -192,9 +219,16 @@ class gPodderEpisodes(BuilderWidget):
                        self.action_update):
             action.set_visible(not all_episodes)
 
-        for action in (self.action_check_for_new_episodes, \
-                       self.action_delete_episodes):
-            action.set_visible(all_episodes)
+        self.action_check_for_new_episodes.set_visible(all_episodes)
+        self.action_delete_episodes.set_visible(True)
+
+        if all_episodes:
+            self.pause_sub_button.hide()
+        else:
+            self.pause_sub_button.show()
+
+        self.pause_sub_button.set_active(\
+                not self.channel.feed_update_enabled)
 
         self.main_window.set_title(self.channel.title)
         self.main_window.show()

@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.9'
-__date__      = '2010-10-10'
+__version__   = '2.10'
+__date__      = '2010-11-28'
 __copyright__ = '© 2005-2010 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -46,7 +46,7 @@ try:
 except ImportError:
     print """
   Error: Module "mygpoclient" not found. Please install "python-mygpoclient"
-         or download it from http://thpinfo.com/2010/mygpoclient/
+         or download it from http://thp.io/2010/mygpoclient/
 """
     sys.exit(1)
 del mygpoclient

@@ -18,7 +18,7 @@
 #
 
 # Python implementation of HeAboutDialog from hildon-extras
-# Copyright (c) 2010-04-11 Thomas Perl <thp@thpinfo.com>
+# Copyright (c) 2010-04-11 Thomas Perl <thp.io/about>
 
 import hildon
 import gtk

@@ -47,7 +47,8 @@ class EpisodeListModel(gtk.ListStore):
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
-            C_TIME, C_TIME1_VISIBLE, C_TIME2_VISIBLE = range(16)
+            C_TIME, C_TIME_VISIBLE, \
+            C_LOCKED = range(16)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -56,14 +57,14 @@ class EpisodeListModel(gtk.ListStore):
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 
-    def __init__(self):
+    def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
-                gtk.gdk.Pixbuf, str, str, str, bool, bool, bool, \
-                int, int, str, bool, bool)
+                str, str, str, str, bool, bool, bool, \
+                int, int, str, bool, bool, bool)
 
-        # Update progress (if we're currently being updated)
-        self._update_progress = 0.
-        self._last_redraw_progress = 0.
+        # Callback for when the filter / list changes, gets one parameter
+        # (has_episodes) that is True if the list has any episodes
+        self._on_filter_changed = on_filter_changed
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -124,12 +125,6 @@ class EpisodeListModel(gtk.ListStore):
 
         return True
 
-    def get_update_progress(self):
-        return self._update_progress
-
-    def reset_update_progress(self):
-        self._update_progress = 0.
-
     def get_filtered_model(self):
         """Returns a filtered version of this episode model
 
@@ -139,6 +134,14 @@ class EpisodeListModel(gtk.ListStore):
         """
         return self._sorter
 
+    def has_episodes(self):
+        """Returns True if episodes are visible (filtered)
+
+        If episodes are visible with the current filter
+        applied, return True (otherwise return False).
+        """
+        return bool(len(self._filter))
+
     def set_view_mode(self, new_mode):
         """Sets a new view mode for this model
 
@@ -147,6 +150,7 @@ class EpisodeListModel(gtk.ListStore):
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_view_mode(self):
         """Returns the currently-set view mode"""
@@ -156,21 +160,25 @@ class EpisodeListModel(gtk.ListStore):
         if self._search_term != new_term:
             self._search_term = new_term
             self._filter.refilter()
+            self._on_filter_changed(self.has_episodes())
 
     def get_search_term(self):
         return self._search_term
 
     def _format_description(self, episode, include_description=False, is_downloading=None):
+        a, b = '', ''
+        if episode.state != gpodder.STATE_DELETED and not episode.is_played:
+            a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
                     _('from %s') % xml.sax.saxutils.escape(episode.channel.title))
         elif include_description:
-            return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(episode.title),
+            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
                     xml.sax.saxutils.escape(episode.one_line_description()))
         else:
-            return xml.sax.saxutils.escape(episode.title)
+            return ''.join((a, xml.sax.saxutils.escape(episode.title), b))
 
-    def add_from_channel(self, channel, downloading=None, \
+    def replace_from_channel(self, channel, downloading=None, \
             include_description=False, generate_thumbnails=False, \
             treeview=None):
         """
@@ -180,8 +188,9 @@ class EpisodeListModel(gtk.ListStore):
         is to be added to the episode row, or False if not)
         """
 
-        self._update_progress = 0.
-        self._last_redraw_progress = 0.
+        # Remove old episodes in the list store
+        self.clear()
+
         if treeview is not None:
             util.idle_add(treeview.queue_draw)
 
@@ -208,20 +217,13 @@ class EpisodeListModel(gtk.ListStore):
                     episode.pubDate, \
                     episode.get_play_info_string(), \
                     episode.total_time and not episode.current_position, \
-                    episode.total_time and episode.current_position))
+                    episode.total_time and episode.current_position, \
+                    episode.is_locked))
 
             self.update_by_iter(iter, downloading, include_description, \
                     generate_thumbnails, reload_from_db=False)
 
-            self._update_progress = float(position+1)/count
-            if treeview is not None and \
-                    (self._update_progress > self._last_redraw_progress + self._UI_UPDATE_STEP or position+1 == count):
-                def in_gtk_main_thread():
-                    treeview.queue_draw()
-                    while gtk.events_pending():
-                        gtk.main_iteration(False)
-                util.idle_add(in_gtk_main_thread)
-                self._last_redraw_progress = self._update_progress
+        self._on_filter_changed(self.has_episodes())
 
     def update_all(self, downloading=None, include_description=False, \
             generate_thumbnails=False):
@@ -354,10 +356,6 @@ class EpisodeListModel(gtk.ListStore):
 
         tooltip = ', '.join(tooltip)
 
-        if status_icon is not None:
-            status_icon = self._get_tree_icon(status_icon, show_bullet, \
-                    show_padlock, show_missing, icon_size, status_icon_to_build_from_file)
-
         description = self._format_description(episode, include_description, downloading)
         self.set(iter, \
                 self.C_STATUS_ICON, status_icon, \
@@ -367,8 +365,8 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_DESCRIPTION, description, \
                 self.C_TOOLTIP, tooltip, \
                 self.C_TIME, episode.get_play_info_string(), \
-                self.C_TIME1_VISIBLE, episode.total_time and not episode.current_position, \
-                self.C_TIME2_VISIBLE, episode.total_time and episode.current_position)
+                self.C_TIME_VISIBLE, episode.total_time, \
+                self.C_LOCKED, episode.is_locked)
 
     def _get_icon_from_image(self,image_path, icon_size):
         """
@@ -696,7 +694,7 @@ class PodcastListModel(gtk.ListStore):
         if channel.feed_update_enabled:
             description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         else:
-            description_markup = xml.sax.saxutils.escape(_('Subscription paused.'))
+            description_markup = xml.sax.saxutils.escape(_('Subscription paused'))
         d = []
         if new:
             d.append('<span weight="bold">')

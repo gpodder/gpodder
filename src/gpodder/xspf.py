@@ -19,7 +19,7 @@
 #
 
 # XSPF playlist parser module for gPodder
-# Thomas Perl <thpinfo.com>; 2010-08-07
+# Thomas Perl <thp@gpodder.org>; 2010-08-07
 
 
 # Currently, this is restricted to FM4 On Demand content, as the XSPF parser

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-05 19:58+0200\n"
-"PO-Revision-Date: 2010-10-06 00:43+0300\n"
+"POT-Creation-Date: 2010-11-22 21:51+0100\n"
+"PO-Revision-Date: 2010-11-23 00:34+0200\n"
 "Last-Translator: Ville-Pekka Vainio <vpivaini@cs.helsinki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "Language: fi\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.6.1\n"
 
-#: src/gpodder/config.py:253
+#: src/gpodder/config.py:251
 #, python-format
 msgid "gPodder on %s"
 msgstr "gPodder koneella %s"
 
-#: src/gpodder/config.py:320
+#: src/gpodder/config.py:318
 msgid "No description available."
 msgstr "Kuvausta ei ole saatavilla."
 
@@ -56,11 +56,11 @@ msgstr "Lisätty"
 msgid "Queued"
 msgstr "Jonossa"
 
-#: src/gpodder/download.py:521 src/gpodder/gtkui/model.py:270
+#: src/gpodder/download.py:521 src/gpodder/gtkui/model.py:272
 msgid "Downloading"
 msgstr "Ladataan"
 
-#: src/gpodder/download.py:522 src/gpodder/model.py:1231
+#: src/gpodder/download.py:522 src/gpodder/model.py:1209
 msgid "Finished"
 msgstr "Valmis"
 
@@ -76,101 +76,96 @@ msgstr "Peruttu"
 msgid "Paused"
 msgstr "Tauolla"
 
-#: src/gpodder/download.py:744
+#: src/gpodder/download.py:751
 msgid "Missing content from server"
 msgstr "Palvelimelta puuttuu sisältöä"
 
-#: src/gpodder/download.py:749
+#: src/gpodder/download.py:756
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
 msgstr "Siirräntävirhe: %(error)s: %(filename)s"
 
-#: src/gpodder/download.py:754
+#: src/gpodder/download.py:761
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP-virhe: %(code)s: %(message)s"
 
-#: src/gpodder/download.py:757
+#: src/gpodder/download.py:764
 #, python-format
 msgid "Error: %s"
 msgstr "Virhe: %s"
 
-#: src/gpodder/gui.py:210 src/gpodder/gui.py:1331 src/gpodder/gui.py:1347
+#: src/gpodder/gui.py:213 src/gpodder/gui.py:1376 src/gpodder/gui.py:1392
 #: data/ui/desktop/gpodder.ui.h:18 data/ui/maemo/gpodder.ui.h:16
 #: data/ui/frmntl/gpodderdownloads.ui.h:3 data/ui/frmntl/gpodder.ui.h:9
 msgid "Downloads"
 msgstr "Lataukset"
 
-#: src/gpodder/gui.py:211 src/gpodder/gui.py:1356
+#: src/gpodder/gui.py:214 src/gpodder/gui.py:1401
 msgid "Idle"
 msgstr "Jouten"
 
-#: src/gpodder/gui.py:220
+#: src/gpodder/gui.py:223
 msgid "Hint of the day"
 msgstr "Päivän vinkki"
 
-#: src/gpodder/gui.py:332 src/gpodder/gui.py:565
+#: src/gpodder/gui.py:335 src/gpodder/gui.py:573
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gui.py:489
+#: src/gpodder/gui.py:497
 msgid "Loading incomplete downloads"
 msgstr "Ladataan keskeneräiset lataukset"
 
-#: src/gpodder/gui.py:490
+#: src/gpodder/gui.py:498
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Joidenkin jaksojen lataaminen jäi kesken aiemmalla käyttökerralla."
 
-#: src/gpodder/gui.py:492
+#: src/gpodder/gui.py:500
 #, python-format
-msgid "%d partial file"
-msgid_plural "%d partial files"
-msgstr[0] "%d keskeneräinen tiedosto"
-msgstr[1] "%d keskeneräistä tiedostoa"
+msgid "%(count)d partial file"
+msgid_plural "%(count)d partial files"
+msgstr[0] "%(count)d keskeneräinen tiedosto"
+msgstr[1] "%(count)d keskeneräistä tiedostoa"
 
-#: src/gpodder/gui.py:525
+#: src/gpodder/gui.py:533
 msgid "Resume all"
 msgstr "Jatka kaikkien latausta"
 
-#: src/gpodder/gui.py:536
+#: src/gpodder/gui.py:544
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Löydettiin keskeneräisiä latauksia aiemmasta käyttökerrasta."
 
-#: src/gpodder/gui.py:660
+#: src/gpodder/gui.py:668
 msgid "Action"
 msgstr "Toiminto"
 
-#: src/gpodder/gui.py:704
+#: src/gpodder/gui.py:712
 msgid "Confirm changes from gpodder.net"
 msgstr "Vahvista muutokset gpodder.netistä"
 
-#: src/gpodder/gui.py:705
+#: src/gpodder/gui.py:713
 msgid "Select the actions you want to carry out."
 msgstr "Valitse toiminnot, jotka haluat suorittaa."
 
-#: src/gpodder/gui.py:742
+#: src/gpodder/gui.py:750
 msgid "Uploading subscriptions"
 msgstr "Ladataan tilaukset palvelimelle"
 
-#: src/gpodder/gui.py:743
+#: src/gpodder/gui.py:751
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "Tilauksia ladataan palvelimelle."
 
-#: src/gpodder/gui.py:748
+#: src/gpodder/gui.py:756
 msgid "List uploaded successfully."
 msgstr "Luettelon lähettäminen onnistui."
 
-#: src/gpodder/gui.py:755
+#: src/gpodder/gui.py:763
 msgid "Error while uploading"
 msgstr "Virhe lähetettäessä palvelimelle"
 
-#: src/gpodder/gui.py:1005 src/gpodder/gui.py:3167
-#: src/gpodder/gtkui/desktop/dependencymanager.py:36
-msgid "Status"
-msgstr "Tila"
-
-#: src/gpodder/gui.py:1010 src/gpodder/gui.py:1130 src/gpodder/gui.py:3160
-#: src/gpodder/gui.py:3164 src/gpodder/gui.py:3337 src/gpodder/gui.py:3342
+#: src/gpodder/gui.py:1039 src/gpodder/gui.py:1172 src/gpodder/gui.py:3225
+#: src/gpodder/gui.py:3229 src/gpodder/gui.py:3405 src/gpodder/gui.py:3410
 #: src/gpodder/gtkui/desktop/episodeselector.py:134
 #: src/gpodder/gtkui/desktop/sync.py:224
 #: src/gpodder/gtkui/maemo/episodeselector.py:133
@@ -178,147 +173,147 @@ msgstr "Tila"
 msgid "Episode"
 msgstr "Jakso"
 
-#: src/gpodder/gui.py:1044 src/gpodder/gui.py:3165 src/gpodder/gui.py:3343
+#: src/gpodder/gui.py:1089 src/gpodder/gui.py:3230 src/gpodder/gui.py:3411
 #: src/gpodder/gtkui/desktop/sync.py:226
 msgid "Size"
 msgstr "Koko"
 
-#: src/gpodder/gui.py:1048 src/gpodder/gui.py:3166 src/gpodder/gui.py:3344
+#: src/gpodder/gui.py:1093 src/gpodder/gui.py:3231 src/gpodder/gui.py:3412
 #: src/gpodder/gtkui/desktop/sync.py:229
 msgid "Released"
 msgstr "Julkaistu"
 
-#: src/gpodder/gui.py:1114 src/gpodder/gui.py:1763 src/gpodder/gui.py:2062
+#: src/gpodder/gui.py:1156 src/gpodder/gui.py:1808 src/gpodder/gui.py:2107
 msgid "Close this menu"
 msgstr "Sulje tämä valikko"
 
-#: src/gpodder/gui.py:1152
+#: src/gpodder/gui.py:1194
 msgid "Progress"
 msgstr "Edistyminen"
 
-#: src/gpodder/gui.py:1184
+#: src/gpodder/gui.py:1230 src/gpodder/gui.py:2542
 msgid "Loading episodes"
 msgstr "Ladataan jaksoja"
 
-#: src/gpodder/gui.py:1188
+#: src/gpodder/gui.py:1233 src/gpodder/gui.py:2526
 msgid "No episodes in current view"
 msgstr "Nykyisessä näkymässä ei ole yhtään jaksoa"
 
-#: src/gpodder/gui.py:1190
+#: src/gpodder/gui.py:1235 src/gpodder/gui.py:2528
 msgid "No episodes available"
 msgstr "Yhtään jaksoa ei ole saatavilla"
 
-#: src/gpodder/gui.py:1196
+#: src/gpodder/gui.py:1241
 msgid "No podcasts in this view"
 msgstr "Tässä näkymässä ei ole yhtään podcastia"
 
-#: src/gpodder/gui.py:1198
+#: src/gpodder/gui.py:1243
 msgid "No subscriptions"
 msgstr "Ei tilauksia"
 
-#: src/gpodder/gui.py:1200
+#: src/gpodder/gui.py:1245
 msgid "No active downloads"
 msgstr "Ei aktiivisia latauksia"
 
-#: src/gpodder/gui.py:1335 src/gpodder/gui.py:1350
+#: src/gpodder/gui.py:1380 src/gpodder/gui.py:1395
 #, python-format
-msgid "%d active"
-msgid_plural "%d active"
-msgstr[0] "%d aktiivinen"
-msgstr[1] "%d aktiivista"
+msgid "%(count)d active"
+msgid_plural "%(count)d active"
+msgstr[0] "%(count)d aktiivinen"
+msgstr[1] "%(count)d aktiivista"
 
-#: src/gpodder/gui.py:1337 src/gpodder/gui.py:1352
+#: src/gpodder/gui.py:1382 src/gpodder/gui.py:1397
 #, python-format
-msgid "%d failed"
-msgid_plural "%d failed"
-msgstr[0] "%d epäonnistunut"
-msgstr[1] "%d epäonnistunutta"
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
+msgstr[0] "%(count)d epäonnistunut"
+msgstr[1] "%(count)d epäonnistunutta"
 
-#: src/gpodder/gui.py:1339
+#: src/gpodder/gui.py:1384
 #, python-format
-msgid "%d queued"
-msgid_plural "%d queued"
-msgstr[0] "%d jonossa"
-msgstr[1] "%d jonossa"
+msgid "%(count)d queued"
+msgid_plural "%(count)d queued"
+msgstr[0] "%(count)d jonossa"
+msgstr[1] "%(count)d jonossa"
 
-#: src/gpodder/gui.py:1345
+#: src/gpodder/gui.py:1390
 #, python-format
 msgid "Downloads (%d)"
 msgstr "Lataukset (%d)"
 
-#: src/gpodder/gui.py:1354
+#: src/gpodder/gui.py:1399
 #, python-format
-msgid "%d paused"
-msgid_plural "%d paused"
-msgstr[0] "%d tauolla"
-msgstr[1] "%d tauolla"
+msgid "%(count)d paused"
+msgid_plural "%(count)d paused"
+msgstr[0] "%(count)d tauolla"
+msgstr[1] "%(count)d tauolla"
 
-#: src/gpodder/gui.py:1371
+#: src/gpodder/gui.py:1416
 #, python-format
-msgid "downloading %d file"
-msgid_plural "downloading %d files"
-msgstr[0] "ladataan %d tiedosto"
-msgstr[1] "ladataan %d tiedostoa"
+msgid "downloading %(count)d file"
+msgid_plural "downloading %(count)d files"
+msgstr[0] "ladataan %(count)d tiedosto"
+msgstr[1] "ladataan %(count)d tiedostoa"
 
-#: src/gpodder/gui.py:1390
+#: src/gpodder/gui.py:1435
 msgid "All downloads finished"
 msgstr "Kaikki lataukset ovat valmiita"
 
-#: src/gpodder/gui.py:1398 src/gpodder/gui.py:1630
+#: src/gpodder/gui.py:1443 src/gpodder/gui.py:1675
 msgid "Downloads failed"
 msgstr "Lataukset epäonnistuivat"
 
-#: src/gpodder/gui.py:1423
+#: src/gpodder/gui.py:1468
 msgid "Please report this problem and restart gPodder:"
 msgstr "Tee ilmoitus tästä ongelmasta ja käynnistä gPodder uudelleen:"
 
-#: src/gpodder/gui.py:1423
+#: src/gpodder/gui.py:1468
 msgid "Unhandled exception"
 msgstr "Käsittelemätön poikkeus"
 
-#: src/gpodder/gui.py:1501
+#: src/gpodder/gui.py:1546
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Syötejäsentimen virhe: %s"
 
-#: src/gpodder/gui.py:1515
+#: src/gpodder/gui.py:1560
 msgid "disk usage"
 msgstr "levytilan käyttö"
 
-#: src/gpodder/gui.py:1550
+#: src/gpodder/gui.py:1595
 msgid "Updated M3U playlist in download folder."
 msgstr "Lataushakemiston M3U-soittolista on päivitetty."
 
-#: src/gpodder/gui.py:1550
+#: src/gpodder/gui.py:1595
 msgid "Updated playlist"
 msgstr "Soittolista päivitetty"
 
-#: src/gpodder/gui.py:1622
+#: src/gpodder/gui.py:1667
 msgid "These downloads failed:"
 msgstr "Nämä lataukset epäonnistuivat:"
 
-#: src/gpodder/gui.py:1624 src/gpodder/gui.py:1627
+#: src/gpodder/gui.py:1669 src/gpodder/gui.py:1672
 msgid "Downloads finished"
 msgstr "Lataukset ovat valmiita"
 
-#: src/gpodder/gui.py:1667
+#: src/gpodder/gui.py:1712
 #, python-format
-msgid "%d more episode"
-msgid_plural "%d more episodes"
-msgstr[0] "%d toinen jakso"
-msgstr[1] "%d muuta jaksoa"
+msgid "%(count)d more episode"
+msgid_plural "%(count)d more episodes"
+msgstr[0] "%(count)d toinen jakso"
+msgstr[1] "%(count)d muuta jaksoa"
 
-#: src/gpodder/gui.py:1740 src/gpodder/gui.py:2053
+#: src/gpodder/gui.py:1785 src/gpodder/gui.py:2098
 #: data/ui/desktop/gpoddershownotes.ui.h:2 data/ui/desktop/gpodder.ui.h:20
 #: data/ui/maemo/gpodder.ui.h:18
 msgid "Episode details"
 msgstr "Jakson tiedot"
 
-#: src/gpodder/gui.py:1751
+#: src/gpodder/gui.py:1796
 msgid "Start download now"
 msgstr "Aloita lataaminen nyt"
 
-#: src/gpodder/gui.py:1753 src/gpodder/gui.py:1982
+#: src/gpodder/gui.py:1798 src/gpodder/gui.py:2027
 #: src/gpodder/gtkui/desktop/episodeselector.py:147
 #: src/gpodder/gtkui/maemo/episodeselector.py:149
 #: src/gpodder/gtkui/frmntl/episodeselector.py:153
@@ -329,264 +324,264 @@ msgstr "Aloita lataaminen nyt"
 msgid "Download"
 msgstr "Lataa"
 
-#: src/gpodder/gui.py:1754 data/ui/desktop/gpodder.ui.h:4
+#: src/gpodder/gui.py:1799 data/ui/desktop/gpodder.ui.h:4
 #: data/ui/maemo/gpodder.ui.h:4
 msgid "Cancel"
 msgstr "Peru"
 
-#: src/gpodder/gui.py:1755
+#: src/gpodder/gui.py:1800
 msgid "Pause"
 msgstr "Tauko"
 
-#: src/gpodder/gui.py:1757
+#: src/gpodder/gui.py:1802
 msgid "Remove from list"
 msgstr "Poista luettelosta"
 
-#: src/gpodder/gui.py:1788 data/ui/desktop/gpodder.ui.h:47
+#: src/gpodder/gui.py:1833 data/ui/desktop/gpodder.ui.h:47
 #: data/ui/maemo/gpodder.ui.h:42 data/ui/frmntl/gpodder.ui.h:20
 msgid "Update podcast"
 msgstr "Päivitä podcast"
 
-#: src/gpodder/gui.py:1796
+#: src/gpodder/gui.py:1841
 msgid "Keep episodes"
 msgstr "Säilytä jaksot"
 
-#: src/gpodder/gui.py:1801
+#: src/gpodder/gui.py:1846
 msgid "Remove podcast"
 msgstr "Poista podcast"
 
-#: src/gpodder/gui.py:1807 src/gpodder/gtkui/desktop/trayicon.py:95
+#: src/gpodder/gui.py:1852 src/gpodder/gtkui/desktop/trayicon.py:95
 msgid "Synchronize to device"
 msgstr "Synkronoi laitteelle"
 
-#: src/gpodder/gui.py:1813
+#: src/gpodder/gui.py:1858
 msgid "Podcast details"
 msgstr "Podcastin yksityiskohdat"
 
-#: src/gpodder/gui.py:1886
+#: src/gpodder/gui.py:1931
 msgid "Error converting file."
 msgstr "Virhe tiedoston muuntamisessa."
 
-#: src/gpodder/gui.py:1886 src/gpodder/services.py:115
+#: src/gpodder/gui.py:1931 src/gpodder/services.py:115
 msgid "Bluetooth file transfer"
 msgstr "Bluetooth-tiedostonsiirto"
 
-#: src/gpodder/gui.py:1894 src/gpodder/gtkui/desktop/preferences.py:77
+#: src/gpodder/gui.py:1939 src/gpodder/gtkui/desktop/preferences.py:77
 msgid "iPod"
 msgstr "iPod"
 
-#: src/gpodder/gui.py:1896
+#: src/gpodder/gui.py:1941
 msgid "MP3 player"
 msgstr "MP3-soitin"
 
-#: src/gpodder/gui.py:1974 src/gpodder/gtkui/frmntl/episodeactions.py:136
+#: src/gpodder/gui.py:2019 src/gpodder/gtkui/frmntl/episodeactions.py:136
 msgid "Stream"
 msgstr "Virta"
 
-#: src/gpodder/gui.py:2002
+#: src/gpodder/gui.py:2047
 msgid "Send to"
 msgstr "Lähetä"
 
-#: src/gpodder/gui.py:2006
+#: src/gpodder/gui.py:2051
 msgid "Local folder"
 msgstr "Paikalliseen kansioon"
 
-#: src/gpodder/gui.py:2011
+#: src/gpodder/gui.py:2056
 msgid "Bluetooth device"
 msgstr "﻿Bluetooth-laitteelle"
 
-#: src/gpodder/gui.py:2030 src/gpodder/gui.py:2035
+#: src/gpodder/gui.py:2075 src/gpodder/gui.py:2080
 #: data/ui/frmntl/gpodderepisodes.ui.h:7
 msgid "New"
 msgstr "Uusi"
 
-#: src/gpodder/gui.py:2041 src/gpodder/gtkui/frmntl/episodeactions.py:191
+#: src/gpodder/gui.py:2086 src/gpodder/gtkui/frmntl/episodeactions.py:191
 msgid "Played"
 msgstr "Soitettu"
 
-#: src/gpodder/gui.py:2046 src/gpodder/gtkui/frmntl/episodeactions.py:186
+#: src/gpodder/gui.py:2091 src/gpodder/gtkui/frmntl/episodeactions.py:186
 msgid "Keep episode"
 msgstr "Säilytä jakso"
 
-#: src/gpodder/gui.py:2268
+#: src/gpodder/gui.py:2313
 #, python-format
 msgid "Opening %s"
 msgstr "Avataan %s"
 
-#: src/gpodder/gui.py:2271
+#: src/gpodder/gui.py:2316
 #, python-format
-msgid "Opening %d episode"
-msgid_plural "Opening %d episodes"
-msgstr[0] "Avataan %d jakso"
-msgstr[1] "Avataan %d jaksoa"
+msgid "Opening %(count)d episode"
+msgid_plural "Opening %(count)d episodes"
+msgstr[0] "Avataan %(count)d jakso"
+msgstr[1] "Avataan %(count)d jaksoa"
 
-#: src/gpodder/gui.py:2302 src/gpodder/gui.py:2305 src/gpodder/gui.py:3901
+#: src/gpodder/gui.py:2347 src/gpodder/gui.py:2350 src/gpodder/gui.py:3983
 msgid "Please check your media player settings in the preferences dialog."
 msgstr "Tarkista mediasoitinasetukset asetusikkunasta."
 
-#: src/gpodder/gui.py:2303
+#: src/gpodder/gui.py:2348
 msgid "Error opening player"
 msgstr "Virhe soittimen avaamisessa"
 
-#: src/gpodder/gui.py:2542
+#: src/gpodder/gui.py:2606
 msgid "Adding podcasts"
 msgstr "Lisätään podcasteja"
 
-#: src/gpodder/gui.py:2543
+#: src/gpodder/gui.py:2607
 msgid "Please wait while episode information is downloaded."
-msgstr "Odota, jaksotietoja ladataan"
+msgstr "Odota, jaksotietoja ladataan."
 
-#: src/gpodder/gui.py:2550
+#: src/gpodder/gui.py:2614
 msgid "Existing subscriptions skipped"
 msgstr "Nykyiset tilaukset ohitettiin"
 
-#: src/gpodder/gui.py:2551
+#: src/gpodder/gui.py:2615
 msgid "You are already subscribed to these podcasts:"
 msgstr "Nämä podcastit on jo tilattu:"
 
-#: src/gpodder/gui.py:2559
+#: src/gpodder/gui.py:2623
 msgid "Podcast requires authentication"
 msgstr "Podcast vaatii tunnistautumisen"
 
-#: src/gpodder/gui.py:2560
+#: src/gpodder/gui.py:2624
 #, python-format
 msgid "Please login to %s:"
 msgstr "Kirjaudu kohteeseen %s:"
 
-#: src/gpodder/gui.py:2568 src/gpodder/gui.py:2659
+#: src/gpodder/gui.py:2632 src/gpodder/gui.py:2723
 msgid "Authentication failed"
 msgstr "Tunnistautuminen epäonnistui"
 
-#: src/gpodder/gui.py:2578
+#: src/gpodder/gui.py:2642
 msgid "Website redirection detected"
 msgstr "Verkkosivun uudelleenohjaus on tunnistettu"
 
-#: src/gpodder/gui.py:2579
+#: src/gpodder/gui.py:2643
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "URL %(url)s ohjaa kohteeseen %(target)s."
 
-#: src/gpodder/gui.py:2580
+#: src/gpodder/gui.py:2644
 msgid "Do you want to visit the website now?"
 msgstr "Haluatko vierailla verkkosivulla nyt?"
 
-#: src/gpodder/gui.py:2589
+#: src/gpodder/gui.py:2653
 msgid "Could not add some podcasts"
 msgstr "Joitakin podcasteja ei voitu lisätä"
 
-#: src/gpodder/gui.py:2590
+#: src/gpodder/gui.py:2654
 msgid "Some podcasts could not be added to your list:"
 msgstr "Joitakin podcasteja ei voitu lisätä luetteloon:"
 
-#: src/gpodder/gui.py:2592
+#: src/gpodder/gui.py:2656
 msgid "Unknown"
 msgstr "Tuntematon"
 
-#: src/gpodder/gui.py:2668
+#: src/gpodder/gui.py:2732
 msgid "Redirection detected"
 msgstr "Uudelleenohjaus tunnistettiin"
 
-#: src/gpodder/gui.py:2708
+#: src/gpodder/gui.py:2772
 msgid "Merging episode actions"
 msgstr "Yhdistetään jaksotoimintoja"
 
-#: src/gpodder/gui.py:2709
+#: src/gpodder/gui.py:2773
 msgid "Episode actions from gpodder.net are merged."
-msgstr "Jaksotoiminnot on yhdistetty gpodder.netistä"
+msgstr "Jaksotoimintoja yhdistetään gpodder.netistä."
 
-#: src/gpodder/gui.py:2742
+#: src/gpodder/gui.py:2807
 #, python-format
-msgid "%d action processed"
-msgid_plural "%d actions processed"
-msgstr[0] "%d toiminto käsitelty"
-msgstr[1] "%d toimintoa käsitelty"
+msgid "%(count)d action processed"
+msgid_plural "%(count)d actions processed"
+msgstr[0] "%(count)d toiminto käsitelty"
+msgstr[1] "%(count)d toimintoa käsitelty"
 
-#: src/gpodder/gui.py:2787
+#: src/gpodder/gui.py:2852
 msgid "New episodes are available."
 msgstr "Uusia jaksoja on saatavilla."
 
-#: src/gpodder/gui.py:2790 src/gpodder/gui.py:2848
+#: src/gpodder/gui.py:2855 src/gpodder/gui.py:2914
 #, python-format
-msgid "Downloading %d new episode."
-msgid_plural "Downloading %d new episodes."
-msgstr[0] "Ladataan %d uusi jakso."
-msgstr[1] "Ladataan %d uutta jaksoa."
+msgid "Downloading %(count)d new episode."
+msgid_plural "Downloading %(count)d new episodes."
+msgstr[0] "Ladataan %(count)d uusi jakso."
+msgstr[1] "Ladataan %(count)d uutta jaksoa."
 
-#: src/gpodder/gui.py:2794
+#: src/gpodder/gui.py:2859
 msgid "New episodes have been added to the download list."
 msgstr "Uusia jaksoja on lisätty latausluetteloon."
 
-#: src/gpodder/gui.py:2803 src/gpodder/gui.py:2849 src/gpodder/gui.py:2854
-#: src/gpodder/gui.py:3363
+#: src/gpodder/gui.py:2868 src/gpodder/gui.py:2915 src/gpodder/gui.py:2920
+#: src/gpodder/gui.py:3431
 msgid "New episodes available"
 msgstr "Uusia jaksoja on saatavilla"
 
-#: src/gpodder/gui.py:2819
+#: src/gpodder/gui.py:2884
 msgid "No new episodes. Please check for new episodes later."
 msgstr "Ei uusia jaksoja. Etsi uusia jaksoja myöhemmin."
 
-#: src/gpodder/gui.py:2831
+#: src/gpodder/gui.py:2896
 msgid "No new episodes"
 msgstr "Ei uusia jaksoja"
 
-#: src/gpodder/gui.py:2853
+#: src/gpodder/gui.py:2919
 #, python-format
-msgid "%d new episode added to download list."
-msgid_plural "%d new episodes added to download list."
-msgstr[0] "%d uusi jakso on lisätty latausluetteloon."
-msgstr[1] "%d uutta jaksoa on lisätty latausluetteloon."
+msgid "%(count)d new episode added to download list."
+msgid_plural "%(count)d new episodes added to download list."
+msgstr[0] "%(count)d uusi jakso on lisätty latausluetteloon."
+msgstr[1] "%(count)d uutta jaksoa on lisätty latausluetteloon."
 
-#: src/gpodder/gui.py:2862
+#: src/gpodder/gui.py:2928
 #, python-format
-msgid "%d new episode available"
-msgid_plural "%d new episodes available"
-msgstr[0] "%d uusi jakso on saatavilla"
-msgstr[1] "%d uutta jaksoa on saatavilla"
+msgid "%(count)d new episode available"
+msgid_plural "%(count)d new episodes available"
+msgstr[0] "%(count)d uusi jakso on saatavilla"
+msgstr[1] "%(count)d uutta jaksoa on saatavilla"
 
-#: src/gpodder/gui.py:2881
+#: src/gpodder/gui.py:2947
 #, python-format
 msgid "Error while updating %(url)s: %(message)s"
 msgstr "Virhe päivitettäessä %(url)s: %(message)s"
 
-#: src/gpodder/gui.py:2883
+#: src/gpodder/gui.py:2949
 #, python-format
 msgid "The feed at %(url)s could not be updated."
 msgstr "Osoitteessa %(url)s olevaa syötettä ei voitu päivittää."
 
-#: src/gpodder/gui.py:2884
+#: src/gpodder/gui.py:2950
 msgid "Error while updating feed"
 msgstr "Virhe päivitettäessä syötettä"
 
-#: src/gpodder/gui.py:2894
+#: src/gpodder/gui.py:2960
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "Päivitettiin %(podcast)s (%(position)d/%(total)d)"
 
-#: src/gpodder/gui.py:2923
+#: src/gpodder/gui.py:2989
 msgid "Cancelling..."
 msgstr "Perutaan..."
 
-#: src/gpodder/gui.py:2979
+#: src/gpodder/gui.py:3045
 #, python-format
 msgid "Updating \"%s\"..."
 msgstr "Päivitetään jaksoa ”%s”..."
 
-#: src/gpodder/gui.py:2982
+#: src/gpodder/gui.py:3048
 #, python-format
-msgid "Updating %d feed..."
-msgid_plural "Updating %d feeds..."
-msgstr[0] "Päivitetään %d syöte..."
-msgstr[1] "Päivitetään %d syötettä..."
+msgid "Updating %(count)d feed..."
+msgid_plural "Updating %(count)d feeds..."
+msgstr[0] "Päivitetään %(count)d syöte..."
+msgstr[1] "Päivitetään %(count)d syötettä..."
 
-#: src/gpodder/gui.py:3004 src/gpodder/gui.py:3017
+#: src/gpodder/gui.py:3070
 msgid "Do you really want to quit gPodder now?"
 msgstr "Haluatko lopettaa gPodderin nyt?"
 
-#: src/gpodder/gui.py:3013
+#: src/gpodder/gui.py:3079
 msgid "Quit gPodder"
 msgstr "Lopeta gPodder"
 
-#: src/gpodder/gui.py:3015
+#: src/gpodder/gui.py:3080
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -594,23 +589,19 @@ msgstr ""
 "Jaksojen lataaminen on kesken. Lataamista voidaan jatkaa, kun gPodder "
 "käynnistetään seuraavan kerran. Haluatko lopettaa nyt?"
 
-#: src/gpodder/gui.py:3022
-msgid "Don't ask me again"
-msgstr "Älä kysy uudestaan"
-
-#: src/gpodder/gui.py:3046
+#: src/gpodder/gui.py:3103
 msgid "Please check your permissions and free disk space."
 msgstr "Tarkista oikeutesi ja vapaa levytila."
 
-#: src/gpodder/gui.py:3046
+#: src/gpodder/gui.py:3103
 msgid "Error saving podcast list"
 msgstr "Virhe podcast-luettelon tallentamisessa"
 
-#: src/gpodder/gui.py:3095
+#: src/gpodder/gui.py:3152
 msgid "Episodes are locked"
 msgstr "Jaksot on lukittu"
 
-#: src/gpodder/gui.py:3096
+#: src/gpodder/gui.py:3153
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -618,168 +609,172 @@ msgstr ""
 "Valitut jaksot on lukittu eikä niitä voi poistaa ennen kuin lukitukset "
 "poistetaan."
 
-#: src/gpodder/gui.py:3101
+#: src/gpodder/gui.py:3158
 #, python-format
-msgid "Delete %d episode?"
-msgid_plural "Delete %d episodes?"
-msgstr[0] "Poistetaanko %d jakso?"
-msgstr[1] "Poistetaanko %d jaksoa?"
+msgid "Delete %(count)d episode?"
+msgid_plural "Delete %(count)d episodes?"
+msgstr[0] "Poistetaanko %(count)d jakso?"
+msgstr[1] "Poistetaanko %(count)d jaksoa?"
 
-#: src/gpodder/gui.py:3102
+#: src/gpodder/gui.py:3159
 msgid "Deleting episodes removes downloaded files."
 msgstr "Valitse laitteelta poistettavat jaksot."
 
-#: src/gpodder/gui.py:3110
+#: src/gpodder/gui.py:3167
 msgid "Deleting episodes"
 msgstr "Poistetaan jaksoja"
 
-#: src/gpodder/gui.py:3111
+#: src/gpodder/gui.py:3168
 msgid "Please wait while episodes are deleted"
 msgstr "Odota, jaksot poistetaan"
 
-#: src/gpodder/gui.py:3168
+#: src/gpodder/gui.py:3232 src/gpodder/gtkui/desktop/dependencymanager.py:36
+msgid "Status"
+msgstr "Tila"
+
+#: src/gpodder/gui.py:3233
 msgid "Downloaded"
 msgstr "Ladattu"
 
-#: src/gpodder/gui.py:3171
+#: src/gpodder/gui.py:3236
 #, python-format
-msgid "Select older than %d day"
-msgid_plural "Select older than %d days"
-msgstr[0] "Valitse %d päivää vanhemmat"
-msgstr[1] "Valitse %d päivää vanhemmat"
+msgid "Select older than %(count)d day"
+msgid_plural "Select older than %(count)d days"
+msgstr[0] "Valitse %(count)d päivää vanhemmat"
+msgstr[1] "Valitse %(count)d päivää vanhemmat"
 
-#: src/gpodder/gui.py:3173
+#: src/gpodder/gui.py:3238
 msgid "Select played"
 msgstr "Valitse soitetut"
 
-#: src/gpodder/gui.py:3174
+#: src/gpodder/gui.py:3239
 msgid "Select finished"
 msgstr "Valitse valmiit"
 
-#: src/gpodder/gui.py:3178
+#: src/gpodder/gui.py:3243
 msgid "Select the episodes you want to delete:"
 msgstr "Valitse jaksot, jotka haluat poistaa:"
 
-#: src/gpodder/gui.py:3191 data/ui/desktop/gpodder.ui.h:12
+#: src/gpodder/gui.py:3259 data/ui/desktop/gpodder.ui.h:12
 #: data/ui/maemo/gpodder.ui.h:10 data/ui/frmntl/gpodderepisodes.ui.h:3
 #: data/ui/frmntl/gpodder.ui.h:5
 msgid "Delete episodes"
 msgstr "Poista jaksot"
 
-#: src/gpodder/gui.py:3247 src/gpodder/gui.py:3538 src/gpodder/gui.py:3643
+#: src/gpodder/gui.py:3315 src/gpodder/gui.py:3620 src/gpodder/gui.py:3725
 msgid "No podcast selected"
 msgstr "Mitään podcastia ei ole valittu"
 
-#: src/gpodder/gui.py:3248
+#: src/gpodder/gui.py:3316
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Valitse päivitettävä podcast luettelosta."
 
-#: src/gpodder/gui.py:3296
+#: src/gpodder/gui.py:3364
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Virhe ladattaessa jaksoa %(episode)s: %(message)s"
 
-#: src/gpodder/gui.py:3297
+#: src/gpodder/gui.py:3365
 msgid "Download error"
 msgstr "Latausvirhe"
 
-#: src/gpodder/gui.py:3348
+#: src/gpodder/gui.py:3416
 msgid "Select the episodes you want to download:"
 msgstr "Valitse ladattavat jaksot:"
 
-#: src/gpodder/gui.py:3371
+#: src/gpodder/gui.py:3439
 msgid "Mark as old"
 msgstr "Merkitse vanhaksi"
 
-#: src/gpodder/gui.py:3379
+#: src/gpodder/gui.py:3447
 msgid "Please check for new episodes later."
 msgstr "Etsi uusia jaksoja myöhemmin."
 
-#: src/gpodder/gui.py:3380
+#: src/gpodder/gui.py:3448
 msgid "No new episodes available"
 msgstr "Uusia jaksoja ei ole saatavilla"
 
-#: src/gpodder/gui.py:3499
+#: src/gpodder/gui.py:3581
 msgid "Login to gpodder.net"
 msgstr "Kirjaudu gpodder.net-osoitteeseen"
 
-#: src/gpodder/gui.py:3500
+#: src/gpodder/gui.py:3582
 msgid "Please login to download your subscriptions."
-msgstr "Kirjaudu tilauksien lataamiseksi"
+msgstr "Kirjaudu tilauksien lataamiseksi."
 
-#: src/gpodder/gui.py:3510
+#: src/gpodder/gui.py:3592
 msgid "Subscriptions on gpodder.net"
 msgstr "gpodder.net-palvelun tilaukset"
 
-#: src/gpodder/gui.py:3539
+#: src/gpodder/gui.py:3621
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Valitse muokattava jakso podcast-luettelosta."
 
-#: src/gpodder/gui.py:3551 src/gpodder/gtkui/desktop/podcastdirectory.py:68
+#: src/gpodder/gui.py:3633 src/gpodder/gtkui/desktop/podcastdirectory.py:69
 #: src/gpodder/gtkui/desktop/sync.py:225
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gui.py:3557 data/ui/desktop/gpodder.ui.h:37
+#: src/gpodder/gui.py:3639 data/ui/desktop/gpodder.ui.h:37
 #: data/ui/maemo/gpodder.ui.h:34 data/ui/frmntl/gpodder.ui.h:14
 msgid "Remove podcasts"
 msgstr "Poista podcasteja"
 
-#: src/gpodder/gui.py:3558
+#: src/gpodder/gui.py:3640
 msgid "Select the podcast you want to remove."
 msgstr "Valitse podcastit, jotka haluat poistaa."
 
-#: src/gpodder/gui.py:3562 src/gpodder/gtkui/desktop/episodeselector.py:107
+#: src/gpodder/gui.py:3644 src/gpodder/gtkui/desktop/episodeselector.py:107
 #: src/gpodder/gtkui/maemo/episodeselector.py:106
 #: src/gpodder/gtkui/frmntl/episodeselector.py:110
 msgid "Remove"
 msgstr "Poista"
 
-#: src/gpodder/gui.py:3572
+#: src/gpodder/gui.py:3654
 msgid "Removing podcast"
 msgstr "Poistetaan podcast"
 
-#: src/gpodder/gui.py:3573
+#: src/gpodder/gui.py:3655
 msgid "Please wait while the podcast is removed"
 msgstr "Odota, podcastia poistetaan"
 
-#: src/gpodder/gui.py:3574
+#: src/gpodder/gui.py:3656
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "Haluatko poistaa tämän podcastin ja sen jaksot?"
 
-#: src/gpodder/gui.py:3576
+#: src/gpodder/gui.py:3658
 msgid "Removing podcasts"
 msgstr "Poistetaan podcasteja"
 
-#: src/gpodder/gui.py:3577
+#: src/gpodder/gui.py:3659
 msgid "Please wait while the podcasts are removed"
 msgstr "Odota, podcasteja poistetaan"
 
-#: src/gpodder/gui.py:3578
+#: src/gpodder/gui.py:3660
 msgid "Do you really want to remove the selected podcasts and their episodes?"
 msgstr "Haluatko poistaa valitut podcastit ja niiden jaksot?"
 
-#: src/gpodder/gui.py:3644
+#: src/gpodder/gui.py:3726
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Valitse poistettava podcast luettelosta."
 
-#: src/gpodder/gui.py:3654
+#: src/gpodder/gui.py:3736
 msgid "OPML files"
 msgstr "OPML-tiedostot"
 
-#: src/gpodder/gui.py:3661
+#: src/gpodder/gui.py:3742
 msgid "Import from OPML"
 msgstr "Tuo OPML-tiedostosta"
 
-#: src/gpodder/gui.py:3675
+#: src/gpodder/gui.py:3757
 msgid "Import podcasts from OPML file"
 msgstr "Tuo podcastit OPML-tiedostosta"
 
-#: src/gpodder/gui.py:3682
+#: src/gpodder/gui.py:3764
 msgid "Nothing to export"
 msgstr "Ei mitään vietävää"
 
-#: src/gpodder/gui.py:3683
+#: src/gpodder/gui.py:3765
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -787,127 +782,127 @@ msgstr ""
 "Podcast-tilauksien luettelo on tyhjä. Tilaa joitakin podcasteja ennen kuin "
 "yrität viedä tilausluetteloa."
 
-#: src/gpodder/gui.py:3689
+#: src/gpodder/gui.py:3771
 msgid "Export to OPML"
 msgstr "Vie OPML:ksi"
 
-#: src/gpodder/gui.py:3702
+#: src/gpodder/gui.py:3784
 #, python-format
-msgid "%d subscription exported"
-msgid_plural "%d subscriptions exported"
-msgstr[0] "%d tilaus vietiin"
-msgstr[1] "%d tilausta vietiin"
+msgid "%(count)d subscription exported"
+msgid_plural "%(count)d subscriptions exported"
+msgstr[0] "Vietiin %(count)d tilaus"
+msgstr[1] "Vietiin %(count)d tilausta"
 
-#: src/gpodder/gui.py:3703
+#: src/gpodder/gui.py:3785
 msgid "Your podcast list has been successfully exported."
 msgstr "Podcast-luettelon vienti onnistui."
 
-#: src/gpodder/gui.py:3705
+#: src/gpodder/gui.py:3787
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "Ei voitu viedä OPML-tiedostoksi. Tarkista tiedosto-oikeudet."
 
-#: src/gpodder/gui.py:3705
+#: src/gpodder/gui.py:3787
 msgid "OPML export failed"
 msgstr "OPML-vienti epäonnistui"
 
-#: src/gpodder/gui.py:3745 src/gpodder/gui.py:3757
+#: src/gpodder/gui.py:3827 src/gpodder/gui.py:3839
 msgid "A podcast client with focus on usability"
 msgstr ""
 "Podcast-asiakasohjelma, jonka kehityksessä on keskitytty käytettävyyteen"
 
-#: src/gpodder/gui.py:3759
+#: src/gpodder/gui.py:3841
 msgid "translator-credits"
 msgstr "Ville-Pekka Vainio, 2009-2010"
 
-#: src/gpodder/gui.py:3766
+#: src/gpodder/gui.py:3848
 msgid "Maintainer:"
 msgstr "Ylläpitäjä:"
 
-#: src/gpodder/gui.py:3772
+#: src/gpodder/gui.py:3854
 msgid "Patches, bug reports and donations by:"
 msgstr "Korjauksia, vikailmoituksia ja lahjoituksia ovat tehneet:"
 
-#: src/gpodder/gui.py:3870
+#: src/gpodder/gui.py:3952
 msgid "Please select an episode from the episode list to display shownotes."
 msgstr "Valitse luettelosta jakso, jonka jaksotiedot näytetään."
 
-#: src/gpodder/gui.py:3870
+#: src/gpodder/gui.py:3952
 msgid "No episode selected"
 msgstr "Mitään jaksoa ei ole valittu"
 
-#: src/gpodder/gui.py:3901
+#: src/gpodder/gui.py:3983
 msgid "Unable to stream episode"
 msgstr "Jaksoa ei voi suoratoistaa"
 
-#: src/gpodder/gui.py:4052 src/gpodder/gtkui/desktop/trayicon.py:83
+#: src/gpodder/gui.py:4134 src/gpodder/gtkui/desktop/trayicon.py:83
 #: data/ui/desktop/gpodder.ui.h:8 data/ui/maemo/gpodder.ui.h:7
 #: data/ui/frmntl/gpodderepisodes.ui.h:1
 #: data/ui/frmntl/gpodderpreferences.ui.h:1 data/ui/frmntl/gpodder.ui.h:4
 msgid "Check for new episodes"
 msgstr "Etsi uusia jaksoja"
 
-#: src/gpodder/gui.py:4055
+#: src/gpodder/gui.py:4137
 #, python-format
 msgid "Podcasts (%d)"
 msgstr "Podcastit (%d)"
 
-#: src/gpodder/gui.py:4060 data/ui/desktop/gpodder.ui.h:34
+#: src/gpodder/gui.py:4142 data/ui/desktop/gpodder.ui.h:34
 #: data/ui/maemo/gpodder.ui.h:31
 msgid "Podcasts"
 msgstr "Podcastit"
 
-#: src/gpodder/gui.py:4115
+#: src/gpodder/gui.py:4197
 msgid "Cannot start gPodder"
 msgstr "gPodderia ei voi käynnistää"
 
-#: src/gpodder/gui.py:4116
+#: src/gpodder/gui.py:4198
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "D-Bus-virhe: %s"
 
-#: src/gpodder/model.py:157
+#: src/gpodder/model.py:156
 msgid "No downloadable episodes in feed"
 msgstr "Syötteessä ei ole yhtään ladattavaa jaksoa"
 
-#: src/gpodder/model.py:915
+#: src/gpodder/model.py:888
 #, python-format
 msgid "released %s"
 msgstr "julkaistu %s"
 
-#: src/gpodder/model.py:916 src/gpodder/model.py:934
-#: src/gpodder/gtkui/model.py:166 src/gpodder/gtkui/frmntl/model.py:79
-#: src/gpodder/gtkui/frmntl/model.py:83 src/gpodder/gtkui/frmntl/model.py:94
+#: src/gpodder/model.py:889 src/gpodder/model.py:907
+#: src/gpodder/gtkui/model.py:174 src/gpodder/gtkui/frmntl/model.py:362
+#: src/gpodder/gtkui/frmntl/model.py:366 src/gpodder/gtkui/frmntl/model.py:377
 #: src/gpodder/gtkui/frmntl/shownotes.py:82
 #, python-format
 msgid "from %s"
 msgstr "kanavalta %s"
 
-#: src/gpodder/model.py:927 src/gpodder/gtkui/model.py:341
+#: src/gpodder/model.py:900 src/gpodder/gtkui/model.py:343
 msgid "played"
 msgstr "soitettu"
 
-#: src/gpodder/model.py:929
+#: src/gpodder/model.py:902
 msgid "unplayed"
 msgstr "soittamaton"
 
-#: src/gpodder/model.py:932
+#: src/gpodder/model.py:905
 msgid "today"
 msgstr "tänään"
 
-#: src/gpodder/model.py:933
+#: src/gpodder/model.py:906
 #, python-format
 msgid "downloaded %s"
 msgstr "ladattu %s"
 
-#: src/gpodder/model.py:955 src/gpodder/soundcloud.py:155
+#: src/gpodder/model.py:930 src/gpodder/soundcloud.py:157
 msgid "No description available"
 msgstr "Kuvausta ei ole saatavilla"
 
-#: src/gpodder/model.py:1202
+#: src/gpodder/model.py:1180
 msgid "unknown"
 msgstr "tuntematon"
 
-#: src/gpodder/model.py:1251 src/gpodder/gtkui/frmntl/episodeactions.py:190
+#: src/gpodder/model.py:1229 src/gpodder/gtkui/frmntl/episodeactions.py:190
 #: data/ui/frmntl/gpodder.ui.h:18
 msgid "Unplayed"
 msgstr "Soittamaton"
@@ -938,26 +933,26 @@ msgstr "Jaksotiedot HTML-muodossa"
 msgid "Display episode shownotes in HTML format using WebKit."
 msgstr "Näytä jaksotiedot HTML-muodossa käyttäen WebKitiä."
 
-#: src/gpodder/soundcloud.py:153
+#: src/gpodder/soundcloud.py:155
 msgid "Unknown track"
 msgstr "Tuntematon kappale"
 
-#: src/gpodder/soundcloud.py:180
+#: src/gpodder/soundcloud.py:182
 #, python-format
 msgid "%s on Soundcloud"
 msgstr "Käyttäjätunnus %s Soundcloudissa"
 
-#: src/gpodder/soundcloud.py:189
+#: src/gpodder/soundcloud.py:191
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr "Käyttäjän %s julkaisemat kappaleet Soundcloudissa."
 
-#: src/gpodder/soundcloud.py:210
+#: src/gpodder/soundcloud.py:212
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr "Käyttäjän %s suosikit Soundcloudissa"
 
-#: src/gpodder/soundcloud.py:216
+#: src/gpodder/soundcloud.py:218
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "Käyttäjän %s suosikit Soundcloudissa."
@@ -1090,10 +1085,10 @@ msgstr "Lisätään jaksoa %s..."
 
 #: src/gpodder/util.py:354
 #, python-format
-msgid "%d day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d päivä sitten"
-msgstr[1] "%d päivää sitten"
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
+msgstr[0] "%(count)d päivä sitten"
+msgstr[1] "%(count)d päivää sitten"
 
 #: src/gpodder/util.py:422
 msgid "Today"
@@ -1109,24 +1104,24 @@ msgstr "(tuntematon)"
 
 #: src/gpodder/util.py:1136 src/gpodder/util.py:1155
 #, python-format
-msgid "%d second"
-msgid_plural "%d seconds"
-msgstr[0] "%d sekunti"
-msgstr[1] "%d sekuntia"
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
+msgstr[0] "%(count)d sekunti"
+msgstr[1] "%(count)d sekuntia"
 
 #: src/gpodder/util.py:1149
 #, python-format
-msgid "%d hour"
-msgid_plural "%d hours"
-msgstr[0] "%d tunti"
-msgstr[1] "%d tuntia"
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "%(count)d tunti"
+msgstr[1] "%(count)d tuntia"
 
 #: src/gpodder/util.py:1152
 #, python-format
-msgid "%d minute"
-msgid_plural "%d minutes"
-msgstr[0] "%d minuutti"
-msgstr[1] "%d minuuttia"
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
+msgstr[0] "%(count)d minuutti"
+msgstr[1] "%(count)d minuuttia"
 
 #: src/gpodder/util.py:1158
 msgid "and"
@@ -1157,71 +1152,71 @@ msgstr "Komento: %s"
 msgid "Default application"
 msgstr "Oletussovellus"
 
-#: src/gpodder/gtkui/model.py:276 data/ui/frmntl/gpodder.ui.h:6
+#: src/gpodder/gtkui/model.py:278 data/ui/frmntl/gpodder.ui.h:6
 msgid "Deleted"
 msgstr "Poistettu"
 
-#: src/gpodder/gtkui/model.py:281
+#: src/gpodder/gtkui/model.py:283
 #: src/gpodder/gtkui/frmntl/episodeactions.py:137
 msgid "New episode"
 msgstr "Uusi jakso"
 
-#: src/gpodder/gtkui/model.py:296
+#: src/gpodder/gtkui/model.py:298
 msgid "Downloaded episode"
 msgstr "Ladattu jakso"
 
-#: src/gpodder/gtkui/model.py:299
+#: src/gpodder/gtkui/model.py:301
 msgid "Downloaded video episode"
 msgstr "Ladattu videojakso"
 
-#: src/gpodder/gtkui/model.py:302
+#: src/gpodder/gtkui/model.py:304
 msgid "Downloaded image"
 msgstr "Ladattu kuva"
 
-#: src/gpodder/gtkui/model.py:313
+#: src/gpodder/gtkui/model.py:315
 msgid "Downloaded file"
 msgstr "Ladattu tiedosto"
 
-#: src/gpodder/gtkui/model.py:328
+#: src/gpodder/gtkui/model.py:330
 msgid "missing file"
 msgstr "﻿puuttuva tiedosto"
 
-#: src/gpodder/gtkui/model.py:332
+#: src/gpodder/gtkui/model.py:334
 msgid "never displayed"
 msgstr "ei koskaan näytetty"
 
-#: src/gpodder/gtkui/model.py:334
+#: src/gpodder/gtkui/model.py:336
 msgid "never played"
 msgstr "ei koskaan soitettu"
 
-#: src/gpodder/gtkui/model.py:336
+#: src/gpodder/gtkui/model.py:338
 msgid "never opened"
 msgstr "ei koskaan avattu"
 
-#: src/gpodder/gtkui/model.py:339
+#: src/gpodder/gtkui/model.py:341
 msgid "displayed"
 msgstr "näytetty"
 
-#: src/gpodder/gtkui/model.py:343
+#: src/gpodder/gtkui/model.py:345
 msgid "opened"
 msgstr "avattu"
 
-#: src/gpodder/gtkui/model.py:345
+#: src/gpodder/gtkui/model.py:347
 msgid "deletion prevented"
 msgstr "poistaminen on estetty"
 
-#: src/gpodder/gtkui/model.py:484 data/ui/desktop/gpodder.ui.h:3
+#: src/gpodder/gtkui/model.py:490 data/ui/desktop/gpodder.ui.h:3
 #: data/ui/maemo/gpodder.ui.h:3
 msgid "All episodes"
 msgstr "Kaikki jaksot"
 
-#: src/gpodder/gtkui/model.py:485
+#: src/gpodder/gtkui/model.py:491
 msgid "from all podcasts"
 msgstr "kaikista podcasteista"
 
-#: src/gpodder/gtkui/model.py:692
-msgid "Subscription paused."
-msgstr "Tilaus on keskeytetty."
+#: src/gpodder/gtkui/model.py:698 src/gpodder/gtkui/frmntl/model.py:599
+msgid "Subscription paused"
+msgstr "Tilaus on keskeytetty"
 
 #: src/gpodder/gtkui/services.py:52
 msgid "Available"
@@ -1249,28 +1244,28 @@ msgstr "Ei mitään liitettävää."
 msgid "Clipboard is empty"
 msgstr "Leikepöytä on tyhjä"
 
-#: src/gpodder/gtkui/interface/common.py:394
+#: src/gpodder/gtkui/interface/common.py:402
 msgid "Username"
 msgstr "Käyttäjätunnus"
 
-#: src/gpodder/gtkui/interface/common.py:401
-#: src/gpodder/gtkui/interface/common.py:412
+#: src/gpodder/gtkui/interface/common.py:409
+#: src/gpodder/gtkui/interface/common.py:420
 msgid "Login"
 msgstr "Kirjautuminen"
 
-#: src/gpodder/gtkui/interface/common.py:414
+#: src/gpodder/gtkui/interface/common.py:422
 msgid "Authentication required"
 msgstr "Tunnistautuminen vaaditaan"
 
-#: src/gpodder/gtkui/interface/common.py:420
+#: src/gpodder/gtkui/interface/common.py:428
 msgid "New user"
 msgstr "Uusi käyttäjä"
 
-#: src/gpodder/gtkui/interface/common.py:462
+#: src/gpodder/gtkui/interface/common.py:470
 msgid "Password"
 msgstr "Salasana"
 
-#: src/gpodder/gtkui/interface/common.py:484
+#: src/gpodder/gtkui/interface/common.py:492
 msgid "Select destination"
 msgstr "Valitse kohde"
 
@@ -1386,10 +1381,10 @@ msgstr "Mitään ei ole valittu"
 #: src/gpodder/gtkui/maemo/episodeselector.py:296
 #: src/gpodder/gtkui/frmntl/episodeselector.py:338
 #, python-format
-msgid "%d episode"
-msgid_plural "%d episodes"
-msgstr[0] "%d jakso"
-msgstr[1] "%d jaksoa"
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
+msgstr[0] "%(count)d jakso"
+msgstr[1] "%(count)d jaksoa"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:325
 #: src/gpodder/gtkui/maemo/episodeselector.py:299
@@ -1398,21 +1393,21 @@ msgstr[1] "%d jaksoa"
 msgid "size: %s"
 msgstr "koko: %s"
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:112
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:113
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:124
 msgid "The specified URL does not provide any valid OPML podcast items."
 msgstr "Annetussa osoitteessa ei ole yhtään OPML-podcastia."
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:112
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:113
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:124
 msgid "No feeds found"
 msgstr "Syötteitä ei löytynyt"
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:116
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:117
 msgid "There are no YouTube channels that would match this query."
 msgstr "Mikään YouTube-kanava ei vastaa tätä hakua."
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:116
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:117
 msgid "No channels found"
 msgstr "Asemia ei löytynyt"
 
@@ -1483,15 +1478,17 @@ msgid "Select folder for mount point"
 msgstr "Valitse liitospisteenä käytettävä kansio"
 
 #: src/gpodder/gtkui/desktop/preferences.py:316
+#: src/gpodder/gtkui/frmntl/preferences.py:241
 msgid "manually"
 msgstr "manuaalisesti"
 
 #: src/gpodder/gtkui/desktop/preferences.py:318
+#: src/gpodder/gtkui/frmntl/preferences.py:243
 #, python-format
-msgid "after %d day"
-msgid_plural "after %d days"
-msgstr[0] "%d päivän jälkeen"
-msgstr[1] "%d päivän jälkeen"
+msgid "after %(count)d day"
+msgid_plural "after %(count)d days"
+msgstr[0] "%(count)d päivän jälkeen"
+msgstr[1] "%(count)d päivän jälkeen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:347
 #: src/gpodder/gtkui/maemo/mygpodder.py:74
@@ -1672,13 +1669,14 @@ msgid "Edit %s"
 msgstr "Muokkaa kanavaa %s"
 
 #: src/gpodder/gtkui/maemo/channel.py:83
-#: src/gpodder/gtkui/frmntl/episodes.py:90 data/ui/maemo/gpodderchannel.ui.h:3
-#: data/ui/frmntl/gpodderchannel.ui.h:3 data/ui/frmntl/gpodderepisodes.ui.h:8
+#: src/gpodder/gtkui/frmntl/episodes.py:111
+#: data/ui/maemo/gpodderchannel.ui.h:3 data/ui/frmntl/gpodderchannel.ui.h:3
+#: data/ui/frmntl/gpodderepisodes.ui.h:8
 msgid "Rename podcast"
 msgstr "Nimeä podcast uudelleen"
 
 #: src/gpodder/gtkui/maemo/channel.py:84
-#: src/gpodder/gtkui/frmntl/episodes.py:91
+#: src/gpodder/gtkui/frmntl/episodes.py:112
 msgid "New name:"
 msgstr "Uusi nimi:"
 
@@ -1697,7 +1695,7 @@ msgstr "Muokkaa podcastin tunnistautumista"
 
 #: src/gpodder/gtkui/maemo/channel.py:94
 msgid "Please enter your username and password."
-msgstr "Anna käyttäjätunnuksesi ja salasanasi"
+msgstr "Anna käyttäjätunnuksesi ja salasanasi."
 
 #: src/gpodder/gtkui/maemo/channel.py:105
 msgid "Username and password removed."
@@ -1770,41 +1768,41 @@ msgstr "Podcasteja ei löytynyt"
 msgid "MediaBox"
 msgstr "MediaBox"
 
-#: src/gpodder/gtkui/maemo/preferences.py:108
+#: src/gpodder/gtkui/maemo/preferences.py:107
 msgid "Gestures in gPodder"
 msgstr "Eleet gPodderissa"
 
-#: src/gpodder/gtkui/maemo/preferences.py:113
+#: src/gpodder/gtkui/maemo/preferences.py:112
 msgid "Podcast list"
 msgstr "Podcast-luettelo"
 
-#: src/gpodder/gtkui/maemo/preferences.py:114
-#: src/gpodder/gtkui/maemo/preferences.py:117
+#: src/gpodder/gtkui/maemo/preferences.py:113
+#: src/gpodder/gtkui/maemo/preferences.py:116
 msgid "Swipe left"
 msgstr "Pyyhkäisy vasemmalle"
 
-#: src/gpodder/gtkui/maemo/preferences.py:114
+#: src/gpodder/gtkui/maemo/preferences.py:113
 msgid "Edit selected podcast"
 msgstr "Muokkaa valittua podcastia"
 
-#: src/gpodder/gtkui/maemo/preferences.py:115
-#: src/gpodder/gtkui/maemo/preferences.py:118
+#: src/gpodder/gtkui/maemo/preferences.py:114
+#: src/gpodder/gtkui/maemo/preferences.py:117
 msgid "Swipe right"
 msgstr "Pyyhkäisy oikealle"
 
-#: src/gpodder/gtkui/maemo/preferences.py:115
+#: src/gpodder/gtkui/maemo/preferences.py:114
 msgid "Update podcast feed"
 msgstr "Päivitä podcast-syöte"
 
-#: src/gpodder/gtkui/maemo/preferences.py:116
+#: src/gpodder/gtkui/maemo/preferences.py:115
 msgid "Episode list"
 msgstr "Jaksoluettelo"
 
-#: src/gpodder/gtkui/maemo/preferences.py:117
+#: src/gpodder/gtkui/maemo/preferences.py:116
 msgid "Display shownotes"
 msgstr "Näytä jaksotiedot"
 
-#: src/gpodder/gtkui/maemo/preferences.py:118
+#: src/gpodder/gtkui/maemo/preferences.py:117
 msgid "Playback episode"
 msgstr "Soita jakso"
 
@@ -1814,7 +1812,7 @@ msgstr "Teksti on kopioitu leikepöydälle."
 
 #: src/gpodder/gtkui/maemo/shownotes.py:78
 msgid "Selection is empty."
-msgstr "Valinta on tyhjä"
+msgstr "Valinta on tyhjä."
 
 #: src/gpodder/gtkui/frmntl/about.py:43
 msgid "About"
@@ -1876,25 +1874,29 @@ msgstr "Vanha jakso"
 msgid "Play"
 msgstr "Toista"
 
-#: src/gpodder/gtkui/frmntl/episodes.py:92
+#: src/gpodder/gtkui/frmntl/episodes.py:85
+msgid "Pause subscription"
+msgstr "Keskeytä tilaus"
+
+#: src/gpodder/gtkui/frmntl/episodes.py:113
 msgid "Rename"
 msgstr "Nimeä uudelleen"
 
-#: src/gpodder/gtkui/frmntl/episodes.py:97
+#: src/gpodder/gtkui/frmntl/episodes.py:118
 #, python-format
 msgid "Podcast renamed: %s"
 msgstr "Podcast on nimetty uudelleen: %s"
 
-#: src/gpodder/gtkui/frmntl/episodes.py:101
+#: src/gpodder/gtkui/frmntl/episodes.py:122
 #, python-format
 msgid "Login to %s"
 msgstr "Kirjaudu kohteeseen %s"
 
-#: src/gpodder/gtkui/frmntl/episodes.py:164
+#: src/gpodder/gtkui/frmntl/episodes.py:185
 msgid "Downloading episode"
 msgstr "Ladataan jaksoa"
 
-#: src/gpodder/gtkui/frmntl/episodes.py:182
+#: src/gpodder/gtkui/frmntl/episodes.py:203
 msgid "Checking for new episodes..."
 msgstr "Etsitään uusia jaksoja..."
 
@@ -1963,8 +1965,7 @@ msgstr ""
 msgid ""
 "The top row of the menu in each list window lets you set the filter for it."
 msgstr ""
-"Jokaisen luetteloikkunan valikon ylin rivi mahdollistaa suotimen "
-"asettamisen."
+"Jokaisen luetteloikkunan valikon ylin rivi mahdollistaa suotimen asettamisen."
 
 #: src/gpodder/gtkui/frmntl/hints.py:35
 msgid ""
@@ -2034,31 +2035,31 @@ msgstr ""
 "Käytä kirjoittamalla hakemista ”Kaikki jaksot” -luettelossa tietyn jakson "
 "löytämiseen nopeasti."
 
-#: src/gpodder/gtkui/frmntl/model.py:77
+#: src/gpodder/gtkui/frmntl/model.py:360
 msgid "in downloads list"
 msgstr "latausluettelossa"
 
-#: src/gpodder/gtkui/frmntl/model.py:89
+#: src/gpodder/gtkui/frmntl/model.py:372
 msgid "unplayed download"
 msgstr "soittamaton lataus"
 
-#: src/gpodder/gtkui/frmntl/model.py:91
+#: src/gpodder/gtkui/frmntl/model.py:374
 msgid "new episode"
 msgstr "uusi jakso"
 
-#: src/gpodder/gtkui/frmntl/model.py:127
+#: src/gpodder/gtkui/frmntl/model.py:607
 #, python-format
-msgid "%d new episode"
-msgid_plural "%d new episodes"
-msgstr[0] "%d uusi jakso"
-msgstr[1] "%d uutta jaksoa"
+msgid "%(count)d new episode"
+msgid_plural "%(count)d new episodes"
+msgstr[0] "%(count)d uusi jakso"
+msgstr[1] "%(count)d uutta jaksoa"
 
-#: src/gpodder/gtkui/frmntl/model.py:128
+#: src/gpodder/gtkui/frmntl/model.py:608
 #, python-format
-msgid "%d unplayed download"
-msgid_plural "%d unplayed downloads"
-msgstr[0] "%d soittamaton lataus"
-msgstr[1] "%d soittamatonta latausta"
+msgid "%(count)d unplayed download"
+msgid_plural "%(count)d unplayed downloads"
+msgstr[0] "%(count)d soittamaton lataus"
+msgstr[1] "%(count)d soittamatonta latausta"
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:72
 #: data/ui/maemo/gpodderpodcastdirectory.ui.h:8
@@ -2123,10 +2124,10 @@ msgstr "Yhtään podcastia ei löytynyt. Valitse toinen lähde."
 
 #: src/gpodder/gtkui/frmntl/podcastdirectory.py:261
 #, python-format
-msgid "%d podcast selected"
-msgid_plural "%d podcasts selected"
-msgstr[0] "%d podcast on valittu"
-msgstr[1] "%d podcastia on valittu"
+msgid "%(count)d podcast selected"
+msgid_plural "%(count)d podcasts selected"
+msgstr[0] "%(count)d podcast on valittu"
+msgstr[1] "%(count)d podcastia on valittu"
 
 #: src/gpodder/gtkui/frmntl/portrait.py:46
 msgid "Automatic"
@@ -2147,10 +2148,10 @@ msgstr "Manuaalisesti"
 #: src/gpodder/gtkui/frmntl/preferences.py:37
 #: src/gpodder/gtkui/frmntl/preferences.py:93
 #, python-format
-msgid "Every %d minute"
-msgid_plural "Every %d minutes"
-msgstr[0] "%d minuutin välein"
-msgstr[1] "%d minuutin välein"
+msgid "Every %(count)d minute"
+msgid_plural "Every %(count)d minutes"
+msgstr[0] "%(count)d minuutin välein"
+msgstr[1] "%(count)d minuutin välein"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:38
 msgid "Hourly"
@@ -2158,10 +2159,10 @@ msgstr "Tunneittain"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:39
 #, python-format
-msgid "Every %d hour"
-msgid_plural "Every %d hours"
-msgstr[0] "%d tunnin välein"
-msgstr[1] "%d tunnin välein"
+msgid "Every %(count)d hour"
+msgid_plural "Every %(count)d hours"
+msgstr[0] "%(count)d tunnin välein"
+msgstr[1] "%(count)d tunnin välein"
 
 #: src/gpodder/gtkui/frmntl/preferences.py:40
 msgid "Daily"
@@ -2258,7 +2259,7 @@ msgstr "Mene verkkosivustolle"
 #: data/ui/desktop/gpodderchannel.ui.h:11
 #: data/ui/desktop/gpodderpreferences.ui.h:16
 #: data/ui/maemo/mygpoddersettings.ui.h:3
-#: data/ui/frmntl/gpodderpreferences.ui.h:6
+#: data/ui/frmntl/gpodderpreferences.ui.h:7
 msgid "Password:"
 msgstr "Salasana:"
 
@@ -2277,7 +2278,7 @@ msgstr "Otsikko:"
 #: data/ui/desktop/gpodderchannel.ui.h:15
 #: data/ui/desktop/gpodderpreferences.ui.h:25
 #: data/ui/maemo/mygpoddersettings.ui.h:6
-#: data/ui/frmntl/gpodderpreferences.ui.h:12
+#: data/ui/frmntl/gpodderpreferences.ui.h:13
 msgid "Username:"
 msgstr "Käyttäjätunnus:"
 
@@ -2287,7 +2288,7 @@ msgstr "Verkkosivu:"
 
 #: data/ui/desktop/gpodderchannel.ui.h:17
 msgid "gPodder Podcast Editor"
-msgstr "gPodder-podcast-muokkain"
+msgstr "gPodderin podcast-muokkain"
 
 #: data/ui/desktop/gpodderchannel.ui.h:18
 msgid "website label"
@@ -2351,7 +2352,7 @@ msgstr "Poista valinnat"
 
 #: data/ui/desktop/gpodderpodcastdirectory.ui.h:7
 msgid "Top _podcasts"
-msgstr "Kuunnelluimmat podcastit"
+msgstr "Kuunnelluimmat _podcastit"
 
 #: data/ui/desktop/gpodderpodcastdirectory.ui.h:8
 msgid "_OPML/Search"
@@ -2370,7 +2371,7 @@ msgid "Also remove unplayed episodes"
 msgstr "Poista myös soittamattomat jaksot"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:3
-#: data/ui/maemo/gpodderpreferences.ui.h:3
+#: data/ui/maemo/gpodderpreferences.ui.h:2
 msgid "Audio player:"
 msgstr "Musiikkisoitin:"
 
@@ -2389,7 +2390,7 @@ msgstr "Poista soitetut jaksot:"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:7
 #: data/ui/maemo/mygpoddersettings.ui.h:1
-#: data/ui/frmntl/gpodderpreferences.ui.h:2
+#: data/ui/frmntl/gpodderpreferences.ui.h:3
 msgid "Device name:"
 msgstr "Laitteen nimi:"
 
@@ -2422,7 +2423,7 @@ msgid "Only sync unplayed episodes"
 msgstr "Synkronoi vain soittamattomat jaksot"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:17 data/ui/desktop/gpodder.ui.h:35
-#: data/ui/maemo/gpodderpreferences.ui.h:6 data/ui/maemo/gpodder.ui.h:32
+#: data/ui/maemo/gpodderpreferences.ui.h:5 data/ui/maemo/gpodder.ui.h:32
 msgid "Preferences"
 msgstr "Ominaisuudet"
 
@@ -2457,7 +2458,7 @@ msgid "Updating"
 msgstr "Päivitys"
 
 #: data/ui/desktop/gpodderpreferences.ui.h:26
-#: data/ui/maemo/gpodderpreferences.ui.h:9
+#: data/ui/maemo/gpodderpreferences.ui.h:8
 msgid "Video player:"
 msgstr "Videosoitin:"
 
@@ -2613,7 +2614,7 @@ msgstr "Raportoi ongelmasta"
 msgid "Select and remove episodes from device"
 msgstr "Valitse ja poista jaksot laitteelta"
 
-#: data/ui/desktop/gpodder.ui.h:40 data/ui/maemo/gpodderpreferences.ui.h:7
+#: data/ui/desktop/gpodder.ui.h:40 data/ui/maemo/gpodderpreferences.ui.h:6
 #: data/ui/maemo/gpodder.ui.h:36
 msgid "Show \"All episodes\" in podcast list"
 msgstr "Näytä ”Kaikki jaksot” podcast-luettelossa"
@@ -2711,11 +2712,7 @@ msgstr "YouTuben käyttäjäkanava"
 msgid "Advanced..."
 msgstr "Lisäasetukset..."
 
-#: data/ui/maemo/gpodderpreferences.ui.h:2
-msgid "Ask before closing gPodder"
-msgstr "Kysy ennen gPodderin sulkemista"
-
-#: data/ui/maemo/gpodderpreferences.ui.h:4
+#: data/ui/maemo/gpodderpreferences.ui.h:3
 msgid ""
 "Nokia Media Player\n"
 "MPlayer"
@@ -2723,7 +2720,7 @@ msgstr ""
 "Nokia Media Player\n"
 "MPlayer"
 
-#: data/ui/maemo/gpodderpreferences.ui.h:8
+#: data/ui/maemo/gpodderpreferences.ui.h:7
 msgid "Use gestures (single selection)"
 msgstr "Käytä eleitä (yksittäinen valinta)"
 
@@ -2799,43 +2796,47 @@ msgstr "Aseta käyttäjätunnus ja salasana"
 msgid "Select podcasts to add"
 msgstr "Valitse lisättävät podcastit"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:3
+#: data/ui/frmntl/gpodderpreferences.ui.h:2
+msgid "Delete played episodes on startup"
+msgstr "Poista soitetut jaksot käynnistettäessä"
+
+#: data/ui/frmntl/gpodderpreferences.ui.h:4
 msgid "Display and view settings"
 msgstr "Näkymäasetukset"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:4
+#: data/ui/frmntl/gpodderpreferences.ui.h:5
 msgid "Display orientation"
 msgstr "Näytön suunta"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:5
+#: data/ui/frmntl/gpodderpreferences.ui.h:6
 msgid "Feed updating and downloads"
 msgstr "Syötteiden päivittäminen ja lataukset"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:7
+#: data/ui/frmntl/gpodderpreferences.ui.h:8
 msgid "Player applications"
 msgstr "Soitinohjelmat"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:8
+#: data/ui/frmntl/gpodderpreferences.ui.h:9
 msgid "Player for audio files"
 msgstr "Äänitiedostojen soitin"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:9
+#: data/ui/frmntl/gpodderpreferences.ui.h:10
 msgid "Player for video files"
 msgstr "Videotiedostojen soitin"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:10 data/ui/frmntl/gpodder.ui.h:16
+#: data/ui/frmntl/gpodderpreferences.ui.h:11 data/ui/frmntl/gpodder.ui.h:16
 msgid "Settings"
 msgstr "Asetukset"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:11
+#: data/ui/frmntl/gpodderpreferences.ui.h:12
 msgid "Synchronize with gpodder.net"
 msgstr "Synkronoi gpodder.net:iin"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:13
+#: data/ui/frmntl/gpodderpreferences.ui.h:14
 msgid "When new episodes are found"
 msgstr "Kun uusia jaksoja on löydetty"
 
-#: data/ui/frmntl/gpodderpreferences.ui.h:14
+#: data/ui/frmntl/gpodderpreferences.ui.h:15
 msgid "gpodder.net Synchronization"
 msgstr "gpodder.net-synkronointi"
 
@@ -2870,6 +2871,12 @@ msgstr "Pakota Maemo 4 -käyttöliittymä käyttöön"
 #: bin/gpodder:128
 msgid "Force using the Maemo 5 user interface"
 msgstr "Pakota Maemo 5 -käyttöliittymä käyttöön"
+
+#~ msgid "Don't ask me again"
+#~ msgstr "Älä kysy uudestaan"
+
+#~ msgid "Ask before closing gPodder"
+#~ msgstr "Kysy ennen gPodderin sulkemista"
 
 #~ msgid "%(position)d/%(total)d updated"
 #~ msgstr "%(position)d/%(total)d päivitetty"
@@ -3171,9 +3178,6 @@ msgstr "Pakota Maemo 5 -käyttöliittymä käyttöön"
 
 #~ msgid "Delete episodes played on iPod from gPodder"
 #~ msgstr "Poista gPodderista jaksot, jotka on soitettu iPodissa"
-
-#~ msgid "Delete played episodes on startup after"
-#~ msgstr "Poista soitetut jaksot käynnistettäessä"
 
 #~ msgid ""
 #~ "If checked, OGG files will not be converted to MP3 before being "

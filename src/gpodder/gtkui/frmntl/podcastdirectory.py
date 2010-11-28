@@ -258,7 +258,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         title = [self.main_window.get_title()]
         if selection:
             count = selection.count_selected_rows()
-            text = N_('%d podcast selected', '%d podcasts selected', count)
+            text = N_('%(count)d podcast selected', '%(count)d podcasts selected', {'count':count})
             title.append(text % count)
         else:
             count = 0

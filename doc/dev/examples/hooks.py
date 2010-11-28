@@ -18,6 +18,9 @@ class gPodderHooks(object):
     def on_podcast_save(self, podcast):
         log(u'on_podcast_save(%s)' % podcast.title)
 
+    def on_episode_downloaded(self, episode):
+        log(u'on_episode_downloaded(%s)' % episode.title)
+
     def on_episode_save(self, episode):
         log(u'on_episode_save(%s)' % episode.title)
 

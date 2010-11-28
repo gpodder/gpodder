@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Simple script to test gPodder's "pill" pixbuf implementation
-# Thomas Perl <thpinfo.com>; 2009-09-13
+# Thomas Perl <thp.io/about>; 2009-09-13
 
 import sys
 sys.path.insert(0, 'src')

@@ -27,7 +27,6 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
-from gpodder import corestats
 from gpodder import gstreamer
 
 from gpodder.liblogger import log
@@ -220,7 +219,17 @@ class PodcastChannel(PodcastModelObject):
 
         # We can limit the maximum number of entries that gPodder will parse
         if max_episodes > 0 and len(feed.entries) > max_episodes:
-            entries = feed.entries[:max_episodes]
+            # We have to sort the entries in descending chronological order,
+            # because if the feed lists items in ascending order and has >
+            # max_episodes old episodes, new episodes will not be shown.
+            # See also: gPodder Bug 1186
+            try:
+                entries = sorted(feed.entries, \
+                        key=lambda x: x.get('updated_parsed', (0,)*9), \
+                        reverse=True)[:max_episodes]
+            except Exception, e:
+                log('Could not sort episodes: %s', e, sender=self, traceback=True)
+                entries = feed.entries[:max_episodes]
         else:
             entries = feed.entries
 
@@ -293,26 +302,8 @@ class PodcastChannel(PodcastModelObject):
 
     def _update_etag_modified(self, feed):
         self.updated_timestamp = time.time()
-        self.calculate_publish_behaviour()
         self.etag = feed.headers.get('etag', self.etag)
         self.last_modified = feed.headers.get('last-modified', self.last_modified)
-
-    def query_automatic_update(self):
-        """Query if this channel should be updated automatically
-
-        Returns True if the update should happen in automatic
-        mode or False if this channel should be skipped (timeout
-        not yet reached or release not expected right now).
-        """
-        updated = self.updated_timestamp
-        expected = self.release_expected
-
-        now = time.time()
-        one_day_ago = now - 60*60*24
-        lastcheck = now - 60*10
-
-        return updated < one_day_ago or \
-                (expected < now and updated < lastcheck)
 
     def update(self, max_episodes=0, mimetype_prefs=''):
         try:
@@ -407,29 +398,11 @@ class PodcastChannel(PodcastModelObject):
 
         self.channel_is_locked = False
 
-        self.release_expected = time.time()
-        self.release_deviation = 0
+        self.release_expected = time.time() # <= DEPRECATED
+        self.release_deviation = 0 # <= DEPRECATED
         self.updated_timestamp = 0
+
         self.feed_update_enabled = True
-
-    def calculate_publish_behaviour(self):
-        episodes = self.db.load_episodes(self, factory=self.episode_factory, limit=30)
-        if len(episodes) < 3:
-            return
-
-        deltas = []
-        latest = max(e.pubDate for e in episodes)
-        for index in range(len(episodes)-1):
-            if episodes[index].pubDate != 0 and episodes[index+1].pubDate != 0:
-                deltas.append(episodes[index].pubDate - episodes[index+1].pubDate)
-
-        if len(deltas) > 1:
-            stats = corestats.Stats(deltas)
-            self.release_expected = min([latest+stats.stdev(), latest+(stats.min()+stats.avg())*.5])
-            self.release_deviation = stats.stdev()
-        else:
-            self.release_expected = latest
-            self.release_deviation = 0
 
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
@@ -949,12 +922,17 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
-    def one_line_description( self):
-        lines = util.remove_html_tags(self.description or '').strip().splitlines()
-        if not lines or lines[0] == '':
+    def one_line_description(self):
+        MAX_LINE_LENGTH = 120
+        desc = util.remove_html_tags(self.description or '')
+        desc = re.sub('\n', ' ', desc).strip()
+        if not desc:
             return _('No description available')
         else:
-            return ' '.join(lines)
+            if len(desc) > MAX_LINE_LENGTH:
+                return desc[:MAX_LINE_LENGTH] + '...'
+            else:
+                return desc
 
     def delete_from_disk(self):
         try:

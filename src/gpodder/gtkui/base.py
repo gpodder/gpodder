@@ -85,14 +85,14 @@ class GtkBuilderWidget(object):
         # Check if we have mokoui OR hildon before continuing
         mokoui, hildon = None, None
         try:
-            import mokoui
-        except ImportError, ie:
-            try:
-                import hildon
-            except ImportError, ie:
-                return widget
+            import hildon
             if not hasattr(hildon, 'PannableArea'):
                 # Probably using an older version of Hildon
+                raise ImportError('old version of hildon')
+        except ImportError, ie:
+            try:
+                import mokoui
+            except ImportError, ie:
                 return widget
 
         parent = widget.get_parent()
@@ -102,14 +102,11 @@ class GtkBuilderWidget(object):
         def create_fingerscroll():
             if mokoui is not None:
                 scroll = mokoui.FingerScroll()
-                scroll.set_property('mode', 0)
-                scroll.set_property('spring-speed', 0)
-                scroll.set_property('deceleration', .975)
             else:
                 scroll = hildon.PannableArea()
 
             # The following call looks ugly, but see Gnome bug 591085
-            scroll.set_name(gtk.Buildable.get_name(widget))
+            gtk.Buildable.set_name(scroll, gtk.Buildable.get_name(widget))
 
             return scroll
 
@@ -162,6 +159,12 @@ class GtkBuilderWidget(object):
 
         return widget
 
+    def _handle_menu_bar(self, menu):
+        pass
+
+    def _handle_button(self, button):
+        pass
+
     def set_attributes(self):
         """
         Convert widget names to attributes of this object.
@@ -176,6 +179,12 @@ class GtkBuilderWidget(object):
 
             if isinstance(widget, gtk.ScrolledWindow):
                 widget = self._handle_scrolledwindow(widget)
+
+            if isinstance(widget, gtk.MenuBar):
+                self._handle_menu_bar(widget)
+
+            if isinstance(widget, gtk.Button):
+                self._handle_button(widget)
 
             # The following call looks ugly, but see Gnome bug 591085
             widget_name = gtk.Buildable.get_name(widget)

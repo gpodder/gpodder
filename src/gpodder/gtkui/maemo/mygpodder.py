@@ -18,7 +18,7 @@
 #
 
 # gpodder.gtkui.mygpodder- UI code for gpodder.net settings
-# Thomas Perl <thpinfo.com>; 2010-01-19
+# Thomas Perl <thp@gpodder.org>; 2010-01-19
 
 import threading
 

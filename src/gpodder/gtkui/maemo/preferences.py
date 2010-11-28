@@ -44,7 +44,6 @@ class gPodderPreferences(BuilderWidget):
     ]
     
     def new(self):
-        self._config.connect_gtk_togglebutton('on_quit_ask', self.check_ask_on_quit)
         self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
         self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_podcast_list_view_all)
 

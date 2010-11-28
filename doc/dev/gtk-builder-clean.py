@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 # gtk-builder-clean.py - Remove unnecessary properties in GtkBuilder UI files
-# Thomas Perl <thpinfo.com>; 2009-05-08
+# Thomas Perl <thp.io/about>; 2009-05-08
 #
 # Tries to instanciate GObjects defined in the GtkBuilder .ui file in order to
 # get their default properties and then tries to compare the values defined in

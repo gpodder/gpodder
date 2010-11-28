@@ -49,7 +49,7 @@ if not hasattr(mygpoclient, 'require_version') or \
         not mygpoclient.require_version(MYGPOCLIENT_REQUIRED):
     print >>sys.stderr, """
     Please upgrade your mygpoclient library.
-    See http://thpinfo.com/2010/mygpoclient/
+    See http://thp.io/2010/mygpoclient/
 
     Required version:  %s
     Installed version: %s

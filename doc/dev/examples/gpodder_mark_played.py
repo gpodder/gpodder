@@ -10,7 +10,7 @@
 # Usage: gpodder_mark_played.py /path/to/episode.mp3
 #        (the gPodder GUI has to be running)
 #
-# Thomas Perl <thpinfo.com>; 2009-09-09
+# Thomas Perl <thp@gpodder.org>; 2009-09-09
 
 import sys
 import os

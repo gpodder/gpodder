@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
   Clean-up GtkBuilder UI Interface Description (after conversion from Glade)
-  Thomas Perl <thpinfo.com>, 2009-05-08
+  Thomas Perl <thp.io/about>, 2009-05-08
 
   Usage: xsltproc gtk-builder-clean.xslt <interfacefile.ui>
 -->

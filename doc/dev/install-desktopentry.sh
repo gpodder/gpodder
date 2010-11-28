@@ -1,7 +1,7 @@
 #!/bin/sh
 # Adds shortcuts to your Gnome menu to run and update
 # the local Git checkout if the user wants to have it
-# 2009-04-27 Thomas Perl <thpinfo.com>
+# 2009-04-27 Thomas Perl <thp.io/about>
 
 DESKTOPFILE=~/.local/share/applications/gpodder-git-version.desktop
 DESKTOPFILE_UPDATER=~/.local/share/applications/gpodder-git-update.desktop

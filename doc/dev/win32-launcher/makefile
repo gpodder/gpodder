@@ -19,7 +19,7 @@
 
 #
 # Makefile for building the Win32 Launcher for gPodder
-# Thomas Perl <thpinfo.com>; 2009-04-29
+# Thomas Perl <thp@gpodder.org>; 2009-04-29
 #
 
 CC=gcc

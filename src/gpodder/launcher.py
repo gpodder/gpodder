@@ -25,7 +25,7 @@ This is only used for the Win32 version of gPodder
 and will set up the environment to find all files
 and then start up the gPodder GUI.
 
-Thomas Perl <thpinfo.com>; 2009-05-09
+Thomas Perl <thp@gpodder.org>; 2009-05-09
 """
 
 import sys

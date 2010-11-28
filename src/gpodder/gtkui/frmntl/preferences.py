@@ -34,9 +34,9 @@ import hildon
 class gPodderPreferences(BuilderWidget):
     UPDATE_INTERVALS = (
             (0, _('Manually')),
-            (20, N_('Every %d minute', 'Every %d minutes', 20) % 20),
+            (20, N_('Every %(count)d minute', 'Every %(count)d minutes', 20) % {'count':20}),
             (60, _('Hourly')),
-            (60*6, N_('Every %d hour', 'Every %d hours', 6) % 6),
+            (60*6, N_('Every %(count)d hour', 'Every %(count)d hours', 6) % {'count':6}),
             (60*24, _('Daily')),
     )
 
@@ -90,7 +90,7 @@ class gPodderPreferences(BuilderWidget):
             self.touch_selector_interval.set_active(0, minute_index_mapping[interval])
         else:
             self._custom_interval = self._config.auto_update_frequency
-            self.touch_selector_interval.append_text(N_('Every %d minute', 'Every %d minutes', interval) % interval)
+            self.touch_selector_interval.append_text(N_('Every %(count)d minute', 'Every %(count)d minutes', interval) % {'count':interval})
             self.touch_selector_interval.set_active(0, len(self.UPDATE_INTERVALS))
         self.picker_interval.set_selector(self.touch_selector_interval)
 
@@ -171,6 +171,16 @@ class gPodderPreferences(BuilderWidget):
         self.entry_mygpo_password.set_text(self._config.mygpo_password)
         self.entry_mygpo_device.set_text(self._config.mygpo_device_caption)
 
+        if self._config.auto_remove_played_episodes:
+            adjustment_expiration = self.hscale_expiration.get_adjustment()
+            if self._config.episode_old_age > adjustment_expiration.upper:
+                # Patch the adjustment to include the higher current value
+                adjustment_expiration.upper = self._config.episode_old_age
+
+            self.hscale_expiration.set_value(self._config.episode_old_age)
+        else:
+            self.hscale_expiration.set_value(0)
+
         self.gPodderPreferences.show_all()
 
     def on_picker_orientation_value_changed(self, *args):
@@ -224,4 +234,23 @@ class gPodderPreferences(BuilderWidget):
     def on_save_button_clicked(self, button):
         self._do_restore_config = False
         self.main_window.destroy()
+
+    def format_expiration_value(self, scale, value):
+        value = int(value)
+        if value == 0:
+            return _('manually')
+        else:
+            return N_('after %(count)d day', 'after %(count)d days', value) % {'count':value}
+
+    def on_expiration_value_changed(self, range):
+        value = int(range.get_value())
+
+        if value == 0:
+            self._config.auto_remove_played_episodes = False
+        else:
+            self._config.auto_remove_played_episodes = True
+            self._config.episode_old_age = value
+
+        self._config.auto_remove_unplayed_episodes = False
+
 

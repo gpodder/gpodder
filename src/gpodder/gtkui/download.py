@@ -52,6 +52,14 @@ class DownloadStatusModel(gtk.ListStore):
         self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
         self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
+        ICON = lambda x: x
+
+        if gpodder.ui.fremantle:
+            self._status_ids[download.DownloadTask.DOWNLOADING] = ICON('email_inbox')
+            self._status_ids[download.DownloadTask.FAILED] = ICON('general_stop')
+            self._status_ids[download.DownloadTask.PAUSED] = ICON('camera_video_pause')
+            self._status_ids[download.DownloadTask.DONE] = ICON('general_tickmark_checked')
+
     def _format_message(self, episode, message, podcast):
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
@@ -70,23 +78,36 @@ class DownloadStatusModel(gtk.ListStore):
                     task.STATUS_MESSAGE[task.status], \
                     task.error_message)
         elif task.status == task.DOWNLOADING:
-            status_message = '%s (%s, %s/s)' % (\
+            status_message = '%s (%.0f%%, %s/s)' % (\
                     task.STATUS_MESSAGE[task.status], \
-                    util.format_filesize(task.total_size), \
+                    task.progress*100, \
                     util.format_filesize(task.speed))
         else:
-            if task.total_size > 0:
-                status_message = '%s (%s)' % (\
-                        task.STATUS_MESSAGE[task.status], \
-                        util.format_filesize(task.total_size))
-            else:
-                status_message = task.STATUS_MESSAGE[task.status]
+            status_message = task.STATUS_MESSAGE[task.status]
+
+        if task.progress > 0 and task.progress < 1:
+            current = util.format_filesize(task.progress*task.total_size, digits=1)
+            total = util.format_filesize(task.total_size, digits=1)
+
+            # Remove unit from current if same as in total
+            # (does: "12 MiB / 24 MiB" => "12 / 24 MiB")
+            current = current.split()
+            if current[-1] == total.split()[-1]:
+                current.pop()
+            current = ' '.join(current)
+
+            progress_message = ' / '.join((current, total))
+        elif task.total_size > 0:
+            progress_message = util.format_filesize(task.total_size, \
+                    digits=1)
+        else:
+            progress_message = ('unknown size')
 
         self.set(iter,
                 self.C_NAME, self._format_message(task.markup_name, \
                     status_message, task.markup_podcast_name),
-                self.C_PROGRESS, 100.*task.progress,
-                self.C_PROGRESS_TEXT, '%.0f%%' % (task.progress*100.,),
+                self.C_PROGRESS, 100.*task.progress, \
+                self.C_PROGRESS_TEXT, progress_message, \
                 self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):

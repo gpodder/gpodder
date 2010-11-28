@@ -153,13 +153,15 @@ class Episode(object):
         self.is_downloaded = (self._episode.state == gpodder.STATE_DOWNLOADED)
         self.is_deleted = (self._episode.state == gpodder.STATE_DELETED)
 
-    def download(self):
+    def download(self, callback=None):
         """Downloads the episode to a local file
 
         This will run the download in the same thread, so be sure
         to call this method from a worker thread in case you have
         a GUI running as a frontend."""
         task = download.DownloadTask(self._episode, self._manager._config)
+        if callback is not None:
+            task.add_progress_callback(callback)
         task.status = download.DownloadTask.QUEUED
         task.run()
 

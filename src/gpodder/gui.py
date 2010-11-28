@@ -32,6 +32,7 @@ import time
 import tempfile
 import collections
 import threading
+import urllib
 
 from xml.sax import saxutils
 
@@ -156,10 +157,13 @@ from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import hooks
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear']
+    finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear', 'label2', 'labelDownloads', 'btnUpdateFeeds']
 
     ICON_GENERAL_ADD = 'general_add'
     ICON_GENERAL_REFRESH = 'general_refresh'
+
+    # Delay until live search is started after typing stop
+    LIVE_SEARCH_DELAY = 200
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -357,8 +361,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for child in self.buttonbox:
                 child.reparent(action_area_box)
             self.vbox.remove(self.buttonbox)
-            action_area_box.set_spacing(2)
-            action_area_box.set_border_width(3)
             self.treeChannels.set_action_area_visible(True)
 
             # Set up a very nice progress bar setup
@@ -412,8 +414,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     add_download_task_monitor=self.add_download_task_monitor, \
                     remove_download_task_monitor=self.remove_download_task_monitor, \
                     for_each_episode_set_task_status=self.for_each_episode_set_task_status, \
-                    on_delete_episodes_button_clicked=self.on_itemRemoveOldEpisodes_activate, \
-                    on_itemUpdate_activate=self.on_itemUpdate_activate)
+                    on_itemUpdate_activate=self.on_itemUpdate_activate, \
+                    show_delete_episodes_window=self.show_delete_episodes_window, \
+                    cover_downloader=self.cover_downloader)
 
             # Expose objects for episode list type-ahead find
             self.hbox_search_episodes = self.episodes_window.hbox_search_episodes
@@ -430,6 +433,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable = self.episodes_window.treeview
             self.treeDownloads = self.downloads_window.treeview
 
+        # Source IDs for timeouts for search-as-you-type
+        self._podcast_list_search_timeout = None
+        self._episode_list_search_timeout = None
+
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
         self.init_episode_list_treeview()
@@ -440,7 +447,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.currently_updating = False
 
-        if gpodder.ui.maemo:
+        if gpodder.ui.maemo or self.config.enable_fingerscroll:
             self.context_menu_mouse_button = 1
         else:
             self.context_menu_mouse_button = 3
@@ -489,7 +496,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 indicator = ProgressIndicator(_('Loading incomplete downloads'), \
                         _('Some episodes have not finished downloading in a previous session.'), \
                         False, self.get_dialog_parent())
-                indicator.on_message(N_('%d partial file', '%d partial files', count) % count)
+                indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
 
                 candidates = [f[:-len('.partial')] for f in partial_files]
                 found = 0
@@ -586,7 +593,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
-            filename = uri[len(prefix):]
+            filename = urllib.unquote(uri[len(prefix):])
             file_parts = [x for x in filename.split(os.sep) if x]
 
             if len(file_parts) == 2:
@@ -849,9 +856,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
 
-        if gpodder.ui.maemo:
-            if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
-                return self.treeview_available_handle_gestures(treeview, event)
+        if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
+            return self.treeview_available_handle_gestures(treeview, event)
 
         return self.treeview_available_show_context_menu(treeview, event)
 
@@ -863,7 +869,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_entry_search_podcasts_changed(self, editable):
         if self.hbox_search_podcasts.get_property('visible'):
-            self.podcast_list_model.set_search_term(editable.get_chars(0, -1))
+            def set_search_term(self, text):
+                self.podcast_list_model.set_search_term(text)
+                self._podcast_list_search_timeout = None
+                return False
+
+            if self._podcast_list_search_timeout is not None:
+                gobject.source_remove(self._podcast_list_search_timeout)
+            self._podcast_list_search_timeout = gobject.timeout_add(\
+                    self.LIVE_SEARCH_DELAY, \
+                    set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_podcasts_key_press(self, editable, event):
         if event.keyval == gtk.keysyms.Escape:
@@ -871,6 +886,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def hide_podcast_search(self, *args):
+        if self._podcast_list_search_timeout is not None:
+            gobject.source_remove(self._podcast_list_search_timeout)
+            self._podcast_list_search_timeout = None
         self.hbox_search_podcasts.hide()
         self.entry_search_podcasts.set_text('')
         self.podcast_list_model.set_search_term(None)
@@ -958,7 +976,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_entry_search_episodes_changed(self, editable):
         if self.hbox_search_episodes.get_property('visible'):
-            self.episode_list_model.set_search_term(editable.get_chars(0, -1))
+            def set_search_term(self, text):
+                self.episode_list_model.set_search_term(text)
+                self._episode_list_search_timeout = None
+                return False
+
+            if self._episode_list_search_timeout is not None:
+                gobject.source_remove(self._episode_list_search_timeout)
+            self._episode_list_search_timeout = gobject.timeout_add(\
+                    self.LIVE_SEARCH_DELAY, \
+                    set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_episodes_key_press(self, editable, event):
         if event.keyval == gtk.keysyms.Escape:
@@ -966,6 +993,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def hide_episode_search(self, *args):
+        if self._episode_list_search_timeout is not None:
+            gobject.source_remove(self._episode_list_search_timeout)
+            self._episode_list_search_timeout = None
         self.hbox_search_episodes.hide()
         self.entry_search_episodes.set_text('')
         self.episode_list_model.set_search_term(None)
@@ -979,8 +1009,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.empty_episode_list_model = EpisodeListModel()
-        self.episode_list_model = EpisodeListModel()
+        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -998,49 +1027,52 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = gtk.CellRendererPixbuf()
+        iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
         if gpodder.ui.maemo:
             iconcell.set_fixed_size(50, 50)
-            status_column_label = ''
         else:
-            status_column_label = _('Status')
-        iconcolumn = gtk.TreeViewColumn(status_column_label, iconcell, pixbuf=EpisodeListModel.C_STATUS_ICON)
+            iconcell.set_fixed_size(40, -1)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         namecolumn = gtk.TreeViewColumn(_('Episode'))
+        namecolumn.pack_start(iconcell, False)
+        namecolumn.add_attribute(iconcell, 'icon-name', EpisodeListModel.C_STATUS_ICON)
         namecolumn.pack_start(namecell, True)
         namecolumn.add_attribute(namecell, 'markup', EpisodeListModel.C_DESCRIPTION)
-        namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
-        namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        namecolumn.set_resizable(True)
+        if gpodder.ui.fremantle:
+            namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        else:
+            namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
+            namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+            namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
         if gpodder.ui.fremantle:
             from gpodder.gtkui.frmntl import style
             timecell = gtk.CellRendererText()
-            timecell.set_property('font-desc', style.get_font_desc('SystemFont'))
+            timecell.set_property('font-desc', style.get_font_desc('SmallSystemFont'))
             timecell.set_property('foreground-gdk', style.get_color('SecondaryTextColor'))
             timecell.set_property('alignment', pango.ALIGN_RIGHT)
             timecell.set_property('xalign', 1.)
             timecell.set_property('xpad', 5)
+            timecell.set_property('yalign', .85)
             namecolumn.pack_start(timecell, False)
             namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
-            namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME1_VISIBLE)
+            namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME_VISIBLE)
 
-            # Add another cell renderer to fix a sizing issue (one renderer
-            # only renders short text and the other one longer text to avoid
-            # having titles of episodes unnecessarily cut off)
-            timecell = gtk.CellRendererText()
-            timecell.set_property('font-desc', style.get_font_desc('SystemFont'))
-            timecell.set_property('foreground-gdk', style.get_color('SecondaryTextColor'))
-            timecell.set_property('alignment', pango.ALIGN_RIGHT)
-            timecell.set_property('xalign', 1.)
-            timecell.set_property('xpad', 5)
-            namecolumn.pack_start(timecell, False)
-            namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
-            namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME2_VISIBLE)
+        lockcell = gtk.CellRendererPixbuf()
+        lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        if gpodder.ui.fremantle:
+            lockcell.set_property('icon-name', 'general_locked')
+        else:
+            lockcell.set_property('icon-name', 'emblem-readonly')
+
+        namecolumn.pack_start(lockcell, False)
+        namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
 
         sizecell = gtk.CellRendererText()
+        sizecell.set_property('xalign', 1)
         sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
         sizecolumn.set_sort_column_id(EpisodeListModel.C_FILESIZE)
 
@@ -1048,13 +1080,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
-        for itemcolumn in (iconcolumn, namecolumn, sizecolumn, releasecolumn):
-            itemcolumn.set_reorderable(True)
-            self.treeAvailable.append_column(itemcolumn)
+        namecolumn.set_reorderable(True)
+        self.treeAvailable.append_column(namecolumn)
 
-        if gpodder.ui.maemo:
-            sizecolumn.set_visible(False)
-            releasecolumn.set_visible(False)
+        if not gpodder.ui.maemo:
+            for itemcolumn in (sizecolumn, releasecolumn):
+                itemcolumn.set_reorderable(True)
+                self.treeAvailable.append_column(itemcolumn)
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
@@ -1075,7 +1107,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
-        if gpodder.ui.desktop:
+        if gpodder.ui.desktop and not self.config.enable_fingerscroll:
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
                     (('text/uri-list', 0, 0),), gtk.gdk.ACTION_COPY)
             def drag_data_get(tree, context, selection_data, info, timestamp):
@@ -1091,11 +1123,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
-        if gpodder.ui.diablo:
-            if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
-                selection.set_mode(gtk.SELECTION_SINGLE)
-            else:
-                selection.set_mode(gtk.SELECTION_MULTIPLE)
+        if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
+            selection.set_mode(gtk.SELECTION_SINGLE)
         elif gpodder.ui.fremantle:
             selection.set_mode(gtk.SELECTION_SINGLE)
         else:
@@ -1132,9 +1161,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         cell = gtk.CellRendererPixbuf()
         if gpodder.ui.maemo:
             cell.set_fixed_size(50, 50)
-        cell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        cell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
         column.pack_start(cell, expand=False)
-        column.add_attribute(cell, 'stock-id', \
+        column.add_attribute(cell, 'icon-name', \
                 DownloadStatusModel.C_ICON_NAME)
 
         cell = gtk.CellRendererText()
@@ -1155,8 +1184,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_expand(False)
         self.treeDownloads.append_column(column)
-        column.set_property('min-width', 150)
-        column.set_property('max-width', 150)
+        if gpodder.ui.maemo:
+            column.set_property('min-width', 200)
+            column.set_property('max-width', 200)
+        else:
+            column.set_property('min-width', 150)
+            column.set_property('max-width', 150)
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
@@ -1182,7 +1215,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if role == TreeViewHelper.ROLE_EPISODES:
                 if self.currently_updating:
                     text = _('Loading episodes')
-                    progress = self.episode_list_model.get_update_progress()
                 elif self.config.episode_list_view_mode != \
                         EpisodeListModel.VIEW_ALL:
                     text = _('No episodes in current view')
@@ -1332,11 +1364,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if downloading + failed + queued > 0:
                     s = []
                     if downloading > 0:
-                        s.append(N_('%d active', '%d active', downloading) % downloading)
+                        s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count':downloading})
                     if failed > 0:
-                        s.append(N_('%d failed', '%d failed', failed) % failed)
+                        s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count':failed})
                     if queued > 0:
-                        s.append(N_('%d queued', '%d queued', queued) % queued)
+                        s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
                     text.append(' (' + ', '.join(s)+')')
                 self.labelDownloads.set_text(''.join(text))
             elif gpodder.ui.diablo:
@@ -1347,11 +1379,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.tool_downloads.set_label(_('Downloads'))
             elif gpodder.ui.fremantle:
                 if downloading + queued > 0:
-                    self.button_downloads.set_value(N_('%d active', '%d active', downloading+queued) % (downloading+queued))
+                    self.button_downloads.set_value(N_('%(count)d active', '%(count)d active', downloading+queued) % {'count':(downloading+queued)})
                 elif failed > 0:
-                    self.button_downloads.set_value(N_('%d failed', '%d failed', failed) % failed)
+                    self.button_downloads.set_value(N_('%(count)d failed', '%(count)d failed', failed) % {'count':failed})
                 elif paused > 0:
-                    self.button_downloads.set_value(N_('%d paused', '%d paused', paused) % paused)
+                    self.button_downloads.set_value(N_('%(count)d paused', '%(count)d paused', paused) % {'count':paused})
                 else:
                     self.button_downloads.set_value(_('Idle'))
 
@@ -1368,7 +1400,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             count = downloading + queued
             if count > 0:
-                title.append(N_('downloading %d file', 'downloading %d files', count) % count)
+                title.append(N_('downloading %(count)d file', 'downloading %(count)d files', count) % {'count':count})
 
                 if total_size > 0:
                     percentage = 100.0*done_size/total_size
@@ -1464,7 +1496,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
 
-        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or (column is not None and column != treeview.get_columns()[0]):
+        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (column is not None and column != treeview.get_columns()[0]):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
             return False
 
@@ -1664,7 +1696,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         more_episodes = len(episode_list) - max_episodes
         if more_episodes > 0:
             result.append('(...')
-            result.append(N_('%d more episode', '%d more episodes', more_episodes) % more_episodes)
+            result.append(N_('%(count)d more episode', '%(count)d more episodes', more_episodes) % {'count':more_episodes})
             result.append('...)')
 
         return (''.join(result)).strip()
@@ -1756,7 +1788,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
 
-            if gpodder.ui.maemo:
+            if gpodder.ui.maemo or self.config.enable_fingerscroll:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -2055,7 +2087,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
             menu.append(self.set_finger_friendly(item))
 
-            if gpodder.ui.maemo:
+            if gpodder.ui.maemo or self.config.enable_fingerscroll:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -2189,7 +2221,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if resume_position == episode.total_time:
                 resume_position = 0
 
-            if gpodder.ui.fremantle:
+            # Only on Maemo 5, and only if the episode isn't finished yet
+            if gpodder.ui.fremantle and not episode.is_finished():
                 self.mafw_monitor.set_resume_point(filename, resume_position)
 
             # If Panucci is configured, use D-Bus on Maemo to call it
@@ -2249,12 +2282,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Open episodes with system default player
         if 'default' in groups:
-            if gpodder.ui.maemo:
+            # Special-casing for a single episode when the object is a PDF
+            # file - this is needed on Maemo 5, so we only use gui_open()
+            # for single PDF files, but still use the built-in media player
+            # with an M3U file for single audio/video files. (The Maemo 5
+            # media player behaves differently when opening a single-file
+            # M3U playlist compared to opening the single file directly.)
+            if len(groups['default']) == 1:
+                fn = groups['default'][0]
+                # The list of extensions is taken from gui_open in util.py
+                # where all special-cases of Maemo apps are listed
+                for extension in ('.pdf', '.jpg', '.jpeg', '.png'):
+                    if fn.lower().endswith(extension):
+                        util.gui_open(fn)
+                        groups['default'] = []
+                        break
+
+            if gpodder.ui.maemo and groups['default']:
                 # The Nokia Media Player app does not support receiving multiple
                 # file names via D-Bus, so we simply place all file names into a
                 # temporary M3U playlist and open that with the Media Player.
                 m3u_filename = os.path.join(gpodder.home, 'gpodder_open_with.m3u')
-                util.write_m3u_playlist(m3u_filename, groups['default'], extm3u=False)
+
+                def to_url(x):
+                    if '://' not in x:
+                        return 'file://' + urllib.quote(os.path.abspath(x))
+                    return x
+
+                util.write_m3u_playlist(m3u_filename, \
+                        map(to_url, groups['default']), \
+                        extm3u=False)
                 util.gui_open(m3u_filename)
             else:
                 for filename in groups['default']:
@@ -2268,7 +2325,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 text = _('Opening %s') % episodes[0].title
             else:
                 count = len(episodes)
-                text = N_('Opening %d episode', 'Opening %d episodes', count) % count
+                text = N_('Opening %(count)d episode', 'Opening %(count)d episodes', count) % {'count':count}
 
             banner = hildon.hildon_banner_show_animation(self.gPodder, '', text)
 
@@ -2455,7 +2512,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                         pos = model.iter_next(pos)
 
-                if not gpodder.ui.fremantle:
+                if not gpodder.ui.maemo:
                     if selected_iter is not None:
                         selection.select_iter(selected_iter)
                     self.on_treeChannels_cursor_changed(self.treeChannels)
@@ -2470,6 +2527,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episode.url in (task.url for task in self.download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED))
 
+    def on_episode_list_filter_changed(self, has_episodes):
+        if gpodder.ui.fremantle:
+            if has_episodes:
+                self.episodes_window.empty_label.hide()
+                self.episodes_window.pannablearea.show()
+            else:
+                if self.config.episode_list_view_mode != \
+                        EpisodeListModel.VIEW_ALL:
+                    text = _('No episodes in current view')
+                else:
+                    text = _('No episodes available')
+                self.episodes_window.empty_label.set_text(text)
+                self.episodes_window.pannablearea.hide()
+                self.episodes_window.empty_label.show()
+
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
             if gpodder.ui.fremantle:
@@ -2477,24 +2549,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.currently_updating = True
             self.episode_list_model.clear()
-            self.episode_list_model.reset_update_progress()
-            self.treeAvailable.set_model(self.empty_episode_list_model)
-            def do_update_episode_list_model():
+            if gpodder.ui.fremantle:
+                self.episodes_window.pannablearea.hide()
+                self.episodes_window.empty_label.set_text(_('Loading episodes'))
+                self.episodes_window.empty_label.show()
+
+            def update():
                 additional_args = (self.episode_is_downloading, \
                         self.config.episode_list_descriptions and gpodder.ui.desktop, \
-                        self.config.episode_list_thumbnails and gpodder.ui.desktop, \
-                        self.treeAvailable)
-                self.episode_list_model.add_from_channel(self.active_channel, *additional_args)
+                        self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                self.episode_list_model.replace_from_channel(self.active_channel, *additional_args)
 
-                def on_episode_list_model_updated():
-                    if gpodder.ui.fremantle:
-                        hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
-                    self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
-                    self.treeAvailable.columns_autosize()
-                    self.currently_updating = False
-                    self.play_or_download()
-                util.idle_add(on_episode_list_model_updated)
-            threading.Thread(target=do_update_episode_list_model).start()
+                self.treeAvailable.get_selection().unselect_all()
+                self.treeAvailable.scroll_to_point(0, 0)
+
+                self.currently_updating = False
+                self.play_or_download()
+
+                if gpodder.ui.fremantle:
+                    hildon.hildon_gtk_window_set_progress_indicator(\
+                            self.episodes_window.main_window, False)
+
+            util.idle_add(update)
         else:
             self.episode_list_model.clear()
 
@@ -2740,7 +2816,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         episode.delete_from_disk()
                         episode.save()
 
-            indicator.on_message(N_('%d action processed', '%d actions processed', idx) % idx)
+            indicator.on_message(N_('%(count)d action processed', '%(count)d actions processed', idx) % {'count':idx})
             gtk.main_iteration(False)
 
         indicator.on_finished()
@@ -2788,7 +2864,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.show_message(_('New episodes are available.'))
                 elif self.config.auto_download == 'always':
                     count = len(episodes)
-                    title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
+                    title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                     self.show_message(title)
                     self.download_episode_list(episodes)
                 elif self.config.auto_download == 'queue':
@@ -2847,12 +2923,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Are we minimized and should we auto download?
             if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
                 self.download_episode_list(episodes)
-                title = N_('Downloading %d new episode.', 'Downloading %d new episodes.', count) % count
+                title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                 self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             elif self.config.auto_download == 'queue':
                 self.download_episode_list_paused(episodes)
-                title = N_('%d new episode added to download list.', '%d new episodes added to download list.', count) % count
+                title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
                 self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
                 self.show_update_feeds_buttons()
             else:
@@ -2861,7 +2937,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not self.config.do_not_show_new_episodes_dialog:
                     self.new_episodes_show(episodes, notification=True)
                 else:
-                    message = N_('%d new episode available', '%d new episodes available', count) % count
+                    message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
                     self.pbFeedUpdate.set_text(message)
 
     def _update_cover(self, channel):
@@ -2981,7 +3057,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             text = _('Updating "%s"...') % channels[0].title
         else:
             count = len(channels)
-            text = N_('Updating %d feed...', 'Updating %d feeds...', count) % count
+            text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
         self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
 
@@ -2999,7 +3075,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # but not when we are using "Quit" in the menu or toolbar
         if self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
             self.iconify_main_window()
-        elif self.config.on_quit_ask or downloading:
+        elif downloading:
             if gpodder.ui.fremantle:
                 self.close_gpodder()
             elif gpodder.ui.diablo:
@@ -3013,25 +3089,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             quit_button = dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
 
             title = _('Quit gPodder')
-            if downloading:
-                message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
-            else:
-                message = _('Do you really want to quit gPodder now?')
+            message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
 
             dialog.set_title(title)
             dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
-            if not downloading:
-                cb_ask = gtk.CheckButton(_("Don't ask me again"))
-                dialog.vbox.pack_start(cb_ask)
-                cb_ask.show_all()
 
             quit_button.grab_focus()
             result = dialog.run()
             dialog.destroy()
 
             if result == gtk.RESPONSE_CLOSE:
-                if not downloading and cb_ask.get_active() == True:
-                    self.config.on_quit_ask = False
                 self.close_gpodder()
         else:
             self.close_gpodder()
@@ -3100,7 +3167,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return False
 
         count = len(episodes)
-        title = N_('Delete %d episode?', 'Delete %d episodes?', count) % count
+        title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
         message = _('Deleting episodes removes downloaded files.')
 
         if gpodder.ui.fremantle:
@@ -3156,7 +3223,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
-    def on_itemRemoveOldEpisodes_activate( self, widget):
+    def on_itemRemoveOldEpisodes_activate(self, widget):
+        self.show_delete_episodes_window()
+
+    def show_delete_episodes_window(self, channel=None):
+        """Offer deletion of episodes
+
+        If channel is None, offer deletion of all episodes.
+        Otherwise only offer deletion of episodes in the channel.
+        """
         if gpodder.ui.maemo:
             columns = (
                 ('maemo_remove_markup', None, None, _('Episode')),
@@ -3170,25 +3245,28 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ('age_prop', 'age_int_prop', gobject.TYPE_INT, _('Downloaded')),
             )
 
-        msg_older_than = N_('Select older than %d day', 'Select older than %d days', self.config.episode_old_age)
+        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
         selection_buttons = {
                 _('Select played'): lambda episode: episode.is_played,
                 _('Select finished'): lambda episode: episode.is_finished(),
-                msg_older_than % self.config.episode_old_age: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % {'count':self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete:')
 
+        if channel is None:
+            channels = self.channels
+        else:
+            channels = [channel]
+
         episodes = []
-        selected = []
-        for channel in self.channels:
+        for channel in channels:
             for episode in channel.get_downloaded_episodes():
                 # Disallow deletion of locked episodes that still exist
                 if not episode.is_locked or not episode.file_exists():
                     episodes.append(episode)
-                    # Automatically select played and file-less episodes
-                    selected.append(episode.is_played or \
-                                    not episode.file_exists())
+
+        selected = [e.is_played or not e.file_exists() for e in episodes]
 
         gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
@@ -3391,6 +3469,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episodes
 
+    @dbus.service.method(gpodder.dbus_interface)
+    def start_device_synchronization(self):
+        """Public D-Bus API for starting Device sync (Desktop only)
+
+        This method can be called to initiate a synchronization with
+        a configured protable media player. This only works for the
+        Desktop version of gPodder and does nothing on Maemo.
+        """
+        if gpodder.ui.desktop:
+            self.on_sync_to_ipod_activate(None)
+            return True
+
+        return False
+
     def on_sync_to_ipod_activate(self, widget, episodes=None):
         self.sync_ui.on_synchronize_episodes(self.channels, episodes)
 
@@ -3446,15 +3538,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_view_episodes_changed(self, radioaction, current):
         if current == self.item_view_episodes_all:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_ALL)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_ALL
         elif current == self.item_view_episodes_undeleted:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNDELETED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_UNDELETED
         elif current == self.item_view_episodes_downloaded:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_DOWNLOADED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_DOWNLOADED
         elif current == self.item_view_episodes_unplayed:
-            self.episode_list_model.set_view_mode(EpisodeListModel.VIEW_UNPLAYED)
+            self.config.episode_list_view_mode = EpisodeListModel.VIEW_UNPLAYED
 
-        self.config.episode_list_view_mode = self.episode_list_model.get_view_mode()
+        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
 
         if self.config.podcast_list_hide_boring and not gpodder.ui.fremantle:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
@@ -3659,8 +3751,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_import_from_file_activate(self, widget, filename=None):
         if filename is None:
             if gpodder.ui.desktop or gpodder.ui.fremantle:
-                # FIXME: Hildonization on Fremantle
-                dlg = gtk.FileChooserDialog(title=_('Import from OPML'), parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+                dlg = gtk.FileChooserDialog(title=_('Import from OPML'), \
+                        parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
                 dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
             elif gpodder.ui.diablo:
@@ -3701,7 +3793,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             exporter = opml.Exporter( filename)
             if exporter.write(self.channels):
                 count = len(self.channels)
-                title = N_('%d subscription exported', '%d subscriptions exported', count) % count
+                title = N_('%(count)d subscription exported', '%(count)d subscriptions exported', count) % {'count':count}
                 self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
             else:
                 self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'), important=True)
@@ -3766,7 +3858,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # items to the about dialog (credits and logo)
             app_authors = [
                     _('Maintainer:'),
-                    'Thomas Perl <thpinfo.com>',
+                    'Thomas Perl <thp.io>',
             ]
 
             if os.path.exists(gpodder.credits_file):
@@ -4147,10 +4239,8 @@ def main(options=None):
                 else:
                     log('Downloads NOT FOUND in %s', dir)
 
-        if config.enable_fingerscroll:
-            BuilderWidget.use_fingerscroll = True
-    elif gpodder.ui.fremantle:
-        config.on_quit_ask = False
+    if config.enable_fingerscroll:
+        BuilderWidget.use_fingerscroll = True
 
     config.mygpo_device_type = util.detect_device_type()
 

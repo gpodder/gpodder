@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # A graphical way to "git pull" from the repository
-# 2009-04-27 Thomas Perl <thpinfo.com>
+# 2009-04-27 Thomas Perl <thp.io/about>
 
 import gtk
 import gobject

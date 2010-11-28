@@ -7,7 +7,7 @@ VERSION=`echo $SOURCEFILE | sed -e 's/[^_]*_\(.*\)-[^-]*\.dsc/\1/g'`
 FOLDER=`echo $SOURCEFILE | sed -e 's/\([^_]*\)_.*/\1/g'`-${VERSION}
 
 # See https://wiki.ubuntu.com/DevelopmentCodeNames
-UBUNTU_RELEASES="jaunty karmic lucid maverick"
+UBUNTU_RELEASES="jaunty karmic lucid maverick natty"
 
 echo "SOURCEFILE = $SOURCEFILE"
 echo "VERSION    = $VERSION"
@@ -21,7 +21,7 @@ for DIST in $UBUNTU_RELEASES; do
     NEW_VERSION=${VERSION}~${DIST}0
 
     dch --distribution ${DIST} \
-        --maintmaint --force-bad-version --preserve \
+        --force-bad-version --preserve \
         --newversion ${NEW_VERSION} "Automatic build for ${DIST}"
 
     dpkg-buildpackage -S -sa -us -uc

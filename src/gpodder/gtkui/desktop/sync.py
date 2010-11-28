@@ -18,7 +18,7 @@
 #
 
 # gpodder.gtkui.desktop.sync - Glue code between GTK+ UI and sync module
-# Thomas Perl <thpinfo.com>; 2009-09-05 (based on code from gui.py)
+# Thomas Perl <thp@gpodder.org>; 2009-09-05 (based on code from gui.py)
 
 import gtk
 import threading
