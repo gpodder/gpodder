@@ -28,6 +28,8 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder import model
+from gpodder import query
 from gpodder.liblogger import log
 
 from gpodder.gtkui import draw
@@ -49,8 +51,6 @@ class EpisodeListModel(gtk.ListStore):
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME_VISIBLE, \
             C_LOCKED = range(16)
-
-    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
@@ -107,12 +107,18 @@ class EpisodeListModel(gtk.ListStore):
         else:
             return None
 
-
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
-            key = self._search_term.lower()
-            return any((key in (model.get_value(iter, column) or '').lower()) for column in self.SEARCH_COLUMNS)
+            episode = model.get_value(iter, self.C_EPISODE)
+            if episode is None:
+                return False
+
+            try:
+                q = query.UserEQL(self._search_term)
+                return q.match(episode)
+            except Exception, e:
+                return True
 
         if self._view_mode == self.VIEW_ALL:
             return True

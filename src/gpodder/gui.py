@@ -163,7 +163,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     ICON_GENERAL_REFRESH = 'general_refresh'
 
     # Delay until live search is started after typing stop
-    LIVE_SEARCH_DELAY = 200
+    LIVE_SEARCH_DELAY = 500
 
     def __init__(self, bus_name, config):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)

@@ -35,6 +35,7 @@ from gpodder.gtkui import model
 from gpodder.gtkui.frmntl import style
 
 from gpodder import util
+from gpodder import query
 
 class DownloadStatusModel(download.DownloadStatusModel):
     def __init__(self):
@@ -275,8 +276,9 @@ class EpisodeListModel(gtk.GenericTreeModel):
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
-            key = self._search_term.lower()
-            return any((key in (model.get_value(iter, column) or '').lower()) for column in self.SEARCH_COLUMNS)
+            episode = model.get_value(iter, self.C_EPISODE)
+            q = query.UserEQL(self._search_term)
+            return q.match(episode)
 
         if self._view_mode == self.VIEW_ALL:
             return True
@@ -296,10 +298,8 @@ class EpisodeListModel(gtk.GenericTreeModel):
         applied, return True (otherwise return False).
         """
 
-        # XXX: This must be kept in sync with the behaviour of _filter_visible_func
         if self._search_term is not None:
-            key = self._search_term.lower()
-            is_visible = lambda episode: key in (episode.title or '').lower()
+            is_visible = query.UserEQL(self._search_term).match
         elif self._view_mode == self.VIEW_ALL:
             return bool(self._episodes)
         elif self._view_mode == self.VIEW_UNDELETED:
