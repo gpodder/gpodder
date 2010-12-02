@@ -59,7 +59,9 @@ class gPodderAddPodcast(BuilderWidget):
             # only if there's no preset_url available (see bug 1132)
             clipboard = gtk.Clipboard(selection='PRIMARY')
             def receive_clipboard_text(clipboard, text, second_try):
-                if text is not None:
+                # Heuristic: If there is a space in the clipboard
+                # text, assume it's some arbitrary text, and no URL
+                if text is not None and ' ' not in text:
                     url = util.normalize_feed_url(text)
                     if url is not None:
                         self.entry_url.set_text(url)
