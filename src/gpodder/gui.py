@@ -2305,6 +2305,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 m3u_filename = os.path.join(gpodder.home, 'gpodder_open_with.m3u')
 
                 def to_url(x):
+                    # Diablo's Player hates file:// URLs (Maemo bug 11647)
+                    if gpodder.ui.diablo:
+                        return x
+
                     if '://' not in x:
                         return 'file://' + urllib.quote(os.path.abspath(x))
                     return x
