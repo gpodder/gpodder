@@ -1032,6 +1032,12 @@ class PodcastEpisode(PodcastModelObject):
                 if self.url.startswith(yt_url):
                     fn_template = util.sanitize_filename(os.path.basename(self.title), self.MAX_FILENAME_LENGTH)
 
+            # Nicer download filenames for Soundcloud streams
+            if fn_template == 'stream':
+                sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
+                if sanitized:
+                    fn_template = sanitized
+
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):
                 log('Report to bugs.gpodder.org: Podcast at %s with episode URL: %s', self.channel.url, self.url, sender=self)
