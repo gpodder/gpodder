@@ -56,14 +56,22 @@ def get_real_download_url(url, preferred_fmt_id=18):
 
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
-        r3 = re.compile('.*"fmt_map"\:\s+"([^"]+)".*').search(page)
-        if not r3:
-            r3 = re.compile('&fmt_map=([^&]+).*').search(page)
+        def find_urls(page):
+            r4 = re.search('.*"fmt_url_map"\:\s+"([^"]+)".*', page)
+            if r4 is not None:
+                fmt_url_map = r4.group(1)
+                for fmt_url_encoded in fmt_url_map.split(','):
+                    fmt_url = urllib.unquote(fmt_url_encoded)
+                    fmt_url = fmt_url.replace('\\/', '/')
+                    fmt_id, url = fmt_url.split('|', 2)
+                    yield int(fmt_id), url
 
-        if r3:
-            formats_available = urllib.unquote(r3.group(1)).replace('\\/', '/').split(',')
-        else:
-            formats_available = []
+        fmt_id_url_map = sorted(find_urls(page), reverse=True)
+        # Default to the highest fmt_id if we don't find a match below
+        default_fmt_id, default_url = fmt_id_url_map[0]
+
+        formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
+        fmt_id_url_map = dict(fmt_id_url_map)
 
         if gpodder.ui.diablo:
             # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
@@ -99,15 +107,9 @@ def get_real_download_url(url, preferred_fmt_id=18):
                     fmt_id = id
                     break
 
-        r2 = re.compile('.*"t"\:\s+"([^"]+)".*').search(page)
-        if not r2:
-            r2 = re.compile('.*&t=([^&]+)').search(page)
-
-        if r2:
-            d = {'video_id': vid, 't': r2.group(1), 'fmt': fmt_id}
-            next = 'http://www.youtube.com/get_video?video_id=%(video_id)s&t=%(t)s&eurl=&el=&ps=&asv=&fmt=%(fmt)s' % d
-            log('YouTube link resolved: %s => %s', url, next)
-            return next
+        url = fmt_id_url_map.get(fmt_id, None)
+        if url is None:
+            url = default_url
 
     return url
 
