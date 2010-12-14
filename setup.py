@@ -63,6 +63,18 @@ if not len(translation_files) and \
     Warning: No translation files. (Did you forget to run "make messages"?)
     """
 
+DBUS_SERVICE_FILE = 'data/org.gpodder.service'
+
+if not os.path.exists(DBUS_SERVICE_FILE):
+    print >>sys.stderr, """
+    Warning: D-Bus service file not found. This usually means that you
+    used setup.py directly. The recommended way is to use "make install",
+    which will generate the prerequisites and then call setup.py.
+
+    Using "make install" will also allow you to set DESTDIR and PREFIX.
+    """
+
+
 # files to install
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
@@ -72,7 +84,7 @@ inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ] + glob.glob('data/images/*.png')
 inst_desktop = [ 'data/gpodder.desktop' ]
 inst_desktop_maemo = [ 'data/maemo/gpodder.desktop' ]
-inst_share_dbus_services = ['data/org.gpodder.service']
+inst_share_dbus_services = [ DBUS_SERVICE_FILE ]
 
 inst_icons    = [ 'data/gpodder.png' ]
 inst_icons_64 = [ 'data/icons/64/gpodder.png' ]
