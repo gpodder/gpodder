@@ -678,7 +678,7 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
         if 'content' in entry and len(entry['content']) and \
-                entry['content'][0].type == 'text/html':
+                entry['content'][0].get('type', '') == 'text/html':
             episode.description = entry['content'][0].value
         else:
             episode.description = entry.get('summary', '')
