@@ -166,7 +166,7 @@ def normalize_feed_url(url):
     # Re-assemble our URL
     url = scheme + '://' + rest
 
-    if scheme in ('http', 'https', 'ftp'):
+    if scheme in ('http', 'https', 'ftp', 'file'):
         return url
 
     return None
