@@ -41,6 +41,8 @@ supported_formats = [
     (5, '5/320x240/7/0/0', '320x240 (FLV)'),
 ]
 
+class YouTubeError(Exception): pass
+
 def get_real_download_url(url, preferred_fmt_id=18):
     vid = get_youtube_id(url)
     if vid is not None:
@@ -68,7 +70,11 @@ def get_real_download_url(url, preferred_fmt_id=18):
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
         # Default to the highest fmt_id if we don't find a match below
-        default_fmt_id, default_url = fmt_id_url_map[0]
+        if fmt_id_url_map:
+            default_fmt_id, default_url = fmt_id_url_map[0]
+        else:
+            raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
+
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
