@@ -516,6 +516,14 @@ class DownloadTask(object):
     it from the UI, so that it can carry out any pending clean-up
     actions (e.g. removing the temporary file when the task has not
     finished successfully; i.e. task.status != DownloadTask.DONE).
+
+    The UI can call the method "notify_as_finished()" to determine if
+    this episode still has still to be shown as "finished" download
+    in a notification window. This will return True only the first time
+    it is called when the status is DONE. After returning True once,
+    it will always return False afterwards.
+
+    The same thing works for failed downloads ("notify_as_failed()").
     """
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
@@ -582,6 +590,9 @@ class DownloadTask(object):
         self.progress = 0.0
         self.error_message = None
 
+        # Have we already shown this task in a notification?
+        self._notification_shown = False
+
         # Variables for speed limit and speed calculation
         self.__start_time = 0
         self.__start_blocks = 0
@@ -603,6 +614,26 @@ class DownloadTask(object):
             # "touch self.tempname", so we also get partial
             # files for resuming when the file is queued
             open(self.tempname, 'w').close()
+
+    def notify_as_finished(self):
+        if self.status == DownloadTask.DONE:
+            if self._notification_shown:
+                return False
+            else:
+                self._notification_shown = True
+                return True
+
+        return False
+
+    def notify_as_failed(self):
+        if self.status == DownloadTask.FAILED:
+            if self._notification_shown:
+                return False
+            else:
+                self._notification_shown = True
+                return True
+
+        return False
 
     def add_progress_callback(self, callback):
         self._progress_updated = callback
@@ -683,6 +714,7 @@ class DownloadTask(object):
 
         # We are downloading this file right now
         self.status = DownloadTask.DOWNLOADING
+        self._notification_shown = False
 
         try:
             # Resolve URL and start downloading the episode
@@ -761,7 +793,8 @@ class DownloadTask(object):
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d
         except Exception, e:
             self.status = DownloadTask.FAILED
-            self.error_message = _('Error: %s') % (e.message,)
+            log('Download error: %s', str(e), traceback=True, sender=self)
+            self.error_message = _('Error: %s') % (str(e),)
 
         if self.status == DownloadTask.DOWNLOADING:
             # Everything went well - we're done
