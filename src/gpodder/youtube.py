@@ -75,7 +75,6 @@ def get_real_download_url(url, preferred_fmt_id=18):
         else:
             raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
 
-
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
@@ -107,7 +106,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
 
                 # If the format is available and preferred (or lower),
                 # use the given format for our fmt_id
-                if wanted in formats_available and seen_preferred:
+                if id in formats_available and seen_preferred:
                     log('Found available YouTube format: %s (fmt_id=%d)', \
                             description, id)
                     fmt_id = id
