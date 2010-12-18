@@ -1835,7 +1835,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.config.device_type != 'none':
                 item = gtk.MenuItem(_('Synchronize to device'))
-                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes()))
+                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes(), force_played=False))
                 menu.append(item)
 
             menu.append( gtk.SeparatorMenuItem())
@@ -3485,8 +3485,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def on_sync_to_ipod_activate(self, widget, episodes=None):
-        self.sync_ui.on_synchronize_episodes(self.channels, episodes)
+    def on_sync_to_ipod_activate(self, widget, episodes=None, force_played=True):
+        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""

@@ -81,7 +81,7 @@ class gPodderSyncUI(object):
         message = _('Please check the settings in the preferences dialog.')
         self.notification(message, title, widget=self.preferences_widget)
 
-    def on_synchronize_episodes(self, channels, episodes=None):
+    def on_synchronize_episodes(self, channels, episodes=None, force_played=True):
         if self._config.device_type == 'ipod' and not sync.gpod_available:
             title = _('Cannot sync to iPod')
             message = _('Please install python-gpod and restart gPodder.')
@@ -137,10 +137,8 @@ class gPodderSyncUI(object):
                 device.purge()
 
         if episodes is None:
-            sync_all_episodes = True
+            force_played = False
             episodes = self._filter_sync_episodes(channels)
-        else:
-            sync_all_episodes = False
 
         def check_free_space():
             # "Will we add this episode to the device?"
@@ -150,7 +148,7 @@ class gPodderSyncUI(object):
                     return False
 
                 # Might not be synced if it's played already
-                if sync_all_episodes and \
+                if not force_played and \
                         self._config.only_sync_not_played and \
                         episode.is_played:
                     return False
@@ -182,10 +180,7 @@ class gPodderSyncUI(object):
             # Finally start the synchronization process
             gPodderSyncProgress(self.parent_window, device=device)
             def sync_thread_func():
-                if sync_all_episodes:
-                    device.add_tracks(episodes)
-                else:
-                    device.add_tracks(episodes, force_played=True)
+                device.add_tracks(episodes, force_played=force_played)
                 device.close()
             threading.Thread(target=sync_thread_func).start()
 
