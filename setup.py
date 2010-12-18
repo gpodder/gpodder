@@ -65,7 +65,8 @@ if not len(translation_files) and \
 
 DBUS_SERVICE_FILE = 'data/org.gpodder.service'
 
-if not os.path.exists(DBUS_SERVICE_FILE):
+if not os.path.exists(DBUS_SERVICE_FILE) and \
+        'clean' not in sys.argv:
     print >>sys.stderr, """
     Warning: D-Bus service file not found. This usually means that you
     used setup.py directly. The recommended way is to use "make install",
