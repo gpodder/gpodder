@@ -64,8 +64,6 @@ class gPodderConfigEditor(BuilderWidget):
 
         self.configeditor.set_model(self.filter)
         self.configeditor.set_rules_hint(True)
-        self.configeditor.get_selection().connect( 'changed',
-            self.on_configeditor_row_changed )
 
     def visible_func(self, model, iter, user_data=None):
         text = self.entryFilter.get_text().lower()
@@ -111,10 +109,4 @@ class gPodderConfigEditor(BuilderWidget):
 
     def on_gPodderConfigEditor_destroy(self, widget):
         self.model.stop_observing()
-
-    def on_configeditor_row_changed(self, treeselection):
-        model, iter = treeselection.get_selected()
-        if iter is not None:
-            option_name = self._config.get_description( model.get(iter, 0)[0] )
-            self.config_option_description_label.set_text(option_name)
 

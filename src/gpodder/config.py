@@ -43,226 +43,99 @@ elif gpodder.ui.diablo:
 else:
     default_download_dir = os.path.join(os.path.expanduser('~'), 'gpodder-downloads')
 
+
 gPodderSettings = {
-    # General settings
-    'player': (str, 'default', 
-      ("The default player for all media, if set to 'default' this will "
-        "attempt to use xdg-open on linux or the built-in media player on maemo.")),
-    'videoplayer': (str, 'default',
-      ("The default player for video")),
-    'opml_url': (str, 'http://gpodder.org/directory.opml',
-      ("A URL pointing to an OPML file which can be used to bulk-add podcasts.")),
-    'toplist_url': (str, 'http://gpodder.org/toplist.opml',
-      ("A URL pointing to a gPodder web services top podcasts list")),
-    'custom_sync_name': ( str, '{episode.basename}',
-      ("The name used when copying a file to a FS-based device. Available "
-        "options are: episode.basename, episode.title, episode.published")),
-    'custom_sync_name_enabled': ( bool, True,
-      ("Enables renaming files when transfered to an FS-based device with "
-        "respect to the 'custom_sync_name'.")),
-    'max_downloads': ( int, 1,
-      ("The maximum number of simultaneous downloads allowed at a single "
-        "time. Requires 'max_downloads_enabled'.")),
-    'max_downloads_enabled': ( bool, True,
-      ("The 'max_downloads' setting will only work if this is set to 'True'.")), 
-    'limit_rate': ( bool, False,
-      ("The 'limit_rate_value' setting will only work if this is set to 'True'.")),
-    'limit_rate_value': ( float, 500.0,
-      ("Set a global speed limit (in KB/s) when downloading files. "
-        "Requires 'limit_rate'.")),
-    'episode_old_age': ( int, 7,
-      ("The number of days before an episode is considered old.")),
-
-    # Boolean config flags
-    'update_on_startup': ( bool, False,
-      ("Update the feed cache on startup.")),
-    'only_sync_not_played': ( bool, False,
-      ("Only sync episodes to a device that have not been marked played in gPodder.")),
-    'fssync_channel_subfolders': ( bool, True,
-      ("Create a directory for every feed when syncing to an FS-based device "
-        "instead of putting all the episodes in a single directory.")),
-    'on_sync_mark_played': ( bool, False,
-      ("After syncing an episode, mark it as played in gPodder.")),
-    'on_sync_delete': ( bool, False,
-      ("After syncing an episode, delete it from gPodder.")),
-    'auto_remove_played_episodes': ( bool, False,
-      ("Auto-remove old episodes that are played.")),
-    'auto_remove_unplayed_episodes': ( bool, False,
-      ("Auto-remove old episodes that are unplayed.")),
-    'auto_update_feeds': (bool, False,
-      ("Automatically update feeds when gPodder is minimized. "
-        "See 'auto_update_frequency' and 'auto_download'.")),
-    'auto_update_frequency': (int, 20,
-      ("The frequency (in minutes) at which gPodder will update all feeds "
-        "if 'auto_update_feeds' is enabled.")),
-    'auto_cleanup_downloads': (bool, True,
-      ('Automatically removed cancelled and finished downloads from the list')),
-    'episode_list_descriptions': (bool, True,
-      ("Display the episode's description under the episode title in the GUI.")),
-    'episode_list_thumbnails': (bool, True,
-      ("Display thumbnails of downloaded image-feed episodes in the list")),
-    'show_toolbar': (bool, True,
-      ("Show the toolbar in the GUI's main window.")),
-    'ipod_purge_old_episodes': (bool, False,
-      ("Remove episodes from an iPod device if they've been marked as played "
-        "on the device and they have no rating set (the rating can be set on "
-        "the device by the user to prevent deletion).")),
-    'ipod_delete_played_from_db': (bool, False,
-      ("Remove episodes from gPodder if they've been marked as played "
-        "on the device and they have no rating set (the rating can be set on "
-        "the device by the user to prevent deletion).")),
-    'ipod_write_gtkpod_extended': (bool, False,
-      ("Write gtkpod extended database.")),
-    'mp3_player_delete_played': (bool, False,
-      ("Removes episodes from an FS-based device that have been marked as "
-        "played in gPodder. Note: only works if 'only_sync_not_played' is "
-        "also enabled.")),
-    'disable_pre_sync_conversion': (bool, False,
-      ("Disable pre-synchronization conversion of OGG files. This should be "
-        "enabled for deviced that natively support OGG. Eg. Rockbox, iAudio")),
-    
-    # Tray icon and notification settings
-    'display_tray_icon': (bool, False,
-      ("Whether or not gPodder should display an icon in the system tray.")),
-    'minimize_to_tray': (bool, False,
-      ("If 'display_tray_icon' is enabled, when gPodder is minimized it will "
-        "not be visible in the window list.")),  
-    'start_iconified': (bool, False,
-      ("When gPodder starts, send it to the tray immediately.")),
-    'enable_notifications': (bool, True,
-      ("Let gPodder use notification bubbles when it can completed certain "
-        "tasks like downloading an episode or finishing syncing to a device.")),
-    'auto_download': (str, 'never',
-      ("Auto download episodes (never, minimized, always) - Fremantle also supports 'quiet'")),
-    'do_not_show_new_episodes_dialog': (bool, False,
-      ("Do not show the new episodes dialog after updating feed cache when "
-        "gPodder is not minimized")),
-
-
-    # Settings that are updated directly in code
-    'ipod_mount': ( str, '/media/ipod',
-      ("The moint point for an iPod Device.")),
-    'mp3_player_folder': ( str, '/media/usbdisk',
-      ("The moint point for an FS-based device.")),
-    'device_type': ( str, 'none',
-      ("The device type: 'mtp', 'filesystem' or 'ipod'")),
-    'download_dir': (str, default_download_dir,
-      ("The default directory that podcast episodes are downloaded to.")),
-
-    # Playlist Management settings
-    'mp3_player_playlist_file': (str, 'PLAYLISTS/gpodder.m3u',
-      ("The relative path to where the playlist is stored on an FS-based device.")),
-    'mp3_player_playlist_absolute_path': (bool, True,
-      ("Whether or not the the playlist should contain relative or absolute "
-        "paths; this is dependent on the player.")),
-    'mp3_player_playlist_win_path': (bool, True,
-      ("Whether or not the player requires Windows-style paths in the playlist.")),
-
-    # Special settings (not in preferences)
-    'max_episodes_per_feed': (int, 200,
-      ("The maximum number of episodes that gPodder will display in the episode "
-        "list. Note: Set this to a lower value on slower hardware to speed up "
-        "rendering of the episode list.")),
-    'mp3_player_use_scrobbler_log': (bool, False,
-      ("Attempt to use a Device's scrobbler.log to mark episodes as played in "
-        "gPodder. Useful for Rockbox players.")),
-    'mp3_player_max_filename_length': (int, 100,
-      ("The maximum filename length for FS-based devices.")),
-    'rockbox_copy_coverart' : (bool, False,
-      ("Create rockbox-compatible coverart and copy it to the device when "
-        "syncing. See: 'rockbox_coverart_size'.")),
-    'rockbox_coverart_size' : (int, 100,
-      ("The width of the coverart for the user's Rockbox player/skin.")),
-    'custom_player_copy_coverart' : (bool, False,
-      ("Create custom coverart for FS-based players.")),
-    'custom_player_coverart_size' : (int, 176,
-      ("The width of the coverart for the user's FS-based player.")),
-    'custom_player_coverart_name' : (str, 'folder.jpg',
-      ("The name of the coverart file accepted by the user's FS-based player.")),
-    'custom_player_coverart_format' : (str, 'JPEG',
-      ("The image format accepted by the user's FS-based player.")),
-    'enable_html_shownotes': (bool, True,
-      ("Allow HTML to be rendered in the episode information dialog.")),
-    'maemo_enable_gestures': (bool, False,
-      ("Enable fancy gestures on Maemo.")),
-    'sync_disks_after_transfer': (bool, True,
-      ("Call 'sync' after tranfering episodes to a device.")),
-    'enable_fingerscroll': (bool, False,
-      ("Enable the use of finger-scrollable widgets on Maemo.")),
-    'double_click_episode_action': (str, 'shownotes',
-      ("Episode double-click/enter action handler (shownotes, download, stream)")),
-    'on_drag_mark_played': (bool, False,
-      ("Mark episode as played when using drag'n'drop to copy/open it")),
-    'open_torrent_after_download': (bool, False,
-      ("Automatically open torrents after they have finished downloading")),
-
-    'mtp_audio_folder': (str, '',
-      ("The relative path to where audio podcasts are stored on an MTP device.")),
-    'mtp_video_folder': (str, '',
-      ("The relative path to where video podcasts are stored on an MTP device.")),
-    'mtp_image_folder': (str, '',
-      ("The relative path to where image podcasts are stored on an MTP device.")),
-    'mtp_podcast_folders': (bool, False,
-      ("Whether to create a folder per podcast on MTP devices.")),
-
-    'allow_empty_feeds': (bool, True,
-      ('Allow subscribing to feeds without episodes')),
-
-    'episode_list_view_mode': (int, 1, # "Hide deleted episodes" (see gtkui/model.py)
-      ('Internally used (current view mode)')),
-    'podcast_list_view_mode': (int, 1, # Only on Fremantle
-      ('Internally used (current view mode)')),
-    'podcast_list_hide_boring': (bool, False,
-      ('Hide podcasts in the main window for which the episode list is empty')),
-    'podcast_list_view_all': (bool, True,
-      ('Show an additional entry in the podcast list that contains all episodes')),
-
-    'audio_played_dbus': (bool, False,
-      ('Set to True if the audio player notifies gPodder about played episodes')),
-    'video_played_dbus': (bool, False,
-      ('Set to True if the video player notifies gPodder about played episodes')),
-
-    'rotation_mode': (int, 0,
-      ('Internally used on Maemo 5 for the current rotation mode')),
-
-    'youtube_preferred_fmt_id': (int, 18,
-      ('The preferred video format that should be downloaded from YouTube.')),
-
-    # gpodder.net general settings
-    'mygpo_username': (str, '',
-      ("The user's gPodder web services username.")),
-    'mygpo_password': (str, '',
-      ("The user's gPodder web services password.")),
-    'mygpo_enabled': (bool, False,
-      ("Synchronize subscriptions with the web service.")),
-    'mygpo_server': (str, 'gpodder.net',
-      ('The hostname of the mygpo server in use.')),
-
-    # gpodder.net device-specific settings
-    'mygpo_device_uid': (str, util.get_hostname(),
-      ("The UID that is assigned to this installation.")),
-    'mygpo_device_caption': (str, _('gPodder on %s') % util.get_hostname(),
-      ("The human-readable name of this installation.")),
-    'mygpo_device_type': (str, 'desktop',
-      ("The type of the device gPodder is running on.")),
-
-    # Paned position
-    'paned_position': ( int, 200,
-      ("The width of the channel list.")),
-
-    # Preferred mime types for podcasts with multiple content types
-    'mimetype_prefs': (str, '',
-      ("A comma-separated list of mimetypes, descending order of preference")),
+    'allow_empty_feeds': True,
+    'audio_played_dbus': False,
+    'auto_cleanup_downloads': True,
+    'auto_download': 'never',
+    'auto_remove_played_episodes': False,
+    'auto_remove_unplayed_episodes': False,
+    'auto_update_feeds': False,
+    'auto_update_frequency': 20,
+    'custom_player_copy_coverart': False,
+    'custom_player_coverart_format': 'JPEG',
+    'custom_player_coverart_name': 'folder.jpg',
+    'custom_player_coverart_size': 176,
+    'custom_sync_name': '{episode.basename}',
+    'custom_sync_name_enabled': True,
+    'device_type': 'none',
+    'disable_pre_sync_conversion': False,
+    'display_tray_icon': False,
+    'do_not_show_new_episodes_dialog': False,
+    'double_click_episode_action': 'shownotes',
+    'download_dir': default_download_dir,
+    'enable_fingerscroll': False,
+    'enable_html_shownotes': True,
+    'enable_notifications': True,
+    'episode_list_descriptions': True,
+    'episode_list_thumbnails': True,
+    'episode_list_view_mode': 1,
+    'episode_old_age': 7,
+    'fssync_channel_subfolders': True,
+    'ipod_delete_played_from_db': False,
+    'ipod_mount': '/media/ipod',
+    'ipod_purge_old_episodes': False,
+    'ipod_write_gtkpod_extended': False,
+    'limit_rate': False,
+    'limit_rate_value': 500.0,
+    'maemo_enable_gestures': False,
+    'max_downloads': 1,
+    'max_downloads_enabled': True,
+    'max_episodes_per_feed': 200,
+    'mimetype_prefs': '',
+    'minimize_to_tray': False,
+    'mp3_player_delete_played': False,
+    'mp3_player_folder': '/media/usbdisk',
+    'mp3_player_max_filename_length': 100,
+    'mp3_player_playlist_absolute_path': True,
+    'mp3_player_playlist_file': 'PLAYLISTS/gpodder.m3u',
+    'mp3_player_playlist_win_path': True,
+    'mp3_player_use_scrobbler_log': False,
+    'mtp_audio_folder': '',
+    'mtp_image_folder': '',
+    'mtp_podcast_folders': False,
+    'mtp_video_folder': '',
+    'mygpo_device_caption': _('gPodder on %s') % util.get_hostname(),
+    'mygpo_device_type': 'desktop',
+    'mygpo_device_uid': util.get_hostname(),
+    'mygpo_enabled': False,
+    'mygpo_password': '',
+    'mygpo_server': 'gpodder.net',
+    'mygpo_username': '',
+    'on_drag_mark_played': False,
+    'on_sync_delete': False,
+    'on_sync_mark_played': False,
+    'only_sync_not_played': False,
+    'open_torrent_after_download': False,
+    'opml_url': 'http://gpodder.org/directory.opml',
+    'paned_position': 200,
+    'player': 'default',
+    'podcast_list_hide_boring': False,
+    'podcast_list_view_all': True,
+    'podcast_list_view_mode': 1,
+    'rockbox_copy_coverart': False,
+    'rockbox_coverart_size': 100,
+    'rotation_mode': 0,
+    'show_toolbar': True,
+    'start_iconified': False,
+    'sync_disks_after_transfer': True,
+    'toplist_url': 'http://gpodder.org/toplist.opml',
+    'update_on_startup': False,
+    'video_played_dbus': False,
+    'videoplayer': 'default',
+    'youtube_preferred_fmt_id': 18,
 }
+
 
 # Helper function to add window-specific properties (position and size)
 def window_props(config_prefix, x=-1, y=-1, width=700, height=500):
     return {
-            config_prefix+'_x': (int, x),
-            config_prefix+'_y': (int, y),
-            config_prefix+'_width': (int, width),
-            config_prefix+'_height': (int, height),
-            config_prefix+'_maximized': (bool, False),
+            config_prefix+'_x': x,
+            config_prefix+'_y': y,
+            config_prefix+'_width': width,
+            config_prefix+'_height': height,
+            config_prefix+'_maximized': False,
     }
 
 # Register window-specific properties
@@ -306,16 +179,6 @@ class Config(dict):
             return self[name]
         else:
             raise AttributeError('%s is not a setting' % name)
-
-    def get_description(self, option_name):
-        description = _('No description available.')
-        
-        if self.Settings.get(option_name) is not None:
-            row = self.Settings[option_name]
-            if len(row) >= 3:
-                description = row[2]
-
-        return description
 
     def add_observer(self, callback):
         """
@@ -385,8 +248,8 @@ class Config(dict):
         parser = ConfigParser.RawConfigParser()
         parser.add_section(self.__section)
 
-        for key, value in self.Settings.items():
-            fieldtype, default = value[:2]
+        for key, default in self.Settings.items():
+            fieldtype = type(default)
             parser.set(self.__section, key, getattr(self, key, default))
 
         try:
@@ -410,8 +273,9 @@ class Config(dict):
                 log('Cannot parse config file: %s', self.__filename,
                         sender=self, traceback=True)
 
-        for key, value in self.Settings.items():
-            fieldtype, default = value[:2]
+        for key, default in self.Settings.items():
+            fieldtype = type(default)
+            value = default
             try:
                 if not parser.has_section(self.__section):
                     value = default
@@ -432,7 +296,8 @@ class Config(dict):
 
     def toggle_flag(self, name):
         if name in self.Settings:
-            (fieldtype, default) = self.Settings[name][:2]
+            default = self.Settings[name]
+            fieldtype = type(default)
             if fieldtype == bool:
                 setattr(self, name, not getattr(self, name))
             else:
@@ -442,7 +307,8 @@ class Config(dict):
 
     def update_field(self, name, new_value):
         if name in self.Settings:
-            (fieldtype, default) = self.Settings[name][:2]
+            default = self.Settings[name]
+            fieldtype = type(default)
             try:
                 new_value = fieldtype(new_value)
             except:
@@ -456,7 +322,8 @@ class Config(dict):
 
     def __setattr__(self, name, value):
         if name in self.Settings:
-            fieldtype, default = self.Settings[name][:2]
+            default = self.Settings[name]
+            fieldtype = type(default)
             try:
                 if self[name] != fieldtype(value):
                     old_value = self[name]

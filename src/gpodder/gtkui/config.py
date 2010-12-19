@@ -58,7 +58,8 @@ class ConfigModel(gtk.ListStore):
     def _fill_model(self):
         self.clear()
         for key in sorted(self._config.Settings):
-            fieldtype, default = self._config.Settings[key][:2]
+            default = self._config.Settings[key]
+            fieldtype = type(default)
             value = getattr(self._config, key, default)
 
             if value == default:
@@ -73,7 +74,7 @@ class ConfigModel(gtk.ListStore):
     def _on_update(self, name, old_value, new_value):
         for row in self:
             if row[self.C_NAME] == name:
-                if new_value == self._config.Settings[name][1]:
+                if new_value == self._config.Settings[name]:
                     style = pango.STYLE_NORMAL
                 else:
                     style = pango.STYLE_ITALIC

@@ -117,28 +117,9 @@
           </object>
         </child>
         <child>
-          <object class="GtkHBox" id="hbuttonbox2">
+          <object class="GtkHButtonBox" id="hbuttonbox2">
             <property name="visible">True</property>
-            <property name="spacing">6</property>
-            <child>
-              <object class="GtkLabel" id="config_option_description_label">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="use_underline">False</property>
-                <property name="use_markup">False</property>
-                <property name="wrap">False</property>
-                <property name="selectable">True</property>
-                <property name="xalign">0</property>
-                <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
-                <property name="width_chars">-1</property>
-                <property name="single_line_mode">False</property>
-              </object>
-              <packing>
-                <property name="padding">5</property>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-              </packing>
-            </child>
+            <property name="layout_style">GTK_BUTTONBOX_END</property>
             <child>
               <object class="GtkButton" id="btnClose">
                 <property name="visible">True</property>
@@ -151,14 +132,12 @@
                 <signal handler="on_btnClose_clicked" name="clicked"/>
               </object>
               <packing>
-                <property name="padding">5</property>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="padding">0</property>
             <property name="expand">False</property>
             <property name="fill">True</property>
           </packing>
