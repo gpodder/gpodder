@@ -678,7 +678,7 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
         episode.link = entry.get('link', '')
         if 'content' in entry and len(entry['content']) and \
-                entry['content'][0].type == 'text/html':
+                entry['content'][0].get('type', '') == 'text/html':
             episode.description = entry['content'][0].value
         else:
             episode.description = entry.get('summary', '')
@@ -1031,6 +1031,12 @@ class PodcastEpisode(PodcastModelObject):
             for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
                 if self.url.startswith(yt_url):
                     fn_template = util.sanitize_filename(os.path.basename(self.title), self.MAX_FILENAME_LENGTH)
+
+            # Nicer download filenames for Soundcloud streams
+            if fn_template == 'stream':
+                sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
+                if sanitized:
+                    fn_template = sanitized
 
             # If the basename is empty, use the md5 hexdigest of the URL
             if len(fn_template) == 0 or fn_template.startswith('redirect.'):

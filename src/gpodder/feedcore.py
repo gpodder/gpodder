@@ -212,20 +212,33 @@ class Fetcher(object):
 
     def _parse_feed(self, url, etag, modified, autodiscovery=True):
         """Parse the feed and raise the result."""
+        if url.startswith('file://'):
+            is_local = True
+            url = url[len('file://'):]
+        else:
+            is_local = False
+
         feed = feedparser.parse(url,
                 agent=self.user_agent,
                 modified=modified,
                 etag=etag,
                 handlers=self._get_handlers())
 
-        self._check_offline(feed)
-        self._check_wifi_login_page(feed)
+        if is_local:
+            if feed.version:
+                feed.headers = {}
+                raise UpdatedFeed(feed)
+            else:
+                raise InvalidFeed('Not a valid feed file')
+        else:
+            self._check_offline(feed)
+            self._check_wifi_login_page(feed)
 
-        if feed.status != 304 and not feed.version and autodiscovery:
-            self._autodiscover_feed(feed)
+            if feed.status != 304 and not feed.version and autodiscovery:
+                self._autodiscover_feed(feed)
 
-        self._check_valid_feed(feed)
-        self._check_statuscode(feed)
+            self._check_valid_feed(feed)
+            self._check_statuscode(feed)
 
     def fetch(self, url, etag=None, modified=None):
         """Download a feed, with optional etag an modified values

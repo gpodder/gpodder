@@ -398,8 +398,13 @@ class iPodDevice(Device):
             length = util.calculate_size(filename)
             timestamp = util.file_modification_timestamp(filename)
             modified = util.format_date(timestamp)
-            released = gpod.itdb_time_mac_to_host(track.time_released)
-            released = util.format_date(released)
+            try:
+                released = gpod.itdb_time_mac_to_host(track.time_released)
+                released = util.format_date(released)
+            except ValueError, ve:
+                # timestamp out of range for platform time_t (bug 418)
+                log('Cannot convert track time: %s', ve, sender=self)
+                released = 0
 
             t = SyncTrack(track.title, length, modified, modified_sort=timestamp, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
             tracks.append(t)

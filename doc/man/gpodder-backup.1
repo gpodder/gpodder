@@ -1,4 +1,4 @@
-.TH GPODDER-BACKUP "1" "February 2009" "gpodder-backup 1.0" "User Commands"
+.TH GPODDER-BACKUP "1" "December 2010" "gpodder-backup 1.0" "User Commands"
 .SH NAME
 gpodder-backup \- Backup and restore utility for gPodder user data
 .SH SYNOPSIS
@@ -9,9 +9,9 @@ gpodder-backup \- Backup and restore utility for gPodder user data
 .SH DESCRIPTION
 .PP
 This utility can be used to create a dump of the current gPodder
-data (configuration files + downloads), optionally skipping the
-real contents of the download folder (for submitting your data
-to a bug report without having to transfer lots of data).
+data (configuration files + downloads), optionally replacing the real contents
+of the download folder with zero-byte files (for submitting your data to a bug
+report without having to transfer lots of data).
 .SH OPTIONS
 .TP
 \fB\-\-version\fR
@@ -27,7 +27,7 @@ Create a new archive
 Extract an existing archive
 .TP
 \fB\-f\fR, \fB\-\-fake\-downloads\fR
-Do not store contents of downloaded files
+Store downloads as zero-byte files in backup
 .TP
 \fB\-n\fR, \fB\-\-no\-covers\fR
 Do not include cover files in archive
@@ -63,5 +63,11 @@ Remove current data, then restore the contents of \fIdefault.gpo.tar.gz\fR
 .TP
 .B gpodder-backup \-\-purge
 Remove all gPodder data, so you can start from a clean state
+.SH EXTRACTING FAKED DOWNLOADS
+Please note that any existing downloads will be overwritten with zero-byte
+files when using the
+.B \-\-extract
+option of the gpodder-backup utility with a backup created with
+.B \-\-fake-downloads
 .SH AUTHOR
 gpodder-backup was written by Thomas Perl (thp@gpodder.org)

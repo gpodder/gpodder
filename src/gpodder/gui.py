@@ -1321,7 +1321,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if model is None:
                 model = ()
 
-            failed_downloads = []
             for row in model:
                 self.download_status_model.request_update(row.iter)
 
@@ -1345,7 +1344,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     downloading += 1
                     total_speed += speed
                 elif status == download.DownloadTask.FAILED:
-                    failed_downloads.append(task)
                     failed += 1
                 elif status == download.DownloadTask.DONE:
                     finished += 1
@@ -1424,10 +1422,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.config.cmd_all_downloads_complete:
                     util.run_external_command(self.config.cmd_all_downloads_complete)
 
-                if gpodder.ui.fremantle and failed:
+                if gpodder.ui.fremantle:
                     message = '\n'.join(['%s: %s' % (str(task), \
-                            task.error_message) for task in failed_downloads])
-                    self.show_message(message, _('Downloads failed'), important=True)
+                            task.error_message) for task in self.download_tasks_seen if task.notify_as_failed()])
+                    if message:
+                        self.show_message(message, _('Downloads failed'), important=True)
 
                 # Remove finished episodes
                 if self.config.auto_cleanup_downloads and can_call_cleanup:
@@ -1645,9 +1644,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
 
     def downloads_finished(self, download_tasks_seen):
-        # FIXME: Filter all tasks that have already been reported
-        finished_downloads = [str(task) for task in download_tasks_seen if task.status == task.DONE]
-        failed_downloads = [str(task)+' ('+task.error_message+')' for task in download_tasks_seen if task.status == task.FAILED]
+        finished_downloads = [str(task) for task in download_tasks_seen if task.notify_as_finished()]
+        failed_downloads = [str(task)+' ('+task.error_message+')' for task in download_tasks_seen if task.notify_as_failed()]
 
         if finished_downloads and failed_downloads:
             message = self.format_episode_list(finished_downloads, 5)
@@ -1837,7 +1835,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.config.device_type != 'none':
                 item = gtk.MenuItem(_('Synchronize to device'))
-                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes()))
+                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes(), force_played=False))
                 menu.append(item)
 
             menu.append( gtk.SeparatorMenuItem())
@@ -2305,6 +2303,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 m3u_filename = os.path.join(gpodder.home, 'gpodder_open_with.m3u')
 
                 def to_url(x):
+                    # Diablo's Player hates file:// URLs (Maemo bug 11647)
+                    if gpodder.ui.diablo:
+                        return x
+
                     if '://' not in x:
                         return 'file://' + urllib.quote(os.path.abspath(x))
                     return x
@@ -3483,8 +3485,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def on_sync_to_ipod_activate(self, widget, episodes=None):
-        self.sync_ui.on_synchronize_episodes(self.channels, episodes)
+    def on_sync_to_ipod_activate(self, widget, episodes=None, force_played=True):
+        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""

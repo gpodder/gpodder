@@ -1,0 +1,65 @@
+
+How to get the CLI of gPodder running on Android
+================================================
+
+Install Android Scripting (http://code.google.com/p/android-scripting/)
+
+Install Python 2.6
+
+cd /path/to/gpodder/
+
+adb push src/gpodder/ /sdcard/com.googlecode.pythonforandroid/extras/python/gpodder/
+
+cd /path/to/mygpoclient/
+
+adb push mygpoclient/ /sdcard/com.googlecode.pythonforandroid/extras/python/mygpoclient/
+
+adb push /path/to/feedparser.py /sdcard/com.googlecode.pythonforandroid/extras/python/
+
+Apply the following patch to bin/gpo:
+
+==============================================
+diff --git a/bin/gpo b/bin/gpo
+index fd57ab6..7075491 100755
+--- a/bin/gpo
++++ b/bin/gpo
+@@ -57,6 +57,9 @@ import os
+ import re
+ import inspect
+ 
++os.environ['GPODDER_HOME'] = '/sdcard/gpodder/'
++os.environ['GPODDER_DOWNLOAD_DIR'] = '/sdcard/gpodder/podcasts/'
++
+ gpodder_script = sys.argv[0]
+ if os.path.islink(gpodder_script):
+     gpodder_script = os.readlink(gpodder_script)
+@@ -334,6 +337,13 @@ def stylize(s):
+ 
+ if __name__ == '__main__':
+     cli = gPodderCli()
+-    cli._parse(sys.argv[1:]) or sys.stderr.write(stylize(__doc__))
++    while True:
++        line = raw_input('gpo> ')
++        if line == 'help':
++            sys.stderr.write(stylize(__doc__))
++        elif line == 'quit':
++            break
++
++        cli._parse(line.split())
+==============================================
+
+adb push bin/gpo /sdcard/sl4a/scripts/gpo-app.py
+
+Then start SL4A and start the "gpo-app.py" script. There, type "help" to
+get a list of possible commands. Example usage:
+
+  gpo> help
+  gpo> subscribe lugradio.org/episodes.rss
+  gpo> update
+  gpo> pending
+  gpo> download
+  gpo> quit
+
+
+-- thp, 2010-11-29
+
