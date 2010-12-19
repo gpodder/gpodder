@@ -2714,7 +2714,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
                             download_dir=self.config.download_dir, \
-                            allow_empty_feeds=self.config.allow_empty_feeds, \
                             mimetype_prefs=self.config.mimetype_prefs)
 
                     try:

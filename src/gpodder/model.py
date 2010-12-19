@@ -131,7 +131,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
-            max_episodes=0, download_dir=None, allow_empty_feeds=False, \
+            max_episodes=0, download_dir=None, \
             mimetype_prefs=''):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
@@ -149,11 +149,6 @@ class PodcastChannel(PodcastModelObject):
             tmp.update(max_episodes, mimetype_prefs)
             tmp.save()
             db.force_last_new(tmp)
-            # Subscribing to empty feeds should yield an error (except if
-            # the user specifically allows empty feeds in the config UI)
-            if sum(tmp.get_statistics()) == 0 and not allow_empty_feeds:
-                tmp.delete()
-                raise Exception(_('No downloadable episodes in feed'))
             return tmp
 
     def episode_factory(self, d, db__parameter_is_unused=None):

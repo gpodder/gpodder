@@ -45,7 +45,6 @@ else:
 
 
 gPodderSettings = {
-    'allow_empty_feeds': True,
     'audio_played_dbus': False,
     'auto_cleanup_downloads': True,
     'auto_download': 'never',
