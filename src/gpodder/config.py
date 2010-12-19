@@ -159,8 +159,6 @@ gPodderSettings = {
       ("Whether or not the player requires Windows-style paths in the playlist.")),
 
     # Special settings (not in preferences)
-    'on_quit_systray': (bool, False,
-      ("When the 'X' button is clicked do not quit, send gPodder to the tray.")),
     'max_episodes_per_feed': (int, 200,
       ("The maximum number of episodes that gPodder will display in the episode "
         "list. Note: Set this to a lower value on slower hardware to speed up "
