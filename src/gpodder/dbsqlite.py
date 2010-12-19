@@ -109,7 +109,7 @@ class Database(object):
             ('current_position_updated', 'INTEGER', True, '0'), # Set to NOW when updating current_position
     )
     INDEX_EPISODES = (
-            ('guid', 'UNIQUE INDEX'),
+            ('guid', 'INDEX'),
             ('filename', 'UNIQUE INDEX'),
             ('channel_id', 'INDEX'),
             ('pubDate', 'INDEX'),
@@ -673,6 +673,9 @@ class Database(object):
 
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
+
+        if table_name == self.TABLE_EPISODES:
+            cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_guids ON %s (%s)' % (table_name, ', '.join(('channel_id', 'guid'))))
 
         self.lock.release()
 
