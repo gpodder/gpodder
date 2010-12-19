@@ -185,7 +185,7 @@ class EpisodeListModel(gtk.ListStore):
             return ''.join((a, xml.sax.saxutils.escape(episode.title), b))
 
     def replace_from_channel(self, channel, downloading=None, \
-            include_description=False, generate_thumbnails=False, \
+            include_description=False, \
             treeview=None):
         """
         Add episode from the given channel to this model.
@@ -227,33 +227,29 @@ class EpisodeListModel(gtk.ListStore):
                     episode.is_locked))
 
             self.update_by_iter(iter, downloading, include_description, \
-                    generate_thumbnails, reload_from_db=False)
+                    reload_from_db=False)
 
         self._on_filter_changed(self.has_episodes())
 
-    def update_all(self, downloading=None, include_description=False, \
-            generate_thumbnails=False):
+    def update_all(self, downloading=None, include_description=False):
         for row in self:
-            self.update_by_iter(row.iter, downloading, include_description, \
-                    generate_thumbnails)
+            self.update_by_iter(row.iter, downloading, include_description)
 
-    def update_by_urls(self, urls, downloading=None, include_description=False, \
-            generate_thumbnails=False):
+    def update_by_urls(self, urls, downloading=None, include_description=False):
         for row in self:
             if row[self.C_URL] in urls:
-                self.update_by_iter(row.iter, downloading, include_description, \
-                        generate_thumbnails)
+                self.update_by_iter(row.iter, downloading, include_description)
 
     def update_by_filter_iter(self, iter, downloading=None, \
-            include_description=False, generate_thumbnails=False):
+            include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
         iter = self._sorter.convert_iter_to_child_iter(None, iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
-                downloading, include_description, generate_thumbnails)
+                downloading, include_description)
 
     def update_by_iter(self, iter, downloading=None, include_description=False, \
-            generate_thumbnails=False, reload_from_db=True):
+            reload_from_db=True):
         episode = self.get_value(iter, self.C_EPISODE)
         if reload_from_db:
             episode.reload_from_db()
@@ -267,7 +263,6 @@ class EpisodeListModel(gtk.ListStore):
         show_padlock = False
         show_missing = False
         status_icon = None
-        status_icon_to_build_from_file = False
         tooltip = []
         view_show_undeleted = True
         view_show_downloaded = False
@@ -309,14 +304,6 @@ class EpisodeListModel(gtk.ListStore):
                 elif file_type == 'image':
                     tooltip.append(_('Downloaded image'))
                     status_icon = self.ICON_IMAGE_FILE
-
-                    # Optional thumbnailing for image downloads
-                    if generate_thumbnails:
-                        if filename is not None:
-                            # set the status icon to the path itself (that
-                            # should be a good identifier anyway)
-                            status_icon = filename
-                            status_icon_to_build_from_file = True
                 else:
                     tooltip.append(_('Downloaded file'))
                     status_icon = self.ICON_GENERIC_FILE

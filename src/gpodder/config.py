@@ -68,7 +68,6 @@ gPodderSettings = {
     'enable_html_shownotes': True,
     'enable_notifications': True,
     'episode_list_descriptions': True,
-    'episode_list_thumbnails': True,
     'episode_list_view_mode': 1,
     'episode_old_age': 7,
     'fssync_channel_subfolders': True,

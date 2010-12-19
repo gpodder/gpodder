@@ -1466,8 +1466,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.config.audio_played_dbus = False
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
-        elif name == 'episode_list_thumbnails':
-            self.update_episode_list_icons(all=True)
         elif name == 'rotation_mode':
             self._fremantle_rotation.set_mode(new_value)
         elif name in ('auto_update_feeds', 'auto_update_frequency'):
@@ -2117,8 +2115,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes and the latter updates all episodes).
         """
         additional_args = (self.episode_is_downloading, \
-                self.config.episode_list_descriptions and gpodder.ui.desktop, \
-                self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                self.config.episode_list_descriptions and gpodder.ui.desktop)
 
         if urls is not None:
             # We have a list of URLs to walk through
@@ -2556,8 +2553,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             def update():
                 additional_args = (self.episode_is_downloading, \
-                        self.config.episode_list_descriptions and gpodder.ui.desktop, \
-                        self.config.episode_list_thumbnails and gpodder.ui.desktop)
+                        self.config.episode_list_descriptions and gpodder.ui.desktop)
                 self.episode_list_model.replace_from_channel(self.active_channel, *additional_args)
 
                 self.treeAvailable.get_selection().unselect_all()
