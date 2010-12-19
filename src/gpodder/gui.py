@@ -1419,8 +1419,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if gpodder.ui.diablo:
                     hildon.hildon_banner_show_information(self.gPodder, '', 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
-                if self.config.cmd_all_downloads_complete:
-                    util.run_external_command(self.config.cmd_all_downloads_complete)
 
                 if gpodder.ui.fremantle:
                     message = '\n'.join(['%s: %s' % (str(task), \

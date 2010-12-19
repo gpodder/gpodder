@@ -181,11 +181,6 @@ gPodderSettings = {
       ("The name of the coverart file accepted by the user's FS-based player.")),
     'custom_player_coverart_format' : (str, 'JPEG',
       ("The image format accepted by the user's FS-based player.")),
-    'cmd_all_downloads_complete': (str, '',
-      ("The path to a command that gets run after all downloads are completed.")),
-    'cmd_download_complete': (str, '',
-      ("The path to a command that gets run after a single download completes. "
-        "See http://wiki.gpodder.org/wiki/Time_stretching for more info.")),
     'enable_html_shownotes': (bool, True,
       ("Allow HTML to be rendered in the episode information dialog.")),
     'maemo_enable_gestures': (bool, False,

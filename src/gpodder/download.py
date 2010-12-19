@@ -761,17 +761,6 @@ class DownloadTask(object):
 
             # Model- and database-related updates after a download has finished
             self.__episode.on_downloaded(self.filename)
-
-            # If a user command has been defined, execute the command setting some environment variables
-            if len(self._config.cmd_download_complete) > 0:
-                os.environ["GPODDER_EPISODE_URL"]=self.__episode.url or ''
-                os.environ["GPODDER_EPISODE_TITLE"]=self.__episode.title or ''
-                os.environ["GPODDER_EPISODE_FILENAME"]=self.filename or ''
-                os.environ["GPODDER_EPISODE_PUBDATE"]=str(int(self.__episode.pubDate))
-                os.environ["GPODDER_EPISODE_LINK"]=self.__episode.link or ''
-                os.environ["GPODDER_EPISODE_DESC"]=self.__episode.description or ''
-                os.environ["GPODDER_CHANNEL_TITLE"]=self.__episode.channel.title or ''
-                util.run_external_command(self._config.cmd_download_complete)
         except DownloadCancelledException:
             log('Download has been cancelled/paused: %s', self, sender=self)
             if self.status == DownloadTask.CANCELLED:
