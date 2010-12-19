@@ -33,7 +33,7 @@ HINT_STRINGS = (
     _("Use the hardware keyboard to filter down lists - simply start typing in the podcast or episode list."),
     _("The top row of the menu in each list window lets you set the filter for it."),
     _("Use fb:<name> as a shorthand for Feedburner URLs (feeds.feedburner.com/<name>)"),
-    _("Episodes marked as 'Keep episode' will never be displayed in the 'Delete episodes' list."),
+    _("Episodes marked as 'Archive' will never be displayed in the 'Delete episodes' list."),
     _("Use gpodder.net to share your subscription list with friends via a private or public URL."),
     _("Found a problem? Report it at bugs.maemo.org (Extras / gPodder), so we can fix it in the next release."),
     _("Got a feature request? Let us know at bugs.maemo.org (Extras / gPodder)!"),

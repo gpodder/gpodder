@@ -1823,7 +1823,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append(gtk.SeparatorMenuItem())
 
-            item = gtk.CheckMenuItem(_('Keep episodes'))
+            item = gtk.CheckMenuItem(_('Archive'))
             item.set_active(self.active_channel.channel_is_locked)
             item.connect('activate', self.on_channel_toggle_lock_activate)
             menu.append(self.set_finger_friendly(item))
@@ -2073,7 +2073,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, not any_played))
                     menu.append(self.set_finger_friendly(item))
 
-                    item = gtk.CheckMenuItem(_('Keep episode'))
+                    item = gtk.CheckMenuItem(_('Archive'))
                     item.set_active(any_locked)
                     item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
                     menu.append(self.set_finger_friendly(item))

@@ -183,7 +183,7 @@ class gPodderEpisodeActions(BuilderWidget):
         shownotes_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
         delete_button = hildon.Button(self.BUTTON_HEIGHT, hildon.BUTTON_ARRANGEMENT_VERTICAL)
         keep_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT | gtk.HILDON_SIZE_AUTO_WIDTH)
-        keep_button.set_label(_('Keep episode'))
+        keep_button.set_label(_('Archive'))
         keep_button.connect('toggled', self.on_keep_toggled)
 
         self.action_play.set_property('label', _('Play'))

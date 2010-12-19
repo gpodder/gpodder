@@ -56,7 +56,7 @@ class Matcher(object):
             return episode.state == gpodder.STATE_DELETED
         elif k == 'played':
             return episode.is_played
-        elif k == 'keep':
+        elif k == 'archive':
             return episode.is_locked
         elif k in ('finished', 'fin'):
             return episode.is_finished()
