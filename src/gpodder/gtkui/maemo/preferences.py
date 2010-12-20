@@ -30,7 +30,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 class gPodderPreferences(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_gesture_info', 'btn_advanced']
+    finger_friendly_widgets = ['btn_close', 'btn_advanced']
 
     audio_players = [
             ('default', 'Media Player'),
@@ -44,7 +44,6 @@ class gPodderPreferences(BuilderWidget):
     ]
     
     def new(self):
-        self._config.connect_gtk_togglebutton('maemo_enable_gestures', self.check_enable_gestures)
         self._config.connect_gtk_togglebutton('podcast_list_view_all', self.check_podcast_list_view_all)
 
         self.main_window.connect('destroy', lambda w: self.callback_finished())
@@ -102,27 +101,6 @@ class gPodderPreferences(BuilderWidget):
             self._config.videoplayer = self.video_players[index][0]
         elif self.userconfigured_videoplayer is not None:
             self._config.videoplayer = self.userconfigured_videoplayer
-
-    def on_btn_gesture_info_clicked(self, widget):
-        dialog = gtk.Dialog(_('Gestures in gPodder'))
-        dialog.set_transient_for(self.main_window)
-        dialog.set_parent(self.main_window)
-        dialog.set_has_separator(False)
-        dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_OK)
-        message = '<b>' + _('Podcast list') + '</b>\n ' + \
-            _('Swipe left') + ' - ' + _('Edit selected podcast') + '\n ' + \
-            _('Swipe right') + ' - ' + _('Update podcast feed') + '\n\n' + \
-            '<b>' + _('Episode list') + '</b>\n ' + \
-            _('Swipe left') + ' - ' + _('Display shownotes') + '\n ' + \
-            _('Swipe right') + ' - ' + _('Playback episode')
-
-        label = gtk.Label()
-        label.set_padding(30, 17)
-        label.set_markup(message)
-        dialog.vbox.add(label)
-        dialog.vbox.show_all()
-        dialog.run()
-        dialog.destroy()
 
     def on_btn_advanced_clicked(self, button):
         gPodderConfigEditor(self.main_window, _config=self._config)

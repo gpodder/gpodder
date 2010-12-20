@@ -29,10 +29,6 @@ import tokenize
 import gtk
 
 class GtkBuilderWidget(object):
-    # Other code can set this to True if it wants us to try and
-    # replace GtkScrolledWindow widgets with Finger Scroll widgets
-    use_fingerscroll = False
-
     def __init__(self, ui_folders, textdomain, **kwargs):
         """
         Loads the UI file from the specified folder (with translations
@@ -69,96 +65,6 @@ class GtkBuilderWidget(object):
 
         self.new()
 
-    def _handle_scrolledwindow(self, widget):
-        """Helper for replacing gtk.ScrolledWindow with finger scroll
-
-        This function tries to replace a gtk.ScrolledWindow
-        widget with a finger scroll widget if available, reparenting
-        the child widget and trying to place the finger scroll
-        widget exactly where the ScrolledWindow was.
-
-        This function needs use_fingerscroll to be set to True,
-        otherwise it won't do anything."""
-        if not self.use_fingerscroll:
-            return widget
-
-        # Check if we have mokoui OR hildon before continuing
-        mokoui, hildon = None, None
-        try:
-            import hildon
-            if not hasattr(hildon, 'PannableArea'):
-                # Probably using an older version of Hildon
-                raise ImportError('old version of hildon')
-        except ImportError, ie:
-            try:
-                import mokoui
-            except ImportError, ie:
-                return widget
-
-        parent = widget.get_parent()
-        child = widget.get_child()
-        scroll = None
-
-        def create_fingerscroll():
-            if mokoui is not None:
-                scroll = mokoui.FingerScroll()
-            else:
-                scroll = hildon.PannableArea()
-
-            # The following call looks ugly, but see Gnome bug 591085
-            gtk.Buildable.set_name(scroll, gtk.Buildable.get_name(widget))
-
-            return scroll
-
-        def container_get_child_pos(container, widget):
-            for pos, child in enumerate(container.get_children()):
-                if child == widget:
-                    return pos
-            return -1
-
-        if isinstance(parent, gtk.Paned):
-            scroll = create_fingerscroll()
-            child.reparent(scroll)
-
-            if parent.get_child1() == widget:
-                add_to_paned = parent.add1
-            else:
-                add_to_paned = parent.add2
-
-            parent.remove(widget)
-            add_to_paned(scroll)
-        elif isinstance(parent, gtk.Box):
-            scroll = create_fingerscroll()
-            child.reparent(scroll)
-
-            position = container_get_child_pos(parent, widget)
-            packing = parent.query_child_packing(widget)
-
-            parent.remove(widget)
-            parent.add(scroll)
-            parent.set_child_packing(scroll, *packing)
-            parent.reorder_child(scroll, position)
-        elif isinstance(parent, gtk.Table):
-            scroll = create_fingerscroll()
-            child.reparent(scroll)
-
-            attachment = parent.child_get(widget, 'left-attach', \
-                    'right-attach', 'top-attach', 'bottom-attach', \
-                    'x-options', 'y-options', 'x-padding', 'y-padding')
-            parent.remove(widget)
-            parent.attach(scroll, *attachment)
-
-        if scroll is not None:
-            if isinstance(child, gtk.TextView):
-                child.set_editable(False)
-                child.set_cursor_visible(False)
-                child.set_sensitive(False)
-            widget.destroy()
-            scroll.show()
-            return scroll
-
-        return widget
-
     def _handle_menu_bar(self, menu):
         pass
 
@@ -176,9 +82,6 @@ class GtkBuilderWidget(object):
             # Just to be safe - every widget from the builder is buildable
             if not isinstance(widget, gtk.Buildable):
                 continue
-
-            if isinstance(widget, gtk.ScrolledWindow):
-                widget = self._handle_scrolledwindow(widget)
 
             if isinstance(widget, gtk.MenuBar):
                 self._handle_menu_bar(widget)

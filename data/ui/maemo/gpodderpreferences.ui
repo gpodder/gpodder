@@ -51,17 +51,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="check_enable_gestures">
-                <property name="label" translatable="yes">Use gestures (single selection)</property>
-                <property name="visible">True</property>
-              </object>
-              <packing>
-                <property name="bottom_attach">5</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">4</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkCheckButton" id="check_podcast_list_view_all">
                 <property name="label" translatable="yes">Show "All episodes" in podcast list</property>
                 <property name="visible">True</property>
@@ -123,18 +112,6 @@ MPlayer</property>
             <property name="layout_style">edge</property>
             <property name="spacing">6</property>
             <property name="visible">True</property>
-            <child>
-              <object class="GtkButton" id="btn_gesture_info">
-                <property name="label">gtk-help</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_btn_gesture_info_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-              </packing>
-            </child>
             <child>
               <object class="GtkButton" id="btn_advanced">
                 <property name="label" translatable="yes">Advanced...</property>

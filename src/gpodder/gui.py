@@ -447,10 +447,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.currently_updating = False
 
-        if gpodder.ui.maemo or self.config.enable_fingerscroll:
-            self.context_menu_mouse_button = 1
-        else:
-            self.context_menu_mouse_button = 3
+        self.context_menu_mouse_button = 3
 
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
@@ -845,16 +842,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
 
-        if gpodder.ui.maemo:
-            return self.treeview_channels_handle_gestures(treeview, event)
         return self.treeview_channels_show_context_menu(treeview, event)
 
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
-
-        if self.config.enable_fingerscroll or self.config.maemo_enable_gestures:
-            return self.treeview_available_handle_gestures(treeview, event)
 
         return self.treeview_available_show_context_menu(treeview, event)
 
@@ -1104,7 +1096,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
-        if gpodder.ui.desktop and not self.config.enable_fingerscroll:
+        if gpodder.ui.desktop:
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
                     (('text/uri-list', 0, 0),), gtk.gdk.ACTION_COPY)
             def drag_data_get(tree, context, selection_data, info, timestamp):
@@ -1120,9 +1112,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
-        if self.config.maemo_enable_gestures or self.config.enable_fingerscroll:
-            selection.set_mode(gtk.SELECTION_SINGLE)
-        elif gpodder.ui.fremantle:
+        if gpodder.ui.fremantle:
             selection.set_mode(gtk.SELECTION_SINGLE)
         else:
             selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -1779,7 +1769,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
 
-            if gpodder.ui.maemo or self.config.enable_fingerscroll:
+            if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -1937,38 +1927,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return (True, dx, dy)
 
-    def treeview_channels_handle_gestures(self, treeview, event):
-        if self.currently_updating:
-            return False
-
-        selected, dx, dy = self._treeview_button_released(treeview, event)
-
-        if selected:
-            if self.config.maemo_enable_gestures:
-                if dx > 70:
-                    self.on_itemUpdateChannel_activate()
-                elif dx < -70:
-                    self.on_itemEditChannel_activate(treeview)
-
-        return False
-
-    def treeview_available_handle_gestures(self, treeview, event):
-        selected, dx, dy = self._treeview_button_released(treeview, event)
-
-        if selected:
-            if self.config.maemo_enable_gestures:
-                if dx > 70:
-                    self.on_playback_selected_episodes(None)
-                    return True
-                elif dx < -70:
-                    self.on_shownotes_selected_episodes(None)
-                    return True
-
-            # Pass the event to the context menu handler for treeAvailable
-            self.treeview_available_show_context_menu(treeview, event)
-
-        return True
-
     def treeview_available_show_context_menu(self, treeview, event):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -2078,7 +2036,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
             menu.append(self.set_finger_friendly(item))
 
-            if gpodder.ui.maemo or self.config.enable_fingerscroll:
+            if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
                 # we also include a non-action to close the menu
                 menu.append(gtk.SeparatorMenuItem())
@@ -3553,11 +3511,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_item_device()
         if gpodder.ui.maemo:
             selection = self.treeAvailable.get_selection()
-            if self.config.maemo_enable_gestures or \
-                    self.config.enable_fingerscroll:
-                selection.set_mode(gtk.SELECTION_SINGLE)
-            else:
-                selection.set_mode(gtk.SELECTION_MULTIPLE)
+            selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
         self.preferences_dialog = gPodderPreferences(self.main_window, \
@@ -4226,9 +4180,6 @@ def main(options=None):
                     break
                 else:
                     log('Downloads NOT FOUND in %s', dir)
-
-    if config.enable_fingerscroll:
-        BuilderWidget.use_fingerscroll = True
 
     config.mygpo_device_type = util.detect_device_type()
 

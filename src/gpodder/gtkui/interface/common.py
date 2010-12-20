@@ -133,14 +133,12 @@ class BuilderWidget(GtkBuilderWidget):
                 if self._maemo_fullscreen_chain is not None:
                     self._maemo_fullscreen_chain.unfullscreen()
                 self.main_window.unfullscreen()
-                if not self.use_fingerscroll:
-                    self.main_window.set_border_width(0)
+                self.main_window.set_border_width(0)
             else:
                 if self._maemo_fullscreen_chain is not None:
                     self._maemo_fullscreen_chain.fullscreen()
                 self.main_window.fullscreen()
-                if not self.use_fingerscroll:
-                    self.main_window.set_border_width(12)
+                self.main_window.set_border_width(12)
             return True
         else:
             return False
@@ -281,7 +279,7 @@ class BuilderWidget(GtkBuilderWidget):
         if widget is None:
             return None
 
-        if gpodder.ui.maemo or self.use_fingerscroll:
+        if gpodder.ui.maemo:
             if isinstance(widget, gtk.Misc):
                 widget.set_padding(0, 5)
             elif isinstance(widget, gtk.Button):
