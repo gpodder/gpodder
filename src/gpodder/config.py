@@ -45,7 +45,37 @@ else:
 
 
 gPodderSettings = {
+    # External applications used for playback
+    'player': 'default',
+    'videoplayer': 'default',
+
+    # Receive 'played' status for episodes via D-Bus?
     'audio_played_dbus': False,
+    'video_played_dbus': False,
+
+    # gpodder.net settings
+    'mygpo_enabled': False,
+    'mygpo_server': 'gpodder.net',
+    'mygpo_username': '',
+    'mygpo_password': '',
+    'mygpo_device_uid': util.get_hostname(),
+    'mygpo_device_type': 'desktop',
+    'mygpo_device_caption': _('gPodder on %s') % util.get_hostname(),
+
+    # Download options
+    'limit_rate': False,
+    'limit_rate_value': 500.0,
+    'max_downloads_enabled': True,
+    'max_downloads': 1,
+
+    # Limits and expiration values
+    'episode_old_age': 7,
+    'max_episodes_per_feed': 200,
+
+    # URLs to OPML files
+    'opml_url': 'http://gpodder.org/directory.opml',
+    'toplist_url': 'http://gpodder.org/toplist.opml',
+
     'auto_cleanup_downloads': True,
     'auto_download': 'never',
     'auto_remove_played_episodes': False,
@@ -68,17 +98,11 @@ gPodderSettings = {
     'enable_notifications': True,
     'episode_list_descriptions': True,
     'episode_list_view_mode': 1,
-    'episode_old_age': 7,
     'fssync_channel_subfolders': True,
     'ipod_delete_played_from_db': False,
     'ipod_mount': '/media/ipod',
     'ipod_purge_old_episodes': False,
     'ipod_write_gtkpod_extended': False,
-    'limit_rate': False,
-    'limit_rate_value': 500.0,
-    'max_downloads': 1,
-    'max_downloads_enabled': True,
-    'max_episodes_per_feed': 200,
     'mimetype_prefs': '',
     'minimize_to_tray': False,
     'mp3_player_delete_played': False,
@@ -92,19 +116,10 @@ gPodderSettings = {
     'mtp_image_folder': '',
     'mtp_podcast_folders': False,
     'mtp_video_folder': '',
-    'mygpo_device_caption': _('gPodder on %s') % util.get_hostname(),
-    'mygpo_device_type': 'desktop',
-    'mygpo_device_uid': util.get_hostname(),
-    'mygpo_enabled': False,
-    'mygpo_password': '',
-    'mygpo_server': 'gpodder.net',
-    'mygpo_username': '',
     'on_sync_delete': False,
     'on_sync_mark_played': False,
     'only_sync_not_played': False,
-    'opml_url': 'http://gpodder.org/directory.opml',
     'paned_position': 200,
-    'player': 'default',
     'podcast_list_hide_boring': False,
     'podcast_list_view_all': True,
     'podcast_list_view_mode': 1,
@@ -113,10 +128,7 @@ gPodderSettings = {
     'rotation_mode': 0,
     'show_toolbar': True,
     'sync_disks_after_transfer': True,
-    'toplist_url': 'http://gpodder.org/toplist.opml',
     'update_on_startup': False,
-    'video_played_dbus': False,
-    'videoplayer': 'default',
     'youtube_preferred_fmt_id': 18,
 }
 
