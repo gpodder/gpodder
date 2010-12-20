@@ -99,7 +99,6 @@ gPodderSettings = {
     'mygpo_password': '',
     'mygpo_server': 'gpodder.net',
     'mygpo_username': '',
-    'on_drag_mark_played': False,
     'on_sync_delete': False,
     'on_sync_mark_played': False,
     'only_sync_not_played': False,

@@ -1100,10 +1100,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
                     (('text/uri-list', 0, 0),), gtk.gdk.ACTION_COPY)
             def drag_data_get(tree, context, selection_data, info, timestamp):
-                if self.config.on_drag_mark_played:
-                    for episode in self.get_selected_episodes():
-                        episode.mark(is_played=True)
-                    self.on_selected_episodes_status_changed()
                 uris = ['file://'+e.local_filename(create=False) \
                         for e in self.get_selected_episodes() \
                         if e.was_downloaded(and_exists=True)]
