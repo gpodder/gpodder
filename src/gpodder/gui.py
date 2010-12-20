@@ -2611,8 +2611,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Fix URLs if mygpo has rewritten them
                 self.rewrite_urls_mygpo()
 
-                self.save_channels_opml()
-
                 # If only one podcast was added, select it after the update
                 if len(worked) == 1:
                     url = worked[0]
@@ -2689,10 +2687,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.channel_list_changed = True
             util.idle_add(on_after_update)
         threading.Thread(target=thread_proc).start()
-
-    def save_channels_opml(self):
-        exporter = opml.Exporter(gpodder.subscription_file)
-        return exporter.write(self.channels)
 
     def find_episode(self, podcast_url, episode_url):
         """Find an episode given its podcast and episode URL
@@ -3038,12 +3032,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def close_gpodder(self):
         """ clean everything and exit properly
         """
-        if self.channels:
-            if self.save_channels_opml():
-                pass # FIXME: Add mygpo synchronization here
-            else:
-                self.show_message(_('Please check your permissions and free disk space.'), _('Error saving podcast list'), important=True)
-
         self.gPodder.hide()
 
         if self.tray_icon is not None:
@@ -3651,7 +3639,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.clean_up_downloads()
 
             self.channel_list_changed = True
-            self.save_channels_opml()
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)

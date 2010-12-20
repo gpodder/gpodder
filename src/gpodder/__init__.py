@@ -130,7 +130,6 @@ if home is None:
     home = default_home
 else:
     print >>sys.stderr, 'Using', home, 'to store data (GPODDER_HOME is set)'
-subscription_file = os.path.join(home, 'channels.opml')
 config_file = os.path.join(home, 'gpodder.conf')
 database_file = os.path.join(home, 'database.sqlite')
 

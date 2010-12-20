@@ -232,8 +232,6 @@ class PodcastClient(object):
         data-changing actions have been carried out.
         """
         podcasts = PodcastChannel.load_from_db(self._db, self._config.download_dir)
-        exporter = opml.Exporter(gpodder.subscription_file)
-        exporter.write(podcasts)
         self._db.commit()
         return True
 

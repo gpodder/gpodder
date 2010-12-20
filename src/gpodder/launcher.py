@@ -71,7 +71,6 @@ if __name__ == '__main__':
         if not os.path.exists(home):
             os.mkdir(home)
         gpodder.home = home
-        gpodder.subscription_file = os.path.join(home, 'channels.opml')
         gpodder.config_file = os.path.join(home, 'gpodder.conf')
         gpodder.database_file = os.path.join(home, 'database.sqlite')
         download_dir = os.path.join(os.getcwd(), 'downloads')
