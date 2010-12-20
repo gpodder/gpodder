@@ -45,6 +45,9 @@ else:
 
 
 gPodderSettings = {
+    # Directory where downloads are saved
+    'download_dir': default_download_dir,
+
     # External applications used for playback
     'player': 'default',
     'videoplayer': 'default',
@@ -68,43 +71,55 @@ gPodderSettings = {
     'max_downloads_enabled': True,
     'max_downloads': 1,
 
-    # Limits and expiration values
+    # Automatic removal of downloads
     'episode_old_age': 7,
+    'auto_remove_played_episodes': False,
+    'auto_remove_unplayed_episodes': False,
+
+    # Periodic check for new episodes
+    'auto_update_feeds': False,
+    'auto_update_frequency': 20,
+
+    # Limits
     'max_episodes_per_feed': 200,
+
+    # View settings
+    'show_toolbar': True,
+    'episode_list_descriptions': True,
+    'podcast_list_view_all': True,
+    'enable_html_shownotes': True,
+    'enable_notifications': True,
+
+    # Display list filter configuration
+    'episode_list_view_mode': 1,
+    'podcast_list_view_mode': 1,
+    'podcast_list_hide_boring': False,
 
     # URLs to OPML files
     'opml_url': 'http://gpodder.org/directory.opml',
     'toplist_url': 'http://gpodder.org/toplist.opml',
 
-    'auto_cleanup_downloads': True,
-    'auto_download': 'never',
-    'auto_remove_played_episodes': False,
-    'auto_remove_unplayed_episodes': False,
-    'auto_update_feeds': False,
-    'auto_update_frequency': 20,
+    # YouTube
+    'youtube_preferred_fmt_id': 18,
+
+    # Tray icon
+    'display_tray_icon': False,
+    'minimize_to_tray': False,
+
+    # Portable device synchronization
+    'device_type': 'none',
     'custom_player_copy_coverart': False,
     'custom_player_coverart_format': 'JPEG',
     'custom_player_coverart_name': 'folder.jpg',
     'custom_player_coverart_size': 176,
     'custom_sync_name': '{episode.basename}',
     'custom_sync_name_enabled': True,
-    'device_type': 'none',
     'disable_pre_sync_conversion': False,
-    'display_tray_icon': False,
-    'do_not_show_new_episodes_dialog': False,
-    'double_click_episode_action': 'shownotes',
-    'download_dir': default_download_dir,
-    'enable_html_shownotes': True,
-    'enable_notifications': True,
-    'episode_list_descriptions': True,
-    'episode_list_view_mode': 1,
     'fssync_channel_subfolders': True,
     'ipod_delete_played_from_db': False,
     'ipod_mount': '/media/ipod',
     'ipod_purge_old_episodes': False,
     'ipod_write_gtkpod_extended': False,
-    'mimetype_prefs': '',
-    'minimize_to_tray': False,
     'mp3_player_delete_played': False,
     'mp3_player_folder': '/media/usbdisk',
     'mp3_player_max_filename_length': 100,
@@ -119,16 +134,18 @@ gPodderSettings = {
     'on_sync_delete': False,
     'on_sync_mark_played': False,
     'only_sync_not_played': False,
-    'paned_position': 200,
-    'podcast_list_hide_boring': False,
-    'podcast_list_view_all': True,
-    'podcast_list_view_mode': 1,
     'rockbox_copy_coverart': False,
     'rockbox_coverart_size': 100,
-    'rotation_mode': 0,
-    'show_toolbar': True,
     'sync_disks_after_transfer': True,
-    'youtube_preferred_fmt_id': 18,
+
+    # Misc
+    'paned_position': 200,
+    'rotation_mode': 0,
+    'mimetype_prefs': '',
+    'double_click_episode_action': 'shownotes',
+    'auto_cleanup_downloads': True,
+    'do_not_show_new_episodes_dialog': False,
+    'auto_download': 'never',
 }
 
 
