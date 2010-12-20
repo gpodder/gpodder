@@ -108,7 +108,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def thread_func(self, tab=0):
         if tab == 1:
-            model = OpmlListModel(opml.Importer(self._config.toplist_url))
+            model = OpmlListModel(opml.Importer(self._config.toplist_opml))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:

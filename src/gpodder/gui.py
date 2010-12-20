@@ -3729,8 +3729,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemImportChannels_activate(self, widget, *args):
         if gpodder.ui.fremantle:
             gPodderPodcastDirectory.show_add_podcast_picker(self.main_window, \
-                    self.config.toplist_url, \
-                    self.config.opml_url, \
+                    self.config.toplist_opml, \
+                    self.config.example_opml, \
                     self.add_podcast_list, \
                     self.on_itemAddChannel_activate, \
                     self.on_download_subscriptions_from_mygpo, \
@@ -3738,7 +3738,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
                     add_urls_callback=self.add_podcast_list)
-            util.idle_add(dir.download_opml_file, self.config.opml_url)
+            util.idle_add(dir.download_opml_file, self.config.example_opml)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)

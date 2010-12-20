@@ -96,8 +96,8 @@ gPodderSettings = {
     'podcast_list_hide_boring': False,
 
     # URLs to OPML files
-    'opml_url': 'http://gpodder.org/directory.opml',
-    'toplist_url': 'http://gpodder.org/toplist.opml',
+    'example_opml': 'http://gpodder.org/directory.opml',
+    'toplist_opml': 'http://gpodder.org/toplist.opml',
 
     # YouTube
     'youtube_preferred_fmt_id': 18,

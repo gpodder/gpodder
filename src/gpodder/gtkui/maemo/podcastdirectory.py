@@ -109,7 +109,7 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.download_opml_file(url)
     
     def on_load_toplist_button_clicked(self, widget):
-        self.download_opml_file(self._config.toplist_url)
+        self.download_opml_file(self._config.toplist_opml)
 
     def on_search_mygpo_button_clicked(self, widget):
         search_term = self.show_text_edit_dialog(\
