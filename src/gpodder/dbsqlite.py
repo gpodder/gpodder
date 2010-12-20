@@ -73,8 +73,6 @@ class Database(object):
             ('channel_is_locked', 'INTEGER', True, '0'), # 1 if deletion is prevented, 0 otherwise
             ('foldername', 'TEXT', True, "''"), # Folder name (basename) to put downloaded episodes
             ('auto_foldername', 'INTEGER', True, '1'), # 1 if the foldername was auto-generated, 0 otherwise
-            ('release_expected', 'INTEGER', True, '0'), # Statistic value for when a new release is expected
-            ('release_deviation', 'INTEGER', True, '0'), # Deviation of the release cycle differences
             ('updated_timestamp', 'INTEGER', True, '0'), # Timestamp of the last feed update
             ('feed_update_enabled', 'INTEGER', True, '1'), # 0 to skip this feed when checking for new episodes
     )

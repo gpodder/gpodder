@@ -391,8 +391,6 @@ class PodcastChannel(PodcastModelObject):
 
         self.channel_is_locked = False
 
-        self.release_expected = time.time() # <= DEPRECATED
-        self.release_deviation = 0 # <= DEPRECATED
         self.updated_timestamp = 0
 
         self.feed_update_enabled = True
