@@ -26,7 +26,7 @@ integrate podcast functionality into their applications.
 import gpodder
 from gpodder import util
 from gpodder import opml
-from gpodder.model import PodcastChannel
+from gpodder.model import Model
 from gpodder import download
 
 from gpodder import dbsqlite
@@ -182,7 +182,7 @@ class PodcastClient(object):
 
         Returns all the subscribed podcasts from gPodder.
         """
-        return [Podcast(p, self) for p in PodcastChannel.load_from_db(self._db)]
+        return [Podcast(p, self) for p in Model.get_podcasts(self._db)]
 
     def get_podcast(self, url):
         """Get a specific podcast by URL
@@ -191,7 +191,7 @@ class PodcastClient(object):
         the podcast has not been subscribed to.
         """
         url = util.normalize_feed_url(url)
-        channel = PodcastChannel.load(self._db, url, create=False)
+        channel = Model.load_podcast(self._db, url, create=False)
         if channel is None:
             return None
         else:
@@ -205,7 +205,7 @@ class PodcastClient(object):
         the resulting object.
         """
         url = util.normalize_feed_url(url)
-        podcast = PodcastChannel.load(self._db, url, create=True, \
+        podcast = Model.load_podcast(self._db, url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
                 mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:
@@ -222,7 +222,6 @@ class PodcastClient(object):
         This has to be called from the API user after
         data-changing actions have been carried out.
         """
-        podcasts = PodcastChannel.load_from_db(self._db)
         self._db.commit()
         return True
 

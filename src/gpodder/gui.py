@@ -79,8 +79,7 @@ from gpodder.liblogger import log
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-from gpodder.model import PodcastChannel
-from gpodder.model import PodcastEpisode
+from gpodder.model import Model
 from gpodder.dbsqlite import Database
 
 from gpodder.gtkui.model import PodcastListModel
@@ -444,7 +443,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = PodcastChannel.load_from_db(self.db)
+        self.channels = Model.get_podcasts(self.db)
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
@@ -2243,7 +2242,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
-        episodes = list(PodcastEpisode.sort_by_pubdate(e for e in episodes if \
+        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if \
                e.was_downloaded(and_exists=True) or self.streaming_possible()))
 
         try:
@@ -2585,7 +2584,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         episodes.extend(podcast.get_all_episodes())
 
                 if episodes:
-                    episodes = list(PodcastEpisode.sort_by_pubdate(episodes, \
+                    episodes = list(Model.sort_episodes_by_pubdate(episodes, \
                             reverse=True))
                     self.new_episodes_show(episodes, \
                             selected=[e.check_is_new() for e in episodes])
@@ -2600,7 +2599,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 log('QUEUE RUNNER: %s', url, sender=self)
                 try:
                     # The URL is valid and does not exist already - subscribe!
-                    channel = PodcastChannel.load(self.db, url=url, create=True, \
+                    channel = Model.load_podcast(self.db, url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
                             mimetype_prefs=self.config.mimetype_prefs)
@@ -2711,7 +2710,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
         self.updating_feed_cache = False
 
-        self.channels = PodcastChannel.load_from_db(self.db)
+        self.channels = Model.get_podcasts(self.db)
 
         # Process received episode actions for all updated URLs
         self.process_received_episode_actions(updated_urls)
@@ -2896,7 +2895,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if not force_update:
-            self.channels = PodcastChannel.load_from_db(self.db)
+            self.channels = Model.get_podcasts(self.db)
             self.channel_list_changed = True
             self.update_podcast_list_model(select_url=select_url_afterwards)
             return
