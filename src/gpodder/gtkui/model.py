@@ -359,7 +359,9 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_TOOLTIP, tooltip, \
                 self.C_TIME, episode.get_play_info_string(), \
                 self.C_TIME_VISIBLE, episode.total_time, \
-                self.C_LOCKED, episode.is_locked)
+                self.C_LOCKED, episode.is_locked, \
+                self.C_FILESIZE_TEXT, self._format_filesize(episode), \
+                self.C_FILESIZE, episode.file_size)
 
     def _get_icon_from_image(self,image_path, icon_size):
         """

@@ -1156,6 +1156,6 @@ class PodcastEpisode(PodcastModelObject):
         return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size'):
             setattr(self, k, getattr(episode, k))
 
