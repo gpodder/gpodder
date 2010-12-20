@@ -962,21 +962,10 @@ class PodcastChannel(PodcastModelObject):
         self.download_folder = None
         self.pause_subscription = False
 
-        self.save_dir_size = 0
-        self.__save_dir_size_set = False
-
     def _get_cover_url(self):
         return self.cover_url
 
     image = property(_get_cover_url)
-
-    def request_save_dir_size(self):
-        if not self.__save_dir_size_set:
-            self.update_save_dir_size()
-        self.__save_dir_size_set = True
-
-    def update_save_dir_size(self):
-        self.save_dir_size = util.calculate_size(self.save_dir)
 
     def get_title( self):
         if not self.__title.strip():

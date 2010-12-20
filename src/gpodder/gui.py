@@ -1488,8 +1488,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
                 if channel is None:
                     return False
-                channel.request_save_dir_size()
-                diskspace_str = util.format_filesize(channel.save_dir_size, 0)
                 error_str = model.get_value(iter, PodcastListModel.C_ERROR)
                 if error_str:
                     error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
@@ -1503,11 +1501,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 heading.set_alignment(0, 1)
                 heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
                 table.attach(heading, 0, 1, 0, 1)
-                size_info = gtk.Label()
-                size_info.set_alignment(1, 1)
-                size_info.set_justify(gtk.JUSTIFY_RIGHT)
-                size_info.set_markup('<b>%s</b>\n<small>%s</small>' % (diskspace_str, _('disk usage')))
-                table.attach(size_info, 2, 3, 0, 1)
 
                 table.attach(gtk.HSeparator(), 0, 3, 1, 2)
 

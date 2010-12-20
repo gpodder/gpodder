@@ -486,8 +486,6 @@ class PodcastChannelProxy(object):
         self.parse_error = ''
         self.url = ''
         self.id = None
-        self._save_dir_size_set = False
-        self.save_dir_size = 0L
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
         self.pause_subscription = False
 
@@ -505,14 +503,6 @@ class PodcastChannelProxy(object):
         """Returns a generator that yields every episode"""
         channel_lookup_map = dict((c.id, c) for c in self.channels)
         return self._db.load_all_episodes(channel_lookup_map)
-
-    def request_save_dir_size(self):
-        if not self._save_dir_size_set:
-            self.update_save_dir_size()
-        self._save_dir_size_set = True
-
-    def update_save_dir_size(self):
-        self.save_dir_size = util.calculate_size(gpodder.downloads)
 
 
 class PodcastListModel(gtk.ListStore):
