@@ -90,15 +90,6 @@ class GPodderStatusIcon(gtk.StatusIcon):
         menuItem.connect('activate',  self.__gpodder.on_itemDownloadAllNew_activate)
         menu.append(menuItem)
 
-        # menus's label will adapt to the synchronisation device name
-        if self._config.device_type != 'none':
-            menuItem = gtk.ImageMenuItem(_('Synchronize to device'))
-            menuItem.set_sensitive(self._config.device_type != 'none')
-            menuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
-            menuItem.connect('activate',  self.__gpodder.on_sync_to_ipod_activate)
-            menu.append(menuItem)
-            menu.append( gtk.SeparatorMenuItem())
-        
         menuItem = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
         menuItem.connect('activate',  self.__gpodder.on_itemPreferences_activate)
         menu.append(menuItem)

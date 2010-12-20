@@ -235,43 +235,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="itemDevice">
-            <property name="name">itemDevice</property>
-            <property name="label" translatable="yes">Device</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="sync_to_ipod">
-            <property name="stock_id">gtk-refresh</property>
-            <property name="name">sync_to_ipod</property>
-            <property name="label" translatable="yes">Sync episodes to device</property>
-            <signal handler="on_sync_to_ipod_activate" name="activate"/>
-          </object>
-          <accelerator key="S" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="cleanup_ipod">
-            <property name="stock_id">gtk-delete</property>
-            <property name="name">cleanup_ipod</property>
-            <property name="label" translatable="yes">Select and remove episodes from device</property>
-            <signal handler="on_cleanup_ipod_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemTransferSelected">
-            <property name="name">itemTransferSelected</property>
-            <property name="label" translatable="yes">Copy selected episodes to device</property>
-            <signal handler="on_transfer_selected_episodes" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemManagePlaylist">
-            <property name="name">itemManagePlaylist</property>
-            <property name="label" translatable="yes">Manage device playlist</property>
-            <signal handler="on_manage_device_playlist" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="menuView">
             <property name="name">menuView</property>
             <property name="label" translatable="yes">_View</property>
@@ -426,14 +389,6 @@
           <separator/>
           <menuitem action="item_episode_details"/>
         </menu>
-        <menu action="itemDevice">
-          <menuitem action="sync_to_ipod"/>
-          <menuitem action="cleanup_ipod"/>
-          <separator/>
-          <menuitem action="itemTransferSelected"/>
-          <separator/>
-          <menuitem action="itemManagePlaylist"/>
-        </menu>
         <menu action="menuView">
           <menuitem action="itemShowAllEpisodes"/>
           <separator/>
@@ -518,23 +473,6 @@
                 <property name="is_important">True</property>
                 <property name="sensitive">False</property>
                 <signal handler="on_playback_selected_episodes" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolTransfer">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Transfer</property>
-                <property name="use_underline">True</property>
-                <property name="icon_name">multimedia-player</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">True</property>
-                <property name="sensitive">False</property>
-                <signal handler="on_transfer_selected_episodes" name="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>

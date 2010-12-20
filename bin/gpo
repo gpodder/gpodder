@@ -47,7 +47,6 @@
 
   - Other commands -
 
-    sync                       Synchronize downloaded episodes to device
     youtube [URL]              Resolve the YouTube URL to a download URL
 
 """
@@ -280,9 +279,6 @@ class gPodderCli(object):
             self._error(_('Enabling feed update from %s.') % url)
 
         return True
-
-    def sync(self):
-        self.client.synchronize_device()
 
     def youtube(self, url):
         yurl = self.client.youtube_url_resolver(url)

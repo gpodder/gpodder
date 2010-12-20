@@ -99,8 +99,6 @@ from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 if gpodder.ui.desktop:
     from gpodder.gtkui.download import DownloadStatusModel
 
-    from gpodder.gtkui.desktop.sync import gPodderSyncUI
-
     from gpodder.gtkui.desktop.channel import gPodderChannel
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
@@ -297,15 +295,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     Warning: ige-mac-integration not found - no native menus.
                     """
 
-            self.sync_ui = gPodderSyncUI(self.config, self.notification, \
-                    self.main_window, self.show_confirmation, \
-                    self.update_episode_list_icons, \
-                    self.update_podcast_list_model, self.toolPreferences, \
-                    gPodderEpisodeSelector, \
-                    self.commit_changes_to_database)
-        else:
-            self.sync_ui = None
-
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
@@ -462,10 +451,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         threading.Thread(target=self.user_apps_reader.read).start()
-
-        # Set the "Device" menu item for the first time
-        if gpodder.ui.desktop:
-            self.update_item_device()
 
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
@@ -1800,11 +1785,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
 
-            if self.config.device_type != 'none':
-                item = gtk.MenuItem(_('Synchronize to device'))
-                item.connect('activate', lambda item: self.on_sync_to_ipod_activate(item, self.active_channel.get_downloaded_episodes(), force_played=False))
-                menu.append(item)
-
             menu.append( gtk.SeparatorMenuItem())
 
             item = gtk.ImageMenuItem(_('Podcast details'))
@@ -1853,7 +1833,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
             copy_from = episode.local_filename(create=False)
             assert copy_from is not None
-            copy_to = episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)
+            copy_to = episode.sync_filename()
             (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
             setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
@@ -1870,7 +1850,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
                 destfile = os.path.join(tempfile.gettempdir(), \
-                        util.sanitize_filename(episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)))
+                        util.sanitize_filename(episode.sync_filename()))
                 (base, ext) = os.path.splitext(filename)
                 if not destfile.endswith(ext):
                     destfile += ext
@@ -1885,14 +1865,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.delete_file(destfile)
 
         threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
-
-    def get_device_name(self):
-        if self.config.device_type == 'ipod':
-            return _('iPod')
-        elif self.config.device_type in ('filesystem', 'mtp'):
-            return _('MP3 player')
-        else:
-            return '(unknown device)'
 
     def _treeview_button_released(self, treeview, event):
         xpos, ypos = TreeViewHelper.get_button_press_event(treeview)
@@ -1929,7 +1901,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = gtk.Menu()
 
-            (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
+            (can_play, can_download, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
 
             if open_instead_of_play:
                 item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
@@ -1980,11 +1952,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         icon_name = ICON('bluetooth')
                     item.set_image(gtk.image_new_from_icon_name(icon_name, gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
-                    share_menu.append(self.set_finger_friendly(item))
-                if can_transfer:
-                    item = gtk.ImageMenuItem(self.get_device_name())
-                    item.set_image(gtk.image_new_from_icon_name(ICON('multimedia-player'), gtk.ICON_SIZE_MENU))
-                    item.connect('button-press-event', lambda w, ee: self.on_sync_to_ipod_activate(w, episodes))
                     share_menu.append(self.set_finger_friendly(item))
 
                 share_item.set_submenu(share_menu)
@@ -2315,7 +2282,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.currently_updating:
             return (False, False, False, False, False, False)
 
-        ( can_play, can_download, can_transfer, can_cancel, can_delete ) = (False,)*5
+        ( can_play, can_download, can_cancel, can_delete ) = (False,)*4
         ( is_played, is_locked ) = (False,)*2
 
         open_instead_of_play = False
@@ -2348,7 +2315,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             can_download = can_download and not can_cancel
             can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
-            can_transfer = can_play and self.config.device_type != 'none' and not can_cancel and not can_download and not open_instead_of_play
             can_delete = not can_cancel
 
         if gpodder.ui.desktop:
@@ -2358,7 +2324,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.toolPlay.set_stock_id(gtk.STOCK_MEDIA_PLAY)
             self.toolPlay.set_sensitive( can_play)
             self.toolDownload.set_sensitive( can_download)
-            self.toolTransfer.set_sensitive( can_transfer)
             self.toolCancel.set_sensitive( can_cancel)
 
         if not gpodder.ui.fremantle:
@@ -2372,7 +2337,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemOpenSelected.set_visible(open_instead_of_play)
             self.itemPlaySelected.set_visible(not open_instead_of_play)
 
-        return (can_play, can_download, can_transfer, can_cancel, can_delete, open_instead_of_play)
+        return (can_play, can_download, can_cancel, can_delete, open_instead_of_play)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -3386,32 +3351,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return episodes
 
-    @dbus.service.method(gpodder.dbus_interface)
-    def start_device_synchronization(self):
-        """Public D-Bus API for starting Device sync (Desktop only)
-
-        This method can be called to initiate a synchronization with
-        a configured protable media player. This only works for the
-        Desktop version of gPodder and does nothing on Maemo.
-        """
-        if gpodder.ui.desktop:
-            self.on_sync_to_ipod_activate(None)
-            return True
-
-        return False
-
-    def on_sync_to_ipod_activate(self, widget, episodes=None, force_played=True):
-        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
-
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""
         self.db.commit()
-
-    def on_cleanup_ipod_activate(self, widget, *args):
-        self.sync_ui.on_cleanup_device()
-
-    def on_manage_device_playlist(self, widget):
-        self.sync_ui.on_manage_device_playlist()
 
     def show_hide_tray_icon(self):
         if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:
@@ -3468,18 +3410,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring and not gpodder.ui.fremantle:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
-    def update_item_device( self):
-        if not gpodder.ui.fremantle:
-            if self.config.device_type != 'none':
-                self.itemDevice.set_visible(True)
-                self.itemDevice.label = self.get_device_name()
-            else:
-                self.itemDevice.set_visible(False)
-
     def properties_closed( self):
         self.preferences_dialog = None
         self.show_hide_tray_icon()
-        self.update_item_device()
         if gpodder.ui.maemo:
             selection = self.treeAvailable.get_selection()
             selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -3811,7 +3744,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if gpodder.ui.desktop:
                 self.toolDownload.set_sensitive(False)
                 self.toolPlay.set_sensitive(False)
-                self.toolTransfer.set_sensitive(False)
                 self.toolCancel.set_sensitive(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
@@ -3860,9 +3792,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         episodes = [model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE) for path in paths]
         return episodes
-
-    def on_transfer_selected_episodes(self, widget):
-        self.on_sync_to_ipod_activate(widget, self.get_selected_episodes())
 
     def on_playback_selected_episodes(self, widget):
         self.playback_episodes(self.get_selected_episodes())

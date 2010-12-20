@@ -28,7 +28,6 @@ from gpodder import util
 from gpodder import opml
 from gpodder.model import PodcastChannel
 from gpodder import download
-from gpodder import console
 
 from gpodder import dbsqlite
 from gpodder import config
@@ -216,13 +215,6 @@ class PodcastClient(object):
             return Podcast(podcast, self)
 
         return None
-
-    def synchronize_device(self):
-        """Synchronize episodes to a device
-
-        WARNING: API subject to change.
-        """
-        console.synchronize_device(self._db, self._config)
 
     def finish(self):
         """Persist changed data to the database file
