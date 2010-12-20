@@ -128,7 +128,6 @@ gPodderSettings = {
     'rotation_mode': 0,
     'show_toolbar': True,
     'sync_disks_after_transfer': True,
-    'update_on_startup': False,
     'youtube_preferred_fmt_id': 18,
 }
 

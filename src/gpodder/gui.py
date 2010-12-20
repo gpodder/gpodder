@@ -475,7 +475,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.btnUpdateFeeds.show()
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
-        self.update_feed_cache(force_update=self.config.update_on_startup)
+        self.update_feed_cache(force_update=False)
 
         self.message_area = None
 
