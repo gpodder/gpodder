@@ -103,7 +103,6 @@ gPodderSettings = {
     'on_sync_delete': False,
     'on_sync_mark_played': False,
     'only_sync_not_played': False,
-    'open_torrent_after_download': False,
     'opml_url': 'http://gpodder.org/directory.opml',
     'paned_position': 200,
     'player': 'default',
