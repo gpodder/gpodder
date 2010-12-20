@@ -378,8 +378,6 @@ class PodcastChannel(PodcastModelObject):
 
         # should this channel be synced to devices? (ex: iPod)
         self.sync_to_devices = True
-        # to which playlist should be synced
-        self.device_playlist_name = 'gPodder'
         # if set, this overrides the channel-provided title
         self.override_title = ''
         self.username = ''

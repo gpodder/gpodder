@@ -39,7 +39,6 @@ class gPodderChannel(BuilderWidget):
         self.LabelWebsite.set_text( self.channel.link)
 
         self.cbNoSync.set_active( not self.channel.sync_to_devices)
-        self.musicPlaylist.set_text(self.channel.device_playlist_name)
         if self.channel.username:
             self.FeedUsername.set_text( self.channel.username)
         if self.channel.password:
@@ -105,7 +104,6 @@ class gPodderChannel(BuilderWidget):
     def on_btnOK_clicked(self, widget, *args):
         self.channel.sync_to_devices = not self.cbNoSync.get_active()
         self.channel.feed_update_enabled = not self.cbSkipFeedUpdate.get_active()
-        self.channel.device_playlist_name = self.musicPlaylist.get_text()
         self.channel.set_custom_title(self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()
         self.channel.password = self.FeedPassword.get_text()

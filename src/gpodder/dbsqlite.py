@@ -66,7 +66,6 @@ class Database(object):
             ('image', 'TEXT', False, None), # URL to cover art for the image
             ('pubDate', 'INTEGER', True, '0'), # Date and time of last feed publication
             ('sync_to_devices', 'INTEGER', True, '1'), # 1 if syncing to devices is enabled, 0 otherwise
-            ('device_playlist_name', 'TEXT', True, "'gPodder'"), # Name of the playlist on the device for syncing
             ('username', 'TEXT', True, "''"), # Username for HTTP authentication (feed update + downloads)
             ('password', 'TEXT', True, "''"), # Password for HTTP authentication (feed update + downloads)
             ('last_modified', 'TEXT', False, None), # Last-modified HTTP header from last update
