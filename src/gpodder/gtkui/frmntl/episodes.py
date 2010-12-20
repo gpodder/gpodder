@@ -96,9 +96,9 @@ class gPodderEpisodes(BuilderWidget):
         self.main_window.set_app_menu(appmenu)
 
     def on_pause_subscription_button_toggled(self, widget):
-        new_value = not widget.get_active()
-        if new_value != self.channel.feed_update_enabled:
-            self.channel.feed_update_enabled = new_value
+        new_value = widget.get_active()
+        if new_value != self.channel.pause_subscription:
+            self.channel.pause_subscription = new_value
             self.cover_downloader.reload_cover_from_disk(self.channel)
             self.channel.save()
             self.update_podcast_list_model(urls=[self.channel.url])
@@ -120,10 +120,10 @@ class gPodderEpisodes(BuilderWidget):
     def on_login_button_clicked(self, widget):
         accept, auth_data = self.show_login_dialog(_('Login to %s') % \
                                                    self.channel.title, '', \
-                                                   self.channel.username, \
-                                                   self.channel.password)
+                                                   self.channel.auth_username, \
+                                                   self.channel.auth_password)
         if accept:
-            self.channel.username, self.channel.password = auth_data
+            self.channel.auth_username, self.channel.auth_password = auth_data
             self.channel.save()
 
     def on_website_button_clicked(self, widget):
@@ -227,8 +227,7 @@ class gPodderEpisodes(BuilderWidget):
         else:
             self.pause_sub_button.show()
 
-        self.pause_sub_button.set_active(\
-                not self.channel.feed_update_enabled)
+        self.pause_sub_button.set_active(self.channel.pause_subscription)
 
         self.main_window.set_title(self.channel.title)
         self.main_window.show()

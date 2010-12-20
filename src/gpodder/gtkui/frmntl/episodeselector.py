@@ -84,7 +84,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                         calculate the size of an episode; set this to
                         None if no total size calculation should be
                         done (in cases where total size is useless)
-                        (default is 'length')
+                        (default is 'file_size')
       - tooltip_attribute: (optional) The name of an attribute of
                            the supplied episode objects that holds
                            the text for the tooltips when hovering
@@ -116,7 +116,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.episodes = []
 
         if not hasattr( self, 'size_attribute'):
-            self.size_attribute = 'length'
+            self.size_attribute = 'file_size'
 
         if not hasattr(self, 'tooltip_attribute'):
             self.tooltip_attribute = 'description'

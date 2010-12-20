@@ -577,13 +577,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if len(file_parts) == 2:
                 dir_name, filename = file_parts
-                channels = [c for c in self.channels if c.foldername == dir_name]
+                channels = [c for c in self.channels if c.download_folder == dir_name]
                 if len(channels) == 1:
                     channel = channels[0]
                     return channel.get_episode_by_filename(filename)
         else:
             # Possibly remote file - search the database for a podcast
-            channel_id = self.db.get_channel_id_from_episode_url(uri)
+            channel_id = self.db.get_podcast_id_from_episode_url(uri)
 
             if channel_id is not None:
                 channels = [c for c in self.channels if c.id == channel_id]
@@ -1776,7 +1776,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(gtk.SeparatorMenuItem())
 
             item = gtk.CheckMenuItem(_('Archive'))
-            item.set_active(self.active_channel.channel_is_locked)
+            item.set_active(self.active_channel.auto_archive_episodes)
             item.connect('activate', self.on_channel_toggle_lock_activate)
             menu.append(self.set_finger_friendly(item))
 
@@ -2056,14 +2056,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for tempfile in temporary_files:
             util.delete_file(tempfile)
 
-        # Clean up empty download folders and abandoned download folders
-        download_dirs = glob.glob(os.path.join(gpodder.downloads, '*'))
-        for ddir in download_dirs:
-            if os.path.isdir(ddir) and False: # FIXME not db.channel_foldername_exists(os.path.basename(ddir)):
-                globr = glob.glob(os.path.join(ddir, '*'))
-                if len(globr) == 0 or (len(globr) == 1 and globr[0].endswith('/cover')):
-                    log('Stale download directory found: %s', os.path.basename(ddir), sender=self)
-                    shutil.rmtree(ddir, ignore_errors=True)
 
     def streaming_possible(self):
         if gpodder.ui.desktop:
@@ -2618,10 +2610,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     except ValueError, ve:
                         username, password = (None, None)
 
-                    if username is not None and channel.username is None and \
-                            password is not None and channel.password is None:
-                        channel.username = username
-                        channel.password = password
+                    if username is not None and channel.auth_username is None and \
+                            password is not None and channel.auth_password is None:
+                        channel.auth_username = username
+                        channel.auth_password = password
                         channel.save()
 
                     self._update_cover(channel)
@@ -2916,7 +2908,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if channels is None:
             # Only update podcasts for which updates are enabled
-            channels = [c for c in self.channels if c.feed_update_enabled]
+            channels = [c for c in self.channels if not c.pause_subscription]
 
         if gpodder.ui.fremantle:
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)
@@ -3121,8 +3113,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             columns = (
                 ('title_markup', None, None, _('Episode')),
-                ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
-                ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
+                ('filesize_prop', 'file_size', gobject.TYPE_INT, _('Size')),
+                ('pubdate_prop', 'published', gobject.TYPE_INT, _('Released')),
                 ('played_prop', None, None, _('Status')),
                 ('age_prop', 'age_int_prop', gobject.TYPE_INT, _('Downloaded')),
             )
@@ -3195,11 +3187,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             return
 
-        self.active_channel.channel_is_locked = not self.active_channel.channel_is_locked
-        self.active_channel.update_channel_lock()
+        self.active_channel.auto_archive_episodes = not self.active_channel.auto_archive_episodes
+        self.active_channel.save()
 
         for episode in self.active_channel.get_all_episodes():
-            episode.mark(is_locked=self.active_channel.channel_is_locked)
+            episode.mark(is_locked=self.active_channel.auto_archive_episodes)
 
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
@@ -3302,8 +3294,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             columns = (
                 ('title_markup', None, None, _('Episode')),
-                ('filesize_prop', 'length', gobject.TYPE_INT, _('Size')),
-                ('pubdate_prop', 'pubDate', gobject.TYPE_INT, _('Released')),
+                ('filesize_prop', 'file_size', gobject.TYPE_INT, _('Size')),
+                ('pubdate_prop', 'published', gobject.TYPE_INT, _('Released')),
             )
             show_notification = False
 

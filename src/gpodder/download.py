@@ -331,9 +331,9 @@ class DownloadURLOpener(urllib.FancyURLopener):
         if self._auth_retry_counter > 3:
             raise AuthenticationError(_('Wrong username/password'))
 
-        if self.channel.username or self.channel.password:
-            log( 'Authenticating as "%s" to "%s" for realm "%s".', self.channel.username, host, realm, sender = self)
-            return ( self.channel.username, self.channel.password )
+        if self.channel.auth_username or self.channel.auth_password:
+            log( 'Authenticating as "%s" to "%s" for realm "%s".', self.channel.auth_username, host, realm, sender = self)
+            return ( self.channel.auth_username, self.channel.auth_password )
 
         return (None, None)
 
@@ -585,7 +585,7 @@ class DownloadTask(object):
         self.filename = self.__episode.local_filename(create=True)
         self.tempname = self.filename + '.partial'
 
-        self.total_size = self.__episode.length
+        self.total_size = self.__episode.file_size
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
@@ -724,13 +724,13 @@ class DownloadTask(object):
             headers, real_url = downloader.retrieve_resume(url, \
                     self.tempname, reporthook=self.status_updated)
 
-            new_mimetype = headers.get('content-type', self.__episode.mimetype)
-            old_mimetype = self.__episode.mimetype
+            new_mimetype = headers.get('content-type', self.__episode.mime_type)
+            old_mimetype = self.__episode.mime_type
             _basename, ext = os.path.splitext(self.filename)
             if new_mimetype != old_mimetype or util.wrong_extension(ext):
                 log('Correcting mime type: %s => %s', old_mimetype, new_mimetype, sender=self)
                 old_extension = self.__episode.extension()
-                self.__episode.mimetype = new_mimetype
+                self.__episode.mime_type = new_mimetype
                 new_extension = self.__episode.extension()
 
                 # If the desired filename extension changed due to the new

@@ -33,15 +33,15 @@ class gPodderChannel(BuilderWidget):
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)
-        self.cbSkipFeedUpdate.set_active(not self.channel.feed_update_enabled)
+        self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
 
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
 
-        if self.channel.username:
-            self.FeedUsername.set_text( self.channel.username)
-        if self.channel.password:
-            self.FeedPassword.set_text( self.channel.password)
+        if self.channel.auth_username:
+            self.FeedUsername.set_text( self.channel.auth_username)
+        if self.channel.auth_password:
+            self.FeedPassword.set_text( self.channel.auth_password)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.request_cover(self.channel)
@@ -101,10 +101,10 @@ class gPodderChannel(BuilderWidget):
         self.cover_downloader.unregister('cover-available', self.cover_download_finished)
 
     def on_btnOK_clicked(self, widget, *args):
-        self.channel.feed_update_enabled = not self.cbSkipFeedUpdate.get_active()
+        self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
         self.channel.set_custom_title(self.entryTitle.get_text())
-        self.channel.username = self.FeedUsername.get_text().strip()
-        self.channel.password = self.FeedPassword.get_text()
+        self.channel.auth_username = self.FeedUsername.get_text().strip()
+        self.channel.auth_password = self.FeedPassword.get_text()
         self.channel.save()
 
         self.cover_downloader.reload_cover_from_disk(self.channel)

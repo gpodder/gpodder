@@ -150,10 +150,10 @@ class FM4OnDemandPlaylist(object):
                 'link': '',
                 'description': '',
                 'url': url,
-                'length': int(filesize),
-                'mimetype': filetype,
+                'file_size': int(filesize),
+                'mime_type': filetype,
                 'guid': url,
-                'pubDate': filedate,
+                'published': filedate,
             })
             episode.save()
             tracks.append(episode)

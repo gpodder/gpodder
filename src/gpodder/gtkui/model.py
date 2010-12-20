@@ -102,8 +102,8 @@ class EpisodeListModel(gtk.ListStore):
 
 
     def _format_filesize(self, episode):
-        if episode.length > 0:
-            return util.format_filesize(episode.length, 1)
+        if episode.file_size > 0:
+            return util.format_filesize(episode.file_size, 1)
         else:
             return None
 
@@ -219,8 +219,8 @@ class EpisodeListModel(gtk.ListStore):
                     True, \
                     True, \
                     True, \
-                    episode.length, \
-                    episode.pubDate, \
+                    episode.file_size, \
+                    episode.published, \
                     episode.get_play_info_string(), \
                     episode.total_time and not episode.current_position, \
                     episode.total_time and episode.current_position, \
@@ -487,7 +487,7 @@ class PodcastChannelProxy(object):
         self._save_dir_size_set = False
         self.save_dir_size = 0L
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
-        self.feed_update_enabled = True
+        self.pause_subscription = False
 
     def __getattribute__(self, name):
         try:
@@ -669,7 +669,7 @@ class PodcastListModel(gtk.ListStore):
 
         pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
         pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
-        if add_overlay and not channel.feed_update_enabled:
+        if add_overlay and channel.pause_subscription:
             pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
             pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
 
@@ -684,7 +684,7 @@ class PodcastListModel(gtk.ListStore):
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
         title_markup = xml.sax.saxutils.escape(channel.title)
-        if channel.feed_update_enabled:
+        if not channel.pause_subscription:
             description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
         else:
             description_markup = xml.sax.saxutils.escape(_('Subscription paused'))
@@ -797,7 +797,7 @@ class PodcastListModel(gtk.ListStore):
     def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
-        if not channel.feed_update_enabled:
+        if channel.pause_subscription:
             pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
             pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)
 

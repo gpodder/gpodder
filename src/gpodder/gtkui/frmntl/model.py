@@ -161,9 +161,9 @@ class EpisodeListModel(gtk.GenericTreeModel):
                     (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
                     downloading(episode)
         elif column == self.C_FILESIZE:
-            return episode.length
+            return episode.file_size
         elif column == self.C_PUBLISHED:
-            return episode.pubDate
+            return episode.published
         elif column == self.C_TIME:
             return episode.get_play_info_string()
         elif column == self.C_TIME_VISIBLE:
@@ -267,8 +267,8 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
 
     def _format_filesize(self, episode):
-        if episode.length > 0:
-            return util.format_filesize(episode.length, 1)
+        if episode.file_size > 0:
+            return util.format_filesize(episode.file_size, 1)
         else:
             return None
 
@@ -594,7 +594,7 @@ class PodcastListModel(model.PodcastListModel):
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
         title_markup = cgi.escape(channel.title)
-        if not channel.feed_update_enabled:
+        if channel.pause_subscription:
             disabled_text = cgi.escape(_('Subscription paused'))
             if new:
                 return self._active_markup % (title_markup, disabled_text)

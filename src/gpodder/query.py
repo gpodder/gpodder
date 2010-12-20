@@ -63,15 +63,15 @@ class Matcher(object):
         elif k in ('video', 'audio'):
             return episode.file_type() == k
         elif k == 'torrent':
-            return episode.url.endswith('.torrent') or 'torrent' in episode.mimetype
+            return episode.url.endswith('.torrent') or 'torrent' in episode.mime_type
 
         # Nouns (for comparisons)
         if k in ('megabytes', 'mb'):
-            return float(episode.length) / (1024*1024)
+            return float(episode.file_size) / (1024*1024)
         elif k == 'title':
             return episode.title
         elif k == 'since':
-            return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.pubDate)).days
+            return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
         elif k in ('minutes', 'min'):
             return float(episode.total_time) / 60
         elif k in ('remaining', 'rem'):

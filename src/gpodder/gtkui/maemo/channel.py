@@ -93,13 +93,13 @@ class gPodderChannel(BuilderWidget):
         title = _('Edit podcast authentication')
         message = _('Please enter your username and password.')
         success, auth_tokens = self.show_login_dialog(title, message, \
-                username=self.channel.username, password=self.channel.password)
+                username=self.channel.auth_username, password=self.channel.auth_password)
         if success:
             username, password = auth_tokens
-            if self.channel.username != username or \
-               self.channel.password != password:
-                self.channel.username = username
-                self.channel.password = password
+            if self.channel.auth_username != username or \
+               self.channel.auth_password != password:
+                self.channel.auth_username = username
+                self.channel.auth_password = password
                 self.channel.save()
                 if not username and not password:
                     self.show_message(_('Username and password removed.'), \

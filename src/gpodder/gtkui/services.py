@@ -156,7 +156,7 @@ class CoverDownloader(ObservableService):
 
         if not os.path.exists(channel.cover_file):
             if url is None:
-                url = channel.image
+                url = channel.cover_url
 
             new_url = youtube.get_real_cover(channel.url)
             if new_url is not None:

@@ -156,10 +156,10 @@ class SoundcloudUser(object):
                     'link': track.get('permalink_url', 'http://soundcloud.com/'+self.username),
                     'description': track.get('description', _('No description available')),
                     'url': url,
-                    'length': int(filesize),
-                    'mimetype': filetype,
+                    'file_size': int(filesize),
+                    'mime_type': filetype,
                     'guid': track.get('permalink', track.get('id')),
-                    'pubDate': soundcloud_parsedate(track.get('created_at', None)),
+                    'published': soundcloud_parsedate(track.get('created_at', None)),
                 }
         finally:
             self.commit_cache()

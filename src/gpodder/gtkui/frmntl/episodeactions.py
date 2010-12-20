@@ -143,7 +143,7 @@ class gPodderEpisodeActions(BuilderWidget):
         self.radio_action_mark_new.connect_proxy(mark_new_button)
         self.radio_action_mark_old.connect_proxy(mark_old_button)
 
-        if self.episode.length > 0:
+        if self.episode.file_size > 0:
             download_button.set_title(self.action_download.props.label)
             download_button.set_value(self.episode.get_filesize_string())
 

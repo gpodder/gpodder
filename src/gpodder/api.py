@@ -82,7 +82,7 @@ class Podcast(object):
         feed updates are disabled, and the podcast should be
         excluded from automatic updates.
         """
-        return self._podcast.feed_update_enabled
+        return not self._podcast.pause_subscription
 
     def update(self):
         """Updates this podcast by downloading the feed
@@ -98,25 +98,25 @@ class Podcast(object):
  
         Display the feed update current status.
         """
-        if self._podcast.feed_update_enabled:
-            return "enabled"
-        else:
+        if self._podcast.pause_subscription:
             return "disabled"
+        else:
+            return "enabled"
 
     def feed_update_status(self):
         """Return the feed update status
 
         Return the feed update current status.
         """
-        return self._podcast.feed_update_enabled
+        return not self._podcast.pause_subscription
 
     def disable(self):
         """Toogle the feed update to disable
 
         Change the feed update status to disable only if currently enable.
         """
-        if self._podcast.feed_update_enabled:
-            self._podcast.feed_update_enabled = False
+        if not self._podcast.pause_subscription:
+            self._podcast.pause_subscription = True
             self._podcast.save()
 
     def enable(self):
@@ -124,8 +124,8 @@ class Podcast(object):
 
         Change the feed update status to disable only if currently enable.
         """
-        if not self._podcast.feed_update_enabled:
-            self._podcast.feed_update_enabled = True
+        if self._podcast.pause_subscription:
+            self._podcast.pause_subscription = False
             self._podcast.save()
 
 class Episode(object):

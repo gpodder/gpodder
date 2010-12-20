@@ -59,8 +59,8 @@ class gPodderFetcher(feedcore.Fetcher):
         feedcore.Fetcher.__init__(self, gpodder.user_agent)
 
     def fetch_channel(self, channel):
-        etag = channel.etag
-        modified = feedparser._parse_date(channel.last_modified)
+        etag = channel.http_etag
+        modified = feedparser._parse_date(channel.http_last_modified)
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
@@ -121,7 +121,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load_from_db(cls, db):
-        return db.load_channels(factory=cls.create_from_dict)
+        return db.load_podcasts(factory=cls.create_from_dict)
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
@@ -130,19 +130,18 @@ class PodcastChannel(PodcastModelObject):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        tmp = db.load_channels(factory=cls.create_from_dict, url=url)
+        tmp = db.load_podcasts(factory=cls.create_from_dict, url=url)
         if len(tmp):
             return tmp[0]
         elif create:
             tmp = PodcastChannel(db)
             tmp.url = url
             if authentication_tokens is not None:
-                tmp.username = authentication_tokens[0]
-                tmp.password = authentication_tokens[1]
+                tmp.auth_username = authentication_tokens[0]
+                tmp.auth_password = authentication_tokens[1]
 
             tmp.update(max_episodes, mimetype_prefs)
             tmp.save()
-            db.force_last_new(tmp)
             return tmp
 
     def episode_factory(self, d, db__parameter_is_unused=None):
@@ -159,8 +158,8 @@ class PodcastChannel(PodcastModelObject):
         self.title = custom_feed.get_title()
         self.link = custom_feed.get_link()
         self.description = custom_feed.get_description()
-        self.image = custom_feed.get_image()
-        self.pubDate = time.time()
+        self.cover_url = custom_feed.get_image()
+        self.published = int(time.time())
         self.save()
 
         guids = [episode.guid for episode in self.get_all_episodes()]
@@ -187,19 +186,19 @@ class PodcastChannel(PodcastModelObject):
         # End YouTube-specific title FIX
 
         try:
-            self.pubDate = rfc822.mktime_tz(feed.feed.get('updated_parsed', None+(0,)))
+            self.published = int(rfc822.mktime_tz(feed.feed.get('updated_parsed', None+(0,))))
         except:
-            self.pubDate = time.time()
+            self.published = int(time.time())
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
                 new_value = getattr(feed.feed.image, attribute, None)
                 if new_value is not None:
                     log('Found cover art in %s: %s', attribute, new_value)
-                    self.image = new_value
+                    self.cover_url = new_value
 
         if hasattr(feed.feed, 'icon'):
-            self.image = feed.feed.icon
+            self.cover_url = feed.feed.icon
 
         self.save()
 
@@ -228,8 +227,8 @@ class PodcastChannel(PodcastModelObject):
         # GUID-based existing episode list
         existing_guids = dict((e.guid, e) for e in existing)
 
-        # Get most recent pubDate of all episodes
-        last_pubdate = self.db.get_last_pubdate(self) or 0
+        # Get most recent published of all episodes
+        last_published = self.db.get_last_published(self) or 0
 
         # Search all entries for new episodes
         for entry in entries:
@@ -262,9 +261,9 @@ class PodcastChannel(PodcastModelObject):
             # Workaround for bug 340: If the episode has been
             # published earlier than one week before the most
             # recent existing episode, do not mark it as new.
-            if episode.pubDate < last_pubdate - self.SECONDS_PER_WEEK:
+            if episode.published < last_published - self.SECONDS_PER_WEEK:
                 log('Episode with old date: %s', episode.title, sender=self)
-                episode.is_played = True
+                episode.is_new = False
 
             episode.save()
 
@@ -286,13 +285,9 @@ class PodcastChannel(PodcastModelObject):
         # in certain situations (see bug #340).
         self.db.purge(max_episodes, self.id)
 
-    def update_channel_lock(self):
-        self.db.update_channel_lock(self)
-
     def _update_etag_modified(self, feed):
-        self.updated_timestamp = time.time()
-        self.etag = feed.headers.get('etag', self.etag)
-        self.last_modified = feed.headers.get('last-modified', self.last_modified)
+        self.http_etag = feed.headers.get('etag', self.http_etag)
+        self.http_last_modified = feed.headers.get('last-modified', self.http_last_modified)
 
     def update(self, max_episodes=0, mimetype_prefs=''):
         try:
@@ -337,24 +332,24 @@ class PodcastChannel(PodcastModelObject):
         self.db.commit()
 
     def delete(self):
-        self.db.delete_channel(self)
+        self.db.delete_podcast(self)
 
     def save(self):
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_save(self)
-        if self.foldername is None:
-            # get_save_dir() finds a unique value for foldername
+        if self.download_folder is None:
+            # get_save_dir() finds a unique value for download_folder
             self.get_save_dir()
-        self.db.save_channel(self)
+        self.db.save_podcast(self)
 
     def get_statistics(self):
         if self.id is None:
             return (0, 0, 0, 0, 0)
         else:
-            return self.db.get_channel_count(int(self.id))
+            return self.db.get_podcast_statistics(self.id)
 
     def authenticate_url(self, url):
-        return util.url_add_authentication(url, self.username, self.password)
+        return util.url_add_authentication(url, self.auth_username, self.auth_password)
 
     def __init__(self, db):
         self.db = db
@@ -363,28 +358,27 @@ class PodcastChannel(PodcastModelObject):
         self.title = ''
         self.link = ''
         self.description = ''
-        self.image = None
-        self.pubDate = 0
+        self.cover_url = None
+        self.published = 0
         self.parse_error = None
-        self.foldername = None
-        self.auto_foldername = 1 # automatically generated foldername
 
-        # if set, this overrides the channel-provided title
-        self.override_title = ''
-        self.username = ''
-        self.password = ''
+        self.auth_username = ''
+        self.auth_password = ''
 
-        self.last_modified = None
-        self.etag = None
+        self.http_last_modified = None
+        self.http_etag = None
+
+        self.auto_archive_episodes = False
+        self.download_folder = None
+        self.pause_subscription = False
 
         self.save_dir_size = 0
         self.__save_dir_size_set = False
 
-        self.channel_is_locked = False
+    def _get_cover_url(self):
+        return self.cover_url
 
-        self.updated_timestamp = 0
-
-        self.feed_update_enabled = True
+    image = property(_get_cover_url)
 
     def request_save_dir_size(self):
         if not self.__save_dir_size_set:
@@ -395,9 +389,7 @@ class PodcastChannel(PodcastModelObject):
         self.save_dir_size = util.calculate_size(self.save_dir)
 
     def get_title( self):
-        if self.override_title:
-            return self.override_title
-        elif not self.__title.strip():
+        if not self.__title.strip():
             return self.url
         else:
             return self.__title
@@ -410,24 +402,20 @@ class PodcastChannel(PodcastModelObject):
 
     def set_custom_title( self, custom_title):
         custom_title = custom_title.strip()
-        
+
         # if the custom title is the same as we have
-        if custom_title == self.override_title:
-            return
-        
-        # if custom title is the same as channel title and we didn't have a custom title
-        if custom_title == self.__title and self.override_title == '':
+        if custom_title == self.title:
             return
 
-        # make sure self.foldername is initialized
+        # make sure self.download_folder is initialized
         self.get_save_dir()
 
         # rename folder if custom_title looks sane
         new_folder_name = self.find_unique_folder_name(custom_title)
-        if len(new_folder_name) > 0 and new_folder_name != self.foldername:
-            log('Changing foldername based on custom title: %s', custom_title, sender=self)
+        if len(new_folder_name) > 0 and new_folder_name != self.download_folder:
+            log('Changing download_folder based on custom title: %s', custom_title, sender=self)
             new_folder = os.path.join(gpodder.downloads, new_folder_name)
-            old_folder = os.path.join(gpodder.downloads, self.foldername)
+            old_folder = os.path.join(gpodder.downloads, self.download_folder)
             if os.path.exists(old_folder):
                 if not os.path.exists(new_folder):
                     # Old folder exists, new folder does not -> simply rename
@@ -440,13 +428,10 @@ class PodcastChannel(PodcastModelObject):
                         shutil.move(file, new_folder)
                     log('Removing %s', old_folder, sender=self)
                     shutil.rmtree(old_folder, ignore_errors=True)
-            self.foldername = new_folder_name
+            self.download_folder = new_folder_name
             self.save()
 
-        if custom_title != self.__title:
-            self.override_title = custom_title
-        else:
-            self.override_title = ''
+        self.title = custom_title
 
     def get_downloaded_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory, state=gpodder.STATE_DOWNLOADED)
@@ -495,17 +480,17 @@ class PodcastChannel(PodcastModelObject):
     def get_all_episodes(self):
         return self.db.load_episodes(self, factory=self.episode_factory)
 
-    def find_unique_folder_name(self, foldername):
+    def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)
-        foldername = foldername.strip().rstrip('.')
+        download_folder = download_folder.strip().rstrip('.')
 
-        current_try = util.sanitize_filename(foldername, \
+        current_try = util.sanitize_filename(download_folder, \
                 self.MAX_FOLDERNAME_LENGTH)
         next_try_id = 2
 
         while True:
-            if self.db.channel_foldername_exists(current_try):
-                current_try = '%s (%d)' % (foldername, next_try_id)
+            if self.db.podcast_download_folder_exists(current_try):
+                current_try = '%s (%d)' % (download_folder, next_try_id)
                 next_try_id += 1
             else:
                 return current_try
@@ -513,7 +498,7 @@ class PodcastChannel(PodcastModelObject):
     def get_save_dir(self):
         urldigest = hashlib.md5(self.url).hexdigest()
         sanitizedurl = util.sanitize_filename(self.url, self.MAX_FOLDERNAME_LENGTH)
-        if self.foldername is None or (self.auto_foldername and (self.foldername == urldigest or self.foldername.startswith(sanitizedurl))):
+        if self.download_folder is None:
             # we must change the folder name, because it has not been set manually
             fn_template = util.sanitize_filename(self.title, self.MAX_FOLDERNAME_LENGTH)
 
@@ -528,18 +513,18 @@ class PodcastChannel(PodcastModelObject):
                 fn_template = urldigest # no need for sanitize_filename here
 
             # Find a unique folder name for this podcast
-            wanted_foldername = self.find_unique_folder_name(fn_template)
+            wanted_download_folder = self.find_unique_folder_name(fn_template)
 
-            # if the foldername has not been set, check if the (old) md5 filename exists
-            if self.foldername is None and os.path.exists(os.path.join(gpodder.downloads, urldigest)):
+            # if the download_folder has not been set, check if the (old) md5 filename exists
+            if self.download_folder is None and os.path.exists(os.path.join(gpodder.downloads, urldigest)):
                 log('Found pre-0.15.0 download folder for %s: %s', self.title, urldigest, sender=self)
-                self.foldername = urldigest
+                self.download_folder = urldigest
 
             # we have a valid, new folder name in "current_try" -> use that!
-            if self.foldername is not None and wanted_foldername != self.foldername:
+            if self.download_folder is not None and wanted_download_folder != self.download_folder:
                 # there might be an old download folder crawling around - move it!
-                new_folder_name = os.path.join(gpodder.downloads, wanted_foldername)
-                old_folder_name = os.path.join(gpodder.downloads, self.foldername)
+                new_folder_name = os.path.join(gpodder.downloads, wanted_download_folder)
+                old_folder_name = os.path.join(gpodder.downloads, self.download_folder)
                 if os.path.exists(old_folder_name):
                     if not os.path.exists(new_folder_name):
                         # Old folder exists, new folder does not -> simply rename
@@ -552,11 +537,11 @@ class PodcastChannel(PodcastModelObject):
                             shutil.move(file, new_folder_name)
                         log('Removing %s', old_folder_name, sender=self)
                         shutil.rmtree(old_folder_name, ignore_errors=True)
-            log('Updating foldername of %s to "%s".', self.url, wanted_foldername, sender=self)
-            self.foldername = wanted_foldername
+            log('Updating download_folder of %s to "%s".', self.url, wanted_download_folder, sender=self)
+            self.download_folder = wanted_download_folder
             self.save()
 
-        save_dir = os.path.join(gpodder.downloads, self.foldername)
+        save_dir = os.path.join(gpodder.downloads, self.download_folder)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory( save_dir):
@@ -600,32 +585,22 @@ class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
 
-    def _get_played(self):
-        return self.is_played
+    def _get_is_played(self):
+        return not self.is_new
 
-    def _set_played(self, played):
-        self.is_played = played
+    def _set_is_played(self, is_played):
+        self.is_new = not is_played
 
-    # Alias "is_played" to "played" for DB column mapping
-    played = property(fget=_get_played, fset=_set_played)
+    is_played = property(fget=_get_is_played, fset=_set_is_played)
 
-    def _get_locked(self):
-        return self.is_locked
-
-    def _set_locked(self, locked):
-        self.is_locked = locked
-
-    # Alias "is_locked" to "locked" for DB column mapping
-    locked = property(fget=_get_locked, fset=_set_locked)
-
-    def _get_channel_id(self):
+    def _get_podcast_id(self):
         return self.channel.id
 
-    def _set_channel_id(self, channel_id):
-        assert self.channel.id == channel_id
+    def _set_podcast_id(self, podcast_id):
+        assert self.channel.id == podcast_id
 
-    # Accessor for the "channel_id" DB column
-    channel_id = property(fget=_get_channel_id, fset=_set_channel_id)
+    # Accessor for the "podcast_id" DB column
+    podcast_id = property(fget=_get_podcast_id, fset=_set_podcast_id)
 
     @staticmethod
     def sort_by_pubdate(episodes, reverse=False):
@@ -633,7 +608,7 @@ class PodcastEpisode(PodcastModelObject):
 
         Returns a iterable, sorted sequence of the episodes
         """
-        key_pubdate = lambda e: e.pubDate
+        key_pubdate = lambda e: e.published
         return sorted(episodes, key=key_pubdate, reverse=reverse)
 
     def reload_from_db(self):
@@ -678,7 +653,7 @@ class PodcastEpisode(PodcastModelObject):
 
         episode.guid = entry.get('id', '')
         if entry.get('updated_parsed', None):
-            episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
+            episode.published = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
         enclosures = entry.get('enclosures', ())
         audio_available = any(e.get('type', '').startswith('audio/') \
@@ -705,17 +680,17 @@ class PodcastEpisode(PodcastModelObject):
 
         # Enclosures
         for e in sorted(enclosures, key=calculate_preference_value):
-            episode.mimetype = e.get('type', 'application/octet-stream')
-            if episode.mimetype == '':
+            episode.mime_type = e.get('type', 'application/octet-stream')
+            if episode.mime_type == '':
                 # See Maemo bug 10036
                 log('Fixing empty mimetype in ugly feed', sender=episode)
-                episode.mimetype = 'application/octet-stream'
+                episode.mime_type = 'application/octet-stream'
 
-            if '/' not in episode.mimetype:
+            if '/' not in episode.mime_type:
                 continue
 
             # Skip images in feeds if audio or video is available (bug 979)
-            if episode.mimetype.startswith('image/') and \
+            if episode.mime_type.startswith('image/') and \
                     (audio_available or video_available):
                 continue
 
@@ -724,16 +699,16 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             try:
-                episode.length = int(e.length) or -1
+                episode.file_size = int(e.length) or -1
             except:
-                episode.length = -1
+                episode.file_size = -1
 
             return episode
 
         # Media RSS content
         for m in entry.get('media_content', ()):
-            episode.mimetype = m.get('type', 'application/octet-stream')
-            if '/' not in episode.mimetype:
+            episode.mime_type = m.get('type', 'application/octet-stream')
+            if '/' not in episode.mime_type:
                 continue
 
             episode.url = util.normalize_feed_url(m.get('url', ''))
@@ -741,9 +716,9 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             try:
-                episode.length = int(m.fileSize) or -1
+                episode.file_size = int(m.fileSize) or -1
             except:
-                episode.length = -1
+                episode.file_size = -1
 
             return episode
 
@@ -783,22 +758,18 @@ class PodcastEpisode(PodcastModelObject):
         self.id = None
         self.url = ''
         self.title = ''
-        self.length = 0
-        self.mimetype = 'application/octet-stream'
+        self.file_size = 0
+        self.mime_type = 'application/octet-stream'
         self.guid = ''
         self.description = ''
         self.link = ''
         self.channel = channel
-        self.pubDate = 0
-        self.filename = None
-        self.auto_filename = 1 # automatically generated filename
+        self.published = 0
+        self.download_filename = None
 
         self.state = gpodder.STATE_NORMAL
-        self.is_played = False
-
-        # Initialize the "is_locked" property
-        self._is_locked = False
-        self.is_locked = channel.channel_is_locked
+        self.is_new = True
+        self.archive = channel.auto_archive_episodes
 
         # Time attributes
         self.total_time = 0
@@ -806,10 +777,10 @@ class PodcastEpisode(PodcastModelObject):
         self.current_position_updated = 0
 
     def get_is_locked(self):
-        return self._is_locked
+        return self.archive
 
     def set_is_locked(self, is_locked):
-        self._is_locked = bool(is_locked)
+        self.archive = bool(is_locked)
 
     is_locked = property(fget=get_is_locked, fset=set_is_locked)
 
@@ -822,8 +793,8 @@ class PodcastEpisode(PodcastModelObject):
 
     def on_downloaded(self, filename):
         self.state = gpodder.STATE_DOWNLOADED
-        self.is_played = False
-        self.length = os.path.getsize(filename)
+        self.is_new = True
+        self.file_size = os.path.getsize(filename)
 
         if not self.total_time:
             try:
@@ -833,15 +804,11 @@ class PodcastEpisode(PodcastModelObject):
                     log('Detected media length: %d seconds', length, \
                             sender=self)
                     self.total_time = length
-                    self.db.save_episode(self)
-                    self.db.commit()
-                    return
             except Exception, e:
                 log('Error while detecting media length: %s', str(e), \
                         sender=self)
 
-        self.db.save_downloaded_episode(self)
-        self.db.commit()
+        self.save()
 
     def set_state(self, state):
         self.state = state
@@ -851,7 +818,7 @@ class PodcastEpisode(PodcastModelObject):
         if state is not None:
             self.state = state
         if is_played is not None:
-            self.is_played = is_played
+            self.is_new = not is_played
         if is_locked is not None:
             self.is_locked = is_locked
         self.db.update_episode_state(self)
@@ -863,7 +830,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def maemo_markup(self):
-        if self.length > 0:
+        if self.file_size > 0:
             length_str = '%s; ' % self.filesize_prop
         else:
             length_str = ''
@@ -878,7 +845,7 @@ class PodcastEpisode(PodcastModelObject):
     def maemo_remove_markup(self):
         if self.total_time and self.current_position:
             played_string = self.get_play_info_string()
-        elif self.is_played:
+        elif not self.is_new:
             played_string = _('played')
         else:
             played_string = _('unplayed')
@@ -927,7 +894,7 @@ class PodcastEpisode(PodcastModelObject):
         next_try_id = 2
         lookup_url = None
 
-        if self.filename == current_try and current_try is not None:
+        if self.download_filename == current_try and current_try is not None:
             # We already have this filename - good!
             return current_try
 
@@ -972,27 +939,19 @@ class PodcastEpisode(PodcastModelObject):
         # have to know md5 filenames if they are downloaded already
         urldigest = hashlib.md5(self.url).hexdigest()
 
-        if not create and self.filename is None:
-            urldigest_filename = os.path.join(self.channel.save_dir, urldigest+ext)
-            if os.path.exists(urldigest_filename):
-                # The file exists, so set it up in our database
-                log('Recovering pre-0.15.0 file: %s', urldigest_filename, sender=self)
-                self.filename = urldigest+ext
-                self.auto_filename = 1
-                self.save()
-                return urldigest_filename
+        if not create and self.download_filename is None:
             return None
 
         # We only want to check if the file exists, so don't try to
         # rename the file, even if it would be reasonable. See also:
         # http://bugs.gpodder.org/attachment.cgi?id=236
         if check_only:
-            if self.filename is None:
+            if self.download_filename is None:
                 return None
             else:
-                return os.path.join(self.channel.save_dir, self.filename)
+                return os.path.join(self.channel.save_dir, self.download_filename)
 
-        if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
+        if self.download_filename is None or force_update:
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension
@@ -1029,15 +988,15 @@ class PodcastEpisode(PodcastModelObject):
             wanted_filename = self.find_unique_file_name(self.url, fn_template, ext)
 
             # We populate the filename field the first time - does the old file still exist?
-            if self.filename is None and os.path.exists(os.path.join(self.channel.save_dir, urldigest+ext)):
+            if self.download_filename is None and os.path.exists(os.path.join(self.channel.save_dir, urldigest+ext)):
                 log('Found pre-0.15.0 downloaded file: %s', urldigest, sender=self)
-                self.filename = urldigest+ext
+                self.download_filename = urldigest+ext
 
             # The old file exists, but we have decided to want a different filename
-            if self.filename is not None and wanted_filename != self.filename:
+            if self.download_filename is not None and wanted_filename != self.download_filename:
                 # there might be an old download folder crawling around - move it!
                 new_file_name = os.path.join(self.channel.save_dir, wanted_filename)
-                old_file_name = os.path.join(self.channel.save_dir, self.filename)
+                old_file_name = os.path.join(self.channel.save_dir, self.download_filename)
                 if os.path.exists(old_file_name) and not os.path.exists(new_file_name):
                     log('Renaming %s => %s', old_file_name, new_file_name, sender=self)
                     os.rename(old_file_name, new_file_name)
@@ -1048,20 +1007,20 @@ class PodcastEpisode(PodcastModelObject):
                 else:
                     log('Warning: %s exists or %s does not.', new_file_name, old_file_name, sender=self)
                 log('Updating filename of %s to "%s".', self.url, wanted_filename, sender=self)
-            elif self.filename is None:
+            elif self.download_filename is None:
                 log('Setting filename to "%s".', wanted_filename, sender=self)
             else:
                 log('Should update filename. Stays the same (%s). Good!', \
                         wanted_filename, sender=self)
-            self.filename = wanted_filename
+            self.download_filename = wanted_filename
             self.save()
             self.db.commit()
 
-        return os.path.join(self.channel.save_dir, self.filename)
+        return os.path.join(self.channel.save_dir, self.download_filename)
 
     def set_mimetype(self, mimetype, commit=False):
         """Sets the mimetype for this episode"""
-        self.mimetype = mimetype
+        self.mime_type = mimetype
         if commit:
             self.db.commit()
 
@@ -1073,7 +1032,7 @@ class PodcastEpisode(PodcastModelObject):
                 filename, ext = os.path.splitext(filename)
         # if we can't detect the extension from the url fallback on the mimetype
         if ext == '' or util.file_type_by_extension(ext) is None:
-            ext = util.extension_from_mimetype(self.mimetype)
+            ext = util.extension_from_mimetype(self.mime_type)
         return ext
 
     def check_is_new(self, downloading=lambda e: False):
@@ -1084,16 +1043,16 @@ class PodcastEpisode(PodcastModelObject):
         being downloaded at the moment.
         """
         return self.state == gpodder.STATE_NORMAL and \
-                not self.is_played and \
+                self.is_new and \
                 not downloading(self)
 
     def mark_new(self):
         self.state = gpodder.STATE_NORMAL
-        self.is_played = False
+        self.is_new = True
         self.db.update_episode_state(self)
 
     def mark_old(self):
-        self.is_played = True
+        self.is_new = False
         self.db.update_episode_state(self)
 
     def file_exists(self):
@@ -1123,17 +1082,6 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def basename( self):
         return os.path.splitext( os.path.basename( self.url))[0]
-    
-    @property
-    def published( self):
-        """
-        Returns published date as YYYYMMDD (or 00000000 if not available)
-        """
-        try:
-            return datetime.datetime.fromtimestamp(self.pubDate).strftime('%Y%m%d')
-        except:
-            log( 'Cannot format pubDate for "%s".', self.title, sender = self)
-            return '00000000'
 
     @property
     def pubtime(self):
@@ -1141,9 +1089,9 @@ class PodcastEpisode(PodcastModelObject):
         Returns published time as HHMM (or 0000 if not available)
         """
         try:
-            return datetime.datetime.fromtimestamp(self.pubDate).strftime('%H%M')
+            return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
         except:
-            log('Cannot format pubDate (time) for "%s".', self.title, sender=self)
+            log('Cannot format published (time) for "%s".', self.title, sender=self)
             return '0000'
 
     def playlist_title(self):
@@ -1159,7 +1107,7 @@ class PodcastEpisode(PodcastModelObject):
                 self.cute_pubdate())
 
     def cute_pubdate(self):
-        result = util.format_date(self.pubDate)
+        result = util.format_date(self.published)
         if result is None:
             return '(%s)' % _('unknown')
         else:
@@ -1172,7 +1120,7 @@ class PodcastEpisode(PodcastModelObject):
         if filename is None:
             log('calculate_filesized called, but filename is None!', sender=self)
         try:
-            self.length = os.path.getsize(filename)
+            self.file_size = os.path.getsize(filename)
         except:
             log( 'Could not get filesize for %s.', self.url)
 
@@ -1204,12 +1152,12 @@ class PodcastEpisode(PodcastModelObject):
         return util.format_time(self.total_time)
 
     def get_filesize_string(self):
-        return util.format_filesize(self.length)
+        return util.format_filesize(self.file_size)
 
     filesize_prop = property(fget=get_filesize_string)
 
     def get_played_string( self):
-        if not self.is_played:
+        if self.is_new:
             return _('Unplayed')
         
         return ''
@@ -1217,15 +1165,15 @@ class PodcastEpisode(PodcastModelObject):
     played_prop = property(fget=get_played_string)
 
     def is_duplicate(self, episode):
-        if self.title == episode.title and self.pubDate == episode.pubDate:
+        if self.title == episode.title and self.published == episode.published:
             log('Possible duplicate detected: %s', self.title)
             return True
         return False
 
     def duplicate_id(self):
-        return hash((self.title, self.pubDate))
+        return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'pubDate', 'guid'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid'):
             setattr(self, k, getattr(episode, k))
 
