@@ -131,7 +131,7 @@ if home is None:
 else:
     print >>sys.stderr, 'Using', home, 'to store data (GPODDER_HOME is set)'
 config_file = os.path.join(home, 'gpodder.conf')
-database_file = os.path.join(home, 'database.sqlite')
+database_file = os.path.join(home, 'gpodder.db')
 
 # Plugins to load by default
 DEFAULT_PLUGINS = ['gpodder.soundcloud', 'gpodder.xspf']

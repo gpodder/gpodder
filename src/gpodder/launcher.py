@@ -72,7 +72,7 @@ if __name__ == '__main__':
             os.mkdir(home)
         gpodder.home = home
         gpodder.config_file = os.path.join(home, 'gpodder.conf')
-        gpodder.database_file = os.path.join(home, 'database.sqlite')
+        gpodder.database_file = os.path.join(home, 'gpodder.db')
         download_dir = os.path.join(os.getcwd(), 'downloads')
         os.environ['GPODDER_DOWNLOAD_DIR'] = download_dir
 
