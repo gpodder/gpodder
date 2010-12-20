@@ -829,9 +829,9 @@ class PodcastEpisode(PodcastModelObject):
                           xml.sax.saxutils.escape(self.channel.title))
 
     @property
-    def maemo_markup(self):
+    def markup_new_episodes(self):
         if self.file_size > 0:
-            length_str = '%s; ' % self.filesize_prop
+            length_str = '%s; ' % util.format_filesize(self.file_size)
         else:
             length_str = ''
         return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
@@ -842,7 +842,7 @@ class PodcastEpisode(PodcastModelObject):
                 xml.sax.saxutils.escape(re.sub('\s+', ' ', self.channel.title)))
 
     @property
-    def maemo_remove_markup(self):
+    def markup_delete_episodes(self):
         if self.total_time and self.current_position:
             played_string = self.get_play_info_string()
         elif not self.is_new:
@@ -855,7 +855,7 @@ class PodcastEpisode(PodcastModelObject):
         return ('<b>%s</b>\n<small>%s; %s; '+_('downloaded %s')+ \
                 '; '+_('from %s')+'</small>') % (\
                 xml.sax.saxutils.escape(self.title), \
-                xml.sax.saxutils.escape(self.filesize_prop), \
+                xml.sax.saxutils.escape(util.format_filesize(self.file_size)), \
                 xml.sax.saxutils.escape(played_string), \
                 xml.sax.saxutils.escape(downloaded_string), \
                 xml.sax.saxutils.escape(self.channel.title))
@@ -1137,32 +1137,14 @@ class PodcastEpisode(PodcastModelObject):
                  self.current_position >= self.total_time*.99)
 
     def get_play_info_string(self):
+        duration = util.format_time(self.total_time)
         if self.is_finished():
-            return '%s (%s)' % (_('Finished'), self.get_duration_string(),)
+            return '%s (%s)' % (_('Finished'), duration)
         if self.current_position > 0:
-            return '%s / %s' % (self.get_position_string(), \
-                    self.get_duration_string())
+            position = util.format_time(self.current_position)
+            return '%s / %s' % (position, duration)
         else:
-            return self.get_duration_string()
-
-    def get_position_string(self):
-        return util.format_time(self.current_position)
-
-    def get_duration_string(self):
-        return util.format_time(self.total_time)
-
-    def get_filesize_string(self):
-        return util.format_filesize(self.file_size)
-
-    filesize_prop = property(fget=get_filesize_string)
-
-    def get_played_string( self):
-        if self.is_new:
-            return _('Unplayed')
-        
-        return ''
-
-    played_prop = property(fget=get_played_string)
+            return duration
 
     def is_duplicate(self, episode):
         if self.title == episode.title and self.published == episode.published:

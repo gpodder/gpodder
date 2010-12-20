@@ -188,7 +188,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.treeviewEpisodes.tap_and_hold_setup(self.context_menu)
 
         # This regex gets the two lines of the normal Maemo markup,
-        # as used on Maemo 4 (see maemo_markup() in gpodder.model)
+        # as used on Maemo 4 (see markup_*() in gpodder.model.PodcastEpisode)
         markup_re = re.compile(r'<b>(.*)</b>\n<small>(.*)</small>')
 
         next_column = self.COLUMN_ADDITIONAL
@@ -233,8 +233,8 @@ class gPodderEpisodeSelector(BuilderWidget):
                     tooltip = None
             row = [ index, tooltip, self.selected[index] ]
             for name, sort_name, sort_type, caption in self.columns:
-                if name.startswith('maemo_') and name.endswith('markup'):
-                    # This will fetch the Maemo 4 markup from the object
+                if name.startswith('markup_'):
+                    # This will fetch the episode list markup from the episode
                     # and then filter the two lines (using markup_re.match)
                     # and use the markup template to create Maemo 5 markup
                     markup = getattr(episode, name)

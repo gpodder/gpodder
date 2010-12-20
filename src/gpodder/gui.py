@@ -3106,18 +3106,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         If channel is None, offer deletion of all episodes.
         Otherwise only offer deletion of episodes in the channel.
         """
-        if gpodder.ui.maemo:
-            columns = (
-                ('maemo_remove_markup', None, None, _('Episode')),
-            )
-        else:
-            columns = (
-                ('title_markup', None, None, _('Episode')),
-                ('filesize_prop', 'file_size', gobject.TYPE_INT, _('Size')),
-                ('pubdate_prop', 'published', gobject.TYPE_INT, _('Released')),
-                ('played_prop', None, None, _('Status')),
-                ('age_prop', 'age_int_prop', gobject.TYPE_INT, _('Downloaded')),
-            )
+        columns = (
+            ('markup_delete_episodes', None, None, _('Episode')),
+        )
 
         msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
         selection_buttons = {
@@ -3286,18 +3277,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def new_episodes_show(self, episodes, notification=False, selected=None):
-        if gpodder.ui.maemo:
-            columns = (
-                ('maemo_markup', None, None, _('Episode')),
-            )
-            show_notification = notification
-        else:
-            columns = (
-                ('title_markup', None, None, _('Episode')),
-                ('filesize_prop', 'file_size', gobject.TYPE_INT, _('Size')),
-                ('pubdate_prop', 'published', gobject.TYPE_INT, _('Released')),
-            )
-            show_notification = False
+        columns = (
+            ('markup_new_episodes', None, None, _('Episode')),
+        )
+        show_notification = notification and gpodder.ui.maemo
 
         instructions = _('Select the episodes you want to download:')
 
