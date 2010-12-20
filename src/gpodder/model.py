@@ -422,10 +422,11 @@ class PodcastEpisode(PodcastModelObject):
                 return desc
 
     def delete_from_disk(self):
-        try:
-            self.channel.delete_episode(self)
-        except:
-            log('Cannot delete episode from disk: %s', self.title, traceback=True, sender=self)
+        filename = self.local_filename(create=False, check_only=True)
+        if filename is not None:
+            util.delete_file(filename)
+
+        self.set_state(gpodder.STATE_DELETED)
 
     def find_unique_file_name(self, url, filename, extension):
         current_try = util.sanitize_filename(filename, self.MAX_FILENAME_LENGTH)+extension
@@ -1151,21 +1152,5 @@ class PodcastChannel(PodcastModelObject):
 
     @property
     def cover_file(self):
-        new_name = os.path.join(self.save_dir, 'folder.jpg')
-        if not os.path.exists(new_name):
-            old_names = ('cover', '.cover')
-            for old_name in old_names:
-                filename = os.path.join(self.save_dir, old_name)
-                if os.path.exists(filename):
-                    shutil.move(filename, new_name)
-                    return new_name
-
-        return new_name
-
-    def delete_episode(self, episode):
-        filename = episode.local_filename(create=False, check_only=True)
-        if filename is not None:
-            util.delete_file(filename)
-
-        episode.set_state(gpodder.STATE_DELETED)
+        return os.path.join(self.save_dir, 'folder.jpg')
 
