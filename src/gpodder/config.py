@@ -162,7 +162,6 @@ class Config(dict):
         self.__observers = []
 
         self.load()
-        self.apply_fixes()
 
         download_dir = os.environ.get('GPODDER_DOWNLOAD_DIR', None)
         if download_dir is not None:
@@ -171,13 +170,6 @@ class Config(dict):
 
         atexit.register( self.__atexit)
 
-    def apply_fixes(self):
-        # Here you can add fixes in case syntax changes. These will be
-        # applied whenever a configuration file is loaded.
-        if '{channel' in self.custom_sync_name:
-            log('Fixing OLD syntax {channel.*} => {podcast.*} in custom_sync_name.', sender=self)
-            self.custom_sync_name = self.custom_sync_name.replace('{channel.', '{podcast.')
-    
     def __getattr__(self, name):
         if name in self.Settings:
             return self[name]
