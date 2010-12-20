@@ -38,7 +38,6 @@ class gPodderChannel(BuilderWidget):
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
 
-        self.cbNoSync.set_active( not self.channel.sync_to_devices)
         if self.channel.username:
             self.FeedUsername.set_text( self.channel.username)
         if self.channel.password:
@@ -102,7 +101,6 @@ class gPodderChannel(BuilderWidget):
         self.cover_downloader.unregister('cover-available', self.cover_download_finished)
 
     def on_btnOK_clicked(self, widget, *args):
-        self.channel.sync_to_devices = not self.cbNoSync.get_active()
         self.channel.feed_update_enabled = not self.cbSkipFeedUpdate.get_active()
         self.channel.set_custom_title(self.entryTitle.get_text())
         self.channel.username = self.FeedUsername.get_text().strip()

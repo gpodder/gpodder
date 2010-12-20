@@ -65,7 +65,6 @@ class Database(object):
             ('description', 'TEXT', False, None), # Description of podcast contents
             ('image', 'TEXT', False, None), # URL to cover art for the image
             ('pubDate', 'INTEGER', True, '0'), # Date and time of last feed publication
-            ('sync_to_devices', 'INTEGER', True, '1'), # 1 if syncing to devices is enabled, 0 otherwise
             ('username', 'TEXT', True, "''"), # Username for HTTP authentication (feed update + downloads)
             ('password', 'TEXT', True, "''"), # Password for HTTP authentication (feed update + downloads)
             ('last_modified', 'TEXT', False, None), # Last-modified HTTP header from last update
@@ -79,7 +78,6 @@ class Database(object):
     INDEX_CHANNELS = (
             ('foldername', 'UNIQUE INDEX'),
             ('url', 'UNIQUE INDEX'),
-            ('sync_to_devices', 'INDEX'),
             ('title', 'INDEX'),
     )
 

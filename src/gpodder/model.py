@@ -369,8 +369,6 @@ class PodcastChannel(PodcastModelObject):
         self.foldername = None
         self.auto_foldername = 1 # automatically generated foldername
 
-        # should this channel be synced to devices? (ex: iPod)
-        self.sync_to_devices = True
         # if set, this overrides the channel-provided title
         self.override_title = ''
         self.username = ''
