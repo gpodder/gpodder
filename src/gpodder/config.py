@@ -116,7 +116,6 @@ gPodderSettings = {
     'rockbox_coverart_size': 100,
     'rotation_mode': 0,
     'show_toolbar': True,
-    'start_iconified': False,
     'sync_disks_after_transfer': True,
     'toplist_url': 'http://gpodder.org/toplist.opml',
     'update_on_startup': False,

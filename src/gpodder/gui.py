@@ -452,9 +452,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.context_menu_mouse_button = 3
 
-        if self.config.start_iconified:
-            self.iconify_main_window()
-
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.download_task_monitors = set()
