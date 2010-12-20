@@ -144,8 +144,7 @@ class FM4OnDemandPlaylist(object):
                 continue
 
             filesize, filetype, filedate, filename = get_metadata(url)
-            episode = model.PodcastEpisode(channel)
-            episode.update_from_dict({
+            episode = channel.episode_factory({
                 'title': title,
                 'link': '',
                 'description': '',

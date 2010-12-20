@@ -195,8 +195,7 @@ class SoundcloudFeed(object):
                              if t['guid'] not in guids]
 
         for track in tracks:
-            episode = model.PodcastEpisode(channel)
-            episode.update_from_dict(track)
+            episode = channel.episode_factory(track)
             episode.save()
 
         return len(tracks)
@@ -222,8 +221,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
                              if t['guid'] not in guids]
 
         for track in tracks:
-            episode = model.PodcastEpisode(channel)
-            episode.update_from_dict(track)
+            episode = channel.episode_factory(track)
             episode.save()
 
         return len(tracks)

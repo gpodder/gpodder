@@ -106,28 +106,6 @@ class PodcastModelObject(object):
                 setattr(self, k, d[k])
 
 
-class Model(object):
-    @staticmethod
-    def get_podcasts(db):
-        return PodcastChannel.load_from_db(db)
-
-    @staticmethod
-    def load_podcast(db, url, create=True, authentication_tokens=None, \
-            max_episodes=0, mimetype_prefs=''):
-        return PodcastChannel.load(db, url, create, authentication_tokens, \
-                max_episodes, mimetype_prefs)
-
-    @staticmethod
-    def sort_episodes_by_pubdate(episodes, reverse=False):
-        """Sort a list of PodcastEpisode objects chronologically
-
-        Returns a iterable, sorted sequence of the episodes
-        """
-        get_key = lambda e: e.published
-        return sorted(episodes, key=get_key, reverse=reverse)
-
-
-
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
@@ -1142,4 +1120,27 @@ class PodcastChannel(PodcastModelObject):
     @property
     def cover_file(self):
         return os.path.join(self.save_dir, 'folder.jpg')
+
+
+class Model(object):
+    PodcastClass = PodcastChannel
+
+    @classmethod
+    def get_podcasts(cls, db):
+        return cls.PodcastClass.load_from_db(db)
+
+    @classmethod
+    def load_podcast(cls, db, url, create=True, authentication_tokens=None, \
+            max_episodes=0, mimetype_prefs=''):
+        return cls.PodcastClass.load(db, url, create, authentication_tokens, \
+                max_episodes, mimetype_prefs)
+
+    @staticmethod
+    def sort_episodes_by_pubdate(episodes, reverse=False):
+        """Sort a list of PodcastEpisode objects chronologically
+
+        Returns a iterable, sorted sequence of the episodes
+        """
+        get_key = lambda e: e.published
+        return sorted(episodes, key=get_key, reverse=reverse)
 
