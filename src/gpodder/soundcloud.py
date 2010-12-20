@@ -98,7 +98,7 @@ def get_metadata(url):
 class SoundcloudUser(object):
     def __init__(self, username):
         self.username = username
-        self.cache_file = os.path.join(gpodder.home, 'soundcloud.cache')
+        self.cache_file = os.path.join(gpodder.home, 'Soundcloud')
         if os.path.exists(self.cache_file):
             try:
                 self.cache = json.load(open(self.cache_file, 'r'))

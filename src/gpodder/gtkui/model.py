@@ -510,7 +510,7 @@ class PodcastChannelProxy(object):
         self._save_dir_size_set = True
 
     def update_save_dir_size(self):
-        self.save_dir_size = util.calculate_size(self._config.download_dir)
+        self.save_dir_size = util.calculate_size(gpodder.downloads)
 
 
 class PodcastListModel(gtk.ListStore):

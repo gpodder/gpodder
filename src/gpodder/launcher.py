@@ -64,17 +64,13 @@ if __name__ == '__main__':
     gpodder.images_folder = images_folder
     gpodder.ui.desktop = True
 
-    # Portable version support
-    if (os.path.exists('downloads') and os.path.exists('config')) or \
-       not os.path.exists(os.path.expanduser('~/.config/gpodder')):
-        home = os.path.join(os.getcwd(), 'config')
-        if not os.path.exists(home):
-            os.mkdir(home)
-        gpodder.home = home
-        gpodder.config_file = os.path.join(home, 'gpodder.conf')
-        gpodder.database_file = os.path.join(home, 'gpodder.db')
-        download_dir = os.path.join(os.getcwd(), 'downloads')
-        os.environ['GPODDER_DOWNLOAD_DIR'] = download_dir
+    home = os.path.join(os.getcwd())
+    if not os.path.exists(home):
+        os.mkdir(home)
+    gpodder.home = home
+    gpodder.config_file = os.path.join(home, 'Settings')
+    gpodder.database_file = os.path.join(home, 'Database')
+    gpodder.downloads = os.path.join(home, 'Downloads')
 
     from gpodder import gui
 

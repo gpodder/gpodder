@@ -183,7 +183,7 @@ class PodcastClient(object):
 
         Returns all the subscribed podcasts from gPodder.
         """
-        return [Podcast(p, self) for p in PodcastChannel.load_from_db(self._db, self._config.download_dir)]
+        return [Podcast(p, self) for p in PodcastChannel.load_from_db(self._db)]
 
     def get_podcast(self, url):
         """Get a specific podcast by URL
@@ -192,7 +192,7 @@ class PodcastClient(object):
         the podcast has not been subscribed to.
         """
         url = util.normalize_feed_url(url)
-        channel = PodcastChannel.load(self._db, url, create=False, download_dir=self._config.download_dir)
+        channel = PodcastChannel.load(self._db, url, create=False)
         if channel is None:
             return None
         else:
@@ -208,7 +208,6 @@ class PodcastClient(object):
         url = util.normalize_feed_url(url)
         podcast = PodcastChannel.load(self._db, url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
-                download_dir=self._config.download_dir, \
                 mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:
             if title is not None:
@@ -231,7 +230,7 @@ class PodcastClient(object):
         This has to be called from the API user after
         data-changing actions have been carried out.
         """
-        podcasts = PodcastChannel.load_from_db(self._db, self._config.download_dir)
+        podcasts = PodcastChannel.load_from_db(self._db)
         self._db.commit()
         return True
 

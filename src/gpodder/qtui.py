@@ -57,7 +57,7 @@ class qtPodder(QApplication):
     def __init__(self, args, config, db):
         QApplication.__init__(self, args)
 
-        podcasts = model.PodcastChannel.load_from_db(db, config.download_dir)
+        podcasts = model.PodcastChannel.load_from_db(db)
 
         self.podcast_list = gPodderListView(self.on_podcast_selected)
         self.podcast_list.setModel(gPodderListModel(podcasts))

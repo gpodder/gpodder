@@ -164,7 +164,7 @@ class Change(object):
 
 
 class MygPoClient(object):
-    STORE_FILE = 'mygpo.queue.sqlite'
+    STORE_FILE = 'gpodder.net'
     FLUSH_TIMEOUT = 60
     FLUSH_RETRIES = 3
 

@@ -36,18 +36,7 @@ import ConfigParser
 
 _ = gpodder.gettext
 
-if gpodder.ui.fremantle:
-    default_download_dir = os.path.join(os.path.expanduser('~'), 'MyDocs/Podcasts')
-elif gpodder.ui.diablo:
-    default_download_dir = '/media/mmc2/gpodder'
-else:
-    default_download_dir = os.path.join(os.path.expanduser('~'), 'gpodder-downloads')
-
-
 gPodderSettings = {
-    # Directory where downloads are saved
-    'download_dir': default_download_dir,
-
     # External applications used for playback
     'player': 'default',
     'videoplayer': 'default',
@@ -179,11 +168,6 @@ class Config(dict):
         self.__observers = []
 
         self.load()
-
-        download_dir = os.environ.get('GPODDER_DOWNLOAD_DIR', None)
-        if download_dir is not None:
-            log('Setting download_dir from environment: %s', download_dir, sender=self)
-            self.download_dir = download_dir
 
         atexit.register( self.__atexit)
 

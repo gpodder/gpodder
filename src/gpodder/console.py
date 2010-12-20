@@ -42,8 +42,8 @@ def synchronize_device(db, config):
     device.register('progress', callback_progress)
 
     if device.open():
-        channels = [c for c in PodcastChannel.load_from_db(db, \
-                config.download_dir) if c.sync_to_devices]
+        channels = [c for c in PodcastChannel.load_from_db(db) \
+                if c.sync_to_devices]
 
         for channel in channels:
             episodes = [e for e in channel.get_downloaded_episodes() \

@@ -455,7 +455,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
+        self.channels = PodcastChannel.load_from_db(self.db)
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
@@ -481,7 +481,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def find_partial_downloads():
             # Look for partial file downloads
-            partial_files = glob.glob(os.path.join(self.config.download_dir, '*', '*.partial'))
+            partial_files = glob.glob(os.path.join(gpodder.downloads, '*', '*.partial'))
             count = len(partial_files)
             resumable_episodes = []
             if count:
@@ -583,7 +583,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if uri.startswith('/'):
             uri = 'file://' + uri
 
-        prefix = 'file://' + self.config.download_dir
+        prefix = 'file://' + gpodder.downloads
 
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
@@ -2081,16 +2081,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def clean_up_downloads(self, delete_partial=False):
         # Clean up temporary files left behind by old gPodder versions
-        temporary_files = glob.glob('%s/*/.tmp-*' % self.config.download_dir)
+        temporary_files = glob.glob('%s/*/.tmp-*' % gpodder.downloads)
 
         if delete_partial:
-            temporary_files += glob.glob('%s/*/*.partial' % self.config.download_dir)
+            temporary_files += glob.glob('%s/*/*.partial' % gpodder.downloads)
 
         for tempfile in temporary_files:
             util.delete_file(tempfile)
 
         # Clean up empty download folders and abandoned download folders
-        download_dirs = glob.glob(os.path.join(self.config.download_dir, '*'))
+        download_dirs = glob.glob(os.path.join(gpodder.downloads, '*'))
         for ddir in download_dirs:
             if os.path.isdir(ddir) and False: # FIXME not db.channel_foldername_exists(os.path.basename(ddir)):
                 globr = glob.glob(os.path.join(ddir, '*'))
@@ -2646,7 +2646,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel = PodcastChannel.load(self.db, url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
-                            download_dir=self.config.download_dir, \
                             mimetype_prefs=self.config.mimetype_prefs)
 
                     try:
@@ -2755,7 +2754,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
         self.updating_feed_cache = False
 
-        self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
+        self.channels = PodcastChannel.load_from_db(self.db)
 
         # Process received episode actions for all updated URLs
         self.process_received_episode_actions(updated_urls)
@@ -2940,7 +2939,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if not force_update:
-            self.channels = PodcastChannel.load_from_db(self.db, self.config.download_dir)
+            self.channels = PodcastChannel.load_from_db(self.db)
             self.channel_list_changed = True
             self.update_podcast_list_model(select_url=select_url_afterwards)
             return
@@ -4136,21 +4135,6 @@ def main(options=None):
     user_hooks = hooks.HookManager()
     if user_hooks.has_modules():
         gpodder.user_hooks = user_hooks
-
-    if gpodder.ui.diablo:
-        # Detect changing of SD cards between mmc1/mmc2 if a gpodder
-        # folder exists there (allow moving "gpodder" between SD cards or USB)
-        # Also allow moving "gpodder" to home folder (e.g. rootfs on SD)
-        if not os.path.exists(config.download_dir):
-            log('Downloads might have been moved. Trying to locate them...')
-            for basedir in ['/media/mmc1', '/media/mmc2']+glob.glob('/media/usb/*')+['/home/user/MyDocs']:
-                dir = os.path.join(basedir, 'gpodder')
-                if os.path.exists(dir):
-                    log('Downloads found in: %s', dir)
-                    config.download_dir = dir
-                    break
-                else:
-                    log('Downloads NOT FOUND in %s', dir)
 
     config.mygpo_device_type = util.detect_device_type()
 

@@ -19,7 +19,7 @@
 """
 Loads and executes user hooks.
 
-Hooks are python scripts in ~/.config/gpodder/hooks. Each script
+Hooks are python scripts in the "Hooks" folder of $GPODDER_HOME. Each script
 must define a class named "gPodderHooks", otherwise it will be ignored.
 
 The hooks class defines several callbacks that will be called by the
@@ -69,7 +69,7 @@ class HookManager(object):
         """Create a new hook manager"""
         self.modules = []
 
-        for filename in glob.glob(os.path.join(gpodder.home, 'hooks', '*.py')):
+        for filename in glob.glob(os.path.join(gpodder.home, 'Hooks', '*.py')):
           try:
               module = self._load_module(filename)
               if module is not None:
@@ -95,7 +95,7 @@ class HookManager(object):
         such a class.
         """
         basename, extension = os.path.splitext(os.path.basename(filepath))
-        module = imp.load_module(basename, file(filepath, 'r'), os.path.dirname(filepath), (extension, 'r', imp.PY_SOURCE))
+        module = imp.load_module(basename, file(filepath, 'r'), filepath, (extension, 'r', imp.PY_SOURCE))
         hook_class = getattr(module, HookManager.HOOK_CLASS, None)
 
         if hook_class is None:
