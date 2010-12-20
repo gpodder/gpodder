@@ -93,7 +93,6 @@ gPodderSettings = {
 
     # Tray icon
     'display_tray_icon': False,
-    'minimize_to_tray': False,
 
     # Misc
     'paned_position': 200,
