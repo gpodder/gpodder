@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2010 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -607,9 +607,12 @@ class Database(object):
         cur.close()
         self.lock.release()
 
+    def _upgrade_name(self, table_name):
+        return table_name + '_save'
+
     def recreate_table(self, cur, table_name, fields, index_list):
         log('Rename table %s', table_name, sender=self)
-        new_table_name = table_name + "_save"
+        new_table_name = self._upgrade_name(table_name)
         cur.execute("ALTER TABLE %s RENAME TO %s" % (table_name, new_table_name))
         #log("ALTER TABLE %s RENAME TO %s" % (table_name, new_table_name))
 
@@ -650,26 +653,52 @@ class Database(object):
         cur.execute("PRAGMA table_info(%s)" % table_name)
         available = cur.fetchall()
 
+        # Check if an old migration to 2.9 failed and recover (bug 1198)
+        new_table_name = self._upgrade_name(table_name)
+        cur.execute("PRAGMA table_info(%s)" % new_table_name)
+        available_migration = cur.fetchall()
+        if available and available_migration:
+            # Both tables exist - check if our podcasts table is empty
+            # and if so, assume the last migration failed and recover
+            def count_rows(table_name):
+                cur.execute('SELECT COUNT(*) FROM %s' % table_name)
+                return cur.fetchone()[0]
+
+            real_count = count_rows(table_name)
+            migr_count = count_rows(new_table_name)
+
+            if real_count == 0 and migr_count > 0:
+                log('Recovering from previous failed migration', sender=self)
+                cur.execute('DROP TABLE %s' % table_name)
+                cur.execute('ALTER TABLE %s RENAME TO %s' % (new_table_name, table_name))
+
+        # Cleanup any remaining migration table contents after we
+        # have tried to recover from bug 1198, so contents do not
+        # get re-imported when all podcasts are deleted by the user
+        cur.execute('DROP TABLE IF EXISTS %s' % new_table_name)
+
         if not available:
             self.create_table(cur, table_name, fields)
-
         else:
             # Table info columns, as returned by SQLite
             ID, NAME, TYPE, NOTNULL, DEFAULT = range(5)
+
+            # Check first if we have any "not null" columns
             exists_notnull_column = any(bool(column[NOTNULL]) for column in available)
+
+            # Must add missing columns before recreate_table()
+            # otherwise http://gpodder.org/bug/1198 occurs!
+            existing = set(column[NAME] for column in available)
+            for field_name, field_type, field_required, field_default in fields:
+                if field_name not in existing:
+                    log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
+                    sql = "ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type)
+                    if field_required:
+                        sql += " NOT NULL DEFAULT %s" % (field_default)
+                    cur.execute(sql)
 
             if not exists_notnull_column:
                 self.recreate_table(cur, table_name, fields, index_list)
-
-            else:
-                existing = set(column[NAME] for column in available)
-                for field_name, field_type, field_required, field_default in fields:
-                    if field_name not in existing:
-                        log('Adding column: %s.%s (%s)', table_name, field_name, field_type, sender=self)
-                        sql = "ALTER TABLE %s ADD COLUMN %s %s" % (table_name, field_name, field_type)
-                        if field_required:
-                            sql += " NOT NULL DEFAULT %s" % (field_default)
-                        cur.execute(sql)
 
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
