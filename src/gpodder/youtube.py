@@ -175,7 +175,7 @@ def find_youtube_channels(string):
     r = re.compile('>\s+<')
     data = r.sub('><', util.urlopen(url).read())
 
-    r1 = re.compile('<a href="/user/([^"]+)"[^>]*>([^<]+)</a>')
+    r1 = re.compile('<a href="/user/([^"?]+)[^"]+"[^>]*>([^<]+)</a>')
     m1 = r1.findall(data)
 
     r2 = re.compile('\s+')
