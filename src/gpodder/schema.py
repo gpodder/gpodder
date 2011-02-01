@@ -93,7 +93,7 @@ def initialize_database(db):
 
 
 def upgrade(db):
-    if db.execute('PRAGMA table_info(version)').rowcount == -1:
+    if not list(db.execute('PRAGMA table_info(version)')):
         initialize_database(db)
         return
 
