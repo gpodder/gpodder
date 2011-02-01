@@ -60,15 +60,6 @@ class BuilderWidget(GtkBuilderWidget):
             self.main_window.connect('configure-event', \
                     self._on_configure_event_maemo)
 
-        # Enable support for fullscreen toggle key on Maemo 4
-        if gpodder.ui.diablo:
-            self._maemo_fullscreen = False
-            self._maemo_fullscreen_chain = None
-            self.main_window.connect('key-press-event', \
-                    self._on_key_press_event_maemo)
-            self.main_window.connect('window-state-event', \
-                    self._on_window_state_event_maemo)
-
         # Enable support for tracking iconified state
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
             self.main_window.connect('window-state-event', \
@@ -95,11 +86,6 @@ class BuilderWidget(GtkBuilderWidget):
                     (w, h) = (a.width, a.height)
                     (pw, ph) = self.main_window.get_size()
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-            elif gpodder.ui.diablo:
-                self._maemo_fullscreen_chain = parent
-                if parent.window.get_state() & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-                    self.main_window.fullscreen()
-                    self._maemo_fullscreen = True
 
     def _handle_menu_bar(self, menu_bar):
         for child in menu_bar.get_children():
@@ -196,31 +182,7 @@ class BuilderWidget(GtkBuilderWidget):
         return self.main_window
 
     def show_message(self, message, title=None, important=False, widget=None):
-        if gpodder.ui.diablo:
-            import hildon
-            if important:
-                try:
-                    dlg = hildon.Note('information', (self.main_window, message))
-                except TypeError:
-                    if title is None:
-                        message = message
-                    else:
-                        message = '%s\n%s' % (title, message)
-                    dlg = hildon.hildon_note_new_information(self.main_window, \
-                            message)
-                dlg.run()
-                dlg.destroy()
-            else:
-                if title is None:
-                    title = 'gPodder'
-                pango_markup = '<b>%s</b>\n<small>%s</small>' % (title, message)
-                try:
-                    hildon.hildon_banner_show_information_with_markup(gtk.Label(''), None, pango_markup)
-                except TypeError:
-                    # We're probably running the Diablo UI on Maemo 5 :)
-                    hildon.hildon_banner_show_information(self.main_window, \
-                            '', message)
-        elif gpodder.ui.fremantle:
+        if gpodder.ui.fremantle:
             import hildon
             if important:
                 if title is None:
@@ -314,17 +276,6 @@ class BuilderWidget(GtkBuilderWidget):
             response = dlg.run()
             dlg.destroy()
             return response == gtk.RESPONSE_YES
-        elif gpodder.ui.diablo:
-            import hildon
-            try:
-                dlg = hildon.Note('confirmation', (self.main_window, message))
-            except TypeError:
-                # Kludgy workaround: We're running the Diablo UI on Maemo 5 :)
-                dlg = hildon.hildon_note_new_confirmation(self.main_window, \
-                        message)
-            response = dlg.run()
-            dlg.destroy()
-            return response == gtk.RESPONSE_OK
         elif gpodder.ui.fremantle:
             import hildon
             dlg = hildon.hildon_note_new_confirmation(self.get_dialog_parent(), \
@@ -360,10 +311,6 @@ class BuilderWidget(GtkBuilderWidget):
                 # requesting an URL to be entered (see Maemo bug 5184)
                 text_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
-        elif gpodder.ui.diablo:
-            text_entry = gtk.Entry()
-            text_entry.set_property('hildon-input-mode', \
-                    'HILDON_GTK_INPUT_MODE_FULL')
         else:
             text_entry = gtk.Entry()
         text_entry.set_activates_default(True)
@@ -439,11 +386,6 @@ class BuilderWidget(GtkBuilderWidget):
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
             password_entry.set_property('hildon-input-mode', \
                         gtk.HILDON_GTK_INPUT_MODE_FULL)
-        elif gpodder.ui.diablo:
-            username_entry.set_property('hildon-input-mode', \
-                        'HILDON_GTK_INPUT_MODE_FULL')
-            password_entry.set_property('hildon-input-mode', \
-                        'HILDON_GTK_INPUT_MODE_FULL')
 
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)
@@ -504,9 +446,6 @@ class BuilderWidget(GtkBuilderWidget):
             dlg = gtk.FileChooserDialog(title=title, parent=self.main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        elif gpodder.ui.diablo:
-            import hildon
-            dlg = hildon.FileChooserDialog(self.main_window, gtk.FILE_CHOOSER_ACTION_SAVE)
 
         dlg.set_do_overwrite_confirmation(True)
         dlg.set_current_name(os.path.basename(dst_filename))

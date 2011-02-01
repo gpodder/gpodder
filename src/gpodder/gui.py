@@ -112,23 +112,11 @@ if gpodder.ui.desktop:
         log('Warning: Could not import gpodder.trayicon.', traceback=True)
         log('Warning: This probably means your PyGTK installation is too old!')
         have_trayicon = False
-elif gpodder.ui.diablo:
-    from gpodder.gtkui.download import DownloadStatusModel
-
-    from gpodder.gtkui.maemo.channel import gPodderChannel
-    from gpodder.gtkui.maemo.preferences import gPodderPreferences
-    from gpodder.gtkui.maemo.shownotes import gPodderShownotes
-    from gpodder.gtkui.maemo.episodeselector import gPodderEpisodeSelector
-    from gpodder.gtkui.maemo.podcastdirectory import gPodderPodcastDirectory
-    from gpodder.gtkui.maemo.mygpodder import MygPodderSettings
-    from gpodder.gtkui.interface.progress import ProgressIndicator
-    have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.model import DownloadStatusModel
     from gpodder.gtkui.frmntl.model import EpisodeListModel
     from gpodder.gtkui.frmntl.model import PodcastListModel
 
-    from gpodder.gtkui.maemo.channel import gPodderChannel
     from gpodder.gtkui.frmntl.preferences import gPodderPreferences
     from gpodder.gtkui.frmntl.shownotes import gPodderShownotes
     from gpodder.gtkui.frmntl.episodeselector import gPodderEpisodeSelector
@@ -175,17 +163,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None)
     
     def new(self):
-        if gpodder.ui.diablo:
-            import hildon
-            self.app = hildon.Program()
-            self.app.add_window(self.main_window)
-            self.main_window.add_toolbar(self.toolbar)
-            menu = gtk.Menu()
-            for child in self.main_menu.get_children():
-                child.reparent(menu)
-            self.main_window.set_menu(self.set_finger_friendly(menu))
-            self._last_orientation = Orientation.LANDSCAPE
-        elif gpodder.ui.fremantle:
+        if gpodder.ui.fremantle:
             import hildon
             self.app = hildon.Program()
             self.app.add_window(self.main_window)
@@ -1094,23 +1072,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Update the sensitivity of the toolbar buttons on the Desktop
             selection.connect('changed', lambda s: self.play_or_download())
 
-        if gpodder.ui.diablo:
-            # Set up the tap-and-hold context menu for podcasts
-            menu = gtk.Menu()
-            menu.append(self.itemUpdateChannel.create_menu_item())
-            menu.append(self.itemEditChannel.create_menu_item())
-            menu.append(gtk.SeparatorMenuItem())
-            menu.append(self.itemRemoveChannel.create_menu_item())
-            menu.append(gtk.SeparatorMenuItem())
-            item = gtk.ImageMenuItem(_('Close this menu'))
-            item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, \
-                    gtk.ICON_SIZE_MENU))
-            menu.append(item)
-            menu.show_all()
-            menu = self.set_finger_friendly(menu)
-            self.treeChannels.tap_and_hold_setup(menu)
-
-
     def init_download_list_treeview(self):
         # enable multiple selection support
         self.treeDownloads.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
@@ -1331,13 +1292,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
                     text.append(' (' + ', '.join(s)+')')
                 self.labelDownloads.set_text(''.join(text))
-            elif gpodder.ui.diablo:
-                sum = downloading + failed + finished + queued + paused + others
-                if sum:
-                    self.tool_downloads.set_label(_('Downloads (%d)') % sum)
-                else:
-                    self.tool_downloads.set_label(_('Downloads'))
-            elif gpodder.ui.fremantle:
+            if gpodder.ui.fremantle:
                 if downloading + queued > 0:
                     self.button_downloads.set_value(N_('%(count)d active', '%(count)d active', downloading+queued) % {'count':(downloading+queued)})
                 elif failed > 0:
@@ -1378,8 +1333,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.tray_icon.set_status()
                 if gpodder.ui.desktop:
                     self.downloads_finished(self.download_tasks_seen)
-                if gpodder.ui.diablo:
-                    hildon.hildon_banner_show_information(self.gPodder, '', 'gPodder: %s' % _('All downloads finished'))
                 log('All downloads have finished.', sender=self)
 
                 if gpodder.ui.fremantle:
@@ -2060,12 +2013,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if file_type == 'video' and self.config.videoplayer and \
                     self.config.videoplayer != 'default':
                 player = self.config.videoplayer
-                if gpodder.ui.diablo:
-                    # Use the wrapper script if it's installed to crop 3GP YouTube
-                    # videos to fit the screen (looks much nicer than w/ black border)
-                    if player == 'mplayer' and util.find_command('gpodder-mplayer'):
-                        player = 'gpodder-mplayer'
-                elif gpodder.ui.fremantle and player == 'mplayer':
+                if gpodder.ui.fremantle and player == 'mplayer':
                     player = 'mplayer -fs %F'
             elif file_type == 'audio' and self.config.player and \
                     self.config.player != 'default':
@@ -2176,10 +2124,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 m3u_filename = os.path.join(gpodder.home, 'gpodder_open_with.m3u')
 
                 def to_url(x):
-                    # Diablo's Player hates file:// URLs (Maemo bug 11647)
-                    if gpodder.ui.diablo:
-                        return x
-
                     if '://' not in x:
                         return 'file://' + urllib.quote(os.path.abspath(x))
                     return x
@@ -2938,12 +2882,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if downloading:
             if gpodder.ui.fremantle:
                 self.close_gpodder()
-            elif gpodder.ui.diablo:
-                result = self.show_confirmation(_('Do you really want to quit gPodder now?'))
-                if result:
-                    self.close_gpodder()
-                else:
-                    return True
             dialog = gtk.MessageDialog(self.gPodder, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_NONE)
             dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             quit_button = dialog.add_button(gtk.STOCK_QUIT, gtk.RESPONSE_CLOSE)
@@ -3412,16 +3350,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.config.mygpo_password)
         dir.download_opml_file(url)
 
-    def on_mygpo_settings_activate(self, action=None):
-        # This dialog is only used for Maemo 4
-        if not gpodder.ui.diablo:
-            return
-
-        settings = MygPodderSettings(self.main_window, \
-                config=self.config, \
-                mygpo_client=self.mygpo_client, \
-                on_send_full_subscriptions=self.on_send_full_subscriptions)
-
     def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \
                 add_urls_callback=self.add_podcast_list)
@@ -3553,8 +3481,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
                 dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-            elif gpodder.ui.diablo:
-                dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_OPEN)
             dlg.set_filter(self.get_opml_filter())
             response = dlg.run()
             filename = None
@@ -3581,8 +3507,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        elif gpodder.ui.diablo:
-            dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_SAVE)
         dlg.set_filter(self.get_opml_filter())
         response = dlg.run()
         if response == gtk.RESPONSE_OK:

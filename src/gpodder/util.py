@@ -964,8 +964,6 @@ def bluetooth_send_files_maemo(filenames):
 
     Takes a list of (absolute and local) filenames that are
     submitted to the Maemo Bluetooth UI for file transfer.
-
-    This method works in Diablo and also in Fremantle.
     """
     import dbus
     bus = dbus.SystemBus()

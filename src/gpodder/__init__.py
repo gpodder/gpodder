@@ -58,12 +58,11 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 class UI(object):
     def __init__(self):
         self.desktop = False
-        self.diablo = False
         self.fremantle = False
 
     @property
     def maemo(self):
-        return self.diablo or self.fremantle
+        return self.fremantle
 
 ui = UI()
 

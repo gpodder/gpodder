@@ -78,12 +78,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        if gpodder.ui.diablo:
-            # Hardcode fmt_id 5 for Maemo (for performance reasons) - we could
-            # also use 13 and 17 here, but the quality is very low then. There
-            # seems to also be a 6, but I could not find a video with that yet.
-            fmt_id = 5
-        elif gpodder.ui.fremantle:
+        if gpodder.ui.fremantle:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
             if preferred_fmt_id == 5:

@@ -80,7 +80,6 @@ if not os.path.exists(DBUS_SERVICE_FILE) and \
 inst_manpages = glob.glob( 'doc/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
-inst_share_ui_maemo = glob.glob('data/ui/maemo/*.ui')
 inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ] + glob.glob('data/images/*.png')
 inst_desktop = [ 'data/gpodder.desktop' ]
@@ -129,7 +128,6 @@ if target == DEFAULT or building_source:
 
 if target == MAEMO or building_source:
     data_files += [
-      ('share/gpodder/ui/maemo', inst_share_ui_maemo),
       ('share/gpodder/ui/frmntl', inst_share_ui_frmntl),
       ('share/applications/hildon', inst_desktop_maemo),
       ('share/icons/hicolor/scalable/apps', inst_icons_64),
@@ -139,11 +137,7 @@ if target == MAEMO or building_source:
       ('share/icons/hicolor/16x16/apps', inst_icons_16),
     ]
     packages += [
-      'gpodder.gtkui.maemo',
       'gpodder.gtkui.frmntl',
-    ]
-    additional_scripts = [
-      'data/maemo/gpodder-mplayer',
     ]
 
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
@@ -157,7 +151,7 @@ setup(
   author       = author,
   author_email = email,
   url          = gpodder.__url__,
-  scripts      = glob.glob('bin/*') + additional_scripts,
+  scripts      = glob.glob('bin/*'),
   data_files   = data_files + translation_files
 )
 

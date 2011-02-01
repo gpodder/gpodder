@@ -27,10 +27,6 @@ Downloaded podcasts can either be synchronized to portable
 MP3 players (including iPods) or played back on the user's
 desktop.
 
-The Maemo 4 and Maemo 5 environments will be automatically
-detected, and a suitable UI will be used. You can override
-this behaviour with the --maemo and --fremantle switches.
-
 See gpo(1) for the command-line interface.
 """
 
@@ -70,9 +66,6 @@ if __name__ == '__main__':
     credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
     images_folder = os.path.join(prefix, 'share', 'gpodder')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
-
-    # The existence of this file tells us we're running on Maemo
-    maemo_file = os.path.join(prefix, 'share', 'applications', 'hildon', 'gpodder.desktop')
 
     if os.path.exists(src_dir) and os.path.exists(data_dir) and \
             not prefix.startswith('/usr'):
@@ -119,10 +112,6 @@ if __name__ == '__main__':
                       action="store_true", dest="verbose", default=False,
                       help=_("Print debugging output to stdout"))
 
-    parser.add_option("-m", "--maemo",
-                      action="store_true", dest="diablo", default=False,
-                      help=_("Force using the Maemo 4 user interface"))
-
     parser.add_option("-f", "--fremantle",
                       action="store_true", dest="fremantle", default=False,
                       help=_("Force using the Maemo 5 user interface"))
@@ -141,30 +130,20 @@ if __name__ == '__main__':
     # force the "fremantle" option on automatically, so that clueless
     # users won't be reporting bogus bugs if they try to start gPodder
     # from the command line without the "--fremantle" switch :)
-    if not options.fremantle and not options.diablo:
+    if not options.fremantle:
         try:
             etc_issue = open('/etc/issue').read()
             if 'Maemo 5' in etc_issue:
                 options.fremantle = True
                 print >>sys.stderr, 'Auto-detected: Maemo 5 (--fremantle)'
-            elif 'Internet Tablet OS: maemo Linux based OS2008' in etc_issue:
-                options.diablo = True
-                print >>sys.stderr, 'Auto-detected: Maemo OS2008 (--maemo)'
-
             del etc_issue
         except:
             pass
-
-    if options.fremantle or options.diablo:
-        gpodder.icon_file = gpodder.icon_file.replace('.svg', '.png')
 
     if options.fremantle:
         gpodder.ui.fremantle = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
         gpodder.set_home(os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder')))
-    elif options.diablo or os.path.exists(maemo_file):
-        gpodder.ui.diablo = True
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
     else:
         gpodder.ui.desktop = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
@@ -207,7 +186,7 @@ if __name__ == '__main__':
             print >>sys.stderr, 'Cannot start gPodder: $DISPLAY is not set.'
             sys.exit(1)
 
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             # Reduce our nice value to zero if we're on Maemo to
             # make the tablet not kill itself while updating feeds
             if os.nice(0) < 0:

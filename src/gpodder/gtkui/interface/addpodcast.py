@@ -49,9 +49,6 @@ class gPodderAddPodcast(BuilderWidget):
             # Deactivate capitalization and word completion (Maemo bug 5184)
             self.entry_url.set_property('hildon-input-mode', \
                     gtk.HILDON_GTK_INPUT_MODE_FULL)
-        elif gpodder.ui.diablo:
-            self.entry_url.set_property('hildon-input-mode', \
-                    'HILDON_GTK_INPUT_MODE_FULL')
         self.gPodderAddPodcast.show()
 
         if not hasattr(self, 'preset_url'):
