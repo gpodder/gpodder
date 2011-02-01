@@ -5,14 +5,19 @@ from sqlite3 import dbapi2 as sqlite
 import sys
 import os
 
-if len(sys.argv) != 3:
+if len(sys.argv) not in (2, 3):
     print >>sys.stderr, """
-    Usage: %s [old-db] [new-db]
-    """ % sys.argv[0]
+    Usage: %s [old-db] [new-db] (migrate)
+       or: %s [new-db]          (create)
+    """ % (sys.argv[0], sys.argv[0])
     sys.exit(1)
 
-old_db = sqlite.connect(sys.argv[-2])
-new_db = sqlite.connect(sys.argv[-1])
+if len(sys.argv) == 2:
+    old_db = None
+    new_db = sqlite.connect(sys.argv[-1])
+else:
+    old_db = sqlite.connect(sys.argv[-2])
+    new_db = sqlite.connect(sys.argv[-1])
 
 # Create table for podcasts
 new_db.execute("""
@@ -79,67 +84,67 @@ for sql in INDEX_SQL.strip().split('\n'):
     new_db.execute(sql)
 
 
-# Copy data for podcasts
-old_cur = old_db.cursor()
-columns = [x[1] for x in old_cur.execute('PRAGMA table_info(channels)')]
-for row in old_cur.execute('SELECT * FROM channels'):
-    row = dict(zip(columns, row))
-    values = (
-            row['id'],
-            row['override_title'] or row['title'],
-            row['url'],
-            row['link'],
-            row['description'],
-            row['image'],
-            row['pubDate'],
-            row['username'] or None,
-            row['password'] or None,
-            row['last_modified'] or None,
-            row['etag'] or None,
-            row['channel_is_locked'],
-            row['foldername'],
-            not row['feed_update_enabled'],
-    )
-    new_db.execute("""
-INSERT INTO podcast VALUES (%s)
-    """ % ', '.join('?'*len(values)), values)
-old_cur.close()
+if old_db is not None:
+    # Copy data for podcasts
+    old_cur = old_db.cursor()
+    columns = [x[1] for x in old_cur.execute('PRAGMA table_info(channels)')]
+    for row in old_cur.execute('SELECT * FROM channels'):
+        row = dict(zip(columns, row))
+        values = (
+                row['id'],
+                row['override_title'] or row['title'],
+                row['url'],
+                row['link'],
+                row['description'],
+                row['image'],
+                row['pubDate'],
+                row['username'] or None,
+                row['password'] or None,
+                row['last_modified'] or None,
+                row['etag'] or None,
+                row['channel_is_locked'],
+                row['foldername'],
+                not row['feed_update_enabled'],
+        )
+        new_db.execute("""
+        INSERT INTO podcast VALUES (%s)
+        """ % ', '.join('?'*len(values)), values)
+    old_cur.close()
 
-# Copy data for episodes
-old_cur = old_db.cursor()
-columns = [x[1] for x in old_cur.execute('PRAGMA table_info(episodes)')]
-for row in old_cur.execute('SELECT * FROM episodes'):
-    row = dict(zip(columns, row))
-    values = (
-            row['id'],
-            row['channel_id'],
-            row['title'],
-            row['description'],
-            row['url'],
-            row['pubDate'],
-            row['guid'],
-            row['link'],
-            row['length'],
-            row['mimetype'],
-            row['state'],
-            not row['played'],
-            row['locked'],
-            row['filename'],
-            row['total_time'],
-            row['current_position'],
-            row['current_position_updated'],
-    )
-    new_db.execute("""
-INSERT INTO episode VALUES (%s)
-    """ % ', '.join('?'*len(values)), values)
-old_cur.close()
+    # Copy data for episodes
+    old_cur = old_db.cursor()
+    columns = [x[1] for x in old_cur.execute('PRAGMA table_info(episodes)')]
+    for row in old_cur.execute('SELECT * FROM episodes'):
+        row = dict(zip(columns, row))
+        values = (
+                row['id'],
+                row['channel_id'],
+                row['title'],
+                row['description'],
+                row['url'],
+                row['pubDate'],
+                row['guid'],
+                row['link'],
+                row['length'],
+                row['mimetype'],
+                row['state'],
+                not row['played'],
+                row['locked'],
+                row['filename'],
+                row['total_time'],
+                row['current_position'],
+                row['current_position_updated'],
+        )
+        new_db.execute("""
+        INSERT INTO episode VALUES (%s)
+        """ % ', '.join('?'*len(values)), values)
+    old_cur.close()
+    old_db.close()
 
 # Create table for version info / metadata + insert initial data
 new_db.execute("""CREATE TABLE version (version integer)""")
 new_db.execute("""INSERT INTO version (version) VALUES (1)""")
 new_db.commit()
 
-
-old_db.close()
 new_db.close()
 
