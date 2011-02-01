@@ -224,11 +224,6 @@ gPodderSettings = {
     'podcast_list_view_all': (bool, True,
       ('Show an additional entry in the podcast list that contains all episodes')),
 
-    'audio_played_dbus': (bool, False,
-      ('Set to True if the audio player notifies gPodder about played episodes')),
-    'video_played_dbus': (bool, False,
-      ('Set to True if the video player notifies gPodder about played episodes')),
-
     'rotation_mode': (int, 0,
       ('Internally used on Maemo 5 for the current rotation mode')),
 
