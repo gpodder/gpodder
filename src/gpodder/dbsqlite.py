@@ -203,7 +203,7 @@ class Database(object):
                     deleted += count
                 elif state == gpodder.STATE_NORMAL and is_new:
                     new += count
-                elif state == gpodder.STATE_DOWNLOADED and not is_new:
+                elif state == gpodder.STATE_DOWNLOADED and is_new:
                     downloaded += count
                     unplayed += count
                 elif state == gpodder.STATE_DOWNLOADED:
