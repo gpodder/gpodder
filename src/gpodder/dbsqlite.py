@@ -24,6 +24,8 @@
 # 2010-04-24 Thomas Perl <thp@gpodder.org>
 #
 
+from __future__ import with_statement
+
 import gpodder
 _ = gpodder.gettext
 
