@@ -50,6 +50,8 @@ if not have_sqlite:
 
 from gpodder.liblogger import log
 
+from gpodder import schema
+
 import threading
 import re
 
@@ -166,6 +168,10 @@ class Database(object):
             self._db = sqlite.connect(self.database_file, check_same_thread=False)
             self._db.text_factory = str
             self._db.create_collation("UNICODE", self.db_sort_cmp)
+
+            # Check schema version, upgrade if necessary
+            schema.upgrade(self._db)
+
             self.log('Connected')
         return self._db
 
