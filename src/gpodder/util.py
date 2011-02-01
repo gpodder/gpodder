@@ -76,7 +76,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         log('Detected encoding: %s', encoding)
-    elif gpodder.ui.maemo:
+    elif gpodder.ui.fremantle:
         encoding = 'utf-8'
     elif gpodder.win32:
         # To quote http://docs.python.org/howto/unicode.html:
@@ -935,7 +935,7 @@ def idle_add(func, *args):
     call the function later - this is needed for
     threads to be able to modify GTK+ widget data.
     """
-    if gpodder.ui.desktop or gpodder.ui.maemo:
+    if gpodder.ui.desktop or gpodder.ui.fremantle:
         import gobject
         def x(f, *a):
             f(*a)
@@ -951,9 +951,7 @@ def bluetooth_available():
     Returns True or False depending on the availability
     of bluetooth functionality on the system.
     """
-    if gpodder.ui.maemo:
-        return True
-    elif find_command('bluetooth-sendto') or \
+    if find_command('bluetooth-sendto') or \
             find_command('gnome-obex-send'):
         return True
     else:
@@ -1139,7 +1137,7 @@ def gui_open(filename):
        on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             try:
                 import osso
             except ImportError, ie:
@@ -1183,7 +1181,7 @@ def open_website(url):
     browser. This uses Python's "webbrowser" module, so
     make sure your system is set up correctly.
     """
-    if gpodder.ui.maemo:
+    if gpodder.ui.fremantle:
         import osso
         context = osso.Context('gPodder', gpodder.__version__, False)
         rpc = osso.Rpc(context)
@@ -1425,7 +1423,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.maemo:
+    if gpodder.ui.fremantle:
         return 'mobile'
     elif glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop

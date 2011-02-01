@@ -135,7 +135,7 @@ from gpodder.gtkui.interface.common import Orientation
 
 from gpodder.gtkui.interface.welcome import gPodderWelcome
 
-if gpodder.ui.maemo:
+if gpodder.ui.fremantle:
     import hildon
 
 from gpodder.dbusproxy import DBusPodcastsProxy
@@ -972,7 +972,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             iconcell.set_fixed_size(50, 50)
         else:
             iconcell.set_fixed_size(40, -1)
@@ -1007,6 +1007,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         lockcell = gtk.CellRendererPixbuf()
         lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        lockcell.set_fixed_size(40, -1)
         if gpodder.ui.fremantle:
             lockcell.set_property('icon-name', 'general_locked')
         else:
@@ -1027,7 +1028,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_reorderable(True)
         self.treeAvailable.append_column(namecolumn)
 
-        if not gpodder.ui.maemo:
+        if gpodder.ui.desktop:
             for itemcolumn in (sizecolumn, releasecolumn):
                 itemcolumn.set_reorderable(True)
                 self.treeAvailable.append_column(itemcolumn)
@@ -1080,7 +1081,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column = gtk.TreeViewColumn(_('Episode'))
 
         cell = gtk.CellRendererPixbuf()
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             cell.set_fixed_size(50, 50)
         cell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
         column.pack_start(cell, expand=False)
@@ -1105,7 +1106,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_expand(False)
         self.treeDownloads.append_column(column)
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             column.set_property('min-width', 200)
             column.set_property('max-width', 200)
         else:
@@ -1672,15 +1673,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
 
-            if gpodder.ui.maemo:
-                # Because we open the popup on left-click for Maemo,
-                # we also include a non-action to close the menu
-                menu.append(gtk.SeparatorMenuItem())
-                item = gtk.ImageMenuItem(_('Close this menu'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
-
-                menu.append(item)
-
             menu.show_all()
             menu.popup(None, None, None, event.button, event.time)
             return True
@@ -1773,11 +1765,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
-
-        if gpodder.ui.maemo:
-            util.bluetooth_send_files_maemo([e.local_filename(create=False) \
-                    for e in episodes_to_copy])
-            return True
 
         def convert_and_send_thread(episode):
             for episode in episodes:
@@ -1880,11 +1867,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu.append(item)
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
-                    if gpodder.ui.maemo:
-                        icon_name = ICON('qgn_list_filesys_bluetooth')
-                    else:
-                        icon_name = ICON('bluetooth')
-                    item.set_image(gtk.image_new_from_icon_name(icon_name, gtk.ICON_SIZE_MENU))
+                    item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(item)
 
@@ -1921,16 +1904,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
             menu.append(item)
 
-            if gpodder.ui.maemo:
-                # Because we open the popup on left-click for Maemo,
-                # we also include a non-action to close the menu
-                menu.append(gtk.SeparatorMenuItem())
-                item = gtk.ImageMenuItem(_('Close this menu'))
-                item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
-                menu.append(item)
-
             menu.show_all()
-            # Disable tooltips while we are showing the menu, so 
+            # Disable tooltips while we are showing the menu, so
             # the tooltip will not appear over the menu
             self.treeview_allow_tooltips(self.treeAvailable, False)
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
@@ -1996,7 +1971,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # User has to have a media player set on the Desktop, or else we
             # would probably open the browser when giving a URL to xdg-open..
             return (self.config.player and self.config.player != 'default')
-        elif gpodder.ui.maemo:
+        elif gpodder.ui.fremantle:
             # On Maemo, the default is to use the Nokia Media Player, which is
             # already able to deal with HTTP URLs the right way, so we
             # unconditionally enable streaming always on Maemo
@@ -2073,7 +2048,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     log('Error calling Panucci using D-Bus', sender=self, traceback=True)
-            elif player == 'MediaBox' and gpodder.ui.maemo:
+            elif player == 'MediaBox' and gpodder.ui.fremantle:
                 try:
                     MEDIABOX_NAME = 'de.pycage.mediabox'
                     MEDIABOX_PATH = '/de/pycage/mediabox/control'
@@ -2115,7 +2090,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         groups['default'] = []
                         break
 
-            if gpodder.ui.maemo and groups['default']:
+            if gpodder.ui.fremantle and groups['default']:
                 # The Nokia Media Player app does not support receiving multiple
                 # file names via D-Bus, so we simply place all file names into a
                 # temporary M3U playlist and open that with the Media Player.
@@ -2135,7 +2110,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     log('Opening with system default: %s', filename, sender=self)
                     util.gui_open(filename)
             del groups['default']
-        elif gpodder.ui.maemo and groups:
+        elif gpodder.ui.fremantle and groups:
             # When on Maemo and not opening with default, show a notification
             # (no startup notification for Panucci / MPlayer yet...)
             if len(episodes) == 1:
@@ -2327,7 +2302,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
                         pos = model.iter_next(pos)
 
-                if not gpodder.ui.maemo:
+                if not gpodder.ui.fremantle:
                     if selected_iter is not None:
                         selection.select_iter(selected_iter)
                     self.on_treeChannels_cursor_changed(self.treeChannels)
@@ -2716,12 +2691,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
             self.itemUpdate.set_sensitive(True)
-            if gpodder.ui.maemo:
-                # btnCancelFeedUpdate is a ToolButton on Maemo
-                self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_APPLY)
-            else:
-                # btnCancelFeedUpdate is a normal gtk.Button
-                self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
+            self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
         else:
             count = len(episodes)
             # New episodes are available
@@ -2788,16 +2758,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
-        if gpodder.ui.maemo:
-            self.btnUpdateSelectedFeed.show()
-            self.toolFeedUpdateProgress.hide()
-            self.btnCancelFeedUpdate.hide()
-            self.btnCancelFeedUpdate.set_is_important(False)
-            self.btnCancelFeedUpdate.set_stock_id(gtk.STOCK_CLOSE)
-            self.toolbarSpacer.set_expand(True)
-            self.toolbarSpacer.set_draw(False)
-        else:
-            self.hboxUpdateFeeds.hide()
+        self.hboxUpdateFeeds.hide()
         self.btnUpdateFeeds.show()
         self.itemUpdate.set_sensitive(True)
         self.itemUpdateChannel.set_sensitive(True)
@@ -2849,14 +2810,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.feed_cache_update_cancelled = False
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
-            if gpodder.ui.maemo:
-                self.toolbarSpacer.set_expand(False)
-                self.toolbarSpacer.set_draw(True)
-                self.btnUpdateSelectedFeed.hide()
-                self.toolFeedUpdateProgress.show_all()
-            else:
-                self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
-                self.hboxUpdateFeeds.show_all()
+            self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
+            self.hboxUpdateFeeds.show_all()
             self.btnUpdateFeeds.hide()
 
         if len(channels) == 1:
@@ -3196,7 +3151,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         columns = (
             ('markup_new_episodes', None, None, _('Episode')),
         )
-        show_notification = notification and gpodder.ui.maemo
+        show_notification = notification and gpodder.ui.fremantle
 
         instructions = _('Select the episodes you want to download:')
 
@@ -3302,9 +3257,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def properties_closed( self):
         self.preferences_dialog = None
         self.show_hide_tray_icon()
-        if gpodder.ui.maemo:
-            selection = self.treeAvailable.get_selection()
-            selection.set_mode(gtk.SELECTION_MULTIPLE)
 
     def on_itemPreferences_activate(self, widget, *args):
         self.preferences_dialog = gPodderPreferences(self.main_window, \
@@ -3541,7 +3493,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://gpodder.org/wiki/User_Manual')
 
     def on_bug_tracker_activate(self, widget, *args):
-        if gpodder.ui.maemo:
+        if gpodder.ui.fremantle:
             util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
         else:
             util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder')
@@ -3596,14 +3548,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wNotebook_switch_page(self, widget, *args):
         page_num = args[1]
-        if gpodder.ui.maemo:
-            self.tool_downloads.set_active(page_num == 1)
-            page = self.wNotebook.get_nth_page(page_num)
-            tab_label = self.wNotebook.get_tab_label(page).get_text()
-            if page_num == 0 and self.active_channel is not None:
-                self.set_title(self.active_channel.title)
-            else:
-                self.set_title(tab_label)
         if page_num == 0:
             self.play_or_download()
             self.menuChannels.set_sensitive(True)
@@ -3634,9 +3578,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.active_channel == old_active_channel:
                 return
-
-            if gpodder.ui.maemo:
-                self.set_title(self.active_channel.title)
 
             # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
             if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
@@ -3782,25 +3723,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.wNotebook.next_page()
                 return True
 
-        # After this code we only handle Maemo hardware keys,
-        # so if we are not a Maemo app, we don't do anything
-        if not gpodder.ui.maemo:
-            return False
-        
-        diff = 0
-        if event.keyval == gtk.keysyms.F7: #plus
-            diff = 1
-        elif event.keyval == gtk.keysyms.F8: #minus
-            diff = -1
-
-        if diff != 0 and not self.currently_updating:
-            selection = self.treeChannels.get_selection()
-            (model, iter) = selection.get_selected()
-            new_path = ((model.get_path(iter)[0]+diff)%len(model),)
-            selection.select_path(new_path)
-            self.treeChannels.set_cursor(new_path)
-            return True
-
         return False
 
     def uniconify_main_window(self):
@@ -3861,15 +3783,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
-
-    if gpodder.ui.maemo:
-        # Try to enable the custom icon theme for gPodder on Maemo
-        settings = gtk.settings_get_default()
-        settings.set_string_property('gtk-icon-theme-name', \
-                                     'gpodder', __file__)
-        # Extend the search path for the optified icon theme (Maemo 5)
-        icon_theme = gtk.icon_theme_get_default()
-        icon_theme.prepend_search_path('/opt/gpodder-icon-theme/')
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)

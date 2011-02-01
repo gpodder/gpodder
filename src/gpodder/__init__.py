@@ -60,10 +60,6 @@ class UI(object):
         self.desktop = False
         self.fremantle = False
 
-    @property
-    def maemo(self):
-        return self.fremantle
-
 ui = UI()
 
 # D-Bus specific interface names
