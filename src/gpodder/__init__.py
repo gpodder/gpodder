@@ -123,16 +123,27 @@ user_hooks = None
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
 
+# Paths (gPodder's home folder, config, db and download folder)
+home = None
+config_file = None
+database_file = None
+downloads = None
+
+# Function to set a new gPodder home folder
+def set_home(new_home):
+    global home, config_file, database_file, downloads
+    home = new_home
+
+    config_file = os.path.join(home, 'Settings')
+    database_file = os.path.join(home, 'Database')
+    downloads = os.path.join(home, 'Downloads')
+
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
-home = os.environ.get('GPODDER_HOME', None)
-if home is None:
-    home = default_home
-else:
-    print >>sys.stderr, 'Using', home, 'to store data (GPODDER_HOME is set)'
-config_file = os.path.join(home, 'Settings')
-database_file = os.path.join(home, 'Database')
-downloads = os.path.join(home, 'Downloads')
+set_home(os.environ.get('GPODDER_HOME', default_home))
+
+if home != default_home:
+    print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
 
 # Plugins to load by default
 DEFAULT_PLUGINS = ['gpodder.soundcloud', 'gpodder.xspf']

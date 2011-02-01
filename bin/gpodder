@@ -161,6 +161,7 @@ if __name__ == '__main__':
     if options.fremantle:
         gpodder.ui.fremantle = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
+        gpodder.set_home(os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder')))
     elif options.diablo or os.path.exists(maemo_file):
         gpodder.ui.diablo = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'maemo'))
