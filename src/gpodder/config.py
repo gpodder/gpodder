@@ -41,10 +41,6 @@ gPodderSettings = {
     'player': 'default',
     'videoplayer': 'default',
 
-    # Receive 'played' status for episodes via D-Bus?
-    'audio_played_dbus': False,
-    'video_played_dbus': False,
-
     # gpodder.net settings
     'mygpo_enabled': False,
     'mygpo_server': 'gpodder.net',

@@ -607,11 +607,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if episode is not None:
             file_type = episode.file_type()
-            # Automatically enable D-Bus played status mode
-            if file_type == 'audio':
-                self.config.audio_played_dbus = True
-            elif file_type == 'video':
-                self.config.video_played_dbus = True
 
             now = time.time()
             if total > 0:
@@ -1427,10 +1422,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
-        elif name == 'videoplayer':
-            self.config.video_played_dbus = False
-        elif name == 'player':
-            self.config.audio_played_dbus = False
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
         elif name == 'rotation_mode':
@@ -2082,12 +2073,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 player = 'default'
 
-            if file_type not in ('audio', 'video') or \
-              (file_type == 'audio' and not self.config.audio_played_dbus) or \
-              (file_type == 'video' and not self.config.video_played_dbus):
-                # Mark episode as played in the database
-                episode.mark(is_played=True)
-                self.mygpo_client.on_playback([episode])
+            # Mark episode as played in the database
+            episode.mark(is_played=True)
+            self.mygpo_client.on_playback([episode])
 
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
