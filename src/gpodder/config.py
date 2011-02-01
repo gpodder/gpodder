@@ -94,7 +94,6 @@ gPodderSettings = {
     'paned_position': 200,
     'rotation_mode': 0,
     'mimetype_prefs': '',
-    'double_click_episode_action': 'shownotes',
     'auto_cleanup_downloads': True,
     'do_not_show_new_episodes_dialog': False,
     'auto_download': 'never',
