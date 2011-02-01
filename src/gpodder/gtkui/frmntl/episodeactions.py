@@ -26,6 +26,8 @@ import gpodder
 
 _ = gpodder.gettext
 
+from gpodder import util
+
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.frmntl import style
 from gpodder.gtkui import download
@@ -60,7 +62,7 @@ class gPodderEpisodeActions(BuilderWidget):
         self.episode = episode
 
         episode_details = [
-                _('Size: %s') % self.episode.get_filesize_string(),
+                _('Size: %s') % util.format_filesize(self.episode.file_size),
                 _('released: %s') % self.episode.cute_pubdate(),
         ]
         episode_details = ', '.join((cgi.escape(x) for x in episode_details))
@@ -145,7 +147,7 @@ class gPodderEpisodeActions(BuilderWidget):
 
         if self.episode.file_size > 0:
             download_button.set_title(self.action_download.props.label)
-            download_button.set_value(self.episode.get_filesize_string())
+            download_button.set_value(util.format_filesize(self.episode.file_size))
 
         if self.episode.total_time > 0:
             play_button.set_title(self.action_play.props.label)
