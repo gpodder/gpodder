@@ -79,7 +79,6 @@ class EpisodeListModel(gtk.ListStore):
         # "ICON" is used to mark icon names in source files
         ICON = lambda x: x
 
-        self._icon_cache = {}
         self.ICON_AUDIO_FILE = ICON('audio-x-generic')
         self.ICON_VIDEO_FILE = ICON('video-x-generic')
         self.ICON_IMAGE_FILE = ICON('image-x-generic')
@@ -254,11 +253,6 @@ class EpisodeListModel(gtk.ListStore):
         if reload_from_db:
             episode.reload_from_db()
 
-        if include_description or gpodder.ui.maemo:
-            icon_size = 32
-        else:
-            icon_size = 16
-
         show_bullet = False
         show_padlock = False
         show_missing = False
@@ -362,116 +356,6 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_LOCKED, episode.is_locked, \
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                 self.C_FILESIZE, episode.file_size)
-
-    def _get_icon_from_image(self,image_path, icon_size):
-        """
-        Load an local image file and transform it into an icon.
-
-        Return a pixbuf scaled to the desired size and may return None
-        if the icon creation is impossible (file not found etc).
-        """
-        if not os.path.exists(image_path):
-            return None
-        # load image from disc (code adapted from CoverDownloader
-        # except that no download is needed here)
-        loader = gtk.gdk.PixbufLoader()
-        pixbuf = None
-        try:
-            loader.write(open(image_path, 'rb').read())
-            loader.close()
-            pixbuf = loader.get_pixbuf()
-        except:
-            log('Data error while loading image %s', image_path, sender=self)
-            return None
-        # Now scale the image with ratio (copied from _resize_pixbuf_keep_ratio)
-        # Resize if too wide
-        if pixbuf.get_width() > icon_size:
-            f = float(icon_size)/pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
-        # Resize if too high
-        if pixbuf.get_height() > icon_size:
-            f = float(icon_size)/pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
-        return pixbuf
-        
-        
-    def _get_tree_icon(self, icon_name, add_bullet=False, \
-            add_padlock=False, add_missing=False, icon_size=32, \
-            build_icon_from_file = False):
-        """
-        Loads an icon from the current icon theme at the specified
-        size, suitable for display in a gtk.TreeView. Additional
-        emblems can be added on top of the icon.
-
-        Caching is used to speed up the icon lookup.
-        
-        The `build_icon_from_file` argument indicates (when True) that
-        the icon has to be created on the fly from a given image
-        file. The `icon_name` argument is then interpreted as the path
-        to this file. Those specific icons will *not be cached*.
-        """
-        
-        # Add all variables that modify the appearance of the icon, so
-        # our cache does not return the same icons for different requests
-        cache_id = (icon_name, add_bullet, add_padlock, add_missing, icon_size)
-
-        if cache_id in self._icon_cache:
-            return self._icon_cache[cache_id]
-
-        icon_theme = gtk.icon_theme_get_default()
-
-        try:
-            if build_icon_from_file:
-                icon = self._get_icon_from_image(icon_name,icon_size)
-            else:
-                icon = icon_theme.load_icon(icon_name, icon_size, 0)
-        except:
-            try:
-                log('Missing icon in theme: %s', icon_name, sender=self)
-                icon = icon_theme.load_icon(gtk.STOCK_DIALOG_QUESTION, \
-                        icon_size, 0)
-            except:
-                log('Please install the GNOME icon theme.', sender=self)
-                icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, \
-                        True, 8, icon_size, icon_size)
-
-        if icon and (add_bullet or add_padlock or add_missing):
-            # We'll modify the icon, so use .copy()
-            if add_missing:
-                try:
-                    icon = icon.copy()
-                    # Desaturate the icon so it looks even more "missing"
-                    icon.saturate_and_pixelate(icon, 0.0, False)
-                    emblem = icon_theme.load_icon(self.ICON_MISSING, icon_size/2, 0)
-                    (width, height) = (emblem.get_width(), emblem.get_height())
-                    xpos = icon.get_width() - width
-                    ypos = icon.get_height() - height
-                    emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-                except:
-                    pass
-            elif add_bullet:
-                try:
-                    icon = icon.copy()
-                    emblem = icon_theme.load_icon(self.ICON_UNPLAYED, icon_size/2, 0)
-                    (width, height) = (emblem.get_width(), emblem.get_height())
-                    xpos = icon.get_width() - width
-                    ypos = icon.get_height() - height
-                    emblem.composite(icon, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-                except:
-                    pass
-            if add_padlock:
-                try:
-                    icon = icon.copy()
-                    emblem = icon_theme.load_icon(self.ICON_LOCKED, icon_size/2, 0)
-                    (width, height) = (emblem.get_width(), emblem.get_height())
-                    emblem.composite(icon, 0, 0, width, height, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
-                except:
-                    pass
-
-        self._icon_cache[cache_id] = icon
-        return icon
 
 
 class PodcastChannelProxy(object):
