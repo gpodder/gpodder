@@ -21,6 +21,7 @@
 from PySide.QtCore import *
 
 from gpodder import model
+from gpodder import util
 
 class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
@@ -40,6 +41,22 @@ class QPodcast(QObject, model.PodcastChannel):
         return self.title
 
     qtitle = Property(unicode, _title, notify=changed)
+
+    def _coverfile(self):
+        return self.cover_file
+
+    qcoverfile = Property(unicode, _coverfile, notify=changed)
+
+    def _downloaded(self):
+        return self.get_statistics()[3]
+
+    qdownloaded = Property(int, _downloaded, notify=changed)
+
+    def _description(self):
+        return util.get_first_line(self.description).decode('utf-8')
+
+    qdescription = Property(unicode, _description, notify=changed)
+
 
 
 class Model(model.Model):

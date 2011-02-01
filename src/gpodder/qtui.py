@@ -16,7 +16,7 @@ from gpodder import config
 from gpodder import util
 
 class gPodderListModel(QAbstractListModel):
-    COLUMNS = ('podcast',)
+    COLUMNS = ['podcast',]
 
     def __init__(self, objects):
         QAbstractListModel.__init__(self)
@@ -68,8 +68,11 @@ class qtPodder(QApplication):
         self.podcast_list.setSource(QML('podcastList.qml'))
 
         self.podcast_window = QMainWindow()
+        if gpodder.ui.fremantle:
+            self.podcast_window.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
         self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
         self.podcast_window.setCentralWidget(self.podcast_list)
+        self.podcast_window.resize(800, 480)
         self.podcast_window.show()
 
     def on_podcast_selected(self, podcast):
