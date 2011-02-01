@@ -116,6 +116,10 @@ if __name__ == '__main__':
                       action="store_true", dest="fremantle", default=False,
                       help=_("Force using the Maemo 5 user interface"))
 
+    parser.add_option("-q", "--qml",
+                      action="store_true", dest="qml", default=False,
+                      help=_("Use the QML interface of gPodder"))
+
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
 
@@ -151,6 +155,11 @@ if __name__ == '__main__':
     if options.verbose:
         from gpodder.liblogger import enable_verbose
         enable_verbose()
+
+    if options.qml:
+        from gpodder import qtui
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
+        sys.exit(qtui.main())
 
     if have_dbus:
         # Try to find an already-running instance of gPodder

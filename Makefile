@@ -51,6 +51,7 @@ all: help
 
 help:
 	@echo 'make test            run gpodder in local directory'
+	@echo 'make qmltest         run gpodder (qml ui) in local directory'
 	@echo 'make unittest        run doctests + unittests'
 	@echo 'make release         create source tarball in "dist/"'
 	@echo 'make releasetest     run some tests before the release'
@@ -70,6 +71,10 @@ test:
 	@# set xterm title to know what this window does ;)
 	@echo -ne '\033]0;gPodder console (make test)\007'
 	$(BINFILE) --verbose
+
+qmltest:
+	@echo -ne '\033]0;gPodder/QML console\007'
+	$(BINFILE) --qml --verbose
 
 unittest:
 	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests

@@ -4,20 +4,24 @@
 
 from PySide.QtGui import *
 from PySide.QtCore import *
+from PySide.QtDeclarative import *
 
 import sys
 import os
 import gpodder
 
-from gpodder import model
+from gpodder.qmlui import model
 from gpodder import dbsqlite
 from gpodder import config
 from gpodder import util
 
 class gPodderListModel(QAbstractListModel):
+    COLUMNS = ('podcast',)
+
     def __init__(self, objects):
         QAbstractListModel.__init__(self)
         self._objects = objects
+        self.setRoleNames(dict(enumerate(self.COLUMNS)))
 
     def get_object(self, index):
         return self._objects[index.row()]
@@ -26,19 +30,9 @@ class gPodderListModel(QAbstractListModel):
         return len(self._objects)
 
     def data(self, index, role):
-        if index.isValid() and role == Qt.DisplayRole:
-            return self._format(self.get_object(index))
+        if index.isValid() and role == self.COLUMNS.index('podcast'):
+            return self.get_object(index)
         return None
-
-    def _format(self, o):
-        return o.title.decode('utf-8')
-
-class EpisodeModel(gPodderListModel):
-    def _format(self, episode):
-        title = episode.title.decode('utf-8')
-        if episode.was_downloaded(and_exists=True):
-            return u'[DL] ' + title
-        return title
 
 class gPodderListView(QListView):
     def __init__(self, on_item_selected):
@@ -53,14 +47,25 @@ class gPodderListView(QListView):
             model = self.model()
             self._on_item_selected(model.get_object(index))
 
+def QML(filename):
+    for folder in gpodder.ui_folders:
+        filename = os.path.join(folder, filename)
+        if os.path.exists(filename):
+            return filename
+
 class qtPodder(QApplication):
     def __init__(self, args, config, db):
         QApplication.__init__(self, args)
 
         podcasts = model.Model.get_podcasts(db)
 
-        self.podcast_list = gPodderListView(self.on_podcast_selected)
-        self.podcast_list.setModel(gPodderListModel(podcasts))
+        self.podcast_list = QDeclarativeView()
+        self.podcast_list.setResizeMode(QDeclarativeView.SizeRootObjectToView)
+
+        rc = self.podcast_list.rootContext()
+        self.podcast_model = gPodderListModel(podcasts)
+        rc.setContextProperty('podcastModel', self.podcast_model)
+        self.podcast_list.setSource(QML('podcastList.qml'))
 
         self.podcast_window = QMainWindow()
         self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
@@ -69,7 +74,7 @@ class qtPodder(QApplication):
 
     def on_podcast_selected(self, podcast):
         self.episode_list = gPodderListView(self.on_episode_selected)
-        self.episode_list.setModel(EpisodeModel(podcast.get_all_episodes()))
+        self.episode_list.setModel(gPodderListModel(podcast.get_all_episodes()))
 
         self.episode_window = QMainWindow(self.podcast_window)
         window_title = u'Episodes in %s' % podcast.title.decode('utf-8')
@@ -86,15 +91,10 @@ class qtPodder(QApplication):
             dialog.setText('Episode not yet downloaded')
             dialog.exec_()
 
-if __name__ == '__main__':
-    config = config.Config(gpodder.config_file)
+
+def main():
+    cfg = config.Config(gpodder.config_file)
     db = dbsqlite.Database(gpodder.database_file)
-
-    if os.path.exists('/etc/event.d/hildon-desktop'):
-        gpodder.ui.fremantle = True
-    else:
-        gpodder.ui.desktop = True
-
-    gui = qtPodder(sys.argv, config, db)
-    sys.exit(gui.exec_())
+    gui = qtPodder(sys.argv, cfg, db)
+    return gui.exec_()
 
