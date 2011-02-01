@@ -1058,6 +1058,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         lockcell = gtk.CellRendererPixbuf()
         lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        lockcell.set_fixed_size(40, -1)
         if gpodder.ui.fremantle:
             lockcell.set_property('icon-name', 'general_locked')
         else:
