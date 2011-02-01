@@ -71,6 +71,7 @@ class EpisodeListModel(gtk.ListStore):
         self._sorter = gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
+        self._search_term_eql = None
         self._filter.set_visible_func(self._filter_visible_func)
 
         # Are we currently showing the "all episodes" view?
@@ -114,8 +115,7 @@ class EpisodeListModel(gtk.ListStore):
                 return False
 
             try:
-                q = query.UserEQL(self._search_term)
-                return q.match(episode)
+                return self._search_term_eql.match(episode)
             except Exception, e:
                 return True
 
@@ -164,6 +164,7 @@ class EpisodeListModel(gtk.ListStore):
     def set_search_term(self, new_term):
         if self._search_term != new_term:
             self._search_term = new_term
+            self._search_term_eql = query.UserEQL(new_term)
             self._filter.refilter()
             self._on_filter_changed(self.has_episodes())
 

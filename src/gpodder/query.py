@@ -130,7 +130,19 @@ class EQL(object):
             a, query, b = match.groups()
             self._query = query.lower()
 
+        # For everything else, compile the expression
+        if not self._regex and not self._string:
+            try:
+                self._query = compile(query, '<eql-string>', 'eval')
+            except Exception, e:
+                print e
+                self._query = None
+
+
     def match(self, episode):
+        if self._query is None:
+            return False
+
         if self._regex:
             return re.search(self._query, episode.title, self._flags) is not None
         elif self._string:
