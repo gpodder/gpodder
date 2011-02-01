@@ -253,7 +253,11 @@ class gPodderEpisodeActions(BuilderWidget):
         self.action_delete.set_sensitive(not self.new_keep_value)
 
     def on_delete_event(self, widget, event=None):
-        self.remove_download_task_monitor(self.download_task_monitor)
+        try:
+            self.remove_download_task_monitor(self.download_task_monitor)
+        except KeyError:
+            pass
+
         self.download_task_monitor = None
 
         self.main_window.hide()
