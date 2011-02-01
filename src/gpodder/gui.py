@@ -98,6 +98,7 @@ from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 if gpodder.ui.desktop:
     from gpodder.gtkui.download import DownloadStatusModel
 
+    from gpodder.gtkui.desktop.welcome import gPodderWelcome
     from gpodder.gtkui.desktop.channel import gPodderChannel
     from gpodder.gtkui.desktop.preferences import gPodderPreferences
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
@@ -132,8 +133,6 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.hints import HINT_STRINGS
 
 from gpodder.gtkui.interface.common import Orientation
-
-from gpodder.gtkui.interface.welcome import gPodderWelcome
 
 if gpodder.ui.fremantle:
     import hildon
