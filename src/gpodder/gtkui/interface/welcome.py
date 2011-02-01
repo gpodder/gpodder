@@ -26,8 +26,6 @@ _ = gpodder.gettext
 from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderWelcome(BuilderWidget):
-    finger_friendly_widgets = ['btnOPML', 'btnMygPodder', 'btnCancel']
-
     def new(self):
         for widget in (self.btnOPML, self.btnMygPodder):
             for child in widget.get_children():

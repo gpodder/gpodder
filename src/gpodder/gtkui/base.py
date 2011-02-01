@@ -65,12 +65,6 @@ class GtkBuilderWidget(object):
 
         self.new()
 
-    def _handle_menu_bar(self, menu):
-        pass
-
-    def _handle_button(self, button):
-        pass
-
     def set_attributes(self):
         """
         Convert widget names to attributes of this object.
@@ -82,12 +76,6 @@ class GtkBuilderWidget(object):
             # Just to be safe - every widget from the builder is buildable
             if not isinstance(widget, gtk.Buildable):
                 continue
-
-            if isinstance(widget, gtk.MenuBar):
-                self._handle_menu_bar(widget)
-
-            if isinstance(widget, gtk.Button):
-                self._handle_button(widget)
 
             # The following call looks ugly, but see Gnome bug 591085
             widget_name = gtk.Buildable.get_name(widget)

@@ -142,8 +142,6 @@ from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import hooks
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    finger_friendly_widgets = ['btnCleanUpDownloads', 'button_search_episodes_clear', 'label2', 'labelDownloads', 'btnUpdateFeeds']
-
     ICON_GENERAL_ADD = 'general_add'
     ICON_GENERAL_REFRESH = 'general_refresh'
 
@@ -1651,7 +1649,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.set_image(gtk.image_new_from_stock(stock_id, gtk.ICON_SIZE_MENU))
                 item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
                 item.set_sensitive(sensitive)
-                return self.set_finger_friendly(item)
+                return item
 
             menu = gtk.Menu()
 
@@ -1663,7 +1661,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', lambda item: self.show_episode_shownotes(episode))
             else:
                 item.set_sensitive(False)
-            menu.append(self.set_finger_friendly(item))
+            menu.append(item)
             menu.append(gtk.SeparatorMenuItem())
             if can_force:
                 menu.append(make_menu_item(_('Start download now'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, True, True))
@@ -1681,7 +1679,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item = gtk.ImageMenuItem(_('Close this menu'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
 
-                menu.append(self.set_finger_friendly(item))
+                menu.append(item)
 
             menu.show_all()
             menu.popup(None, None, None, event.button, event.time)
@@ -1714,7 +1712,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.CheckMenuItem(_('Archive'))
             item.set_active(self.active_channel.auto_archive_episodes)
             item.connect('activate', self.on_channel_toggle_lock_activate)
-            menu.append(self.set_finger_friendly(item))
+            menu.append(item)
 
             item = gtk.ImageMenuItem(_('Remove podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
@@ -1849,23 +1847,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             item.set_sensitive(can_play and not downloading)
             item.connect('activate', self.on_playback_selected_episodes)
-            menu.append(self.set_finger_friendly(item))
+            menu.append(item)
 
             if not can_cancel:
                 item = gtk.ImageMenuItem(_('Download'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_MENU))
                 item.set_sensitive(can_download)
                 item.connect('activate', self.on_download_selected_episodes)
-                menu.append(self.set_finger_friendly(item))
+                menu.append(item)
             else:
                 item = gtk.ImageMenuItem(gtk.STOCK_CANCEL)
                 item.connect('activate', self.on_item_cancel_download_activate)
-                menu.append(self.set_finger_friendly(item))
+                menu.append(item)
 
             item = gtk.ImageMenuItem(gtk.STOCK_DELETE)
             item.set_sensitive(can_delete)
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
-            menu.append(self.set_finger_friendly(item))
+            menu.append(item)
 
             ICON = lambda x: x
 
@@ -1873,13 +1871,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
                 share_item = gtk.MenuItem(_('Send to'))
-                menu.append(self.set_finger_friendly(share_item))
+                menu.append(share_item)
                 share_menu = gtk.Menu()
 
                 item = gtk.ImageMenuItem(_('Local folder'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
                 item.connect('button-press-event', lambda w, ee: self.save_episodes_as_file(episodes))
-                share_menu.append(self.set_finger_friendly(item))
+                share_menu.append(item)
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
                     if gpodder.ui.maemo:
@@ -1888,7 +1886,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         icon_name = ICON('bluetooth')
                     item.set_image(gtk.image_new_from_icon_name(icon_name, gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
-                    share_menu.append(self.set_finger_friendly(item))
+                    share_menu.append(item)
 
                 share_item.set_submenu(share_menu)
 
@@ -1898,30 +1896,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item = gtk.CheckMenuItem(_('New'))
                     item.set_active(True)
                     item.connect('activate', lambda w: self.mark_selected_episodes_old())
-                    menu.append(self.set_finger_friendly(item))
+                    menu.append(item)
                 elif can_download:
                     item = gtk.CheckMenuItem(_('New'))
                     item.set_active(False)
                     item.connect('activate', lambda w: self.mark_selected_episodes_new())
-                    menu.append(self.set_finger_friendly(item))
+                    menu.append(item)
 
                 if downloaded:
                     item = gtk.CheckMenuItem(_('Played'))
                     item.set_active(any_played)
                     item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, not any_played))
-                    menu.append(self.set_finger_friendly(item))
+                    menu.append(item)
 
                     item = gtk.CheckMenuItem(_('Archive'))
                     item.set_active(any_locked)
                     item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
-                    menu.append(self.set_finger_friendly(item))
+                    menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
             item = gtk.ImageMenuItem(_('Episode details'))
             item.set_image(gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
             item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
-            menu.append(self.set_finger_friendly(item))
+            menu.append(item)
 
             if gpodder.ui.maemo:
                 # Because we open the popup on left-click for Maemo,
@@ -1929,7 +1927,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(gtk.SeparatorMenuItem())
                 item = gtk.ImageMenuItem(_('Close this menu'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
-                menu.append(self.set_finger_friendly(item))
+                menu.append(item)
 
             menu.show_all()
             # Disable tooltips while we are showing the menu, so 

@@ -91,8 +91,6 @@ class gPodderEpisodeSelector(BuilderWidget):
                            over an episode (default is 'description')
                            
     """
-    finger_friendly_widgets = ['btnRemoveAction', 'btnOK']
-    
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
     COLUMN_TOGGLE = 2

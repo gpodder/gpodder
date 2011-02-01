@@ -29,8 +29,6 @@ from gpodder import util
 
 
 class gPodderAddPodcast(BuilderWidget):
-    finger_friendly_widgets = ['btn_close', 'btn_add' 'btn_paste']
-
     def new(self):
         if not hasattr(self, 'add_urls_callback'):
             self.add_urls_callback = None

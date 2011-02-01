@@ -31,8 +31,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderConfigEditor(BuilderWidget):
-    finger_friendly_widgets = ['btnShowAll', 'btnClose', 'configeditor']
-    
     def new(self):
         name_column = gtk.TreeViewColumn(_('Setting'))
         name_renderer = gtk.CellRendererText()

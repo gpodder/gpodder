@@ -37,8 +37,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderPodcastDirectory(BuilderWidget):
-    finger_friendly_widgets = ['btnDownloadOpml', 'btnCancel', 'btnOK', 'treeviewChannelChooser']
-    
     def new(self):
         if hasattr(self, 'custom_title'):
             self.gPodderPodcastDirectory.set_title(self.custom_title)

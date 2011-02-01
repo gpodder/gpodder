@@ -127,19 +127,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
                 else:
                     status_icon = self.ICON_GENERIC_FILE
 
-                if gpodder.ui.maemo:
-                    return status_icon
-
-                icon_theme = gtk.icon_theme_get_default()
-                if filename is not None and have_gio:
-                    file = gio.File(filename)
-                    if file.query_exists():
-                        file_info = file.query_info('*')
-                        icon = file_info.get_icon()
-                        for icon_name in icon.get_names():
-                            if icon_theme.has_icon(icon_name):
-                                return icon_name
-
                 return status_icon
 
             return None

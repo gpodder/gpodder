@@ -88,8 +88,6 @@ class gPodderEpisodeSelector(BuilderWidget):
                            over an episode (default is 'description')
                            
     """
-    finger_friendly_widgets = ['btnCancel', 'btnOK', 'btnCheckAll', 'btnCheckNone', 'treeviewEpisodes']
-    
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
     COLUMN_TOGGLE = 2

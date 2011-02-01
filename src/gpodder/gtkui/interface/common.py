@@ -43,8 +43,6 @@ except ImportError:
     pynotify = None
 
 class BuilderWidget(GtkBuilderWidget):
-    finger_friendly_widgets = []
-
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
         self._window_visible = False
@@ -70,11 +68,6 @@ class BuilderWidget(GtkBuilderWidget):
             self.main_window.connect('visibility-notify-event', \
                         self._on_window_state_event_visibility)
 
-        # Set widgets to finger-friendly mode if on Maemo
-        for widget_name in self.finger_friendly_widgets:
-            if hasattr(self, widget_name):
-                self.set_finger_friendly(getattr(self, widget_name))
-
         if parent is not None:
             self.main_window.set_transient_for(parent)
 
@@ -86,14 +79,6 @@ class BuilderWidget(GtkBuilderWidget):
                     (w, h) = (a.width, a.height)
                     (pw, ph) = self.main_window.get_size()
                     self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-
-    def _handle_menu_bar(self, menu_bar):
-        for child in menu_bar.get_children():
-            self.set_finger_friendly(child)
-
-
-    def _handle_button(self, button):
-        self.set_finger_friendly(button)
 
     def on_window_orientation_changed(self, orientation):
         """Override this method to relayout a window for portrait mode."""
@@ -229,41 +214,6 @@ class BuilderWidget(GtkBuilderWidget):
                         widget = self.main_window
                     notification = NotificationWindow(message, title, important=False, widget=widget)
                     notification.show_timeout()
-
-    def set_finger_friendly(self, widget):
-        """
-        If we are on Maemo, we carry out the necessary
-        operations to turn a widget into a finger-friendly
-        one, depending on which type of widget it is (i.e.
-        buttons will have more padding, TreeViews a thick
-        scrollbar, etc..)
-        """
-        if widget is None:
-            return None
-
-        if gpodder.ui.maemo:
-            if isinstance(widget, gtk.Misc):
-                widget.set_padding(0, 5)
-            elif isinstance(widget, gtk.Button):
-                for child in widget.get_children():
-                    if isinstance(child, gtk.Alignment):
-                        child.set_padding(5, 5, 5, 5)
-                    else:
-                        child.set_padding(5, 5)
-            elif isinstance(widget, gtk.TreeView) or isinstance(widget, gtk.TextView):
-                parent = widget.get_parent()
-            elif isinstance(widget, gtk.MenuItem):
-                for child in widget.get_children():
-                    self.set_finger_friendly(child)
-                submenu = widget.get_submenu()
-                if submenu is not None:
-                    for child in submenu.get_children():
-                        self.set_finger_friendly(child)
-            elif isinstance(widget, gtk.Menu):
-                for child in widget.get_children():
-                    self.set_finger_friendly(child)
-
-        return widget
 
     def show_confirmation(self, message, title=None):
         if gpodder.ui.desktop:
