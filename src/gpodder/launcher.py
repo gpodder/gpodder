@@ -67,10 +67,7 @@ if __name__ == '__main__':
     home = os.path.join(os.getcwd())
     if not os.path.exists(home):
         os.mkdir(home)
-    gpodder.home = home
-    gpodder.config_file = os.path.join(home, 'Settings')
-    gpodder.database_file = os.path.join(home, 'Database')
-    gpodder.downloads = os.path.join(home, 'Downloads')
+    gpodder.set_home(home)
 
     from gpodder import gui
 
