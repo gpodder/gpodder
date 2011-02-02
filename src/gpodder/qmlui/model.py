@@ -37,6 +37,11 @@ class QEpisode(QObject, model.PodcastEpisode):
 
     qtitle = Property(unicode, _title, notify=changed)
 
+    def _url(self):
+        return self.url.decode('utf-8')
+
+    qurl = Property(unicode, _url, notify=changed)
+
     def _filetype(self):
         return self.file_type() or 'download' # FIXME
 

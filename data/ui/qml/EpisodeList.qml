@@ -3,9 +3,13 @@ import Qt 4.7
 
 Rectangle {
     id: episodeList
+
     property alias model: listView.model
     property alias title: headerText.text
+
     signal goBack
+    signal episodeSelected(variant episode)
+
     color: 'white'
 
     Image {
@@ -24,7 +28,9 @@ Rectangle {
         anchors.topMargin: header.height
         anchors.fill: parent
         model: episodeModel
-        delegate: EpisodeItem {}
+        delegate: EpisodeItem {
+            onEpisodeSelected: episodeList.episodeSelected(episode)
+        }
     }
 
     Image {
@@ -36,9 +42,10 @@ Rectangle {
             anchors {
                 verticalCenter: parent.verticalCenter
                 left: parent.left
-                right: parent.right
+                right: backButton.left
                 leftMargin: 20
             }
+            elide: Text.ElideRight
             text: "Episodes"
             font.pixelSize: 30
             color: "white"
@@ -48,7 +55,7 @@ Rectangle {
             id: backButton
             width: backButtonImage.sourceSize.width + 40
             height: parent.height
-            
+
             anchors {
                 verticalCenter: parent.verticalCenter
                 right: parent.right

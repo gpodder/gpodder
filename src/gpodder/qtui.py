@@ -12,23 +12,38 @@ import os
 import gpodder
 
 from gpodder.qmlui import model
+from gpodder.qmlui import helper
 from gpodder import dbsqlite
 from gpodder import config
 from gpodder import util
 
+
+# Generate a QObject subclass with notifyable properties
+UiData = helper.AutoQObject(
+    ('episodeListTitle', unicode),
+    name='UiData'
+)
+
 class Controller(QObject):
-    def __init__(self, root):
+    def __init__(self, root, uidata):
         QObject.__init__(self)
         self.root = root
+        self.uidata = uidata
 
     @Slot(QObject)
     def podcastSelected(self, podcast):
         print 'selected:', podcast.qtitle
+        self.uidata.episodeListTitle = podcast.qtitle
         self.root.select_podcast(podcast)
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
         print 'context menu:', podcast.qtitle
+
+    @Slot(QObject)
+    def episodeSelected(self, episode):
+        print 'selected:', episode.qtitle
+        self.root.select_episode(episode)
 
     @Slot(str)
     def action(self, action):
@@ -80,40 +95,50 @@ class qtPodder(QApplication):
         self._config = config
         self._db = db
 
-        podcasts = model.Model.get_podcasts(db)
+        self.uidata = UiData()
+        self.controller = Controller(self, self.uidata)
 
-        self.controller = Controller(self)
-
-        self.podcast_list = QDeclarativeView()
+        self.qml_view = QDeclarativeView()
         self.glw = QGLWidget()
-        self.podcast_list.setViewport(self.glw)
-        self.podcast_list.setResizeMode(QDeclarativeView.SizeRootObjectToView)
+        self.qml_view.setViewport(self.glw)
+        self.qml_view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
-        rc = self.podcast_list.rootContext()
-        self.podcast_model = gPodderPodcastModel(podcasts)
+        rc = self.qml_view.rootContext()
+        self.podcast_model = gPodderPodcastModel()
         self.episode_model = gPodderEpisodeModel()
         rc.setContextProperty('podcastModel', self.podcast_model)
         rc.setContextProperty('episodeModel', self.episode_model)
         rc.setContextProperty('controller', self.controller)
-        self.podcast_list.setSource(QML('main.qml'))
+        rc.setContextProperty('uidata', self.uidata)
+        self.qml_view.setSource(QML('main.qml'))
 
         self.podcast_window = QMainWindow()
         if gpodder.ui.fremantle:
             self.podcast_window.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
         self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
-        self.podcast_window.setCentralWidget(self.podcast_list)
+        self.podcast_window.setCentralWidget(self.qml_view)
         self.podcast_window.resize(800, 480)
         if gpodder.ui.fremantle:
             self.podcast_window.showFullScreen()
         else:
             self.podcast_window.show()
 
+        self.reload_podcasts()
+
+    def set_state(self, state):
+        root = self.qml_view.rootObject()
+        root.setProperty('state', state)
+
     def reload_podcasts(self):
         self.podcast_model.set_objects(model.Model.get_podcasts(self._db))
 
     def select_podcast(self, podcast):
         self.episode_model.set_objects(podcast.get_all_episodes())
-        self.podcast_list.rootObject().showEpisodes()
+        self.set_state('episodes')
+
+    def select_episode(self, episode):
+        self.qml_view.rootObject().setCurrentEpisode(episode)
+        self.set_state('player')
 
 def main():
     cfg = config.Config(gpodder.config_file)

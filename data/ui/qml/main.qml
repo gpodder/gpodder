@@ -2,25 +2,47 @@
 import Qt 4.7
 
 Item {
+    state: 'podcasts'
 
-    function showEpisodes() {
-        podcastList.opacity = 0
-        episodeList.opacity = 1
+    function setCurrentEpisode(episode) {
+        episodeDetails.episode = episode
     }
 
-    function showPodcasts() {
-        podcastList.opacity = 1
-        episodeList.opacity = 0
-    }
+    states: [
+        State {
+            name: 'podcasts'
+            PropertyChanges {
+                target: podcastList
+                opacity: 1
+            }
+        },
+        State {
+            name: 'episodes'
+            PropertyChanges {
+                target: episodeList
+                opacity: 1
+            }
+        },
+        State {
+            name: 'player'
+            PropertyChanges {
+                target: episodeDetails
+                opacity: 1
+            }
+            StateChangeScript {
+                script: episodeDetails.startPlayback()
+            }
+        }
+    ]
 
     PodcastList {
         id: podcastList
         model: podcastModel
-        opacity: 1
+        opacity: 0
 
         anchors.fill: parent
 
-        onPodcastSelected: { /*FIXME UGLY*/ episodeList.title = podcast.qtitle; controller.podcastSelected(podcast) }
+        onPodcastSelected: controller.podcastSelected(podcast)
         onPodcastContextMenu: controller.podcastContextMenu(podcast)
         onAction: controller.action(action)
 
@@ -34,7 +56,19 @@ Item {
 
         anchors.fill: parent
 
-        onGoBack: parent.showPodcasts()
+        title: uidata.episodeListTitle
+        onGoBack: parent.state = 'podcasts'
+        onEpisodeSelected: controller.episodeSelected(episode)
+
+        Behavior on opacity { NumberAnimation { duration: 500 } }
+    }
+
+    EpisodeDetails {
+        id: episodeDetails
+        opacity: 0
+
+        anchors.fill: parent
+        onGoBack: parent.state = 'episodes'
 
         Behavior on opacity { NumberAnimation { duration: 500 } }
     }

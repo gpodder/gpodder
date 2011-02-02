@@ -1,6 +1,9 @@
 import Qt 4.7
 
 Image {
+    id: episodeItem
+    signal episodeSelected(variant episode)
+
     width: parent.width
     source: 'episodeList/bg.png'
 
@@ -25,6 +28,11 @@ Image {
         anchors.right: parent.right
         anchors.leftMargin: 15
         elide: Text.ElideRight
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: episodeItem.episodeSelected(model.episode)
     }
 }
 
