@@ -6,9 +6,19 @@ Image {
     source: 'podcastList/bg.png'
     width: parent.width
 
+    Rectangle {
+        id: highlight
+        opacity: 0
+        color: "white"
+        anchors.fill: parent
+
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+    }
+
     Image {
     	id: cover
         source: 'podcastList/cover-shadow.png'
+
         anchors {
             verticalCenter: parent.verticalCenter
             left: parent.left
@@ -51,7 +61,7 @@ Image {
         ShadowText {
             id: descriptionText
             text: model.podcast.qdescription
-            visible: model.podcast.qdescription != ''
+            visible: text != ''
             elide: Text.ElideRight
             color: "#aaa"
             offsetX: -1
@@ -83,23 +93,13 @@ Image {
         font.pixelSize: counter.height * 3 / 4
     }
 
-
-    Rectangle {
-        id: highlight
-        opacity: 0
-        color: "white"
-        anchors.fill: parent
-
-        Behavior on opacity { NumberAnimation { duration: 200 } }
-    }
-
     MouseArea {
         anchors.fill: parent
         onPressed: highlight.opacity = .2
-        onClicked: highlight.color = "blue"
+        onClicked: descriptionText.text = "clicked"
         onReleased: highlight.opacity = 0
         onCanceled: highlight.opacity = 0
-        onPressAndHold: highlight.opacity = 1
+        onPressAndHold: highlight.opacity = .8
     }
 }
 

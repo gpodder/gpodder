@@ -3,7 +3,19 @@ import Qt 4.7
 
 Rectangle {
     id: rectangle
-    color: "black"
+    color: "white"
+
+    Image {
+        anchors.fill: parent
+        source: 'podcastList/mask.png'
+        sourceSize { height: 100; width: 100 }
+    }
+
+    Image {
+        opacity: 1
+        anchors.fill: parent
+        source: 'podcastList/noise.png'
+    }
 
     ListView {
         anchors.fill: parent
@@ -29,9 +41,9 @@ Rectangle {
         anchors.bottom: parent.bottom
         opacity: height?1:0
 
-        ToolbarButton { source: 'podcastList/tb_refresh.png'; onClicked: rectangle.color = "red" }
-        ToolbarButton { source: 'podcastList/tb_add.png'; onClicked: rectangle.color = "green" }
-        ToolbarButton { source: 'podcastList/tb_delete.png'; onClicked: rectangle.color = "blue" }
+        ToolbarButton { source: 'podcastList/tb_refresh.png'; onClicked: rectangle.color = "#faa" }
+        ToolbarButton { source: 'podcastList/tb_add.png'; onClicked: rectangle.color = "#afa" }
+        ToolbarButton { source: 'podcastList/tb_search.png'; onClicked: rectangle.color = "#aaf" }
     }
 
 }
