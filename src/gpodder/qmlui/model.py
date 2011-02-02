@@ -20,6 +20,8 @@
 
 from PySide.QtCore import *
 
+import gpodder
+
 from gpodder import model
 from gpodder import util
 
@@ -27,6 +29,29 @@ class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
         model.PodcastEpisode.__init__(self, *args, **kwargs)
+
+    changed = Signal()
+
+    def _title(self):
+        return self.title.decode('utf-8')
+
+    qtitle = Property(unicode, _title, notify=changed)
+
+    def _filetype(self):
+        return self.file_type() or 'download' # FIXME
+
+    qfiletype = Property(unicode, _filetype, notify=changed)
+
+    def _downloaded(self):
+        return self.state == gpodder.STATE_DOWNLOADED
+
+    qdownloaded = Property(bool, _downloaded, notify=changed)
+
+    def _new(self):
+        return self.is_new
+
+    qnew = Property(bool, _new, notify=changed)
+
 
 class QPodcast(QObject, model.PodcastChannel):
     EpisodeClass = QEpisode

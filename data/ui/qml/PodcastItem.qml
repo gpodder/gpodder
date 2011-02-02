@@ -2,6 +2,9 @@
 import Qt 4.7
 
 Image {
+    signal podcastSelected(variant podcast)
+    signal podcastContextMenu(variant podcast)
+
     id: podcastItem
     source: 'podcastList/bg.png'
     width: parent.width
@@ -96,10 +99,10 @@ Image {
     MouseArea {
         anchors.fill: parent
         onPressed: highlight.opacity = .2
-        onClicked: descriptionText.text = "clicked"
+        onClicked: parent.podcastSelected(model.podcast)
         onReleased: highlight.opacity = 0
         onCanceled: highlight.opacity = 0
-        onPressAndHold: highlight.opacity = .8
+        onPressAndHold: parent.podcastContextMenu(model.podcast)
     }
 }
 

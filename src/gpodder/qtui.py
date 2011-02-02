@@ -15,13 +15,40 @@ from gpodder import dbsqlite
 from gpodder import config
 from gpodder import util
 
-class gPodderListModel(QAbstractListModel):
-    COLUMNS = ['podcast',]
+class Controller(QObject):
+    def __init__(self, root):
+        QObject.__init__(self)
+        self.root = root
 
-    def __init__(self, objects):
+    @Slot(QObject)
+    def podcastSelected(self, podcast):
+        print 'selected:', podcast.qtitle
+        self.root.select_podcast(podcast)
+
+    @Slot(QObject)
+    def podcastContextMenu(self, podcast):
+        print 'context menu:', podcast.qtitle
+
+    @Slot(str)
+    def action(self, action):
+        print 'action requested:', action
+        if action == 'refresh':
+            self.root.reload_podcasts()
+
+
+class gPodderListModel(QAbstractListModel):
+    COLUMNS = ['object',]
+
+    def __init__(self, objects=None):
         QAbstractListModel.__init__(self)
+        if objects is None:
+            objects = []
         self._objects = objects
         self.setRoleNames(dict(enumerate(self.COLUMNS)))
+
+    def set_objects(self, objects):
+        self._objects = objects
+        self.reset()
 
     def get_object(self, index):
         return self._objects[index.row()]
@@ -30,22 +57,15 @@ class gPodderListModel(QAbstractListModel):
         return len(self._objects)
 
     def data(self, index, role):
-        if index.isValid() and role == self.COLUMNS.index('podcast'):
+        if index.isValid() and role == 0:
             return self.get_object(index)
         return None
 
-class gPodderListView(QListView):
-    def __init__(self, on_item_selected):
-        QListView.__init__(self)
-        self.setProperty('FingerScrollable', True)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self._on_item_selected = on_item_selected
-        QObject.connect(self, SIGNAL('activated(QModelIndex)'), self._row_cb)
+class gPodderPodcastModel(gPodderListModel):
+    COLUMNS = ['podcast',]
 
-    def _row_cb(self, index):
-        if index.isValid():
-            model = self.model()
-            self._on_item_selected(model.get_object(index))
+class gPodderEpisodeModel(gPodderListModel):
+    COLUMNS = ['episode',]
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -56,16 +76,23 @@ def QML(filename):
 class qtPodder(QApplication):
     def __init__(self, args, config, db):
         QApplication.__init__(self, args)
+        self._config = config
+        self._db = db
 
         podcasts = model.Model.get_podcasts(db)
+
+        self.controller = Controller(self)
 
         self.podcast_list = QDeclarativeView()
         self.podcast_list.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         rc = self.podcast_list.rootContext()
-        self.podcast_model = gPodderListModel(podcasts)
+        self.podcast_model = gPodderPodcastModel(podcasts)
+        self.episode_model = gPodderEpisodeModel()
         rc.setContextProperty('podcastModel', self.podcast_model)
-        self.podcast_list.setSource(QML('podcastList.qml'))
+        rc.setContextProperty('episodeModel', self.episode_model)
+        rc.setContextProperty('controller', self.controller)
+        self.podcast_list.setSource(QML('main.qml'))
 
         self.podcast_window = QMainWindow()
         if gpodder.ui.fremantle:
@@ -75,25 +102,12 @@ class qtPodder(QApplication):
         self.podcast_window.resize(800, 480)
         self.podcast_window.show()
 
-    def on_podcast_selected(self, podcast):
-        self.episode_list = gPodderListView(self.on_episode_selected)
-        self.episode_list.setModel(gPodderListModel(podcast.get_all_episodes()))
+    def reload_podcasts(self):
+        self.podcast_model.set_objects(model.Model.get_podcasts(self._db))
 
-        self.episode_window = QMainWindow(self.podcast_window)
-        window_title = u'Episodes in %s' % podcast.title.decode('utf-8')
-        self.episode_window.setWindowTitle(window_title)
-        self.episode_window.setCentralWidget(self.episode_list)
-        self.episode_window.show()
-
-    def on_episode_selected(self, episode):
-        if episode.was_downloaded(and_exists=True):
-            util.gui_open(episode.local_filename(create=False))
-        else:
-            dialog = QMessageBox()
-            dialog.setWindowTitle(episode.title.decode('utf-8'))
-            dialog.setText('Episode not yet downloaded')
-            dialog.exec_()
-
+    def select_podcast(self, podcast):
+        self.episode_model.set_objects(podcast.get_all_episodes())
+        self.podcast_list.rootObject().showEpisodes()
 
 def main():
     cfg = config.Config(gpodder.config_file)

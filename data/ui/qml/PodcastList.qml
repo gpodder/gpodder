@@ -2,8 +2,14 @@
 import Qt 4.7
 
 Rectangle {
+    signal podcastSelected(variant podcast)
+    signal podcastContextMenu(variant podcast)
+    signal action(string action)
+
     id: rectangle
     color: "white"
+
+    property alias model: listView.model
 
     Image {
         anchors.fill: parent
@@ -18,12 +24,15 @@ Rectangle {
     }
 
     ListView {
+        id: listView
         anchors.fill: parent
         anchors.rightMargin: (toolbarLandscape.opacity>0)?(toolbarLandscape.width+toolbarLandscape.anchors.rightMargin):(0)
         anchors.bottomMargin: (toolbar.opacity>0)?(toolbar.height+toolbar.anchors.bottomMargin):(0)
 
-        delegate: PodcastItem {}
-        model: podcastModel
+        delegate: PodcastItem {
+            onPodcastSelected: rectangle.podcastSelected(podcast)
+            onPodcastContextMenu: rectangle.podcastContextMenu(podcast)
+        }
         snapMode: ListView.SnapToItem
     }
 
@@ -60,7 +69,7 @@ Rectangle {
         anchors.bottomMargin: -height+height*opacity
         Behavior on anchors.bottomMargin { NumberAnimation { duration: 300 } }
 
-        ToolbarButton { source: 'podcastList/tb_refresh.png'; onClicked: rectangle.color = "#faa" }
+        ToolbarButton { source: 'podcastList/tb_refresh.png'; onClicked: rectangle.action('refresh') }
         ToolbarButton { source: 'podcastList/tb_add.png'; onClicked: rectangle.color = "#afa" }
         ToolbarButton { source: 'podcastList/tb_search.png'; onClicked: rectangle.color = "#aaf" }
     }
