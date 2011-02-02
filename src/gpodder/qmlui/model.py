@@ -24,6 +24,7 @@ import gpodder
 
 from gpodder import model
 from gpodder import util
+from gpodder import youtube
 
 class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
@@ -37,10 +38,14 @@ class QEpisode(QObject, model.PodcastEpisode):
 
     qtitle = Property(unicode, _title, notify=changed)
 
-    def _url(self):
-        return self.url.decode('utf-8')
+    def _sourceurl(self):
+        if self.was_downloaded(and_exists=True):
+            url = self.local_filename(create=False)
+        else:
+            url = youtube.get_real_download_url(self.url)
+        return url.decode('utf-8')
 
-    qurl = Property(unicode, _url, notify=changed)
+    qsourceurl = Property(unicode, _sourceurl, notify=changed)
 
     def _filetype(self):
         return self.file_type() or 'download' # FIXME
@@ -56,6 +61,11 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.is_new
 
     qnew = Property(bool, _new, notify=changed)
+
+    def _podcast(self):
+        return self.channel
+
+    qpodcast = Property(QObject, _podcast, notify=changed)
 
 
 class QPodcast(QObject, model.PodcastChannel):

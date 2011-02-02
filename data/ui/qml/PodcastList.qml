@@ -2,6 +2,8 @@
 import Qt 4.7
 
 Rectangle {
+    property alias moving: listView.moving
+
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)
     signal action(string action)
