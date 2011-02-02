@@ -5,6 +5,7 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 from PySide.QtDeclarative import *
+from PySide.QtOpenGL import *
 
 import sys
 import os
@@ -84,6 +85,8 @@ class qtPodder(QApplication):
         self.controller = Controller(self)
 
         self.podcast_list = QDeclarativeView()
+        self.glw = QGLWidget()
+        self.podcast_list.setViewport(self.glw)
         self.podcast_list.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         rc = self.podcast_list.rootContext()
@@ -100,7 +103,10 @@ class qtPodder(QApplication):
         self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
         self.podcast_window.setCentralWidget(self.podcast_list)
         self.podcast_window.resize(800, 480)
-        self.podcast_window.show()
+        if gpodder.ui.fremantle:
+            self.podcast_window.showFullScreen()
+        else:
+            self.podcast_window.show()
 
     def reload_podcasts(self):
         self.podcast_model.set_objects(model.Model.get_podcasts(self._db))

@@ -74,7 +74,7 @@ test:
 
 qmltest:
 	@echo -ne '\033]0;gPodder/QML console\007'
-	$(BINFILE) --qml --verbose -- -graphicssystem opengl
+	$(BINFILE) --qml --verbose
 
 unittest:
 	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
