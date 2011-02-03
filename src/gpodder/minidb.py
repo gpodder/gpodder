@@ -85,8 +85,10 @@ class Store(object):
                         ', '.join('%s TEXT'%s for s in slots)))
 
     def convert(self, v):
-        if isinstance(v, str) or isinstance(v, unicode):
+        if isinstance(v, unicode):
             return v
+        elif isinstance(v, str):
+            return v.decode('utf-8')
         else:
             return str(v)
 
