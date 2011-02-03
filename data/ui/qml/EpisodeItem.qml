@@ -1,33 +1,34 @@
 import Qt 4.7
 
-Image {
+import 'config.js' as Config
+
+Item {
     id: episodeItem
     signal episodeSelected(variant episode)
 
     width: parent.width
-    source: 'episodeList/bg.png'
+    height: Config.listItemHeight
 
     Image {
         id: icon
         source: 'episodeList/' + model.episode.qfiletype + '.png'
-        width: 40
-        height: 40
+        width: Config.iconSize
+        height: Config.iconSize
         opacity: model.episode.qdownloaded?1:.1
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 15
+        anchors.leftMargin: Config.largeSpacing
     }
 
     ShadowText {
         text: model.episode.qtitle
         color: model.episode.qnew?"white":"#888"
-        font.pointSize: 16
-        font.bold: false //model.episode.qnew
+        font.pointSize: episodeItem.height * .25
+        font.bold: false
         anchors.left: icon.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.leftMargin: 15
-        elide: Text.ElideRight
+        anchors.leftMargin: Config.largeSpacing
     }
 
     MouseArea {

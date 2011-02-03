@@ -2,14 +2,22 @@
 import Qt 4.7
 import Qt.multimedia 1.0
 
-Rectangle {
+Item {
     id: episodeDetails
-    signal goBack
 
     property variant episode
     property bool playing: audioPlayer.playing || videoPlayer.playing
 
-    color: "black"
+    Rectangle {
+        anchors.fill: parent
+        opacity: .5
+        color: "black"
+    }
+
+    MouseArea {
+        // clicks should not fall through!
+        anchors.fill: parent
+    }
 
     function startPlayback() {
         if (episode.qfiletype == 'video') {
@@ -51,15 +59,11 @@ Rectangle {
         font.pixelSize: 20
     }
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: episodeDetails.goBack()
-    }
-
     Rectangle {
         id: progressBar
         height: 30
         color: "white"
+        opacity: 0
 
         anchors {
             left: parent.left

@@ -34,6 +34,7 @@ class Controller(QObject):
     def podcastSelected(self, podcast):
         print 'selected:', podcast.qtitle
         self.uidata.episodeListTitle = podcast.qtitle
+        self.root.podcast_window.setWindowTitle(self.uidata.episodeListTitle)
         self.root.select_podcast(podcast)
 
     @Slot(QObject)
@@ -50,6 +51,16 @@ class Controller(QObject):
         print 'action requested:', action
         if action == 'refresh':
             self.root.reload_podcasts()
+
+    @Slot()
+    def quit(self):
+        self.root.quit()
+
+    @Slot()
+    def switcher(self):
+        # FIXME: ugly
+        os.system('dbus-send /com/nokia/hildon_desktop '+
+                'com.nokia.hildon_desktop.exit_app_view')
 
 
 class gPodderListModel(QAbstractListModel):
@@ -138,7 +149,6 @@ class qtPodder(QApplication):
 
     def select_episode(self, episode):
         self.qml_view.rootObject().setCurrentEpisode(episode)
-        self.set_state('player')
 
 def main():
     cfg = config.Config(gpodder.config_file)

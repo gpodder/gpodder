@@ -7,6 +7,7 @@ Text {
     property int offsetY: -2
     property alias color: innerText.color
     color: shadowColor
+    elide: Text.ElideNone
 
     Text {
         id: innerText
@@ -16,6 +17,7 @@ Text {
         anchors.leftMargin: parent.offsetX
         anchors.topMargin: parent.offsetY
         elide: parent.elide
+        clip: parent.clip
     }
 
 }

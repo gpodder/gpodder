@@ -1,12 +1,15 @@
 
 import Qt 4.7
 
-Image {
+import 'config.js' as Config
+
+Item {
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)
 
     id: podcastItem
-    source: 'podcastList/bg.png'
+    height: Config.listItemHeight
+
     width: parent.width
 
     Rectangle {
@@ -18,22 +21,34 @@ Image {
         Behavior on opacity { NumberAnimation { duration: 200 } }
     }
 
-    Image {
+    Text {
+        id: counterText
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.rightMargin: 5
+        text: (model.podcast.qdownloaded)?(''+model.podcast.qdownloaded):('')
+        color: "white"
+        width: Config.iconSize * 1.5 // FIXME
+        font.pixelSize: podcastItem.height * .6
+        horizontalAlignment: Text.AlignRight
+    }
+
+    ScaledImage {
     	id: cover
         source: 'podcastList/cover-shadow.png'
 
         anchors {
             verticalCenter: parent.verticalCenter
-            left: parent.left
-            leftMargin: 10
+            left: counterText.right
+            leftMargin: Config.smallSpacing
         }
 
         Image {
             source: model.podcast.qcoverfile
+            width: parent.width * .8
+            height: parent.height * .8
             sourceSize.width: width
             sourceSize.height: height
-            width: parent.width - 12
-            height: parent.height - 12
             anchors.centerIn: parent
         }
     }
@@ -44,28 +59,26 @@ Image {
         anchors {
             verticalCenter: parent.verticalCenter
             left: cover.right
-            leftMargin: 10
-            right: counter.left
-            rightMargin: 10
+            leftMargin: Config.smallSpacing
+            right: parent.right
+            rightMargin: Config.smallSpacing
         }
 
         ShadowText {
             id: titleText
             text: model.podcast.qtitle
-            elide: Text.ElideRight
             color: "white"
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            font.pixelSize: 22
+            font.pixelSize: podcastItem.height * .35
         }
 
         ShadowText {
             id: descriptionText
             text: model.podcast.qdescription
             visible: text != ''
-            elide: Text.ElideRight
             color: "#aaa"
             offsetX: -1
             offsetY: -1
@@ -73,27 +86,8 @@ Image {
                 left: parent.left
                 right: parent.right
             }
-            font.pixelSize: 18
+            font.pixelSize: podcastItem.height * .25
         }
-    }
-
-    Image {
-        id: counter
-        source: 'podcastList/count.png'
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: counterText.left
-        anchors.leftMargin: -10
-        visible: counterText.text != ''
-    }
-
-    Text {
-        id: counterText
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        anchors.rightMargin: 5
-        text: (model.podcast.qdownloaded)?(''+model.podcast.qdownloaded):('')
-        color: "white"
-        font.pixelSize: counter.height * 3 / 4
     }
 
     MouseArea {
