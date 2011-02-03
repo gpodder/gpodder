@@ -46,16 +46,11 @@ Item {
 
         visible: !videoPlayer.playing
 
-        anchors {
-            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
-            leftMargin: 20
-            rightMargin: 20
-        }
+        anchors.centerIn: parent
         elide: Text.ElideEnd
         color: "white"
         text: episode.qtitle
+
         font.pixelSize: 20
     }
 

@@ -155,11 +155,12 @@ Rectangle {
             }
         }
 
-        ScaledImage {
+        Item {
             id: taskSwitcher
             anchors.left: parent.left
             anchors.top: parent.top
-            source: 'artwork/switcher-tab.png'
+            width: Config.switcherWidth
+            height: Config.headerHeight
 
             MouseArea {
                 anchors.fill: parent
