@@ -95,7 +95,7 @@ class Controller(QObject):
 
     @Slot()
     def quit(self):
-        self.root.deleteLater() # XXX
+        self.root.quit()
 
     @Slot()
     def switcher(self):
@@ -203,5 +203,7 @@ def main():
     cfg = config.Config(gpodder.config_file)
     db = dbsqlite.Database(gpodder.database_file)
     gui = qtPodder(sys.argv, cfg, db)
-    return gui.exec_()
+    result = gui.exec_()
+    db.close()
+    return result
 
