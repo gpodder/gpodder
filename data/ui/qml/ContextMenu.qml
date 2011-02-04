@@ -4,7 +4,7 @@ import Qt 4.7
 import 'config.js' as Config
 
 Item {
-    id: contextMenu
+    id: contextMenuArea
 
     property variant items: []
 
@@ -13,7 +13,6 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: contextMenu.close()
     }
 
     Rectangle {
@@ -23,23 +22,13 @@ Item {
     }
 
     ListView {
-
-        model: contextMenu.items
+        model: contextMenuArea.items
         anchors.fill: parent
 
         header: Item { height: Config.headerHeight * 2 }
+        footer: Item { height: Config.headerHeight }
 
-        delegate: Item {
-            height: Config.listItemHeight
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            Rectangle {
-                anchors.fill: parent
-                color: "white"
-                opacity: (rowMouseArea.pressed)?.3:0
-            }
-
+        delegate: SelectableItem {
             ShadowText {
                 anchors.leftMargin: Config.switcherWidth
                 anchors {
@@ -52,13 +41,9 @@ Item {
                 text: modelData.caption
             }
 
-            MouseArea {
-                id: rowMouseArea
-                anchors.fill: parent
-                onClicked: {
-                    contextMenu.response(index)
-                    contextMenu.close()
-                }
+            onSelected: {
+                contextMenuArea.response(index)
+                contextMenuArea.close()
             }
         }
     }

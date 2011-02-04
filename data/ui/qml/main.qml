@@ -284,7 +284,7 @@ Rectangle {
             anchors.right: parent.right
 
             source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
-            rotation: (episodeDetails.state == 'visible')?-90:0
+            rotation: (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
 
             onClicked: {
                 if (contextMenu.state == 'opened') {
