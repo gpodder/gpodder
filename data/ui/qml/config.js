@@ -9,3 +9,5 @@ var headerHeight = 220 / scale
 var listItemHeight = 230 / scale
 var iconSize = 104 / scale
 
+var fadeHeight = 80 / scale
+

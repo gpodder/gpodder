@@ -5,7 +5,6 @@ import 'config.js' as Config
 SelectableItem {
     id: episodeItem
 
-    width: parent.width
     height: Config.listItemHeight
 
     Image {

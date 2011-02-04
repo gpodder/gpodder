@@ -96,63 +96,72 @@ Rectangle {
     }
 
     EpisodeDetails {
+        id: episodeDetails
+
         states: [
-                State {
-                    name: 'visible'
-                    PropertyChanges {
-                        target: episodeDetails
-                        anchors.topMargin: 0
-                    }
-                    PropertyChanges {
-                        target: listContainer
-                        scale: .8
-                        opacity: .5
-                    }
-                    StateChangeScript {
-                        script: episodeDetails.startPlayback()
-                    }
-                },
-                State {
-                    name: 'hidden'
-                    PropertyChanges {
-                        target: episodeDetails
-                        anchors.topMargin: parent.height
-                    }
-                    PropertyChanges {
-                        target: listContainer
-                        opacity: 1
-                        scale: 1
-                    }
+            State {
+                name: 'hidden'
+                AnchorChanges {
+                    target: episodeDetails
+                    anchors.top: main.bottom
                 }
+                PropertyChanges {
+                    target: listContainer
+                    opacity: 1
+                    scale: 1
+                }
+            },
+            State {
+                name: 'visible'
+                AnchorChanges {
+                    target: episodeDetails
+                    anchors.top: titleBar.bottom
+                }
+                PropertyChanges {
+                    target: listContainer
+                    scale: .8
+                    opacity: .5
+                }
+                StateChangeScript {
+                    script: episodeDetails.startPlayback()
+                }
+            }
         ]
 
-        state: 'hidden'
-
-        id: episodeDetails
-        opacity: (state == 'visible' || y > -height)?1:0
-        clip: y != 0
-
-        height: parent.height
-
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-            topMargin: -height
+        transitions: Transition {
+            AnchorAnimation { duration: 200 }
         }
 
-        Behavior on anchors.topMargin { NumberAnimation { duration: 200 } }
+        state: 'hidden'
+        clip: true
+
+        anchors {
+            top: main.bottom
+            left: main.left
+            right: main.right
+            bottom: main.bottom
+        }
     }
 
     NowPlayingThrobber {
-        property bool shouldAppear: (episodeDetails.playing && episodeDetails.state == 'hidden' && !podcastList.moving && !episodeList.moving)
+        property bool shouldAppear: (((episodeDetails.playing && !podcastList.moving && !episodeList.moving) || (episodeDetails.state == 'visible')) && (contextMenu.state != 'opened'))
 
         id: nowPlayingThrobber
-        anchors.bottom: parent.bottom
+        anchors.bottom: episodeDetails.top
         anchors.right: parent.right
+        anchors.bottomMargin: -1
         opacity: shouldAppear?1:0
+        z: 10
 
-        onClicked: episodeDetails.state = 'visible'
+        opened: (episodeDetails.state == 'visible')
+
+        onClicked: {
+            if (episodeDetails.state == 'visible') {
+                episodeDetails.state = 'hidden'
+            } else {
+                episodeDetails.state = 'visible'
+            }
+        }
 
         Behavior on opacity { NumberAnimation { duration: 100 } }
     }
@@ -274,7 +283,11 @@ Rectangle {
             }
 
             ScaledImage {
-                anchors.centerIn: parent
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: (parent.width * .8 - width) / 2
+                }
                 source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
                 rotation: (episodeDetails.state == 'visible')?-90:0
             }

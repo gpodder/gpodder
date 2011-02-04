@@ -28,6 +28,13 @@ from gpodder import youtube
 
 import threading
 
+def convert(s):
+    if isinstance(s, unicode):
+        return s
+
+    return s.decode('utf-8', 'ignore')
+
+
 class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
@@ -36,7 +43,7 @@ class QEpisode(QObject, model.PodcastEpisode):
     changed = Signal()
 
     def _title(self):
-        return self.title.decode('utf-8')
+        return convert(self.title)
 
     qtitle = Property(unicode, _title, notify=changed)
 
@@ -45,7 +52,7 @@ class QEpisode(QObject, model.PodcastEpisode):
             url = self.local_filename(create=False)
         else:
             url = youtube.get_real_download_url(self.url)
-        return url.decode('utf-8')
+        return convert(url)
 
     qsourceurl = Property(unicode, _sourceurl, notify=changed)
 
@@ -58,6 +65,11 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.state == gpodder.STATE_DOWNLOADED
 
     qdownloaded = Property(bool, _downloaded, notify=changed)
+
+    def _description(self):
+        return convert(self.description)
+
+    qdescription = Property(unicode, _description, notify=changed)
 
     def _new(self):
         return self.is_new
@@ -115,10 +127,7 @@ class QPodcast(QObject, model.PodcastChannel):
     qdownloaded = Property(int, _downloaded, notify=changed)
 
     def _description(self):
-        result = util.get_first_line(self.description)
-        if not isinstance(result, unicode):
-            result = result.decode('utf-8', 'ignore')
-        return result
+        return convert(util.get_first_line(self.description))
 
     qdescription = Property(unicode, _description, notify=changed)
 

@@ -95,7 +95,7 @@ class Controller(QObject):
 
     @Slot()
     def quit(self):
-        self.root.quit()
+        self.root.deleteLater() # XXX
 
     @Slot()
     def switcher(self):
@@ -172,7 +172,7 @@ class qtPodder(QApplication):
             self.podcast_window.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
         self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
         self.podcast_window.setCentralWidget(self.qml_view)
-        self.podcast_window.resize(800, 480)
+        self.podcast_window.resize(480, 800)
         if gpodder.ui.fremantle:
             self.podcast_window.showFullScreen()
         else:
