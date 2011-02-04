@@ -190,6 +190,15 @@ class Database(object):
             log('Error commiting changes: %s', e, sender=self, traceback=True)
         self.lock.release()
 
+    def get_content_types(self, id):
+        """Given a podcast ID, returns the content types"""
+        with self.lock:
+            cur = self.cursor()
+            cur.execute('SELECT DISTINCT mime_type AS mime_type FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (id,))
+            for (mime_type,) in cur:
+                yield mime_type
+            cur.close()
+
     def get_podcast_statistics(self, id):
         """Given a podcast ID, returns the statistics for it
 

@@ -18,6 +18,23 @@ Item {
         id: listView
         anchors.fill: parent
 
+        section.property: 'section'
+        section.delegate: Item {
+            height: Config.headerHeight
+            ShadowText {
+                font.pixelSize: parent.height * .5
+                text: section
+                color: "#aaa"
+                anchors {
+                    //bottomMargin: Config.smallSpacing
+                    leftMargin: Config.switcherWidth / 3
+                    bottom: parent.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+            }
+        }
+
         delegate: PodcastItem {
             onSelected: rectangle.podcastSelected(item)
             onContextMenu: rectangle.podcastContextMenu(item)

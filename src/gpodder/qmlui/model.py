@@ -88,6 +88,7 @@ class QPodcast(QObject, model.PodcastChannel):
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
         self._updating = False
+        self._section_cached = None
         model.PodcastChannel.__init__(self, *args, **kwargs)
 
     def qupdate(self):
@@ -112,12 +113,12 @@ class QPodcast(QObject, model.PodcastChannel):
     qupdating = Property(bool, _updating, notify=changed)
 
     def _title(self):
-        return self.title
+        return convert(self.title)
 
     qtitle = Property(unicode, _title, notify=changed)
 
     def _coverfile(self):
-        return self.cover_file
+        return convert(self.cover_file)
 
     qcoverfile = Property(unicode, _coverfile, notify=changed)
 
@@ -130,6 +131,14 @@ class QPodcast(QObject, model.PodcastChannel):
         return convert(util.get_first_line(self.description))
 
     qdescription = Property(unicode, _description, notify=changed)
+
+    def _section(self):
+        if self._section_cached is None:
+            self._section_cached = convert(self._get_content_type())
+        return self._section_cached
+
+    qsection = Property(unicode, _section, notify=changed)
+
 
 
 

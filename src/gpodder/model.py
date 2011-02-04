@@ -902,6 +902,16 @@ class PodcastChannel(PodcastModelObject):
         else:
             return self.db.get_podcast_statistics(self.id)
 
+    def _get_content_type(self):
+        if 'youtube.com' in self.url:
+            return 'video'
+
+        content_types = self.db.get_content_types(self.id)
+        result = ' and '.join(sorted(set(x.split('/')[0].lower() for x in content_types if not x.startswith('application'))))
+        if result == '':
+            return 'other'
+        return result
+
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)
 

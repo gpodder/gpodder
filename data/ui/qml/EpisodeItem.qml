@@ -9,18 +9,18 @@ SelectableItem {
 
     Image {
         id: icon
-        source: 'episodeList/' + model.episode.qfiletype + '.png'
+        source: 'episodeList/' + modelData.qfiletype + '.png'
         width: Config.iconSize
         height: Config.iconSize
-        opacity: model.episode.qdownloaded?1:.1
+        opacity: modelData.qdownloaded?1:.1
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Config.largeSpacing
     }
 
     ShadowText {
-        text: model.episode.qtitle
-        color: model.episode.qnew?"white":"#888"
+        text: modelData.qtitle
+        color: modelData.qnew?"white":"#888"
         font.pointSize: episodeItem.height * .25
         font.bold: false
         anchors.left: icon.right

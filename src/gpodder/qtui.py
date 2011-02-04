@@ -113,14 +113,12 @@ class Controller(QObject):
 
 
 class gPodderListModel(QAbstractListModel):
-    COLUMNS = ['object',]
-
     def __init__(self, objects=None):
         QAbstractListModel.__init__(self)
         if objects is None:
             objects = []
         self._objects = objects
-        self.setRoleNames(dict(enumerate(self.COLUMNS)))
+        self.setRoleNames({0: 'modelData', 1: 'section'})
 
     def set_objects(self, objects):
         self._objects = objects
@@ -136,15 +134,12 @@ class gPodderListModel(QAbstractListModel):
         return len(self._objects)
 
     def data(self, index, role):
-        if index.isValid() and role == 0:
-            return self.get_object(index)
+        if index.isValid():
+            if role == 0:
+                return self.get_object(index)
+            elif role == 1:
+                return self.get_object(index).qsection
         return None
-
-class gPodderPodcastModel(gPodderListModel):
-    COLUMNS = ['podcast',]
-
-class gPodderEpisodeModel(gPodderListModel):
-    COLUMNS = ['episode',]
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -167,8 +162,8 @@ class qtPodder(QApplication):
         self.qml_view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         rc = self.qml_view.rootContext()
-        self.podcast_model = gPodderPodcastModel()
-        self.episode_model = gPodderEpisodeModel()
+        self.podcast_model = gPodderListModel()
+        self.episode_model = gPodderListModel()
         rc.setContextProperty('podcastModel', self.podcast_model)
         rc.setContextProperty('episodeModel', self.episode_model)
         rc.setContextProperty('controller', self.controller)
@@ -197,7 +192,8 @@ class qtPodder(QApplication):
         root.openContextMenu(items)
 
     def reload_podcasts(self):
-        self.podcast_model.set_objects(model.Model.get_podcasts(self._db))
+        podcasts = sorted(model.Model.get_podcasts(self._db), key=lambda p: p.qsection)
+        self.podcast_model.set_objects(podcasts)
 
     def select_podcast(self, podcast):
         self.episode_model.set_objects(podcast.get_all_episodes())

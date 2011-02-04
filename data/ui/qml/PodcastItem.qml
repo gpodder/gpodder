@@ -11,10 +11,10 @@ SelectableItem {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.rightMargin: 5
-        text: (model.podcast.qdownloaded)?(''+model.podcast.qdownloaded):('')
+        text: (modelData.qdownloaded)?(''+modelData.qdownloaded):('')
         color: "white"
-        width: Config.iconSize * 1.5 // FIXME
-        font.pixelSize: podcastItem.height * .6
+        width: Config.iconSize * 1.5
+        font.pixelSize: podcastItem.height * .4
         horizontalAlignment: Text.AlignRight
     }
 
@@ -33,7 +33,7 @@ SelectableItem {
         }
 
         Image {
-            source: model.podcast.qcoverfile
+            source: modelData.qcoverfile
             width: parent.width * .85
             height: parent.height * .85
             sourceSize.width: width
@@ -55,7 +55,7 @@ SelectableItem {
 
         ShadowText {
             id: titleText
-            text: model.podcast.qtitle
+            text: modelData.qtitle
             color: "white"
             anchors {
                 left: parent.left
@@ -66,7 +66,7 @@ SelectableItem {
 
         ShadowText {
             id: descriptionText
-            text: model.podcast.qupdating?"UPDATING...":modelData.qdescription
+            text: modelData.qupdating?"UPDATING...":modelData.qdescription
             visible: text != ''
             color: "#aaa"
             offsetX: -1
