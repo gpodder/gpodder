@@ -73,8 +73,8 @@ Rectangle {
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
             onAction: controller.action(action)
 
-            Behavior on opacity { NumberAnimation { duration: 500 } }
-            Behavior on scale { NumberAnimation { duration: 500 } }
+            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+            Behavior on scale { NumberAnimation { duration: Config.slowTransition } }
         }
 
         EpisodeList {
@@ -87,12 +87,12 @@ Rectangle {
             onEpisodeSelected: controller.episodeSelected(episode)
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
 
-            Behavior on opacity { NumberAnimation { duration: 500 } }
-            Behavior on scale { NumberAnimation { duration: 500 } }
+            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+            Behavior on scale { NumberAnimation { duration: Config.slowTransition } }
         }
 
-        Behavior on opacity { NumberAnimation { duration: 100 } }
-        Behavior on scale { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+        Behavior on scale { NumberAnimation { duration: Config.fadeTransition } }
     }
 
     EpisodeDetails {
@@ -129,7 +129,7 @@ Rectangle {
         ]
 
         transitions: Transition {
-            AnchorAnimation { duration: 200 }
+            AnchorAnimation { duration: Config.slowTransition }
         }
 
         state: 'hidden'
@@ -162,7 +162,7 @@ Rectangle {
             }
         }
 
-        Behavior on opacity { NumberAnimation { duration: 100 } }
+        Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
     }
 
     ContextMenu {
@@ -181,7 +181,7 @@ Rectangle {
 
         state: 'closed'
 
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: Config.fadeTransition } }
 
         states: [
             State {
@@ -212,7 +212,7 @@ Rectangle {
         ]
 
         transitions: Transition {
-            AnchorAnimation { duration: 200 }
+            AnchorAnimation { duration: Config.slowTransition }
         }
     }
 

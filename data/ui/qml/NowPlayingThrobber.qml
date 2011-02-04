@@ -22,7 +22,7 @@ Image {
         rotation: (parent.opened)?-90:0
         source: (parent.opened)?'icons/back_inv.png':'icons/play_inv.png'
 
-        Behavior on rotation { NumberAnimation { duration: 100 } }
+        Behavior on rotation { NumberAnimation { duration: Config.quickTransition } }
     }
 
     MouseArea {

@@ -17,7 +17,7 @@ Item {
         color: "white"
         anchors.fill: parent
 
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
     }
 
     MouseArea {

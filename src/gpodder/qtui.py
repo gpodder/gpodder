@@ -95,6 +95,7 @@ class Controller(QObject):
 
     @Slot()
     def quit(self):
+        self.root.qml_view.setSource('')
         self.root.quit()
 
     @Slot()

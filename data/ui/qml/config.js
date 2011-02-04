@@ -1,5 +1,5 @@
 
-var scale = 2
+var scale = 1
 
 var smallSpacing = 7 * scale
 var largeSpacing = smallSpacing * 2
@@ -11,4 +11,8 @@ var listItemHeight = 78 * scale
 var iconSize = 36 * scale
 
 var fadeHeight = 26 * scale
+
+var quickTransition = 50
+var slowTransition = 150
+var fadeTransition = 300
 
