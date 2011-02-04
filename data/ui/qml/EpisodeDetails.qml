@@ -69,15 +69,5 @@ Item {
             }
         }
     }
-
-    Image {
-        source: 'artwork/fadetowhite.png'
-        height: Config.fadeHeight
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-        }
-    }
 }
 
