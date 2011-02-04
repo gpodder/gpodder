@@ -126,6 +126,9 @@ class Database(object):
         Deletes old episodes.  Should be called
         before adding new episodes to a podcast.
         """
+        if max_episodes == 0:
+            return
+
         with self.lock:
             cur = self.cursor()
 
