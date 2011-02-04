@@ -85,6 +85,7 @@ Rectangle {
             anchors.fill: parent
 
             onEpisodeSelected: controller.episodeSelected(episode)
+            onEpisodeContextMenu: controller.episodeContextMenu(episode)
 
             Behavior on opacity { NumberAnimation { duration: 500 } }
             Behavior on scale { NumberAnimation { duration: 500 } }

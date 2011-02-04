@@ -41,13 +41,16 @@ class Controller(QObject):
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
         print 'context menu:', podcast.qtitle
-        self.context_menu_actions = [
+        self.show_context_menu([
                 helper.Action('Update all', 'update_all', podcast),
                 helper.Action('Update', 'update', podcast),
                 helper.Action('Unsubscribe', 'unsubscribe', podcast),
                 helper.Action('Be cool', 'be_cool', podcast),
                 helper.Action('Sing a song', 'sing_a_song', podcast),
-        ]
+        ])
+
+    def show_context_menu(self, actions):
+        self.context_menu_actions = actions
         self.root.open_context_menu(self.context_menu_actions)
 
     @Slot(int)
@@ -62,6 +65,9 @@ class Controller(QObject):
                 podcast.qupdate()
         if action.action == 'unsubscribe':
             print 'would unsubscribe from', action.target.title
+        elif action.action == 'episode-toggle-new':
+            action.target.mark(is_played=action.target.is_new)
+            action.target.changed.emit()
 
     @Slot()
     def contextMenuClosed(self):
@@ -72,6 +78,14 @@ class Controller(QObject):
     def episodeSelected(self, episode):
         print 'selected:', episode.qtitle
         self.root.select_episode(episode)
+
+    @Slot(QObject)
+    def episodeContextMenu(self, episode):
+        print 'context menu:', episode.qtitle
+        self.show_context_menu([
+            helper.Action('Info', 'info', episode),
+            helper.Action('Toggle new', 'episode-toggle-new', episode),
+        ])
 
     @Slot(str)
     def action(self, action):

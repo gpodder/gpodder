@@ -2,9 +2,8 @@ import Qt 4.7
 
 import 'config.js' as Config
 
-Item {
+SelectableItem {
     id: episodeItem
-    signal episodeSelected(variant episode)
 
     width: parent.width
     height: Config.listItemHeight
@@ -29,11 +28,6 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.leftMargin: Config.largeSpacing
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: episodeItem.episodeSelected(model.episode)
     }
 }
 

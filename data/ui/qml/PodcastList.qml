@@ -19,8 +19,8 @@ Item {
         anchors.fill: parent
 
         delegate: PodcastItem {
-            onPodcastSelected: rectangle.podcastSelected(podcast)
-            onPodcastContextMenu: rectangle.podcastContextMenu(podcast)
+            onSelected: rectangle.podcastSelected(item)
+            onContextMenu: rectangle.podcastContextMenu(item)
         }
 
         header: Item { height: Config.headerHeight }

@@ -10,6 +10,7 @@ Item {
     property alias moving: listView.moving
 
     signal episodeSelected(variant episode)
+    signal episodeContextMenu(variant episode)
 
     ListView {
         id: listView
@@ -17,7 +18,8 @@ Item {
         model: episodeModel
 
         delegate: EpisodeItem {
-            onEpisodeSelected: episodeList.episodeSelected(episode)
+            onSelected: episodeList.episodeSelected(item)
+            onContextMenu: episodeList.episodeContextMenu(item)
         }
 
         header: Item { height: Config.headerHeight }

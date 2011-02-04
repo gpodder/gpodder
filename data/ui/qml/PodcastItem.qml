@@ -3,23 +3,8 @@ import Qt 4.7
 
 import 'config.js' as Config
 
-Item {
-    signal podcastSelected(variant podcast)
-    signal podcastContextMenu(variant podcast)
-
+SelectableItem {
     id: podcastItem
-    height: Config.listItemHeight
-
-    width: parent.width
-
-    Rectangle {
-        id: highlight
-        opacity: 0
-        color: "white"
-        anchors.fill: parent
-
-        Behavior on opacity { NumberAnimation { duration: 200 } }
-    }
 
     Text {
         id: counterText
@@ -77,7 +62,7 @@ Item {
 
         ShadowText {
             id: descriptionText
-            text: model.podcast.qupdating?"UPDATING...":model.podcast.qdescription
+            text: model.podcast.qupdating?"UPDATING...":modelData.qdescription
             visible: text != ''
             color: "#aaa"
             offsetX: -1
@@ -88,15 +73,6 @@ Item {
             }
             font.pixelSize: podcastItem.height * .25
         }
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onPressed: highlight.opacity = .2
-        onClicked: parent.podcastSelected(model.podcast)
-        onReleased: highlight.opacity = 0
-        onCanceled: highlight.opacity = 0
-        onPressAndHold: parent.podcastContextMenu(model.podcast)
     }
 }
 
