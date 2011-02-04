@@ -8,7 +8,8 @@ Rectangle {
 
     state: 'podcasts'
 
-    color: "#203d64"
+    //OLD color: "#203d64"
+    color: "#3b485b"
 
     Image {
         anchors.fill: parent
@@ -23,6 +24,11 @@ Rectangle {
     function setCurrentEpisode(episode) {
         episodeDetails.episode = episode
         episodeDetails.state = 'visible'
+    }
+
+    function openContextMenu(items) {
+        contextMenu.state = 'opened'
+        contextMenu.items = items
     }
 
     states: [
@@ -137,6 +143,70 @@ Rectangle {
         Behavior on anchors.topMargin { NumberAnimation { duration: 200 } }
     }
 
+    NowPlayingThrobber {
+        property bool shouldAppear: (episodeDetails.playing && episodeDetails.state == 'hidden' && !podcastList.moving && !episodeList.moving)
+
+        id: nowPlayingThrobber
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        opacity: shouldAppear?1:0
+
+        onClicked: episodeDetails.state = 'visible'
+
+        Behavior on opacity { NumberAnimation { duration: 100 } }
+    }
+
+    ContextMenu {
+        id: contextMenu
+
+        width: parent.width
+        opacity: 0
+
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        onClose: contextMenu.state = 'closed'
+        onResponse: controller.contextMenuResponse(index)
+
+        state: 'closed'
+
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+
+        states: [
+            State {
+                name: 'opened'
+                PropertyChanges {
+                    target: contextMenu
+                    opacity: 1
+                }
+                AnchorChanges {
+                    target: contextMenu
+                    anchors.right: main.right
+                }
+            },
+            State {
+                name: 'closed'
+                PropertyChanges {
+                    target: contextMenu
+                    opacity: 0
+                }
+                AnchorChanges {
+                    target: contextMenu
+                    anchors.right: main.left
+                }
+                StateChangeScript {
+                    script: controller.contextMenuClosed()
+                }
+            }
+        ]
+
+        transitions: Transition {
+            AnchorAnimation { duration: 200 }
+        }
+    }
+
     Item {
         id: titleBar
         height: taskSwitcher.height
@@ -157,6 +227,7 @@ Rectangle {
 
         Item {
             id: taskSwitcher
+            visible: contextMenu.state != 'opened'
             anchors.left: parent.left
             anchors.top: parent.top
             width: Config.switcherWidth
@@ -182,7 +253,7 @@ Rectangle {
             anchors.left: taskSwitcher.right
             anchors.right: closeButton.left
             clip: true
-            text: episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?uidata.episodeListTitle:"gPodder")
+            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?uidata.episodeListTitle:"gPodder"))
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -203,7 +274,7 @@ Rectangle {
 
             ScaledImage {
                 anchors.centerIn: parent
-                source: (main.state == 'podcasts' && episodeDetails.state == 'hidden')?'icons/close.png':'icons/back.png'
+                source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
                 rotation: (episodeDetails.state == 'visible')?-90:0
             }
 
@@ -211,7 +282,9 @@ Rectangle {
                 id: closeButtonMouseArea
                 anchors.fill: parent
                 onClicked: {
-                    if (episodeDetails.state == 'visible') {
+                    if (contextMenu.state == 'opened') {
+                        contextMenu.state = 'closed'
+                    } else if (episodeDetails.state == 'visible') {
                         episodeDetails.state = 'hidden'
                     } else if (main.state == 'podcasts') {
                         controller.quit()
@@ -223,18 +296,6 @@ Rectangle {
         }
     }
 
-    NowPlayingThrobber {
-        property bool shouldAppear: (episodeDetails.playing && episodeDetails.state == 'hidden' && !podcastList.moving && !episodeList.moving)
-
-        id: nowPlayingThrobber
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        opacity: shouldAppear?1:0
-
-        onClicked: episodeDetails.state = 'visible'
-
-        Behavior on opacity { NumberAnimation { duration: 100 } }
-    }
 }
 
 

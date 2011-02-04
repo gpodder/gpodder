@@ -40,6 +40,15 @@ class Controller(QObject):
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
         print 'context menu:', podcast.qtitle
+        self.root.open_context_menu(['Unsubscribe', 'Add Option', 'Be cool', 'Sing a song', 'Recommend to a friend'])
+
+    @Slot(int)
+    def contextMenuResponse(self, index):
+        print 'context menu response:', index
+
+    @Slot()
+    def contextMenuClosed(self):
+        print 'context menu closed'
 
     @Slot(QObject)
     def episodeSelected(self, episode):
@@ -139,6 +148,10 @@ class qtPodder(QApplication):
     def set_state(self, state):
         root = self.qml_view.rootObject()
         root.setProperty('state', state)
+
+    def open_context_menu(self, items):
+        root = self.qml_view.rootObject()
+        root.openContextMenu(items)
 
     def reload_podcasts(self):
         self.podcast_model.set_objects(model.Model.get_podcasts(self._db))
