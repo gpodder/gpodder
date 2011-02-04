@@ -260,7 +260,7 @@ Rectangle {
         ShadowText {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.right
-            anchors.right: closeButton.left
+            anchors.right: searchButton.left
             clip: true
             text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?uidata.episodeListTitle:"gPodder"))
             color: Qt.lighter(main.color, 4)
@@ -268,43 +268,34 @@ Rectangle {
             font.bold: false
         }
 
-        Item {
+        TitlebarButton {
+            id: searchButton
+            anchors.right: closeButton.left
+
+            source: 'icons/search.png'
+
+            onClicked: controller.searchButtonClicked()
+
+            visible: contextMenu.state == 'closed'
+        }
+
+        TitlebarButton {
             id: closeButton
             anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: taskSwitcher.width
 
-            Rectangle {
-                anchors.fill: parent
-                color: 'white'
-                opacity: closeButtonMouseArea.pressed?.3:0
-            }
+            source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
+            rotation: (episodeDetails.state == 'visible')?-90:0
 
-            ScaledIcon {
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    right: parent.right
-                    rightMargin: (parent.width * .8 - width) / 2
-                }
-                source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
-                rotation: (episodeDetails.state == 'visible')?-90:0
-            }
-
-            MouseArea {
-                id: closeButtonMouseArea
-                anchors.fill: parent
-                onClicked: {
-                    if (contextMenu.state == 'opened') {
-                        contextMenu.state = 'closed'
-                    } else if (episodeDetails.state == 'visible') {
-                        episodeDetails.state = 'hidden'
-                    } else if (main.state == 'podcasts') {
-                        episodeDetails.stop()
-                        controller.quit()
-                    } else {
-                        main.state = 'podcasts'
-                    }
+            onClicked: {
+                if (contextMenu.state == 'opened') {
+                    contextMenu.state = 'closed'
+                } else if (episodeDetails.state == 'visible') {
+                    episodeDetails.state = 'hidden'
+                } else if (main.state == 'podcasts') {
+                    episodeDetails.stop()
+                    controller.quit()
+                } else {
+                    main.state = 'podcasts'
                 }
             }
         }

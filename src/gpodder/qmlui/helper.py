@@ -55,7 +55,7 @@ def AutoQObject(*class_def, **kwargs):
 
 
 class Action(QtCore.QObject):
-    def __init__(self, caption, action, target):
+    def __init__(self, caption, action, target=None):
         QtCore.QObject.__init__(self)
         if isinstance(caption, str):
             caption = caption.decode('utf-8')

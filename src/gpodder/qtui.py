@@ -87,6 +87,13 @@ class Controller(QObject):
             helper.Action('Toggle new', 'episode-toggle-new', episode),
         ])
 
+    @Slot()
+    def searchButtonClicked(self):
+        self.show_context_menu([
+            helper.Action('Search podcasts', 'search-podcasts'),
+            helper.Action('Filter current list', 'filter-list'),
+        ])
+
     @Slot(str)
     def action(self, action):
         print 'action requested:', action
