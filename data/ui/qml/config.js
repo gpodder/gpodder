@@ -1,13 +1,14 @@
 
-var scale = 3
+var scale = 2
 
-var smallSpacing = 20 / scale
-var largeSpacing = 40 / scale
+var smallSpacing = 7 * scale
+var largeSpacing = smallSpacing * 2
 
-var switcherWidth = 280 / scale
-var headerHeight = 220 / scale
-var listItemHeight = 230 / scale
-var iconSize = 104 / scale
+var switcherWidth = 90 * scale
+var headerHeight = 56 * scale
 
-var fadeHeight = 80 / scale
+var listItemHeight = 78 * scale
+var iconSize = 36 * scale
+
+var fadeHeight = 26 * scale
 

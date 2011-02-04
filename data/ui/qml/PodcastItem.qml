@@ -18,9 +18,13 @@ SelectableItem {
         horizontalAlignment: Text.AlignRight
     }
 
-    ScaledImage {
+    Image {
     	id: cover
         source: 'podcastList/cover-shadow.png'
+
+        height: podcastItem.height * .8
+        width: podcastItem.height * .8
+        smooth: true
 
         anchors {
             verticalCenter: parent.verticalCenter
@@ -30,8 +34,8 @@ SelectableItem {
 
         Image {
             source: model.podcast.qcoverfile
-            width: parent.width * .8
-            height: parent.height * .8
+            width: parent.width * .85
+            height: parent.height * .85
             sourceSize.width: width
             sourceSize.height: height
             anchors.centerIn: parent

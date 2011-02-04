@@ -25,6 +25,13 @@ Item {
         }
     }
 
+    function stop() {
+        audioPlayer.source = ''
+        videoPlayer.source = ''
+        audioPlayer.stop()
+        videoPlayer.stop()
+    }
+
     Rectangle {
         anchors.fill: episodeDetails
         color: "white"

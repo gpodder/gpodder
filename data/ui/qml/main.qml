@@ -149,7 +149,6 @@ Rectangle {
         id: nowPlayingThrobber
         anchors.bottom: episodeDetails.top
         anchors.right: parent.right
-        anchors.bottomMargin: -1
         opacity: shouldAppear?1:0
         z: 10
 
@@ -248,7 +247,7 @@ Rectangle {
                 onClicked: controller.switcher()
             }
 
-            ScaledImage {
+            ScaledIcon {
                 anchors {
                     verticalCenter: parent.verticalCenter
                     left: parent.left
@@ -282,7 +281,7 @@ Rectangle {
                 opacity: closeButtonMouseArea.pressed?.3:0
             }
 
-            ScaledImage {
+            ScaledIcon {
                 anchors {
                     verticalCenter: parent.verticalCenter
                     right: parent.right
@@ -301,6 +300,7 @@ Rectangle {
                     } else if (episodeDetails.state == 'visible') {
                         episodeDetails.state = 'hidden'
                     } else if (main.state == 'podcasts') {
+                        episodeDetails.stop()
                         controller.quit()
                     } else {
                         main.state = 'podcasts'
