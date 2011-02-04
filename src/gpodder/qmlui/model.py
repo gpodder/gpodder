@@ -26,6 +26,8 @@ from gpodder import model
 from gpodder import util
 from gpodder import youtube
 
+import threading
+
 class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
@@ -73,9 +75,29 @@ class QPodcast(QObject, model.PodcastChannel):
 
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
+        self._updating = False
         model.PodcastChannel.__init__(self, *args, **kwargs)
 
+    def qupdate(self):
+        def t(self):
+            self._updating = True
+            self.changed.emit()
+            try:
+                self.update()
+            except Exception, e:
+                # XXX: Handle exception (error message)!
+                pass
+            self._updating = False
+            self.changed.emit()
+
+        threading.Thread(target=t, args=[self]).start()
+
     changed = Signal()
+
+    def _updating(self):
+        return self._updating
+
+    qupdating = Property(bool, _updating, notify=changed)
 
     def _title(self):
         return self.title
@@ -93,7 +115,10 @@ class QPodcast(QObject, model.PodcastChannel):
     qdownloaded = Property(int, _downloaded, notify=changed)
 
     def _description(self):
-        return util.get_first_line(self.description).decode('utf-8')
+        result = util.get_first_line(self.description)
+        if not isinstance(result, unicode):
+            result = result.decode('utf-8', 'ignore')
+        return result
 
     qdescription = Property(unicode, _description, notify=changed)
 

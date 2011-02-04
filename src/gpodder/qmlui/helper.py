@@ -53,3 +53,21 @@ def AutoQObject(*class_def, **kwargs):
 
     return Object
 
+
+class Action(QtCore.QObject):
+    def __init__(self, caption, action, target):
+        QtCore.QObject.__init__(self)
+        if isinstance(caption, str):
+            caption = caption.decode('utf-8')
+        self._caption = caption
+
+        self.action = action
+        self.target = target
+
+    changed = QtCore.Signal()
+
+    def _get_caption(self):
+        return self._caption
+
+    caption = QtCore.Property(unicode, _get_caption, notify=changed)
+

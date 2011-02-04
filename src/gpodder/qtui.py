@@ -29,6 +29,7 @@ class Controller(QObject):
         QObject.__init__(self)
         self.root = root
         self.uidata = uidata
+        self.context_menu_actions = []
 
     @Slot(QObject)
     def podcastSelected(self, podcast):
@@ -40,15 +41,32 @@ class Controller(QObject):
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
         print 'context menu:', podcast.qtitle
-        self.root.open_context_menu(['Unsubscribe', 'Add Option', 'Be cool', 'Sing a song', 'Recommend to a friend'])
+        self.context_menu_actions = [
+                helper.Action('Update all', 'update_all', podcast),
+                helper.Action('Update', 'update', podcast),
+                helper.Action('Unsubscribe', 'unsubscribe', podcast),
+                helper.Action('Be cool', 'be_cool', podcast),
+                helper.Action('Sing a song', 'sing_a_song', podcast),
+        ]
+        self.root.open_context_menu(self.context_menu_actions)
 
     @Slot(int)
     def contextMenuResponse(self, index):
         print 'context menu response:', index
+        assert index < len(self.context_menu_actions)
+        action = self.context_menu_actions[index]
+        if action.action == 'update':
+            action.target.qupdate()
+        elif action.action == 'update_all':
+            for podcast in self.root.podcast_model.get_objects():
+                podcast.qupdate()
+        if action.action == 'unsubscribe':
+            print 'would unsubscribe from', action.target.title
 
     @Slot()
     def contextMenuClosed(self):
         print 'context menu closed'
+        self.context_menu_actions = []
 
     @Slot(QObject)
     def episodeSelected(self, episode):
@@ -85,6 +103,9 @@ class gPodderListModel(QAbstractListModel):
     def set_objects(self, objects):
         self._objects = objects
         self.reset()
+
+    def get_objects(self):
+        return self._objects
 
     def get_object(self, index):
         return self._objects[index.row()]
@@ -164,6 +185,7 @@ class qtPodder(QApplication):
         self.qml_view.rootObject().setCurrentEpisode(episode)
 
 def main():
+    gpodder.load_plugins()
     cfg = config.Config(gpodder.config_file)
     db = dbsqlite.Database(gpodder.database_file)
     gui = qtPodder(sys.argv, cfg, db)

@@ -6,7 +6,7 @@ import 'config.js' as Config
 Item {
     id: contextMenu
 
-    property variant items: ['context menu']
+    property variant items: []
 
     signal close
     signal response(int index)
@@ -49,7 +49,7 @@ Item {
                 }
                 color: "white"
                 font.pixelSize: parent.height * .3
-                text: modelData
+                text: modelData.caption
             }
 
             MouseArea {

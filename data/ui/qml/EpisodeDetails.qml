@@ -31,14 +31,14 @@ Item {
 
     Video {
         id: videoPlayer
-        opacity: (episode.qfiletype == 'video')?(1):(0)
+        opacity: (episode != undefined && episode.qfiletype == 'video')?(1):(0)
         anchors.fill: parent
-        source: episode.qsourceurl
+        source: (episode != undefined)?episode.qsourceurl:''
     }
 
     Audio {
         id: audioPlayer
-        source: episode.qsourceurl
+        source: (episode != undefined)?episode.qsourceurl:''
     }
 
     ShadowText {
@@ -47,9 +47,8 @@ Item {
         visible: !videoPlayer.playing
 
         anchors.centerIn: parent
-        elide: Text.ElideEnd
         color: "white"
-        text: episode.qtitle
+        text: (episode != undefined)?episode.qtitle:''
 
         font.pixelSize: 20
     }

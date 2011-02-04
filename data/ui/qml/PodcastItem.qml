@@ -77,7 +77,7 @@ Item {
 
         ShadowText {
             id: descriptionText
-            text: model.podcast.qdescription
+            text: model.podcast.qupdating?"UPDATING...":model.podcast.qdescription
             visible: text != ''
             color: "#aaa"
             offsetX: -1
