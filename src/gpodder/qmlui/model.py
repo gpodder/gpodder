@@ -76,11 +76,6 @@ class QEpisode(QObject, model.PodcastEpisode):
 
     qnew = Property(bool, _new, notify=changed)
 
-    def _podcast(self):
-        return self.channel
-
-    qpodcast = Property(QObject, _podcast, notify=changed)
-
 
 class QPodcast(QObject, model.PodcastChannel):
     EpisodeClass = QEpisode

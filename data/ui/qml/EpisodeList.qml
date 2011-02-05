@@ -15,7 +15,6 @@ Item {
     ListView {
         id: listView
         anchors.fill: parent
-        model: episodeModel
 
         delegate: EpisodeItem {
             onSelected: episodeList.episodeSelected(item)

@@ -21,7 +21,7 @@ SelectableItem {
     ShadowText {
         text: modelData.qtitle
         color: modelData.qnew?"white":"#888"
-        font.pointSize: episodeItem.height * .25
+        font.pixelSize: episodeItem.height * .35
         font.bold: false
         anchors.left: icon.right
         anchors.verticalCenter: parent.verticalCenter

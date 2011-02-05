@@ -4,15 +4,13 @@ import Qt 4.7
 import 'config.js' as Config
 
 Item {
+    id: podcastList
+
+    property alias model: listView.model
     property alias moving: listView.moving
 
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)
-    signal action(string action)
-
-    id: rectangle
-
-    property alias model: listView.model
 
     ListView {
         id: listView
@@ -36,8 +34,8 @@ Item {
         }
 
         delegate: PodcastItem {
-            onSelected: rectangle.podcastSelected(item)
-            onContextMenu: rectangle.podcastContextMenu(item)
+            onSelected: podcastList.podcastSelected(item)
+            onContextMenu: podcastList.podcastContextMenu(item)
         }
 
         header: Item { height: Config.headerHeight }

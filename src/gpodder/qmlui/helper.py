@@ -24,10 +24,10 @@ def AutoQObject(*class_def, **kwargs):
         def __init__(self, **kwargs):
             QtCore.QObject.__init__(self)
             for key, val in class_def:
-                self.__dict__['_'+key] = kwargs.get(key, val())
+                setattr(self, '_'+key, kwargs.get(key, val()))
 
         def __repr__(self):
-            values = ('%s=%r' % (key, self.__dict__['_'+key]) \
+            values = ('%s=%r' % (key, getattr(self, '_'+key)) \
                     for key, value in class_def)
             return '<%s (%s)>' % (kwargs.get('name', 'QObject'), \
                     ', '.join(values))
@@ -42,8 +42,8 @@ def AutoQObject(*class_def, **kwargs):
 
             def _set(key):
                 def f(self, value):
-                    self.__dict__['_'+key] = value
-                    self.__dict__['_nfy_'+key].emit()
+                    setattr(self, '_'+key, value)
+                    getattr(self, '_nfy_'+key).emit()
                 return f
 
             set = locals()['_set_'+key] = _set(key)

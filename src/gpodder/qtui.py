@@ -24,18 +24,17 @@ UiData = helper.AutoQObject(
     name='UiData'
 )
 
-class Controller(QObject):
-    def __init__(self, root, uidata):
-        QObject.__init__(self)
+class Controller(UiData):
+    def __init__(self, root):
+        UiData.__init__(self)
         self.root = root
-        self.uidata = uidata
         self.context_menu_actions = []
 
     @Slot(QObject)
     def podcastSelected(self, podcast):
         print 'selected:', podcast.qtitle
-        self.uidata.episodeListTitle = podcast.qtitle
-        self.root.podcast_window.setWindowTitle(self.uidata.episodeListTitle)
+        self.episodeListTitle = podcast.qtitle
+        self.root.podcast_window.setWindowTitle(self.episodeListTitle)
         self.root.select_podcast(podcast)
 
     @Slot(QObject)
@@ -94,12 +93,6 @@ class Controller(QObject):
             helper.Action('Filter current list', 'filter-list'),
         ])
 
-    @Slot(str)
-    def action(self, action):
-        print 'action requested:', action
-        if action == 'refresh':
-            self.root.reload_podcasts()
-
     @Slot()
     def quit(self):
         self.root.qml_view.setSource('')
@@ -153,22 +146,21 @@ class qtPodder(QApplication):
         self._config = config
         self._db = db
 
-        self.uidata = UiData()
-        self.controller = Controller(self, self.uidata)
+        self.controller = Controller(self)
 
         self.qml_view = QDeclarativeView()
         self.glw = QGLWidget()
         self.qml_view.setViewport(self.glw)
         self.qml_view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
-        rc = self.qml_view.rootContext()
         self.podcast_model = gPodderListModel()
         self.episode_model = gPodderListModel()
-        rc.setContextProperty('podcastModel', self.podcast_model)
-        rc.setContextProperty('episodeModel', self.episode_model)
-        rc.setContextProperty('controller', self.controller)
-        rc.setContextProperty('uidata', self.uidata)
+
         self.qml_view.setSource(QML('main.qml'))
+        ro = self.qml_view.rootObject()
+        ro.setProperty('podcastModel', self.podcast_model)
+        ro.setProperty('episodeModel', self.episode_model)
+        ro.setProperty('controller', self.controller)
 
         self.podcast_window = QMainWindow()
         if gpodder.ui.fremantle:

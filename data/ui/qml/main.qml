@@ -3,8 +3,46 @@ import Qt 4.7
 
 import 'config.js' as Config
 
+import "test"
+
 Rectangle {
     id: main
+
+    property alias podcastModel: podcastList.model
+    property alias episodeModel: episodeList.model
+
+    property variant controller
+    controller: Controller { main: main }
+
+    property list<Podcast> podcastListExample
+    podcastListExample: [
+        Podcast { qdownloaded: 1; qsection: 'audio' },
+        Podcast { qdownloaded: 0; qsection: 'audio' },
+        Podcast { qdownloaded: 0; qsection: 'video' },
+        Podcast { qdownloaded: 0; qsection: 'other' },
+        Podcast {},
+        Podcast {},
+        Podcast {},
+        Podcast {}
+    ]
+
+    property list<Episode> episodeListExample
+    episodeListExample: [
+        Episode {},
+        Episode {},
+        Episode { qfiletype: 'video' },
+        Episode {},
+        Episode {},
+        Episode { qfiletype: 'video' },
+        Episode {},
+        Episode {},
+        Episode { qfiletype: 'download' },
+        Episode {},
+        Episode {}
+    ]
+
+    width: 800
+    height: 480
 
     state: 'podcasts'
 
@@ -64,14 +102,13 @@ Rectangle {
 
         PodcastList {
             id: podcastList
-            model: podcastModel
             opacity: 0
+            model: podcastListExample
 
             anchors.fill: parent
 
             onPodcastSelected: controller.podcastSelected(podcast)
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
-            onAction: controller.action(action)
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
             Behavior on scale { NumberAnimation { duration: Config.slowTransition } }
@@ -79,8 +116,8 @@ Rectangle {
 
         EpisodeList {
             id: episodeList
-            model: episodeModel
             opacity: 0
+            model: episodeListExample
 
             anchors.fill: parent
 
@@ -262,7 +299,7 @@ Rectangle {
             anchors.left: taskSwitcher.right
             anchors.right: searchButton.left
             clip: true
-            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?uidata.episodeListTitle:"gPodder"))
+            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
             font.bold: false
