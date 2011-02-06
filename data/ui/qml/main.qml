@@ -61,6 +61,7 @@ Rectangle {
     }
 
     function setCurrentEpisode() {
+        episodeDetails.startPlayback()
         episodeDetails.state = 'visible'
     }
 
@@ -159,18 +160,19 @@ Rectangle {
                     scale: .8
                     opacity: .5
                 }
-                StateChangeScript {
-                    script: episodeDetails.startPlayback()
-                }
             }
         ]
 
         transitions: Transition {
-            AnchorAnimation { duration: Config.slowTransition }
+            SequentialAnimation {
+                ScriptAction { script: episodeDetails.opacity = 1 }
+                AnchorAnimation { duration: Config.slowTransition }
+                ScriptAction { script: episodeDetails.opacity = (episodeDetails.state=='visible') }
+            }
         }
 
         state: 'hidden'
-        clip: true
+        opacity: 0
 
         anchors {
             top: main.bottom
