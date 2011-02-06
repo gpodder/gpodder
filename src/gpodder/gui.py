@@ -66,7 +66,7 @@ except ImportError:
                 def __init__(self, *args, **kwargs):
                     pass
 
-
+from gpodder import core
 from gpodder import feedcore
 from gpodder import util
 from gpodder import opml
@@ -80,7 +80,6 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder.model import Model
-from gpodder.dbsqlite import Database
 
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
@@ -147,7 +146,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     # Delay until live search is started after typing stop
     LIVE_SEARCH_DELAY = 500
 
-    def __init__(self, bus_name, config):
+    def __init__(self, bus_name, gpodder_core):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
                 self.on_itemUpdate_activate, \
@@ -155,8 +154,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.download_episode_list, \
                 self.episode_object_by_uri, \
                 bus_name)
-        self.db = Database(gpodder.database_file)
-        self.config = config
+        self.core = gpodder_core
+        self.config = self.core.config
+        self.db = self.core.db
         BuilderWidget.__init__(self, None)
     
     def new(self):
@@ -2869,7 +2869,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         while gtk.events_pending():
             gtk.main_iteration(False)
 
-        self.db.close()
+        self.core.shutdown()
 
         self.quit()
         sys.exit(0)
@@ -3801,20 +3801,7 @@ def main(options=None):
         dlg.destroy()
         sys.exit(0)
 
-    util.make_directory(gpodder.home)
-    gpodder.load_plugins()
-
-    config = UIConfig(gpodder.config_file)
-
-    # Load hook modules and install the hook manager globally
-    # if modules have been found an instantiated by the manager
-    user_hooks = hooks.HookManager()
-    if user_hooks.has_modules():
-        gpodder.user_hooks = user_hooks
-
-    config.mygpo_device_type = util.detect_device_type()
-
-    gp = gPodder(bus_name, config)
+    gp = gPodder(bus_name, core.Core(UIConfig))
 
     # Handle options
     if options.subscribe:

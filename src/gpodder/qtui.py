@@ -7,15 +7,13 @@ from PySide.QtCore import *
 from PySide.QtDeclarative import *
 from PySide.QtOpenGL import *
 
-import sys
 import os
 import gpodder
 
+from gpodder import core
+
 from gpodder.qmlui import model
 from gpodder.qmlui import helper
-from gpodder import dbsqlite
-from gpodder import config
-from gpodder import util
 
 
 # Generate a QObject subclass with notifyable properties
@@ -98,10 +96,7 @@ class Controller(UiData):
 
     @Slot()
     def quit(self):
-        self.root.save_pending_data()
-        self.root._db.close() # store db
-        self.root.qml_view.setSource('')
-        self.root._app.quit()
+        self.root.quit()
 
     @Slot()
     def switcher(self):
@@ -146,10 +141,12 @@ def QML(filename):
             return filename
 
 class qtPodder(object):
-    def __init__(self, args, config, db):
+    def __init__(self, args, gpodder_core):
         self._app = QApplication(args)
-        self._config = config
-        self._db = db
+
+        self.core = gpodder_core
+        self._config = self.core.config
+        self._db = self.core.db
 
         self.controller = Controller(self)
 
@@ -183,6 +180,15 @@ class qtPodder(object):
             self.podcast_window.show()
 
         self.reload_podcasts()
+
+    def run(self):
+        return self._app.exec_()
+
+    def quit(self):
+        self.save_pending_data()
+        self.core.shutdown()
+        self.qml_view.setSource('')
+        self._app.quit()
 
     def set_state(self, state):
         root = self.qml_view.rootObject()
@@ -220,13 +226,7 @@ class qtPodder(object):
         self.qml_view.rootObject().setProperty('currentEpisode', episode)
         self.qml_view.rootObject().setCurrentEpisode()
 
-def main():
-    gpodder.load_plugins()
-    cfg = config.Config(gpodder.config_file)
-    db = dbsqlite.Database(gpodder.database_file)
-    gui = qtPodder(sys.argv, cfg, db)
-    result = gui._app.exec_()
-    db.close()
-    print 'main finished'
-    return result
+def main(args):
+    gui = qtPodder(args, core.Core())
+    return gui.run()
 
