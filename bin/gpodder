@@ -157,9 +157,9 @@ if __name__ == '__main__':
         enable_verbose()
 
     if options.qml:
-        from gpodder import qtui
+        from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
-        sys.exit(qtui.main(args))
+        sys.exit(qmlui.main(args))
 
     if have_dbus:
         # Try to find an already-running instance of gPodder
