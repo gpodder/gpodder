@@ -112,10 +112,13 @@ class QPodcast(QObject, model.PodcastChannel):
         self._section_cached = None
         model.PodcastChannel.__init__(self, *args, **kwargs)
 
-    def qupdate(self):
+    def qupdate(self, force=False):
         def t(self):
             self._updating = True
             self.changed.emit()
+            if force:
+                self.http_etag = None
+                self.http_last_modified = None
             try:
                 self.update()
             except Exception, e:

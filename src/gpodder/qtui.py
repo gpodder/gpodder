@@ -43,6 +43,7 @@ class Controller(UiData):
         self.show_context_menu([
                 helper.Action('Update all', 'update_all', podcast),
                 helper.Action('Update', 'update', podcast),
+                helper.Action('Force update', 'force-update', podcast),
                 helper.Action('Unsubscribe', 'unsubscribe', podcast),
                 helper.Action('Be cool', 'be_cool', podcast),
                 helper.Action('Sing a song', 'sing_a_song', podcast),
@@ -59,6 +60,8 @@ class Controller(UiData):
         action = self.context_menu_actions[index]
         if action.action == 'update':
             action.target.qupdate()
+        elif action.action == 'force-update':
+            action.target.qupdate(force=True)
         elif action.action == 'update_all':
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate()
@@ -157,6 +160,10 @@ class qtPodder(object):
 
         self.podcast_model = gPodderListModel()
         self.episode_model = gPodderListModel()
+
+        if gpodder.ui.fremantle:
+            self.qml_view.engine().addImportPath('/opt/qtm11/imports')
+            self.qml_view.engine().addImportPath('/opt/qtm12/imports')
 
         self.qml_view.setSource(QML('main.qml'))
         ro = self.qml_view.rootObject()
