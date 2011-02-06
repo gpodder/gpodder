@@ -646,8 +646,10 @@ class PodcastEpisode(PodcastModelObject):
         if self.current_position > 0:
             position = util.format_time(self.current_position)
             return '%s / %s' % (position, duration)
-        else:
+        elif self.total_time > 0:
             return duration
+        else:
+            return '-'
 
     def is_duplicate(self, episode):
         if self.title == episode.title and self.published == episode.published:

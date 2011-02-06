@@ -76,6 +76,32 @@ class QEpisode(QObject, model.PodcastEpisode):
 
     qnew = Property(bool, _new, notify=changed)
 
+    def _positiontext(self):
+        return convert(self.get_play_info_string())
+
+    qpositiontext = Property(unicode, _positiontext, notify=changed)
+
+    def _position(self):
+        return self.current_position
+
+    def _set_position(self, position):
+        current_position = int(position)
+        if current_position != self.current_position:
+            self.current_position = current_position
+            self.changed.emit()
+
+    qposition = Property(int, _position, _set_position, notify=changed)
+
+    def _duration(self):
+        return self.total_time
+
+    def _set_duration(self, duration):
+        print 'set duration'
+        self.total_time = int(duration)
+        self.changed.emit()
+
+    qduration = Property(int, _duration, _set_duration, notify=changed)
+
 
 class QPodcast(QObject, model.PodcastChannel):
     EpisodeClass = QEpisode
@@ -133,8 +159,6 @@ class QPodcast(QObject, model.PodcastChannel):
         return self._section_cached
 
     qsection = Property(unicode, _section, notify=changed)
-
-
 
 
 class Model(model.Model):

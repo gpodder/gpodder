@@ -9,6 +9,9 @@ QtObject {
     property string qdescription: 'This is an <strong>example</strong> episode'
     property string qsourceurl: 'http://media.libsyn.com/media/linuxoutlaws/linuxoutlaws190.mp3'
     property string qfiletype: 'audio'
+    property string qpositiontext: ''+qposition+' / ' + qduration
+    property int qposition: 0
+    property int qduration: 0
     property bool qnew: true
 }
 

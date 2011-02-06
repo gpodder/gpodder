@@ -10,6 +10,7 @@ Rectangle {
 
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
+    property alias currentEpisode: episodeDetails.episode
 
     property variant controller
     controller: Controller { main: main }
@@ -59,8 +60,7 @@ Rectangle {
         source: 'podcastList/noise.png'
     }
 
-    function setCurrentEpisode(episode) {
-        episodeDetails.episode = episode
+    function setCurrentEpisode() {
         episodeDetails.state = 'visible'
     }
 
@@ -299,7 +299,7 @@ Rectangle {
             anchors.left: taskSwitcher.right
             anchors.right: searchButton.left
             clip: true
-            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?"Now playing":(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
+            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+currentEpisode.qpositiontext):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
             font.bold: false

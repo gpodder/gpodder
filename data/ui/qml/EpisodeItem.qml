@@ -25,8 +25,19 @@ SelectableItem {
         font.bold: false
         anchors.left: icon.right
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
+        anchors.right: positionInfo.left
         anchors.leftMargin: Config.largeSpacing
+        anchors.rightMargin: Config.smallSpacing
+        clip: true
+    }
+
+    ShadowText {
+        id: positionInfo
+        text: modelData.qpositiontext
+        color: '#888'
+        anchors.right: parent.right
+        anchors.rightMargin: Config.largeSpacing
+        anchors.verticalCenter: parent.verticalCenter
     }
 }
 

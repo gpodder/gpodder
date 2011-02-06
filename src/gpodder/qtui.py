@@ -95,8 +95,10 @@ class Controller(UiData):
 
     @Slot()
     def quit(self):
+        self.root.save_pending_data()
+        self.root._db.close() # store db
         self.root.qml_view.setSource('')
-        self.root.quit()
+        self.root._app.quit()
 
     @Slot()
     def switcher(self):
@@ -140,9 +142,9 @@ def QML(filename):
         if os.path.exists(filename):
             return filename
 
-class qtPodder(QApplication):
+class qtPodder(object):
     def __init__(self, args, config, db):
-        QApplication.__init__(self, args)
+        self._app = QApplication(args)
         self._config = config
         self._db = db
 
@@ -188,18 +190,36 @@ class qtPodder(QApplication):
         self.podcast_model.set_objects(podcasts)
 
     def select_podcast(self, podcast):
-        self.episode_model.set_objects(podcast.get_all_episodes())
+        # If the currently-playing episode exists in the podcast,
+        # use it instead of the object from the database
+        current_ep = self.qml_view.rootObject().property('currentEpisode')
+        if not isinstance(current_ep, model.QEpisode):
+            setattr(current_ep, 'id', -1)
+        episodes = [x if x.id != current_ep.id else current_ep \
+                for x in podcast.get_all_episodes()]
+
+        self.episode_model.set_objects(episodes)
         self.set_state('episodes')
 
+    def save_pending_data(self):
+        current_ep = self.qml_view.rootObject().property('currentEpisode')
+        if isinstance(current_ep, model.QEpisode):
+            current_ep.save()
+
     def select_episode(self, episode):
-        self.qml_view.rootObject().setCurrentEpisode(episode)
+        self.save_pending_data()
+        episode.mark(is_played=True)
+        episode.changed.emit()
+        self.qml_view.rootObject().setProperty('currentEpisode', episode)
+        self.qml_view.rootObject().setCurrentEpisode()
 
 def main():
     gpodder.load_plugins()
     cfg = config.Config(gpodder.config_file)
     db = dbsqlite.Database(gpodder.database_file)
     gui = qtPodder(sys.argv, cfg, db)
-    result = gui.exec_()
+    result = gui._app.exec_()
     db.close()
+    print 'main finished'
     return result
 
