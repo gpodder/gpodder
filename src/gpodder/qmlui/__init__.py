@@ -182,10 +182,13 @@ class qtPodder(object):
             self.qml_view.engine().addImportPath('/opt/qtm12/imports')
 
         self.qml_view.setSource(QML('main.qml'))
-        ro = self.qml_view.rootObject()
-        ro.setProperty('podcastModel', self.podcast_model)
-        ro.setProperty('episodeModel', self.episode_model)
-        ro.setProperty('controller', self.controller)
+
+        # Proxy to the "main" QML object for direct access to Qt Properties
+        self.main = helper.QObjectProxy(self.qml_view.rootObject())
+
+        self.main.podcastModel = self.podcast_model
+        self.main.episodeModel = self.episode_model
+        self.main.controller = self.controller
 
         self.podcast_window = QMainWindow()
         if gpodder.ui.fremantle:
@@ -209,10 +212,6 @@ class qtPodder(object):
         self.qml_view.setSource('')
         self._app.quit()
 
-    def set_state(self, state):
-        root = self.qml_view.rootObject()
-        root.setProperty('state', state)
-
     def open_context_menu(self, items):
         root = self.qml_view.rootObject()
         root.openContextMenu(items)
@@ -224,17 +223,17 @@ class qtPodder(object):
     def select_podcast(self, podcast):
         # If the currently-playing episode exists in the podcast,
         # use it instead of the object from the database
-        current_ep = self.qml_view.rootObject().property('currentEpisode')
+        current_ep = self.main.currentEpisode
         if not isinstance(current_ep, model.QEpisode):
             setattr(current_ep, 'id', -1)
         episodes = [x if x.id != current_ep.id else current_ep \
                 for x in podcast.get_all_episodes()]
 
         self.episode_model.set_objects(episodes)
-        self.set_state('episodes')
+        self.main.state = 'episodes'
 
     def save_pending_data(self):
-        current_ep = self.qml_view.rootObject().property('currentEpisode')
+        current_ep = self.main.currentEpisode
         if isinstance(current_ep, model.QEpisode):
             current_ep.save()
 
@@ -242,8 +241,8 @@ class qtPodder(object):
         self.save_pending_data()
         episode.mark(is_played=True)
         episode.changed.emit()
-        self.qml_view.rootObject().setProperty('currentEpisode', episode)
-        self.qml_view.rootObject().setCurrentEpisode()
+        self.main.currentEpisode = episode
+        self.main.setCurrentEpisode()
 
 def main(args):
     gui = qtPodder(args, core.Core())
