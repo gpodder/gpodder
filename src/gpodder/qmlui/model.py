@@ -85,7 +85,9 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.current_position
 
     def _set_position(self, position):
+        print 'set position:', position
         current_position = int(position)
+        if current_position == 0: return
         if current_position != self.current_position:
             self.current_position = current_position
             self.changed.emit()

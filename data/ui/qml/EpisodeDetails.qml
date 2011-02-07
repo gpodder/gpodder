@@ -10,8 +10,7 @@ Item {
     id: episodeDetails
 
     property variant episode: Episode {}
-    property bool playing: audioPlayer.playing || videoPlayer.playing
-    property bool seekLater: false
+    property alias playing: player.playing
 
     MouseArea {
         // clicks should not fall through!
@@ -19,55 +18,85 @@ Item {
     }
 
     function startPlayback() {
-        if (episode.qfiletype == 'video') {
-            audioPlayer.stop()
-            videoPlayer.play()
-        } else {
-            videoPlayer.stop()
-            audioPlayer.play()
-            console.log('starting playback, seekable=' + audioPlayer.seekable
-                        + ' and pos=' + episode.qposition*1000)
-            episodeDetails.seekLater = true
-        }
+        player.start()
     }
 
     function stop() {
-        audioPlayer.source = ''
-        videoPlayer.source = ''
-        audioPlayer.stop()
-        videoPlayer.stop()
+        player.stop()
     }
 
     Rectangle {
         anchors.fill: episodeDetails
         color: "white"
 
+        Item {
+            id: player
+            property bool playing: audioPlayer.playing || videoPlayer.playing
+            property bool seekLater: false
+            property string fileType: episode.qfiletype
+
+            function start() {
+                if (fileType == 'audio') {
+                    videoPlayer.stop()
+                    audioPlayer.play()
+                } else {
+                    audioPlayer.stop()
+                    videoPlayer.play()
+                }
+                player.seekLater = true
+            }
+
+            function stop() {
+                audioPlayer.source = ''
+                videoPlayer.source = ''
+                audioPlayer.stop()
+                videoPlayer.stop()
+            }
+
+            function positionChanged(typ) {
+                if (typ != fileType) return;
+                var playObj = (typ=='video')?videoPlayer:audioPlayer
+                episode.qposition = playObj.position/1000
+            }
+
+            function durationChanged(typ) {
+                if (typ != fileType) return;
+                var playObj = (typ=='video')?videoPlayer:audioPlayer
+
+                if (playObj.duration > 0) {
+                    episode.qduration = playObj.duration/1000
+                }
+            }
+
+            function statusChanged(typ) {
+                if (typ != fileType) return;
+                var playObj = (typ=='video')?videoPlayer:audioPlayer
+
+                if (playObj.status == 6 && seekLater) {
+                    playObj.position = episode.qposition*1000
+                    seekLater = false
+                }
+            }
+        }
+
         Video {
             id: videoPlayer
-            opacity: (episode != undefined && episode.qfiletype == 'video')?(1):(0)
+            opacity: (episode.qfiletype == 'video')
             anchors.fill: parent
-            source: (episode != undefined)?episode.qsourceurl:''
+            source: episode.qsourceurl
+
+            onPositionChanged: player.positionChanged('video')
+            onDurationChanged: player.durationChanged('video')
+            onStatusChanged: player.statusChanged('video')
         }
 
         Audio {
             id: audioPlayer
-            source: (episode != undefined)?episode.qsourceurl:''
-            onPositionChanged: {
-                episode.qposition = audioPlayer.position/1000
-            }
-            onDurationChanged: {
-                if (audioPlayer.duration > 0) {
-                    episode.qduration = audioPlayer.duration/1000
-                }
-            }
-            onStatusChanged: {
-                console.log('status changed:' + audioPlayer.status)
-                if (audioPlayer.status == 6 && episodeDetails.seekLater) {
-                    console.log('seeking now (status changed)')
-                    audioPlayer.position = episode.qposition*1000
-                    episodeDetails.seekLater = false
-                }
-            }
+            source: episode.qsourceurl
+
+            onPositionChanged: player.positionChanged('audio')
+            onDurationChanged: player.durationChanged('audio')
+            onStatusChanged: player.statusChanged('audio')
         }
 
         Flickable {
@@ -87,7 +116,7 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 wrapMode: Text.Wrap
-                text: (episode != undefined)?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):''
+                text: '<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription
             }
         }
     }
