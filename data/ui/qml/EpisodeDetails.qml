@@ -34,14 +34,21 @@ Item {
             property bool playing: audioPlayer.playing || videoPlayer.playing
             property bool seekLater: false
             property string fileType: episode.qfiletype
+            property string source: episode.qsourceurl
 
             function start() {
+                videoPlayer.source = ''
+                audioPlayer.source = ''
+
                 if (fileType == 'audio') {
-                    videoPlayer.stop()
+                    audioPlayer.source = player.source
                     audioPlayer.play()
-                } else {
-                    audioPlayer.stop()
+                } else if (fileType == 'video') {
+                    videoPlayer.source = player.source
                     videoPlayer.play()
+                } else {
+                    console.log('Not an audio or video file!')
+                    return
                 }
                 player.seekLater = true
             }
@@ -83,7 +90,6 @@ Item {
             id: videoPlayer
             opacity: (episode.qfiletype == 'video')
             anchors.fill: parent
-            source: episode.qsourceurl
 
             onPositionChanged: player.positionChanged('video')
             onDurationChanged: player.durationChanged('video')
@@ -92,7 +98,6 @@ Item {
 
         Audio {
             id: audioPlayer
-            source: episode.qsourceurl
 
             onPositionChanged: player.positionChanged('audio')
             onDurationChanged: player.durationChanged('audio')
