@@ -90,6 +90,7 @@ class Controller(UiData):
         elif action.action == 'episode-toggle-new':
             action.target.mark(is_played=action.target.is_new)
             action.target.changed.emit()
+            action.target.channel.changed.emit()
 
     @Slot()
     def contextMenuClosed(self):
@@ -243,6 +244,7 @@ class qtPodder(object):
         self.save_pending_data()
         episode.mark(is_played=True)
         episode.changed.emit()
+        episode.channel.changed.emit()
         self.main.currentEpisode = episode
         self.main.setCurrentEpisode()
 

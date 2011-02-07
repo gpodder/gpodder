@@ -22,8 +22,8 @@ Rectangle {
         Podcast { qdownloaded: 0; qsection: 'video' },
         Podcast { qdownloaded: 0; qsection: 'other' },
         Podcast {},
-        Podcast {},
-        Podcast {},
+        Podcast { qnew: 2 },
+        Podcast { qnew: 9 },
         Podcast {}
     ]
 

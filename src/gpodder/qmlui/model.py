@@ -153,6 +153,11 @@ class QPodcast(QObject, model.PodcastChannel):
 
     qdownloaded = Property(int, _downloaded, notify=changed)
 
+    def _new(self):
+        return self.get_statistics()[2]
+
+    qnew = Property(int, _new, notify=changed)
+
     def _description(self):
         return convert(util.get_first_line(self.description))
 

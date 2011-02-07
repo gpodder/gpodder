@@ -11,11 +11,25 @@ SelectableItem {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.rightMargin: 5
-        text: (modelData.qdownloaded)?(''+modelData.qdownloaded):('')
+        text: formatCount(modelData.qnew, modelData.qdownloaded)
         color: "white"
         width: Config.iconSize * 1.5
         font.pixelSize: podcastItem.height * .4
         horizontalAlignment: Text.AlignRight
+
+        function formatCount(qnew, qdownloaded) {
+            var s = ''
+
+            if (qdownloaded) {
+                s += qdownloaded
+            }
+
+            if (qnew) {
+                s += '<sup><font color="yellow">+' + qnew + '</font></sup>'
+            }
+
+            return s
+        }
     }
 
     Image {
