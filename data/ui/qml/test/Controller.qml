@@ -13,6 +13,10 @@ Item {
         Action { caption: 'Reload' }
     ]
 
+    function titleChanged(text) {
+        console.log('title changed:' + text)
+    }
+
     function podcastSelected(podcast) {
         episodeListTitle = podcast.qtitle
         main.state = 'episodes'

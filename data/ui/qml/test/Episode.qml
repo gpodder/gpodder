@@ -5,6 +5,7 @@ QtObject {
     id: that
     property variant modelData: that
 
+    /* begin: */
     property string qtitle: 'Episode title'
     property string qdescription: 'This is an <strong>example</strong> episode'
     property string qsourceurl: 'http://media.libsyn.com/media/linuxoutlaws/linuxoutlaws190.mp3'
@@ -13,5 +14,6 @@ QtObject {
     property int qposition: 0
     property int qduration: 0
     property bool qnew: true
+    /* :end */
 }
 

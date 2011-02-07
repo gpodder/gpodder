@@ -46,8 +46,6 @@ Rectangle {
     height: 480
 
     state: 'podcasts'
-
-    //OLD color: "#203d64"
     color: "#3b485b"
 
     Image {
@@ -302,6 +300,7 @@ Rectangle {
             anchors.right: searchButton.left
             clip: true
             text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+currentEpisode.qpositiontext):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
+            onTextChanged: controller.titleChanged(text)
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -339,7 +338,6 @@ Rectangle {
             }
         }
     }
-
 }
 
 

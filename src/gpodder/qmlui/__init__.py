@@ -51,8 +51,11 @@ class Controller(UiData):
     def podcastSelected(self, podcast):
         print 'selected:', podcast.qtitle
         self.episodeListTitle = podcast.qtitle
-        self.root.podcast_window.setWindowTitle(self.episodeListTitle)
         self.root.select_podcast(podcast)
+
+    @Slot(str)
+    def titleChanged(self, title):
+        self.root.view.setWindowTitle(title)
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
@@ -161,63 +164,62 @@ def QML(filename):
 
 class qtPodder(object):
     def __init__(self, args, gpodder_core):
-        self._app = QApplication(args)
+        self.app = QApplication(args)
 
         self.core = gpodder_core
-        self._config = self.core.config
-        self._db = self.core.db
+        self.config = self.core.config
+        self.db = self.core.db
+
+        self.view = QDeclarativeView()
+        self.glw = QGLWidget()
+        self.view.setViewport(self.glw)
+        self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
-
-        self.qml_view = QDeclarativeView()
-        self.glw = QGLWidget()
-        self.qml_view.setViewport(self.glw)
-        self.qml_view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
-
         self.podcast_model = gPodderListModel()
         self.episode_model = gPodderListModel()
 
+        # Maemo 5: Experimental Qt Mobility packages are installed in /opt
         if gpodder.ui.fremantle:
-            self.qml_view.engine().addImportPath('/opt/qtm11/imports')
-            self.qml_view.engine().addImportPath('/opt/qtm12/imports')
+            engine = self.view.engine()
+            for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
+                engine.addImportPath(path)
 
-        self.qml_view.setSource(QML('main.qml'))
+        # Load the QML UI (this could take a while...)
+        self.view.setSource(QML('main.qml'))
 
         # Proxy to the "main" QML object for direct access to Qt Properties
-        self.main = helper.QObjectProxy(self.qml_view.rootObject())
+        self.main = helper.QObjectProxy(self.view.rootObject())
 
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
         self.main.controller = self.controller
 
-        self.podcast_window = QMainWindow()
+        self.view.setWindowTitle('gPodder')
+
         if gpodder.ui.fremantle:
-            self.podcast_window.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
-        self.podcast_window.setWindowTitle('gPodder Podcasts in Qt')
-        self.podcast_window.setCentralWidget(self.qml_view)
-        self.podcast_window.resize(480, 800)
-        if gpodder.ui.fremantle:
-            self.podcast_window.showFullScreen()
+            self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
+            self.view.showFullScreen()
         else:
-            self.podcast_window.show()
+            self.view.show()
 
         self.reload_podcasts()
 
     def run(self):
-        return self._app.exec_()
+        return self.app.exec_()
 
     def quit(self):
         self.save_pending_data()
         self.core.shutdown()
-        self.qml_view.setSource('')
-        self._app.quit()
+        self.view.setSource('')
+        self.app.quit()
 
     def open_context_menu(self, items):
-        root = self.qml_view.rootObject()
+        root = self.view.rootObject()
         root.openContextMenu(items)
 
     def reload_podcasts(self):
-        podcasts = sorted(model.Model.get_podcasts(self._db), key=lambda p: p.qsection)
+        podcasts = sorted(model.Model.get_podcasts(self.db), key=lambda p: p.qsection)
         self.podcast_model.set_objects(podcasts)
 
     def select_podcast(self, podcast):
