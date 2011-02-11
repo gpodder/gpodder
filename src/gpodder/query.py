@@ -162,6 +162,9 @@ def UserEQL(query):
     case, EQL queries need to be enclosed in ().
     """
 
+    if query is None:
+        return None
+
     if query == '' or (query and query[0] not in "(/'\""):
         return EQL("'%s'" % query)
     else:
