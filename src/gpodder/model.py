@@ -641,9 +641,8 @@ class PodcastEpisode(PodcastModelObject):
 
     def get_play_info_string(self):
         duration = util.format_time(self.total_time)
-        if self.is_finished():
-            return '%s (%s)' % (_('Finished'), duration)
-        if self.current_position > 0:
+        if self.current_position > 0 and \
+                self.current_position != self.total_time:
             position = util.format_time(self.current_position)
             return '%s / %s' % (position, duration)
         elif self.total_time > 0:
