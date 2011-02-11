@@ -7,6 +7,15 @@ SelectableItem {
 
     height: Config.listItemHeight
 
+    Rectangle {
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        width: modelData.qduration?(parent.width * (modelData.qposition / modelData.qduration)):0
+        height: Config.smallSpacing
+        color: 'white'
+        opacity: .3
+    }
+
     Image {
         id: icon
         source: 'episodeList/' + modelData.qfiletype + '.png'
