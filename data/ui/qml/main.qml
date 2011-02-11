@@ -204,12 +204,12 @@ Rectangle {
     }
 
     NowPlayingThrobber {
-        property bool shouldAppear: (((episodeDetails.playing && !podcastList.moving && !episodeList.moving) || (episodeDetails.state == 'visible')) && (contextMenu.state != 'opened'))
+        property bool shouldAppear: contextMenu.state != 'opened'
 
         id: nowPlayingThrobber
         anchors.bottom: episodeDetails.top
         anchors.right: parent.right
-        opacity: shouldAppear?1:0
+        opacity: shouldAppear
         z: 10
 
         opened: (episodeDetails.state == 'visible')
