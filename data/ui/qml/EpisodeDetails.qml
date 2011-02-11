@@ -50,7 +50,10 @@ Item {
                     console.log('Not an audio or video file!')
                     return
                 }
-                player.seekLater = true
+
+                if (episode.qposition && episode.qposition != episode.qduration) {
+                    player.seekLater = true
+                }
             }
 
             function stop() {
