@@ -123,9 +123,11 @@ class Controller(UiData):
 
     @Slot()
     def switcher(self):
-        # FIXME: ugly
-        os.system('dbus-send /com/nokia/hildon_desktop '+
-                'com.nokia.hildon_desktop.exit_app_view')
+        if gpodder.ui.fremantle:
+            os.system('dbus-send /com/nokia/hildon_desktop '+
+                    'com.nokia.hildon_desktop.exit_app_view')
+        else:
+            self.root.view.showMinimized()
 
 
 class gPodderListModel(QAbstractListModel):
