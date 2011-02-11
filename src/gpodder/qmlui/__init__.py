@@ -244,7 +244,7 @@ class qtPodder(object):
 
     def select_episode(self, episode):
         self.save_pending_data()
-        episode.mark(is_played=True)
+        episode.playback_mark()
         episode.changed.emit()
         episode.channel.changed.emit()
         self.main.currentEpisode = episode

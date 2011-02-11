@@ -95,6 +95,7 @@ class Database(object):
         'total_time',
         'current_position',
         'current_position_updated',
+        'last_playback',
     )
 
     def __init__(self, filename):

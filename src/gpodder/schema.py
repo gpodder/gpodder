@@ -69,7 +69,8 @@ def initialize_database(db):
         download_filename TEXT NULL DEFAULT NULL,
         total_time INTEGER NOT NULL DEFAULT 0,
         current_position INTEGER NOT NULL DEFAULT 0,
-        current_position_updated INTEGER NOT NULL DEFAULT 0
+        current_position_updated INTEGER NOT NULL DEFAULT 0,
+        last_playback INTEGER NOT NULL DEFAULT 0
     )
     """)
 
@@ -158,6 +159,7 @@ def convert_gpodder2_db(old_db, new_db):
                 row['total_time'],
                 row['current_position'],
                 row['current_position_updated'],
+                0,
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)

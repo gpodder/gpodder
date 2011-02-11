@@ -1994,7 +1994,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 player = 'default'
 
             # Mark episode as played in the database
-            episode.mark(is_played=True)
+            episode.playback_mark()
             self.mygpo_client.on_playback([episode])
 
             filename = episode.local_filename(create=False)

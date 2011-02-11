@@ -291,6 +291,9 @@ class PodcastEpisode(PodcastModelObject):
         self.current_position = 0
         self.current_position_updated = 0
 
+        # Timestamp of last playback time
+        self.last_playback = 0
+
     def get_is_locked(self):
         return self.archive
 
@@ -315,6 +318,11 @@ class PodcastEpisode(PodcastModelObject):
     def set_state(self, state):
         self.state = state
         self.db.update_episode_state(self)
+
+    def playback_mark(self):
+        self.is_new = False
+        self.last_playback = int(time.time())
+        self.save()
 
     def mark(self, state=None, is_played=None, is_locked=None):
         if state is not None:
