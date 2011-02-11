@@ -7,6 +7,7 @@ import "test"
 
 Rectangle {
     id: main
+    focus: true
 
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
@@ -42,11 +43,29 @@ Rectangle {
         Episode {}
     ]
 
+    Keys.onPressed: {
+        console.log(event.key)
+        if (event.key == Qt.Key_Escape) {
+            if (contextMenu.state == 'opened') {
+                contextMenu.close()
+            } else if (episodeDetails.state == 'visible') {
+                episodeDetails.state = 'hidden'
+            } else if (main.state == 'episodes') {
+                main.state = 'podcasts'
+            }
+        }
+        if (event.key == Qt.Key_F && event.modifiers & Qt.ControlModifier) {
+            searchButton.clicked()
+        }
+    }
+
     width: 800
     height: 480
 
     state: 'podcasts'
-    color: "#3b485b"
+    color: Config.baseColor
+
+    Behavior on color { ColorAnimation { duration: 5000 } }
 
     Image {
         anchors.fill: parent
@@ -91,6 +110,10 @@ Rectangle {
                 target: podcastList
                 scale: 1.2
                 opacity: 0
+            }
+            PropertyChanges {
+                target: main
+                color: Config.offlineColor
             }
         }
     ]

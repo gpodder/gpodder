@@ -16,3 +16,6 @@ var quickTransition = 50
 var slowTransition = 150
 var fadeTransition = 300
 
+var baseColor = '#3b485b'
+var offlineColor = '#4b4b4b'
+
