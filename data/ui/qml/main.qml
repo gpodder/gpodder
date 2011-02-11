@@ -111,10 +111,6 @@ Rectangle {
                 scale: 1.2
                 opacity: 0
             }
-            PropertyChanges {
-                target: main
-                color: Config.offlineColor
-            }
         }
     ]
 
