@@ -24,13 +24,12 @@ integrate podcast functionality into their applications.
 """
 
 import gpodder
+
 from gpodder import util
-from gpodder import opml
-from gpodder.model import Model
+from gpodder import core
+from gpodder import model
 from gpodder import download
 
-from gpodder import dbsqlite
-from gpodder import config
 from gpodder import youtube
 
 class Podcast(object):
@@ -171,18 +170,16 @@ class PodcastClient(object):
 
         Connects to the database and loads the configuration.
         """
-        util.make_directory(gpodder.home)
-        gpodder.load_plugins()
-
-        self._db = dbsqlite.Database(gpodder.database_file)
-        self._config = config.Config(gpodder.config_file)
+        self.core = core.Core()
+        self._db = self.core.db
+        self._config = self.core.config
 
     def get_podcasts(self):
         """Get a list of Podcast objects
 
         Returns all the subscribed podcasts from gPodder.
         """
-        return [Podcast(p, self) for p in Model.get_podcasts(self._db)]
+        return [Podcast(p, self) for p in model.Model.get_podcasts(self._db)]
 
     def get_podcast(self, url):
         """Get a specific podcast by URL
@@ -222,7 +219,7 @@ class PodcastClient(object):
         This has to be called from the API user after
         data-changing actions have been carried out.
         """
-        self._db.commit()
+        self.core.shutdown()
         return True
 
     def youtube_url_resolver(self, url): 
