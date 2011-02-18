@@ -1055,17 +1055,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             namecolumn.pack_start(timecell, False)
             namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
             namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME_VISIBLE)
-
-        lockcell = gtk.CellRendererPixbuf()
-        lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        lockcell.set_fixed_size(40, -1)
-        if gpodder.ui.fremantle:
-            lockcell.set_property('icon-name', 'general_locked')
         else:
+            lockcell = gtk.CellRendererPixbuf()
+            lockcell.set_fixed_size(40, -1)
+            lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
             lockcell.set_property('icon-name', 'emblem-readonly')
-
-        namecolumn.pack_start(lockcell, False)
-        namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
+            namecolumn.pack_start(lockcell, False)
+            namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
 
         sizecell = gtk.CellRendererText()
         sizecell.set_property('xalign', 1)
@@ -4185,6 +4181,12 @@ def main(options=None):
         # Extend the search path for the optified icon theme (Maemo 5)
         icon_theme = gtk.icon_theme_get_default()
         icon_theme.prepend_search_path('/opt/gpodder-icon-theme/')
+
+        # Add custom icons for the new Maemo 5 look :)
+        for id in ('audio', 'video', 'download', 'audio-locked', 'video-locked'):
+            filename = os.path.join(gpodder.images_folder, '%s.png' % id)
+            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            gtk.icon_theme_add_builtin_icon('gpodder-%s' % id, 40, pixbuf)
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
