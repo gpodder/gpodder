@@ -3729,17 +3729,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.iconify()          
 
     def update_podcasts_tab(self):
-        if len(self.channels):
-            if gpodder.ui.fremantle:
-                self.button_refresh.set_title(_('Check for new episodes'))
-                self.button_refresh.show()
-            else:
-                self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
-        else:
-            if gpodder.ui.fremantle:
-                self.button_refresh.hide()
-            else:
-                self.label2.set_text(_('Podcasts'))
+        if gpodder.ui.fremantle:
+            return
+
+        self.label2.set_text(_('Podcasts'))
+        count = len(self.channels)
+        if count:
+            self.label2.set_text(self.label2.get_text() + ' (%d)' % count)
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
