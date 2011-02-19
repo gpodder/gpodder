@@ -44,7 +44,7 @@ class gPodderPreferences(BuilderWidget):
             ('quiet', _('Do nothing')),
             ('never', _('Show episode list')),
             ('queue', _('Add to download list')),
-#            ('wifi', _('Download when on Wi-Fi')),
+            ('wifi', _('Download when on Wi-Fi')),
             ('always', _('Download immediately')),
     )
 

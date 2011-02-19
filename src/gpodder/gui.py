@@ -129,6 +129,7 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
     from gpodder.gtkui.frmntl.mafw import MafwPlaybackMonitor
     from gpodder.gtkui.frmntl.hints import HINT_STRINGS
+    from gpodder.gtkui.frmntl.network import NetworkManager
 
 from gpodder.gtkui.interface.common import Orientation
 
@@ -204,6 +205,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.main_window, \
                     gpodder.__version__, \
                     self.config.rotation_mode)
+
+            # Initialize the Fremantle network manager
+            self.network_manager = NetworkManager()
 
             if self.config.rotation_mode == FremantleRotation.ALWAYS:
                 util.idle_add(self.on_window_orientation_changed, \
@@ -2632,7 +2636,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.config.auto_download == 'quiet' and not self.config.auto_update_feeds:
                     # New episodes found, but we should do nothing
                     self.show_message(_('New episodes are available.'))
-                elif self.config.auto_download == 'always':
+                elif self.config.auto_download == 'always' or \
+                        (self.config.auto_download == 'wifi' and \
+                         self.network_manager.connection_is_wlan()):
                     count = len(episodes)
                     title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                     self.show_message(title)
