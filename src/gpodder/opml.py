@@ -110,7 +110,10 @@ class Exporter(object):
     FEED_TYPE = 'rss'
 
     def __init__( self, filename):
-        if filename.endswith( '.opml') or filename.endswith( '.xml'):
+        if filename is None:
+            log('OPML Exporter with None filename', sender=self)
+            self.filename = None
+        elif filename.endswith( '.opml') or filename.endswith( '.xml'):
             self.filename = filename
         else:
             self.filename = '%s.opml' % ( filename, )
@@ -148,6 +151,9 @@ class Exporter(object):
         Returns True on success or False when there was an 
         error writing the file.
         """
+        if self.filename is None:
+            return False
+
         doc = xml.dom.minidom.Document()
 
         opml = doc.createElement('opml')

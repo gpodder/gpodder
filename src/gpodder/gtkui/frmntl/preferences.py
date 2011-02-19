@@ -183,6 +183,9 @@ class gPodderPreferences(BuilderWidget):
 
         self.gPodderPreferences.show_all()
 
+    def on_button_export_opml_clicked(self, button):
+        self.on_itemExportChannels_activate(button)
+
     def on_picker_orientation_value_changed(self, *args):
         self._config.rotation_mode = self.touch_selector_orientation.get_active(0)
 

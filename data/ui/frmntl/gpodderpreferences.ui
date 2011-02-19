@@ -217,6 +217,27 @@
                         <signal name="value-changed" handler="on_expiration_value_changed"/>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkLabel" id="placeholder4">
+                        <property name="label"></property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_opml">
+                        <property name="label" translatable="yes">Subscriptions</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="HildonButton" id="button_export_opml">
+                        <property name="title" translatable="yes">Export to OPML file</property>
+                        <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
+                        <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_button_export_opml_clicked"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

@@ -3565,7 +3565,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
-                on_send_full_subscriptions=self.on_send_full_subscriptions)
+                on_send_full_subscriptions=self.on_send_full_subscriptions, \
+                on_itemExportChannels_activate=self.on_itemExportChannels_activate)
 
         # Initial message to relayout window (in case it's opened in portrait mode
         self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
@@ -3765,11 +3766,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, title, widget=self.treeChannels)
             return
 
-        if gpodder.ui.desktop or gpodder.ui.fremantle:
-            # FIXME: Hildonization on Fremantle
+        if gpodder.ui.desktop:
             dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        elif gpodder.ui.fremantle:
+            dlg = gobject.new(hildon.FileChooserDialog, \
+                    action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg.set_title(_('Export to OPML'))
         elif gpodder.ui.diablo:
             dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_SAVE)
         dlg.set_filter(self.get_opml_filter())
@@ -3778,7 +3782,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             filename = dlg.get_filename()
             dlg.destroy()
             exporter = opml.Exporter( filename)
-            if exporter.write(self.channels):
+            if filename is not None and exporter.write(self.channels):
                 count = len(self.channels)
                 title = N_('%(count)d subscription exported', '%(count)d subscriptions exported', count) % {'count':count}
                 self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
