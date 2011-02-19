@@ -38,14 +38,14 @@ class gPodderShownotes(gPodderShownotesBase):
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
         self.textview.set_buffer(self.text_buffer)
 
-        # Work around Maemo bug #4718
-        self.button_visit_website.set_name('HildonButton-finger')
-        self.action_visit_website.connect_proxy(self.button_visit_website)
-
         app_menu = hildon.AppMenu()
         copy_button = gtk.Button(stock=gtk.STOCK_COPY)
         copy_button.connect('clicked', self.on_copy_to_clipboard)
         app_menu.append(copy_button)
+        self.web_button = gtk.Button(_('Visit website'))
+        self.web_button.connect('clicked', \
+            self.on_visit_website_button_clicked)
+        app_menu.append(self.web_button)
         app_menu.show_all()
         self.main_window.set_app_menu(app_menu)
 
@@ -82,7 +82,7 @@ class gPodderShownotes(gPodderShownotesBase):
         vsb.set_value(vsb.get_value() - step)
 
     def on_show_window(self):
-        self.action_visit_website.set_property('visible', \
+        self.web_button.set_property('visible', \
                 self.episode.has_website_link())
 
     def on_display_text(self):
