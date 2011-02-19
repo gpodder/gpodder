@@ -55,7 +55,7 @@ class DownloadStatusModel(gtk.ListStore):
         ICON = lambda x: x
 
         if gpodder.ui.fremantle:
-            self._status_ids[download.DownloadTask.DOWNLOADING] = ICON('email_inbox')
+            self._status_ids[download.DownloadTask.DOWNLOADING] = ICON('gpodder-download')
             self._status_ids[download.DownloadTask.FAILED] = ICON('general_stop')
             self._status_ids[download.DownloadTask.PAUSED] = ICON('camera_video_pause')
             self._status_ids[download.DownloadTask.DONE] = ICON('general_tickmark_checked')

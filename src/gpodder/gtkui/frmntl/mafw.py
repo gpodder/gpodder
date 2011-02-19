@@ -231,7 +231,7 @@ class MafwPlaybackMonitor(object):
                 # XXX: WTF?
                 pass
             self._start_time = time.time()
-            self._player.PlaybackStarted(self._start_position, self._filename)
+            self._player.PlaybackStarted(self._start_position, self._filename.decode('utf-8'))
         else:
             if self._is_playing:
                 try:
@@ -248,7 +248,7 @@ class MafwPlaybackMonitor(object):
                     position = self._start_position + (time.time()-self._start_time)
                 if self._start_position != position:
                     self._player.PlaybackStopped(self._start_position, \
-                            position, self._duration, self._filename)
+                            position, self._duration, self._filename.decode('utf-8'))
                 self._is_playing = False
 
         self._resume_handler.on_state_changed(state)

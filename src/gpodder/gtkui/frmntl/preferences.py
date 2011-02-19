@@ -44,7 +44,7 @@ class gPodderPreferences(BuilderWidget):
             ('quiet', _('Do nothing')),
             ('never', _('Show episode list')),
             ('queue', _('Add to download list')),
-#            ('wifi', _('Download when on Wi-Fi')),
+            ('wifi', _('Download when on Wi-Fi')),
             ('always', _('Download immediately')),
     )
 
@@ -182,6 +182,9 @@ class gPodderPreferences(BuilderWidget):
             self.hscale_expiration.set_value(0)
 
         self.gPodderPreferences.show_all()
+
+    def on_button_export_opml_clicked(self, button):
+        self.on_itemExportChannels_activate(button)
 
     def on_picker_orientation_value_changed(self, *args):
         self._config.rotation_mode = self.touch_selector_orientation.get_active(0)

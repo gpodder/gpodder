@@ -23,26 +23,7 @@
             </child>
           </object>
         </child>
-        <child>
-          <object class="GtkHBox" id="hbox_actions">
-            <property name="visible">True</property>
-            <child>
-              <object class="HildonButton" id="button_visit_website">
-                <property name="visible">True</property>
-                <property name="arrangement">HILDON_BUTTON_ARRANGEMENT_VERTICAL</property>
-                <property name="size">HILDON_SIZE_FINGER_HEIGHT</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-          </packing>
-        </child>
       </object>
     </child>
-  </object>
-  <object class="GtkAction" id="action_visit_website">
-    <property name="label" translatable="yes">Visit website</property>
-    <signal name="activate" handler="on_visit_website_button_clicked"/>
   </object>
 </interface>

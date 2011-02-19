@@ -213,13 +213,19 @@ class gPodderCli(object):
         for podcast in self.client.get_podcasts():
             if url is None and podcast.update_enabled():
                 self._start_action('Updating %s', podcast.title)
-                podcast.update()
-                self._finish_action()
+                try:
+                    podcast.update()
+                    self._finish_action()
+                except Exception, e:
+                    self._finish_action(False)
             elif podcast.url == url:
                 # Don't need to check for update_enabled()
                 self._start_action('Updating %s', podcast.title)
-                podcast.update()
-                self._finish_action()
+                try:
+                    podcast.update()
+                    self._finish_action()
+                except Exception, e:
+                    self._finish_action(False)
 
         return True
 

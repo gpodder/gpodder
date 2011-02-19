@@ -145,6 +145,7 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
     from gpodder.gtkui.frmntl.mafw import MafwPlaybackMonitor
     from gpodder.gtkui.frmntl.hints import HINT_STRINGS
+    from gpodder.gtkui.frmntl.network import NetworkManager
 
 from gpodder.gtkui.interface.common import Orientation
 
@@ -233,6 +234,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.main_window, \
                     gpodder.__version__, \
                     self.config.rotation_mode)
+
+            # Initialize the Fremantle network manager
+            self.network_manager = NetworkManager()
 
             if self.config.rotation_mode == FremantleRotation.ALWAYS:
                 util.idle_add(self.on_window_orientation_changed, \
@@ -587,9 +591,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         URL (e.g. from external D-Bus calls / signals, etc..)
         """
         if uri.startswith('/'):
-            uri = 'file://' + uri
+            uri = 'file://' + urllib.quote(uri)
 
-        prefix = 'file://' + self.config.download_dir
+        prefix = 'file://' + urllib.quote(self.config.download_dir)
 
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
@@ -629,11 +633,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if episode is not None:
             file_type = episode.file_type()
-            # Automatically enable D-Bus played status mode
-            if file_type == 'audio':
-                self.config.audio_played_dbus = True
-            elif file_type == 'video':
-                self.config.video_played_dbus = True
 
             now = time.time()
             if total > 0:
@@ -1060,16 +1059,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             namecolumn.pack_start(timecell, False)
             namecolumn.add_attribute(timecell, 'text', EpisodeListModel.C_TIME)
             namecolumn.add_attribute(timecell, 'visible', EpisodeListModel.C_TIME_VISIBLE)
-
-        lockcell = gtk.CellRendererPixbuf()
-        lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        if gpodder.ui.fremantle:
-            lockcell.set_property('icon-name', 'general_locked')
         else:
+            lockcell = gtk.CellRendererPixbuf()
+            lockcell.set_fixed_size(40, -1)
+            lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
             lockcell.set_property('icon-name', 'emblem-readonly')
-
-        namecolumn.pack_start(lockcell, False)
-        namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
+            namecolumn.pack_start(lockcell, False)
+            namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
 
         sizecell = gtk.CellRendererText()
         sizecell.set_property('xalign', 1)
@@ -1462,10 +1458,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'show_toolbar' and gpodder.ui.desktop:
             self.toolbar.set_property('visible', new_value)
-        elif name == 'videoplayer':
-            self.config.video_played_dbus = False
-        elif name == 'player':
-            self.config.audio_played_dbus = False
         elif name == 'episode_list_descriptions':
             self.update_episode_list_model()
         elif name == 'episode_list_thumbnails':
@@ -2197,12 +2189,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 player = 'default'
 
-            if file_type not in ('audio', 'video') or \
-              (file_type == 'audio' and not self.config.audio_played_dbus) or \
-              (file_type == 'video' and not self.config.video_played_dbus):
-                # Mark episode as played in the database
-                episode.mark(is_played=True)
-                self.mygpo_client.on_playback([episode])
+            # Mark episode as played in the database
+            episode.mark(is_played=True)
+            self.mygpo_client.on_playback([episode])
 
             filename = episode.local_filename(create=False)
             if filename is None or not os.path.exists(filename):
@@ -2864,7 +2853,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.config.auto_download == 'quiet' and not self.config.auto_update_feeds:
                     # New episodes found, but we should do nothing
                     self.show_message(_('New episodes are available.'))
-                elif self.config.auto_download == 'always':
+                elif self.config.auto_download == 'always' or \
+                        (self.config.auto_download == 'wifi' and \
+                         self.network_manager.connection_is_wlan()):
                     count = len(episodes)
                     title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                     self.show_message(title)
@@ -3580,7 +3571,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
-                on_send_full_subscriptions=self.on_send_full_subscriptions)
+                on_send_full_subscriptions=self.on_send_full_subscriptions, \
+                on_itemExportChannels_activate=self.on_itemExportChannels_activate)
 
         # Initial message to relayout window (in case it's opened in portrait mode
         self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
@@ -3780,11 +3772,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, title, widget=self.treeChannels)
             return
 
-        if gpodder.ui.desktop or gpodder.ui.fremantle:
-            # FIXME: Hildonization on Fremantle
+        if gpodder.ui.desktop:
             dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        elif gpodder.ui.fremantle:
+            dlg = gobject.new(hildon.FileChooserDialog, \
+                    action=gtk.FILE_CHOOSER_ACTION_SAVE)
+            dlg.set_title(_('Export to OPML'))
         elif gpodder.ui.diablo:
             dlg = hildon.FileChooserDialog(self.gPodder, gtk.FILE_CHOOSER_ACTION_SAVE)
         dlg.set_filter(self.get_opml_filter())
@@ -3793,7 +3788,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             filename = dlg.get_filename()
             dlg.destroy()
             exporter = opml.Exporter( filename)
-            if exporter.write(self.channels):
+            if filename is not None and exporter.write(self.channels):
                 count = len(self.channels)
                 title = N_('%(count)d subscription exported', '%(count)d subscriptions exported', count) % {'count':count}
                 self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
@@ -4143,17 +4138,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.iconify()          
 
     def update_podcasts_tab(self):
-        if len(self.channels):
-            if gpodder.ui.fremantle:
-                self.button_refresh.set_title(_('Check for new episodes'))
-                self.button_refresh.show()
-            else:
-                self.label2.set_text(_('Podcasts (%d)') % len(self.channels))
-        else:
-            if gpodder.ui.fremantle:
-                self.button_refresh.hide()
-            else:
-                self.label2.set_text(_('Podcasts'))
+        if gpodder.ui.fremantle:
+            return
+
+        self.label2.set_text(_('Podcasts'))
+        count = len(self.channels)
+        if count:
+            self.label2.set_text(self.label2.get_text() + ' (%d)' % count)
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
@@ -4196,6 +4187,12 @@ def main(options=None):
         # Extend the search path for the optified icon theme (Maemo 5)
         icon_theme = gtk.icon_theme_get_default()
         icon_theme.prepend_search_path('/opt/gpodder-icon-theme/')
+
+        # Add custom icons for the new Maemo 5 look :)
+        for id in ('audio', 'video', 'download', 'audio-locked', 'video-locked'):
+            filename = os.path.join(gpodder.images_folder, '%s.png' % id)
+            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            gtk.icon_theme_add_builtin_icon('gpodder-%s' % id, 40, pixbuf)
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
