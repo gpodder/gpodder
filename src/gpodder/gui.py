@@ -587,9 +587,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         URL (e.g. from external D-Bus calls / signals, etc..)
         """
         if uri.startswith('/'):
-            uri = 'file://' + uri
+            uri = 'file://' + urllib.quote(uri)
 
-        prefix = 'file://' + self.config.download_dir
+        prefix = 'file://' + urllib.quote(self.config.download_dir)
 
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
