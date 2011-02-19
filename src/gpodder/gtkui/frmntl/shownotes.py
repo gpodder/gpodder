@@ -19,6 +19,7 @@
 
 import gtk
 import gtk.gdk
+import hildon
 import pango
 
 import gpodder
@@ -40,6 +41,13 @@ class gPodderShownotes(gPodderShownotesBase):
         # Work around Maemo bug #4718
         self.button_visit_website.set_name('HildonButton-finger')
         self.action_visit_website.connect_proxy(self.button_visit_website)
+
+        app_menu = hildon.AppMenu()
+        copy_button = gtk.Button(stock=gtk.STOCK_COPY)
+        copy_button.connect('clicked', self.on_copy_to_clipboard)
+        app_menu.append(copy_button)
+        app_menu.show_all()
+        self.main_window.set_app_menu(app_menu)
 
     def _on_key_press_event(self, widget, event):
         # Override to provide support for all hardware keys
@@ -91,6 +99,13 @@ class gPodderShownotes(gPodderShownotesBase):
         self.text_buffer.insert(self.text_buffer.get_end_iter(), \
                 util.remove_html_tags(description))
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
+
+    def on_copy_to_clipboard(self, button):
+        text = self.text_buffer.get_text(self.text_buffer.get_start_iter(), \
+                self.text_buffer.get_end_iter(), False)
+        clip_clipboard = gtk.Clipboard(selection='CLIPBOARD')
+        clip_clipboard.set_text(text)
+        self.show_message(_('Text copied to clipboard.'))
 
     def on_hide_window(self):
         self.episode = None
