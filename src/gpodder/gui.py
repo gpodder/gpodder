@@ -343,17 +343,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             while gtk.events_pending():
                 gtk.main_iteration(False)
 
-            try:
-                # Try to get the real package version from dpkg
-                p = subprocess.Popen(['dpkg-query', '-W', '-f=${Version}', 'gpodder'], stdout=subprocess.PIPE)
-                version, _stderr = p.communicate()
-                del _stderr
-                del p
-            except:
-                version = gpodder.__version__
-            self.label_footer.set_markup(sub % ('v %s' % version))
-            self.label_footer.hide()
-
             self.episodes_window = gPodderEpisodes(self.main_window, \
                     on_treeview_expose_event=self.on_treeview_expose_event, \
                     show_episode_shownotes=self.show_episode_shownotes, \
