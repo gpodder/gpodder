@@ -103,7 +103,6 @@ if gpodder.ui.desktop:
     from gpodder.gtkui.desktop.shownotes import gPodderShownotes
     from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
-    from gpodder.gtkui.desktop.dependencymanager import gPodderDependencyManager
     from gpodder.gtkui.interface.progress import ProgressIndicator
     try:
         from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
@@ -3268,9 +3267,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Initial message to relayout window (in case it's opened in portrait mode
         self.preferences_dialog.on_window_orientation_changed(self._last_orientation)
-
-    def on_itemDependencies_activate(self, widget):
-        gPodderDependencyManager(self.gPodder)
 
     def on_goto_mygpo(self, widget):
         self.mygpo_client.open_website()

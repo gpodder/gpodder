@@ -61,13 +61,6 @@
           <accelerator key="P" modifiers="GDK_CONTROL_MASK"/>
         </child>
         <child>
-          <object class="GtkAction" id="itemDependencies">
-            <property name="name">itemDependencies</property>
-            <property name="label" translatable="yes">Additional components</property>
-            <signal handler="on_itemDependencies_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="itemClose">
             <property name="stock_id">gtk-close</property>
             <property name="name">itemClose</property>
@@ -361,7 +354,6 @@
           <menuitem action="itemRemoveOldEpisodes"/>
           <separator/>
           <menuitem action="itemPreferences"/>
-          <menuitem action="itemDependencies"/>
           <separator/>
           <menuitem action="itemClose"/>
           <menuitem action="itemQuit"/>

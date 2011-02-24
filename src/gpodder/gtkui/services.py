@@ -37,33 +37,6 @@ import os
 import urlparse
 import threading
 
-class DependencyModel(gtk.ListStore):
-    C_NAME, C_DESCRIPTION, C_AVAILABLE_TEXT, C_AVAILABLE, C_MISSING = range(5)
-
-    def __init__(self, depman):
-        gtk.ListStore.__init__(self, str, str, str, bool, str)
-
-        for feature_name, description, modules, tools in depman.dependencies:
-            modules_available, module_info = depman.modules_available(modules)
-            tools_available, tool_info = depman.tools_available(tools)
-
-            available = modules_available and tools_available
-            if available:
-                available_str = _('Available')
-            else:
-                available_str = _('Missing dependencies')
-
-            missing_str = []
-            for module in modules:
-                if not module_info[module]:
-                    missing_str.append(_('Python module "%s" not installed') % module)
-            for tool in tools:
-                if not tool_info[tool]:
-                    missing_str.append(_('Command "%s" not installed') % tool)
-            missing_str = '\n'.join(missing_str)
-
-            self.append((feature_name, description, available_str, available, missing_str))
-
 
 class CoverDownloader(ObservableService):
     """
