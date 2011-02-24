@@ -45,6 +45,8 @@
     pending [URL]              List new episodes (all or only from URL)
     episodes [URL]             List episodes (all or only from URL)
 
+    importfiles                Check download folders for external files
+
   - Other commands -
 
     youtube [URL]              Resolve the YouTube URL to a download URL
@@ -242,6 +244,20 @@ class gPodderCli(object):
                         count += 1
 
         print count, 'episodes pending.'
+        return True
+
+    def importfiles(self):
+        full_count = 0
+
+        for podcast in self.client.get_podcasts():
+            print 'Checking for files in', podcast.title
+            count = podcast._podcast.import_external_files()
+            if count:
+                print ' => found %d valid file(s)' % count
+            full_count += count
+
+        print '%d downloaded file(s) imported.' % full_count
+        self.client.finish()
         return True
 
     def download(self, url=None):

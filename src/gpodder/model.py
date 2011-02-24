@@ -416,7 +416,7 @@ class PodcastEpisode(PodcastModelObject):
         return current_try
 
     def local_filename(self, create, force_update=False, check_only=False,
-            template=None):
+            template=None, return_wanted_filename=False):
         """Get (and possibly generate) the local saving filename
 
         Pass create=True if you want this function to generate a
@@ -443,6 +443,10 @@ class PodcastEpisode(PodcastModelObject):
         be used as a template for generating the "real" filename.
 
         The generated filename is stored in the database for future access.
+
+        If return_wanted_filename is True, the filename will not be written to
+        the database, but simply returned by this function (for use by the
+        "import external downloads" feature).
         """
         ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
 
@@ -497,6 +501,10 @@ class PodcastEpisode(PodcastModelObject):
 
             # Find a unique filename for this episode
             wanted_filename = self.find_unique_file_name(self.url, fn_template, ext)
+
+            if return_wanted_filename:
+                # return the calculated filename without updating the database
+                return wanted_filename
 
             # We populate the filename field the first time - does the old file still exist?
             if self.download_filename is None and os.path.exists(os.path.join(self.channel.save_dir, urldigest+ext)):
@@ -682,6 +690,83 @@ class PodcastChannel(PodcastModelObject):
 
     feed_fetcher = gPodderFetcher()
 
+    def import_external_files(self):
+        """Check the download folder for externally-downloaded files
+
+        This will try to assign downloaded files with episodes in the
+        database and (failing that) will move downloaded files into
+        the "Unknown" subfolder in the download directory, so that
+        the user knows that gPodder doesn't know to which episode the
+        file belongs (the "Unknown" folder may be used by external
+        tools or future gPodder versions for better import support).
+        """
+        known_files = set(e.local_filename(create=False) \
+                for e in self.get_downloaded_episodes())
+        existing_files = set(filename for filename in \
+                glob.glob(os.path.join(self.save_dir, '*')))
+        external_files = existing_files.difference(known_files, \
+                [os.path.join(self.save_dir, x) \
+                for x in ('folder.jpg', 'Unknown')])
+        if not external_files:
+            return 0
+
+        all_episodes = self.get_all_episodes()
+
+        count = 0
+        for filename in external_files:
+            found = False
+
+            basename = os.path.basename(filename)
+            existing = self.get_episode_by_filename(basename)
+            if existing:
+                log('Importing external download: %s', filename)
+                existing.on_downloaded(filename)
+                count += 1
+                continue
+
+            for episode in all_episodes:
+                wanted_filename = episode.local_filename(create=True, \
+                        return_wanted_filename=True)
+                if basename == wanted_filename:
+                    log('Importing external download: %s', filename)
+                    episode.download_filename = basename
+                    episode.on_downloaded(filename)
+                    count += 1
+                    found = True
+                    break
+
+                wanted_base, wanted_ext = os.path.splitext(wanted_filename)
+                target_base, target_ext = os.path.splitext(basename)
+                if wanted_base == target_base:
+                    # Filenames only differ by the extension
+                    wanted_type = util.file_type_by_extension(wanted_ext)
+                    target_type = util.file_type_by_extension(target_ext)
+
+                    # If wanted type is None, assume that we don't know
+                    # the right extension before the download (e.g. YouTube)
+                    # if the wanted type is the same as the target type,
+                    # assume that it's the correct file
+                    if wanted_type is None or wanted_type == target_type:
+                        log('Importing external download: %s', filename)
+                        episode.download_filename = basename
+                        episode.on_downloaded(filename)
+                        found = True
+                        count += 1
+                        break
+
+            if not found:
+                log('Unknown external file: %s', filename)
+                target_dir = os.path.join(self.save_dir, 'Unknown')
+                if util.make_directory(target_dir):
+                    target_file = os.path.join(target_dir, basename)
+                    log('Moving %s => %s', filename, target_file)
+                    try:
+                        shutil.move(filename, target_file)
+                    except Exception, e:
+                        log('Could not move file: %s', e, sender=self)
+
+        return count
+
     @classmethod
     def load_from_db(cls, db):
         return db.load_podcasts(factory=cls.create_from_dict)
@@ -704,6 +789,10 @@ class PodcastChannel(PodcastModelObject):
                 tmp.auth_password = authentication_tokens[1]
 
             tmp.update(max_episodes, mimetype_prefs)
+
+            # Mark episodes as downloaded if files already exist (bug 902)
+            tmp.import_external_files()
+
             tmp.save()
             return tmp
 

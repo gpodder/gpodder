@@ -407,6 +407,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Subscribed channels
         self.active_channel = None
         self.channels = Model.get_podcasts(self.db)
+
+        # Check if the user has downloaded any podcast with an external program
+        # and mark episodes as downloaded / move them away (bug 902)
+        for podcast in self.channels:
+            podcast.import_external_files()
+
         self.channel_list_changed = True
         self.update_podcasts_tab()
 
