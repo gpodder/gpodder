@@ -22,8 +22,8 @@ import gtk.gdk
 import gobject
 import pango
 import os
+import cgi
 
-from xml.sax import saxutils
 
 import gpodder
 
@@ -131,8 +131,8 @@ class gPodderShownotes(gPodderShownotesBase):
                 description = description.replace('\n', '<br>')
 
             args = (
-                    saxutils.escape(heading),
-                    saxutils.escape(subheading),
+                    cgi.escape(heading),
+                    cgi.escape(subheading),
                     description,
             )
             url = os.path.dirname(self.episode.channel.url)

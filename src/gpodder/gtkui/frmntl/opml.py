@@ -25,7 +25,7 @@
 
 import gtk
 
-import xml.sax.saxutils
+import cgi
 import urllib
 
 from gpodder.gtkui.frmntl import style
@@ -51,7 +51,7 @@ class OpmlListModel(gtk.ListStore):
             self.append([False, self._format_channel(channel), channel['url']])
 
     def _format_channel(self, channel):
-        title = xml.sax.saxutils.escape(urllib.unquote_plus(channel['title']))
-        description = xml.sax.saxutils.escape(channel['description'])
+        title = cgi.escape(urllib.unquote_plus(channel['title']))
+        description = cgi.escape(channel['description'])
         return self._markup_template % (title, description)
 

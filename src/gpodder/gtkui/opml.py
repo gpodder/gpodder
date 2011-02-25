@@ -25,7 +25,7 @@
 
 import gtk
 
-import xml.sax.saxutils
+import cgi
 import urllib
 
 class OpmlListModel(gtk.ListStore):
@@ -37,7 +37,7 @@ class OpmlListModel(gtk.ListStore):
             self.append([False, self._format_channel(channel), channel['url']])
 
     def _format_channel(self, channel):
-        title = xml.sax.saxutils.escape(urllib.unquote_plus(channel['title']))
-        description = xml.sax.saxutils.escape(channel['description'])
+        title = cgi.escape(urllib.unquote_plus(channel['title']))
+        description = cgi.escape(channel['description'])
         return '<b>%s</b>\n<span size="small">%s</span>' % (title, description)
 

@@ -28,7 +28,7 @@ import gtk
 import gobject
 import pango
 
-from xml.sax import saxutils
+import cgi
 
 class SimpleMessageArea(gtk.HBox):
     """A simple, yellow message area. Inspired by gedit.
@@ -47,7 +47,7 @@ class SimpleMessageArea(gtk.HBox):
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
         self.__label.set_ellipsize(pango.ELLIPSIZE_END)
-        self.__label.set_markup('<b>%s</b>' % saxutils.escape(message))
+        self.__label.set_markup('<b>%s</b>' % cgi.escape(message))
         self.pack_start(self.__label, expand=True, fill=True)
 
         hbox = gtk.HBox()
@@ -105,9 +105,9 @@ class NotificationWindow(gtk.Window):
         message_area.pack_start(arrow, False)
         message_area.reorder_child(arrow, 0)
         if title is not None:
-            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (saxutils.escape(title), saxutils.escape(message)))
+            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (cgi.escape(title), cgi.escape(message)))
         else:
-            message_area.set_markup(saxutils.escape(message))
+            message_area.set_markup(cgi.escape(message))
         self.add(message_area)
         self.set_gravity(gtk.gdk.GRAVITY_NORTH_WEST)
         self.show_all()

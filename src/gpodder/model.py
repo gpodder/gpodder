@@ -39,7 +39,7 @@ import datetime
 import rfc822
 import hashlib
 import feedparser
-import xml.sax.saxutils
+import cgi
 
 _ = gpodder.gettext
 
@@ -335,8 +335,8 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def title_markup(self):
-        return '%s\n<small>%s</small>' % (xml.sax.saxutils.escape(self.title),
-                          xml.sax.saxutils.escape(self.channel.title))
+        return '%s\n<small>%s</small>' % (cgi.escape(self.title),
+                          cgi.escape(self.channel.title))
 
     @property
     def markup_new_episodes(self):
@@ -346,10 +346,10 @@ class PodcastEpisode(PodcastModelObject):
             length_str = ''
         return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
                 '; '+_('from %s')+'</small>') % (\
-                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.title)), \
-                xml.sax.saxutils.escape(length_str), \
-                xml.sax.saxutils.escape(self.pubdate_prop), \
-                xml.sax.saxutils.escape(re.sub('\s+', ' ', self.channel.title)))
+                cgi.escape(re.sub('\s+', ' ', self.title)), \
+                cgi.escape(length_str), \
+                cgi.escape(self.pubdate_prop), \
+                cgi.escape(re.sub('\s+', ' ', self.channel.title)))
 
     @property
     def markup_delete_episodes(self):
@@ -364,11 +364,11 @@ class PodcastEpisode(PodcastModelObject):
             downloaded_string = _('today')
         return ('<b>%s</b>\n<small>%s; %s; '+_('downloaded %s')+ \
                 '; '+_('from %s')+'</small>') % (\
-                xml.sax.saxutils.escape(self.title), \
-                xml.sax.saxutils.escape(util.format_filesize(self.file_size)), \
-                xml.sax.saxutils.escape(played_string), \
-                xml.sax.saxutils.escape(downloaded_string), \
-                xml.sax.saxutils.escape(self.channel.title))
+                cgi.escape(self.title), \
+                cgi.escape(util.format_filesize(self.file_size)), \
+                cgi.escape(played_string), \
+                cgi.escape(downloaded_string), \
+                cgi.escape(self.channel.title))
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False, \

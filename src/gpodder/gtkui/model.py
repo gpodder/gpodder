@@ -36,7 +36,7 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
-import xml.sax.saxutils
+import cgi
 
 try:
     import gio
@@ -176,13 +176,13 @@ class EpisodeListModel(gtk.ListStore):
         if episode.state != gpodder.STATE_DELETED and not episode.is_played:
             a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
-                    _('from %s') % xml.sax.saxutils.escape(episode.channel.title))
+            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(episode.title), b,
+                    _('from %s') % cgi.escape(episode.channel.title))
         elif include_description:
-            return '%s%s%s\n<small>%s</small>' % (a, xml.sax.saxutils.escape(episode.title), b,
-                    xml.sax.saxutils.escape(episode.one_line_description()))
+            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(episode.title), b,
+                    cgi.escape(episode.one_line_description()))
         else:
-            return ''.join((a, xml.sax.saxutils.escape(episode.title), b))
+            return ''.join((a, cgi.escape(episode.title), b))
 
     def replace_from_channel(self, channel, downloading=None, \
             include_description=False, \
@@ -560,11 +560,11 @@ class PodcastListModel(gtk.ListStore):
 
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
-        title_markup = xml.sax.saxutils.escape(channel.title)
+        title_markup = cgi.escape(channel.title)
         if not channel.pause_subscription:
-            description_markup = xml.sax.saxutils.escape(util.get_first_line(channel.description) or ' ')
+            description_markup = cgi.escape(util.get_first_line(channel.description) or ' ')
         else:
-            description_markup = xml.sax.saxutils.escape(_('Subscription paused'))
+            description_markup = cgi.escape(_('Subscription paused'))
         d = []
         if new:
             d.append('<span weight="bold">')

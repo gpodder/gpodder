@@ -19,7 +19,7 @@
 
 import gtk
 import pango
-from xml.sax import saxutils
+import cgi
 
 import gpodder
 
@@ -133,7 +133,7 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if hasattr( self, 'title'):
             self.gPodderEpisodeSelector.set_title( self.title)
-            self.labelHeading.set_markup( '<b><big>%s</big></b>' % saxutils.escape( self.title))
+            self.labelHeading.set_markup('<b><big>%s</big></b>' % cgi.escape(self.title))
 
         if hasattr( self, 'instructions'):
             self.labelInstructions.set_text( self.instructions)

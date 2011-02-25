@@ -33,8 +33,8 @@ import tempfile
 import collections
 import threading
 import urllib
+import cgi
 
-from xml.sax import saxutils
 
 import gpodder
 
@@ -1426,7 +1426,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     return False
                 error_str = model.get_value(iter, PodcastListModel.C_ERROR)
                 if error_str:
-                    error_str = _('Feedparser error: %s') % saxutils.escape(error_str.strip())
+                    error_str = _('Feedparser error: %s') % cgi.escape(error_str.strip())
                     error_str = '<span foreground="#ff0000">%s</span>' % error_str
                 table = gtk.Table(rows=3, columns=3)
                 table.set_row_spacings(5)
@@ -1435,7 +1435,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 heading = gtk.Label()
                 heading.set_alignment(0, 1)
-                heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (saxutils.escape(channel.title), saxutils.escape(channel.url)))
+                heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (cgi.escape(channel.title), cgi.escape(channel.url)))
                 table.attach(heading, 0, 1, 0, 1)
 
                 table.attach(gtk.HSeparator(), 0, 3, 1, 2)
@@ -1563,7 +1563,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if len(title) > MAX_TITLE_LENGTH:
                 middle = (MAX_TITLE_LENGTH/2)-2
                 title = '%s...%s' % (title[0:middle], title[-middle:])
-            result.append(saxutils.escape(title))
+            result.append(cgi.escape(title))
             result.append('\n')
 
         more_episodes = len(episode_list) - max_episodes
@@ -2402,7 +2402,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if existing:
                 title = _('Existing subscriptions skipped')
                 message = _('You are already subscribed to these podcasts:') \
-                     + '\n\n' + '\n'.join(saxutils.escape(url) for url in existing)
+                     + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
                 self.show_message(message, title, widget=self.treeChannels)
 
             # Report subscriptions that require authentication
@@ -2410,7 +2410,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 retry_podcasts = {}
                 for url in authreq:
                     title = _('Podcast requires authentication')
-                    message = _('Please login to %s:') % (saxutils.escape(url),)
+                    message = _('Please login to %s:') % (cgi.escape(url),)
                     success, auth_tokens = self.show_login_dialog(title, message)
                     if success:
                         retry_podcasts[url] = auth_tokens
@@ -2441,7 +2441,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if failed:
                 title = _('Could not add some podcasts')
                 message = _('Some podcasts could not be added to your list:') \
-                     + '\n\n' + '\n'.join(saxutils.escape('%s: %s' % (url, \
+                     + '\n\n' + '\n'.join(cgi.escape('%s: %s' % (url, \
                         error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
@@ -2720,7 +2720,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             mimetype_prefs=self.config.mimetype_prefs)
                     self._update_cover(channel)
                 except Exception, e:
-                    d = {'url': saxutils.escape(channel.url), 'message': saxutils.escape(str(e))}
+                    d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
                     if d['message']:
                         message = _('Error while updating %(url)s: %(message)s')
                     else:

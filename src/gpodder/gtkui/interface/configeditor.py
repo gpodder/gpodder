@@ -18,8 +18,7 @@
 #
 
 import gtk
-
-from xml.sax import saxutils
+import cgi
 
 import gpodder
 
@@ -80,9 +79,9 @@ class gPodderConfigEditor(BuilderWidget):
 
         if not self._config.update_field(name, new_text):
             message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
-            d = {'field': saxutils.escape(name),
-                 'value': saxutils.escape(new_text),
-                 'datatype': saxutils.escape(type_cute)}
+            d = {'field': cgi.escape(name),
+                 'value': cgi.escape(new_text),
+                 'datatype': cgi.escape(type_cute)}
             self.notification(message % d, _('Error setting option'))
 
     def value_toggled(self, renderer, path):
