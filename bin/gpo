@@ -374,13 +374,19 @@ class gPodderCli(object):
             try:
                 line = raw_input('gpo> ')
             except EOFError:
-                print '' # add newline to output
+                print ''
                 break
+            except KeyboardInterrupt:
+                print ''
+                continue
 
             if line in ('quit', 'exit', 'bye'):
                 break
-            else:
+
+            try:
                 self._parse(shlex.split(line))
+            except KeyboardInterrupt:
+                self._error('Keyboard interrupt.')
 
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
