@@ -315,7 +315,9 @@ class gPodderCli(object):
         sys.stderr.write(stylize(__doc__))
         return True
 
-    def shell(self):
+    # -------------------------------------------------------------------
+
+    def _shell(self):
         print '\n'.join(x.strip() for x in ("""
         gPodder %(__version__)s (%(__url__)s)
         %(__copyright__)s
@@ -324,6 +326,10 @@ class gPodderCli(object):
         Entering interactive shell. Enter 'help' for help.
         Press Ctrl+D (EOF) or enter 'quit' to quit.
         """ % gpodder.__dict__).splitlines())
+
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer(self._tab_completion)
+
         while True:
             try:
                 line = raw_input('gpo> ')
@@ -335,12 +341,6 @@ class gPodderCli(object):
                 break
             else:
                 self._parse(line.split())
-
-    def gpo(self, *args):
-        self._info('Dropping leading "gpo" from command.')
-        return self._parse(list(args))
-
-    # -------------------------------------------------------------------
 
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
@@ -360,6 +360,18 @@ class gPodderCli(object):
             return False
 
         return func(*command_line)
+
+    def _tab_completion(self, text, count):
+        """Tab completion function for readline"""
+        for name, func in inspect.getmembers(self):
+            if inspect.ismethod(func) and name.startswith(text) and \
+                    not name.startswith('_'):
+                if count == 0:
+                    return name
+                else:
+                    count -= 1
+
+        return None
 
 
     def _parse(self, command_line):
@@ -393,6 +405,6 @@ if __name__ == '__main__':
     if args:
         cli._parse(args) or sys.stderr.write(stylize(__doc__))
     else:
-        cli.shell()
+        cli._shell()
 
 
