@@ -219,15 +219,18 @@ class gPodderCli(object):
 
     @FirstArgumentIsPodcastURL
     def episodes(self, url=None):
+        output = []
         for podcast in self.client.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
                 episodes = self._episodesList(podcast)
                 episodes = '\n      '.join(episodes)
-                print >>sys.stdout, """
+                output.append("""
     Episodes from %s:
       %s
-""" % (podcast.url, episodes)
+""" % (podcast.url, episodes))
+
+        self._pager('\n'.join(output))
         return True
 
     def list(self):
