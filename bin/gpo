@@ -471,7 +471,8 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args:
         cli._parse(args) or sys.stderr.write(stylize(__doc__))
-    else:
+    elif sys.stdout.isatty():
         cli._shell()
-
+    else:
+        sys.stdout.write(__doc__)
 
