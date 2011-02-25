@@ -188,7 +188,9 @@ class PodcastClient(object):
         the podcast has not been subscribed to.
         """
         url = util.normalize_feed_url(url)
-        channel = Model.load_podcast(self._db, url, create=False)
+        if url is None:
+            return None
+        channel = model.Model.load_podcast(self._db, url, create=False)
         if channel is None:
             return None
         else:
@@ -202,7 +204,7 @@ class PodcastClient(object):
         the resulting object.
         """
         url = util.normalize_feed_url(url)
-        podcast = Model.load_podcast(self._db, url, create=True, \
+        podcast = model.Model.load_podcast(self._db, url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
                 mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:

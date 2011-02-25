@@ -57,6 +57,7 @@ import sys
 import os
 import re
 import inspect
+import readline
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -91,6 +92,9 @@ def inblue(x):
 
 class gPodderCli(object):
     COLUMNS = 80
+    ALIASES = {
+        '?': 'help',
+    }
 
     def __init__(self):
         self.client = api.PodcastClient()
@@ -307,6 +311,35 @@ class gPodderCli(object):
         print yurl
         return True
 
+    def help(self):
+        sys.stderr.write(stylize(__doc__))
+        return True
+
+    def shell(self):
+        print '\n'.join(x.strip() for x in ("""
+        gPodder %(__version__)s (%(__url__)s)
+        %(__copyright__)s
+        License: %(__licence__)s
+
+        Entering interactive shell. Enter 'help' for help.
+        Press Ctrl+D (EOF) or enter 'quit' to quit.
+        """ % gpodder.__dict__).splitlines())
+        while True:
+            try:
+                line = raw_input('gpo> ')
+            except EOFError:
+                print '' # add newline to output
+                break
+
+            if line in ('quit', 'exit', 'bye'):
+                break
+            else:
+                self._parse(line.split())
+
+    def gpo(self, *args):
+        self._info('Dropping leading "gpo" from command.')
+        return self._parse(list(args))
+
     # -------------------------------------------------------------------
 
     def _error(self, *args):
@@ -321,7 +354,8 @@ class gPodderCli(object):
         defaults = defaults or ()
         minarg, maxarg = len(args)-len(defaults), len(args)
 
-        if len(command_line) < minarg or len(command_line) > maxarg:
+        if len(command_line) < minarg or (len(command_line) > maxarg and \
+                varargs is None):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
 
@@ -336,6 +370,9 @@ class gPodderCli(object):
         if command.startswith('_'):
             self._error(_('This command is not available.'))
             return False
+
+        # Resolve command aliases
+        command = self.ALIASES.get(command, command)
 
         for name, func in inspect.getmembers(self):
             if inspect.ismethod(func) and name == command:
@@ -352,6 +389,10 @@ def stylize(s):
 
 if __name__ == '__main__':
     cli = gPodderCli()
-    cli._parse(sys.argv[1:]) or sys.stderr.write(stylize(__doc__))
+    args = sys.argv[1:]
+    if args:
+        cli._parse(args) or sys.stderr.write(stylize(__doc__))
+    else:
+        cli.shell()
 
 
