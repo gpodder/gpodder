@@ -703,7 +703,8 @@ class PodcastChannel(PodcastModelObject):
         known_files = set(e.local_filename(create=False) \
                 for e in self.get_downloaded_episodes())
         existing_files = set(filename for filename in \
-                glob.glob(os.path.join(self.save_dir, '*')))
+                glob.glob(os.path.join(self.save_dir, '*')) \
+                if not filename.endswith('.partial'))
         external_files = existing_files.difference(known_files, \
                 [os.path.join(self.save_dir, x) \
                 for x in ('folder.jpg', 'Unknown')])
