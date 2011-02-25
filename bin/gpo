@@ -59,6 +59,11 @@ import re
 import inspect
 import readline
 import shlex
+import pydoc
+
+import termios
+import fcntl
+import struct
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -95,6 +100,13 @@ def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
     setattr(function, '_first_arg_is_podcast', True)
     return function
+
+def get_terminal_size():
+    s = struct.pack('HHHH', 0, 0, 0, 0)
+    stdout = sys.stdout.fileno()
+    x = fcntl.ioctl(stdout, termios.TIOCGWINSZ, s)
+    rows, cols, xp, yp = struct.unpack('HHHH', x)
+    return rows, cols
 
 class gPodderCli(object):
     COLUMNS = 80
@@ -194,14 +206,14 @@ class gPodderCli(object):
             title, url, status = podcast.title, podcast.url, podcast.feed_update_status_msg()
             episodes = self._episodesList(podcast)
             episodes = '\n      '.join(episodes)
-            print >>sys.stdout, """
+            self._pager("""
     Title: %(title)s
     URL: %(url)s
     Feed update is %(status)s
 
     Episodes:
       %(episodes)s
-""" % locals()
+            """ % locals())
 
         return True
 
@@ -331,6 +343,18 @@ class gPodderCli(object):
         return True
 
     # -------------------------------------------------------------------
+
+    def _pager(self, output):
+        if sys.stdout.isatty():
+            # Need two additional rows for command prompt
+            rows_needed = len(output.splitlines()) + 2
+            rows, cols = get_terminal_size()
+            if rows_needed < rows:
+                print output
+            else:
+                pydoc.pager(output)
+        else:
+            print output
 
     def _shell(self):
         print '\n'.join(x.strip() for x in ("""
