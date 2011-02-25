@@ -333,43 +333,6 @@ class PodcastEpisode(PodcastModelObject):
             self.is_locked = is_locked
         self.db.update_episode_state(self)
 
-    @property
-    def title_markup(self):
-        return '%s\n<small>%s</small>' % (cgi.escape(self.title),
-                          cgi.escape(self.channel.title))
-
-    @property
-    def markup_new_episodes(self):
-        if self.file_size > 0:
-            length_str = '%s; ' % util.format_filesize(self.file_size)
-        else:
-            length_str = ''
-        return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
-                '; '+_('from %s')+'</small>') % (\
-                cgi.escape(re.sub('\s+', ' ', self.title)), \
-                cgi.escape(length_str), \
-                cgi.escape(self.pubdate_prop), \
-                cgi.escape(re.sub('\s+', ' ', self.channel.title)))
-
-    @property
-    def markup_delete_episodes(self):
-        if self.total_time and self.current_position:
-            played_string = self.get_play_info_string()
-        elif not self.is_new:
-            played_string = _('played')
-        else:
-            played_string = _('unplayed')
-        downloaded_string = self.get_age_string()
-        if not downloaded_string:
-            downloaded_string = _('today')
-        return ('<b>%s</b>\n<small>%s; %s; '+_('downloaded %s')+ \
-                '; '+_('from %s')+'</small>') % (\
-                cgi.escape(self.title), \
-                cgi.escape(util.format_filesize(self.file_size)), \
-                cgi.escape(played_string), \
-                cgi.escape(downloaded_string), \
-                cgi.escape(self.channel.title))
-
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False, \
                 check_only=True))

@@ -79,8 +79,7 @@ from gpodder.liblogger import log
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-from gpodder.model import Model
-
+from gpodder.gtkui.model import Model
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
 from gpodder.gtkui.config import UIConfig
