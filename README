@@ -24,13 +24,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- ========
- WIP: QML
- ========
-
-   * PySide
-   * libdeclarative-multimedia
-
  ============
  Dependencies
  ============
@@ -44,6 +37,15 @@
  If your Python installation does not come with "sqlite3" support,
  you can either re-compile Python with support for sqlite3 or use
  the "pysqlite" package from http://code.google.com/p/pysqlite/
+
+ Dependencies for the QML UI:
+
+   * Qt (>= 4.7.0)
+   * PySide (>= 1.0.0~rc1)
+   * Qt Mobility >= 1.1 Declarative Components
+     (qtm-declarative from the FN PPA; use ppa:forumnokia/fn-ppa)
+   * Phonon GStreamer backend (Xine backend has problems)
+     (on Debian/Ubuntu, use phonon-backend-gstreamer)
 
  Additional dependencies if you want Bluetooth file send support:
 
