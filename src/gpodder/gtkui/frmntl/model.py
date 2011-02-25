@@ -112,7 +112,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
             elif episode.state == gpodder.STATE_NORMAL and \
                     not episode.is_played and \
                     not downloading(episode):
-                return self.ICON_NEW
+                return None # self.ICON_NEW
             elif episode.state == gpodder.STATE_DOWNLOADED:
                 filename = episode.local_filename(create=False, \
                         check_only=True)
@@ -120,8 +120,12 @@ class EpisodeListModel(gtk.GenericTreeModel):
                 file_type = episode.file_type()
                 if file_type == 'audio':
                     status_icon = self.ICON_AUDIO_FILE
+                    if episode.is_locked:
+                        status_icon += '-locked'
                 elif file_type == 'video':
                     status_icon = self.ICON_VIDEO_FILE
+                    if episode.is_locked:
+                        status_icon += '-locked'
                 elif file_type == 'image':
                     status_icon = self.ICON_IMAGE_FILE
                 else:
@@ -221,11 +225,11 @@ class EpisodeListModel(gtk.GenericTreeModel):
         # "ICON" is used to mark icon names in source files
         ICON = lambda x: x
 
-        self.ICON_AUDIO_FILE = ICON('general_audio_file')
-        self.ICON_VIDEO_FILE = ICON('general_video_file')
+        self.ICON_AUDIO_FILE = ICON('gpodder-audio')
+        self.ICON_VIDEO_FILE = ICON('gpodder-video')
         self.ICON_IMAGE_FILE = ICON('general_image')
         self.ICON_GENERIC_FILE = ICON('filemanager_unknown_file')
-        self.ICON_DOWNLOADING = ICON('email_inbox')
+        self.ICON_DOWNLOADING = ICON('gpodder-download')
         self.ICON_DELETED = ICON('camera_delete')
         self.ICON_UNPLAYED = ICON('emblem-new')
         self.ICON_LOCKED = ICON('emblem-readonly')
@@ -340,23 +344,26 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
 
     def _format_description(self, episode):
+        filesize = self._format_filesize(episode)
         if self._downloading(episode):
             sub = _('in downloads list')
+            sub = '; '.join((sub, episode.cute_pubdate()))
+            if filesize:
+                sub = '; '.join((sub, filesize))
             if self._all_episodes_view:
                 sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
             return self._unplayed_markup % (cgi.escape(episode.title), sub)
         elif episode.is_played:
+            sub = episode.cute_pubdate()
+            if filesize:
+                sub = '; '.join((sub, filesize))
             if self._all_episodes_view:
-                sub = _('from %s') % cgi.escape(episode.channel.title,)
-                return self._unplayed_markup % (cgi.escape(episode.title), sub)
-            else:
-                return self._normal_markup % (cgi.escape(episode.title),)
+                sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
+            return self._unplayed_markup % (cgi.escape(episode.title), sub)
         else:
-            if episode.was_downloaded(and_exists=True):
-                sub = _('unplayed download')
-            else:
-                sub = _('new episode')
-
+            sub = episode.cute_pubdate()
+            if filesize:
+                sub = '; '.join((sub, filesize))
             if self._all_episodes_view:
                 sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
 
