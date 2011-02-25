@@ -358,12 +358,12 @@ class gPodderCli(object):
 
     def _shell(self):
         print '\n'.join(x.strip() for x in ("""
-        gPodder %(__version__)s (%(__url__)s)
+        gPodder %(__version__)s (%(__date__)s) - %(__url__)s
         %(__copyright__)s
         License: %(__licence__)s
 
-        Entering interactive shell. Enter 'help' for help.
-        Press Ctrl+D (EOF) or enter 'quit' to quit.
+        Entering interactive shell. Type 'help' for help.
+        Press Ctrl+D (EOF) or type 'quit' to quit.
         """ % gpodder.__dict__).splitlines())
 
         readline.parse_and_bind('tab: complete')
