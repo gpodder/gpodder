@@ -3449,7 +3449,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg = gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
-        elif gpodder.ui.maemo:
+        elif gpodder.ui.fremantle:
             dlg = gobject.new(hildon.FileChooserDialog, \
                     action=gtk.FILE_CHOOSER_ACTION_SAVE)
             dlg.set_title(_('Export to OPML'))
@@ -3776,7 +3776,7 @@ def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
 
-    if gpodder.ui.maemo:
+    if gpodder.ui.fremantle:
         # Add custom icons for the new Maemo 5 look :)
         for id in ('audio', 'video', 'download', 'audio-locked', 'video-locked'):
             filename = os.path.join(gpodder.images_folder, '%s.png' % id)
