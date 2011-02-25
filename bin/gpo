@@ -58,6 +58,7 @@ import os
 import re
 import inspect
 import readline
+import shlex
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -89,6 +90,11 @@ def ingreen(x):
 
 def inblue(x):
     return '\033[94m' + x + '\033[0m'
+
+def FirstArgumentIsPodcastURL(function):
+    """Decorator for functions that take a podcast URL as first arg"""
+    setattr(function, '_first_arg_is_podcast', True)
+    return function
 
 class gPodderCli(object):
     COLUMNS = 80
@@ -137,6 +143,7 @@ class gPodderCli(object):
         self._info(_('Successfully added %s.' % url))
         return True
 
+    @FirstArgumentIsPodcastURL
     def rename(self, url, title):
         podcast = self.client.get_podcast(url)
 
@@ -150,6 +157,7 @@ class gPodderCli(object):
 
         return True
 
+    @FirstArgumentIsPodcastURL
     def unsubscribe(self, url):
         podcast = self.client.get_podcast(url)
 
@@ -176,6 +184,7 @@ class gPodderCli(object):
         episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
 	return episodes
 
+    @FirstArgumentIsPodcastURL
     def info(self, url):
         podcast = self.client.get_podcast(url)
 
@@ -196,6 +205,7 @@ class gPodderCli(object):
 
         return True
 
+    @FirstArgumentIsPodcastURL
     def episodes(self, url=None):
         for podcast in self.client.get_podcasts():
             podcast_printed = False
@@ -214,6 +224,7 @@ class gPodderCli(object):
 
         return True
 
+    @FirstArgumentIsPodcastURL
     def update(self, url=None):
         for podcast in self.client.get_podcasts():
             if url is None and podcast.update_enabled():
@@ -234,6 +245,7 @@ class gPodderCli(object):
 
         return True
 
+    @FirstArgumentIsPodcastURL
     def pending(self, url=None):
         count = 0
         for podcast in self.client.get_podcasts():
@@ -264,6 +276,7 @@ class gPodderCli(object):
         self.client.finish()
         return True
 
+    @FirstArgumentIsPodcastURL
     def download(self, url=None):
         count = 0
         for podcast in self.client.get_podcasts():
@@ -282,6 +295,7 @@ class gPodderCli(object):
         print count, 'episodes downloaded.'
         return True
 
+    @FirstArgumentIsPodcastURL
     def disable(self, url):
         podcast = self.client.get_podcast(url)
 
@@ -294,6 +308,7 @@ class gPodderCli(object):
 
         return True
 
+    @FirstArgumentIsPodcastURL
     def enable(self, url):
         podcast = self.client.get_podcast(url)
 
@@ -329,6 +344,7 @@ class gPodderCli(object):
 
         readline.parse_and_bind('tab: complete')
         readline.set_completer(self._tab_completion)
+        readline.set_completer_delims(' ')
 
         while True:
             try:
@@ -340,7 +356,7 @@ class gPodderCli(object):
             if line in ('quit', 'exit', 'bye'):
                 break
             else:
-                self._parse(line.split())
+                self._parse(shlex.split(line))
 
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
@@ -361,15 +377,36 @@ class gPodderCli(object):
 
         return func(*command_line)
 
+    def _tab_completion_podcast(self, text, count):
+        """Tab completion for podcast URLs"""
+        urls = [p.url for p in self.client.get_podcasts() if text in p.url]
+        if count < len(urls):
+            return urls[count]
+
+        return NOne
+
+
     def _tab_completion(self, text, count):
         """Tab completion function for readline"""
-        for name, func in inspect.getmembers(self):
-            if inspect.ismethod(func) and name.startswith(text) and \
-                    not name.startswith('_'):
-                if count == 0:
-                    return name
-                else:
-                    count -= 1
+        current_line = readline.get_line_buffer()
+        if text == current_line:
+            for name, func in inspect.getmembers(self):
+                if inspect.ismethod(func) and \
+                        name.startswith(text) and \
+                        not name.startswith('_'):
+                    if count == 0:
+                        return name
+                    else:
+                        count -= 1
+        else:
+            args = current_line.split()
+            command = args.pop(0)
+            command_function = getattr(self, command, None)
+            if not command_function:
+                return None
+            if getattr(command_function, '_first_arg_is_podcast', False):
+                if not args or (len(args) == 1 and not current_line.endswith(' ')):
+                    return self._tab_completion_podcast(text, count)
 
         return None
 
