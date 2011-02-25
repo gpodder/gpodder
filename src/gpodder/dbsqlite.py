@@ -453,12 +453,12 @@ class Database(object):
         """
         return self.get("SELECT id FROM %s WHERE download_folder = ?" % self.TABLE_PODCAST, (foldername,)) is not None
 
-    def episode_filename_exists(self, filename):
+    def episode_filename_exists(self, podcast_id, filename):
         """
         Returns True if a filename for an episode exists.
         False otherwise.
         """
-        return self.get("SELECT id FROM %s WHERE download_filename = ?" % self.TABLE_EPISODE, (filename,)) is not None
+        return self.get("SELECT id FROM %s WHERE podcast_id = ? AND download_filename = ?" % self.TABLE_EPISODE, (podcast_id, filename,)) is not None
 
     def get_last_published(self, podcast):
         """

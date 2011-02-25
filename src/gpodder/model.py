@@ -39,7 +39,6 @@ import datetime
 import rfc822
 import hashlib
 import feedparser
-import cgi
 
 _ = gpodder.gettext
 
@@ -363,16 +362,15 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def find_unique_file_name(self, url, filename, extension):
+    def find_unique_file_name(self, filename, extension):
         current_try = util.sanitize_filename(filename, self.MAX_FILENAME_LENGTH)+extension
         next_try_id = 2
-        lookup_url = None
 
         if self.download_filename == current_try and current_try is not None:
             # We already have this filename - good!
             return current_try
 
-        while self.db.episode_filename_exists(current_try):
+        while self.db.episode_filename_exists(self.podcast_id, current_try):
             current_try = '%s (%d)%s' % (filename, next_try_id, extension)
             next_try_id += 1
 
@@ -411,31 +409,18 @@ class PodcastEpisode(PodcastModelObject):
         the database, but simply returned by this function (for use by the
         "import external downloads" feature).
         """
-        ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
-
-        # For compatibility with already-downloaded episodes, we
-        # have to know md5 filenames if they are downloaded already
-        urldigest = hashlib.md5(self.url).hexdigest()
-
-        if not create and self.download_filename is None:
+        if self.download_filename is None and (check_only or not create):
             return None
 
-        # We only want to check if the file exists, so don't try to
-        # rename the file, even if it would be reasonable. See also:
-        # http://bugs.gpodder.org/attachment.cgi?id=236
-        if check_only:
-            if self.download_filename is None:
-                return None
-            else:
-                return os.path.join(self.channel.save_dir, self.download_filename)
+        ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
 
-        if self.download_filename is None or force_update:
+        if not check_only and (force_update or not self.download_filename):
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension
                 episode_filename, ext = os.path.splitext(template)
             else:
-                episode_filename, extension_UNUSED = util.filename_from_url(self.url)
+                episode_filename, _ = util.filename_from_url(self.url)
             fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
             if 'redirect' in fn_template and template is None:
@@ -443,39 +428,29 @@ class PodcastEpisode(PodcastModelObject):
                 log('Looks like a redirection to me: %s', self.url, sender=self)
                 url = util.get_real_url(self.channel.authenticate_url(self.url))
                 log('Redirection resolved to: %s', url, sender=self)
-                (episode_filename, extension_UNUSED) = util.filename_from_url(url)
+                episode_filename, _ = util.filename_from_url(url)
                 fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
-            # Use the video title for YouTube downloads
-            for yt_url in ('http://youtube.com/', 'http://www.youtube.com/'):
-                if self.url.startswith(yt_url):
-                    fn_template = util.sanitize_filename(os.path.basename(self.title), self.MAX_FILENAME_LENGTH)
-
-            # Nicer download filenames for Soundcloud streams
-            if fn_template == 'stream':
+            # Use title for YouTube downloads and Soundcloud streams
+            if youtube.is_video_link(self.url) or fn_template == 'stream':
                 sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
                 if sanitized:
                     fn_template = sanitized
 
             # If the basename is empty, use the md5 hexdigest of the URL
-            if len(fn_template) == 0 or fn_template.startswith('redirect.'):
+            if not fn_template or fn_template.startswith('redirect.'):
                 log('Report to bugs.gpodder.org: Podcast at %s with episode URL: %s', self.channel.url, self.url, sender=self)
-                fn_template = urldigest
+                fn_template = hashlib.md5(self.url).hexdigest()
 
             # Find a unique filename for this episode
-            wanted_filename = self.find_unique_file_name(self.url, fn_template, ext)
+            wanted_filename = self.find_unique_file_name(fn_template, ext)
 
             if return_wanted_filename:
                 # return the calculated filename without updating the database
                 return wanted_filename
 
-            # We populate the filename field the first time - does the old file still exist?
-            if self.download_filename is None and os.path.exists(os.path.join(self.channel.save_dir, urldigest+ext)):
-                log('Found pre-0.15.0 downloaded file: %s', urldigest, sender=self)
-                self.download_filename = urldigest+ext
-
             # The old file exists, but we have decided to want a different filename
-            if self.download_filename is not None and wanted_filename != self.download_filename:
+            if self.download_filename and wanted_filename != self.download_filename:
                 # there might be an old download folder crawling around - move it!
                 new_file_name = os.path.join(self.channel.save_dir, wanted_filename)
                 old_file_name = os.path.join(self.channel.save_dir, self.download_filename)
@@ -496,7 +471,6 @@ class PodcastEpisode(PodcastModelObject):
                         wanted_filename, sender=self)
             self.download_filename = wanted_filename
             self.save()
-            self.db.commit()
 
         return os.path.join(self.channel.save_dir, self.download_filename)
 
