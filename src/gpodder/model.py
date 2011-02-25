@@ -1102,25 +1102,6 @@ class PodcastChannel(PodcastModelObject):
                 factory=self.episode_factory, state=gpodder.STATE_NORMAL) if \
                 episode.check_is_new(downloading=downloading)]
 
-    def get_playlist_filename(self):
-        # If the save_dir doesn't end with a slash (which it really should
-        # not, if the implementation is correct, we can just append .m3u :)
-        assert self.save_dir[-1] != '/'
-        return self.save_dir+'.m3u'
-
-    def update_m3u_playlist(self):
-        m3u_filename = self.get_playlist_filename()
-
-        downloaded_episodes = self.get_downloaded_episodes()
-        if not downloaded_episodes:
-            log('No episodes - removing %s', m3u_filename, sender=self)
-            util.delete_file(m3u_filename)
-            return
-
-        log('Writing playlist to %s', m3u_filename, sender=self)
-        util.write_m3u_playlist(m3u_filename, \
-                Model.sort_episodes_by_pubdate(downloaded_episodes))
-
     def get_episode_by_url(self, url):
         return self.db.load_single_episode(self, \
                 factory=self.episode_factory, url=url)
@@ -1205,11 +1186,6 @@ class PodcastChannel(PodcastModelObject):
     save_dir = property(fget=get_save_dir)
 
     def remove_downloaded(self):
-        # Remove the playlist file if it exists
-        m3u_filename = self.get_playlist_filename()
-        if os.path.exists(m3u_filename):
-            util.delete_file(m3u_filename)
-
         # Remove the download directory
         shutil.rmtree(self.save_dir, True)
 

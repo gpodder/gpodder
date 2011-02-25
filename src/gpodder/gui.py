@@ -1467,11 +1467,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_allow_tooltips(self, treeview, allow):
         setattr(treeview, TreeViewHelper.CAN_TOOLTIP, allow)
 
-    def update_m3u_playlist_clicked(self, widget):
-        if self.active_channel is not None:
-            self.active_channel.update_m3u_playlist()
-            self.show_message(_('Updated M3U playlist in download folder.'), _('Updated playlist'), widget=self.treeChannels)
-
     def treeview_handle_context_menu_click(self, treeview, event):
         x, y = int(event.x), int(event.y)
         path, column, rx, ry = treeview.get_path_at_pos(x, y) or (None,)*4
