@@ -118,7 +118,7 @@ class DBusPodcastsProxy(dbus.service.Object):
             description = safe_first_line(episode.description)
             filename = safe_str(episode.download_filename)
             file_type = safe_str(episode.file_type())
-            is_new = (episode.state == gpodder.STATE_NORMAL and not episode.is_played)
+            is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)
             is_downloaded = episode.was_downloaded(and_exists=True)
             is_deleted = (episode.state == gpodder.STATE_DELETED)
 

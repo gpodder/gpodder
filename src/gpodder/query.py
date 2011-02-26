@@ -49,13 +49,13 @@ class Matcher(object):
 
         # Adjectives (for direct usage)
         if k == 'new':
-            return (episode.state == gpodder.STATE_NORMAL and not episode.is_played)
+            return (episode.state == gpodder.STATE_NORMAL and episode.is_new)
         elif k in ('downloaded', 'dl'):
             return episode.was_downloaded(and_exists=True)
         elif k in ('deleted', 'rm'):
             return episode.state == gpodder.STATE_DELETED
         elif k == 'played':
-            return episode.is_played
+            return not episode.is_new
         elif k == 'archive':
             return episode.is_locked
         elif k in ('finished', 'fin'):

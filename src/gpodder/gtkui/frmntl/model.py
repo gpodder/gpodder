@@ -110,7 +110,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
             elif episode.state == gpodder.STATE_DELETED:
                 return self.ICON_DELETED
             elif episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played and \
+                    episode.is_new and \
                     not downloading(episode):
                 return None # self.ICON_NEW
             elif episode.state == gpodder.STATE_DOWNLOADED:
@@ -145,10 +145,10 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif column == self.C_VIEW_SHOW_DOWNLOADED:
             return episode.state == gpodder.STATE_DOWNLOADED or \
                     (episode.state == gpodder.STATE_NORMAL and \
-                     not episode.is_played) or \
+                     episode.is_new) or \
                     downloading(episode)
         elif column == self.C_VIEW_SHOW_UNPLAYED:
-            return (not episode.is_played and (episode.state in \
+            return (episode.is_new and (episode.state in \
                     (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
                     downloading(episode)
         elif column == self.C_FILESIZE:
@@ -298,10 +298,10 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif self._view_mode == self.VIEW_DOWNLOADED:
             is_visible = lambda episode: episode.state == gpodder.STATE_DOWNLOADED or \
                     (episode.state == gpodder.STATE_NORMAL and \
-                     not episode.is_played) or \
+                     episode.is_new) or \
                     self._downloading(episode)
         elif self._view_mode == self.VIEW_UNPLAYED:
-            is_visible = lambda episode: (not episode.is_played and (episode.state in \
+            is_visible = lambda episode: (episode.is_new and (episode.state in \
                     (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
                     self._downloading(episode)
         else:
@@ -345,6 +345,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
     def _format_description(self, episode):
         filesize = self._format_filesize(episode)
+        # FIXME: Merge common code paths in this if-elif-else code block
         if self._downloading(episode):
             sub = _('in downloads list')
             sub = '; '.join((sub, episode.cute_pubdate()))
@@ -353,7 +354,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
             if self._all_episodes_view:
                 sub = '; '.join((sub, _('from %s') % cgi.escape(episode.channel.title,)))
             return self._unplayed_markup % (cgi.escape(episode.title), sub)
-        elif episode.is_played:
+        elif not episode.is_new:
             sub = episode.cute_pubdate()
             if filesize:
                 sub = '; '.join((sub, filesize))

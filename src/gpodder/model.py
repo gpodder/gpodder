@@ -108,13 +108,10 @@ class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
 
-    def _get_is_played(self):
-        return not self.is_new
+    def _deprecated(self):
+        raise Exception('Property is deprecated!')
 
-    def _set_is_played(self, is_played):
-        self.is_new = not is_played
-
-    is_played = property(fget=_get_is_played, fset=_set_is_played)
+    is_played = property(fget=_deprecated, fset=_deprecated)
 
     def _get_podcast_id(self):
         return self.channel.id

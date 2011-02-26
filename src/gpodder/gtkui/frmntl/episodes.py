@@ -169,7 +169,7 @@ class gPodderEpisodes(BuilderWidget):
             self.touched_episode = None
 
             self.action_keep.set_active(episode.is_locked)
-            self.action_mark_as_old.set_active(not episode.is_played)
+            self.action_mark_as_old.set_active(episode.is_new)
 
             self.touched_episode = episode
         else:
@@ -195,7 +195,7 @@ class gPodderEpisodes(BuilderWidget):
 
     def on_mark_as_old_button_clicked(self, widget):
         if self.touched_episode is not None:
-            self.touched_episode.mark(is_played=not self.touched_episode.is_played)
+            self.touched_episode.mark(is_played=self.touched_episode.is_new)
             self.episode_list_status_changed([self.touched_episode])
 
     def on_check_for_new_episodes_button_clicked(self, widget):

@@ -221,7 +221,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def _format_description(self, episode, include_description=False, is_downloading=None):
         a, b = '', ''
-        if episode.state != gpodder.STATE_DELETED and not episode.is_played:
+        if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
             return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(episode.title), b,
@@ -323,7 +323,7 @@ class EpisodeListModel(gtk.ListStore):
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
             elif episode.state == gpodder.STATE_NORMAL and \
-                    not episode.is_played:
+                    episode.is_new:
                 tooltip.append(_('New episode'))
                 status_icon = self.ICON_NEW
                 view_show_downloaded = True
@@ -331,8 +331,8 @@ class EpisodeListModel(gtk.ListStore):
             elif episode.state == gpodder.STATE_DOWNLOADED:
                 tooltip = []
                 view_show_downloaded = True
-                view_show_unplayed = not episode.is_played
-                show_bullet = not episode.is_played
+                view_show_unplayed = episode.is_new
+                show_bullet = episode.is_new
                 show_padlock = episode.is_locked
                 show_missing = not episode.file_exists()
                 filename = episode.local_filename(create=False, check_only=True)

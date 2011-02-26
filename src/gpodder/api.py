@@ -147,7 +147,7 @@ class Episode(object):
         self.title = self._episode.title
         self.url = self._episode.url
         self.is_new = (self._episode.state == gpodder.STATE_NORMAL and \
-                not self._episode.is_played)
+                self._episode.is_new)
         self.is_downloaded = (self._episode.state == gpodder.STATE_DOWNLOADED)
         self.is_deleted = (self._episode.state == gpodder.STATE_DELETED)
 

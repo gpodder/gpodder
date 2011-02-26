@@ -152,8 +152,8 @@ class gPodderEpisodeActions(BuilderWidget):
         if self.episode.total_time > 0:
             play_button.set_title(self.action_play.props.label)
 
-        mark_new_button.set_active(not self.episode.is_played)
-        mark_old_button.set_active(self.episode.is_played)
+        mark_new_button.set_active(self.episode.is_new)
+        mark_old_button.set_active(not self.episode.is_new)
 
         table = gtk.Table(2, 2, True)
         table.attach(download_button, 0, 1, 0, 1)
@@ -281,11 +281,11 @@ class gPodderEpisodeActions(BuilderWidget):
         if self.should_set_new_value:
             value = self.radio_action_mark_new.get_current_value()
             if value == self.CHOICE_MARK_NEW and \
-                    self.episode.is_played:
+                    not self.episode.is_new:
                 self.episode.mark(is_played=False)
                 changed = True
             elif value == self.CHOICE_MARK_OLD and \
-                    not self.episode.is_played:
+                    self.episode.is_new:
                 self.episode.mark(is_played=True)
                 changed = True
         if self.new_keep_value != self.episode.is_locked:

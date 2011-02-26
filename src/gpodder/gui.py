@@ -1802,8 +1802,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.button == self.context_menu_mouse_button:
             episodes = self.get_selected_episodes()
             any_locked = any(e.is_locked for e in episodes)
-            any_played = any(e.is_played for e in episodes)
-            one_is_new = any(e.state == gpodder.STATE_NORMAL and not e.is_played for e in episodes)
+            any_played = any(not e.is_new for e in episodes)
+            one_is_new = any(e.state == gpodder.STATE_NORMAL and e.is_new for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(self.episode_is_downloading(e) for e in episodes)
 
@@ -2179,7 +2179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if episode.was_downloaded():
                     can_play = episode.was_downloaded(and_exists=True)
-                    is_played = episode.is_played
+                    is_played = not episode.is_new
                     is_locked = episode.is_locked
                     if not can_play:
                         can_download = True
@@ -2876,12 +2876,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue
 
                 # Do not delete played episodes (except if configured)
-                if episode.is_played:
+                if not episode.is_new:
                     if not self.config.auto_remove_played_episodes:
                         continue
 
                 # Do not delete unplayed episodes (except if configured)
-                if not episode.is_played:
+                if episode.is_new:
                     if not self.config.auto_remove_unplayed_episodes:
                         continue
 
@@ -2972,7 +2972,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
         selection_buttons = {
-                _('Select played'): lambda episode: episode.is_played,
+                _('Select played'): lambda episode: not episode.is_new,
                 _('Select finished'): lambda episode: episode.is_finished(),
                 msg_older_than % {'count':self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
@@ -2991,7 +2991,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not episode.is_locked or not episode.file_exists():
                     episodes.append(episode)
 
-        selected = [e.is_played or not e.file_exists() for e in episodes]
+        selected = [not e.is_new or not e.file_exists() for e in episodes]
 
         gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
@@ -3021,7 +3021,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
         for episode in self.get_selected_episodes():
             if toggle:
-                episode.mark(is_played=not episode.is_played)
+                episode.mark(is_played=episode.is_new)
             else:
                 episode.mark(is_played=new_value)
         self.on_selected_episodes_status_changed()
