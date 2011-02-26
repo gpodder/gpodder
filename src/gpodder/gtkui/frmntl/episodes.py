@@ -157,7 +157,7 @@ class gPodderEpisodes(BuilderWidget):
             episode = model.get_value(model.get_iter(path), \
                     EpisodeListModel.C_EPISODE)
 
-            self.action_delete.set_property('visible', not episode.is_locked)
+            self.action_delete.set_property('visible', not episode.archive)
 
             if episode.was_downloaded():
                 self.action_keep.set_property('visible', True)
@@ -168,7 +168,7 @@ class gPodderEpisodes(BuilderWidget):
 
             self.touched_episode = None
 
-            self.action_keep.set_active(episode.is_locked)
+            self.action_keep.set_active(episode.archive)
             self.action_mark_as_old.set_active(episode.is_new)
 
             self.touched_episode = episode
@@ -190,7 +190,7 @@ class gPodderEpisodes(BuilderWidget):
 
     def on_keep_button_clicked(self, widget):
         if self.touched_episode is not None:
-            self.touched_episode.mark(is_locked=not self.touched_episode.is_locked)
+            self.touched_episode.mark(is_locked=not self.touched_episode.archive)
             self.episode_list_status_changed([self.touched_episode])
 
     def on_mark_as_old_button_clicked(self, widget):

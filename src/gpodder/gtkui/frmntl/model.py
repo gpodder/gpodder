@@ -120,11 +120,11 @@ class EpisodeListModel(gtk.GenericTreeModel):
                 file_type = episode.file_type()
                 if file_type == 'audio':
                     status_icon = self.ICON_AUDIO_FILE
-                    if episode.is_locked:
+                    if episode.archive:
                         status_icon += '-locked'
                 elif file_type == 'video':
                     status_icon = self.ICON_VIDEO_FILE
-                    if episode.is_locked:
+                    if episode.archive:
                         status_icon += '-locked'
                 elif file_type == 'image':
                     status_icon = self.ICON_IMAGE_FILE
@@ -160,7 +160,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif column == self.C_TIME_VISIBLE:
             return episode.total_time
         elif column == self.C_LOCKED:
-            return episode.is_locked and \
+            return episode.archive and \
                     episode.state == gpodder.STATE_DOWNLOADED and \
                     episode.file_exists()
 

@@ -57,7 +57,7 @@ class Matcher(object):
         elif k == 'played':
             return not episode.is_new
         elif k == 'archive':
-            return episode.is_locked
+            return episode.archive
         elif k in ('finished', 'fin'):
             return episode.is_finished()
         elif k in ('video', 'audio'):

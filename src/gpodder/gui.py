@@ -1801,7 +1801,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if event.button == self.context_menu_mouse_button:
             episodes = self.get_selected_episodes()
-            any_locked = any(e.is_locked for e in episodes)
+            any_locked = any(e.archive for e in episodes)
             any_played = any(not e.is_new for e in episodes)
             one_is_new = any(e.state == gpodder.STATE_NORMAL and e.is_new for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
@@ -2180,7 +2180,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if episode.was_downloaded():
                     can_play = episode.was_downloaded(and_exists=True)
                     is_played = not episode.is_new
-                    is_locked = episode.is_locked
+                    is_locked = episode.archive
                     if not can_play:
                         can_download = True
                 else:
@@ -2867,8 +2867,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def get_expired_episodes(self):
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
-                # Never consider locked episodes as old
-                if episode.is_locked:
+                # Never consider archived episodes as old
+                if episode.archive:
                     continue
 
                 # Never consider fresh episodes as old
@@ -2892,7 +2892,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         if skip_locked:
-            episodes = [e for e in episodes if not e.is_locked]
+            episodes = [e for e in episodes if not e.archive]
 
             if not episodes:
                 title = _('Episodes are locked')
@@ -2931,7 +2931,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
                 progress.on_progress(float(idx)/float(len(episodes)))
-                if episode.is_locked and skip_locked:
+                if episode.archive and skip_locked:
                     log('Not deleting episode (is locked): %s', episode.title)
                 else:
                     log('Deleting episode: %s', episode.title)
@@ -2988,7 +2988,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for channel in channels:
             for episode in channel.get_downloaded_episodes():
                 # Disallow deletion of locked episodes that still exist
-                if not episode.is_locked or not episode.file_exists():
+                if not episode.archive or not episode.file_exists():
                     episodes.append(episode)
 
         selected = [not e.is_new or not e.file_exists() for e in episodes]
@@ -3029,7 +3029,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
         for episode in self.get_selected_episodes():
             if toggle:
-                episode.mark(is_locked=not episode.is_locked)
+                episode.mark(is_locked=not episode.archive)
             else:
                 episode.mark(is_locked=new_value)
         self.on_selected_episodes_status_changed()

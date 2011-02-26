@@ -199,8 +199,8 @@ class gPodderEpisodeActions(BuilderWidget):
         if self.episode.total_time > 0:
             play_button.set_title(self.action_play.props.label)
 
-        keep_button.set_active(self.episode.is_locked)
-        self.new_keep_value = self.episode.is_locked
+        keep_button.set_active(self.episode.archive)
+        self.new_keep_value = self.episode.archive
 
         self.action_delete.set_sensitive(not self.new_keep_value)
 
@@ -288,7 +288,7 @@ class gPodderEpisodeActions(BuilderWidget):
                     self.episode.is_new:
                 self.episode.mark(is_played=True)
                 changed = True
-        if self.new_keep_value != self.episode.is_locked:
+        if self.new_keep_value != self.episode.archive:
             self.episode.mark(is_locked=self.new_keep_value)
             changed = True
 

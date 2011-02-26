@@ -112,6 +112,7 @@ class PodcastEpisode(PodcastModelObject):
         raise Exception('Property is deprecated!')
 
     is_played = property(fget=_deprecated, fset=_deprecated)
+    is_locked = property(fget=_deprecated, fset=_deprecated)
 
     def _get_podcast_id(self):
         return self.channel.id
@@ -265,7 +266,8 @@ class PodcastEpisode(PodcastModelObject):
 
     def __init__(self, channel):
         self.db = channel.db
-        # Used by Storage for faster saving
+        self.channel = channel
+
         self.id = None
         self.url = ''
         self.title = ''
@@ -274,7 +276,6 @@ class PodcastEpisode(PodcastModelObject):
         self.guid = ''
         self.description = ''
         self.link = ''
-        self.channel = channel
         self.published = 0
         self.download_filename = None
 
@@ -289,14 +290,6 @@ class PodcastEpisode(PodcastModelObject):
 
         # Timestamp of last playback time
         self.last_playback = 0
-
-    def get_is_locked(self):
-        return self.archive
-
-    def set_is_locked(self, is_locked):
-        self.archive = bool(is_locked)
-
-    is_locked = property(fget=get_is_locked, fset=set_is_locked)
 
     def save(self):
         if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
@@ -326,7 +319,7 @@ class PodcastEpisode(PodcastModelObject):
         if is_played is not None:
             self.is_new = not is_played
         if is_locked is not None:
-            self.is_locked = is_locked
+            self.archive = is_locked
         self.db.update_episode_state(self)
 
     def age_in_days(self):

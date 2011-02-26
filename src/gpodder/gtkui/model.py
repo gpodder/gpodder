@@ -272,7 +272,7 @@ class EpisodeListModel(gtk.ListStore):
                     episode.get_play_info_string(), \
                     episode.total_time and not episode.current_position, \
                     episode.total_time and episode.current_position, \
-                    episode.is_locked))
+                    episode.archive))
 
             self.update_by_iter(iter, downloading, include_description, \
                     reload_from_db=False)
@@ -333,7 +333,7 @@ class EpisodeListModel(gtk.ListStore):
                 view_show_downloaded = True
                 view_show_unplayed = episode.is_new
                 show_bullet = episode.is_new
-                show_padlock = episode.is_locked
+                show_padlock = episode.archive
                 show_missing = not episode.file_exists()
                 filename = episode.local_filename(create=False, check_only=True)
 
@@ -402,7 +402,7 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_TOOLTIP, tooltip, \
                 self.C_TIME, episode.get_play_info_string(), \
                 self.C_TIME_VISIBLE, episode.total_time, \
-                self.C_LOCKED, episode.is_locked, \
+                self.C_LOCKED, episode.archive, \
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                 self.C_FILESIZE, episode.file_size)
 
