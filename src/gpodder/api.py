@@ -215,6 +215,15 @@ class PodcastClient(object):
 
         return None
 
+    def commit(self):
+        """Persist changed data to the database file
+
+        Call this after a user operation has been
+        carried out, but if you don't want to close the
+        application (otherwise simply use finish()).
+        """
+        self._db.commit()
+
     def finish(self):
         """Persist changed data to the database file
 

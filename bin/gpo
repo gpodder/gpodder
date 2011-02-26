@@ -139,6 +139,9 @@ class gPodderCli(object):
         print '\r' + self._current_action + result
         self._current_action = ''
 
+    def _atexit(self):
+        self.client.finish()
+
     # -------------------------------------------------------------------
 
     def subscribe(self, url, title=None):
@@ -150,7 +153,7 @@ class gPodderCli(object):
             self._error(_('Cannot download feed for %s.') % url)
             return True
 
-        self.client.finish()
+        self.client.commit()
 
         self._info(_('Successfully added %s.' % url))
         return True
@@ -164,7 +167,7 @@ class gPodderCli(object):
         else:
             old_title = podcast.title
             podcast.rename(title)
-            self.client.finish()
+            self.client.commit()
             self._info(_('Renamed %s to %s.') % (old_title, title))
 
         return True
@@ -177,7 +180,7 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.delete()
-            self.client.finish()
+            self.client.commit()
             self._error(_('Unsubscribed from %s.') % url)
 
         return True
@@ -288,7 +291,7 @@ class gPodderCli(object):
             full_count += count
 
         print '%d downloaded file(s) imported.' % full_count
-        self.client.finish()
+        self.client.commit()
         return True
 
     @FirstArgumentIsPodcastURL
@@ -318,7 +321,7 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.disable()
-            self.client.finish()
+            self.client.commit()
             self._error(_('Disabling feed update from %s.') % url)
 
         return True
@@ -331,7 +334,7 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.enable()
-            self.client.finish()
+            self.client.commit()
             self._error(_('Enabling feed update from %s.') % url)
 
         return True
@@ -391,6 +394,8 @@ class gPodderCli(object):
             except KeyboardInterrupt:
                 self._error('Keyboard interrupt.')
 
+        self._atexit()
+
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
 
@@ -444,6 +449,11 @@ class gPodderCli(object):
         return None
 
 
+    def _parse_single(self, command_line):
+        result = self._parse(command_line)
+        self._atexit()
+        return result
+
     def _parse(self, command_line):
         if not command_line:
             return False
@@ -473,7 +483,7 @@ if __name__ == '__main__':
     cli = gPodderCli()
     args = sys.argv[1:]
     if args:
-        cli._parse(args) or sys.stderr.write(stylize(__doc__))
+        cli._parse_single(args) or sys.stderr.write(stylize(__doc__))
     elif sys.stdout.isatty():
         cli._shell()
     else:
