@@ -134,19 +134,12 @@ class EpisodeListModel(gtk.ListStore):
         self.ICON_GENERIC_FILE = ICON('text-x-generic')
         self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
         self.ICON_DELETED = gtk.STOCK_DELETE
-        self.ICON_NEW = gtk.STOCK_ABOUT
-        self.ICON_UNPLAYED = ICON('emblem-new')
-        self.ICON_LOCKED = ICON('emblem-readonly')
-        self.ICON_MISSING = ICON('emblem-unreadable')
 
         if 'KDE_FULL_SESSION' in os.environ:
             # Workaround until KDE adds all the freedesktop icons
             # See https://bugs.kde.org/show_bug.cgi?id=233505 and
             #     http://gpodder.org/bug/553
             self.ICON_DELETED = ICON('archive-remove')
-            self.ICON_UNPLAYED = ICON('vcs-locally-modified')
-            self.ICON_LOCKED = ICON('emblem-locked')
-            self.ICON_MISSING = ICON('vcs-conflicting')
 
 
     def _format_filesize(self, episode):
@@ -325,7 +318,6 @@ class EpisodeListModel(gtk.ListStore):
             elif episode.state == gpodder.STATE_NORMAL and \
                     episode.is_new:
                 tooltip.append(_('New episode'))
-                status_icon = self.ICON_NEW
                 view_show_downloaded = True
                 view_show_unplayed = True
             elif episode.state == gpodder.STATE_DOWNLOADED:

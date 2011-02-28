@@ -112,7 +112,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
             elif episode.state == gpodder.STATE_NORMAL and \
                     episode.is_new and \
                     not downloading(episode):
-                return None # self.ICON_NEW
+                return None
             elif episode.state == gpodder.STATE_DOWNLOADED:
                 filename = episode.local_filename(create=False, \
                         check_only=True)
@@ -231,10 +231,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
         self.ICON_GENERIC_FILE = ICON('filemanager_unknown_file')
         self.ICON_DOWNLOADING = ICON('gpodder-download')
         self.ICON_DELETED = ICON('camera_delete')
-        self.ICON_UNPLAYED = ICON('emblem-new')
-        self.ICON_LOCKED = ICON('emblem-readonly')
-        self.ICON_MISSING = ICON('emblem-unreadable')
-        self.ICON_NEW = gtk.STOCK_ABOUT
 
         normal_font = style.get_font_desc('SystemFont')
         normal_color = style.get_color('DefaultTextColor')
