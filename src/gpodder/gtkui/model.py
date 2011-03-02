@@ -37,6 +37,7 @@ from gpodder.gtkui import draw
 import os
 import gtk
 import cgi
+import re
 
 try:
     import gio
