@@ -388,7 +388,11 @@ class EpisodeListModel(gtk.GenericTreeModel):
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
         old_length = len(self._episodes)
-        self._episodes = channel.get_all_episodes()
+        # Avoid gPodder bug 1291
+        if channel is None:
+            self._episodes = []
+        else:
+            self._episodes = channel.get_all_episodes()
         new_length = len(self._episodes)
 
         for i in range(min(old_length, new_length)):
