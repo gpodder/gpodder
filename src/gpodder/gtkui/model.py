@@ -196,7 +196,12 @@ class EpisodeListModel(gtk.ListStore):
 
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
-        episodes = channel.get_all_episodes()
+        # Avoid gPodder bug 1291
+        if channel is None:
+            episodes = []
+        else:
+            episodes = channel.get_all_episodes()
+
         if not isinstance(episodes, list):
             episodes = list(episodes)
         count = len(episodes)
