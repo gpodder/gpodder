@@ -66,7 +66,10 @@ N_ = gpodder.ngettext
 
 
 import locale
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except Exception, e:
+    log('Warning: Cannot set locale (%s).', e)
 
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
