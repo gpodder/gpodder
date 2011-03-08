@@ -515,7 +515,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             indicator.on_progress(float(found)/count)
                             candidates.remove(filename)
                             partial_files.remove(filename+'.partial')
-                            resumable_episodes.append(e)
+
+                            if os.path.exists(filename):
+                                # The file has already been downloaded;
+                                # remove the leftover partial file
+                                util.delete_file(filename+'.partial')
+                            else:
+                                resumable_episodes.append(e)
 
                         if not candidates:
                             break
