@@ -4108,7 +4108,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_iconify(self):
         if self.tray_icon:
-            self.gPodder.set_skip_taskbar_hint(True)
+            self.gPodder.set_skip_taskbar_hint(False)
             if self.config.minimize_to_tray:
                 self.tray_icon.set_visible(True)
         else:
@@ -4127,11 +4127,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # or KWin4 to move the window to the active workspace
         # (see http://gpodder.org/bug/1125)
         self.gPodder.hide()
+        self.gPodder.show()
         self.gPodder.present()
  
     def iconify_main_window(self):
         if not self.is_iconified():
-            self.gPodder.iconify()          
+            self.gPodder.hide()
 
     def update_podcasts_tab(self):
         if gpodder.ui.fremantle:
