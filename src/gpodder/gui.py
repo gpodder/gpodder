@@ -3070,11 +3070,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         downloading = self.download_status_model.are_downloads_in_progress()
 
-        # Only iconify if we are using the window's "X" button,
-        # but not when we are using "Quit" in the menu or toolbar
-        if self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
-            self.iconify_main_window()
-        elif downloading:
+        if downloading:
             if gpodder.ui.fremantle:
                 self.close_gpodder()
             elif gpodder.ui.diablo:
@@ -4115,16 +4111,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_iconify(self):
         if self.tray_icon:
             self.gPodder.set_skip_taskbar_hint(False)
-            if self.config.minimize_to_tray:
-                self.tray_icon.set_visible(True)
         else:
             self.gPodder.set_skip_taskbar_hint(False)
 
     def on_uniconify(self):
         if self.tray_icon:
             self.gPodder.set_skip_taskbar_hint(False)
-            if self.config.minimize_to_tray:
-                self.tray_icon.set_visible(True)
         else:
             self.gPodder.set_skip_taskbar_hint(False)
 
