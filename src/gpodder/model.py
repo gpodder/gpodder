@@ -635,7 +635,7 @@ class PodcastChannel(PodcastModelObject):
         existing_files = set(filename for filename in \
                 glob.glob(os.path.join(self.save_dir, '*')) \
                 if not filename.endswith('.partial'))
-        external_files = existing_files.difference(known_files, \
+        external_files = existing_files.difference(known_files + \
                 [os.path.join(self.save_dir, x) \
                 for x in ('folder.jpg', 'Unknown')])
         if not external_files:
