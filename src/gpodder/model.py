@@ -909,6 +909,8 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.UnknownStatusCode
             raise
 
+        self.download_cover()
+
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_updated(self)
 
@@ -969,6 +971,22 @@ class PodcastChannel(PodcastModelObject):
         return self.cover_url
 
     image = property(_get_cover_url)
+
+    def download_cover(self):
+        if not os.path.exists(self.cover_file):
+            url = self.cover_file
+
+            yt_url = youtube.get_real_cover(self.url)
+            if yt_url is not None:
+                url = yt_url
+
+            try:
+                fp = open(self.cover_file, 'wb')
+                data = util.urlopen(url).read()
+                fp.write(data)
+                fp.close()
+            except Exception, e:
+                log('Error downloading cover art: %s', e, sender=self)
 
     def get_title( self):
         if not self.__title.strip():

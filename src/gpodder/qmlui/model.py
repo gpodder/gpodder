@@ -19,14 +19,18 @@
 
 
 from PySide.QtCore import *
+from PySide.QtGui import *
 
 import gpodder
+
+from gpodder.liblogger import log
 
 from gpodder import model
 from gpodder import util
 from gpodder import youtube
 
 import threading
+import os
 
 def convert(s):
     if isinstance(s, unicode):
@@ -40,6 +44,10 @@ class QEpisode(QObject, model.PodcastEpisode):
         QObject.__init__(self)
         model.PodcastEpisode.__init__(self, *args, **kwargs)
 
+        # Caching of YouTube URLs, so we don't need to resolve
+        # it every time we update the podcast item (doh!)
+        self._qt_yt_url = None
+
     changed = Signal()
 
     def _title(self):
@@ -50,8 +58,11 @@ class QEpisode(QObject, model.PodcastEpisode):
     def _sourceurl(self):
         if self.was_downloaded(and_exists=True):
             url = self.local_filename(create=False)
+        elif self._qt_yt_url is not None:
+            url = self._qt_yt_url
         else:
             url = youtube.get_real_download_url(self.url)
+            self._qt_yt_url = url
         return convert(url)
 
     qsourceurl = Property(unicode, _sourceurl, notify=changed)
@@ -130,6 +141,20 @@ class QPodcast(QObject, model.PodcastChannel):
             self.changed.emit()
 
         threading.Thread(target=t, args=[self]).start()
+
+    def download_cover(self):
+        model.PodcastChannel.download_cover(self)
+        if os.path.exists(self.cover_file):
+            fp = open(self.cover_file, 'rb')
+            firstbyte, secondbyte = fp.read(2)
+            fp.close()
+
+            # JPEG files start with 0xFF, 0xD8 - other formats don't
+            if ord(firstbyte) != 0xFF or ord(secondbyte) != 0xD8:
+                log('Converting non-JPEG file to JPEG...', sender=self)
+                i = QImage()
+                i.loadFromData(open(self.cover_file, 'rb').read())
+                i.save(self.cover_file)
 
     changed = Signal()
 
