@@ -64,7 +64,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
                 fmt_url_map = r4.group(1)
                 for fmt_url_encoded in fmt_url_map.split(','):
                     fmt_url = urllib.unquote(fmt_url_encoded)
-                    fmt_url = fmt_url.replace('\\/', '/')
+                    fmt_url = fmt_url.replace('\\/', '/').replace("\u0026", "&")
                     fmt_id, url = fmt_url.split('|', 2)
                     yield int(fmt_id), url
 
