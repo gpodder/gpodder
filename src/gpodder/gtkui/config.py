@@ -159,8 +159,8 @@ class UIConfig(config.Config):
             self.__ignore_window_events = True
 
             def _receive_configure_event(widget, event):
-                x_pos, y_pos = widget.get_position()
-                width_size, height_size = widget.get_size()
+                x_pos, y_pos = event.x, event.y
+                width_size, height_size = event.width, event.height
                 if not self.__ignore_window_events and not \
                        (hasattr(self, maximized) and getattr(self, maximized)):
                     setattr(self, x, x_pos)
