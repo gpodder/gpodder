@@ -47,7 +47,8 @@ SelectableItem {
         }
 
         Image {
-            source: modelData.qcoverfile
+            source: 'image://cover/'+escape(modelData.qcoverfile)+'|'+escape(modelData.qcoverurl)+'|'+escape(modelData.qurl)
+            asynchronous: true
             width: parent.width * .85
             height: parent.height * .85
             sourceSize.width: width

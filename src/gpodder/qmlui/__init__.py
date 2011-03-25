@@ -33,6 +33,7 @@ from gpodder import core
 
 from gpodder.qmlui import model
 from gpodder.qmlui import helper
+from gpodder.qmlui import images
 
 
 # Generate a QObject subclass with notifyable properties
@@ -182,11 +183,16 @@ class qtPodder(object):
         self.podcast_model = gPodderListModel()
         self.episode_model = gPodderListModel()
 
+        engine = self.view.engine()
+
         # Maemo 5: Experimental Qt Mobility packages are installed in /opt
         if gpodder.ui.fremantle:
-            engine = self.view.engine()
             for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
                 engine.addImportPath(path)
+
+        # Add the cover art image provider
+        self.cover_provider = images.LocalCachedImageProvider()
+        engine.addImageProvider('cover', self.cover_provider)
 
         # Load the QML UI (this could take a while...)
         self.view.setSource(QML('main.qml'))

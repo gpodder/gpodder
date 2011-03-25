@@ -142,20 +142,6 @@ class QPodcast(QObject, model.PodcastChannel):
 
         threading.Thread(target=t, args=[self]).start()
 
-    def download_cover(self):
-        model.PodcastChannel.download_cover(self)
-        if os.path.exists(self.cover_file):
-            fp = open(self.cover_file, 'rb')
-            firstbyte, secondbyte = fp.read(2)
-            fp.close()
-
-            # JPEG files start with 0xFF, 0xD8 - other formats don't
-            if ord(firstbyte) != 0xFF or ord(secondbyte) != 0xD8:
-                log('Converting non-JPEG file to JPEG...', sender=self)
-                i = QImage()
-                i.loadFromData(open(self.cover_file, 'rb').read())
-                i.save(self.cover_file)
-
     changed = Signal()
 
     def _updating(self):
@@ -168,10 +154,20 @@ class QPodcast(QObject, model.PodcastChannel):
 
     qtitle = Property(unicode, _title, notify=changed)
 
+    def _url(self):
+        return convert(self.url)
+
+    qurl = Property(unicode, _url, notify=changed)
+
     def _coverfile(self):
         return convert(self.cover_file)
 
     qcoverfile = Property(unicode, _coverfile, notify=changed)
+
+    def _coverurl(self):
+        return convert(self.cover_url)
+
+    qcoverurl = Property(unicode, _coverurl, notify=changed)
 
     def _downloaded(self):
         return self.get_statistics()[3]
