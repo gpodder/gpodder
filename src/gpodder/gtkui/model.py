@@ -500,6 +500,7 @@ class PodcastChannelProxy(object):
         self.save_dir_size = 0L
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
         self.feed_update_enabled = True
+        self.channel_is_locked = False
 
     def __getattribute__(self, name):
         try:
