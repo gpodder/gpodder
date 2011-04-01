@@ -94,6 +94,9 @@ if __name__ == '__main__':
 
     import gpodder
 
+    # Platform detection (i.e. Maemo 5, etc..)
+    gpodder.detect_platform()
+
     # Enable i18n for gPodder translations
     _ = gpodder.gettext
 
@@ -112,10 +115,6 @@ if __name__ == '__main__':
                       action="store_true", dest="verbose", default=False,
                       help=_("Print debugging output to stdout"))
 
-    parser.add_option("-f", "--fremantle",
-                      action="store_true", dest="fremantle", default=False,
-                      help=_("Force using the Maemo 5 user interface"))
-
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
                       help=_("Use the QML interface of gPodder"))
@@ -130,26 +129,10 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args(sys.argv)
 
-    # Detect if we are running on Maemo 5 and if it's the case, do
-    # force the "fremantle" option on automatically, so that clueless
-    # users won't be reporting bogus bugs if they try to start gPodder
-    # from the command line without the "--fremantle" switch :)
-    if not options.fremantle:
-        try:
-            etc_issue = open('/etc/issue').read()
-            if 'Maemo 5' in etc_issue:
-                options.fremantle = True
-                print >>sys.stderr, 'Auto-detected: Maemo 5 (--fremantle)'
-            del etc_issue
-        except:
-            pass
-
-    if options.fremantle:
-        gpodder.ui.fremantle = True
+    if gpodder.ui.fremantle:
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
-        gpodder.set_home(os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder')))
-    else:
-        gpodder.ui.desktop = True
+
+    if gpodder.ui.desktop:
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:

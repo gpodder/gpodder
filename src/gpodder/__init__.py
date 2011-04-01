@@ -161,3 +161,20 @@ def load_plugins():
         except Exception, e:
             print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
 
+
+def detect_platform():
+    global ui
+
+    try:
+        ui.fremantle = ('Maemo 5' in open('/etc/issue').read())
+        if ui.fremantle:
+            print >>sys.stderr, 'Detected platform: Maemo 5 (Fremantle)'
+    except Exception, e:
+        ui.fremantle = False
+
+    ui.desktop = not ui.fremantle
+
+    if ui.fremantle and 'GPODDER_HOME' not in os.environ:
+        new_home = os.path.join('~', 'MyDocs', 'gPodder')
+        set_home(os.path.expanduser(new_home))
+
