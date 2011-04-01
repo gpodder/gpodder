@@ -48,9 +48,12 @@ class Controller(UiData):
         self.root = root
         self.context_menu_actions = []
 
+    @Slot()
+    def loadLastEpisode(self):
+        self.root.load_last_episode()
+
     @Slot(QObject)
     def podcastSelected(self, podcast):
-        print 'selected:', podcast.qtitle
         self.episodeListTitle = podcast.qtitle
         self.root.select_podcast(podcast)
 
@@ -60,14 +63,12 @@ class Controller(UiData):
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
-        print 'context menu:', podcast.qtitle
         self.show_context_menu([
-                helper.Action('Update all', 'update_all', podcast),
+                helper.Action('Update all', 'update-all', podcast),
                 helper.Action('Update', 'update', podcast),
+                helper.Action('Mark episodes as old', 'mark-as-read', podcast),
                 helper.Action('Force update', 'force-update', podcast),
                 helper.Action('Unsubscribe', 'unsubscribe', podcast),
-                helper.Action('Be cool', 'be_cool', podcast),
-                helper.Action('Sing a song', 'sing_a_song', podcast),
         ])
 
     def show_context_menu(self, actions):
@@ -76,39 +77,50 @@ class Controller(UiData):
 
     @Slot(int)
     def contextMenuResponse(self, index):
-        print 'context menu response:', index
         assert index < len(self.context_menu_actions)
         action = self.context_menu_actions[index]
         if action.action == 'update':
             action.target.qupdate()
         elif action.action == 'force-update':
             action.target.qupdate(force=True)
-        elif action.action == 'update_all':
+        elif action.action == 'update-all':
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate()
         if action.action == 'unsubscribe':
-            print 'would unsubscribe from', action.target.title
+            action.target.remove_downloaded()
+            action.target.delete()
+            self.root.reload_podcasts()
         elif action.action == 'episode-toggle-new':
             action.target.mark(is_played=action.target.is_new)
             action.target.changed.emit()
             action.target.channel.changed.emit()
+        elif action.action == 'download':
+            action.target.qdownload(self.root.config)
+        elif action.action == 'delete':
+            action.target.delete_from_disk()
+            action.target.changed.emit()
+            action.target.channel.changed.emit()
+        elif action.action == 'mark-as-read':
+            for episode in action.target.get_all_episodes():
+                if not episode.was_downloaded(and_exists=True):
+                    episode.mark(is_played=True)
+            action.target.changed.emit()
 
     @Slot()
     def contextMenuClosed(self):
-        print 'context menu closed'
         self.context_menu_actions = []
 
     @Slot(QObject)
     def episodeSelected(self, episode):
-        print 'selected:', episode.qtitle
         self.root.select_episode(episode)
 
     @Slot(QObject)
     def episodeContextMenu(self, episode):
-        print 'context menu:', episode.qtitle
+        toggle_new = 'Mark as old' if episode.is_new else 'Mark as new'
         self.show_context_menu([
-            helper.Action('Info', 'info', episode),
-            helper.Action('Toggle new', 'episode-toggle-new', episode),
+            helper.Action('Download', 'download', episode),
+            helper.Action('Delete file', 'delete', episode),
+            helper.Action(toggle_new, 'episode-toggle-new', episode),
         ])
 
     @Slot()
@@ -184,6 +196,7 @@ class qtPodder(QObject):
         self.controller = Controller(self)
         self.podcast_model = gPodderListModel()
         self.episode_model = gPodderListModel()
+        self.last_episode = None
 
         engine = self.view.engine()
 
@@ -216,6 +229,18 @@ class qtPodder(QObject):
 
         self.reload_podcasts()
 
+    def load_last_episode(self):
+        last_episode = None
+        for podcast in self.podcast_model.get_objects():
+            for episode in podcast.get_all_episodes():
+                if not episode.last_playback:
+                    continue
+                if last_episode is None or \
+                        episode.last_playback > last_episode.last_playback:
+                    last_episode = episode
+        self.select_episode(last_episode)
+        self.last_episode = last_episode
+
     def run(self):
         return self.app.exec_()
 
@@ -238,10 +263,9 @@ class qtPodder(QObject):
         # If the currently-playing episode exists in the podcast,
         # use it instead of the object from the database
         current_ep = self.main.currentEpisode
-        if not isinstance(current_ep, model.QEpisode):
-            setattr(current_ep, 'id', -1)
-        episodes = [x if x.id != current_ep.id else current_ep \
-                for x in podcast.get_all_episodes()]
+
+        episodes = [x if current_ep is None or x.id != current_ep.id \
+                else current_ep for x in podcast.get_all_episodes()]
 
         self.episode_model.set_objects(episodes)
         self.main.state = 'episodes'
@@ -253,10 +277,10 @@ class qtPodder(QObject):
 
     def select_episode(self, episode):
         self.save_pending_data()
+        self.main.currentEpisode = episode
         episode.playback_mark()
         episode.changed.emit()
         episode.channel.changed.emit()
-        self.main.currentEpisode = episode
         self.main.setCurrentEpisode()
 
 def main(args):

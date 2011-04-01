@@ -191,6 +191,12 @@ Rectangle {
         state: 'hidden'
         opacity: 0
 
+        onStateChanged: {
+            if (state == 'visible' && episode == undefined) {
+                controller.loadLastEpisode()
+            }
+        }
+
         anchors {
             top: main.bottom
             left: main.left
@@ -318,7 +324,7 @@ Rectangle {
             anchors.left: taskSwitcher.right
             anchors.right: searchButton.left
             clip: true
-            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+currentEpisode.qpositiontext):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
+            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
             onTextChanged: controller.titleChanged(text)
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
@@ -329,7 +335,7 @@ Rectangle {
             id: searchButton
             anchors.right: closeButton.left
 
-            source: 'icons/search.png'
+            source: 'icons/subscriptions.png'
 
             onClicked: controller.searchButtonClicked()
 

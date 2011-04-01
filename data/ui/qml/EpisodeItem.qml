@@ -16,16 +16,20 @@ SelectableItem {
         opacity: .3
     }
 
-    Image {
+    FilledIcon {
         id: icon
-        asynchronous: true
         source: 'episodeList/' + modelData.qfiletype + '.png'
         width: Config.iconSize
         height: Config.iconSize
-        opacity: modelData.qdownloaded?1:.1
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Config.largeSpacing
+
+        filled: modelData.qdownloaded?1:modelData.qprogress
+
+        opacity: modelData.qdownloading?.5:1
+        Behavior on opacity { PropertyAnimation { } }
+
     }
 
     ShadowText {

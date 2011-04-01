@@ -28,6 +28,7 @@ from gpodder.liblogger import log
 from gpodder import model
 from gpodder import util
 from gpodder import youtube
+from gpodder import download
 
 import threading
 import os
@@ -47,6 +48,10 @@ class QEpisode(QObject, model.PodcastEpisode):
         # Caching of YouTube URLs, so we don't need to resolve
         # it every time we update the podcast item (doh!)
         self._qt_yt_url = None
+
+        # Download progress tracking
+        self._qt_download_progress = 0
+        self._qt_downloading = False
 
     changed = Signal()
 
@@ -76,6 +81,34 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.state == gpodder.STATE_DOWNLOADED
 
     qdownloaded = Property(bool, _downloaded, notify=changed)
+
+    def _downloading(self):
+        return self._qt_downloading
+
+    qdownloading = Property(bool, _downloading, notify=changed)
+
+    def _progress(self):
+        return self._qt_download_progress
+
+    qprogress = Property(float, _progress, notify=changed)
+
+    def qdownload(self, config):
+        def t(self):
+            self._qt_downloading = True
+            self._qt_download_progress = 0.
+            self.changed.emit()
+            task = download.DownloadTask(self, config)
+            task.status = download.DownloadTask.QUEUED
+            def cb(progress):
+                self._qt_download_progress = progress
+                self.changed.emit()
+            task.add_progress_callback(cb)
+            task.run()
+            self.reload_from_db()
+            self._qt_downloading = False
+            self.changed.emit()
+
+        threading.Thread(target=t, args=[self]).start()
 
     def _description(self):
         return convert(self.description)

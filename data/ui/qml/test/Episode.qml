@@ -14,6 +14,8 @@ QtObject {
     property int qposition: 0
     property int qduration: 0
     property bool qnew: true
+    property bool qdownloading: false
+    property real qprogress: .4
     /* :end */
 }
 

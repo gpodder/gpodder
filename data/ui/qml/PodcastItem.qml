@@ -54,6 +54,28 @@ SelectableItem {
             sourceSize.width: width
             sourceSize.height: height
             anchors.centerIn: parent
+
+            Image {
+                id: spinner
+                anchors.centerIn: parent
+                width: parent.width * 1.3
+                height: parent.height * 1.3
+                source: 'artwork/spinner.png'
+                opacity: modelData.qupdating?1:0
+
+                Behavior on opacity { PropertyAnimation { } }
+
+                RotationAnimation {
+                    target: spinner
+                    property: 'rotation'
+                    direction: RotationAnimation.Clockwise
+                    from: 0
+                    to: 360
+                    duration: 1200
+                    running: modelData.qupdating
+                    loops: Animation.Infinite
+                }
+            }
         }
     }
 

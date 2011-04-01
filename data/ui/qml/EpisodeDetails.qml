@@ -9,7 +9,7 @@ import 'config.js' as Config
 Item {
     id: episodeDetails
 
-    property variant episode: Episode {}
+    property variant episode: undefined
     property alias playing: player.playing
 
     MouseArea {
@@ -33,8 +33,8 @@ Item {
             id: player
             property bool playing: audioPlayer.playing || videoPlayer.playing
             property bool seekLater: false
-            property string fileType: episode.qfiletype
-            property string source: episode.qsourceurl
+            property string fileType: (episode!=undefined)?episode.qfiletype:''
+            property string source: (episode!=undefined)?episode.qsourceurl:''
 
             function start() {
                 videoPlayer.source = ''
@@ -91,7 +91,7 @@ Item {
 
         Video {
             id: videoPlayer
-            opacity: (episode.qfiletype == 'video')
+            opacity: (episode != undefined && episode.qfiletype == 'video')
             anchors.fill: parent
 
             onPositionChanged: player.positionChanged('video')
@@ -110,7 +110,7 @@ Item {
         Flickable {
             id: showNotes
 
-            visible: !videoPlayer.playing
+            visible: !videoPlayer.playing || (videoPlayer.opacity == 0)
 
             anchors.fill: parent
             contentHeight: showNotesText.height
@@ -124,7 +124,7 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 wrapMode: Text.Wrap
-                text: '<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription
+                text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):'No episode selected'
             }
         }
     }

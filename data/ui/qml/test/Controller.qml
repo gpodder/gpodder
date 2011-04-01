@@ -56,5 +56,9 @@ Item {
     function switcher() {
         console.log('Task switcher activated')
     }
+
+    function loadLastEpisode() {
+        console.log('Load last episode')
+    }
 }
 
