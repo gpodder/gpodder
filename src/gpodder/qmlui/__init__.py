@@ -120,7 +120,7 @@ class Controller(UiData):
 
     @Slot()
     def quit(self):
-        self.root.quit()
+        self.root.quit.emit()
 
     @Slot()
     def switcher(self):
@@ -166,9 +166,11 @@ def QML(filename):
         if os.path.exists(filename):
             return filename
 
-class qtPodder(object):
+class qtPodder(QObject):
     def __init__(self, args, gpodder_core):
+        QObject.__init__(self)
         self.app = QApplication(args)
+        self.quit.connect(self.on_quit)
 
         self.core = gpodder_core
         self.config = self.core.config
@@ -217,10 +219,11 @@ class qtPodder(object):
     def run(self):
         return self.app.exec_()
 
-    def quit(self):
+    quit = Signal()
+
+    def on_quit(self):
         self.save_pending_data()
         self.core.shutdown()
-        self.view.setSource('')
         self.app.quit()
 
     def open_context_menu(self, items):
