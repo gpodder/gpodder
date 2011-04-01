@@ -74,6 +74,7 @@ class gPodderEpisodes(BuilderWidget):
         for action in (self.action_update, \
                        self.action_rename, \
                        self.action_login, \
+                       self.action_website, \
                        self.action_unsubscribe, \
                        self.action_check_for_new_episodes, \
                        self.action_delete_episodes):
@@ -238,6 +239,7 @@ class gPodderEpisodes(BuilderWidget):
 
         self.action_check_for_new_episodes.set_visible(all_episodes)
         self.action_delete_episodes.set_visible(True)
+        self.action_website.set_visible(True)
 
         if all_episodes:
             self.pause_sub_button.hide()
