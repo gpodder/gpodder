@@ -18,6 +18,7 @@ SelectableItem {
 
     Image {
         id: icon
+        asynchronous: true
         source: 'episodeList/' + modelData.qfiletype + '.png'
         width: Config.iconSize
         height: Config.iconSize

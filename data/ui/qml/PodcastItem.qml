@@ -81,7 +81,8 @@ SelectableItem {
 
         ShadowText {
             id: descriptionText
-            text: modelData.qupdating?"UPDATING...":modelData.qdescription
+            text: modelData.qdescription
+            elide: Text.ElideRight
             visible: text != ''
             color: "#aaa"
             offsetX: -1
