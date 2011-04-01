@@ -87,6 +87,11 @@ class gPodderEpisodes(BuilderWidget):
         self.pause_sub_button.connect('toggled', self.on_pause_subscription_button_toggled)
         appmenu.append(self.pause_sub_button)
 
+        self.keep_episodes_button = hildon.CheckButton(gtk.HILDON_SIZE_FINGER_HEIGHT)
+        self.keep_episodes_button.set_label(_('Archive episodes'))
+        self.keep_episodes_button.connect('toggled', self.on_keep_episodes_button_toggled)
+        appmenu.append(self.keep_episodes_button)
+
         for filter in (self.item_view_episodes_all, \
                        self.item_view_episodes_undeleted, \
                        self.item_view_episodes_downloaded):
@@ -103,6 +108,18 @@ class gPodderEpisodes(BuilderWidget):
             self.cover_downloader.reload_cover_from_disk(self.channel)
             self.channel.save()
             self.update_podcast_list_model(urls=[self.channel.url])
+
+    def on_keep_episodes_button_toggled(self, widget):
+        new_value = widget.get_active()
+        if new_value != self.channel.auto_archive_episodes:
+            self.channel.auto_archive_episodes = new_value
+            self.channel.save()
+
+        for episode in self.channel.get_all_episodes():
+            episode.mark(is_locked=self.channel.auto_archive_episodes)
+
+        self.update_podcast_list_model(urls=[self.channel.url])
+        self.episode_list_status_changed(self.channel.get_all_episodes())
 
     def on_rename_button_clicked(self, widget):
         if self.channel is None:
@@ -226,10 +243,13 @@ class gPodderEpisodes(BuilderWidget):
 
         if all_episodes:
             self.pause_sub_button.hide()
+            self.keep_episodes_button.hide()
         else:
             self.pause_sub_button.show()
+            self.keep_episodes_button.show()
 
         self.pause_sub_button.set_active(self.channel.pause_subscription)
+        self.keep_episodes_button.set_active(self.channel.auto_archive_episodes)
 
         self.main_window.set_title(self.channel.title)
         self.main_window.show()

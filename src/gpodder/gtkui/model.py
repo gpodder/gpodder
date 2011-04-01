@@ -419,6 +419,7 @@ class PodcastChannelProxy(object):
         self.id = None
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
         self.pause_subscription = False
+        self.auto_archive_episodes = False
 
     def __getattribute__(self, name):
         try:
