@@ -96,7 +96,6 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.current_position
 
     def _set_position(self, position):
-        print 'set position:', position
         current_position = int(position)
         if current_position == 0: return
         if current_position != self.current_position:
@@ -109,7 +108,6 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.total_time
 
     def _set_duration(self, duration):
-        print 'set duration'
         self.total_time = int(duration)
         self.changed.emit()
 
