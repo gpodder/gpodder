@@ -57,7 +57,8 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
                     cover_url = yt_url
                 data = util.urlopen(cover_url).read()
             except Exception, e:
-                log('Error downloading cover:', e, sender=self)
+                log('Error downloading cover: %s', e, sender=self)
+                data = ''
             fp = open(filename, 'wb')
             fp.write(data)
             fp.close()
