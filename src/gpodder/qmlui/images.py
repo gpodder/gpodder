@@ -45,9 +45,12 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         if 'undefined' in (filename, cover_url, url):
             return QImage()
 
+        data = None
+
         if os.path.exists(filename):
             data = open(filename, 'rb').read()
-        else:
+
+        if data is None or data == '':
             try:
                 yt_url = youtube.get_real_cover(url)
                 if yt_url is not None:
