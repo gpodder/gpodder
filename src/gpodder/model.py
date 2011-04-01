@@ -164,6 +164,9 @@ class PodcastEpisode(PodcastModelObject):
             episode.description = entry.get('subtitle', '')
 
         episode.guid = entry.get('id', '')
+        if not episode.guid:
+            # Fallback to the entry URL if there is no GUID
+            episode.guid = entry.get('link', '')
         if entry.get('updated_parsed', None):
             episode.published = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
