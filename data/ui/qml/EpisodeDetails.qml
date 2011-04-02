@@ -87,6 +87,11 @@ Item {
                     seekLater = false
                 }
             }
+
+            function setPosition(position) {
+                var playObj = (fileType=='video')?videoPlayer:audioPlayer
+                playObj.position = position*episode.qduration*1000
+            }
         }
 
         Video {
@@ -125,6 +130,18 @@ Item {
                 anchors.right: parent.right
                 wrapMode: Text.Wrap
                 text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):'No episode selected'
+            }
+        }
+
+        PlaybackBar {
+            progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
+            onSetProgress: {
+                player.setPosition(progress)
+            }
+            anchors {
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
             }
         }
     }
