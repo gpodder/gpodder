@@ -31,6 +31,7 @@ Item {
 
         Item {
             id: player
+            property bool paused: false
             property bool playing: audioPlayer.playing || videoPlayer.playing
             property bool seekLater: false
             property string fileType: (episode!=undefined)?episode.qfiletype:''
@@ -42,14 +43,16 @@ Item {
 
                 if (fileType == 'audio') {
                     audioPlayer.source = player.source
-                    audioPlayer.play()
+                    audioPlayer.playing = true
                 } else if (fileType == 'video') {
                     videoPlayer.source = player.source
-                    videoPlayer.play()
+                    videoPlayer.playing = true
                 } else {
                     console.log('Not an audio or video file!')
                     return
                 }
+
+                player.paused = true
 
                 if (episode.qposition && episode.qposition != episode.qduration) {
                     player.seekLater = true
@@ -90,14 +93,26 @@ Item {
 
             function setPosition(position) {
                 var playObj = (fileType=='video')?videoPlayer:audioPlayer
+                if (!playObj.playing) {
+                    playObj.playing = true
+                }
                 playObj.position = position*episode.qduration*1000
             }
         }
 
         Video {
             id: videoPlayer
+            paused: player.paused
             opacity: (episode != undefined && episode.qfiletype == 'video')
             anchors.fill: parent
+
+            onPlayingChanged: {
+                if (!playing) {
+                    playing = true
+                    position = 0
+                    player.paused = true
+                }
+            }
 
             onPositionChanged: player.positionChanged('video')
             onDurationChanged: player.durationChanged('video')
@@ -106,6 +121,15 @@ Item {
 
         Audio {
             id: audioPlayer
+            paused: player.paused
+
+            onPlayingChanged: {
+                if (!playing) {
+                    playing = true
+                    position = 0
+                    player.paused = true
+                }
+            }
 
             onPositionChanged: player.positionChanged('audio')
             onDurationChanged: player.durationChanged('audio')
@@ -135,13 +159,35 @@ Item {
 
         PlaybackBar {
             progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
+            duration: episode != undefined?episode.qduration:0
+            paused: player.paused
             onSetProgress: {
                 player.setPosition(progress)
+                player.paused = false
+            }
+            onForward: {
+                if (episode != undefined && episode.qduration > 0) {
+                    var pos = (episode.qposition + 60)/episode.qduration
+                    player.setPosition(pos)
+                }
+            }
+            onBackward: {
+                if (episode != undefined && episode.qduration > 0) {
+                    var pos = (episode.qposition - 60)/episode.qduration
+                    if (pos < 0) pos = 0
+                    player.setPosition(pos)
+                }
+            }
+            onSetPaused: {
+                player.paused = !player.paused
             }
             anchors {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+                bottomMargin: Config.largeSpacing * 2
+                leftMargin: Config.largeSpacing * 2
+                rightMargin: Config.largeSpacing * 2
             }
         }
     }
