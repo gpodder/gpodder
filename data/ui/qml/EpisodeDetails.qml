@@ -148,7 +148,7 @@ Item {
             Text {
                 id: showNotesText
                 color: "black"
-                font.pixelSize: 20
+                font.pixelSize: 20 * Config.scale
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right

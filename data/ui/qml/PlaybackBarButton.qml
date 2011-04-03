@@ -6,6 +6,9 @@ import 'config.js' as Config
 Image {
     signal clicked()
 
+    width: 64 * Config.scale
+    height: 64 * Config.scale
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent

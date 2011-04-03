@@ -12,6 +12,8 @@ BorderImage {
     property real mousepos: 0
     signal setProgress(real progress)
 
+    height: 64 * Config.scale
+
     source: 'artwork/progressbar_bg.png'
 
     Rectangle {
@@ -27,7 +29,7 @@ BorderImage {
         id: seekTimePreview
         anchors.bottom: parent.top
         text: Util.formatDuration(root.mousepos*duration)
-        font.pixelSize: 50
+        font.pixelSize: 50 * Config.scale
         horizontalAlignment: Text.AlignHCenter
         color: 'black'
         anchors.left: parent.left
@@ -42,10 +44,10 @@ BorderImage {
     }
 
     border {
-        top: 18
-        left: 18
-        right: 18
-        bottom: 18
+        top: 18 * Config.scale
+        left: 18 * Config.scale
+        right: 18 * Config.scale
+        bottom: 18 * Config.scale
     }
 
     Item {
@@ -58,11 +60,12 @@ BorderImage {
         BorderImage {
             width: root.width
             source: 'artwork/progressbar_fg.png'
+            height: 64 * Config.scale
             border {
-                top: 18
-                left: 18
-                right: 18
-                bottom: 18
+                top: 18 * Config.scale
+                left: 18 * Config.scale
+                right: 18 * Config.scale
+                bottom: 18 * Config.scale
             }
         }
     }

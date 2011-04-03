@@ -22,8 +22,15 @@ Item {
 
     MouseArea {
         id: mouseArea
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         anchors.fill: parent
-        onClicked: selectableItem.selected(modelData)
+        onClicked: {
+            if (mouse.button == Qt.LeftButton) {
+                selectableItem.selected(modelData)
+            } else if (mouse.button == Qt.RightButton) {
+                selectableItem.contextMenu(modelData)
+            }
+        }
         onPressAndHold: selectableItem.contextMenu(modelData)
     }
 }

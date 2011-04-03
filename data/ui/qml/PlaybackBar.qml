@@ -12,7 +12,7 @@ Item {
     signal forward()
     signal backward()
 
-    height: 64
+    height: 64 * Config.scale
 
     Rectangle {
         radius: Config.smallSpacing
