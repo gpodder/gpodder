@@ -70,6 +70,8 @@ class Matcher(object):
             return float(episode.file_size) / (1024*1024)
         elif k == 'title':
             return episode.title
+        elif k == 'description':
+            return episode.description
         elif k == 'since':
             return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
         elif k in ('minutes', 'min'):
