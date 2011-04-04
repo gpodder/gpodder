@@ -34,6 +34,9 @@ import threading
 import os
 
 def convert(s):
+    if s is None:
+        return None
+
     if isinstance(s, unicode):
         return s
 
