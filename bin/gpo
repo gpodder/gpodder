@@ -50,6 +50,7 @@
   - Other commands -
 
     youtube [URL]              Resolve the YouTube URL to a download URL
+    rewrite [OLDURL] [NEWURL]  Change the feed URL of [OLDURL] to [NEWURL]
 
 """
 
@@ -345,6 +346,20 @@ class gPodderCli(object):
     def youtube(self, url):
         yurl = self.client.youtube_url_resolver(url)
         print yurl
+        return True
+
+    @FirstArgumentIsPodcastURL
+    def rewrite(self, old_url, new_url):
+        podcast = self.client.get_podcast(old_url)
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % old_url)
+        else:
+            result = podcast.rewrite_url(new_url)
+            if result is None:
+                self._error(_('Invalid URL: %s') % new_url)
+            else:
+                new_url = result
+                self._error(_('Changed URL from %s to %s.') % (old_url, new_url))
         return True
 
     def help(self):

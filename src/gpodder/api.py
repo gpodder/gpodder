@@ -64,6 +64,26 @@ class Podcast(object):
         self.title = self._podcast.title
         self._podcast.save()
 
+    def rewrite_url(self, url):
+        """Set a new URL for this podcast
+
+        Sets a new feed URL for this podcast. Use with care.
+        See also: gPodder bug 1020
+        """
+        url = util.normalize_feed_url(url)
+        if url is None:
+            return None
+
+        self._podcast.url = url
+
+        # Remove etag + last_modified to force a refresh next time
+        self._podcast.http_etag = None
+        self._podcast.http_last_modified = None
+
+        self._podcast.save()
+
+        return url
+
     def delete(self):
         """Remove this podcast from the subscription list
 
