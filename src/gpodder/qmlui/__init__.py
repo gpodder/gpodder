@@ -67,6 +67,7 @@ class Controller(UiData):
                 helper.Action('Update all', 'update-all', podcast),
                 helper.Action('Update', 'update', podcast),
                 helper.Action('Mark episodes as old', 'mark-as-read', podcast),
+                helper.Action('Force update all', 'force-update-all', podcast),
                 helper.Action('Force update', 'force-update', podcast),
                 helper.Action('Unsubscribe', 'unsubscribe', podcast),
         ])
@@ -86,6 +87,9 @@ class Controller(UiData):
         elif action.action == 'update-all':
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate()
+        elif action.action == 'force-update-all':
+            for podcast in self.root.podcast_model.get_objects():
+                podcast.qupdate(force=True)
         if action.action == 'unsubscribe':
             action.target.remove_downloaded()
             action.target.delete()
