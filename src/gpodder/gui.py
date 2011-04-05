@@ -3542,24 +3542,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         dlg.run()
 
-    def on_wNotebook_switch_page(self, widget, *args):
-        page_num = args[1]
+    def on_wNotebook_switch_page(self, notebook, page, page_num):
         if page_num == 0:
             self.play_or_download()
-            self.menuChannels.set_sensitive(True)
-            self.menuSubscriptions.set_sensitive(True)
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
                 self.message_area.hide()
                 self.message_area = None
-        else:
-            self.menuChannels.set_sensitive(False)
-            self.menuSubscriptions.set_sensitive(False)
-            if gpodder.ui.desktop:
-                self.toolDownload.set_sensitive(False)
-                self.toolPlay.set_sensitive(False)
-                self.toolCancel.set_sensitive(False)
+        elif gpodder.ui.desktop:
+            self.toolDownload.set_sensitive(False)
+            self.toolPlay.set_sensitive(False)
+            self.toolCancel.set_sensitive(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
