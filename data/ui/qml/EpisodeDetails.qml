@@ -92,17 +92,27 @@ Item {
             }
 
             function setPosition(position) {
-                var playObj = (fileType=='video')?videoPlayer:audioPlayer
+                var playObj = undefined
+
+                if (fileType == 'video') {
+                    playObj = videoPlayer
+                } else if (fileType == 'audio') {
+                    playObj = audioPlayer
+                } else {
+                    return
+                }
+
                 if (!playObj.playing) {
                     playObj.playing = true
                 }
+
                 playObj.position = position*episode.qduration*1000
             }
         }
 
         Video {
             id: videoPlayer
-            paused: player.paused
+            paused: player.paused || player.fileType != 'video'
             opacity: (episode != undefined && episode.qfiletype == 'video')
             anchors.fill: parent
 
@@ -121,7 +131,7 @@ Item {
 
         Audio {
             id: audioPlayer
-            paused: player.paused
+            paused: player.paused || player.fileType != 'audio'
 
             onPlayingChanged: {
                 if (!playing) {
