@@ -131,9 +131,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         if not hasattr( self, 'columns'):
             self.columns = (('title_markup', None, None, _('Episode')),)
 
-        if hasattr( self, 'title'):
-            self.gPodderEpisodeSelector.set_title( self.title)
-            self.labelHeading.set_markup('<b><big>%s</big></b>' % cgi.escape(self.title))
+        if hasattr(self, 'title'):
+            self.gPodderEpisodeSelector.set_title(self.title)
 
         if hasattr( self, 'instructions'):
             self.labelInstructions.set_text( self.instructions)
