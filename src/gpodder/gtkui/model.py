@@ -618,7 +618,11 @@ class PodcastListModel(gtk.ListStore):
         d.append(title_markup)
         if new:
             d.append('</span>')
-        return ''.join(d+['\n', '<small>', description_markup, '</small>'])
+
+        if description_markup.strip():
+            return ''.join(d+['\n', '<small>', description_markup, '</small>'])
+        else:
+            return ''.join(d)
 
     def _format_error(self, channel):
         if channel.parse_error:
