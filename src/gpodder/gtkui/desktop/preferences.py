@@ -92,7 +92,6 @@ class gPodderPreferences(BuilderWidget):
         self.combo_video_player_app.set_active(index)
 
         self._config.connect_gtk_togglebutton('enable_notifications', self.checkbutton_enable_notifications)
-        self._config.connect_gtk_togglebutton('display_tray_icon', self.checkbutton_show_tray_icon)
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()

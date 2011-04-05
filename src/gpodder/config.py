@@ -87,9 +87,6 @@ gPodderSettings = {
     # YouTube
     'youtube_preferred_fmt_id': 18,
 
-    # Tray icon
-    'display_tray_icon': False,
-
     # Misc
     'paned_position': 200,
     'rotation_mode': 0,

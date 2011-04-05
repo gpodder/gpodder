@@ -103,13 +103,6 @@ if gpodder.ui.desktop:
     from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
     from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
     from gpodder.gtkui.interface.progress import ProgressIndicator
-    try:
-        from gpodder.gtkui.desktop.trayicon import GPodderStatusIcon
-        have_trayicon = True
-    except Exception, exc:
-        log('Warning: Could not import gpodder.trayicon.', traceback=True)
-        log('Warning: This probably means your PyGTK installation is too old!')
-        have_trayicon = False
 elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.model import DownloadStatusModel
     from gpodder.gtkui.frmntl.model import EpisodeListModel
@@ -123,7 +116,6 @@ elif gpodder.ui.fremantle:
     from gpodder.gtkui.frmntl.downloads import gPodderDownloads
     from gpodder.gtkui.frmntl.progress import ProgressIndicator
     from gpodder.gtkui.frmntl.widgets import FancyProgressBar
-    have_trayicon = False
 
     from gpodder.gtkui.frmntl.portrait import FremantleRotation
     from gpodder.gtkui.frmntl.mafw import MafwPlaybackMonitor
@@ -241,7 +233,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.preferences_dialog = None
         self.config.add_observer(self.on_config_changed)
 
-        self.tray_icon = None
         self.episode_shownotes_window = None
         self.new_episodes_window = None
 
@@ -275,7 +266,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
         if gpodder.ui.desktop:
-            self.show_hide_tray_icon()
             self.itemShowAllEpisodes.set_active(self.config.podcast_list_view_all)
             self.itemShowToolbar.set_active(self.config.show_toolbar)
             self.itemShowDescription.set_active(self.config.episode_list_descriptions)
@@ -1320,14 +1310,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     percentage = 0.0
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
-                if self.tray_icon is not None:
-                    # Update the tray icon status and progress bar
-                    self.tray_icon.set_status(self.tray_icon.STATUS_DOWNLOAD_IN_PROGRESS, title[1])
-                    self.tray_icon.draw_progress_bar(percentage/100.)
             else:
-                if self.tray_icon is not None:
-                    # Update the tray icon status
-                    self.tray_icon.set_status()
                 if gpodder.ui.desktop:
                     self.downloads_finished(self.download_tasks_seen)
                 log('All downloads have finished.', sender=self)
@@ -1721,10 +1704,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def on_itemClose_activate(self, widget):
-        if self.tray_icon is not None:
-            self.iconify_main_window()
-        else:
-            self.on_gPodder_delete_event(widget)
+        self.on_gPodder_delete_event(widget)
 
     def cover_file_removed(self, channel_url):
         """
@@ -2672,9 +2652,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_message(_('No new episodes. Please check for new episodes later.'))
             return
 
-        if self.tray_icon:
-            self.tray_icon.set_status()
-
         if self.feed_cache_update_cancelled:
             # The user decided to abort the feed update
             self.show_update_feeds_buttons()
@@ -2742,8 +2719,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     d = {'podcast': channel.title, 'position': updated+1, 'total': total}
                     progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
                     self.pbFeedUpdate.set_text(progression)
-                    if self.tray_icon:
-                        self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE, progression)
                     self.pbFeedUpdate.set_fraction(float(updated+1)/float(total))
                 util.idle_add(update_progress)
 
@@ -2799,9 +2774,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.itemUpdate.set_sensitive(False)
             self.itemUpdateChannel.set_sensitive(False)
 
-            if self.tray_icon:
-                self.tray_icon.set_status(self.tray_icon.STATUS_UPDATING_FEED_CACHE)
-
             self.feed_cache_update_cancelled = False
             self.btnCancelFeedUpdate.show()
             self.btnCancelFeedUpdate.set_sensitive(True)
@@ -2855,9 +2827,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """ clean everything and exit properly
         """
         self.gPodder.hide()
-
-        if self.tray_icon is not None:
-            self.tray_icon.set_visible(False)
 
         # Notify all tasks to to carry out any clean-up actions
         self.download_status_model.tell_all_tasks_to_quit()
@@ -3196,17 +3165,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """This will be called after the sync process is finished"""
         self.db.commit()
 
-    def show_hide_tray_icon(self):
-        if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:
-            self.tray_icon = GPodderStatusIcon(self, gpodder.icon_file, self.config)
-        elif not self.config.display_tray_icon and self.tray_icon is not None:
-            self.tray_icon.set_visible(False)
-            del self.tray_icon
-            self.tray_icon = None
-
-        if self.tray_icon:
-            self.tray_icon.set_visible(True)
-
     def on_itemShowAllEpisodes_activate(self, widget):
         self.config.podcast_list_view_all = widget.get_active()
 
@@ -3249,9 +3207,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring and not gpodder.ui.fremantle:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
-    def properties_closed( self):
+    def properties_closed(self):
         self.preferences_dialog = None
-        self.show_hide_tray_icon()
 
     def on_itemPreferences_activate(self, widget, *args):
         self.preferences_dialog = gPodderPreferences(self.main_window, \
