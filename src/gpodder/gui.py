@@ -515,7 +515,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             indicator.on_progress(float(found)/count)
                             candidates.remove(filename)
                             partial_files.remove(filename+'.partial')
-                            resumable_episodes.append(e)
+
+                            if os.path.exists(filename):
+                                # The file has already been downloaded;
+                                # remove the leftover partial file
+                                util.delete_file(filename+'.partial')
+                            else:
+                                resumable_episodes.append(e)
 
                         if not candidates:
                             break
@@ -3064,11 +3070,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         downloading = self.download_status_model.are_downloads_in_progress()
 
-        # Only iconify if we are using the window's "X" button,
-        # but not when we are using "Quit" in the menu or toolbar
-        if self.config.on_quit_systray and self.tray_icon and widget.get_name() not in ('toolQuit', 'itemQuit'):
-            self.iconify_main_window()
-        elif downloading:
+        if downloading:
             if gpodder.ui.fremantle:
                 self.close_gpodder()
             elif gpodder.ui.diablo:
@@ -3492,14 +3494,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_hide_tray_icon(self):
         if self.config.display_tray_icon and have_trayicon and self.tray_icon is None:
             self.tray_icon = GPodderStatusIcon(self, gpodder.icon_file, self.config)
-        elif not self.config.display_tray_icon and self.tray_icon is not None:
+        elif not self.config.display_tray_icon and self.tray_icon:
             self.tray_icon.set_visible(False)
             del self.tray_icon
             self.tray_icon = None
 
-        if self.config.minimize_to_tray and self.tray_icon:
-            self.tray_icon.set_visible(self.is_iconified())
-        elif self.tray_icon:
+        if self.tray_icon:
             self.tray_icon.set_visible(True)
 
     def on_itemShowAllEpisodes_activate(self, widget):
@@ -4110,32 +4110,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_iconify(self):
         if self.tray_icon:
-            self.gPodder.set_skip_taskbar_hint(True)
-            if self.config.minimize_to_tray:
-                self.tray_icon.set_visible(True)
+            self.gPodder.set_skip_taskbar_hint(False)
         else:
             self.gPodder.set_skip_taskbar_hint(False)
 
     def on_uniconify(self):
         if self.tray_icon:
             self.gPodder.set_skip_taskbar_hint(False)
-            if self.config.minimize_to_tray:
-                self.tray_icon.set_visible(False)
         else:
             self.gPodder.set_skip_taskbar_hint(False)
 
     def uniconify_main_window(self):
-        if self.is_iconified():
-            # We need to hide and then show the window in WMs like Metacity
-            # or KWin4 to move the window to the active workspace
-            # (see http://gpodder.org/bug/1125)
-            self.gPodder.hide()
-            self.gPodder.show()
-            self.gPodder.present()
+        # We need to hide and then show the window in WMs like Metacity
+        # or KWin4 to move the window to the active workspace
+        # (see http://gpodder.org/bug/1125)
+        self.gPodder.hide()
+        self.gPodder.show()
+        self.gPodder.present()
  
     def iconify_main_window(self):
         if not self.is_iconified():
-            self.gPodder.iconify()          
+            self.gPodder.hide()
 
     def update_podcasts_tab(self):
         if gpodder.ui.fremantle:

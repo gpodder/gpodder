@@ -131,9 +131,10 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.__gpodder.uniconify_main_window()
         else:
             if not self.__gpodder.gPodder.is_active():
-                self.__gpodder.gPodder.present()
-            else:            
+                self.__gpodder.uniconify_main_window()
+            else:
                 self.__gpodder.iconify_main_window()
+
 
     def __get_status_icon(self, icon):
         if icon in self.__icon_cache:

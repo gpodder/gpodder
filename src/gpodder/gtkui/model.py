@@ -196,7 +196,12 @@ class EpisodeListModel(gtk.ListStore):
 
         self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
 
-        episodes = channel.get_all_episodes()
+        # Avoid gPodder bug 1291
+        if channel is None:
+            episodes = []
+        else:
+            episodes = channel.get_all_episodes()
+
         if not isinstance(episodes, list):
             episodes = list(episodes)
         count = len(episodes)
@@ -495,6 +500,7 @@ class PodcastChannelProxy(object):
         self.save_dir_size = 0L
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
         self.feed_update_enabled = True
+        self.channel_is_locked = False
 
     def __getattribute__(self, name):
         try:

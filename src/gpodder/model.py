@@ -242,12 +242,27 @@ class PodcastChannel(PodcastModelObject):
         # Get most recent pubDate of all episodes
         last_pubdate = self.db.get_last_pubdate(self) or 0
 
+        # Keep track of episode GUIDs currently seen in the feed
+        seen_guids = set()
+
         # Search all entries for new episodes
         for entry in entries:
             try:
                 episode = PodcastEpisode.from_feedparser_entry(entry, self, mimetype_prefs)
-                if episode is not None and not episode.title:
-                    episode.title, ext = os.path.splitext(os.path.basename(episode.url))
+                if episode is not None:
+                    if not episode.title:
+                        log('Using filename as title for episode at %s.', \
+                                episode.url, sender=self)
+                        basename = os.path.basename(episode.url)
+                        episode.title, ext = os.path.splitext(basename)
+
+                    # Maemo bug 12073
+                    if not episode.guid:
+                        log('Using download URL as GUID for episode %s.', \
+                                episode.title, sender=self)
+                        episode.guid = episode.url
+
+                    seen_guids.add(episode.guid)
             except Exception, e:
                 log('Cannot instantiate episode: %s. Skipping.', e, sender=self, traceback=True)
                 continue
@@ -282,10 +297,9 @@ class PodcastChannel(PodcastModelObject):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         if self.id is not None:
-            seen_guids = set(e.guid for e in feed.entries if hasattr(e, 'guid'))
             episodes_to_purge = (e for e in existing if \
                     e.state != gpodder.STATE_DOWNLOADED and \
-                    e.guid not in seen_guids and e.guid is not None)
+                    e.guid not in seen_guids)
             for episode in episodes_to_purge:
                 log('Episode removed from feed: %s (%s)', episode.title, \
                         episode.guid, sender=self)
@@ -929,6 +943,9 @@ class PodcastEpisode(PodcastModelObject):
         if not desc:
             return _('No description available')
         else:
+            # Decode the description to avoid gPodder bug 1277
+            if isinstance(desc, str):
+                desc = desc.decode('utf-8', 'ignore')
             if len(desc) > MAX_LINE_LENGTH:
                 return desc[:MAX_LINE_LENGTH] + '...'
             else:
