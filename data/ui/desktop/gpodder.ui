@@ -61,15 +61,6 @@
           <accelerator key="P" modifiers="GDK_CONTROL_MASK"/>
         </child>
         <child>
-          <object class="GtkAction" id="itemClose">
-            <property name="stock_id">gtk-close</property>
-            <property name="name">itemClose</property>
-            <property name="label" translatable="yes">Close</property>
-            <signal handler="on_itemClose_activate" name="activate"/>
-          </object>
-          <accelerator key="W" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
           <object class="GtkAction" id="itemQuit">
             <property name="stock_id">gtk-quit</property>
             <property name="name">itemQuit</property>
@@ -355,7 +346,6 @@
           <separator/>
           <menuitem action="itemPreferences"/>
           <separator/>
-          <menuitem action="itemClose"/>
           <menuitem action="itemQuit"/>
         </menu>
         <menu action="menuSubscriptions">

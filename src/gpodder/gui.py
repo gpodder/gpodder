@@ -1703,9 +1703,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             return True
 
-    def on_itemClose_activate(self, widget):
-        self.on_gPodder_delete_event(widget)
-
     def cover_file_removed(self, channel_url):
         """
         The Cover Downloader calls this when a previously-
