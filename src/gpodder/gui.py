@@ -407,7 +407,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             podcast.import_external_files()
 
         self.channel_list_changed = True
-        self.update_podcasts_tab()
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -2443,7 +2442,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # Update the list of subscribed podcasts
                 self.update_feed_cache(force_update=False, select_url_afterwards=url)
-                self.update_podcasts_tab()
 
                 # Offer to download new episodes
                 episodes = []
@@ -2596,7 +2594,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.button_refresh.set_sensitive(True)
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             hildon.hildon_gtk_window_set_progress_indicator(self.episodes_window.main_window, False)
-            self.update_podcasts_tab()
             self.update_episode_list_model()
             if self.feed_cache_update_cancelled:
                 return
@@ -3307,7 +3304,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Re-load the channels and select the desired new channel
             self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
             progress.on_finished()
-            self.update_podcasts_tab()
 
         def thread_proc():
             select_url = None
@@ -3681,15 +3677,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def iconify_main_window(self):
         if not self.is_iconified():
             self.gPodder.iconify()          
-
-    def update_podcasts_tab(self):
-        if gpodder.ui.fremantle:
-            return
-
-        self.label2.set_text(_('Podcasts'))
-        count = len(self.channels)
-        if count:
-            self.label2.set_text(self.label2.get_text() + ' (%d)' % count)
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
