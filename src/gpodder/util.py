@@ -760,6 +760,10 @@ def format_desktop_command(command, filenames):
     each filename if the application does not support multiple
     file names or one for all filenames (%U, %F or unknown).
     """
+    # Replace backslashes with slashes to fix win32 issues
+    # (even on win32, "/" works, but "\" does not)
+    command = command.replace('\\', '/')
+
     command = shlex.split(command)
 
     command_before = command
