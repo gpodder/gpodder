@@ -923,7 +923,7 @@ class PodcastEpisode(PodcastModelObject):
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
         desc = util.remove_html_tags(self.description or '')
-        desc = re.sub('\n', ' ', desc).strip()
+        desc = re.sub('\s+', ' ', desc).strip()
         if not desc:
             return _('No description available')
         else:
