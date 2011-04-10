@@ -193,8 +193,9 @@ class qtPodder(QObject):
         self.db = self.core.db
 
         self.view = QDeclarativeView()
-        self.glw = QGLWidget()
-        self.view.setViewport(self.glw)
+        # Disable OpenGL-based rendering for now
+        #self.glw = QGLWidget()
+        #self.view.setViewport(self.glw)
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
