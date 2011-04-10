@@ -28,7 +28,8 @@
  Dependencies
  ============
 
-   * python (>= 2.5) with sqlite3 support
+   * python (>= 2.5) with sqlite3 and json support
+     Python 2.6 includes "json"; for Python < 2.6, install "simplejson"
    * python-gtk2 (>= 2.12)
    * python-feedparser
    * python-mygpoclient (>= 1.4; http://thp.io/2010/mygpoclient/)
@@ -62,11 +63,6 @@
  Additional dependencies for gPodder on Mac OS X:
 
    * ige-mac-integration (optional; when using the quartz GDK backend)
-
- Additional dependencies for the Soundcloud plug-in:
-
-   * Python >= 2.6 (as this includes the "json" module) OR
-   * Python < 2.6 with the "simplejson" module (Debian: python-simplejson)
 
  Additional dependencies if you want to install from source:
  

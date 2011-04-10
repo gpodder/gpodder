@@ -26,6 +26,11 @@ import gpodder
 from gpodder import util
 from gpodder.liblogger import log
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import re
 import urllib
 
@@ -163,29 +168,27 @@ def get_real_cover(url):
     return None
 
 def find_youtube_channels(string):
-    # FIXME: Make proper use of the YouTube API instead
-    # of screen-scraping the YouTube website
-    url = 'http://www.youtube.com/results?search_query='+ urllib.quote(string, '') +'&search_type=search_users&aq=f'
-
-    r = re.compile('>\s+<')
-    data = r.sub('><', util.urlopen(url).read())
-
-    r1 = re.compile('<a href="/user/([^"?]+)[^"]+"[^>]*>([^<]+)</a>')
-    m1 = r1.findall(data)
-
-    r2 = re.compile('\s+')
+    url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(string, '')
+    data = json.load(util.urlopen(url))
 
     class FakeImporter(object):
         def __init__(self):
             self.items = []
 
     result = FakeImporter()
-    found_users = []
-    for name, title in m1:
-        if name not in found_users:
-            found_users.append(name)
-            link = 'http://www.youtube.com/rss/user/'+ name +'/videos.rss'
-            result.items.append({'title': name, 'url': link, 'description': title})
+
+    seen_users = set()
+    for entry in data['feed']['entry']:
+        user = entry['author'][0]['name']['$t']
+        title = entry['title']['$t']
+        url = 'http://www.youtube.com/rss/user/%s/videos.rss' % user
+        if user not in seen_users:
+            result.items.append({
+                'title': user,
+                'url': url,
+                'description': title
+            })
+            seen_users.add(user)
 
     return result
 
