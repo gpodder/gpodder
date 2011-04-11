@@ -905,6 +905,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeChannels.connect('key-press-event', on_key_press)
 
+        self.treeChannels.connect('popup-menu', self.treeview_channels_show_context_menu)
+
         # Enable separators to the podcast list to separate special podcasts
         # from others (this is used for the "all episodes" view)
         self.treeChannels.set_row_separator_func(PodcastListModel.row_separator_func)
@@ -1118,6 +1120,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
+        self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
+
         if gpodder.ui.desktop:
             self.treeAvailable.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, \
                     (('text/uri-list', 0, 0),), gtk.gdk.ACTION_COPY)
@@ -1181,6 +1185,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
+
+        self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
 
     def on_treeview_expose_event(self, treeview, event):
         if event.window == treeview.get_bin_window():
@@ -1536,6 +1542,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         setattr(treeview, TreeViewHelper.CAN_TOOLTIP, allow)
 
     def treeview_handle_context_menu_click(self, treeview, event):
+        if event is None:
+            selection = treeview.get_selection()
+            return selection.get_selected_rows()
+
         x, y = int(event.x), int(event.y)
         path, column, rx, ry = treeview.get_path_at_pos(x, y) or (None,)*4
 
@@ -1688,7 +1698,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def treeview_downloads_show_context_menu(self, treeview, event):
+    def treeview_downloads_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             if not hasattr(treeview, 'is_rubber_banding_active'):
@@ -1696,7 +1706,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 return not treeview.is_rubber_banding_active()
 
-        if event.button == self.context_menu_mouse_button:
+        if event is None or event.button == self.context_menu_mouse_button:
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
@@ -1730,10 +1740,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(make_menu_item(_('Remove from list'), gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
 
             menu.show_all()
-            menu.popup(None, None, None, event.button, event.time)
+
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+            else:
+                menu.popup(None, None, None, event.button, event.time)
             return True
 
-    def treeview_channels_show_context_menu(self, treeview, event):
+    def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             return True
@@ -1744,7 +1759,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel.id is None:
             return True
 
-        if event.button == 3:
+        if event is None or event.button == self.context_menu_mouse_button:
             menu = gtk.Menu()
 
             ICON = lambda x: x
@@ -1779,7 +1794,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # the tooltip will not appear over the menu
             self.treeview_allow_tooltips(self.treeChannels, False)
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
-            menu.popup( None, None, None, event.button, event.time)
+
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+            else:
+                menu.popup(None, None, None, event.button, event.time)
 
             return True
 
@@ -1854,7 +1874,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return (True, dx, dy)
 
-    def treeview_available_show_context_menu(self, treeview, event):
+    def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             if not hasattr(treeview, 'is_rubber_banding_active'):
@@ -1862,7 +1882,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 return not treeview.is_rubber_banding_active()
 
-        if event.button == self.context_menu_mouse_button:
+        if event is None or event.button == self.context_menu_mouse_button:
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
             any_played = any(not e.is_new for e in episodes)
@@ -1959,7 +1979,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # the tooltip will not appear over the menu
             self.treeview_allow_tooltips(self.treeAvailable, False)
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
-            menu.popup( None, None, None, event.button, event.time)
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+            else:
+                menu.popup(None, None, None, event.button, event.time)
 
             return True
 

@@ -466,3 +466,10 @@ class TreeViewHelper(object):
     def get_columns(cls, treeview):
         return getattr(treeview, cls.COLUMNS, [])
 
+    @staticmethod
+    def make_popup_position_func(widget):
+        def position_func(menu):
+            x, y = widget.window.get_origin()
+            return (x, y, True)
+        return position_func
+
