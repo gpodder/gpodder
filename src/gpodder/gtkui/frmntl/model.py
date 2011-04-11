@@ -55,13 +55,13 @@ class DownloadStatusModel(download.DownloadStatusModel):
 
 
 class EpisodeListModel(gtk.GenericTreeModel):
-    N_COLUMNS = 16
+    N_COLUMNS = 17
 
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
-            C_TIME, C_TIME_VISIBLE, \
+            C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
             C_LOCKED = range(N_COLUMNS)
 
     DATA_TYPES = (str, str, str, object, str   , str, str, \
@@ -158,6 +158,8 @@ class EpisodeListModel(gtk.GenericTreeModel):
         elif column == self.C_TIME:
             return episode.get_play_info_string()
         elif column == self.C_TIME_VISIBLE:
+            return bool(episode.total_time)
+        elif column == self.C_TOTAL_TIME:
             return episode.total_time
         elif column == self.C_LOCKED:
             return episode.archive and \

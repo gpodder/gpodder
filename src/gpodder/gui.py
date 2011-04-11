@@ -232,6 +232,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.gPodder.connect('key-press-event', self.on_key_press)
 
         self.preferences_dialog = None
+        self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
         self.episode_shownotes_window = None
@@ -943,6 +944,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.entry_search_episodes.grab_focus()
         self.entry_search_episodes.set_position(-1)
 
+    def set_episode_list_column(self, index, new_value):
+        mask = (1 << index)
+        if new_value:
+            self.config.episode_list_columns |= mask
+        else:
+            self.config.episode_list_columns &= ~mask
+
+    def update_episode_list_columns_visibility(self):
+        if gpodder.ui.fremantle:
+            return
+
+        columns = TreeViewHelper.get_columns(self.treeAvailable)
+        for index, column in enumerate(columns):
+            visible = bool(self.config.episode_list_columns & (1 << index))
+            column.set_visible(visible)
+        self.treeAvailable.columns_autosize()
+
+        if self.episode_columns_menu is not None:
+            children = self.episode_columns_menu.get_children()
+            for index, child in enumerate(children):
+                active = bool(self.config.episode_list_columns & (1 << index))
+                child.set_active(active)
+
+    def on_episode_list_header_clicked(self, button, event):
+        if self.episode_columns_menu is not None:
+            self.episode_columns_menu.popup(None, None, None, event.button, \
+                    event.time, None)
+
     def init_episode_list_treeview(self):
         # For loading the list model
         self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
@@ -1009,6 +1038,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         sizecolumn = gtk.TreeViewColumn(_('Size'), sizecell, text=EpisodeListModel.C_FILESIZE_TEXT)
         sizecolumn.set_sort_column_id(EpisodeListModel.C_FILESIZE)
 
+        timecell = gtk.CellRendererText()
+        timecell.set_property('xalign', 1)
+        timecolumn = gtk.TreeViewColumn(_('Duration'), timecell, text=EpisodeListModel.C_TIME)
+        timecolumn.set_sort_column_id(EpisodeListModel.C_TOTAL_TIME)
+
         releasecell = gtk.CellRendererText()
         releasecolumn = gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
@@ -1017,9 +1051,48 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeAvailable.append_column(namecolumn)
 
         if gpodder.ui.desktop:
-            for itemcolumn in (sizecolumn, releasecolumn):
+            for itemcolumn in (sizecolumn, timecolumn, releasecolumn):
                 itemcolumn.set_reorderable(True)
                 self.treeAvailable.append_column(itemcolumn)
+                TreeViewHelper.register_column(self.treeAvailable, itemcolumn)
+
+            # Add context menu to all tree view column headers
+            for column in self.treeAvailable.get_columns():
+                label = gtk.Label(column.get_title())
+                label.show_all()
+                column.set_widget(label)
+
+                w = column.get_widget()
+                while w is not None and not isinstance(w, gtk.Button):
+                    w = w.get_parent()
+
+                w.connect('button-release-event', self.on_episode_list_header_clicked)
+
+            # Create a new menu for the visible episode list columns
+            for child in self.mainMenu.get_children():
+                if child.get_name() == 'menuView':
+                    submenu = child.get_submenu()
+                    item = gtk.MenuItem(_('Visible columns'))
+                    submenu.append(gtk.SeparatorMenuItem())
+                    submenu.append(item)
+                    submenu.show_all()
+
+                    self.episode_columns_menu = gtk.Menu()
+                    item.set_submenu(self.episode_columns_menu)
+                    break
+
+            # For each column that can be shown/hidden, add a menu item
+            columns = TreeViewHelper.get_columns(self.treeAvailable)
+            for index, column in enumerate(columns):
+                item = gtk.CheckMenuItem(column.get_title())
+                self.episode_columns_menu.append(item)
+                def on_item_toggled(item, index):
+                    self.set_episode_list_column(index, item.get_active())
+                item.connect('toggled', on_item_toggled, index)
+            self.episode_columns_menu.show_all()
+
+            # Update the visibility of the columns and the check menu items
+            self.update_episode_list_columns_visibility()
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
@@ -1371,6 +1444,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model()
             if gpodder.ui.fremantle:
                 hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
+        elif name == 'episode_list_columns':
+            self.update_episode_list_columns_visibility()
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without

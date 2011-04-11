@@ -421,6 +421,7 @@ class TreeViewHelper(object):
     LAST_TOOLTIP = '_gpodder_last_tooltip'
     CAN_TOOLTIP = '_gpodder_can_tooltip'
     ROLE = '_gpodder_role'
+    COLUMNS = '_gpodder_columns'
 
     # Enum for the role attribute
     ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = range(3)
@@ -452,4 +453,16 @@ class TreeViewHelper(object):
                     return False
             return True
         return func
+
+    @classmethod
+    def register_column(cls, treeview, column):
+        if not hasattr(treeview, cls.COLUMNS):
+            setattr(treeview, cls.COLUMNS, [])
+
+        columns = getattr(treeview, cls.COLUMNS)
+        columns.append(column)
+
+    @classmethod
+    def get_columns(cls, treeview):
+        return getattr(treeview, cls.COLUMNS, [])
 

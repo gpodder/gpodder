@@ -98,8 +98,8 @@ class EpisodeListModel(gtk.ListStore):
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
-            C_TIME, C_TIME_VISIBLE, \
-            C_LOCKED = range(16)
+            C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
+            C_LOCKED = range(17)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
@@ -109,7 +109,7 @@ class EpisodeListModel(gtk.ListStore):
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                int, int, str, bool, bool, bool)
+                int, int, str, bool, int, bool)
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
@@ -269,8 +269,8 @@ class EpisodeListModel(gtk.ListStore):
                     episode.file_size, \
                     episode.published, \
                     episode.get_play_info_string(), \
-                    episode.total_time and not episode.current_position, \
-                    episode.total_time and episode.current_position, \
+                    bool(episode.total_time), \
+                    episode.total_time, \
                     episode.archive))
 
             self.update_by_iter(iter, downloading, include_description, \
@@ -398,8 +398,9 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
                 self.C_DESCRIPTION, description, \
                 self.C_TOOLTIP, tooltip, \
-                self.C_TIME, episode.get_play_info_string(), \
-                self.C_TIME_VISIBLE, episode.total_time, \
+                self.C_TIME, episode.get_play_info_string(duration_only=True), \
+                self.C_TIME_VISIBLE, bool(episode.total_time), \
+                self.C_TOTAL_TIME, episode.total_time, \
                 self.C_LOCKED, episode.archive, \
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                 self.C_FILESIZE, episode.file_size)

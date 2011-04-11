@@ -77,6 +77,7 @@ gPodderSettings = {
 
     # Display list filter configuration
     'episode_list_view_mode': 1,
+    'episode_list_columns': int('101', 2), # bitfield of visible columns
     'podcast_list_view_mode': 1,
     'podcast_list_hide_boring': False,
 
