@@ -888,7 +888,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
-            if event.keyval == gtk.keysyms.Escape:
+            if gpodder.ui.desktop and event.keyval == gtk.keysyms.Right:
+                self.treeAvailable.grab_focus()
+            elif event.keyval == gtk.keysyms.Escape:
                 self.hide_podcast_search()
             elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
                 self.hide_podcast_search()
@@ -1103,7 +1105,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
-            if event.keyval == gtk.keysyms.Escape:
+            if gpodder.ui.desktop and event.keyval == gtk.keysyms.Left:
+                self.treeChannels.grab_focus()
+            elif event.keyval == gtk.keysyms.Escape:
                 self.hide_episode_search()
             elif gpodder.ui.fremantle and event.keyval == gtk.keysyms.BackSpace:
                 self.hide_episode_search()
