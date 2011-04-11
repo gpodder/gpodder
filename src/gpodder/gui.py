@@ -968,9 +968,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 child.set_active(active)
 
     def on_episode_list_header_clicked(self, button, event):
+        if event.button != 3:
+            return False
+
         if self.episode_columns_menu is not None:
             self.episode_columns_menu.popup(None, None, None, event.button, \
                     event.time, None)
+
+        return False
 
     def init_episode_list_treeview(self):
         # For loading the list model
