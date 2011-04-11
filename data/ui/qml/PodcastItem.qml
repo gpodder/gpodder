@@ -34,7 +34,7 @@ SelectableItem {
 
     Image {
     	id: cover
-        source: 'podcastList/cover-shadow.png'
+        source: 'artwork/cover-shadow.png'
 
         height: podcastItem.height * .8
         width: podcastItem.height * .8

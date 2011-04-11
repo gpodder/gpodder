@@ -20,7 +20,7 @@ Image {
             rightMargin: (parent.width * .8 - width) / 2
         }
         rotation: (parent.opened)?-90:0
-        source: (parent.opened)?'icons/back_inv.png':'icons/play_inv.png'
+        source: (parent.opened)?'artwork/back_inv.png':'artwork/play_inv.png'
 
         Behavior on rotation { NumberAnimation { duration: Config.quickTransition } }
     }

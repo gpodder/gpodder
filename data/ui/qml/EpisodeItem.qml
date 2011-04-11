@@ -18,7 +18,7 @@ SelectableItem {
 
     FilledIcon {
         id: icon
-        source: 'episodeList/' + modelData.qfiletype + '.png'
+        source: 'artwork/' + modelData.qfiletype + '.png'
         width: Config.iconSize
         height: Config.iconSize
         anchors.verticalCenter: parent.verticalCenter

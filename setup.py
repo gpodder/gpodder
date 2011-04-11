@@ -82,6 +82,9 @@ inst_manpages = glob.glob( 'data/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
 inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
+inst_share_ui_qml = glob.glob('data/ui/qml/*.qml') + glob.glob('data/ui/qml/*.js')
+inst_share_ui_qml_artwork = glob.glob('data/ui/qml/artwork/*')
+inst_share_ui_qml_test = glob.glob('data/ui/qml/test/*')
 inst_share_gpodder = [ 'data/credits.txt' ] + glob.glob('data/images/*.png')
 inst_share_gpodder_examples = glob.glob('examples/*')
 inst_desktop = [ DESKTOP_FILE ]
@@ -100,6 +103,9 @@ inst_icons_svg = [ 'data/gpodder.svg' ]
 data_files = [
   ('share/man/man1',       inst_manpages),
   ('share/gpodder/ui',     inst_share_ui),
+  ('share/gpodder/ui/qml', inst_share_ui_qml),
+  ('share/gpodder/ui/qml/artwork', inst_share_ui_qml_artwork),
+  ('share/gpodder/ui/qml/test', inst_share_ui_qml_test),
   ('share/pixmaps',        inst_icons),
   ('share/gpodder',        inst_share_gpodder),
   ('share/gpodder/examples', inst_share_gpodder_examples),

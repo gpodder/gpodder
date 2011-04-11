@@ -69,12 +69,12 @@ Rectangle {
 
     Image {
         anchors.fill: parent
-        source: 'podcastList/mask.png'
+        source: 'artwork/mask.png'
     }
 
     Image {
         anchors.fill: parent
-        source: 'podcastList/noise.png'
+        source: 'artwork/noise.png'
     }
 
     function setCurrentEpisode() {
@@ -315,7 +315,7 @@ Rectangle {
                     left: parent.left
                     leftMargin: (parent.width * .8 - width) / 2
                 }
-                source: 'icons/switch.png'
+                source: 'artwork/switch.png'
             }
         }
 
@@ -335,7 +335,7 @@ Rectangle {
             id: searchButton
             anchors.right: closeButton.left
 
-            source: 'icons/subscriptions.png'
+            source: 'artwork/subscriptions.png'
 
             onClicked: controller.searchButtonClicked()
 
@@ -346,7 +346,7 @@ Rectangle {
             id: closeButton
             anchors.right: parent.right
 
-            source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'icons/close.png':'icons/back.png'
+            source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
             rotation: (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
 
             onClicked: {
