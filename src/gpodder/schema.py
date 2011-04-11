@@ -76,7 +76,7 @@ def initialize_database(db):
 
     INDEX_SQL = """
     CREATE INDEX idx_episode_podcast_id ON episode (podcast_id)
-    CREATE UNIQUE INDEX idx_episode_download_filename ON episode (download_filename)
+    CREATE UNIQUE INDEX idx_episode_download_filename ON episode (podcast_id, download_filename)
     CREATE UNIQUE INDEX idx_episode_guid ON episode (podcast_id, guid)
     CREATE INDEX idx_episode_state ON episode (state)
     CREATE INDEX idx_episode_is_new ON episode (is_new)
