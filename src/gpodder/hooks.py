@@ -26,7 +26,7 @@ The hooks class defines several callbacks that will be called by the
 gPodder application at certain points. See the methods defined below
 for a list on what these callbacks are and the parameters they take.
 
-For an example extension see doc/dev/examples/hooks.py
+For an example extension see examples/hooks.py
 """
 
 import glob

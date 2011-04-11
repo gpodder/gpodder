@@ -78,11 +78,12 @@ for prerequisite in (DBUS_SERVICE_FILE, DESKTOP_FILE):
         sys.exit(1)
 
 # files to install
-inst_manpages = glob.glob( 'doc/man/*.1')
+inst_manpages = glob.glob( 'data/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
 inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_gpodder = [ 'data/credits.txt' ] + glob.glob('data/images/*.png')
+inst_share_gpodder_examples = glob.glob('examples/*')
 inst_desktop = [ DESKTOP_FILE ]
 inst_share_dbus_services = [ DBUS_SERVICE_FILE ]
 
@@ -101,6 +102,7 @@ data_files = [
   ('share/gpodder/ui',     inst_share_ui),
   ('share/pixmaps',        inst_icons),
   ('share/gpodder',        inst_share_gpodder),
+  ('share/gpodder/examples', inst_share_gpodder_examples),
   ('share/dbus-1/services',inst_share_dbus_services),
 ]
 

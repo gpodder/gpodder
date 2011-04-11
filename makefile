@@ -33,7 +33,7 @@ TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 			       src/gpodder/gtkui/frmntl/*.py)
 
 HELP2MAN=help2man
-MANPAGE=doc/man/gpodder.1
+MANPAGE=data/man/gpodder.1
 
 GPODDER_ICON_THEME=dist/gpodder
 
@@ -65,9 +65,6 @@ help:
 	@echo 'make clean           remove generated+temp+*.py{c,o} files'
 	@echo 'make distclean       do a "make clean" + remove "dist/"'
 	@echo 'make headlink        print URL for the current Git head'
-	@echo ''
-	@echo 'make install-git-menuitem   Add shortcuts to your menu for this git checkout'
-	@echo 'make remove-git-menuitem    Remove shortcuts created by "install-git-menuitem"'
 
 ##########################################################################
 
@@ -125,23 +122,6 @@ $(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE) $(DESKTOPFILE_H)
 
 ##########################################################################
 
-install-git-menuitem:
-	doc/dev/install-desktopentry.sh
-
-remove-git-menuitem:
-	doc/dev/install-desktopentry.sh --remove
-
-gpodder-icon-theme:
-	rm -rf $(GPODDER_ICON_THEME)
-	mkdir -p $(GPODDER_ICON_THEME)
-	$(PYTHON) doc/dev/icon-theme/list-icon-names.py >$(GPODDER_ICON_THEME)/names
-	(cd $(GPODDER_ICON_THEME) && \
-	    $(PYTHON) ../../doc/dev/icon-theme/pack-icons.py && \
-	    $(PYTHON) ../../doc/dev/icon-theme/create-index.py >index.theme && \
-	    rm -f names)
-
-##########################################################################
-
 # This only works in a Git working commit, and assumes that the local Git
 # HEAD has already been pushed to the main repository. It's mainly useful
 # for the gPodder maintainer to quickly generate a commit link that can be
@@ -171,7 +151,7 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: all test unittest release releasetest install manpage clean distclean messages help install-git-menuitem remove-git-menuitem headlink
+.PHONY: all test unittest release releasetest install manpage clean distclean messages help headlink
 
 ##########################################################################
 
