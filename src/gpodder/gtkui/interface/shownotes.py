@@ -34,7 +34,7 @@ class gPodderShownotesBase(BuilderWidget):
         setattr(self, 'task', None)
 
         self._config.connect_gtk_window(self.main_window, \
-                'episode_window', True)
+                '_episode_window', True)
         self.main_window.connect('delete-event', self._on_delete_event)
         self.main_window.connect('key-press-event', self._on_key_press_event)
         self.on_create_window()

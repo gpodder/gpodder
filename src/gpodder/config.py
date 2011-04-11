@@ -88,7 +88,7 @@ gPodderSettings = {
     'youtube_preferred_fmt_id': 18,
 
     # Misc
-    'paned_position': 200,
+    '_paned_position': 200,
     'rotation_mode': 0,
     'mimetype_prefs': '',
     'auto_cleanup_downloads': True,
@@ -108,9 +108,9 @@ def window_props(config_prefix, x=-1, y=-1, width=700, height=500):
     }
 
 # Register window-specific properties
-gPodderSettings.update(window_props('main_window', width=700, height=500))
-gPodderSettings.update(window_props('episode_selector', width=600, height=400))
-gPodderSettings.update(window_props('episode_window', width=500, height=400))
+gPodderSettings.update(window_props('_main_window', width=700, height=500))
+gPodderSettings.update(window_props('_episode_selector', width=600, height=400))
+gPodderSettings.update(window_props('_episode_window', width=500, height=400))
 
 
 class Config(dict):

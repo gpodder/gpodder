@@ -215,9 +215,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.bluetooth_available = util.bluetooth_available()
 
-        self.config.connect_gtk_window(self.gPodder, 'main_window')
         if not gpodder.ui.fremantle:
-            self.config.connect_gtk_paned('paned_position', self.channelPaned)
+            self.config.connect_gtk_window(self.gPodder, '_main_window')
+            self.config.connect_gtk_paned('_paned_position', self.channelPaned)
+
         self.main_window.show()
 
         self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)

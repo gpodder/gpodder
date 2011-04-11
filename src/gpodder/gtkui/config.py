@@ -58,6 +58,10 @@ class ConfigModel(gtk.ListStore):
     def _fill_model(self):
         self.clear()
         for key in sorted(self._config.Settings):
+            # Do not show config settings starting with "_" in the UI
+            if key.startswith('_'):
+                continue
+
             default = self._config.Settings[key]
             fieldtype = type(default)
             value = getattr(self._config, key, default)
