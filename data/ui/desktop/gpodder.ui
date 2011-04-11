@@ -308,27 +308,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="homepage">
-            <property name="name">homepage</property>
-            <property name="label" translatable="yes">Website</property>
-            <signal handler="on_homepage_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="bug_tracker">
-            <property name="name">bug_tracker</property>
-            <property name="label" translatable="yes">Report a problem</property>
-            <signal handler="on_bug_tracker_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="wishlist">
-            <property name="name">wishlist</property>
-            <property name="label" translatable="yes">Support gPodder</property>
-            <signal handler="on_item_support_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
           <object class="GtkAction" id="itemAbout">
             <property name="stock_id">gtk-about</property>
             <property name="name">itemAbout</property>
@@ -387,10 +366,6 @@
         <menu action="menuHelp">
           <menuitem action="wiki"/>
           <menuitem action="item_goto_mygpo"/>
-          <separator/>
-          <menuitem action="homepage"/>
-          <menuitem action="bug_tracker"/>
-          <menuitem action="wishlist"/>
           <separator/>
           <menuitem action="itemAbout"/>
         </menu>

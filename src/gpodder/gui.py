@@ -3551,7 +3551,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if gpodder.ui.fremantle:
             util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
         else:
-            util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder')
+            util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=%s' % gpodder.__version__)
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
@@ -3570,35 +3570,82 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                  'http://gpodder.org/donate')
             return
 
-        dlg = gtk.AboutDialog()
-        dlg.set_transient_for(self.main_window)
-        dlg.set_name('gPodder')
-        dlg.set_version(gpodder.__version__)
-        dlg.set_copyright(gpodder.__copyright__)
-        dlg.set_comments(_('A podcast client with focus on usability'))
-        dlg.set_website(gpodder.__url__)
-        dlg.set_translator_credits( _('translator-credits'))
-        dlg.connect( 'response', lambda dlg, response: dlg.destroy())
+        dlg = gtk.Dialog(_('About gPodder'), self.main_window, \
+                gtk.DIALOG_MODAL)
+        dlg.set_resizable(False)
 
-        if gpodder.ui.desktop:
-            # For the "GUI" version, we add some more
-            # items to the about dialog (credits and logo)
-            app_authors = [
-                    _('Maintainer:'),
-                    'Thomas Perl <thp.io>',
-            ]
+        bg = gtk.HBox(spacing=10)
+        bg.pack_start(gtk.image_new_from_file(gpodder.icon_file), expand=False)
+        vb = gtk.VBox()
+        label = gtk.Label()
+        label.set_alignment(0, 1)
+        label.set_markup('<b><big>gPodder</big> %s</b>' % gpodder.__version__)
+        vb.pack_start(label)
+        label = gtk.Label()
+        label.set_alignment(0, 0)
+        label.set_markup('<small>%s</small>' % \
+                cgi.escape(_('A podcast client with focus on usability')))
+        vb.pack_start(label)
+        label = gtk.Label()
+        label.set_alignment(0, 0)
+        label.set_markup('<small><a href="%s">%s</a></small>' % \
+                ((cgi.escape(gpodder.__url__),)*2))
+        vb.pack_start(label)
+        bg.pack_start(vb)
 
-            if os.path.exists(gpodder.credits_file):
-                credits = open(gpodder.credits_file).read().strip().split('\n')
-                app_authors += ['', _('Patches, bug reports and donations by:')]
-                app_authors += credits
+        out = gtk.VBox(spacing=10)
+        out.set_border_width(12)
+        out.pack_start(bg, expand=False)
+        out.pack_start(gtk.HSeparator())
+        out.pack_start(gtk.Label(gpodder.__copyright__))
 
-            dlg.set_authors(app_authors)
-            try:
-                dlg.set_logo(gtk.gdk.pixbuf_new_from_file(gpodder.icon_file))
-            except:
-                dlg.set_logo_icon_name('gpodder')
+        button_box = gtk.HButtonBox()
+        button = gtk.Button(_('Donate / Wishlist'))
+        button.connect('clicked', self.on_item_support_activate)
+        button_box.pack_start(button)
+        button = gtk.Button(_('Report a problem'))
+        button.connect('clicked', self.on_bug_tracker_activate)
+        button_box.pack_start(button)
+        out.pack_start(button_box, expand=False)
 
+        credits = gtk.TextView()
+        credits.set_left_margin(5)
+        credits.set_right_margin(5)
+        credits.set_pixels_above_lines(5)
+        credits.set_pixels_below_lines(5)
+        credits.set_editable(False)
+        credits.set_cursor_visible(False)
+        sw = gtk.ScrolledWindow()
+        sw.set_shadow_type(gtk.SHADOW_IN)
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        sw.add(credits)
+        credits.set_size_request(-1, 160)
+        out.pack_start(sw, expand=True, fill=True)
+
+        dlg.vbox.pack_start(out, expand=False)
+        dlg.connect('response', lambda dlg, response: dlg.destroy())
+
+        dlg.vbox.show_all()
+
+        if os.path.exists(gpodder.credits_file):
+            credits_txt = open(gpodder.credits_file).read().strip().split('\n')
+            translator_credits = _('translator-credits')
+            if translator_credits != 'translator-credits':
+                app_authors = [_('Translation by:'), translator_credits, '']
+            else:
+                app_authors = []
+
+            app_authors += [_('Thanks to:')]
+            app_authors += credits_txt
+
+            buffer = gtk.TextBuffer()
+            buffer.set_text('\n'.join(app_authors))
+            credits.set_buffer(buffer)
+        else:
+            sw.hide()
+
+        credits.grab_focus()
+        dlg.action_area.hide()
         dlg.run()
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
