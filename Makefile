@@ -40,6 +40,10 @@ GPODDER_ICON_THEME=dist/gpodder
 GPODDER_SERVICE_FILE=data/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 
+GPODDER_DESKTOP_FILE=data/gpodder.desktop
+GPODDER_DESKTOP_FILE_IN=$(addsuffix .in,$(GPODDER_DESKTOP_FILE))
+DESKTOPFILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
+
 DESTDIR ?= /
 PREFIX ?= /usr
 
@@ -85,14 +89,20 @@ deb:
 release: distclean
 	$(PYTHON) setup.py sdist
 
-releasetest: unittest
-	desktop-file-validate data/gpodder.desktop
+releasetest: unittest $(GPODDER_DESKTOP_FILE)
+	desktop-file-validate $(GPODDER_DESKTOP_FILE)
 	make -C data/po validate
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
 
-install: messages $(GPODDER_SERVICE_FILE)
+$(GPODDER_DESKTOP_FILE): $(GPODDER_DESKTOP_FILE_IN) data/po/*.po
+	intltool-merge -d -u data/po $< $@
+
+$(GPODDER_DESKTOP_FILE_IN).h: $(GPODDER_DESKTOP_FILE_IN)
+	intltool-extract --quiet --type=gettext/ini $<
+
+install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
 ##########################################################################
@@ -110,8 +120,8 @@ messages: $(MESSAGESPOT)
 data/ui/%.ui.h: $(UIFILES)
 	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
 
-$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
-	xgettext -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGESPOT) $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE)
+$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE) $(DESKTOPFILE_H)
+	xgettext -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGESPOT) $^
 
 ##########################################################################
 
@@ -147,8 +157,9 @@ clean:
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
 	find data/ui/ -name '*.ui.h' -exec rm '{}' \;
-	rm -f MANIFEST PKG-INFO data/messages.pot~
-	rm -f data/gpodder-??x??.png .coverage $(GPODDER_SERVICE_FILE)
+	rm -f MANIFEST PKG-INFO data/messages.pot~ $(DESKTOPFILE_H)
+	rm -f data/gpodder-??x??.png .coverage
+	rm -f $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 	rm -rf build
 	make -C data/po clean
 
