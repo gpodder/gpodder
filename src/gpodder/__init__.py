@@ -128,7 +128,7 @@ downloads = None
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
-    home = new_home
+    home = os.path.abspath(new_home)
 
     config_file = os.path.join(home, 'Settings')
     database_file = os.path.join(home, 'Database')

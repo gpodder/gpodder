@@ -1,0 +1,126 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+# gpodder-migrate2tres - Migrate from gPodder to gPodd3r
+# by Thomas Perl <thp@gpodder.org>; 2011-04-28
+
+
+import sys
+import os
+import re
+import ConfigParser
+import shutil
+
+gpodder_script = sys.argv[0]
+if os.path.islink(gpodder_script):
+    gpodder_script = os.readlink(gpodder_script)
+gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
+prefix = os.path.abspath(os.path.normpath(gpodder_dir))
+
+src_dir = os.path.join(prefix, 'src')
+data_dir = os.path.join(prefix, 'data')
+
+if os.path.exists(src_dir) and os.path.exists(data_dir) and \
+        not prefix.startswith('/usr'):
+    # Run gPodder from local source folder (not installed)
+    sys.path.insert(0, src_dir)
+
+import gpodder
+
+# Platform detection (i.e. Maemo 5, etc..)
+gpodder.detect_platform()
+
+print >>sys.stderr, """
+
+                *** experimental. be prepared to re-migrate ***
+                  ** your old database before the release. **
+
+"""
+
+from gpodder import schema
+from gpodder import util
+
+old_database = os.path.expanduser('~/.config/gpodder/database.sqlite')
+new_database = gpodder.database_file
+
+old_config = os.path.expanduser('~/.config/gpodder/gpodder.conf')
+new_config = gpodder.config_file
+
+if not all(os.path.exists(x) for x in (old_database, old_config)):
+    print >>sys.stderr, """
+    Turns out that you never ran gPodder 2.
+    Can't find one of these required files:
+
+       %(old_config)s
+       %(old_database)s
+    """ % locals()
+    sys.exit(1)
+
+parser = ConfigParser.RawConfigParser()
+parser.read(old_config)
+
+old_downloads = parser.get('gpodder-conf-1', 'download_dir')
+new_downloads = gpodder.downloads
+
+if not os.path.exists(old_downloads):
+    print >>sys.stderr, """
+    Old download directory does not exist. Creating empty one.
+    """
+    os.makedirs(old_downloads)
+
+if any(os.path.exists(x) for x in (new_database, new_downloads)):
+    print >>sys.stderr, """
+    You already have some gPodd3r-related
+    data. Please remove all of these first:
+
+       %(new_database)s
+       %(new_downloads)s
+    """ % locals()
+    sys.exit(1)
+
+print >>sys.stderr, """
+  Would carry out the following actions:
+
+      Move downloads from %(old_downloads)s
+                       to %(new_downloads)s
+
+      Convert database from %(old_database)s
+                         to %(new_database)s
+
+""" % locals()
+
+result = raw_input('Continue? (Y/n) ')
+
+if result in 'Yy':
+    util.make_directory(gpodder.home)
+    schema.convert_gpodder2_db(old_database, new_database)
+    if not os.path.exists(new_database):
+        print >>sys.stderr, 'Could not convert database.'
+        sys.exit(1)
+
+    shutil.move(old_downloads, new_downloads)
+    if not os.path.exists(new_downloads):
+        print >>sys.stderr, 'Could not move downloads.'
+        sys.exit(1)
+
+    print 'Done. Happy gPodd3ring!'
+

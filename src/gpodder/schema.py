@@ -20,6 +20,8 @@
 # gpodder.schema - Database schema update and migration facility
 # Thomas Perl <thp@gpodder.org>; 2011-02-01
 
+from sqlite3 import dbapi2 as sqlite
+
 
 def initialize_database(db):
     # Create table for podcasts
@@ -110,6 +112,10 @@ def convert_gpodder2_db(old_db, new_db):
     corresponding databases.
     """
 
+    old_db = sqlite.connect(old_db)
+    new_db = sqlite.connect(new_db)
+    upgrade(new_db)
+
     # Copy data for podcasts
     old_cur = old_db.cursor()
     columns = [x[1] for x in old_cur.execute('PRAGMA table_info(channels)')]
@@ -165,4 +171,8 @@ def convert_gpodder2_db(old_db, new_db):
         INSERT INTO episode VALUES (%s)
         """ % ', '.join('?'*len(values)), values)
     old_cur.close()
+
+    old_db.close()
+    new_db.commit()
+    new_db.close()
 

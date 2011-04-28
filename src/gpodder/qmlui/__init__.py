@@ -184,6 +184,16 @@ def QML(filename):
         if os.path.exists(filename):
             return filename
 
+class DeclarativeView(QDeclarativeView):
+    def __init__(self):
+        QDeclarativeView.__init__(self)
+
+    closing = Signal()
+
+    def closeEvent(self, event):
+        self.closing.emit()
+        event.ignore()
+
 class qtPodder(QObject):
     def __init__(self, args, gpodder_core):
         QObject.__init__(self)
@@ -194,7 +204,8 @@ class qtPodder(QObject):
         self.config = self.core.config
         self.db = self.core.db
 
-        self.view = QDeclarativeView()
+        self.view = DeclarativeView()
+        self.view.closing.connect(self.on_quit)
         # Disable OpenGL-based rendering for now
         #self.glw = QGLWidget()
         #self.view.setViewport(self.glw)

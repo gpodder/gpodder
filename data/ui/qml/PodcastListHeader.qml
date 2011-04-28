@@ -8,7 +8,7 @@ Item {
     anchors.left: parent.left
     anchors.right: parent.right
     height: Config.headerHeight * 2 + Config.smallSpacing * 2
-    state: 'a'
+    state: 'b'
 
     states: [
         State {
