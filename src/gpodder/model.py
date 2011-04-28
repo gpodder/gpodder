@@ -750,7 +750,6 @@ class PodcastChannel(PodcastModelObject):
         self.link = custom_feed.get_link()
         self.description = custom_feed.get_description()
         self.cover_url = custom_feed.get_image()
-        self.published = int(time.time())
         self.save()
 
         guids = [episode.guid for episode in self.get_all_episodes()]
@@ -775,11 +774,6 @@ class PodcastChannel(PodcastModelObject):
         if self.title.startswith(YOUTUBE_PREFIX):
             self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
         # End YouTube-specific title FIX
-
-        try:
-            self.published = int(rfc822.mktime_tz(feed.feed.get('updated_parsed', None+(0,))))
-        except:
-            self.published = int(time.time())
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
@@ -975,7 +969,6 @@ class PodcastChannel(PodcastModelObject):
         self.link = ''
         self.description = ''
         self.cover_url = None
-        self.published = 0
         self.parse_error = None
 
         self.auth_username = ''
