@@ -1,0 +1,393 @@
+gpodder (2.14-1) fremantle; urgency=low
+
+  * "The Friendliest of Fruits" release
+  * Decode strings to unicode before slicing (bug 1277)
+  * Handle None in replace_from_channel (bug 1291)
+  * Updated French translation
+  * Remove partial files that are already downloaded
+  * Fix YouTube download problems (HTTP 400) (bug 1308)
+  * Add per-podcast keep settings (by Dov Feldstern)
+  * Re-add "Visit website" button (by Dov Feldstern)
+  * Better GUID tracking with fallback URL (Maemo bug 12073)
+
+ -- Thomas Perl <m@thp.io>  Tue, 05 Apr 2011 12:57:10 +0200
+
+gpodder (2.13-2) fremantle; urgency=low
+
+  * Depend on python-feedparser >= 5.0.1 (Maemo bug 12016)
+  * Remove obsolete dependency on gpodder-icon-theme
+
+ -- Thomas Perl <m@thp.io>  Mon,  7 Mar 2011 22:45:10 +0100
+
+gpodder (2.13-1) fremantle; urgency=low
+
+  * The "Mr. Dingle, the Strong" release
+  * Fix broken YouTube search (Maemo bug 11756)
+  * Mark episodes as played when they are opened in a player
+  * Avoid accidental destruction of the episode actions dialog
+  * Fix encoding issue (bug 1088)
+  * Episode list style updates
+  * Add "Copy" button for shownotes (Maemo bug 11487)
+  * Move "Visit website" button to app menu
+  * Add OPML export to settings (Maemo bug 11504)
+  * Always show "Check for new episodes" (Maemo bug 11637)
+  * Fix encoding issue with UTF-8 filenames (Maemo bug 11811)
+  * Option: Auto-download episodes when on Wi-Fi (Maemo bug 5181)
+  * Updated translations: Norwegian Bokmål and German
+
+ -- Thomas Perl <m@thp.io>  Sat, 19 Feb 2011 17:13:49 +0100
+
+gpodder (2.12-1) fremantle; urgency=low
+
+  * "The Odyssey of Flight 33" release
+  * Fix empty database bug for upgrades from old releases
+  * Update copyright years to include 2011
+  * Remove obsolete information from debian/copyright
+
+ -- Thomas Perl <m@thp.io>  Wed, 12 Jan 2011 12:57:08 +0100
+
+gpodder (2.11-1) fremantle; urgency=low
+
+  * The "Dance Me A Dance" release
+  * Fix broken YouTube downloads (bug 1217)
+  * Proper single-time download notifications (bug 1161)
+  * Soundcloud: Better naming of downloaded files
+  * YouTube: Better error message for protected videos
+
+ -- Thomas Perl <m@thp.io>  Sun, 19 Dec 2010 23:15:15 +0100
+
+gpodder (2.10-2) fremantle; urgency=low
+
+  * Cherry-pick a podcast directory fix (commit d5df6aec)
+
+ -- Thomas Perl <m@thp.io>  Mon, 29 Nov 2010 10:59:27 +0100
+
+gpodder (2.10-1) fremantle; urgency=low
+
+  * The "There Lies A Widget, Stir!" release
+  * Optimized episode list model (much faster loading)
+  * Pause subscriptions via a podcast's app menu
+  * Multi-episode deletion in episode lists app menu
+  * Automatic deletion of old episodes after X days
+  * Don't set resume point when playing finished episodes
+  * Cleaned-up UI elements and better display of lists
+
+ -- Thomas Perl <m@thp.io>  Sun, 28 Nov 2010 17:45:34 +0100
+
+gpodder (2.9-1) fremantle; urgency=low
+
+  * The "Two Books In Her Bag" release
+  * New feed update progress bar / improved UI
+  * Show playback progress in the episode list
+  * Add "Hint of the day" feature (in main menu)
+  * Other fixes: See http://gpodder.org/changelog/2.9
+
+ -- Thomas Perl <thp@thpinfo.com>  Sun, 10 Oct 2010 15:07:21 +0200
+
+gpodder (2.8-1) fremantle; urgency=low
+
+  * "The Gold Napoleon" release
+  * Support for MAFW resuming (D-Bus interaction with media player)
+  * Notification support (requires a restart of hildon-home after the
+    postinst script ran to re-load the notification settings)
+  * debian/postinst: Install notification settings for gPodder
+  * Other fixes: See http://gpodder.org/changelog/2.8
+
+ -- Thomas Perl <thp@thpinfo.com>  Sun, 29 Aug 2010 16:52:40 +0200
+
+gpodder (2.7-2) fremantle; urgency=low
+
+  * Merge YouTube bugfixes from the development branch
+    (commit IDs: 5be694f9e4 and 756aac8e70)
+
+ -- Thomas Perl <thp@thpinfo.com>  Thu, 05 Aug 2010 15:30:56 +0200
+
+gpodder (2.7-1) fremantle; urgency=low
+
+  * The "Proposition Infinity" release
+
+ -- Thomas Perl <thp@thpinfo.com>  Wed,  7 Jul 2010 20:21:49 +0200
+
+gpodder (2.6-1) fremantle; urgency=low
+
+  * "The Staircase Implementation" release
+
+ -- Thomas Perl <thp@thpinfo.com>  Sun, 23 May 2010 21:23:16 +0200
+
+gpodder (2.5-1) fremantle; urgency=low
+
+  * The "Knock knock knock Penny" release
+
+ -- Thomas Perl <thp@thpinfo.com>  Tue, 20 Apr 2010 20:43:08 +0200
+
+gpodder (2.4-2) fremantle; urgency=low
+
+  * Cherry-picked two YouTube download fixes from upstream
+
+ -- Thomas Perl <thp@thpinfo.com>  Thu, 01 Apr 2010 17:17:36 +0200
+
+gpodder (2.4-1) fremantle; urgency=low
+
+  * "The Pants Alternative" release
+  * debian/control: Add versioned dependency (>= 1.2) on mygpoclient
+
+ -- Thomas Perl <thp@thpinfo.com>  Mon, 29 Mar 2010 11:12:07 +0200
+
+gpodder (2.3-1) fremantle; urgency=low
+
+  * "The Adhesive Duck Deficiency" release
+  * Patches from 2.2-2 dropped - they're merged upstream in 2.3
+  * debian/control: Added Polish description by Tomasz Dominikowski
+  * debian/control: Added German description by Oskar Welzl
+
+ -- Thomas Perl <thp@thpinfo.com>  Sat, 27 Feb 2010 17:47:08 +0100
+
+gpodder (2.2-2) fremantle; urgency=low
+
+  * Bugfix release for Maemo Extras
+  * Merge upstream patch cd7cd0a53e ("PYTHON" variable in Makefile)
+  * Merge upstream patch c3a140aa5d (Closes: Maemo bug 8861)
+
+ -- Thomas Perl <thp@thpinfo.com>  Sat, 13 Feb 2010 03:00:39 +0100
+
+gpodder (2.2-1) fremantle; urgency=low
+
+  * The "LA X" release
+
+ -- Thomas Perl <thp@gpodder.org>  Fri,  5 Feb 2010 15:52:45 +0100
+
+gpodder (2.1-1) fremantle; urgency=low
+
+  * "The Luminous Fish Effect" release
+  * New upstream release with support for Maemo 5
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 12 Dec 2009 18:05:43 +0100
+
+gpodder (2.0+git20091206-2) fremantle; urgency=low
+
+  * Depend on gpodder-icon-theme 2.0-3 (to fix Maemo bug 6356)
+
+ -- Thomas Perl <thp@gpodder.org>  Sun,  6 Dec 2009 23:12:14 +0100
+
+gpodder (2.0+git20091206-1) fremantle; urgency=low
+
+  * gPodder 2.1 Preview Release (aka the #maebar release)
+
+ -- Thomas Perl <thp@gpodder.org>  Sun,  6 Dec 2009 09:36:58 +0100
+
+gpodder (2.0+git20091013-thp1) fremantle; urgency=low
+
+  * Optified
+
+ -- Thomas Perl <thp@gpodder.org>  Wed, 14 Oct 2009 14:55:01 +0200
+
+gpodder (2.0+git20091013-thp0) fremantle; urgency=low
+
+  * Second release of gPodder 2.0 for Maemo 5 based on today's
+    Git snapshot (commit ID 555070c1e7dbe84214cd4203376096f9e075bba4)
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 13 Oct 2009 22:54:39 +0200
+
+gpodder (2.0+git20090922-1~thp0) fremantle; urgency=low
+
+  * Initial test release of gPodder 2.0 for Maemo 5 based on today's
+    Git snapshot (commit ID 627be33765b7316fd03f6f45e321c4c19aedb031)
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 22 Sep 2009 20:59:16 +0200
+
+gpodder (0.16.1-10frmntl1) fremantle; urgency=low
+
+  * Work around Maemo bug #4718 by setting the widget name for buttons
+  * Shownotes: "One window to rule them all" (Closes: Maemo bug #5097)
+  * Support the changed API for PyMaemo's HildonTouchSelector
+    (hildon.TouchSelector(text=True) vs. hildon_touch_selector_new_text)
+
+ -- Thomas Perl <thp@gpodder.org>  Fri,  4 Sep 2009 18:43:40 +0200
+
+gpodder (0.16.1-10frmntl0) fremantle; urgency=low
+
+  * Add support for subscribing to URLs via command-line
+    (backported from the Git development version for feedhandler)
+
+ -- Thomas Perl <thp@gpodder.org>  Wed, 26 Aug 2009 15:45:46 +0200
+
+gpodder (0.16.1-9fremantleui) fremantle; urgency=low
+
+  * Rename application in .desktop file to "gPodder" to avoid the
+    name being cut off in the menu
+
+ -- Thomas Perl <thp@gpodder.org>  Thu, 20 Aug 2009 15:00:40 +0200
+
+gpodder (0.16.1-8fremantleui) fremantle; urgency=low
+
+  * Use $HOME for downloads
+
+ -- Thomas Perl <thp@gpodder.org>  Mon,  3 Aug 2009 21:14:52 +0200
+
+gpodder (0.16.1-7fremantleui) fremantle; urgency=low
+
+  * Add special code to show the AppMenu (for beta2 and later)
+
+ -- Thomas Perl <thp@gpodder.org>  Sat,  1 Aug 2009 18:14:12 +0200
+
+gpodder (0.16.1-6fremantleui) fremantle; urgency=low
+
+  * Fixed some bugs in the latest release; re-enabled welcome screen
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 16 Jun 2009 15:03:18 +0200
+
+gpodder (0.16.1-5fremantleui) fremantle; urgency=low
+
+  * Fixed Maemo UI bugs 4686, 4687, 4688, 4689
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 16 Jun 2009 12:25:53 +0200
+
+gpodder (0.16.1-4fremantleui) fremantle; urgency=low
+
+  * Don't use "I" while writing messages from software
+    (Fixes: Maemo bug 4684)
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 16 Jun 2009 11:05:03 +0200
+
+gpodder (0.16.1-3fremantleui) fremantle; urgency=low
+
+  * Don't call maemo-select-menu-location, even on upgrades
+
+ -- Thomas Perl <thp@gpodder.org>  Tue, 16 Jun 2009 10:32:35 +0200
+
+gpodder (0.16.1-2fremantleui) fremantle; urgency=low
+
+  * Updated UI after review from Quim and kanishou
+
+ -- Thomas Perl <thp@gpodder.org>  Mon, 15 Jun 2009 16:53:31 +0200
+
+gpodder (0.16.1-1fremantleui) fremantle; urgency=low
+
+  * Bump release (ignore .git when creating source tarball)
+
+ -- Thomas Perl <thp@gpodder.org>  Sun, 14 Jun 2009 21:16:48 +0200
+
+gpodder (0.16.1-0fremantleui) fremantle; urgency=low
+
+  * A preview release based on the current Git head (post-0.16.1)
+    with lots of UI changes targetting Maemo 5 (Fremantle)
+
+ -- Thomas Perl <thp@gpodder.org>  Sun, 14 Jun 2009 21:09:54 +0200
+
+gpodder (0.16.0-1frmntl) fremantle; urgency=low
+
+  * Polished, public release of gPodder 0.16.0 for end users
+  * This is the Fremantle Edition with some code tweaks for Hildon
+
+ -- Thomas Perl <thp@gpodder.org>  Mon,  1 Jun 2009 15:50:35 +0200
+
+gpodder (0.15.2-2+mmdw5) fremantle; urgency=low
+
+  * Add some more string changes to make the UI fit the screen
+
+ -- Thomas Perl <thp@gpodder.org>  Sun, 31 May 2009 13:03:40 +0200
+
+gpodder (0.15.2-2+mmdw4) fremantle; urgency=low
+
+  * The new Fremantle package with all recent UI fixes
+
+ -- Thomas Perl <thp@gpodder.org>  Sun, 31 May 2009 12:45:31 +0200
+
+gpodder (0.15.2-2+mmdw3) fremantle; urgency=low
+
+  * Merge all Maemo5-related changes against 0.16.0
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 30 May 2009 16:09:47 +0200
+
+gpodder (0.15.2-2+mmdw2) fremantle; urgency=low
+
+  * Add feedparser as build-dependency
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 30 May 2009 14:19:10 +0200
+
+gpodder (0.15.2-2+mmdw1) fremantle; urgency=low
+
+  * Enable feedparser dependency again
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 30 May 2009 14:12:40 +0200
+
+gpodder (0.15.2-2+maemotest090530) fremantle; urgency=low
+
+  * Ship with feedparser to get rid of that dependency for testing
+    purposes
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 30 May 2009 13:42:39 +0200
+
+gpodder (0.15.2-2+maemotest090524) fremantle; urgency=low
+
+  * Drop requirement on python-support again
+
+ -- Thomas Perl <thp@gpodder.org>  Mon, 25 May 2009 00:17:46 +0200
+
+gpodder (0.15.2-2+maemotest090523) fremantle; urgency=low
+
+  * Test build from Git with Fremantle-specific changes
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 23 May 2009 11:01:01 +0200
+
+gpodder (0.15.2~maemotest090511) diablo; urgency=low
+
+  * Test build from Git; including some UI experiments
+
+ -- Thomas Perl <thp@gpodder.org>  Mon, 11 May 2009 22:22:42 +0200
+
+gpodder (0.15.2-1) diablo; urgency=low
+
+  * "The Long Morrow" release
+
+ -- Thomas Perl <thp@gpodder.org>  Sat, 11 Apr 2009 15:17:59 +0200
+
+gpodder (0.15.0-4) diablo; urgency=low
+
+  * Add python2.5-dbus as dependency
+
+ -- Thomas Perl <thp@gpodder.org>  Wed, 11 Mar 2009 09:09:58 +0100
+
+gpodder (0.15.0-3) diablo; urgency=low
+
+  * Fix Ãproblems withencoding
+
+ -- Thomas Perl <thp@gpodder.org>  Mon,  9 Mar 2009 20:30:47 +0100
+
+gpodder (0.15.0-2) diablo; urgency=low
+
+  * Add python-mokoui2 as a dependency
+
+ -- Thomas Perl <thp@gpodder.org>  Mon,  9 Mar 2009 16:35:38 +0100
+
+gpodder (0.15.0-1) diablo; urgency=low
+
+  * "The Invaders" release
+
+ -- Thomas Perl <thp@gpodder.org>  Mon,  9 Mar 2009 13:34:01 +0100
+
+gpodder (0.14.1-2) diablo; urgency=low
+
+  * Fix package category and upgrade description
+  * Update maintainer e-mail
+  * Remove old, outdated debian/changelog entries
+
+ -- Thomas Perl <thp@gpodder.org>  Thu, 05 Feb 2009 23:40:30 +0100
+
+gpodder (0.14.1-1) diablo; urgency=low
+
+  * "The Thirty-Fathom Grave" release
+
+ -- Thomas Perl <thp@perli.net>  Thu,  5 Feb 2009 23:21:10 +0100
+
+gpodder (0.14.0-2) diablo; urgency=low
+
+  * Implement "Maemo packaging features you're missing out on"
+
+ -- Thomas Perl <thp@perli.net>  Mon, 15 Dec 2008 10:47:09 +0100
+
+gpodder (0.14.0-1) diablo; urgency=low
+
+  * New upstream release
+
+ -- Thomas Perl <thp@perli.net>  Thu, 11 Dec 2008 17:12:24 +0100

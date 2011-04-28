@@ -138,16 +138,12 @@ if target == DEFAULT or building_source:
 
 if target == MAEMO or building_source:
     data_files += [
-      ('share/gpodder/ui/frmntl', inst_share_ui_frmntl),
-      ('share/applications/hildon', inst_desktop),
+      ('share/applications', inst_desktop),
       ('share/icons/hicolor/scalable/apps', inst_icons_64),
       ('share/icons/hicolor/40x40/apps', inst_icons_40),
       ('share/icons/hicolor/32x32/apps', inst_icons_32),
       ('share/icons/hicolor/26x26/apps', inst_icons_26),
       ('share/icons/hicolor/16x16/apps', inst_icons_16),
-    ]
-    packages += [
-      'gpodder.gtkui.frmntl',
     ]
 
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
