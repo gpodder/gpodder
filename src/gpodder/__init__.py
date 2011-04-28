@@ -59,6 +59,7 @@ class UI(object):
     def __init__(self):
         self.desktop = False
         self.fremantle = False
+        self.fermintle = False
 
 ui = UI()
 
@@ -172,9 +173,17 @@ def detect_platform():
     except Exception, e:
         ui.fremantle = False
 
-    ui.desktop = not ui.fremantle
+    try:
+        import hashlib
+        sha1 = hashlib.sha1(open('/etc/issue').read()).hexdigest()
+        ui.fermintle = (sha1 == 'a8594416e0452316ea87a7f9395bc7cc4b0228a4')
+    except Exception, e:
+        ui.fermintle = False
+
+    ui.fremantle = ui.fremantle or ui.fermintle
+    ui.desktop = not ui.fremantle and not ui.fermintle
 
     if ui.fremantle and 'GPODDER_HOME' not in os.environ:
-        new_home = os.path.join('~', 'MyDocs', 'gPodder')
+        new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
         set_home(os.path.expanduser(new_home))
 

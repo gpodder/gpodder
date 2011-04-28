@@ -12,7 +12,7 @@ Item {
     anchors.top: parent.top
     anchors.bottom: parent.bottom
 
-    width: taskSwitcher.width
+    width: Config.switcherWidth
 
     Rectangle {
         anchors.fill: parent

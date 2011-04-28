@@ -140,7 +140,9 @@ class Controller(UiData):
 
     @Slot()
     def switcher(self):
-        if gpodder.ui.fremantle:
+        if gpodder.ui.fermintle:
+            self.root.view.showMinimized()
+        elif gpodder.ui.fremantle:
             os.system('dbus-send /com/nokia/hildon_desktop '+
                     'com.nokia.hildon_desktop.exit_app_view')
         else:
@@ -215,10 +217,14 @@ class qtPodder(QObject):
         engine.addImageProvider('cover', self.cover_provider)
 
         # Load the QML UI (this could take a while...)
-        self.view.setSource(QML('main.qml'))
-
-        # Proxy to the "main" QML object for direct access to Qt Properties
-        self.main = helper.QObjectProxy(self.view.rootObject())
+        if gpodder.ui.fermintle:
+            self.view.setSource(QML('main_fermintle.qml'))
+            # Proxy to the "main" QML object for direct access to Qt Properties
+            self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
+        else:
+            self.view.setSource(QML('main.qml'))
+            # Proxy to the "main" QML object for direct access to Qt Properties
+            self.main = helper.QObjectProxy(self.view.rootObject())
 
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
@@ -226,7 +232,9 @@ class qtPodder(QObject):
 
         self.view.setWindowTitle('gPodder')
 
-        if gpodder.ui.fremantle:
+        if gpodder.ui.fermintle:
+            self.view.showFullScreen()
+        elif gpodder.ui.fremantle:
             self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
             self.view.showFullScreen()
         else:
@@ -257,8 +265,7 @@ class qtPodder(QObject):
         self.app.quit()
 
     def open_context_menu(self, items):
-        root = self.view.rootObject()
-        root.openContextMenu(items)
+        self.main.openContextMenu(items)
 
     def reload_podcasts(self):
         podcasts = sorted(model.Model.get_podcasts(self.db), key=lambda p: p.qsection)
@@ -283,9 +290,10 @@ class qtPodder(QObject):
     def select_episode(self, episode):
         self.save_pending_data()
         self.main.currentEpisode = episode
-        episode.playback_mark()
-        episode.changed.emit()
-        episode.channel.changed.emit()
+        if episode is not None:
+            episode.playback_mark()
+            episode.changed.emit()
+            episode.channel.changed.emit()
         self.main.setCurrentEpisode()
 
 def main(args):
