@@ -227,15 +227,23 @@
         <child>
           <object class="GtkToggleAction" id="itemShowAllEpisodes">
             <property name="active">True</property>
-            <property name="label" translatable="yes">Show "All episodes" in podcast list</property>
+            <property name="label" translatable="yes">"All episodes" in podcast list</property>
             <signal handler="on_itemShowAllEpisodes_activate" name="activate"/>
           </object>
+        </child>
+        <child>
+          <object class="GtkToggleAction" id="item_sidebar">
+            <property name="active">True</property>
+            <property name="label" translatable="yes">Podcast list</property>
+            <signal handler="on_view_sidebar_toggled" name="activate"/>
+          </object>
+          <accelerator key="F9"/>
         </child>
         <child>
           <object class="GtkToggleAction" id="itemShowToolbar">
             <property name="active">True</property>
             <property name="name">itemShowToolbar</property>
-            <property name="label" translatable="yes">Show toolbar</property>
+            <property name="label" translatable="yes">Toolbar</property>
             <signal handler="on_itemShowToolbar_activate" name="activate"/>
           </object>
           <accelerator key="T" modifiers="GDK_CONTROL_MASK"/>
@@ -351,6 +359,7 @@
           <menuitem action="item_episode_details"/>
         </menu>
         <menu action="menuView">
+          <menuitem action="item_sidebar"/>
           <menuitem action="itemShowAllEpisodes"/>
           <separator/>
           <menuitem action="itemShowToolbar"/>
@@ -710,7 +719,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="shrink">False</property>
+                        <property name="shrink">True</property>
                         <property name="resize">False</property>
                       </packing>
                     </child>

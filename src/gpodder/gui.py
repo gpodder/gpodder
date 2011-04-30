@@ -217,6 +217,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if not gpodder.ui.fremantle:
             self.config.connect_gtk_window(self.gPodder, '_main_window')
+
+            # Default/last paned position for sidebar toggling
+            self._last_paned_position = 200
+            self._last_paned_position_toggling = False
+            self.item_sidebar.set_active(self.config._paned_position > 0)
+
             self.config.connect_gtk_paned('_paned_position', self.channelPaned)
 
         self.main_window.show()
@@ -525,6 +531,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels and not gpodder.ui.fremantle:
             util.idle_add(self.on_itemUpdate_activate)
+
+    def on_view_sidebar_toggled(self, menu_item):
+        self.channelPaned.child_set_property(self.vboxChannelNavigator, \
+                'shrink', not menu_item.get_active())
+
+        if self._last_paned_position_toggling:
+            return
+
+        active = menu_item.get_active()
+        if active:
+            if self._last_paned_position == 0:
+                self._last_paned_position = 200
+            self.channelPaned.set_position(self._last_paned_position)
+        else:
+            current_position = self.channelPaned.get_position()
+            if current_position > 0:
+                self._last_paned_position = current_position
+                self.channelPaned.set_position(0)
 
     def episode_object_by_uri(self, uri):
         """Get an episode object given a local or remote URI
@@ -1461,6 +1485,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
         elif name == 'episode_list_columns':
             self.update_episode_list_columns_visibility()
+        elif name == '_paned_position':
+            self._last_paned_position_toggling = True
+            self.item_sidebar.set_active(new_value > 0)
+            self._last_paned_position_toggling = False
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
