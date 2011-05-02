@@ -82,6 +82,7 @@ class Database(object):
         'title',
         'description',
         'url',
+        'published',
         'guid',
         'link',
         'file_size',
