@@ -27,7 +27,6 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
-from gpodder import gstreamer
 
 from gpodder.liblogger import log
 
@@ -857,21 +856,6 @@ class PodcastEpisode(PodcastModelObject):
         self.is_played = False
         self.length = os.path.getsize(filename)
 
-        if not self.total_time:
-            try:
-                length = gstreamer.get_track_length(filename)
-                if length is not None:
-                    length = int(length/1000)
-                    log('Detected media length: %d seconds', length, \
-                            sender=self)
-                    self.total_time = length
-                    self.db.save_episode(self)
-                    self.db.commit()
-                    return
-            except Exception, e:
-                log('Error while detecting media length: %s', str(e), \
-                        sender=self)
-
         self.db.save_downloaded_episode(self)
         self.db.commit()
 
@@ -939,7 +923,7 @@ class PodcastEpisode(PodcastModelObject):
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
         desc = util.remove_html_tags(self.description or '')
-        desc = re.sub('\n', ' ', desc).strip()
+        desc = re.sub('\s+', ' ', desc).strip()
         if not desc:
             return _('No description available')
         else:

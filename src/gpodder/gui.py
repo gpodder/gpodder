@@ -1884,7 +1884,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
             copy_from = episode.local_filename(create=False)
             assert copy_from is not None
-            copy_to = episode.sync_filename(self.config.custom_sync_name_enabled, self.config.custom_sync_name)
+            copy_to = util.sanitize_filename(episode.sync_filename(\
+                    self.config.custom_sync_name_enabled, \
+                    self.config.custom_sync_name))
             (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
             setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 

@@ -700,6 +700,18 @@ class Database(object):
             if not exists_notnull_column:
                 self.recreate_table(cur, table_name, fields, index_list)
 
+        # Search for a unique index on the "guid" column in
+        # the episodes table and drop it if it exists. It will
+        # be recreated without the unique flag. (Maemo bug 12094)
+        cur.execute('PRAGMA index_list(%s)' % self.TABLE_EPISODES)
+        current_indices = cur.fetchall()
+        for pos, idx_name, idx_is_unique in current_indices:
+            if idx_name == 'idx_guid' and idx_is_unique:
+                log('Fixing unique index (%s) in %s', idx_name, \
+                        self.TABLE_EPISODES, sender=self)
+                cur.execute('DROP INDEX idx_guid')
+                break
+
         for column, typ in index_list:
             cur.execute('CREATE %s IF NOT EXISTS idx_%s ON %s (%s)' % (typ, column, table_name, column))
 
