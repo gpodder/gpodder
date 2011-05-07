@@ -29,6 +29,8 @@ from PySide.QtOpenGL import *
 import os
 import gpodder
 
+_ = gpodder.gettext
+
 from gpodder import core
 
 from gpodder.qmlui import model
@@ -179,6 +181,16 @@ class gPodderListModel(QAbstractListModel):
                 return self.get_object(index).qsection
         return None
 
+class gPodderPodcastListModel(gPodderListModel):
+    def set_podcasts(self, db, podcasts):
+        views = [
+            model.EpisodeSubsetView(db, podcasts, _('All episodes'), ''),
+            model.EpisodeSubsetView(db, podcasts, _('Short downloads'), '', 'downloaded and min < 10 and min > 0'),
+            model.EpisodeSubsetView(db, podcasts, _('Small files to download'), '', 'not deleted and not downloaded and mb < 20 and mb > 0'),
+            model.EpisodeSubsetView(db, podcasts, _('Downloaded audio'), '', 'audio and downloaded'),
+        ]
+        return self.set_objects(views + podcasts)
+
 def QML(filename):
     for folder in gpodder.ui_folders:
         filename = os.path.join(folder, filename)
@@ -213,7 +225,7 @@ class qtPodder(QObject):
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
-        self.podcast_model = gPodderListModel()
+        self.podcast_model = gPodderPodcastListModel()
         self.episode_model = gPodderListModel()
         self.last_episode = None
 
@@ -256,7 +268,7 @@ class qtPodder(QObject):
 
     def load_last_episode(self):
         last_episode = None
-        for podcast in self.podcast_model.get_objects():
+        for podcast in self.podcast_model.get_objects()[:1]:
             for episode in podcast.get_all_episodes():
                 if not episode.last_playback:
                     continue
@@ -280,8 +292,9 @@ class qtPodder(QObject):
         self.main.openContextMenu(items)
 
     def reload_podcasts(self):
-        podcasts = sorted(model.Model.get_podcasts(self.db), key=lambda p: p.qsection)
-        self.podcast_model.set_objects(podcasts)
+        podcasts = sorted(model.Model.get_podcasts(self.db), \
+                key=lambda p: p.qsection)
+        self.podcast_model.set_podcasts(self.db, podcasts)
 
     def select_podcast(self, podcast):
         # If the currently-playing episode exists in the podcast,

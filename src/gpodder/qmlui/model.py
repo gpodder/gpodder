@@ -23,12 +23,15 @@ from PySide.QtGui import *
 
 import gpodder
 
+_ = gpodder.gettext
+
 from gpodder.liblogger import log
 
 from gpodder import model
 from gpodder import util
 from gpodder import youtube
 from gpodder import download
+from gpodder import query
 
 import threading
 import os
@@ -241,4 +244,70 @@ class QPodcast(QObject, model.PodcastChannel):
 
 class Model(model.Model):
     PodcastClass = QPodcast
+
+
+class EpisodeSubsetView(QObject):
+    def __init__(self, db, podcasts, title, description, eql=None):
+        QObject.__init__(self)
+        self.db = db
+        self.podcasts = podcasts
+        self.title = title
+        self.description = description
+        self.eql = eql
+
+    def get_all_episodes(self):
+        episodes = []
+        for podcast in self.podcasts:
+            episodes.extend(podcast.get_all_episodes())
+
+        if self.eql is not None:
+            episodes = query.EQL(self.eql).filter(episodes)
+
+        return Model.sort_episodes_by_pubdate(episodes, True)
+
+    def qupdate(self, force=False):
+        pass
+
+    changed = Signal()
+
+    def _return_false(self):
+        return False
+
+    def _return_empty(self):
+        return convert('')
+
+    qupdating = Property(bool, _return_false, notify=changed)
+    qurl = Property(unicode, _return_empty, notify=changed)
+    qcoverfile = Property(unicode, _return_empty, notify=changed)
+    qcoverurl = Property(unicode, _return_empty, notify=changed)
+    qsection = Property(unicode, _return_empty, notify=changed)
+
+    def _title(self):
+        return convert(self.title)
+
+    qtitle = Property(unicode, _title, notify=changed)
+
+    def _description(self):
+        return convert(self.description)
+
+    qdescription = Property(unicode, _description, notify=changed)
+
+    def _downloaded(self):
+        if self.eql is not None:
+            return 0
+
+        total, deleted, new, downloaded, unplayed = self.db.get_total_count()
+        return downloaded
+
+    qdownloaded = Property(int, _downloaded, notify=changed)
+
+    def _new(self):
+        if self.eql is not None:
+            return 0
+
+        total, deleted, new, downloaded, unplayed = self.db.get_total_count()
+        return new
+
+    qnew = Property(int, _new, notify=changed)
+
 

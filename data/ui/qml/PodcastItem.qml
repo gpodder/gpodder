@@ -13,7 +13,7 @@ SelectableItem {
         anchors.rightMargin: 5
         text: formatCount(modelData.qnew, modelData.qdownloaded)
         color: "white"
-        width: Config.iconSize * 1.5
+        width: Config.iconSize * 1.9
         font.pixelSize: podcastItem.height * .4
         horizontalAlignment: Text.AlignRight
 
@@ -35,6 +35,7 @@ SelectableItem {
     Image {
     	id: cover
         source: 'artwork/cover-shadow.png'
+        visible: modelData.qcoverurl != ''
 
         height: podcastItem.height * .8
         width: podcastItem.height * .8
@@ -46,7 +47,7 @@ SelectableItem {
         }
 
         Image {
-            source: 'image://cover/'+escape(modelData.qcoverfile)+'|'+escape(modelData.qcoverurl)+'|'+escape(modelData.qurl)
+            source: (modelData.qcoverurl != '')?('image://cover/'+escape(modelData.qcoverfile)+'|'+escape(modelData.qcoverurl)+'|'+escape(modelData.qurl)):''
             asynchronous: true
             width: parent.width * .85
             height: parent.height * .85
@@ -84,12 +85,12 @@ SelectableItem {
         property int titleSize: podcastItem.height * .35
         property int subtitleSize: podcastItem.height * .25
 
-        text: '<font style="font-size: '+titleSize+'px;">' + modelData.qtitle + '</font><br><font style="font-size: '+subtitleSize+'px; color: #aaa;">' + modelData.qdescription + '</font>'
+        text: '<font style="font-size: '+titleSize+'px;">' + modelData.qtitle + '</font>'+(modelData.qdescription?('<br><font style="font-size: '+subtitleSize+'px; color: #aaa;">' + modelData.qdescription + '</font>'):'')
         color: "white"
 
         anchors {
             verticalCenter: parent.verticalCenter
-            left: cover.right
+            left: cover.visible?cover.right:cover.left
             leftMargin: Config.smallSpacing
             right: parent.right
             rightMargin: Config.smallSpacing
