@@ -38,7 +38,6 @@ SelectableItem {
 
         height: podcastItem.height * .8
         width: podcastItem.height * .8
-        smooth: true
 
         anchors {
             verticalCenter: parent.verticalCenter
@@ -79,8 +78,14 @@ SelectableItem {
         }
     }
 
-    Column {
+    Text {
         id: titleBox
+
+        property int titleSize: podcastItem.height * .35
+        property int subtitleSize: podcastItem.height * .25
+
+        text: '<font style="font-size: '+titleSize+'px;">' + modelData.qtitle + '</font><br><font style="font-size: '+subtitleSize+'px; color: #aaa;">' + modelData.qdescription + '</font>'
+        color: "white"
 
         anchors {
             verticalCenter: parent.verticalCenter
@@ -90,31 +95,8 @@ SelectableItem {
             rightMargin: Config.smallSpacing
         }
 
-        ShadowText {
-            id: titleText
-            text: modelData.qtitle
-            color: "white"
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
-            font.pixelSize: podcastItem.height * .35
-        }
-
-        ShadowText {
-            id: descriptionText
-            text: modelData.qdescription
-            elide: Text.ElideRight
-            visible: text != ''
-            color: "#aaa"
-            offsetX: -1
-            offsetY: -1
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
-            font.pixelSize: podcastItem.height * .25
-        }
+        font.pixelSize: podcastItem.height * .35
+        elide: Text.ElideRight
     }
 }
 

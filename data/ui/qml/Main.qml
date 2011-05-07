@@ -319,7 +319,7 @@ Rectangle {
             }
         }
 
-        ShadowText {
+        Text {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: Config.hasTaskSwitcher?0:Config.largeSpacing

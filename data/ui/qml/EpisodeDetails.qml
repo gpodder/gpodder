@@ -124,6 +124,12 @@ Item {
                 }
             }
 
+            onPausedChanged: {
+                if (player.fileType == 'video') {
+                    episode.qplaying = !paused
+                }
+            }
+
             onPositionChanged: player.positionChanged('video')
             onDurationChanged: player.durationChanged('video')
             onStatusChanged: player.statusChanged('video')
@@ -138,6 +144,12 @@ Item {
                     playing = true
                     position = 0
                     player.paused = true
+                }
+            }
+
+            onPausedChanged: {
+                if (player.fileType == 'audio') {
+                    episode.qplaying = !paused
                 }
             }
 
@@ -168,6 +180,7 @@ Item {
         }
 
         PlaybackBar {
+            visible: (player.fileType == 'audio') || (player.fileType == 'video')
             progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
             duration: episode != undefined?episode.qduration:0
             paused: player.paused

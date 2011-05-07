@@ -29,7 +29,7 @@ Item {
         footer: Item { height: Config.headerHeight }
 
         delegate: SelectableItem {
-            ShadowText {
+            Text {
                 anchors.leftMargin: Config.switcherWidth
                 anchors {
                     left: parent.left

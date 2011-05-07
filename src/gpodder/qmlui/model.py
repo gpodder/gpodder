@@ -56,6 +56,9 @@ class QEpisode(QObject, model.PodcastEpisode):
         self._qt_download_progress = 0
         self._qt_downloading = False
 
+        # Playback tracking
+        self._qt_playing = False
+
     changed = Signal()
 
     def _title(self):
@@ -89,6 +92,16 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self._qt_downloading
 
     qdownloading = Property(bool, _downloading, notify=changed)
+
+    def _playing(self):
+        return self._qt_playing
+
+    def _set_playing(self, playing):
+        if self._qt_playing != playing:
+            self._qt_playing = playing
+            self.changed.emit()
+
+    qplaying = Property(bool, _playing, _set_playing, notify=changed)
 
     def _progress(self):
         return self._qt_download_progress

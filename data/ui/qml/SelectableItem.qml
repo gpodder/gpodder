@@ -13,9 +13,16 @@ Item {
 
     Rectangle {
         id: highlight
-        opacity: mouseArea.pressed?.2:0
+        property real maxOpacity: .2
+
+        opacity: mouseArea.pressed?maxOpacity:0
         color: "white"
-        anchors.fill: parent
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+        }
+        height: parent.height + parent.height * (opacity - maxOpacity)
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
     }

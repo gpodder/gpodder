@@ -102,6 +102,7 @@ class Controller(UiData):
             action.target.qdownload(self.root.config)
         elif action.action == 'delete':
             action.target.delete_from_disk()
+            action.target.mark(is_played=True)
             action.target.changed.emit()
             action.target.channel.changed.emit()
         elif action.action == 'mark-as-read':
@@ -300,6 +301,8 @@ class qtPodder(QObject):
 
     def select_episode(self, episode):
         self.save_pending_data()
+        if self.main.currentEpisode:
+            self.main.currentEpisode.setProperty('qplaying', False)
         self.main.currentEpisode = episode
         if episode is not None:
             episode.playback_mark()

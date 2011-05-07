@@ -8,33 +8,44 @@ SelectableItem {
     height: Config.listItemHeight
 
     Rectangle {
+        id: downloadProgress
         anchors.left: parent.left
-        anchors.bottom: parent.bottom
+        anchors.verticalCenter: parent.verticalCenter
+        width: parent.width * modelData.qprogress
+        height: modelData.qdownloading?parent.height:0
+        color: '#608ae234'
+        opacity: modelData.qdownloaded?0:.3
+        Behavior on opacity { PropertyAnimation { } }
+        Behavior on height { PropertyAnimation { } }
+    }
+
+    Rectangle {
+        id: playbackProgress
+
+        anchors.left: parent.left
+
+        anchors.verticalCenter: parent.verticalCenter
         width: modelData.qduration?(parent.width * (modelData.qposition / modelData.qduration)):0
-        height: Config.smallSpacing
-        color: 'white'
+        height: parent.height
+        color: '#60729fcf'
         opacity: .3
     }
 
-    FilledIcon {
+    Image {
         id: icon
-        source: 'artwork/' + modelData.qfiletype + '.png'
+        source: 'artwork/' + modelData.qfiletype + (modelData.qdownloading?'-downloading':(modelData.qplaying?'-playing':'')) + '.png'
         width: Config.iconSize
         height: Config.iconSize
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Config.largeSpacing
-
-        filled: modelData.qdownloaded?1:modelData.qprogress
-
-        opacity: modelData.qdownloading?.5:1
+        opacity: (modelData.qdownloaded || modelData.qdownloading)?1:.3
         Behavior on opacity { PropertyAnimation { } }
-
     }
 
-    ShadowText {
+    Text {
         text: modelData.qtitle
-        color: modelData.qnew?"white":"#888"
+        color: modelData.qdownloading?'#8ae234':(modelData.qplaying?'#729fcf':(modelData.qnew?"white":"#888"))
         font.pixelSize: episodeItem.height * .35
         font.bold: false
         anchors.left: icon.right
@@ -45,7 +56,7 @@ SelectableItem {
         clip: true
     }
 
-    ShadowText {
+    Text {
         id: positionInfo
         text: modelData.qpositiontext
         color: '#888'

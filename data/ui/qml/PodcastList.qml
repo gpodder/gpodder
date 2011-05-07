@@ -19,7 +19,7 @@ Item {
         section.property: 'section'
         section.delegate: Item {
             height: Config.headerHeight
-            ShadowText {
+            Text {
                 font.pixelSize: parent.height * .5
                 text: section
                 color: "#aaa"

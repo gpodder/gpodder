@@ -51,7 +51,7 @@ Item {
             width: (parent.width - parent.spacing*(parent.children.length))/parent.children.length
             height: Config.headerHeight
 
-            ShadowText {
+            Text {
                 color: 'white'
                 anchors.centerIn: parent
                 text: 'Update'
