@@ -135,6 +135,18 @@ def normalize_feed_url(url):
 
     >>> normalize_feed_url('fb:43FPodcast')
     'http://feeds.feedburner.com/43FPodcast'
+
+    It will also take care of converting the domain name to
+    all-lowercase (because domains are not case sensitive):
+
+    >>> normalize_feed_url('http://Example.COM/')
+    'http://example.com/'
+
+    Some other minimalistic changes are also taken care of,
+    e.g. a ? with an empty query is removed:
+
+    >>> normalize_feed_url('http://example.org/test?')
+    'http://example.org/test'
     """
     if not url or len(url) < 8:
         return None
@@ -158,21 +170,20 @@ def normalize_feed_url(url):
     if not '://' in url:
         url = 'http://' + url
 
-    # The scheme of the URL should be all-lowercase
-    (scheme, rest) = url.split('://', 1)
-    scheme = scheme.lower()
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+
+    # Schemes and domain names are case insensitive
+    scheme, netloc = scheme.lower(), netloc.lower()
 
     # feed://, itpc:// and itms:// are really http://
     if scheme in ('feed', 'itpc', 'itms'):
         scheme = 'http'
 
-    # Re-assemble our URL
-    url = scheme + '://' + rest
+    if scheme not in ('http', 'https', 'ftp', 'file'):
+        return None
 
-    if scheme in ('http', 'https', 'ftp', 'file'):
-        return url
-
-    return None
+    # urlunsplit might return "a slighty different, but equivalent URL"
+    return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def username_password_from_url(url):
