@@ -316,11 +316,11 @@ class qtPodder(QObject):
         self.save_pending_data()
         if self.main.currentEpisode:
             self.main.currentEpisode.setProperty('qplaying', False)
-        self.main.currentEpisode = episode
         if episode is not None:
             episode.playback_mark()
             episode.changed.emit()
             episode.channel.changed.emit()
+        self.main.currentEpisode = episode
         self.main.setCurrentEpisode()
 
 def main(args):

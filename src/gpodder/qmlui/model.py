@@ -45,7 +45,6 @@ def convert(s):
 
     return s.decode('utf-8', 'ignore')
 
-
 class QEpisode(QObject, model.PodcastEpisode):
     def __init__(self, *args, **kwargs):
         QObject.__init__(self)
@@ -160,8 +159,10 @@ class QEpisode(QObject, model.PodcastEpisode):
         return self.total_time
 
     def _set_duration(self, duration):
-        self.total_time = int(duration)
-        self.changed.emit()
+        total_time = int(duration)
+        if total_time != self.total_time:
+            self.total_time = total_time
+            self.changed.emit()
 
     qduration = Property(int, _duration, _set_duration, notify=changed)
 
