@@ -128,7 +128,7 @@ def normalize_feed_url(url):
     simply assume the user intends to add a http:// feed.
 
     >>> normalize_feed_url('curry.com')
-    'http://curry.com'
+    'http://curry.com/'
 
     There are even some more shortcuts for advanced users
     and lazy typists (see the source for details).
@@ -174,6 +174,10 @@ def normalize_feed_url(url):
 
     # Schemes and domain names are case insensitive
     scheme, netloc = scheme.lower(), netloc.lower()
+
+    # Normalize empty paths to "/"
+    if path == '':
+        path = '/'
 
     # feed://, itpc:// and itms:// are really http://
     if scheme in ('feed', 'itpc', 'itms'):
