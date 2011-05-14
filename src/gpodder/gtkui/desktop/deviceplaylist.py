@@ -46,7 +46,11 @@ class gPodderDevicePlaylist(BuilderWidget):
         self.playlist_file = os.path.join(self.mountpoint,
                                           self._config.mp3_player_playlist_file)
         icon_theme = gtk.icon_theme_get_default()
-        self.icon_new = icon_theme.load_icon(gtk.STOCK_NEW, 16, 0)
+        try:
+            self.icon_new = icon_theme.load_icon(gtk.STOCK_NEW, 16, 0)
+        except Exception, e:
+            log('Icon missing from theme: %s', gtk.STOCK_NEW, sender=self)
+            self.icon_new = None
 
         # add column two
         check_cell = gtk.CellRendererToggle()
