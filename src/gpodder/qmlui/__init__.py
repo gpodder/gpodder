@@ -246,7 +246,7 @@ class qtPodder(QObject):
             # Proxy to the "main" QML object for direct access to Qt Properties
             self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
         else:
-            self.view.setSource(QML('main.qml'))
+            self.view.setSource(QML('main_default.qml'))
             # Proxy to the "main" QML object for direct access to Qt Properties
             self.main = helper.QObjectProxy(self.view.rootObject())
 
