@@ -24,7 +24,7 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 from PySide.QtDeclarative import *
-from PySide.QtOpenGL import *
+#from PySide.QtOpenGL import *
 
 import os
 import gpodder
@@ -210,6 +210,11 @@ class DeclarativeView(QDeclarativeView):
 class qtPodder(QObject):
     def __init__(self, args, gpodder_core):
         QObject.__init__(self)
+
+        # Enable OpenGL rendering without requiring QtOpenGL
+        if '-graphicssystem' not in args:
+            args += ['-graphicssystem', 'opengl']
+
         self.app = QApplication(args)
         self.quit.connect(self.on_quit)
 
@@ -219,7 +224,6 @@ class qtPodder(QObject):
 
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
-        # Disable OpenGL-based rendering for now
         #self.glw = QGLWidget()
         #self.view.setViewport(self.glw)
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)

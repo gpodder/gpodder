@@ -19,6 +19,6 @@ var fadeTransition = 300
 var baseColor = '#3b485b'
 var offlineColor = '#4b4b4b'
 
-var hasCloseButton = false
-var hasTaskSwitcher = false
+var hasCloseButton = true
+var hasTaskSwitcher = true
 
