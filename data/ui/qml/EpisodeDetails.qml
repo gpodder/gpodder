@@ -11,6 +11,7 @@ Item {
 
     property variant episode: undefined
     property alias playing: player.playing
+    property bool fullscreen: false
 
     MouseArea {
         // clicks should not fall through!
@@ -27,7 +28,9 @@ Item {
 
     Rectangle {
         anchors.fill: episodeDetails
-        color: "white"
+        color: videoPlayer.visible?"black":"white"
+
+        Behavior on color { ColorAnimation { } }
 
         Item {
             id: player
@@ -113,7 +116,7 @@ Item {
         Video {
             id: videoPlayer
             paused: player.paused || player.fileType != 'video'
-            opacity: (episode != undefined && episode.qfiletype == 'video')
+            visible: (episode != undefined && episode.qfiletype == 'video')
             anchors.fill: parent
 
             onPlayingChanged: {
@@ -133,6 +136,11 @@ Item {
             onPositionChanged: player.positionChanged('video')
             onDurationChanged: player.durationChanged('video')
             onStatusChanged: player.statusChanged('video')
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: episodeDetails.fullscreen = !episodeDetails.fullscreen
+            }
         }
 
         Audio {
@@ -161,7 +169,7 @@ Item {
         Flickable {
             id: showNotes
 
-            visible: !videoPlayer.playing || (videoPlayer.opacity == 0)
+            visible: !videoPlayer.visible
 
             anchors.fill: parent
             contentHeight: showNotesText.height
@@ -180,6 +188,12 @@ Item {
         }
 
         PlaybackBar {
+            id: playbackBar
+
+            opacity: episodeDetails.fullscreen?0:1
+
+            Behavior on opacity { PropertyAnimation { } }
+
             visible: (player.fileType == 'audio') || (player.fileType == 'video')
             progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
             duration: episode != undefined?episode.qduration:0

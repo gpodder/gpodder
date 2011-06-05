@@ -285,6 +285,12 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
 
+        anchors.topMargin: episodeDetails.fullscreen?-height:0
+        opacity: episodeDetails.fullscreen?0:1
+
+        Behavior on opacity { PropertyAnimation { } }
+        Behavior on anchors.topMargin { PropertyAnimation { } }
+
         Rectangle {
             anchors.fill: parent
             color: "black"
