@@ -1954,6 +1954,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
 
+            result = gpodder.user_hooks.on_episodes_context_menu(episodes)
+            if result:
+                menu.append(gtk.SeparatorMenuItem())
+                for label, callback in result:
+                    item = gtk.MenuItem(label)
+                    item.connect('activate', lambda item: callback(episodes))
+                    menu.append(item)
+
             ICON = lambda x: x
 
             # Ok, this probably makes sense to only display for downloaded files
@@ -2104,14 +2112,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.playback_mark()
             self.mygpo_client.on_playback([episode])
 
-            filename = episode.local_filename(create=False)
-            if filename is None or not os.path.exists(filename):
-                filename = episode.url
-                if youtube.is_video_link(filename):
-                    fmt_id = self.config.youtube_preferred_fmt_id
-                    if gpodder.ui.fremantle:
-                        fmt_id = 5
-                    filename = youtube.get_real_download_url(filename, fmt_id)
+            fmt_id = self.config.youtube_preferred_fmt_id
+            filename = episode.get_playback_url(fmt_id)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning

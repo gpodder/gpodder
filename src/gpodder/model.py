@@ -361,6 +361,20 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
+    def get_playback_url(self, fmt_id=None):
+        """Local (or remote) playback/streaming filename/URL
+
+        Returns either the local filename or a streaming URL that
+        can be used to playback this episode.
+        """
+        url = self.local_filename(create=False)
+        if url is None or not os.path.exists(url):
+            url = self.url
+            if youtube.is_video_link(url):
+                url = youtube.get_real_download_url(url, fmt_id)
+
+        return url
+
     def find_unique_file_name(self, filename, extension):
         current_try = util.sanitize_filename(filename, self.MAX_FILENAME_LENGTH)+extension
         next_try_id = 2

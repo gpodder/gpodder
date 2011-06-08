@@ -48,15 +48,17 @@ def call_hooks(func):
 
     @functools.wraps(func)
     def handler(self, *args, **kwargs):
+        result = None
         for filename, module in self.modules:
             try:
                 callback = getattr(module, method_name, None)
                 if callback is not None:
-                    callback(*args, **kwargs)
+                    result = callback(*args, **kwargs)
             except Exception, e:
                 log('Error in %s, function %s: %s', filename, method_name, \
                         e, traceback=True, sender=self)
         func(self, *args, **kwargs)
+        return result
 
     return handler
 
@@ -149,4 +151,21 @@ class HookManager(object):
         @param episode: A gpodder.model.PodcastEpisode instance
         """
         pass
+
+    # FIXME: When multiple hooks are used, concatenate the resulting lists
+    @call_hooks
+    def on_episodes_context_menu(self, episodes):
+        """Called when the episode list context menu is opened
+
+        You can add additional context menu entries here. You have to
+        return a list of tuples, where the first item is a label and
+        the second item is a callable that will get the episode as its
+        first and only parameter.
+
+        Example return value:
+
+        [('Mark as new', lambda episodes: ...)]
+
+        @param episode: A list of gpodder.model.PodcastEpisode instances
+        """
 

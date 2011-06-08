@@ -48,7 +48,15 @@ supported_formats = [
 
 class YouTubeError(Exception): pass
 
-def get_real_download_url(url, preferred_fmt_id=18):
+def get_real_download_url(url, preferred_fmt_id=None):
+    # Default fmt_id when none preferred
+    if preferred_fmt_id is None:
+        preferred_fmt_id = 18
+
+    # For Maemo 5, we force fmt_id 5 for performance reasons
+    if gpodder.ui.fremantle:
+        preferred_fmt_id = 5
+
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
