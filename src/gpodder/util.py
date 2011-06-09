@@ -380,7 +380,21 @@ def get_free_disk_space(path):
 
     s = os.statvfs(path)
 
-    return s.f_bavail * s.f_bsize
+    free_space = s.f_bavail * s.f_bsize
+
+    if free_space == 0:
+        # Try to fallback to using GIO to determine free space
+        # This fixes issues with GVFS-mounted iPods (bug 1361)
+        try:
+            import gio
+            file = gio.File(path)
+            info = file.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+            return info.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+        except Exception, e:
+            log('Free space is zero. Fallback using "gio" failed.', traceback=True)
+            return free_space
+
+    return free_space
 
 
 def format_date(timestamp):
