@@ -328,7 +328,7 @@ Rectangle {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
-            anchors.leftMargin: Config.hasTaskSwitcher?0:Config.largeSpacing
+            anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.left
             clip: true
             text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
