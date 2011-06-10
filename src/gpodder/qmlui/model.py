@@ -118,8 +118,9 @@ class QEpisode(QObject, model.PodcastEpisode):
             task = download.DownloadTask(self, config)
             task.status = download.DownloadTask.QUEUED
             def cb(progress):
-                self._qt_download_progress = progress
-                self.changed.emit()
+                if progress > self._qt_download_progress + .01 or progress == 1:
+                    self._qt_download_progress = progress
+                    self.changed.emit()
             task.add_progress_callback(cb)
             task.run()
             self.reload_from_db()
