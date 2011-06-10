@@ -83,6 +83,7 @@ Rectangle {
     }
 
     function openContextMenu(items) {
+        contextMenu.subscribeMode = false
         contextMenu.state = 'opened'
         contextMenu.items = items
     }
@@ -331,7 +332,7 @@ Rectangle {
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.left
             clip: true
-            text: (contextMenu.state == 'opened')?('Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
+            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
             onTextChanged: controller.titleChanged(text)
             color: Qt.lighter(main.color, 4)
             font.pixelSize: parent.height * .5
@@ -344,7 +345,11 @@ Rectangle {
 
             source: 'artwork/subscriptions.png'
 
-            onClicked: controller.searchButtonClicked()
+            onClicked: {
+                //controller.searchButtonClicked()
+                contextMenu.subscribeMode = true
+                contextMenu.state = 'opened'
+            }
 
             visible: contextMenu.state == 'closed'
         }

@@ -6,6 +6,8 @@ import 'config.js' as Config
 Item {
     id: contextMenuArea
 
+    property bool subscribeMode: true
+
     property variant items: []
 
     signal close
@@ -22,6 +24,7 @@ Item {
     }
 
     ListView {
+        visible: !contextMenuArea.subscribeMode
         model: contextMenuArea.items
         anchors.fill: parent
 
@@ -46,6 +49,13 @@ Item {
                 contextMenuArea.close()
             }
         }
+    }
+
+    Subscribe {
+        id: subscribe
+        visible: contextMenuArea.subscribeMode
+        anchors.fill: parent
+        anchors.topMargin: Config.headerHeight
     }
 }
 

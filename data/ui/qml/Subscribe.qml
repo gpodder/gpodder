@@ -18,6 +18,8 @@ Item {
         Text {
             id: searchLabel
             text: 'Search for:'
+            color: 'white'
+            font.pixelSize: 20
             anchors {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
@@ -26,6 +28,8 @@ Item {
 
         TextInput {
             id: searchInput
+            color: 'white'
+            font.pixelSize: 20
             anchors {
                 left: searchLabel.right
                 right: searchButton.left
@@ -49,6 +53,7 @@ Item {
                 color: 'white'
                 anchors.centerIn: parent
                 text: 'Search'
+                font.pixelSize: 20
             }
 
             MouseArea {
@@ -59,6 +64,8 @@ Item {
     }
 
     ListView {
+        clip: true
+
         anchors {
             left: parent.left
             right: parent.right
@@ -76,30 +83,37 @@ Item {
             }
         }
 
-        delegate: Text {
-            text: title + '\n' + description; height: 50; width: 200
-            MouseArea {
+        delegate: SelectableItem {
+            property string modelData: url
+
+            height: 50; width: parent.width
+            Text {
+                text: title
                 anchors.fill: parent
-                onClicked: console.log('clicked on: ' + url)
+                verticalAlignment: Text.AlignVCenter
+                color: 'white'
+                font.pixelSize: 25
             }
+            onSelected: console.log('clicked on: ' + item)
         }
     }
 
     Rectangle {
+        anchors.centerIn: parent
+
         width: 100
-        height: 100
-        color: 'red'
+        height: 50
+
+        color: 'black'
         opacity: (opmlListModel.status == XmlListModel.Loading)?1:0
 
-        Text {
-            anchors.fill: parent
-            text: 'please wait..'
-            color: 'white'
-        }
+        Behavior on opacity { PropertyAnimation { } }
 
-        Rectangle {
-            width: parent.width*opmlListModel.progress
-            height: parent.height
+        Text {
+            anchors.centerIn: parent
+            text: 'loading...'
+            color: 'white'
+            font.pixelSize: 14
         }
     }
 
