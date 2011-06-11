@@ -56,6 +56,11 @@ Item {
         visible: contextMenuArea.subscribeMode
         anchors.fill: parent
         anchors.topMargin: Config.headerHeight
+
+        onSubscribe: {
+            controller.addSubscription(url)
+            contextMenuArea.close()
+        }
     }
 }
 

@@ -2,8 +2,9 @@
 import Qt 4.7
 
 Item {
-    width: 500
-    height: 500
+    id: subscribe
+
+    signal subscribe(variant url)
 
     Item {
         id: topBar
@@ -94,7 +95,7 @@ Item {
                 color: 'white'
                 font.pixelSize: 25
             }
-            onSelected: console.log('clicked on: ' + item)
+            onSelected: subscribe.subscribe(item)
         }
     }
 

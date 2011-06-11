@@ -27,11 +27,13 @@ from PySide.QtDeclarative import *
 #from PySide.QtOpenGL import *
 
 import os
+import threading
 import gpodder
 
 _ = gpodder.gettext
 
 from gpodder import core
+from gpodder import util
 
 from gpodder.qmlui import model
 from gpodder.qmlui import helper
@@ -132,10 +134,26 @@ class Controller(UiData):
 
     @Slot()
     def searchButtonClicked(self):
+        # FIXME: This is not used at the moment - remove later?
         self.show_context_menu([
             helper.Action('Search podcasts', 'search-podcasts'),
             helper.Action('Filter current list', 'filter-list'),
         ])
+
+    @Slot(str)
+    def addSubscription(self, url):
+        url = util.normalize_feed_url(url)
+
+        def subscribe_proc(self, url):
+            channel = model.Model.load_podcast(self.root.db, url=url, \
+                    create=True, \
+                    max_episodes=self.root.config.max_episodes_per_feed, \
+                    mimetype_prefs=self.root.config.mimetype_prefs)
+            channel.save()
+            self.root.podcast_list_changed.emit()
+
+        t = threading.Thread(target=subscribe_proc, args=[self, url])
+        t.start()
 
     @Slot()
     def quit(self):
@@ -217,6 +235,7 @@ class qtPodder(QObject):
 
         self.app = QApplication(args)
         self.quit.connect(self.on_quit)
+        self.podcast_list_changed.connect(self.reload_podcasts)
 
         self.core = gpodder_core
         self.config = self.core.config
@@ -286,6 +305,7 @@ class qtPodder(QObject):
         return self.app.exec_()
 
     quit = Signal()
+    podcast_list_changed = Signal()
 
     def on_quit(self):
         self.save_pending_data()
