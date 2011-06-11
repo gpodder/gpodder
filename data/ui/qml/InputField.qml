@@ -1,13 +1,13 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
-TextInput {
-    color: 'white'
-    font.pixelSize: 20
+TextField {
+    id: textField
     inputMethodHints: Qt.ImhNoAutoUppercase
 
     function closeVirtualKeyboard() {
-        // noop on this platform
+        textField.platformCloseSoftwareInputPanel()
     }
 }
 
