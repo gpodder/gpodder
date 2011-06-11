@@ -206,9 +206,6 @@ class gPodderPodcastListModel(gPodderListModel):
     def set_podcasts(self, db, podcasts):
         views = [
             model.EpisodeSubsetView(db, podcasts, _('All episodes'), ''),
-            model.EpisodeSubsetView(db, podcasts, _('Short downloads'), '', 'downloaded and min < 10 and min > 0'),
-            model.EpisodeSubsetView(db, podcasts, _('Small files to download'), '', 'not deleted and not downloaded and mb < 20 and mb > 0'),
-            model.EpisodeSubsetView(db, podcasts, _('Downloaded audio'), '', 'audio and downloaded'),
         ]
         return self.set_objects(views + podcasts)
 
