@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.99'
-__date__      = '2011-04-01'
+__version__   = '2.950'
+__date__      = '2011-06-11'
 __copyright__ = '© 2005-2011 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
