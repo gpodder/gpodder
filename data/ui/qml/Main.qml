@@ -330,7 +330,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
-            anchors.right: searchButton.left
+            anchors.right: (episodeDetails.state == 'visible')?parent.right:searchButton.left
             clip: true
             text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
             onTextChanged: controller.titleChanged(text)
@@ -345,13 +345,9 @@ Rectangle {
 
             source: 'artwork/subscriptions.png'
 
-            onClicked: {
-                //controller.searchButtonClicked()
-                contextMenu.subscribeMode = true
-                contextMenu.state = 'opened'
-            }
+            onClicked: contextMenu.showSubscribe()
 
-            visible: contextMenu.state == 'closed'
+            visible: (contextMenu.state == 'closed' && main.state == 'podcasts' && episodeDetails.state == 'hidden')
         }
 
         TitlebarButton {
@@ -374,6 +370,38 @@ Rectangle {
                     main.state = 'podcasts'
                 }
             }
+        }
+    }
+
+    function showMessage(message) {
+        messageDialogText.text = message
+        messageDialog.opacity = 1
+    }
+
+    Item {
+        id: messageDialog
+        anchors.fill: parent
+        opacity: 0
+        z: 20
+
+        Behavior on opacity { PropertyAnimation { } }
+
+        Rectangle {
+            anchors.fill: parent
+            color: '#ee000000'
+        }
+
+        Text {
+            id: messageDialogText
+            anchors.centerIn: parent
+            color: 'white'
+            font.pixelSize: 20
+            font.bold: true
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: messageDialog.opacity = 0
         }
     }
 }

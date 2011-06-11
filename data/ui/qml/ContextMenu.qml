@@ -51,9 +51,15 @@ Item {
         }
     }
 
+    function showSubscribe() {
+        contextMenuArea.subscribeMode = true
+        contextMenuArea.state = 'opened'
+        subscribe.show()
+    }
+
     Subscribe {
         id: subscribe
-        visible: contextMenuArea.subscribeMode
+        visible: contextMenuArea.subscribeMode && (contextMenuArea.state == 'opened')
         anchors.fill: parent
         anchors.topMargin: Config.headerHeight
 

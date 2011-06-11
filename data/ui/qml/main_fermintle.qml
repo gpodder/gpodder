@@ -1,26 +1,23 @@
 
 import Qt 4.7
-import com.meego 1.0
+import com.nokia.meego 1.0
 
-Window {
-    id: window
+PageStackWindow {
+    id: rootWindow
     property variant main: mainObject
 
-    PageStack {
-        id: pageStack
-        anchors.fill: parent
+    initialPage: Page {
+        id: mainPage
 
-        Page {
-            id: mainPage
-            Main {
-                id: mainObject
-                anchors.fill: parent
-            }
-
-            Component.onCompleted: {
-                pageStack.push(mainPage)
-            }
+        Main {
+            id: mainObject
+            anchors.fill: parent
         }
+
+    }
+
+    Component.onCompleted: {
+        theme.inverted = true
     }
 }
 

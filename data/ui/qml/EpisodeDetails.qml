@@ -139,7 +139,10 @@ Item {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: episodeDetails.fullscreen = !episodeDetails.fullscreen
+                onClicked: {
+                    episodeDetails.fullscreen = !episodeDetails.fullscreen
+                    rootWindow.showStatusBar = !episodeDetails.fullscreen
+                }
             }
         }
 

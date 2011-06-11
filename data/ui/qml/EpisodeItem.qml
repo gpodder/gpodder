@@ -59,6 +59,7 @@ SelectableItem {
     Text {
         id: positionInfo
         text: modelData.qpositiontext
+        font.pixelSize: episodeItem.height * .2
         color: '#888'
         anchors.right: parent.right
         anchors.rightMargin: Config.largeSpacing

@@ -132,25 +132,28 @@ class Controller(UiData):
             helper.Action(toggle_new, 'episode-toggle-new', episode),
         ])
 
-    @Slot()
-    def searchButtonClicked(self):
-        # FIXME: This is not used at the moment - remove later?
-        self.show_context_menu([
-            helper.Action('Search podcasts', 'search-podcasts'),
-            helper.Action('Filter current list', 'filter-list'),
-        ])
-
     @Slot(str)
     def addSubscription(self, url):
         url = util.normalize_feed_url(url)
 
+        for podcast in self.root.podcast_model.get_objects():
+            if isinstance(podcast, model.EpisodeSubsetView):
+                continue
+
+            if podcast.url == url:
+                self.root.show_message('Podcast already added')
+                self.podcastSelected(podcast)
+                return
+
         def subscribe_proc(self, url):
+            # TODO: Show progress indicator
             channel = model.Model.load_podcast(self.root.db, url=url, \
                     create=True, \
                     max_episodes=self.root.config.max_episodes_per_feed, \
                     mimetype_prefs=self.root.config.mimetype_prefs)
             channel.save()
             self.root.podcast_list_changed.emit()
+            # TODO: Present the podcast to the user
 
         t = threading.Thread(target=subscribe_proc, args=[self, url])
         t.start()
@@ -230,7 +233,8 @@ class qtPodder(QObject):
         QObject.__init__(self)
 
         # Enable OpenGL rendering without requiring QtOpenGL
-        if '-graphicssystem' not in args:
+        # On Fermintle we let the system choose the best graphicssystem
+        if '-graphicssystem' not in args and not gpodder.ui.fermintle:
             args += ['-graphicssystem', 'opengl']
 
         self.app = QApplication(args)
@@ -266,12 +270,11 @@ class qtPodder(QObject):
         # Load the QML UI (this could take a while...)
         if gpodder.ui.fermintle:
             self.view.setSource(QML('main_fermintle.qml'))
-            # Proxy to the "main" QML object for direct access to Qt Properties
-            self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
         else:
             self.view.setSource(QML('main_default.qml'))
-            # Proxy to the "main" QML object for direct access to Qt Properties
-            self.main = helper.QObjectProxy(self.view.rootObject())
+
+        # Proxy to the "main" QML object for direct access to Qt Properties
+        self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
 
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
@@ -311,6 +314,9 @@ class qtPodder(QObject):
         self.save_pending_data()
         self.core.shutdown()
         self.app.quit()
+
+    def show_message(self, message):
+        self.main.showMessage(message)
 
     def open_context_menu(self, items):
         self.main.openContextMenu(items)

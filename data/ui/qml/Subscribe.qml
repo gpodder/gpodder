@@ -1,10 +1,24 @@
 
 import Qt 4.7
 
+import 'config.js' as Config
+
 Item {
     id: subscribe
 
     signal subscribe(variant url)
+
+    function show() {
+        searchInput.text = ''
+        opmlListModel.source = ''
+        searchInput.forceActiveFocus()
+    }
+
+    onVisibleChanged: {
+        if (!visible) {
+            searchInput.closeVirtualKeyboard()
+        }
+    }
 
     Item {
         id: topBar
@@ -22,44 +36,52 @@ Item {
             color: 'white'
             font.pixelSize: 20
             anchors {
+                leftMargin: Config.smallSpacing
                 left: parent.left
                 verticalCenter: parent.verticalCenter
             }
         }
 
-        TextInput {
+        InputField {
             id: searchInput
-            color: 'white'
-            font.pixelSize: 20
+
             anchors {
+                leftMargin: Config.smallSpacing
                 left: searchLabel.right
                 right: searchButton.left
                 verticalCenter: parent.verticalCenter
             }
         }
 
-        Rectangle {
+        SimpleButton {
             id: searchButton
+            //text: 'Search'
+            image: 'artwork/search.png'
+
+            onClicked: opmlListModel.searchFor(searchInput.text)
+
+            width: parent.height
+            height: parent.height
+
+            anchors {
+                top: parent.top
+                right: addButton.left
+            }
+        }
+
+        SimpleButton {
+            id: addButton
+            //text: 'Add'
+            image: 'artwork/subscriptions.png'
+
+            onClicked: subscribe.subscribe(searchInput.text)
+
+            width: parent.height
+            height: parent.height
+
             anchors {
                 top: parent.top
                 right: parent.right
-            }
-
-            color: 'blue'
-            height: parent.height
-            width: 100
-
-            Text {
-                id: searchButtonLabel
-                color: 'white'
-                anchors.centerIn: parent
-                text: 'Search'
-                font.pixelSize: 20
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: opmlListModel.searchFor(searchInput.text)
             }
         }
     }
@@ -87,7 +109,9 @@ Item {
         delegate: SelectableItem {
             property string modelData: url
 
-            height: 50; width: parent.width
+            height: 50
+            width: parent.width
+
             Text {
                 text: title
                 anchors.fill: parent
@@ -95,6 +119,7 @@ Item {
                 color: 'white'
                 font.pixelSize: 25
             }
+
             onSelected: subscribe.subscribe(item)
         }
     }
