@@ -87,7 +87,11 @@ Item {
     }
 
     ListView {
+        id: listView
         clip: true
+
+        opacity: (opmlListModel.status == XmlListModel.Ready)?1:0
+        Behavior on opacity { PropertyAnimation { } }
 
         anchors {
             left: parent.left
@@ -109,15 +113,30 @@ Item {
         delegate: SelectableItem {
             property string modelData: url
 
-            height: 50
-            width: parent.width
+            height: Config.listItemHeight
+            width: listView.width
 
-            Text {
-                text: title
-                anchors.fill: parent
-                verticalAlignment: Text.AlignVCenter
-                color: 'white'
-                font.pixelSize: 25
+            Column {
+                anchors {
+                    leftMargin: Config.largeSpacing
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: title
+                    anchors.leftMargin: Config.largeSpacing
+                    color: 'white'
+                    font.pixelSize: 25
+                }
+
+                Text {
+                    text: url
+                    anchors.leftMargin: Config.largeSpacing
+                    color: '#aaa'
+                    font.pixelSize: 15
+                }
             }
 
             onSelected: subscribe.subscribe(item)
@@ -137,9 +156,9 @@ Item {
 
         Text {
             anchors.centerIn: parent
-            text: 'loading...'
+            text: 'Loading.'
             color: 'white'
-            font.pixelSize: 14
+            font.pixelSize: 30
         }
     }
 
