@@ -13,6 +13,8 @@ Rectangle {
     property alias episodeModel: episodeList.model
     property alias currentEpisode: episodeDetails.episode
 
+    property alias playing: episodeDetails.playing
+
     property variant controller
     controller: Controller { main: main }
 

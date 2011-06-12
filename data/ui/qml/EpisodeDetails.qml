@@ -10,7 +10,7 @@ Item {
     id: episodeDetails
 
     property variant episode: undefined
-    property alias playing: player.playing
+    property bool playing: player.playing && !player.paused
     property bool fullscreen: false
 
     MouseArea {
