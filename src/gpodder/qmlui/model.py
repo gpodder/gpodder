@@ -110,7 +110,7 @@ class QEpisode(QObject, model.PodcastEpisode):
 
     qprogress = Property(float, _progress, notify=changed)
 
-    def qdownload(self, config):
+    def qdownload(self, config, finished_callback=None):
         def t(self):
             self._qt_downloading = True
             self._qt_download_progress = 0.
@@ -127,8 +127,12 @@ class QEpisode(QObject, model.PodcastEpisode):
             self._qt_downloading = False
             self.changed.emit()
 
-            # Make sure the channel is updated (main view)
+            # Make sure the single channel is updated (main view)
             self.channel.qupdate()
+
+            # Make sure that "All episodes", etc.. are updated
+            if finished_callback is not None:
+                finished_callback()
 
         threading.Thread(target=t, args=[self]).start()
 
@@ -180,7 +184,7 @@ class QPodcast(QObject, model.PodcastChannel):
         self._section_cached = None
         model.PodcastChannel.__init__(self, *args, **kwargs)
 
-    def qupdate(self, force=False):
+    def qupdate(self, force=False, finished_callback=None):
         def t(self):
             self._updating = True
             self.changed.emit()
@@ -194,6 +198,10 @@ class QPodcast(QObject, model.PodcastChannel):
                 pass
             self._updating = False
             self.changed.emit()
+
+            # Notify the caller that we've finished updating
+            if finished_callback is not None:
+                finished_callback()
 
         threading.Thread(target=t, args=[self]).start()
 
@@ -271,7 +279,9 @@ class EpisodeSubsetView(QObject):
         return Model.sort_episodes_by_pubdate(episodes, True)
 
     def qupdate(self, force=False):
-        pass
+        # TODO: Update stats, etc.. (right now, this is done
+        # automatically, because we don't cache stats)
+        self.changed.emit()
 
     changed = Signal()
 

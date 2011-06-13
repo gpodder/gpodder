@@ -86,20 +86,29 @@ class Controller(UiData):
         self.context_menu_actions = actions
         self.root.open_context_menu(self.context_menu_actions)
 
+    def update_subset_stats(self):
+        # This should be called when an episode changes state,
+        # so that all subset views (e.g. "All episodes") can
+        # update its status (i.e. download/new counts, etc..)
+        for podcast in self.root.podcast_model.get_objects():
+            if isinstance(podcast, model.EpisodeSubsetView):
+                podcast.qupdate()
+
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
         action = self.context_menu_actions[index]
         if action.action == 'update':
-            action.target.qupdate()
+            action.target.qupdate(finished_callback=self.update_subset_stats)
         elif action.action == 'force-update':
-            action.target.qupdate(force=True)
+            action.target.qupdate(force=True, \
+                    finished_callback=self.update_subset_stats)
         elif action.action == 'update-all':
             for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate()
+                podcast.qupdate(finished_callback=self.update_subset_stats)
         elif action.action == 'force-update-all':
             for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate(force=True)
+                podcast.qupdate(force=True, finished_callback=self.update_subset_stats)
         if action.action == 'unsubscribe':
             action.target.remove_downloaded()
             action.target.delete()
@@ -108,18 +117,22 @@ class Controller(UiData):
             action.target.mark(is_played=action.target.is_new)
             action.target.changed.emit()
             action.target.channel.changed.emit()
+            self.update_subset_stats()
         elif action.action == 'download':
-            action.target.qdownload(self.root.config)
+            action.target.qdownload(self.root.config, \
+                    self.update_subset_stats)
         elif action.action == 'delete':
             action.target.delete_from_disk()
             action.target.mark(is_played=True)
             action.target.changed.emit()
             action.target.channel.changed.emit()
+            self.update_subset_stats()
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
                     episode.mark(is_played=True)
             action.target.changed.emit()
+            self.update_subset_stats()
 
     @Slot()
     def contextMenuClosed(self):
