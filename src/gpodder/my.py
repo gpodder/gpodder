@@ -408,7 +408,7 @@ class MygPoClient(object):
         log('Starting episode status sync.', sender=self)
 
         def convert_to_api(action):
-            dt = datetime.datetime.fromtimestamp(action.timestamp)
+            dt = datetime.datetime.utcfromtimestamp(action.timestamp)
             since = mygpoutil.datetime_to_iso8601(dt)
             return api.EpisodeAction(action.podcast_url, \
                     action.episode_url, action.action, \
