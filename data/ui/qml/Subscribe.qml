@@ -6,6 +6,8 @@ import 'config.js' as Config
 Item {
     id: subscribe
 
+    property string defaultUrl: 'http://gpodder.net/toplist.opml'
+
     signal subscribe(variant url)
 
     function show() {
@@ -162,5 +164,64 @@ Item {
         }
     }
 
+    Item {
+        id: directoryButtons
+        visible: opmlListModel.source == ''
+
+        anchors.fill: parent
+        anchors.bottomMargin: Config.listItemHeight
+
+        Row {
+            visible: parent.height > 200
+            anchors.centerIn: parent
+            spacing: Config.largeSpacing * 3
+
+            Image {
+                source: 'artwork/directory-toplist.png'
+
+                SelectableItem {
+                    property string modelData: 'http://gpodder.org/toplist.opml'
+                    anchors.fill: parent
+                    onSelected: opmlListModel.source = item
+                }
+
+                Text {
+                    anchors.top: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.pixelSize: 30
+                    color: 'white'
+                    text: 'Toplist'
+                }
+            }
+
+            Image {
+                source: 'artwork/directory-examples.png'
+
+                SelectableItem {
+                    property string modelData: 'http://gpodder.org/directory.opml'
+                    anchors.fill: parent
+                    onSelected: opmlListModel.source = item
+                }
+
+                Text {
+                    anchors.top: parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.pixelSize: 30
+                    color: 'white'
+                    text: 'Examples'
+                }
+            }
+        }
+    }
+
+    Text {
+        visible: directoryButtons.visible
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: Config.largeSpacing
+        font.pixelSize: 20
+        color: 'white'
+        text: '<em>powered by gpodder.net</em>'
+    }
 }
 
