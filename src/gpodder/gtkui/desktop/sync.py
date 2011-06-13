@@ -220,7 +220,7 @@ class gPodderSyncUI(object):
                 ('podcast', None, None, _('Podcast')),
                 ('filesize', 'length', int, _('Size')),
                 ('modified', 'modified_sort', int, _('Copied')),
-                ('playcount', 'playcount', int, _('Play count')),
+                ('playcount_str', 'playcount', int, _('Play count')),
                 ('released', None, None, _('Released')),
         )
 

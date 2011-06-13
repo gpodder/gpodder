@@ -169,12 +169,16 @@ class SyncTrack(object):
         self.modified = modified
 
         # Set some (possible) keyword arguments to default values
-        self.playcount = None
+        self.playcount = 0
         self.podcast = None
         self.released = None
 
         # Convert keyword arguments to object attributes
         self.__dict__.update(kwargs)
+
+    @property
+    def playcount_str(self):
+        return str(self.playcount)
 
 
 class Device(services.ObservableService):
