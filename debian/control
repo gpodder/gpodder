@@ -3,12 +3,14 @@ Maintainer: Thomas Perl <m@thp.io>
 Section: user/multimedia
 Priority: optional
 Standards-Version: 3.7.3
-Build-Depends: debhelper (>= 5.0.37.2), python-dev, intltool, python-feedparser, python-mygpoclient (>= 1.4)
+Build-Depends: debhelper (>= 5.0.37.2), python-dev, intltool, python-feedparser
 Homepage: http://gpodder.org/
 
 Package: gpodder
 Architecture: all
-Depends: python (>= 2.5), python-pyside.qtcore, python-pyside.qtgui, python-pyside.qtdeclarative, python-feedparser (>= 5.0.1), python-dbus, python-mygpoclient (>= 1.4), python-conic
+Depends: python (>= 2.5), python-pyside.qtcore, python-pyside.qtgui, python-pyside.qtdeclarative, python-feedparser (>= 5.0.1), python-dbus, python-conic
+Conflicts: python-mygpoclient
+Provides: python-mygpoclient
 Description: A podcast aggregator for the Nokia N950 and N9
  gPodder is a podcast receiver/catcher with a specialized UI that
  has been optimized for MeeGo Harmattan. Podcasts are like

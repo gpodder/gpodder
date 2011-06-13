@@ -118,6 +118,7 @@ packages = [
   'gpodder.gtkui.interface',
   'gpodder.webui',
   'gpodder.qmlui',
+  'mygpoclient',
 ]
 
 # target-specific installation data files
