@@ -67,14 +67,20 @@ class Controller(UiData):
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
-        self.show_context_menu([
-                helper.Action('Update all', 'update-all', podcast),
-                helper.Action('Update', 'update', podcast),
-                helper.Action('Mark episodes as old', 'mark-as-read', podcast),
-                helper.Action('Force update all', 'force-update-all', podcast),
-                helper.Action('Force update', 'force-update', podcast),
-                helper.Action('Unsubscribe', 'unsubscribe', podcast),
-        ])
+        menu = []
+
+        if isinstance(podcast, model.EpisodeSubsetView):
+            menu.append(helper.Action('Update all', 'update-all', podcast))
+        else:
+            menu.append(helper.Action('Update', 'update', podcast))
+            menu.append(helper.Action('Mark episodes as old', 'mark-as-read', podcast))
+            menu.append(helper.Action('', '', None))
+            menu.append(helper.Action('Unsubscribe', 'unsubscribe', podcast))
+
+        #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
+        #menu.append(helper.Action('Force update', 'force-update', podcast))
+
+        self.show_context_menu(menu)
 
     def show_context_menu(self, actions):
         self.context_menu_actions = actions
@@ -125,12 +131,17 @@ class Controller(UiData):
 
     @Slot(QObject)
     def episodeContextMenu(self, episode):
+        menu = []
+
+        if episode.was_downloaded(and_exists=True):
+            menu.append(helper.Action('Delete file', 'delete', episode))
+        else:
+            menu.append(helper.Action('Download', 'download', episode))
+
         toggle_new = 'Mark as old' if episode.is_new else 'Mark as new'
-        self.show_context_menu([
-            helper.Action('Download', 'download', episode),
-            helper.Action('Delete file', 'delete', episode),
-            helper.Action(toggle_new, 'episode-toggle-new', episode),
-        ])
+        menu.append(helper.Action(toggle_new, 'episode-toggle-new', episode))
+
+        self.show_context_menu(menu)
 
     @Slot(str)
     def addSubscription(self, url):
