@@ -127,6 +127,9 @@ class QEpisode(QObject, model.PodcastEpisode):
             self._qt_downloading = False
             self.changed.emit()
 
+            # Make sure the channel is updated (main view)
+            self.channel.qupdate()
+
         threading.Thread(target=t, args=[self]).start()
 
     def _description(self):
