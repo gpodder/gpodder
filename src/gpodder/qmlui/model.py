@@ -278,7 +278,7 @@ class EpisodeSubsetView(QObject):
 
         return Model.sort_episodes_by_pubdate(episodes, True)
 
-    def qupdate(self, force=False):
+    def qupdate(self, force=False, finished_callback=None):
         # TODO: Update stats, etc.. (right now, this is done
         # automatically, because we don't cache stats)
         self.changed.emit()
