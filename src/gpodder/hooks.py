@@ -168,4 +168,5 @@ class HookManager(object):
 
         @param episode: A list of gpodder.model.PodcastEpisode instances
         """
+        pass
 
