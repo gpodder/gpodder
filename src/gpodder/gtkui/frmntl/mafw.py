@@ -38,6 +38,7 @@ import urllib
 import time
 
 import gpodder
+from gpodder.liblogger import log
 
 class gPodderPlayer(dbus.service.Object):
     # Empty class with method definitions to send D-Bus signals
@@ -246,6 +247,13 @@ class MafwPlaybackMonitor(object):
                     # be determined for whatever reason. Use wall time and
                     # assume that the media file has advanced the same amount.
                     position = self._start_position + (time.time()-self._start_time)
+                if position == 0:
+                    # Can happen when playback of an episode ends and media
+                    # player cycles back to the beginning; use wall time in
+                    # this case, too.
+                    position = self._start_position + (time.time()-self._start_time)
+                    log('fixed end position 0 using wall-time: %d (duration: %d)', \
+                            position, self._duration)
                 if self._start_position != position:
                     self._player.PlaybackStopped(self._start_position, \
                             position, self._duration, self._filename.decode('utf-8'))
