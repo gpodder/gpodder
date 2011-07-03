@@ -2990,6 +2990,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if not self.config.auto_remove_played_episodes:
                         continue
 
+                # Do not delete unfinished episodes (except if configured)
+                if not episode.is_finished():
+                    if not self.config.auto_remove_unfinished_episodes:
+                        continue
+
                 # Do not delete unplayed episodes (except if configured)
                 if episode.is_new:
                     if not self.config.auto_remove_unplayed_episodes:
