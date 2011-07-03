@@ -127,6 +127,8 @@ class gPodderPreferences(BuilderWidget):
         else:
             self.hscale_expiration.set_value(0)
 
+        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
+
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo_enabled
 
