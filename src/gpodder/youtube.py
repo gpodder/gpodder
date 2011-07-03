@@ -54,7 +54,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         preferred_fmt_id = 18
 
     # For Maemo 5, we force fmt_id 5 for performance reasons
-    if gpodder.ui.fremantle and not gpodder.ui.fermintle:
+    if gpodder.ui.fremantle and not gpodder.ui.harmattan:
         preferred_fmt_id = 5
 
     vid = get_youtube_id(url)

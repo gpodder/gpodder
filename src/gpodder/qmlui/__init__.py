@@ -188,7 +188,7 @@ class Controller(UiData):
 
     @Slot()
     def switcher(self):
-        if gpodder.ui.fermintle:
+        if gpodder.ui.harmattan:
             self.root.view.showMinimized()
         elif gpodder.ui.fremantle:
             os.system('dbus-send /com/nokia/hildon_desktop '+
@@ -254,8 +254,8 @@ class qtPodder(QObject):
         QObject.__init__(self)
 
         # Enable OpenGL rendering without requiring QtOpenGL
-        # On Fermintle we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.fermintle:
+        # On Harmattan we let the system choose the best graphicssystem
+        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
             args += ['-graphicssystem', 'opengl']
 
         self.app = QApplication(args)
@@ -289,8 +289,8 @@ class qtPodder(QObject):
         engine.addImageProvider('cover', self.cover_provider)
 
         # Load the QML UI (this could take a while...)
-        if gpodder.ui.fermintle:
-            self.view.setSource(QML('main_fermintle.qml'))
+        if gpodder.ui.harmattan:
+            self.view.setSource(QML('main_harmattan.qml'))
         else:
             self.view.setSource(QML('main_default.qml'))
 
@@ -303,7 +303,7 @@ class qtPodder(QObject):
 
         self.view.setWindowTitle('gPodder')
 
-        if gpodder.ui.fermintle:
+        if gpodder.ui.harmattan:
             self.view.showFullScreen()
         elif gpodder.ui.fremantle:
             self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
