@@ -176,9 +176,7 @@ def detect_platform():
         ui.fremantle = False
 
     try:
-        import hashlib
-        sha1 = hashlib.sha1(open('/etc/issue').read()).hexdigest()
-        ui.harmattan = (sha1 == 'a8594416e0452316ea87a7f9395bc7cc4b0228a4')
+        ui.harmattan = ('MeeGo 1.2 Harmattan' in open('/etc/issue').read())
     except Exception, e:
         ui.harmattan = False
 
