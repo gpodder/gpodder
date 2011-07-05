@@ -2238,7 +2238,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # For each type now, go and create play commands
         for group in groups:
-            for command in util.format_desktop_command(group, groups[group]):
+            for command in util.format_desktop_command(group, groups[group], resume_position):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
 
