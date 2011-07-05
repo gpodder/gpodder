@@ -760,13 +760,16 @@ def object_string_formatter( s, **kwargs):
     return result
 
 
-def format_desktop_command(command, filenames):
+def format_desktop_command(command, filenames, start_position=None):
     """
     Formats a command template from the "Exec=" line of a .desktop
     file to a string that can be invoked in a shell.
 
     Handled format strings: %U, %u, %F, %f and a fallback that
     appends the filename as first parameter of the command.
+
+    Also handles non-standard %p which is replaced with the start_position
+    (probably only makes sense if starting a single file). (see bug 1140)
 
     See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
 
@@ -777,6 +780,9 @@ def format_desktop_command(command, filenames):
     # Replace backslashes with slashes to fix win32 issues
     # (even on win32, "/" works, but "\" does not)
     command = command.replace('\\', '/')
+
+    if start_position is not None:
+        command = command.replace('%p', str(start_position))
 
     command = shlex.split(command)
 
