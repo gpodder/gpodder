@@ -29,6 +29,7 @@ _ = gpodder.gettext
 
 import atexit
 import datetime
+import calendar
 import os
 import sys
 import threading
@@ -408,7 +409,7 @@ class MygPoClient(object):
         log('Starting episode status sync.', sender=self)
 
         def convert_to_api(action):
-            dt = datetime.datetime.fromtimestamp(action.timestamp)
+            dt = datetime.datetime.utcfromtimestamp(action.timestamp)
             since = mygpoutil.datetime_to_iso8601(dt)
             return api.EpisodeAction(action.podcast_url, \
                     action.episode_url, action.action, \
@@ -417,7 +418,7 @@ class MygPoClient(object):
 
         def convert_from_api(action):
             dt = mygpoutil.iso8601_to_datetime(action.timestamp)
-            since = int(dt.strftime('%s'))
+            since = calendar.timegm(dt.timetuple())
             return ReceivedEpisodeAction(action.podcast, \
                     action.episode, action.device, \
                     action.action, since, \

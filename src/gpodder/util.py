@@ -380,7 +380,21 @@ def get_free_disk_space(path):
 
     s = os.statvfs(path)
 
-    return s.f_bavail * s.f_bsize
+    free_space = s.f_bavail * s.f_bsize
+
+    if free_space == 0:
+        # Try to fallback to using GIO to determine free space
+        # This fixes issues with GVFS-mounted iPods (bug 1361)
+        try:
+            import gio
+            file = gio.File(path)
+            info = file.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+            return info.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+        except Exception, e:
+            log('Free space is zero. Fallback using "gio" failed.', traceback=True)
+            return free_space
+
+    return free_space
 
 
 def format_date(timestamp):
@@ -746,13 +760,16 @@ def object_string_formatter( s, **kwargs):
     return result
 
 
-def format_desktop_command(command, filenames):
+def format_desktop_command(command, filenames, start_position=None):
     """
     Formats a command template from the "Exec=" line of a .desktop
     file to a string that can be invoked in a shell.
 
     Handled format strings: %U, %u, %F, %f and a fallback that
     appends the filename as first parameter of the command.
+
+    Also handles non-standard %p which is replaced with the start_position
+    (probably only makes sense if starting a single file). (see bug 1140)
 
     See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
 
@@ -763,6 +780,9 @@ def format_desktop_command(command, filenames):
     # Replace backslashes with slashes to fix win32 issues
     # (even on win32, "/" works, but "\" does not)
     command = command.replace('\\', '/')
+
+    if start_position is not None:
+        command = command.replace('%p', str(start_position))
 
     command = shlex.split(command)
 

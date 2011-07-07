@@ -485,7 +485,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.btnUpdateFeeds.show()
         self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
-        self.update_feed_cache(force_update=self.config.update_on_startup)
+
+        # Always load the podcast list, even when updating later (bug 1337)
+        self.update_feed_cache(force_update=False)
+
+        if self.config.update_on_startup:
+            self.update_feed_cache(force_update=True)
 
         self.message_area = None
 
@@ -2335,7 +2340,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # For each type now, go and create play commands
         for group in groups:
-            for command in util.format_desktop_command(group, groups[group]):
+            for command in util.format_desktop_command(group, groups[group], resume_position):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
 

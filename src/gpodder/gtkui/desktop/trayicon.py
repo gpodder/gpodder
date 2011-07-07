@@ -64,7 +64,8 @@ class GPodderStatusIcon(gtk.StatusIcon):
             self.__icon = gtk.gdk.pixbuf_new_from_file(self.__icon_filename)
         except Exception, exc:
             log('Warning: Cannot load gPodder icon, will use the default icon (%s)', exc, sender=self)
-            self.__icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_DIALOG_QUESTION, 30, 30)
+            self.__icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, 30, 30)
+            self.__icon.fill(0xFF00007F)
 
         # Reset trayicon (default icon, default tooltip)
         self.__current_pixbuf = None

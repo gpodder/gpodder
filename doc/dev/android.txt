@@ -27,8 +27,8 @@ index fd57ab6..7075491 100755
  import re
  import inspect
  
-+os.environ['GPODDER_HOME'] = '/sdcard/gpodder/'
-+os.environ['GPODDER_DOWNLOAD_DIR'] = '/sdcard/gpodder/podcasts/'
++os.environ['GPODDER_HOME'] = os.environ['EXTERNAL_STORAGE'] + '/gpodder/'
++os.environ['GPODDER_DOWNLOAD_DIR'] = os.environ['EXTERNAL_STORAGE'] + '/gpodder/podcasts/'
 +
  gpodder_script = sys.argv[0]
  if os.path.islink(gpodder_script):
