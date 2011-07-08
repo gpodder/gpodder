@@ -1665,15 +1665,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
 
-            if gpodder.user_hooks is not None:
-                result = gpodder.user_hooks.on_episodes_context_menu(episodes)
-                if result:
-                    menu.append(gtk.SeparatorMenuItem())
-                    for label, callback in result:
-                        item = gtk.MenuItem(label)
-                        item.connect('activate', lambda item, callback:
-                                callback(episodes), callback)
-                        menu.append(item)
+            result = gpodder.user_hooks.on_episodes_context_menu(episodes)
+            if result:
+                menu.append(gtk.SeparatorMenuItem())
+                for label, callback in result:
+                    item = gtk.MenuItem(label)
+                    item.connect('activate', lambda item, callback:
+                            callback(episodes), callback)
+                    menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
             if downloaded:

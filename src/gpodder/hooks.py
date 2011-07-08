@@ -87,15 +87,6 @@ class HookManager(object):
           except Exception, e:
               logger.error('Cannot load %s: %s', filename, e, exc_info=True)
 
-    def has_modules(self):
-        """Check whether this manager manages any modules
-
-        Returns True if there is at least one module that is
-        managed by this manager, or False if no modules are
-        loaded (in this case, the hook manager can be deactivated).
-        """
-        return bool(self.modules)
-
     def _load_module(self, filepath):
         """Load a Python module by filename
 
