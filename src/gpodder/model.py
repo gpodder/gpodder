@@ -2,6 +2,7 @@
 #
 # gPodder - A media aggregator and podcast client
 # Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,7 +100,7 @@ class PodcastModelObject(object):
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
-    __slots__ = ('id', 'parent', 'children')
+    __slots__ = ('id', 'parent', 'children', 'changed')
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -109,12 +110,40 @@ class PodcastModelObject(object):
         """
         o = cls(*args)
 
+        o.changed = None
+
         # XXX: all(map(lambda k: hasattr(o, k), d))?
         for k, v in d.iteritems():
             setattr(o, k, v)
 
+        o.changed = {}
+
         return o
 
+    def __setattr__(self, name, value):
+        """Track changes once "self.changed" is a dictionary
+
+        The changed values will be stored in self.changed until
+        _clear_changes is called.
+        """
+        if self.changed is not None and self.id is not None:
+            old_value = getattr(self, name, None)
+
+            if old_value is not None and value != old_value:
+                # Value changed (and it is not an initialization)
+                if name not in self.changed:
+                    self.changed[name] = old_value
+                # logger.debug("%s: %s.%s changed: %s -> %s"
+                #              % (self.__class__.__name__, self.id, name,
+                #                 old_value, value))
+
+        super(PodcastModelObject, self).__setattr__(name, value)
+
+    def _clear_changes(self):
+        # logger.debug("Changes: %s: %s"
+        #              % ([getattr (self, a) for a in self.__slots__],
+        #                 str(self.changed),))
+        self.changed = {}
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
@@ -336,6 +365,8 @@ class PodcastEpisode(PodcastModelObject):
 
     def save(self):
         gpodder.user_hooks.on_episode_save(self)
+
+        self._clear_changes()
 
         self.db.save_episode(self)
 
@@ -1087,6 +1118,8 @@ class PodcastChannel(PodcastModelObject):
             gpodder.user_hooks.on_podcast_subscribe(self)
 
         gpodder.user_hooks.on_podcast_save(self)
+
+        self._clear_changes()
 
         self.db.save_podcast(self)
 
