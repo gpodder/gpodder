@@ -114,6 +114,7 @@ data_files = [
 
 packages = [
   'gpodder',
+  'gpodder.plugins',
   'gpodder.gtkui',
   'gpodder.gtkui.interface',
   'gpodder.webui',
