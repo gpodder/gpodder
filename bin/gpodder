@@ -180,7 +180,7 @@ if __name__ == '__main__':
             remote_object.subscribe_to_url(options.subscribe)
     else:
         # gPodder is not yet running - create new instance
-        from gpodder import gui
+        from gpodder.gtkui import main
 
         # check if we have an X11 connection (but not on Windows)
         if platform.system() != 'Windows' and \
@@ -194,5 +194,5 @@ if __name__ == '__main__':
             if os.nice(0) < 0:
                 os.nice(-os.nice(0))
 
-        gui.main(options)
+        main.main(options)
 
