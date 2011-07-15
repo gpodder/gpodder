@@ -3920,8 +3920,8 @@ def main(options=None):
     # mac OS X stuff :
     # handle "subscribe to podcast" events from firefox
     if platform.system() == 'Darwin':
-        from gpodder import gpodderosx
-        gpodderosx.register_handlers(gp)
+        from gpodder.gtkui import macosx
+        macosx.register_handlers(gp)
     # end mac OS X stuff
 
     gp.run()
