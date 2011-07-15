@@ -22,7 +22,7 @@
 
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import QObject, Signal, Slot, Property
+from PySide.QtCore import Qt, QObject, Signal, Slot, Property
 from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
 

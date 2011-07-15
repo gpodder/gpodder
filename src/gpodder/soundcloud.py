@@ -41,7 +41,6 @@ import time
 
 import re
 import email
-import email.Header
 
 
 # gPodder's consumer key for the Soundcloud API
