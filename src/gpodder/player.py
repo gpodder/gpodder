@@ -25,12 +25,6 @@
 #
 
 
-try:
-    import dbus
-except ImportError:
-    # Import Mock D-Bus interfaces when D-Bus bindings are not installed
-    from gpodder.gui import dbus
-
 import gpodder
 import urllib
 

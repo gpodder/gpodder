@@ -38,33 +38,10 @@ import cgi
 
 import gpodder
 
-try:
-    import dbus
-    import dbus.service
-    import dbus.mainloop
-    import dbus.glib
-except ImportError:
-    # Mock the required D-Bus interfaces with no-ops (ugly? maybe.)
-    class dbus:
-        class SessionBus:
-            def __init__(self, *args, **kwargs):
-                pass
-            def add_signal_receiver(self, *args, **kwargs):
-                pass
-        class glib:
-            class DBusGMainLoop:
-                def __init__(self, *args, **kwargs):
-                    pass
-        class service:
-            @staticmethod
-            def method(*args, **kwargs):
-                return lambda x: x
-            class BusName:
-                def __init__(self, *args, **kwargs):
-                    pass
-            class Object:
-                def __init__(self, *args, **kwargs):
-                    pass
+import dbus
+import dbus.service
+import dbus.mainloop
+import dbus.glib
 
 from gpodder import core
 from gpodder import feedcore

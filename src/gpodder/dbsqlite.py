@@ -31,22 +31,7 @@ _ = gpodder.gettext
 
 import sys
 
-have_sqlite = True
-
-try:
-    from sqlite3 import dbapi2 as sqlite
-    from sqlite3 import OperationalError
-except ImportError:
-    try:
-        from pysqlite2 import dbapi2 as sqlite
-        from pysqlite2.dbapi2 import OperationalError
-    except ImportError:
-        have_sqlite = False
-
-# TODO: show a message box
-if not have_sqlite:
-    print >>sys.stderr, 'Please install pysqlite2 or Python 2.5.'
-    sys.exit(1)
+from sqlite3 import dbapi2 as sqlite
 
 import logging
 logger = logging.getLogger(__name__)
