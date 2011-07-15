@@ -19,40 +19,6 @@
 
 from PySide import QtCore
 
-def AutoQObject(*class_def, **kwargs):
-    class Object(QtCore.QObject):
-        def __init__(self, **kwargs):
-            QtCore.QObject.__init__(self)
-            for key, val in class_def:
-                setattr(self, '_'+key, kwargs.get(key, val()))
-
-        def __repr__(self):
-            values = ('%s=%r' % (key, getattr(self, '_'+key)) \
-                    for key, value in class_def)
-            return '<%s (%s)>' % (kwargs.get('name', 'QObject'), \
-                    ', '.join(values))
-
-        for key, value in class_def:
-            nfy = locals()['_nfy_'+key] = QtCore.Signal()
-
-            def _get(key):
-                def f(self):
-                    return self.__dict__['_'+key]
-                return f
-
-            def _set(key):
-                def f(self, value):
-                    setattr(self, '_'+key, value)
-                    getattr(self, '_nfy_'+key).emit()
-                return f
-
-            set = locals()['_set_'+key] = _set(key)
-            get = locals()['_get_'+key] = _get(key)
-
-            locals()[key] = QtCore.Property(value, get, set, notify=nfy)
-
-    return Object
-
 
 class Action(QtCore.QObject):
     def __init__(self, caption, action, target=None):
