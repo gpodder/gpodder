@@ -56,23 +56,23 @@ try:
 except ImportError:
     coverage = None
 
-if coverage is not None:
-    coverage.erase()
-    coverage.start()
+if __name__ == '__main__':
+    if coverage is not None:
+        coverage.erase()
+        coverage.start()
 
-result = runner.run(suite)
+    result = runner.run(suite)
 
-if not result.wasSuccessful():
-    sys.exit(1)
+    if not result.wasSuccessful():
+        sys.exit(1)
 
-if coverage is not None:
-    coverage.stop()
-    coverage.report(coverage_modules)
-    coverage.erase()
-
-if coverage is None:
-    print >>sys.stderr, """
-    No coverage reporting done (Python module "coverage" is missing)
-    Please install the python-coverage package to get coverage reporting.
-    """
+    if coverage is not None:
+        coverage.stop()
+        coverage.report(coverage_modules)
+        coverage.erase()
+    else:
+        print >>sys.stderr, """
+        No coverage reporting done (Python module "coverage" is missing)
+        Please install the python-coverage package to get coverage reporting.
+        """
 
