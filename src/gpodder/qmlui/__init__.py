@@ -40,17 +40,25 @@ from gpodder.qmlui import helper
 from gpodder.qmlui import images
 
 
-# Generate a QObject subclass with notifyable properties
-UiData = helper.AutoQObject(
-    ('episodeListTitle', unicode),
-    name='UiData'
-)
-
-class Controller(UiData):
+class Controller(QObject):
     def __init__(self, root):
-        UiData.__init__(self)
+        QObject.__init__(self)
         self.root = root
         self.context_menu_actions = []
+        self.episode_list_title = u''
+
+    episodeListTitleChanged = Signal()
+
+    def setEpisodeListTitle(self, title):
+        if self.episode_list_title != title:
+            self.episode_list_title = title
+            self.episodeListTitleChanged.emit()
+
+    def getEpisodeListTitle(self):
+        return self.episode_list_title
+
+    episodeListTitle = Property(unicode, getEpisodeListTitle, \
+            setEpisodeListTitle, notify=episodeListTitleChanged)
 
     @Slot()
     def loadLastEpisode(self):
@@ -58,7 +66,7 @@ class Controller(UiData):
 
     @Slot(QObject)
     def podcastSelected(self, podcast):
-        self.episodeListTitle = podcast.qtitle
+        self.setEpisodeListTitle(podcast.qtitle)
         self.root.select_podcast(podcast)
 
     @Slot(str)

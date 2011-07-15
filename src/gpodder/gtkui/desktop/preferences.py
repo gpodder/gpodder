@@ -127,6 +127,9 @@ class gPodderPreferences(BuilderWidget):
         else:
             self.hscale_expiration.set_value(0)
 
+        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
+        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
+
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo_enabled
 
@@ -222,6 +225,7 @@ class gPodderPreferences(BuilderWidget):
             self._config.episode_old_age = value
 
         self.checkbutton_expiration_unplayed.set_sensitive(value > 0)
+        self.checkbutton_expiration_unfinished.set_sensitive(value > 0)
 
     def on_enabled_toggled(self, widget):
         # Only update indirectly (see on_dialog_destroy)

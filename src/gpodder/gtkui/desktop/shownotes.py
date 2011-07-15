@@ -44,7 +44,7 @@ SHOWNOTES_HTML_TEMPLATE = """
   <body>
     <span style="font-size: big; font-weight: bold;">%s</span>
     <br>
-    <span style="font-size: small;">%s</span>
+    <span style="font-size: small;">%s (%s)</span>
     <hr style="border: 1px #eeeeee solid;">
     <p>%s</p>
   </body>
@@ -133,6 +133,7 @@ class gPodderShownotes(gPodderShownotesBase):
             args = (
                     cgi.escape(heading),
                     cgi.escape(subheading),
+                    self.episode.get_play_info_string(),
                     description,
             )
             url = os.path.dirname(self.episode.channel.url)

@@ -516,7 +516,6 @@ class PodcastEpisode(PodcastModelObject):
                 not downloading(self)
 
     def mark_new(self):
-        self.state = gpodder.STATE_NORMAL
         self.is_new = True
         self.db.update_episode_state(self)
 

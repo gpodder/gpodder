@@ -5,6 +5,9 @@ import 'config.js' as Config
 SelectableItem {
     id: episodeItem
 
+    // Show context menu when single-touching the icon
+    singlePressContextMenuLeftBorder: title.x
+
     height: Config.listItemHeight
 
     Rectangle {
@@ -44,6 +47,7 @@ SelectableItem {
     }
 
     Text {
+        id: title
         text: modelData.qtitle
         color: modelData.qdownloading?'#8ae234':(modelData.qplaying?'#729fcf':(modelData.qnew?"white":"#888"))
         font.pixelSize: episodeItem.height * .35

@@ -59,6 +59,7 @@ gPodderSettings = {
     # Automatic removal of downloads
     'episode_old_age': 7,
     'auto_remove_played_episodes': False,
+    'auto_remove_unfinished_episodes': True,
     'auto_remove_unplayed_episodes': False,
 
     # Periodic check for new episodes

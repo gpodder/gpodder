@@ -6,6 +6,9 @@ import 'config.js' as Config
 SelectableItem {
     id: podcastItem
 
+    // Show context menu when single-touching the count or cover art
+    singlePressContextMenuLeftBorder: titleBox.x
+
     Text {
         id: counterText
         anchors.verticalCenter: parent.verticalCenter

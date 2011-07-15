@@ -1917,8 +1917,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event is None or event.button == self.context_menu_mouse_button:
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
-            any_played = any(not e.is_new for e in episodes)
-            one_is_new = any(e.state == gpodder.STATE_NORMAL and e.is_new for e in episodes)
+            any_new = any(e.is_new for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(self.episode_is_downloading(e) for e in episodes)
 
@@ -1985,29 +1984,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 share_item.set_submenu(share_menu)
 
-            if (downloaded or one_is_new or can_download) and not downloading:
-                menu.append(gtk.SeparatorMenuItem())
-                if one_is_new:
-                    item = gtk.CheckMenuItem(_('New'))
-                    item.set_active(True)
-                    item.connect('activate', lambda w: self.mark_selected_episodes_old())
-                    menu.append(item)
-                elif can_download:
-                    item = gtk.CheckMenuItem(_('New'))
-                    item.set_active(False)
-                    item.connect('activate', lambda w: self.mark_selected_episodes_new())
-                    menu.append(item)
+            menu.append(gtk.SeparatorMenuItem())
 
-                if downloaded:
-                    item = gtk.CheckMenuItem(_('Played'))
-                    item.set_active(any_played)
-                    item.connect( 'activate', lambda w: self.on_item_toggle_played_activate( w, False, not any_played))
-                    menu.append(item)
+            item = gtk.CheckMenuItem(_('New'))
+            item.set_active(any_new)
+            if any_new:
+                item.connect('activate', lambda w: self.mark_selected_episodes_old())
+            else:
+                item.connect('activate', lambda w: self.mark_selected_episodes_new())
+            menu.append(item)
 
-                    item = gtk.CheckMenuItem(_('Archive'))
-                    item.set_active(any_locked)
-                    item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
-                    menu.append(item)
+            if downloaded:
+                item = gtk.CheckMenuItem(_('Archive'))
+                item.set_active(any_locked)
+                item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
+                menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
@@ -2238,7 +2229,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # For each type now, go and create play commands
         for group in groups:
-            for command in util.format_desktop_command(group, groups[group]):
+            for command in util.format_desktop_command(group, groups[group], resume_position):
                 log('Executing: %s', repr(command), sender=self)
                 subprocess.Popen(command)
 
@@ -2988,6 +2979,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Do not delete played episodes (except if configured)
                 if not episode.is_new:
                     if not self.config.auto_remove_played_episodes:
+                        continue
+
+                # Do not delete unfinished episodes (except if configured)
+                if not episode.is_finished():
+                    if not self.config.auto_remove_unfinished_episodes:
                         continue
 
                 # Do not delete unplayed episodes (except if configured)
