@@ -18,8 +18,7 @@
 #
 
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide.QtCore import QObject, Property, Signal
 
 import gpodder
 

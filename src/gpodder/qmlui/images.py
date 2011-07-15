@@ -17,9 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from PySide.QtDeclarative import *
+from PySide.QtCore import Qt
+from PySide.QtGui import QImage
+from PySide.QtDeclarative import QDeclarativeImageProvider
 
 from gpodder import youtube
 from gpodder import util

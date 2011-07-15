@@ -21,10 +21,10 @@
 # Thomas Perl <thp@gpodder.org>; 2011-02-06
 
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-from PySide.QtDeclarative import *
-#from PySide.QtOpenGL import *
+from PySide.QtGui import QApplication
+from PySide.QtCore import QObject, Signal, Slot, Property
+from PySide.QtCore import QAbstractListModel, QModelIndex
+from PySide.QtDeclarative import QDeclarativeView
 
 import os
 import threading
@@ -276,8 +276,6 @@ class qtPodder(QObject):
 
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
-        #self.glw = QGLWidget()
-        #self.view.setViewport(self.glw)
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
