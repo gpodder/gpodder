@@ -6,13 +6,11 @@ import 'config.js' as Config
 Item {
     id: subscribe
 
-    property string defaultUrl: 'http://gpodder.net/toplist.opml'
-
     signal subscribe(variant url)
 
     function show() {
         searchInput.text = ''
-        opmlListModel.source = ''
+        searchResultsListModel.source = ''
         searchInput.forceActiveFocus()
     }
 
@@ -60,7 +58,7 @@ Item {
             //text: 'Search'
             image: 'artwork/search.png'
 
-            onClicked: opmlListModel.searchFor(searchInput.text)
+            onClicked: searchResultsListModel.searchFor(searchInput.text)
 
             width: parent.height
             height: parent.height
@@ -92,7 +90,7 @@ Item {
         id: listView
         clip: true
 
-        opacity: (opmlListModel.status == XmlListModel.Ready)?1:0
+        opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
         Behavior on opacity { PropertyAnimation { } }
 
         anchors {
@@ -102,12 +100,12 @@ Item {
             top: topBar.bottom
         }
 
-        model: OpmlListModel {
-            id: opmlListModel
+        model: SearchResultsListModel {
+            id: searchResultsListModel
 
             function searchFor(query) {
                 console.log('Searching for: ' + query)
-                source = 'http://gpodder.net/search.opml?q=' + query
+                source = 'http://gpodder.net/search.xml?q=' + query
                 console.log('new source:' + source)
             }
         }
@@ -118,11 +116,29 @@ Item {
             height: Config.listItemHeight
             width: listView.width
 
-            Column {
+            Item {
+                id: coverArt
+
+                height: Config.listItemHeight
+                width: Config.listItemHeight
+
                 anchors {
                     leftMargin: Config.largeSpacing
                     left: parent.left
-                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: logo
+                }
+            }
+
+            Column {
+                anchors {
+                    leftMargin: Config.largeSpacing
+                    left: coverArt.right
+                    right: subscriberCount.left
                     verticalCenter: parent.verticalCenter
                 }
 
@@ -141,6 +157,18 @@ Item {
                 }
             }
 
+            Text {
+                id: subscriberCount
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: Config.largeSpacing
+                }
+                text: subscribers
+                color: 'white'
+                font.pixelSize: 30
+            }
+
             onSelected: subscribe.subscribe(item)
         }
     }
@@ -152,7 +180,7 @@ Item {
         height: 50
 
         color: 'black'
-        opacity: (opmlListModel.status == XmlListModel.Loading)?1:0
+        opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
 
         Behavior on opacity { PropertyAnimation { } }
 
@@ -166,7 +194,7 @@ Item {
 
     Item {
         id: directoryButtons
-        visible: opmlListModel.source == ''
+        visible: searchResultsListModel.source == ''
 
         anchors.fill: parent
         anchors.bottomMargin: Config.listItemHeight
@@ -180,9 +208,10 @@ Item {
                 source: 'artwork/directory-toplist.png'
 
                 SelectableItem {
+                    // XXX: New URL for XML-based toplist (gPodder bug 1383)
                     property string modelData: 'http://gpodder.org/toplist.opml'
                     anchors.fill: parent
-                    onSelected: opmlListModel.source = item
+                    onSelected: searchResultsListModel.source = item
                 }
 
                 Text {
@@ -198,9 +227,10 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
+                    // XXX: New URL for XML-based directory (gPodder bug 1383)
                     property string modelData: 'http://gpodder.org/directory.opml'
                     anchors.fill: parent
-                    onSelected: opmlListModel.source = item
+                    onSelected: searchResultsListModel.source = item
                 }
 
                 Text {
