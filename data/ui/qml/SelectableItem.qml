@@ -8,6 +8,11 @@ Item {
     signal selected(variant item)
     signal contextMenu(variant item)
 
+    /* The width of the area from the left edge that when
+     * pressed will signal contextMenu instead of selected.
+     */
+    property int singlePressContextMenuLeftBorder: 0
+
     height: Config.listItemHeight
     width: parent.width
 
@@ -32,7 +37,9 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         anchors.fill: parent
         onClicked: {
-            if (mouse.button == Qt.LeftButton) {
+            if (mouse.x <= selectableItem.singlePressContextMenuLeftBorder) {
+                selectableItem.contextMenu(modelData)
+            } else if (mouse.button == Qt.LeftButton) {
                 selectableItem.selected(modelData)
             } else if (mouse.button == Qt.RightButton) {
                 selectableItem.contextMenu(modelData)
