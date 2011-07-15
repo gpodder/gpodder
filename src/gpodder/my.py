@@ -35,7 +35,8 @@ import sys
 import threading
 import time
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder import util
 from gpodder import minidb
@@ -272,9 +273,9 @@ class MygPoClient(object):
 
     def set_subscriptions(self, urls):
         if self.can_access_webservice():
-            log('Uploading (overwriting) subscriptions...')
+            logger.debug('Uploading (overwriting) subscriptions...')
             self._client.put_subscriptions(self.device_id, urls)
-            log('Subscription upload done.')
+            logger.debug('Subscription upload done.')
         else:
             raise Exception('Webservice access not enabled')
 
@@ -289,19 +290,19 @@ class MygPoClient(object):
                 int(time.time()), None, None, None)
 
     def on_delete(self, episodes):
-        log('Storing %d episode delete actions', len(episodes), sender=self)
+        logger.debug('Storing %d episode delete actions', len(episodes))
         self._store.save(self._convert_episode(e, 'delete') for e in episodes)
 
     def on_download(self, episodes):
-        log('Storing %d episode download actions', len(episodes), sender=self)
+        logger.debug('Storing %d episode download actions', len(episodes))
         self._store.save(self._convert_episode(e, 'download') for e in episodes)
 
     def on_playback_full(self, episode, start, end, total):
-        log('Storing full episode playback action', sender=self)
+        logger.debug('Storing full episode playback action')
         self._store.save(self._convert_played_episode(episode, start, end, total))
 
     def on_playback(self, episodes):
-        log('Storing %d episode playback actions', len(episodes), sender=self)
+        logger.debug('Storing %d episode playback actions', len(episodes))
         self._store.save(self._convert_episode(e, 'play') for e in episodes)
 
     def on_subscribe(self, urls):
@@ -332,7 +333,7 @@ class MygPoClient(object):
             # Store the current contents of the queue database
             self._store.commit()
 
-            log('Worker thread waiting for timeout', sender=self)
+            logger.debug('Worker thread waiting for timeout')
             time.sleep(self.FLUSH_TIMEOUT)
 
         # Only work when enabled, UID set and allowed to work
@@ -340,12 +341,12 @@ class MygPoClient(object):
                 (self._worker_thread is not None or forced):
             self._worker_thread = None
 
-            log('Worker thread starting to work...', sender=self)
+            logger.debug('Worker thread starting to work...')
             for retry in range(self.FLUSH_RETRIES):
                 must_retry = False
 
                 if retry:
-                    log('Retrying flush queue...', sender=self)
+                    logger.debug('Retrying flush queue...')
 
                 # Update the device first, so it can be created if new
                 for action in self._store.load(UpdateDeviceAction):
@@ -372,41 +373,41 @@ class MygPoClient(object):
                     # No more pending actions. Ready to quit.
                     break
 
-            log('Worker thread finished.', sender=self)
+            logger.debug('Worker thread finished.')
         else:
-            log('Worker thread may not execute (disabled).', sender=self)
+            logger.info('Worker thread may not execute (disabled).')
 
         # Store the current contents of the queue database
         self._store.commit()
 
     def flush(self, now=False):
         if not self.can_access_webservice():
-            log('Flush requested, but sync disabled.', sender=self)
+            logger.warn('Flush requested, but sync disabled.')
             return
 
         if self._worker_thread is None or now:
             if now:
-                log('Flushing NOW.', sender=self)
+                logger.debug('Flushing NOW.')
             else:
-                log('Flush requested.', sender=self)
+                logger.debug('Flush requested.')
             self._worker_thread = threading.Thread(target=self._worker_proc, args=[now])
             self._worker_thread.setDaemon(True)
             self._worker_thread.start()
         else:
-            log('Flush requested, already waiting.', sender=self)
+            logger.debug('Flush requested, already waiting.')
 
     def on_config_changed(self, name=None, old_value=None, new_value=None):
         if name in ('mygpo_username', 'mygpo_password', 'mygpo_server') \
                 or self._client is None:
             self._client = api.MygPodderClient(self._config.mygpo_username,
                     self._config.mygpo_password, self._config.mygpo_server)
-            log('Reloading settings.', sender=self)
+            logger.info('Reloading settings.')
         elif name.startswith('mygpo_device_'):
             # Update or create the device
             self.create_device()
 
     def synchronize_episodes(self, actions):
-        log('Starting episode status sync.', sender=self)
+        logger.debug('Starting episode status sync.')
 
         def convert_to_api(action):
             dt = datetime.datetime.utcfromtimestamp(action.timestamp)
@@ -439,14 +440,13 @@ class MygPoClient(object):
                 changes = self._client.download_episode_actions(since_o.since)
 
                 received_actions = [convert_from_api(a) for a in changes.actions]
-                log('Received %d episode actions', len(received_actions), \
-                        sender=self)
+                logger.debug('Received %d episode actions', len(received_actions))
                 self._store.save(received_actions)
 
                 # Save the "since" value for later use
                 self._store.update(since_o, since=changes.since)
             except Exception, e:
-                log('Exception while polling for episodes.', sender=self, traceback=True)
+                logger.warn('Exception while polling for episodes.', exc_info=True)
 
             # Step 2: Upload Episode actions
 
@@ -458,14 +458,14 @@ class MygPoClient(object):
 
             # Actions have been uploaded to the server - remove them
             self._store.remove(actions)
-            log('Episode actions have been uploaded to the server.', sender=self)
+            logger.debug('Episode actions have been uploaded to the server.')
             return True
         except Exception, e:
-            log('Cannot upload episode actions: %s', str(e), sender=self, traceback=True)
+            logger.error('Cannot upload episode actions: %s', str(e), exc_info=True)
             return False
 
     def synchronize_subscriptions(self, actions):
-        log('Starting subscription sync.', sender=self)
+        logger.debug('Starting subscription sync.')
         try:
             # Load the "since" value from the database
             since_o = self._store.get(SinceValue, host=self.host, \
@@ -485,12 +485,12 @@ class MygPoClient(object):
             # Store received actions for later retrieval (and in case we
             # have outdated actions in the database, simply remove them)
             for url in result.add:
-                log('Received add action: %s', url, sender=self)
+                logger.debug('Received add action: %s', url)
                 self._store.remove(ReceivedSubscribeAction.remove(url))
                 self._store.remove(ReceivedSubscribeAction.add(url))
                 self._store.save(ReceivedSubscribeAction.add(url))
             for url in result.remove:
-                log('Received remove action: %s', url, sender=self)
+                logger.debug('Received remove action: %s', url)
                 self._store.remove(ReceivedSubscribeAction.add(url))
                 self._store.remove(ReceivedSubscribeAction.remove(url))
                 self._store.save(ReceivedSubscribeAction.remove(url))
@@ -502,7 +502,7 @@ class MygPoClient(object):
             remove = [a.url for a in actions if a.is_remove]
 
             if add or remove:
-                log('Uploading: +%d / -%d', len(add), len(remove), sender=self)
+                logger.debug('Uploading: +%d / -%d', len(add), len(remove))
                 # Only do a push request if something has changed
                 result = self._client.update_subscriptions(self.device_id, add, remove)
 
@@ -512,26 +512,27 @@ class MygPoClient(object):
                 # Store URL rewrites for later retrieval by GUI
                 for old_url, new_url in result.update_urls:
                     if new_url:
-                        log('Rewritten URL: %s', new_url, sender=self)
+                        logger.debug('Rewritten URL: %s', new_url)
                         self._store.save(RewrittenUrl(old_url, new_url))
 
             # Actions have been uploaded to the server - remove them
             self._store.remove(actions)
-            log('All actions have been uploaded to the server.', sender=self)
+            logger.debug('All actions have been uploaded to the server.')
             return True
         except Exception, e:
-            log('Cannot upload subscriptions: %s', str(e), sender=self, traceback=True)
+            logger.error('Cannot upload subscriptions: %s', str(e), exc_info=True)
             return False
 
     def update_device(self, action):
         try:
-            log('Uploading device settings...', sender=self)
+            logger.debug('Uploading device settings...')
             self._client.update_device_settings(action.device_id, \
                     action.caption, action.device_type)
-            log('Device settings uploaded.', sender=self)
+            logger.debug('Device settings uploaded.')
             return True
         except Exception, e:
-            log('Cannot update device %s: %s', self.device_id, str(e), sender=self, traceback=True)
+            logger.error('Cannot update device %s: %s', self.device_id,
+                str(e), exc_info=True)
             return False
 
     def get_devices(self):

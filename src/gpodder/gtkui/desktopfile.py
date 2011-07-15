@@ -35,7 +35,6 @@ import gtk
 import gtk.gdk
 
 import gpodder
-from gpodder.liblogger import log
 
 _ = gpodder.gettext
 
@@ -120,12 +119,10 @@ class UserAppsReader(object):
             return
 
         self.__has_read = True
-        log('start reader', bench_start=True)
         for dir in userappsdirs:
             if os.path.exists( dir):
                 for file in glob.glob(os.path.join(dir, '*.desktop')):
                     self.parse_and_append( file)
-        log('end reader', bench_end=True)
         self.__finished.set()
 
     def parse_and_append( self, filename):
@@ -139,7 +136,6 @@ class UserAppsReader(object):
             app_mime = parser.get(sect, 'MimeType')
             for needed_type in self.mimetypes:
                 if app_mime.find(needed_type+'/') != -1:
-                    log('Player found: %s', filename, sender=self)
                     app_name = parser.get(sect, 'Name')
                     app_cmd = parser.get(sect, 'Exec')
                     app_icon = parser.get(sect, 'Icon')

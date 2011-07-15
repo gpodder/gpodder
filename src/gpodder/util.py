@@ -30,7 +30,9 @@ are not tied to any specific part of gPodder.
 """
 
 import gpodder
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 import os
 import os.path
@@ -69,7 +71,7 @@ import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception, e:
-    log('Warning: Cannot set locale (%s).', e)
+    logger.warn('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
@@ -78,7 +80,7 @@ if encoding is None:
     if 'LANG' in os.environ and '.' in os.environ['LANG']:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
-        log('Detected encoding: %s', encoding)
+        logger.info('Detected encoding: %s', encoding)
     elif gpodder.ui.fremantle:
         encoding = 'utf-8'
     elif gpodder.win32:
@@ -88,7 +90,7 @@ if encoding is None:
         encoding = 'mbcs'
     else:
         encoding = 'iso-8859-15'
-        log('Assuming encoding: ISO-8859-15 ($LANG not set).')
+        logger.info('Assuming encoding: ISO-8859-15 ($LANG not set).')
 
 
 # Used by file_type_by_extension()
@@ -107,7 +109,7 @@ def make_directory( path):
     try:
         os.makedirs( path)
     except:
-        log( 'Could not create directory: %s', path)
+        logger.warn('Could not create directory: %s', path)
         return False
 
     return True
@@ -285,9 +287,9 @@ def calculate_size( path):
                 try:
                     sum += calculate_size(os.path.join(path, item))
                 except:
-                    log('Cannot get size for %s', path)
+                    logger.warn('Cannot get size for %s', path, exc_info=True)
         except:
-            log('Cannot access: %s', path)
+            logger.warn('Cannot access %s', path, exc_info=True)
 
         return sum
 
@@ -311,7 +313,7 @@ def file_modification_datetime(filename):
         timestamp = s[stat.ST_MTIME]
         return datetime.datetime.fromtimestamp(timestamp)
     except:
-        log('Cannot get modification timestamp for %s', filename)
+        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
         return None
 
 
@@ -320,13 +322,16 @@ def file_modification_timestamp(filename):
     Returns the modification date of the specified file as a number
     or -1 if the modification date cannot be determined.
     """
+
+    # TODO: Merge with file_modification_datetime
+
     if filename is None:
         return -1
     try:
         s = os.stat(filename)
         return s[stat.ST_MTIME]
     except:
-        log('Cannot get modification timestamp for %s', filename)
+        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
         return -1
 
 
@@ -375,7 +380,7 @@ def get_free_disk_space_win32(path):
         userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
         return userFree
     except ImportError:
-        log('Warning: Running on Win32 but win32api/win32file not installed.')
+        logger.warn('Running on Win32 but win32api/win32file not installed.')
 
     # Cannot determine free disk space
     return 0
@@ -421,7 +426,7 @@ def format_date(timestamp):
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError, ve:
-        log('Warning: Cannot convert timestamp', traceback=True)
+        logger.warn('Cannot convert timestamp', exc_info=True)
         return None
     
     if timestamp_date == today:
@@ -432,7 +437,7 @@ def format_date(timestamp):
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
-        log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
+        logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
 
     try:
@@ -759,7 +764,7 @@ def object_string_formatter( s, **kwargs):
                     to_s = getattr( o, attr)
                     result = result.replace( from_s, to_s)
                 except:
-                    log( 'Could not replace attribute "%s" in string "%s".', attr, s)
+                    logger.warn('Could not replace attribute "%s" in string "%s".', attr, s)
 
     return result
 
@@ -912,7 +917,7 @@ def get_real_url(url):
     try:
         return urlopen(url).geturl()
     except:
-        log('Error getting real url for %s', url, traceback=True)
+        logger.error('Getting real url for %s', url, exc_info=True)
         return url
 
 
@@ -1017,7 +1022,7 @@ def bluetooth_send_file(filename):
         command_line.append(filename)
         return (subprocess.Popen(command_line).wait() == 0)
     else:
-        log('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
+        logger.error('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
 
 
@@ -1135,14 +1140,14 @@ def get_episode_info_from_url(url):
     r = http_request(url)
     result = {}
 
-    log('Trying to get metainfo for %s', url)
+    logger.debug('Trying to get metainfo for %s', url)
 
     if 'content-length' in r.msg:
         try:
             length = int(r.msg['content-length'])
             result['length'] = length
         except ValueError, e:
-            log('Error converting content-length header.')
+            logger.error('Converting content-length header.', exc_info=True)
 
     if 'last-modified' in r.msg:
         try:
@@ -1150,7 +1155,7 @@ def get_episode_info_from_url(url):
             pubdate = time.mktime(parsed_date)
             result['pubdate'] = pubdate
         except:
-            log('Error converting last-modified header.')
+            logger.error('Converting last-modified header.', exc_info=True)
 
     return result
 
@@ -1169,10 +1174,10 @@ def gui_open(filename):
             try:
                 import osso
             except ImportError, ie:
-                log('Cannot import osso module on maemo.')
+                logger.warn('Cannot import osso module on maemo.')
                 return False
 
-            log('Using Nokia Media Player to open %s', filename)
+            logger.debug('Using Nokia Media Player to open %s', filename)
             context = osso.Context('gPodder', gpodder.__version__, False)
             filename = filename.encode('utf-8')
 
@@ -1199,7 +1204,7 @@ def gui_open(filename):
             subprocess.Popen(['xdg-open', filename])
         return True
     except:
-        log('Cannot open file/folder: "%s"', filename, traceback=True)
+        logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
         return False
 
 
@@ -1256,7 +1261,8 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
         filename = filename.decode(encoding, 'ignore')
 
     if max_length > 0 and len(filename) > max_length:
-        log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
+        logger.info('Limiting file/folder name "%s" to %d characters.',
+                filename, max_length)
         filename = filename[:max_length]
 
     return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(e, 'ignore'))
@@ -1414,17 +1420,17 @@ def run_external_command(command_line):
     """
 
     def open_process(command_line):
-        log('Running external command: %s', command_line)
+        logger.debug('Running external command: %s', command_line)
         p = subprocess.Popen(command_line, shell=True)
         result = p.wait()
         if result == 127:
-            log('Command not found: %s', command_line)
+            logger.error('Command not found: %s', command_line)
         elif result == 126:
-            log('Command permission denied: %s', command_line)
+            logger.error('Command permission denied: %s', command_line)
         elif result > 0:
-            log('Command returned an error (%d): %s', result, command_line)
+            logger.error('Command returned an error (%d): %s', result, command_line)
         else:
-            log('Command finished successfully: %s', command_line)
+            logger.debug('Command finished successfully: %s', command_line)
 
     threading.Thread(target=open_process, args=(command_line,)).start()
 

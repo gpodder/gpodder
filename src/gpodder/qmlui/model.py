@@ -24,8 +24,6 @@ import gpodder
 
 _ = gpodder.gettext
 
-from gpodder.liblogger import log
-
 from gpodder import model
 from gpodder import util
 from gpodder import youtube

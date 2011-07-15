@@ -48,7 +48,8 @@ if not have_sqlite:
     print >>sys.stderr, 'Please install pysqlite2 or Python 2.5.'
     sys.exit(1)
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder import schema
 
@@ -107,19 +108,11 @@ class Database(object):
 
         with self.lock:
             cur = self.cursor()
-            log('Optimizing database for faster startup.', sender=self)
             cur.execute("VACUUM")
             cur.close()
 
         self._db.close()
         self._db = None
-
-    def log(self, message, *args, **kwargs):
-        try:
-            message = message % args
-            log('%s', message, sender=self)
-        except TypeError, e:
-            log('Exception in log(): %s: %s', e, message, sender=self)
 
     def purge(self, max_episodes, podcast_id):
         """
@@ -132,7 +125,7 @@ class Database(object):
         with self.lock:
             cur = self.cursor()
 
-            self.log("purge(%s)", podcast_id)
+            logger.debug('Purge requested for podcast %d', podcast_id)
             sql = """
                 DELETE FROM %s
                 WHERE podcast_id = ?
@@ -160,7 +153,7 @@ class Database(object):
             b = b.translate(self.UNICODE_TRANSLATE)
             return cmp(a, b)
         except:
-            log('Error while comparing "%s" and "%s"', a, b, sender=self, traceback=True)
+            logger.warn('Error comparing %s <=> %s', a, b, exc_info=True)
             a = re.sub('^the ', '', a.lower())
             b = re.sub('^the ', '', b.lower())
             return cmp(a, b)
@@ -175,7 +168,7 @@ class Database(object):
             # Check schema version, upgrade if necessary
             schema.upgrade(self._db)
 
-            self.log('Connected')
+            logger.debug('Database opened.')
         return self._db
 
     def cursor(self):
@@ -184,10 +177,10 @@ class Database(object):
     def commit(self):
         self.lock.acquire()
         try:
-            self.log("COMMIT")
+            logger.debug('Commit.')
             self.db.commit()
         except Exception, e:
-            log('Error commiting changes: %s', e, sender=self, traceback=True)
+            logger.error('Cannot commit: %s', e, exc_info=True)
         self.lock.release()
 
     def get_content_types(self, id):
@@ -258,7 +251,7 @@ class Database(object):
         as the only argument.
         """
 
-        self.log("load_podcasts()")
+        logger.debug('load_podcasts')
 
         with self.lock:
             cur = self.cursor()
@@ -287,7 +280,7 @@ class Database(object):
 
         with self.lock:
             cur = self.cursor()
-            self.log("delete_podcast(%d), %s", podcast.id, podcast.url)
+            logger.debug('delete_podcast: %d (%s)', podcast.id, podcast.url)
 
             cur.execute("DELETE FROM %s WHERE id = ?" % self.TABLE_PODCAST, (podcast.id, ))
             cur.execute("DELETE FROM %s WHERE podcast_id = ?" % self.TABLE_EPISODE, (podcast.id, ))
@@ -297,7 +290,7 @@ class Database(object):
             self.db.commit()
 
     def load_all_episodes(self, podcast_mapping, limit=10000):
-        self.log('Loading all episodes from the database')
+        logger.info('Loading all episodes from the database')
         sql = 'SELECT * FROM %s ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
         args = (limit,)
         with self.lock:
@@ -312,7 +305,7 @@ class Database(object):
     def load_episodes(self, podcast, factory=lambda x: x, limit=1000, state=None):
         assert podcast.id
 
-        self.log('Loading episodes for podcast %d', podcast.id)
+        logger.info('Loading episodes for podcast %d', podcast.id)
 
         if state is None:
             sql = 'SELECT * FROM %s WHERE podcast_id = ? ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
@@ -377,7 +370,7 @@ class Database(object):
             try:
                 d = dict(zip((desc[0] for desc in cur.description), cur.fetchone()))
                 cur.close()
-                self.log('Loaded episode %d from DB', id)
+                logger.info('Loaded episode %d', id)
                 return d
             except:
                 cur.close()
@@ -410,7 +403,7 @@ class Database(object):
                 sql = 'UPDATE %s SET %s WHERE id = ?' % (table, qmarks)
                 cur.execute(sql, values)
         except Exception, e:
-            log('Cannot save %s to %s: %s', o, table, e, sender=self, traceback=True)
+            logger.error('Cannot save %s: %s', o, e, exc_info=True)
 
         cur.close()
         self.lock.release()
@@ -429,8 +422,6 @@ class Database(object):
         """
         with self.lock:
             cur = self.cursor()
-
-            self.log("get(): %s", sql)
 
             if params is None:
                 cur.execute(sql)

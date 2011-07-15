@@ -38,7 +38,9 @@ import urllib
 import time
 
 import gpodder
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 class gPodderPlayer(dbus.service.Object):
     # Empty class with method definitions to send D-Bus signals
@@ -252,7 +254,7 @@ class MafwPlaybackMonitor(object):
                     # player cycles back to the beginning; use wall time in
                     # this case, too.
                     position = self._start_position + (time.time()-self._start_time)
-                    log('fixed end position 0 using wall-time: %d (duration: %d)', \
+                    logger.warn('Wall-time positioning: %d (duration: %d)',
                             position, self._duration)
                 if self._start_position != position:
                     self._player.PlaybackStopped(self._start_position, \

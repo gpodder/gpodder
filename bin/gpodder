@@ -136,8 +136,9 @@ if __name__ == '__main__':
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
-        from gpodder.liblogger import enable_verbose
-        enable_verbose()
+        import logging
+        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
+        logging.basicConfig(format=FMT, level=logging.INFO)
 
     if options.qml:
         from gpodder import qmlui

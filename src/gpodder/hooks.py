@@ -36,7 +36,8 @@ import functools
 
 import gpodder
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 
 def call_hooks(func):
@@ -55,8 +56,8 @@ def call_hooks(func):
                 if callback is not None:
                     result = callback(*args, **kwargs)
             except Exception, e:
-                log('Error in %s, function %s: %s', filename, method_name, \
-                        e, traceback=True, sender=self)
+                logger.error('Error in %s, function %s: %s', filename,
+                        method_name, e, exc_info=True)
         func(self, *args, **kwargs)
         return result
 
@@ -76,9 +77,9 @@ class HookManager(object):
               module = self._load_module(filename)
               if module is not None:
                   self.modules.append((filename, module))
-                  log('Module loaded: %s', filename, sender=self)
+                  logger.info('Module loaded: %s', filename)
           except Exception, e:
-              log('Error loading %s: %s', filename, e, sender=self)
+              logger.error('Cannot load %s: %s', filename, e, exc_info=True)
 
     def has_modules(self):
         """Check whether this manager manages any modules

@@ -26,13 +26,13 @@
 
 import gpodder
 from gpodder import util
-from gpodder.liblogger import log
 
 import atexit
 import os
 import time
 import threading
 import ConfigParser
+import logging
 
 _ = gpodder.gettext
 
@@ -114,6 +114,7 @@ gPodderSettings.update(window_props('_main_window', width=700, height=500))
 gPodderSettings.update(window_props('_episode_selector', width=600, height=400))
 gPodderSettings.update(window_props('_episode_window', width=500, height=400))
 
+logger = logging.getLogger(__name__)
 
 class Config(dict):
     Settings = gPodderSettings
@@ -152,7 +153,7 @@ class Config(dict):
         if callback not in self.__observers:
             self.__observers.append(callback)
         else:
-            log('Observer already added: %s', repr(callback), sender=self)
+            logger.warn('Observer already added: %s', repr(callback))
 
     def remove_observer(self, callback):
         """
@@ -161,7 +162,7 @@ class Config(dict):
         if callback in self.__observers:
             self.__observers.remove(callback)
         else:
-            log('Observer not added :%s', repr(callback), sender=self)
+            logger.warn('Observer not added: %s', repr(callback))
 
     def schedule_save(self):
         if self.__save_thread is None:
@@ -201,7 +202,7 @@ class Config(dict):
         if filename is None:
             filename = self.__filename
 
-        log('Flushing settings to disk', sender=self)
+        logger.info('Flushing settings to disk')
 
         parser = ConfigParser.RawConfigParser()
         parser.add_section(self.__section)
@@ -213,8 +214,8 @@ class Config(dict):
         try:
             parser.write(open(filename, 'w'))
         except:
-            log('Cannot write settings to %s', filename, sender=self)
-            raise IOError('Cannot write to file: %s' % filename)
+            logger.error('Cannot write settings to %s', filename)
+            raise
 
         self.__save_thread = None
 
@@ -228,8 +229,8 @@ class Config(dict):
             try:
                 parser.read(self.__filename)
             except:
-                log('Cannot parse config file: %s', self.__filename,
-                        sender=self, traceback=True)
+                logger.warn('Cannot parse config file: %s',
+                        self.__filename, exc_info=True)
 
         for key, default in self.Settings.items():
             fieldtype = type(default)
@@ -246,8 +247,8 @@ class Config(dict):
                 else:
                     value = fieldtype(parser.get(self.__section, key))
             except:
-                log('Invalid value in %s for %s: %s', self.__filename,
-                        key, value, sender=self, traceback=True)
+                logger.warn('Invalid value in %s for %s: %s',
+                        self.__filename, key, value, exc_info=True)
                 value = default
 
             self[key] = value
@@ -259,9 +260,9 @@ class Config(dict):
             if fieldtype == bool:
                 setattr(self, name, not getattr(self, name))
             else:
-                log('Cannot toggle value: %s (not boolean)', name, sender=self)
+                logger.warn('Cannot toggle value: %s (not boolean)', name)
         else:
-            log('Invalid setting name: %s', name, sender=self)
+            logger.warn('Invalid setting name: %s', name)
 
     def update_field(self, name, new_value):
         if name in self.Settings:
@@ -270,12 +271,13 @@ class Config(dict):
             try:
                 new_value = fieldtype(new_value)
             except:
-                log('Cannot convert "%s" to %s. Ignoring.', str(new_value), fieldtype.__name__, sender=self)
+                logger.warn('Cannot convert %s to %s.', str(new_value),
+                        fieldtype.__name__, exc_info=True)
                 return False
             setattr(self, name, new_value)
             return True
         else:
-            log('Invalid setting name: %s', name, sender=self)
+            logger.info('Ignoring invalid setting: %s', name)
             return False
 
     def __setattr__(self, name, value):
@@ -285,16 +287,15 @@ class Config(dict):
             try:
                 if self[name] != fieldtype(value):
                     old_value = self[name]
-                    log('Update %s: %s => %s', name, old_value, value, sender=self)
+                    logger.info('Update %s: %s => %s', name, old_value, value)
                     self[name] = fieldtype(value)
                     for observer in self.__observers:
                         try:
                             # Notify observer about config change
                             observer(name, old_value, self[name])
                         except:
-                            log('Error while calling observer: %s',
-                                    repr(observer), sender=self,
-                                    traceback=True)
+                            logger.error('Error while calling observer: %s',
+                                    repr(observer), exc_info=True)
                     self.schedule_save()
             except:
                 raise ValueError('%s has to be of type %s' % (name, fieldtype.__name__))

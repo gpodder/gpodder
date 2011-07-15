@@ -25,11 +25,11 @@
 #
 
 import gpodder
-from gpodder.liblogger import log
+
+_ = gpodder.gettext
 
 from gpodder import util
 
-_ = gpodder.gettext
 
 class ObservableService(object):
     def __init__(self, signal_names=[]):
@@ -41,25 +41,25 @@ class ObservableService(object):
         if signal_name in self.observers:
             if not observer in self.observers[signal_name]:
                 self.observers[signal_name].append(observer)
-            else:
-                log('Observer already added to signal "%s".', signal_name, sender=self)
-        else:
-            log('Signal "%s" is not available for registration.', signal_name, sender=self)
+                return True
+
+        return False
 
     def unregister(self, signal_name, observer):
         if signal_name in self.observers:
             if observer in self.observers[signal_name]:
                 self.observers[signal_name].remove(observer)
-            else:
-                log('Observer could not be removed from signal "%s".', signal_name, sender=self)
-        else:
-            log('Signal "%s" is not available for un-registration.', signal_name, sender=self)
+                return True
+
+        return False
 
     def notify(self, signal_name, *args):
         if signal_name in self.observers:
             for observer in self.observers[signal_name]:
                 util.idle_add(observer, *args)
-        else:
-            log('Signal "%s" is not available for notification.', signal_name, sender=self)
+
+            return True
+
+        return False
 
 

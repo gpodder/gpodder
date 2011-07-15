@@ -24,7 +24,9 @@
 import gpodder
 
 from gpodder import util
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 try:
     import simplejson as json
@@ -115,7 +117,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
                 # If the format is available and preferred (or lower),
                 # use the given format for our fmt_id
                 if id in formats_available and seen_preferred:
-                    log('Found available YouTube format: %s (fmt_id=%d)', \
+                    logger.info('Found YouTube format: %s (fmt_id=%d)',
                             description, id)
                     fmt_id = id
                     break
@@ -146,7 +148,7 @@ def get_real_channel_url(url):
 
     if m is not None:
         next = 'http://www.youtube.com/rss/user/'+ m.group(1) +'/videos.rss'
-        log('YouTube link resolved: %s => %s', url, next)
+        logger.debug('YouTube link resolved: %s => %s', url, next)
         return next
 
     r = re.compile('http://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)', re.IGNORECASE)
@@ -154,7 +156,7 @@ def get_real_channel_url(url):
 
     if m is not None:
         next = 'http://www.youtube.com/rss/user/'+ m.group(1) +'/videos.rss'
-        log('YouTube link resolved: %s => %s', url, next)
+        logger.debug('YouTube link resolved: %s => %s', url, next)
         return next
 
     return url
@@ -170,7 +172,7 @@ def get_real_cover(url):
         data = util.urlopen(api_url).read()
         match = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
         if match is not None:
-            log('YouTube userpic for %s is: %s', url, match.group(1))
+            logger.debug('YouTube userpic for %s is: %s', url, match.group(1))
             return match.group(1)
 
     return None

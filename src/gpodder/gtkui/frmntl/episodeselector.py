@@ -27,7 +27,6 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder import util
-from gpodder.liblogger import log
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import Orientation
@@ -226,7 +225,6 @@ class gPodderEpisodeSelector(BuilderWidget):
                 try:
                     tooltip = getattr(episode, self.tooltip_attribute)
                 except:
-                    log('Episode object %s does not have tooltip attribute: "%s"', episode, self.tooltip_attribute, sender=self)
                     tooltip = None
             row = [ index, tooltip, self.selected[index] ]
             for name, sort_name, sort_type, caption in self.columns:
@@ -238,14 +236,12 @@ class gPodderEpisodeSelector(BuilderWidget):
                     args = markup_re.match(markup).groups()
                     row.append(self._markup_template % args)
                 elif not hasattr(episode, name):
-                    log('Warning: Missing attribute "%s"', name, sender=self)
                     row.append(None)
                 else:
                     row.append(getattr( episode, name))
                     
                 if sort_name is not None:
                     if not hasattr(episode, sort_name):
-                        log('Warning: Missing attribute "%s"', sort_name, sender=self)
                         row.append(None)
                     else:
                         row.append(getattr( episode, sort_name))
@@ -326,7 +322,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                     total_size += int(getattr( episode, self.size_attribute))
                     count += 1
                 except:
-                    log( 'Cannot get size for %s', episode.title, sender = self)
+                    pass
 
             text = []
             if count == 0: 

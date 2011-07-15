@@ -30,7 +30,9 @@ _ = gpodder.gettext
 from gpodder import util
 from gpodder import model
 from gpodder import query
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
 
@@ -426,7 +428,7 @@ class PodcastChannelProxy(object):
         try:
             return object.__getattribute__(self, name)
         except AttributeError:
-            log('Unsupported method call (%s)', name, sender=self)
+            logger.warn('Unsupported method call (%s)', name)
 
     def get_statistics(self):
         # Get the total statistics for all channels from the database

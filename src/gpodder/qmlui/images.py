@@ -24,7 +24,8 @@ from PySide.QtDeclarative import QDeclarativeImageProvider
 from gpodder import youtube
 from gpodder import util
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 import os
 import urllib
@@ -57,7 +58,7 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
                     cover_url = yt_url
                 data = util.urlopen(cover_url).read()
             except Exception, e:
-                log('Error downloading cover: %s', e, sender=self)
+                logger.error('Error downloading cover: %s', e, exc_info=True)
                 data = ''
             fp = open(filename, 'wb')
             fp.write(data)

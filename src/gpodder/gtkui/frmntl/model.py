@@ -303,7 +303,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
                     (gpodder.STATE_DOWNLOADED, gpodder.STATE_NORMAL))) or \
                     self._downloading(episode)
         else:
-            log('Should never reach this in has_episodes()!', sender=self)
             return True
 
         return any(is_visible(episode) for episode in self._episodes)
