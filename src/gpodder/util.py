@@ -255,14 +255,6 @@ def username_password_from_url(url):
     return (username, password)
 
 
-def directory_is_writable( path):
-    """
-    Returns True if the specified directory exists and is writable
-    by the current user.
-    """
-    return os.path.isdir( path) and os.access( path, os.W_OK)
-
-
 def calculate_size( path):
     """
     Tries to calculate the size of a directory, including any 
@@ -315,24 +307,6 @@ def file_modification_datetime(filename):
     except:
         logger.warn('Cannot get mtime for %s', filename, exc_info=True)
         return None
-
-
-def file_modification_timestamp(filename):
-    """
-    Returns the modification date of the specified file as a number
-    or -1 if the modification date cannot be determined.
-    """
-
-    # TODO: Merge with file_modification_datetime
-
-    if filename is None:
-        return -1
-    try:
-        s = os.stat(filename)
-        return s[stat.ST_MTIME]
-    except:
-        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
-        return -1
 
 
 def file_age_in_days(filename):
@@ -940,24 +914,6 @@ def find_command( command):
     return None
 
 
-def http_get_and_gunzip(uri):
-    """
-    Does a HTTP GET request and tells the server that we accept
-    gzip-encoded data. This is necessary, because the Apple iTunes
-    server will always return gzip-encoded data, regardless of what
-    we really request.
-
-    Returns the uncompressed document at the given URI.
-    """
-    request = urllib2.Request(uri)
-    request.add_header("Accept-encoding", "gzip")
-    usock = urllib2.urlopen(request)
-    data = usock.read()
-    if usock.headers.get('content-encoding', None) == 'gzip':
-        data = gzip.GzipFile(fileobj=StringIO.StringIO(data)).read()
-    return data
-
-
 def idle_add(func, *args):
     """
     This is a wrapper function that does the Right
@@ -989,19 +945,6 @@ def bluetooth_available():
         return True
     else:
         return False
-
-def bluetooth_send_files_maemo(filenames):
-    """Maemo implementation of Bluetooth file transfer
-
-    Takes a list of (absolute and local) filenames that are
-    submitted to the Maemo Bluetooth UI for file transfer.
-    """
-    import dbus
-    bus = dbus.SystemBus()
-    o = bus.get_object('com.nokia.bt_ui', '/com/nokia/bt_ui', False)
-    i = dbus.Interface(o, 'com.nokia.bt_ui')
-    i.show_send_file_dlg(['file://'+f for f in filenames])
-    return True
 
 
 def bluetooth_send_file(filename):
@@ -1119,45 +1062,6 @@ def http_request(url, method='HEAD'):
     start = len(scheme) + len('://') + len(netloc)
     conn.request(method, url[start:])
     return conn.getresponse()
-
-def get_episode_info_from_url(url):
-    """
-    Try to get information about a podcast episode by sending
-    a HEAD request to the HTTP server and parsing the result.
-
-    The return value is a dict containing all fields that 
-    could be parsed from the URL. This currently contains:
-    
-      "length": The size of the file in bytes
-      "pubdate": The unix timestamp for the pubdate
-
-    If there is an error, this function returns {}. This will
-    only function with http:// and https:// URLs.
-    """
-    if not (url.startswith('http://') or url.startswith('https://')):
-        return {}
-
-    r = http_request(url)
-    result = {}
-
-    logger.debug('Trying to get metainfo for %s', url)
-
-    if 'content-length' in r.msg:
-        try:
-            length = int(r.msg['content-length'])
-            result['length'] = length
-        except ValueError, e:
-            logger.error('Converting content-length header.', exc_info=True)
-
-    if 'last-modified' in r.msg:
-        try:
-            parsed_date = feedparser._parse_date(r.msg['last-modified'])
-            pubdate = time.mktime(parsed_date)
-            result['pubdate'] = pubdate
-        except:
-            logger.error('Converting last-modified header.', exc_info=True)
-
-    return result
 
 
 def gui_open(filename):
@@ -1366,19 +1270,6 @@ def isabs(string):
     if protocolPattern.match(string): return 1
     return os.path.isabs(string)
 
-def rel2abs(path, base = os.curdir):
-    """ converts a relative path to an absolute path.
-
-    @param path the path to convert - if already absolute, is returned
-    without conversion.
-    @param base - optional. Defaults to the current directory.
-    The base is intelligently concatenated to the given relative path.
-    @return the relative path of path from base
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    if isabs(path): return path
-    retval = os.path.join(base,path)
-    return os.path.abspath(retval)
 
 def commonpath(l1, l2, common=[]):
     """
@@ -1407,32 +1298,6 @@ def relpath(p1, p2):
 
     return os.path.join(*p)
 
-
-def run_external_command(command_line):
-    """
-    This is the function that will be called in a separate
-    thread that will call an external command (specified by
-    command_line). In case of problem (i.e. the command has
-    not been found or there has been another error), we will
-    call the notification function with two arguments - the
-    first being the error message and the second being the
-    title to be used for the error message.
-    """
-
-    def open_process(command_line):
-        logger.debug('Running external command: %s', command_line)
-        p = subprocess.Popen(command_line, shell=True)
-        result = p.wait()
-        if result == 127:
-            logger.error('Command not found: %s', command_line)
-        elif result == 126:
-            logger.error('Command permission denied: %s', command_line)
-        elif result > 0:
-            logger.error('Command returned an error (%d): %s', result, command_line)
-        else:
-            logger.debug('Command finished successfully: %s', command_line)
-
-    threading.Thread(target=open_process, args=(command_line,)).start()
 
 def get_hostname():
     """Return the hostname of this computer
