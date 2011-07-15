@@ -117,7 +117,11 @@ if __name__ == '__main__':
 
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
-                      help=_("Use the QML interface of gPodder"))
+                      help=_("Start the QML interface of gPodder"))
+
+    parser.add_option("-w", "--web",
+                      action="store_true", dest="web", default=False,
+                      help=_("Start the web interface of gPodder"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
@@ -144,6 +148,11 @@ if __name__ == '__main__':
         from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
+
+    if options.web:
+        from gpodder import webui
+        webui.main()
+        sys.exit(0)
 
     if have_dbus:
         # Try to find an already-running instance of gPodder
