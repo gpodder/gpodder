@@ -51,21 +51,19 @@ class BuilderWidget(GtkBuilderWidget):
                     self._on_window_state_event_iconified)
 
         # Enable support for tracking visibility state
-        if gpodder.ui.desktop:
-            self.main_window.connect('visibility-notify-event', \
-                        self._on_window_state_event_visibility)
+        self.main_window.connect('visibility-notify-event', \
+                    self._on_window_state_event_visibility)
 
         if parent is not None:
             self.main_window.set_transient_for(parent)
 
-            if gpodder.ui.desktop:
-                if hasattr(self, 'center_on_widget'):
-                    (x, y) = parent.get_position()
-                    a = self.center_on_widget.allocation
-                    (x, y) = (x + a.x, y + a.y)
-                    (w, h) = (a.width, a.height)
-                    (pw, ph) = self.main_window.get_size()
-                    self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
+            if hasattr(self, 'center_on_widget'):
+                (x, y) = parent.get_position()
+                a = self.center_on_widget.allocation
+                (x, y) = (x + a.x, y + a.y)
+                (w, h) = (a.width, a.height)
+                (pw, ph) = self.main_window.get_size()
+                self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
 
     def _on_key_press_event_maemo(self, widget, event):
         window_type = widget.get_type_hint()
@@ -177,10 +175,7 @@ class BuilderWidget(GtkBuilderWidget):
         dialog.add_button(affirmative_text, gtk.RESPONSE_OK)
 
         dialog.set_has_separator(False)
-        if gpodder.ui.desktop:
-            dialog.set_default_size(300, -1)
-        else:
-            dialog.set_default_size(650, -1)
+        dialog.set_default_size(300, -1)
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         text_entry = gtk.Entry()
