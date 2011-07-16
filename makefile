@@ -33,8 +33,6 @@ TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 HELP2MAN=help2man
 MANPAGE=data/man/gpodder.1
 
-GPODDER_ICON_THEME=dist/gpodder
-
 GPODDER_SERVICE_FILE=data/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 

@@ -68,9 +68,6 @@ class NewEpisodeActionList(gtk.ListStore):
 
 class gPodderPreferences(BuilderWidget):
     def new(self):
-        if not hasattr(self, 'callback_finished'):
-            self.callback_finished = None
-
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
@@ -149,9 +146,6 @@ class gPodderPreferences(BuilderWidget):
         self.mygpo_client.create_device()
         # Flush settings for mygpo client now
         self.mygpo_client.flush(now=True)
-
-        if self.callback_finished:
-            self.callback_finished()
 
     def on_button_close_clicked(self, widget):
         self.main_window.destroy()

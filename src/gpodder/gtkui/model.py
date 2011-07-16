@@ -132,13 +132,10 @@ class EpisodeListModel(gtk.ListStore):
         # Are we currently showing the "all episodes" view?
         self._all_episodes_view = False
 
-        # "ICON" is used to mark icon names in source files
-        ICON = lambda x: x
-
-        self.ICON_AUDIO_FILE = ICON('audio-x-generic')
-        self.ICON_VIDEO_FILE = ICON('video-x-generic')
-        self.ICON_IMAGE_FILE = ICON('image-x-generic')
-        self.ICON_GENERIC_FILE = ICON('text-x-generic')
+        self.ICON_AUDIO_FILE = 'audio-x-generic'
+        self.ICON_VIDEO_FILE = 'video-x-generic'
+        self.ICON_IMAGE_FILE = 'image-x-generic'
+        self.ICON_GENERIC_FILE = 'text-x-generic'
         self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
         self.ICON_DELETED = gtk.STOCK_DELETE
 
@@ -146,7 +143,7 @@ class EpisodeListModel(gtk.ListStore):
             # Workaround until KDE adds all the freedesktop icons
             # See https://bugs.kde.org/show_bug.cgi?id=233505 and
             #     http://gpodder.org/bug/553
-            self.ICON_DELETED = ICON('archive-remove')
+            self.ICON_DELETED = 'archive-remove'
 
 
     def _format_filesize(self, episode):
@@ -466,11 +463,7 @@ class PodcastListModel(gtk.ListStore):
         self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
-        # "ICON" is used to mark icon names in source files
-        ICON = lambda x: x
-
-        #self.ICON_DISABLED = ICON('emblem-unreadable')
-        self.ICON_DISABLED = ICON('gtk-media-pause')
+        self.ICON_DISABLED = 'gtk-media-pause'
 
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text

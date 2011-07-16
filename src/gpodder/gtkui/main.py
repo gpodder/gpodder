@@ -86,9 +86,6 @@ from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import hooks
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    ICON_GENERAL_ADD = 'general_add'
-    ICON_GENERAL_REFRESH = 'general_refresh'
-
     # Delay until live search is started after typing stop
     LIVE_SEARCH_DELAY = 500
 
@@ -125,7 +122,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
-        self.preferences_dialog = None
         self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
@@ -173,15 +169,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
-        self.default_title = 'gPodder'
-        if gpodder.__version__.rfind('git') != -1:
-            self.set_title('gPodder %s' % gpodder.__version__)
-        else:
-            title = self.gPodder.get_title()
-            if title is not None:
-                self.set_title(title)
-            else:
-                self.set_title(_('gPodder'))
+        self.default_title = None
+        self.set_title(_('gPodder'))
 
         self.cover_downloader = CoverDownloader()
 
@@ -204,8 +193,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.item_view_hide_boring_podcasts.set_active(True)
 
         self.currently_updating = False
-
-        self.context_menu_mouse_button = 3
 
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
@@ -577,7 +564,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 TreeViewHelper.ROLE_PODCASTS:
             return self.currently_updating
 
-        return event.button == self.context_menu_mouse_button and \
+        return event.button == 3 and \
                 gpodder.ui.desktop
 
     def on_treeview_podcasts_button_released(self, treeview, event):
@@ -1266,13 +1253,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         model, paths = selection.get_selected_rows()
 
         if path is None or (path not in paths and \
-                event.button == self.context_menu_mouse_button):
+                event.button == 3):
             # We have right-clicked, but not into the selection,
             # assume we don't want to operate on the selection
             paths = []
 
         if path is not None and not paths and \
-                event.button == self.context_menu_mouse_button:
+                event.button == 3:
             # No selection or clicked outside selection;
             # select the single item where we clicked
             treeview.grab_focus()
@@ -1419,7 +1406,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 return not treeview.is_rubber_banding_active()
 
-        if event is None or event.button == self.context_menu_mouse_button:
+        if event is None or event.button == 3:
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
@@ -1456,7 +1443,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+                menu.popup(None, None, func, 3, 0)
             else:
                 menu.popup(None, None, None, event.button, event.time)
             return True
@@ -1472,10 +1459,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel.id is None:
             return True
 
-        if event is None or event.button == self.context_menu_mouse_button:
+        if event is None or event.button == 3:
             menu = gtk.Menu()
-
-            ICON = lambda x: x
 
             item = gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
@@ -1510,7 +1495,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+                menu.popup(None, None, func, 3, 0)
             else:
                 menu.popup(None, None, None, event.button, event.time)
 
@@ -1595,7 +1580,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 return not treeview.is_rubber_banding_active()
 
-        if event is None or event.button == self.context_menu_mouse_button:
+        if event is None or event.button == 3:
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
             any_new = any(e.is_new for e in episodes)
@@ -1644,8 +1629,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                      lambda item: callback(episodes))
                         menu.append(item)
 
-            ICON = lambda x: x
-
             # Ok, this probably makes sense to only display for downloaded files
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
@@ -1659,7 +1642,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu.append(item)
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
-                    item.set_image(gtk.image_new_from_icon_name(ICON('bluetooth'), gtk.ICON_SIZE_MENU))
+                    item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(item)
 
@@ -1695,7 +1678,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, self.context_menu_mouse_button, 0)
+                menu.popup(None, None, func, 3, 0)
             else:
                 menu.popup(None, None, None, event.button, event.time)
 
@@ -2811,13 +2794,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.podcast_list_hide_boring:
             self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
 
-    def properties_closed(self):
-        self.preferences_dialog = None
-
     def on_itemPreferences_activate(self, widget, *args):
-        self.preferences_dialog = gPodderPreferences(self.main_window, \
+        gPodderPreferences(self.main_window, \
                 _config=self.config, \
-                callback_finished=self.properties_closed, \
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
