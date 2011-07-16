@@ -323,6 +323,10 @@ class PodcastEpisode(PodcastModelObject):
 
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED)
 
+    def check_is_new(self):
+        return (self.state == gpodder.STATE_NORMAL and self.is_new and
+                not self.downloading)
+
     def save(self):
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_episode_save(self)
@@ -645,9 +649,10 @@ class PodcastEpisode(PodcastModelObject):
 
 
 
-
 class PodcastChannel(PodcastModelObject):
     __slots__ = schema.PodcastColumns
+
+    UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
     MAX_FOLDERNAME_LENGTH = 150
     SECONDS_PER_WEEK = 7*24*60*60
@@ -764,8 +769,13 @@ class PodcastChannel(PodcastModelObject):
         return count
 
     @classmethod
+    def sort_key(cls, podcast):
+        key = podcast.title.decode('utf-8', 'ignore').lower()
+        return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
+
+    @classmethod
     def load_from_db(cls, db):
-        return db.load_podcasts(cls.create_from_dict)
+        return sorted(db.load_podcasts(cls.create_from_dict), key=cls.sort_key)
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
@@ -774,7 +784,7 @@ class PodcastChannel(PodcastModelObject):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        existing = filter(lambda p: p.url == url, self.load_from_db(db))
+        existing = filter(lambda p: p.url == url, cls.load_from_db(db))
 
         if existing:
             return existing[0]
@@ -1170,6 +1180,10 @@ class Model(object):
             max_episodes=0, mimetype_prefs=''):
         return cls.PodcastClass.load(db, url, create, authentication_tokens, \
                 max_episodes, mimetype_prefs)
+
+    @classmethod
+    def podcast_sort_key(cls, podcast):
+        return cls.PodcastClass.sort_key(podcast)
 
     @staticmethod
     def sort_episodes_by_pubdate(episodes, reverse=False):

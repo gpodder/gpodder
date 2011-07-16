@@ -42,8 +42,6 @@ import threading
 import re
 
 class Database(object):
-    UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
-
     TABLE_PODCAST = 'podcast'
     TABLE_EPISODE = 'episode'
 
@@ -86,33 +84,11 @@ class Database(object):
 
             cur.close()
 
-    def db_sort_cmp(self, a, b):
-        """
-        Compare two strings for sorting, including removing
-        a possible "The " prefix and converting umlauts to
-        normal characters so they can be sorted correctly.
-        (i.e. "Ö1" should not appear at the end of the list)
-        """
-        try:
-            a = a.decode('utf-8', 'ignore').lower()
-            a = re.sub('^the ', '', a)
-            a = a.translate(self.UNICODE_TRANSLATE)
-            b = b.decode('utf-8', 'ignore').lower()
-            b = re.sub('^the ', '', b)
-            b = b.translate(self.UNICODE_TRANSLATE)
-            return cmp(a, b)
-        except:
-            logger.warn('Error comparing %s <=> %s', a, b, exc_info=True)
-            a = re.sub('^the ', '', a.lower())
-            b = re.sub('^the ', '', b.lower())
-            return cmp(a, b)
-
     @property
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.database_file, check_same_thread=False)
             self._db.text_factory = str
-            self._db.create_collation("UNICODE", self.db_sort_cmp)
 
             # Check schema version, upgrade if necessary
             schema.upgrade(self._db)
@@ -174,7 +150,7 @@ class Database(object):
     def load_podcasts(self, factory):
         logger.info('Loading podcasts')
 
-        sql = 'SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_PODCAST
+        sql = 'SELECT * FROM %s' % self.TABLE_PODCAST
 
         with self.lock:
             cur = self.cursor()

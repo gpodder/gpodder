@@ -207,8 +207,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for podcast in self.channels:
             podcast.import_external_files()
 
-        self.channel_list_changed = True
-
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         threading.Thread(target=self.user_apps_reader.read).start()
@@ -218,9 +216,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Now, update the feed cache, when everything's in place
         self.btnUpdateFeeds.show()
-        self.updating_feed_cache = False
         self.feed_cache_update_cancelled = False
-        self.update_feed_cache(force_update=False)
+        self.update_podcast_list_model()
 
         self.message_area = None
 
@@ -482,7 +479,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             rewritten_url.new_url)
                     channel.url = rewritten_url.new_url
                     channel.save()
-                    self.channel_list_changed = True
                     util.idle_add(self.update_episode_list_model)
                     break
 
@@ -1149,7 +1145,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.restart_auto_update_timer()
         elif name == 'podcast_list_view_all':
             # Force a update of the podcast list model
-            self.channel_list_changed = True
             self.update_podcast_list_model()
         elif name == 'episode_list_columns':
             self.update_episode_list_columns_visibility()
@@ -1465,7 +1460,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemUpdateChannel_activate)
-            item.set_sensitive(not self.updating_feed_cache)
             menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
@@ -1945,9 +1939,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
-        if self.config.podcast_list_view_all and not self.channel_list_changed:
+        if self.config.podcast_list_view_all:
             # Update "all episodes" view in any case (if enabled)
             self.podcast_list_model.update_first_row()
+            # List model length minus 2, because of "All" + separator
+            list_model_length = len(self.podcast_list_model) - 2
+        else:
+            list_model_length = len(self.podcast_list_model)
 
         if selected:
             # very cheap! only update selected channel
@@ -1961,7 +1959,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
-        elif not self.channel_list_changed:
+        elif list_model_length == len(self.channels):
             # we can keep the model, but have to update some
             if urls is None:
                 # still cheaper than reloading the whole list
@@ -1995,7 +1993,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.on_treeChannels_cursor_changed(self.treeChannels)
             except:
                 logger.error('Cannot select podcast in list', exc_info=True)
-        self.channel_list_changed = False
 
     def on_episode_list_filter_changed(self, has_episodes):
         pass # XXX: Remove?
@@ -2111,31 +2108,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Upload subscription changes to gpodder.net
             self.mygpo_client.on_subscribe(worked)
 
-            # If at least one podcast has been added, save and update all
-            if self.channel_list_changed:
-                # Fix URLs if mygpo has rewritten them
-                self.rewrite_urls_mygpo()
+            # Fix URLs if mygpo has rewritten them
+            self.rewrite_urls_mygpo()
 
-                # If only one podcast was added, select it after the update
-                if len(worked) == 1:
-                    url = worked[0]
-                else:
-                    url = None
+            # If only one podcast was added, select it after the update
+            if len(worked) == 1:
+                url = worked[0]
+            else:
+                url = None
 
-                # Update the list of subscribed podcasts
-                self.update_feed_cache(force_update=False, select_url_afterwards=url)
+            # Update the list of subscribed podcasts
+            self.channels.sort(key=Model.podcast_sort_key)
+            self.update_podcast_list_model(select_url=url)
 
-                # Offer to download new episodes
-                episodes = []
-                for podcast in self.channels:
-                    if podcast.url in worked:
-                        episodes.extend(podcast.get_all_episodes())
+            # Offer to download new episodes
+            episodes = []
+            for podcast in self.channels:
+                if podcast.url in worked:
+                    episodes.extend(podcast.get_all_episodes())
 
-                if episodes:
-                    episodes = list(Model.sort_episodes_by_pubdate(episodes, \
-                            reverse=True))
-                    self.new_episodes_show(episodes, \
-                            selected=[e.check_is_new() for e in episodes])
+            if episodes:
+                episodes = list(Model.sort_episodes_by_pubdate(episodes, \
+                        reverse=True))
+                self.new_episodes_show(episodes, \
+                        selected=[e.check_is_new() for e in episodes])
 
 
         def thread_proc():
@@ -2186,7 +2182,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 assert channel is not None
                 worked.append(channel.url)
                 self.channels.append(channel)
-                self.channel_list_changed = True
+
             util.idle_add(on_after_update)
         threading.Thread(target=thread_proc).start()
 
@@ -2252,95 +2248,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         indicator.on_finished()
         self.db.commit()
 
-
-    def update_feed_cache_finish_callback(self, updated_urls=None, select_url_afterwards=None):
-        self.db.commit()
-        self.updating_feed_cache = False
-
-        self.channels = Model.get_podcasts(self.db)
-
-        # Process received episode actions for all updated URLs
-        self.process_received_episode_actions(updated_urls)
-
-        self.channel_list_changed = True
-        self.update_podcast_list_model(select_url=select_url_afterwards)
-
-        # Only search for new episodes in podcasts that have been
-        # updated, not in other podcasts (for single-feed updates)
-        episodes = self.get_new_episodes([c for c in self.channels if c.url in updated_urls])
-
-        if self.feed_cache_update_cancelled:
-            # The user decided to abort the feed update
-            self.show_update_feeds_buttons()
-        elif not episodes:
-            # Nothing new here - but inform the user
-            self.pbFeedUpdate.set_fraction(1.0)
-            self.pbFeedUpdate.set_text(_('No new episodes'))
-            self.feed_cache_update_cancelled = True
-            self.btnCancelFeedUpdate.show()
-            self.btnCancelFeedUpdate.set_sensitive(True)
-            self.itemUpdate.set_sensitive(True)
-            self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
-        else:
-            count = len(episodes)
-            # New episodes are available
-            self.pbFeedUpdate.set_fraction(1.0)
-            # Are we minimized and should we auto download?
-            if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
-                self.download_episode_list(episodes)
-                title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
-                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                self.show_update_feeds_buttons()
-            elif self.config.auto_download == 'queue':
-                self.download_episode_list_paused(episodes)
-                title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
-                self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                self.show_update_feeds_buttons()
-            else:
-                self.show_update_feeds_buttons()
-                # New episodes are available and we are not minimized
-                if not self.config.do_not_show_new_episodes_dialog:
-                    self.new_episodes_show(episodes, notification=True)
-                else:
-                    message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
-                    self.pbFeedUpdate.set_text(message)
-
     def _update_cover(self, channel):
         if channel is not None and not os.path.exists(channel.cover_file) and channel.image:
             self.cover_downloader.request_cover(channel)
-
-    def update_feed_cache_proc(self, channels, select_url_afterwards):
-        total = len(channels)
-
-        for updated, channel in enumerate(channels):
-            if not self.feed_cache_update_cancelled:
-                try:
-                    channel.update(max_episodes=self.config.max_episodes_per_feed, \
-                            mimetype_prefs=self.config.mimetype_prefs)
-                    self._update_cover(channel)
-                except Exception, e:
-                    d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
-                    if d['message']:
-                        message = _('Error while updating %(url)s: %(message)s')
-                    else:
-                        message = _('The feed at %(url)s could not be updated.')
-                    self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
-                    logger.error('Error: %s', str(e), exc_info=True)
-
-            if self.feed_cache_update_cancelled:
-                break
-
-            # By the time we get here the update may have already been cancelled
-            if not self.feed_cache_update_cancelled:
-                def update_progress():
-                    d = {'podcast': channel.title, 'position': updated+1, 'total': total}
-                    progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
-                    self.pbFeedUpdate.set_text(progression)
-                    self.pbFeedUpdate.set_fraction(float(updated+1)/float(total))
-                util.idle_add(update_progress)
-
-        updated_urls = [c.url for c in channels]
-        util.idle_add(self.update_feed_cache_finish_callback, updated_urls, select_url_afterwards)
 
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
@@ -2358,20 +2268,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.show_update_feeds_buttons()
 
-    def update_feed_cache(self, channels=None, force_update=True, select_url_afterwards=None):
-        if self.updating_feed_cache:
-            return
-
-        if not force_update:
-            self.channels = Model.get_podcasts(self.db)
-            self.channel_list_changed = True
-            self.update_podcast_list_model(select_url=select_url_afterwards)
-            return
-
+    def update_feed_cache(self, channels=None):
         # Fix URLs if mygpo has rewritten them
-        self.rewrite_urls_mygpo()
-
-        self.updating_feed_cache = True
+        # XXX somewhere else? self.rewrite_urls_mygpo()
 
         if channels is None:
             # Only update podcasts for which updates are enabled
@@ -2387,16 +2286,103 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.hboxUpdateFeeds.show_all()
         self.btnUpdateFeeds.hide()
 
-        if len(channels) == 1:
-            text = _('Updating "%s"...') % channels[0].title
-        else:
-            count = len(channels)
-            text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
+        count = len(channels)
+        text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
+
         self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
 
-        args = (channels, select_url_afterwards)
-        threading.Thread(target=self.update_feed_cache_proc, args=args).start()
+        def update_feed_cache_proc():
+            updated_channels = []
+            for updated, channel in enumerate(channels):
+                if self.feed_cache_update_cancelled:
+                    break
+
+                try:
+                    channel.update(max_episodes=self.config.max_episodes_per_feed,
+                            mimetype_prefs=self.config.mimetype_prefs)
+                    self._update_cover(channel)
+                except Exception, e:
+                    d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
+                    if d['message']:
+                        message = _('Error while updating %(url)s: %(message)s')
+                    else:
+                        message = _('The feed at %(url)s could not be updated.')
+                    self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
+                    logger.error('Error: %s', str(e), exc_info=True)
+
+                updated_channels.append(channel)
+
+                def update_progress(channel):
+                    self.update_podcast_list_model([channel.url])
+
+                    # If the currently-viewed podcast is updated, reload episodes
+                    if self.active_channel is not None and \
+                            self.active_channel == channel:
+                        logger.debug('Updated channel is active, updating UI')
+                        self.update_episode_list_model()
+
+                    d = {'podcast': channel.title, 'position': updated+1, 'total': count}
+                    progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
+
+                    self.pbFeedUpdate.set_text(progression)
+                    self.pbFeedUpdate.set_fraction(float(updated+1)/float(count))
+
+                util.idle_add(update_progress, channel)
+
+            def update_feed_cache_finish_callback():
+                # Process received episode actions for all updated URLs
+                # XXX somewhere else? self.process_received_episode_actions(updated_urls)
+
+                # If we are currently viewing "All episodes", update its episode list now
+                if self.active_channel is not None and \
+                        getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+                    self.update_episode_list_model()
+
+                if self.feed_cache_update_cancelled:
+                    # The user decided to abort the feed update
+                    self.show_update_feeds_buttons()
+
+                # Only search for new episodes in podcasts that have been
+                # updated, not in other podcasts (for single-feed updates)
+                episodes = self.get_new_episodes([c for c in updated_channels])
+
+                if not episodes:
+                    # Nothing new here - but inform the user
+                    self.pbFeedUpdate.set_fraction(1.0)
+                    self.pbFeedUpdate.set_text(_('No new episodes'))
+                    self.feed_cache_update_cancelled = True
+                    self.btnCancelFeedUpdate.show()
+                    self.btnCancelFeedUpdate.set_sensitive(True)
+                    self.itemUpdate.set_sensitive(True)
+                    self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
+                else:
+                    count = len(episodes)
+                    # New episodes are available
+                    self.pbFeedUpdate.set_fraction(1.0)
+                    # Are we minimized and should we auto download?
+                    if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
+                        self.download_episode_list(episodes)
+                        title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
+                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_update_feeds_buttons()
+                    elif self.config.auto_download == 'queue':
+                        self.download_episode_list_paused(episodes)
+                        title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
+                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_update_feeds_buttons()
+                    else:
+                        self.show_update_feeds_buttons()
+                        # New episodes are available and we are not minimized
+                        if not self.config.do_not_show_new_episodes_dialog:
+                            self.new_episodes_show(episodes, notification=True)
+                        else:
+                            message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
+                            self.pbFeedUpdate.set_text(message)
+
+            util.idle_add(update_feed_cache_finish_callback)
+
+        threading.Thread(target=update_feed_cache_proc).start()
 
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
@@ -2640,8 +2626,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemUpdate_activate(self, widget=None):
         # Check if we have outstanding subscribe/unsubscribe actions
-        if self.on_add_remove_podcasts_mygpo():
-            return
+        # FIXME: Implement this somewhere else: self.on_add_remove_podcasts_mygpo()
 
         if self.channels:
             self.update_feed_cache()
@@ -2753,11 +2738,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _('No new episodes available'), widget=self.btnUpdateFeeds)
 
     def get_new_episodes(self, channels=None):
-        is_new = lambda e: (e.state == gpodder.STATE_NORMAL and e.is_new and
-                not e.downloading)
-
         return [e for c in channels or self.channels for e in
-                filter(is_new, c.get_all_episodes())]
+                filter(lambda e: e.check_is_new(), c.get_all_episodes())]
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""
@@ -2887,7 +2869,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_unsubscribe([c.url for c in channels])
 
             # Re-load the channels and select the desired new channel
-            self.update_feed_cache(force_update=False, select_url_afterwards=select_url)
+            self.update_podcast_list_model(select_url=select_url)
             progress.on_finished()
 
         def thread_proc():
@@ -2928,8 +2910,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Clean up downloads and download directories
             self.clean_up_downloads()
-
-            self.channel_list_changed = True
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)
@@ -3200,7 +3180,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def _on_auto_update_timer(self):
         logger.debug('Auto update timer fired.')
-        self.update_feed_cache(force_update=True)
+        self.update_feed_cache()
 
         # Ask web service for sub changes (if enabled)
         self.mygpo_client.flush()
