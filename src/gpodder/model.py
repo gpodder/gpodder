@@ -925,6 +925,11 @@ class PodcastChannel(PodcastModelObject):
 
             episode.save()
 
+            # This episode is new - if we already loaded the
+            # list of "children" episodes, add it to this list
+            if self.children is not None:
+                self.children.append(episode)
+
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         if self.id is not None:
@@ -937,11 +942,18 @@ class PodcastChannel(PodcastModelObject):
                         episode.title, episode.guid)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
 
+                # Remove the episode from the "children" episodes list
+                if self.children is not None:
+                    self.children.remove(episode)
+
         # This *might* cause episodes to be skipped if there were more than
         # max_episodes_per_feed items added to the feed between updates.
         # The benefit is that it prevents old episodes from apearing as new
         # in certain situations (see bug #340).
-        self.db.purge(max_episodes, self.id)
+        self.db.purge(max_episodes, self.id) # TODO: Remove from self.children!
+
+        # Sort episodes by pubdate, descending
+        self.children.sort(key=lambda e: e.published, reverse=True)
 
     def _update_etag_modified(self, feed):
         self.http_etag = feed.headers.get('etag', self.http_etag)
