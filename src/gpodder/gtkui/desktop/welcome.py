@@ -34,10 +34,6 @@ class gPodderWelcome(BuilderWidget):
                 else:
                     child.set_padding(20, 20)
 
-        if gpodder.ui.fremantle:
-            self.btnOPML.set_name('HildonButton-thumb')
-            self.btnMygPodder.set_name('HildonButton-thumb')
-
         self.gPodderWelcome.show()
 
     def on_show_example_podcasts(self, button):

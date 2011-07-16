@@ -39,14 +39,6 @@ class gPodderAddPodcast(BuilderWidget):
         if hasattr(self, 'preset_url'):
             self.entry_url.set_text(self.preset_url)
         self.entry_url.connect('activate', self.on_entry_url_activate)
-        if gpodder.ui.fremantle:
-            self.btn_add = self.main_window.add_button(gtk.STOCK_ADD, 0)
-            self.btn_add.connect('clicked', self.on_btn_add_clicked)
-            self.on_entry_url_changed(self.entry_url) # for sensitivity
-            self.btn_add.show_all()
-            # Deactivate capitalization and word completion (Maemo bug 5184)
-            self.entry_url.set_property('hildon-input-mode', \
-                    gtk.HILDON_GTK_INPUT_MODE_FULL)
         self.gPodderAddPodcast.show()
 
         if not hasattr(self, 'preset_url'):

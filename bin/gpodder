@@ -133,16 +133,13 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args(sys.argv)
 
-    if gpodder.ui.fremantle:
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
-
     if gpodder.ui.desktop:
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
         import logging
         FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
-        logging.basicConfig(format=FMT, level=logging.INFO)
+        logging.basicConfig(format=FMT, level=logging.DEBUG)
 
     if options.qml:
         from gpodder import qmlui
@@ -187,12 +184,6 @@ if __name__ == '__main__':
                 not os.environ.get('DISPLAY', None):
             print >>sys.stderr, 'Cannot start gPodder: $DISPLAY is not set.'
             sys.exit(1)
-
-        if gpodder.ui.fremantle:
-            # Reduce our nice value to zero if we're on Maemo to
-            # make the tablet not kill itself while updating feeds
-            if os.nice(0) < 0:
-                os.nice(-os.nice(0))
 
         main.main(options)
 

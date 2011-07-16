@@ -463,10 +463,7 @@ class PodcastListModel(gtk.ListStore):
         self._filter.set_visible_func(self._filter_visible_func)
 
         self._cover_cache = {}
-        if gpodder.ui.fremantle:
-            self._max_image_side = 64
-        else:
-            self._max_image_side = 40
+        self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
         # "ICON" is used to mark icon names in source files
@@ -706,11 +703,7 @@ class PodcastListModel(gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
-        if gpodder.ui.fremantle:
-            # We don't display the pill, so don't generate it
-            pill_image = None
-        else:
-            pill_image = self._get_pill_image(channel, downloaded, unplayed)
+        pill_image = self._get_pill_image(channel, downloaded, unplayed)
 
         self.set(iter, \
                 self.C_TITLE, channel.title, \

@@ -23,14 +23,12 @@ BINFILE=bin/gpodder
 MESSAGESPOT=data/messages.pot
 
 UIFILES=$(wildcard data/ui/*.ui \
-	           data/ui/desktop/*.ui \
-		   data/ui/frmntl/*.ui)
+	           data/ui/desktop/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
 TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 		               src/gpodder/gtkui/*.py \
 		               src/gpodder/gtkui/interface/*.py \
-			       src/gpodder/gtkui/desktop/*.py \
-			       src/gpodder/gtkui/frmntl/*.py)
+			       src/gpodder/gtkui/desktop/*.py)
 
 HELP2MAN=help2man
 MANPAGE=data/man/gpodder.1

@@ -1074,35 +1074,7 @@ def gui_open(filename):
        on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
-        if gpodder.ui.fremantle:
-            try:
-                import osso
-            except ImportError, ie:
-                logger.warn('Cannot import osso module on maemo.')
-                return False
-
-            logger.debug('Using Nokia Media Player to open %s', filename)
-            context = osso.Context('gPodder', gpodder.__version__, False)
-            filename = filename.encode('utf-8')
-
-            # Fix for Maemo bug 7162 (for local files with "#" in filename)
-            if filename.startswith('/'):
-                filename = 'file://' + urllib.quote(filename)
-
-            rpc = osso.Rpc(context)
-            app = 'mediaplayer'
-
-            _unneeded, extension = os.path.splitext(filename.lower())
-
-            # Fix for Maemo bug 5588 (use PDF viewer and images app)
-            if extension == '.pdf':
-                app = 'osso_pdfviewer'
-            elif extension in ('.jpg', '.jpeg', '.png'):
-                app = 'image_viewer'
-
-            svc, path = (x % app for x in ('com.nokia.%s', '/com/nokia/%s'))
-            rpc.rpc_run(svc, path, svc, 'mime_open', (filename,))
-        elif gpodder.win32:
+        if gpodder.win32:
             os.startfile(filename)
         else:
             subprocess.Popen(['xdg-open', filename])
