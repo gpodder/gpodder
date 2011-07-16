@@ -154,6 +154,9 @@ class gPodderShownotesBase(BuilderWidget):
 
     def show(self, episode):
         if self.main_window.get_property('visible'):
+            if episode == self.episode:
+                return
+
             self.episode = None
             self.task = None
             self.on_hide_window()

@@ -50,6 +50,8 @@ except ImportError:
 # ----------------------------------------------------------
 
 class GEpisode(model.PodcastEpisode):
+    __slots__ = ()
+
     @property
     def title_markup(self):
         return '%s\n<small>%s</small>' % (cgi.escape(self.title),
@@ -88,6 +90,8 @@ class GEpisode(model.PodcastEpisode):
                 cgi.escape(self.channel.title))
 
 class GPodcast(model.PodcastChannel):
+    __slots__ = ()
+
     EpisodeClass = GEpisode
 
 class Model(model.Model):
@@ -413,7 +417,7 @@ class PodcastChannelProxy(object):
         self.channels = channels
         self.title =  _('All episodes')
         self.description = _('from all podcasts')
-        self.parse_error = ''
+        #self.parse_error = ''
         self.url = ''
         self.id = None
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
@@ -624,10 +628,11 @@ class PodcastListModel(gtk.ListStore):
             return ''.join(d)
 
     def _format_error(self, channel):
-        if channel.parse_error:
-            return str(channel.parse_error)
-        else:
-            return None
+        #if channel.parse_error:
+        #    return str(channel.parse_error)
+        #else:
+        #    return None
+        return None
 
     def set_channels(self, db, config, channels):
         # Clear the model and update the list of podcasts

@@ -27,6 +27,7 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
+from gpodder import schema
 
 import logging
 logger = logging.getLogger(__name__)
@@ -81,16 +82,24 @@ class gPodderFetcher(feedcore.Fetcher):
 # The "register" method is exposed here for external usage
 register_custom_handler = gPodderFetcher.register
 
+# Our podcast model:
+#
+# database -> podcast -> episode -> download/playback
+#  podcast.parent == db
+#  podcast.children == [episode, ...]
+#  episode.parent == podcast
+#
+# - normally: episode.children = (None, None)
+# - downloading: episode.children = (DownloadTask(), None)
+# - playback: episode.children = (None, PlaybackTask())
+
+
 class PodcastModelObject(object):
     """
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
-    _cache = collections.defaultdict(weakref.WeakValueDictionary)
-
-    @classmethod
-    def _get_cached_object(cls, id):
-        return cls._cache[cls].get(id, None)
+    __slots__ = ('id', 'parent', 'children')
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -98,16 +107,11 @@ class PodcastModelObject(object):
         Create a new object, passing "args" to the constructor
         and then updating the object with the values from "d".
         """
-        o = cls._get_cached_object(d['id'])
+        o = cls(*args)
 
-        if o is None:
-            o = cls(*args)
-            # XXX: all(map(lambda k: hasattr(o, k), d))?
-            for k, v in d.iteritems():
-                setattr(o, k, v)
-            cls._cache[cls][o.id] = o
-        else:
-            logger.debug('Reusing reference to %s %d', cls.__name__, o.id)
+        # XXX: all(map(lambda k: hasattr(o, k), d))?
+        for k, v in d.iteritems():
+            setattr(o, k, v)
 
         return o
 
@@ -115,6 +119,8 @@ class PodcastModelObject(object):
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
+
+    __slots__ = schema.EpisodeColumns
 
     def _deprecated(self):
         raise Exception('Property is deprecated!')
@@ -267,8 +273,7 @@ class PodcastEpisode(PodcastModelObject):
         return None
 
     def __init__(self, channel):
-        self.db = channel.db
-        self.channel = channel
+        self.parent = channel
 
         self.id = None
         self.url = ''
@@ -293,11 +298,18 @@ class PodcastEpisode(PodcastModelObject):
         # Timestamp of last playback time
         self.last_playback = 0
 
+    @property
+    def channel(self):
+        return self.parent
+
+    @property
+    def db(self):
+        return self.parent.db
+
     def save(self):
-        if self.state != gpodder.STATE_DOWNLOADED and self.file_exists():
-            self.state = gpodder.STATE_DOWNLOADED
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_episode_save(self)
+
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):
@@ -618,12 +630,42 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    """holds data for a complete channel"""
+    __slots__ = schema.PodcastColumns
+
     MAX_FOLDERNAME_LENGTH = 150
     SECONDS_PER_WEEK = 7*24*60*60
     EpisodeClass = PodcastEpisode
 
     feed_fetcher = gPodderFetcher()
+
+    def __init__(self, db):
+        self.db = db
+        self.children = None
+
+        self.id = None
+        self.url = None
+        self.title = ''
+        self.link = ''
+        self.description = ''
+        self.cover_url = None
+
+        self.auth_username = ''
+        self.auth_password = ''
+
+        self.http_last_modified = None
+        self.http_etag = None
+
+        self.auto_archive_episodes = False
+        self.download_folder = None
+        self.pause_subscription = False
+
+    def _get_db(self):
+        return self.parent
+
+    def _set_db(self, db):
+        self.parent = db
+
+    db = property(_get_db, _set_db)
 
     def import_external_files(self):
         """Check the download folder for externally-downloaded files
@@ -706,7 +748,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load_from_db(cls, db):
-        return db.load_podcasts(cls.create_from_dict, cls._get_cached_object)
+        return db.load_podcasts(cls.create_from_dict)
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
@@ -715,9 +757,7 @@ class PodcastChannel(PodcastModelObject):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        existing = [podcast for podcast in
-                db.load_podcasts(cls.create_from_dict, cls._get_cached_object)
-                if podcast.url == url]
+        existing = filter(lambda p: p.url == url, self.load_from_db(db))
 
         if existing:
             return existing[0]
@@ -764,7 +804,7 @@ class PodcastChannel(PodcastModelObject):
         self.db.purge(max_episodes, self.id)
 
     def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
-        self.parse_error = feed.get('bozo_exception', None)
+        #self.parse_error = feed.get('bozo_exception', None)
 
         # Replace multi-space and newlines with single space (Maemo bug 11173)
         self.title = re.sub('\s+', ' ', feed.feed.get('title', self.url))
@@ -938,9 +978,7 @@ class PodcastChannel(PodcastModelObject):
     def save(self):
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_save(self)
-        if self.download_folder is None:
-            # get_save_dir() finds a unique value for download_folder
-            self.get_save_dir()
+
         self.db.save_podcast(self)
 
     def get_statistics(self):
@@ -962,42 +1000,10 @@ class PodcastChannel(PodcastModelObject):
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)
 
-    def __init__(self, db):
-        self.db = db
-        self.id = None
-        self.url = None
-        self.title = ''
-        self.link = ''
-        self.description = ''
-        self.cover_url = None
-        self.parse_error = None
-
-        self.auth_username = ''
-        self.auth_password = ''
-
-        self.http_last_modified = None
-        self.http_etag = None
-
-        self.auto_archive_episodes = False
-        self.download_folder = None
-        self.pause_subscription = False
-
     def _get_cover_url(self):
         return self.cover_url
 
     image = property(_get_cover_url)
-
-    def get_title( self):
-        if not self.__title.strip():
-            return self.url
-        else:
-            return self.__title
-
-    def set_title( self, value):
-        self.__title = value.strip()
-
-    title = property(fget=get_title,
-                     fset=set_title)
 
     def set_custom_title( self, custom_title):
         custom_title = custom_title.strip()
@@ -1036,7 +1042,9 @@ class PodcastChannel(PodcastModelObject):
         return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
 
     def get_all_episodes(self):
-        return self.db.load_episodes(self, self.episode_factory, self.EpisodeClass._get_cached_object)
+        if self.children is None:
+            self.children = self.db.load_episodes(self, self.episode_factory)
+        return self.children
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)

@@ -44,44 +44,8 @@ import re
 class Database(object):
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
-    # Column names, types, required and default values for the podcasts table
     TABLE_PODCAST = 'podcast'
-    COLUMNS_PODCAST = (
-        'title',
-        'url',
-        'link',
-        'description',
-        'cover_url',
-        'auth_username',
-        'auth_password',
-        'http_last_modified',
-        'http_etag',
-        'auto_archive_episodes',
-        'download_folder',
-        'pause_subscription',
-    )
-
-    # Column names and types for the episodes table
     TABLE_EPISODE = 'episode'
-    COLUMNS_EPISODE = (
-        'podcast_id',
-        'title',
-        'description',
-        'url',
-        'published',
-        'guid',
-        'link',
-        'file_size',
-        'mime_type',
-        'state',
-        'is_new',
-        'archive',
-        'download_filename',
-        'total_time',
-        'current_position',
-        'current_position_updated',
-        'last_playback',
-    )
 
     def __init__(self, filename):
         self.database_file = filename
@@ -207,35 +171,35 @@ class Database(object):
 
         return (total, deleted, new, downloaded, unplayed)
 
-    def load_podcasts(self, factory, cache_lookup):
-        """
-        Returns podcast descriptions as a list of dictionaries or objects,
-        returned by the factory() function, which receives the dictionary
-        as the only argument.
+    def load_podcasts(self, factory):
+        logger.info('Loading podcasts')
 
-        The cache_lookup function takes a podcast ID and should return the
-        podcast object in case it is cached already in memory.
-        """
-
-        logger.debug('load_podcasts')
+        sql = 'SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_PODCAST
 
         with self.lock:
             cur = self.cursor()
-            cur.execute('SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_PODCAST)
+            cur.execute(sql)
 
-            result = []
             keys = [desc[0] for desc in cur.description]
-            id_index = keys.index('id')
-            def make_podcast(row):
-                o = cache_lookup(row[id_index])
-                if o is None:
-                    o = factory(dict(zip(keys, row)), self)
-                    # TODO: save in cache!
-                else:
-                    logger.debug('Cache hit: podcast %d', o.id)
-                return o
+            result = map(lambda row: factory(dict(zip(keys, row)), self), cur)
+            cur.close()
 
-            result = map(make_podcast, cur)
+        return result
+
+    def load_episodes(self, podcast, factory):
+        assert podcast.id
+
+        logger.info('Loading episodes for podcast %d', podcast.id)
+
+        sql = 'SELECT * FROM %s WHERE podcast_id = ? ORDER BY published DESC' % self.TABLE_EPISODE
+        args = (podcast.id,)
+
+        with self.lock:
+            cur = self.cursor()
+            cur.execute(sql, args)
+
+            keys = [desc[0] for desc in cur.description]
+            result = map(lambda row: factory(dict(zip(keys, row))), cur)
             cur.close()
 
         return result
@@ -251,49 +215,13 @@ class Database(object):
             cur.execute("DELETE FROM %s WHERE podcast_id = ?" % self.TABLE_EPISODE, (podcast.id, ))
 
             cur.close()
-            # Commit changes
             self.db.commit()
-            # TODO: podcast.id -> remove from cache!
-
-    def load_episodes(self, podcast, factory, cache_lookup):
-        assert podcast.id
-        limit = 1000
-
-        logger.info('Loading episodes for podcast %d', podcast.id)
-
-        sql = 'SELECT * FROM %s WHERE podcast_id = ? ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
-        args = (podcast.id, limit)
-
-        with self.lock:
-            cur = self.cursor()
-            cur.execute(sql, args)
-            keys = [desc[0] for desc in cur.description]
-            id_index = keys.index('id')
-            def make_episode(row):
-                o = cache_lookup(row[id_index])
-                if o is None:
-                    o = factory(dict(zip(keys, row)))
-                    # TODO: save in cache!
-                else:
-                    logger.debug('Cache hit: episode %d', o.id)
-                return o
-
-            result = map(make_episode, cur)
-            cur.close()
-        return result
-
-    def get_podcast_id_from_episode_url(self, url):
-        """Return the (first) associated podcast ID given an episode URL"""
-        assert url
-        return self.get('SELECT podcast_id FROM %s WHERE url = ? LIMIT 1' % (self.TABLE_EPISODE,), (url,))
 
     def save_podcast(self, podcast):
-        self._save_object(podcast, self.TABLE_PODCAST, self.COLUMNS_PODCAST)
+        self._save_object(podcast, self.TABLE_PODCAST, schema.PodcastColumns)
 
     def save_episode(self, episode):
-        assert episode.podcast_id
-        assert episode.guid
-        self._save_object(episode, self.TABLE_EPISODE, self.COLUMNS_EPISODE)
+        self._save_object(episode, self.TABLE_EPISODE, schema.EpisodeColumns)
 
     def _save_object(self, o, table, columns):
         with self.lock:
@@ -315,7 +243,6 @@ class Database(object):
                 logger.error('Cannot save %s: %s', o, e, exc_info=True)
 
             cur.close()
-            # TODO: o -> into cache!
 
     def get(self, sql, params=None):
         """
@@ -336,6 +263,11 @@ class Database(object):
             return None
         else:
             return row[0]
+
+    def get_podcast_id_from_episode_url(self, url):
+        """Return the (first) associated podcast ID given an episode URL"""
+        assert url
+        return self.get('SELECT podcast_id FROM %s WHERE url = ? LIMIT 1' % (self.TABLE_EPISODE,), (url,))
 
     def podcast_download_folder_exists(self, foldername):
         """
@@ -367,5 +299,4 @@ class Database(object):
             cur = self.cursor()
             cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' % self.TABLE_EPISODE, \
                     (podcast_id, guid))
-            # TODO: Delete episode from cache
 
