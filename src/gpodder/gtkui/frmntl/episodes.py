@@ -44,7 +44,6 @@ class gPodderEpisodes(BuilderWidget):
 
         self.episode_actions = gPodderEpisodeActions(self.main_window, \
                 episode_list_status_changed=self.episode_list_status_changed, \
-                episode_is_downloading=self.episode_is_downloading, \
                 show_episode_shownotes=self.show_episode_shownotes, \
                 playback_episodes=self.playback_episodes, \
                 download_episode_list=self.download_episode_list, \
@@ -182,7 +181,7 @@ class gPodderEpisodes(BuilderWidget):
                 self.action_download.set_property('visible', not episode.was_downloaded(and_exists=True))
             else:
                 self.action_keep.set_property('visible', False)
-                self.action_download.set_property('visible', not self.episode_is_downloading(episode))
+                self.action_download.set_property('visible', not episode.downloading)
 
             self.touched_episode = None
 

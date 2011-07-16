@@ -274,6 +274,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def __init__(self, channel):
         self.parent = channel
+        self.children = (None, None)
 
         self.id = None
         self.url = ''
@@ -305,6 +306,22 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def db(self):
         return self.parent.db
+
+    def _set_download_task(self, download_task):
+        self.children = (download_task, self.children[1])
+
+    def _get_download_task(self):
+        return self.children[0]
+
+    download_task = property(_get_download_task, _set_download_task)
+
+    @property
+    def downloading(self):
+        task = self.download_task
+        if task is None:
+            return False
+
+        return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED)
 
     def save(self):
         if gpodder.user_hooks is not None:

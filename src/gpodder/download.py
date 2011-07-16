@@ -367,6 +367,7 @@ class DownloadQueueWorker(threading.Thread):
                 task = self.queue.pop()
                 logger.info('%s is processing: %s', self.getName(), task)
                 task.run()
+                task.recycle()
             except IndexError, e:
                 logger.info('No more tasks for %s to carry out.', self.getName())
                 break
@@ -565,11 +566,16 @@ class DownloadTask(object):
 
     episode = property(fget=__get_episode)
 
+    def cancel(self):
+        if self.status in (self.DOWNLOADING, self.QUEUED):
+            self.status = self.CANCELLED
+
     def removed_from_list(self):
         if self.status != self.DONE:
             util.delete_file(self.tempname)
 
     def __init__(self, episode, config):
+        assert episode.download_task is None
         self.__status = DownloadTask.INIT
         self.__status_changed = True
         self.__episode = episode
@@ -612,6 +618,9 @@ class DownloadTask(object):
             # "touch self.tempname", so we also get partial
             # files for resuming when the file is queued
             open(self.tempname, 'w').close()
+
+        # Store a reference to this task in the episode
+        episode.download_task = self
 
     def notify_as_finished(self):
         if self.status == DownloadTask.DONE:
@@ -698,6 +707,10 @@ class DownloadTask(object):
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))
                     time.sleep(delay)
+
+    def recycle(self):
+        #FIXME self.__episode.download_task = None
+        pass
 
     def run(self):
         # Speed calculation (re-)starts here

@@ -219,7 +219,7 @@ class EpisodeListModel(gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
-    def _format_description(self, episode, include_description=False, is_downloading=None):
+    def _format_description(self, episode, include_description=False):
         a, b = '', ''
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
@@ -232,8 +232,7 @@ class EpisodeListModel(gtk.ListStore):
         else:
             return ''.join((a, cgi.escape(episode.title), b))
 
-    def replace_from_channel(self, channel, downloading=None, \
-            include_description=False, \
+    def replace_from_channel(self, channel, include_description=False,
             treeview=None):
         """
         Add episode from the given channel to this model.
@@ -279,28 +278,27 @@ class EpisodeListModel(gtk.ListStore):
                     episode.total_time, \
                     episode.archive))
 
-            self.update_by_iter(iter, downloading, include_description)
+            self.update_by_iter(iter, include_description)
 
         self._on_filter_changed(self.has_episodes())
 
-    def update_all(self, downloading=None, include_description=False):
+    def update_all(self, include_description=False):
         for row in self:
-            self.update_by_iter(row.iter, downloading, include_description)
+            self.update_by_iter(row.iter, include_description)
 
-    def update_by_urls(self, urls, downloading=None, include_description=False):
+    def update_by_urls(self, urls, include_description=False):
         for row in self:
             if row[self.C_URL] in urls:
-                self.update_by_iter(row.iter, downloading, include_description)
+                self.update_by_iter(row.iter, include_description)
 
-    def update_by_filter_iter(self, iter, downloading=None, \
-            include_description=False):
+    def update_by_filter_iter(self, iter, include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
         iter = self._sorter.convert_iter_to_child_iter(None, iter)
-        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
-                downloading, include_description)
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter),
+                include_description)
 
-    def update_by_iter(self, iter, downloading=None, include_description=False):
+    def update_by_iter(self, iter, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
 
         show_bullet = False
@@ -313,7 +311,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_unplayed = False
         icon_theme = gtk.icon_theme_get_default()
 
-        if downloading is not None and downloading(episode):
+        if episode.downloading:
             tooltip.append(_('Downloading'))
             status_icon = self.ICON_DOWNLOADING
             view_show_downloaded = True
@@ -392,7 +390,7 @@ class EpisodeListModel(gtk.ListStore):
 
         tooltip = ', '.join(tooltip)
 
-        description = self._format_description(episode, include_description, downloading)
+        description = self._format_description(episode, include_description)
         self.set(iter, \
                 self.C_STATUS_ICON, status_icon, \
                 self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \

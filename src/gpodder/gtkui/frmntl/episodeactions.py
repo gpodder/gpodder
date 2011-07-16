@@ -110,7 +110,7 @@ class gPodderEpisodeActions(BuilderWidget):
             self.main_window.set_title(self.episode.title)
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, False)
             self.action_table = self.create_ui_downloaded()
-        elif self.episode_is_downloading(self.episode):
+        elif episode.downloading:
             self.current_mode = self.MODE_DOWNLOADING
             self.main_window.set_title(_('Downloading %s') % self.episode.title)
             hildon.hildon_gtk_window_set_progress_indicator(self.main_window, True)

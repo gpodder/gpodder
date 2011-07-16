@@ -340,7 +340,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     delete_episode_list=self.delete_episode_list, \
                     episode_list_status_changed=self.episode_list_status_changed, \
                     download_episode_list=self.download_episode_list, \
-                    episode_is_downloading=self.episode_is_downloading, \
                     show_episode_in_download_manager=self.show_episode_in_download_manager, \
                     add_download_task_monitor=self.add_download_task_monitor, \
                     remove_download_task_monitor=self.remove_download_task_monitor, \
@@ -1893,7 +1892,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_locked = any(e.archive for e in episodes)
             any_new = any(e.is_new for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
-            downloading = any(self.episode_is_downloading(e) for e in episodes)
+            downloading = any(e.downloading for e in episodes)
 
             menu = gtk.Menu()
 
@@ -2010,23 +2009,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        additional_args = (self.episode_is_downloading, \
-                self.config.episode_list_descriptions and gpodder.ui.desktop)
+        descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
 
         if urls is not None:
             # We have a list of URLs to walk through
-            self.episode_list_model.update_by_urls(urls, *additional_args)
+            self.episode_list_model.update_by_urls(urls, descriptions)
         elif selected and not all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
             model, paths = selection.get_selected_rows()
             for path in reversed(paths):
                 iter = model.get_iter(path)
-                self.episode_list_model.update_by_filter_iter(iter, \
-                        *additional_args)
+                self.episode_list_model.update_by_filter_iter(iter, descriptions)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
-            self.episode_list_model.update_all(*additional_args)
+            self.episode_list_model.update_all(descriptions)
         else:
             # Wrong/invalid call - have to specify at least one parameter
             raise ValueError('Invalid call to update_episode_list_icons')
@@ -2270,7 +2267,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if not can_play:
                         can_download = True
                 else:
-                    if self.episode_is_downloading(episode):
+                    if episode.downloading:
                         can_cancel = True
                     else:
                         can_download = True
@@ -2383,13 +2380,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.error('Cannot select podcast in list', exc_info=True)
         self.channel_list_changed = False
 
-    def episode_is_downloading(self, episode):
-        """Returns True if the given episode is being downloaded at the moment"""
-        if episode is None:
-            return False
-
-        return episode.url in (task.url for task in self.download_tasks_seen if task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED))
-
     def on_episode_list_filter_changed(self, has_episodes):
         if gpodder.ui.fremantle:
             if has_episodes:
@@ -2418,9 +2408,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episodes_window.empty_label.show()
 
             def update():
-                additional_args = (self.episode_is_downloading, \
-                        self.config.episode_list_descriptions and gpodder.ui.desktop)
-                self.episode_list_model.replace_from_channel(self.active_channel, *additional_args)
+                descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
+                self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
 
                 self.treeAvailable.get_selection().unselect_all()
                 self.treeAvailable.scroll_to_point(0, 0)
@@ -3249,16 +3238,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please check for new episodes later.'), \
                     _('No new episodes available'), widget=self.btnUpdateFeeds)
 
-    def episode_is_new(self, episode):
-        return (episode.state == gpodder.STATE_NORMAL and
-                episode.is_new and
-                not self.episode_is_downloading(episode))
-
     def get_new_episodes(self, channels=None):
-        if channels is None:
-            channels = self.channels
+        is_new = lambda e: (e.state == gpodder.STATE_NORMAL and e.is_new and
+                not e.downloading)
 
-        return [e for c in channels for e in filter(self.episode_is_new, c.get_all_episodes())]
+        return [e for c in channels or self.channels for e in
+                filter(is_new, c.get_all_episodes())]
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""
@@ -3422,8 +3407,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # cancel any active downloads from this channel
                 for episode in channel.get_all_episodes():
-                    util.idle_add(self.download_status_model.cancel_by_url,
-                            episode.url)
+                    if episode.downloading:
+                        episode.download_task.cancel()
 
                 if len(channels) == 1:
                     # get the URL of the podcast we want to select next
@@ -3729,10 +3714,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _delete_episode_list=self.delete_episode_list, \
                     _episode_list_status_changed=self.episode_list_status_changed, \
                     _cancel_task_list=self.cancel_task_list, \
-                    _episode_is_downloading=self.episode_is_downloading, \
                     _streaming_possible=self.streaming_possible())
         self.episode_shownotes_window.show(episode)
-        if self.episode_is_downloading(episode):
+        if episode.downloading:
             self.update_downloads_list()
 
     def restart_auto_update_timer(self):

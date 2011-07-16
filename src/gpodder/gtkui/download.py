@@ -143,17 +143,6 @@ class DownloadStatusModel(gtk.ListStore):
 
         return False
 
-    def cancel_by_url(self, url):
-        for row in self:
-            task = row[DownloadStatusModel.C_TASK]
-            if task is not None and task.url == url and \
-                    task.status in (task.DOWNLOADING, \
-                                    task.QUEUED):
-                task.status = task.CANCELLED
-                return True
-
-        return False
-
 
 class DownloadTaskMonitor(object):
     """A helper class that abstracts download events"""
