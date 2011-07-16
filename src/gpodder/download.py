@@ -641,6 +641,11 @@ class DownloadTask(object):
         # so correct the total size variable in the thread
         if totalSize != self.total_size and totalSize > 0:
             self.total_size = float(totalSize)
+            if self.__episode.file_size != self.total_size:
+                logger.debug('Updating file size of %s to %s',
+                        self.filename, self.total_size)
+                self.__episode.file_size = self.total_size
+                self.__episode.save()
 
         if self.total_size > 0:
             self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
