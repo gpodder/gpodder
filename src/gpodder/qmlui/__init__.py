@@ -354,14 +354,9 @@ class qtPodder(QObject):
         self.podcast_model.set_podcasts(self.db, podcasts)
 
     def select_podcast(self, podcast):
-        # If the currently-playing episode exists in the podcast,
-        # use it instead of the object from the database
-        current_ep = self.main.currentEpisode
-
-        episodes = [x if current_ep is None or x.id != current_ep.id \
-                else current_ep for x in podcast.get_all_episodes()]
-
-        self.episode_model.set_objects(episodes)
+        self.episode_model.set_objects(podcast.get_all_episodes())
+        import gc
+        gc.collect()
         self.main.state = 'episodes'
 
     def save_pending_data(self):

@@ -275,8 +275,7 @@ class EpisodeListModel(gtk.ListStore):
                     episode.total_time, \
                     episode.archive))
 
-            self.update_by_iter(iter, downloading, include_description, \
-                    reload_from_db=False)
+            self.update_by_iter(iter, downloading, include_description)
 
         self._on_filter_changed(self.has_episodes())
 
@@ -297,11 +296,8 @@ class EpisodeListModel(gtk.ListStore):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
                 downloading, include_description)
 
-    def update_by_iter(self, iter, downloading=None, include_description=False, \
-            reload_from_db=True):
+    def update_by_iter(self, iter, downloading=None, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
-        if reload_from_db:
-            episode.reload_from_db()
 
         show_bullet = False
         show_padlock = False
@@ -432,12 +428,12 @@ class PodcastChannelProxy(object):
 
     def get_statistics(self):
         # Get the total statistics for all channels from the database
-        return self._db.get_total_count()
+        return self._db.get_podcast_statistics()
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        channel_lookup_map = dict((c.id, c) for c in self.channels)
-        return self._db.load_all_episodes(channel_lookup_map)
+        return Model.sort_episodes_by_pubdate((e for c in self.channels
+                for e in c.get_all_episodes()), True)
 
 
 class PodcastListModel(gtk.ListStore):

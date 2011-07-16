@@ -546,20 +546,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             file_parts = [x for x in filename.split(os.sep) if x]
 
             if len(file_parts) == 2:
-                dir_name, filename = file_parts
-                channels = [c for c in self.channels if c.download_folder == dir_name]
-                if len(channels) == 1:
-                    channel = channels[0]
-                    return channel.get_episode_by_filename(filename)
+                foldername, filename = file_parts
+                for channel in filter(lambda c: c.download_folder == foldername, self.channels):
+                    for episode in filter(lambda e: e.download_filename == filename, channel.get_all_episodes()):
+                        return episode
         else:
             # Possibly remote file - search the database for a podcast
             channel_id = self.db.get_podcast_id_from_episode_url(uri)
 
-            if channel_id is not None:
-                channels = [c for c in self.channels if c.id == channel_id]
-                if len(channels) == 1:
-                    channel = channels[0]
-                    return channel.get_episode_by_url(uri)
+            for channel in filter(lambda c: c.id == channel_id, self.channels):
+                for episode in filter(lambda e: e.url == url, channel.get_all_episodes()):
+                    return episode
 
         return None
 
@@ -3252,15 +3249,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please check for new episodes later.'), \
                     _('No new episodes available'), widget=self.btnUpdateFeeds)
 
+    def episode_is_new(self, episode):
+        return (episode.state == gpodder.STATE_NORMAL and
+                episode.is_new and
+                not self.episode_is_downloading(episode))
+
     def get_new_episodes(self, channels=None):
         if channels is None:
             channels = self.channels
-        episodes = []
-        for channel in channels:
-            for episode in channel.get_new_episodes(downloading=self.episode_is_downloading):
-                episodes.append(episode)
 
-        return episodes
+        return [e for c in channels for e in filter(self.episode_is_new, c.get_all_episodes())]
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""

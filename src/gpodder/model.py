@@ -40,6 +40,8 @@ import datetime
 import rfc822
 import hashlib
 import feedparser
+import collections
+import weakref
 
 _ = gpodder.gettext
 
@@ -84,6 +86,11 @@ class PodcastModelObject(object):
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
+    _cache = collections.defaultdict(weakref.WeakValueDictionary)
+
+    @classmethod
+    def _get_cached_object(cls, id):
+        return cls._cache[cls].get(id, None)
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -91,18 +98,18 @@ class PodcastModelObject(object):
         Create a new object, passing "args" to the constructor
         and then updating the object with the values from "d".
         """
-        o = cls(*args)
-        o.update_from_dict(d)
-        return o
+        o = cls._get_cached_object(d['id'])
 
-    def update_from_dict(self, d):
-        """
-        Updates the attributes of this object with values from the
-        dictionary "d" by using the keys found in "d".
-        """
-        for k in d:
-            if hasattr(self, k):
-                setattr(self, k, d[k])
+        if o is None:
+            o = cls(*args)
+            # XXX: all(map(lambda k: hasattr(o, k), d))?
+            for k, v in d.iteritems():
+                setattr(o, k, v)
+            cls._cache[cls][o.id] = o
+        else:
+            logger.debug('Reusing reference to %s %d', cls.__name__, o.id)
+
+        return o
 
 
 class PodcastEpisode(PodcastModelObject):
@@ -123,18 +130,6 @@ class PodcastEpisode(PodcastModelObject):
 
     # Accessor for the "podcast_id" DB column
     podcast_id = property(fget=_get_podcast_id, fset=_set_podcast_id)
-
-    def reload_from_db(self):
-        """
-        Re-reads all episode details for this object from the
-        database and updates this object accordingly. Can be
-        used to refresh existing objects when the database has
-        been updated (e.g. the filename has been set after a
-        download where it was not set before the download)
-        """
-        d = self.db.load_episode(self.id)
-        self.update_from_dict(d or {})
-        return self
 
     def has_website_link(self):
         return bool(self.link) and (self.link != self.url or \
@@ -313,7 +308,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def set_state(self, state):
         self.state = state
-        self.db.update_episode_state(self)
+        self.save()
 
     def playback_mark(self):
         self.is_new = False
@@ -327,7 +322,7 @@ class PodcastEpisode(PodcastModelObject):
             self.is_new = not is_played
         if is_locked is not None:
             self.archive = is_locked
-        self.db.update_episode_state(self)
+        self.save()
 
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False, \
@@ -503,24 +498,13 @@ class PodcastEpisode(PodcastModelObject):
             ext = util.extension_from_mimetype(self.mime_type)
         return ext
 
-    def check_is_new(self, downloading=lambda e: False):
-        """
-        Returns True if this episode is to be considered new.
-        "Downloading" should be a callback that gets an episode
-        as its parameter and returns True if the episode is
-        being downloaded at the moment.
-        """
-        return self.state == gpodder.STATE_NORMAL and \
-                self.is_new and \
-                not downloading(self)
-
     def mark_new(self):
         self.is_new = True
-        self.db.update_episode_state(self)
+        self.save()
 
     def mark_old(self):
         self.is_new = False
-        self.db.update_episode_state(self)
+        self.save()
 
     def file_exists(self):
         filename = self.local_filename(create=False, check_only=True)
@@ -669,8 +653,9 @@ class PodcastChannel(PodcastModelObject):
             found = False
 
             basename = os.path.basename(filename)
-            existing = self.get_episode_by_filename(basename)
+            existing = [e for e in all_episodes if e.download_filename == basename]
             if existing:
+                existing = existing[0]
                 logger.info('Importing external download: %s', filename)
                 existing.on_downloaded(filename)
                 count += 1
@@ -721,7 +706,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load_from_db(cls, db):
-        return db.load_podcasts(factory=cls.create_from_dict)
+        return db.load_podcasts(cls.create_from_dict, cls._get_cached_object)
 
     @classmethod
     def load(cls, db, url, create=True, authentication_tokens=None,\
@@ -730,10 +715,14 @@ class PodcastChannel(PodcastModelObject):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        tmp = db.load_podcasts(factory=cls.create_from_dict, url=url)
-        if len(tmp):
-            return tmp[0]
-        elif create:
+        existing = [podcast for podcast in
+                db.load_podcasts(cls.create_from_dict, cls._get_cached_object)
+                if podcast.url == url]
+
+        if existing:
+            return existing[0]
+
+        if create:
             tmp = cls(db)
             tmp.url = url
             if authentication_tokens is not None:
@@ -748,7 +737,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
             return tmp
 
-    def episode_factory(self, d, db__parameter_is_unused=None):
+    def episode_factory(self, d):
         """
         This function takes a dictionary containing key-value pairs for
         episodes and returns a new PodcastEpisode object that is connected
@@ -1044,33 +1033,10 @@ class PodcastChannel(PodcastModelObject):
         self.title = custom_title
 
     def get_downloaded_episodes(self):
-        return self.db.load_episodes(self, factory=self.episode_factory, state=gpodder.STATE_DOWNLOADED)
-    
-    def get_new_episodes(self, downloading=lambda e: False):
-        """
-        Get a list of new episodes. You can optionally specify
-        "downloading" as a callback that takes an episode as
-        a parameter and returns True if the episode is currently
-        being downloaded or False if not.
-
-        By default, "downloading" is implemented so that it
-        reports all episodes as not downloading.
-        """
-        return [episode for episode in self.db.load_episodes(self, \
-                factory=self.episode_factory, state=gpodder.STATE_NORMAL) if \
-                episode.check_is_new(downloading=downloading)]
-
-    def get_episode_by_url(self, url):
-        return self.db.load_single_episode(self, \
-                factory=self.episode_factory, url=url)
-
-    def get_episode_by_filename(self, filename):
-        return self.db.load_single_episode(self, \
-                factory=self.episode_factory, \
-                download_filename=filename)
+        return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
 
     def get_all_episodes(self):
-        return self.db.load_episodes(self, factory=self.episode_factory)
+        return self.db.load_episodes(self, self.episode_factory, self.EpisodeClass._get_cached_object)
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)

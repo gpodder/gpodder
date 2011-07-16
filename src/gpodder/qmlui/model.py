@@ -59,6 +59,7 @@ class QEpisode(QObject, model.PodcastEpisode):
         self._qt_playing = False
 
     changed = Signal()
+    never_changed = Signal()
 
     def _title(self):
         return convert(self.title)
@@ -80,7 +81,7 @@ class QEpisode(QObject, model.PodcastEpisode):
     def _filetype(self):
         return self.file_type() or 'download' # FIXME
 
-    qfiletype = Property(unicode, _filetype, notify=changed)
+    qfiletype = Property(unicode, _filetype, notify=never_changed)
 
     def _downloaded(self):
         return self.state == gpodder.STATE_DOWNLOADED
@@ -120,7 +121,6 @@ class QEpisode(QObject, model.PodcastEpisode):
                     self.changed.emit()
             task.add_progress_callback(cb)
             task.run()
-            self.reload_from_db()
             self._qt_downloading = False
             self.changed.emit()
 
@@ -308,7 +308,7 @@ class EpisodeSubsetView(QObject):
         if self.eql is not None:
             return 0
 
-        total, deleted, new, downloaded, unplayed = self.db.get_total_count()
+        total, deleted, new, downloaded, unplayed = self.db.get_podcast_statistics()
         return downloaded
 
     qdownloaded = Property(int, _downloaded, notify=changed)
@@ -317,7 +317,7 @@ class EpisodeSubsetView(QObject):
         if self.eql is not None:
             return 0
 
-        total, deleted, new, downloaded, unplayed = self.db.get_total_count()
+        total, deleted, new, downloaded, unplayed = self.db.get_podcast_statistics()
         return new
 
     qnew = Property(int, _new, notify=changed)

@@ -143,23 +143,12 @@ class gPodderShownotesBase(BuilderWidget):
         """Called from main window for download status changes"""
         if self.main_window.get_property('visible'):
             self.task = task
-            if self.episode is not None:
-                self.episode.reload_from_db()
             self.on_episode_status_changed()
 
     def _download_status_progress(self):
         """Called from main window for progress updates"""
         if self.main_window.get_property('visible'):
             self.on_download_status_progress()
-
-    #############################################################
-
-    def episode_is_new(self):
-        if self.episode is None:
-            return False
-        else:
-            return self.episode.check_is_new(downloading=\
-                    self._episode_is_downloading)
 
     #############################################################
 

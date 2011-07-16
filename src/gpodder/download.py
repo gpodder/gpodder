@@ -434,9 +434,6 @@ class DownloadQueueManager(object):
         and forcefully start the download right away.
         """
         if task.status != DownloadTask.INIT:
-            # This task is old so update episode from db
-            task.episode.reload_from_db()
-
             # Remove the task from its current position in the
             # download queue (if any) to avoid race conditions
             # where two worker threads download the same file

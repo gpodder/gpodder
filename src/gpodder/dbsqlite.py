@@ -160,13 +160,12 @@ class Database(object):
         return self.db.cursor()
 
     def commit(self):
-        self.lock.acquire()
-        try:
-            logger.debug('Commit.')
-            self.db.commit()
-        except Exception, e:
-            logger.error('Cannot commit: %s', e, exc_info=True)
-        self.lock.release()
+        with self.lock:
+            try:
+                logger.debug('Commit.')
+                self.db.commit()
+            except Exception, e:
+                logger.error('Cannot commit: %s', e, exc_info=True)
 
     def get_content_types(self, id):
         """Given a podcast ID, returns the content types"""
@@ -177,34 +176,11 @@ class Database(object):
                 yield mime_type
             cur.close()
 
-    def get_podcast_statistics(self, id):
+    def get_podcast_statistics(self, podcast_id=None):
         """Given a podcast ID, returns the statistics for it
 
-        Returns a tuple (total, deleted, new, downloaded, unplayed)
-        """
-        total, deleted, new, downloaded, unplayed = 0, 0, 0, 0, 0
-
-        with self.lock:
-            cur = self.cursor()
-            cur.execute('SELECT COUNT(*), state, is_new FROM %s WHERE podcast_id = ? GROUP BY state, is_new' % self.TABLE_EPISODE, (id,))
-            for count, state, is_new in cur:
-                total += count
-                if state == gpodder.STATE_DELETED:
-                    deleted += count
-                elif state == gpodder.STATE_NORMAL and is_new:
-                    new += count
-                elif state == gpodder.STATE_DOWNLOADED and is_new:
-                    downloaded += count
-                    unplayed += count
-                elif state == gpodder.STATE_DOWNLOADED:
-                    downloaded += count
-
-            cur.close()
-
-        return (total, deleted, new, downloaded, unplayed)
-
-    def get_total_count(self):
-        """Get statistics for episodes in all podcasts
+        If the podcast_id is omitted (using the default value), the
+        statistics will be calculated over all podcasts.
 
         Returns a tuple (total, deleted, new, downloaded, unplayed)
         """
@@ -212,28 +188,33 @@ class Database(object):
 
         with self.lock:
             cur = self.cursor()
-            cur.execute('SELECT COUNT(*), state, is_new FROM %s GROUP BY state, is_new' % self.TABLE_EPISODE)
+            if podcast_id is not None:
+                cur.execute('SELECT COUNT(*), state, is_new FROM %s WHERE podcast_id = ? GROUP BY state, is_new' % self.TABLE_EPISODE, (podcast_id,))
+            else:
+                cur.execute('SELECT COUNT(*), state, is_new FROM %s GROUP BY state, is_new' % self.TABLE_EPISODE)
             for count, state, is_new in cur:
                 total += count
                 if state == gpodder.STATE_DELETED:
                     deleted += count
                 elif state == gpodder.STATE_NORMAL and is_new:
                     new += count
-                elif state == gpodder.STATE_DOWNLOADED and is_new:
-                    downloaded += count
-                    unplayed += count
                 elif state == gpodder.STATE_DOWNLOADED:
                     downloaded += count
+                    if is_new:
+                        unplayed += count
 
             cur.close()
 
         return (total, deleted, new, downloaded, unplayed)
 
-    def load_podcasts(self, factory=None, url=None):
+    def load_podcasts(self, factory, cache_lookup):
         """
         Returns podcast descriptions as a list of dictionaries or objects,
         returned by the factory() function, which receives the dictionary
         as the only argument.
+
+        The cache_lookup function takes a podcast ID and should return the
+        podcast object in case it is cached already in memory.
         """
 
         logger.debug('load_podcasts')
@@ -243,22 +224,21 @@ class Database(object):
             cur.execute('SELECT * FROM %s ORDER BY title COLLATE UNICODE' % self.TABLE_PODCAST)
 
             result = []
-            keys = list(desc[0] for desc in cur.description)
-            for row in cur:
-                podcast = dict(zip(keys, row))
+            keys = [desc[0] for desc in cur.description]
+            id_index = keys.index('id')
+            def make_podcast(row):
+                o = cache_lookup(row[id_index])
+                if o is None:
+                    o = factory(dict(zip(keys, row)), self)
+                    # TODO: save in cache!
+                else:
+                    logger.debug('Cache hit: podcast %d', o.id)
+                return o
 
-                if url is None or url == podcast['url']:
-                    if factory is None:
-                        result.append(podcast)
-                    else:
-                        result.append(factory(podcast, self))
-
+            result = map(make_podcast, cur)
             cur.close()
 
         return result
-
-    def save_podcast(self, podcast):
-        self._save_object(podcast, self.TABLE_PODCAST, self.COLUMNS_PODCAST)
 
     def delete_podcast(self, podcast):
         assert podcast.id
@@ -273,98 +253,42 @@ class Database(object):
             cur.close()
             # Commit changes
             self.db.commit()
+            # TODO: podcast.id -> remove from cache!
 
-    def load_all_episodes(self, podcast_mapping, limit=10000):
-        logger.info('Loading all episodes from the database')
-        sql = 'SELECT * FROM %s ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
-        args = (limit,)
-        with self.lock:
-            cur = self.cursor()
-            cur.execute(sql, args)
-            keys = [desc[0] for desc in cur.description]
-            id_index = keys.index('podcast_id')
-            result = map(lambda row: podcast_mapping[row[id_index]].episode_factory(dict(zip(keys, row))), cur)
-            cur.close()
-        return result
-
-    def load_episodes(self, podcast, factory=lambda x: x, limit=1000, state=None):
+    def load_episodes(self, podcast, factory, cache_lookup):
         assert podcast.id
+        limit = 1000
 
         logger.info('Loading episodes for podcast %d', podcast.id)
 
-        if state is None:
-            sql = 'SELECT * FROM %s WHERE podcast_id = ? ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
-            args = (podcast.id, limit)
-        else:
-            sql = 'SELECT * FROM %s WHERE podcast_id = ? AND state = ? ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
-            args = (podcast.id, state, limit)
+        sql = 'SELECT * FROM %s WHERE podcast_id = ? ORDER BY published DESC LIMIT ?' % (self.TABLE_EPISODE,)
+        args = (podcast.id, limit)
 
         with self.lock:
             cur = self.cursor()
             cur.execute(sql, args)
             keys = [desc[0] for desc in cur.description]
-            result = map(lambda row: factory(dict(zip(keys, row)), self), cur)
+            id_index = keys.index('id')
+            def make_episode(row):
+                o = cache_lookup(row[id_index])
+                if o is None:
+                    o = factory(dict(zip(keys, row)))
+                    # TODO: save in cache!
+                else:
+                    logger.debug('Cache hit: episode %d', o.id)
+                return o
+
+            result = map(make_episode, cur)
             cur.close()
         return result
-
-    def load_single_episode(self, podcast, factory=lambda x: x, **kwargs):
-        """Load one episode with keywords
-
-        Return an episode object (created by "factory") for a
-        given podcast. You can use keyword arguments to specify
-        the attributes that the episode object should have.
-
-        Returns None if the episode cannot be found.
-        """
-        assert podcast.id
-
-        # Inject podcast_id into query to reduce search space
-        kwargs['podcast_id'] = podcast.id
-
-        # We need to have the keys in the same order as the values, so
-        # we use items() and unzip the resulting list into two ordered lists
-        keys, args = zip(*kwargs.items())
-
-        sql = 'SELECT * FROM %s WHERE %s LIMIT 1' % (self.TABLE_EPISODE, \
-                ' AND '.join('%s=?' % k for k in keys))
-
-        with self.lock:
-            cur = self.cursor()
-            cur.execute(sql, args)
-            keys = [desc[0] for desc in cur.description]
-            row = cur.fetchone()
-            if row:
-                result = factory(dict(zip(keys, row)), self)
-            else:
-                result = None
-
-            cur.close()
-        return result
-
-    def load_episode(self, id):
-        """Load episode as dictionary by its id
-
-        This will return the data for an episode as
-        dictionary or None if it does not exist.
-        """
-        assert id
-
-        with self.lock:
-            cur = self.cursor()
-            cur.execute('SELECT * from %s WHERE id = ? LIMIT 1' % (self.TABLE_EPISODE,), (id,))
-            try:
-                d = dict(zip((desc[0] for desc in cur.description), cur.fetchone()))
-                cur.close()
-                logger.info('Loaded episode %d', id)
-                return d
-            except:
-                cur.close()
-                return None
 
     def get_podcast_id_from_episode_url(self, url):
         """Return the (first) associated podcast ID given an episode URL"""
         assert url
         return self.get('SELECT podcast_id FROM %s WHERE url = ? LIMIT 1' % (self.TABLE_EPISODE,), (url,))
+
+    def save_podcast(self, podcast):
+        self._save_object(podcast, self.TABLE_PODCAST, self.COLUMNS_PODCAST)
 
     def save_episode(self, episode):
         assert episode.podcast_id
@@ -372,34 +296,26 @@ class Database(object):
         self._save_object(episode, self.TABLE_EPISODE, self.COLUMNS_EPISODE)
 
     def _save_object(self, o, table, columns):
-        self.lock.acquire()
-        try:
-            cur = self.cursor()
-            values = [getattr(o, name) for name in columns]
-
-            if o.id is None:
-                qmarks = ', '.join('?'*len(columns))
-                sql = 'INSERT INTO %s (%s) VALUES (%s)' % (table, ', '.join(columns), qmarks)
-                cur.execute(sql, values)
-                o.id = cur.lastrowid
-            else:
-                qmarks = ', '.join('%s = ?' % name for name in columns)
-                values.append(o.id)
-                sql = 'UPDATE %s SET %s WHERE id = ?' % (table, qmarks)
-                cur.execute(sql, values)
-        except Exception, e:
-            logger.error('Cannot save %s: %s', o, e, exc_info=True)
-
-        cur.close()
-        self.lock.release()
-
-    def update_episode_state(self, episode):
-        assert episode.id is not None
-
         with self.lock:
-            cur = self.cursor()
-            cur.execute('UPDATE %s SET state = ?, is_new = ?, archive = ? WHERE id = ?' % (self.TABLE_EPISODE,), (episode.state, episode.is_new, episode.archive, episode.id))
+            try:
+                cur = self.cursor()
+                values = [getattr(o, name) for name in columns]
+
+                if o.id is None:
+                    qmarks = ', '.join('?'*len(columns))
+                    sql = 'INSERT INTO %s (%s) VALUES (%s)' % (table, ', '.join(columns), qmarks)
+                    cur.execute(sql, values)
+                    o.id = cur.lastrowid
+                else:
+                    qmarks = ', '.join('%s = ?' % name for name in columns)
+                    values.append(o.id)
+                    sql = 'UPDATE %s SET %s WHERE id = ?' % (table, qmarks)
+                    cur.execute(sql, values)
+            except Exception, e:
+                logger.error('Cannot save %s: %s', o, e, exc_info=True)
+
             cur.close()
+            # TODO: o -> into cache!
 
     def get(self, sql, params=None):
         """
@@ -451,4 +367,5 @@ class Database(object):
             cur = self.cursor()
             cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' % self.TABLE_EPISODE, \
                     (podcast_id, guid))
+            # TODO: Delete episode from cache
 

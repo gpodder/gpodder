@@ -428,7 +428,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         for index, episode in enumerate(self._episodes):
             if episode.url in urls:
-                episode.reload_from_db()
                 self.emit('row-changed', (index,), self.create_tree_iter(index))
 
     def update_by_filter_iter(self, iter, downloading=None, \
@@ -439,7 +438,7 @@ class EpisodeListModel(gtk.GenericTreeModel):
                 downloading, include_description, generate_thumbnails)
 
     def update_by_iter(self, iter, downloading=None, include_description=False, \
-            generate_thumbnails=False, reload_from_db=True):
+            generate_thumbnails=False):
 
         self._downloading = downloading
         self._include_description = include_description
@@ -447,8 +446,6 @@ class EpisodeListModel(gtk.GenericTreeModel):
 
         index = self.get_user_data(iter)
         episode = self._episodes[index]
-        if reload_from_db:
-            episode.reload_from_db()
 
         self.emit('row-changed', (index,), self.create_tree_iter(index))
 
