@@ -118,6 +118,8 @@ class QEpisode(QObject):
 
     def _set_playing(self, playing):
         if self._qt_playing != playing:
+            if playing:
+                self._episode.playback_mark()
             self._qt_playing = playing
             self.changed.emit()
 

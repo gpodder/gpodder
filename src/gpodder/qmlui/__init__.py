@@ -319,15 +319,19 @@ class qtPodder(QObject):
 
     def load_last_episode(self):
         last_episode = None
-        for podcast in self.podcast_model.get_objects()[:1]:
+        last_podcast = None
+        for podcast in self.podcast_model.get_objects()[1:]:
             for episode in podcast.get_all_episodes():
                 if not episode.last_playback:
                     continue
                 if last_episode is None or \
                         episode.last_playback > last_episode.last_playback:
                     last_episode = episode
-        self.select_episode(last_episode)
-        self.last_episode = last_episode
+                    last_podcast = podcast
+
+        if last_episode is not None:
+            self.last_episode = model.QEpisode(last_podcast, last_episode)
+            self.select_episode(self.last_episode)
 
     def run(self):
         return self.app.exec_()
