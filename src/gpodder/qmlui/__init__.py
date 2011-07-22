@@ -28,12 +28,15 @@ from PySide.QtDeclarative import QDeclarativeView
 
 import os
 import threading
+import functools
 import gpodder
 
 _ = gpodder.gettext
 
 from gpodder import core
 from gpodder import util
+
+from gpodder.model import Model
 
 from gpodder.qmlui import model
 from gpodder.qmlui import helper
@@ -122,18 +125,13 @@ class Controller(QObject):
             action.target.delete()
             self.root.reload_podcasts()
         elif action.action == 'episode-toggle-new':
-            action.target.mark(is_played=action.target.is_new)
-            action.target.changed.emit()
-            action.target.channel.changed.emit()
+            action.target.toggle_new()
             self.update_subset_stats()
         elif action.action == 'download':
             action.target.qdownload(self.root.config, \
                     self.update_subset_stats)
         elif action.action == 'delete':
-            action.target.delete_from_disk()
-            action.target.mark(is_played=True)
-            action.target.changed.emit()
-            action.target.channel.changed.emit()
+            action.target.delete_episode()
             self.update_subset_stats()
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
@@ -179,7 +177,7 @@ class Controller(QObject):
 
         def subscribe_proc(self, url):
             # TODO: Show progress indicator
-            channel = model.Model.load_podcast(self.root.db, url=url, \
+            channel = Model.load_podcast(self.root.db, url=url, \
                     create=True, \
                     max_episodes=self.root.config.max_episodes_per_feed, \
                     mimetype_prefs=self.root.config.mimetype_prefs)
@@ -349,14 +347,13 @@ class qtPodder(QObject):
         self.main.openContextMenu(items)
 
     def reload_podcasts(self):
-        podcasts = sorted(model.Model.get_podcasts(self.db), \
+        podcasts = sorted(map(model.QPodcast, Model.get_podcasts(self.db)),
                 key=lambda p: p.qsection)
         self.podcast_model.set_podcasts(self.db, podcasts)
 
     def select_podcast(self, podcast):
-        self.episode_model.set_objects(podcast.get_all_episodes())
-        import gc
-        gc.collect()
+        self.episode_model.set_objects(map(functools.partial(model.QEpisode,
+            podcast), podcast.get_all_episodes()))
         self.main.state = 'episodes'
 
     def save_pending_data(self):
@@ -368,10 +365,6 @@ class qtPodder(QObject):
         self.save_pending_data()
         if self.main.currentEpisode:
             self.main.currentEpisode.setProperty('qplaying', False)
-        if episode is not None:
-            episode.playback_mark()
-            episode.changed.emit()
-            episode.channel.changed.emit()
         self.main.currentEpisode = episode
         self.main.setCurrentEpisode()
 
