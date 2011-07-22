@@ -3,8 +3,6 @@ import Qt 4.7
 
 import 'config.js' as Config
 
-import "test"
-
 Rectangle {
     id: main
     focus: true
@@ -14,36 +12,6 @@ Rectangle {
     property alias currentEpisode: episodeDetails.episode
 
     property alias playing: episodeDetails.playing
-
-    property variant controller
-    controller: Controller { main: main }
-
-    property list<Podcast> podcastListExample
-    podcastListExample: [
-        Podcast { qdownloaded: 1; qsection: 'audio' },
-        Podcast { qdownloaded: 0; qsection: 'audio' },
-        Podcast { qdownloaded: 0; qsection: 'video' },
-        Podcast { qdownloaded: 0; qsection: 'other' },
-        Podcast {},
-        Podcast { qnew: 2 },
-        Podcast { qnew: 9 },
-        Podcast {}
-    ]
-
-    property list<Episode> episodeListExample
-    episodeListExample: [
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'video' },
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'video' },
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'download' },
-        Episode {},
-        Episode {}
-    ]
 
     Keys.onPressed: {
         console.log(event.key)
@@ -124,7 +92,6 @@ Rectangle {
         PodcastList {
             id: podcastList
             opacity: 0
-            model: podcastListExample
 
             anchors.fill: parent
 
@@ -138,7 +105,6 @@ Rectangle {
         EpisodeList {
             id: episodeList
             opacity: 0
-            model: episodeListExample
 
             anchors.fill: parent
 

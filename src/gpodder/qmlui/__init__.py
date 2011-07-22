@@ -292,6 +292,8 @@ class qtPodder(QObject):
         self.cover_provider = images.LocalCachedImageProvider()
         engine.addImageProvider('cover', self.cover_provider)
 
+        self.view.rootContext().setContextProperty('controller', self.controller)
+
         # Load the QML UI (this could take a while...)
         if gpodder.ui.harmattan:
             self.view.setSource(QML('main_harmattan.qml'))
@@ -303,7 +305,6 @@ class qtPodder(QObject):
 
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
-        self.main.controller = self.controller
 
         self.view.setWindowTitle('gPodder')
 

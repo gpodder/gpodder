@@ -2,8 +2,6 @@
 import Qt 4.7
 import QtMultimediaKit 1.1
 
-import "test"
-
 import 'config.js' as Config
 
 Item {
