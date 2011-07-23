@@ -405,6 +405,8 @@ class PodcastEpisode(PodcastModelObject):
     def delete_from_disk(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
+            if gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_episode_delete(self, filename)
             util.delete_file(filename)
 
         self.set_state(gpodder.STATE_DELETED)
@@ -1012,6 +1014,8 @@ class PodcastChannel(PodcastModelObject):
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
+                if gpodder.user_hooks is not None:
+                    gpodder.user_hooks.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
 
                 # Remove the episode from the "children" episodes list
@@ -1067,6 +1071,8 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.NotFound
             #feedcore.InvalidFeed
             #feedcore.UnknownStatusCode
+            if gpodder.user_hooks is not None:
+                gpodder.user_hooks.on_podcast_update_failed(self, e)
             raise
 
         if gpodder.user_hooks is not None:
@@ -1075,6 +1081,8 @@ class PodcastChannel(PodcastModelObject):
         self.db.commit()
 
     def delete(self):
+        if gpodder.user_hooks is not None:
+            gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
 
     def save(self):
@@ -1082,6 +1090,9 @@ class PodcastChannel(PodcastModelObject):
             self.get_save_dir()
 
         if gpodder.user_hooks is not None:
+            if self.id is None:
+                gpodder.user_hooks.on_podcast_subscribe(self)
+
             gpodder.user_hooks.on_podcast_save(self)
 
         self.db.save_podcast(self)
@@ -1210,6 +1221,12 @@ class PodcastChannel(PodcastModelObject):
 
     def remove_downloaded(self):
         # Remove the download directory
+        if gpodder.user_hooks is not None:
+            for episode in self.get_downloaded_episodes():
+                filename = episode.local_filename(create=False, check_only=True)
+                if filename is not None:
+                    gpodder.user_hooks.on_episode_delete(episode, filename)
+
         shutil.rmtree(self.save_dir, True)
 
     @property
