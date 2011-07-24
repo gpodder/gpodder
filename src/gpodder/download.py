@@ -709,8 +709,7 @@ class DownloadTask(object):
                     time.sleep(delay)
 
     def recycle(self):
-        #FIXME self.__episode.download_task = None
-        pass
+        self.episode.download_task = None
 
     def run(self):
         # Speed calculation (re-)starts here

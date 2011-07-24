@@ -65,9 +65,21 @@ SelectableItem {
         text: modelData.qpositiontext
         font.pixelSize: episodeItem.height * .2
         color: '#888'
-        anchors.right: parent.right
+        anchors.right: archiveIcon.visible?archiveIcon.left:parent.right
         anchors.rightMargin: Config.largeSpacing
         anchors.verticalCenter: parent.verticalCenter
+    }
+
+    Image {
+        id: archiveIcon
+        source: 'artwork/episode-archive.png'
+        opacity: .5
+        visible: modelData.qarchive
+        width: Config.iconSize
+        height: Config.iconSize
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: Config.largeSpacing
     }
 }
 

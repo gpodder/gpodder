@@ -5,7 +5,7 @@ import QtMultimediaKit 1.1
 import 'config.js' as Config
 
 Item {
-    id: episodeDetails
+    id: mediaPlayer
 
     property variant episode: undefined
     property bool playing: player.playing && !player.paused
@@ -16,17 +16,14 @@ Item {
         anchors.fill: parent
     }
 
-    function startPlayback() {
+    onEpisodeChanged: {
+        console.log('episode changed: ' + episode)
         player.start()
     }
 
-    function stop() {
-        player.stop()
-    }
-
     Rectangle {
-        anchors.fill: episodeDetails
-        color: videoPlayer.visible?"black":"white"
+        anchors.fill: mediaPlayer
+        color: 'black'
 
         Behavior on color { ColorAnimation { } }
 
@@ -40,7 +37,9 @@ Item {
 
             function start() {
                 videoPlayer.source = ''
+                videoPlayer.playing = false
                 audioPlayer.source = ''
+                audioPlayer.playing = false
 
                 if (fileType == 'audio') {
                     audioPlayer.source = player.source
@@ -138,8 +137,8 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    episodeDetails.fullscreen = !episodeDetails.fullscreen
-                    rootWindow.showStatusBar = !episodeDetails.fullscreen
+                    mediaPlayer.fullscreen = !mediaPlayer.fullscreen
+                    rootWindow.showStatusBar = !mediaPlayer.fullscreen
                 }
             }
         }
@@ -167,31 +166,10 @@ Item {
             onStatusChanged: player.statusChanged('audio')
         }
 
-        Flickable {
-            id: showNotes
-
-            visible: !videoPlayer.visible
-
-            anchors.fill: parent
-            contentHeight: showNotesText.height
-            anchors.margins: Config.largeSpacing
-
-            Text {
-                id: showNotesText
-                color: "black"
-                font.pixelSize: 20 * Config.scale
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                wrapMode: Text.Wrap
-                text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):'No episode selected'
-            }
-        }
-
         PlaybackBar {
             id: playbackBar
 
-            opacity: episodeDetails.fullscreen?0:1
+            opacity: mediaPlayer.fullscreen?0:1
 
             Behavior on opacity { PropertyAnimation { } }
 
@@ -223,7 +201,7 @@ Item {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
-                bottomMargin: Config.largeSpacing * 2
+                bottomMargin: Config.largeSpacing
                 leftMargin: Config.largeSpacing * 2
                 rightMargin: Config.largeSpacing * 2
             }

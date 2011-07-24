@@ -127,11 +127,8 @@ class Controller(QObject):
         elif action.action == 'episode-toggle-new':
             action.target.toggle_new()
             self.update_subset_stats()
-        elif action.action == 'download':
-            action.target.qdownload(self.root.config, \
-                    self.update_subset_stats)
-        elif action.action == 'delete':
-            action.target.delete_episode()
+        elif action.action == 'episode-toggle-archive':
+            action.target.toggle_archive()
             self.update_subset_stats()
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
@@ -139,6 +136,20 @@ class Controller(QObject):
                     episode.mark(is_played=True)
             action.target.changed.emit()
             self.update_subset_stats()
+
+    @Slot(QObject)
+    def downloadEpisode(self, episode):
+        episode.qdownload(self.root.config, self.update_subset_stats)
+
+    @Slot(QObject)
+    def cancelDownload(self, episode):
+        episode.download_task.cancel()
+        episode.download_task.removed_from_list()
+
+    @Slot(QObject)
+    def deleteEpisode(self, episode):
+        episode.delete_episode()
+        self.update_subset_stats()
 
     @Slot()
     def contextMenuClosed(self):
@@ -152,13 +163,11 @@ class Controller(QObject):
     def episodeContextMenu(self, episode):
         menu = []
 
-        if episode.was_downloaded(and_exists=True):
-            menu.append(helper.Action('Delete file', 'delete', episode))
-        else:
-            menu.append(helper.Action('Download', 'download', episode))
-
         toggle_new = 'Mark as old' if episode.is_new else 'Mark as new'
         menu.append(helper.Action(toggle_new, 'episode-toggle-new', episode))
+
+        toggle_archive = 'Allow deletion' if episode.archive else 'Archive'
+        menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
 
         self.show_context_menu(menu)
 

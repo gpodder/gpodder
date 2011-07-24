@@ -72,6 +72,11 @@ class QEpisode(QObject):
         self.changed.emit()
         self._podcast.changed.emit()
 
+    def toggle_archive(self):
+        self._episode.mark(is_locked=not self._episode.archive)
+        self.changed.emit()
+        self._podcast.changed.emit()
+
     def delete_episode(self):
         self._episode.delete_from_disk()
         self._episode.mark(is_played=True)
@@ -142,6 +147,8 @@ class QEpisode(QObject):
                     self.changed.emit()
             task.add_progress_callback(cb)
             task.run()
+            task.recycle()
+            task.removed_from_list()
             self.changed.emit()
 
             # Make sure the single channel is updated (main view)
@@ -162,6 +169,11 @@ class QEpisode(QObject):
         return self._episode.is_new
 
     qnew = Property(bool, _new, notify=changed)
+
+    def _archive(self):
+        return self._episode.archive
+
+    qarchive = Property(bool, _archive, notify=changed)
 
     def _positiontext(self):
         return convert(self._episode.get_play_info_string())
