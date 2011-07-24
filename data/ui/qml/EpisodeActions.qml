@@ -42,7 +42,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: (episode!==undefined)?(episode.qplaying?'Pause':'Play'):''
+            text: (episode!==undefined)?(episode.qplaying?'Pause':(episode.qdownloaded?'Play':'Stream')):''
             image: (episode!==undefined)?(episode.qplaying?'pause':'play'):''
             visible: episode!==undefined
         }
@@ -51,7 +51,7 @@ Item {
             height: episodeActions.height
             text: 'Shownotes'
             image: 'shownotes'
-            onSelected: episodeList.episodeSelected(episode)
+            onSelected: main.openShowNotes(episode)
             visible: episode!==undefined
         }
     }

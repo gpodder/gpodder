@@ -9,7 +9,6 @@ Item {
     property alias model: listView.model
     property alias moving: listView.moving
 
-    signal episodeSelected(variant episode)
     signal episodeContextMenu(variant episode)
 
     ListView {
@@ -24,12 +23,12 @@ Item {
             width: parent.width
 
             onCloseAllChanged: {
-                if (closeAll) hidenotes()
+                if (closeAll) hideActions()
             }
 
-            function shownotes() {
+            function showActions() {
                 if (height != Config.listItemHeight) {
-                    hidenotes()
+                    hideActions()
                     return
                 }
                 listView.closeAll = true
@@ -41,7 +40,7 @@ Item {
                 loader.item.episode = modelData
             }
 
-            function hidenotes() {
+            function hideActions() {
                 loader.source = ''
                 height = Config.listItemHeight
                 episodeItem.y = 0
@@ -72,8 +71,7 @@ Item {
             EpisodeItem {
                 id: episodeItem
                 width: parent.width
-                onSelected: parent.shownotes()
-                //episodeList.episodeSelected(item)
+                onSelected: parent.showActions()
                 onContextMenu: episodeList.episodeContextMenu(item)
 
                 Behavior on y { PropertyAnimation { } }

@@ -47,8 +47,9 @@ def convert(s):
     return s.decode('utf-8', 'ignore')
 
 class QEpisode(QObject):
-    def __init__(self, podcast, episode):
+    def __init__(self, wrapper_manager, podcast, episode):
         QObject.__init__(self)
+        self._wrapper_manager = wrapper_manager
         self._podcast = podcast
         self._episode = episode
 
@@ -137,6 +138,7 @@ class QEpisode(QObject):
 
     def qdownload(self, config, finished_callback=None):
         def t(self):
+            self._wrapper_manager.add_active_episode(self)
             self._qt_download_progress = 0.
             self.changed.emit()
             task = download.DownloadTask(self._episode, config)
@@ -157,6 +159,8 @@ class QEpisode(QObject):
             # Make sure that "All episodes", etc.. are updated
             if finished_callback is not None:
                 finished_callback()
+
+            self._wrapper_manager.remove_active_episode(self)
 
         threading.Thread(target=t, args=[self]).start()
 

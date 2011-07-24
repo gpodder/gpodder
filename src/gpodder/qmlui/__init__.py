@@ -156,10 +156,6 @@ class Controller(QObject):
         self.context_menu_actions = []
 
     @Slot(QObject)
-    def episodeSelected(self, episode):
-        self.root.select_episode(episode)
-
-    @Slot(QObject)
     def episodeContextMenu(self, episode):
         menu = []
 
@@ -290,6 +286,10 @@ class qtPodder(QObject):
         self.episode_model = gPodderListModel()
         self.last_episode = None
 
+        # A dictionary of episodes that are currently active
+        # in some way (i.e. playing back or downloading)
+        self.active_episode_wrappers = {}
+
         engine = self.view.engine()
 
         # Maemo 5: Experimental Qt Mobility packages are installed in /opt
@@ -327,6 +327,12 @@ class qtPodder(QObject):
 
         self.reload_podcasts()
 
+    def add_active_episode(self, episode):
+        self.active_episode_wrappers[episode.id] = episode
+
+    def remove_active_episode(self, episode):
+        del self.active_episode_wrappers[episode.id]
+
     def load_last_episode(self):
         last_episode = None
         last_podcast = None
@@ -340,8 +346,9 @@ class qtPodder(QObject):
                     last_podcast = podcast
 
         if last_episode is not None:
-            self.last_episode = model.QEpisode(last_podcast, last_episode)
-            self.select_episode(self.last_episode)
+            self.last_episode = self.wrap_episode(last_podcast, last_episode)
+            # FIXME: Send last episode to player
+            #self.select_episode(self.last_episode)
 
     def run(self):
         return self.app.exec_()
@@ -365,22 +372,22 @@ class qtPodder(QObject):
                 key=lambda p: p.qsection)
         self.podcast_model.set_podcasts(self.db, podcasts)
 
+    def wrap_episode(self, podcast, episode):
+        try:
+            return self.active_episode_wrappers[episode.id]
+        except KeyError:
+            return model.QEpisode(self, podcast, episode)
+
     def select_podcast(self, podcast):
-        self.episode_model.set_objects(map(functools.partial(model.QEpisode,
-            podcast), podcast.get_all_episodes()))
+        wrap = functools.partial(self.wrap_episode, podcast)
+        self.episode_model.set_objects(map(wrap, podcast.get_all_episodes()))
         self.main.state = 'episodes'
 
     def save_pending_data(self):
+        # XXX: Still used?
         current_ep = self.main.currentEpisode
         if isinstance(current_ep, model.QEpisode):
             current_ep.save()
-
-    def select_episode(self, episode):
-        self.save_pending_data()
-        if self.main.currentEpisode:
-            self.main.currentEpisode.setProperty('qplaying', False)
-        self.main.currentEpisode = episode
-        self.main.setCurrentEpisode()
 
 def main(args):
     gui = qtPodder(args, core.Core())

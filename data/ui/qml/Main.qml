@@ -45,10 +45,9 @@ Rectangle {
         source: 'artwork/noise.png'
     }
 
-    function setCurrentEpisode() {
-        //episodeDetails.startPlayback()
+    function openShowNotes(episode) {
+        showNotes.episode = episode
         main.state = 'shownotes'
-        //episodeDetails.state = 'visible'
     }
 
     function openContextMenu(items) {
@@ -129,7 +128,6 @@ Rectangle {
 
             anchors.fill: parent
 
-            onEpisodeSelected: controller.episodeSelected(episode)
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
