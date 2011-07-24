@@ -59,7 +59,6 @@ Item {
                     right: parent.right
                     top: parent.top
                     topMargin: episodeItem.y + episodeItem.height
-                    leftMargin: Config.smallSpacing * 2 + Config.iconSize
                     bottom: parent.bottom
                 }
 
