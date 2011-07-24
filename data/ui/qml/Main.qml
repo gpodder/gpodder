@@ -9,10 +9,9 @@ Rectangle {
 
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
-    property alias currentEpisode: showNotes.episode
+    property alias currentEpisode: mediaPlayer.episode
 
-    property bool playing: false // XXX: Re-integrate later
-    //property alias playing: showNotes.playing
+    property bool playing: mediaPlayer.playing
 
     Keys.onPressed: {
         console.log(event.key)
@@ -43,6 +42,11 @@ Rectangle {
     Image {
         anchors.fill: parent
         source: 'artwork/noise.png'
+    }
+
+    function togglePlayback(episode) {
+        controller.currentEpisodeChanging()
+        mediaPlayer.togglePlayback(episode)
     }
 
     function openShowNotes(episode) {
@@ -164,7 +168,6 @@ Rectangle {
         anchors.bottom: mediaPlayer.top
         anchors.right: parent.right
         opacity: shouldAppear
-        z: 10
 
         opened: false
         caption: (mediaPlayer.episode!=undefined)?mediaPlayer.episode.qtitle:''
@@ -182,10 +185,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?(mediaPlayer.fullscreen?-parent.height:-100):0
-
-        //episode: main.currentEpisode
-        //episodeDetails.startPlayback()
+        anchors.topMargin: nowPlayingThrobber.opened?-100:0
 
         Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition } }
     }
@@ -248,8 +248,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
 
-        anchors.topMargin: mediaPlayer.fullscreen?-height:0
-        opacity: mediaPlayer.fullscreen?0:1
+        //anchors.topMargin: mediaPlayer.fullscreen?-height:0
+        //opacity: mediaPlayer.fullscreen?0:1
 
         Behavior on opacity { PropertyAnimation { } }
         Behavior on anchors.topMargin { PropertyAnimation { } }
@@ -324,7 +324,7 @@ Rectangle {
                 if (contextMenu.state == 'opened') {
                     contextMenu.state = 'closed'
                 } else if (main.state == 'podcasts') {
-                    //episodeDetails.stop()
+                    mediaPlayer.stop()
                     controller.quit()
                 } else if (main.state == 'episodes') {
                     main.state = 'podcasts'

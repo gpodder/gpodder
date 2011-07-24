@@ -45,7 +45,7 @@ Item {
         id: text
         height: parent.height
         color: 'black'
-        width: ((message.text!='')?(Config.smallSpacing * 2):0) + message.width
+        width: ((message.text!='')?(Config.smallSpacing * 2):0) + Math.min(main.width - icon.width - Config.smallSpacing*2, message.paintedWidth)
         anchors.left: icon.right
 
         //width: nowPlayingThrobber.opened?0:(Config.smallSpacing * 2 + message.width)
@@ -55,6 +55,7 @@ Item {
         Text {
             id: message
             anchors.leftMargin: text!=''?Config.smallSpacing:0
+            anchors.rightMargin: text!=''?Config.smallSpacing:0
             anchors.verticalCenter: parent.verticalCenter
             color: 'white'
             font.pixelSize: 20 * Config.scale

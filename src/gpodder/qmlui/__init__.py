@@ -151,6 +151,14 @@ class Controller(QObject):
         episode.delete_episode()
         self.update_subset_stats()
 
+    @Slot(QObject)
+    def acquireEpisode(self, episode):
+        self.root.add_active_episode(episode)
+
+    @Slot(QObject)
+    def releaseEpisode(self, episode):
+        self.root.remove_active_episode(episode)
+
     @Slot()
     def contextMenuClosed(self):
         self.context_menu_actions = []
@@ -192,6 +200,10 @@ class Controller(QObject):
 
         t = threading.Thread(target=subscribe_proc, args=[self, url])
         t.start()
+
+    @Slot()
+    def currentEpisodeChanging(self):
+        self.root.save_pending_data()
 
     @Slot()
     def quit(self):
@@ -349,9 +361,12 @@ class qtPodder(QObject):
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
+        episode.episode_wrapper_refcount += 1
 
     def remove_active_episode(self, episode):
-        del self.active_episode_wrappers[episode.id]
+        episode.episode_wrapper_refcount -= 1
+        if episode.episode_wrapper_refcount == 0:
+            del self.active_episode_wrappers[episode.id]
 
     def load_last_episode(self):
         last_episode = None
@@ -408,7 +423,6 @@ class qtPodder(QObject):
         self.main.state = 'episodes'
 
     def save_pending_data(self):
-        # XXX: Still used?
         current_ep = self.main.currentEpisode
         if isinstance(current_ep, model.QEpisode):
             current_ep.save()

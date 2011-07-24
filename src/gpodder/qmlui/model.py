@@ -50,6 +50,7 @@ class QEpisode(QObject):
     def __init__(self, wrapper_manager, podcast, episode):
         QObject.__init__(self)
         self._wrapper_manager = wrapper_manager
+        self.episode_wrapper_refcount = 0
         self._podcast = podcast
         self._episode = episode
 
@@ -83,9 +84,16 @@ class QEpisode(QObject):
         self._episode.mark(is_played=True)
         self.changed.emit()
         self._podcast.changed.emit()
+        self.source_url_changed.emit()
 
     changed = Signal()
     never_changed = Signal()
+    source_url_changed = Signal()
+
+    def _id(self):
+        return self._episode.id
+
+    qid = Property(int, _id, notify=never_changed)
 
     def _title(self):
         return convert(self._episode.title)
@@ -102,7 +110,7 @@ class QEpisode(QObject):
             self._qt_yt_url = url
         return convert(url)
 
-    qsourceurl = Property(unicode, _sourceurl, notify=changed)
+    qsourceurl = Property(unicode, _sourceurl, notify=source_url_changed)
 
     def _filetype(self):
         return self._episode.file_type() or 'download' # FIXME
@@ -152,6 +160,7 @@ class QEpisode(QObject):
             task.recycle()
             task.removed_from_list()
             self.changed.emit()
+            self.source_url_changed.emit()
 
             # Make sure the single channel is updated (main view)
             self._podcast.qupdate()

@@ -38,8 +38,8 @@ Item {
             onContextMenu: podcastList.podcastContextMenu(item)
         }
 
-        header: PodcastListHeader {
-        }
+        header: PodcastListHeader { }
+        footer: Item { height: Config.headerHeight }
     }
 
 }

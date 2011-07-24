@@ -34,17 +34,18 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: 'Delete'
-            image: 'delete'
-            onSelected: controller.deleteEpisode(episode)
-            visible: (episode!==undefined)?(episode.qdownloaded && !episode.qarchive):false
+            text: (episode!==undefined)?(episode.qplaying?'Pause':(episode.qdownloaded?'Play':'Stream')):''
+            image: (episode!==undefined)?(episode.qplaying?'pause':'play'):''
+            onSelected: main.togglePlayback(episode)
+            visible: episode!==undefined
         }
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: (episode!==undefined)?(episode.qplaying?'Pause':(episode.qdownloaded?'Play':'Stream')):''
-            image: (episode!==undefined)?(episode.qplaying?'pause':'play'):''
-            visible: episode!==undefined
+            text: 'Delete'
+            image: 'delete'
+            onSelected: controller.deleteEpisode(episode)
+            visible: (episode!==undefined)?(episode.qdownloaded && !episode.qarchive):false
         }
 
         EpisodeActionItem {
