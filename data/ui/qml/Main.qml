@@ -162,7 +162,7 @@ Rectangle {
     }
 
     NowPlayingThrobber {
-        property bool shouldAppear: contextMenu.state != 'opened'
+        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
         anchors.bottom: mediaPlayer.top
