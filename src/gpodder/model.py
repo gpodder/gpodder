@@ -796,6 +796,10 @@ class PodcastChannel(PodcastModelObject):
                 tmp.auth_username = authentication_tokens[0]
                 tmp.auth_password = authentication_tokens[1]
 
+            # Save podcast, so it gets an ID assigned before
+            # updating the feed and adding saving episodes
+            tmp.save()
+
             tmp.update(max_episodes, mimetype_prefs)
 
             # Mark episodes as downloaded if files already exist (bug 902)
@@ -1015,6 +1019,9 @@ class PodcastChannel(PodcastModelObject):
         self.db.delete_podcast(self)
 
     def save(self):
+        if self.download_folder is None:
+            self.get_save_dir()
+
         if gpodder.user_hooks is not None:
             gpodder.user_hooks.on_podcast_save(self)
 
