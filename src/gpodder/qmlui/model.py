@@ -215,6 +215,15 @@ class QPodcast(QObject):
         self._updating = False
         self._section_cached = None
 
+    @classmethod
+    def sort_key(cls, qpodcast):
+        if isinstance(qpodcast, cls):
+            sortkey = model.PodcastChannel.sort_key(qpodcast._podcast)
+        else:
+            sortkey = None
+
+        return (qpodcast.qsection, sortkey)
+
     def __getattr__(self, name):
         logger.warn('Attribute access in %s: %s', self.__class__.__name__, name)
         return getattr(self._podcast, name)
@@ -291,17 +300,17 @@ class QPodcast(QObject):
 
 
 class EpisodeSubsetView(QObject):
-    def __init__(self, db, podcasts, title, description, eql=None):
+    def __init__(self, db, podcast_list_model, title, description, eql=None):
         QObject.__init__(self)
         self.db = db
-        self.podcasts = podcasts
+        self.podcast_list_model = podcast_list_model
         self.title = title
         self.description = description
         self.eql = eql
 
     def get_all_episodes(self):
         episodes = []
-        for podcast in self.podcasts:
+        for podcast in self.podcast_list_model.get_podcasts():
             episodes.extend(podcast.get_all_episodes())
 
         if self.eql is not None:

@@ -123,7 +123,7 @@ class Controller(QObject):
         if action.action == 'unsubscribe':
             action.target.remove_downloaded()
             action.target.delete()
-            self.root.reload_podcasts()
+            self.root.remove_podcast(action.target)
         elif action.action == 'episode-toggle-new':
             action.target.toggle_new()
             self.update_subset_stats()
@@ -182,12 +182,12 @@ class Controller(QObject):
 
         def subscribe_proc(self, url):
             # TODO: Show progress indicator
-            channel = Model.load_podcast(self.root.db, url=url, \
+            podcast = Model.load_podcast(self.root.db, url=url, \
                     create=True, \
                     max_episodes=self.root.config.max_episodes_per_feed, \
                     mimetype_prefs=self.root.config.mimetype_prefs)
-            channel.save()
-            self.root.podcast_list_changed.emit()
+            podcast.save()
+            self.root.insert_podcast(model.QPodcast(podcast))
             # TODO: Present the podcast to the user
 
         t = threading.Thread(target=subscribe_proc, args=[self, url])
@@ -216,8 +216,21 @@ class gPodderListModel(QAbstractListModel):
         self._objects = objects
         self.setRoleNames({0: 'modelData', 1: 'section'})
 
+    def sort(self):
+        # Unimplemented for the generic list model
+        pass
+
+    def insert_object(self, o):
+        self._objects.append(o)
+        self.sort()
+
+    def remove_object(self, o):
+        self._objects.remove(o)
+        self.reset()
+
     def set_objects(self, objects):
         self._objects = objects
+        self.sort()
         self.reset()
 
     def get_objects(self):
@@ -240,9 +253,17 @@ class gPodderListModel(QAbstractListModel):
 class gPodderPodcastListModel(gPodderListModel):
     def set_podcasts(self, db, podcasts):
         views = [
-            model.EpisodeSubsetView(db, podcasts, _('All episodes'), ''),
+            model.EpisodeSubsetView(db, self, _('All episodes'), ''),
         ]
-        return self.set_objects(views + podcasts)
+        self.set_objects(views + podcasts)
+
+    def get_podcasts(self):
+        return filter(lambda podcast: isinstance(podcast, model.QPodcast),
+                self.get_objects())
+
+    def sort(self):
+        self._objects = sorted(self._objects, key=model.QPodcast.sort_key)
+        self.reset()
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -271,7 +292,6 @@ class qtPodder(QObject):
 
         self.app = QApplication(args)
         self.quit.connect(self.on_quit)
-        self.podcast_list_changed.connect(self.reload_podcasts)
 
         self.core = gpodder_core
         self.config = self.core.config
@@ -325,7 +345,7 @@ class qtPodder(QObject):
         else:
             self.view.show()
 
-        self.reload_podcasts()
+        self.load_podcasts()
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
@@ -336,7 +356,7 @@ class qtPodder(QObject):
     def load_last_episode(self):
         last_episode = None
         last_podcast = None
-        for podcast in self.podcast_model.get_objects()[1:]:
+        for podcast in self.podcast_model.get_podcasts():
             for episode in podcast.get_all_episodes():
                 if not episode.last_playback:
                     continue
@@ -354,7 +374,6 @@ class qtPodder(QObject):
         return self.app.exec_()
 
     quit = Signal()
-    podcast_list_changed = Signal()
 
     def on_quit(self):
         self.save_pending_data()
@@ -367,9 +386,14 @@ class qtPodder(QObject):
     def open_context_menu(self, items):
         self.main.openContextMenu(items)
 
-    def reload_podcasts(self):
-        podcasts = sorted(map(model.QPodcast, Model.get_podcasts(self.db)),
-                key=lambda p: p.qsection)
+    def insert_podcast(self, podcast):
+        self.podcast_model.insert_object(podcast)
+
+    def remove_podcast(self, podcast):
+        self.podcast_model.remove_object(podcast)
+
+    def load_podcasts(self):
+        podcasts = map(model.QPodcast, Model.get_podcasts(self.db))
         self.podcast_model.set_podcasts(self.db, podcasts)
 
     def wrap_episode(self, podcast, episode):
