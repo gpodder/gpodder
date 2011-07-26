@@ -340,23 +340,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         prefix = 'file://' + urllib.quote(gpodder.downloads)
 
+        # By default, assume we can't pre-select any channel
+        # but can match episodes simply via the download URL
+        is_channel = lambda c: True
+        is_episode = lambda e: e.url == uri
+
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
+            # Try to reduce search space by pre-selecting the channel
+            # based on the folder name of the local file
+
             filename = urllib.unquote(uri[len(prefix):])
-            file_parts = [x for x in filename.split(os.sep) if x]
+            file_parts = filter(None, filename.split(os.sep))
 
-            if len(file_parts) == 2:
-                foldername, filename = file_parts
-                for channel in filter(lambda c: c.download_folder == foldername, self.channels):
-                    for episode in filter(lambda e: e.download_filename == filename, channel.get_all_episodes()):
-                        return episode
-        else:
-            # Possibly remote file - search the database for a podcast
-            channel_id = self.db.get_podcast_id_from_episode_url(uri)
+            if len(file_parts) != 2:
+                return None
 
-            for channel in filter(lambda c: c.id == channel_id, self.channels):
-                for episode in filter(lambda e: e.url == url, channel.get_all_episodes()):
-                    return episode
+            foldername, filename = file_parts
+
+            is_channel = lambda c: c.download_folder == foldername
+            is_episode = lambda e: e.download_filename == filename
+
+        # Deep search through channels and episodes for a match
+        for channel in filter(is_channel, self.channels):
+            for episode in filter(is_episode, channel.get_all_episodes()):
+                return episode
 
         return None
 

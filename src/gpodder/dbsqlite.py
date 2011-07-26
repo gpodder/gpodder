@@ -240,11 +240,6 @@ class Database(object):
         else:
             return row[0]
 
-    def get_podcast_id_from_episode_url(self, url):
-        """Return the (first) associated podcast ID given an episode URL"""
-        assert url
-        return self.get('SELECT podcast_id FROM %s WHERE url = ? LIMIT 1' % (self.TABLE_EPISODE,), (url,))
-
     def podcast_download_folder_exists(self, foldername):
         """
         Returns True if a foldername for a channel exists.
