@@ -3,55 +3,21 @@ import Qt 4.7
 
 import 'config.js' as Config
 
-import "test"
-
 Rectangle {
     id: main
     focus: true
 
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
-    property alias currentEpisode: episodeDetails.episode
+    property alias currentEpisode: mediaPlayer.episode
 
-    property alias playing: episodeDetails.playing
-
-    property variant controller
-    controller: Controller { main: main }
-
-    property list<Podcast> podcastListExample
-    podcastListExample: [
-        Podcast { qdownloaded: 1; qsection: 'audio' },
-        Podcast { qdownloaded: 0; qsection: 'audio' },
-        Podcast { qdownloaded: 0; qsection: 'video' },
-        Podcast { qdownloaded: 0; qsection: 'other' },
-        Podcast {},
-        Podcast { qnew: 2 },
-        Podcast { qnew: 9 },
-        Podcast {}
-    ]
-
-    property list<Episode> episodeListExample
-    episodeListExample: [
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'video' },
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'video' },
-        Episode {},
-        Episode {},
-        Episode { qfiletype: 'download' },
-        Episode {},
-        Episode {}
-    ]
+    property bool playing: mediaPlayer.playing
 
     Keys.onPressed: {
         console.log(event.key)
         if (event.key == Qt.Key_Escape) {
             if (contextMenu.state == 'opened') {
                 contextMenu.close()
-            } else if (episodeDetails.state == 'visible') {
-                episodeDetails.state = 'hidden'
             } else if (main.state == 'episodes') {
                 main.state = 'podcasts'
             }
@@ -68,7 +34,6 @@ Rectangle {
     color: Config.baseColor
 
     Behavior on color { ColorAnimation { duration: 5000 } }
-
     Image {
         anchors.fill: parent
         source: 'artwork/mask.png'
@@ -79,9 +44,14 @@ Rectangle {
         source: 'artwork/noise.png'
     }
 
-    function setCurrentEpisode() {
-        episodeDetails.startPlayback()
-        episodeDetails.state = 'visible'
+    function togglePlayback(episode) {
+        controller.currentEpisodeChanging()
+        mediaPlayer.togglePlayback(episode)
+    }
+
+    function openShowNotes(episode) {
+        showNotes.episode = episode
+        main.state = 'shownotes'
     }
 
     function openContextMenu(items) {
@@ -99,7 +69,11 @@ Rectangle {
             }
             PropertyChanges {
                 target: episodeList
-                scale: .9
+                anchors.leftMargin: 100
+                opacity: 0
+            }
+            PropertyChanges {
+                target: showNotes
                 opacity: 0
             }
         },
@@ -111,8 +85,25 @@ Rectangle {
             }
             PropertyChanges {
                 target: podcastList
-                scale: 1.2
                 opacity: 0
+                anchors.leftMargin: -100
+            }
+            PropertyChanges {
+                target: showNotes
+                opacity: 0
+                scale: .8
+            }
+        },
+        State {
+            name: 'shownotes'
+            PropertyChanges {
+                target: listContainer
+                opacity: 0
+            }
+            PropertyChanges {
+                target: showNotes
+                opacity: 1
+                scale: 1
             }
         }
     ]
@@ -124,7 +115,6 @@ Rectangle {
         PodcastList {
             id: podcastList
             opacity: 0
-            model: podcastListExample
 
             anchors.fill: parent
 
@@ -132,102 +122,72 @@ Rectangle {
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on scale { NumberAnimation { duration: Config.slowTransition } }
+            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
         }
 
         EpisodeList {
             id: episodeList
+
             opacity: 0
-            model: episodeListExample
 
             anchors.fill: parent
 
-            onEpisodeSelected: controller.episodeSelected(episode)
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on scale { NumberAnimation { duration: Config.slowTransition } }
+            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
         }
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
         Behavior on scale { NumberAnimation { duration: Config.fadeTransition } }
     }
 
-    EpisodeDetails {
-        id: episodeDetails
-
-        states: [
-            State {
-                name: 'hidden'
-                AnchorChanges {
-                    target: episodeDetails
-                    anchors.top: main.bottom
-                }
-                PropertyChanges {
-                    target: listContainer
-                    opacity: 1
-                    scale: 1
-                }
-            },
-            State {
-                name: 'visible'
-                AnchorChanges {
-                    target: episodeDetails
-                    anchors.top: titleBar.bottom
-                }
-                PropertyChanges {
-                    target: listContainer
-                    scale: .8
-                    opacity: .5
-                }
-            }
-        ]
-
-        transitions: Transition {
-            SequentialAnimation {
-                ScriptAction { script: episodeDetails.opacity = 1 }
-                AnchorAnimation { duration: Config.slowTransition }
-                ScriptAction { script: episodeDetails.opacity = (episodeDetails.state=='visible') }
-            }
-        }
-
-        state: 'hidden'
-        opacity: 0
-
-        onStateChanged: {
-            if (state == 'visible' && episode == undefined) {
-                controller.loadLastEpisode()
-            }
-        }
+    ShowNotes {
+        id: showNotes
 
         anchors {
-            top: main.bottom
-            left: main.left
-            right: main.right
-            bottom: main.bottom
+            left: parent.left
+            right: parent.right
+            top: titleBar.bottom
+            bottom: parent.bottom
+
+            leftMargin: Config.largeSpacing * 2
+            rightMargin: Config.largeSpacing * 2
+            topMargin: Config.largeSpacing * 2
+            bottomMargin: Config.largeSpacing * 2
         }
+
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+        Behavior on scale { NumberAnimation { duration: Config.slowTransition; easing.type: Easing.InSine } }
     }
 
     NowPlayingThrobber {
-        property bool shouldAppear: contextMenu.state != 'opened'
+        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
-        anchors.bottom: episodeDetails.top
+        anchors.bottom: mediaPlayer.top
         anchors.right: parent.right
         opacity: shouldAppear
-        z: 10
 
-        opened: (episodeDetails.state == 'visible')
+        opened: false
+        caption: (mediaPlayer.episode!=undefined)?mediaPlayer.episode.qtitle:''
 
-        onClicked: {
-            if (episodeDetails.state == 'visible') {
-                episodeDetails.state = 'hidden'
-            } else {
-                episodeDetails.state = 'visible'
-            }
-        }
+        onClicked: { opened = !opened }
 
         Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
+    }
+
+    MediaPlayer {
+        id: mediaPlayer
+        visible: nowPlayingThrobber.opened
+
+        anchors.top: parent.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.topMargin: nowPlayingThrobber.opened?-100:0
+
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition } }
     }
 
     ContextMenu {
@@ -288,8 +248,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
 
-        anchors.topMargin: episodeDetails.fullscreen?-height:0
-        opacity: episodeDetails.fullscreen?0:1
+        //anchors.topMargin: mediaPlayer.fullscreen?-height:0
+        //opacity: mediaPlayer.fullscreen?0:1
 
         Behavior on opacity { PropertyAnimation { } }
         Behavior on anchors.topMargin { PropertyAnimation { } }
@@ -332,11 +292,11 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
-            anchors.right: (episodeDetails.state == 'visible')?parent.right:(searchButton.visible?searchButton.left:searchButton.right)
+            anchors.right: searchButton.visible?searchButton.left:searchButton.right
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):(episodeDetails.state == 'visible'?("Now playing - "+((currentEpisode!=undefined)?currentEpisode.qpositiontext:'No episode')):(main.state == 'episodes'?controller.episodeListTitle:"gPodder"))
+            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
             onTextChanged: controller.titleChanged(text)
-            color: Qt.lighter(main.color, 4)
+            color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
         }
@@ -349,27 +309,27 @@ Rectangle {
 
             onClicked: contextMenu.showSubscribe()
 
-            visible: (contextMenu.state == 'closed' && main.state == 'podcasts' && episodeDetails.state == 'hidden')
+            visible: (contextMenu.state == 'closed' && main.state == 'podcasts')
         }
 
         TitlebarButton {
             id: closeButton
             anchors.right: parent.right
-            visible: Config.hasCloseButton || main.state != 'podcasts' || episodeDetails.state != 'hidden' || contextMenu.state != 'closed'
+            visible: Config.hasCloseButton || main.state != 'podcasts' || main.state == 'shownotes' || contextMenu.state != 'closed'
 
-            source: (main.state == 'podcasts' && episodeDetails.state == 'hidden' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
-            rotation: (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
+            source: (main.state == 'podcasts' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
+            rotation: 0 // XXX (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
 
             onClicked: {
                 if (contextMenu.state == 'opened') {
                     contextMenu.state = 'closed'
-                } else if (episodeDetails.state == 'visible') {
-                    episodeDetails.state = 'hidden'
                 } else if (main.state == 'podcasts') {
-                    episodeDetails.stop()
+                    mediaPlayer.stop()
                     controller.quit()
-                } else {
+                } else if (main.state == 'episodes') {
                     main.state = 'podcasts'
+                } else if (main.state == 'shownotes') {
+                    main.state = 'episodes'
                 }
             }
         }

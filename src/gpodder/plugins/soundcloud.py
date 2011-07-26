@@ -30,7 +30,6 @@ from gpodder import util
 
 try:
     # For Python < 2.6, we use the "simplejson" add-on module
-    # XXX: Mark as dependency
     import simplejson as json
 except ImportError:
     # Python 2.6 already ships with a nice "json" module
@@ -41,7 +40,6 @@ import time
 
 import re
 import email
-import email.Header
 
 
 # gPodder's consumer key for the Soundcloud API

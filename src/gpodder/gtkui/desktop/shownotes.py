@@ -29,7 +29,8 @@ import gpodder
 
 _ = gpodder.gettext
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder import util
 
@@ -62,7 +63,7 @@ class gPodderShownotes(gPodderShownotesBase):
                     setattr(self, 'have_webkit', True)
                     setattr(self, 'htmlview', webkit.WebView())
                 else:
-                    log('Your WebKit is too old (see bug 1001).', sender=self)
+                    logger.warn('Your WebKit is too old (gPodder bug 1001).')
                     setattr(self, 'have_webkit', False)
 
                 def navigation_policy_decision(wv, fr, req, action, decision):

@@ -30,7 +30,9 @@ are not tied to any specific part of gPodder.
 """
 
 import gpodder
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 import os
 import os.path
@@ -69,7 +71,7 @@ import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception, e:
-    log('Warning: Cannot set locale (%s).', e)
+    logger.warn('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
@@ -78,7 +80,7 @@ if encoding is None:
     if 'LANG' in os.environ and '.' in os.environ['LANG']:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
-        log('Detected encoding: %s', encoding)
+        logger.info('Detected encoding: %s', encoding)
     elif gpodder.ui.fremantle:
         encoding = 'utf-8'
     elif gpodder.win32:
@@ -88,7 +90,7 @@ if encoding is None:
         encoding = 'mbcs'
     else:
         encoding = 'iso-8859-15'
-        log('Assuming encoding: ISO-8859-15 ($LANG not set).')
+        logger.info('Assuming encoding: ISO-8859-15 ($LANG not set).')
 
 
 # Used by file_type_by_extension()
@@ -107,7 +109,7 @@ def make_directory( path):
     try:
         os.makedirs( path)
     except:
-        log( 'Could not create directory: %s', path)
+        logger.warn('Could not create directory: %s', path)
         return False
 
     return True
@@ -253,14 +255,6 @@ def username_password_from_url(url):
     return (username, password)
 
 
-def directory_is_writable( path):
-    """
-    Returns True if the specified directory exists and is writable
-    by the current user.
-    """
-    return os.path.isdir( path) and os.access( path, os.W_OK)
-
-
 def calculate_size( path):
     """
     Tries to calculate the size of a directory, including any 
@@ -285,9 +279,9 @@ def calculate_size( path):
                 try:
                     sum += calculate_size(os.path.join(path, item))
                 except:
-                    log('Cannot get size for %s', path)
+                    logger.warn('Cannot get size for %s', path, exc_info=True)
         except:
-            log('Cannot access: %s', path)
+            logger.warn('Cannot access %s', path, exc_info=True)
 
         return sum
 
@@ -311,23 +305,8 @@ def file_modification_datetime(filename):
         timestamp = s[stat.ST_MTIME]
         return datetime.datetime.fromtimestamp(timestamp)
     except:
-        log('Cannot get modification timestamp for %s', filename)
+        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
         return None
-
-
-def file_modification_timestamp(filename):
-    """
-    Returns the modification date of the specified file as a number
-    or -1 if the modification date cannot be determined.
-    """
-    if filename is None:
-        return -1
-    try:
-        s = os.stat(filename)
-        return s[stat.ST_MTIME]
-    except:
-        log('Cannot get modification timestamp for %s', filename)
-        return -1
 
 
 def file_age_in_days(filename):
@@ -375,7 +354,7 @@ def get_free_disk_space_win32(path):
         userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
         return userFree
     except ImportError:
-        log('Warning: Running on Win32 but win32api/win32file not installed.')
+        logger.warn('Running on Win32 but win32api/win32file not installed.')
 
     # Cannot determine free disk space
     return 0
@@ -421,7 +400,7 @@ def format_date(timestamp):
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError, ve:
-        log('Warning: Cannot convert timestamp', traceback=True)
+        logger.warn('Cannot convert timestamp', exc_info=True)
         return None
     
     if timestamp_date == today:
@@ -432,7 +411,7 @@ def format_date(timestamp):
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
-        log('Warning: Cannot convert "%s" to date.', timestamp, traceback=True)
+        logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
 
     try:
@@ -759,7 +738,7 @@ def object_string_formatter( s, **kwargs):
                     to_s = getattr( o, attr)
                     result = result.replace( from_s, to_s)
                 except:
-                    log( 'Could not replace attribute "%s" in string "%s".', attr, s)
+                    logger.warn('Could not replace attribute "%s" in string "%s".', attr, s)
 
     return result
 
@@ -912,7 +891,7 @@ def get_real_url(url):
     try:
         return urlopen(url).geturl()
     except:
-        log('Error getting real url for %s', url, traceback=True)
+        logger.error('Getting real url for %s', url, exc_info=True)
         return url
 
 
@@ -933,24 +912,6 @@ def find_command( command):
             return command_file
         
     return None
-
-
-def http_get_and_gunzip(uri):
-    """
-    Does a HTTP GET request and tells the server that we accept
-    gzip-encoded data. This is necessary, because the Apple iTunes
-    server will always return gzip-encoded data, regardless of what
-    we really request.
-
-    Returns the uncompressed document at the given URI.
-    """
-    request = urllib2.Request(uri)
-    request.add_header("Accept-encoding", "gzip")
-    usock = urllib2.urlopen(request)
-    data = usock.read()
-    if usock.headers.get('content-encoding', None) == 'gzip':
-        data = gzip.GzipFile(fileobj=StringIO.StringIO(data)).read()
-    return data
 
 
 def idle_add(func, *args):
@@ -985,19 +946,6 @@ def bluetooth_available():
     else:
         return False
 
-def bluetooth_send_files_maemo(filenames):
-    """Maemo implementation of Bluetooth file transfer
-
-    Takes a list of (absolute and local) filenames that are
-    submitted to the Maemo Bluetooth UI for file transfer.
-    """
-    import dbus
-    bus = dbus.SystemBus()
-    o = bus.get_object('com.nokia.bt_ui', '/com/nokia/bt_ui', False)
-    i = dbus.Interface(o, 'com.nokia.bt_ui')
-    i.show_send_file_dlg(['file://'+f for f in filenames])
-    return True
-
 
 def bluetooth_send_file(filename):
     """
@@ -1017,7 +965,7 @@ def bluetooth_send_file(filename):
         command_line.append(filename)
         return (subprocess.Popen(command_line).wait() == 0)
     else:
-        log('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
+        logger.error('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
 
 
@@ -1115,45 +1063,6 @@ def http_request(url, method='HEAD'):
     conn.request(method, url[start:])
     return conn.getresponse()
 
-def get_episode_info_from_url(url):
-    """
-    Try to get information about a podcast episode by sending
-    a HEAD request to the HTTP server and parsing the result.
-
-    The return value is a dict containing all fields that 
-    could be parsed from the URL. This currently contains:
-    
-      "length": The size of the file in bytes
-      "pubdate": The unix timestamp for the pubdate
-
-    If there is an error, this function returns {}. This will
-    only function with http:// and https:// URLs.
-    """
-    if not (url.startswith('http://') or url.startswith('https://')):
-        return {}
-
-    r = http_request(url)
-    result = {}
-
-    log('Trying to get metainfo for %s', url)
-
-    if 'content-length' in r.msg:
-        try:
-            length = int(r.msg['content-length'])
-            result['length'] = length
-        except ValueError, e:
-            log('Error converting content-length header.')
-
-    if 'last-modified' in r.msg:
-        try:
-            parsed_date = feedparser._parse_date(r.msg['last-modified'])
-            pubdate = time.mktime(parsed_date)
-            result['pubdate'] = pubdate
-        except:
-            log('Error converting last-modified header.')
-
-    return result
-
 
 def gui_open(filename):
     """
@@ -1165,41 +1074,13 @@ def gui_open(filename):
        on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
-        if gpodder.ui.fremantle:
-            try:
-                import osso
-            except ImportError, ie:
-                log('Cannot import osso module on maemo.')
-                return False
-
-            log('Using Nokia Media Player to open %s', filename)
-            context = osso.Context('gPodder', gpodder.__version__, False)
-            filename = filename.encode('utf-8')
-
-            # Fix for Maemo bug 7162 (for local files with "#" in filename)
-            if filename.startswith('/'):
-                filename = 'file://' + urllib.quote(filename)
-
-            rpc = osso.Rpc(context)
-            app = 'mediaplayer'
-
-            _unneeded, extension = os.path.splitext(filename.lower())
-
-            # Fix for Maemo bug 5588 (use PDF viewer and images app)
-            if extension == '.pdf':
-                app = 'osso_pdfviewer'
-            elif extension in ('.jpg', '.jpeg', '.png'):
-                app = 'image_viewer'
-
-            svc, path = (x % app for x in ('com.nokia.%s', '/com/nokia/%s'))
-            rpc.rpc_run(svc, path, svc, 'mime_open', (filename,))
-        elif gpodder.win32:
+        if gpodder.win32:
             os.startfile(filename)
         else:
             subprocess.Popen(['xdg-open', filename])
         return True
     except:
-        log('Cannot open file/folder: "%s"', filename, traceback=True)
+        logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
         return False
 
 
@@ -1256,7 +1137,8 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
         filename = filename.decode(encoding, 'ignore')
 
     if max_length > 0 and len(filename) > max_length:
-        log('Limiting file/folder name "%s" to %d characters.', filename, max_length)
+        logger.info('Limiting file/folder name "%s" to %d characters.',
+                filename, max_length)
         filename = filename[:max_length]
 
     return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(e, 'ignore'))
@@ -1360,19 +1242,6 @@ def isabs(string):
     if protocolPattern.match(string): return 1
     return os.path.isabs(string)
 
-def rel2abs(path, base = os.curdir):
-    """ converts a relative path to an absolute path.
-
-    @param path the path to convert - if already absolute, is returned
-    without conversion.
-    @param base - optional. Defaults to the current directory.
-    The base is intelligently concatenated to the given relative path.
-    @return the relative path of path from base
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    if isabs(path): return path
-    retval = os.path.join(base,path)
-    return os.path.abspath(retval)
 
 def commonpath(l1, l2, common=[]):
     """
@@ -1401,32 +1270,6 @@ def relpath(p1, p2):
 
     return os.path.join(*p)
 
-
-def run_external_command(command_line):
-    """
-    This is the function that will be called in a separate
-    thread that will call an external command (specified by
-    command_line). In case of problem (i.e. the command has
-    not been found or there has been another error), we will
-    call the notification function with two arguments - the
-    first being the error message and the second being the
-    title to be used for the error message.
-    """
-
-    def open_process(command_line):
-        log('Running external command: %s', command_line)
-        p = subprocess.Popen(command_line, shell=True)
-        result = p.wait()
-        if result == 127:
-            log('Command not found: %s', command_line)
-        elif result == 126:
-            log('Command permission denied: %s', command_line)
-        elif result > 0:
-            log('Command returned an error (%d): %s', result, command_line)
-        else:
-            log('Command finished successfully: %s', command_line)
-
-    threading.Thread(target=open_process, args=(command_line,)).start()
 
 def get_hostname():
     """Return the hostname of this computer

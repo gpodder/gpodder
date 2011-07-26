@@ -27,7 +27,9 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder.services import ObservableService
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder import util
 from gpodder import youtube
@@ -73,7 +75,7 @@ class CoverDownloader(ObservableService):
         already-downloaded covers and return None
         when we have no cover on the local disk.
         """
-        log('cover download request for %s', channel.url, sender=self)
+        logger.debug('cover download request for %s', channel.url)
         args = [channel, custom_url, True, avoid_downloading]
         threading.Thread(target=self.__get_cover, args=args).start()
 
@@ -144,32 +146,32 @@ class CoverDownloader(ObservableService):
                 query = ''
                 split_result = (scheme, netloc, path, query, fragment)
                 url = urlparse.urlunsplit(split_result)
-                log('Trying favicon: %s', url, sender=self)
+                logger.debug('Trying favicon: %s', url)
 
             if url is not None:
                 image_data = None
                 try:
-                    log('Trying to download: %s', url, sender=self)
+                    logger.debug('Trying to download: %s', url)
 
                     image_data = util.urlopen(url).read()
                 except:
-                    log('Cannot get image from %s', url, sender=self)
+                    logger.warn('Cannot get image from %s', url, exc_info=True)
 
                 if image_data is not None:
-                    log('Saving image data to %s', channel.cover_file, sender=self)
+                    logger.debug('Saving image data to %s', channel.cover_file)
                     try:
                         fp = open(channel.cover_file, 'wb')
                         fp.write(image_data)
                         fp.close()
                     except IOError, ioe:
-                        log('Cannot save image due to I/O error', sender=self, traceback=True)
+                        logger.error('Cannot save image due to I/O error', exc_info=True)
 
         pixbuf = None
         if os.path.exists(channel.cover_file):
             try:
                 pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file.decode(util.encoding, 'ignore'))
             except:
-                log('Data error while loading %s', channel.cover_file, sender=self)
+                logger.error('Data error while loading %s', channel.cover_file)
 
         if pixbuf is None:
             pixbuf = self.get_default_cover(channel)

@@ -33,11 +33,10 @@
    * python-gtk2 (>= 2.12)
    * python-feedparser
    * python-mygpoclient (>= 1.4; http://thp.io/2010/mygpoclient/)
-   * python-dbus (optional, but highly recommended)
+   * python-dbus
 
- If your Python installation does not come with "sqlite3" support,
- you can either re-compile Python with support for sqlite3 or use
- the "pysqlite" package from http://code.google.com/p/pysqlite/
+ As an alternative to python-dbus, you can use the fake D-Bus module
+ provided in "tools/fake-dbus-module/".
 
  Dependencies for the QML UI:
 

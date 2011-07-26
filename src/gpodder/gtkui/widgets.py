@@ -149,9 +149,8 @@ class SpinningProgressIndicator(gtk.Image):
         # Load the progress indicator
         icon_theme = gtk.icon_theme_get_default()
 
-        ICON = lambda x: x
         try:
-            icon = icon_theme.load_icon(ICON('process-working'), size, 0)
+            icon = icon_theme.load_icon('process-working', size, 0)
             width, height = icon.get_width(), icon.get_height()
             if width < size or height < size:
                 size = min(width, height)

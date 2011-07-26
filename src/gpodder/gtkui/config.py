@@ -191,6 +191,4 @@ class UIConfig(config.Config):
                 window.show()
             if getattr(self, maximized, False):
                 window.maximize()
-        else:
-            raise ValueError('Cannot connect %s', config_prefix, sender=self)
 

@@ -30,14 +30,18 @@ import BaseHTTPServer
 
 import os
 import re
+import sys
 
 class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
+    DEFAULT_PORT = 8086
+
     core = None
     player = None
 
     @classmethod
     def run(cls, server_class=BaseHTTPServer.HTTPServer):
-        server_address = ('', 8086)
+        server_address = ('', cls.DEFAULT_PORT)
+        print >>sys.stderr, 'Listening on port %d...' % cls.DEFAULT_PORT
         httpd = server_class(server_address, cls)
         httpd.serve_forever()
 

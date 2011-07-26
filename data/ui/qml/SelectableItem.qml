@@ -12,6 +12,7 @@ Item {
      * pressed will signal contextMenu instead of selected.
      */
     property int singlePressContextMenuLeftBorder: 0
+    property bool pressed: mouseArea.pressed
 
     height: Config.listItemHeight
     width: parent.width

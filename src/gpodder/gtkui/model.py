@@ -30,7 +30,9 @@ _ = gpodder.gettext
 from gpodder import util
 from gpodder import model
 from gpodder import query
-from gpodder.liblogger import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
 
@@ -48,6 +50,8 @@ except ImportError:
 # ----------------------------------------------------------
 
 class GEpisode(model.PodcastEpisode):
+    __slots__ = ()
+
     @property
     def title_markup(self):
         return '%s\n<small>%s</small>' % (cgi.escape(self.title),
@@ -86,6 +90,8 @@ class GEpisode(model.PodcastEpisode):
                 cgi.escape(self.channel.title))
 
 class GPodcast(model.PodcastChannel):
+    __slots__ = ()
+
     EpisodeClass = GEpisode
 
 class Model(model.Model):
@@ -126,13 +132,10 @@ class EpisodeListModel(gtk.ListStore):
         # Are we currently showing the "all episodes" view?
         self._all_episodes_view = False
 
-        # "ICON" is used to mark icon names in source files
-        ICON = lambda x: x
-
-        self.ICON_AUDIO_FILE = ICON('audio-x-generic')
-        self.ICON_VIDEO_FILE = ICON('video-x-generic')
-        self.ICON_IMAGE_FILE = ICON('image-x-generic')
-        self.ICON_GENERIC_FILE = ICON('text-x-generic')
+        self.ICON_AUDIO_FILE = 'audio-x-generic'
+        self.ICON_VIDEO_FILE = 'video-x-generic'
+        self.ICON_IMAGE_FILE = 'image-x-generic'
+        self.ICON_GENERIC_FILE = 'text-x-generic'
         self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
         self.ICON_DELETED = gtk.STOCK_DELETE
 
@@ -140,7 +143,7 @@ class EpisodeListModel(gtk.ListStore):
             # Workaround until KDE adds all the freedesktop icons
             # See https://bugs.kde.org/show_bug.cgi?id=233505 and
             #     http://gpodder.org/bug/553
-            self.ICON_DELETED = ICON('archive-remove')
+            self.ICON_DELETED = 'archive-remove'
 
 
     def _format_filesize(self, episode):
@@ -213,7 +216,7 @@ class EpisodeListModel(gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
-    def _format_description(self, episode, include_description=False, is_downloading=None):
+    def _format_description(self, episode, include_description=False):
         a, b = '', ''
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
@@ -226,8 +229,7 @@ class EpisodeListModel(gtk.ListStore):
         else:
             return ''.join((a, cgi.escape(episode.title), b))
 
-    def replace_from_channel(self, channel, downloading=None, \
-            include_description=False, \
+    def replace_from_channel(self, channel, include_description=False,
             treeview=None):
         """
         Add episode from the given channel to this model.
@@ -273,33 +275,28 @@ class EpisodeListModel(gtk.ListStore):
                     episode.total_time, \
                     episode.archive))
 
-            self.update_by_iter(iter, downloading, include_description, \
-                    reload_from_db=False)
+            self.update_by_iter(iter, include_description)
 
         self._on_filter_changed(self.has_episodes())
 
-    def update_all(self, downloading=None, include_description=False):
+    def update_all(self, include_description=False):
         for row in self:
-            self.update_by_iter(row.iter, downloading, include_description)
+            self.update_by_iter(row.iter, include_description)
 
-    def update_by_urls(self, urls, downloading=None, include_description=False):
+    def update_by_urls(self, urls, include_description=False):
         for row in self:
             if row[self.C_URL] in urls:
-                self.update_by_iter(row.iter, downloading, include_description)
+                self.update_by_iter(row.iter, include_description)
 
-    def update_by_filter_iter(self, iter, downloading=None, \
-            include_description=False):
+    def update_by_filter_iter(self, iter, include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
         iter = self._sorter.convert_iter_to_child_iter(None, iter)
-        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter), \
-                downloading, include_description)
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter),
+                include_description)
 
-    def update_by_iter(self, iter, downloading=None, include_description=False, \
-            reload_from_db=True):
+    def update_by_iter(self, iter, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
-        if reload_from_db:
-            episode.reload_from_db()
 
         show_bullet = False
         show_padlock = False
@@ -311,7 +308,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_unplayed = False
         icon_theme = gtk.icon_theme_get_default()
 
-        if downloading is not None and downloading(episode):
+        if episode.downloading:
             tooltip.append(_('Downloading'))
             status_icon = self.ICON_DOWNLOADING
             view_show_downloaded = True
@@ -390,7 +387,7 @@ class EpisodeListModel(gtk.ListStore):
 
         tooltip = ', '.join(tooltip)
 
-        description = self._format_description(episode, include_description, downloading)
+        description = self._format_description(episode, include_description)
         self.set(iter, \
                 self.C_STATUS_ICON, status_icon, \
                 self.C_VIEW_SHOW_UNDELETED, view_show_undeleted, \
@@ -415,7 +412,7 @@ class PodcastChannelProxy(object):
         self.channels = channels
         self.title =  _('All episodes')
         self.description = _('from all podcasts')
-        self.parse_error = ''
+        #self.parse_error = ''
         self.url = ''
         self.id = None
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
@@ -426,16 +423,16 @@ class PodcastChannelProxy(object):
         try:
             return object.__getattribute__(self, name)
         except AttributeError:
-            log('Unsupported method call (%s)', name, sender=self)
+            logger.warn('Unsupported method call (%s)', name)
 
     def get_statistics(self):
         # Get the total statistics for all channels from the database
-        return self._db.get_total_count()
+        return self._db.get_podcast_statistics()
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        channel_lookup_map = dict((c.id, c) for c in self.channels)
-        return self._db.load_all_episodes(channel_lookup_map)
+        return Model.sort_episodes_by_pubdate((e for c in self.channels
+                for e in c.get_all_episodes()), True)
 
 
 class PodcastListModel(gtk.ListStore):
@@ -463,17 +460,10 @@ class PodcastListModel(gtk.ListStore):
         self._filter.set_visible_func(self._filter_visible_func)
 
         self._cover_cache = {}
-        if gpodder.ui.fremantle:
-            self._max_image_side = 64
-        else:
-            self._max_image_side = 40
+        self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
-        # "ICON" is used to mark icon names in source files
-        ICON = lambda x: x
-
-        #self.ICON_DISABLED = ICON('emblem-unreadable')
-        self.ICON_DISABLED = ICON('gtk-media-pause')
+        self.ICON_DISABLED = 'gtk-media-pause'
 
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
@@ -626,10 +616,11 @@ class PodcastListModel(gtk.ListStore):
             return ''.join(d)
 
     def _format_error(self, channel):
-        if channel.parse_error:
-            return str(channel.parse_error)
-        else:
-            return None
+        #if channel.parse_error:
+        #    return str(channel.parse_error)
+        #else:
+        #    return None
+        return None
 
     def set_channels(self, db, config, channels):
         # Clear the model and update the list of podcasts
@@ -705,11 +696,7 @@ class PodcastListModel(gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
-        if gpodder.ui.fremantle:
-            # We don't display the pill, so don't generate it
-            pill_image = None
-        else:
-            pill_image = self._get_pill_image(channel, downloaded, unplayed)
+        pill_image = self._get_pill_image(channel, downloaded, unplayed)
 
         self.set(iter, \
                 self.C_TITLE, channel.title, \

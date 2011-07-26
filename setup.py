@@ -25,9 +25,6 @@ import sys
 import subprocess
 from distutils.core import setup
 
-# build targets
-(DEFAULT, MAEMO) = range(2)
-
 # import the gpodder module locally for module metadata
 sys.path.insert(0, 'src')
 import gpodder
@@ -38,13 +35,6 @@ cleaning_target = ('clean' in sys.argv)
 
 # Ignore missing files if we are in clean or sdist mode
 ignore_missing = (building_source or cleaning_target)
-
-# build target
-if 'TARGET' in os.environ:
-    if os.environ['TARGET'].strip().lower() == 'maemo':
-        target = MAEMO
-else:
-    target = DEFAULT
 
 # search for translations, taking $LINGUAS into account
 translation_files = []
@@ -81,7 +71,6 @@ for prerequisite in (DBUS_SERVICE_FILE, DESKTOP_FILE):
 inst_manpages = glob.glob( 'data/man/*.1')
 inst_share_ui = glob.glob('data/ui/*.ui')
 inst_share_ui_desktop = glob.glob('data/ui/desktop/*.ui')
-inst_share_ui_frmntl = glob.glob('data/ui/frmntl/*.ui')
 inst_share_ui_qml = glob.glob('data/ui/qml/*.qml') + glob.glob('data/ui/qml/*.js')
 inst_share_ui_qml_artwork = glob.glob('data/ui/qml/artwork/*')
 inst_share_ui_qml_test = glob.glob('data/ui/qml/test/*')
@@ -114,6 +103,7 @@ data_files = [
 
 packages = [
   'gpodder',
+  'gpodder.plugins',
   'gpodder.gtkui',
   'gpodder.gtkui.interface',
   'gpodder.webui',
@@ -121,31 +111,18 @@ packages = [
   'mygpoclient',
 ]
 
-# target-specific installation data files
-if target == DEFAULT or building_source:
-    data_files += [
-      ('share/gpodder/ui/desktop', inst_share_ui_desktop),
-      ('share/applications', inst_desktop),
-      ('share/icons/hicolor/scalable/apps', inst_icons_svg),
-      ('share/icons/hicolor/48x48/apps', inst_icons),
-      ('share/icons/hicolor/24x24/apps', inst_icons_24),
-      ('share/icons/hicolor/22x22/apps', inst_icons_22),
-      ('share/icons/hicolor/16x16/apps', inst_icons_16),
-    ]
-    packages += [
-      'gpodder.gtkui.desktop',
-    ]
-    additional_scripts = []
-
-if target == MAEMO or building_source:
-    data_files += [
-      ('share/applications', inst_desktop),
-      ('share/icons/hicolor/scalable/apps', inst_icons_64),
-      ('share/icons/hicolor/40x40/apps', inst_icons_40),
-      ('share/icons/hicolor/32x32/apps', inst_icons_32),
-      ('share/icons/hicolor/26x26/apps', inst_icons_26),
-      ('share/icons/hicolor/16x16/apps', inst_icons_16),
-    ]
+data_files += [
+  ('share/gpodder/ui/desktop', inst_share_ui_desktop),
+  ('share/applications', inst_desktop),
+  ('share/icons/hicolor/scalable/apps', inst_icons_svg),
+  ('share/icons/hicolor/48x48/apps', inst_icons),
+  ('share/icons/hicolor/24x24/apps', inst_icons_24),
+  ('share/icons/hicolor/22x22/apps', inst_icons_22),
+  ('share/icons/hicolor/16x16/apps', inst_icons_16),
+]
+packages += [
+  'gpodder.gtkui.desktop',
+]
 
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
 
@@ -154,7 +131,7 @@ setup(
   version      = gpodder.__version__,
   package_dir  = { '':'src' },
   packages     = packages,
-  description  = 'media aggregator',
+  description  = 'A media aggregator and podcast client',
   author       = author,
   author_email = email,
   url          = gpodder.__url__,

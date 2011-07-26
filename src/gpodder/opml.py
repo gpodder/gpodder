@@ -34,7 +34,8 @@ objects to valid OPML 1.1 files that can be used to backup
 or distribute gPodder's channel subscriptions.
 """
 
-from gpodder.liblogger import log
+import logging
+logger = logging.getLogger(__name__)
 
 from gpodder import util
 
@@ -93,9 +94,9 @@ class Importer(object):
 
                     self.items.append( channel)
             if not len(self.items):
-                log( 'OPML import finished, but no items found: %s', url, sender = self)
+                logger.info('OPML import finished, but no items found: %s', url)
         except:
-            log( 'Cannot import OPML from URL: %s', url, traceback=True, sender = self)
+            logger.error('Cannot import OPML from URL: %s', url, exc_info=True)
 
 
 
@@ -111,7 +112,6 @@ class Exporter(object):
 
     def __init__( self, filename):
         if filename is None:
-            log('OPML Exporter with None filename', sender=self)
             self.filename = None
         elif filename.endswith( '.opml') or filename.endswith( '.xml'):
             self.filename = filename
@@ -180,7 +180,7 @@ class Exporter(object):
             available = util.get_free_disk_space(os.path.dirname(self.filename))
             if available < 2*len(data)+FREE_DISK_SPACE_AFTER and not gpodder.win32:
                 # FIXME: get_free_disk_space still unimplemented for win32
-                log('Not enough free disk space to save channel list to %s', self.filename, sender = self)
+                logger.error('Not enough free disk space to save channel list to %s', self.filename)
                 return False
             fp = open(self.filename+'.tmp', 'w')
             fp.write(data)
@@ -191,7 +191,8 @@ class Exporter(object):
             else:
                 os.rename(self.filename+'.tmp', self.filename)
         except:
-            log('Could not open file for writing: %s', self.filename, sender=self, traceback=True)
+            logger.error('Could not open file for writing: %s', self.filename,
+                    exc_info=True)
             return False
 
         return True

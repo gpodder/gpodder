@@ -117,7 +117,11 @@ if __name__ == '__main__':
 
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
-                      help=_("Use the QML interface of gPodder"))
+                      help=_("Start the QML interface of gPodder"))
+
+    parser.add_option("-w", "--web",
+                      action="store_true", dest="web", default=False,
+                      help=_("Start the web interface of gPodder"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
@@ -129,20 +133,23 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args(sys.argv)
 
-    if gpodder.ui.fremantle:
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'frmntl'))
-
     if gpodder.ui.desktop:
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
-        from gpodder.liblogger import enable_verbose
-        enable_verbose()
+        import logging
+        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
+        logging.basicConfig(format=FMT, level=logging.DEBUG)
 
     if options.qml:
         from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
+
+    if options.web:
+        from gpodder import webui
+        webui.main()
+        sys.exit(0)
 
     if have_dbus:
         # Try to find an already-running instance of gPodder
@@ -170,7 +177,7 @@ if __name__ == '__main__':
             remote_object.subscribe_to_url(options.subscribe)
     else:
         # gPodder is not yet running - create new instance
-        from gpodder import gui
+        from gpodder.gtkui import main
 
         # check if we have an X11 connection (but not on Windows)
         if platform.system() != 'Windows' and \
@@ -178,11 +185,5 @@ if __name__ == '__main__':
             print >>sys.stderr, 'Cannot start gPodder: $DISPLAY is not set.'
             sys.exit(1)
 
-        if gpodder.ui.fremantle:
-            # Reduce our nice value to zero if we're on Maemo to
-            # make the tablet not kill itself while updating feeds
-            if os.nice(0) < 0:
-                os.nice(-os.nice(0))
-
-        gui.main(options)
+        main.main(options)
 

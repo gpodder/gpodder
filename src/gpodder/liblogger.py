@@ -17,43 +17,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#
-#  liblogger.py -- gPodder logging facility
-#  Thomas Perl <thp perli net>   20061117
-#
-#
+# gpodder.liblogger - DEPRECATED logging facility
+# Thomas Perl, 2011-07-15
 
-import traceback
-import time
+# XXX Deprecation warning XXX
+# This module is here to support old hooks scripts that have not
+# yet been rewritten to utilize the standard 'logging' module.
+# Please do not use this DEPRECATED module in new code!
+# XXX Deprecation warning XXX
 
-write_to_stdout = False
+import logging
+logger = logging.getLogger('DEPRECATED:' + __name__)
 
-
-def enable_verbose():
-    global write_to_stdout
-    write_to_stdout = True
-
-first_time = time.time()
-last_times = []
-
-def log( message, *args, **kwargs):
-    global first_time
-    global last_times
-    if 'sender' in kwargs:
-        message = '(%s) %s' % ( kwargs['sender'].__class__.__name__, message )
-    if 'bench_start' in kwargs:
-        last_times.append(time.time())
-    if 'bench_end' in kwargs and len(last_times) > 0:
-        message += (' (benchmark: %.4f seconds)' % (time.time()-(last_times.pop())))
-    if write_to_stdout:
-        print (('[%8.3f] ' % (time.time()-first_time)) + message) % args
-        if kwargs.get( 'traceback', False):
-            error = traceback.format_exc()
-            if error.strip() != 'None':
-                print error
-
-
-def msg( type, message, *args):
-    s = message % args
-    print '%c\t%s' % ( type[0].upper(), s )
+def log(message, *args, **kwargs):
+    """DEPRECATED - do not use in new code!"""
+    logger.info(message % args, exc_info=True)
 

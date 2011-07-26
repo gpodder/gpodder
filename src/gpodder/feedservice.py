@@ -17,9 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gpodder.liblogger import log
-
 from mygpoclient import feeds
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def parse_entry(podcast, entry):
@@ -46,18 +47,18 @@ def update_using_feedservice(podcasts):
     for podcast in podcasts:
         feed = result.get_feed(podcast.url)
         if feed is None:
-            log('Feed not updated: %s', podcast.url)
+            logger.info('Feed not updated: %s', podcast.url)
             continue
 
         # Handle permanent redirects
         if feed.get('new_location', False):
             new_url = feed['new_location']
-            log('Redirect %s => %s', podcast.url, new_url)
+            logger.info('Redirect %s => %s', podcast.url, new_url)
             podcast.url = new_url
 
         # Error handling
         if feed.get('errors', False):
-            log('Error parsing feed: %s', repr(feed['errors']))
+            logger.error('Error parsing feed: %s', repr(feed['errors']))
             continue
 
         # Update per-podcast metadata

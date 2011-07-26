@@ -34,7 +34,7 @@
 #include "gpodder.h"
 #include "migrate.h"
 
-#define MAIN_MODULE "gpodder.launcher"
+#define MAIN_MODULE "gpodder.gtkui.win32"
 
 int main(int argc, char** argv)
 {
