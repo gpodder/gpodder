@@ -154,14 +154,49 @@ Rectangle {
             leftMargin: Config.largeSpacing * 2
             rightMargin: Config.largeSpacing * 2
             topMargin: Config.largeSpacing * 2
-            bottomMargin: Config.largeSpacing * 2
+            bottomMargin: Config.largeSpacing * 2 + (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
         }
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
         Behavior on scale { NumberAnimation { duration: Config.slowTransition; easing.type: Easing.InSine } }
     }
 
+    Item {
+        id: overlayInteractionBlockWall
+        anchors.fill: parent
+        z: nowPlayingThrobber.opened?2:0
+
+        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity == 1)?1:0
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (contextMenu.state == 'opened') {
+                    contextMenu.close()
+                } else if (messageDialog.opacity == 1) {
+                    messageDialog.opacity = 0
+                } else {
+                    nowPlayingThrobber.opened = false
+                }
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: 'black'
+            opacity: .7
+        }
+
+        Image {
+            anchors.fill: parent
+            source: 'artwork/mask.png'
+        }
+    }
+
     NowPlayingThrobber {
+        z: 3
+
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
@@ -181,11 +216,12 @@ Rectangle {
         id: mediaPlayer
         visible: nowPlayingThrobber.opened
 
+        z: 3
+
         anchors.top: parent.bottom
-        anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?-100:0
+        anchors.topMargin: nowPlayingThrobber.opened?-height:0
 
         Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition } }
     }
@@ -348,22 +384,12 @@ Rectangle {
 
         Behavior on opacity { PropertyAnimation { } }
 
-        Rectangle {
-            anchors.fill: parent
-            color: '#ee000000'
-        }
-
         Text {
             id: messageDialogText
             anchors.centerIn: parent
             color: 'white'
             font.pixelSize: 20
             font.bold: true
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: messageDialog.opacity = 0
         }
     }
 }

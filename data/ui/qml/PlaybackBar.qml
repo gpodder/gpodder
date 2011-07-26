@@ -5,10 +5,8 @@ import 'config.js' as Config
 Item {
     id: root
     property real progress: 0
-    property bool paused: false
     property int duration: 0
     signal setProgress(real progress)
-    signal setPaused()
     signal forward()
     signal backward()
 
@@ -19,33 +17,6 @@ Item {
         anchors.fill: parent
         color: 'black'
         opacity: .8
-    }
-
-    PlaybackBarButton {
-        id: play
-        source: 'artwork/btn_play.png'
-        anchors.left: parent.left
-
-        states: [
-            State {
-                name: 'play'
-                PropertyChanges {
-                    target: play
-                    source: 'artwork/btn_play.png'
-                }
-            },
-            State {
-                name: 'pause'
-                PropertyChanges {
-                    target: play
-                    source: 'artwork/btn_pause.png'
-                }
-            }
-        ]
-
-        state: root.paused?'play':'pause'
-
-        onClicked: root.setPaused()
     }
 
     PlaybackBarButton {

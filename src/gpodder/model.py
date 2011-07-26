@@ -1192,12 +1192,15 @@ class Model(object):
     def podcast_sort_key(cls, podcast):
         return cls.PodcastClass.sort_key(podcast)
 
-    @staticmethod
-    def sort_episodes_by_pubdate(episodes, reverse=False):
+    @classmethod
+    def episode_sort_key(cls, episode):
+        return episode.published
+
+    @classmethod
+    def sort_episodes_by_pubdate(cls, episodes, reverse=False):
         """Sort a list of PodcastEpisode objects chronologically
 
         Returns a iterable, sorted sequence of the episodes
         """
-        get_key = lambda e: e.published
-        return sorted(episodes, key=get_key, reverse=reverse)
+        return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
 

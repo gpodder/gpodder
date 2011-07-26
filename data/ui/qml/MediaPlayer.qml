@@ -3,9 +3,12 @@ import Qt 4.7
 import QtMultimediaKit 1.1
 
 import 'config.js' as Config
+import 'util.js' as Util
 
 Item {
     id: mediaPlayer
+
+    height: (Config.largeSpacing * 2) + (150 * Config.scale)
 
     property variant episode: undefined
 
@@ -52,17 +55,90 @@ Item {
         anchors.fill: mediaPlayer
         color: 'black'
 
+        Row {
+            spacing: Config.largeSpacing
+
+            anchors {
+                leftMargin: Config.largeSpacing
+                topMargin: Config.largeSpacing
+                left: parent.left
+                top: parent.top
+            }
+
+            Image {
+                id: coverArt
+                source: (episode!==undefined)?Util.formatCoverURL(episode.qpodcast):''
+                width: 150 * Config.scale
+                height: 150 * Config.scale
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: mediaPlayer.togglePlayback(episode)
+                }
+
+                sourceSize.width: width
+                sourceSize.height: height
+            }
+
+            Column {
+                id: textColumn
+
+                spacing: Config.smallSpacing
+
+                Item { height: 1; width: 1 }
+
+                Text {
+                    text: episode.qtitle
+                    color: 'white'
+                    font.pixelSize: 30 * Config.scale
+                }
+
+                Text {
+                    text: episode.qpodcast.qtitle
+                    color: '#aaa'
+                    font.pixelSize: 20 * Config.scale
+                }
+            }
+        }
+
+        PlaybackBar {
+            id: playbackBar
+
+            width: mediaPlayer.width - coverArt.width - 3*Config.largeSpacing
+            x: coverArt.width + 2*Config.largeSpacing
+
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: Config.largeSpacing
+
+            Behavior on opacity { PropertyAnimation { } }
+
+            progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
+            duration: episode != undefined?episode.qduration:0
+
+            onSetProgress: {
+                audioPlayer.setPosition(progress)
+                audioPlayer.paused = false
+            }
+
+            onForward: {
+                if (episode != undefined && episode.qduration > 0) {
+                    var pos = (episode.qposition + 60)/episode.qduration
+                    audioPlayer.setPosition(pos)
+                }
+            }
+
+            onBackward: {
+                if (episode != undefined && episode.qduration > 0) {
+                    var pos = (episode.qposition - 60)/episode.qduration
+                    if (pos < 0) pos = 0
+                    audioPlayer.setPosition(pos)
+                }
+            }
+        }
+
         Audio {
             id: audioPlayer
             property bool seekLater: false
-
-            /*onPlayingChanged: {
-                if (!playing) {
-                    playing = true
-                    position = 0
-                    paused = true
-                }
-            }*/
 
             onPositionChanged: {
                 episode.qposition = position/1000
@@ -88,44 +164,6 @@ Item {
 
                 episode.qposition = position*episode.qduration
                 audioPlayer.position = position*episode.qduration*1000
-            }
-        }
-
-        PlaybackBar {
-            id: playbackBar
-
-            Behavior on opacity { PropertyAnimation { } }
-
-            progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
-            duration: episode != undefined?episode.qduration:0
-            paused: audioPlayer.paused
-            onSetProgress: {
-                audioPlayer.setPosition(progress)
-                audioPlayer.paused = false
-            }
-            onForward: {
-                if (episode != undefined && episode.qduration > 0) {
-                    var pos = (episode.qposition + 60)/episode.qduration
-                    audioPlayer.setPosition(pos)
-                }
-            }
-            onBackward: {
-                if (episode != undefined && episode.qduration > 0) {
-                    var pos = (episode.qposition - 60)/episode.qduration
-                    if (pos < 0) pos = 0
-                    audioPlayer.setPosition(pos)
-                }
-            }
-            onSetPaused: {
-                audioPlayer.paused = !audioPlayer.paused
-            }
-            anchors {
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
-                bottomMargin: Config.largeSpacing
-                leftMargin: Config.largeSpacing * 2
-                rightMargin: Config.largeSpacing * 2
             }
         }
     }

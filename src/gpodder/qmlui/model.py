@@ -90,10 +90,10 @@ class QEpisode(QObject):
     never_changed = Signal()
     source_url_changed = Signal()
 
-    def _id(self):
-        return self._episode.id
+    def _podcast(self):
+        return self._podcast
 
-    qid = Property(int, _id, notify=never_changed)
+    qpodcast = Property(QObject, _podcast, notify=never_changed)
 
     def _title(self):
         return convert(self._episode.title)
@@ -316,6 +316,19 @@ class EpisodeSubsetView(QObject):
         self.title = title
         self.description = description
         self.eql = eql
+
+    def get_all_episodes_with_podcast(self):
+        episodes = [(podcast, episode) for podcast in
+                self.podcast_list_model.get_podcasts()
+                for episode in podcast.get_all_episodes()]
+
+        # FIXME: Filter using EQL
+
+        def sort_key(pair):
+            podcast, episode = pair
+            return model.Model.episode_sort_key(episode)
+
+        return sorted(episodes, key=sort_key, reverse=True)
 
     def get_all_episodes(self):
         episodes = []
