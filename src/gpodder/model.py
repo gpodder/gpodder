@@ -827,8 +827,13 @@ class PodcastChannel(PodcastModelObject):
 
         guids = [episode.guid for episode in self.get_all_episodes()]
 
-        # Insert newly-found episodes into the database
-        custom_feed.get_new_episodes(self, guids)
+        assert self.children is not None
+
+        # Insert newly-found episodes into the database + local cache
+        self.children.extend(custom_feed.get_new_episodes(self, guids))
+
+        # Sort episodes by pubdate, descending
+        self.children.sort(key=lambda e: e.published, reverse=True)
 
         self.save()
 

@@ -192,11 +192,14 @@ class SoundcloudFeed(object):
         tracks = [t for t in self.sc_user.get_tracks('tracks') \
                              if t['guid'] not in guids]
 
+        episodes = []
+
         for track in tracks:
             episode = channel.episode_factory(track)
             episode.save()
+            episodes.append(episode)
 
-        return len(tracks)
+        return episodes
 
 class SoundcloudFavFeed(SoundcloudFeed):
     URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
@@ -218,11 +221,14 @@ class SoundcloudFavFeed(SoundcloudFeed):
         tracks = [t for t in self.sc_user.get_tracks('favorites') \
                              if t['guid'] not in guids]
 
+        episodes = []
+
         for track in tracks:
             episode = channel.episode_factory(track)
             episode.save()
+            episodes.append(episode)
 
-        return len(tracks)
+        return episodes
 
 # Register our URL handlers
 model.register_custom_handler(SoundcloudFeed)

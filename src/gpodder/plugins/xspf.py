@@ -157,7 +157,7 @@ class FM4OnDemandPlaylist(object):
             episode.save()
             tracks.append(episode)
 
-        return len(tracks)
+        return tracks
 
 
 # Register our URL handlers
