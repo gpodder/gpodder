@@ -123,8 +123,6 @@ packages += [
   'gpodder.gtkui.desktop',
 ]
 
-additional_scripts = []
-
 author, email = re.match(r'^(.*) <(.*)>$', gpodder.__author__).groups()
 
 setup(
@@ -132,7 +130,7 @@ setup(
   version      = gpodder.__version__,
   package_dir  = { '':'src' },
   packages     = packages,
-  description  = 'media aggregator',
+  description  = 'A media aggregator and podcast client',
   author       = author,
   author_email = email,
   url          = gpodder.__url__,
