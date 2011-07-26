@@ -8,7 +8,7 @@ import 'util.js' as Util
 Item {
     id: mediaPlayer
 
-    height: (Config.largeSpacing * 2) + (150 * Config.scale)
+    height: (Config.largeSpacing * 4) + (150 * Config.scale) + 110
 
     property variant episode: undefined
 
@@ -19,6 +19,37 @@ Item {
     MouseArea {
         // clicks should not fall through!
         anchors.fill: parent
+    }
+
+    Audio {
+        id: audioPlayer
+        property bool seekLater: false
+
+        onPositionChanged: {
+            episode.qposition = position/1000
+        }
+
+        onDurationChanged: {
+            if (duration > 0) {
+                episode.qduration = duration/1000
+            }
+        }
+
+        onStatusChanged: {
+            if (status == 6 && seekLater) {
+                position = episode.qposition*1000
+                seekLater = false
+            }
+        }
+
+        function setPosition(position) {
+            if (!playing) {
+                playing = true
+            }
+
+            episode.qposition = position*episode.qduration
+            audioPlayer.position = position*episode.qduration*1000
+        }
     }
 
     function togglePlayback(episode) {
@@ -55,115 +86,106 @@ Item {
         anchors.fill: mediaPlayer
         color: 'black'
 
-        Row {
-            spacing: Config.largeSpacing
+        Column {
+            spacing: Config.smallSpacing
 
             anchors {
-                leftMargin: Config.largeSpacing
-                topMargin: Config.largeSpacing
-                left: parent.left
-                top: parent.top
+                fill: parent
+                margins: Config.largeSpacing
             }
 
-            Image {
-                id: coverArt
-                source: (episode!==undefined)?Util.formatCoverURL(episode.qpodcast):''
-                width: 150 * Config.scale
-                height: 150 * Config.scale
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: mediaPlayer.togglePlayback(episode)
-                }
-
-                sourceSize.width: width
-                sourceSize.height: height
+            Text {
+                id: episodeTitle
+                text: episode.qtitle
+                color: 'white'
+                font.pixelSize: 30 * Config.scale
             }
 
-            Column {
-                id: textColumn
+            Text {
+                id: podcastTitle
+                text: episode.qpodcast.qtitle
+                color: '#aaa'
+                font.pixelSize: 20 * Config.scale
+            }
 
-                spacing: Config.smallSpacing
+            Item { height: 1; width: 1 }
 
-                Item { height: 1; width: 1 }
+            Row {
+                spacing: Config.largeSpacing
 
-                Text {
-                    text: episode.qtitle
-                    color: 'white'
-                    font.pixelSize: 30 * Config.scale
+                width: parent.width
+
+                Image {
+                    id: coverArt
+                    width: 150 * Config.scale
+                    height: 150 * Config.scale
+
+                    source: (episode!==undefined)?Util.formatCoverURL(episode.qpodcast):''
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: mediaPlayer.togglePlayback(episode)
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        visible: audioPlayer.paused
+                        color: '#dd000000'
+
+                        ScaledIcon {
+                            anchors.centerIn: parent
+                            source: 'artwork/play.png'
+                        }
+                    }
+
+                    sourceSize.width: width
+                    sourceSize.height: height
+                }
+
+                Item {
+                    height: coverArt.height
+                    width: parent.width - coverArt.width - Config.largeSpacing
+
+                    PlaybackBar {
+                        id: playbackBar
+                        anchors.centerIn: parent
+
+                        function seek(diff) {
+                            if (episode != undefined && episode.qduration > 0) {
+                                var pos = (episode.qposition + diff)/episode.qduration
+                                if (pos < 0) pos = 0
+                                audioPlayer.setPosition(pos)
+                            }
+                        }
+
+                        onForward: seek(60)
+                        onBackward: seek(-60)
+                        onSlowForward: seek(10)
+                        onSlowBackward: seek(-10)
+                    }
                 }
 
                 Text {
-                    text: episode.qpodcast.qtitle
+                    anchors {
+                        bottom: parent.bottom
+                        right: parent.right
+                    }
                     color: '#aaa'
-                    font.pixelSize: 20 * Config.scale
-                }
-            }
-        }
-
-        PlaybackBar {
-            id: playbackBar
-
-            width: mediaPlayer.width - coverArt.width - 3*Config.largeSpacing
-            x: coverArt.width + 2*Config.largeSpacing
-
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: Config.largeSpacing
-
-            Behavior on opacity { PropertyAnimation { } }
-
-            progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
-            duration: episode != undefined?episode.qduration:0
-
-            onSetProgress: {
-                audioPlayer.setPosition(progress)
-                audioPlayer.paused = false
-            }
-
-            onForward: {
-                if (episode != undefined && episode.qduration > 0) {
-                    var pos = (episode.qposition + 60)/episode.qduration
-                    audioPlayer.setPosition(pos)
+                    text:  Util.formatDuration(episode.qposition) + ' / ' + Util.formatDuration(episode.qduration)
+                    font.pixelSize: 15 * Config.scale
                 }
             }
 
-            onBackward: {
-                if (episode != undefined && episode.qduration > 0) {
-                    var pos = (episode.qposition - 60)/episode.qduration
-                    if (pos < 0) pos = 0
-                    audioPlayer.setPosition(pos)
+            PlaybackBarProgress {
+                progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
+                duration: episode != undefined?episode.qduration:0
+
+                width: parent.width
+
+                onSetProgress: {
+                    audioPlayer.setPosition(progress)
+                    audioPlayer.paused = false
                 }
-            }
-        }
-
-        Audio {
-            id: audioPlayer
-            property bool seekLater: false
-
-            onPositionChanged: {
-                episode.qposition = position/1000
-            }
-
-            onDurationChanged: {
-                if (duration > 0) {
-                    episode.qduration = duration/1000
-                }
-            }
-
-            onStatusChanged: {
-                if (status == 6 && seekLater) {
-                    position = episode.qposition*1000
-                    seekLater = false
-                }
-            }
-
-            function setPosition(position) {
-                if (!playing) {
-                    playing = true
-                }
-
-                episode.qposition = position*episode.qduration
-                audioPlayer.position = position*episode.qduration*1000
             }
         }
     }

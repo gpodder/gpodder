@@ -4,7 +4,7 @@ import Qt 4.7
 import 'config.js' as Config
 import 'util.js' as Util
 
-BorderImage {
+Item {
     id: root
 
     property real progress: 0
@@ -14,62 +14,70 @@ BorderImage {
 
     height: 64 * Config.scale
 
-    source: 'artwork/progressbar_bg.png'
+    BorderImage {
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            right: parent.right
+        }
 
-    Rectangle {
-        id: seekTimePreviewBackground
+        height: 9
 
-        anchors.fill: seekTimePreview
-        color: '#dfffffff'
-        opacity: seekTimePreview.opacity
-        radius: Config.smallSpacing
-    }
+        source: 'artwork/slider-bg.png'
 
-    Text {
-        id: seekTimePreview
-        anchors.bottom: parent.top
-        text: Util.formatDuration(root.mousepos*duration)
-        font.pixelSize: 50 * Config.scale
-        horizontalAlignment: Text.AlignHCenter
-        color: 'black'
-        anchors.left: parent.left
-        anchors.leftMargin: parent.width * root.mousepos - width/2
-        anchors.bottomMargin: Config.largeSpacing
-        opacity: mouseArea.pressed?1:0
-        scale: mouseArea.pressed?1:.5
-        transformOrigin: Item.Bottom
+        Rectangle {
+            id: seekTimePreviewBackground
 
-        Behavior on opacity { PropertyAnimation { } }
-        Behavior on scale { PropertyAnimation { } }
-    }
+            anchors.fill: seekTimePreview
+            color: 'black'
+            opacity: seekTimePreview.opacity*.8
+            radius: Config.largeSpacing
+            smooth: true
+        }
 
-    border {
-        top: 18 * Config.scale
-        left: 18 * Config.scale
-        right: 18 * Config.scale
-        bottom: 18 * Config.scale
-    }
+        Text {
+            id: seekTimePreview
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.top
+            anchors.bottomMargin: Config.largeSpacing * 3
+            text: ' ' + Util.formatDuration(root.mousepos*duration) + ' '
+            font.pixelSize: 50 * Config.scale
+            horizontalAlignment: Text.AlignHCenter
+            color: 'white'
+            opacity: mouseArea.pressed?1:0
+            scale: mouseArea.pressed?1:.5
+            transformOrigin: Item.Bottom
 
-    Item {
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        width: parent.width * root.progress
-        clip: true
+            Behavior on opacity { PropertyAnimation { } }
+            Behavior on scale { PropertyAnimation { } }
+        }
+
+        border {
+            top: 2
+            left: 2
+            right: 2
+            bottom: 2
+        }
 
         BorderImage {
-            width: root.width
-            source: 'artwork/progressbar_fg.png'
-            height: 64 * Config.scale
-            border {
-                top: 18 * Config.scale
-                left: 18 * Config.scale
-                right: 18 * Config.scale
-                bottom: 18 * Config.scale
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.leftMargin: parent.border.left
+            anchors.topMargin: parent.border.top
+
+            width: Math.max(1, (parent.width-parent.border.left-parent.border.right) * root.progress)
+            source: 'artwork/slider-fg.png'
+            clip: true
+
+            Image {
+                source: 'artwork/slider-dot.png'
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.right
+                anchors.leftMargin: -width
             }
         }
-    }
 
+    }
     MouseArea {
         id: mouseArea
 
