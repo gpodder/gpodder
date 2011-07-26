@@ -55,26 +55,9 @@ Item {
 
         SimpleButton {
             id: searchButton
-            //text: 'Search'
             image: 'artwork/search.png'
 
             onClicked: searchResultsListModel.searchFor(searchInput.text)
-
-            width: parent.height
-            height: parent.height
-
-            anchors {
-                top: parent.top
-                right: addButton.left
-            }
-        }
-
-        SimpleButton {
-            id: addButton
-            //text: 'Add'
-            image: 'artwork/subscriptions.png'
-
-            onClicked: subscribe.subscribe(searchInput.text)
 
             width: parent.height
             height: parent.height
@@ -135,8 +118,11 @@ Item {
             }
 
             Column {
+                clip: true
+
                 anchors {
                     leftMargin: Config.largeSpacing
+                    rightMargin: Config.largeSpacing
                     left: coverArt.right
                     right: subscriberCount.left
                     verticalCenter: parent.verticalCenter
@@ -161,6 +147,7 @@ Item {
                 id: subscriberCount
                 anchors {
                     verticalCenter: parent.verticalCenter
+                    leftMargin: Config.largeSpacing
                     right: parent.right
                     rightMargin: Config.largeSpacing
                 }
