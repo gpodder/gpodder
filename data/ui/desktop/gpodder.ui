@@ -232,6 +232,12 @@
           </object>
         </child>
         <child>
+          <object class="GtkToggleAction" id="item_podcast_sections">
+            <property name="active">True</property>
+            <property name="label" translatable="yes">Group podcasts by type</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkToggleAction" id="item_sidebar">
             <property name="active">True</property>
             <property name="label" translatable="yes">Podcast list</property>
@@ -361,6 +367,7 @@
         <menu action="menuView">
           <menuitem action="item_sidebar"/>
           <menuitem action="itemShowAllEpisodes"/>
+          <menuitem action="item_podcast_sections"/>
           <separator/>
           <menuitem action="itemShowToolbar"/>
           <menuitem action="itemShowDescription"/>

@@ -637,10 +637,33 @@ class PodcastListModel(gtk.ListStore):
             self.update_by_iter(iter)
 
             # Separator item
-            self.append(('', '', '', None, None, None, '', True, True, \
+            if not config.podcast_list_sections:
+                self.append(('', '', '', None, None, None, '', True, True,
                     True, True, True, True, 0))
 
-        for channel in channels:
+        def key_func(pair):
+            section, podcast = pair
+            return (section, model.Model.podcast_sort_key(podcast))
+
+        if config.podcast_list_sections:
+            def convert(channels):
+                for channel in channels:
+                    # TODO: Maybe allow user-specified section name
+                    # here (e.g. via hooks or integrated into the DB
+                    # model and determined at first feed update)
+                    yield (channel._get_content_type(), channel)
+        else:
+            def convert(channels):
+                for channel in channels:
+                    yield (None, channel)
+
+        old_section = None
+        for section, channel in sorted(convert(channels), key=key_func):
+            if old_section != section:
+                self.append(('-', '', '<b>%s</b>' % section, None,
+                    None, None, '', True, True, True, True, True, False, 0))
+                old_section = section
+
             iter = self.append(channel_to_row(channel, True))
             self.update_by_iter(iter)
 

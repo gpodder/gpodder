@@ -165,6 +165,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
+        self.config.connect_gtk_togglebutton('podcast_list_sections', self.item_podcast_sections)
+
         # When the amount of maximum downloads changes, notify the queue manager
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
@@ -648,6 +650,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
+        def select_function(selection, model, path, path_currently_selected):
+            url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
+            return (url != '-')
+        selection.set_select_function(select_function, full=True)
         selection.connect('changed', self.on_treeview_podcasts_selection_changed)
 
         # Set up type-ahead find for the podcast list
@@ -1151,7 +1157,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_episode_list_model()
         elif name in ('auto_update_feeds', 'auto_update_frequency'):
             self.restart_auto_update_timer()
-        elif name == 'podcast_list_view_all':
+        elif name in ('podcast_list_view_all', 'podcast_list_sections'):
             # Force a update of the podcast list model
             self.update_podcast_list_model()
         elif name == 'episode_list_columns':
@@ -1959,6 +1965,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             list_model_length = len(self.podcast_list_model)
 
+        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
+        sections_active = any(is_section(x) for x in self.podcast_list_model)
+        force_update = (sections_active != self.config.podcast_list_sections)
+
         if selected:
             # very cheap! only update selected channel
             if iter is not None:
@@ -1971,7 +1981,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
-        elif list_model_length == len(self.channels):
+        elif list_model_length == len(self.channels) and not force_update:
             # we can keep the model, but have to update some
             if urls is None:
                 # still cheaper than reloading the whole list

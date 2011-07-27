@@ -73,6 +73,7 @@ gPodderSettings = {
     'show_toolbar': True,
     'episode_list_descriptions': True,
     'podcast_list_view_all': True,
+    'podcast_list_sections': True,
     'enable_html_shownotes': True,
     'enable_notifications': True,
 
