@@ -200,6 +200,7 @@ def convert_gpodder2_db(old_db, new_db):
                 row['channel_is_locked'],
                 row['foldername'],
                 not row['feed_update_enabled'],
+                '',
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
