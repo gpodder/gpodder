@@ -14,6 +14,10 @@ Item {
         searchInput.forceActiveFocus()
     }
 
+    function search() {
+        searchResultsListModel.searchFor(searchInput.text)
+    }
+
     onVisibleChanged: {
         if (!visible) {
             searchInput.closeVirtualKeyboard()
@@ -51,13 +55,15 @@ Item {
                 right: searchButton.left
                 verticalCenter: parent.verticalCenter
             }
+
+            onAccepted: subscribe.search()
         }
 
         SimpleButton {
             id: searchButton
             image: 'artwork/search.png'
 
-            onClicked: searchResultsListModel.searchFor(searchInput.text)
+            onClicked: subscribe.search()
 
             width: parent.height
             height: parent.height
