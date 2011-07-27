@@ -11,48 +11,36 @@ Item {
 
     signal episodeContextMenu(variant episode)
 
+    function resetSelection() {
+        listView.openedIndex = -1
+    }
+
     ListView {
         id: listView
         anchors.fill: parent
-        property bool closeAll: false
+        property int openedIndex: -1
 
         delegate: Item {
-            property bool closeAll: listView.closeAll
+            id: listItem
 
-            height: Config.listItemHeight
+            height: listItem.opened?(Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight):(Config.listItemHeight)
             width: parent.width
-
-            onCloseAllChanged: {
-                if (closeAll) hideActions()
-            }
-
-            function showActions() {
-                if (height != Config.listItemHeight) {
-                    hideActions()
-                    return
-                }
-                listView.closeAll = true
-                listView.closeAll = false
-                height = Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight
-                episodeItem.y = Config.smallSpacing
-
-                loader.source = 'EpisodeActions.qml'
-                loader.item.episode = modelData
-            }
-
-            function hideActions() {
-                loader.source = ''
-                height = Config.listItemHeight
-                episodeItem.y = 0
-            }
+            property bool opened: (index == listView.openedIndex)
 
             Loader {
                 id: loader
                 clip: true
+                source: listItem.opened?'EpisodeActions.qml':''
 
                 Behavior on opacity { PropertyAnimation { } }
 
-                opacity: ((source != '')?1:0)
+                opacity: listItem.opened
+
+                onItemChanged: {
+                    if (item) {
+                        item.episode = modelData
+                    }
+                }
 
                 anchors {
                     left: parent.left
@@ -69,8 +57,15 @@ Item {
 
             EpisodeItem {
                 id: episodeItem
+                y: listItem.opened?Config.smallSpacing:0
                 width: parent.width
-                onSelected: parent.showActions()
+                onSelected: {
+                    if (listView.openedIndex == index) {
+                        listView.openedIndex = -1
+                    } else {
+                        listView.openedIndex = index
+                    }
+                }
                 onContextMenu: episodeList.episodeContextMenu(item)
 
                 Behavior on y { PropertyAnimation { } }

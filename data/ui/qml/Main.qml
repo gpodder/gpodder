@@ -76,6 +76,9 @@ Rectangle {
                 target: showNotes
                 opacity: 0
             }
+            StateChangeScript {
+                script: episodeList.resetSelection()
+            }
         },
         State {
             name: 'episodes'
