@@ -227,7 +227,7 @@ class QPodcast(QObject):
     @classmethod
     def sort_key(cls, qpodcast):
         if isinstance(qpodcast, cls):
-            sortkey = model.PodcastChannel.sort_key(qpodcast._podcast)
+            sortkey = model.Model.podcast_sort_key(qpodcast._podcast)
         else:
             sortkey = None
 
