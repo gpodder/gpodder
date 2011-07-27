@@ -648,10 +648,7 @@ class PodcastListModel(gtk.ListStore):
         if config.podcast_list_sections:
             def convert(channels):
                 for channel in channels:
-                    # TODO: Maybe allow user-specified section name
-                    # here (e.g. via hooks or integrated into the DB
-                    # model and determined at first feed update)
-                    yield (channel._get_content_type(), channel)
+                    yield (channel.group_by, channel)
         else:
             def convert(channels):
                 for channel in channels:

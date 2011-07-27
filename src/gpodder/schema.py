@@ -22,6 +22,9 @@
 
 from sqlite3 import dbapi2 as sqlite
 
+import time
+import shutil
+
 EpisodeColumns = (
     'podcast_id',
     'title',
@@ -55,8 +58,10 @@ PodcastColumns = (
     'auto_archive_episodes',
     'download_folder',
     'pause_subscription',
+    'section',
 )
 
+CURRENT_VERSION = 2
 
 def initialize_database(db):
     # Create table for podcasts
@@ -74,7 +79,8 @@ def initialize_database(db):
         http_etag TEXT NULL DEFAULT NULL,
         auto_archive_episodes INTEGER NOT NULL DEFAULT 0,
         download_folder TEXT NOT NULL DEFAULT '',
-        pause_subscription INTEGER NOT NULL DEFAULT 0
+        pause_subscription INTEGER NOT NULL DEFAULT 0,
+        section TEXT NOT NULL DEFAULT ''
     )
     """)
 
@@ -125,17 +131,42 @@ def initialize_database(db):
 
     # Create table for version info / metadata + insert initial data
     db.execute("""CREATE TABLE version (version integer)""")
-    db.execute("""INSERT INTO version (version) VALUES (1)""")
+    db.execute("INSERT INTO version (version) VALUES (%d)" % CURRENT_VERSION)
     db.commit()
 
 
-def upgrade(db):
+def upgrade(db, filename):
     if not list(db.execute('PRAGMA table_info(version)')):
         initialize_database(db)
         return
 
-    result = db.execute('SELECT version FROM version').fetchone()
-    if result[0] != 1:
+    version = db.execute('SELECT version FROM version').fetchone()[0]
+    if version == CURRENT_VERSION:
+        return
+
+    # We are trying an upgrade - save the current version of the DB
+    backup = '%s_upgraded-v%d_%d' % (filename, int(version), int(time.time()))
+    try:
+        shutil.copy(filename, backup)
+    except Exception, e:
+        raise Exception('Cannot create DB backup before upgrade: ' + e)
+
+    db.execute("DELETE FROM version")
+
+    if version == 1:
+        UPGRADE_V1_TO_V2 = """
+        ALTER TABLE podcast ADD COLUMN section TEXT NOT NULL DEFAULT ''
+        """
+
+        for sql in UPGRADE_V1_TO_V2.strip().split('\n'):
+            db.execute(sql)
+
+        version = 2
+
+    db.execute("INSERT INTO version (version) VALUES (%d)" % version)
+    db.commit()
+
+    if version != CURRENT_VERSION:
         raise Exception('Database schema version unknown')
 
 

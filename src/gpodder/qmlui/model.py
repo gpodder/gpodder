@@ -222,7 +222,6 @@ class QPodcast(QObject):
         QObject.__init__(self)
         self._podcast = podcast
         self._updating = False
-        self._section_cached = None
 
     @classmethod
     def sort_key(cls, qpodcast):
@@ -301,9 +300,7 @@ class QPodcast(QObject):
     qdescription = Property(unicode, _description, notify=changed)
 
     def _section(self):
-        if self._section_cached is None:
-            self._section_cached = convert(self._podcast._get_content_type())
-        return self._section_cached
+        return convert(self._podcast.group_by)
 
     qsection = Property(unicode, _section, notify=changed)
 

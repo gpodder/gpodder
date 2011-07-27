@@ -688,6 +688,8 @@ class PodcastChannel(PodcastModelObject):
         self.download_folder = None
         self.pause_subscription = False
 
+        self.section = _('Other')
+
     def _get_db(self):
         return self.parent
 
@@ -808,6 +810,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
 
             tmp.update(max_episodes, mimetype_prefs)
+            tmp.section = tmp._get_content_type()
 
             # Mark episodes as downloaded if files already exist (bug 902)
             tmp.import_external_files()
@@ -1045,15 +1048,34 @@ class PodcastChannel(PodcastModelObject):
         else:
             return self.db.get_podcast_statistics(self.id)
 
+    @property
+    def group_by(self):
+        if not self.section:
+            self.section = self._get_content_type()
+            self.save()
+
+        return self.section
+
     def _get_content_type(self):
         if 'youtube.com' in self.url:
-            return 'video'
+            return _('Video')
 
-        content_types = self.db.get_content_types(self.id)
-        result = ' and '.join(sorted(set(x.split('/')[0].lower() for x in content_types if not x.startswith('application'))))
-        if result == '':
-            return 'other'
-        return result
+        audio, video, other = 0, 0, 0
+        for content_type in self.db.get_content_types(self.id):
+            content_type = content_type.lower()
+            if content_type.startswith('audio'):
+                audio += 1
+            elif content_type.startswith('video'):
+                video += 1
+            else:
+                other += 1
+
+        if audio >= video:
+            return _('Audio')
+        elif video > other:
+            return _('Video')
+
+        return _('Other')
 
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)
