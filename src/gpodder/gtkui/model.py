@@ -440,7 +440,7 @@ class PodcastListModel(gtk.ListStore):
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS = range(14)
+            C_DOWNLOADS, C_COVER_VISIBLE = range(15)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -451,7 +451,7 @@ class PodcastListModel(gtk.ListStore):
     def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
-                bool, bool, int)
+                bool, bool, int, bool)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -629,7 +629,7 @@ class PodcastListModel(gtk.ListStore):
         def channel_to_row(channel, add_overlay=False):
             return (channel.url, '', '', None, channel, \
                     self._get_cover_image(channel, add_overlay), '', True, True, True, \
-                    True, True, False, 0)
+                    True, True, False, 0, True)
 
         if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
@@ -639,7 +639,7 @@ class PodcastListModel(gtk.ListStore):
             # Separator item
             if not config.podcast_list_sections:
                 self.append(('', '', '', None, None, None, '', True, True,
-                    True, True, True, True, 0))
+                    True, True, True, True, 0, False))
 
         def key_func(pair):
             section, podcast = pair
@@ -657,8 +657,9 @@ class PodcastListModel(gtk.ListStore):
         old_section = None
         for section, channel in sorted(convert(channels), key=key_func):
             if old_section != section:
-                self.append(('-', '', '<b>%s</b>' % section, None,
-                    None, None, '', True, True, True, True, True, False, 0))
+                description = '<span size="16000"> </span><b>%s</b>' % cgi.escape(section)
+                self.append(('-', '', description, None, None, None,
+                    '', True, True, True, True, True, False, 0, False))
                 old_section = section
 
             iter = self.append(channel_to_row(channel, True))

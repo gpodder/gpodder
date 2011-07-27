@@ -626,25 +626,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_podcast_list_treeview(self):
         # Set up podcast channel tree view widget
-        iconcolumn = gtk.TreeViewColumn('')
+        column = gtk.TreeViewColumn('')
         iconcell = gtk.CellRendererPixbuf()
-        iconcolumn.pack_start(iconcell, False)
-        iconcolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
-        self.treeChannels.append_column(iconcolumn)
+        iconcell.set_property('width', 45)
+        column.pack_start(iconcell, False)
+        column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
+        column.add_attribute(iconcell, 'visible', PodcastListModel.C_COVER_VISIBLE)
 
-        namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn.pack_start(namecell, True)
-        namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
+        column.pack_start(namecell, True)
+        column.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
-        namecolumn.pack_start(iconcell, False)
-        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
-        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        column.pack_start(iconcell, False)
+        column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
+        column.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
 
-        self.treeChannels.append_column(namecolumn)
+        self.treeChannels.append_column(column)
 
         self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
 
@@ -660,6 +660,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def on_key_press(treeview, event):
             if event.keyval == gtk.keysyms.Right:
                 self.treeAvailable.grab_focus()
+            elif event.keyval in (gtk.keysyms.Up, gtk.keysyms.Down):
+                # If section markers exist in the treeview, we want to
+                # "jump over" them when moving the cursor up and down
+                selection = self.treeChannels.get_selection()
+                model, it = selection.get_selected()
+
+                if event.keyval == gtk.keysyms.Up:
+                    step = -1
+                else:
+                    step = 1
+
+                path = model.get_path(it)
+                while True:
+                    path = (path[0]+step,)
+
+                    if path[0] < 0:
+                        # Valid paths must have a value >= 0
+                        return True
+
+                    try:
+                        it = model.get_iter(path)
+                    except ValueError:
+                        # Already at the end of the list
+                        return True
+
+                    if model.get_value(it, PodcastListModel.C_URL) != '-':
+                        break
+
+                self.treeChannels.set_cursor(path)
             elif event.keyval == gtk.keysyms.Escape:
                 self.hide_podcast_search()
             elif event.state & gtk.gdk.CONTROL_MASK:
