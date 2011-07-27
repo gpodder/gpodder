@@ -1598,10 +1598,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif downloaded:
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
             else:
-                item = gtk.ImageMenuItem(_('Stream'))
+                if downloading:
+                    item = gtk.ImageMenuItem(_('Preview'))
+                else:
+                    item = gtk.ImageMenuItem(_('Stream'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
 
-            item.set_sensitive(can_play and not downloading)
+            item.set_sensitive(can_play)
             item.connect('activate', self.on_playback_selected_episodes)
             menu.append(item)
 
@@ -1759,7 +1762,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_playback([episode])
 
             fmt_id = self.config.youtube_preferred_fmt_id
-            filename = episode.get_playback_url(fmt_id)
+            allow_partial = (player != 'default')
+            filename = episode.get_playback_url(fmt_id, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning

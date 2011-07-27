@@ -390,13 +390,20 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, fmt_id=None):
+    def get_playback_url(self, fmt_id=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
         can be used to playback this episode.
+
+        Also returns the filename of a partially downloaded file
+        in case partial (preview) playback is desired.
         """
         url = self.local_filename(create=False)
+
+        if allow_partial and os.path.exists(url + '.partial'):
+            return url + '.partial'
+
         if url is None or not os.path.exists(url):
             url = self.url
             if youtube.is_video_link(url):
