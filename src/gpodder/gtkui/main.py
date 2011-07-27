@@ -554,12 +554,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                            in episode_urls]
         self._for_each_task_set_status(selected_tasks, status)
 
-    def on_treeview_podcasts_selection_changed(self, selection):
-        model, iter = selection.get_selected()
-        if iter is None:
-            self.active_channel = None
-            self.episode_list_model.clear()
-
     def on_treeview_button_pressed(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
@@ -654,7 +648,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
             return (url != '-')
         selection.set_select_function(select_function, full=True)
-        selection.connect('changed', self.on_treeview_podcasts_selection_changed)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
