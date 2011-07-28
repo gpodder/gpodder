@@ -1960,7 +1960,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model()
         self.update_episode_list_icons(urls)
 
-    def update_podcast_list_model(self, urls=None, selected=False, select_url=None):
+    def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
+            sections_changed=False):
         """Update the podcast list treeview model
 
         If urls is given, it should list the URLs of each
@@ -1989,9 +1990,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         is_section = lambda r: r[PodcastListModel.C_URL] == '-'
         sections_active = any(is_section(x) for x in self.podcast_list_model)
-        force_update = (sections_active != self.config.podcast_list_sections)
+        force_update = (sections_active != self.config.podcast_list_sections or
+                sections_changed)
 
-        if selected:
+        if selected and not force_update:
             # very cheap! only update selected channel
             if iter is not None:
                 # If we have selected the "all episodes" view, we have
@@ -2867,11 +2869,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        callback_closed = lambda: self.update_podcast_list_model(selected=True)
         gPodderChannel(self.main_window, \
                 channel=self.active_channel, \
-                callback_closed=callback_closed, \
-                cover_downloader=self.cover_downloader)
+                update_podcast_list_model=self.update_podcast_list_model, \
+                cover_downloader=self.cover_downloader, \
+                sections=set(c.section for c in self.channels))
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (

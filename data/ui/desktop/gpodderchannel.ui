@@ -30,10 +30,10 @@
             <property name="scrollable">False</property>
             <property name="enable_popup">False</property>
             <child>
-              <object class="GtkTable" id="table1">
+              <object class="GtkTable" id="table_settings">
                 <property name="border_width">10</property>
                 <property name="visible">True</property>
-                <property name="n_rows">4</property>
+                <property name="n_rows">5</property>
                 <property name="n_columns">2</property>
                 <property name="homogeneous">False</property>
                 <property name="row_spacing">10</property>
@@ -114,6 +114,34 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkLabel" id="label_section">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Section:</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="right_attach">1</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
+                    <property name="x_options">fill</property>
+                    <property name="y_options"/>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxEntry" id="combo_section">
+                    <property name="visible">True</property>
+                    <property name="text-column">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
+                    <property name="x_options">fill</property>
+                    <property name="y_options"/>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkScrolledWindow" id="scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -141,8 +169,8 @@
                   <packing>
                     <property name="left_attach">0</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>

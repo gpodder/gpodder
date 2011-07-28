@@ -35,6 +35,12 @@ class gPodderChannel(BuilderWidget):
         self.labelURL.set_text(self.channel.url)
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
 
+        self.combo_section.child.set_text(self.channel.section)
+        self.section_list = gtk.ListStore(str)
+        for section in sorted(self.sections):
+            self.section_list.append([section])
+        self.combo_section.set_model(self.section_list)
+
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
 
@@ -105,10 +111,20 @@ class gPodderChannel(BuilderWidget):
         self.channel.set_custom_title(self.entryTitle.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
+
+        new_section = self.combo_section.child.get_text().strip()
+        if self.channel.section != new_section:
+            self.channel.section = new_section
+            section_changed = True
+        else:
+            section_changed = False
+
         self.channel.save()
 
         self.cover_downloader.reload_cover_from_disk(self.channel)
 
         self.gPodderChannel.destroy()
-        self.callback_closed()
+
+        self.update_podcast_list_model(selected=True,
+                sections_changed=section_changed)
 
