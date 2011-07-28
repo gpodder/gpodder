@@ -9,7 +9,7 @@ import Qt 4.7
  **/
 
 XmlListModel {
-    query: '/searchResults/podcast'
+    query: '//podcast'
 
     XmlRole { name: 'title'; query: 'title/string()' }
     XmlRole { name: 'description'; query: 'description/string()' }

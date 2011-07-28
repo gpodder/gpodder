@@ -201,8 +201,7 @@ Item {
                 source: 'artwork/directory-toplist.png'
 
                 SelectableItem {
-                    // XXX: New URL for XML-based toplist (gPodder bug 1383)
-                    property string modelData: 'http://gpodder.org/toplist.opml'
+                    property string modelData: 'http://gpodder.net/toplist.xml'
                     anchors.fill: parent
                     onSelected: searchResultsListModel.source = item
                 }
@@ -220,8 +219,7 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
-                    // XXX: New URL for XML-based directory (gPodder bug 1383)
-                    property string modelData: 'http://gpodder.org/directory.opml'
+                    property string modelData: 'http://gpodder.net/gpodder-examples.xml'
                     anchors.fill: parent
                     onSelected: searchResultsListModel.source = item
                 }
