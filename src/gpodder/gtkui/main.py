@@ -1212,6 +1212,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 id = model.get_value(iter, EpisodeListModel.C_URL)
             elif role == TreeViewHelper.ROLE_PODCASTS:
                 id = model.get_value(iter, PodcastListModel.C_URL)
+                if id == '-':
+                    # Section header - no tooltip here (for now at least)
+                    return False
 
             last_tooltip = getattr(treeview, TreeViewHelper.LAST_TOOLTIP)
             if last_tooltip is not None and last_tooltip != id:
@@ -2005,6 +2008,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
+
+                if self.config.podcast_list_sections:
+                    self.podcast_list_model.update_sections()
         elif list_model_length == len(self.channels) and not force_update:
             # we can keep the model, but have to update some
             if urls is None:
@@ -2013,6 +2019,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # ok, we got a bunch of urls to update
                 self.podcast_list_model.update_by_urls(urls)
+                if self.config.podcast_list_sections:
+                    self.podcast_list_model.update_sections()
         else:
             if model and iter and select_url is None:
                 # Get the URL of the currently-selected podcast
