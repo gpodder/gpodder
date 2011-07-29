@@ -127,9 +127,7 @@ class gPodderShownotes(gPodderShownotesBase):
 
             # Get the description - if it looks like plaintext, replace the
             # newline characters with line breaks for the HTML view
-            description = self.episode.description
-            if '<' not in description:
-                description = description.replace('\n', '<br>')
+            description = self.episode.description_html
 
             args = (
                     cgi.escape(heading),

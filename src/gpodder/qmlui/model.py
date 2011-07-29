@@ -174,7 +174,7 @@ class QEpisode(QObject):
         threading.Thread(target=t, args=[self]).start()
 
     def _description(self):
-        return convert(self._episode.description)
+        return convert(self._episode.description_html)
 
     qdescription = Property(unicode, _description, notify=changed)
 

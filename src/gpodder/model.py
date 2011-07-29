@@ -368,6 +368,15 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
+    @property
+    def description_html(self):
+        # XXX: That's not a very well-informed heuristic to check
+        # if the description already contains HTML. Better ideas?
+        if '<' in self.description:
+            return self.description
+
+        return self.description.replace('\n', '<br>')
+
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
         desc = util.remove_html_tags(self.description or '')
