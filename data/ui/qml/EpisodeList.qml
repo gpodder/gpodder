@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Item {
@@ -74,6 +76,10 @@ Item {
 
         header: Item { height: Config.headerHeight }
         footer: Item { height: Config.headerHeight }
+    }
+
+    ScrollDecorator {
+        flickableItem: listView
     }
 }
 

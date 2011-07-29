@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Rectangle {
@@ -32,6 +34,10 @@ Rectangle {
             wrapMode: Text.Wrap
             text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):'No episode selected'
         }
+    }
+
+    ScrollDecorator {
+        flickableItem: showNotesFlickable
     }
 }
 

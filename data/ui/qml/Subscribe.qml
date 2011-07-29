@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Item {
@@ -233,6 +235,10 @@ Item {
                 }
             }
         }
+    }
+
+    ScrollDecorator {
+        flickableItem: listView
     }
 
     Text {
