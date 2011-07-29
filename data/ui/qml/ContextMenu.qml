@@ -14,6 +14,7 @@ Item {
     signal response(int index)
 
     ListView {
+        id: listView
         visible: !contextMenuArea.subscribeMode
         model: contextMenuArea.items
         anchors.fill: parent

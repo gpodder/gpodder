@@ -16,6 +16,7 @@ Rectangle {
     }
 
     Flickable {
+        id: showNotesFlickable
         anchors.fill: parent
 
         contentHeight: showNotesText.height
