@@ -167,7 +167,7 @@ Rectangle {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        anchors.topMargin: Config.headerHeight
+        anchors.topMargin: nowPlayingThrobber.opened?0:Config.headerHeight
         z: nowPlayingThrobber.opened?2:0
 
         opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity == 1)?1:0
@@ -297,7 +297,7 @@ Rectangle {
         Rectangle {
             anchors.fill: parent
             color: "black"
-            opacity: .6
+            opacity: .9
 
             MouseArea {
                 // clicks should not fall through!
