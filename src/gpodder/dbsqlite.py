@@ -91,7 +91,7 @@ class Database(object):
             self._db.text_factory = str
 
             # Check schema version, upgrade if necessary
-            schema.upgrade(self._db)
+            schema.upgrade(self._db, self.database_file)
 
             logger.debug('Database opened.')
         return self._db
@@ -111,7 +111,7 @@ class Database(object):
         """Given a podcast ID, returns the content types"""
         with self.lock:
             cur = self.cursor()
-            cur.execute('SELECT DISTINCT mime_type AS mime_type FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (id,))
+            cur.execute('SELECT mime_type FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (id,))
             for (mime_type,) in cur:
                 yield mime_type
             cur.close()

@@ -38,8 +38,9 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         self._cache = {}
 
     def requestImage(self, id, size, requestedSize):
-        if id in self._cache:
-            return self._cache[id]
+        key = (id, requestedSize)
+        if key in self._cache:
+            return self._cache[key]
 
         filename, cover_url, url = (urllib.unquote(x) for x in id.split('|'))
 
@@ -69,8 +70,8 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         if image.isNull():
             return image
         else:
-            self._cache[id] = image.scaled(requestedSize, \
+            self._cache[key] = image.scaled(requestedSize, \
                     Qt.KeepAspectRatioByExpanding, \
                     Qt.SmoothTransformation)
-            return self._cache[id]
+            return self._cache[key]
 

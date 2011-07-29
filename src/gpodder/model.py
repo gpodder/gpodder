@@ -368,6 +368,15 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
+    @property
+    def description_html(self):
+        # XXX: That's not a very well-informed heuristic to check
+        # if the description already contains HTML. Better ideas?
+        if '<' in self.description:
+            return self.description
+
+        return self.description.replace('\n', '<br>')
+
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
         desc = util.remove_html_tags(self.description or '')
@@ -390,13 +399,20 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, fmt_id=None):
+    def get_playback_url(self, fmt_id=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
         can be used to playback this episode.
+
+        Also returns the filename of a partially downloaded file
+        in case partial (preview) playback is desired.
         """
         url = self.local_filename(create=False)
+
+        if allow_partial and os.path.exists(url + '.partial'):
+            return url + '.partial'
+
         if url is None or not os.path.exists(url):
             url = self.url
             if youtube.is_video_link(url):
@@ -681,6 +697,8 @@ class PodcastChannel(PodcastModelObject):
         self.download_folder = None
         self.pause_subscription = False
 
+        self.section = _('Other')
+
     def _get_db(self):
         return self.parent
 
@@ -801,6 +819,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
 
             tmp.update(max_episodes, mimetype_prefs)
+            tmp.section = tmp._get_content_type()
 
             # Mark episodes as downloaded if files already exist (bug 902)
             tmp.import_external_files()
@@ -827,8 +846,13 @@ class PodcastChannel(PodcastModelObject):
 
         guids = [episode.guid for episode in self.get_all_episodes()]
 
-        # Insert newly-found episodes into the database
-        custom_feed.get_new_episodes(self, guids)
+        assert self.children is not None
+
+        # Insert newly-found episodes into the database + local cache
+        self.children.extend(custom_feed.get_new_episodes(self, guids))
+
+        # Sort episodes by pubdate, descending
+        self.children.sort(key=lambda e: e.published, reverse=True)
 
         self.save()
 
@@ -1033,15 +1057,34 @@ class PodcastChannel(PodcastModelObject):
         else:
             return self.db.get_podcast_statistics(self.id)
 
+    @property
+    def group_by(self):
+        if not self.section:
+            self.section = self._get_content_type()
+            self.save()
+
+        return self.section
+
     def _get_content_type(self):
         if 'youtube.com' in self.url:
-            return 'video'
+            return _('Video')
 
-        content_types = self.db.get_content_types(self.id)
-        result = ' and '.join(sorted(set(x.split('/')[0].lower() for x in content_types if not x.startswith('application'))))
-        if result == '':
-            return 'other'
-        return result
+        audio, video, other = 0, 0, 0
+        for content_type in self.db.get_content_types(self.id):
+            content_type = content_type.lower()
+            if content_type.startswith('audio'):
+                audio += 1
+            elif content_type.startswith('video'):
+                video += 1
+            else:
+                other += 1
+
+        if audio >= video:
+            return _('Audio')
+        elif video > other:
+            return _('Video')
+
+        return _('Other')
 
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)
@@ -1192,12 +1235,15 @@ class Model(object):
     def podcast_sort_key(cls, podcast):
         return cls.PodcastClass.sort_key(podcast)
 
-    @staticmethod
-    def sort_episodes_by_pubdate(episodes, reverse=False):
+    @classmethod
+    def episode_sort_key(cls, episode):
+        return episode.published
+
+    @classmethod
+    def sort_episodes_by_pubdate(cls, episodes, reverse=False):
         """Sort a list of PodcastEpisode objects chronologically
 
         Returns a iterable, sorted sequence of the episodes
         """
-        get_key = lambda e: e.published
-        return sorted(episodes, key=get_key, reverse=reverse)
+        return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
 

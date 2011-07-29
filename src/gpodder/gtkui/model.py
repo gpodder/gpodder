@@ -99,6 +99,10 @@ class Model(model.Model):
 
 # ----------------------------------------------------------
 
+# Singleton indicator if a row is a section
+class SeparatorMarker(object): pass
+class SectionMarker(object): pass
+
 class EpisodeListModel(gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
@@ -440,7 +444,7 @@ class PodcastListModel(gtk.ListStore):
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS = range(14)
+            C_DOWNLOADS, C_COVER_VISIBLE = range(15)
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
 
@@ -451,7 +455,7 @@ class PodcastListModel(gtk.ListStore):
     def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
-                bool, bool, int)
+                bool, bool, int, bool)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -627,9 +631,9 @@ class PodcastListModel(gtk.ListStore):
         self.clear()
 
         def channel_to_row(channel, add_overlay=False):
-            return (channel.url, '', '', None, channel, \
-                    self._get_cover_image(channel, add_overlay), '', True, True, True, \
-                    True, True, False, 0)
+            return (channel.url, '', '', None, channel,
+                    self._get_cover_image(channel, add_overlay), '', True,
+                    True, True, True, True, False, 0, True)
 
         if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
@@ -637,12 +641,39 @@ class PodcastListModel(gtk.ListStore):
             self.update_by_iter(iter)
 
             # Separator item
-            self.append(('', '', '', None, None, None, '', True, True, \
-                    True, True, True, True, 0))
+            if not config.podcast_list_sections:
+                self.append(('', '', '', None, SeparatorMarker, None, '',
+                    True, True, True, True, True, True, 0, False))
 
-        for channel in channels:
+        def key_func(pair):
+            section, podcast = pair
+            return (section, model.Model.podcast_sort_key(podcast))
+
+        if config.podcast_list_sections:
+            def convert(channels):
+                for channel in channels:
+                    yield (channel.group_by, channel)
+        else:
+            def convert(channels):
+                for channel in channels:
+                    yield (None, channel)
+
+        added_sections = []
+        old_section = None
+        for section, channel in sorted(convert(channels), key=key_func):
+            if old_section != section:
+                it = self.append(('-', section, '', None, SectionMarker, None,
+                    '', True, True, True, True, True, False, 0, False))
+                added_sections.append(it)
+                old_section = section
+
             iter = self.append(channel_to_row(channel, True))
             self.update_by_iter(iter)
+
+        # Update section header stats only after all podcasts
+        # have been added to the list to get the stats right
+        for it in added_sections:
+            self.update_by_iter(it)
 
     def get_filter_path_from_url(self, url):
         # Return the path of the filtered model for a given URL
@@ -684,14 +715,44 @@ class PodcastListModel(gtk.ListStore):
         for row in self:
             self.update_by_iter(row.iter)
 
+    def update_sections(self):
+        for row in self:
+            if row[self.C_CHANNEL] is SectionMarker:
+                self.update_by_iter(row.iter)
+
     def update_by_iter(self, iter):
+        if iter is None:
+            return
+
         # Given a GtkTreeIter, update volatile information
-        try:
-            channel = self.get_value(iter, self.C_CHANNEL)
-        except TypeError, te:
+        channel = self.get_value(iter, self.C_CHANNEL)
+
+        if channel is SectionMarker:
+            section = self.get_value(iter, self.C_TITLE)
+
+            # This row is a section header - update its visibility flags
+            channels = [c for c in (row[self.C_CHANNEL] for row in self)
+                    if isinstance(c, GPodcast) and c.section == section]
+
+            # Calculate the stats over all podcasts of this section
+            total, deleted, new, downloaded, unplayed = map(sum,
+                    zip(*[c.get_statistics() for c in channels]))
+
+            # We could customized the section header here with the list
+            # of channels and their stats (i.e. add some "new" indicator)
+            description = '<span size="16000"> </span><b>%s</b>' % (
+                    cgi.escape(section))
+
+            self.set(iter,
+                self.C_DESCRIPTION, description,
+                self.C_VIEW_SHOW_UNDELETED, total - deleted > 0,
+                self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0,
+                self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0)
+
+        if (not isinstance(channel, GPodcast) and
+            not isinstance(channel, PodcastChannelProxy)):
             return
-        if channel is None:
-            return
+
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)

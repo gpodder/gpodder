@@ -11,7 +11,9 @@ Item {
     signal clicked
 
     height: Config.headerHeight
-    width: icon.width + text.width
+    width: icon.width + (opened?0:text.width)
+
+    Behavior on width { NumberAnimation { duration: Config.slowTransition } }
 
     MouseArea {
         anchors.fill: parent
@@ -59,7 +61,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             color: 'white'
             font.pixelSize: 20 * Config.scale
-            text: nowPlayingThrobber.caption
+            text: nowPlayingThrobber.opened?'':nowPlayingThrobber.caption
         }
     }
 }

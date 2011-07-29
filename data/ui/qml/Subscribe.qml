@@ -14,6 +14,10 @@ Item {
         searchInput.forceActiveFocus()
     }
 
+    function search() {
+        searchResultsListModel.searchFor(searchInput.text)
+    }
+
     onVisibleChanged: {
         if (!visible) {
             searchInput.closeVirtualKeyboard()
@@ -51,30 +55,15 @@ Item {
                 right: searchButton.left
                 verticalCenter: parent.verticalCenter
             }
+
+            onAccepted: subscribe.search()
         }
 
         SimpleButton {
             id: searchButton
-            //text: 'Search'
             image: 'artwork/search.png'
 
-            onClicked: searchResultsListModel.searchFor(searchInput.text)
-
-            width: parent.height
-            height: parent.height
-
-            anchors {
-                top: parent.top
-                right: addButton.left
-            }
-        }
-
-        SimpleButton {
-            id: addButton
-            //text: 'Add'
-            image: 'artwork/subscriptions.png'
-
-            onClicked: subscribe.subscribe(searchInput.text)
+            onClicked: subscribe.search()
 
             width: parent.height
             height: parent.height
@@ -135,8 +124,11 @@ Item {
             }
 
             Column {
+                clip: true
+
                 anchors {
                     leftMargin: Config.largeSpacing
+                    rightMargin: Config.largeSpacing
                     left: coverArt.right
                     right: subscriberCount.left
                     verticalCenter: parent.verticalCenter
@@ -161,6 +153,7 @@ Item {
                 id: subscriberCount
                 anchors {
                     verticalCenter: parent.verticalCenter
+                    leftMargin: Config.largeSpacing
                     right: parent.right
                     rightMargin: Config.largeSpacing
                 }
@@ -208,8 +201,7 @@ Item {
                 source: 'artwork/directory-toplist.png'
 
                 SelectableItem {
-                    // XXX: New URL for XML-based toplist (gPodder bug 1383)
-                    property string modelData: 'http://gpodder.org/toplist.opml'
+                    property string modelData: 'http://gpodder.net/toplist.xml'
                     anchors.fill: parent
                     onSelected: searchResultsListModel.source = item
                 }
@@ -227,8 +219,7 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
-                    // XXX: New URL for XML-based directory (gPodder bug 1383)
-                    property string modelData: 'http://gpodder.org/directory.opml'
+                    property string modelData: 'http://gpodder.net/gpodder-examples.xml'
                     anchors.fill: parent
                     onSelected: searchResultsListModel.source = item
                 }

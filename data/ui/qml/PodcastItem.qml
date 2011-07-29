@@ -2,6 +2,7 @@
 import Qt 4.7
 
 import 'config.js' as Config
+import 'util.js' as Util
 
 SelectableItem {
     id: podcastItem
@@ -50,7 +51,7 @@ SelectableItem {
         }
 
         Image {
-            source: (modelData.qcoverurl != '')?('image://cover/'+escape(modelData.qcoverfile)+'|'+escape(modelData.qcoverurl)+'|'+escape(modelData.qurl)):''
+            source: Util.formatCoverURL(modelData)
             asynchronous: true
             width: parent.width * .85
             height: parent.height * .85

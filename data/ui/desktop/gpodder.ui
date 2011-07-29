@@ -232,6 +232,12 @@
           </object>
         </child>
         <child>
+          <object class="GtkToggleAction" id="item_podcast_sections">
+            <property name="active">True</property>
+            <property name="label" translatable="yes">Use sections for podcast list</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkToggleAction" id="item_sidebar">
             <property name="active">True</property>
             <property name="label" translatable="yes">Podcast list</property>
@@ -361,6 +367,7 @@
         <menu action="menuView">
           <menuitem action="item_sidebar"/>
           <menuitem action="itemShowAllEpisodes"/>
+          <menuitem action="item_podcast_sections"/>
           <separator/>
           <menuitem action="itemShowToolbar"/>
           <menuitem action="itemShowDescription"/>
@@ -557,7 +564,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="headers_visible">False</property>
-                                <property name="rules_hint">True</property>
+                                <property name="rules_hint">False</property>
                                 <property name="has-tooltip">True</property>
                                 <property name="reorderable">False</property>
                                 <property name="enable_search">True</property>

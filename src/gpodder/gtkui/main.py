@@ -165,6 +165,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
+        self.config.connect_gtk_togglebutton('podcast_list_sections', self.item_podcast_sections)
+
         # When the amount of maximum downloads changes, notify the queue manager
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
@@ -552,12 +554,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                            in episode_urls]
         self._for_each_task_set_status(selected_tasks, status)
 
-    def on_treeview_podcasts_selection_changed(self, selection):
-        model, iter = selection.get_selected()
-        if iter is None:
-            self.active_channel = None
-            self.episode_list_model.clear()
-
     def on_treeview_button_pressed(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
@@ -624,36 +620,68 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_podcast_list_treeview(self):
         # Set up podcast channel tree view widget
-        iconcolumn = gtk.TreeViewColumn('')
+        column = gtk.TreeViewColumn('')
         iconcell = gtk.CellRendererPixbuf()
-        iconcolumn.pack_start(iconcell, False)
-        iconcolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
-        self.treeChannels.append_column(iconcolumn)
+        iconcell.set_property('width', 45)
+        column.pack_start(iconcell, False)
+        column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
+        column.add_attribute(iconcell, 'visible', PodcastListModel.C_COVER_VISIBLE)
 
-        namecolumn = gtk.TreeViewColumn('')
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        namecolumn.pack_start(namecell, True)
-        namecolumn.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
+        column.pack_start(namecell, True)
+        column.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
-        namecolumn.pack_start(iconcell, False)
-        namecolumn.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
-        namecolumn.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        column.pack_start(iconcell, False)
+        column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
+        column.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
 
-        self.treeChannels.append_column(namecolumn)
+        self.treeChannels.append_column(column)
 
         self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
-        selection.connect('changed', self.on_treeview_podcasts_selection_changed)
+        def select_function(selection, model, path, path_currently_selected):
+            url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
+            return (url != '-')
+        selection.set_select_function(select_function, full=True)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
             if event.keyval == gtk.keysyms.Right:
                 self.treeAvailable.grab_focus()
+            elif event.keyval in (gtk.keysyms.Up, gtk.keysyms.Down):
+                # If section markers exist in the treeview, we want to
+                # "jump over" them when moving the cursor up and down
+                selection = self.treeChannels.get_selection()
+                model, it = selection.get_selected()
+
+                if event.keyval == gtk.keysyms.Up:
+                    step = -1
+                else:
+                    step = 1
+
+                path = model.get_path(it)
+                while True:
+                    path = (path[0]+step,)
+
+                    if path[0] < 0:
+                        # Valid paths must have a value >= 0
+                        return True
+
+                    try:
+                        it = model.get_iter(path)
+                    except ValueError:
+                        # Already at the end of the list
+                        return True
+
+                    if model.get_value(it, PodcastListModel.C_URL) != '-':
+                        break
+
+                self.treeChannels.set_cursor(path)
             elif event.keyval == gtk.keysyms.Escape:
                 self.hide_podcast_search()
             elif event.state & gtk.gdk.CONTROL_MASK:
@@ -1151,7 +1179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_episode_list_model()
         elif name in ('auto_update_feeds', 'auto_update_frequency'):
             self.restart_auto_update_timer()
-        elif name == 'podcast_list_view_all':
+        elif name in ('podcast_list_view_all', 'podcast_list_sections'):
             # Force a update of the podcast list model
             self.update_podcast_list_model()
         elif name == 'episode_list_columns':
@@ -1184,6 +1212,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 id = model.get_value(iter, EpisodeListModel.C_URL)
             elif role == TreeViewHelper.ROLE_PODCASTS:
                 id = model.get_value(iter, PodcastListModel.C_URL)
+                if id == '-':
+                    # Section header - no tooltip here (for now at least)
+                    return False
 
             last_tooltip = getattr(treeview, TreeViewHelper.LAST_TOOLTIP)
             if last_tooltip is not None and last_tooltip != id:
@@ -1598,10 +1629,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif downloaded:
                 item = gtk.ImageMenuItem(gtk.STOCK_MEDIA_PLAY)
             else:
-                item = gtk.ImageMenuItem(_('Stream'))
+                if downloading:
+                    item = gtk.ImageMenuItem(_('Preview'))
+                else:
+                    item = gtk.ImageMenuItem(_('Stream'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_MEDIA_PLAY, gtk.ICON_SIZE_MENU))
 
-            item.set_sensitive(can_play and not downloading)
+            item.set_sensitive(can_play)
             item.connect('activate', self.on_playback_selected_episodes)
             menu.append(item)
 
@@ -1759,7 +1793,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_playback([episode])
 
             fmt_id = self.config.youtube_preferred_fmt_id
-            filename = episode.get_playback_url(fmt_id)
+            allow_partial = (player != 'default')
+            filename = episode.get_playback_url(fmt_id, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
@@ -1928,7 +1963,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model()
         self.update_episode_list_icons(urls)
 
-    def update_podcast_list_model(self, urls=None, selected=False, select_url=None):
+    def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
+            sections_changed=False):
         """Update the podcast list treeview model
 
         If urls is given, it should list the URLs of each
@@ -1955,7 +1991,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             list_model_length = len(self.podcast_list_model)
 
-        if selected:
+        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
+        sections_active = any(is_section(x) for x in self.podcast_list_model)
+        force_update = (sections_active != self.config.podcast_list_sections or
+                sections_changed)
+
+        if selected and not force_update:
             # very cheap! only update selected channel
             if iter is not None:
                 # If we have selected the "all episodes" view, we have
@@ -1967,7 +2008,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
-        elif list_model_length == len(self.channels):
+
+                if self.config.podcast_list_sections:
+                    self.podcast_list_model.update_sections()
+        elif list_model_length == len(self.channels) and not force_update:
             # we can keep the model, but have to update some
             if urls is None:
                 # still cheaper than reloading the whole list
@@ -1975,6 +2019,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # ok, we got a bunch of urls to update
                 self.podcast_list_model.update_by_urls(urls)
+                if self.config.podcast_list_sections:
+                    self.podcast_list_model.update_sections()
         else:
             if model and iter and select_url is None:
                 # Get the URL of the currently-selected podcast
@@ -2831,11 +2877,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        callback_closed = lambda: self.update_podcast_list_model(selected=True)
         gPodderChannel(self.main_window, \
                 channel=self.active_channel, \
-                callback_closed=callback_closed, \
-                cover_downloader=self.cover_downloader)
+                update_podcast_list_model=self.update_podcast_list_model, \
+                cover_downloader=self.cover_downloader, \
+                sections=set(c.section for c in self.channels))
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (

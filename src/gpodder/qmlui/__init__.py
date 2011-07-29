@@ -418,8 +418,16 @@ class qtPodder(QObject):
             return model.QEpisode(self, podcast, episode)
 
     def select_podcast(self, podcast):
-        wrap = functools.partial(self.wrap_episode, podcast)
-        self.episode_model.set_objects(map(wrap, podcast.get_all_episodes()))
+        if isinstance(podcast, model.QPodcast):
+            # Normal QPodcast instance
+            wrap = functools.partial(self.wrap_episode, podcast)
+            objects = podcast.get_all_episodes()
+        else:
+            # EpisodeSubsetView
+            wrap = lambda args: self.wrap_episode(*args)
+            objects = podcast.get_all_episodes_with_podcast()
+
+        self.episode_model.set_objects(map(wrap, objects))
         self.main.state = 'episodes'
 
     def save_pending_data(self):

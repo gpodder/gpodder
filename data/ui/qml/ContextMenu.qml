@@ -13,17 +13,8 @@ Item {
     signal close
     signal response(int index)
 
-    MouseArea {
-        anchors.fill: parent
-    }
-
-    Rectangle {
-        color: "black"
-        anchors.fill: parent
-        opacity: .9
-    }
-
     ListView {
+        id: listView
         visible: !contextMenuArea.subscribeMode
         model: contextMenuArea.items
         anchors.fill: parent

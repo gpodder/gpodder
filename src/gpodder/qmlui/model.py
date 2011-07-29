@@ -90,10 +90,10 @@ class QEpisode(QObject):
     never_changed = Signal()
     source_url_changed = Signal()
 
-    def _id(self):
-        return self._episode.id
+    def _podcast(self):
+        return self._podcast
 
-    qid = Property(int, _id, notify=never_changed)
+    qpodcast = Property(QObject, _podcast, notify=never_changed)
 
     def _title(self):
         return convert(self._episode.title)
@@ -174,7 +174,7 @@ class QEpisode(QObject):
         threading.Thread(target=t, args=[self]).start()
 
     def _description(self):
-        return convert(self._episode.description)
+        return convert(self._episode.description_html)
 
     qdescription = Property(unicode, _description, notify=changed)
 
@@ -222,12 +222,11 @@ class QPodcast(QObject):
         QObject.__init__(self)
         self._podcast = podcast
         self._updating = False
-        self._section_cached = None
 
     @classmethod
     def sort_key(cls, qpodcast):
         if isinstance(qpodcast, cls):
-            sortkey = model.PodcastChannel.sort_key(qpodcast._podcast)
+            sortkey = model.Model.podcast_sort_key(qpodcast._podcast)
         else:
             sortkey = None
 
@@ -301,9 +300,7 @@ class QPodcast(QObject):
     qdescription = Property(unicode, _description, notify=changed)
 
     def _section(self):
-        if self._section_cached is None:
-            self._section_cached = convert(self._podcast._get_content_type())
-        return self._section_cached
+        return convert(self._podcast.group_by)
 
     qsection = Property(unicode, _section, notify=changed)
 
@@ -316,6 +313,19 @@ class EpisodeSubsetView(QObject):
         self.title = title
         self.description = description
         self.eql = eql
+
+    def get_all_episodes_with_podcast(self):
+        episodes = [(podcast, episode) for podcast in
+                self.podcast_list_model.get_podcasts()
+                for episode in podcast.get_all_episodes()]
+
+        # FIXME: Filter using EQL
+
+        def sort_key(pair):
+            podcast, episode = pair
+            return model.Model.episode_sort_key(episode)
+
+        return sorted(episodes, key=sort_key, reverse=True)
 
     def get_all_episodes(self):
         episodes = []
