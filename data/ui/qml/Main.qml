@@ -167,6 +167,7 @@ Rectangle {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
+        anchors.topMargin: Config.headerHeight
         z: nowPlayingThrobber.opened?2:0
 
         opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity == 1)?1:0
@@ -176,7 +177,7 @@ Rectangle {
             anchors.fill: parent
             onClicked: {
                 if (contextMenu.state == 'opened') {
-                    contextMenu.close()
+                    // do nothing
                 } else if (messageDialog.opacity == 1) {
                     messageDialog.opacity = 0
                 } else {
