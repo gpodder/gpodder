@@ -142,7 +142,7 @@ class Controller(QObject):
             def section_changer(podcast):
                 section = yield (_('New section name:'), podcast.section,
                         _('Rename'))
-                if section is not None and section != podcast.section:
+                if section and section != podcast.section:
                     podcast.set_section(section)
                     self.root.resort_podcast_list()
 
