@@ -14,11 +14,6 @@ SelectableItem {
 
     onSelected: clicked()
 
-    anchors {
-        top: parent.top
-        right: parent.right
-    }
-
     Text {
         id: buttonText
         anchors.centerIn: parent

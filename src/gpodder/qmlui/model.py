@@ -304,6 +304,11 @@ class QPodcast(QObject):
 
     qsection = Property(unicode, _section, notify=changed)
 
+    def set_section(self, section):
+        self._podcast.section = section
+        self._podcast.save()
+        self.changed.emit()
+
 
 class EpisodeSubsetView(QObject):
     def __init__(self, db, podcast_list_model, title, description, eql=None):

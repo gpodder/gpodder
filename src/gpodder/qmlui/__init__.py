@@ -49,6 +49,7 @@ class Controller(QObject):
         self.root = root
         self.context_menu_actions = []
         self.episode_list_title = u''
+        self.current_input_dialog = None
 
     episodeListTitleChanged = Signal()
 
@@ -85,6 +86,7 @@ class Controller(QObject):
         else:
             menu.append(helper.Action('Update', 'update', podcast))
             menu.append(helper.Action('Mark episodes as old', 'mark-as-read', podcast))
+            menu.append(helper.Action('Change section', 'change-section', podcast))
             menu.append(helper.Action('', '', None))
             menu.append(helper.Action('Unsubscribe', 'unsubscribe', podcast))
 
@@ -136,6 +138,59 @@ class Controller(QObject):
                     episode.mark(is_played=True)
             action.target.changed.emit()
             self.update_subset_stats()
+        elif action.action == 'change-section':
+            def section_changer(podcast):
+                section = yield (_('New section name:'), podcast.section,
+                        _('Rename'))
+                if section is not None and section != podcast.section:
+                    podcast.set_section(section)
+                    self.root.resort_podcast_list()
+
+            self.start_input_dialog(section_changer(action.target))
+
+    def start_input_dialog(self, generator):
+        """Carry out an input dialog with the UI
+
+        This function takes a generator function as argument
+        which should yield a tuple of arguments for the
+        "show_input_dialog" function (i.e. message, default
+        value, accept and reject message - only the message
+        is mandatory, the other arguments have default values).
+
+        The generator will receive the user's response as a
+        result of the yield expression. If the user accepted
+        the dialog, a string is returned (the value that has
+        been input), otherwise None is returned.
+
+        Example usage:
+
+        def some_function():
+            result = yield ('A simple message', 'default value')
+            if result is None:
+                # user has rejected the dialog
+            else:
+                # user has accepted, new value in "result"
+
+        start_input_dialog(some_function())
+        """
+        assert self.current_input_dialog is None
+        self.current_input_dialog = generator
+        args = generator.next()
+        self.root.show_input_dialog(*args)
+
+    @Slot(bool, str)
+    def inputDialogResponse(self, accepted, value):
+        if not accepted:
+            value = None
+
+        try:
+            self.current_input_dialog.send(value)
+        except StopIteration:
+            # This is expected, as the generator
+            # should only have one yield statement
+            pass
+
+        self.current_input_dialog = None
 
     @Slot(QObject)
     def downloadEpisode(self, episode):
@@ -230,7 +285,7 @@ class gPodderListModel(QAbstractListModel):
 
     def sort(self):
         # Unimplemented for the generic list model
-        pass
+        self.reset()
 
     def insert_object(self, o):
         self._objects.append(o)
@@ -243,7 +298,6 @@ class gPodderListModel(QAbstractListModel):
     def set_objects(self, objects):
         self._objects = objects
         self.sort()
-        self.reset()
 
     def get_objects(self):
         return self._objects
@@ -398,8 +452,14 @@ class qtPodder(QObject):
     def show_message(self, message):
         self.main.showMessage(message)
 
+    def show_input_dialog(self, message, value='', accept=_('OK'), reject=_('Cancel')):
+        self.main.showInputDialog(message, value, accept, reject)
+
     def open_context_menu(self, items):
         self.main.openContextMenu(items)
+
+    def resort_podcast_list(self):
+        self.podcast_model.sort()
 
     def insert_podcast(self, podcast):
         self.podcast_model.insert_object(podcast)
