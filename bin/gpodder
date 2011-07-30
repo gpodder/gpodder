@@ -141,7 +141,7 @@ if __name__ == '__main__':
         FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
         logging.basicConfig(format=FMT, level=logging.DEBUG)
 
-    if options.qml:
+    if options.qml or gpodder.ui.fremantle or gpodder.ui.harmattan:
         from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
