@@ -167,17 +167,20 @@ Rectangle {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        z: nowPlayingThrobber.opened?2:0
+        anchors.topMargin: (nowPlayingThrobber.opened || messageDialog.opacity > 0 || inputDialog.opacity > 0)?0:Config.headerHeight
+        z: (contextMenu.state != 'opened')?2:0
 
-        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity == 1)?1:0
+        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 if (contextMenu.state == 'opened') {
-                    contextMenu.close()
-                } else if (messageDialog.opacity == 1) {
+                    // do nothing
+                } else if (inputDialog.opacity) {
+                    inputDialog.close()
+                } else if (messageDialog.opacity) {
                     messageDialog.opacity = 0
                 } else {
                     nowPlayingThrobber.opened = false
@@ -296,7 +299,7 @@ Rectangle {
         Rectangle {
             anchors.fill: parent
             color: "black"
-            opacity: .6
+            opacity: .9
 
             MouseArea {
                 // clicks should not fall through!
@@ -393,6 +396,82 @@ Rectangle {
             color: 'white'
             font.pixelSize: 20
             font.bold: true
+        }
+    }
+
+    function showInputDialog(message, value, accept, reject) {
+        inputDialogText.text = message
+        inputDialogField.text = value
+        inputDialogAccept.text = accept
+        inputDialogReject.text = reject
+        inputDialog.scale = .5
+        inputDialog.opacity = 1
+        inputDialog.scale = 1
+    }
+
+    Item {
+        id: inputDialog
+        anchors.fill: parent
+        opacity: 0
+        scale: .5
+
+        z: 20
+
+        function accept() {
+            opacity = 0
+            scale = .5
+            controller.inputDialogResponse(true, inputDialogField.text)
+        }
+
+        function close() {
+            opacity = 0
+            scale = .5
+            controller.inputDialogResponse(false, inputDialogField.text)
+        }
+
+        Behavior on scale { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
+
+        Behavior on opacity { PropertyAnimation { duration: Config.fastTransition } }
+
+        MouseArea {
+            // don't let clicks into the input dialog fall through
+            anchors.fill: contentArea
+        }
+
+        Column {
+            id: contentArea
+            anchors.centerIn: parent
+            spacing: Config.largeSpacing
+            width: 300
+
+            Text {
+                id: inputDialogText
+                color: 'white'
+                font.pixelSize: 20 * Config.scale
+            }
+
+            InputField {
+                id: inputDialogField
+                width: parent.width
+                onAccepted: inputDialog.accept()
+            }
+
+            Row {
+                spacing: Config.smallSpacing
+                width: parent.width
+
+                SimpleButton {
+                    id: inputDialogReject
+                    width: parent.width / 2
+                    onClicked: inputDialog.close()
+                }
+
+                SimpleButton {
+                    id: inputDialogAccept
+                    width: parent.width / 2
+                    onClicked: inputDialog.accept()
+                }
+            }
         }
     }
 }

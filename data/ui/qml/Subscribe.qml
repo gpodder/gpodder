@@ -50,6 +50,7 @@ Item {
 
         InputField {
             id: searchInput
+            placeholderText: 'Search term or URL'
 
             anchors {
                 leftMargin: Config.smallSpacing

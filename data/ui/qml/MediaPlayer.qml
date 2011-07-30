@@ -96,14 +96,14 @@ Item {
 
             Text {
                 id: episodeTitle
-                text: episode.qtitle
+                text: (episode!=undefined)?episode.qtitle:''
                 color: 'white'
                 font.pixelSize: 30 * Config.scale
             }
 
             Text {
                 id: podcastTitle
-                text: episode.qpodcast.qtitle
+                text: (episode!=undefined)?episode.qpodcast.qtitle:''
                 color: '#aaa'
                 font.pixelSize: 20 * Config.scale
             }
@@ -165,20 +165,12 @@ Item {
                     }
                 }
 
-                Text {
-                    anchors {
-                        bottom: parent.bottom
-                        right: parent.right
-                    }
-                    color: '#aaa'
-                    text:  Util.formatDuration(episode.qposition) + ' / ' + Util.formatDuration(episode.qduration)
-                    font.pixelSize: 15 * Config.scale
-                }
             }
 
             PlaybackBarProgress {
-                progress: episode != undefined?(episode.qduration?(episode.qposition / episode.qduration):0):0
-                duration: episode != undefined?episode.qduration:0
+                id: progressBar
+                progress: (episode != undefined)?(episode.qduration?(episode.qposition / episode.qduration):0):0
+                duration: (episode != undefined)?episode.qduration:0
 
                 width: parent.width
 
@@ -188,6 +180,19 @@ Item {
                 }
             }
         }
+
+        Text {
+            anchors {
+                bottom: parent.bottom
+                right: parent.right
+                bottomMargin: progressBar.height
+                rightMargin: Config.largeSpacing
+            }
+            color: '#aaa'
+            text: (episode!=undefined)?(Util.formatDuration(episode.qposition) + ' / ' + Util.formatDuration(episode.qduration)):'-'
+            font.pixelSize: 15 * Config.scale
+        }
+
     }
 }
 

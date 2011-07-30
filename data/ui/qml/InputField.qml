@@ -5,7 +5,6 @@ import com.nokia.meego 1.0
 TextField {
     id: textField
     inputMethodHints: Qt.ImhNoAutoUppercase
-    placeholderText: 'Search term or URL'
     signal accepted()
 
     Keys.onReturnPressed: accepted()
