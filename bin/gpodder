@@ -34,6 +34,7 @@ import sys
 import os
 import os.path
 import platform
+import logging
 
 import gettext
 
@@ -137,9 +138,10 @@ if __name__ == '__main__':
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
-        import logging
         FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
         logging.basicConfig(format=FMT, level=logging.DEBUG)
+    else:
+        logging.basicConfig()
 
     if options.qml or gpodder.ui.fremantle or gpodder.ui.harmattan:
         from gpodder import qmlui
