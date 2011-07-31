@@ -73,9 +73,16 @@ class Controller(QObject):
         self.setEpisodeListTitle(podcast.qtitle)
         self.root.select_podcast(podcast)
 
-    @Slot(str)
-    def titleChanged(self, title):
-        self.root.view.setWindowTitle(title)
+    windowTitleChanged = Signal()
+
+    def getWindowTitle(self):
+        return self.root.view.windowTitle()
+
+    def setWindowTitle(self, windowTitle):
+        self.root.view.setWindowTitle(windowTitle)
+
+    windowTitle = Property(unicode, getWindowTitle,
+            setWindowTitle, notify=windowTitleChanged)
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
@@ -388,7 +395,10 @@ class qtPodder(QObject):
         self.cover_provider = images.LocalCachedImageProvider()
         engine.addImageProvider('cover', self.cover_provider)
 
-        self.view.rootContext().setContextProperty('controller', self.controller)
+        root_context = self.view.rootContext()
+        root_context.setContextProperty('controller', self.controller)
+        root_context.setContextProperty('mediaButtonsHandler',
+                self.media_buttons_handler)
 
         # Load the QML UI (this could take a while...)
         if gpodder.ui.harmattan:
@@ -399,7 +409,6 @@ class qtPodder(QObject):
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
 
-        self.main.mediaButtonsHandler = self.media_buttons_handler
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
 
