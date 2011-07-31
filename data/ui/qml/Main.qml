@@ -10,6 +10,7 @@ Rectangle {
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
+    property alias mediaButtonsHandler: mediaPlayer.handler
 
     property bool playing: mediaPlayer.playing
 

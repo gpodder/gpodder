@@ -11,6 +11,16 @@ Item {
     height: (Config.largeSpacing * 4) + (150 * Config.scale) + 110
 
     property variant episode: undefined
+    property variant handler: undefined
+
+    Connections {
+        target: handler
+
+        onPlayPressed: togglePlayback(episode)
+        onPausePressed: togglePlayback(episode)
+        onPreviousPressed: playbackBar.backward()
+        onNextPressed: playbackBar.forward()
+    }
 
     property bool playing: audioPlayer.playing && !audioPlayer.paused
 

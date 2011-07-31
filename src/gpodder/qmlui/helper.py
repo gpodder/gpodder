@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gpodder
+
 from PySide import QtCore
 
 
@@ -68,4 +70,37 @@ class QObjectProxy(object):
             object.__setattr__(self, key, value)
         else:
             self._root_object.setProperty(key, value)
+
+
+class MediaButtonsHandler(QtCore.QObject):
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+
+        if gpodder.ui.harmattan:
+            headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_0'
+        elif gpodder.ui.fremantle:
+            headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_1'
+        else:
+            return
+
+        import dbus
+        system_bus = dbus.SystemBus()
+        system_bus.add_signal_receiver(self.handle_button, 'Condition',
+                'org.freedesktop.Hal.Device', None, headset_path)
+
+    def handle_button(self, signal, button):
+        if signal == 'ButtonPressed':
+            if button == 'play-cd':
+                self.playPressed.emit()
+            elif button == 'pause-cd':
+                self.pausePressed.emit()
+            elif button == 'previous-song':
+                self.previousPressed.emit()
+            elif button == 'next-song':
+                self.nextPressed.emit()
+
+    playPressed = QtCore.Signal()
+    pausePressed = QtCore.Signal()
+    previousPressed = QtCore.Signal()
+    nextPressed = QtCore.Signal()
 

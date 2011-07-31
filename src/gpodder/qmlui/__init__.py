@@ -368,6 +368,7 @@ class qtPodder(QObject):
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
+        self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
         self.episode_model = gPodderListModel()
         self.last_episode = None
@@ -398,6 +399,7 @@ class qtPodder(QObject):
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
 
+        self.main.mediaButtonsHandler = self.media_buttons_handler
         self.main.podcastModel = self.podcast_model
         self.main.episodeModel = self.episode_model
 
