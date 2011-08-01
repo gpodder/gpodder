@@ -392,10 +392,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif total == 0:
                 # Assume the episode's total time for the action
                 total = episode.total_time
-            if episode.current_position_updated is None or \
-                    now > episode.current_position_updated:
-                episode.current_position = end
-                episode.current_position_updated = now
+
+            assert (episode.current_position_updated is None or
+                    now >= episode.current_position_updated)
+
+            episode.current_position = end
+            episode.current_position_updated = now
             episode.mark(is_played=True)
             episode.save()
             self.db.commit()
