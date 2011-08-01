@@ -130,9 +130,13 @@ class Controller(QObject):
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate(force=True, finished_callback=self.update_subset_stats)
         if action.action == 'unsubscribe':
-            action.target.remove_downloaded()
-            action.target.delete()
-            self.root.remove_podcast(action.target)
+            def unsubscribe():
+                action.target.remove_downloaded()
+                action.target.delete()
+                self.root.remove_podcast(action.target)
+
+            self.confirm_action(_('Remove this podcast and episodes?'),
+                    _('Unsubscribe'), unsubscribe)
         elif action.action == 'episode-toggle-new':
             action.target.toggle_new()
             self.update_subset_stats()
@@ -154,6 +158,14 @@ class Controller(QObject):
                     self.root.resort_podcast_list()
 
             self.start_input_dialog(section_changer(action.target))
+
+    def confirm_action(self, message, affirmative, callback):
+        def confirm(message, affirmative, callback):
+            args = (message, '', affirmative, _('Cancel'), False)
+            if (yield args):
+                callback()
+
+        self.start_input_dialog(confirm(message, affirmative, callback))
 
     def start_input_dialog(self, generator):
         """Carry out an input dialog with the UI
@@ -185,9 +197,11 @@ class Controller(QObject):
         args = generator.next()
         self.root.show_input_dialog(*args)
 
-    @Slot(bool, str)
-    def inputDialogResponse(self, accepted, value):
-        if not accepted:
+    @Slot(bool, str, bool)
+    def inputDialogResponse(self, accepted, value, is_text):
+        if not is_text:
+            value = accepted
+        elif not accepted:
             value = None
 
         try:
@@ -210,8 +224,11 @@ class Controller(QObject):
 
     @Slot(QObject)
     def deleteEpisode(self, episode):
-        episode.delete_episode()
-        self.update_subset_stats()
+        def delete():
+            episode.delete_episode()
+            self.update_subset_stats()
+
+        self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
     @Slot(QObject)
     def acquireEpisode(self, episode):
@@ -463,8 +480,9 @@ class qtPodder(QObject):
     def show_message(self, message):
         self.main.showMessage(message)
 
-    def show_input_dialog(self, message, value='', accept=_('OK'), reject=_('Cancel')):
-        self.main.showInputDialog(message, value, accept, reject)
+    def show_input_dialog(self, message, value='', accept=_('OK'),
+            reject=_('Cancel'), is_text=True):
+        self.main.showInputDialog(message, value, accept, reject, is_text)
 
     def open_context_menu(self, items):
         self.main.openContextMenu(items)

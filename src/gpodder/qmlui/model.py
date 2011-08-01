@@ -171,7 +171,9 @@ class QEpisode(QObject):
 
             self._wrapper_manager.remove_active_episode(self)
 
-        threading.Thread(target=t, args=[self]).start()
+        thread = threading.Thread(target=t, args=[self])
+        thread.setDaemon(True)
+        thread.start()
 
     def _description(self):
         return convert(self._episode.description_html)
