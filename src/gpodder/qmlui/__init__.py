@@ -73,9 +73,16 @@ class Controller(QObject):
         self.setEpisodeListTitle(podcast.qtitle)
         self.root.select_podcast(podcast)
 
-    @Slot(str)
-    def titleChanged(self, title):
-        self.root.view.setWindowTitle(title)
+    windowTitleChanged = Signal()
+
+    def getWindowTitle(self):
+        return self.root.view.windowTitle()
+
+    def setWindowTitle(self, windowTitle):
+        self.root.view.setWindowTitle(windowTitle)
+
+    windowTitle = Property(unicode, getWindowTitle,
+            setWindowTitle, notify=windowTitleChanged)
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
@@ -142,7 +149,7 @@ class Controller(QObject):
             def section_changer(podcast):
                 section = yield (_('New section name:'), podcast.section,
                         _('Rename'))
-                if section is not None and section != podcast.section:
+                if section and section != podcast.section:
                     podcast.set_section(section)
                     self.root.resort_podcast_list()
 
@@ -368,6 +375,7 @@ class qtPodder(QObject):
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
 
         self.controller = Controller(self)
+        self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
         self.episode_model = gPodderListModel()
         self.last_episode = None
@@ -387,7 +395,10 @@ class qtPodder(QObject):
         self.cover_provider = images.LocalCachedImageProvider()
         engine.addImageProvider('cover', self.cover_provider)
 
-        self.view.rootContext().setContextProperty('controller', self.controller)
+        root_context = self.view.rootContext()
+        root_context.setContextProperty('controller', self.controller)
+        root_context.setContextProperty('mediaButtonsHandler',
+                self.media_buttons_handler)
 
         # Load the QML UI (this could take a while...)
         if gpodder.ui.harmattan:

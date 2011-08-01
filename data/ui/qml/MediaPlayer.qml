@@ -12,6 +12,15 @@ Item {
 
     property variant episode: undefined
 
+    Connections {
+        target: mediaButtonsHandler
+
+        onPlayPressed: togglePlayback(episode)
+        onPausePressed: togglePlayback(episode)
+        onPreviousPressed: playbackBar.backward()
+        onNextPressed: playbackBar.forward()
+    }
+
     property bool playing: audioPlayer.playing && !audioPlayer.paused
 
     onPlayingChanged: episode.qplaying = playing

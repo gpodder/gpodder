@@ -331,16 +331,22 @@ Rectangle {
         }
 
         Text {
+            id: titleBarText
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
             clip: true
             text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
-            onTextChanged: controller.titleChanged(text)
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
+        }
+
+        Binding {
+            target: controller
+            property: 'windowTitle'
+            value: titleBarText.text
         }
 
         TitlebarButton {

@@ -411,18 +411,18 @@ class MygPoClient(object):
 
         def convert_to_api(action):
             dt = datetime.datetime.utcfromtimestamp(action.timestamp)
-            since = mygpoutil.datetime_to_iso8601(dt)
+            action_ts = mygpoutil.datetime_to_iso8601(dt)
             return api.EpisodeAction(action.podcast_url, \
                     action.episode_url, action.action, \
-                    action.device_id, since, \
+                    action.device_id, action_ts, \
                     action.started, action.position, action.total)
 
         def convert_from_api(action):
             dt = mygpoutil.iso8601_to_datetime(action.timestamp)
-            since = calendar.timegm(dt.timetuple())
+            action_ts = calendar.timegm(dt.timetuple())
             return ReceivedEpisodeAction(action.podcast, \
                     action.episode, action.device, \
-                    action.action, since, \
+                    action.action, action_ts, \
                     action.started, action.position, action.total)
 
         try:
