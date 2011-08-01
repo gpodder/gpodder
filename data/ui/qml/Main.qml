@@ -405,7 +405,7 @@ Rectangle {
         }
     }
 
-    function showInputDialog(message, value, accept, reject) {
+    function showInputDialog(message, value, accept, reject, textInput) {
         inputDialogText.text = message
         inputDialogField.text = value
         inputDialogAccept.text = accept
@@ -413,6 +413,7 @@ Rectangle {
         inputDialog.scale = .5
         inputDialog.opacity = 1
         inputDialog.scale = 1
+        inputDialogField.visible = textInput
     }
 
     Item {
@@ -426,18 +427,20 @@ Rectangle {
         function accept() {
             opacity = 0
             scale = .5
-            controller.inputDialogResponse(true, inputDialogField.text)
+            controller.inputDialogResponse(true, inputDialogField.text,
+                                           inputDialogField.visible)
         }
 
         function close() {
             opacity = 0
             scale = .5
-            controller.inputDialogResponse(false, inputDialogField.text)
+            controller.inputDialogResponse(false, inputDialogField.text,
+                                           inputDialogField.visible)
         }
 
         Behavior on scale { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
 
-        Behavior on opacity { PropertyAnimation { duration: Config.fastTransition } }
+        Behavior on opacity { PropertyAnimation { duration: Config.quickTransition } }
 
         MouseArea {
             // don't let clicks into the input dialog fall through
