@@ -144,7 +144,8 @@ if home != default_home:
     print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
 
 # Plugins to load by default
-DEFAULT_PLUGINS = ['gpodder.plugins.soundcloud', 'gpodder.plugins.xspf']
+DEFAULT_PLUGINS = ['gpodder.plugins.soundcloud', 'gpodder.plugins.xspf',
+                   'gpodder.plugins.woodchuck']
 
 def load_plugins():
     """Load (non-essential) plugin modules
