@@ -157,7 +157,7 @@ Rectangle {
             leftMargin: Config.largeSpacing * 2
             rightMargin: Config.largeSpacing * 2
             topMargin: Config.largeSpacing * 2
-            bottomMargin: Config.largeSpacing * 2 + (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
+            bottomMargin: Config.largeSpacing * 2 //+ (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
         }
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
@@ -206,7 +206,8 @@ Rectangle {
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
-        anchors.bottom: mediaPlayer.top
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: opened?-height:0
         anchors.right: parent.right
         opacity: shouldAppear
 
@@ -216,6 +217,7 @@ Rectangle {
         onClicked: { opened = !opened }
 
         Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
+        Behavior on anchors.bottomMargin { NumberAnimation { duration: Config.slowTransition } }
     }
 
     MediaPlayer {
@@ -227,9 +229,9 @@ Rectangle {
         anchors.top: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?-height:0
+        anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition } }
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
     }
 
     ContextMenu {

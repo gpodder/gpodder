@@ -36,8 +36,9 @@ Item {
                 right: parent.right
                 rightMargin: (parent.width * .8 - width) / 2
             }
-            rotation: (nowPlayingThrobber.opened)?-90:0
-            source: (nowPlayingThrobber.opened)?'artwork/back.png':'artwork/play.png'
+            //rotation: (nowPlayingThrobber.opened)?-90:0
+            //source: (nowPlayingThrobber.opened)?'artwork/back.png':'artwork/play.png'
+            source: 'artwork/play.png'
 
             Behavior on rotation { NumberAnimation { duration: Config.quickTransition } }
         }
@@ -61,7 +62,8 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             color: 'white'
             font.pixelSize: 20 * Config.scale
-            text: nowPlayingThrobber.opened?'':nowPlayingThrobber.caption
+            //text: nowPlayingThrobber.opened?'':nowPlayingThrobber.caption
+            text: ''
         }
     }
 }

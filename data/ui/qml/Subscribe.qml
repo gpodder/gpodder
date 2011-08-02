@@ -12,6 +12,7 @@ Item {
         searchInput.text = ''
         searchResultsListModel.source = ''
         searchInput.forceActiveFocus()
+        topBar.opened = true
     }
 
     function search() {
@@ -26,7 +27,12 @@ Item {
 
     Item {
         id: topBar
-        height: 70
+        property bool opened: true
+        clip: true
+
+        height: opened?70:0
+
+        Behavior on height { PropertyAnimation { duration: Config.slowTransition } }
 
         anchors {
             left: parent.left
@@ -204,7 +210,10 @@ Item {
                 SelectableItem {
                     property string modelData: 'http://gpodder.net/toplist.xml'
                     anchors.fill: parent
-                    onSelected: searchResultsListModel.source = item
+                    onSelected: {
+                        searchResultsListModel.source = item
+                        topBar.opened = false
+                    }
                 }
 
                 Text {
@@ -222,7 +231,10 @@ Item {
                 SelectableItem {
                     property string modelData: 'http://gpodder.net/gpodder-examples.xml'
                     anchors.fill: parent
-                    onSelected: searchResultsListModel.source = item
+                    onSelected: {
+                        searchResultsListModel.source = item
+                        topBar.opened = false
+                    }
                 }
 
                 Text {
