@@ -788,7 +788,9 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def sort_key(cls, podcast):
-        key = podcast.title.decode('utf-8', 'ignore').lower()
+        key = podcast.title.lower()
+        if not isinstance(key, unicode):
+            key = key.decode('utf-8', 'ignore')
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod

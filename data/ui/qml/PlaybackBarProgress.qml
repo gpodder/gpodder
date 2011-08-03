@@ -39,7 +39,7 @@ Item {
             id: seekTimePreview
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.top
-            anchors.bottomMargin: Config.largeSpacing * 3
+            anchors.bottomMargin: Config.largeSpacing * 7
             text: ' ' + Util.formatDuration(root.mousepos*duration) + ' '
             font.pixelSize: 50 * Config.scale
             horizontalAlignment: Text.AlignHCenter

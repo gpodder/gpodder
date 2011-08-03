@@ -157,7 +157,7 @@ Rectangle {
             leftMargin: Config.largeSpacing * 2
             rightMargin: Config.largeSpacing * 2
             topMargin: Config.largeSpacing * 2
-            bottomMargin: Config.largeSpacing * 2 + (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
+            bottomMargin: Config.largeSpacing * 2 //+ (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
         }
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
@@ -200,22 +200,32 @@ Rectangle {
         }
     }
 
-    NowPlayingThrobber {
+    CornerButton {
+        id: extraCloseButton
+        z: (contextMenu.state == 'opened')?2:0
+        tab: 'artwork/back-tab.png'
+        icon: 'artwork/back.png'
+        isLeftCorner: true
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        onClicked: closeButton.clicked()
+        opened: !(!Config.hasCloseButton && closeButton.isRequired)
+    }
+
+    CornerButton {
         z: 3
 
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
-        anchors.bottom: mediaPlayer.top
+        anchors.bottom: parent.bottom
         anchors.right: parent.right
         opacity: shouldAppear
 
-        opened: false
         caption: (mediaPlayer.episode!=undefined)?mediaPlayer.episode.qtitle:''
 
+        opened: false
         onClicked: { opened = !opened }
-
-        Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
     }
 
     MediaPlayer {
@@ -227,9 +237,9 @@ Rectangle {
         anchors.top: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?-height:0
+        anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition } }
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
     }
 
     ContextMenu {
@@ -363,7 +373,8 @@ Rectangle {
         TitlebarButton {
             id: closeButton
             anchors.right: parent.right
-            visible: Config.hasCloseButton || main.state != 'podcasts' || main.state == 'shownotes' || contextMenu.state != 'closed'
+            property bool isRequired: main.state != 'podcasts' || contextMenu.state != 'closed'
+            visible: extraCloseButton.opened && (Config.hasCloseButton || isRequired)
 
             source: (main.state == 'podcasts' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
             rotation: 0 // XXX (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
@@ -463,6 +474,7 @@ Rectangle {
                 id: inputDialogField
                 width: parent.width
                 onAccepted: inputDialog.accept()
+                actionName: inputDialogAccept.text
             }
 
             Row {

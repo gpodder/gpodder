@@ -6,8 +6,8 @@ Item {
     property bool showStatusBar: true
     property variant main: mainObject
 
-    width: 800
-    height: 480
+    width: 480
+    height: 854
 
     Main {
         id: mainObject

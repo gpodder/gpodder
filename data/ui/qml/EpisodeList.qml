@@ -29,6 +29,16 @@ Item {
             width: parent.width
             property bool opened: (index == listView.openedIndex)
 
+            Rectangle {
+                color: '#aa000000'
+                anchors {
+                    fill: parent
+                    topMargin: 3
+                    bottomMargin: 3
+                }
+                visible: listItem.opened
+            }
+
             Loader {
                 id: loader
                 clip: true

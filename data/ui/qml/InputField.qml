@@ -4,6 +4,8 @@ import com.nokia.meego 1.0
 
 TextField {
     id: textField
+    property string actionName: ''
+
     inputMethodHints: Qt.ImhNoAutoUppercase
     signal accepted()
 
@@ -12,6 +14,12 @@ TextField {
 
     function closeVirtualKeyboard() {
         textField.platformCloseSoftwareInputPanel()
+    }
+
+    platformSipAttributes: SipAttributes {
+        actionKeyLabel: textField.actionName
+        actionKeyHighlighted: true
+        actionKeyEnabled: true
     }
 }
 
