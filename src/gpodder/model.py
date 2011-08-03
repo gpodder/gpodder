@@ -387,6 +387,9 @@ class PodcastEpisode(PodcastModelObject):
             # Decode the description to avoid gPodder bug 1277
             if isinstance(desc, str):
                 desc = desc.decode('utf-8', 'ignore')
+
+            desc = desc.strip()
+
             if len(desc) > MAX_LINE_LENGTH:
                 return desc[:MAX_LINE_LENGTH] + '...'
             else:
