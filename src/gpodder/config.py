@@ -247,6 +247,9 @@ class Config(dict):
                     value = parser.getboolean(self.__section, key)
                 else:
                     value = fieldtype(parser.get(self.__section, key))
+            except ConfigParser.NoOptionError:
+                # Not (yet) set in the file, use the default value
+                value = default
             except:
                 logger.warn('Invalid value in %s for %s: %s',
                         self.__filename, key, value, exc_info=True)
