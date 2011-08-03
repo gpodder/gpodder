@@ -474,6 +474,7 @@ Rectangle {
                 id: inputDialogField
                 width: parent.width
                 onAccepted: inputDialog.accept()
+                actionName: inputDialogAccept.text
             }
 
             Row {

@@ -64,6 +64,7 @@ Item {
             }
 
             onAccepted: subscribe.search()
+            actionName: 'Search'
         }
 
         SimpleButton {
