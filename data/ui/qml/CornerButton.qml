@@ -4,10 +4,13 @@ import Qt 4.7
 import 'config.js' as Config
 
 Item {
-    id: nowPlayingThrobber
+    id: cornerButton
 
     property bool opened
+    property string icon: 'artwork/play.png'
+    property string tab: 'artwork/nowplaying-tab.png'
     property string caption: ''
+    property bool isLeftCorner: false
     signal clicked
 
     height: Config.headerHeight
@@ -15,17 +18,20 @@ Item {
 
     Behavior on width { NumberAnimation { duration: Config.slowTransition } }
 
+    Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
+
+    anchors.bottomMargin: opened?-height:0
+    Behavior on anchors.bottomMargin { NumberAnimation { duration: Config.slowTransition } }
+
     MouseArea {
         anchors.fill: parent
-        onPressed: {
-            nowPlayingThrobber.clicked()
-        }
+        onClicked: cornerButton.clicked()
     }
 
     Image {
         id: icon
 
-        source: 'artwork/nowplaying-tab.png'
+        source: cornerButton.tab
 
         height: parent.height
         width: Config.switcherWidth
@@ -34,11 +40,9 @@ Item {
             anchors {
                 verticalCenter: parent.verticalCenter
                 right: parent.right
-                rightMargin: (parent.width * .8 - width) / 2
+                rightMargin: cornerButton.isLeftCorner?(parent.width * .4):((parent.width * .8 - width) / 2)
             }
-            //rotation: (nowPlayingThrobber.opened)?-90:0
-            //source: (nowPlayingThrobber.opened)?'artwork/back.png':'artwork/play.png'
-            source: 'artwork/play.png'
+            source: cornerButton.icon
 
             Behavior on rotation { NumberAnimation { duration: Config.quickTransition } }
         }
@@ -51,7 +55,7 @@ Item {
         width: ((message.text!='')?(Config.smallSpacing * 2):0) + Math.min(main.width - icon.width - Config.smallSpacing*2, message.paintedWidth)
         anchors.left: icon.right
 
-        //width: nowPlayingThrobber.opened?0:(Config.smallSpacing * 2 + message.width)
+        //width: cornerButton.opened?0:(Config.smallSpacing * 2 + message.width)
         //clip: true
         //Behavior on width { PropertyAnimation { duration: Config.quickTransition } }
 
@@ -62,7 +66,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             color: 'white'
             font.pixelSize: 20 * Config.scale
-            //text: nowPlayingThrobber.opened?'':nowPlayingThrobber.caption
+            //text: cornerButton.opened?'':cornerButton.caption
             text: ''
         }
     }

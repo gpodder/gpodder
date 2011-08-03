@@ -200,24 +200,32 @@ Rectangle {
         }
     }
 
-    NowPlayingThrobber {
+    CornerButton {
+        id: extraCloseButton
+        z: (contextMenu.state == 'opened')?2:0
+        tab: 'artwork/back-tab.png'
+        icon: 'artwork/back.png'
+        isLeftCorner: true
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        onClicked: closeButton.clicked()
+        opened: !(!Config.hasCloseButton && closeButton.isRequired)
+    }
+
+    CornerButton {
         z: 3
 
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: opened?-height:0
         anchors.right: parent.right
         opacity: shouldAppear
 
-        opened: false
         caption: (mediaPlayer.episode!=undefined)?mediaPlayer.episode.qtitle:''
 
+        opened: false
         onClicked: { opened = !opened }
-
-        Behavior on opacity { NumberAnimation { duration: Config.quickTransition } }
-        Behavior on anchors.bottomMargin { NumberAnimation { duration: Config.slowTransition } }
     }
 
     MediaPlayer {
@@ -365,7 +373,8 @@ Rectangle {
         TitlebarButton {
             id: closeButton
             anchors.right: parent.right
-            visible: Config.hasCloseButton || main.state != 'podcasts' || main.state == 'shownotes' || contextMenu.state != 'closed'
+            property bool isRequired: main.state != 'podcasts' || contextMenu.state != 'closed'
+            visible: extraCloseButton.opened && (Config.hasCloseButton || isRequired)
 
             source: (main.state == 'podcasts' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
             rotation: 0 // XXX (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
