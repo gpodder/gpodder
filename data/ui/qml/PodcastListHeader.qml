@@ -54,7 +54,7 @@ Item {
             Text {
                 color: 'white'
                 anchors.centerIn: parent
-                text: 'Update'
+                text: _('Update')
                 font.pixelSize: 20
             }
 

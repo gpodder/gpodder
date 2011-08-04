@@ -42,7 +42,7 @@ Item {
 
         Text {
             id: searchLabel
-            text: 'Search for:'
+            text: _('Search for:')
             color: 'white'
             font.pixelSize: 20
             anchors {
@@ -54,7 +54,7 @@ Item {
 
         InputField {
             id: searchInput
-            placeholderText: 'Search term or URL'
+            placeholderText: _('Search term or URL')
 
             anchors {
                 leftMargin: Config.smallSpacing
@@ -64,7 +64,7 @@ Item {
             }
 
             onAccepted: subscribe.search()
-            actionName: 'Search'
+            actionName: _('Search')
         }
 
         SimpleButton {
@@ -187,7 +187,7 @@ Item {
 
         Text {
             anchors.centerIn: parent
-            text: 'Loading.'
+            text: _('Loading.')
             color: 'white'
             font.pixelSize: 30
         }
@@ -222,7 +222,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
                     color: 'white'
-                    text: 'Toplist'
+                    text: _('Toplist')
                 }
             }
 
@@ -243,7 +243,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
                     color: 'white'
-                    text: 'Examples'
+                    text: _('Examples')
                 }
             }
         }
@@ -256,7 +256,7 @@ Item {
         anchors.margins: Config.largeSpacing
         font.pixelSize: 20
         color: 'white'
-        text: '<em>powered by gpodder.net</em>'
+        text: '<em>' + _('powered by gpodder.net') + '</em>'
     }
 }
 
