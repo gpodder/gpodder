@@ -2345,7 +2345,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.show_update_feeds_buttons()
 
-    def update_feed_cache(self, channels=None):
+    def update_feed_cache(self, channels=None,
+                          show_new_episodes_dialog=True):
         # Fix URLs if mygpo has rewritten them
         # XXX somewhere else? self.rewrite_urls_mygpo()
 
@@ -2451,7 +2452,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         self.show_update_feeds_buttons()
                         # New episodes are available and we are not minimized
-                        if not self.config.do_not_show_new_episodes_dialog:
+                        if (not self.config.do_not_show_new_episodes_dialog
+                            and show_new_episodes_dialog):
                             self.new_episodes_show(episodes, notification=True)
                         else:
                             message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
@@ -3364,7 +3366,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def woodchuck_channel_update_cb(self, channel):
         logger.debug('woodchuck_channel_update_cb(%s)', channel)
-        self.update_feed_cache(channels=[channel])
+        self.update_feed_cache(channels=[channel],
+                               show_new_episodes_dialog=False)
 
     def woodchuck_episode_download_cb(self, episode):
         logger.debug('woodchuck_episode_download_cb(%s)', episode)
