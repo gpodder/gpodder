@@ -59,14 +59,14 @@ def get_real_download_url(url, preferred_fmt_id=18):
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
         def find_urls(page):
-            r4 = re.search('.*"fmt_url_map"\:\s+"([^"]+)".*', page)
+            r4 = re.search('.*"url_encoded_fmt_stream_map"\:\s+"([^"]+)".*', page)
             if r4 is not None:
                 fmt_url_map = r4.group(1)
                 for fmt_url_encoded in fmt_url_map.split(','):
-                    fmt_url = urllib.unquote(fmt_url_encoded)
-                    fmt_url = fmt_url.replace('\\/', '/').replace("\u0026", "&")
-                    fmt_id, url = fmt_url.split('|', 2)
-                    yield int(fmt_id), url
+                    video_info = dict(map(urllib.unquote, x.split('=', 1))
+                            for x in fmt_url_encoded.split('\\u0026'))
+
+                    yield int(video_info['itag']), video_info['url']
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
         # Default to the highest fmt_id if we don't find a match below
