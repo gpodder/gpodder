@@ -1663,8 +1663,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     menu.append(gtk.SeparatorMenuItem())
                     for label, callback in result:
                         item = gtk.MenuItem(label)
-                        item.connect('activate',
-                                     lambda item: callback(episodes))
+                        item.connect('activate', lambda item, callback:
+                                callback(episodes), callback)
                         menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
