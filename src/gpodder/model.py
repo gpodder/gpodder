@@ -413,7 +413,8 @@ class PodcastEpisode(PodcastModelObject):
         """
         url = self.local_filename(create=False)
 
-        if allow_partial and os.path.exists(url + '.partial'):
+        if (allow_partial and url is not None and
+                os.path.exists(url + '.partial')):
             return url + '.partial'
 
         if url is None or not os.path.exists(url):
