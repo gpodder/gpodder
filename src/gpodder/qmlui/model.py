@@ -163,7 +163,7 @@ class QEpisode(QObject):
             self.source_url_changed.emit()
 
             # Make sure the single channel is updated (main view)
-            self._podcast.qupdate()
+            self._podcast.changed.emit()
 
             # Make sure that "All episodes", etc.. are updated
             if finished_callback is not None:

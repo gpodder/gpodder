@@ -60,7 +60,7 @@ class Podcast(object):
 
         Sets a new title for this podcast that will be available
         as the "title" attribute of this object."""
-        self._podcast.set_custom_title(title)
+        self._podcast.rename(title)
         self.title = self._podcast.title
         self._podcast.save()
 
@@ -229,7 +229,7 @@ class PodcastClient(object):
                 mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:
             if title is not None:
-                podcast.set_custom_title(title)
+                podcast.rename(title)
             podcast.save()
             return Podcast(podcast, self)
 

@@ -57,6 +57,7 @@ import urllib2
 import httplib
 import webbrowser
 import mimetypes
+import itertools
 
 import feedparser
 
@@ -1340,4 +1341,13 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
             f.write(filename+'\n')
 
     f.close()
+
+
+def generate_names(filename):
+    basename, ext = os.path.splitext(filename)
+    for i in itertools.count():
+        if i:
+            yield '%s (%d)%s' % (basename, i+1, ext)
+        else:
+            yield filename
 
