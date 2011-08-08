@@ -849,9 +849,18 @@ class PodcastChannel(PodcastModelObject):
         """
         return self.EpisodeClass.create_from_dict(d, self)
 
+    def _consume_updated_title(self, new_title):
+        # Replace multi-space and newlines with single space (Maemo bug 11173)
+        new_title = re.sub('\s+', ' ', new_title).strip()
+
+        # Only update the podcast-supplied title when we
+        # don't yet have a title, or if the title is the
+        # feed URL (e.g. we didn't find a title before).
+        if not self.title or self.title == self.url:
+            self.title = new_title
+
     def _consume_custom_feed(self, custom_feed, max_episodes=0):
-        if not self.title:
-            self.title = custom_feed.get_title()
+        self._consume_updated_title(custom_feed.get_title())
         self.link = custom_feed.get_link()
         self.description = custom_feed.get_description()
         self.cover_url = custom_feed.get_image()
@@ -874,9 +883,7 @@ class PodcastChannel(PodcastModelObject):
     def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         #self.parse_error = feed.get('bozo_exception', None)
 
-        # Replace multi-space and newlines with single space (Maemo bug 11173)
-        if not self.title:
-            self.title = re.sub('\s+', ' ', feed.feed.get('title', self.url))
+        self._consume_updated_title(feed.feed.get('title', self.url))
 
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
