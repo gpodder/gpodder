@@ -7,6 +7,14 @@ Rectangle {
     id: main
     focus: true
 
+    function _(x) {
+        return controller.translate(x)
+    }
+
+    function n_(x, y, z) {
+        return controller.ntranslate(x, y, z)
+    }
+
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
@@ -347,7 +355,7 @@ Rectangle {
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?'Add a new podcast':'Context menu'):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
+            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -468,6 +476,7 @@ Rectangle {
                 id: inputDialogText
                 color: 'white'
                 font.pixelSize: 20 * Config.scale
+                anchors.horizontalCenter: parent.horizontalCenter
             }
 
             InputField {

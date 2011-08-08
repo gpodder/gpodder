@@ -772,6 +772,10 @@ class DownloadTask(object):
                             new_mimetype)
                     self.__episode.set_mimetype(new_mimetype, commit=True)
 
+            # Re-evaluate filename and tempname to take care of podcast renames
+            # while downloads are running (which will change both file names)
+            self.filename = self.__episode.local_filename(create=False)
+            self.tempname = self.filename + '.partial'
             shutil.move(self.tempname, self.filename)
 
             # Model- and database-related updates after a download has finished

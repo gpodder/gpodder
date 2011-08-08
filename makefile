@@ -25,10 +25,14 @@ MESSAGESPOT=data/messages.pot
 UIFILES=$(wildcard data/ui/*.ui \
 	           data/ui/desktop/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
+QMLFILES=$(wildcard data/ui/qml/*.qml)
 TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 		               src/gpodder/gtkui/*.py \
 		               src/gpodder/gtkui/interface/*.py \
-			       src/gpodder/gtkui/desktop/*.py)
+			       src/gpodder/gtkui/desktop/*.py \
+			       src/gpodder/qmlui/*.py \
+			       src/gpodder/webui/*.py \
+			       src/gpodder/plugins/*.py)
 
 HELP2MAN=help2man
 MANPAGE=data/man/gpodder.1
@@ -113,8 +117,8 @@ messages: $(MESSAGESPOT)
 data/ui/%.ui.h: $(UIFILES)
 	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
 
-$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(BINFILE) $(DESKTOPFILE_H)
-	xgettext -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGESPOT) $^
+$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(QMLFILES) $(BINFILE) $(DESKTOPFILE_H)
+	xgettext -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGESPOT) $^
 
 ##########################################################################
 

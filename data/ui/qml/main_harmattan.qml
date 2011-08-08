@@ -40,7 +40,7 @@ PageStackWindow {
 
                 Text {
                     font.pixelSize: 30
-                    text: 'gPodder - Now playing'
+                    text: 'gPodder - ' + _('Now playing')
                     color: '#aaa'
                 }
 

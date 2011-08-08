@@ -42,6 +42,7 @@ import stat
 import shlex
 import socket
 import sys
+import string
 
 import re
 import subprocess
@@ -57,6 +58,7 @@ import urllib2
 import httplib
 import webbrowser
 import mimetypes
+import itertools
 
 import feedparser
 
@@ -92,6 +94,20 @@ if encoding is None:
         encoding = 'iso-8859-15'
         logger.info('Assuming encoding: ISO-8859-15 ($LANG not set).')
 
+
+# Filename / folder name sanitization
+def _sanitize_char(c):
+    if c in string.whitespace:
+        return ' '
+    elif c in ',-.()':
+        return c
+    elif c in string.punctuation or ord(c) <= 31:
+        return '_'
+
+    return c
+
+SANITIZATION_TABLE = ''.join(map(_sanitize_char, map(chr, range(256))))
+del _sanitize_char
 
 # Used by file_type_by_extension()
 _BUILTIN_FILE_TYPES = None
@@ -161,6 +177,9 @@ def normalize_feed_url(url):
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
             'fm4od:': 'http://onapp1.orf.at/webcam/fm4/fod/%s.xspf',
+            # YouTube playlists. To get a list of playlists per-user, use:
+            # https://gdata.youtube.com/feeds/api/users/<username>/playlists
+            'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
     }
 
     for prefix, expansion in PREFIXES.iteritems():
@@ -1127,12 +1146,6 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
     If use_ascii is True, don't encode in the native language,
     but use only characters from the ASCII character set.
     """
-    global encoding
-    if use_ascii:
-        e = 'ascii'
-    else:
-        e = encoding
-
     if not isinstance(filename, unicode):
         filename = filename.decode(encoding, 'ignore')
 
@@ -1141,7 +1154,11 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
                 filename, max_length)
         filename = filename[:max_length]
 
-    return re.sub('[/|?*<>:+\[\]\"\\\]', '_', filename.strip().encode(e, 'ignore'))
+    filename = filename.encode('ascii' if use_ascii else encoding, 'ignore')
+    filename = filename.translate(SANITIZATION_TABLE)
+    filename = filename.strip('.' + string.whitespace)
+
+    return filename
 
 
 def find_mount_point(directory):
@@ -1337,4 +1354,13 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
             f.write(filename+'\n')
 
     f.close()
+
+
+def generate_names(filename):
+    basename, ext = os.path.splitext(filename)
+    for i in itertools.count():
+        if i:
+            yield '%s (%d)%s' % (basename, i+1, ext)
+        else:
+            yield filename
 

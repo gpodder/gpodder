@@ -32,6 +32,7 @@ import functools
 import gpodder
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 from gpodder import core
 from gpodder import util
@@ -64,6 +65,14 @@ class Controller(QObject):
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
 
+    @Slot(str, result=str)
+    def translate(self, x):
+        return _(x)
+
+    @Slot(str, str, int, result=str)
+    def ntranslate(self, singular, plural, count):
+        return N_(singular, plural, count)
+
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()
@@ -89,13 +98,15 @@ class Controller(QObject):
         menu = []
 
         if isinstance(podcast, model.EpisodeSubsetView):
-            menu.append(helper.Action('Update all', 'update-all', podcast))
+            menu.append(helper.Action(_('Update all'), 'update-all', podcast))
         else:
-            menu.append(helper.Action('Update', 'update', podcast))
-            menu.append(helper.Action('Mark episodes as old', 'mark-as-read', podcast))
-            menu.append(helper.Action('Change section', 'change-section', podcast))
+            menu.append(helper.Action(_('Update'), 'update', podcast))
+            menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
             menu.append(helper.Action('', '', None))
-            menu.append(helper.Action('Unsubscribe', 'unsubscribe', podcast))
+            menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
+            menu.append(helper.Action(_('Change section'), 'change-section', podcast))
+            menu.append(helper.Action('', '', None))
+            menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
         #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
         #menu.append(helper.Action('Force update', 'force-update', podcast))
@@ -158,6 +169,15 @@ class Controller(QObject):
                     self.root.resort_podcast_list()
 
             self.start_input_dialog(section_changer(action.target))
+        elif action.action == 'rename-podcast':
+            def title_changer(podcast):
+                title = yield (_('New name:'), podcast.title,
+                        _('Rename'))
+                if title and title != podcast.title:
+                    podcast.rename(title)
+                    self.root.resort_podcast_list()
+
+            self.start_input_dialog(title_changer(action.target))
 
     def confirm_action(self, message, affirmative, callback):
         def confirm(message, affirmative, callback):
@@ -246,10 +266,10 @@ class Controller(QObject):
     def episodeContextMenu(self, episode):
         menu = []
 
-        toggle_new = 'Mark as old' if episode.is_new else 'Mark as new'
+        toggle_new = _('Mark as old') if episode.is_new else _('Mark as new')
         menu.append(helper.Action(toggle_new, 'episode-toggle-new', episode))
 
-        toggle_archive = 'Allow deletion' if episode.archive else 'Archive'
+        toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
         menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
 
         self.show_context_menu(menu)
@@ -263,7 +283,7 @@ class Controller(QObject):
                 continue
 
             if podcast.url == url:
-                self.root.show_message('Podcast already added')
+                self.root.show_message(_('Podcast already added'))
                 self.podcastSelected(podcast)
                 return
 

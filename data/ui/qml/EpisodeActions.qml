@@ -18,7 +18,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: 'Download'
+            text: _('Download')
             image: 'download'
             onSelected: controller.downloadEpisode(episode)
             visible: (episode!==undefined)?(!episode.qdownloaded && !episode.qdownloading):false
@@ -26,7 +26,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: 'Cancel'
+            text: _('Cancel')
             image: 'download-cancel'
             onSelected: controller.cancelDownload(episode)
             visible: (episode!==undefined)?(!episode.qdownloaded && episode.qdownloading):false
@@ -34,7 +34,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: (episode!==undefined)?(episode.qplaying?'Pause':(episode.qdownloaded?'Play':'Stream')):''
+            text: (episode!==undefined)?(episode.qplaying?_('Pause'):(episode.qdownloaded?_('Play'):_('Stream'))):''
             image: (episode!==undefined)?(episode.qplaying?'pause':'play'):''
             onSelected: main.togglePlayback(episode)
             visible: episode!==undefined
@@ -42,7 +42,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: 'Delete'
+            text: _('Delete')
             image: 'delete'
             onSelected: controller.deleteEpisode(episode)
             visible: (episode!==undefined)?(episode.qdownloaded && !episode.qarchive):false
@@ -50,7 +50,7 @@ Item {
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: 'Shownotes'
+            text: _('Shownotes')
             image: 'shownotes'
             onSelected: main.openShowNotes(episode)
             visible: episode!==undefined

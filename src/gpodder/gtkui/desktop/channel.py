@@ -108,7 +108,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_btnOK_clicked(self, widget, *args):
         self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
-        self.channel.set_custom_title(self.entryTitle.get_text())
+        self.channel.rename(self.entryTitle.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
 
