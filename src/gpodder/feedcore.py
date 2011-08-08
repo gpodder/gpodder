@@ -185,6 +185,12 @@ class Fetcher(object):
         else:
             return status
 
+    def _check_rss_redirect(self, feed):
+        new_location = feed.feed.get('newlocation', None)
+        if new_location:
+            feed.href = feed.feed.newlocation
+            raise NewLocation(feed)
+
     def _check_statuscode(self, feed):
         status = self._normalize_status(feed.status)
         if status == 200:
@@ -238,6 +244,7 @@ class Fetcher(object):
                 self._autodiscover_feed(feed)
 
             self._check_valid_feed(feed)
+            self._check_rss_redirect(feed)
             self._check_statuscode(feed)
 
     def fetch(self, url, etag=None, modified=None):

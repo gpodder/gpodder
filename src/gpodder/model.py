@@ -1032,6 +1032,7 @@ class PodcastChannel(PodcastModelObject):
             self.save()
         except feedcore.NewLocation, updated:
             feed = updated.data
+            logger.info('New feed location: %s => %s', self.url, feed.href)
             self.url = feed.href
             self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)
