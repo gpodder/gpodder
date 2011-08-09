@@ -28,6 +28,7 @@ from PySide.QtDeclarative import QDeclarativeView
 
 import os
 import threading
+import signal
 import functools
 import gpodder
 
@@ -401,6 +402,7 @@ class qtPodder(QObject):
             args += ['-graphicssystem', 'opengl']
 
         self.app = QApplication(args)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.quit.connect(self.on_quit)
 
         self.core = gpodder_core
