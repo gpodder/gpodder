@@ -12,30 +12,48 @@ SelectableItem {
     // Show context menu when single-touching the count or cover art
     singlePressContextMenuLeftBorder: titleBox.x
 
-    Text {
-        id: counterText
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.rightMargin: 5
-        text: formatCount(modelData.qnew, modelData.qdownloaded)
-        color: "white"
+    Item {
+        id: counterBox
         width: Config.iconSize * 1.9
-        font.pixelSize: podcastItem.height * .4
-        horizontalAlignment: Text.AlignRight
-        visible: !spinner.visible
 
-        function formatCount(qnew, qdownloaded) {
-            var s = ''
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
 
-            if (qdownloaded) {
-                s += qdownloaded
+        Column {
+            id: counters
+            visible: !spinner.visible
+
+            property int newEpisodes: modelData.qnew
+            property int downloadedEpisodes: modelData.qdownloaded
+
+            anchors {
+                verticalCenter: parent.verticalCenter
+                right: parent.right
+                rightMargin: 5
             }
 
-            if (qnew) {
-                s += '<sup><font color="yellow">+' + qnew + '</font></sup>'
+            Text {
+                anchors.right: parent.right
+
+                visible: counters.downloadedEpisodes > 0
+                text: counters.downloadedEpisodes
+                color: "white"
+
+                font.pixelSize: podcastItem.height * .4
             }
 
-            return s
+            Text {
+                anchors.right: parent.right
+
+                visible: counters.newEpisodes > 0
+                text: '+' + counters.newEpisodes
+                color: 'yellow'
+
+                font.pixelSize: podcastItem.height * .3
+            }
         }
     }
 
@@ -63,7 +81,7 @@ SelectableItem {
 
         anchors {
             verticalCenter: parent.verticalCenter
-            left: counterText.right
+            left: counterBox.right
             leftMargin: Config.smallSpacing
         }
     }
