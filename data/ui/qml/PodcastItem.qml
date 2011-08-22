@@ -20,6 +20,7 @@ SelectableItem {
         width: Config.iconSize * 1.9
         font.pixelSize: podcastItem.height * .4
         horizontalAlignment: Text.AlignRight
+        visible: !spinner.visible
 
         function formatCount(qnew, qdownloaded) {
             var s = ''
@@ -37,59 +38,50 @@ SelectableItem {
     }
 
     Image {
-    	id: cover
-        source: 'artwork/cover-shadow.png'
-        visible: modelData.qcoverurl != ''
+        id: spinner
+        anchors {
+            verticalCenter: parent.verticalCenter
+            right: cover.left
+            rightMargin: Config.smallSpacing
+        }
+        source: 'artwork/spinner.png'
+        visible: modelData.qupdating
+        smooth: true
 
-        height: podcastItem.height * .8
+        RotationAnimation {
+            target: spinner
+            property: 'rotation'
+            direction: RotationAnimation.Clockwise
+            from: 0
+            to: 360
+            duration: 1200
+            running: spinner.visible
+            loops: Animation.Infinite
+        }
+    }
+
+    Image {
+    	id: cover
+
+        visible: modelData.qcoverurl != ''
+        source: Util.formatCoverURL(modelData)
+        asynchronous: true
         width: podcastItem.height * .8
+        height: width
+        sourceSize.width: width
+        sourceSize.height: height
 
         anchors {
             verticalCenter: parent.verticalCenter
             left: counterText.right
             leftMargin: Config.smallSpacing
         }
-
-        Image {
-            source: Util.formatCoverURL(modelData)
-            asynchronous: true
-            width: parent.width * .85
-            height: parent.height * .85
-            sourceSize.width: width
-            sourceSize.height: height
-            anchors.centerIn: parent
-
-            Image {
-                id: spinner
-                anchors.centerIn: parent
-                width: parent.width * 1.3
-                height: parent.height * 1.3
-                source: 'artwork/spinner.png'
-                opacity: modelData.qupdating?1:0
-
-                Behavior on opacity { PropertyAnimation { } }
-
-                RotationAnimation {
-                    target: spinner
-                    property: 'rotation'
-                    direction: RotationAnimation.Clockwise
-                    from: 0
-                    to: 360
-                    duration: 1200
-                    running: modelData.qupdating
-                    loops: Animation.Infinite
-                }
-            }
-        }
     }
 
     Text {
         id: titleBox
 
-        property int titleSize: podcastItem.height * .35
-        property int subtitleSize: podcastItem.height * .25
-
-        text: '<font style="font-size: '+titleSize+'px;">' + modelData.qtitle + '</font>'+(modelData.qdescription?('<br><font style="font-size: '+subtitleSize+'px; color: #aaa;">' + modelData.qdescription + '</font>'):'')
+        text: modelData.qtitle
         color: "white"
 
         anchors {

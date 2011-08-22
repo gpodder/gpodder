@@ -22,3 +22,6 @@ var offlineColor = '#4b4b4b'
 var hasCloseButton = true
 var hasTaskSwitcher = true
 
+var listItemBigText = listItemHeight * .35
+var listItemSmallText = listItemHeight * .25
+

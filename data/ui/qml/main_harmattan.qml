@@ -13,7 +13,7 @@ PageStackWindow {
 
     initialPage: Page {
         id: mainPage
-        orientationLock: PageOrientation.LockPortrait
+        //orientationLock: PageOrientation.LockPortrait
 
         Main {
             id: mainObject

@@ -385,6 +385,10 @@ def QML(filename):
 class DeclarativeView(QDeclarativeView):
     def __init__(self):
         QDeclarativeView.__init__(self)
+        self.setAttribute(Qt.WA_OpaquePaintEvent)
+        self.setAttribute(Qt.WA_NoSystemBackground)
+        self.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
+        self.viewport().setAttribute(Qt.WA_NoSystemBackground)
 
     closing = Signal()
 
