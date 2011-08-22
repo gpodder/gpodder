@@ -20,15 +20,26 @@ Image {
     property alias currentEpisode: mediaPlayer.episode
 
     property bool playing: mediaPlayer.playing
+    property bool canGoBack: closeButton.isRequired
+    property bool hasPlayButton: nowPlayingThrobber.shouldAppear
+    property bool hasSearchButton: searchButton.visible
+
+    function goBack() {
+        closeButton.clicked()
+    }
+
+    function clickPlayButton() {
+        nowPlayingThrobber.clicked()
+    }
+
+    function clickSearchButton() {
+        searchButton.clicked()
+    }
 
     Keys.onPressed: {
         console.log(event.key)
         if (event.key == Qt.Key_Escape) {
-            if (contextMenu.state == 'opened') {
-                contextMenu.close()
-            } else if (main.state == 'episodes') {
-                main.state = 'podcasts'
-            }
+            goBack()
         }
         if (event.key == Qt.Key_F && event.modifiers & Qt.ControlModifier) {
             searchButton.clicked()
@@ -199,6 +210,7 @@ Image {
 
     CornerButton {
         id: extraCloseButton
+        visible: false
         z: (contextMenu.state == 'opened')?2:0
         tab: 'artwork/back-tab.png'
         icon: 'artwork/back.png'
@@ -215,6 +227,7 @@ Image {
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
+        visible: false
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         opacity: shouldAppear
@@ -365,6 +378,7 @@ Image {
             onClicked: contextMenu.showSubscribe()
 
             visible: (contextMenu.state == 'closed' && main.state == 'podcasts')
+            opacity: 0
         }
 
         TitlebarButton {

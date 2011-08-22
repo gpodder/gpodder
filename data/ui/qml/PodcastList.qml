@@ -41,7 +41,6 @@ Item {
         }
 
         header: PodcastListHeader { }
-        footer: Item { height: Config.headerHeight }
 
         cacheBuffer: height
     }

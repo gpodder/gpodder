@@ -11,9 +11,37 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
+    showToolBar: mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton
+
     initialPage: Page {
         id: mainPage
         //orientationLock: PageOrientation.LockPortrait
+
+        tools: ToolBarLayout {
+            ToolIcon {
+                id: toolBack
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: mainObject.goBack()
+                visible: mainObject.canGoBack
+            }
+
+            ToolIcon {
+                id: toolAdd
+                iconId: "icon-m-toolbar-add-white"
+                onClicked: mainObject.clickSearchButton()
+                visible: mainObject.hasSearchButton
+                anchors.right: toolPlay.visible?toolPlay.left:toolPlay.right
+            }
+
+            ToolIcon {
+                id: toolPlay
+                iconId: "icon-m-toolbar-content-audio-white"
+                onClicked: mainObject.clickPlayButton()
+                visible: mainObject.hasPlayButton
+                anchors.right: parent.right
+            }
+        }
 
         Main {
             id: mainObject

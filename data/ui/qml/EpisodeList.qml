@@ -85,7 +85,6 @@ Item {
         }
 
         header: Item { height: Config.headerHeight }
-        footer: Item { height: Config.headerHeight }
     }
 
     ScrollDecorator {
