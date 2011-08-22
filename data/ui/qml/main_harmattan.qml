@@ -11,7 +11,7 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
-    showToolBar: mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton
+    showToolBar: !switcherDisplay.visible && (mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton)
 
     initialPage: Page {
         id: mainPage
