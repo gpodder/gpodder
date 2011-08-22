@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 import 'util.js' as Util
 
@@ -37,27 +39,15 @@ SelectableItem {
         }
     }
 
-    Image {
+    BusyIndicator {
         id: spinner
         anchors {
             verticalCenter: parent.verticalCenter
             right: cover.left
             rightMargin: Config.smallSpacing
         }
-        source: 'artwork/spinner.png'
         visible: modelData.qupdating
-        smooth: true
-
-        RotationAnimation {
-            target: spinner
-            property: 'rotation'
-            direction: RotationAnimation.Clockwise
-            from: 0
-            to: 360
-            duration: 1200
-            running: spinner.visible
-            loops: Animation.Infinite
-        }
+        running: visible
     }
 
     Image {
