@@ -3,7 +3,7 @@ import Qt 4.7
 
 import 'config.js' as Config
 
-Rectangle {
+Image {
     id: main
     focus: true
 
@@ -37,20 +37,9 @@ Rectangle {
 
     width: 800
     height: 480
+    source: 'artwork/background-harmattan.png'
 
     state: 'podcasts'
-    color: Config.baseColor
-
-    Behavior on color { ColorAnimation { duration: 5000 } }
-    Image {
-        anchors.fill: parent
-        source: 'artwork/mask.png'
-    }
-
-    Image {
-        anchors.fill: parent
-        source: 'artwork/noise.png'
-    }
 
     function togglePlayback(episode) {
         controller.currentEpisodeChanging()

@@ -28,6 +28,7 @@ from PySide.QtDeclarative import QDeclarativeView
 
 import os
 import threading
+import signal
 import functools
 import gpodder
 
@@ -384,6 +385,10 @@ def QML(filename):
 class DeclarativeView(QDeclarativeView):
     def __init__(self):
         QDeclarativeView.__init__(self)
+        self.setAttribute(Qt.WA_OpaquePaintEvent)
+        self.setAttribute(Qt.WA_NoSystemBackground)
+        self.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
+        self.viewport().setAttribute(Qt.WA_NoSystemBackground)
 
     closing = Signal()
 
@@ -401,6 +406,7 @@ class qtPodder(QObject):
             args += ['-graphicssystem', 'opengl']
 
         self.app = QApplication(args)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.quit.connect(self.on_quit)
 
         self.core = gpodder_core
