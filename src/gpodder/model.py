@@ -712,10 +712,11 @@ class PodcastEpisode(PodcastModelObject):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
         enclosures = entry.get('enclosures', ())
+        media_rss_content = entry.get('media_content', ())
         audio_available = any(e.get('type', '').startswith('audio/') \
-                for e in enclosures)
+                for e in enclosures + media_rss_content)
         video_available = any(e.get('type', '').startswith('video/') \
-                for e in enclosures)
+                for e in enclosures + media_rss_content)
 
         # Create the list of preferred mime types
         mimetype_prefs = mimetype_prefs.split(',')
@@ -746,6 +747,7 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             # Skip images in feeds if audio or video is available (bug 979)
+            # This must (and does) also look in Media RSS enclosures (bug 1430)
             if episode.mimetype.startswith('image/') and \
                     (audio_available or video_available):
                 continue
@@ -762,10 +764,13 @@ class PodcastEpisode(PodcastModelObject):
             return episode
 
         # Media RSS content
-        for m in entry.get('media_content', ()):
+        for m in sorted(media_rss_content, key=calculate_preference_value):
             episode.mimetype = m.get('type', 'application/octet-stream')
             if '/' not in episode.mimetype:
                 continue
+
+            # XXX: Does Media RSS content also have images? If so, we
+            # might want to skip these too (see above for enclosures).
 
             episode.url = util.normalize_feed_url(m.get('url', ''))
             if not episode.url:
