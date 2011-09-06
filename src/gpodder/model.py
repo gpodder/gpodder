@@ -711,8 +711,8 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get('updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
-        enclosures = entry.get('enclosures', ())
-        media_rss_content = entry.get('media_content', ())
+        enclosures = entry.get('enclosures', [])
+        media_rss_content = entry.get('media_content', [])
         audio_available = any(e.get('type', '').startswith('audio/') \
                 for e in enclosures + media_rss_content)
         video_available = any(e.get('type', '').startswith('video/') \
