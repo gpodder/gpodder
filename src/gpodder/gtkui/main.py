@@ -1985,18 +1985,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
+        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
+        is_separator = lambda r: r[PodcastListModel.C_SEPARATOR]
+        sections_active = any(is_section(x) for x in self.podcast_list_model)
+
         if self.config.podcast_list_view_all:
             # Update "all episodes" view in any case (if enabled)
             self.podcast_list_model.update_first_row()
-            # List model length minus 2, because of "All" + separator
-            list_model_length = len(self.podcast_list_model) - 2
+            # List model length minus 1, because of "All"
+            list_model_length = len(self.podcast_list_model) - 1
         else:
             list_model_length = len(self.podcast_list_model)
 
-        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
-        sections_active = any(is_section(x) for x in self.podcast_list_model)
         force_update = (sections_active != self.config.podcast_list_sections or
                 sections_changed)
+
+        # Filter items in the list model that are not podcasts, so we get the
+        # correct podcast list count (ignore section headers and separators)
+        is_not_podcast = lambda r: is_section(r) or is_separator(r)
+        list_model_length -= len(filter(is_not_podcast, self.podcast_list_model))
 
         if selected and not force_update:
             # very cheap! only update selected channel
