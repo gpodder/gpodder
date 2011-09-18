@@ -757,7 +757,7 @@ class DownloadTask(object):
             # In some cases, the redirect of a URL causes the real filename to
             # be revealed in the final URL (e.g. http://gpodder.org/bug/1423)
             if real_url != url:
-                real_filename = os.path.basename(real_url)
+                real_filename = ''.join(util.filename_from_url(real_url))
                 self.filename = self.__episode.local_filename(create=True,
                         force_update=True, template=real_filename)
                 logger.info('Download was redirected (%s). New filename: %s',
