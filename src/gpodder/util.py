@@ -1364,3 +1364,23 @@ def generate_names(filename):
         else:
             yield filename
 
+
+def is_known_redirecter(url):
+    """Check if a URL redirect is expected, and no filenames should be updated
+
+    We usually honor URL redirects, and update filenames accordingly.
+    In some cases (e.g. Soundcloud) this results in a worse filename,
+    so we hardcode and detect these cases here to avoid renaming files
+    for which we know that a "known good default" exists.
+
+    The problem here is that by comparing the currently-assigned filename
+    with the new filename determined by the URL, we cannot really determine
+    which one is the "better" URL (e.g. "n5rMSpXrqmR9.128.mp3" for Soundcloud).
+    """
+
+    # Soundcloud-hosted media downloads (we take the track name as filename)
+    if url.startswith('http://ak-media.soundcloud.com/'):
+        return True
+
+    return False
+

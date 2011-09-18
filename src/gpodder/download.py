@@ -756,12 +756,17 @@ class DownloadTask(object):
 
             # In some cases, the redirect of a URL causes the real filename to
             # be revealed in the final URL (e.g. http://gpodder.org/bug/1423)
-            if real_url != url:
-                real_filename = ''.join(util.filename_from_url(real_url))
-                self.filename = self.__episode.local_filename(create=True,
-                        force_update=True, template=real_filename)
-                logger.info('Download was redirected (%s). New filename: %s',
-                        real_url, os.path.basename(self.filename))
+            if real_url != url and not util.is_known_redirecter(real_url):
+                realname, realext = util.filename_from_url(real_url)
+
+                # Only update from redirect if the redirected-to filename has
+                # a proper extension (this is needed for e.g. YouTube)
+                if not util.wrong_extension(realext):
+                    real_filename = ''.join((realname, realext))
+                    self.filename = self.__episode.local_filename(create=True,
+                            force_update=True, template=real_filename)
+                    logger.info('Download was redirected (%s). New filename: %s',
+                            real_url, os.path.basename(self.filename))
 
             # Look at the Content-disposition header; use if if available
             disposition_filename = get_header_param(headers, \
