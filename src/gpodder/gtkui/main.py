@@ -89,6 +89,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     # Delay until live search is started after typing stop
     LIVE_SEARCH_DELAY = 500
 
+    # Width (in pixels) of episode list icon
+    EPISODE_LIST_ICON_WIDTH = 40
+
     def __init__(self, bus_name, gpodder_core):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
@@ -560,9 +563,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
 
-        if getattr(treeview, TreeViewHelper.ROLE) == \
-                TreeViewHelper.ROLE_PODCASTS:
+        role = getattr(treeview, TreeViewHelper.ROLE)
+        if role == TreeViewHelper.ROLE_PODCASTS:
             return self.currently_updating
+        elif (role == TreeViewHelper.ROLE_EPISODES and event.button == 1):
+            # Toggle episode "new" status by clicking the icon (bug 1432)
+            result = treeview.get_path_at_pos(int(event.x), int(event.y))
+            if result is not None:
+                path, column, x, y = result
+                # The user clicked the icon if she clicked in the first column
+                # and the x position is in the area where the icon resides
+                if (x < self.EPISODE_LIST_ICON_WIDTH and
+                        column == treeview.get_columns()[0]):
+                    model = treeview.get_model()
+                    cursor_episode = model.get_value(model.get_iter(path),
+                            EpisodeListModel.C_EPISODE)
+
+                    new_value = cursor_episode.is_new
+                    selected_episodes = self.get_selected_episodes()
+
+                    # Avoid changing anything if the clicked episode is not
+                    # selected already - otherwise update all selected
+                    if cursor_episode in selected_episodes:
+                        for episode in selected_episodes:
+                            episode.mark(is_played=new_value)
+
+                        self.update_episode_list_icons(selected=True)
+                        self.update_podcast_list_model(selected=True)
+                        return True
 
         return event.button == 3
 
@@ -788,7 +816,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
-        iconcell.set_fixed_size(40, -1)
+        iconcell.set_fixed_size(self.EPISODE_LIST_ICON_WIDTH, -1)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
