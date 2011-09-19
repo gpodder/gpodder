@@ -560,8 +560,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
 
-        TreeViewHelper.save_button_press_event(treeview, event)
-
         if getattr(treeview, TreeViewHelper.ROLE) == \
                 TreeViewHelper.ROLE_PODCASTS:
             return self.currently_updating
@@ -1588,23 +1586,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.delete_file(destfile)
 
         threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
-
-    def _treeview_button_released(self, treeview, event):
-        xpos, ypos = TreeViewHelper.get_button_press_event(treeview)
-        dy = int(abs(event.y-ypos))
-        dx = int(event.x-xpos)
-
-        selection = treeview.get_selection()
-        path = treeview.get_path_at_pos(int(event.x), int(event.y))
-        if path is None or dy > 30:
-            return (False, dx, dy)
-
-        path, column, x, y = path
-        selection.select_path(path)
-        treeview.set_cursor(path)
-        treeview.grab_focus()
-
-        return (True, dx, dy)
 
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
