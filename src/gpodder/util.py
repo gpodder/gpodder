@@ -943,7 +943,7 @@ def idle_add(func, *args):
     call the function later - this is needed for
     threads to be able to modify GTK+ widget data.
     """
-    if gpodder.ui.desktop or gpodder.ui.fremantle:
+    if gpodder.ui.desktop:
         import gobject
         def x(f, *a):
             f(*a)

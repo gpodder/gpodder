@@ -566,8 +566,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 TreeViewHelper.ROLE_PODCASTS:
             return self.currently_updating
 
-        return event.button == 3 and \
-                gpodder.ui.desktop
+        return event.button == 3
 
     def on_treeview_podcasts_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
@@ -1737,7 +1736,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
+        descriptions = self.config.episode_list_descriptions
 
         if urls is not None:
             # We have a list of URLs to walk through
@@ -2066,7 +2065,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.clear()
 
             def update():
-                descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
+                descriptions = self.config.episode_list_descriptions
                 self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
 
                 self.treeAvailable.get_selection().unselect_all()
