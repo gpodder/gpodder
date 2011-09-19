@@ -178,8 +178,9 @@ def convert_gpodder2_db(old_db, new_db):
     """
 
     old_db = sqlite.connect(old_db)
+    new_db_filename = new_db
     new_db = sqlite.connect(new_db)
-    upgrade(new_db)
+    upgrade(new_db, new_db_filename)
 
     # Copy data for podcasts
     old_cur = old_db.cursor()

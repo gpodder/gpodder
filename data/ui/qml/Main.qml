@@ -249,7 +249,7 @@ Image {
         anchors.right: parent.right
         anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutCirc } }
     }
 
     ContextMenu {

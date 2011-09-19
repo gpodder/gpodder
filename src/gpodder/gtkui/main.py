@@ -89,6 +89,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     # Delay until live search is started after typing stop
     LIVE_SEARCH_DELAY = 500
 
+    # Width (in pixels) of episode list icon
+    EPISODE_LIST_ICON_WIDTH = 40
+
     def __init__(self, bus_name, gpodder_core):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
@@ -560,14 +563,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
 
-        TreeViewHelper.save_button_press_event(treeview, event)
-
-        if getattr(treeview, TreeViewHelper.ROLE) == \
-                TreeViewHelper.ROLE_PODCASTS:
+        role = getattr(treeview, TreeViewHelper.ROLE)
+        if role == TreeViewHelper.ROLE_PODCASTS:
             return self.currently_updating
+        elif (role == TreeViewHelper.ROLE_EPISODES and event.button == 1):
+            # Toggle episode "new" status by clicking the icon (bug 1432)
+            result = treeview.get_path_at_pos(int(event.x), int(event.y))
+            if result is not None:
+                path, column, x, y = result
+                # The user clicked the icon if she clicked in the first column
+                # and the x position is in the area where the icon resides
+                if (x < self.EPISODE_LIST_ICON_WIDTH and
+                        column == treeview.get_columns()[0]):
+                    model = treeview.get_model()
+                    cursor_episode = model.get_value(model.get_iter(path),
+                            EpisodeListModel.C_EPISODE)
 
-        return event.button == 3 and \
-                gpodder.ui.desktop
+                    new_value = cursor_episode.is_new
+                    selected_episodes = self.get_selected_episodes()
+
+                    # Avoid changing anything if the clicked episode is not
+                    # selected already - otherwise update all selected
+                    if cursor_episode in selected_episodes:
+                        for episode in selected_episodes:
+                            episode.mark(is_played=new_value)
+
+                        self.update_episode_list_icons(selected=True)
+                        self.update_podcast_list_model(selected=True)
+                        return True
+
+        return event.button == 3
 
     def on_treeview_podcasts_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
@@ -791,7 +816,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         iconcell = gtk.CellRendererPixbuf()
         iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
-        iconcell.set_fixed_size(40, -1)
+        iconcell.set_fixed_size(self.EPISODE_LIST_ICON_WIDTH, -1)
 
         namecell = gtk.CellRendererText()
         namecell.set_property('ellipsize', pango.ELLIPSIZE_END)
@@ -1590,23 +1615,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
 
-    def _treeview_button_released(self, treeview, event):
-        xpos, ypos = TreeViewHelper.get_button_press_event(treeview)
-        dy = int(abs(event.y-ypos))
-        dx = int(event.x-xpos)
-
-        selection = treeview.get_selection()
-        path = treeview.get_path_at_pos(int(event.x), int(event.y))
-        if path is None or dy > 30:
-            return (False, dx, dy)
-
-        path, column, x, y = path
-        selection.select_path(path)
-        treeview.set_cursor(path)
-        treeview.grab_focus()
-
-        return (True, dx, dy)
-
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -1737,7 +1745,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
+        descriptions = self.config.episode_list_descriptions
 
         if urls is not None:
             # We have a list of URLs to walk through
@@ -1985,18 +1993,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
+        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
+        is_separator = lambda r: r[PodcastListModel.C_SEPARATOR]
+        sections_active = any(is_section(x) for x in self.podcast_list_model)
+
         if self.config.podcast_list_view_all:
             # Update "all episodes" view in any case (if enabled)
             self.podcast_list_model.update_first_row()
-            # List model length minus 2, because of "All" + separator
-            list_model_length = len(self.podcast_list_model) - 2
+            # List model length minus 1, because of "All"
+            list_model_length = len(self.podcast_list_model) - 1
         else:
             list_model_length = len(self.podcast_list_model)
 
-        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
-        sections_active = any(is_section(x) for x in self.podcast_list_model)
         force_update = (sections_active != self.config.podcast_list_sections or
                 sections_changed)
+
+        # Filter items in the list model that are not podcasts, so we get the
+        # correct podcast list count (ignore section headers and separators)
+        is_not_podcast = lambda r: is_section(r) or is_separator(r)
+        list_model_length -= len(filter(is_not_podcast, self.podcast_list_model))
 
         if selected and not force_update:
             # very cheap! only update selected channel
@@ -2059,7 +2074,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_model.clear()
 
             def update():
-                descriptions = self.config.episode_list_descriptions and gpodder.ui.desktop
+                descriptions = self.config.episode_list_descriptions
                 self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
 
                 self.treeAvailable.get_selection().unselect_all()

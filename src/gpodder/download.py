@@ -754,8 +754,19 @@ class DownloadTask(object):
                 if old_extension != new_extension or util.wrong_extension(ext):
                     self.filename = self.__episode.local_filename(create=True, force_update=True)
 
-            # TODO: Check if "real_url" is different from "url" and if it is,
-            #       see if we can get a better episode filename out of it
+            # In some cases, the redirect of a URL causes the real filename to
+            # be revealed in the final URL (e.g. http://gpodder.org/bug/1423)
+            if real_url != url and not util.is_known_redirecter(real_url):
+                realname, realext = util.filename_from_url(real_url)
+
+                # Only update from redirect if the redirected-to filename has
+                # a proper extension (this is needed for e.g. YouTube)
+                if not util.wrong_extension(realext):
+                    real_filename = ''.join((realname, realext))
+                    self.filename = self.__episode.local_filename(create=True,
+                            force_update=True, template=real_filename)
+                    logger.info('Download was redirected (%s). New filename: %s',
+                            real_url, os.path.basename(self.filename))
 
             # Look at the Content-disposition header; use if if available
             disposition_filename = get_header_param(headers, \
@@ -775,7 +786,8 @@ class DownloadTask(object):
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)
             self.filename = self.__episode.local_filename(create=False)
-            self.tempname = self.filename + '.partial'
+            self.tempname = os.path.join(os.path.dirname(self.filename),
+                    os.path.basename(self.tempname))
             shutil.move(self.tempname, self.filename)
 
             # Model- and database-related updates after a download has finished
