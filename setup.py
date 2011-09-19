@@ -75,6 +75,7 @@ inst_share_ui_qml = glob.glob('data/ui/qml/*.qml') + glob.glob('data/ui/qml/*.js
 inst_share_ui_qml_artwork = glob.glob('data/ui/qml/artwork/*')
 inst_share_ui_qml_test = glob.glob('data/ui/qml/test/*')
 inst_share_gpodder = [ 'data/credits.txt' ] + glob.glob('data/images/*.png')
+inst_share_gpodder += glob.glob('data/images/*.jpg') # Harmattan splash screens
 inst_share_gpodder_examples = glob.glob('examples/*')
 inst_desktop = [ DESKTOP_FILE ]
 inst_share_dbus_services = [ DBUS_SERVICE_FILE ]
