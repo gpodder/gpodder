@@ -13,6 +13,9 @@ PageStackWindow {
 
     showToolBar: !switcherDisplay.visible && (mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton)
 
+    // Dirty trick to hide status bar in landscape mode
+    showStatusBar: mainPage.width < mainPage.height
+
     initialPage: Page {
         id: mainPage
         //orientationLock: PageOrientation.LockPortrait
