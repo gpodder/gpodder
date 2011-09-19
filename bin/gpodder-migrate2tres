@@ -65,20 +65,25 @@ new_database = gpodder.database_file
 old_config = os.path.expanduser('~/.config/gpodder/gpodder.conf')
 new_config = gpodder.config_file
 
-if not all(os.path.exists(x) for x in (old_database, old_config)):
+if not os.path.exists(old_database):
     print >>sys.stderr, """
     Turns out that you never ran gPodder 2.
-    Can't find one of these required files:
+    Can't find this required file:
 
-       %(old_config)s
        %(old_database)s
     """ % locals()
     sys.exit(1)
 
-parser = ConfigParser.RawConfigParser()
-parser.read(old_config)
+if os.path.exists(old_config):
+    parser = ConfigParser.RawConfigParser()
+    parser.read(old_config)
+    old_downloads = parser.get('gpodder-conf-1', 'download_dir')
+else:
+    # The user has no configuration. This usually happens when
+    # only the CLI version of gPodder is used. In this case, the
+    # download directory is most likely the default (bug 1434)
+    old_downloads = os.path.expanduser('~/gpodder-downloads')
 
-old_downloads = parser.get('gpodder-conf-1', 'download_dir')
 new_downloads = gpodder.downloads
 
 if not os.path.exists(old_downloads):
