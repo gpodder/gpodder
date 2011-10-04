@@ -233,8 +233,10 @@ class PodcastEpisode(PodcastModelObject):
             if '/' not in episode.mime_type:
                 continue
 
-            # XXX: Does Media RSS content also have images? If so, we
-            # might want to skip these too (see above for enclosures).
+            # Skip images in Media RSS if we have audio/video (bug 1444)
+            if episode.mime_type.startswith('image/') and \
+                    (audio_available or video_available):
+                continue
 
             episode.url = util.normalize_feed_url(m.get('url', ''))
             if not episode.url:
