@@ -477,6 +477,12 @@ class PodcastEpisode(PodcastModelObject):
         ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
 
         if not check_only and (force_update or not self.download_filename):
+            # Avoid and catch gPodder bug 1440 and similar situations
+            if template == '':
+                logger.warn('Empty template. Report this podcast URL %s',
+                        self.channel.url)
+                template = None
+
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension
