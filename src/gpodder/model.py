@@ -1017,6 +1017,12 @@ class PodcastEpisode(PodcastModelObject):
                 return os.path.join(self.channel.save_dir, self.filename)
 
         if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
+            # Avoid and catch gPodder bug 1440 and similar situations
+            if template == '':
+                log('Empty template. Report this podcast URL %s',
+                        self.channel.url)
+                template = None
+
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension
