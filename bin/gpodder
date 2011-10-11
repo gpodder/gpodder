@@ -143,8 +143,12 @@ if __name__ == '__main__':
     else:
         logging.basicConfig()
 
+    gpodder.ui.qt = False
+    gpodder.ui.gtk = False
+
     if options.qml or gpodder.ui.fremantle or gpodder.ui.harmattan:
         from gpodder import qmlui
+        gpodder.ui.qt = True
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
 
@@ -180,6 +184,7 @@ if __name__ == '__main__':
     else:
         # gPodder is not yet running - create new instance
         from gpodder.gtkui import main
+        gpodder.ui.gtk = True
 
         # check if we have an X11 connection (but not on Windows)
         if platform.system() != 'Windows' and \
