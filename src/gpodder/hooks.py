@@ -87,6 +87,12 @@ class HookManager(object):
           except Exception, e:
               logger.error('Cannot load %s: %s', filename, e, exc_info=True)
 
+    def register_hooks(self, obj):
+        """
+        Register an object that implements some hooks.
+        """
+        self.modules.append((None, obj))
+
     def _load_module(self, filepath):
         """Load a Python module by filename
 
