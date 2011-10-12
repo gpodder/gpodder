@@ -46,6 +46,9 @@ from gpodder.qmlui import images
 
 from gpodder.plugins import woodchuck
 
+import logging
+logger = logging.getLogger("qmlui")
+
 class Controller(QObject):
     def __init__(self, root):
         QObject.__init__(self)
