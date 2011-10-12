@@ -426,6 +426,7 @@ def check_subscriptions():
                           % (podcast.title, podcast.url,))
             w.stream_register(podcast.url, podcast.title, REFRESH_INTERVAL)
         else:
+            w[podcast.url].human_readable_name = podcast.title
             stream_ids.remove(podcast.url)
         yield
 
