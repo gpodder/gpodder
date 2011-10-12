@@ -558,13 +558,35 @@ class qtPodder(QObject):
         if isinstance(current_ep, model.QEpisode):
             current_ep.save()
 
-    def woodchuck_channel_update_cb(self, channel):
-        logger.debug ("woodchuck_channel_update_cb(%s)" % (str (channel),))
-        channel.qupdate(finished_callback=self.controller.update_subset_stats)
+    def podcast_to_qpodcast(self, podcast):
+        podcasts = filter(lambda p: p._podcast == podcast,
+                          self.podcast_model.get_podcasts())
+        assert len(podcasts) <= 1
+        if podcasts:
+            return podcasts[0]
+        return None
+
+    def woodchuck_podcast_update_cb(self, podcast):
+        logger.debug("woodchuck_podcast_update_cb(%s)", str(podcast))
+        try:
+            qpodcast = self.podcast_to_qpodcast(podcast)
+            if qpodcast is not None:
+                qpodcast.qupdate(
+                    finished_callback=self.controller.update_subset_stats)
+        except Exception, e:
+            logger.exception("woodchuck_podcast_update_cb(%s): %s",
+                             str(podcast), str(e))
 
     def woodchuck_episode_download_cb(self, episode):
-        logger.debug ("woodchuck_episode_download_cb(%s)" % (str (episode),))
-        episode.qdownload(self.config, self.contoller.update_subset_stats)
+        logger.debug("woodchuck_episode_download_cb(%s: %s)",
+                     str(episode), type(episode))
+        try:
+            qpodcast = self.podcast_to_qpodcast(episode.channel)
+            qepisode = self.wrap_episode(qpodcast, episode)
+            qepisode.qdownload(self.config, self.controller.update_subset_stats)
+        except Exception, e:
+            logger.exception("woodchuck_episode_download_cb(%s): %s",
+                             str(episode), str(e))
 
 def main(args):
     gui = qtPodder(args, core.Core())
