@@ -139,7 +139,24 @@ class mywoodchuck(PyWoodchuck):
         """Return whether to auto download an episode."""
         # If the episode was published before the stream was
         # registered, don't automatically download it.
-        return obj.publication_time >= stream.registration_time
+        if obj.publication_time >= stream.registration_time:
+            True
+
+        # If the episode is one of the two newest episodes, download
+        # it.
+        try:
+            podcast = self.stream_to_podcast(stream)
+            episode = self.object_to_episode(stream, obj)
+            episodes = podcast.get_all_episodes()
+            episodes.sort(key=lambda e: e.published, reverse=True)
+            if episode in episodes[:2]:
+                logging.debug("Auto-downloading %s (from %s)",
+                              episode.title, podcast.title)
+                return True
+            return False
+        except Exception, e:
+            logging.exception("Checking whether to auto-download episode: %s"
+                              % (str(e),))
 
     def stream_to_podcast(self, stream):
         """
