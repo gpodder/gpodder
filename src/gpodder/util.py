@@ -2,6 +2,7 @@
 #
 # gPodder - A media aggregator and podcast client
 # Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2001 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -932,6 +933,8 @@ def find_command( command):
         
     return None
 
+idle_add_handler = None
+
 def idle_add(func, *args):
     """Run a function in the main GUI thread
 
@@ -946,8 +949,47 @@ def idle_add(func, *args):
         import gobject
         gobject.idle_add(func, *args)
     elif gpodder.ui.qt:
-        from PySide.QtCore import QTimer
-        QTimer.singleShot(0, lambda: func(*args))
+        from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
+
+        class IdleAddHandler(QObject):
+            signal = Signal(object)
+            def __init__(self):
+                QObject.__init__(self)
+
+                self.main_thread_id = QThread.currentThreadId()
+
+                self.signal.connect(self.run_func)
+
+            def run_func(self, func):
+                assert QThread.currentThreadId() == self.main_thread_id, \
+                    ("Running in %s, not %s"
+                     % (str(QThread.currentThreadId()),
+                        str(self.main_thread_id)))
+                func()
+
+            def idle_add(self, func, *args):
+                def doit():
+                    try:
+                        func(*args)
+                    except Exception, e:
+                        logger.exception("Running %s%s: %s",
+                                         func, str(tuple(args)), str(e))
+
+                if QThread.currentThreadId() == self.main_thread_id:
+                    # If we emit the signal in the main thread,
+                    # then the function will be run immediately.
+                    # Instead, use a single shot timer with a 0
+                    # timeout: this will run the function when the
+                    # event loop next iterates.
+                    QTimer.singleShot(0, doit)
+                else:
+                    self.signal.emit(doit)
+
+        global idle_add_handler
+        if idle_add_handler is None:
+            idle_add_handler = IdleAddHandler()
+
+        idle_add_handler.idle_add(func, *args)
     else:
         func(*args)
 
