@@ -21,8 +21,9 @@ Item {
         section.property: 'section'
         section.delegate: Item {
             height: Config.headerHeight
-            Text {
+            Label {
                 font.pixelSize: parent.height * .5
+                wrapMode: Text.NoWrap
                 text: section
                 color: "#aaa"
                 anchors {

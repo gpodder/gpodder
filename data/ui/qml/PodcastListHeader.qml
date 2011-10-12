@@ -1,5 +1,6 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -51,7 +52,7 @@ Item {
             width: (parent.width - parent.spacing*(parent.children.length))/parent.children.length
             height: Config.headerHeight
 
-            Text {
+            Label {
                 color: 'white'
                 anchors.centerIn: parent
                 text: _('Update')

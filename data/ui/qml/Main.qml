@@ -369,12 +369,13 @@ Image {
             }
         }
 
-        Text {
+        Label {
             id: titleBarText
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
+            wrapMode: Text.NoWrap
             clip: true
             text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
             color: 'white'
@@ -437,7 +438,7 @@ Image {
 
         Behavior on opacity { PropertyAnimation { } }
 
-        Text {
+        Label {
             id: messageDialogText
             anchors.centerIn: parent
             color: 'white'

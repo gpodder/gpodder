@@ -1,5 +1,6 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -14,7 +15,7 @@ SelectableItem {
 
     onSelected: clicked()
 
-    Text {
+    Label {
         id: buttonText
         anchors.centerIn: parent
         color: 'white'

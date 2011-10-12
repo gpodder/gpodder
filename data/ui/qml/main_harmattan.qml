@@ -71,7 +71,7 @@ PageStackWindow {
                     leftMargin: switcherDisplay.width * .05
                 }
 
-                Text {
+                Label {
                     font.pixelSize: 30
                     text: 'gPodder - ' + _('Now playing')
                     color: '#aaa'
@@ -82,13 +82,13 @@ PageStackWindow {
                     height: Config.largeSpacing
                 }
 
-                Text {
+                Label {
                     font.pixelSize: 40
                     color: 'white'
                     text: (mainObject.currentEpisode!=undefined)?mainObject.currentEpisode.qtitle:''
                 }
 
-                Text {
+                Label {
                     font.pixelSize: 55
                     font.bold: true
                     color: '#ccc'

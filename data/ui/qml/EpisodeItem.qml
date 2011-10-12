@@ -1,4 +1,5 @@
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -46,9 +47,10 @@ SelectableItem {
         Behavior on opacity { PropertyAnimation { } }
     }
 
-    Text {
+    Label {
         id: title
         text: modelData.qtitle
+        wrapMode: Text.NoWrap
         color: modelData.qdownloading?'#8ae234':(modelData.qplaying?'#729fcf':(modelData.qnew?"white":"#888"))
         font.pixelSize: episodeItem.height * .35
         font.bold: false
@@ -60,7 +62,7 @@ SelectableItem {
         clip: true
     }
 
-    Text {
+    Label {
         id: positionInfo
         text: modelData.qpositiontext
         font.pixelSize: episodeItem.height * .2

@@ -24,7 +24,7 @@ Rectangle {
         contentHeight: showNotesText.height
         anchors.margins: Config.largeSpacing
 
-        Text {
+        Label {
             id: showNotesText
             color: "black"
             font.pixelSize: 20 * Config.scale

@@ -42,7 +42,7 @@ Item {
             top: parent.top
         }
 
-        Text {
+        Label {
             id: searchLabel
             text: _('Search for:')
             color: 'white'
@@ -144,14 +144,14 @@ Item {
                     verticalCenter: parent.verticalCenter
                 }
 
-                Text {
+                Label {
                     text: title
                     anchors.leftMargin: Config.largeSpacing
                     color: 'white'
                     font.pixelSize: 25
                 }
 
-                Text {
+                Label {
                     text: url
                     anchors.leftMargin: Config.largeSpacing
                     color: '#aaa'
@@ -159,7 +159,7 @@ Item {
                 }
             }
 
-            Text {
+            Label {
                 id: subscriberCount
                 anchors {
                     verticalCenter: parent.verticalCenter
@@ -187,7 +187,7 @@ Item {
 
         Behavior on opacity { PropertyAnimation { } }
 
-        Text {
+        Label {
             anchors.centerIn: parent
             text: _('Loading.')
             color: 'white'
@@ -219,7 +219,7 @@ Item {
                     }
                 }
 
-                Text {
+                Label {
                     anchors.top: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
@@ -240,7 +240,7 @@ Item {
                     }
                 }
 
-                Text {
+                Label {
                     anchors.top: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
@@ -255,7 +255,7 @@ Item {
         flickableItem: listView
     }
 
-    Text {
+    Label {
         visible: directoryButtons.visible
         anchors.right: parent.right
         anchors.bottom: parent.bottom

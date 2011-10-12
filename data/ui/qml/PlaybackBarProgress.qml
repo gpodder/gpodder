@@ -1,5 +1,6 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 import 'util.js' as Util
@@ -35,7 +36,7 @@ Item {
             smooth: true
         }
 
-        Text {
+        Label {
             id: seekTimePreview
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.top

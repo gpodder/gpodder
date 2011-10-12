@@ -35,7 +35,7 @@ SelectableItem {
                 rightMargin: 5
             }
 
-            Text {
+            Label {
                 anchors.right: parent.right
 
                 visible: counters.downloadedEpisodes > 0
@@ -45,7 +45,7 @@ SelectableItem {
                 font.pixelSize: podcastItem.height * .4
             }
 
-            Text {
+            Label {
                 anchors.right: parent.right
 
                 visible: counters.newEpisodes > 0
@@ -86,7 +86,7 @@ SelectableItem {
         }
     }
 
-    Text {
+    Label {
         id: titleBox
 
         text: modelData.qtitle
@@ -102,6 +102,7 @@ SelectableItem {
 
         font.pixelSize: podcastItem.height * .35
         elide: Text.ElideRight
+        wrapMode: Text.NoWrap
     }
 }
 

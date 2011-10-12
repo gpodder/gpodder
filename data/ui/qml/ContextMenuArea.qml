@@ -25,7 +25,7 @@ Item {
         footer: Item { height: Config.headerHeight }
 
         delegate: SelectableItem {
-            Text {
+            Label {
                 anchors.leftMargin: Config.switcherWidth
                 anchors {
                     left: parent.left

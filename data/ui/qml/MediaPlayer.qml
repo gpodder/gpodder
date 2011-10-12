@@ -1,6 +1,7 @@
 
 import Qt 4.7
 import QtMultimediaKit 1.1
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 import 'util.js' as Util
@@ -103,7 +104,7 @@ Item {
                 margins: Config.largeSpacing
             }
 
-            Text {
+            Label {
                 id: episodeTitle
                 text: (episode!=undefined)?episode.qtitle:''
                 color: 'white'
@@ -112,7 +113,7 @@ Item {
                 width: parent.width
             }
 
-            Text {
+            Label {
                 id: podcastTitle
                 text: (episode!=undefined)?episode.qpodcast.qtitle:''
                 color: '#aaa'
@@ -194,7 +195,7 @@ Item {
             }
         }
 
-        Text {
+        Label {
             anchors {
                 bottom: parent.bottom
                 right: parent.right
