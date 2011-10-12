@@ -64,9 +64,8 @@ Image {
     }
 
     function openContextMenu(items) {
-        contextMenu.subscribeMode = false
-        contextMenu.state = 'opened'
-        contextMenu.items = items
+        hrmtnContextMenu.items = items
+        hrmtnContextMenu.open()
     }
 
     states: [
@@ -251,6 +250,25 @@ Image {
         anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
         Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutCirc } }
+    }
+
+    ContextMenu {
+        id: hrmtnContextMenu
+        property variant items: []
+
+        MenuLayout {
+            Repeater {
+                model: hrmtnContextMenu.items
+
+                MenuItem {
+                    text: modelData.caption
+                    onClicked: {
+                        hrmtnContextMenu.close()
+                        controller.contextMenuResponse(index)
+                    }
+                }
+            }
+        }
     }
 
     ContextMenuArea {

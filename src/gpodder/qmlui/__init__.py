@@ -116,6 +116,8 @@ class Controller(QObject):
         self.show_context_menu(menu)
 
     def show_context_menu(self, actions):
+        if gpodder.ui.harmattan:
+            actions = filter(lambda a: a.caption != '', actions)
         self.context_menu_actions = actions
         self.root.open_context_menu(self.context_menu_actions)
 
