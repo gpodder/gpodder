@@ -1,5 +1,6 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -432,10 +433,28 @@ Image {
         inputDialogField.text = value
         inputDialogAccept.text = accept
         inputDialogReject.text = reject
-        inputDialog.scale = .5
-        inputDialog.opacity = 1
-        inputDialog.scale = 1
         inputDialogField.visible = textInput
+
+        if (textInput) {
+            inputDialog.scale = .5
+            inputDialog.opacity = 1
+            inputDialog.scale = 1
+        } else {
+            inputDialog.opacity = 0
+            queryDialog.open()
+        }
+    }
+
+    QueryDialog {
+        id: queryDialog
+
+        acceptButtonText: inputDialogAccept.text
+        rejectButtonText: inputDialogReject.text
+
+        message: inputDialogText.text
+
+        onAccepted: inputDialog.accept()
+        onRejected: inputDialog.close()
     }
 
     Item {
