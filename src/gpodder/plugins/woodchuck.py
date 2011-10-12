@@ -113,7 +113,7 @@ def coroutine(func):
                 except StopIteration:
                     return
                 except Exception, e:
-                    logger.exception("Running %s: %s" % (str(f), str(e)))
+                    logger.exception("Running %s: %s" % (str(func), str(e)))
             execute()
 
         generator = func(*args, **kwargs)
