@@ -454,11 +454,8 @@ Image {
         inputDialogField.visible = textInput
 
         if (textInput) {
-            inputDialog.scale = .5
-            inputDialog.opacity = 1
-            inputDialog.scale = 1
+            inputSheet.open()
         } else {
-            inputDialog.opacity = 0
             queryDialog.open()
         }
     }
@@ -475,13 +472,61 @@ Image {
         onRejected: inputDialog.close()
     }
 
+    Sheet {
+        id: inputSheet
+
+        acceptButtonText: inputDialogAccept.text
+        rejectButtonText: inputDialogReject.text
+
+        content: Item {
+            anchors.fill: parent
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.log('caught')
+            }
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: Config.smallSpacing
+                spacing: Config.smallSpacing
+
+                Item {
+                    height: 1
+                    width: parent.width
+                }
+
+                Label {
+                    id: inputDialogText
+                    anchors.margins: Config.smallSpacing
+                    width: parent.width
+                }
+
+                Item {
+                    height: 1
+                    width: parent.width
+                }
+
+                InputField {
+                    id: inputDialogField
+                    width: parent.width
+                    onAccepted: {
+                        inputDialog.accept()
+                        inputSheet.close()
+                    }
+                    actionName: inputDialogAccept.text
+                }
+            }
+        }
+
+        onAccepted: inputDialog.accept()
+        onRejected: inputDialog.close()
+    }
+
     Item {
         id: inputDialog
         anchors.fill: parent
         opacity: 0
-        scale: .5
-
-        z: 20
 
         function accept() {
             opacity = 0
@@ -497,51 +542,16 @@ Image {
                                            inputDialogField.visible)
         }
 
-        Behavior on scale { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
-
-        Behavior on opacity { PropertyAnimation { duration: Config.quickTransition } }
-
-        MouseArea {
-            // don't let clicks into the input dialog fall through
-            anchors.fill: contentArea
+        SimpleButton {
+            id: inputDialogReject
+            width: parent.width / 2
+            onClicked: inputDialog.close()
         }
 
-        Column {
-            id: contentArea
-            anchors.centerIn: parent
-            spacing: Config.largeSpacing
-            width: 300
-
-            Text {
-                id: inputDialogText
-                color: 'white'
-                font.pixelSize: 20 * Config.scale
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            InputField {
-                id: inputDialogField
-                width: parent.width
-                onAccepted: inputDialog.accept()
-                actionName: inputDialogAccept.text
-            }
-
-            Row {
-                spacing: Config.smallSpacing
-                width: parent.width
-
-                SimpleButton {
-                    id: inputDialogReject
-                    width: parent.width / 2
-                    onClicked: inputDialog.close()
-                }
-
-                SimpleButton {
-                    id: inputDialogAccept
-                    width: parent.width / 2
-                    onClicked: inputDialog.accept()
-                }
-            }
+        SimpleButton {
+            id: inputDialogAccept
+            width: parent.width / 2
+            onClicked: inputDialog.accept()
         }
     }
 }
