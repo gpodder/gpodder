@@ -126,7 +126,7 @@ class PodcastModelObject(object):
         The changed values will be stored in self.changed until
         _clear_changes is called.
         """
-        if self.changed is not None and self.id is not None:
+        if getattr(self, 'changed', None) is not None and self.id is not None:
             old_value = getattr(self, name, None)
 
             if old_value is not None and value != old_value:
