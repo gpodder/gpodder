@@ -126,7 +126,7 @@ class gPodderCli(object):
 
         # Initialize Woodchuck so that we can register new podcasts,
         # etc., but don't request any callbacks.
-        woodchuck.init()
+        woodchuck.init(self.client.core.model)
 
     def _start_action(self, msg, *args):
         line = msg % args

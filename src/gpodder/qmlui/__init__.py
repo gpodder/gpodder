@@ -531,7 +531,7 @@ class qtPodder(QObject):
         podcasts = map(model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
 
-        woodchuck.init(podcasts, self.woodchuck_channel_update_cb,
+        woodchuck.init(self.model, self.woodchuck_podcast_update_cb,
                        self.woodchuck_episode_download_cb)
 
     def wrap_episode(self, podcast, episode):

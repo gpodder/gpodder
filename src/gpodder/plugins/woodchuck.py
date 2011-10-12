@@ -121,7 +121,7 @@ def coroutine(func):
     return wrapper
 
 class mywoodchuck(PyWoodchuck):
-    def __init__(self, podcasts, podcast_update, episode_download):
+    def __init__(self, model, podcast_update, episode_download):
         if podcast_update is None and episode_download is None:
             # Disable upcalls.
             request_feedback = False
@@ -131,10 +131,7 @@ class mywoodchuck(PyWoodchuck):
         PyWoodchuck.__init__(self, "gPodder", "org.gpodder",
                              request_feedback=request_feedback)
 
-        if podcasts is None:
-            self.podcasts = []
-        else:
-            self.podcasts = podcasts
+        self.model = model
         self.podcast_update = podcast_update
         self.episode_download = episode_download
 
@@ -148,18 +145,22 @@ class mywoodchuck(PyWoodchuck):
         """
         Find the gPodder podcast corresponding to the Woodchuck stream.
         """
-        podcasts = [p for p in self.podcasts if p.url == stream.identifier]
-        if not podcasts:
-            logger.warn("lookup_podcast: Unknown stream: %s (%s): %s"
-                        % (stream.human_readable_name, stream.identifier,
-                           traceback.format_exc()))
+        known_podcasts = self.model.get_podcasts()
+        matching_podcasts = [p for p in known_podcasts
+                             if p.url == stream.identifier]
+        if not matching_podcasts:
+            logger.warn(
+                "lookup_podcast: Unknown stream: %s (%s) (known: %s): %s"
+                % (stream.human_readable_name, stream.identifier,
+                   ' '.join(p.url for p in known_podcasts),
+                   traceback.format_exc()))
             return None
 
         # URL is supposed to be a primary key and thus at most one
         # podcast should match.
-        assert(len(podcasts) == 1)
+        assert(len(matching_podcasts) == 1)
 
-        return podcasts[0]
+        return matching_podcasts[0]
 
     def object_to_episode(self, stream, object):
         """
@@ -420,7 +421,7 @@ def check_subscriptions():
 
     # Register any unknown streams.  Remove known streams from
     # STREAMS_IDS.
-    for podcast in w.podcasts:
+    for podcast in w.model.get_podcasts():
         if podcast.url not in stream_ids:
             logger.debug("Registering previously unknown podcast: %s (%s)"
                           % (podcast.title, podcast.url,))
@@ -436,14 +437,11 @@ def check_subscriptions():
         w.stream_unregister(id)
         yield
 
-def init(podcasts=None, podcast_update=None, episode_download=None):
+def init(model=None, podcast_update=None, episode_download=None):
     """
     Connect to the woodchuck server and initialize any state.
 
-    podcasts is the list of podcasts (a list of
-    gpodder.model.PodcastPodcast).  NOTE: When podcasts are subscribed
-    or unsubscribed, the caller must be careful to update this list in
-    place.
+    model is an instance of the podcast model.
 
     podcast_update is a function that is passed a single argument: the
     PodcastPodcast that should be updated.
@@ -462,7 +460,7 @@ def init(podcasts=None, podcast_update=None, episode_download=None):
     _main_thread = threading.currentThread()
 
     global w
-    w = mywoodchuck(podcasts, podcast_update, episode_download)
+    w = mywoodchuck(model, podcast_update, episode_download)
 
     if not w.available():
         logger.info(
