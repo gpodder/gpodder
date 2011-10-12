@@ -294,7 +294,7 @@ class Controller(QObject):
 
         def subscribe_proc(self, url):
             # TODO: Show progress indicator
-            podcast = Model.load_podcast(self.root.db, url=url, \
+            podcast = self.root.model.load_podcast(url=url, \
                     create=True, \
                     max_episodes=self.root.config.max_episodes_per_feed, \
                     mimetype_prefs=self.root.config.mimetype_prefs)
@@ -416,6 +416,7 @@ class qtPodder(QObject):
         self.core = gpodder_core
         self.config = self.core.config
         self.db = self.core.db
+        self.model = self.core.model
 
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
@@ -527,7 +528,7 @@ class qtPodder(QObject):
         self.podcast_model.remove_object(podcast)
 
     def load_podcasts(self):
-        podcasts = map(model.QPodcast, Model.get_podcasts(self.db))
+        podcasts = map(model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
 
         woodchuck.init(podcasts, self.woodchuck_channel_update_cb,

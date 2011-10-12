@@ -27,12 +27,14 @@ from gpodder import util
 from gpodder import config
 from gpodder import dbsqlite
 from gpodder import hooks
+from gpodder import model
 
 
 class Core(object):
-    def __init__(self, \
-            config_class=config.Config, \
-            database_class=dbsqlite.Database):
+    def __init__(self,
+                 config_class=config.Config,
+                 database_class=dbsqlite.Database,
+                 model_class=model.Model):
         # Initialize the gPodder home directory
         util.make_directory(gpodder.home)
 
@@ -44,6 +46,7 @@ class Core(object):
 
         # Open the database and configuration file
         self.db = database_class(gpodder.database_file)
+        self.model = model_class(self.db)
         self.config = config_class(gpodder.config_file)
 
         # Update the current device in the configuration

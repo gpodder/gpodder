@@ -341,7 +341,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def db(self):
-        return self.parent.db
+        return self.parent.parent.db
 
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])
@@ -719,8 +719,8 @@ class PodcastChannel(PodcastModelObject):
 
     feed_fetcher = gPodderFetcher()
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, model):
+        self.parent = model
         self.children = None
 
         self.id = None
@@ -742,13 +742,9 @@ class PodcastChannel(PodcastModelObject):
 
         self.section = _('Other')
 
-    def _get_db(self):
-        return self.parent
-
-    def _set_db(self, db):
-        self.parent = db
-
-    db = property(_get_db, _set_db)
+    @property
+    def db(self):
+        return self.parent.db
 
     def import_external_files(self):
         """Check the download folder for externally-downloaded files
@@ -837,24 +833,21 @@ class PodcastChannel(PodcastModelObject):
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
-    def load_from_db(cls, db):
-        return sorted(db.load_podcasts(cls.create_from_dict), key=cls.sort_key)
-
-    @classmethod
-    def load(cls, db, url, create=True, authentication_tokens=None,\
+    def load(cls, model, url, create=True, authentication_tokens=None,\
             max_episodes=0, \
             mimetype_prefs=''):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        existing = filter(lambda p: p.url == url, cls.load_from_db(db))
+        existing = filter(lambda p: p.url == url, model.get_podcasts())
 
         if existing:
             return existing[0]
 
         if create:
-            tmp = cls(db)
+            tmp = cls(model)
             tmp.url = url
+            model.children.append(tmp)
             if authentication_tokens is not None:
                 tmp.auth_username = authentication_tokens[0]
                 tmp.auth_password = authentication_tokens[1]
@@ -1110,6 +1103,12 @@ class PodcastChannel(PodcastModelObject):
         gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
 
+        # Keep self.parent.children up to date.
+        for i, p in enumerate(self.parent.children):
+            if p.url == self.url:
+                del self.parent.children[i]
+                return
+
     def save(self):
         if self.download_folder is None:
             self.get_save_dir()
@@ -1262,15 +1261,25 @@ class PodcastChannel(PodcastModelObject):
 class Model(object):
     PodcastClass = PodcastChannel
 
-    @classmethod
-    def get_podcasts(cls, db):
-        return cls.PodcastClass.load_from_db(db)
+    def __init__(self, db):
+        self.db = db
+        self.children = None
 
-    @classmethod
-    def load_podcast(cls, db, url, create=True, authentication_tokens=None, \
-            max_episodes=0, mimetype_prefs=''):
-        return cls.PodcastClass.load(db, url, create, authentication_tokens, \
-                max_episodes, mimetype_prefs)
+    def get_podcasts(self):
+        def podcast_factory(dct, db):
+            return self.PodcastClass.create_from_dict(dct, self)
+
+        if self.children is None:
+            self.children = sorted(
+                self.db.load_podcasts(podcast_factory),
+                key=self.PodcastClass.sort_key)
+        return self.children
+
+    def load_podcast(self, url, create=True, authentication_tokens=None,
+                     max_episodes=0, mimetype_prefs=''):
+        return self.PodcastClass.load(self, url, create,
+                                      authentication_tokens,
+                                      max_episodes, mimetype_prefs)
 
     @classmethod
     def podcast_sort_key(cls, podcast):

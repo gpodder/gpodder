@@ -104,6 +104,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core = gpodder_core
         self.config = self.core.config
         self.db = self.core.db
+        self.model = self.core.model
         BuilderWidget.__init__(self, None)
     
     def new(self):
@@ -206,7 +207,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = Model.get_podcasts(self.db)
+        self.channels = self.model.get_podcasts()
 
         # Initialize woodchuck after a short timeout period
         gobject.timeout_add(1000, woodchuck.init,
@@ -2219,7 +2220,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_message(url)
                 try:
                     # The URL is valid and does not exist already - subscribe!
-                    channel = Model.load_podcast(self.db, url=url, create=True, \
+                    channel = self.model.load_podcast(url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
                             mimetype_prefs=self.config.mimetype_prefs)
@@ -3395,7 +3396,7 @@ def main(options=None):
         dlg.destroy()
         sys.exit(0)
 
-    gp = gPodder(bus_name, core.Core(UIConfig))
+    gp = gPodder(bus_name, core.Core(UIConfig, model_class=Model))
 
     # Handle options
     if options.subscribe:
