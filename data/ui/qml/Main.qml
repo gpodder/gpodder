@@ -239,7 +239,7 @@ Image {
         Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutCirc } }
     }
 
-    ContextMenu {
+    ContextMenuArea {
         id: contextMenu
 
         width: parent.width
