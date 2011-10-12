@@ -84,6 +84,8 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 import gpodder
 _ = gpodder.gettext
 
+from gpodder.plugins import woodchuck
+
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 
@@ -121,6 +123,10 @@ class gPodderCli(object):
     def __init__(self):
         self.client = api.PodcastClient()
         self._current_action = ''
+
+        # Initialize Woodchuck so that we can register new podcasts,
+        # etc., but don't request any callbacks.
+        woodchuck.init()
 
     def _start_action(self, msg, *args):
         line = msg % args

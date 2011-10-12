@@ -2,6 +2,7 @@
 #
 # gPodder - A media aggregator and podcast client
 # Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -99,7 +100,7 @@ class PodcastModelObject(object):
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
-    __slots__ = ('id', 'parent', 'children')
+    __slots__ = ('id', 'parent', 'children', 'changed')
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -109,12 +110,40 @@ class PodcastModelObject(object):
         """
         o = cls(*args)
 
+        o.changed = None
+
         # XXX: all(map(lambda k: hasattr(o, k), d))?
         for k, v in d.iteritems():
             setattr(o, k, v)
 
+        o.changed = {}
+
         return o
 
+    def __setattr__(self, name, value):
+        """Track changes once "self.changed" is a dictionary
+
+        The changed values will be stored in self.changed until
+        _clear_changes is called.
+        """
+        if getattr(self, 'changed', None) is not None and self.id is not None:
+            old_value = getattr(self, name, None)
+
+            if old_value is not None and value != old_value:
+                # Value changed (and it is not an initialization)
+                if name not in self.changed:
+                    self.changed[name] = old_value
+                # logger.debug("%s: %s.%s changed: %s -> %s"
+                #              % (self.__class__.__name__, self.id, name,
+                #                 old_value, value))
+
+        super(PodcastModelObject, self).__setattr__(name, value)
+
+    def _clear_changes(self):
+        # logger.debug("Changes: %s: %s"
+        #              % ([getattr (self, a) for a in self.__slots__],
+        #                 str(self.changed),))
+        self.changed = {}
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
@@ -233,8 +262,10 @@ class PodcastEpisode(PodcastModelObject):
             if '/' not in episode.mime_type:
                 continue
 
-            # XXX: Does Media RSS content also have images? If so, we
-            # might want to skip these too (see above for enclosures).
+            # Skip images in Media RSS if we have audio/video (bug 1444)
+            if episode.mime_type.startswith('image/') and \
+                    (audio_available or video_available):
+                continue
 
             episode.url = util.normalize_feed_url(m.get('url', ''))
             if not episode.url:
@@ -333,8 +364,9 @@ class PodcastEpisode(PodcastModelObject):
                 not self.downloading)
 
     def save(self):
-        if gpodder.user_hooks is not None:
-            gpodder.user_hooks.on_episode_save(self)
+        gpodder.user_hooks.on_episode_save(self)
+
+        self._clear_changes()
 
         self.db.save_episode(self)
 
@@ -403,6 +435,7 @@ class PodcastEpisode(PodcastModelObject):
     def delete_from_disk(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
+            gpodder.user_hooks.on_episode_delete(self, filename)
             util.delete_file(filename)
 
         self.set_state(gpodder.STATE_DELETED)
@@ -477,6 +510,12 @@ class PodcastEpisode(PodcastModelObject):
         ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
 
         if not check_only and (force_update or not self.download_filename):
+            # Avoid and catch gPodder bug 1440 and similar situations
+            if template == '':
+                logger.warn('Empty template. Report this podcast URL %s',
+                        self.channel.url)
+                template = None
+
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension
@@ -1004,6 +1043,7 @@ class PodcastChannel(PodcastModelObject):
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
+                gpodder.user_hooks.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
 
                 # Remove the episode from the "children" episodes list
@@ -1059,22 +1099,27 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.NotFound
             #feedcore.InvalidFeed
             #feedcore.UnknownStatusCode
+            gpodder.user_hooks.on_podcast_update_failed(self, e)
             raise
 
-        if gpodder.user_hooks is not None:
-            gpodder.user_hooks.on_podcast_updated(self)
+        gpodder.user_hooks.on_podcast_updated(self)
 
         self.db.commit()
 
     def delete(self):
+        gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
 
     def save(self):
         if self.download_folder is None:
             self.get_save_dir()
 
-        if gpodder.user_hooks is not None:
-            gpodder.user_hooks.on_podcast_save(self)
+        if self.id is None:
+            gpodder.user_hooks.on_podcast_subscribe(self)
+
+        gpodder.user_hooks.on_podcast_save(self)
+
+        self._clear_changes()
 
         self.db.save_podcast(self)
 
@@ -1202,6 +1247,11 @@ class PodcastChannel(PodcastModelObject):
 
     def remove_downloaded(self):
         # Remove the download directory
+        for episode in self.get_downloaded_episodes():
+            filename = episode.local_filename(create=False, check_only=True)
+            if filename is not None:
+                gpodder.user_hooks.on_episode_delete(episode, filename)
+
         shutil.rmtree(self.save_dir, True)
 
     @property

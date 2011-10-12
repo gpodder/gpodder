@@ -40,9 +40,7 @@ class Core(object):
         gpodder.load_plugins()
 
         # Load hook modules and install the hook manager
-        user_hooks = hooks.HookManager()
-        if user_hooks.has_modules():
-            gpodder.user_hooks = user_hooks
+        gpodder.user_hooks = hooks.HookManager()
 
         # Open the database and configuration file
         self.db = database_class(gpodder.database_file)

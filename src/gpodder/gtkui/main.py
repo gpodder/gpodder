@@ -51,6 +51,7 @@ from gpodder import download
 from gpodder import my
 from gpodder import youtube
 from gpodder import player
+from gpodder.plugins import woodchuck
 
 import logging
 logger = logging.getLogger(__name__)
@@ -206,6 +207,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Subscribed channels
         self.active_channel = None
         self.channels = Model.get_podcasts(self.db)
+
+        # Initialize woodchuck after a short timeout period
+        gobject.timeout_add(1000, woodchuck.init,
+                            self.channels,
+                            self.woodchuck_channel_update_cb,
+                            self.woodchuck_episode_download_cb)
 
         # Check if the user has downloaded any podcast with an external program
         # and mark episodes as downloaded / move them away (bug 902)
@@ -1665,15 +1672,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
 
-            if gpodder.user_hooks is not None:
-                result = gpodder.user_hooks.on_episodes_context_menu(episodes)
-                if result:
-                    menu.append(gtk.SeparatorMenuItem())
-                    for label, callback in result:
-                        item = gtk.MenuItem(label)
-                        item.connect('activate', lambda item, callback:
-                                callback(episodes), callback)
-                        menu.append(item)
+            result = gpodder.user_hooks.on_episodes_context_menu(episodes)
+            if result:
+                menu.append(gtk.SeparatorMenuItem())
+                for label, callback in result:
+                    item = gtk.MenuItem(label)
+                    item.connect('activate', lambda item, callback:
+                            callback(episodes), callback)
+                    menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
             if downloaded:
@@ -2339,7 +2345,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.show_update_feeds_buttons()
 
-    def update_feed_cache(self, channels=None):
+    def update_feed_cache(self, channels=None,
+                          show_new_episodes_dialog=True):
         # Fix URLs if mygpo has rewritten them
         # XXX somewhere else? self.rewrite_urls_mygpo()
 
@@ -2445,7 +2452,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         self.show_update_feeds_buttons()
                         # New episodes are available and we are not minimized
-                        if not self.config.do_not_show_new_episodes_dialog:
+                        if (not self.config.do_not_show_new_episodes_dialog
+                            and show_new_episodes_dialog):
                             self.new_episodes_show(episodes, notification=True)
                         else:
                             message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
@@ -3356,6 +3364,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
+    def woodchuck_channel_update_cb(self, channel):
+        logger.debug('woodchuck_channel_update_cb(%s)', channel)
+        self.update_feed_cache(channels=[channel],
+                               show_new_episodes_dialog=False)
+
+    def woodchuck_episode_download_cb(self, episode):
+        logger.debug('woodchuck_episode_download_cb(%s)', episode)
+        self.download_episode_list(episodes=[episode])
 
 def main(options=None):
     gobject.threads_init()

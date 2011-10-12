@@ -74,11 +74,21 @@ if not os.path.exists(old_database):
     """ % locals()
     sys.exit(1)
 
+old_downloads = None
+
 if os.path.exists(old_config):
     parser = ConfigParser.RawConfigParser()
     parser.read(old_config)
-    old_downloads = parser.get('gpodder-conf-1', 'download_dir')
-else:
+    try:
+        old_downloads = parser.get('gpodder-conf-1', 'download_dir')
+    except ConfigParser.NoSectionError:
+        # The file is empty / section (gpodder-conf-1) not found
+        pass
+    except ConfigParser.NoOptionError:
+        # The section is available, but the key (download_dir) is not
+        pass
+
+if old_downloads is None:
     # The user has no configuration. This usually happens when
     # only the CLI version of gPodder is used. In this case, the
     # download directory is most likely the default (bug 1434)

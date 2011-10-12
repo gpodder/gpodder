@@ -44,6 +44,7 @@ from gpodder.qmlui import model
 from gpodder.qmlui import helper
 from gpodder.qmlui import images
 
+from gpodder.plugins import woodchuck
 
 class Controller(QObject):
     def __init__(self, root):
@@ -526,6 +527,9 @@ class qtPodder(QObject):
         podcasts = map(model.QPodcast, Model.get_podcasts(self.db))
         self.podcast_model.set_podcasts(self.db, podcasts)
 
+        woodchuck.init(podcasts, self.woodchuck_channel_update_cb,
+                       self.woodchuck_episode_download_cb)
+
     def wrap_episode(self, podcast, episode):
         try:
             return self.active_episode_wrappers[episode.id]
@@ -549,6 +553,14 @@ class qtPodder(QObject):
         current_ep = self.main.currentEpisode
         if isinstance(current_ep, model.QEpisode):
             current_ep.save()
+
+    def woodchuck_channel_update_cb(self, channel):
+        logger.debug ("woodchuck_channel_update_cb(%s)" % (str (channel),))
+        channel.qupdate(finished_callback=self.controller.update_subset_stats)
+
+    def woodchuck_episode_download_cb(self, episode):
+        logger.debug ("woodchuck_episode_download_cb(%s)" % (str (episode),))
+        episode.qdownload(self.config, self.contoller.update_subset_stats)
 
 def main(args):
     gui = qtPodder(args, core.Core())

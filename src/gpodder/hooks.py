@@ -87,14 +87,11 @@ class HookManager(object):
           except Exception, e:
               logger.error('Cannot load %s: %s', filename, e, exc_info=True)
 
-    def has_modules(self):
-        """Check whether this manager manages any modules
-
-        Returns True if there is at least one module that is
-        managed by this manager, or False if no modules are
-        loaded (in this case, the hook manager can be deactivated).
+    def register_hooks(self, obj):
         """
-        return bool(self.modules)
+        Register an object that implements some hooks.
+        """
+        self.modules.append((None, obj))
 
     def _load_module(self, filepath):
         """Load a Python module by filename
@@ -118,6 +115,14 @@ class HookManager(object):
     # any code, it will be called after all the hooks have been called.
 
     @call_hooks
+    def on_podcast_subscribe(self, podcast):
+        """Called when the user subscribes to a new podcast feed.
+
+        @param podcast: A gpodder.model.PodcastChannel instance
+        """
+        pass
+
+    @call_hooks
     def on_podcast_updated(self, podcast):
         """Called when a podcast feed was updated
 
@@ -128,11 +133,29 @@ class HookManager(object):
         pass
 
     @call_hooks
+    def on_podcast_update_failed(self, podcast, exception):
+        """Called when a podcast update failed.
+
+        @param podcast: A gpodder.model.PodcastChannel instance
+
+        @param exception: The reason.
+        """
+        pass
+
+    @call_hooks
     def on_podcast_save(self, podcast):
         """Called when a podcast is saved to the database
 
         This hooks will be called when the user edits the metadata of
         the podcast or when the feed was updated.
+
+        @param podcast: A gpodder.model.PodcastChannel instance
+        """
+        pass
+
+    @call_hooks
+    def on_podcast_delete(self, podcast):
+        """Called when a podcast is deleted from the database
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
@@ -176,3 +199,18 @@ class HookManager(object):
         """
         pass
 
+    @call_hooks
+    def on_episode_delete(self, episode, filename):
+        """Called just before the episode's disk file is about to be
+        deleted."""
+        pass
+
+    @call_hooks
+    def on_episode_removed_from_podcast(self, episode):
+        """Called just before the episode is about to be removed from
+        the podcast channel, e.g., when the episode has not been
+        downloaded and it disappears from the feed.
+
+        @param podcast: A gpodder.model.PodcastChannel instance
+        """
+        pass

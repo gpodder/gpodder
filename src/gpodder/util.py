@@ -932,24 +932,22 @@ def find_command( command):
         
     return None
 
-
 def idle_add(func, *args):
-    """
-    This is a wrapper function that does the Right
-    Thing depending on if we are running a GTK+ GUI or
-    not. If not, we're simply calling the function.
+    """Run a function in the main GUI thread
 
-    If we are a GUI app, we use gobject.idle_add() to
-    call the function later - this is needed for
-    threads to be able to modify GTK+ widget data.
+    This is a wrapper function that does the Right Thing depending on if we are
+    running on Gtk+, Qt or CLI.
+
+    You should use this function if you are calling from a Python thread and
+    modify UI data, so that you make sure that the function is called as soon
+    as possible from the main UI thread.
     """
-    if gpodder.ui.desktop:
+    if gpodder.ui.gtk:
         import gobject
-        def x(f, *a):
-            f(*a)
-            return False
-
         gobject.idle_add(func, *args)
+    elif gpodder.ui.qt:
+        from PySide.QtCore import QTimer
+        QTimer.singleShot(0, lambda: func(*args))
     else:
         func(*args)
 

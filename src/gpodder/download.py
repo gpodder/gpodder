@@ -772,7 +772,9 @@ class DownloadTask(object):
             disposition_filename = get_header_param(headers, \
                     'filename', 'content-disposition')
 
-            if disposition_filename is not None:
+            # Some servers do send the content-disposition header, but provide
+            # an empty filename, resulting in an empty string here (bug 1440)
+            if disposition_filename is not None and disposition_filename != '':
                 # The server specifies a download filename - try to use it
                 disposition_filename = os.path.basename(disposition_filename)
                 self.filename = self.__episode.local_filename(create=True, \
@@ -826,8 +828,7 @@ class DownloadTask(object):
                 self.total_size = util.calculate_size(self.filename)
                 logger.info('Total size updated to %d', self.total_size)
             self.progress = 1.0
-            if gpodder.user_hooks is not None:
-                gpodder.user_hooks.on_episode_downloaded(self.__episode)
+            gpodder.user_hooks.on_episode_downloaded(self.__episode)
             return True
         
         self.speed = 0.0
