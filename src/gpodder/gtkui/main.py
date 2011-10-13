@@ -3076,6 +3076,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.Dialog(_('About gPodder'), self.main_window, \
                 gtk.DIALOG_MODAL)
+        dlg.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_OK).show()
         dlg.set_resizable(False)
 
         bg = gtk.HBox(spacing=10)
@@ -3149,7 +3150,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             sw.hide()
 
         credits.grab_focus()
-        dlg.action_area.hide()
         dlg.run()
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
