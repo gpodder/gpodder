@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 import threading
 
 import gpodder
@@ -33,13 +33,13 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 from gpodder.gtkui.desktopfile import PlayerListModel
 
-class NewEpisodeActionList(gtk.ListStore):
+class NewEpisodeActionList(Gtk.ListStore):
     C_CAPTION, C_AUTO_DOWNLOAD, C_HIDE_DIALOG = range(3)
 
     ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str, bool)
+        Gtk.ListStore.__init__(self, str, str, bool)
         self._config = config
         self.append((_('Do nothing'), 'never', True))
         self.append((_('Show episode list'), 'never', False))
@@ -69,14 +69,14 @@ class NewEpisodeActionList(gtk.ListStore):
 class gPodderPreferences(BuilderWidget):
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
-            cellrenderer = gtk.CellRendererPixbuf()
+            cellrenderer = Gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
             cb.add_attribute(cellrenderer, 'pixbuf', PlayerListModel.C_ICON)
-            cellrenderer = gtk.CellRendererText()
-            cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+            cellrenderer = Gtk.CellRendererText()
+            cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             cb.pack_start(cellrenderer, True)
             cb.add_attribute(cellrenderer, 'markup', PlayerListModel.C_NAME)
-            cb.set_row_separator_func(PlayerListModel.is_separator)
+            cb.set_row_separator_func(PlayerListModel.is_separator, None)
 
         self.audio_player_model = self.user_apps_reader.get_model('audio')
         self.combo_audio_player_app.set_model(self.audio_player_model)
@@ -109,7 +109,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.auto_download_model = NewEpisodeActionList(self._config)
         self.combo_auto_download.set_model(self.auto_download_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combo_auto_download.pack_start(cellrenderer, True)
         self.combo_auto_download.add_attribute(cellrenderer, 'text', NewEpisodeActionList.C_CAPTION)
         self.combo_auto_download.set_active(self.auto_download_model.get_index())

@@ -23,21 +23,22 @@
 #
 
 
-import gtk
+from gi.repository import Gtk
 
-import cgi
+from gpodder import util
+
 import urllib
 
-class OpmlListModel(gtk.ListStore):
+class OpmlListModel(Gtk.ListStore):
     C_SELECTED, C_DESCRIPTION_MARKUP, C_URL = range(3)
 
     def __init__(self, importer):
-        gtk.ListStore.__init__(self, bool, str, str)
+        Gtk.ListStore.__init__(self, bool, str, str)
         for channel in importer.items:
             self.append([False, self._format_channel(channel), channel['url']])
 
     def _format_channel(self, channel):
-        title = cgi.escape(urllib.unquote_plus(channel['title']))
-        description = cgi.escape(channel['description'])
+        title = util.safe_escape(urllib.unquote_plus(channel['title']))
+        description = util.safe_escape(channel['description'])
         return '<b>%s</b>\n<span size="small">%s</span>' % (title, description)
 

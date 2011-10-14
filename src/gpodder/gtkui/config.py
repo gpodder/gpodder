@@ -23,8 +23,9 @@
 #
 
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import Pango
 
 import gpodder
 from gpodder import util
@@ -32,12 +33,12 @@ from gpodder import config
 
 _ = gpodder.gettext
 
-class ConfigModel(gtk.ListStore):
+class ConfigModel(Gtk.ListStore):
     C_NAME, C_TYPE_TEXT, C_VALUE_TEXT, C_TYPE, C_EDITABLE, C_FONT_STYLE, \
             C_IS_BOOLEAN, C_BOOLEAN_VALUE = range(8)
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str, str, object, \
+        Gtk.ListStore.__init__(self, str, str, str, object, \
                 bool, int, bool, bool)
 
         self._config = config
@@ -67,9 +68,9 @@ class ConfigModel(gtk.ListStore):
             value = getattr(self._config, key, default)
 
             if value == default:
-                style = pango.STYLE_NORMAL
+                style = Pango.Style.NORMAL
             else:
-                style = pango.STYLE_ITALIC
+                style = Pango.Style.ITALIC
 
             self.append((key, self._type_as_string(fieldtype), \
                     str(value), fieldtype, fieldtype is not bool, style, \
@@ -79,9 +80,9 @@ class ConfigModel(gtk.ListStore):
         for row in self:
             if row[self.C_NAME] == name:
                 if new_value == self._config.Settings[name]:
-                    style = pango.STYLE_NORMAL
+                    style = Pango.Style.NORMAL
                 else:
-                    style = pango.STYLE_ITALIC
+                    style = Pango.Style.ITALIC
                 self.set(row.iter, \
                         self.C_VALUE_TEXT, str(new_value), \
                         self.C_BOOLEAN_VALUE, bool(new_value), \
@@ -137,7 +138,7 @@ class UIConfig(config.Config):
         if set((x, y, width, height)).issubset(set(self.Settings)):
             window.resize(getattr(self, width), getattr(self, height))
             if getattr(self, x) == -1 or getattr(self, y) == -1:
-                window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+                window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
             else:
                 window.move(getattr(self, x), getattr(self, y))
 
@@ -158,7 +159,7 @@ class UIConfig(config.Config):
 
             def _receive_window_state(widget, event):
                 new_value = bool(event.new_window_state & \
-                        gtk.gdk.WINDOW_STATE_MAXIMIZED)
+                        Gdk.WindowState.MAXIMIZED)
                 if hasattr(self, maximized):
                     setattr(self, maximized, new_value)
 

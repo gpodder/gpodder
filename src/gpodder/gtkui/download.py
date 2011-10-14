@@ -28,34 +28,33 @@ import gpodder
 from gpodder import util
 from gpodder import download
 
-import gtk
-import cgi
+from gi.repository import Gtk
 
 import collections
 
 _ = gpodder.gettext
 
 
-class DownloadStatusModel(gtk.ListStore):
+class DownloadStatusModel(Gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
     C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = range(6)
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        gtk.ListStore.__init__(self, object, str, str, int, str, str)
+        Gtk.ListStore.__init__(self, object, str, str, int, str, str)
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
-        self._status_ids[download.DownloadTask.DOWNLOADING] = gtk.STOCK_GO_DOWN
-        self._status_ids[download.DownloadTask.DONE] = gtk.STOCK_APPLY
-        self._status_ids[download.DownloadTask.FAILED] = gtk.STOCK_STOP
-        self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
-        self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
+        self._status_ids[download.DownloadTask.DOWNLOADING] = Gtk.STOCK_GO_DOWN
+        self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
+        self._status_ids[download.DownloadTask.FAILED] = Gtk.STOCK_STOP
+        self._status_ids[download.DownloadTask.CANCELLED] = Gtk.STOCK_CANCEL
+        self._status_ids[download.DownloadTask.PAUSED] = Gtk.STOCK_MEDIA_PAUSE
 
     def _format_message(self, episode, message, podcast):
-        episode = cgi.escape(episode)
-        podcast = cgi.escape(podcast)
+        episode = util.safe_escape(episode)
+        podcast = util.safe_escape(podcast)
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
     def request_update(self, iter, task=None):
@@ -64,9 +63,9 @@ class DownloadStatusModel(gtk.ListStore):
             task = self.get_value(iter, self.C_TASK)
         else:
             # Initial update request - update non-changing fields
-            self.set(iter,
-                    self.C_TASK, task,
-                    self.C_URL, task.url)
+            for key, value in ((self.C_TASK, task),
+                    (self.C_URL, task.url)):
+                self.set_value(iter, key, value)
 
         if task.status == task.FAILED:
             status_message = '%s: %s' % (\
@@ -98,12 +97,13 @@ class DownloadStatusModel(gtk.ListStore):
         else:
             progress_message = ('unknown size')
 
-        self.set(iter,
-                self.C_NAME, self._format_message(task.episode.title,
-                    status_message, task.episode.channel.title),
-                self.C_PROGRESS, 100.*task.progress, \
-                self.C_PROGRESS_TEXT, progress_message, \
-                self.C_ICON_NAME, self._status_ids[task.status])
+        for key, value in ((self.C_NAME, self._format_message(
+                    task.episode.title,
+                    status_message, task.episode.channel.title)),
+                (self.C_PROGRESS, int(100.*task.progress)),
+                (self.C_PROGRESS_TEXT, progress_message),
+                (self.C_ICON_NAME, self._status_ids[task.status])):
+            self.set_value(iter, key, value)
 
     def __add_new_task(self, task):
         iter = self.append()

@@ -24,36 +24,36 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-import gtk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 
-import cgi
+from gpodder import util
 
-class SimpleMessageArea(gtk.HBox):
+class SimpleMessageArea(Gtk.HBox):
     """A simple, yellow message area. Inspired by gedit.
 
     Original C source code:
     http://svn.gnome.org/viewvc/gedit/trunk/gedit/gedit-message-area.c
     """
     def __init__(self, message, buttons=()):
-        gtk.HBox.__init__(self, spacing=6)
+        Gtk.HBox.__init__(self, spacing=6)
         self.set_border_width(6)
         self.__in_style_set = False
         self.connect('style-set', self.__style_set)
-        self.connect('expose-event', self.__expose_event)
+        self.connect('draw', self.__expose_event)
 
-        self.__label = gtk.Label()
+        self.__label = Gtk.Label()
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
-        self.__label.set_ellipsize(pango.ELLIPSIZE_END)
-        self.__label.set_markup('<b>%s</b>' % cgi.escape(message))
-        self.pack_start(self.__label, expand=True, fill=True)
+        self.__label.set_ellipsize(Pango.EllipsizeMode.END)
+        self.__label.set_markup('<b>%s</b>' % util.safe_escape(message))
+        self.pack_start(self.__label, True, True, 0)
 
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         for button in buttons:
-            hbox.pack_start(button, expand=True, fill=False)
-        self.pack_start(hbox, expand=False, fill=False)
+            hbox.pack_start(button, True, False, 0)
+        self.pack_start(hbox, False, False, 0)
 
     def set_markup(self, markup, line_wrap=True, min_width=3, max_width=100):
         # The longest line should determine the size of the label
@@ -70,7 +70,7 @@ class SimpleMessageArea(gtk.HBox):
         if self.__in_style_set:
             return
 
-        w = gtk.Window(gtk.WINDOW_POPUP)
+        w = Gtk.Window(type=Gtk.WindowType.POPUP)
         w.set_name('gtk-tooltip')
         w.ensure_style()
         style = w.get_style()
@@ -85,36 +85,37 @@ class SimpleMessageArea(gtk.HBox):
         self.queue_draw()
 
     def __expose_event(self, widget, event):
-        style = widget.get_style()
-        rect = widget.get_allocation()
-        style.paint_flat_box(widget.window, gtk.STATE_NORMAL,
-                gtk.SHADOW_OUT, None, widget, "tooltip",
-                rect.x, rect.y, rect.width, rect.height)
+        # XXX FIXME draw
+        #style = widget.get_style()
+        #rect = widget.get_allocation()
+        #style.do_draw_flat_box(widget, Gtk.StateType.NORMAL,
+        #        Gtk.ShadowType.OUT, None, widget, "tooltip",
+        #        rect.x, rect.y, rect.width, rect.height)
         return False
 
-class NotificationWindow(gtk.Window):
+class NotificationWindow(Gtk.Window):
     """A quick substitution widget for pynotify notifications."""
     def __init__(self, message, title=None, important=False, widget=None):
-        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
+        Gtk.Window.__init__(self, Gtk.WindowType.POPUP)
         self._finished = False
         message_area = SimpleMessageArea('')
-        arrow = gtk.image_new_from_stock(gtk.STOCK_GO_UP, \
-                gtk.ICON_SIZE_BUTTON)
+        arrow = Gtk.Image.new_from_stock(Gtk.STOCK_GO_UP, \
+                Gtk.IconSize.BUTTON)
         arrow.set_alignment(.5, 0.)
         arrow.set_padding(6, 0)
-        message_area.pack_start(arrow, False)
+        message_area.pack_start(arrow, False, 0)
         message_area.reorder_child(arrow, 0)
         if title is not None:
-            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (cgi.escape(title), cgi.escape(message)))
+            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (util.safe_escape(title), util.safe_escape(message)))
         else:
-            message_area.set_markup(cgi.escape(message))
+            message_area.set_markup(util.safe_escape(message))
         self.add(message_area)
-        self.set_gravity(gtk.gdk.GRAVITY_NORTH_WEST)
+        self.set_gravity(Gdk.GRAVITY_NORTH_WEST)
         self.show_all()
         if widget is not None:
             _x, _y, ww, hh, _depth = self.window.get_geometry()
             parent = widget
-            while not isinstance(parent, gtk.Window):
+            while not isinstance(parent, Gtk.Window):
                 parent = parent.get_parent()
             x, y, _w, _h, _depth = parent.window.get_geometry()
             rect = widget.allocation
@@ -129,7 +130,7 @@ class NotificationWindow(gtk.Window):
                 message_area.remove(arrow)
 
     def show_timeout(self, timeout=8000):
-        gobject.timeout_add(timeout, self._hide_and_destroy)
+        GObject.timeout_add(timeout, self._hide_and_destroy)
         self.show_all()
 
     def _hide_and_destroy(self):
@@ -138,16 +139,16 @@ class NotificationWindow(gtk.Window):
             self._finished = True
         return False
 
-class SpinningProgressIndicator(gtk.Image):
+class SpinningProgressIndicator(Gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter
     def __init__(self, size=32):
-        gtk.Image.__init__(self)
+        Gtk.Image.__init__(self)
 
         self._frames = []
         self._frame_id = 0
 
         # Load the progress indicator
-        icon_theme = gtk.icon_theme_get_default()
+        icon_theme = Gtk.IconTheme.get_default()
 
         try:
             icon = icon_theme.load_icon('process-working', size, 0)
@@ -164,7 +165,7 @@ class SpinningProgressIndicator(gtk.Image):
             self.step_animation()
         except:
             # FIXME: This is not very beautiful :/
-            self.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_BUTTON)
+            self.set_from_stock(Gtk.STOCK_EXECUTE, Gtk.IconSize.BUTTON)
 
     def step_animation(self):
         if len(self._frames) > 1:

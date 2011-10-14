@@ -26,7 +26,7 @@ import re
 
 import tokenize
 
-import gtk
+from gi.repository import Gtk
 
 class GtkBuilderWidget(object):
     def __init__(self, ui_folders, textdomain, **kwargs):
@@ -46,7 +46,7 @@ class GtkBuilderWidget(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         self.builder.set_translation_domain(textdomain)
 
         #print >>sys.stderr, 'Creating new from file', self.__class__.__name__
@@ -74,11 +74,11 @@ class GtkBuilderWidget(object):
         """
         for widget in self.builder.get_objects():
             # Just to be safe - every widget from the builder is buildable
-            if not isinstance(widget, gtk.Buildable):
+            if not isinstance(widget, Gtk.Buildable):
                 continue
 
             # The following call looks ugly, but see Gnome bug 591085
-            widget_name = gtk.Buildable.get_name(widget)
+            widget_name = Gtk.Buildable.get_name(widget)
 
             widget_api_name = '_'.join(re.findall(tokenize.Name, widget_name))
             if hasattr(self, widget_api_name):
@@ -101,7 +101,7 @@ class GtkBuilderWidget(object):
     def main(self):
         """
         Starts the main loop of processing events.
-        The default implementation calls gtk.main()
+        The default implementation calls Gtk.main()
 
         Useful for applications that needs a non gtk main loop.
         For example, applications based on gstreamer needs to override
@@ -110,18 +110,18 @@ class GtkBuilderWidget(object):
         Do not directly call this method in your programs.
         Use the method run() instead.
         """
-        gtk.main()
+        Gtk.main()
 
     def quit(self):
         """
         Quit processing events.
-        The default implementation calls gtk.main_quit()
+        The default implementation calls Gtk.main_quit()
         
         Useful for applications that needs a non gtk main loop.
         For example, applications based on gstreamer needs to override
         this method with gst.main_quit()
         """
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def run(self):
         """

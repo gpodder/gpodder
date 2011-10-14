@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
 
 import gpodder
 
@@ -33,7 +33,7 @@ class gPodderWelcome(BuilderWidget):
         self.image1.set_from_file(gpodder.icon_file)
         for widget in (self.btnOPML, self.btnMygPodder):
             for child in widget.get_children():
-                if isinstance(child, gtk.Alignment):
+                if isinstance(child, Gtk.Alignment):
                     child.set_padding(20, 20, 20, 20)
                 else:
                     child.set_padding(20, 20)

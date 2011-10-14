@@ -17,7 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 import gpodder
 
@@ -44,10 +45,10 @@ class gPodderShownotesBase(BuilderWidget):
         return True
 
     def _on_key_press_event(self, widget, event):
-        if event.keyval in (gtk.keysyms.J, gtk.keysyms.j):
+        if event.keyval in (Gdk.KEY_J, Gdk.KEY_j):
             self.on_scroll_down()
             return True
-        elif event.keyval in (gtk.keysyms.K, gtk.keysyms.k):
+        elif event.keyval in (Gdk.KEY_K, Gdk.KEY_k):
             self.on_scroll_up()
             return True
 
@@ -169,8 +170,8 @@ class gPodderShownotesBase(BuilderWidget):
         self.main_window.present()
 
         # Make sure the window comes up quick
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
         # Load the shownotes into the UI
         self.on_display_text()

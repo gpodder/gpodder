@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import cgi
+from gi.repository import Gtk
 
 import gpodder
 
 _ = gpodder.gettext
+
+from gpodder import util
 
 from gpodder.gtkui.config import ConfigModel
 
@@ -31,23 +32,23 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderConfigEditor(BuilderWidget):
     def new(self):
-        name_column = gtk.TreeViewColumn(_('Setting'))
-        name_renderer = gtk.CellRendererText()
-        name_column.pack_start(name_renderer)
+        name_column = Gtk.TreeViewColumn(_('Setting'))
+        name_renderer = Gtk.CellRendererText()
+        name_column.pack_start(name_renderer, True)
         name_column.add_attribute(name_renderer, 'text', 0)
         name_column.add_attribute(name_renderer, 'style', 5)
         self.configeditor.append_column(name_column)
 
-        value_column = gtk.TreeViewColumn(_('Set to'))
-        value_check_renderer = gtk.CellRendererToggle()
-        value_column.pack_start(value_check_renderer, expand=False)
+        value_column = Gtk.TreeViewColumn(_('Set to'))
+        value_check_renderer = Gtk.CellRendererToggle()
+        value_column.pack_start(value_check_renderer, False)
         value_column.add_attribute(value_check_renderer, 'active', 7)
         value_column.add_attribute(value_check_renderer, 'visible', 6)
         value_column.add_attribute(value_check_renderer, 'activatable', 6)
         value_check_renderer.connect('toggled', self.value_toggled)
 
-        value_renderer = gtk.CellRendererText()
-        value_column.pack_start(value_renderer)
+        value_renderer = Gtk.CellRendererText()
+        value_column.pack_start(value_renderer, True)
         value_column.add_attribute(value_renderer, 'text', 2)
         value_column.add_attribute(value_renderer, 'visible', 4)
         value_column.add_attribute(value_renderer, 'editable', 4)
@@ -56,8 +57,8 @@ class gPodderConfigEditor(BuilderWidget):
         self.configeditor.append_column(value_column)
 
         self.model = ConfigModel(self._config)
-        self.filter = self.model.filter_new()
-        self.filter.set_visible_func(self.visible_func)
+        self.filter = Gtk.TreeModelFilter(child_model=self.model)
+        self.filter.set_visible_func(self.visible_func, None)
 
         self.configeditor.set_model(self.filter)
         self.configeditor.set_rules_hint(True)
@@ -79,9 +80,9 @@ class gPodderConfigEditor(BuilderWidget):
 
         if not self._config.update_field(name, new_text):
             message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
-            d = {'field': cgi.escape(name),
-                 'value': cgi.escape(new_text),
-                 'datatype': cgi.escape(type_cute)}
+            d = {'field': util.safe_escape(name),
+                 'value': util.safe_escape(new_text),
+                 'datatype': util.safe_escape(type_cute)}
             self.notification(message % d, _('Error setting option'))
 
     def value_toggled(self, renderer, path):

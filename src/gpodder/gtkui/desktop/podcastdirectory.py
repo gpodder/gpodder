@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 import threading
 import urllib
 import os.path
@@ -57,14 +57,15 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
 
     def setup_treeview(self, tv):
-        togglecell = gtk.CellRendererToggle()
+        togglecell = Gtk.CellRendererToggle()
         togglecell.set_property( 'activatable', True)
         togglecell.connect( 'toggled', self.callback_edited)
-        togglecolumn = gtk.TreeViewColumn( '', togglecell, active=OpmlListModel.C_SELECTED)
+        togglecolumn = Gtk.TreeViewColumn( '', togglecell, active=OpmlListModel.C_SELECTED)
         
-        titlecell = gtk.CellRendererText()
-        titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
+        titlecell = Gtk.CellRendererText()
+        print Pango.EllipsizeMode
+        titlecell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        titlecolumn = Gtk.TreeViewColumn(_('Podcast'), titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
 
         for itemcolumn in (togglecolumn, titlecolumn):
             tv.append_column(itemcolumn)
@@ -172,7 +173,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.gPodderPodcastDirectory.destroy()
 
     def on_entryYoutubeSearch_key_press_event(self, widget, event):
-        if event.keyval == gtk.keysyms.Return:
+        if event.keyval == Gdk.KEY_Return:
             self.on_btnSearchYouTube_clicked(widget)
 
     def get_treeview(self, tab=None):

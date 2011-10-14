@@ -1,6 +1,6 @@
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import cgi
 
 tags = (
@@ -42,15 +42,15 @@ tags = (
 )
 
 
-class TagCloud(gtk.Layout):
+class TagCloud(Gtk.Layout):
     __gsignals__ = {
-            'selected': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                           (gobject.TYPE_STRING,))
+            'selected': (GObject.SignalFlags.RUN_LAST, None,
+                           (GObject.TYPE_STRING,))
     }
 
     def __init__(self, tags, min_size=20, max_size=36):
         self.__gobject_init__()
-        gtk.Layout.__init__(self)
+        Gtk.Layout.__init__(self)
         self._tags = tags
         self._min_size = min_size
         self._max_size = max_size
@@ -68,10 +68,10 @@ class TagCloud(gtk.Layout):
 
     def _init_tags(self):
         for tag, weight in self._tags:
-            label = gtk.Label()
+            label = Gtk.Label()
             markup = '<span size="%d">%s</span>' % (1000*self._scale(weight), cgi.escape(tag))
             label.set_markup(markup)
-            button = gtk.ToolButton(label)
+            button = Gtk.ToolButton(**{'icon-widget': label})
             button.connect('clicked', lambda b: self.emit('selected', tag))
             self.put(button, 1, 1)
 
@@ -89,11 +89,13 @@ class TagCloud(gtk.Layout):
             residue = (pw - x)
             x = int(residue/2)
             for widget in widgets:
-                cw, ch = widget.size_request()
+                r = widget.size_request()
+                cw, ch = r.width, r.height
                 self.move(widget, x, y+max(0, int((max_h-ch)/2)))
                 x += cw + 10
         for child in self.get_children():
-            w, h = child.size_request()
+            r = child.size_request()
+            w, h = r.width, r.height
             if x + w > pw:
                 fixup_row(current_row, x, y, max_h)
                 y += max_h + 10
@@ -109,8 +111,8 @@ class TagCloud(gtk.Layout):
         def unrelayout():
             self._in_relayout = False
             return False
-        gobject.idle_add(unrelayout)
-gobject.type_register(TagCloud)
+        GObject.idle_add(unrelayout)
+GObject.type_register(TagCloud)
 
 if __name__ == '__main__':
     l = TagCloud(tags)
@@ -120,10 +122,10 @@ if __name__ == '__main__':
         w = hildon.StackableWindow()
         sw = hildon.PannableArea()
     except:
-        w = gtk.Window()
+        w = Gtk.Window()
         w.set_default_size(600, 300)
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        sw = Gtk.ScrolledWindow()
+        sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
     w.set_title('Tag cloud Demo')
     w.add(sw)
@@ -135,7 +137,7 @@ if __name__ == '__main__':
     l.connect('selected', on_tag_selected)
 
     w.show_all()
-    w.connect('destroy', gtk.main_quit)
+    w.connect('destroy', Gtk.main_quit)
 
-    gtk.main()
+    Gtk.main()
 

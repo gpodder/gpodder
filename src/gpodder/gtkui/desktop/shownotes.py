@@ -17,12 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gtk.gdk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
 import os
-import cgi
 
 
 import gpodder
@@ -37,7 +36,7 @@ from gpodder import util
 from gpodder.gtkui.interface.shownotes import gPodderShownotesBase
 
 
-SHOWNOTES_HTML_TEMPLATE = """
+SHOWNOTES_HTML_TEMPLATE = u"""
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
@@ -54,14 +53,14 @@ SHOWNOTES_HTML_TEMPLATE = """
 
 class gPodderShownotes(gPodderShownotesBase):
     def on_create_window(self):
-        self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
+        #self.textview.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#ffffff'))
         if self._config.enable_html_shownotes:
             try:
-                import webkit
-                webview_signals = gobject.signal_list_names(webkit.WebView)
+                from gi.repository import WebKit
+                webview_signals = GObject.signal_list_names(WebKit.WebView)
                 if 'navigation-policy-decision-requested' in webview_signals:
                     setattr(self, 'have_webkit', True)
-                    setattr(self, 'htmlview', webkit.WebView())
+                    setattr(self, 'htmlview', WebKit.WebView())
                 else:
                     logger.warn('Your WebKit is too old (gPodder bug 1001).')
                     setattr(self, 'have_webkit', False)
@@ -113,7 +112,7 @@ class gPodderShownotes(gPodderShownotesBase):
         if self.have_webkit:
             self.htmlview.load_html_string('<html><head></head><body><em>%s</em></body></html>' % _('Loading shownotes...'), '')
         else:
-            self.b = gtk.TextBuffer()
+            self.b = Gtk.TextBuffer()
             self.textview.set_buffer(self.b)
 
     def on_display_text(self):
@@ -130,16 +129,16 @@ class gPodderShownotes(gPodderShownotesBase):
             description = self.episode.description_html
 
             args = (
-                    cgi.escape(heading),
-                    cgi.escape(subheading),
+                    util.safe_escape(heading),
+                    util.safe_escape(subheading),
                     self.episode.get_play_info_string(),
                     description,
             )
             url = os.path.dirname(self.episode.channel.url)
             self.htmlview.load_html_string(SHOWNOTES_HTML_TEMPLATE % args, url)
         else:
-            self.b.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
-            self.b.create_tag('subheading', scale=pango.SCALE_SMALL)
+            self.b.create_tag('heading', scale=Pango.SCALE_LARGE, weight=Pango.Weight.BOLD)
+            self.b.create_tag('subheading', scale=Pango.SCALE_SMALL)
 
             self.b.insert_with_tags_by_name(self.b.get_end_iter(), heading, 'heading')
             self.b.insert_at_cursor('\n')
@@ -169,9 +168,9 @@ class gPodderShownotes(gPodderShownotesBase):
             self.btnCancel.hide()
             if self.episode.was_downloaded(and_exists=True):
                 if self.episode.file_type() in ('audio', 'video'):
-                    self.btnPlay.set_label(gtk.STOCK_MEDIA_PLAY)
+                    self.btnPlay.set_label(Gtk.STOCK_MEDIA_PLAY)
                 else:
-                    self.btnPlay.set_label(gtk.STOCK_OPEN)
+                    self.btnPlay.set_label(Gtk.STOCK_OPEN)
                 self.btnPlay.set_use_stock(True)
                 self.btnPlay.show_all()
                 self.btnDownload.hide()

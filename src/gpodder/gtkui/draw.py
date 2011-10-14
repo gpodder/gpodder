@@ -25,10 +25,13 @@
 
 import gpodder
 
-import gtk
-import pango
-import pangocairo
+from gi.repository import Gtk
+from gi.repository import GdkPixbuf
+from gi.repository import Pango
+from gi.repository import PangoCairo
+
 import cairo
+
 import StringIO
 import math
 
@@ -86,25 +89,26 @@ def rounded_rectangle(ctx, x, y, width, height, radius=4.):
 
 
 def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
+    return
     style = widget.rc_get_style()
-    text_color = style.text[gtk.STATE_PRELIGHT]
+    text_color = style.text[Gtk.StateType.PRELIGHT]
     red, green, blue = text_color.red, text_color.green, text_color.blue
     text_color = [float(x)/65535. for x in (red, green, blue)]
     text_color.append(.5)
 
     if font_desc is None:
         font_desc = style.font_desc
-        font_desc.set_size(14*pango.SCALE)
+        font_desc.set_size(14*Pango.SCALE)
 
     pango_context = widget.create_pango_context()
-    layout = pango.Layout(pango_context)
+    layout = Pango.Layout(pango_context)
     layout.set_font_description(font_desc)
-    layout.set_text(text)
+    layout.set_text(text, -1)
     width, height = layout.get_pixel_size()
 
     ctx.move_to(w_width/2-width/2, w_height/2-height/2)
     ctx.set_source_rgba(*text_color)
-    ctx.show_layout(layout)
+    PangoCairo.show_layout(ctx, layout)
 
     # Draw an optional progress bar below the text (same width)
     if add_progress is not None:
@@ -122,25 +126,25 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
 
     # Use GTK+ style of a normal Button
-    widget = gtk.Label()
-    style = widget.rc_get_style()
+    widget = Gtk.Label()
+    #style = widget.rc_get_style()
 
     # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
     padding_right = 7
 
     x_border = border*2
 
-    if font_desc is None:
-        font_desc = style.font_desc
-        font_desc.set_weight(pango.WEIGHT_BOLD)
+    #if font_desc is None:
+    #    font_desc = style.font_desc
+    #    font_desc.set_weight(Pango.Weight.BOLD)
 
     pango_context = widget.create_pango_context()
-    layout_left = pango.Layout(pango_context)
-    layout_left.set_font_description(font_desc)
-    layout_left.set_text(left_text)
-    layout_right = pango.Layout(pango_context)
-    layout_right.set_font_description(font_desc)
-    layout_right.set_text(right_text)
+    layout_left = Pango.Layout(pango_context)
+    #layout_left.set_font_description(font_desc)
+    layout_left.set_text(left_text, -1)
+    layout_right = Pango.Layout(pango_context)
+    #layout_right.set_font_description(font_desc)
+    layout_right.set_text(right_text, -1)
 
     width_left, height_left = layout_left.get_pixel_size()
     width_right, height_right = layout_right.get_pixel_size()
@@ -151,7 +155,7 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     image_width = int(x+width_left+width_right+x_border*4+padding_right)
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
 
-    ctx = pangocairo.CairoContext(cairo.Context(surface))
+    ctx = cairo.Context(surface)#PangoCairo.CairoContext(cairo.Context(surface))
 
     # Clip so as to not draw on the right padding (for Ubuntu; bug 1533)
     ctx.rectangle(0, 0, image_width - padding_right, image_height)
@@ -191,10 +195,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
         ctx.move_to(x+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        ctx.show_layout(layout_left)
+        PangoCairo.show_layout(ctx, layout_left)
         ctx.move_to(x-1+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        ctx.show_layout(layout_left)
+        PangoCairo.show_layout(ctx, layout_left)
 
     if right_text is not None:
         draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
@@ -220,10 +224,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
         ctx.move_to(x+left_side_width+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        ctx.show_layout(layout_right)
+        PangoCairo.show_layout(ctx, layout_right)
         ctx.move_to(x-1+left_side_width+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        ctx.show_layout(layout_right)
+        PangoCairo.show_layout(ctx, layout_right)
 
     return surface
 
@@ -248,7 +252,7 @@ def cairo_surface_to_pixbuf(s):
         # Thanks to Chris Arnold for reporting this bug
         sio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
 
-    pbl = gtk.gdk.PixbufLoader()
+    pbl = GdkPixbuf.PixbufLoader()
     pbl.write(sio.getvalue())
     pbl.close()
 

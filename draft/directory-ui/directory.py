@@ -1,15 +1,16 @@
 
-import gtk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GdkPixbuf
+from gi.repository import Pango
 import tagcloud
 import json
 
-w = gtk.Dialog()
+w = Gtk.Dialog()
 w.set_title('Discover new podcasts')
 w.set_default_size(650, 450)
 
-tv = gtk.TreeView()
+tv = Gtk.TreeView()
 tv.set_headers_visible(False)
 tv.set_size_request(160, -1)
 
@@ -31,43 +32,43 @@ directory_providers = (
         ('Tag cloud', 'directory_tags.png', TagCloud),
 )
 
-SEPARATOR = (True, pango.WEIGHT_NORMAL, '', None, None)
+SEPARATOR = (True, Pango.Weight.NORMAL, '', None, None)
 C_SEPARATOR, C_WEIGHT, C_TEXT, C_ICON, C_PROVIDER = range(5)
-store = gtk.ListStore(bool, int, str, gtk.gdk.Pixbuf, object)
+store = Gtk.ListStore(bool, int, str, GdkPixbuf.Pixbuf, object)
 
-opml_pixbuf = gtk.gdk.pixbuf_new_from_file('directory_opml.png')
-store.append((False, pango.WEIGHT_NORMAL, 'OPML', opml_pixbuf, OpmlEdit))
+opml_pixbuf = GdkPixbuf.Pixbuf.new_from_file('directory_opml.png')
+store.append((False, Pango.Weight.NORMAL, 'OPML', opml_pixbuf, OpmlEdit))
 
 store.append(SEPARATOR)
 
 for name, icon, provider in search_providers:
-    pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
-    store.append((False, pango.WEIGHT_NORMAL, name, pixbuf, provider))
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon)
+    store.append((False, Pango.Weight.NORMAL, name, pixbuf, provider))
 
 store.append(SEPARATOR)
 
 for name, icon, provider in directory_providers:
-    pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
-    store.append((False, pango.WEIGHT_NORMAL, name, pixbuf, provider))
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon)
+    store.append((False, Pango.Weight.NORMAL, name, pixbuf, provider))
 
 store.append(SEPARATOR)
 
 for i in range(1, 5):
-    store.append((False, pango.WEIGHT_NORMAL, 'Bookmark %d' % i, None, None))
+    store.append((False, Pango.Weight.NORMAL, 'Bookmark %d' % i, None, None))
 
 tv.set_model(store)
 
-def is_row_separator(model, iter):
+def is_row_separator(model, iter, user_data):
     return model.get_value(iter, C_SEPARATOR)
 
-tv.set_row_separator_func(is_row_separator)
+tv.set_row_separator_func(is_row_separator, None)
 
-column = gtk.TreeViewColumn('')
-cell = gtk.CellRendererPixbuf()
+column = Gtk.TreeViewColumn('')
+cell = Gtk.CellRendererPixbuf()
 column.pack_start(cell, False)
 column.add_attribute(cell, 'pixbuf', C_ICON)
-cell = gtk.CellRendererText()
-column.pack_start(cell)
+cell = Gtk.CellRendererText()
+column.pack_start(cell, True)
 column.add_attribute(cell, 'text', C_TEXT)
 column.add_attribute(cell, 'weight', C_WEIGHT)
 tv.append_column(column)
@@ -77,47 +78,47 @@ def on_row_activated(treeview, path, column):
     iter = model.get_iter(path)
 
     for row in model:
-        row[C_WEIGHT] = pango.WEIGHT_NORMAL
+        row[C_WEIGHT] = Pango.Weight.NORMAL
 
     if iter:
-        model.set_value(iter, C_WEIGHT, pango.WEIGHT_BOLD)
+        model.set_value(iter, C_WEIGHT, Pango.Weight.BOLD)
         provider = model.get_value(iter, C_PROVIDER)
         use_provider(provider)
 
 tv.connect('row-activated', on_row_activated)
 
-sw = gtk.ScrolledWindow()
-sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-sw.set_shadow_type(gtk.SHADOW_IN)
+sw = Gtk.ScrolledWindow()
+sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+sw.set_shadow_type(Gtk.ShadowType.IN)
 sw.add(tv)
 
-sidebar = gtk.VBox()
+sidebar = Gtk.VBox()
 sidebar.set_spacing(6)
 
-sidebar.pack_start(sw, True, True)
-sidebar.pack_start(gtk.Button('Add bookmark'), False, False)
+sidebar.pack_start(sw, True, True, 0)
+sidebar.pack_start(Gtk.Button('Add bookmark'), True, True, 0)
 
-vb = gtk.VBox()
+vb = Gtk.VBox()
 vb.set_spacing(6)
 
-title_label = gtk.Label('Title')
+title_label = Gtk.Label(label='Title')
 title_label.set_alignment(0, 0)
-vb.pack_start(title_label, False, False)
+vb.pack_start(title_label, False, False, 0)
 
-search_hbox = gtk.HBox()
+search_hbox = Gtk.HBox()
 search_hbox.set_spacing(6)
-search_label = gtk.Label('')
-search_hbox.pack_start(search_label, False, False)
-search_entry = gtk.Entry()
-search_hbox.pack_start(search_entry, True, True)
-search_button = gtk.Button('')
-search_hbox.pack_start(search_button, False, False)
+search_label = Gtk.Label(label='')
+search_hbox.pack_start(search_label, False, False, 0)
+search_entry = Gtk.Entry()
+search_hbox.pack_start(search_entry, True, True, 0)
+search_button = Gtk.Button('')
+search_hbox.pack_start(search_button, False, False, 0)
 
-vb.pack_start(search_hbox, False, False)
+vb.pack_start(search_hbox, False, False, 0)
 
-tagcloud_sw = gtk.ScrolledWindow()
-tagcloud_sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-tagcloud_sw.set_shadow_type(gtk.SHADOW_IN)
+tagcloud_sw = Gtk.ScrolledWindow()
+tagcloud_sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+tagcloud_sw.set_shadow_type(Gtk.ShadowType.IN)
 podcast_tags = json.loads("""
 [
 {"tag": "Technology",
@@ -133,26 +134,26 @@ podcast_tags = json.loads("""
 tagcloudw = tagcloud.TagCloud(list((x['tag'], x['usage']) for x in podcast_tags), 10, 14)
 tagcloud_sw.set_size_request(-1, 130)
 tagcloud_sw.add(tagcloudw)
-vb.pack_start(tagcloud_sw, False, False)
+vb.pack_start(tagcloud_sw, False, False, 0)
 
-podcasts_sw = gtk.ScrolledWindow()
-podcasts_sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-podcasts_sw.set_shadow_type(gtk.SHADOW_IN)
-podcasts_tv = gtk.TreeView()
+podcasts_sw = Gtk.ScrolledWindow()
+podcasts_sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+podcasts_sw.set_shadow_type(Gtk.ShadowType.IN)
+podcasts_tv = Gtk.TreeView()
 podcasts_sw.add(podcasts_tv)
-vb.pack_start(podcasts_sw, True, True)
+vb.pack_start(podcasts_sw, True, True, 0)
 
 
-hb = gtk.HBox()
+hb = Gtk.HBox()
 hb.set_spacing(12)
 hb.set_border_width(12)
-hb.pack_start(sidebar, False, True)
-hb.pack_start(vb, True, True)
+hb.pack_start(sidebar, False, True, 0)
+hb.pack_start(vb, True, True, 0)
 
-w.vbox.add(hb)
-w.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-w.add_button('Subscribe', gtk.RESPONSE_OK)
-w.set_response_sensitive(gtk.RESPONSE_OK, False)
+w.get_content_area().add(hb)
+w.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+w.add_button('Subscribe', Gtk.ResponseType.OK)
+w.set_response_sensitive(Gtk.ResponseType.OK, False)
 
 def use_provider(provider):
     if provider == OpmlEdit:
@@ -169,7 +170,7 @@ def use_provider(provider):
         def later():
             search_entry.grab_focus()
             return False
-        gobject.idle_add(later)
+        GObject.idle_add(later)
     elif provider == TagCloud:
         title_label.hide()
         search_hbox.hide()
@@ -185,12 +186,12 @@ def use_provider(provider):
 
     print 'using provider:', provider
 
-#w.connect('destroy', gtk.main_quit)
+#w.connect('destroy', Gtk.main_quit)
 w.show_all()
 
 on_row_activated(tv, (0,), None)
 
 w.run()
 
-#gtk.main()
+#Gtk.main()
 

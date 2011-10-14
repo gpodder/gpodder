@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gtk.gdk
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 import gpodder
 
@@ -35,8 +35,8 @@ class gPodderChannel(BuilderWidget):
         self.labelURL.set_text(self.channel.url)
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
 
-        self.combo_section.child.set_text(self.channel.section)
-        self.section_list = gtk.ListStore(str)
+        self.combo_section.get_child().set_text(self.channel.section)
+        self.section_list = Gtk.ListStore(str)
         for section in sorted(self.sections):
             self.section_list.append([section])
         self.combo_section.set_model(self.section_list)
@@ -56,26 +56,26 @@ class gPodderChannel(BuilderWidget):
         if not self.channel.link:
             self.btn_website.hide_all()
 
-        b = gtk.TextBuffer()
+        b = Gtk.TextBuffer()
         b.set_text( self.channel.description)
         self.channel_description.set_buffer( b)
 
         #Add Drag and Drop Support
-        flags = gtk.DEST_DEFAULT_ALL
+        flags = Gtk.DestDefaults.ALL
         targets = [ ('text/uri-list', 0, 2), ('text/plain', 0, 4) ]
-        actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
-        self.vboxCoverEditor.drag_dest_set( flags, targets, actions)
+        actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY
+        self.Gtk.drag_dest_set(vboxCoverEditor,  flags, targets, actions)
         self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
 
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)
 
     def on_btnDownloadCover_clicked(self, widget):
-        dlg = gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=gtk.FILE_CHOOSER_ACTION_OPEN)
-        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        dlg = Gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=Gtk.FileChooserAction.OPEN)
+        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dlg.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
-        if dlg.run() == gtk.RESPONSE_OK:
+        if dlg.run() == Gtk.ResponseType.OK:
             url = dlg.get_uri()
             self.cover_downloader.replace_cover(self.channel, url)
 
@@ -112,7 +112,7 @@ class gPodderChannel(BuilderWidget):
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
 
-        new_section = self.combo_section.child.get_text().strip()
+        new_section = self.combo_section.get_child().get_text().strip()
         if self.channel.section != new_section:
             self.channel.section = new_section
             section_changed = True

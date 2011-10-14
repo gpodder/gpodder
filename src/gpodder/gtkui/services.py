@@ -34,7 +34,8 @@ logger = logging.getLogger(__name__)
 from gpodder import util
 from gpodder import youtube
 
-import gtk
+from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 import os
 import urlparse
 import threading
@@ -123,7 +124,7 @@ class CoverDownloader(ObservableService):
         # "randomly" choose a cover based on the podcast title
         basename = 'podcast-%d.png' % (hash(channel.title)%5)
         filename = os.path.join(gpodder.images_folder, basename)
-        return gtk.gdk.pixbuf_new_from_file(filename)
+        return GdkPixbuf.Pixbuf.new_from_file(filename)
 
     def __get_cover(self, channel, url, async=False, avoid_downloading=False):
         if not async and avoid_downloading and not os.path.exists(channel.cover_file):
@@ -160,7 +161,7 @@ class CoverDownloader(ObservableService):
         pixbuf = None
         if os.path.exists(channel.cover_file):
             try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file.decode(util.encoding, 'ignore'))
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(channel.cover_file.decode(util.encoding, 'ignore'))
             except:
                 logger.error('Data error while loading %s', channel.cover_file)
 
@@ -171,13 +172,13 @@ class CoverDownloader(ObservableService):
         if pixbuf.get_width() > self.MAX_SIZE:
             f = float(self.MAX_SIZE)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         # Resize if height is too large
         if pixbuf.get_height() > self.MAX_SIZE:
             f = float(self.MAX_SIZE)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         if async:
             self.notify('cover-available', channel, pixbuf)

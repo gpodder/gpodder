@@ -44,6 +44,7 @@ import shlex
 import socket
 import sys
 import string
+import cgi
 
 import re
 import subprocess
@@ -967,8 +968,8 @@ def idle_add(func, *args):
     as possible from the main UI thread.
     """
     if gpodder.ui.gtk:
-        import gobject
-        gobject.idle_add(func, *args)
+        from gi.repository import GObject
+        GObject.idle_add(func, *args)
     elif gpodder.ui.qt:
         from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
 
@@ -1477,4 +1478,18 @@ def is_known_redirecter(url):
         return True
 
     return False
+
+
+def safe_escape(string):
+    """Safely escape a string for use in Pango Markup
+
+    In Gtk3, we have to make sure to pass Unicode strings
+    to the UI if they contain non-ascii characters. This
+    will be less of an issue in Python3 hopefully ;)
+    """
+    global encoding
+    string = cgi.escape(string)
+    if not isinstance(string, unicode):
+        return string.decode(encoding, 'ignore')
+    return string
 
