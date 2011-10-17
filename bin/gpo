@@ -56,6 +56,9 @@ import sys
 import os
 import re
 import inspect
+import logging
+
+logging.basicConfig()
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
