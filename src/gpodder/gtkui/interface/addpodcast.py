@@ -18,6 +18,7 @@
 #
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 
 import gpodder
 
@@ -44,7 +45,7 @@ class gPodderAddPodcast(BuilderWidget):
         if not hasattr(self, 'preset_url'):
             # Fill the entry if a valid URL is in the clipboard, but
             # only if there's no preset_url available (see bug 1132)
-            clipboard = Gtk.Clipboard(selection='PRIMARY')
+            clipboard = Gtk.Clipboard.get(Gdk.atom_intern('PRIMARY', False))
             def receive_clipboard_text(clipboard, text, second_try):
                 # Heuristic: If there is a space in the clipboard
                 # text, assume it's some arbitrary text, and no URL
@@ -56,7 +57,7 @@ class gPodderAddPodcast(BuilderWidget):
                         return
 
                 if not second_try:
-                    clipboard = Gtk.Clipboard()
+                    clipboard = Gtk.Clipboard() # CLIPBOARD selection
                     clipboard.request_text(receive_clipboard_text, True)
             clipboard.request_text(receive_clipboard_text, False)
 

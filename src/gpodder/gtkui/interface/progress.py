@@ -72,7 +72,7 @@ class ProgressIndicator(object):
         if self._initial_message is not None:
             self.progressbar.set_text(self._initial_message)
 
-        self.dialog.vbox.add(self.progressbar)
+        self.dialog.get_content_area().add(self.progressbar)
         self.indicator = SpinningProgressIndicator()
         self.dialog.set_image(self.indicator)
         self.dialog.show_all()
