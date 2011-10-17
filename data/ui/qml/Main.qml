@@ -324,7 +324,7 @@ Image {
 
     Item {
         id: titleBar
-        height: taskSwitcher.height
+        height: taskSwitcher.height*.8
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
