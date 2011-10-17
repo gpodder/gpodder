@@ -24,36 +24,27 @@
 #
 
 import traceback
-import time
+import logging
+import sys
 
-write_to_stdout = False
+loggers = {'': logging.getLogger('gpodder')}
 
-
-def enable_verbose():
-    global write_to_stdout
-    write_to_stdout = True
-
-first_time = time.time()
-last_times = []
-
-def log( message, *args, **kwargs):
-    global first_time
-    global last_times
+# XXX: This is deprecated for gPodder 3, and in 2.x, we only provide
+# this for legacy support of the existing codebase. Please use the
+# standard Python logging facility for your hook scripts. Thanks! :)
+def log(message, *args, **kwargs):
     if 'sender' in kwargs:
-        message = '(%s) %s' % ( kwargs['sender'].__class__.__name__, message )
-    if 'bench_start' in kwargs:
-        last_times.append(time.time())
-    if 'bench_end' in kwargs and len(last_times) > 0:
-        message += (' (benchmark: %.4f seconds)' % (time.time()-(last_times.pop())))
-    if write_to_stdout:
-        print (('[%8.3f] ' % (time.time()-first_time)) + message) % args
-        if kwargs.get( 'traceback', False):
-            error = traceback.format_exc()
-            if error.strip() != 'None':
-                print error
+        sender = kwargs['sender'].__class__.__name__
+    else:
+        sender = ''
 
+    if sender not in loggers:
+        loggers[sender] = logging.getLogger(sender)
 
-def msg( type, message, *args):
-    s = message % args
-    print '%c\t%s' % ( type[0].upper(), s )
+    loggers[sender].info(message, *args)
+
+    if kwargs.get('traceback', False):
+        error = traceback.format_exc()
+        if error.strip() != 'None':
+            print >>sys.stderr, error
 

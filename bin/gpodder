@@ -38,6 +38,7 @@ import sys
 import os
 import os.path
 import platform
+import logging
 
 import gettext
 
@@ -169,8 +170,10 @@ if __name__ == '__main__':
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
 
     if options.verbose:
-        from gpodder.liblogger import enable_verbose
-        enable_verbose()
+        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
+        logging.basicConfig(format=FMT, level=logging.DEBUG)
+    else:
+        logging.basicConfig()
 
     if have_dbus:
         # Try to find an already-running instance of gPodder
