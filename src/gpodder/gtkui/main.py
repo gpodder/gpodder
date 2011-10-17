@@ -2196,7 +2196,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 url = None
 
             # Update the list of subscribed podcasts
-            self.channels.sort(key=Model.podcast_sort_key)
             self.update_podcast_list_model(select_url=url)
 
             # Offer to download new episodes

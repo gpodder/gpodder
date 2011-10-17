@@ -1278,8 +1278,7 @@ class Model(object):
             return self.PodcastClass.create_from_dict(dct, self)
 
         if self.children is None:
-            self.children = sorted(self.db.load_podcasts(podcast_factory),
-                    key=self.PodcastClass.sort_key)
+            self.children = self.db.load_podcasts(podcast_factory)
         return self.children
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
