@@ -13,7 +13,7 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
-    showToolBar: !switcherDisplay.visible && (mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton)
+    showToolBar: mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton
 
     // Hide status bar in landscape mode
     showStatusBar: screen.currentOrientation == Screen.Portrait
@@ -57,7 +57,7 @@ PageStackWindow {
             id: switcherDisplay
 
             anchors.fill: parent
-            visible: !rootWindow.fullsize && mainObject.playing
+            visible: false // !rootWindow.fullsize && mainObject.playing
 
             Rectangle {
                 color: '#dd000000'

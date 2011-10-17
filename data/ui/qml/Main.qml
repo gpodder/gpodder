@@ -21,12 +21,16 @@ Image {
     property alias currentEpisode: mediaPlayer.episode
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: closeButton.isRequired
+    property bool canGoBack: closeButton.isRequired || mediaPlayer.visible
     property bool hasPlayButton: nowPlayingThrobber.shouldAppear
-    property bool hasSearchButton: searchButton.visible
+    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible
 
     function goBack() {
-        closeButton.clicked()
+        if (nowPlayingThrobber.opened) {
+            nowPlayingThrobber.opened = false
+        } else {
+            closeButton.clicked()
+        }
     }
 
     function clickPlayButton() {
@@ -249,7 +253,7 @@ Image {
         anchors.right: parent.right
         anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutCirc } }
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.quickTransition; easing.type: Easing.OutCirc } }
     }
 
     ContextMenu {
