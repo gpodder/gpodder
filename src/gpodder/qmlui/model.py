@@ -145,12 +145,19 @@ class QEpisode(QObject):
     qprogress = Property(float, _progress, notify=changed)
 
     def qdownload(self, config, finished_callback=None):
+        # Avoid starting the same download twice
+        if self.download_task is not None:
+            return
+
+        # Initialize the download task here, so that the
+        # UI will be updated as soon as possible
+        self._wrapper_manager.add_active_episode(self)
+        self._qt_download_progress = 0.
+        task = download.DownloadTask(self._episode, config)
+        task.status = download.DownloadTask.QUEUED
+        self.changed.emit()
+
         def t(self):
-            self._wrapper_manager.add_active_episode(self)
-            self._qt_download_progress = 0.
-            self.changed.emit()
-            task = download.DownloadTask(self._episode, config)
-            task.status = download.DownloadTask.QUEUED
             def cb(progress):
                 if progress > self._qt_download_progress + .01 or progress == 1:
                     self._qt_download_progress = progress
