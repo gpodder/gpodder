@@ -2259,7 +2259,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 assert channel is not None
                 worked.append(channel.url)
-                self.channels.append(channel)
 
             util.idle_add(on_after_update)
         threading.Thread(target=thread_proc).start()
@@ -2986,7 +2985,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # Remove the channel and clean the database entries
                 channel.delete()
-                self.channels.remove(channel)
 
             # Clean up downloads and download directories
             self.clean_up_downloads()

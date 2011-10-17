@@ -743,6 +743,10 @@ class PodcastChannel(PodcastModelObject):
         self.section = _('Other')
 
     @property
+    def model(self):
+        return self.parent
+
+    @property
     def db(self):
         return self.parent.db
 
@@ -847,7 +851,6 @@ class PodcastChannel(PodcastModelObject):
         if create:
             tmp = cls(model)
             tmp.url = url
-            model.children.append(tmp)
             if authentication_tokens is not None:
                 tmp.auth_username = authentication_tokens[0]
                 tmp.auth_password = authentication_tokens[1]
@@ -874,6 +877,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.import_external_files()
 
             tmp.save()
+
             return tmp
 
     def episode_factory(self, d):
@@ -1102,12 +1106,7 @@ class PodcastChannel(PodcastModelObject):
     def delete(self):
         gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
-
-        # Keep self.parent.children up to date.
-        for i, p in enumerate(self.parent.children):
-            if p.url == self.url:
-                del self.parent.children[i]
-                return
+        self.model._remove_podcast(self)
 
     def save(self):
         if self.download_folder is None:
@@ -1121,6 +1120,7 @@ class PodcastChannel(PodcastModelObject):
         self._clear_changes()
 
         self.db.save_podcast(self)
+        self.model._append_podcast(self)
 
     def get_statistics(self):
         if self.id is None:
@@ -1265,14 +1265,21 @@ class Model(object):
         self.db = db
         self.children = None
 
+    def _append_podcast(self, podcast):
+        if podcast not in self.children:
+            self.children.append(podcast)
+        # XXX: Sort?
+
+    def _remove_podcast(self, podcast):
+        self.children.remove(podcast)
+
     def get_podcasts(self):
         def podcast_factory(dct, db):
             return self.PodcastClass.create_from_dict(dct, self)
 
         if self.children is None:
-            self.children = sorted(
-                self.db.load_podcasts(podcast_factory),
-                key=self.PodcastClass.sort_key)
+            self.children = sorted(self.db.load_podcasts(podcast_factory),
+                    key=self.PodcastClass.sort_key)
         return self.children
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
