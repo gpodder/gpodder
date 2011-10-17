@@ -61,10 +61,13 @@ import inspect
 import readline
 import shlex
 import pydoc
+import logging
 
 import termios
 import fcntl
 import struct
+
+logging.basicConfig()
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
