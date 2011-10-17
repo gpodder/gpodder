@@ -37,7 +37,7 @@ try:
     from pywoodchuck import PyWoodchuck
     from pywoodchuck import woodchuck
 except ImportError, e:
-    logger.warn('Unable to load pywoodchuck. Disabling woodchuck plug-in.')
+    logger.info('Unable to load pywoodchuck. Disabling woodchuck plug-in.')
     woodchuck_imported = False
 
     class PyWoodchuck(object):
