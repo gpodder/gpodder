@@ -143,9 +143,6 @@ if __name__ == '__main__':
     else:
         logging.basicConfig()
 
-    gpodder.ui.qt = False
-    gpodder.ui.gtk = False
-
     if options.qml or gpodder.ui.fremantle or gpodder.ui.harmattan:
         from gpodder import qmlui
         gpodder.ui.qt = True

@@ -41,7 +41,8 @@ Item {
             onContextMenu: podcastList.podcastContextMenu(item)
         }
 
-        header: PodcastListHeader { }
+        header: Item { height: titleBar.height }
+        footer: Item { height: Config.headerHeight }
 
         cacheBuffer: height
     }
