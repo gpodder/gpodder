@@ -82,7 +82,7 @@ Item {
             }
         }
 
-        header: Item { height: Config.headerHeight }
+        header: Item { height: titleBar.height }
         footer: Item { height: Config.headerHeight }
     }
 }
