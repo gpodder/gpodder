@@ -94,13 +94,19 @@ gpodder.detect_platform()
 from gpodder import api
 
 def inred(x):
-    return '\033[91m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[91m' + x + '\033[0m'
+    return x
 
 def ingreen(x):
-    return '\033[92m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[92m' + x + '\033[0m'
+    return x
 
 def inblue(x):
-    return '\033[94m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[94m' + x + '\033[0m'
+    return x
 
 def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
@@ -139,14 +145,18 @@ class gPodderCli(object):
         sys.stdout.flush()
 
     def _update_action(self, progress):
-        progress = '%3.0f%%' % (progress*100.,)
-        result = '['+inblue(progress)+']'
-        sys.stdout.write('\r' + self._current_action + result)
-        sys.stdout.flush()
+        if sys.stdout.isatty():
+            progress = '%3.0f%%' % (progress*100.,)
+            result = '['+inblue(progress)+']'
+            sys.stdout.write('\r' + self._current_action + result)
+            sys.stdout.flush()
 
     def _finish_action(self, success=True):
         result = '['+ingreen('DONE')+']' if success else '['+inred('FAIL')+']'
-        print '\r' + self._current_action + result
+        if sys.stdout.isatty():
+            print '\r' + self._current_action + result
+        else:
+            print result
         self._current_action = ''
 
     def _atexit(self):
