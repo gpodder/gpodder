@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.18'
-__date__      = '2011-08-08'
+__version__   = '2.20'
+__date__      = '2011-10-19'
 __copyright__ = '© 2005-2011 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -36,7 +36,8 @@ try:
 except ImportError:
     print """
   Error: Module "feedparser" not found. Please install "python-feedparser".
-         The feedparser module can be downloaded from www.feedparser.org.
+         The feedparser module can be downloaded from
+         http://code.google.com/p/feedparser/
 """
     sys.exit(1)
 del feedparser

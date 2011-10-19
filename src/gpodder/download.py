@@ -746,7 +746,9 @@ class DownloadTask(object):
             disposition_filename = get_header_param(headers, \
                     'filename', 'content-disposition')
 
-            if disposition_filename is not None:
+            # Some servers do send the content-disposition header, but provide
+            # an empty filename, resulting in an empty string here (bug 1440)
+            if disposition_filename is not None and disposition_filename != '':
                 # The server specifies a download filename - try to use it
                 disposition_filename = os.path.basename(disposition_filename)
                 self.filename = self.__episode.local_filename(create=True, \

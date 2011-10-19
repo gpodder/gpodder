@@ -44,7 +44,7 @@ clean:
 	rm -rf ../locale *~ *.mo
 
 statistics:
-	@for file in *.po; do echo -n "$$file (`cat $$file | grep Revision-Date | cut -d' ' -f2`): "; msgfmt --statistics $$file 2>&1; done
+	@(for file in *.po; do echo -n "$$file (`cat $$file | grep Revision-Date | cut -d' ' -f2`): "; msgfmt --statistics $$file 2>&1; done) | sort -t: -k2 -rn; done
 
 validate:
 	./validate.sh

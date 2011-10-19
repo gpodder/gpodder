@@ -711,11 +711,12 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get('updated_parsed', None):
             episode.pubDate = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
-        enclosures = entry.get('enclosures', ())
+        enclosures = entry.get('enclosures', [])
+        media_rss_content = entry.get('media_content', [])
         audio_available = any(e.get('type', '').startswith('audio/') \
-                for e in enclosures)
+                for e in enclosures + media_rss_content)
         video_available = any(e.get('type', '').startswith('video/') \
-                for e in enclosures)
+                for e in enclosures + media_rss_content)
 
         # Create the list of preferred mime types
         mimetype_prefs = mimetype_prefs.split(',')
@@ -746,6 +747,7 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             # Skip images in feeds if audio or video is available (bug 979)
+            # This must (and does) also look in Media RSS enclosures (bug 1430)
             if episode.mimetype.startswith('image/') and \
                     (audio_available or video_available):
                 continue
@@ -762,9 +764,14 @@ class PodcastEpisode(PodcastModelObject):
             return episode
 
         # Media RSS content
-        for m in entry.get('media_content', ()):
+        for m in sorted(media_rss_content, key=calculate_preference_value):
             episode.mimetype = m.get('type', 'application/octet-stream')
             if '/' not in episode.mimetype:
+                continue
+
+            # Skip images in Media RSS if we have audio/video (bug 1444)
+            if episode.mimetype.startswith('image/') and \
+                    (audio_available or video_available):
                 continue
 
             episode.url = util.normalize_feed_url(m.get('url', ''))
@@ -1012,6 +1019,12 @@ class PodcastEpisode(PodcastModelObject):
                 return os.path.join(self.channel.save_dir, self.filename)
 
         if self.filename is None or force_update or (self.auto_filename and self.filename == urldigest+ext):
+            # Avoid and catch gPodder bug 1440 and similar situations
+            if template == '':
+                log('Empty template. Report this podcast URL %s',
+                        self.channel.url)
+                template = None
+
             # Try to find a new filename for the current file
             if template is not None:
                 # If template is specified, trust the template's extension

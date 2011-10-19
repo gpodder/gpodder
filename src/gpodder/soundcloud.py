@@ -154,7 +154,7 @@ class SoundcloudUser(object):
                 yield {
                     'title': track.get('title', track.get('permalink', _('Unknown track'))),
                     'link': track.get('permalink_url', 'http://soundcloud.com/'+self.username),
-                    'description': track.get('description', _('No description available')),
+                    'description': track.get('description', None) or _('No description available'),
                     'url': url,
                     'length': int(filesize),
                     'mimetype': filetype,
