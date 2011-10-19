@@ -93,6 +93,15 @@ class HookManager(object):
         """
         self.modules.append((None, obj))
 
+    def unregister_hooks(self, obj):
+        """
+        Unregister a previously registered object.
+        """
+        if (None, obj) in self.modules:
+            self.modules.remove((None, obj))
+        else:
+            logger.warn('Unregistered hook which was not registered.')
+
     def _load_module(self, filepath):
         """Load a Python module by filename
 
@@ -113,6 +122,17 @@ class HookManager(object):
     # "call_hooks" decorator to forward all calls to hook scripts that have
     # the same function defined in them. If the handler functions here contain
     # any code, it will be called after all the hooks have been called.
+
+    @call_hooks
+    def on_ui_initialized(self, model, update_podcast_callback,
+            download_episode_callback):
+        """Called when the user interface is initialized.
+
+        @param model: A gpodder.model.Model instance
+        @param update_podcast_callback: Function to update a podcast feed
+        @param download_episode_callback: Function to download an episode
+        """
+        pass
 
     @call_hooks
     def on_podcast_subscribe(self, podcast):

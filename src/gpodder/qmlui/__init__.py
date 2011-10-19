@@ -44,8 +44,6 @@ from gpodder.qmlui import model
 from gpodder.qmlui import helper
 from gpodder.qmlui import images
 
-from gpodder.plugins import woodchuck
-
 import logging
 logger = logging.getLogger("qmlui")
 
@@ -418,6 +416,10 @@ class qtPodder(QObject):
         self.db = self.core.db
         self.model = self.core.model
 
+        gpodder.user_hooks.on_ui_initialized(self.model,
+                self.hooks_podcast_update_cb,
+                self.hooks_episode_download_cb)
+
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
         self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
@@ -531,9 +533,6 @@ class qtPodder(QObject):
         podcasts = map(model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
 
-        woodchuck.init(self.model, self.woodchuck_podcast_update_cb,
-                       self.woodchuck_episode_download_cb)
-
     def wrap_episode(self, podcast, episode):
         try:
             return self.active_episode_wrappers[episode.id]
@@ -566,27 +565,24 @@ class qtPodder(QObject):
             return podcasts[0]
         return None
 
-    def woodchuck_podcast_update_cb(self, podcast):
-        logger.debug("woodchuck_podcast_update_cb(%s)", str(podcast))
+    def hooks_podcast_update_cb(self, podcast):
+        logger.debug('hooks_podcast_update_cb(%s)', podcast)
         try:
             qpodcast = self.podcast_to_qpodcast(podcast)
             if qpodcast is not None:
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
-            logger.exception("woodchuck_podcast_update_cb(%s): %s",
-                             str(podcast), str(e))
+            logger.exception('hooks_podcast_update_cb(%s): %s', podcast, e)
 
-    def woodchuck_episode_download_cb(self, episode):
-        logger.debug("woodchuck_episode_download_cb(%s: %s)",
-                     str(episode), type(episode))
+    def hooks_episode_download_cb(self, episode):
+        logger.debug('hooks_episode_download_cb(%s)', episode)
         try:
             qpodcast = self.podcast_to_qpodcast(episode.channel)
             qepisode = self.wrap_episode(qpodcast, episode)
-            qepisode.qdownload(self.config, self.controller.update_subset_stats)
+            self.controller.downloadEpisode(qepisode)
         except Exception, e:
-            logger.exception("woodchuck_episode_download_cb(%s): %s",
-                             str(episode), str(e))
+            logger.exception('hooks_episode_download_cb(%s): %s', episode, e)
 
 def main(args):
     gui = qtPodder(args, core.Core())

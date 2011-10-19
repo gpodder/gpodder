@@ -87,8 +87,6 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 import gpodder
 _ = gpodder.gettext
 
-from gpodder.plugins import woodchuck
-
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 
@@ -132,10 +130,17 @@ class gPodderCli(object):
     def __init__(self):
         self.client = api.PodcastClient()
         self._current_action = ''
+        gpodder.user_hooks.on_ui_initialized(self.client.core.model,
+                self.hooks_podcast_update_cb,
+                self.hooks_episode_download_cb)
 
-        # Initialize Woodchuck so that we can register new podcasts,
-        # etc., but don't request any callbacks.
-        woodchuck.init(self.client.core.model)
+    def hooks_podcast_update_cb(self, podcast):
+        self._info(_('Podcast update requested by hooks.'))
+        self._update_podcast(podcast)
+
+    def hooks_episode_download_cb(self, episode):
+        self._info(_('Episode download requested by hooks.'))
+        self._download_episode(episode)
 
     def _start_action(self, msg, *args):
         line = msg % args
@@ -265,24 +270,22 @@ class gPodderCli(object):
 
         return True
 
+    def _update_podcast(self, podcast):
+        self._start_action('Updating %s', podcast.title)
+        try:
+            podcast.update()
+            self._finish_action()
+        except Exception, e:
+            self._finish_action(False)
+
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
         for podcast in self.client.get_podcasts():
             if url is None and podcast.update_enabled():
-                self._start_action('Updating %s', podcast.title)
-                try:
-                    podcast.update()
-                    self._finish_action()
-                except Exception, e:
-                    self._finish_action(False)
+                self._update_podcast(podcast)
             elif podcast.url == url:
                 # Don't need to check for update_enabled()
-                self._start_action('Updating %s', podcast.title)
-                try:
-                    podcast.update()
-                    self._finish_action()
-                except Exception, e:
-                    self._finish_action(False)
+                self._update_podcast(podcast)
 
         return True
 
@@ -317,6 +320,11 @@ class gPodderCli(object):
         self.client.commit()
         return True
 
+    def _download_episode(self, episode):
+        self._start_action('Downloading %s', episode.title)
+        episode.download(self._update_action)
+        self._finish_action()
+
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
         count = 0
@@ -328,9 +336,7 @@ class gPodderCli(object):
                         if not podcast_printed:
                             print inblue(podcast.title)
                             podcast_printed = True
-                        self._start_action('Downloading %s', episode.title)
-                        episode.download(self._update_action)
-                        self._finish_action()
+                        self._download_episode(episode)
                         count += 1
 
         print count, 'episodes downloaded.'

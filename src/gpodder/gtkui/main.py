@@ -51,7 +51,6 @@ from gpodder import download
 from gpodder import my
 from gpodder import youtube
 from gpodder import player
-from gpodder.plugins import woodchuck
 
 import logging
 logger = logging.getLogger(__name__)
@@ -209,11 +208,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.active_channel = None
         self.channels = self.model.get_podcasts()
 
-        # Initialize woodchuck after a short timeout period
-        gobject.timeout_add(1000, woodchuck.init,
-                            self.channels,
-                            self.woodchuck_channel_update_cb,
-                            self.woodchuck_episode_download_cb)
+        gpodder.user_hooks.on_ui_initialized(self.model,
+                self.hooks_podcast_update_cb,
+                self.hooks_episode_download_cb)
 
         # Check if the user has downloaded any podcast with an external program
         # and mark episodes as downloaded / move them away (bug 902)
@@ -3362,13 +3359,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def woodchuck_channel_update_cb(self, channel):
-        logger.debug('woodchuck_channel_update_cb(%s)', channel)
-        self.update_feed_cache(channels=[channel],
-                               show_new_episodes_dialog=False)
+    def hooks_podcast_update_cb(self, podcast):
+        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+        self.update_feed_cache(channels=[podcast],
+                show_new_episodes_dialog=False)
 
-    def woodchuck_episode_download_cb(self, episode):
-        logger.debug('woodchuck_episode_download_cb(%s)', episode)
+    def hooks_episode_download_cb(self, episode):
+        logger.debug('hooks_episode_download_cb(%s)', episode)
         self.download_episode_list(episodes=[episode])
 
 def main(options=None):

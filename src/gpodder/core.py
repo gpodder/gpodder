@@ -38,11 +38,11 @@ class Core(object):
         # Initialize the gPodder home directory
         util.make_directory(gpodder.home)
 
-        # Load installed/configured plugins
-        gpodder.load_plugins()
-
         # Load hook modules and install the hook manager
         gpodder.user_hooks = hooks.HookManager()
+
+        # Load installed/configured plugins
+        gpodder.load_plugins()
 
         # Open the database and configuration file
         self.db = database_class(gpodder.database_file)

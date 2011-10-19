@@ -878,6 +878,8 @@ class PodcastChannel(PodcastModelObject):
 
             tmp.save()
 
+            gpodder.user_hooks.on_podcast_subscribe(tmp)
+
             return tmp
 
     def episode_factory(self, d):
@@ -1104,16 +1106,12 @@ class PodcastChannel(PodcastModelObject):
         self.db.commit()
 
     def delete(self):
-        gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
         self.model._remove_podcast(self)
 
     def save(self):
         if self.download_folder is None:
             self.get_save_dir()
-
-        if self.id is None:
-            gpodder.user_hooks.on_podcast_subscribe(self)
 
         gpodder.user_hooks.on_podcast_save(self)
 
@@ -1268,10 +1266,10 @@ class Model(object):
     def _append_podcast(self, podcast):
         if podcast not in self.children:
             self.children.append(podcast)
-        # XXX: Sort?
 
     def _remove_podcast(self, podcast):
         self.children.remove(podcast)
+        gpodder.user_hooks.on_podcast_delete(self)
 
     def get_podcasts(self):
         def podcast_factory(dct, db):
