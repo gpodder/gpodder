@@ -2707,9 +2707,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_feed_cache()
         else:
             welcome_window = gPodderWelcome(self.main_window,
-                    center_on_widget=self.main_window,
-                    show_example_podcasts_callback=self.on_itemImportChannels_activate,
-                    setup_my_gpodder_callback=self.on_download_subscriptions_from_mygpo)
+                    center_on_widget=self.main_window)
 
             result = welcome_window.main_window.run()
 
