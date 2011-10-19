@@ -137,14 +137,15 @@ class gPodderShownotes(gPodderShownotesBase):
             url = os.path.dirname(self.episode.channel.url)
             self.htmlview.load_html_string(SHOWNOTES_HTML_TEMPLATE % args, url)
         else:
-            self.b.create_tag('heading', scale=Pango.SCALE_LARGE, weight=Pango.Weight.BOLD)
-            self.b.create_tag('subheading', scale=Pango.SCALE_SMALL)
+            self.b.create_tag('heading', scale=1.2, weight=Pango.Weight.BOLD)
+            self.b.create_tag('subheading', scale=1./1.2)
 
             self.b.insert_with_tags_by_name(self.b.get_end_iter(), heading, 'heading')
-            self.b.insert_at_cursor('\n')
+            self.b.insert(self.b.get_end_iter(), '\n')
             self.b.insert_with_tags_by_name(self.b.get_end_iter(), subheading, 'subheading')
-            self.b.insert_at_cursor('\n\n')
+            self.b.insert(self.b.get_end_iter(), '\n')
             self.b.insert(self.b.get_end_iter(), util.remove_html_tags(description))
+            self.b.insert(self.b.get_end_iter(), '\n')
             self.b.place_cursor(self.b.get_start_iter())
 
     def on_hide_window(self):
