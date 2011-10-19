@@ -2,7 +2,7 @@
 #
 # gPodder - A media aggregator and podcast client
 # Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
-# Copyright (c) 2001 Neal H. Walfield
+# Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
