@@ -45,7 +45,7 @@ GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 DESTDIR ?= /
 PREFIX ?= /usr
 
-PYTHON ?= python
+PYTHON ?= python2.5
 
 ##########################################################################
 
