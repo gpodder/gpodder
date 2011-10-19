@@ -318,7 +318,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
-            util.idle_add(self.on_itemUpdate_activate)
+            self.on_itemUpdate_activate()
 
     def on_view_sidebar_toggled(self, menu_item):
         self.channelPaned.child_set_property(self.vboxChannelNavigator, \
@@ -2706,10 +2706,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            gPodderWelcome(self.gPodder,
-                    center_on_widget=self.gPodder,
+            welcome_window = gPodderWelcome(self.main_window,
+                    center_on_widget=self.main_window,
                     show_example_podcasts_callback=self.on_itemImportChannels_activate,
                     setup_my_gpodder_callback=self.on_download_subscriptions_from_mygpo)
+
+            result = welcome_window.main_window.run()
+
+            welcome_window.main_window.destroy()
+            if result == gPodderWelcome.RESPONSE_OPML:
+                self.on_itemImportChannels_activate(None)
+            elif result == gPodderWelcome.RESPONSE_MYGPO:
+                self.on_download_subscriptions_from_mygpo(None)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)

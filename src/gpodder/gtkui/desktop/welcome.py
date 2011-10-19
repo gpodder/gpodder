@@ -26,6 +26,9 @@ _ = gpodder.gettext
 from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderWelcome(BuilderWidget):
+    RESPONSE_OPML = 1
+    RESPONSE_MYGPO = 2
+
     def new(self):
         for widget in (self.btnOPML, self.btnMygPodder):
             for child in widget.get_children():
@@ -34,16 +37,14 @@ class gPodderWelcome(BuilderWidget):
                 else:
                     child.set_padding(20, 20)
 
-        self.gPodderWelcome.show()
+        self.main_window.show()
 
     def on_show_example_podcasts(self, button):
-        self.gPodderWelcome.destroy()
-        self.show_example_podcasts_callback(None)
+        self.main_window.response(self.RESPONSE_OPML)
 
     def on_setup_my_gpodder(self, gpodder):
-        self.gPodderWelcome.destroy()
-        self.setup_my_gpodder_callback(None)
+        self.main_window.response(self.RESPONSE_MYGPO)
 
     def on_btnCancel_clicked(self, button):
-        self.gPodderWelcome.destroy()
+        self.main_window.response(gtk.RESPONSE_CANCEL)
 
