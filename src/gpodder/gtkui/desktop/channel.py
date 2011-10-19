@@ -60,12 +60,12 @@ class gPodderChannel(BuilderWidget):
         b.set_text( self.channel.description)
         self.channel_description.set_buffer( b)
 
-        #Add Drag and Drop Support
-        flags = Gtk.DestDefaults.ALL
-        targets = [ ('text/uri-list', 0, 2), ('text/plain', 0, 4) ]
-        actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY
-        self.Gtk.drag_dest_set(vboxCoverEditor,  flags, targets, actions)
-        self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
+        #Add Drag and Drop Support XXX - Currently broken in Gtk3, fixit ;)
+        #flags = Gtk.DestDefaults.ALL
+        #targets = [ ('text/uri-list', 0, 2), ('text/plain', 0, 4) ]
+        #actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY
+        #Gtk.drag_dest_set(self.vboxCoverEditor, flags, targets, actions)
+        #self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
 
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)
