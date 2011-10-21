@@ -65,7 +65,7 @@ def execute_in_main_thread(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not w.available():
+        if not woodchuck_instance.available():
             return
 
         def doit():
@@ -436,26 +436,27 @@ def check_subscriptions():
     # gPodder's database.
 
     # The list of known streams.
-    streams = w.streams_list()
+    streams = woodchuck_instance.streams_list()
     stream_ids = [s.identifier for s in streams]
     yield
 
     # Register any unknown streams.  Remove known streams from
     # STREAMS_IDS.
-    for podcast in w.model.get_podcasts():
+    for podcast in woodchuck_instance.model.get_podcasts():
         if podcast.url not in stream_ids:
             logger.debug("Registering previously unknown podcast: %s (%s)"
                           % (podcast.title, podcast.url,))
-            w.stream_register(podcast.url, podcast.title, REFRESH_INTERVAL)
+            woodchuck_instance.stream_register(
+                podcast.url, podcast.title, REFRESH_INTERVAL)
         else:
-            w[podcast.url].human_readable_name = podcast.title
+            woodchuck_instance[podcast.url].human_readable_name = podcast.title
             stream_ids.remove(podcast.url)
         yield
 
     # Unregister any streams that are no longer subscribed to.
     for id in stream_ids:
         logger.debug("Unregistering %s" % (id,))
-        w.stream_unregister(id)
+        woodchuck_instance.stream_unregister(id)
         yield
 
 class WoodchuckLoader():
