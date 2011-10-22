@@ -53,6 +53,7 @@
 """
 
 import sys
+import codecs
 import os
 import re
 import inspect
@@ -74,6 +75,10 @@ for verbose_flag in ('-v', '--verbose'):
         break
     else:
         logging.basicConfig()
+
+# Avoid UnicodeDecodeError when output is not a terminal (less, cron, etc..)
+if sys.stdout.encoding is None:
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -222,15 +227,16 @@ class gPodderCli(object):
     def _episodesList(self, podcast):
         def status_str(episode):
             if episode.is_new:
-                return ' * '
+                return u' * '
             if episode.is_downloaded:
-                return ' ▉ '
+                return u' ▉ '
             if episode.is_deleted:
-                return ' ░ '
+                return u' ░ '
     
-            return '   '
+            return u'   '
 
-        episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
+        episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
+                for i, e in enumerate(podcast.get_episodes()))
 	return episodes
 
     @FirstArgumentIsPodcastURL
@@ -242,8 +248,8 @@ class gPodderCli(object):
         else:
             title, url, status = podcast.title, podcast.url, podcast.feed_update_status_msg()
             episodes = self._episodesList(podcast)
-            episodes = '\n      '.join(episodes)
-            self._pager("""
+            episodes = u'\n      '.join(episodes)
+            self._pager(u"""
     Title: %(title)s
     URL: %(url)s
     Feed update is %(status)s
@@ -261,13 +267,13 @@ class gPodderCli(object):
             podcast_printed = False
             if url is None or podcast.url == url:
                 episodes = self._episodesList(podcast)
-                episodes = '\n      '.join(episodes)
-                output.append("""
+                episodes = u'\n      '.join(episodes)
+                output.append(u"""
     Episodes from %s:
       %s
 """ % (podcast.url, episodes))
 
-        self._pager('\n'.join(output))
+        self._pager(u'\n'.join(output))
         return True
 
     def list(self):
@@ -393,7 +399,7 @@ class gPodderCli(object):
             if rows_needed < rows:
                 print output
             else:
-                pydoc.pager(output)
+                pydoc.pager(output.encode(sys.stdout.encoding))
         else:
             print output
 
