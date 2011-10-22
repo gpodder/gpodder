@@ -212,11 +212,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.hooks_podcast_update_cb,
                 self.hooks_episode_download_cb)
 
-        # Check if the user has downloaded any podcast with an external program
-        # and mark episodes as downloaded / move them away (bug 902)
-        for podcast in self.channels:
-            podcast.import_external_files()
-
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         threading.Thread(target=self.user_apps_reader.read).start()
