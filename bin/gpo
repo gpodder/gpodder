@@ -25,7 +25,7 @@
 
 
 """
-  Usage: gpo [COMMAND] [params...]
+  Usage: gpo [--verbose|-v] [COMMAND] [params...]
 
   - Subscription management -
 
@@ -65,7 +65,15 @@ import termios
 import fcntl
 import struct
 
-logging.basicConfig()
+# A poor man's argparse/getopt - but it works for our use case :)
+for verbose_flag in ('-v', '--verbose'):
+    if verbose_flag in sys.argv:
+        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
+        logging.basicConfig(format=FMT, level=logging.DEBUG)
+        sys.argv.remove(verbose_flag)
+        break
+    else:
+        logging.basicConfig()
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
