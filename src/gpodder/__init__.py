@@ -38,7 +38,8 @@ try:
 except ImportError:
     print """
   Error: Module "feedparser" not found. Please install "python-feedparser".
-         The feedparser module can be downloaded from www.feedparser.org.
+         The feedparser module can be downloaded from
+         http://code.google.com/p/feedparser/
 """
     sys.exit(1)
 del feedparser

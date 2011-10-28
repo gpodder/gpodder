@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
 # Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
@@ -37,7 +41,7 @@ try:
     from pywoodchuck import PyWoodchuck
     from pywoodchuck import woodchuck
 except ImportError, e:
-    logger.warn('Unable to load pywoodchuck. Disabling woodchuck plug-in.')
+    logger.info('Unable to load pywoodchuck. Disabling woodchuck plug-in.')
     woodchuck_imported = False
 
     class PyWoodchuck(object):
@@ -61,7 +65,7 @@ def execute_in_main_thread(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not w.available():
+        if not woodchuck_instance.available():
             return
 
         def doit():
@@ -113,7 +117,7 @@ def coroutine(func):
                 except StopIteration:
                     return
                 except Exception, e:
-                    logger.exception("Running %s: %s" % (str(f), str(e)))
+                    logger.exception("Running %s: %s" % (str(func), str(e)))
             execute()
 
         generator = func(*args, **kwargs)
@@ -121,7 +125,7 @@ def coroutine(func):
     return wrapper
 
 class mywoodchuck(PyWoodchuck):
-    def __init__(self, podcasts, podcast_update, episode_download):
+    def __init__(self, model, podcast_update, episode_download):
         if podcast_update is None and episode_download is None:
             # Disable upcalls.
             request_feedback = False
@@ -131,10 +135,7 @@ class mywoodchuck(PyWoodchuck):
         PyWoodchuck.__init__(self, "gPodder", "org.gpodder",
                              request_feedback=request_feedback)
 
-        if podcasts is None:
-            self.podcasts = []
-        else:
-            self.podcasts = podcasts
+        self.model = model
         self.podcast_update = podcast_update
         self.episode_download = episode_download
 
@@ -142,24 +143,45 @@ class mywoodchuck(PyWoodchuck):
         """Return whether to auto download an episode."""
         # If the episode was published before the stream was
         # registered, don't automatically download it.
-        return obj.publication_time >= stream.registration_time
+        if obj.publication_time >= stream.registration_time:
+            True
+
+        # If the episode is one of the two newest episodes, download
+        # it.
+        try:
+            podcast = self.stream_to_podcast(stream)
+            episode = self.object_to_episode(stream, obj)
+            episodes = podcast.get_all_episodes()
+            episodes.sort(key=lambda e: e.published, reverse=True)
+            if episode in episodes[:2]:
+                logging.debug("Auto-downloading %s (from %s)",
+                              episode.title, podcast.title)
+                return True
+            return False
+        except Exception, e:
+            logging.exception("Checking whether to auto-download episode: %s"
+                              % (str(e),))
 
     def stream_to_podcast(self, stream):
         """
         Find the gPodder podcast corresponding to the Woodchuck stream.
         """
-        podcasts = [p for p in self.podcasts if p.url == stream.identifier]
-        if not podcasts:
-            logger.warn("lookup_podcast: Unknown stream: %s (%s): %s"
-                        % (stream.human_readable_name, stream.identifier,
-                           traceback.format_exc()))
+        known_podcasts = self.model.get_podcasts()
+        matching_podcasts = [p for p in known_podcasts
+                             if p.url == stream.identifier]
+        if not matching_podcasts:
+            logger.warn(
+                "lookup_podcast: Unknown stream: %s (%s) (known: %s): %s"
+                % (stream.human_readable_name, stream.identifier,
+                   ' '.join(p.url for p in known_podcasts),
+                   traceback.format_exc()))
             return None
 
         # URL is supposed to be a primary key and thus at most one
         # podcast should match.
-        assert(len(podcasts) == 1)
+        assert(len(matching_podcasts) == 1)
 
-        return podcasts[0]
+        return matching_podcasts[0]
 
     def object_to_episode(self, stream, object):
         """
@@ -414,63 +436,76 @@ def check_subscriptions():
     # gPodder's database.
 
     # The list of known streams.
-    streams = w.streams_list()
+    streams = woodchuck_instance.streams_list()
     stream_ids = [s.identifier for s in streams]
     yield
 
     # Register any unknown streams.  Remove known streams from
     # STREAMS_IDS.
-    for podcast in w.podcasts:
+    for podcast in woodchuck_instance.model.get_podcasts():
         if podcast.url not in stream_ids:
             logger.debug("Registering previously unknown podcast: %s (%s)"
                           % (podcast.title, podcast.url,))
-            w.stream_register(podcast.url, podcast.title, REFRESH_INTERVAL)
+            woodchuck_instance.stream_register(
+                podcast.url, podcast.title, REFRESH_INTERVAL)
         else:
+            woodchuck_instance[podcast.url].human_readable_name = podcast.title
             stream_ids.remove(podcast.url)
         yield
 
     # Unregister any streams that are no longer subscribed to.
     for id in stream_ids:
         logger.debug("Unregistering %s" % (id,))
-        w.stream_unregister(id)
+        woodchuck_instance.stream_unregister(id)
         yield
 
-def init(podcasts=None, podcast_update=None, episode_download=None):
-    """
-    Connect to the woodchuck server and initialize any state.
+class WoodchuckLoader():
+    def on_ui_initialized(self, model, update_podcast_callback,
+            download_episode_callback):
+        """
+        Connect to the woodchuck server and initialize any state.
 
-    podcasts is the list of podcasts (a list of
-    gpodder.model.PodcastPodcast).  NOTE: When podcasts are subscribed
-    or unsubscribed, the caller must be careful to update this list in
-    place.
+        model is an instance of the podcast model.
 
-    podcast_update is a function that is passed a single argument: the
-    PodcastPodcast that should be updated.
+        podcast_update is a function that is passed a single argument: the
+        PodcastPodcast that should be updated.
 
-    episode_download is a function that is passed a single argument:
-    the PodcastEpisode that should be downloaded.
+        episode_download is a function that is passed a single argument:
+        the PodcastEpisode that should be downloaded.
 
-    If podcast_update and episode_download are None, then Woodchuck
-    upcalls will be disabled.  In this case, you don't need to specify
-    the list of podcasts.  Just specify None.
-    """
-    if not woodchuck_imported:
-        return
+        If podcast_update and episode_download are None, then Woodchuck
+        upcalls will be disabled.  In this case, you don't need to specify
+        the list of podcasts.  Just specify None.
+        """
+        logger.info('Got on_ui_initialized. Setting up woodchuck..')
 
-    global _main_thread
-    _main_thread = threading.currentThread()
+        global woodchuck_loader
+        gpodder.user_hooks.unregister_hooks(woodchuck_loader)
+        woodchuck_loader = None
 
-    global w
-    w = mywoodchuck(podcasts, podcast_update, episode_download)
+        if not woodchuck_imported:
+            return
 
-    if not w.available():
-        logger.info(
-            "Woodchuck support disabled: unable to contact Woodchuck server.")
-        print "Woodchuck support disabled: unable to contact Woodchuck server."
-        return
+        global _main_thread
+        _main_thread = threading.currentThread()
 
-    logger.info("Woodchuck appears to be available.")
+        global woodchuck_instance
+        woodchuck_instance = mywoodchuck(model,
+                update_podcast_callback,
+                download_episode_callback)
 
-    gpodder.user_hooks.register_hooks(w)
+        if not woodchuck_instance.available():
+            logger.warn('Unable to contact Woodchuck server. Disabling.')
+            return
 
-    idle_add(check_subscriptions)
+        logger.info('Connected to Woodchuck server.')
+
+        gpodder.user_hooks.register_hooks(woodchuck_instance)
+
+        idle_add(check_subscriptions)
+
+woodchuck_loader = WoodchuckLoader()
+woodchuck_instance = None
+
+gpodder.user_hooks.register_hooks(woodchuck_loader)
+

@@ -51,7 +51,6 @@ from gpodder import download
 from gpodder import my
 from gpodder import youtube
 from gpodder import player
-from gpodder.plugins import woodchuck
 
 import logging
 logger = logging.getLogger(__name__)
@@ -104,6 +103,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core = gpodder_core
         self.config = self.core.config
         self.db = self.core.db
+        self.model = self.core.model
         BuilderWidget.__init__(self, None)
     
     def new(self):
@@ -206,18 +206,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Subscribed channels
         self.active_channel = None
-        self.channels = Model.get_podcasts(self.db)
+        self.channels = self.model.get_podcasts()
 
-        # Initialize woodchuck after a short timeout period
-        gobject.timeout_add(1000, woodchuck.init,
-                            self.channels,
-                            self.woodchuck_channel_update_cb,
-                            self.woodchuck_episode_download_cb)
-
-        # Check if the user has downloaded any podcast with an external program
-        # and mark episodes as downloaded / move them away (bug 902)
-        for podcast in self.channels:
-            podcast.import_external_files()
+        gpodder.user_hooks.on_ui_initialized(self.model,
+                self.hooks_podcast_update_cb,
+                self.hooks_episode_download_cb)
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -320,7 +313,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
-            util.idle_add(self.on_itemUpdate_activate)
+            self.on_itemUpdate_activate()
 
     def on_view_sidebar_toggled(self, menu_item):
         self.channelPaned.child_set_property(self.vboxChannelNavigator, \
@@ -2195,7 +2188,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 url = None
 
             # Update the list of subscribed podcasts
-            self.channels.sort(key=Model.podcast_sort_key)
             self.update_podcast_list_model(select_url=url)
 
             # Offer to download new episodes
@@ -2219,7 +2211,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_message(url)
                 try:
                     # The URL is valid and does not exist already - subscribe!
-                    channel = Model.load_podcast(self.db, url=url, create=True, \
+                    channel = self.model.load_podcast(url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
                             max_episodes=self.config.max_episodes_per_feed, \
                             mimetype_prefs=self.config.mimetype_prefs)
@@ -2258,7 +2250,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 assert channel is not None
                 worked.append(channel.url)
-                self.channels.append(channel)
 
             util.idle_add(on_after_update)
         threading.Thread(target=thread_proc).start()
@@ -2710,10 +2701,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            gPodderWelcome(self.gPodder,
-                    center_on_widget=self.gPodder,
-                    show_example_podcasts_callback=self.on_itemImportChannels_activate,
-                    setup_my_gpodder_callback=self.on_download_subscriptions_from_mygpo)
+            welcome_window = gPodderWelcome(self.main_window,
+                    center_on_widget=self.main_window)
+
+            result = welcome_window.main_window.run()
+
+            welcome_window.main_window.destroy()
+            if result == gPodderWelcome.RESPONSE_OPML:
+                self.on_itemImportChannels_activate(None)
+            elif result == gPodderWelcome.RESPONSE_MYGPO:
+                self.on_download_subscriptions_from_mygpo(None)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -2985,7 +2982,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # Remove the channel and clean the database entries
                 channel.delete()
-                self.channels.remove(channel)
 
             # Clean up downloads and download directories
             self.clean_up_downloads()
@@ -3364,13 +3360,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def woodchuck_channel_update_cb(self, channel):
-        logger.debug('woodchuck_channel_update_cb(%s)', channel)
-        self.update_feed_cache(channels=[channel],
-                               show_new_episodes_dialog=False)
+    def hooks_podcast_update_cb(self, podcast):
+        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+        self.update_feed_cache(channels=[podcast],
+                show_new_episodes_dialog=False)
 
-    def woodchuck_episode_download_cb(self, episode):
-        logger.debug('woodchuck_episode_download_cb(%s)', episode)
+    def hooks_episode_download_cb(self, episode):
+        logger.debug('hooks_episode_download_cb(%s)', episode)
         self.download_episode_list(episodes=[episode])
 
 def main(options=None):
@@ -3395,7 +3391,7 @@ def main(options=None):
         dlg.destroy()
         sys.exit(0)
 
-    gp = gPodder(bus_name, core.Core(UIConfig))
+    gp = gPodder(bus_name, core.Core(UIConfig, model_class=Model))
 
     # Handle options
     if options.subscribe:

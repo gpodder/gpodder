@@ -341,7 +341,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def db(self):
-        return self.parent.db
+        return self.parent.parent.db
 
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])
@@ -719,8 +719,8 @@ class PodcastChannel(PodcastModelObject):
 
     feed_fetcher = gPodderFetcher()
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, model):
+        self.parent = model
         self.children = None
 
         self.id = None
@@ -742,15 +742,15 @@ class PodcastChannel(PodcastModelObject):
 
         self.section = _('Other')
 
-    def _get_db(self):
+    @property
+    def model(self):
         return self.parent
 
-    def _set_db(self, db):
-        self.parent = db
+    @property
+    def db(self):
+        return self.parent.db
 
-    db = property(_get_db, _set_db)
-
-    def import_external_files(self):
+    def check_download_folder(self):
         """Check the download folder for externally-downloaded files
 
         This will try to assign downloaded files with episodes in the
@@ -759,9 +759,23 @@ class PodcastChannel(PodcastModelObject):
         the user knows that gPodder doesn't know to which episode the
         file belongs (the "Unknown" folder may be used by external
         tools or future gPodder versions for better import support).
+
+        This will also cause missing files to be marked as deleted.
         """
-        known_files = set(e.local_filename(create=False) \
-                for e in self.get_downloaded_episodes())
+        known_files = set()
+
+        for episode in self.get_downloaded_episodes():
+            if episode.was_downloaded():
+                filename = episode.local_filename(create=False)
+                if not os.path.exists(filename):
+                    # File has been deleted by the user - simulate a
+                    # delete event (also marks the episode as deleted)
+                    logger.debug('Episode deleted: %s', filename)
+                    episode.delete_from_disk()
+                    continue
+
+                known_files.add(filename)
+
         existing_files = set(filename for filename in \
                 glob.glob(os.path.join(self.save_dir, '*')) \
                 if not filename.endswith('.partial'))
@@ -769,11 +783,10 @@ class PodcastChannel(PodcastModelObject):
                 [os.path.join(self.save_dir, x) \
                 for x in ('folder.jpg', 'Unknown')])
         if not external_files:
-            return 0
+            return
 
         all_episodes = self.get_all_episodes()
 
-        count = 0
         for filename in external_files:
             found = False
 
@@ -783,7 +796,6 @@ class PodcastChannel(PodcastModelObject):
                 existing = existing[0]
                 logger.info('Importing external download: %s', filename)
                 existing.on_downloaded(filename)
-                count += 1
                 continue
 
             for episode in all_episodes:
@@ -793,7 +805,6 @@ class PodcastChannel(PodcastModelObject):
                     logger.info('Importing external download: %s', filename)
                     episode.download_filename = basename
                     episode.on_downloaded(filename)
-                    count += 1
                     found = True
                     break
 
@@ -813,7 +824,6 @@ class PodcastChannel(PodcastModelObject):
                         episode.download_filename = basename
                         episode.on_downloaded(filename)
                         found = True
-                        count += 1
                         break
 
             if not found:
@@ -827,8 +837,6 @@ class PodcastChannel(PodcastModelObject):
                     except Exception, e:
                         logger.error('Could not move file: %s', e, exc_info=True)
 
-        return count
-
     @classmethod
     def sort_key(cls, podcast):
         key = podcast.title.lower()
@@ -837,23 +845,19 @@ class PodcastChannel(PodcastModelObject):
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
-    def load_from_db(cls, db):
-        return sorted(db.load_podcasts(cls.create_from_dict), key=cls.sort_key)
-
-    @classmethod
-    def load(cls, db, url, create=True, authentication_tokens=None,\
+    def load(cls, model, url, create=True, authentication_tokens=None,\
             max_episodes=0, \
             mimetype_prefs=''):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
-        existing = filter(lambda p: p.url == url, cls.load_from_db(db))
+        existing = filter(lambda p: p.url == url, model.get_podcasts())
 
         if existing:
             return existing[0]
 
         if create:
-            tmp = cls(db)
+            tmp = cls(model)
             tmp.url = url
             if authentication_tokens is not None:
                 tmp.auth_username = authentication_tokens[0]
@@ -878,9 +882,12 @@ class PodcastChannel(PodcastModelObject):
             tmp.get_save_dir(force_new=True)
 
             # Mark episodes as downloaded if files already exist (bug 902)
-            tmp.import_external_files()
+            tmp.check_download_folder()
 
             tmp.save()
+
+            gpodder.user_hooks.on_podcast_subscribe(tmp)
+
             return tmp
 
     def episode_factory(self, d):
@@ -1107,21 +1114,19 @@ class PodcastChannel(PodcastModelObject):
         self.db.commit()
 
     def delete(self):
-        gpodder.user_hooks.on_podcast_delete(self)
         self.db.delete_podcast(self)
+        self.model._remove_podcast(self)
 
     def save(self):
         if self.download_folder is None:
             self.get_save_dir()
-
-        if self.id is None:
-            gpodder.user_hooks.on_podcast_subscribe(self)
 
         gpodder.user_hooks.on_podcast_save(self)
 
         self._clear_changes()
 
         self.db.save_podcast(self)
+        self.model._append_podcast(self)
 
     def get_statistics(self):
         if self.id is None:
@@ -1262,15 +1267,36 @@ class PodcastChannel(PodcastModelObject):
 class Model(object):
     PodcastClass = PodcastChannel
 
-    @classmethod
-    def get_podcasts(cls, db):
-        return cls.PodcastClass.load_from_db(db)
+    def __init__(self, db):
+        self.db = db
+        self.children = None
 
-    @classmethod
-    def load_podcast(cls, db, url, create=True, authentication_tokens=None, \
-            max_episodes=0, mimetype_prefs=''):
-        return cls.PodcastClass.load(db, url, create, authentication_tokens, \
-                max_episodes, mimetype_prefs)
+    def _append_podcast(self, podcast):
+        if podcast not in self.children:
+            self.children.append(podcast)
+
+    def _remove_podcast(self, podcast):
+        self.children.remove(podcast)
+        gpodder.user_hooks.on_podcast_delete(self)
+
+    def get_podcasts(self):
+        def podcast_factory(dct, db):
+            return self.PodcastClass.create_from_dict(dct, self)
+
+        if self.children is None:
+            self.children = self.db.load_podcasts(podcast_factory)
+
+            # Check download folders for changes (bug 902)
+            for podcast in self.children:
+                podcast.check_download_folder()
+
+        return self.children
+
+    def load_podcast(self, url, create=True, authentication_tokens=None,
+                     max_episodes=0, mimetype_prefs=''):
+        return self.PodcastClass.load(self, url, create,
+                                      authentication_tokens,
+                                      max_episodes, mimetype_prefs)
 
     @classmethod
     def podcast_sort_key(cls, podcast):

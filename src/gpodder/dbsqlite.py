@@ -88,7 +88,6 @@ class Database(object):
     def db(self):
         if self._db is None:
             self._db = sqlite.connect(self.database_file, check_same_thread=False)
-            self._db.text_factory = str
 
             # Check schema version, upgrade if necessary
             schema.upgrade(self._db, self.database_file)

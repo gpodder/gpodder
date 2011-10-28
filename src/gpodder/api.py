@@ -27,7 +27,6 @@ import gpodder
 
 from gpodder import util
 from gpodder import core
-from gpodder import model
 from gpodder import download
 
 from gpodder import youtube
@@ -192,6 +191,7 @@ class PodcastClient(object):
         """
         self.core = core.Core()
         self._db = self.core.db
+        self._model = self.core.model
         self._config = self.core.config
 
     def get_podcasts(self):
@@ -199,7 +199,7 @@ class PodcastClient(object):
 
         Returns all the subscribed podcasts from gPodder.
         """
-        return [Podcast(p, self) for p in model.Model.get_podcasts(self._db)]
+        return [Podcast(p, self) for p in self._model.get_podcasts()]
 
     def get_podcast(self, url):
         """Get a specific podcast by URL
@@ -210,7 +210,7 @@ class PodcastClient(object):
         url = util.normalize_feed_url(url)
         if url is None:
             return None
-        channel = model.Model.load_podcast(self._db, url, create=False)
+        channel = self._model.load_podcast(url, create=False)
         if channel is None:
             return None
         else:
@@ -224,7 +224,7 @@ class PodcastClient(object):
         the resulting object.
         """
         url = util.normalize_feed_url(url)
-        podcast = model.Model.load_podcast(self._db, url, create=True, \
+        podcast = self._model.load_podcast(url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
                 mimetype_prefs=self._config.mimetype_prefs)
         if podcast is not None:

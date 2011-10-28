@@ -472,13 +472,15 @@ class PodcastListModel(gtk.ListStore):
     def _filter_visible_func(self, model, iter):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
+            if model.get_value(iter, self.C_CHANNEL) == SectionMarker:
+                return True
             key = self._search_term.lower()
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
         if model.get_value(iter, self.C_SEPARATOR):
             return True
-        if self._view_mode == EpisodeListModel.VIEW_ALL:
+        elif self._view_mode == EpisodeListModel.VIEW_ALL:
             return model.get_value(iter, self.C_HAS_EPISODES)
         elif self._view_mode == EpisodeListModel.VIEW_UNDELETED:
             return model.get_value(iter, self.C_VIEW_SHOW_UNDELETED)

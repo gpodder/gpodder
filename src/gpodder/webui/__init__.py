@@ -57,7 +57,7 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if re.match('/coverart/\d+', self.path):
             id = int(self.path[10:])
-            for podcast in model.Model.get_podcasts(self.core.db):
+            for podcast in self.core.model.get_podcasts():
                 if podcast.id == id:
                     self.wfile.write(open(podcast.cover_file).read())
                     break
@@ -111,13 +111,13 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
         """
         if self.path == '/podcast':
             print >>self.wfile, '<h1>Podcasts</h1><ul>'
-            for podcast in model.Model.get_podcasts(self.core.db):
+            for podcast in self.core.model.get_podcasts():
                 print >>self.wfile, \
                         '<li><a href="/podcast/%d"><img src="/coverart/%d"> %s</a></li>' % \
                         (podcast.id, podcast.id, podcast.title + ' DLs:' + str(podcast.get_statistics()[3]))
         elif re.match('/podcast/\d+$', self.path):
             id = int(self.path[9:])
-            for podcast in model.Model.get_podcasts(self.core.db):
+            for podcast in self.core.model.get_podcasts():
                 if podcast.id != id:
                     continue
 
@@ -136,7 +136,7 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
         elif re.match('/podcast/\d+/\d+', self.path):
             podcast_id, id= [int(x) for x in self.path[9:].split('/')]
 
-            for podcast in model.Model.get_podcasts(self.core.db):
+            for podcast in self.core.model.get_podcasts():
                 if podcast.id != podcast_id:
                     continue
 
@@ -154,7 +154,7 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 def main():
-    WebUI.core = core.Core()
+    WebUI.core = core.Core(model_class=model.Model)
     try:
         import android
         WebUI.player = android.Android()

@@ -25,7 +25,7 @@
 
 
 """
-  Usage: gpo [COMMAND] [params...]
+  Usage: gpo [--verbose|-v] [COMMAND] [params...]
 
   - Subscription management -
 
@@ -45,8 +45,6 @@
     pending [URL]              List new episodes (all or only from URL)
     episodes [URL]             List episodes (all or only from URL)
 
-    importfiles                Check download folders for external files
-
   - Other commands -
 
     youtube [URL]              Resolve the YouTube URL to a download URL
@@ -55,16 +53,32 @@
 """
 
 import sys
+import codecs
 import os
 import re
 import inspect
 import readline
 import shlex
 import pydoc
+import logging
 
 import termios
 import fcntl
 import struct
+
+# A poor man's argparse/getopt - but it works for our use case :)
+for verbose_flag in ('-v', '--verbose'):
+    if verbose_flag in sys.argv:
+        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
+        logging.basicConfig(format=FMT, level=logging.DEBUG)
+        sys.argv.remove(verbose_flag)
+        break
+    else:
+        logging.basicConfig()
+
+# Avoid UnicodeDecodeError when output is not a terminal (less, cron, etc..)
+if sys.stdout.encoding is None:
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -84,8 +98,6 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 import gpodder
 _ = gpodder.gettext
 
-from gpodder.plugins import woodchuck
-
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 
@@ -94,13 +106,19 @@ gpodder.detect_platform()
 from gpodder import api
 
 def inred(x):
-    return '\033[91m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[91m' + x + '\033[0m'
+    return x
 
 def ingreen(x):
-    return '\033[92m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[92m' + x + '\033[0m'
+    return x
 
 def inblue(x):
-    return '\033[94m' + x + '\033[0m'
+    if sys.stdout.isatty():
+        return '\033[94m' + x + '\033[0m'
+    return x
 
 def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
@@ -123,10 +141,17 @@ class gPodderCli(object):
     def __init__(self):
         self.client = api.PodcastClient()
         self._current_action = ''
+        gpodder.user_hooks.on_ui_initialized(self.client.core.model,
+                self.hooks_podcast_update_cb,
+                self.hooks_episode_download_cb)
 
-        # Initialize Woodchuck so that we can register new podcasts,
-        # etc., but don't request any callbacks.
-        woodchuck.init()
+    def hooks_podcast_update_cb(self, podcast):
+        self._info(_('Podcast update requested by hooks.'))
+        self._update_podcast(podcast)
+
+    def hooks_episode_download_cb(self, episode):
+        self._info(_('Episode download requested by hooks.'))
+        self._download_episode(episode)
 
     def _start_action(self, msg, *args):
         line = msg % args
@@ -139,14 +164,18 @@ class gPodderCli(object):
         sys.stdout.flush()
 
     def _update_action(self, progress):
-        progress = '%3.0f%%' % (progress*100.,)
-        result = '['+inblue(progress)+']'
-        sys.stdout.write('\r' + self._current_action + result)
-        sys.stdout.flush()
+        if sys.stdout.isatty():
+            progress = '%3.0f%%' % (progress*100.,)
+            result = '['+inblue(progress)+']'
+            sys.stdout.write('\r' + self._current_action + result)
+            sys.stdout.flush()
 
     def _finish_action(self, success=True):
         result = '['+ingreen('DONE')+']' if success else '['+inred('FAIL')+']'
-        print '\r' + self._current_action + result
+        if sys.stdout.isatty():
+            print '\r' + self._current_action + result
+        else:
+            print result
         self._current_action = ''
 
     def _atexit(self):
@@ -198,15 +227,16 @@ class gPodderCli(object):
     def _episodesList(self, podcast):
         def status_str(episode):
             if episode.is_new:
-                return ' * '
+                return u' * '
             if episode.is_downloaded:
-                return ' ▉ '
+                return u' ▉ '
             if episode.is_deleted:
-                return ' ░ '
+                return u' ░ '
     
-            return '   '
+            return u'   '
 
-        episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title) for i, e in enumerate(podcast.get_episodes()))
+        episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
+                for i, e in enumerate(podcast.get_episodes()))
 	return episodes
 
     @FirstArgumentIsPodcastURL
@@ -218,8 +248,8 @@ class gPodderCli(object):
         else:
             title, url, status = podcast.title, podcast.url, podcast.feed_update_status_msg()
             episodes = self._episodesList(podcast)
-            episodes = '\n      '.join(episodes)
-            self._pager("""
+            episodes = u'\n      '.join(episodes)
+            self._pager(u"""
     Title: %(title)s
     URL: %(url)s
     Feed update is %(status)s
@@ -237,13 +267,13 @@ class gPodderCli(object):
             podcast_printed = False
             if url is None or podcast.url == url:
                 episodes = self._episodesList(podcast)
-                episodes = '\n      '.join(episodes)
-                output.append("""
+                episodes = u'\n      '.join(episodes)
+                output.append(u"""
     Episodes from %s:
       %s
 """ % (podcast.url, episodes))
 
-        self._pager('\n'.join(output))
+        self._pager(u'\n'.join(output))
         return True
 
     def list(self):
@@ -252,24 +282,22 @@ class gPodderCli(object):
 
         return True
 
+    def _update_podcast(self, podcast):
+        self._start_action('Updating %s', podcast.title)
+        try:
+            podcast.update()
+            self._finish_action()
+        except Exception, e:
+            self._finish_action(False)
+
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
         for podcast in self.client.get_podcasts():
             if url is None and podcast.update_enabled():
-                self._start_action('Updating %s', podcast.title)
-                try:
-                    podcast.update()
-                    self._finish_action()
-                except Exception, e:
-                    self._finish_action(False)
+                self._update_podcast(podcast)
             elif podcast.url == url:
                 # Don't need to check for update_enabled()
-                self._start_action('Updating %s', podcast.title)
-                try:
-                    podcast.update()
-                    self._finish_action()
-                except Exception, e:
-                    self._finish_action(False)
+                self._update_podcast(podcast)
 
         return True
 
@@ -290,19 +318,10 @@ class gPodderCli(object):
         print count, 'episodes pending.'
         return True
 
-    def importfiles(self):
-        full_count = 0
-
-        for podcast in self.client.get_podcasts():
-            print 'Checking for files in', podcast.title
-            count = podcast._podcast.import_external_files()
-            if count:
-                print ' => found %d valid file(s)' % count
-            full_count += count
-
-        print '%d downloaded file(s) imported.' % full_count
-        self.client.commit()
-        return True
+    def _download_episode(self, episode):
+        self._start_action('Downloading %s', episode.title)
+        episode.download(self._update_action)
+        self._finish_action()
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
@@ -315,9 +334,7 @@ class gPodderCli(object):
                         if not podcast_printed:
                             print inblue(podcast.title)
                             podcast_printed = True
-                        self._start_action('Downloading %s', episode.title)
-                        episode.download(self._update_action)
-                        self._finish_action()
+                        self._download_episode(episode)
                         count += 1
 
         print count, 'episodes downloaded.'
@@ -382,7 +399,7 @@ class gPodderCli(object):
             if rows_needed < rows:
                 print output
             else:
-                pydoc.pager(output)
+                pydoc.pager(output.encode(sys.stdout.encoding))
         else:
             print output
 
