@@ -31,6 +31,7 @@ import threading
 import signal
 import functools
 import gpodder
+import subprocess
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
@@ -79,6 +80,16 @@ class Controller(QObject):
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()
+
+    @Slot(QObject)
+    def playVideo(self, episode):
+        """Video Playback on MeeGo 1.2 Harmattan"""
+        if episode.qnew:
+            episode.toggle_new()
+            self.update_subset_stats()
+
+        url = episode.get_playback_url()
+        subprocess.Popen(['video-suite', url])
 
     @Slot(QObject)
     def podcastSelected(self, podcast):

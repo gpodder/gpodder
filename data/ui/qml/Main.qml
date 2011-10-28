@@ -58,8 +58,12 @@ Image {
     state: 'podcasts'
 
     function togglePlayback(episode) {
-        controller.currentEpisodeChanging()
-        mediaPlayer.togglePlayback(episode)
+        if (episode.qfiletype == 'video') {
+            controller.playVideo(episode)
+        } else {
+            controller.currentEpisodeChanging()
+            mediaPlayer.togglePlayback(episode)
+        }
     }
 
     function openShowNotes(episode) {
