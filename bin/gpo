@@ -54,6 +54,7 @@
 
 import sys
 import codecs
+import collections
 import os
 import re
 import inspect
@@ -142,17 +143,16 @@ class gPodderCli(object):
         self._commands = [(name, func)
                 for name, func in inspect.getmembers(self)
                 if inspect.ismethod(func) and not name.startswith('_')]
-        self._prefixes = {'?': 'help'}
-        self._prefixes.update(self._build_prefixes())
+        self._prefixes, self._expansions = self._build_prefixes_expansions()
+        self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
         gpodder.user_hooks.on_ui_initialized(self.client.core.model,
                 self._hooks_podcast_update_cb,
                 self._hooks_episode_download_cb)
 
-    def _build_prefixes(self):
-        """Build a dictionary with unique prefixes for commands"""
-
+    def _build_prefixes_expansions(self):
         prefixes = {}
+        expansions = collections.defaultdict(list)
         names = [name for name, func in self._commands]
         names.extend(self.EXIT_COMMANDS)
 
@@ -164,15 +164,19 @@ class gPodderCli(object):
         is_unique = lambda p: len([n for n in names if n.startswith(p)]) == 1
 
         for name in names:
+            is_still_unique = True
+            unique_expansion = None
             for prefix in mkprefixes(name):
-                if not is_unique(prefix):
-                    # Stop at the longest non-unique prefix
-                    # (all shorter ones are also non-unique)
-                    break
+                if is_unique(prefix):
+                    unique_expansion = '[%s]%s' % (prefix, name[len(prefix):])
+                    prefixes[prefix] = name
+                    continue
 
-                prefixes[prefix] = name
+                if unique_expansion is not None:
+                    expansions[prefix].append(unique_expansion)
+                    continue
 
-        return prefixes
+        return prefixes, expansions
 
     def _hooks_podcast_update_cb(self, podcast):
         self._info(_('Podcast update requested by hooks.'))
@@ -535,7 +539,13 @@ class gPodderCli(object):
             if inspect.ismethod(func) and name == command:
                 return self._checkargs(func, command_line)
 
-        self._error(_('The requested function is not available.'))
+        if command in self._expansions:
+            print _('Ambigous command. Did you mean..')
+            for cmd in self._expansions[command]:
+                print '   ', inblue(cmd)
+        else:
+            self._error(_('The requested function is not available.'))
+
         return False
 
 
@@ -548,7 +558,7 @@ if __name__ == '__main__':
     cli = gPodderCli()
     args = sys.argv[1:]
     if args:
-        cli._parse_single(args) or sys.stderr.write(stylize(__doc__))
+        cli._parse_single(args)
     elif sys.stdout.isatty():
         cli._shell()
     else:
