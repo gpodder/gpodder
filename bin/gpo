@@ -134,22 +134,51 @@ def get_terminal_size():
 
 class gPodderCli(object):
     COLUMNS = 80
-    ALIASES = {
-        '?': 'help',
-    }
+    EXIT_COMMANDS = ('quit', 'exit', 'bye')
 
     def __init__(self):
         self.client = api.PodcastClient()
         self._current_action = ''
+        self._commands = [(name, func)
+                for name, func in inspect.getmembers(self)
+                if inspect.ismethod(func) and not name.startswith('_')]
+        self._prefixes = {'?': 'help'}
+        self._prefixes.update(self._build_prefixes())
+        self._valid_commands = sorted(self._prefixes.values())
         gpodder.user_hooks.on_ui_initialized(self.client.core.model,
-                self.hooks_podcast_update_cb,
-                self.hooks_episode_download_cb)
+                self._hooks_podcast_update_cb,
+                self._hooks_episode_download_cb)
 
-    def hooks_podcast_update_cb(self, podcast):
+    def _build_prefixes(self):
+        """Build a dictionary with unique prefixes for commands"""
+
+        prefixes = {}
+        names = [name for name, func in self._commands]
+        names.extend(self.EXIT_COMMANDS)
+
+        # Generator for all prefixes of a given string (longest first)
+        # e.g. ['gpodder', 'gpodde', 'gpodd', 'gpod', 'gpo', 'gp', 'g']
+        mkprefixes = lambda n: (n[:x] for x in xrange(len(n), 0, -1))
+
+        # Return True if the given prefix is unique in "names"
+        is_unique = lambda p: len([n for n in names if n.startswith(p)]) == 1
+
+        for name in names:
+            for prefix in mkprefixes(name):
+                if not is_unique(prefix):
+                    # Stop at the longest non-unique prefix
+                    # (all shorter ones are also non-unique)
+                    break
+
+                prefixes[prefix] = name
+
+        return prefixes
+
+    def _hooks_podcast_update_cb(self, podcast):
         self._info(_('Podcast update requested by hooks.'))
         self._update_podcast(podcast)
 
-    def hooks_episode_download_cb(self, episode):
+    def _hooks_episode_download_cb(self, episode):
         self._info(_('Episode download requested by hooks.'))
         self._download_episode(episode)
 
@@ -427,7 +456,7 @@ class gPodderCli(object):
                 print ''
                 continue
 
-            if line in ('quit', 'exit', 'bye'):
+            if self._prefixes.get(line, line) in self.EXIT_COMMANDS:
                 break
 
             try:
@@ -469,10 +498,8 @@ class gPodderCli(object):
         """Tab completion function for readline"""
         current_line = readline.get_line_buffer()
         if text == current_line:
-            for name, func in inspect.getmembers(self):
-                if inspect.ismethod(func) and \
-                        name.startswith(text) and \
-                        not name.startswith('_'):
+            for name in self._valid_commands:
+                if name.startswith(text):
                     if count == 0:
                         return name
                     else:
@@ -500,14 +527,11 @@ class gPodderCli(object):
             return False
 
         command = command_line.pop(0)
-        if command.startswith('_'):
-            self._error(_('This command is not available.'))
-            return False
 
         # Resolve command aliases
-        command = self.ALIASES.get(command, command)
+        command = self._prefixes.get(command, command)
 
-        for name, func in inspect.getmembers(self):
+        for name, func in self._commands:
             if inspect.ismethod(func) and name == command:
                 return self._checkargs(func, command_line)
 
