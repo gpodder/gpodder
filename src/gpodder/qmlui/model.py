@@ -197,11 +197,6 @@ class QEpisode(QObject):
 
     qarchive = Property(bool, _archive, notify=changed)
 
-    def _positiontext(self):
-        return convert(self._episode.get_play_info_string())
-
-    qpositiontext = Property(unicode, _positiontext, notify=changed)
-
     def _position(self):
         return self._episode.current_position
 

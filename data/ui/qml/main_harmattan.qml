@@ -55,13 +55,6 @@ PageStackWindow {
                     text: (mainObject.currentEpisode!=undefined)?mainObject.currentEpisode.qtitle:''
                 }
 
-                Text {
-                    font.pixelSize: 55
-                    font.bold: true
-                    color: '#ccc'
-                    text: (mainObject.currentEpisode!=undefined)?mainObject.currentEpisode.qpositiontext:''
-                }
-
                 Item {
                     width: 1
                     height: parent.anchors.leftMargin

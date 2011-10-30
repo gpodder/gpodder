@@ -1,6 +1,7 @@
 import Qt 4.7
 
 import 'config.js' as Config
+import 'util.js' as Util
 
 SelectableItem {
     id: episodeItem
@@ -62,7 +63,7 @@ SelectableItem {
 
     Text {
         id: positionInfo
-        text: modelData.qpositiontext
+        text: Util.formatDuration(modelData.qduration)
         font.pixelSize: episodeItem.height * .2
         color: '#888'
         anchors.right: archiveIcon.visible?archiveIcon.left:parent.right
