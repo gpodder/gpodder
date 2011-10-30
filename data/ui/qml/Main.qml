@@ -21,9 +21,9 @@ Image {
     property alias currentEpisode: mediaPlayer.episode
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: closeButton.isRequired || mediaPlayer.visible
-    property bool hasPlayButton: nowPlayingThrobber.shouldAppear
-    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible
+    property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity
+    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
+    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity
 
     function goBack() {
         if (nowPlayingThrobber.opened) {
@@ -580,11 +580,14 @@ Image {
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
-        Text {
+        Label {
             text: parent.text
-            color: 'white'
-            font.pixelSize: 30 * Config.scale
             anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        BusyIndicator {
+            anchors.horizontalCenter: parent.horizontalCenter
+            running: parent.opacity > 0
         }
     }
 }
