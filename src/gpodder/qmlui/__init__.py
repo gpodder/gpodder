@@ -291,14 +291,16 @@ class Controller(QObject):
                 return
 
         def subscribe_proc(self, url):
-            # TODO: Show progress indicator
-            podcast = self.root.model.load_podcast(url=url, \
-                    create=True, \
-                    max_episodes=self.root.config.max_episodes_per_feed, \
-                    mimetype_prefs=self.root.config.mimetype_prefs)
-            podcast.save()
-            self.root.insert_podcast(model.QPodcast(podcast))
-            # TODO: Present the podcast to the user
+            self.root.start_progress(_('Adding podcast...'))
+            try:
+                podcast = self.root.model.load_podcast(url=url, \
+                        create=True, \
+                        max_episodes=self.root.config.max_episodes_per_feed, \
+                        mimetype_prefs=self.root.config.mimetype_prefs)
+                podcast.save()
+                self.root.insert_podcast(model.QPodcast(podcast))
+            finally:
+                self.root.end_progress()
 
         t = threading.Thread(target=subscribe_proc, args=[self, url])
         t.start()
@@ -472,6 +474,9 @@ class qtPodder(QObject):
         else:
             self.view.show()
 
+        self.do_start_progress.connect(self.on_start_progress)
+        self.do_end_progress.connect(self.on_end_progress)
+
         self.load_podcasts()
 
     def add_active_episode(self, episode):
@@ -519,6 +524,24 @@ class qtPodder(QObject):
 
     def open_context_menu(self, items):
         self.main.openContextMenu(items)
+
+    do_start_progress = Signal(str)
+
+    @Slot(str)
+    def on_start_progress(self, text):
+        self.main.startProgress(text)
+
+    def start_progress(self, text=_('Please wait...')):
+        self.do_start_progress.emit(text)
+
+    do_end_progress = Signal()
+
+    @Slot()
+    def on_end_progress(self):
+        self.main.endProgress()
+
+    def end_progress(self):
+        self.do_end_progress.emit()
 
     def resort_podcast_list(self):
         self.podcast_model.sort()
