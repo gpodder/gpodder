@@ -8,7 +8,6 @@ Rectangle {
 
     clip: true
     property variant episode: undefined
-    radius: 10
 
     MouseArea {
         // clicks should not fall through!

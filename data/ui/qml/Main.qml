@@ -91,7 +91,7 @@ Image {
             PropertyChanges {
                 target: showNotes
                 opacity: 0
-                scale: .8
+                anchors.leftMargin: main.width
             }
         },
         State {
@@ -103,7 +103,7 @@ Image {
             PropertyChanges {
                 target: showNotes
                 opacity: 1
-                scale: 1
+                anchors.leftMargin: 0
             }
         }
     ]
@@ -147,18 +147,13 @@ Image {
 
         anchors {
             left: parent.left
-            right: parent.right
             top: titleBar.bottom
             bottom: parent.bottom
-
-            leftMargin: Config.largeSpacing * 2
-            rightMargin: Config.largeSpacing * 2
-            topMargin: Config.largeSpacing * 2
-            bottomMargin: Config.largeSpacing * 2 //+ (nowPlayingThrobber.shouldAppear?nowPlayingThrobber.height:0)
         }
+        width: parent.width
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-        Behavior on scale { NumberAnimation { duration: Config.slowTransition; easing.type: Easing.InSine } }
+        Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
     }
 
     Item {
