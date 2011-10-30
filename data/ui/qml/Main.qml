@@ -76,6 +76,15 @@ Image {
         hrmtnContextMenu.open()
     }
 
+    function startProgress(text) {
+        progressIndicator.text = text
+        progressIndicator.opacity = 1
+    }
+
+    function endProgress() {
+        progressIndicator.opacity = 0
+    }
+
     states: [
         State {
             name: 'podcasts'
@@ -178,16 +187,18 @@ Image {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        anchors.topMargin: (nowPlayingThrobber.opened || messageDialog.opacity > 0 || inputDialog.opacity > 0)?0:Config.headerHeight
+        anchors.topMargin: (nowPlayingThrobber.opened || messageDialog.opacity > 0 || inputDialog.opacity > 0 || progressIndicator.opacity > 0)?0:titleBar.height
         z: (contextMenu.state != 'opened')?2:0
 
-        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity)?1:0
+        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 if (contextMenu.state == 'opened') {
+                    // do nothing
+                } else if (progressIndicator.opacity) {
                     // do nothing
                 } else if (inputDialog.opacity) {
                     inputDialog.close()
@@ -556,6 +567,24 @@ Image {
             id: inputDialogAccept
             width: parent.width / 2
             onClicked: inputDialog.accept()
+        }
+    }
+
+    Column {
+        id: progressIndicator
+        property string text: '...'
+        anchors.centerIn: parent
+        opacity: 0
+        spacing: Config.largeSpacing * 2
+        z: 40
+
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+
+        Text {
+            text: parent.text
+            color: 'white'
+            font.pixelSize: 30 * Config.scale
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }
