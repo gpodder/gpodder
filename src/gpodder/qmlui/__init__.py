@@ -30,6 +30,9 @@ import os
 import threading
 import signal
 import functools
+import dbus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
 import gpodder
 
 _ = gpodder.gettext
@@ -752,6 +755,15 @@ class qtPodder(QObject):
             logger.exception('hooks_episode_download_cb(%s): %s', episode, e)
 
 def main(args):
+    try:
+        dbus_main_loop = DBusGMainLoop(set_as_default=True)
+        gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
+
+        bus_name = dbus.service.BusName(
+            gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
+    except dbus.exceptions.DBusException, dbe:
+        logger.warn('Cannot get "on the bus".', exc_info=True)
+
     gui = qtPodder(args, core.Core())
     return gui.run()
 
