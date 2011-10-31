@@ -535,20 +535,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
 
-    def show_episode_in_download_manager(self, episode):
-        self.downloads_window.show()
-        model = self.treeDownloads.get_model()
-        selection = self.treeDownloads.get_selection()
-        selection.unselect_all()
-        it = model.get_iter_first()
-        while it is not None:
-            task = model.get_value(it, DownloadStatusModel.C_TASK)
-            if task.episode.url == episode.url:
-                selection.select_iter(it)
-                # FIXME: Scroll to selection in pannable area
-                break
-            it = model.iter_next(it)
-
     def for_each_episode_set_task_status(self, episodes, status):
         episode_urls = set(episode.url for episode in episodes)
         model = self.treeDownloads.get_model()
