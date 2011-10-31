@@ -2254,7 +2254,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return None
 
-    def process_received_episode_actions(self, updated_urls):
+    def process_received_episode_actions(self):
         """Process/merge episode actions from gpodder.net
 
         This function will merge all changes received from
@@ -2265,7 +2265,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _('Episode actions from gpodder.net are merged.'), \
                 False, self.get_dialog_parent())
 
-        for idx, action in enumerate(self.mygpo_client.get_episode_actions(updated_urls)):
+        for idx, action in enumerate(self.mygpo_client.get_episode_actions()):
             if action.action == 'play':
                 episode = self.find_episode(action.podcast_url, \
                                             action.episode_url)
@@ -2325,7 +2325,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
         # Fix URLs if mygpo has rewritten them
-        # XXX somewhere else? self.rewrite_urls_mygpo()
+        self.rewrite_urls_mygpo()
 
         if channels is None:
             # Only update podcasts for which updates are enabled
@@ -2387,7 +2387,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             def update_feed_cache_finish_callback():
                 # Process received episode actions for all updated URLs
-                # XXX somewhere else? self.process_received_episode_actions(updated_urls)
+                self.process_received_episode_actions()
 
                 # If we are currently viewing "All episodes", update its episode list now
                 if self.active_channel is not None and \
@@ -2682,7 +2682,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemUpdate_activate(self, widget=None):
         # Check if we have outstanding subscribe/unsubscribe actions
-        # FIXME: Implement this somewhere else: self.on_add_remove_podcasts_mygpo()
+        self.on_add_remove_podcasts_mygpo()
 
         if self.channels:
             self.update_feed_cache()

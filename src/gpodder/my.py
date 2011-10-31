@@ -211,16 +211,13 @@ class MygPoClient(object):
         self._store.remove(rewritten_urls)
         return rewritten_urls
 
-    def get_episode_actions(self, updated_urls):
-        for podcast_url in updated_urls:
-            for action in self._store.load(ReceivedEpisodeAction, \
-                    podcast_url=podcast_url):
-                yield action
+    def get_episode_actions(self):
+        for action in self._store.load(ReceivedEpisodeAction):
+            yield action
 
-            # Remove all episode actions belonging to this URL
-            self._store.delete(ReceivedEpisodeAction, \
-                    podcast_url=podcast_url)
-            self._store.commit()
+        # Remove all received episode actions
+        self._store.delete(ReceivedEpisodeAction)
+        self._store.commit()
 
     def get_received_actions(self):
         """Returns a list of ReceivedSubscribeAction objects
