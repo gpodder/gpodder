@@ -113,7 +113,7 @@ class QEpisode(QObject):
     qsourceurl = Property(unicode, _sourceurl, notify=source_url_changed)
 
     def _filetype(self):
-        return self._episode.file_type() or 'download' # FIXME
+        return self._episode.file_type() or 'download'
 
     qfiletype = Property(unicode, _filetype, notify=never_changed)
 
