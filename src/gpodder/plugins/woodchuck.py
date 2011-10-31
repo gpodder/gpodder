@@ -392,7 +392,7 @@ class mywoodchuck(PyWoodchuck):
             # Assume that the user played between the old current
             # position and the new current position.
             start = changes.get('current_position', 0)
-            end = self.current_position
+            end = obj.current_position
             if start > end:
                 # The user rewound.  Assume [0, end]
                 start = 0
