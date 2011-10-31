@@ -380,7 +380,7 @@ Image {
             visible: extraCloseButton.opened && (Config.hasCloseButton || isRequired)
 
             source: (main.state == 'podcasts' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
-            rotation: 0 // XXX (episodeDetails.state == 'visible' && contextMenu.state == 'closed')?-90:0
+            rotation: 0
 
             onClicked: {
                 if (contextMenu.state == 'opened') {
