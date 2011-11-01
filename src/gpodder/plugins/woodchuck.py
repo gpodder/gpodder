@@ -484,6 +484,7 @@ class WoodchuckLoader():
         woodchuck_loader = None
 
         if not woodchuck_imported:
+            logger.info("Failed to load Woodchuck modules.")
             return
 
         global _main_thread
