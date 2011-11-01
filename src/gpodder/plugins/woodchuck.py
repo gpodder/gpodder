@@ -422,13 +422,21 @@ class mywoodchuck(PyWoodchuck):
         logger.debug("Episode %s (%s): file deleted (%s)"
                      % (episode.guid, episode.title, filename))
 
-        self[episode.channel.url][episode.guid].files_deleted()
+        try:
+            self[episode.channel.url][episode.guid].files_deleted()
+        except KeyError:
+            logger.debug("on_episode_delete: episode %s (%s) not registered",
+                         episode.guid, episode.title)
 
     @execute_in_main_thread
     def on_episode_removed_from_podcast(self, episode):
         logger.debug("Episode %s (%s) removed" % (episode.guid, episode.title))
 
-        del self[episode.channel.url][episode.guid]
+        try:
+            del self[episode.channel.url][episode.guid]
+        except KeyError:
+            logger.debug("on_episode_removed_from_podcast: episode %s (%s) not registered",
+                         episode.guid, episode.title)
 
 @coroutine
 def check_subscriptions():
