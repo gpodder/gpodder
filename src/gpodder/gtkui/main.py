@@ -483,6 +483,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def rewrite_urls_mygpo(self):
         # Check if we have to rewrite URLs since the last add
         rewritten_urls = self.mygpo_client.get_rewritten_urls()
+        changed = False
 
         for rewritten_url in rewritten_urls:
             if not rewritten_url.new_url:
@@ -494,8 +495,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             rewritten_url.new_url)
                     channel.url = rewritten_url.new_url
                     channel.save()
-                    util.idle_add(self.update_episode_list_model)
+                    changed = True
                     break
+
+        if changed:
+            util.idle_add(self.update_episode_list_model)
 
     def on_send_full_subscriptions(self):
         # Send the full subscription list to the gpodder.net client
