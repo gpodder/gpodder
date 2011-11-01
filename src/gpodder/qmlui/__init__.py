@@ -760,7 +760,12 @@ def main(args):
         gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
 
         bus_name = dbus.service.BusName(
-            gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
+            gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus,
+            do_not_queue=True)
+    except dbus.exceptions.NameExistsException, e:
+        logging.warn("Unable to claim %s: refusing to start.",
+                     gpodder.dbus_bus_name)
+        return 1
     except dbus.exceptions.DBusException, dbe:
         logger.warn('Cannot get "on the bus".', exc_info=True)
 
