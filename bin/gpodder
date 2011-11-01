@@ -99,6 +99,9 @@ if __name__ == '__main__':
     # Platform detection (i.e. Maemo 5, etc..)
     gpodder.detect_platform()
 
+    if gpodder.ui.fremantle:
+        sys.argv += ['--', '-graphicssystem', 'opengl']
+
     # Enable i18n for gPodder translations
     _ = gpodder.gettext
 
