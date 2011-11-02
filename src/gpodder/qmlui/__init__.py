@@ -114,6 +114,9 @@ class Controller(QObject):
         url = episode.get_playback_url()
         subprocess.Popen(['video-suite', url])
 
+        self.root.mygpo_client.on_playback([episode])
+        self.root.mygpo_client.flush()
+
     @Slot(QObject)
     def podcastSelected(self, podcast):
         self.setEpisodeListTitle(podcast.qtitle)
@@ -136,8 +139,11 @@ class Controller(QObject):
             self.root.start_progress(_('Uploading subscriptions...'))
 
             try:
-                self.root.mygpo_client.set_subscriptions([podcast.url
-                    for podcast in self.root.podcast_model.get_podcasts()])
+                try:
+                    self.root.mygpo_client.set_subscriptions([podcast.url
+                        for podcast in self.root.podcast_model.get_podcasts()])
+                except Exception, e:
+                    self.root.show_message('\n'.join((_('Error on upload:'), unicode(e))))
             finally:
                 self.root.end_progress()
 
@@ -611,6 +617,7 @@ class qtPodder(QObject):
 
         self.do_start_progress.connect(self.on_start_progress)
         self.do_end_progress.connect(self.on_end_progress)
+        self.do_show_message.connect(self.on_show_message)
 
         self.load_podcasts()
 
@@ -651,8 +658,14 @@ class qtPodder(QObject):
         self.core.shutdown()
         self.app.quit()
 
-    def show_message(self, message):
+    do_show_message = Signal(unicode)
+
+    @Slot(unicode)
+    def on_show_message(self, message):
         self.main.showMessage(message)
+
+    def show_message(self, message):
+        self.do_show_message.emit(message)
 
     def show_input_dialog(self, message, value='', accept=_('OK'),
             reject=_('Cancel'), is_text=True):

@@ -100,16 +100,25 @@ class Store(object):
 
     def save(self, o):
         if hasattr(o, '__iter__'):
+            klass = None
             for child in o:
-                self.save(child)
+                if klass is None:
+                    klass = child.__class__
+                    self._register(klass)
+                    table, slots = self._schema(klass)
+
+                if not isinstance(child, klass):
+                    raise ValueError('Only one type of object allowed')
+
+                used = [s for s in slots if getattr(child, s, None) is not None]
+                values = [self.convert(getattr(child, slot)) for slot in used]
+                self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
+                    ', '.join(used), ', '.join('?'*len(used))), values)
             return
 
         with self.lock:
             self._register(o.__class__)
             table, slots = self._schema(o.__class__)
-
-            # Only save values that have values set (non-None values)
-            slots = [s for s in slots if getattr(o, s, None) is not None]
 
             values = [self.convert(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,

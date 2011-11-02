@@ -32,6 +32,14 @@ PageStackWindow {
             }
 
             ToolIcon {
+                id: toolMyGpo
+                onClicked: mainObject.openMyGpo()
+                anchors.left: parent.left
+                iconId: "toolbar-view-menu"
+                visible: !toolBack.visible && mainObject.state == 'podcasts' && !mainObject.myGpoSheetVisible
+            }
+
+            ToolIcon {
                 id: toolAdd
                 iconId: "icon-m-toolbar-add-white"
                 onClicked: mainObject.clickSearchButton()
@@ -51,48 +59,6 @@ PageStackWindow {
         Main {
             id: mainObject
             anchors.fill: parent
-        }
-
-        Item {
-            id: switcherDisplay
-
-            anchors.fill: parent
-            visible: false // !rootWindow.fullsize && mainObject.playing
-
-            Rectangle {
-                color: '#dd000000'
-                anchors.fill: parent
-            }
-
-            Column {
-                anchors {
-                    left: parent.left
-                    bottom: parent.bottom
-                    leftMargin: switcherDisplay.width * .05
-                }
-
-                Label {
-                    font.pixelSize: 30
-                    text: 'gPodder - ' + _('Now playing')
-                    color: '#aaa'
-                }
-
-                Item {
-                    width: 1
-                    height: Config.largeSpacing
-                }
-
-                Label {
-                    font.pixelSize: 40
-                    color: 'white'
-                    text: (mainObject.currentEpisode!=undefined)?mainObject.currentEpisode.qtitle:''
-                }
-
-                Item {
-                    width: 1
-                    height: parent.anchors.leftMargin
-                }
-            }
         }
     }
 
