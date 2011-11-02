@@ -11,6 +11,16 @@ Item {
     height: (Config.largeSpacing * 4) + (150 * Config.scale) + 110
 
     property variant episode: undefined
+    property int startedFrom: 0
+
+    onStartedFromChanged: {
+        console.log('started from: ' + startedFrom)
+    }
+
+    function playedUntil(position) {
+        console.log('played until: ' + parseInt(position))
+        controller.storePlaybackAction(episode, startedFrom, position)
+    }
 
     Connections {
         target: mediaButtonsHandler
@@ -48,22 +58,34 @@ Item {
             if (status == 6 && seekLater) {
                 position = episode.qposition*1000
                 seekLater = false
+                mediaPlayer.startedFrom = position/1000
+            } else if (status == 7) {
+                mediaPlayer.playedUntil(audioPlayer.position/1000)
             }
         }
 
         function setPosition(position) {
             if (!playing) {
                 playing = true
+            } else {
+                mediaPlayer.playedUntil(audioPlayer.position/1000)
             }
 
             episode.qposition = position*episode.qduration
             audioPlayer.position = position*episode.qduration*1000
+            mediaPlayer.startedFrom = audioPlayer.position/1000
         }
     }
 
     function togglePlayback(episode) {
         if (mediaPlayer.episode == episode) {
+            if (audioPlayer.paused) {
+                mediaPlayer.startedFrom = audioPlayer.position/1000
+            }
             audioPlayer.paused = !audioPlayer.paused
+            if (audioPlayer.paused) {
+                mediaPlayer.playedUntil(audioPlayer.position/1000)
+            }
             return
         }
 

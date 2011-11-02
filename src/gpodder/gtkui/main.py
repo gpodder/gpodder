@@ -2269,39 +2269,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _('Episode actions from gpodder.net are merged.'), \
                 False, self.get_dialog_parent())
 
-        for idx, action in enumerate(self.mygpo_client.get_episode_actions()):
-            if action.action == 'play':
-                episode = self.find_episode(action.podcast_url, \
-                                            action.episode_url)
-
-                if episode is not None:
-                    logger.debug('Play action for %s', episode.url)
-                    episode.mark(is_played=True)
-
-                    if action.timestamp > episode.current_position_updated and \
-                            action.position is not None:
-                        logger.debug('Updating position for %s', episode.url)
-                        episode.current_position = action.position
-                        episode.current_position_updated = action.timestamp
-
-                    if action.total:
-                        logger.debug('Updating total time for %s', episode.url)
-                        episode.total_time = action.total
-
-                    episode.save()
-            elif action.action == 'delete':
-                episode = self.find_episode(action.podcast_url, \
-                                            action.episode_url)
-
-                if episode is not None:
-                    if not episode.was_downloaded(and_exists=True):
-                        # Set the episode to a "deleted" state
-                        logger.debug('Marking as deleted: %s', episode.url)
-                        episode.delete_from_disk()
-                        episode.save()
-
-            indicator.on_message(N_('%(count)d action processed', '%(count)d actions processed', idx) % {'count':idx})
+        while gtk.events_pending():
             gtk.main_iteration(False)
+
+        self.mygpo_client.process_episode_actions(self.find_episode)
 
         indicator.on_finished()
         self.db.commit()
