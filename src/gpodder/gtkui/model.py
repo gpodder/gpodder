@@ -444,9 +444,9 @@ class PodcastListModel(gtk.ListStore):
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS, C_COVER_VISIBLE = range(15)
+            C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = range(16)
 
-    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION)
+    SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION, C_SECTION)
 
     @classmethod
     def row_separator_func(cls, model, iter):
@@ -455,7 +455,7 @@ class PodcastListModel(gtk.ListStore):
     def __init__(self, cover_downloader):
         gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
-                bool, bool, int, bool)
+                bool, bool, int, bool, str)
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
@@ -635,7 +635,7 @@ class PodcastListModel(gtk.ListStore):
         def channel_to_row(channel, add_overlay=False):
             return (channel.url, '', '', None, channel,
                     self._get_cover_image(channel, add_overlay), '', True,
-                    True, True, True, True, False, 0, True)
+                    True, True, True, True, False, 0, True, '')
 
         if config.podcast_list_view_all and channels:
             all_episodes = PodcastChannelProxy(db, config, channels)
@@ -645,7 +645,7 @@ class PodcastListModel(gtk.ListStore):
             # Separator item
             if not config.podcast_list_sections:
                 self.append(('', '', '', None, SeparatorMarker, None, '',
-                    True, True, True, True, True, True, 0, False))
+                    True, True, True, True, True, True, 0, False, ''))
 
         def key_func(pair):
             section, podcast = pair
@@ -665,7 +665,7 @@ class PodcastListModel(gtk.ListStore):
         for section, channel in sorted(convert(channels), key=key_func):
             if old_section != section:
                 it = self.append(('-', section, '', None, SectionMarker, None,
-                    '', True, True, True, True, True, False, 0, False))
+                    '', True, True, True, True, True, False, 0, False, section))
                 added_sections.append(it)
                 old_section = section
 
@@ -747,6 +747,7 @@ class PodcastListModel(gtk.ListStore):
 
             self.set(iter,
                 self.C_DESCRIPTION, description,
+                self.C_SECTION, section,
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0,
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0,
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0)
@@ -764,6 +765,7 @@ class PodcastListModel(gtk.ListStore):
         self.set(iter, \
                 self.C_TITLE, channel.title, \
                 self.C_DESCRIPTION, description, \
+                self.C_SECTION, channel.section, \
                 self.C_ERROR, self._format_error(channel), \
                 self.C_PILL, pill_image, \
                 self.C_PILL_VISIBLE, pill_image != None, \
