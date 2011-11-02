@@ -233,7 +233,24 @@ class Controller(QObject):
                     finished_callback=self.update_subset_stats)
         elif action.action == 'update-all':
             # Process episode actions received from gpodder.net
-            self.root.mygpo_client.process_episode_actions(self.find_episode)
+            def merge_proc(self):
+                self.root.start_progress(_('Merging episode actions...'))
+
+                def find_episode(podcast_url, episode_url, counter):
+                    counter['x'] += 1
+                    self.root.start_progress(_('Merging episode actions (%d)')
+                            % counter['x'])
+                    return self.find_episode(podcast_url, episode_url)
+
+                try:
+                    d = {'x': 0} # Used to "remember" the counter inside find_episode
+                    self.root.mygpo_client.process_episode_actions(lambda x, y:
+                            find_episode(x, y, d))
+                finally:
+                    self.root.end_progress()
+
+            t = threading.Thread(target=merge_proc, args=[self])
+            t.start()
 
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate(finished_callback=self.update_subset_stats)
