@@ -483,6 +483,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def rewrite_urls_mygpo(self):
         # Check if we have to rewrite URLs since the last add
         rewritten_urls = self.mygpo_client.get_rewritten_urls()
+        changed = False
 
         for rewritten_url in rewritten_urls:
             if not rewritten_url.new_url:
@@ -494,8 +495,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             rewritten_url.new_url)
                     channel.url = rewritten_url.new_url
                     channel.save()
-                    util.idle_add(self.update_episode_list_model)
+                    changed = True
                     break
+
+        if changed:
+            util.idle_add(self.update_episode_list_model)
 
     def on_send_full_subscriptions(self):
         # Send the full subscription list to the gpodder.net client
@@ -534,20 +538,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
-
-    def show_episode_in_download_manager(self, episode):
-        self.downloads_window.show()
-        model = self.treeDownloads.get_model()
-        selection = self.treeDownloads.get_selection()
-        selection.unselect_all()
-        it = model.get_iter_first()
-        while it is not None:
-            task = model.get_value(it, DownloadStatusModel.C_TASK)
-            if task.episode.url == episode.url:
-                selection.select_iter(it)
-                # FIXME: Scroll to selection in pannable area
-                break
-            it = model.iter_next(it)
 
     def for_each_episode_set_task_status(self, episodes, status):
         episode_urls = set(episode.url for episode in episodes)
@@ -2268,7 +2258,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return None
 
-    def process_received_episode_actions(self, updated_urls):
+    def process_received_episode_actions(self):
         """Process/merge episode actions from gpodder.net
 
         This function will merge all changes received from
@@ -2279,39 +2269,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _('Episode actions from gpodder.net are merged.'), \
                 False, self.get_dialog_parent())
 
-        for idx, action in enumerate(self.mygpo_client.get_episode_actions(updated_urls)):
-            if action.action == 'play':
-                episode = self.find_episode(action.podcast_url, \
-                                            action.episode_url)
-
-                if episode is not None:
-                    logger.debug('Play action for %s', episode.url)
-                    episode.mark(is_played=True)
-
-                    if action.timestamp > episode.current_position_updated and \
-                            action.position is not None:
-                        logger.debug('Updating position for %s', episode.url)
-                        episode.current_position = action.position
-                        episode.current_position_updated = action.timestamp
-
-                    if action.total:
-                        logger.debug('Updating total time for %s', episode.url)
-                        episode.total_time = action.total
-
-                    episode.save()
-            elif action.action == 'delete':
-                episode = self.find_episode(action.podcast_url, \
-                                            action.episode_url)
-
-                if episode is not None:
-                    if not episode.was_downloaded(and_exists=True):
-                        # Set the episode to a "deleted" state
-                        logger.debug('Marking as deleted: %s', episode.url)
-                        episode.delete_from_disk()
-                        episode.save()
-
-            indicator.on_message(N_('%(count)d action processed', '%(count)d actions processed', idx) % {'count':idx})
+        while gtk.events_pending():
             gtk.main_iteration(False)
+
+        self.mygpo_client.process_episode_actions(self.find_episode)
 
         indicator.on_finished()
         self.db.commit()
@@ -2339,7 +2300,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
         # Fix URLs if mygpo has rewritten them
-        # XXX somewhere else? self.rewrite_urls_mygpo()
+        self.rewrite_urls_mygpo()
 
         if channels is None:
             # Only update podcasts for which updates are enabled
@@ -2401,7 +2362,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             def update_feed_cache_finish_callback():
                 # Process received episode actions for all updated URLs
-                # XXX somewhere else? self.process_received_episode_actions(updated_urls)
+                self.process_received_episode_actions()
 
                 # If we are currently viewing "All episodes", update its episode list now
                 if self.active_channel is not None and \
@@ -2696,7 +2657,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemUpdate_activate(self, widget=None):
         # Check if we have outstanding subscribe/unsubscribe actions
-        # FIXME: Implement this somewhere else: self.on_add_remove_podcasts_mygpo()
+        self.on_add_remove_podcasts_mygpo()
 
         if self.channels:
             self.update_feed_cache()

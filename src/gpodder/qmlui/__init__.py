@@ -38,6 +38,7 @@ N_ = gpodder.ngettext
 
 from gpodder import core
 from gpodder import util
+from gpodder import my
 
 from gpodder.model import Model
 
@@ -55,6 +56,19 @@ class Controller(QObject):
         self.context_menu_actions = []
         self.episode_list_title = u''
         self.current_input_dialog = None
+        self.root.config.add_observer(self.on_config_changed)
+
+    def on_config_changed(self, name, old_value, new_value):
+        logger.info('Config changed: %s (%s -> %s)', name,
+                old_value, new_value)
+        if name == 'mygpo_enabled':
+            self.myGpoEnabledChanged.emit()
+        elif name == 'mygpo_username':
+            self.myGpoUsernameChanged.emit()
+        elif name == 'mygpo_password':
+            self.myGpoPasswordChanged.emit()
+        elif name == 'mygpo_device_caption':
+            self.myGpoDeviceCaptionChanged.emit()
 
     episodeListTitleChanged = Signal()
 
@@ -81,6 +95,15 @@ class Controller(QObject):
     def loadLastEpisode(self):
         self.root.load_last_episode()
 
+    @Slot(QObject, int, int)
+    def storePlaybackAction(self, episode, start, end):
+        if end - 5 < start:
+            logger.info('Ignoring too short playback action.')
+            return
+        total = episode.qduration
+        self.root.mygpo_client.on_playback_full(episode, start, end, total)
+        self.root.mygpo_client.flush()
+
     @Slot(QObject)
     def playVideo(self, episode):
         """Video Playback on MeeGo 1.2 Harmattan"""
@@ -106,6 +129,56 @@ class Controller(QObject):
 
     windowTitle = Property(unicode, getWindowTitle,
             setWindowTitle, notify=windowTitleChanged)
+
+    @Slot()
+    def saveMyGpoSettings(self):
+        # Update the device settings and upload changes
+        self.root.mygpo_client.create_device()
+        self.root.mygpo_client.flush(now=True)
+
+    myGpoEnabledChanged = Signal()
+
+    def getMyGpoEnabled(self):
+        return self.root.config.mygpo_enabled
+
+    def setMyGpoEnabled(self, enabled):
+        self.root.config.mygpo_enabled = enabled
+
+    myGpoEnabled = Property(bool, getMyGpoEnabled,
+            setMyGpoEnabled, notify=myGpoEnabledChanged)
+
+    myGpoUsernameChanged = Signal()
+
+    def getMyGpoUsername(self):
+        return model.convert(self.root.config.mygpo_username)
+
+    def setMyGpoUsername(self, username):
+        self.root.config.mygpo_username = username
+
+    myGpoUsername = Property(unicode, getMyGpoUsername,
+            setMyGpoUsername, notify=myGpoUsernameChanged)
+
+    myGpoPasswordChanged = Signal()
+
+    def getMyGpoPassword(self):
+        return model.convert(self.root.config.mygpo_password)
+
+    def setMyGpoPassword(self, password):
+        self.root.config.mygpo_password = password
+
+    myGpoPassword = Property(unicode, getMyGpoPassword,
+            setMyGpoPassword, notify=myGpoPasswordChanged)
+
+    myGpoDeviceCaptionChanged = Signal()
+
+    def getMyGpoDeviceCaption(self):
+        return model.convert(self.root.config.mygpo_device_caption)
+
+    def setMyGpoDeviceCaption(self, caption):
+        self.root.config.mygpo_device_caption = caption
+
+    myGpoDeviceCaption = Property(unicode, getMyGpoDeviceCaption,
+            setMyGpoDeviceCaption, notify=myGpoDeviceCaptionChanged)
 
     @Slot(QObject)
     def podcastContextMenu(self, podcast):
@@ -141,6 +214,14 @@ class Controller(QObject):
             if isinstance(podcast, model.EpisodeSubsetView):
                 podcast.qupdate()
 
+    def find_episode(self, podcast_url, episode_url):
+        for podcast in self.podcast_model.get_podcasts():
+            if podcast.url == podcast_url:
+                for episode in podcast.get_all_episodes():
+                    if episode.url == episode_url:
+                        return episode
+        return None
+
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
@@ -151,6 +232,9 @@ class Controller(QObject):
             action.target.qupdate(force=True, \
                     finished_callback=self.update_subset_stats)
         elif action.action == 'update-all':
+            # Process episode actions received from gpodder.net
+            self.root.mygpo_client.process_episode_actions(self.find_episode)
+
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate(finished_callback=self.update_subset_stats)
         elif action.action == 'force-update-all':
@@ -252,6 +336,8 @@ class Controller(QObject):
     @Slot(QObject)
     def downloadEpisode(self, episode):
         episode.qdownload(self.root.config, self.update_subset_stats)
+        self.root.mygpo_client.on_download([episode])
+        self.root.mygpo_client.flush()
 
     @Slot(QObject)
     def cancelDownload(self, episode):
@@ -263,6 +349,8 @@ class Controller(QObject):
         def delete():
             episode.delete_episode()
             self.update_subset_stats()
+            self.root.mygpo_client.on_delete([episode])
+            self.root.mygpo_client.flush()
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -431,6 +519,9 @@ class qtPodder(QObject):
         self.db = self.core.db
         self.model = self.core.model
 
+        # Initialize the gpodder.net client
+        self.mygpo_client = my.MygPoClient(self.config)
+
         gpodder.user_hooks.on_ui_initialized(self.model,
                 self.hooks_podcast_update_cb,
                 self.hooks_episode_download_cb)
@@ -525,6 +616,7 @@ class qtPodder(QObject):
 
     def on_quit(self):
         self.save_pending_data()
+        self.view.hide()
         self.core.shutdown()
         self.app.quit()
 
@@ -561,9 +653,13 @@ class qtPodder(QObject):
 
     def insert_podcast(self, podcast):
         self.podcast_model.insert_object(podcast)
+        self.mygpo_client.on_subscribe([podcast.url])
+        self.mygpo_client.flush()
 
     def remove_podcast(self, podcast):
         self.podcast_model.remove_object(podcast)
+        self.mygpo_client.on_unsubscribe([podcast.url])
+        self.mygpo_client.flush()
 
     def load_podcasts(self):
         podcasts = map(model.QPodcast, self.model.get_podcasts())

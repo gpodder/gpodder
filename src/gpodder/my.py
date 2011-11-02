@@ -211,16 +211,60 @@ class MygPoClient(object):
         self._store.remove(rewritten_urls)
         return rewritten_urls
 
-    def get_episode_actions(self, updated_urls):
-        for podcast_url in updated_urls:
-            for action in self._store.load(ReceivedEpisodeAction, \
-                    podcast_url=podcast_url):
-                yield action
+    def process_episode_actions(self, find_episode, on_updated=None):
+        """Process received episode actions
 
-            # Remove all episode actions belonging to this URL
-            self._store.delete(ReceivedEpisodeAction, \
-                    podcast_url=podcast_url)
-            self._store.commit()
+        The parameter "find_episode" should be a function accepting
+        two parameters (podcast_url and episode_url). It will be used
+        to get an episode object that needs to be updated. It should
+        return None if the requested episode does not exist.
+
+        The optional callback "on_updated" should accept a single
+        parameter (the episode object) and will be called whenever
+        the episode data is changed in some way.
+        """
+        logger.debug('Processing received episode actions...')
+        for action in self._store.load(ReceivedEpisodeAction):
+            if action.action not in ('play', 'delete'):
+                # Ignore all other action types for now
+                continue
+
+            episode = find_episode(action.podcast_url, action.episode_url)
+
+            if episode is None:
+                # The episode does not exist on this client
+                continue
+
+            if action.action == 'play':
+                logger.debug('Play action for %s', episode.url)
+                episode.mark(is_played=True)
+
+                if (action.timestamp > episode.current_position_updated and
+                        action.position is not None):
+                    logger.debug('Updating position for %s', episode.url)
+                    episode.current_position = action.position
+                    episode.current_position_updated = action.timestamp
+
+                if action.total:
+                    logger.debug('Updating total time for %s', episode.url)
+                    episode.total_time = action.total
+
+                episode.save()
+                if on_updated is not None:
+                    on_updated(episode)
+            elif action.action == 'delete':
+                if not episode.was_downloaded(and_exists=True):
+                    # Set the episode to a "deleted" state
+                    logger.debug('Marking as deleted: %s', episode.url)
+                    episode.delete_from_disk()
+                    episode.save()
+                    if on_updated is not None:
+                        on_updated(episode)
+
+        # Remove all received episode actions
+        self._store.delete(ReceivedEpisodeAction)
+        self._store.commit()
+        logger.debug('Received episode actions processed.')
 
     def get_received_actions(self):
         """Returns a list of ReceivedSubscribeAction objects

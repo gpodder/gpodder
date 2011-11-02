@@ -130,24 +130,6 @@ class UIConfig(config.Config):
             setattr(self, name, togglebutton.get_active())
         togglebutton.connect('toggled', _togglebutton_toggled)
 
-    def connect_gtk_filechooser(self, name, filechooser, is_for_files=False):
-        assert name in self.Settings
-
-        # FIXME: can we determine "is_for_files" by consulting the filechooser?
-        if is_for_files:
-            # A FileChooser for a single file
-            filechooser.set_filename(getattr(self, name))
-        else:
-            # A FileChooser for a folder
-            filechooser.set_current_folder(getattr(self, name))
-
-        def _chooser_selection_changed(filechooser):
-            filename = filechooser.get_filename()
-            if filename is not None:
-                setattr(self, name, filename)
-
-        filechooser.connect('selection-changed', _chooser_selection_changed)
-
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         x, y, width, height, maximized = map(lambda x: config_prefix+'_'+x, \
                 ('x', 'y', 'width', 'height', 'maximized'))

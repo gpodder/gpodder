@@ -178,10 +178,12 @@ class Exporter(object):
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512
             available = util.get_free_disk_space(os.path.dirname(self.filename))
-            if available < 2*len(data)+FREE_DISK_SPACE_AFTER and not gpodder.win32:
-                # FIXME: get_free_disk_space still unimplemented for win32
-                logger.error('Not enough free disk space to save channel list to %s', self.filename)
-                return False
+            if available < 2*len(data)+FREE_DISK_SPACE_AFTER:
+                # On Windows, if we have zero bytes available, assume that we have
+                # not had the win32file module available + assume enough free space
+                if not gpodder.win32 or available > 0:
+                    logger.error('Not enough free disk space to save channel list to %s', self.filename)
+                    return False
             fp = open(self.filename+'.tmp', 'w')
             fp.write(data)
             fp.close()

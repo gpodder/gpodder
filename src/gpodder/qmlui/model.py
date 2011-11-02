@@ -113,7 +113,7 @@ class QEpisode(QObject):
     qsourceurl = Property(unicode, _sourceurl, notify=source_url_changed)
 
     def _filetype(self):
-        return self._episode.file_type() or 'download' # FIXME
+        return self._episode.file_type() or 'download'
 
     qfiletype = Property(unicode, _filetype, notify=never_changed)
 
@@ -323,32 +323,64 @@ class EpisodeSubsetView(QObject):
         self.description = description
         self.eql = eql
 
+        self._new_count = -1
+        self._downloaded_count = -1
+
+    def _update_stats(self):
+        if self.eql is None:
+            total, deleted, new, downloaded, unplayed = \
+                    self.db.get_podcast_statistics()
+        else:
+            new, downloaded = 0, 0
+            for episode in self.get_all_episodes():
+                if episode.was_downloaded(and_exists=True):
+                    downloaded += 1
+                elif episode.is_new:
+                    new += 1
+
+        self._new_count = new
+        self._downloaded_count = downloaded
+
+    def _do_filter(self, items, is_tuple=False):
+        """Filter a list of items via the attached SQL
+
+        If is_tuple is True, the list of items should be a
+        list of (podcast, episode) tuples, otherwise it
+        should just be a list of episode objects.
+        """
+        if self.eql is not None:
+            eql = query.EQL(self.eql)
+            if is_tuple:
+                match = lambda (podcast, episode): eql.match(episode)
+            else:
+                match = eql.match
+
+            items = filter(match, items)
+
+        return items
+
     def get_all_episodes_with_podcast(self):
         episodes = [(podcast, episode) for podcast in
                 self.podcast_list_model.get_podcasts()
                 for episode in podcast.get_all_episodes()]
 
-        # FIXME: Filter using EQL
-
         def sort_key(pair):
             podcast, episode = pair
             return model.Model.episode_sort_key(episode)
 
-        return sorted(episodes, key=sort_key, reverse=True)
+        return sorted(self._do_filter(episodes, is_tuple=True),
+                key=sort_key, reverse=True)
 
     def get_all_episodes(self):
         episodes = []
         for podcast in self.podcast_list_model.get_podcasts():
             episodes.extend(podcast.get_all_episodes())
 
-        if self.eql is not None:
-            episodes = query.EQL(self.eql).filter(episodes)
-
-        return model.Model.sort_episodes_by_pubdate(episodes, True)
+        return model.Model.sort_episodes_by_pubdate(
+                self._do_filter(episodes), True)
 
     def qupdate(self, force=False, finished_callback=None):
-        # TODO: Update stats, etc.. (right now, this is done
-        # automatically, because we don't cache stats)
+        self._update_stats()
         self.changed.emit()
 
     changed = Signal()
@@ -376,20 +408,16 @@ class EpisodeSubsetView(QObject):
     qdescription = Property(unicode, _description, notify=changed)
 
     def _downloaded(self):
-        if self.eql is not None:
-            return 0
-
-        total, deleted, new, downloaded, unplayed = self.db.get_podcast_statistics()
-        return downloaded
+        if self._downloaded_count == -1:
+            self._update_stats()
+        return self._downloaded_count
 
     qdownloaded = Property(int, _downloaded, notify=changed)
 
     def _new(self):
-        if self.eql is not None:
-            return 0
-
-        total, deleted, new, downloaded, unplayed = self.db.get_podcast_statistics()
-        return new
+        if self._new_count == -1:
+            self._update_stats()
+        return self._new_count
 
     qnew = Property(int, _new, notify=changed)
 
