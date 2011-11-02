@@ -202,7 +202,7 @@ class Controller(QObject):
                 podcast.qupdate()
 
     def find_episode(self, podcast_url, episode_url):
-        for podcast in self.podcast_model.get_podcasts():
+        for podcast in self.root.podcast_model.get_podcasts():
             if podcast.url == podcast_url:
                 for episode in podcast.get_all_episodes():
                     if episode.url == episode_url:
