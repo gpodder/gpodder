@@ -131,6 +131,20 @@ class Controller(QObject):
             setWindowTitle, notify=windowTitleChanged)
 
     @Slot()
+    def myGpoUploadList(self):
+        def upload_proc(self):
+            self.root.start_progress(_('Uploading subscriptions...'))
+
+            try:
+                self.root.mygpo_client.set_subscriptions([podcast.url
+                    for podcast in self.root.podcast_model.get_podcasts()])
+            finally:
+                self.root.end_progress()
+
+        t = threading.Thread(target=upload_proc, args=[self])
+        t.start()
+
+    @Slot()
     def saveMyGpoSettings(self):
         # Update the device settings and upload changes
         self.root.mygpo_client.create_device()
