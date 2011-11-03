@@ -17,7 +17,7 @@ SelectableItem {
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width * modelData.qprogress
         height: modelData.qdownloading?parent.height:0
-        color: '#608ae234'
+        color: Config.downloadColor
         opacity: modelData.qdownloaded?0:.3
         Behavior on opacity { PropertyAnimation { } }
         Behavior on height { PropertyAnimation { } }
@@ -31,7 +31,7 @@ SelectableItem {
         anchors.verticalCenter: parent.verticalCenter
         width: modelData.qduration?(parent.width * (modelData.qposition / modelData.qduration)):0
         height: parent.height
-        color: '#60729fcf'
+        color: Config.playbackColor
         opacity: .3
     }
 

@@ -39,7 +39,7 @@ Item {
         property real maxOpacity: .7
 
         opacity: selectableItem.inSelection?maxOpacity:0
-        color: '#60729fcf'
+        color: Config.selectColor
         anchors {
             left: parent.left
             right: parent.right
