@@ -61,7 +61,7 @@ Item {
         anchors.topMargin: Config.headerHeight
 
         onSubscribe: {
-            controller.addSubscription(url)
+            controller.addSubscriptions(urls)
             contextMenuArea.close()
         }
     }

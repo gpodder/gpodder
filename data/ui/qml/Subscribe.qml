@@ -8,7 +8,7 @@ import 'config.js' as Config
 Item {
     id: subscribe
 
-    signal subscribe(variant url)
+    signal subscribe(variant urls)
 
     function show() {
         searchInput.text = ''
@@ -24,6 +24,7 @@ Item {
     onVisibleChanged: {
         if (!visible) {
             searchInput.closeVirtualKeyboard()
+            listView.selectedIndices = []
         }
     }
 
@@ -85,8 +86,61 @@ Item {
         }
     }
 
+    Item {
+        id: listHeader
+        anchors {
+            top: topBar.bottom
+            left: parent.left
+            right: parent.right
+        }
+
+        height: (listView.selectedIndices.length > 0)?Config.listItemHeight:0
+        Behavior on height { PropertyAnimation { } }
+        clip: true
+
+        Text {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                right: subscribeButton.left
+                leftMargin: Config.largeSpacing
+            }
+
+            elide: Text.ElideRight
+            text: controller.formatCount(n_('%(count)s podcast selected', '%(count)s podcasts selected', listView.selectedIndices.length), listView.selectedIndices.length)
+            color: 'white'
+            font.pixelSize: 20 * Config.scale
+        }
+
+        SimpleButton {
+            id: subscribeButton
+            width: parent.height
+            height: parent.height
+
+            anchors {
+                verticalCenter: parent.verticalCenter
+                right: parent.right
+            }
+
+            image: 'artwork/subscriptions.png'
+
+            onClicked: {
+                var urls = new Array();
+                var i;
+
+                for (i=0; i<listView.selectedIndices.length; i++) {
+                    urls.push(listView.model.get(listView.selectedIndices[i]).url);
+                }
+
+                subscribe.subscribe(urls)
+            }
+        }
+    }
+
+
     ListView {
         id: listView
+        property variant selectedIndices: []
         clip: true
 
         opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
@@ -96,7 +150,7 @@ Item {
             left: parent.left
             right: parent.right
             bottom: parent.bottom
-            top: topBar.bottom
+            top: listHeader.bottom
         }
 
         model: SearchResultsListModel {
@@ -111,6 +165,7 @@ Item {
 
         delegate: SelectableItem {
             property string modelData: url
+            inSelection: (listView.selectedIndices.indexOf(index) != -1)
 
             height: Config.listItemHeight
             width: listView.width
@@ -172,7 +227,25 @@ Item {
                 font.pixelSize: 30
             }
 
-            onSelected: subscribe.subscribe(item)
+            onSelected: {
+                var position = listView.selectedIndices.indexOf(index);
+                var tmp;
+                var i;
+
+                tmp = new Array();
+
+                for (i=0; i<listView.selectedIndices.length; i++) {
+                    if (listView.selectedIndices[i] != index) {
+                        tmp.push(listView.selectedIndices[i]);
+                    }
+                }
+
+                if (position == -1) {
+                    tmp.push(index);
+                }
+
+                listView.selectedIndices = tmp;
+            }
         }
     }
 

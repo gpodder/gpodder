@@ -91,6 +91,10 @@ class Controller(QObject):
     def ntranslate(self, singular, plural, count):
         return N_(singular, plural, count)
 
+    @Slot(str, int, result=str)
+    def formatCount(self, template, count):
+        return template % {'count': count}
+
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()
@@ -415,32 +419,41 @@ class Controller(QObject):
 
         self.show_context_menu(menu)
 
-    @Slot(str)
-    def addSubscription(self, url):
-        url = util.normalize_feed_url(url)
+    @Slot('QVariant')
+    def addSubscriptions(self, urls):
+        def not_yet_subscribed(url):
+            for podcast in self.root.podcast_model.get_objects():
+                if isinstance(podcast, model.EpisodeSubsetView):
+                    continue
 
-        for podcast in self.root.podcast_model.get_objects():
-            if isinstance(podcast, model.EpisodeSubsetView):
-                continue
+                if podcast.url == url:
+                    logger.info('Already subscribed: %s', url)
+                    return False
 
-            if podcast.url == url:
-                self.root.show_message(_('Podcast already added'))
-                self.podcastSelected(podcast)
-                return
+            return True
 
-        def subscribe_proc(self, url):
-            self.root.start_progress(_('Adding podcast...'))
+        urls = map(util.normalize_feed_url, urls)
+        urls = filter(not_yet_subscribed, urls)
+
+        def subscribe_proc(self, urls):
+            self.root.start_progress(_('Adding podcasts...'))
             try:
-                podcast = self.root.model.load_podcast(url=url, \
-                        create=True, \
-                        max_episodes=self.root.config.max_episodes_per_feed, \
-                        mimetype_prefs=self.root.config.mimetype_prefs)
-                podcast.save()
-                self.root.insert_podcast(model.QPodcast(podcast))
+                for idx, url in enumerate(urls):
+                    print idx, url
+                    self.root.start_progress(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
+                    try:
+                        podcast = self.root.model.load_podcast(url=url, create=True,
+                                max_episodes=self.root.config.max_episodes_per_feed,
+                                mimetype_prefs=self.root.config.mimetype_prefs)
+                        podcast.save()
+                        self.root.insert_podcast(model.QPodcast(podcast))
+                    except Exception, e:
+                        logger.warn('Cannot add pocast: %s', e)
+                        # XXX: Visual feedback in the QML UI
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=subscribe_proc, args=[self, url])
+        t = threading.Thread(target=subscribe_proc, args=[self, urls])
         t.start()
 
     @Slot()

@@ -13,6 +13,7 @@ Item {
      */
     property int singlePressContextMenuLeftBorder: 0
     property bool pressed: mouseArea.pressed
+    property bool inSelection: false
 
     height: Config.listItemHeight
     width: parent.width
@@ -23,6 +24,22 @@ Item {
 
         opacity: mouseArea.pressed?maxOpacity:0
         color: "white"
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+        }
+        height: parent.height + parent.height * (opacity - maxOpacity)
+
+        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+    }
+
+    Rectangle {
+        id: selectionHighlight
+        property real maxOpacity: .7
+
+        opacity: selectableItem.inSelection?maxOpacity:0
+        color: Config.selectColor
         anchors {
             left: parent.left
             right: parent.right
