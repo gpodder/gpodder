@@ -90,6 +90,10 @@ class Controller(QObject):
     def ntranslate(self, singular, plural, count):
         return N_(singular, plural, count)
 
+    @Slot(str, int, result=str)
+    def formatCount(self, template, count):
+        return template % {'count': count}
+
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()

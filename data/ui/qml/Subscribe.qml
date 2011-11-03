@@ -105,7 +105,7 @@ Item {
             }
 
             elide: Text.ElideRight
-            text: '' + listView.selectedIndices.length + ' podcasts selected'
+            text: controller.formatCount(n_('%(count)s podcast selected', '%(count)s podcasts selected', listView.selectedIndices.length), listView.selectedIndices.length)
             color: 'white'
             font.pixelSize: 20 * Config.scale
         }
