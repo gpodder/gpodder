@@ -22,7 +22,7 @@
 
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import Qt, QObject, Signal, Slot, Property
+from PySide.QtCore import Qt, QObject, Signal, Slot, Property, QUrl
 from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
 
@@ -118,7 +118,8 @@ class Controller(QObject):
         return self.root.view.windowTitle()
 
     def setWindowTitle(self, windowTitle):
-        self.root.view.setWindowTitle(windowTitle)
+        if gpodder.ui.fremantle:
+            self.root.view.setWindowTitle(windowTitle)
 
     windowTitle = Property(unicode, getWindowTitle,
             setWindowTitle, notify=windowTitleChanged)
@@ -538,7 +539,7 @@ class qtPodder(QObject):
 
         # Enable OpenGL rendering without requiring QtOpenGL
         # On Harmattan we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
+        if '-graphicssystem' not in args and not gpodder.ui.harmattan and not gpodder.win32:
             args += ['-graphicssystem', 'opengl']
 
         self.app = QApplication(args)
@@ -577,6 +578,9 @@ class qtPodder(QObject):
         if gpodder.ui.fremantle:
             for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
                 engine.addImportPath(path)
+	elif gpodder.win32:
+            for path in (r'C:\QtSDK\Desktop\Qt\4.7.4\msvc2008\imports',):
+                engine.addImportPath(path)
 
         # Add the cover art image provider
         self.cover_provider = images.LocalCachedImageProvider()
@@ -589,9 +593,9 @@ class qtPodder(QObject):
 
         # Load the QML UI (this could take a while...)
         if gpodder.ui.harmattan:
-            self.view.setSource(QML('main_harmattan.qml'))
+            self.view.setSource(QUrl.fromLocalFile(QML('main_harmattan.qml')))
         else:
-            self.view.setSource(QML('main_default.qml'))
+            self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
