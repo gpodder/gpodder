@@ -915,22 +915,31 @@ def get_real_url(url):
         return url
 
 
-def find_command( command):
+def find_command(command):
     """
     Searches the system's PATH for a specific command that is
     executable by the user. Returns the first occurence of an
-    executable binary in the PATH, or None if the command is 
+    executable binary in the PATH, or None if the command is
     not available.
+
+    On Windows, this also looks for "<command>.bat" and
+    "<command>.exe" files if "<command>" itself doesn't exist.
     """
 
     if 'PATH' not in os.environ:
         return None
 
-    for path in os.environ['PATH'].split( os.pathsep):
-        command_file = os.path.join( path, command)
-        if os.path.isfile( command_file) and os.access( command_file, os.X_OK):
+    for path in os.environ['PATH'].split(os.pathsep):
+        command_file = os.path.join(path, command)
+        if gpodder.win32 and not os.path.exists(command_file):
+            for extension in ('.bat', '.exe'):
+                cmd = command_file + extension
+                if os.path.isfile(cmd):
+                    command_file = cmd
+                    break
+        if os.path.isfile(command_file) and os.access(command_file, os.X_OK):
             return command_file
-        
+
     return None
 
 idle_add_handler = None
