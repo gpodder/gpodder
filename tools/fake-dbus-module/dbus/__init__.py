@@ -6,3 +6,6 @@ class SessionBus(object):
     def add_signal_receiver(self, *args, **kwargs):
         pass
 
+    def name_has_owner(self, *args, **kwargs):
+        return False
+
