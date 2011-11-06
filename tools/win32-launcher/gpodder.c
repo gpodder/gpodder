@@ -19,9 +19,8 @@
 
 
 /**
- * gPodder Launcher for Win32
- * Set up environment variables and start the Python Interpreter
- * Thomas Perl <thp@gpodder.org>; 2009-04-29
+ * gPodder for Windows
+ * Thomas Perl <thp@gpodder.org>; 2011-11-06
  **/
 
 
@@ -32,13 +31,31 @@
 #include <shellapi.h>
 #include <string.h>
 
-#include "gpodder.h"
+#define PROGNAME "gPodder"
+
+#define BAILOUT(s) { \
+    MessageBox(NULL, s, "Error launching " PROGNAME, MB_OK); \
+    exit(1); \
+}
 
 #if defined(GPODDER_GUI)
 # define MAIN_MODULE "bin\\gpodder"
 #else
 # define MAIN_MODULE "bin\\gpo"
 #endif
+
+#define PYTHON_INSTALLER_FILE "python-2.7.2.msi"
+#define PYTHON_INSTALLER_SIZE 15970304L
+#define PYGTK_INSTALLER_FILE "pygtk-all-in-one-2.24.0.win32-py2.7.msi"
+#define PYGTK_INSTALLER_SIZE 33583548L
+
+#define PYTHON_INSTALLER_URL \
+    "http://python.org/ftp/python/2.7.2/" \
+    PYTHON_INSTALLER_FILE
+
+#define PYGTK_INSTALLER_URL \
+    "http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/" \
+    PYGTK_INSTALLER_FILE
 
 #define LOOKUP_FUNCTION(x) {x = GetProcAddress(python_dll, #x); \
     if(x == NULL) {BAILOUT("Cannot find function: " #x);}}
@@ -84,24 +101,7 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Only load the Python DLL after we've set up the environment */
-    python_dll = LoadLibrary("python27.dll");
-
-    if (python_dll == NULL) {
-        // show message that python isn't installed, offer install
-        // http://python.org/ftp/python/2.7.2/python-2.7.2.msi
-        BAILOUT("Please install Python 2.7 from http://python.org/");
-    }
-
-    LOOKUP_FUNCTION(Py_Initialize);
-    LOOKUP_FUNCTION(PySys_SetArgvEx);
-    LOOKUP_FUNCTION(PyImport_ImportModule);
-    LOOKUP_FUNCTION(PyFile_FromString);
-    LOOKUP_FUNCTION(PyFile_AsFile);
-    LOOKUP_FUNCTION(PyRun_SimpleFile);
-    LOOKUP_FUNCTION(Py_Finalize);
-
-    /* Start with the dirname of the executable */
+    /* Set current directory to directory of launcher */
     strncpy(current_dir, argv[0], MAX_PATH);
     endmarker = strrchr(current_dir, '\\');
     if (endmarker == NULL) {
@@ -115,17 +115,67 @@ int main(int argc, char** argv)
         }
     }
 
+    /* Only load the Python DLL after we've set up the environment */
+    python_dll = LoadLibrary("python27.dll");
+
+    if (python_dll == NULL) {
+        if (MessageBox(NULL,
+                PROGNAME " requires Python 2.7.\n"
+                "Do you want to install it now?",
+                "Python 2.7 installation not found",
+                MB_YESNO | MB_ICONQUESTION) == IDYES) {
+            if (DownloadFile(PYTHON_INSTALLER_FILE,
+                        PYTHON_INSTALLER_URL,
+                        PYTHON_INSTALLER_SIZE) == PYTHON_INSTALLER_SIZE) {
+                ShellExecute(NULL,
+                        "open",
+                        PYTHON_INSTALLER_FILE,
+                        NULL,
+                        NULL,
+                        SW_SHOWNORMAL);
+            }
+        }
+
+        return 1;
+    }
+
+    LOOKUP_FUNCTION(Py_Initialize);
+    LOOKUP_FUNCTION(PySys_SetArgvEx);
+    LOOKUP_FUNCTION(PyImport_ImportModule);
+    LOOKUP_FUNCTION(PyFile_FromString);
+    LOOKUP_FUNCTION(PyFile_AsFile);
+    LOOKUP_FUNCTION(PyRun_SimpleFile);
+    LOOKUP_FUNCTION(Py_Finalize);
+
     Py_Initialize();
     argv[0] = MAIN_MODULE;
     PySys_SetArgvEx(argc, argv, 0);
 
+#if defined(GPODDER_GUI)
+    /* Check for GTK, but not if we are running the CLI */
     GtkModule = (void*)PyImport_ImportModule("gtk");
     if (GtkModule == NULL) {
-        // show message that pygtk isn't installed, offer install
-        // http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.0.win32-py2.7.msi
-        BAILOUT("Please install PyGTK from http://pygtk.org/");
+        if (MessageBox(NULL,
+                PROGNAME " requires PyGTK.\n"
+                "Do you want to install it now?",
+                "PyGTK installation not found",
+                MB_YESNO | MB_ICONQUESTION) == IDYES) {
+            if (DownloadFile(PYGTK_INSTALLER_FILE,
+                        PYGTK_INSTALLER_URL,
+                        PYGTK_INSTALLER_SIZE) == PYGTK_INSTALLER_SIZE) {
+                ShellExecute(NULL,
+                        "open",
+                        PYGTK_INSTALLER_FILE,
+                        NULL,
+                        NULL,
+                        SW_SHOWNORMAL);
+            }
+        }
+
+        return 1;
     }
     // decref GtkModule
+#endif
 
     // XXX: Test for feedparser, mygpoclient, dbus
 

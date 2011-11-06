@@ -23,20 +23,26 @@
 #
 
 CC=gcc
-LDFLAGS=-lkernel32 -lshell32
+LDFLAGS=-lkernel32 -lshell32 -lwininet
 
 all: gpodder gpo
 
-gpodder: gpodder-res.o gpodder_gui.o
+gpodder: gpodder-res.o gpodder_gui.o downloader_gui.o
 	$(CC) -o $@ -mwindows $^ $(LDFLAGS)
 
-gpo: gpo-res.o gpodder_cli.o
+gpo: gpo-res.o gpodder_cli.o downloader_cli.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 gpodder_gui.o: gpodder.c
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
 
 gpodder_cli.o: gpodder.c
+	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
+
+downloader_gui.o: downloader.c
+	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
+
+downloader_cli.o: downloader.c
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
 
 gpodder-res.o: gpodder.res
