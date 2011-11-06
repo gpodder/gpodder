@@ -88,10 +88,14 @@ t = gettext.translation(textdomain, locale_dir, fallback=True)
 gettext = t.ugettext
 ngettext = t.ungettext
 if win32:
-    # Workaround for bug 650
-    from gtk.glade import bindtextdomain
-    bindtextdomain(textdomain, locale_dir)
-    del bindtextdomain
+    try:
+        # Workaround for bug 650
+        from gtk.glade import bindtextdomain
+        bindtextdomain(textdomain, locale_dir)
+        del bindtextdomain
+    except:
+        # Ignore for QML UI or missing glade module
+        pass
 del t
 
 # Set up textdomain for gtk.Builder (this accesses the C library functions)

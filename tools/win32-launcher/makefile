@@ -23,17 +23,31 @@
 #
 
 CC=gcc
-LDFLAGS=-mwindows -lkernel32 -lshell32
+LDFLAGS=-lkernel32 -lshell32
 
-all: gpodder
+all: gpodder gpo
 
-gpodder: gpodder-res.o gpodder.o migrate.o
+gpodder: gpodder-res.o gpodder_gui.o
+	$(CC) -o $@ -mwindows $^ $(LDFLAGS)
+
+gpo: gpo-res.o gpodder_cli.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+gpodder_gui.o: gpodder.c
+	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
+
+gpodder_cli.o: gpodder.c
+	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
 
 gpodder-res.o: gpodder.res
-	windres gpodder.res gpodder-res.o
+	windres $^ $@
+
+gpo-res.o: gpo.res
+	windres $^ $@
 
 clean:
-	rm -f *.o
+	-rm -f *.o
+	-del *.o
 
 .PHONY: clean all
 .DEFAULT: all

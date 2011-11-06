@@ -58,14 +58,22 @@ import collections
 import os
 import re
 import inspect
-import readline
+try:
+    import readline
+except ImportError:
+    readline = None
 import shlex
 import pydoc
 import logging
 
-import termios
-import fcntl
-import struct
+try:
+    import termios
+    import fcntl
+    import struct
+except ImportError:
+    termios = None
+    fcntl = None
+    struct = None
 
 # A poor man's argparse/getopt - but it works for our use case :)
 for verbose_flag in ('-v', '--verbose'):
@@ -106,18 +114,20 @@ gpodder.detect_platform()
 # and as a motivation to provide all functionality in the API :)
 from gpodder import api
 
+have_ansi = sys.stdout.isatty() and not gpodder.win32
+
 def inred(x):
-    if sys.stdout.isatty():
+    if have_ansi:
         return '\033[91m' + x + '\033[0m'
     return x
 
 def ingreen(x):
-    if sys.stdout.isatty():
+    if have_ansi:
         return '\033[92m' + x + '\033[0m'
     return x
 
 def inblue(x):
-    if sys.stdout.isatty():
+    if have_ansi:
         return '\033[94m' + x + '\033[0m'
     return x
 
@@ -127,6 +137,9 @@ def FirstArgumentIsPodcastURL(function):
     return function
 
 def get_terminal_size():
+    if None in (termios, fcntl, struct):
+        return (80, 24)
+
     s = struct.pack('HHHH', 0, 0, 0, 0)
     stdout = sys.stdout.fileno()
     x = fcntl.ioctl(stdout, termios.TIOCGWINSZ, s)
@@ -197,7 +210,7 @@ class gPodderCli(object):
         sys.stdout.flush()
 
     def _update_action(self, progress):
-        if sys.stdout.isatty():
+        if have_ansi:
             progress = '%3.0f%%' % (progress*100.,)
             result = '['+inblue(progress)+']'
             sys.stdout.write('\r' + self._current_action + result)
@@ -205,7 +218,7 @@ class gPodderCli(object):
 
     def _finish_action(self, success=True):
         result = '['+ingreen('DONE')+']' if success else '['+inred('FAIL')+']'
-        if sys.stdout.isatty():
+        if have_ansi:
             print '\r' + self._current_action + result
         else:
             print result
@@ -425,7 +438,7 @@ class gPodderCli(object):
     # -------------------------------------------------------------------
 
     def _pager(self, output):
-        if sys.stdout.isatty():
+        if have_ansi:
             # Need two additional rows for command prompt
             rows_needed = len(output.splitlines()) + 2
             rows, cols = get_terminal_size()
@@ -446,9 +459,10 @@ class gPodderCli(object):
         Press Ctrl+D (EOF) or type 'quit' to quit.
         """ % gpodder.__dict__).splitlines())
 
-        readline.parse_and_bind('tab: complete')
-        readline.set_completer(self._tab_completion)
-        readline.set_completer_delims(' ')
+        if readline is not None:
+            readline.parse_and_bind('tab: complete')
+            readline.set_completer(self._tab_completion)
+            readline.set_completer_delims(' ')
 
         while True:
             try:
@@ -500,6 +514,9 @@ class gPodderCli(object):
 
     def _tab_completion(self, text, count):
         """Tab completion function for readline"""
+        if readline is None:
+            return None
+
         current_line = readline.get_line_buffer()
         if text == current_line:
             for name in self._valid_commands:
@@ -559,7 +576,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args:
         cli._parse_single(args)
-    elif sys.stdout.isatty():
+    elif sys.stdin.isatty():
         cli._shell()
     else:
         sys.stdout.write(__doc__)
