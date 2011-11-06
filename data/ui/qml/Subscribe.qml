@@ -305,7 +305,7 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
-                    property string modelData: 'http://gpodder.net/gpodder-examples.xml'
+                    property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.net/gpodder-examples.xml')
                     anchors.fill: parent
                     onSelected: {
                         searchResultsListModel.source = item
@@ -318,7 +318,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
                     color: 'white'
-                    text: _('Examples')
+                    text: controller.myGpoEnabled?_('My gpodder.net'):_('Examples')
                 }
             }
         }

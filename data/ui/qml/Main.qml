@@ -691,10 +691,10 @@ Image {
         }
 
         onAccepted: {
-            controller.myGpoEnabled = myGpoEnableSwitch.checked
             controller.myGpoUsername = myGpoUsernameField.text
             controller.myGpoPassword = myGpoPasswordField.text
             controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
+            controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
             controller.saveMyGpoSettings()
             main.myGpoSheetVisible = false
         }
