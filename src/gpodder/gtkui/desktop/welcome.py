@@ -30,6 +30,7 @@ class gPodderWelcome(BuilderWidget):
     RESPONSE_MYGPO = 2
 
     def new(self):
+        self.image1.set_from_file(gpodder.icon_file)
         for widget in (self.btnOPML, self.btnMygPodder):
             for child in widget.get_children():
                 if isinstance(child, gtk.Alignment):
