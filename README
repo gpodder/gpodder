@@ -1,125 +1,108 @@
-                               _
-                           _  | \ _   _|  _|  _   _
-                          / \ |_// \ / | / | /_| |
-                          \_/ |  \_/ \_| \_| \_  |
-                         ._/      http://gpodder.org/
 
-           - -- == === ================================= === == -- -
+                          ___         _    _           ____
+                     __ _| _ \___  __| |__| |___ _ _  |__ /
+                    / _` |  _/ _ \/ _` / _` / -_) '_|  |_ \
+                    \__, |_| \___/\__,_\__,_\___|_|   |___/
+                    |___/
+                          Media aggregator and podcast client
+
+  ............................................................................
+
              Copyright  2005-2011 Thomas Perl and the gPodder Team
 
- ==========================
- License (see COPYING file)
- ==========================
 
- gPodder is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+ [ LICENSE ]
 
- gPodder is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+    gPodder is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    gPodder is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
- ============
- Dependencies
- ============
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-   * python (>= 2.5) with sqlite3 and json support
-     Python 2.6 includes "json"; for Python < 2.6, install "simplejson"
-   * python-gtk2 (>= 2.12)
-   * python-feedparser
-   * python-mygpoclient (>= 1.4; http://thp.io/2010/mygpoclient/)
-   * python-dbus
 
- As an alternative to python-dbus, you can use the fake D-Bus module
- provided in "tools/fake-dbus-module/".
 
- Dependencies for the QML UI:
+ [ DEPENDENCIES ]
 
-   * Qt (>= 4.7.0)
-   * PySide (>= 1.0.0~rc1)
-   * Qt Mobility >= 1.1 Declarative Components
-     (qtm-declarative from the FN PPA; use ppa:forumnokia/fn-ppa)
-   * Phonon GStreamer backend (Xine backend has problems)
-     (on Debian/Ubuntu, use phonon-backend-gstreamer)
+    - Python 2.6 or newer              http://python.org/
+    - Feedparser 5.0.1 or newer        http://code.google.com/p/feedparser/
+    - mygpoclient 1.4 or newer         http://thp.io/2010/mygpoclient/
+    - Python D-Bus bindings
 
- Additional dependencies if you want Bluetooth file send support:
+    gPodder is still compatible with Python 2.5, but you might need to
+    install sqlite3 and json ("simplejson") manually. We reserve the
+    right to drop support for Python 2.5 in future point releases.
 
-   * gnome-obex-send OR bluetooth-sendto
+    As an alternative to python-dbus on Mac OS X and Windows, you can use
+    the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
 
- Additional dependencies for HTML episode shownotes:
 
-   * python-webkit (Python bindings for WebKitGTK+)
+ [ GTK UI - ADDITIONAL DEPENDENCIES ]
 
- Additional dependencies for gPodder on Windows:
+    - PyGTK 2.12 or newer              http://pygtk.org/
 
-   * PyWin32 (http://sourceforge.net/projects/pywin32/)
 
- Additional dependencies for gPodder on Mac OS X:
+ [ QML UI - ADDITIONAL DEPENDENCIES ]
 
-   * ige-mac-integration (optional; when using the quartz GDK backend)
+    - Qt 4.7.1 or newer                http://qt.nokia.com/
+    - PySide 1.0.8 or newer            http://www.pyside.org/
+    - Qt Mobility 1.2 or newer         http://qt.nokia.com/
 
- Additional dependencies if you want to install from source:
- 
-   * help2man
-   * python-dev
-   * intltool
+    The QML UI depends on the QtMultimediaKit QML bindings for playing
+    back audio (libdeclarative-multimedia in Debian).
 
- Dependencies for running unittest/doctests ("make unittest"):
 
-   * python-minimock
-   * python-coverage (optional; recommended)
+ [ OPTIONAL DEPENDENCIES ]
 
- ============
- Installation
- ============
+    - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
+    - HTML shownotes: python-webkit
+    - Size detection on Windows: PyWin32
+    - Native OS X support: ige-mac-integration
 
- Extract the tar archive somewhere into your home directory and cd into 
- the directory where you extracted it, for example:
 
-   tar xzvf gpodder-2.11.tar.gz
-   cd gpodder-2.11/
-   make install
+ [ BUILD DEPENDENCIES ]
 
- If you have any problems, please visit the gPodder website or mail the 
- gPodder mailing list (see below for more information).
+    - help2man
+    - intltool
 
- ================================
- Portable mode / roaming profiles
- ================================
 
- You can set the environment variable GPODDER_HOME to set the location for
- storing the database and downloaded files.
+ [ TEST DEPENDENCIES ]
 
- You can use this to have different configurations for gPodder or to put
- gPodder's data directly on your MP3 player or USB disk, for example:
+    - python-minimock
+    - python-coverage
 
-    export GPODDER_HOME=/media/usbdisk/gpodder-data/
-    gpodder
 
- =========================================
- Feature requests, bug reports and patches
- =========================================
+ [ RUNNING AND INSTALLATION ]
 
- Feature requests, bug report and patches should all be filed in our
- Bugzilla at http://bugs.gpodder.org - for general discussion and questions,
- please send a message to gpodder-devel (this is a subscriber-only list, so
- you have to subscribe first before sending mail there).
+    To run gPodder from source, use "bin/gpodder".
 
- For up to date information about gPodder, see the website and Wiki.
+    To install gPodder system-wide, use "make install".
 
-   Homepage:       http://gpodder.org/
-   Wiki:           http://wiki.gpodder.org/
-   Bugzilla:       http://bugs.gpodder.org/
 
-   FAQs:           http://wiki.gpodder.org/wiki/FAQs
-   Mailing List:   gpodder-devel@berlios.de
-   IRC Channel:    #gpodder on FreeNode (irc.freenode.net)
+ [ PORTABLE MODE / ROAMING PROFILES ]
 
- Have fun with gPodder!
- Thomas Perl <thp.io>
+    The run-time environment variable GPODDER_HOME is used to set
+    the location for storing the database and downloaded files.
+
+    This can be used for multiple configurations or to store the
+    download directory directly on a MP3 player or USB disk:
+
+        export GPODDER_HOME=/media/usbdisk/gpodder-data/
+
+
+ [ MORE INFORMATION ]
+
+    - Homepage                         http://gpodder.org/
+    - Bug tracker                      http://bugs.gpodder.org/
+    - Mailing list                     http://freelists.org/list/gpodder
+    - IRC channel                      #gpodder on irc.freenode.net
+
+  ............................................................................
+             Last updated: 2011-11-06 by Thomas Perl <thp.io/about>
 

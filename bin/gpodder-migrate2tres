@@ -20,7 +20,7 @@
 #
 
 
-# gpodder-migrate2tres - Migrate from gPodder to gPodd3r
+# gpodder-migrate2tres - Migrate data from gPodder 2.x to gPodder 3
 # by Thomas Perl <thp@gpodder.org>; 2011-04-28
 
 
@@ -49,12 +49,6 @@ import gpodder
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 
-print >>sys.stderr, """
-
-                *** experimental. be prepared to re-migrate ***
-                  ** your old database before the release. **
-
-"""
 
 from gpodder import schema
 from gpodder import util
@@ -104,8 +98,8 @@ if not os.path.exists(old_downloads):
 
 if any(os.path.exists(x) for x in (new_database, new_downloads)):
     print >>sys.stderr, """
-    You already have some gPodd3r-related
-    data. Please remove all of these first:
+    Existing gPodder 3 user data found.
+    To continue, please remove:
 
        %(new_database)s
        %(new_downloads)s
@@ -137,5 +131,5 @@ if result in 'Yy':
         print >>sys.stderr, 'Could not move downloads.'
         sys.exit(1)
 
-    print 'Done. Happy gPodd3ring!'
+    print 'Done. Have fun with gPodder 3!'
 

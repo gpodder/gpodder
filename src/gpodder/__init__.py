@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '2.99'
-__date__      = '2011-04-01'
+__version__   = '3.0.0'
+__date__      = '2011-11-06'
 __copyright__ = '© 2005-2011 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -37,7 +37,7 @@ try:
     import feedparser
 except ImportError:
     print """
-  Error: Module "feedparser" not found. Please install "python-feedparser".
+  Error: Module "feedparser" (python-feedparser) not found.
          The feedparser module can be downloaded from
          http://code.google.com/p/feedparser/
 """
@@ -48,8 +48,9 @@ try:
     import mygpoclient
 except ImportError:
     print """
-  Error: Module "mygpoclient" not found. Please install "python-mygpoclient"
-         or download it from http://thp.io/2010/mygpoclient/
+  Error: Module "mygpoclient" (python-mygpoclient) not found.
+         The mygpoclient module can be downloaded from
+         http://thp.io/2010/mygpoclient/
 """
     sys.exit(1)
 del mygpoclient
@@ -101,14 +102,6 @@ del t
 # Set up textdomain for gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
-else:
-    # On Win32, the locale module does not have bindtextdomain. We use a
-    # small module that provides similar functionality here (from doc/dev/).
-    try:
-        import gtkbuilderi18n
-        gtkbuilderi18n.bindtextdomain(textdomain, locale_dir)
-    except ImportError, ioe:
-        pass
 
 del locale_dir
 
