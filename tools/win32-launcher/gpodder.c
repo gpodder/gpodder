@@ -71,6 +71,7 @@ int main(int argc, char** argv)
     int _argc = 1;
     char *_argv[] = { MAIN_MODULE };
     TCHAR gPodder_Home[MAX_PATH];
+    TCHAR Temp_Download_Filename[MAX_PATH];
 
     HMODULE python_dll;
     FARPROC Py_Initialize;
@@ -95,7 +96,7 @@ int main(int argc, char** argv)
             BAILOUT("Cannot determine your home directory (SHGetFolderPath).");
         }
 
-        strncat(gPodder_Home, "\\gPodder", MAX_PATH);
+        strncat(gPodder_Home, "\\gPodder\\", MAX_PATH);
         if (SetEnvironmentVariable("GPODDER_HOME", gPodder_Home) == 0) {
             BAILOUT("SetEnvironmentVariable for GPODDER_HOME failed.");
         }
@@ -124,12 +125,14 @@ int main(int argc, char** argv)
                 "Do you want to install it now?",
                 "Python 2.7 installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            if (DownloadFile(PYTHON_INSTALLER_FILE,
+            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, PYTHON_INSTALLER_FILE, MAX_PATH);
+            if (DownloadFile(Temp_Download_Filename,
                         PYTHON_INSTALLER_URL,
                         PYTHON_INSTALLER_SIZE) == PYTHON_INSTALLER_SIZE) {
                 ShellExecute(NULL,
                         "open",
-                        PYTHON_INSTALLER_FILE,
+                        Temp_Download_Filename,
                         NULL,
                         NULL,
                         SW_SHOWNORMAL);
@@ -160,12 +163,14 @@ int main(int argc, char** argv)
                 "Do you want to install it now?",
                 "PyGTK installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            if (DownloadFile(PYGTK_INSTALLER_FILE,
+            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, PYGTK_INSTALLER_FILE, MAX_PATH);
+            if (DownloadFile(Temp_Download_Filename,
                         PYGTK_INSTALLER_URL,
                         PYGTK_INSTALLER_SIZE) == PYGTK_INSTALLER_SIZE) {
                 ShellExecute(NULL,
                         "open",
-                        PYGTK_INSTALLER_FILE,
+                        Temp_Download_Filename,
                         NULL,
                         NULL,
                         SW_SHOWNORMAL);
