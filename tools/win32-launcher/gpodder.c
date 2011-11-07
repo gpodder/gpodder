@@ -100,7 +100,10 @@ int main(int argc, char** argv)
         if (SetEnvironmentVariable("GPODDER_HOME", gPodder_Home) == 0) {
             BAILOUT("SetEnvironmentVariable for GPODDER_HOME failed.");
         }
+    } else {
+        strncpy(gPodder_Home, getenv("GPODDER_HOME"), MAX_PATH);
     }
+    CreateDirectory(gPodder_Home, NULL);
 
     /* Set current directory to directory of launcher */
     strncpy(current_dir, argv[0], MAX_PATH);

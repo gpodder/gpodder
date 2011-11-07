@@ -15,14 +15,14 @@ AppSupportURL=http://gpodder.org/
 AppUpdatesURL=http://gpodder.org/
 DefaultDirName={pf}\gPodder
 DefaultGroupName=gPodder
-LicenseFile=C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\COPYING
-InfoBeforeFile=C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\README
-OutputDir=C:\Dokumente und Einstellungen\thp\Desktop\x
+LicenseFile=C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\COPYING
+InfoBeforeFile=C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\README
+OutputDir=C:\Users\thp\gpodder\tools\win32-setup
 OutputBaseFilename=gpodder-3.0.0-setup
 Compression=lzma
 SolidCompression=yes
-WizardSmallImageFile=C:\Dokumente und Einstellungen\thp\Desktop\x\wizard-small-image.bmp
-WizardImageFile=C:\Dokumente und Einstellungen\thp\Desktop\x\wizard-image.bmp
+WizardSmallImageFile=C:\Users\thp\gpodder\tools\win32-setup\wizard-small-image.bmp
+WizardImageFile=C:\Users\thp\gpodder\tools\win32-setup\wizard-image.bmp
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -32,13 +32,13 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\gpodder.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\COPYING"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\gpo.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\README"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Dokumente und Einstellungen\thp\Desktop\x\gpodder-3.0.0-win32\src\*"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\gpodder.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\COPYING"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\gpo.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\README"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\thp\gpodder\tools\win32-setup\gpodder-3.0.0-win32\src\*"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
