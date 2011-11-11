@@ -60,11 +60,37 @@
 #define LOOKUP_FUNCTION(x) {x = GetProcAddress(python_dll, #x); \
     if(x == NULL) {BAILOUT("Cannot find function: " #x);}}
 
+
+const char *FindPythonDLL()
+{
+    static char InstallPath[MAX_PATH];
+    DWORD InstallPathSize = MAX_PATH;
+    HKEY RegKey;
+    char *result = NULL;
+
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+            "Software\\Python\\PythonCore\\2.7\\InstallPath",
+            0, KEY_READ, &RegKey) != ERROR_SUCCESS) {
+        return NULL;
+    }
+
+    if (RegQueryValueEx(RegKey, NULL, NULL, NULL,
+                InstallPath, &InstallPathSize) == ERROR_SUCCESS) {
+        strncat(InstallPath, "\\python27.dll", sizeof(InstallPath));
+        result = InstallPath;
+    }
+
+    RegCloseKey(RegKey);
+    return result;
+}
+
+
 int main(int argc, char** argv)
 {
     char path_env[MAX_PATH];
     char current_dir[MAX_PATH];
     char *endmarker = NULL;
+    char *dll_path = NULL;
     int i;
     void *MainPy;
     void *GtkModule;
@@ -121,6 +147,14 @@ int main(int argc, char** argv)
 
     /* Only load the Python DLL after we've set up the environment */
     python_dll = LoadLibrary("python27.dll");
+
+    if (python_dll == NULL) {
+        /* Try to detect "just for me"-installed Python version (bug 1480) */
+        dll_path = FindPythonDLL();
+        if (dll_path != NULL) {
+            python_dll = LoadLibrary(dll_path);
+        }
+    }
 
     if (python_dll == NULL) {
         if (MessageBox(NULL,
