@@ -272,9 +272,14 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             try:
-                episode.file_size = int(m.fileSize) or -1
+                episode.file_size = int(m.get('filesize', 0)) or -1
             except:
                 episode.file_size = -1
+
+            try:
+                episode.total_time = int(m.get('duration', 0)) or 0
+            except:
+                episode.total_time = 0
 
             return episode
 
