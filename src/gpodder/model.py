@@ -571,7 +571,8 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
-        return os.path.join(util.sanitize_encoding(self.channel.save_dir), self.download_filename)
+        return os.path.join(util.sanitize_encoding(self.channel.save_dir),
+                util.sanitize_encoding(self.download_filename))
 
     def set_mimetype(self, mimetype, commit=False):
         """Sets the mimetype for this episode"""
