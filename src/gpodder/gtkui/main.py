@@ -2093,6 +2093,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if auth_tokens is None:
             auth_tokens = {}
 
+        existing_urls = set(podcast.url for podcast in self.channels)
+
         # Sort and split the URL list into five buckets
         queued, failed, existing, worked, authreq = [], [], [], [], []
         for input_url in urls:
@@ -2100,7 +2102,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if url is None:
                 # Fail this one because the URL is not valid
                 failed.append(input_url)
-            elif self.podcast_list_model.get_filter_path_from_url(url) is not None:
+            elif url in existing_urls:
                 # A podcast already exists in the list for this URL
                 existing.append(url)
             else:
