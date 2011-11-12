@@ -418,16 +418,11 @@ class PodcastChannelProxy(object):
         self.description = _('from all podcasts')
         #self.parse_error = ''
         self.url = ''
+        self.section = ''
         self.id = None
         self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
         self.pause_subscription = False
         self.auto_archive_episodes = False
-
-    def __getattribute__(self, name):
-        try:
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            logger.warn('Unsupported method call (%s)', name)
 
     def get_statistics(self):
         # Get the total statistics for all channels from the database
