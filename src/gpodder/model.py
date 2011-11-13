@@ -272,9 +272,14 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             try:
-                episode.file_size = int(m.fileSize) or -1
+                episode.file_size = int(m.get('filesize', 0)) or -1
             except:
                 episode.file_size = -1
+
+            try:
+                episode.total_time = int(m.get('duration', 0)) or 0
+            except:
+                episode.total_time = 0
 
             return episode
 
@@ -571,7 +576,8 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
-        return os.path.join(util.sanitize_encoding(self.channel.save_dir), self.download_filename)
+        return os.path.join(util.sanitize_encoding(self.channel.save_dir),
+                util.sanitize_encoding(self.download_filename))
 
     def set_mimetype(self, mimetype, commit=False):
         """Sets the mimetype for this episode"""
@@ -1085,6 +1091,8 @@ class PodcastChannel(PodcastModelObject):
         except feedcore.NewLocation, updated:
             feed = updated.data
             logger.info('New feed location: %s => %s', self.url, feed.href)
+            if feed.href in set(x.url for x in self.model.get_podcasts()):
+                raise Exception('Already subscribed to ' + feed.href)
             self.url = feed.href
             self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
             self._update_etag_modified(feed)

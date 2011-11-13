@@ -18,8 +18,8 @@
 #
 
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.0.0'
-__date__      = '2011-11-06'
+__version__   = '3.0.1'
+__date__      = '2011-11-13'
 __copyright__ = '© 2005-2011 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -80,6 +80,8 @@ dbus_session_bus = None
 
 # Set "win32" to True if we are on Windows
 win32 = (platform.system() == 'Windows')
+# Set "osx" to True if we are on Mac OS X
+osx = (platform.system() == 'Darwin')
 
 # i18n setup (will result in "gettext" to be available)
 # Use   _ = gpodder.gettext   in modules to enable string translations

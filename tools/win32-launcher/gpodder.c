@@ -60,17 +60,44 @@
 #define LOOKUP_FUNCTION(x) {x = GetProcAddress(python_dll, #x); \
     if(x == NULL) {BAILOUT("Cannot find function: " #x);}}
 
+
+const char *FindPythonDLL()
+{
+    static char InstallPath[MAX_PATH];
+    DWORD InstallPathSize = MAX_PATH;
+    HKEY RegKey;
+    char *result = NULL;
+
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+            "Software\\Python\\PythonCore\\2.7\\InstallPath",
+            0, KEY_READ, &RegKey) != ERROR_SUCCESS) {
+        return NULL;
+    }
+
+    if (RegQueryValueEx(RegKey, NULL, NULL, NULL,
+                InstallPath, &InstallPathSize) == ERROR_SUCCESS) {
+        strncat(InstallPath, "\\python27.dll", sizeof(InstallPath));
+        result = InstallPath;
+    }
+
+    RegCloseKey(RegKey);
+    return result;
+}
+
+
 int main(int argc, char** argv)
 {
     char path_env[MAX_PATH];
     char current_dir[MAX_PATH];
     char *endmarker = NULL;
+    char *dll_path = NULL;
     int i;
     void *MainPy;
     void *GtkModule;
     int _argc = 1;
     char *_argv[] = { MAIN_MODULE };
     TCHAR gPodder_Home[MAX_PATH];
+    TCHAR Temp_Download_Filename[MAX_PATH];
 
     HMODULE python_dll;
     FARPROC Py_Initialize;
@@ -95,11 +122,14 @@ int main(int argc, char** argv)
             BAILOUT("Cannot determine your home directory (SHGetFolderPath).");
         }
 
-        strncat(gPodder_Home, "\\gPodder", MAX_PATH);
+        strncat(gPodder_Home, "\\gPodder\\", MAX_PATH);
         if (SetEnvironmentVariable("GPODDER_HOME", gPodder_Home) == 0) {
             BAILOUT("SetEnvironmentVariable for GPODDER_HOME failed.");
         }
+    } else {
+        strncpy(gPodder_Home, getenv("GPODDER_HOME"), MAX_PATH);
     }
+    CreateDirectory(gPodder_Home, NULL);
 
     /* Set current directory to directory of launcher */
     strncpy(current_dir, argv[0], MAX_PATH);
@@ -119,17 +149,27 @@ int main(int argc, char** argv)
     python_dll = LoadLibrary("python27.dll");
 
     if (python_dll == NULL) {
+        /* Try to detect "just for me"-installed Python version (bug 1480) */
+        dll_path = FindPythonDLL();
+        if (dll_path != NULL) {
+            python_dll = LoadLibrary(dll_path);
+        }
+    }
+
+    if (python_dll == NULL) {
         if (MessageBox(NULL,
                 PROGNAME " requires Python 2.7.\n"
                 "Do you want to install it now?",
                 "Python 2.7 installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            if (DownloadFile(PYTHON_INSTALLER_FILE,
+            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, PYTHON_INSTALLER_FILE, MAX_PATH);
+            if (DownloadFile(Temp_Download_Filename,
                         PYTHON_INSTALLER_URL,
                         PYTHON_INSTALLER_SIZE) == PYTHON_INSTALLER_SIZE) {
                 ShellExecute(NULL,
                         "open",
-                        PYTHON_INSTALLER_FILE,
+                        Temp_Download_Filename,
                         NULL,
                         NULL,
                         SW_SHOWNORMAL);
@@ -160,12 +200,14 @@ int main(int argc, char** argv)
                 "Do you want to install it now?",
                 "PyGTK installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            if (DownloadFile(PYGTK_INSTALLER_FILE,
+            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, PYGTK_INSTALLER_FILE, MAX_PATH);
+            if (DownloadFile(Temp_Download_Filename,
                         PYGTK_INSTALLER_URL,
                         PYGTK_INSTALLER_SIZE) == PYGTK_INSTALLER_SIZE) {
                 ShellExecute(NULL,
                         "open",
-                        PYGTK_INSTALLER_FILE,
+                        Temp_Download_Filename,
                         NULL,
                         NULL,
                         SW_SHOWNORMAL);

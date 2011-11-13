@@ -59,6 +59,12 @@ class ProgressIndicator(object):
         self.dialog.set_title(self.title)
         self.dialog.set_deletable(self.cancellable)
 
+        # Avoid selectable text (requires PyGTK >= 2.22)
+        if hasattr(self.dialog, 'get_message_area'):
+            for label in self.dialog.get_message_area():
+                if isinstance(label, gtk.Label):
+                    label.set_selectable(False)
+
         self.dialog.set_response_sensitive(gtk.RESPONSE_CANCEL, \
                 self.cancellable)
 

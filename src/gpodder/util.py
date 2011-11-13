@@ -1144,6 +1144,8 @@ def gui_open(filename):
     try:
         if gpodder.win32:
             os.startfile(filename)
+        elif gpodder.osx:
+            subprocess.Popen(['open', filename])
         else:
             subprocess.Popen(['xdg-open', filename])
         return True

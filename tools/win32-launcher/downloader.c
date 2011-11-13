@@ -19,6 +19,11 @@ DownloadFile(const char *filename, const char *url, unsigned long size)
     HWND label;
     MSG msg;
 
+    /**
+     * TODO: Check if filename exists and is size bytes long - if so,
+     * return size immediately without downloading the file again.
+     **/
+
 #if defined(GPODDER_GUI)
     dlg = CreateDialog(NULL, "PROGRESS", NULL, NULL);
 

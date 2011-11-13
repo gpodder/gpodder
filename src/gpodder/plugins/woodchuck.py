@@ -311,7 +311,7 @@ class mywoodchuck(PyWoodchuck):
                      % (podcast.title, podcast.url,))
 
         # Assume the error is transient.
-        status = woodchuck.DownloadStatus.TransientOther
+        status = woodchuck.TransferStatus.TransientOther
 
         if (any(isinstance(exception, exception_class)
                 for exception_class in [feedcore.Unsubscribe,
@@ -319,12 +319,12 @@ class mywoodchuck(PyWoodchuck):
                                         feedcore.InvalidFeed,
                                         feedcore.UnknownStatusCode])):
             # The podcast disappeared...
-            status = woodchuck.DownloadStatus.FailureGone
+            status = woodchuck.TransferStatus.FailureGone
         elif (any(isinstance(exception, exception_class)
                   for exception_class in [feedcore.Offline,
                                           feedcore.WifiLogin])):
             # Tranient network error.
-            status = woodchuck.DownloadStatus.TransientNetwork
+            status = woodchuck.TransferStatus.TransientNetwork
 
         self.stream_update_failed(podcast.url, status)
 
@@ -392,7 +392,7 @@ class mywoodchuck(PyWoodchuck):
             # Assume that the user played between the old current
             # position and the new current position.
             start = changes.get('current_position', 0)
-            end = obj.current_position
+            end = episode.current_position
             if start > end:
                 # The user rewound.  Assume [0, end]
                 start = 0
@@ -422,13 +422,21 @@ class mywoodchuck(PyWoodchuck):
         logger.debug("Episode %s (%s): file deleted (%s)"
                      % (episode.guid, episode.title, filename))
 
-        self[episode.channel.url][episode.guid].files_deleted()
+        try:
+            self[episode.channel.url][episode.guid].files_deleted()
+        except KeyError:
+            logger.debug("on_episode_delete: episode %s (%s) not registered",
+                         episode.guid, episode.title)
 
     @execute_in_main_thread
     def on_episode_removed_from_podcast(self, episode):
         logger.debug("Episode %s (%s) removed" % (episode.guid, episode.title))
 
-        del self[episode.channel.url][episode.guid]
+        try:
+            del self[episode.channel.url][episode.guid]
+        except KeyError:
+            logger.debug("on_episode_removed_from_podcast: episode %s (%s) not registered",
+                         episode.guid, episode.title)
 
 @coroutine
 def check_subscriptions():
