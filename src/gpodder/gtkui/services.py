@@ -137,17 +137,6 @@ class CoverDownloader(ObservableService):
             if new_url is not None:
                 url = new_url
 
-            if url is None and channel.link is not None and \
-                    channel.link.startswith('http://'):
-                # Try to use the favicon of the linked website's host
-                split_result = urlparse.urlsplit(channel.link)
-                scheme, netloc, path, query, fragment = split_result
-                path = '/favicon.ico'
-                query = ''
-                split_result = (scheme, netloc, path, query, fragment)
-                url = urlparse.urlunsplit(split_result)
-                logger.debug('Trying favicon: %s', url)
-
             if url is not None:
                 image_data = None
                 try:
