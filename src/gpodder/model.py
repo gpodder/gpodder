@@ -923,19 +923,17 @@ class PodcastChannel(PodcastModelObject):
         self.cover_url = custom_feed.get_image()
         self.save()
 
-        guids = [episode.guid for episode in self.get_all_episodes()]
+        existing = self.get_all_episodes()
+        existing_guids = [episode.guid for episode in existing]
 
         assert self.children is not None
 
         # Insert newly-found episodes into the database + local cache
-        self.children.extend(custom_feed.get_new_episodes(self, guids))
+        new_episodes, seen_guids = custom_feed.get_new_episodes(self,
+                existing_guids)
+        self.children.extend(new_episodes)
 
-        # Sort episodes by pubdate, descending
-        self.children.sort(key=lambda e: e.published, reverse=True)
-
-        self.save()
-
-        self.db.purge(max_episodes, self.id)
+        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
     def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         #self.parse_error = feed.get('bozo_exception', None)
@@ -1046,6 +1044,9 @@ class PodcastChannel(PodcastModelObject):
             if self.children is not None:
                 self.children.append(episode)
 
+        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
+
+    def remove_unreachable_episodes(self, existing, seen_guids, max_episodes):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         if self.id is not None:

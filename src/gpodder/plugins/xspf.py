@@ -134,13 +134,15 @@ class FM4OnDemandPlaylist(object):
         return self.CONTENT.get(self.category, \
                 (None, None, None, 'XSPF playlist'))[3]
 
-    def get_new_episodes(self, channel, guids):
+    def get_new_episodes(self, channel, existing_guids):
         tracks = []
+        seen_guids = []
 
         for track in self.playlist.getElementsByTagName('track'):
             title = self.get_text_contents(track.getElementsByTagName('title'))
             url = self.get_text_contents(track.getElementsByTagName('location'))
-            if url in guids:
+            seen_guids.append(url)
+            if url in existing_guids:
                 continue
 
             filesize, filetype, filedate, filename = get_metadata(url)
@@ -157,7 +159,7 @@ class FM4OnDemandPlaylist(object):
             episode.save()
             tracks.append(episode)
 
-        return tracks
+        return tracks, seen_guids
 
 
 # Register our URL handlers
