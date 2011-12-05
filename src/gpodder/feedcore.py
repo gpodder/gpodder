@@ -61,6 +61,21 @@ def patch_feedparser():
     if '*/*' not in feedparser.ACCEPT_HEADER.split(','):
         feedparser.ACCEPT_HEADER += ',*/*'
 
+    # Fix problem with YouTube feeds and pubDate/atom:modified
+    # https://bugs.gpodder.org/show_bug.cgi?id=1492
+    # http://code.google.com/p/feedparser/issues/detail?id=310
+    def _end_updated(self):
+        value = self.pop('updated')
+        parsed_value = feedparser._parse_date(value)
+        overwrite = ('youtube.com' not in self.baseuri)
+        self._save('updated_parsed', parsed_value, overwrite=overwrite)
+
+    try:
+        feedparser._FeedParserMixin._end_updated = _end_updated
+    except:
+        pass
+
+
 patch_feedparser()
 
 
