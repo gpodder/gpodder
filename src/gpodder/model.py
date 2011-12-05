@@ -348,6 +348,15 @@ class PodcastEpisode(PodcastModelObject):
     def db(self):
         return self.parent.parent.db
 
+    @property
+    def trimmed_title(self):
+        """Return the title with the common prefix trimmed"""
+        if (self.parent._common_prefix is not None and
+                self.title.startswith(self.parent._common_prefix)):
+            return self.title[len(self.parent._common_prefix):]
+
+        return self.title
+
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])
 
@@ -715,7 +724,7 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns
+    __slots__ = schema.PodcastColumns + ('_common_prefix',)
 
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
@@ -747,6 +756,7 @@ class PodcastChannel(PodcastModelObject):
         self.pause_subscription = False
 
         self.section = _('Other')
+        self._common_prefix = None
 
     @property
     def model(self):
@@ -1213,6 +1223,14 @@ class PodcastChannel(PodcastModelObject):
     def get_all_episodes(self):
         if self.children is None:
             self.children = self.db.load_episodes(self, self.episode_factory)
+
+            prefix = os.path.commonprefix([x.title for x in self.children])
+            # The common prefix must end with a space - otherwise it's not
+            # on a word boundary, and we might end up chopping off too much
+            if prefix and prefix[-1] != ' ' and ' ' in prefix:
+                prefix = prefix[:prefix.rfind(' ')+1]
+            self._common_prefix = prefix
+
         return self.children
 
     def find_unique_folder_name(self, download_folder):
