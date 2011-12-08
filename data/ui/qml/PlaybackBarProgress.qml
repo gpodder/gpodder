@@ -10,6 +10,11 @@ Item {
     property real progress: 0
     property int duration: 0
     property real mousepos: 0
+    property bool seekButtonPressed: false
+    property real seekButtonPosition: 0
+    property bool isPlaying: false
+    property bool overrideDisplay: false
+    property string overrideCaption: ''
     signal setProgress(real progress)
 
     height: 64 * Config.scale
@@ -39,13 +44,19 @@ Item {
             id: seekTimePreview
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.top
-            anchors.bottomMargin: Config.largeSpacing * 7
-            text: ' ' + Util.formatDuration(root.mousepos*duration) + ' '
+            anchors.bottomMargin: Config.largeSpacing * 12
+            text: {
+                if (root.overrideDisplay || !mouseArea.pressed) {
+                    ' ' + root.overrideCaption + ' '
+                } else {
+                    ' ' + Util.formatDuration(root.mousepos*duration) + ' '
+                }
+            }
             font.pixelSize: 50 * Config.scale
             horizontalAlignment: Text.AlignHCenter
             color: 'white'
-            opacity: mouseArea.pressed?1:0
-            scale: mouseArea.pressed?1:.5
+            opacity: mouseArea.pressed || root.overrideDisplay
+            scale: opacity?1:.5
             transformOrigin: Item.Bottom
 
             Behavior on opacity { PropertyAnimation { } }
@@ -65,12 +76,32 @@ Item {
             anchors.leftMargin: parent.border.left
             anchors.topMargin: parent.border.top
 
-            width: Math.max(1, (parent.width-parent.border.left-parent.border.right) * root.progress)
+            width: Math.max(1, (parent.width-parent.border.left-parent.border.right) * Math.max(0, Math.min(1, root.progress)))
             source: 'artwork/slider-fg.png'
             clip: true
 
             Image {
+                visible: root.isPlaying || root.progress < 1
                 source: 'artwork/slider-dot.png'
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.right
+                anchors.leftMargin: -width
+            }
+        }
+
+        BorderImage {
+            opacity: mouseArea.pressed || root.seekButtonPressed
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.leftMargin: parent.border.left
+            anchors.topMargin: parent.border.top
+
+            width: Math.max(1, (parent.width-parent.border.left-parent.border.right) * Math.max(0, Math.min(1, (mouseArea.pressed?root.mousepos:root.seekButtonPosition))))
+            source: 'artwork/slider-seeking-fg.png'
+            clip: true
+
+            Image {
+                source: 'artwork/slider-seeking-dot.png'
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.right
                 anchors.leftMargin: -width
