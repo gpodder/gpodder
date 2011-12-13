@@ -13,10 +13,26 @@ Item {
 
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)
+    signal subscribe
+
+    Text {
+        anchors.centerIn: parent
+        color: 'white'
+        font.pixelSize: 30
+        horizontalAlignment: Text.AlignHCenter
+        text: '<big>' + _('No podcasts') + '</big><br><small>' + _('Touch here to add a podcast') + '</small>'
+        visible: !listView.visible
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: podcastList.subscribe()
+        }
+    }
 
     ListView {
         id: listView
         anchors.fill: parent
+        visible: count > 1
 
         section.property: 'section'
         section.delegate: Item {

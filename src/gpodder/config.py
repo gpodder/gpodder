@@ -132,6 +132,10 @@ class Config(dict):
 
         self.load()
 
+        # If there is no configuration file, we create one here (bug 1511)
+        if not os.path.exists(self.__filename):
+            self.save()
+
         atexit.register( self.__atexit)
 
     def __getattr__(self, name):

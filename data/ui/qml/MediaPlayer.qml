@@ -186,11 +186,20 @@ Item {
                         id: playbackBar
                         anchors.centerIn: parent
 
+                        Timer {
+                            id: resetSeekButtonPressed
+                            interval: 200
+                            onTriggered: progressBar.seekButtonPressed = false
+                        }
+
                         function seek(diff) {
                             if (episode != undefined && episode.qduration > 0) {
                                 var pos = (episode.qposition + diff)/episode.qduration
                                 if (pos < 0) pos = 0
                                 audioPlayer.setPosition(pos)
+                                progressBar.seekButtonPressed = true
+                                progressBar.seekButtonPosition = (episode.qposition/episode.qduration)
+                                resetSeekButtonPressed.restart()
                             }
                         }
 
@@ -205,6 +214,11 @@ Item {
 
             PlaybackBarProgress {
                 id: progressBar
+
+                overrideDisplay: playbackBar.pressed
+                overrideCaption: playbackBar.caption
+
+                isPlaying: mediaPlayer.playing
                 progress: (episode != undefined)?(episode.qduration?(episode.qposition / episode.qduration):0):0
                 duration: (episode != undefined)?episode.qduration:0
 

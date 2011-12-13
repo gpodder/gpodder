@@ -221,17 +221,18 @@ class EpisodeListModel(gtk.ListStore):
         return self._search_term
 
     def _format_description(self, episode, include_description=False):
+        title = episode.trimmed_title
         a, b = '', ''
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(episode.title), b,
+            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
                     _('from %s') % cgi.escape(episode.channel.title))
         elif include_description:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(episode.title), b,
+            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
                     cgi.escape(episode.one_line_description()))
         else:
-            return ''.join((a, cgi.escape(episode.title), b))
+            return ''.join((a, cgi.escape(title), b))
 
     def replace_from_channel(self, channel, include_description=False,
             treeview=None):

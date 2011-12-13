@@ -4,6 +4,23 @@ import 'config.js' as Config
 
 Row {
     id: root
+    property bool pressed: backward.pressed || forward.pressed || slowBackward.pressed || slowForward.pressed
+    property string caption
+
+    caption: {
+        if (backward.pressed) {
+            '- ' + controller.formatCount(n_('%(count)s minute', '%(count)s minutes', 1), 1)
+        } else if (forward.pressed) {
+            '+ ' + controller.formatCount(n_('%(count)s minute', '%(count)s minutes', 1), 1)
+        } else if (slowBackward.pressed) {
+            '- ' + controller.formatCount(n_('%(count)s second', '%(count)s seconds', 10), 10)
+        } else if (slowForward.pressed) {
+            '+ ' + controller.formatCount(n_('%(count)s second', '%(count)s seconds', 10), 10)
+        } else {
+            ''
+        }
+    }
+
     signal forward()
     signal backward()
     signal slowForward()
@@ -12,29 +29,31 @@ Row {
     height: 64 * Config.scale
 
     PlaybackBarButton {
-        source: 'artwork/btn_ffwd.png'
+        id: backward
+        source: 'artwork/btn_fffwd.png'
         rotation: 180
 
         onClicked: root.backward()
     }
 
     PlaybackBarButton {
+        id: slowBackward
         source: 'artwork/btn_ffwd.png'
         rotation: 180
-        opacity: .5
 
         onClicked: root.slowBackward()
     }
 
     PlaybackBarButton {
+        id: slowForward
         source: 'artwork/btn_ffwd.png'
-        opacity: .5
 
         onClicked: root.slowForward()
     }
 
     PlaybackBarButton {
-        source: 'artwork/btn_ffwd.png'
+        id: forward
+        source: 'artwork/btn_fffwd.png'
 
         onClicked: root.forward()
     }

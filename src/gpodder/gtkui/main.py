@@ -1247,7 +1247,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     return False
             elif role == TreeViewHelper.ROLE_PODCASTS:
                 channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
-                if channel is None:
+                if channel is None or not hasattr(channel, 'title'):
                     return False
                 error_str = model.get_value(iter, PodcastListModel.C_ERROR)
                 if error_str:

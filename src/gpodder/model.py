@@ -348,6 +348,15 @@ class PodcastEpisode(PodcastModelObject):
     def db(self):
         return self.parent.parent.db
 
+    @property
+    def trimmed_title(self):
+        """Return the title with the common prefix trimmed"""
+        if (self.parent._common_prefix is not None and
+                self.title.startswith(self.parent._common_prefix)):
+            return self.title[len(self.parent._common_prefix):]
+
+        return self.title
+
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])
 
@@ -715,7 +724,7 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns
+    __slots__ = schema.PodcastColumns + ('_common_prefix',)
 
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
@@ -747,6 +756,7 @@ class PodcastChannel(PodcastModelObject):
         self.pause_subscription = False
 
         self.section = _('Other')
+        self._common_prefix = None
 
     @property
     def model(self):
@@ -923,19 +933,17 @@ class PodcastChannel(PodcastModelObject):
         self.cover_url = custom_feed.get_image()
         self.save()
 
-        guids = [episode.guid for episode in self.get_all_episodes()]
+        existing = self.get_all_episodes()
+        existing_guids = [episode.guid for episode in existing]
 
         assert self.children is not None
 
         # Insert newly-found episodes into the database + local cache
-        self.children.extend(custom_feed.get_new_episodes(self, guids))
+        new_episodes, seen_guids = custom_feed.get_new_episodes(self,
+                existing_guids)
+        self.children.extend(new_episodes)
 
-        # Sort episodes by pubdate, descending
-        self.children.sort(key=lambda e: e.published, reverse=True)
-
-        self.save()
-
-        self.db.purge(max_episodes, self.id)
+        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
     def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
         #self.parse_error = feed.get('bozo_exception', None)
@@ -1046,6 +1054,9 @@ class PodcastChannel(PodcastModelObject):
             if self.children is not None:
                 self.children.append(episode)
 
+        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
+
+    def remove_unreachable_episodes(self, existing, seen_guids, max_episodes):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         if self.id is not None:
@@ -1212,6 +1223,14 @@ class PodcastChannel(PodcastModelObject):
     def get_all_episodes(self):
         if self.children is None:
             self.children = self.db.load_episodes(self, self.episode_factory)
+
+            prefix = os.path.commonprefix([x.title for x in self.children])
+            # The common prefix must end with a space - otherwise it's not
+            # on a word boundary, and we might end up chopping off too much
+            if prefix and prefix[-1] != ' ' and ' ' in prefix:
+                prefix = prefix[:prefix.rfind(' ')+1]
+            self._common_prefix = prefix
+
         return self.children
 
     def find_unique_folder_name(self, download_folder):

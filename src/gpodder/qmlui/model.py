@@ -96,7 +96,7 @@ class QEpisode(QObject):
     qpodcast = Property(QObject, _podcast, notify=never_changed)
 
     def _title(self):
-        return convert(self._episode.title)
+        return convert(self._episode.trimmed_title)
 
     qtitle = Property(unicode, _title, notify=changed)
 
