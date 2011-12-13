@@ -129,6 +129,7 @@ Image {
 
             onPodcastSelected: controller.podcastSelected(podcast)
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
+            onSubscribe: contextMenu.showSubscribe()
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
             Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
