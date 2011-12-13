@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-13 22:41+0100\n"
-"PO-Revision-Date: 2011-12-13 22:42+0100\n"
+"POT-Creation-Date: 2011-12-13 22:56+0100\n"
+"PO-Revision-Date: 2011-12-13 22:57+0100\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: gPodder Team <gpodder-devel@lists.berlios.de>\n"
 "Language: \n"
@@ -1198,7 +1198,7 @@ msgid "Tracks favorited by %s on Soundcloud."
 msgstr "Favorisierte Tracks von %s auf Soundcloud."
 
 #: data/ui/desktop/gpodderaddpodcast.ui.h:1
-#: data/ui/qml/Main.qml:353
+#: data/ui/qml/Main.qml:354
 msgid "Add a new podcast"
 msgstr "Neuen Podcast hinzufügen"
 
@@ -1565,7 +1565,7 @@ msgstr "Show-Notes"
 msgid "Now playing"
 msgstr "Wiedergabe"
 
-#: data/ui/qml/Main.qml:353
+#: data/ui/qml/Main.qml:354
 msgid "Context menu"
 msgstr "Kontext-Menü"
 
@@ -1583,7 +1583,15 @@ msgstr[1] "%(count)s Minuten"
 msgid "%(count)s second"
 msgid_plural "%(count)s seconds"
 msgstr[0] "%(count)s Sekunde"
-msgstr[1] "%(count)s Sekunden	"
+msgstr[1] "%(count)s Sekunden\t"
+
+#: data/ui/qml/PodcastList.qml:21
+msgid "No podcasts"
+msgstr "Keine Podcasts"
+
+#: data/ui/qml/PodcastList.qml:21
+msgid "Touch here to add a podcast"
+msgstr "Zum Hinzufügen hier berühren"
 
 #: data/ui/qml/Subscribe.qml:58
 msgid "Search term or URL"
@@ -1926,9 +1934,6 @@ msgstr "gPodder Podcast Client"
 
 #~ msgid "Loading podcast list"
 #~ msgstr "Lade Podcast-Liste"
-
-#~ msgid "No podcasts"
-#~ msgstr "Keine Podcasts"
 
 #~ msgid "No podcasts found. Try another source."
 #~ msgstr "Keine Podcasts gefunden. Probieren Sie eine andere Quelle."
