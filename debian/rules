@@ -11,17 +11,16 @@
 
 DOCS		= README
 
-PYTHON		= /usr/bin/python
-SETUP		= TARGET=maemo ${PYTHON} setup.py
+PYTHON		= python2.6
+SETUP		= $(PYTHON) setup.py
 
-DEBPACKAGE	= gpodder
-DESTDIR		= debian/${DEBPACKAGE}
+PACKAGE		= gpodder
+DESTDIR		= debian/$(PACKAGE)
 PREFIX		= usr
 
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
 	touch configure-stamp
 
 build: build-stamp
