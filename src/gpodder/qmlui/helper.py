@@ -78,6 +78,7 @@ class MediaButtonsHandler(QtCore.QObject):
 
         if gpodder.ui.harmattan:
             headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_0'
+            headset_path2 = '/org/freedesktop/Hal/devices/computer_logicaldev_input'
         elif gpodder.ui.fremantle:
             headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_1'
         else:
@@ -87,10 +88,13 @@ class MediaButtonsHandler(QtCore.QObject):
         system_bus = dbus.SystemBus()
         system_bus.add_signal_receiver(self.handle_button, 'Condition',
                 'org.freedesktop.Hal.Device', None, headset_path)
+        if gpodder.ui.harmattan:
+            system_bus.add_signal_receiver(self.handle_button, 'Condition',
+                    'org.freedesktop.Hal.Device', None, headset_path2)
 
     def handle_button(self, signal, button):
         if signal == 'ButtonPressed':
-            if button == 'play-cd':
+            if button in ('play-cd', 'phone'):
                 self.playPressed.emit()
             elif button == 'pause-cd':
                 self.pausePressed.emit()
