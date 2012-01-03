@@ -97,7 +97,6 @@ class UIConfig(config.Config):
         self.__ignore_window_events = False
 
     def connect_gtk_editable(self, name, editable):
-        assert name in self.Settings
         editable.delete_text(0, -1)
         editable.insert_text(str(getattr(self, name)))
 
@@ -106,7 +105,6 @@ class UIConfig(config.Config):
         editable.connect('changed', _editable_changed)
 
     def connect_gtk_spinbutton(self, name, spinbutton):
-        assert name in self.Settings
         spinbutton.set_value(getattr(self, name))
 
         def _spinbutton_changed(spinbutton):
@@ -114,7 +112,6 @@ class UIConfig(config.Config):
         spinbutton.connect('value-changed', _spinbutton_changed)
 
     def connect_gtk_paned(self, name, paned):
-        assert name in self.Settings
         paned.set_position(getattr(self, name))
         paned_child = paned.get_child1()
 
@@ -123,7 +120,6 @@ class UIConfig(config.Config):
         paned_child.connect('size-allocate', _child_size_allocate)
 
     def connect_gtk_togglebutton(self, name, togglebutton):
-        assert name in self.Settings
         togglebutton.set_active(getattr(self, name))
 
         def _togglebutton_toggled(togglebutton):
@@ -131,46 +127,42 @@ class UIConfig(config.Config):
         togglebutton.connect('toggled', _togglebutton_toggled)
 
     def connect_gtk_window(self, window, config_prefix, show_window=False):
-        x, y, width, height, maximized = map(lambda x: config_prefix+'_'+x, \
-                ('x', 'y', 'width', 'height', 'maximized'))
+        cfg = getattr(self.ui.gtk.state, config_prefix)
 
-        if set((x, y, width, height)).issubset(set(self.Settings)):
-            window.resize(getattr(self, width), getattr(self, height))
-            if getattr(self, x) == -1 or getattr(self, y) == -1:
-                window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
-            else:
-                window.move(getattr(self, x), getattr(self, y))
+        window.resize(cfg.width, cfg.height)
+        if cfg.x == -1 or cfg.y == -1:
+            window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+        else:
+            window.move(cfg.x, cfg.y)
 
-            # Ignore events while we're connecting to the window
-            self.__ignore_window_events = True
+        # Ignore events while we're connecting to the window
+        self.__ignore_window_events = True
 
-            def _receive_configure_event(widget, event):
-                x_pos, y_pos = event.x, event.y
-                width_size, height_size = event.width, event.height
-                if not self.__ignore_window_events and not \
-                       (hasattr(self, maximized) and getattr(self, maximized)):
-                    setattr(self, x, x_pos)
-                    setattr(self, y, y_pos)
-                    setattr(self, width, width_size)
-                    setattr(self, height, height_size)
+        def _receive_configure_event(widget, event):
+            x_pos, y_pos = event.x, event.y
+            width_size, height_size = event.width, event.height
+            if not self.__ignore_window_events and not cfg.maximized:
+                cfg.x = x_pos
+                cfg.y = y_pos
+                cfg.width = width_size
+                cfg.height = height_size
 
-            window.connect('configure-event', _receive_configure_event)
+        window.connect('configure-event', _receive_configure_event)
 
-            def _receive_window_state(widget, event):
-                new_value = bool(event.new_window_state & \
-                        gtk.gdk.WINDOW_STATE_MAXIMIZED)
-                if hasattr(self, maximized):
-                    setattr(self, maximized, new_value)
+        def _receive_window_state(widget, event):
+            new_value = bool(event.new_window_state &
+                    gtk.gdk.WINDOW_STATE_MAXIMIZED)
+            cfg.maximized = new_value
 
-            window.connect('window-state-event', _receive_window_state)
+        window.connect('window-state-event', _receive_window_state)
 
-            # After the window has been set up, we enable events again
-            def _enable_window_events():
-                self.__ignore_window_events = False
-            util.idle_add(_enable_window_events)
+        # After the window has been set up, we enable events again
+        def _enable_window_events():
+            self.__ignore_window_events = False
+        util.idle_add(_enable_window_events)
 
-            if show_window:
-                window.show()
-            if getattr(self, maximized, False):
-                window.maximize()
+        if show_window:
+            window.show()
+        if cfg.maximized:
+            window.maximize()
 

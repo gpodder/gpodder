@@ -181,7 +181,7 @@ class PodcastEpisode(PodcastModelObject):
                 youtube.is_video_link(self.link))
 
     @classmethod
-    def from_feedparser_entry(cls, entry, channel, mimetype_prefs=''):
+    def from_feedparser_entry(cls, entry, channel):
         episode = cls(channel)
         episode.guid = entry.get('id', '')
 
@@ -228,25 +228,14 @@ class PodcastEpisode(PodcastModelObject):
         video_available = any(e.get('type', '').startswith('video/') \
                 for e in enclosures + media_rss_content)
 
-        # Create the list of preferred mime types
-        mimetype_prefs = mimetype_prefs.split(',')
-
-        def calculate_preference_value(enclosure):
-            """Calculate preference value of an enclosure
-
-            This is based on mime types and allows users to prefer
-            certain mime types over others (e.g. MP3 over AAC, ...)
-            """
-            mimetype = enclosure.get('type', None)
-            try:
-                # If the mime type is found, return its (zero-based) index
-                return mimetype_prefs.index(mimetype)
-            except ValueError:
-                # If it is not found, assume it comes after all listed items
-                return len(mimetype_prefs)
+        # XXX: Make it possible for hooks/extensions to override this by
+        # giving them a list of enclosures and the "self" object (podcast)
+        # and letting them sort and/or filter the list of enclosures to
+        # get the desired enclosure picked by the algorithm below.
+        filter_and_sort_enclosures = lambda x: x
 
         # Enclosures
-        for e in sorted(enclosures, key=calculate_preference_value):
+        for e in filter_and_sort_enclosures(enclosures):
             episode.mime_type = e.get('type', 'application/octet-stream')
             if episode.mime_type == '':
                 # See Maemo bug 10036
@@ -280,7 +269,7 @@ class PodcastEpisode(PodcastModelObject):
             return episode
 
         # Media RSS content
-        for m in sorted(media_rss_content, key=calculate_preference_value):
+        for m in filter_and_sort_enclosures(media_rss_content):
             episode.mime_type = m.get('type', 'application/octet-stream')
             if '/' not in episode.mime_type:
                 continue
@@ -900,8 +889,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None,\
-            max_episodes=0, \
-            mimetype_prefs=''):
+            max_episodes=0):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
@@ -922,7 +910,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
 
             try:
-                tmp.update(max_episodes, mimetype_prefs)
+                tmp.update(max_episodes)
             except Exception, e:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
@@ -986,7 +974,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
-    def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
+    def _consume_updated_feed(self, feed, max_episodes=0):
         #self.parse_error = feed.get('bozo_exception', None)
 
         self._consume_updated_title(feed.feed.get('title', self.url))
@@ -1047,7 +1035,7 @@ class PodcastChannel(PodcastModelObject):
         # Search all entries for new episodes
         for entry in entries:
             try:
-                episode = self.EpisodeClass.from_feedparser_entry(entry, self, mimetype_prefs)
+                episode = self.EpisodeClass.from_feedparser_entry(entry, self)
                 if episode is not None:
                     if not episode.title:
                         logger.warn('Using filename as title for %s',
@@ -1132,7 +1120,7 @@ class PodcastChannel(PodcastModelObject):
         self.http_etag = feed.headers.get('etag', self.http_etag)
         self.http_last_modified = feed.headers.get('last-modified', self.http_last_modified)
 
-    def update(self, max_episodes=0, mimetype_prefs=''):
+    def update(self, max_episodes=0):
         try:
             self.feed_fetcher.fetch_channel(self)
         except CustomFeed, updated:
@@ -1141,7 +1129,7 @@ class PodcastChannel(PodcastModelObject):
             self.save()
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
-            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NewLocation, updated:
@@ -1150,7 +1138,7 @@ class PodcastChannel(PodcastModelObject):
             if feed.href in set(x.url for x in self.model.get_podcasts()):
                 raise Exception('Already subscribed to ' + feed.href)
             self.url = feed.href
-            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NotModified, updated:
@@ -1376,10 +1364,10 @@ class Model(object):
         return self.children
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
-                     max_episodes=0, mimetype_prefs=''):
+                     max_episodes=0):
         return self.PodcastClass.load(self, url, create,
                                       authentication_tokens,
-                                      max_episodes, mimetype_prefs)
+                                      max_episodes)
 
     @classmethod
     def podcast_sort_key(cls, podcast):

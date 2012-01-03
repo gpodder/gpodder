@@ -108,8 +108,7 @@ class Podcast(object):
         Downloads the podcast feed (using the feed cache), and
         adds new episodes and updated information to the database.
         """
-        self._podcast.update(self._manager._config.max_episodes_per_feed, \
-                self._manager._config.mimetype_prefs)
+        self._podcast.update(self._manager._config.max_episodes_per_feed)
 
     def feed_update_status_msg(self):
         """Show the feed update status
@@ -228,8 +227,7 @@ class PodcastClient(object):
             return None
 
         podcast = self._model.load_podcast(url, create=True, \
-                max_episodes=self._config.max_episodes_per_feed, \
-                mimetype_prefs=self._config.mimetype_prefs)
+                max_episodes=self._config.max_episodes_per_feed)
         if podcast is not None:
             if title is not None:
                 podcast.rename(title)

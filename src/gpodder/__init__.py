@@ -144,7 +144,7 @@ def set_home(new_home):
     global home, config_file, database_file, downloads
     home = os.path.abspath(new_home)
 
-    config_file = os.path.join(home, 'Settings')
+    config_file = os.path.join(home, 'Settings.json')
     database_file = os.path.join(home, 'Database')
     downloads = os.path.join(home, 'Downloads')
 

@@ -41,6 +41,7 @@ import platform
 import glob
 import stat
 import shlex
+import shutil
 import socket
 import sys
 import string
@@ -1479,4 +1480,18 @@ def is_known_redirecter(url):
         return True
 
     return False
+
+
+def atomic_rename(old_name, new_name):
+    """Atomically rename/move a (temporary) file
+
+    This is usually used when updating a file safely by writing
+    the new contents into a temporary file and then moving the
+    temporary file over the original file to replace it.
+    """
+    if gpodder.win32:
+        # Win32 does not support atomic rename with os.rename
+        shutil.move(old_name, new_name)
+    else:
+        os.rename(old_name, new_name)
 

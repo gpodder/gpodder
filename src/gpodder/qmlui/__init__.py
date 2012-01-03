@@ -75,13 +75,13 @@ class Controller(QObject):
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
                 old_value, new_value)
-        if name == 'mygpo_enabled':
+        if name == 'mygpo.enabled':
             self.myGpoEnabledChanged.emit()
-        elif name == 'mygpo_username':
+        elif name == 'mygpo.username':
             self.myGpoUsernameChanged.emit()
-        elif name == 'mygpo_password':
+        elif name == 'mygpo.password':
             self.myGpoPasswordChanged.emit()
-        elif name == 'mygpo_device_caption':
+        elif name == 'mygpo.device.caption':
             self.myGpoDeviceCaptionChanged.emit()
 
     episodeListTitleChanged = Signal()
@@ -198,10 +198,10 @@ class Controller(QObject):
     myGpoEnabledChanged = Signal()
 
     def getMyGpoEnabled(self):
-        return self.root.config.mygpo_enabled
+        return self.root.config.mygpo.enabled
 
     def setMyGpoEnabled(self, enabled):
-        self.root.config.mygpo_enabled = enabled
+        self.root.config.mygpo.enabled = enabled
 
     myGpoEnabled = Property(bool, getMyGpoEnabled,
             setMyGpoEnabled, notify=myGpoEnabledChanged)
@@ -209,10 +209,10 @@ class Controller(QObject):
     myGpoUsernameChanged = Signal()
 
     def getMyGpoUsername(self):
-        return model.convert(self.root.config.mygpo_username)
+        return model.convert(self.root.config.mygpo.username)
 
     def setMyGpoUsername(self, username):
-        self.root.config.mygpo_username = username
+        self.root.config.mygpo.username = username
 
     myGpoUsername = Property(unicode, getMyGpoUsername,
             setMyGpoUsername, notify=myGpoUsernameChanged)
@@ -220,10 +220,10 @@ class Controller(QObject):
     myGpoPasswordChanged = Signal()
 
     def getMyGpoPassword(self):
-        return model.convert(self.root.config.mygpo_password)
+        return model.convert(self.root.config.mygpo.password)
 
     def setMyGpoPassword(self, password):
-        self.root.config.mygpo_password = password
+        self.root.config.mygpo.password = password
 
     myGpoPassword = Property(unicode, getMyGpoPassword,
             setMyGpoPassword, notify=myGpoPasswordChanged)
@@ -231,10 +231,10 @@ class Controller(QObject):
     myGpoDeviceCaptionChanged = Signal()
 
     def getMyGpoDeviceCaption(self):
-        return model.convert(self.root.config.mygpo_device_caption)
+        return model.convert(self.root.config.mygpo.device.caption)
 
     def setMyGpoDeviceCaption(self, caption):
-        self.root.config.mygpo_device_caption = caption
+        self.root.config.mygpo.device.caption = caption
 
     myGpoDeviceCaption = Property(unicode, getMyGpoDeviceCaption,
             setMyGpoDeviceCaption, notify=myGpoDeviceCaptionChanged)
@@ -484,8 +484,7 @@ class Controller(QObject):
                     self.root.start_progress(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
                     try:
                         podcast = self.root.model.load_podcast(url=url, create=True,
-                                max_episodes=self.root.config.max_episodes_per_feed,
-                                mimetype_prefs=self.root.config.mimetype_prefs)
+                                max_episodes=self.root.config.max_episodes_per_feed)
                         podcast.save()
                         self.root.insert_podcast(model.QPodcast(podcast))
                     except Exception, e:

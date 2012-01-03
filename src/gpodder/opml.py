@@ -187,11 +187,7 @@ class Exporter(object):
             fp = open(self.filename+'.tmp', 'w')
             fp.write(data)
             fp.close()
-            if gpodder.win32:
-                # Win32 does not support atomic rename with os.rename
-                shutil.move(self.filename+'.tmp', self.filename)
-            else:
-                os.rename(self.filename+'.tmp', self.filename)
+            util.atomic_rename(self.filename+'.tmp', self.filename)
         except:
             logger.error('Could not open file for writing: %s', self.filename,
                     exc_info=True)

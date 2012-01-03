@@ -34,35 +34,26 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 from gpodder.gtkui.desktopfile import PlayerListModel
 
 class NewEpisodeActionList(gtk.ListStore):
-    C_CAPTION, C_AUTO_DOWNLOAD, C_HIDE_DIALOG = range(3)
+    C_CAPTION, C_AUTO_DOWNLOAD = range(2)
 
     ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str, bool)
+        gtk.ListStore.__init__(self, str, str)
         self._config = config
-        self.append((_('Do nothing'), 'never', True))
-        self.append((_('Show episode list'), 'never', False))
-        self.append((_('Add to download list'), 'queue', False))
-        self.append((_('Download if minimized'), 'minimized', False))
-        self.append((_('Download immediately'), 'always', False))
+        self.append((_('Do nothing'), 'ignore'))
+        self.append((_('Show episode list'), 'show'))
+        self.append((_('Add to download list'), 'queue'))
+        self.append((_('Download immediately'), 'download'))
 
     def get_index(self):
-        if self._config.do_not_show_new_episodes_dialog:
-            return 0
-        else:
-            for index, row in enumerate(self):
-                if row[self.C_HIDE_DIALOG]:
-                    continue
-
-                if self._config.auto_download == \
-                        row[self.C_AUTO_DOWNLOAD]:
-                    return index
+        for index, row in enumerate(self):
+            if self._config.auto_download == row[self.C_AUTO_DOWNLOAD]:
+                return index
 
         return 1 # Some sane default
 
     def set_index(self, index):
-        self._config.do_not_show_new_episodes_dialog = self[index][self.C_HIDE_DIALOG]
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
 
@@ -128,20 +119,20 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
 
         # Have to do this before calling set_active on checkbutton_enable
-        self._enable_mygpo = self._config.mygpo_enabled
+        self._enable_mygpo = self._config.mygpo.enabled
 
         # Initialize the UI state with configuration settings
-        self.checkbutton_enable.set_active(self._config.mygpo_enabled)
-        self.entry_username.set_text(self._config.mygpo_username)
-        self.entry_password.set_text(self._config.mygpo_password)
-        self.entry_caption.set_text(self._config.mygpo_device_caption)
+        self.checkbutton_enable.set_active(self._config.mygpo.enabled)
+        self.entry_username.set_text(self._config.mygpo.username)
+        self.entry_password.set_text(self._config.mygpo.password)
+        self.entry_caption.set_text(self._config.mygpo.device.caption)
 
         # Disable mygpo sync while the dialog is open
-        self._config.mygpo_enabled = False
+        self._config.mygpo.enabled = False
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it
-        self._config.mygpo_enabled = self._enable_mygpo
+        self._config.mygpo.enabled = self._enable_mygpo
         # Make sure the device is successfully created/updated
         self.mygpo_client.create_device()
         # Flush settings for mygpo client now
@@ -226,21 +217,21 @@ class gPodderPreferences(BuilderWidget):
         self._enable_mygpo = widget.get_active()
 
     def on_username_changed(self, widget):
-        self._config.mygpo_username = widget.get_text()
+        self._config.mygpo.username = widget.get_text()
 
     def on_password_changed(self, widget):
-        self._config.mygpo_password = widget.get_text()
+        self._config.mygpo.password = widget.get_text()
 
     def on_device_caption_changed(self, widget):
-        self._config.mygpo_device_caption = widget.get_text()
+        self._config.mygpo.device.caption = widget.get_text()
 
     def on_button_overwrite_clicked(self, button):
         title = _('Replace subscription list on server')
         message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
         if self.show_confirmation(message, title):
             def thread_proc():
-                self._config.mygpo_enabled = True
+                self._config.mygpo.enabled = True
                 self.on_send_full_subscriptions()
-                self._config.mygpo_enabled = False
+                self._config.mygpo.enabled = False
             threading.Thread(target=thread_proc).start()
 

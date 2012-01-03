@@ -50,7 +50,7 @@ class Core(object):
         self.config = config_class(gpodder.config_file)
 
         # Update the current device in the configuration
-        self.config.mygpo_device_type = util.detect_device_type()
+        self.config.mygpo.device.type = util.detect_device_type()
 
     def shutdown(self):
         # Close the database and store outstanding changes

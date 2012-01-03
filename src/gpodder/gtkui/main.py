@@ -111,14 +111,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.bluetooth_available = util.bluetooth_available()
 
-        self.config.connect_gtk_window(self.gPodder, '_main_window')
+        self.config.connect_gtk_window(self.main_window, 'main_window')
 
-        # Default/last paned position for sidebar toggling
-        self._last_paned_position = 200
-        self._last_paned_position_toggling = False
-        self.item_sidebar.set_active(self.config._paned_position > 0)
-
-        self.config.connect_gtk_paned('_paned_position', self.channelPaned)
+        self.config.connect_gtk_paned('paned_position', self.channelPaned)
 
         self.main_window.show()
 
@@ -313,24 +308,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
             self.on_itemUpdate_activate()
-
-    def on_view_sidebar_toggled(self, menu_item):
-        self.channelPaned.child_set_property(self.vboxChannelNavigator, \
-                'shrink', not menu_item.get_active())
-
-        if self._last_paned_position_toggling:
-            return
-
-        active = menu_item.get_active()
-        if active:
-            if self._last_paned_position == 0:
-                self._last_paned_position = 200
-            self.channelPaned.set_position(self._last_paned_position)
-        else:
-            current_position = self.channelPaned.get_position()
-            if current_position > 0:
-                self._last_paned_position = current_position
-                self.channelPaned.set_position(0)
 
     def episode_object_by_uri(self, uri):
         """Get an episode object given a local or remote URI
@@ -1189,21 +1166,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self._on_config_changed, *args)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'show_toolbar':
+        if name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
-        elif name == 'episode_list_descriptions':
+        elif name == 'ui.gtk.episode_list.descriptions':
             self.update_episode_list_model()
-        elif name in ('auto_update_feeds', 'auto_update_frequency'):
+        elif name in ('auto.update.enabled', 'auto.update.frequency'):
             self.restart_auto_update_timer()
-        elif name in ('podcast_list_view_all', 'podcast_list_sections'):
+        elif name in ('ui.gtk.podcast_list.all_episodes',
+                'ui.gtk.podcast_list.sections'):
             # Force a update of the podcast list model
             self.update_podcast_list_model()
-        elif name == 'episode_list_columns':
+        elif name == 'ui.gtk.episode_list.columns':
             self.update_episode_list_columns_visibility()
-        elif name == '_paned_position':
-            self._last_paned_position_toggling = True
-            self.item_sidebar.set_active(new_value > 0)
-            self._last_paned_position_toggling = False
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -2222,8 +2196,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # The URL is valid and does not exist already - subscribe!
                     channel = self.model.load_podcast(url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
-                            max_episodes=self.config.max_episodes_per_feed, \
-                            mimetype_prefs=self.config.mimetype_prefs)
+                            max_episodes=self.config.max_episodes_per_feed)
 
                     try:
                         username, password = util.username_password_from_url(url)
@@ -2348,8 +2321,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
 
                 try:
-                    channel.update(max_episodes=self.config.max_episodes_per_feed,
-                            mimetype_prefs=self.config.mimetype_prefs)
+                    channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception, e:
                     d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
@@ -2409,26 +2381,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     count = len(episodes)
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
-                    # Are we minimized and should we auto download?
-                    if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
+
+                    if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                         self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                        self.show_update_feeds_buttons()
                     elif self.config.auto_download == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
                         self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                        self.show_update_feeds_buttons()
                     else:
-                        self.show_update_feeds_buttons()
-                        # New episodes are available and we are not minimized
-                        if (not self.config.do_not_show_new_episodes_dialog
-                            and show_new_episodes_dialog):
+                        if (show_new_episodes_dialog and
+                                self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else:
+                        else: # !show_new_episodes_dialog or auto_download == 'ignore'
                             message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
                             self.pbFeedUpdate.set_text(message)
+
+                    self.show_update_feeds_buttons()
 
             util.idle_add(update_feed_cache_finish_callback)
 
@@ -2854,12 +2824,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         title = _('Login to gpodder.net')
         message = _('Please login to download your subscriptions.')
         success, (username, password) = self.show_login_dialog(title, message, \
-                self.config.mygpo_username, self.config.mygpo_password)
+                self.config.mygpo.username, self.config.mygpo.password)
         if not success:
             return
 
-        self.config.mygpo_username = username
-        self.config.mygpo_password = password
+        self.config.mygpo.username = username
+        self.config.mygpo.password = password
 
         dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                 custom_title=_('Subscriptions on gpodder.net'), \
@@ -2868,10 +2838,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # TODO: Refactor this into "gpodder.my" or mygpoclient, so that
         #       we do not have to hardcode the URL here
-        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo_username
+        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo.username
         url = util.url_add_authentication(OPML_URL, \
-                self.config.mygpo_username, \
-                self.config.mygpo_password)
+                self.config.mygpo.username, \
+                self.config.mygpo.password)
         dir.download_opml_file(url)
 
     def on_itemAddChannel_activate(self, widget=None):
@@ -3042,7 +3012,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemImportChannels_activate(self, widget, *args):
         dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
                 add_urls_callback=self.add_podcast_list)
-        util.idle_add(dir.download_opml_file, self.config.example_opml)
+        util.idle_add(dir.download_opml_file, my.EXAMPLES_OPML)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)

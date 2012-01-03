@@ -238,14 +238,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkToggleAction" id="item_sidebar">
-            <property name="active">True</property>
-            <property name="label" translatable="yes">Podcast list</property>
-            <signal handler="on_view_sidebar_toggled" name="activate"/>
-          </object>
-          <accelerator key="F9"/>
-        </child>
-        <child>
           <object class="GtkToggleAction" id="itemShowToolbar">
             <property name="active">True</property>
             <property name="name">itemShowToolbar</property>
@@ -365,7 +357,6 @@
           <menuitem action="item_episode_details"/>
         </menu>
         <menu action="menuView">
-          <menuitem action="item_sidebar"/>
           <menuitem action="itemShowAllEpisodes"/>
           <menuitem action="item_podcast_sections"/>
           <separator/>
@@ -726,7 +717,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="shrink">True</property>
+                        <property name="shrink">False</property>
                         <property name="resize">False</property>
                       </packing>
                     </child>
