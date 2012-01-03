@@ -28,6 +28,7 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
+from gpodder import vimeo
 from gpodder import schema
 
 import logging
@@ -74,7 +75,9 @@ class gPodderFetcher(feedcore.Fetcher):
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
-        return youtube.get_real_channel_url(url)
+        url = youtube.get_real_channel_url(url)
+        url = vimeo.get_real_channel_url(url)
+        return url
 
     @classmethod
     def register(cls, handler):
@@ -289,7 +292,8 @@ class PodcastEpisode(PodcastModelObject):
             if not episode.url:
                 continue
 
-            if youtube.is_video_link(episode.url):
+            if (youtube.is_video_link(episode.url) or \
+                    vimeo.is_video_link(episode.url)):
                 return episode
 
             # Check if we can resolve this link to a audio/video file
@@ -471,8 +475,8 @@ class PodcastEpisode(PodcastModelObject):
 
         if url is None or not os.path.exists(url):
             url = self.url
-            if youtube.is_video_link(url):
-                url = youtube.get_real_download_url(url, fmt_id)
+            url = youtube.get_real_download_url(url, fmt_id)
+            url = vimeo.get_real_download_url(url)
 
         return url
 
@@ -631,8 +635,8 @@ class PodcastEpisode(PodcastModelObject):
         return self.title
 
     def file_type(self):
-        # Assume all YouTube links are video files
-        if youtube.is_video_link(self.url):
+        # Assume all YouTube/Vimeo links are video files
+        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
             return 'video'
 
         return util.file_type_by_extension(self.extension())
@@ -952,11 +956,14 @@ class PodcastChannel(PodcastModelObject):
 
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
-        # Start YouTube-specific title FIX
+        # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
+        VIMEO_PREFIX = 'Vimeo / '
         if self.title.startswith(YOUTUBE_PREFIX):
             self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
-        # End YouTube-specific title FIX
+        elif self.title.startswith(VIMEO_PREFIX):
+            self.title = self.title[len(VIMEO_PREFIX):] + ' on Vimeo'
+        # End YouTube- and Vimeo-specific title FIX
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
@@ -1162,7 +1169,7 @@ class PodcastChannel(PodcastModelObject):
         return self.section
 
     def _get_content_type(self):
-        if 'youtube.com' in self.url:
+        if 'youtube.com' in self.url or 'vimeo.com' in self.url:
             return _('Video')
 
         audio, video, other = 0, 0, 0
