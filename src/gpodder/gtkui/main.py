@@ -964,6 +964,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
 
     def on_treeview_expose_event(self, treeview, event):
+        return False
         # XXX FIXME
         if event.window == treeview.get_bin_window():
             model = treeview.get_model()
@@ -1207,6 +1208,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._last_paned_position_toggling = False
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
+        return False # XXX
         # With get_bin_window, we get the window that contains the rows without
         # the header. The Y coordinate of this window will be the height of the
         # treeview header. This is the amount we have to subtract from the
@@ -1647,9 +1649,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (can_play, can_download, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
 
             if open_instead_of_play:
-                item = Gtk.ImageMenuItem(label=Gtk.STOCK_OPEN, use_stock=True)
+                item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_OPEN, None)
             elif downloaded:
-                item = Gtk.ImageMenuItem(label=Gtk.STOCK_MEDIA_PLAY, use_stock=True)
+                item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_MEDIA_PLAY, None)
             else:
                 if downloading:
                     item = Gtk.ImageMenuItem(label=_('Preview'))
@@ -1668,11 +1670,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', self.on_download_selected_episodes)
                 menu.append(item)
             else:
-                item = Gtk.ImageMenuItem(label=Gtk.STOCK_CANCEL, use_stock=True)
+                item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_CANCEL, None)
                 item.connect('activate', self.on_item_cancel_download_activate)
                 menu.append(item)
 
-            item = Gtk.ImageMenuItem(label=Gtk.STOCK_DELETE, use_stock=True)
+            item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_DELETE, None)
             item.set_sensitive(can_delete)
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)

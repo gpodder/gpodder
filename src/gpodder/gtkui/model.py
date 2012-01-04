@@ -159,7 +159,7 @@ class EpisodeListModel(Gtk.ListStore):
         if episode.file_size > 0:
             return util.format_filesize(episode.file_size, 1)
         else:
-            return None
+            return ''
 
     def _filter_visible_func(self, model, iter, user_data):
         # If searching is active, set visibility based on search text
@@ -313,7 +313,7 @@ class EpisodeListModel(Gtk.ListStore):
         show_bullet = False
         show_padlock = False
         show_missing = False
-        status_icon = None
+        status_icon = ''
         tooltip = []
         view_show_undeleted = True
         view_show_downloaded = False
@@ -638,7 +638,7 @@ class PodcastListModel(Gtk.ListStore):
         self.clear()
 
         def channel_to_row(channel, add_overlay=False):
-            return (channel.url, '', '', None, channel,
+            return (channel.url, '', '', GdkPixbuf.Pixbuf(), channel,
                     self._get_cover_image(channel, add_overlay), '', True,
                     True, True, True, True, False, 0, True, '')
 
@@ -649,8 +649,9 @@ class PodcastListModel(Gtk.ListStore):
 
             # Separator item
             if not config.podcast_list_sections:
-                self.append(('', '', '', None, SeparatorMarker, None, '',
-                    True, True, True, True, True, True, 0, False, ''))
+                self.append(('', '', '', GdkPixbuf.Pixbuf(), SeparatorMarker,
+                    GdkPixbuf.Pixbuf(), '', True,
+                    True, True, True, True, True, 0, False, ''))
 
         def key_func(pair):
             section, podcast = pair
@@ -770,8 +771,8 @@ class PodcastListModel(Gtk.ListStore):
         for key, value in ((self.C_TITLE, channel.title),
                 (self.C_DESCRIPTION, description),
                 (self.C_SECTION, channel.section),
-                (self.C_ERROR, self._format_error(channel)),
-                (self.C_PILL, pill_image),
+                (self.C_ERROR, self._format_error(channel) or ''),
+                (self.C_PILL, pill_image or GdkPixbuf.Pixbuf()),
                 (self.C_PILL_VISIBLE, pill_image != None),
                 (self.C_VIEW_SHOW_UNDELETED, total - deleted > 0),
                 (self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0),

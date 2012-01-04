@@ -108,7 +108,7 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
 
     ctx.move_to(w_width/2-width/2, w_height/2-height/2)
     ctx.set_source_rgba(*text_color)
-    PangoCairo.show_layout(ctx, layout)
+    #PangoCairo.show_layout(ctx, layout)
 
     # Draw an optional progress bar below the text (same width)
     if add_progress is not None:
@@ -195,10 +195,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
         ctx.move_to(x+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        PangoCairo.show_layout(ctx, layout_left)
+        #PangoCairo.show_layout(ctx, layout_left)
         ctx.move_to(x-1+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        PangoCairo.show_layout(ctx, layout_left)
+        #PangoCairo.show_layout(ctx, layout_left)
 
     if right_text is not None:
         draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
@@ -224,10 +224,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
         ctx.move_to(x+left_side_width+x_border, y+1+border)
         ctx.set_source_rgba( 0, 0, 0, 1)
-        PangoCairo.show_layout(ctx, layout_right)
+        #PangoCairo.show_layout(ctx, layout_right)
         ctx.move_to(x-1+left_side_width+x_border, y+border)
         ctx.set_source_rgba( 1, 1, 1, 1)
-        PangoCairo.show_layout(ctx, layout_right)
+        #PangoCairo.show_layout(ctx, layout_right)
 
     return surface
 
