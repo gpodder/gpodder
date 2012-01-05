@@ -356,7 +356,8 @@ class PodcastEpisode(PodcastModelObject):
     def trimmed_title(self):
         """Return the title with the common prefix trimmed"""
         if (self.parent._common_prefix is not None and
-                self.title.startswith(self.parent._common_prefix)):
+                self.title.startswith(self.parent._common_prefix) and
+                len(self.title)-len(self.parent._common_prefix) > 5):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
@@ -904,6 +905,9 @@ class PodcastChannel(PodcastModelObject):
             # Mark episodes as downloaded if files already exist (bug 902)
             tmp.check_download_folder()
 
+            # Determine common prefix of episode titles
+            tmp._determine_common_prefix()
+
             tmp.save()
 
             gpodder.user_hooks.on_podcast_subscribe(tmp)
@@ -1137,6 +1141,9 @@ class PodcastChannel(PodcastModelObject):
 
         gpodder.user_hooks.on_podcast_updated(self)
 
+        # Re-determine the common prefix for all episodes
+        self._determine_common_prefix()
+
         self.db.commit()
 
     def delete(self):
@@ -1227,16 +1234,19 @@ class PodcastChannel(PodcastModelObject):
     def get_downloaded_episodes(self):
         return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
 
+    def _determine_common_prefix(self):
+        prefix = os.path.commonprefix([x.title for x in self.children])
+        # The common prefix must end with a space - otherwise it's not
+        # on a word boundary, and we might end up chopping off too much
+        if prefix and prefix[-1] != ' ':
+            prefix = prefix[:prefix.rfind(' ')+1]
+
+        self._common_prefix = prefix
+
     def get_all_episodes(self):
         if self.children is None:
             self.children = self.db.load_episodes(self, self.episode_factory)
-
-            prefix = os.path.commonprefix([x.title for x in self.children])
-            # The common prefix must end with a space - otherwise it's not
-            # on a word boundary, and we might end up chopping off too much
-            if prefix and prefix[-1] != ' ' and ' ' in prefix:
-                prefix = prefix[:prefix.rfind(' ')+1]
-            self._common_prefix = prefix
+            self._determine_common_prefix()
 
         return self.children
 
