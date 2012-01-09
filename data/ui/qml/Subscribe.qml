@@ -260,11 +260,10 @@ Item {
 
         Behavior on opacity { PropertyAnimation { } }
 
-        Label {
+        BusyIndicator {
             anchors.centerIn: parent
-            text: _('Loading.')
-            color: 'white'
-            font.pixelSize: 30
+            running: parent.opacity > 0
+            platformStyle: BusyIndicatorStyle { size: "large" }
         }
     }
 
