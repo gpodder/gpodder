@@ -1249,6 +1249,11 @@ class PodcastChannel(PodcastModelObject):
         return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
 
     def _determine_common_prefix(self):
+        # We need at least 2 episodes for the prefix to be "common" ;)
+        if len(self.children) < 2:
+            self._common_prefix = ''
+            return
+
         prefix = os.path.commonprefix([x.title for x in self.children])
         # The common prefix must end with a space - otherwise it's not
         # on a word boundary, and we might end up chopping off too much
