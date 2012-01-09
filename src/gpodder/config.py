@@ -186,6 +186,9 @@ class JsonConfigSubtree(object):
     def __getitem__(self, name):
         return self._parent._lookup(self._name).__getitem__(name)
 
+    def __delitem__(self, name):
+        self._parent._lookup(self._name).__delitem__(name)
+
     def __setitem__(self, name, value):
         self._parent._lookup(self._name).__setitem__(name, value)
 
@@ -215,9 +218,12 @@ class JsonConfig(object):
 
     def _restore(self, backup):
         self._data = json.loads(backup)
+        # Add newly-added default configuration options
+        self._merge_keys(self._DEFAULT)
 
-        # Recurse into the data and add missing items from _DEFAULT
-        work_queue = [(self._data, self._DEFAULT)]
+    def _merge_keys(self, merge_source):
+        # Recurse into the data and add missing items
+        work_queue = [(self._data, merge_source)]
         while work_queue:
             data, default = work_queue.pop()
             for key, value in default.iteritems():
@@ -285,6 +291,16 @@ class Config(object):
             self.save()
 
         atexit.register(self.__atexit)
+
+    def register_defaults(self, defaults):
+        """
+        Register default configuration options (e.g. for extensions)
+
+        This function takes a dictionary that will be merged into the
+        current configuration if the keys don't yet exist. This can
+        be used to add a default configuration for extension modules.
+        """
+        self.__json_config._merge_keys(defaults)
 
     def add_observer(self, callback):
         """
