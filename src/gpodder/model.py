@@ -176,6 +176,7 @@ class PodcastEpisode(PodcastModelObject):
     @classmethod
     def from_feedparser_entry(cls, entry, channel, mimetype_prefs=''):
         episode = cls(channel)
+        episode.guid = entry.get('id', '')
 
         # Replace multi-space and newlines with single space (Maemo bug 11173)
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
@@ -187,8 +188,21 @@ class PodcastEpisode(PodcastModelObject):
             episode.description = entry.get('summary', '')
 
         try:
+            total_time = 0
+
             # Parse iTunes-specific podcast duration metadata
-            total_time = util.parse_time(entry.get('itunes_duration', ''))
+            itunes_duration = entry.get('itunes_duration', '')
+            if itunes_duration:
+                total_time = util.parse_time(itunes_duration)
+
+            # Parse time from YouTube descriptions if it's a YouTube feed
+            if youtube.is_youtube_guid(episode.guid):
+                result = re.search(r'Time:<[^>]*>\n<[^>]*>([:0-9]*)<',
+                        episode.description)
+                if result:
+                    youtube_duration = result.group(1)
+                    total_time = util.parse_time(youtube_duration)
+
             episode.total_time = total_time
         except:
             pass
@@ -197,7 +211,6 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.description:
             episode.description = entry.get('subtitle', '')
 
-        episode.guid = entry.get('id', '')
         if entry.get('updated_parsed', None):
             episode.published = rfc822.mktime_tz(entry.updated_parsed+(0,))
 

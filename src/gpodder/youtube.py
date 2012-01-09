@@ -146,6 +146,9 @@ def get_youtube_id(url):
 def is_video_link(url):
     return (get_youtube_id(url) is not None)
 
+def is_youtube_guid(guid):
+    return guid.startswith('tag:youtube.com,2008:video:')
+
 def get_real_channel_url(url):
     r = re.compile('http://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)', re.IGNORECASE)
     m = r.match(url)
