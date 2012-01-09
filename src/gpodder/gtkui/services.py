@@ -131,7 +131,9 @@ class CoverDownloader(ObservableService):
 
         if not os.path.exists(channel.cover_file):
             if url is None:
-                url = channel.cover_url
+                # We have to use authenticate_url, because password-protected
+                # feeds might keep their cover art also protected (bug 1521)
+                url = channel.authenticate_url(channel.cover_url)
 
             new_url = youtube.get_real_cover(channel.url)
             if new_url is not None:

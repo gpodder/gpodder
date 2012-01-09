@@ -2142,8 +2142,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_message(message, title, widget=self.treeChannels)
 
             # Report subscriptions that require authentication
+            retry_podcasts = {}
             if authreq:
-                retry_podcasts = {}
                 for url in authreq:
                     title = _('Podcast requires authentication')
                     message = _('Please login to %s:') % (cgi.escape(url),)
@@ -2157,10 +2157,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             error_messages[url] = _('Authentication failed')
                             failed.append(url)
                         break
-
-                # If we have authentication data to retry, do so here
-                if retry_podcasts:
-                    self.add_podcast_list(retry_podcasts.keys(), retry_podcasts)
 
             # Report website redirections
             for url in redirections:
@@ -2195,6 +2191,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Update the list of subscribed podcasts
             self.update_podcast_list_model(select_url=url)
+
+            # If we have authentication data to retry, do so here
+            if retry_podcasts:
+                self.add_podcast_list(retry_podcasts.keys(), retry_podcasts)
+                # This will NOT show new episodes for podcasts that have
+                # been added ("worked"), but it will prevent problems with
+                # multiple dialogs being open at the same time ;)
+                return
 
             # Offer to download new episodes
             episodes = []

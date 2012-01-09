@@ -237,19 +237,17 @@ def username_password_from_url(url):
       ...
     ValueError: URL has to be a string or unicode object.
     >>> username_password_from_url('http://a@b:c@host.com/')
-    Traceback (most recent call last):
-      ...
-    ValueError: "@" must be encoded for username/password (RFC1738).
+    ('a@b', 'c')
     >>> username_password_from_url('ftp://a:b:c@host.com/')
-    Traceback (most recent call last):
-      ...
-    ValueError: ":" must be encoded for username/password (RFC1738).
+    ('a', 'b:c')
     >>> username_password_from_url('http://i%2Fo:P%40ss%3A@host.com/')
     ('i/o', 'P@ss:')
     >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
     ('\xc3\xb6sterreich', None)
     >>> username_password_from_url('http://w%20x:y%20z@example.org/')
     ('w x', 'y z')
+    >>> username_password_from_url('http://example.com/x@y:z@test.com/')
+    (None, None)
     """
     if type(url) not in (str, unicode):
         raise ValueError('URL has to be a string or unicode object.')
@@ -262,11 +260,20 @@ def username_password_from_url(url):
         (authentication, netloc) = netloc.rsplit('@', 1)
         if ':' in authentication:
             (username, password) = authentication.split(':', 1)
-            # RFC1738 dictates that we should not allow these unquoted
-            # characters in the username and password field (Section 3.1).
-            for c in (':', '@', '/'):
-                if c in username or c in password:
-                    raise ValueError('"%c" must be encoded for username/password (RFC1738).' % c)
+
+            # RFC1738 dictates that we should not allow ['/', '@', ':']
+            # characters in the username and password field (Section 3.1):
+            #
+            # 1. The "/" can't be in there at this point because of the way
+            #    urlparse (which we use above) works.
+            # 2. Due to gPodder bug 1521, we allow "@" in the username and
+            #    password field. We use netloc.rsplit('@', 1), which will
+            #    make sure that we split it at the last '@' in netloc.
+            # 3. The colon must be excluded (RFC2617, Section 2) in the
+            #    username, but is apparently allowed in the password. This
+            #    is handled by the authentication.split(':', 1) above, and
+            #    will cause any extraneous ':'s to be part of the password.
+
             username = urllib.unquote(username)
             password = urllib.unquote(password)
         else:
@@ -829,13 +836,15 @@ def url_strip_authentication(url):
     'http://x.org/'
     >>> url_strip_authentication('http://P%40%3A:i%2F@cx.lan')
     'http://cx.lan'
+    >>> url_strip_authentication('http://x@x.com:s3cret@example.com/')
+    'http://example.com/'
     """
     url_parts = list(urlparse.urlsplit(url))
     # url_parts[1] is the HOST part of the URL
 
     # Remove existing authentication data
     if '@' in url_parts[1]:
-        url_parts[1] = url_parts[1].split('@', 2)[1]
+        url_parts[1] = url_parts[1].rsplit('@', 1)[1]
 
     return urlparse.urlunsplit(url_parts)
 
@@ -858,21 +867,24 @@ def url_add_authentication(url, username, password):
     >>> url_add_authentication('http://localhost/x', 'aa', 'bc')
     'http://aa:bc@localhost/x'
     >>> url_add_authentication('http://blubb.lan/u.html', 'i/o', 'P@ss:')
-    'http://i%2Fo:P%40ss%3A@blubb.lan/u.html'
+    'http://i%2Fo:P@ss:@blubb.lan/u.html'
     >>> url_add_authentication('http://a:b@x.org/', 'c', 'd')
     'http://c:d@x.org/'
-    >>> url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@:', 'i/')
-    'http://P%40%3A:i%2F@cx.lan'
+    >>> url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@x', 'i/')
+    'http://P@x:i%2F@cx.lan'
     >>> url_add_authentication('http://x.org/', 'a b', 'c d')
     'http://a%20b:c%20d@x.org/'
     """
     if username is None or username == '':
         return url
 
-    username = urllib.quote(username, safe='')
+    # Relaxations of the strict quoting rules (bug 1521):
+    # 1. Accept '@' in username and password
+    # 2. Acecpt ':' in password only
+    username = urllib.quote(username, safe='@')
 
     if password is not None:
-        password = urllib.quote(password, safe='')
+        password = urllib.quote(password, safe='@:')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
