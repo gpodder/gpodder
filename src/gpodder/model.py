@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 # Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ import gpodder
 from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
+from gpodder import vimeo
 from gpodder import schema
 
 import logging
@@ -74,7 +75,9 @@ class gPodderFetcher(feedcore.Fetcher):
         self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
-        return youtube.get_real_channel_url(url)
+        url = youtube.get_real_channel_url(url)
+        url = vimeo.get_real_channel_url(url)
+        return url
 
     @classmethod
     def register(cls, handler):
@@ -173,6 +176,7 @@ class PodcastEpisode(PodcastModelObject):
     @classmethod
     def from_feedparser_entry(cls, entry, channel, mimetype_prefs=''):
         episode = cls(channel)
+        episode.guid = entry.get('id', '')
 
         # Replace multi-space and newlines with single space (Maemo bug 11173)
         episode.title = re.sub('\s+', ' ', entry.get('title', ''))
@@ -184,8 +188,21 @@ class PodcastEpisode(PodcastModelObject):
             episode.description = entry.get('summary', '')
 
         try:
+            total_time = 0
+
             # Parse iTunes-specific podcast duration metadata
-            total_time = util.parse_time(entry.get('itunes_duration', ''))
+            itunes_duration = entry.get('itunes_duration', '')
+            if itunes_duration:
+                total_time = util.parse_time(itunes_duration)
+
+            # Parse time from YouTube descriptions if it's a YouTube feed
+            if youtube.is_youtube_guid(episode.guid):
+                result = re.search(r'Time:<[^>]*>\n<[^>]*>([:0-9]*)<',
+                        episode.description)
+                if result:
+                    youtube_duration = result.group(1)
+                    total_time = util.parse_time(youtube_duration)
+
             episode.total_time = total_time
         except:
             pass
@@ -194,7 +211,6 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.description:
             episode.description = entry.get('subtitle', '')
 
-        episode.guid = entry.get('id', '')
         if entry.get('updated_parsed', None):
             episode.published = rfc822.mktime_tz(entry.updated_parsed+(0,))
 
@@ -289,7 +305,8 @@ class PodcastEpisode(PodcastModelObject):
             if not episode.url:
                 continue
 
-            if youtube.is_video_link(episode.url):
+            if (youtube.is_video_link(episode.url) or \
+                    vimeo.is_video_link(episode.url)):
                 return episode
 
             # Check if we can resolve this link to a audio/video file
@@ -352,7 +369,8 @@ class PodcastEpisode(PodcastModelObject):
     def trimmed_title(self):
         """Return the title with the common prefix trimmed"""
         if (self.parent._common_prefix is not None and
-                self.title.startswith(self.parent._common_prefix)):
+                self.title.startswith(self.parent._common_prefix) and
+                len(self.title)-len(self.parent._common_prefix) > 5):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
@@ -471,8 +489,8 @@ class PodcastEpisode(PodcastModelObject):
 
         if url is None or not os.path.exists(url):
             url = self.url
-            if youtube.is_video_link(url):
-                url = youtube.get_real_download_url(url, fmt_id)
+            url = youtube.get_real_download_url(url, fmt_id)
+            url = vimeo.get_real_download_url(url)
 
         return url
 
@@ -631,8 +649,8 @@ class PodcastEpisode(PodcastModelObject):
         return self.title
 
     def file_type(self):
-        # Assume all YouTube links are video files
-        if youtube.is_video_link(self.url):
+        # Assume all YouTube/Vimeo links are video files
+        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
             return 'video'
 
         return util.file_type_by_extension(self.extension())
@@ -900,6 +918,9 @@ class PodcastChannel(PodcastModelObject):
             # Mark episodes as downloaded if files already exist (bug 902)
             tmp.check_download_folder()
 
+            # Determine common prefix of episode titles
+            tmp._determine_common_prefix()
+
             tmp.save()
 
             gpodder.user_hooks.on_podcast_subscribe(tmp)
@@ -952,11 +973,14 @@ class PodcastChannel(PodcastModelObject):
 
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
-        # Start YouTube-specific title FIX
+        # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
+        VIMEO_PREFIX = 'Vimeo / '
         if self.title.startswith(YOUTUBE_PREFIX):
             self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
-        # End YouTube-specific title FIX
+        elif self.title.startswith(VIMEO_PREFIX):
+            self.title = self.title[len(VIMEO_PREFIX):] + ' on Vimeo'
+        # End YouTube- and Vimeo-specific title FIX
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
@@ -1059,10 +1083,11 @@ class PodcastChannel(PodcastModelObject):
     def remove_unreachable_episodes(self, existing, seen_guids, max_episodes):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
+        # Keep episodes that are currently being downloaded, though (bug 1534)
         if self.id is not None:
-            episodes_to_purge = (e for e in existing if \
-                    e.state != gpodder.STATE_DOWNLOADED and \
-                    e.guid not in seen_guids)
+            episodes_to_purge = (e for e in existing if
+                    e.state != gpodder.STATE_DOWNLOADED and
+                    e.guid not in seen_guids and not e.downloading)
 
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
@@ -1130,6 +1155,9 @@ class PodcastChannel(PodcastModelObject):
 
         gpodder.user_hooks.on_podcast_updated(self)
 
+        # Re-determine the common prefix for all episodes
+        self._determine_common_prefix()
+
         self.db.commit()
 
     def delete(self):
@@ -1162,7 +1190,7 @@ class PodcastChannel(PodcastModelObject):
         return self.section
 
     def _get_content_type(self):
-        if 'youtube.com' in self.url:
+        if 'youtube.com' in self.url or 'vimeo.com' in self.url:
             return _('Video')
 
         audio, video, other = 0, 0, 0
@@ -1220,16 +1248,24 @@ class PodcastChannel(PodcastModelObject):
     def get_downloaded_episodes(self):
         return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
 
+    def _determine_common_prefix(self):
+        # We need at least 2 episodes for the prefix to be "common" ;)
+        if len(self.children) < 2:
+            self._common_prefix = ''
+            return
+
+        prefix = os.path.commonprefix([x.title for x in self.children])
+        # The common prefix must end with a space - otherwise it's not
+        # on a word boundary, and we might end up chopping off too much
+        if prefix and prefix[-1] != ' ':
+            prefix = prefix[:prefix.rfind(' ')+1]
+
+        self._common_prefix = prefix
+
     def get_all_episodes(self):
         if self.children is None:
             self.children = self.db.load_episodes(self, self.episode_factory)
-
-            prefix = os.path.commonprefix([x.title for x in self.children])
-            # The common prefix must end with a space - otherwise it's not
-            # on a word boundary, and we might end up chopping off too much
-            if prefix and prefix[-1] != ' ' and ' ' in prefix:
-                prefix = prefix[:prefix.rfind(' ')+1]
-            self._common_prefix = prefix
+            self._determine_common_prefix()
 
         return self.children
 

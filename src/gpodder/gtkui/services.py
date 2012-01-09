@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -131,7 +131,9 @@ class CoverDownloader(ObservableService):
 
         if not os.path.exists(channel.cover_file):
             if url is None:
-                url = channel.cover_url
+                # We have to use authenticate_url, because password-protected
+                # feeds might keep their cover art also protected (bug 1521)
+                url = channel.authenticate_url(channel.cover_url)
 
             new_url = youtube.get_real_cover(channel.url)
             if new_url is not None:

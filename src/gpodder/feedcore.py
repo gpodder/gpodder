@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -122,15 +122,6 @@ class Fetcher(object):
     def __init__(self, user_agent):
         self.user_agent = user_agent
 
-    def _get_handlers(self):
-        """Provide additional urllib2 handler objects
-
-        Subclasses can override this method to inject urllib2
-        handler objects into the feedparser.parse() call to
-        extent the functionalty of this Fetcher (for proxies, ..)
-        """
-        return []
-
     def _resolve_url(self, url):
         """Provide additional ways of resolving an URL
 
@@ -242,8 +233,7 @@ class Fetcher(object):
         feed = feedparser.parse(url,
                 agent=self.user_agent,
                 modified=modified,
-                etag=etag,
-                handlers=self._get_handlers())
+                etag=etag)
 
         if is_local:
             if feed.version:

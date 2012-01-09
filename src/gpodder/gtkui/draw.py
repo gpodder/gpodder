@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -125,6 +125,9 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     widget = gtk.Label()
     style = widget.rc_get_style()
 
+    # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
+    padding_right = 7
+
     x_border = border*2
 
     if font_desc is None:
@@ -145,10 +148,14 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     text_height = max(height_left, height_right)
 
     image_height = int(y+text_height+border*2)
-    image_width = int(x+width_left+width_right+x_border*4)
+    image_width = int(x+width_left+width_right+x_border*4+padding_right)
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
 
     ctx = pangocairo.CairoContext(cairo.Context(surface))
+
+    # Clip so as to not draw on the right padding (for Ubuntu; bug 1533)
+    ctx.rectangle(0, 0, image_width - padding_right, image_height)
+    ctx.clip()
 
     if left_text == '0':
         left_text = None
