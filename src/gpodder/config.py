@@ -255,8 +255,8 @@ class JsonConfig(object):
         while attrs:
             attr = attrs.pop(0)
             if not attrs:
-                old_value = target_dict[attr]
-                if old_value != value:
+                old_value = target_dict.get(attr, None)
+                if old_value != value or attr not in target_dict:
                     target_dict[attr] = value
                     if self._on_key_changed is not None:
                         self._on_key_changed(name, old_value, value)
