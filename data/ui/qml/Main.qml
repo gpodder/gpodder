@@ -19,6 +19,7 @@ Image {
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
+    property variant currentPodcast: undefined
 
     property bool playing: mediaPlayer.playing
     property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity && !myGpoSheetVisible
@@ -156,7 +157,10 @@ Image {
 
             anchors.fill: parent
 
-            onPodcastSelected: controller.podcastSelected(podcast)
+            onPodcastSelected: {
+                controller.podcastSelected(podcast)
+                main.currentPodcast = podcast
+            }
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
             onSubscribe: contextMenu.showSubscribe()
 
@@ -443,6 +447,7 @@ Image {
                     controller.quit()
                 } else if (main.state == 'episodes') {
                     main.state = 'podcasts'
+                    main.currentPodcast = undefined
                 } else if (main.state == 'shownotes') {
                     main.state = 'episodes'
                 }

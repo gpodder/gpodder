@@ -95,6 +95,22 @@ class Controller(QObject):
     def formatCount(self, template, count):
         return template % {'count': count}
 
+    @Slot(result=str)
+    def getVersion(self):
+        return gpodder.__version__
+
+    @Slot(result=unicode)
+    def getCopyright(self):
+        return gpodder.__copyright__.decode('utf-8', 'ignore')
+
+    @Slot(result=str)
+    def getLicense(self):
+        return gpodder.__license__
+
+    @Slot(result=str)
+    def getURL(self):
+        return gpodder.__url__
+
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()
