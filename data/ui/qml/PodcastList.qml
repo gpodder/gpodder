@@ -10,6 +10,7 @@ Item {
 
     property alias model: listView.model
     property alias moving: listView.moving
+    property bool hasItems: listView.visible
 
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)

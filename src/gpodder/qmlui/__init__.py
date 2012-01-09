@@ -263,6 +263,31 @@ class Controller(QObject):
                         return episode
         return None
 
+    @Slot()
+    def updateAllPodcasts(self):
+        # Process episode actions received from gpodder.net
+        def merge_proc(self):
+            self.root.start_progress(_('Merging episode actions...'))
+
+            def find_episode(podcast_url, episode_url, counter):
+                counter['x'] += 1
+                self.root.start_progress(_('Merging episode actions (%d)')
+                        % counter['x'])
+                return self.find_episode(podcast_url, episode_url)
+
+            try:
+                d = {'x': 0} # Used to "remember" the counter inside find_episode
+                self.root.mygpo_client.process_episode_actions(lambda x, y:
+                        find_episode(x, y, d))
+            finally:
+                self.root.end_progress()
+
+        t = threading.Thread(target=merge_proc, args=[self])
+        t.start()
+
+        for podcast in self.root.podcast_model.get_objects():
+            podcast.qupdate(finished_callback=self.update_subset_stats)
+
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
@@ -273,28 +298,7 @@ class Controller(QObject):
             action.target.qupdate(force=True, \
                     finished_callback=self.update_subset_stats)
         elif action.action == 'update-all':
-            # Process episode actions received from gpodder.net
-            def merge_proc(self):
-                self.root.start_progress(_('Merging episode actions...'))
-
-                def find_episode(podcast_url, episode_url, counter):
-                    counter['x'] += 1
-                    self.root.start_progress(_('Merging episode actions (%d)')
-                            % counter['x'])
-                    return self.find_episode(podcast_url, episode_url)
-
-                try:
-                    d = {'x': 0} # Used to "remember" the counter inside find_episode
-                    self.root.mygpo_client.process_episode_actions(lambda x, y:
-                            find_episode(x, y, d))
-                finally:
-                    self.root.end_progress()
-
-            t = threading.Thread(target=merge_proc, args=[self])
-            t.start()
-
-            for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate(finished_callback=self.update_subset_stats)
+            self.updateAllPodcasts()
         elif action.action == 'force-update-all':
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate(force=True, finished_callback=self.update_subset_stats)

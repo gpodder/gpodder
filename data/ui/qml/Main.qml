@@ -20,6 +20,7 @@ Image {
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
     property variant currentPodcast: undefined
+    property bool hasPodcasts: podcastList.hasItems
 
     property bool playing: mediaPlayer.playing
     property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity && !myGpoSheetVisible

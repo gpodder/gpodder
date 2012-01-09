@@ -241,6 +241,10 @@ class QPodcast(QObject):
         return getattr(self._podcast, name)
 
     def qupdate(self, force=False, finished_callback=None):
+        if self._updating:
+            # Update in progress - just wait, don't re-update
+            return
+
         def t(self):
             self._updating = True
             self.changed.emit()
