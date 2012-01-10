@@ -37,6 +37,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder import schema
+from gpodder import util
 
 import threading
 import re
@@ -202,11 +203,8 @@ class Database(object):
         with self.lock:
             try:
                 cur = self.cursor()
-                def convert(x):
-                    if isinstance(x, str):
-                        x = x.decode('utf-8', 'ignore')
-                    return x
-                values = [convert(getattr(o, name)) for name in columns]
+                values = [util.convert_bytes(getattr(o, name))
+                        for name in columns]
 
                 if o.id is None:
                     qmarks = ', '.join('?'*len(columns))
@@ -248,20 +246,20 @@ class Database(object):
         Returns True if a foldername for a channel exists.
         False otherwise.
         """
-        if not isinstance(foldername, unicode):
-            foldername = foldername.decode('utf-8', 'ignore')
+        foldername = util.convert_bytes(foldername)
 
-        return self.get("SELECT id FROM %s WHERE download_folder = ?" % self.TABLE_PODCAST, (foldername,)) is not None
+        return self.get("SELECT id FROM %s WHERE download_folder = ?" %
+                self.TABLE_PODCAST, (foldername,)) is not None
 
     def episode_filename_exists(self, podcast_id, filename):
         """
         Returns True if a filename for an episode exists.
         False otherwise.
         """
-        if not isinstance(filename, unicode):
-            filename = filename.decode('utf-8', 'ignore')
+        filename = util.convert_bytes(filename)
 
-        return self.get("SELECT id FROM %s WHERE podcast_id = ? AND download_filename = ?" % self.TABLE_EPISODE, (podcast_id, filename,)) is not None
+        return self.get("SELECT id FROM %s WHERE podcast_id = ? AND download_filename = ?" %
+                self.TABLE_EPISODE, (podcast_id, filename,)) is not None
 
     def get_last_published(self, podcast):
         """
@@ -275,11 +273,10 @@ class Database(object):
         a given channel. Used after feed updates for
         episodes that have disappeared from the feed.
         """
-        if not isinstance(guid, unicode):
-            guid = guid.decode('utf-8', 'ignore')
+        guid = util.convert_bytes(guid)
 
         with self.lock:
             cur = self.cursor()
-            cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' % self.TABLE_EPISODE, \
-                    (podcast_id, guid))
+            cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' %
+                    self.TABLE_EPISODE, (podcast_id, guid))
 

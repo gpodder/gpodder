@@ -46,7 +46,13 @@ import collections
 
 import mimetypes
 import email
-import email.Header
+
+try:
+    # Python 2
+    from email.Header import decode_header
+except ImportError:
+    # Python 3
+    from email.header import decode_header
 
 import cgi
 
@@ -69,7 +75,7 @@ def get_header_param(headers, param, header_name):
             value = msg.get_param(param, header=header_name)
             if value is None:
                 return None
-            decoded_list = email.Header.decode_header(value)
+            decoded_list = decode_header(value)
             value = []
             for part, encoding in decoded_list:
                 if encoding:

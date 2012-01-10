@@ -88,6 +88,7 @@ class Store(object):
         if isinstance(v, unicode):
             return v
         elif isinstance(v, str):
+            # XXX: Rewrite ^^^ as "isinstance(v, bytes)" in Python 3
             return v.decode('utf-8')
         else:
             return str(v)

@@ -85,6 +85,26 @@
     To install gPodder system-wide, use "make install".
 
 
+ [ PYTHON 3 SUPPORT ]
+
+    The CLI version of gPodder (bin/gpo) is compatible with Python 3
+    after converting the codebase with the 2to3 utility:
+
+      2to3 -w bin/* src/gpodder/
+
+    You will also need a copy of "mygpoclient" converted using 2to3 and
+    a copy of "feedparser" converted using 2to3 (see the feedparser README
+    for details on how to get it set up on Python 3, including sgmllib).
+
+    Please note that the Gtk UI is not compatible with Python 3 (it will
+    be once we migrate the codebase to Gtk3/GObject Introspection), and
+    the QML UI - while theoretically compatible - has not been tested
+    with Python 3 yet due to the Python 3 support status in PySide.
+
+    As of January 2012, Python 3 support is still experimental. Please
+    report any bugs that you find to the gPodder bug tracker (see below).
+
+
  [ PORTABLE MODE / ROAMING PROFILES ]
 
     The run-time environment variable GPODDER_HOME is used to set
@@ -104,5 +124,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2012-01-09 by Thomas Perl <thp.io/about>
+             Last updated: 2012-01-10 by Thomas Perl <thp.io/about>
 

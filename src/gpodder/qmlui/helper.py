@@ -19,15 +19,15 @@
 
 import gpodder
 
+from gpodder import util
+
 from PySide import QtCore
 
 
 class Action(QtCore.QObject):
     def __init__(self, caption, action, target=None):
         QtCore.QObject.__init__(self)
-        if isinstance(caption, str):
-            caption = caption.decode('utf-8')
-        self._caption = caption
+        self._caption = util.convert_bytes(caption)
 
         self.action = action
         self.target = target

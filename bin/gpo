@@ -283,7 +283,7 @@ class gPodderCli(object):
 
         episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
                 for i, e in enumerate(podcast.get_episodes()))
-	return episodes
+        return episodes
 
     @FirstArgumentIsPodcastURL
     def info(self, url):

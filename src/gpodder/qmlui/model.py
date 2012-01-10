@@ -37,14 +37,7 @@ from gpodder import model
 import threading
 import os
 
-def convert(s):
-    if s is None:
-        return None
-
-    if isinstance(s, unicode):
-        return s
-
-    return s.decode('utf-8', 'ignore')
+convert = util.convert_bytes
 
 class QEpisode(QObject):
     def __init__(self, wrapper_manager, podcast, episode):

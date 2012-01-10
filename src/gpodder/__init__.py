@@ -88,8 +88,16 @@ osx = (platform.system() == 'Darwin')
 textdomain = 'gpodder'
 locale_dir = gettext.bindtextdomain(textdomain)
 t = gettext.translation(textdomain, locale_dir, fallback=True)
-gettext = t.ugettext
-ngettext = t.ungettext
+
+try:
+    # Python 2
+    gettext = t.ugettext
+    ngettext = t.ungettext
+except AttributeError:
+    # Python 3
+    gettext = t.gettext
+    ngettext = t.ngettext
+
 if win32:
     try:
         # Workaround for bug 650
