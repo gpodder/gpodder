@@ -70,7 +70,7 @@ PageStackWindow {
                 id: toolPlay
                 iconId: "icon-m-toolbar-content-audio-white"
                 onClicked: mainObject.clickPlayButton()
-                visible: mainObject.hasPlayButton
+                visible: mainObject.hasPlayButton && !toolMenu.visible
                 anchors.right: parent.right
             }
         }
@@ -85,6 +85,14 @@ PageStackWindow {
                         hrmtnMainViewMenu.close()
                         mainObject.openMyGpo()
                     }
+                }
+                MenuItem {
+                    text: _('Now playing')
+                    onClicked: {
+                        hrmtnMainViewMenu.close()
+                        mainObject.clickPlayButton()
+                    }
+                    visible: mainObject.hasPlayButton
                 }
                 MenuItem {
                     text: _('About gPodder')
