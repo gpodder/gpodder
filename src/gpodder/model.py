@@ -375,9 +375,22 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def trimmed_title(self):
         """Return the title with the common prefix trimmed"""
+        # Minimum amount of leftover characters after trimming. This
+        # avoids things like "Common prefix 123" to become just "123".
+        # If there are LEFTOVER_MIN or less characters after trimming,
+        # the original title will be returned without trimming.
+        LEFTOVER_MIN = 5
+
+        # "Podcast Name - Title" and "Podcast Name: Title" -> "Title"
+        for postfix in (' - ', ': '):
+            prefix = self.parent.title + postfix
+            if (self.title.startswith(prefix) and
+                    len(self.title)-len(prefix) > LEFTOVER_MIN):
+                return self.title[len(prefix):]
+
         if (self.parent._common_prefix is not None and
                 self.title.startswith(self.parent._common_prefix) and
-                len(self.title)-len(self.parent._common_prefix) > 5):
+                len(self.title)-len(self.parent._common_prefix) > LEFTOVER_MIN):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
