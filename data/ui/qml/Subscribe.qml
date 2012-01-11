@@ -13,7 +13,6 @@ Item {
     function show() {
         searchInput.text = ''
         searchResultsListModel.source = ''
-        searchInput.forceActiveFocus()
         topBar.opened = true
     }
 
