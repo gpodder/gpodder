@@ -249,22 +249,13 @@ Item {
         }
     }
 
-    Rectangle {
+    BusyIndicator {
         anchors.centerIn: parent
+        running: opacity > 0
+        platformStyle: BusyIndicatorStyle { size: "large" }
 
-        width: 100
-        height: 50
-
-        color: 'black'
         opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
-
         Behavior on opacity { PropertyAnimation { } }
-
-        BusyIndicator {
-            anchors.centerIn: parent
-            running: parent.opacity > 0
-            platformStyle: BusyIndicatorStyle { size: "large" }
-        }
     }
 
     Item {
