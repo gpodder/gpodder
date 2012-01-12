@@ -46,16 +46,22 @@ Item {
         property bool seekLater: false
 
         onPositionChanged: {
-            episode.qposition = position/1000
+            if (episode !== undefined) {
+                episode.qposition = position/1000
+            }
         }
 
         onDurationChanged: {
-            if (duration > 0) {
+            if (duration > 0 && episode !== undefined) {
                 episode.qduration = duration/1000
             }
         }
 
         onStatusChanged: {
+            if (episode === undefined) {
+                return;
+            }
+
             if (status == 6 && seekLater) {
                 position = episode.qposition*1000
                 seekLater = false
@@ -66,6 +72,10 @@ Item {
         }
 
         function setPosition(position) {
+            if (episode === undefined) {
+                return;
+            }
+
             if (!playing) {
                 playing = true
             } else {
@@ -94,12 +104,16 @@ Item {
             controller.releaseEpisode(mediaPlayer.episode)
         }
 
-        controller.acquireEpisode(episode)
-
         audioPlayer.paused = true
         mediaPlayer.episode = episode
-
         audioPlayer.stop()
+
+        if (episode === undefined) {
+            return;
+        }
+
+        controller.acquireEpisode(episode)
+
         audioPlayer.source = episode.qsourceurl
         audioPlayer.playing = true
         audioPlayer.paused = false

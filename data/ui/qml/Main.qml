@@ -70,7 +70,7 @@ Image {
     state: 'podcasts'
 
     function togglePlayback(episode) {
-        if (episode.qfiletype == 'video') {
+        if (episode !== undefined && episode.qfiletype == 'video') {
             controller.playVideo(episode)
         } else {
             controller.currentEpisodeChanging()

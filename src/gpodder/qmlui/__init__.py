@@ -413,6 +413,7 @@ class Controller(QObject):
             self.update_subset_stats()
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
+            self.root.on_episode_deleted(episode)
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -683,6 +684,12 @@ class qtPodder(QObject):
             self.last_episode = self.wrap_episode(last_podcast, last_episode)
             # FIXME: Send last episode to player
             #self.select_episode(self.last_episode)
+
+    def on_episode_deleted(self, episode):
+        # If the episode that has been deleted is currently
+        # being played back (or paused), stop playback now.
+        if self.main.currentEpisode == episode:
+            self.main.togglePlayback(None)
 
     def run(self):
         return self.app.exec_()
