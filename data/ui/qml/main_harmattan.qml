@@ -66,6 +66,19 @@ PageStackWindow {
                 //anchors.right: toolPlay.visible?toolPlay.left:toolPlay.right
             }
 
+            ToolButton {
+                id: toolFilter
+                visible: mainObject.hasFilterButton
+                onClicked: mainObject.showFilterDialog()
+                anchors.centerIn: parent
+
+                Label {
+                    color: 'white'
+                    text: mainObject.currentFilterText
+                    anchors.centerIn: parent
+                }
+            }
+
             ToolIcon {
                 id: toolPlay
                 iconId: "icon-m-toolbar-content-audio-white"

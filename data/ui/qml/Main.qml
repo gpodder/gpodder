@@ -21,12 +21,14 @@ Image {
     property alias currentEpisode: mediaPlayer.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
+    property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
     property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity && !myGpoSheetVisible
     property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity && !myGpoSheetVisible
     property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity && !myGpoSheetVisible
     property bool myGpoSheetVisible: false
+    property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
     function openMyGpo() {
         myGpoEnableSwitch.checked = controller.myGpoEnabled
@@ -43,6 +45,10 @@ Image {
         } else {
             closeButton.clicked()
         }
+    }
+
+    function showFilterDialog() {
+        episodeList.showFilterDialog()
     }
 
     function clickPlayButton() {
@@ -407,7 +413,7 @@ Image {
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
             wrapMode: Text.NoWrap
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
+            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder")
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false

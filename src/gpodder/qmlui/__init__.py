@@ -39,6 +39,7 @@ N_ = gpodder.ngettext
 from gpodder import core
 from gpodder import util
 from gpodder import my
+from gpodder import query
 
 from gpodder.model import Model
 
@@ -48,6 +49,19 @@ from gpodder.qmlui import images
 
 import logging
 logger = logging.getLogger("qmlui")
+
+
+EPISODE_LIST_FILTERS = [
+    # (UI label, EQL expression)
+    (_('All'), None),
+    (_('Hide deleted'), 'not deleted'),
+    (_('New'), 'new or downloading'),
+    (_('Downloaded'), 'downloaded or downloading'),
+    (_('Deleted'), 'deleted'),
+    (_('Finished'), 'finished'),
+    (_('Archived'), 'downloaded and archive'),
+    (_('Videos'), 'video'),
+]
 
 class Controller(QObject):
     def __init__(self, root):
@@ -82,6 +96,10 @@ class Controller(QObject):
 
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
+
+    @Slot(result='QStringList')
+    def getEpisodeListFilterNames(self):
+        return [caption for caption, eql in EPISODE_LIST_FILTERS]
 
     @Slot(str, result=str)
     def translate(self, x):
@@ -528,7 +546,7 @@ class gPodderListModel(QAbstractListModel):
         return self._objects[index.row()]
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self._objects)
+        return len(self.get_objects())
 
     def data(self, index, role):
         if index.isValid():
@@ -552,6 +570,36 @@ class gPodderPodcastListModel(gPodderListModel):
     def sort(self):
         self._objects = sorted(self._objects, key=model.QPodcast.sort_key)
         self.reset()
+
+class gPodderEpisodeListModel(gPodderListModel):
+    def __init__(self):
+        gPodderListModel.__init__(self)
+        self._filter = 0
+        self._filtered = []
+
+    def sort(self):
+        caption, eql = EPISODE_LIST_FILTERS[self._filter]
+
+        if eql is None:
+            self._filtered = self._objects
+        else:
+            eql = query.EQL(eql)
+            match = lambda episode: eql.match(episode._episode)
+            self._filtered = filter(match, self._objects)
+
+        self.reset()
+
+    def get_objects(self):
+        return self._filtered
+
+    def get_object(self, index):
+        return self._filtered[index.row()]
+
+    @Slot(int)
+    def setFilter(self, filter_index):
+        self._filter = filter_index
+        self.sort()
+
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -605,7 +653,7 @@ class qtPodder(QObject):
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
-        self.episode_model = gPodderListModel()
+        self.episode_model = gPodderEpisodeListModel()
         self.last_episode = None
 
         # A dictionary of episodes that are currently active
