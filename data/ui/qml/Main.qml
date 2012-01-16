@@ -75,11 +75,26 @@ Image {
 
     state: 'podcasts'
 
+    function enqueueEpisode(episode) {
+        if (currentEpisode === undefined) {
+            togglePlayback(episode);
+        } else {
+            mediaPlayer.enqueueEpisode(episode);
+        }
+    }
+
+    function removeQueuedEpisodesForPodcast(podcast) {
+        mediaPlayer.removeQueuedEpisodesForPodcast(podcast);
+    }
+
+    function removeQueuedEpisode(episode) {
+        mediaPlayer.removeQueuedEpisode(episode);
+    }
+
     function togglePlayback(episode) {
         if (episode !== undefined && episode.qfiletype == 'video') {
             controller.playVideo(episode)
         } else {
-            controller.currentEpisodeChanging()
             mediaPlayer.togglePlayback(episode)
         }
     }

@@ -334,6 +334,8 @@ class Controller(QObject):
         elif action.action == 'episode-toggle-archive':
             action.target.toggle_archive()
             self.update_subset_stats()
+        elif action.action == 'episode-enqueue':
+            self.root.enqueue_episode(action.target)
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
@@ -456,6 +458,7 @@ class Controller(QObject):
 
         toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
         menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+        menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
 
         self.show_context_menu(menu)
 
@@ -734,10 +737,16 @@ class qtPodder(QObject):
             #self.select_episode(self.last_episode)
 
     def on_episode_deleted(self, episode):
+        # Remove episode from play queue (if it's in there)
+        self.main.removeQueuedEpisode(episode)
+
         # If the episode that has been deleted is currently
         # being played back (or paused), stop playback now.
         if self.main.currentEpisode == episode:
             self.main.togglePlayback(None)
+
+    def enqueue_episode(self, episode):
+        self.main.enqueueEpisode(episode)
 
     def run(self):
         return self.app.exec_()
@@ -793,6 +802,9 @@ class qtPodder(QObject):
         self.mygpo_client.flush()
 
     def remove_podcast(self, podcast):
+        # Remove queued episodes for this specific podcast
+        self.main.removeQueuedEpisodesForPodcast(podcast)
+
         if self.main.currentEpisode is not None:
             # If the currently-playing episode is in the podcast
             # that is to be deleted, stop playback immediately.
