@@ -167,7 +167,7 @@ PageStackWindow {
                     font.pixelSize: 17
                     text: '\n' + controller.getCopyright() + '\n' + controller.getLicense()
                     wrapMode: Text.WordWrap
-                    width: mainObject.width * .95
+                    width: 480 * .95 /* fixed to avoid reflow in landscape */
                     horizontalAlignment: Text.AlignHCenter
                 }
             }

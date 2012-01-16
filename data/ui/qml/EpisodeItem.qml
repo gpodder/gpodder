@@ -65,7 +65,7 @@ SelectableItem {
 
     Label {
         id: positionInfo
-        text: Util.formatDuration(modelData.qduration)
+        text: modelData.qduration?Util.formatDuration(modelData.qduration):''
         font.pixelSize: episodeItem.height * .2
         color: '#888'
         anchors.right: archiveIcon.visible?archiveIcon.left:parent.right
