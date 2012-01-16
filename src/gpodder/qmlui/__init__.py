@@ -793,6 +793,11 @@ class qtPodder(QObject):
         self.mygpo_client.flush()
 
     def remove_podcast(self, podcast):
+        if self.main.currentEpisode is not None:
+            # If the currently-playing episode is in the podcast
+            # that is to be deleted, stop playback immediately.
+            if self.main.currentEpisode.qpodcast == podcast:
+                self.main.togglePlayback(None)
         self.podcast_model.remove_object(podcast)
         self.mygpo_client.on_unsubscribe([podcast.url])
         self.mygpo_client.flush()
