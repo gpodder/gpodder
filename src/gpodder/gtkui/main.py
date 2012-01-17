@@ -2303,10 +2303,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _('Episode actions from gpodder.net are merged.'), \
                 False, self.get_dialog_parent())
 
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
-        for idx, action in enumerate(self.mygpo_client.get_episode_actions(updated_urls)):
+        for idx, action in enumerate(self.mygpo_client.get_received_actions()):
             if action.action == 'play':
                 episode = self.find_episode(action.podcast_url, \
                                             action.episode_url)
