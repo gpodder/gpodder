@@ -754,6 +754,8 @@ class qtPodder(QObject):
     quit = Signal()
 
     def on_quit(self):
+        # Make sure the audio playback is stopped immediately
+        self.main.togglePlayback(None)
         self.save_pending_data()
         self.view.hide()
         self.core.shutdown()
