@@ -207,19 +207,19 @@ class JsonConfigSubtree(object):
 
 
 class JsonConfig(object):
-    _DEFAULT = defaults
     _INDENT = 2
 
-    def __init__(self, data=None, on_key_changed=None):
-        self._data = copy.deepcopy(self._DEFAULT)
+    def __init__(self, data=None, default=None, on_key_changed=None):
+        self._default = default
+        self._data = copy.deepcopy(self._default)
         self._on_key_changed = on_key_changed
         if data is not None:
-            self._data = json.loads(data)
+            self._restore(data)
 
     def _restore(self, backup):
         self._data = json.loads(backup)
         # Add newly-added default configuration options
-        self._merge_keys(self._DEFAULT)
+        self._merge_keys(self._default)
 
     def _merge_keys(self, merge_source):
         # Recurse into the data and add missing items
@@ -279,7 +279,8 @@ class Config(object):
     WRITE_TO_DISK_TIMEOUT = 60
 
     def __init__(self, filename='gpodder.json'):
-        self.__json_config = JsonConfig(on_key_changed=self._on_key_changed)
+        self.__json_config = JsonConfig(default=defaults,
+                on_key_changed=self._on_key_changed)
         self.__save_thread = None
         self.__filename = filename
         self.__observers = []
