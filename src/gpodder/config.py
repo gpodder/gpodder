@@ -26,6 +26,7 @@
 
 import gpodder
 from gpodder import util
+from gpodder import jsonconfig
 
 import atexit
 import os
@@ -33,9 +34,6 @@ import shutil
 import time
 import threading
 import logging
-
-import json
-import copy
 
 _ = gpodder.gettext
 
@@ -172,114 +170,13 @@ gPodderSettings_LegacySupport = {
 
 logger = logging.getLogger(__name__)
 
-class JsonConfigSubtree(object):
-    def __init__(self, parent, name):
-        self._parent = parent
-        self._name = name
-
-    def __repr__(self):
-        return '<Subtree %r of %r>' % (self._name, self._parent)
-
-    def _attr(self, name):
-        return '.'.join((self._name, name))
-
-    def __getitem__(self, name):
-        return self._parent._lookup(self._name).__getitem__(name)
-
-    def __delitem__(self, name):
-        self._parent._lookup(self._name).__delitem__(name)
-
-    def __setitem__(self, name, value):
-        self._parent._lookup(self._name).__setitem__(name, value)
-
-    def __getattr__(self, name):
-        if name == 'keys':
-            # Kludge for using dict() on a JsonConfigSubtree
-            return getattr(self._parent._lookup(self._name), name)
-
-        return getattr(self._parent, self._attr(name))
-
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            object.__setattr__(self, name, value)
-        else:
-            self._parent.__setattr__(self._attr(name), value)
-
-
-class JsonConfig(object):
-    _INDENT = 2
-
-    def __init__(self, data=None, default=None, on_key_changed=None):
-        self._default = default
-        self._data = copy.deepcopy(self._default)
-        self._on_key_changed = on_key_changed
-        if data is not None:
-            self._restore(data)
-
-    def _restore(self, backup):
-        self._data = json.loads(backup)
-        # Add newly-added default configuration options
-        self._merge_keys(self._default)
-
-    def _merge_keys(self, merge_source):
-        # Recurse into the data and add missing items
-        work_queue = [(self._data, merge_source)]
-        while work_queue:
-            data, default = work_queue.pop()
-            for key, value in default.iteritems():
-                if key not in data:
-                    # Copy defaults for missing key
-                    data[key] = copy.deepcopy(value)
-                elif isinstance(value, dict):
-                    # Recurse into sub-dictionaries
-                    work_queue.append((data[key], value))
-
-    def __repr__(self):
-        return json.dumps(self._data, indent=self._INDENT)
-
-    def _lookup(self, name):
-        return reduce(lambda d, k: d[k], name.split('.'), self._data)
-
-    def __getattr__(self, name):
-        try:
-            value = self._lookup(name)
-            if not isinstance(value, dict):
-                return value
-        except KeyError:
-            pass
-
-        return JsonConfigSubtree(self, name)
-
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            object.__setattr__(self, name, value)
-            return
-
-        attrs = name.split('.')
-        target_dict = self._data
-
-        while attrs:
-            attr = attrs.pop(0)
-            if not attrs:
-                old_value = target_dict.get(attr, None)
-                if old_value != value or attr not in target_dict:
-                    target_dict[attr] = value
-                    if self._on_key_changed is not None:
-                        self._on_key_changed(name, old_value, value)
-                break
-
-            target = target_dict.get(attr, None)
-            if target is None or not isinstance(target, dict):
-                target_dict[attr] = target = {}
-            target_dict = target
-
 
 class Config(object):
     # Number of seconds after which settings are auto-saved
     WRITE_TO_DISK_TIMEOUT = 60
 
     def __init__(self, filename='gpodder.json'):
-        self.__json_config = JsonConfig(default=defaults,
+        self.__json_config = jsonconfig.JsonConfig(default=defaults,
                 on_key_changed=self._on_key_changed)
         self.__save_thread = None
         self.__filename = filename
