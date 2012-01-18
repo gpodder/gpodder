@@ -39,7 +39,7 @@ class JsonConfigSubtree(object):
         self._name = name
 
     def __repr__(self):
-        return '<Subtree %r of %r>' % (self._name, self._parent)
+        return '<Subtree %r of JsonConfig>' % (self._name,)
 
     def _attr(self, name):
         return '.'.join((self._name, name))
@@ -71,16 +71,74 @@ class JsonConfig(object):
     _INDENT = 2
 
     def __init__(self, data=None, default=None, on_key_changed=None):
+        """
+        Create a new JsonConfig object
+
+        data: A JSON string that contains the data to load (optional)
+        default: A dict that contains default config values (optional)
+        on_key_changed: Callback when a value changes (optional)
+
+        The signature of on_key_changed looks like this:
+
+            func(name, old_value, new_value)
+
+            name: The key name, e.g. "ui.gtk.show_toolbar"
+            old_value: The old value, e.g. False
+            new_value: The new value, e.g. True
+
+        For newly-set keys, on_key_changed is also called. In this case,
+        None will be the old_value:
+
+        >>> def callback(*args): print 'callback:', args
+        >>> c = JsonConfig(on_key_changed=callback)
+        >>> c.a.b = 10
+        callback: ('a.b', None, 10)
+        >>> c.a.b = 11
+        callback: ('a.b', 10, 11)
+        >>> c.x.y.z = [1,2,3]
+        callback: ('x.y.z', None, [1, 2, 3])
+        >>> c.x.y.z = 42
+        callback: ('x.y.z', [1, 2, 3], 42)
+
+        Please note that dict-style access will not call on_key_changed:
+
+        >>> def callback(*args): print 'callback:', args
+        >>> c = JsonConfig(on_key_changed=callback)
+        >>> c.a.b = 1        # This works as expected
+        callback: ('a.b', None, 1)
+        >>> c.a['c'] = 10    # This doesn't call on_key_changed!
+        >>> del c.a['c']     # This also doesn't call on_key_changed!
+        """
         self._default = default
-        self._data = copy.deepcopy(self._default)
+        self._data = copy.deepcopy(self._default) or {}
         self._on_key_changed = on_key_changed
         if data is not None:
             self._restore(data)
 
     def _restore(self, backup):
+        """
+        Restore a previous state saved with repr()
+
+        This function allows you to "snapshot" the current values of
+        the configuration and reload them later on. Any missing
+        default values will be added on top of the restored config.
+
+        >>> c = JsonConfig()
+        >>> c.a.b = 10
+        >>> backup = repr(c)
+        >>> print c.a.b
+        10
+        >>> c.a.b = 11
+        >>> print c.a.b
+        11
+        >>> c._restore(backup)
+        >>> print c.a.b
+        10
+        """
         self._data = json.loads(backup)
         # Add newly-added default configuration options
-        self._merge_keys(self._default)
+        if self._default is not None:
+            self._merge_keys(self._default)
 
     def _merge_keys(self, merge_source):
         # Recurse into the data and add missing items
@@ -96,6 +154,13 @@ class JsonConfig(object):
                     work_queue.append((data[key], value))
 
     def __repr__(self):
+        """
+        >>> c = JsonConfig('{"a": 1}')
+        >>> print c
+        {
+          "a": 1
+        }
+        """
         return json.dumps(self._data, indent=self._INDENT)
 
     def _lookup(self, name):
