@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 import 'util.js' as Util
 
@@ -33,7 +35,7 @@ SelectableItem {
                 rightMargin: 5
             }
 
-            Text {
+            Label {
                 anchors.right: parent.right
 
                 visible: counters.downloadedEpisodes > 0
@@ -43,7 +45,7 @@ SelectableItem {
                 font.pixelSize: podcastItem.height * .4
             }
 
-            Text {
+            Label {
                 anchors.right: parent.right
 
                 visible: counters.newEpisodes > 0
@@ -55,27 +57,15 @@ SelectableItem {
         }
     }
 
-    Image {
+    BusyIndicator {
         id: spinner
         anchors {
             verticalCenter: parent.verticalCenter
             right: cover.left
             rightMargin: Config.smallSpacing
         }
-        source: 'artwork/spinner.png'
         visible: modelData.qupdating
-        smooth: true
-
-        RotationAnimation {
-            target: spinner
-            property: 'rotation'
-            direction: RotationAnimation.Clockwise
-            from: 0
-            to: 360
-            duration: 1200
-            running: spinner.visible
-            loops: Animation.Infinite
-        }
+        running: visible
     }
 
     Image {
@@ -96,7 +86,7 @@ SelectableItem {
         }
     }
 
-    Text {
+    Label {
         id: titleBox
 
         text: modelData.qtitle
@@ -112,6 +102,7 @@ SelectableItem {
 
         font.pixelSize: podcastItem.height * .35
         elide: Text.ElideRight
+        wrapMode: Text.NoWrap
     }
 }
 

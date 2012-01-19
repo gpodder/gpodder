@@ -31,6 +31,7 @@ import threading
 import signal
 import functools
 import gpodder
+import subprocess
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
@@ -38,6 +39,7 @@ N_ = gpodder.ngettext
 from gpodder import core
 from gpodder import util
 from gpodder import my
+from gpodder import query
 
 from gpodder.model import Model
 
@@ -47,6 +49,19 @@ from gpodder.qmlui import images
 
 import logging
 logger = logging.getLogger("qmlui")
+
+
+EPISODE_LIST_FILTERS = [
+    # (UI label, EQL expression)
+    (_('All'), None),
+    (_('Hide deleted'), 'not deleted'),
+    (_('New'), 'new or downloading'),
+    (_('Downloaded'), 'downloaded or downloading'),
+    (_('Deleted'), 'deleted'),
+    (_('Finished'), 'finished'),
+    (_('Archived'), 'downloaded and archive'),
+    (_('Videos'), 'video'),
+]
 
 class Controller(QObject):
     def __init__(self, root):
@@ -82,6 +97,10 @@ class Controller(QObject):
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
 
+    @Slot(result='QStringList')
+    def getEpisodeListFilterNames(self):
+        return [caption for caption, eql in EPISODE_LIST_FILTERS]
+
     @Slot(str, result=str)
     def translate(self, x):
         return _(x)
@@ -94,6 +113,22 @@ class Controller(QObject):
     def formatCount(self, template, count):
         return template % {'count': count}
 
+    @Slot(result=str)
+    def getVersion(self):
+        return gpodder.__version__
+
+    @Slot(result=unicode)
+    def getCopyright(self):
+        return gpodder.__copyright__.decode('utf-8', 'ignore')
+
+    @Slot(result=str)
+    def getLicense(self):
+        return gpodder.__license__
+
+    @Slot(result=str)
+    def getURL(self):
+        return gpodder.__url__
+
     @Slot()
     def loadLastEpisode(self):
         self.root.load_last_episode()
@@ -105,6 +140,19 @@ class Controller(QObject):
             return
         total = episode.qduration
         self.root.mygpo_client.on_playback_full(episode, start, end, total)
+        self.root.mygpo_client.flush()
+
+    @Slot(QObject)
+    def playVideo(self, episode):
+        """Video Playback on MeeGo 1.2 Harmattan"""
+        if episode.qnew:
+            episode.toggle_new()
+            self.update_subset_stats()
+
+        url = episode.get_playback_url()
+        subprocess.Popen(['video-suite', url])
+
+        self.root.mygpo_client.on_playback([episode])
         self.root.mygpo_client.flush()
 
     @Slot(QObject)
@@ -130,8 +178,11 @@ class Controller(QObject):
             self.root.start_progress(_('Uploading subscriptions...'))
 
             try:
-                self.root.mygpo_client.set_subscriptions([podcast.url
-                    for podcast in self.root.podcast_model.get_podcasts()])
+                try:
+                    self.root.mygpo_client.set_subscriptions([podcast.url
+                        for podcast in self.root.podcast_model.get_podcasts()])
+                except Exception, e:
+                    self.root.show_message('\n'.join((_('Error on upload:'), unicode(e))))
             finally:
                 self.root.end_progress()
 
@@ -209,6 +260,8 @@ class Controller(QObject):
         self.show_context_menu(menu)
 
     def show_context_menu(self, actions):
+        if gpodder.ui.harmattan:
+            actions = filter(lambda a: a.caption != '', actions)
         self.context_menu_actions = actions
         self.root.open_context_menu(self.context_menu_actions)
 
@@ -228,6 +281,31 @@ class Controller(QObject):
                         return episode
         return None
 
+    @Slot()
+    def updateAllPodcasts(self):
+        # Process episode actions received from gpodder.net
+        def merge_proc(self):
+            self.root.start_progress(_('Merging episode actions...'))
+
+            def find_episode(podcast_url, episode_url, counter):
+                counter['x'] += 1
+                self.root.start_progress(_('Merging episode actions (%d)')
+                        % counter['x'])
+                return self.find_episode(podcast_url, episode_url)
+
+            try:
+                d = {'x': 0} # Used to "remember" the counter inside find_episode
+                self.root.mygpo_client.process_episode_actions(lambda x, y:
+                        find_episode(x, y, d))
+            finally:
+                self.root.end_progress()
+
+        t = threading.Thread(target=merge_proc, args=[self])
+        t.start()
+
+        for podcast in self.root.podcast_model.get_objects():
+            podcast.qupdate(finished_callback=self.update_subset_stats)
+
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
@@ -238,28 +316,7 @@ class Controller(QObject):
             action.target.qupdate(force=True, \
                     finished_callback=self.update_subset_stats)
         elif action.action == 'update-all':
-            # Process episode actions received from gpodder.net
-            def merge_proc(self):
-                self.root.start_progress(_('Merging episode actions...'))
-
-                def find_episode(podcast_url, episode_url, counter):
-                    counter['x'] += 1
-                    self.root.start_progress(_('Merging episode actions (%d)')
-                            % counter['x'])
-                    return self.find_episode(podcast_url, episode_url)
-
-                try:
-                    d = {'x': 0} # Used to "remember" the counter inside find_episode
-                    self.root.mygpo_client.process_episode_actions(lambda x, y:
-                            find_episode(x, y, d))
-                finally:
-                    self.root.end_progress()
-
-            t = threading.Thread(target=merge_proc, args=[self])
-            t.start()
-
-            for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate(finished_callback=self.update_subset_stats)
+            self.updateAllPodcasts()
         elif action.action == 'force-update-all':
             for podcast in self.root.podcast_model.get_objects():
                 podcast.qupdate(force=True, finished_callback=self.update_subset_stats)
@@ -277,6 +334,8 @@ class Controller(QObject):
         elif action.action == 'episode-toggle-archive':
             action.target.toggle_archive()
             self.update_subset_stats()
+        elif action.action == 'episode-enqueue':
+            self.root.enqueue_episode(action.target)
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
@@ -374,6 +433,7 @@ class Controller(QObject):
             self.update_subset_stats()
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
+            self.root.on_episode_deleted(episode)
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -398,6 +458,7 @@ class Controller(QObject):
 
         toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
         menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+        menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
 
         self.show_context_menu(menu)
 
@@ -488,7 +549,7 @@ class gPodderListModel(QAbstractListModel):
         return self._objects[index.row()]
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self._objects)
+        return len(self.get_objects())
 
     def data(self, index, role):
         if index.isValid():
@@ -512,6 +573,36 @@ class gPodderPodcastListModel(gPodderListModel):
     def sort(self):
         self._objects = sorted(self._objects, key=model.QPodcast.sort_key)
         self.reset()
+
+class gPodderEpisodeListModel(gPodderListModel):
+    def __init__(self):
+        gPodderListModel.__init__(self)
+        self._filter = 0
+        self._filtered = []
+
+    def sort(self):
+        caption, eql = EPISODE_LIST_FILTERS[self._filter]
+
+        if eql is None:
+            self._filtered = self._objects
+        else:
+            eql = query.EQL(eql)
+            match = lambda episode: eql.match(episode._episode)
+            self._filtered = filter(match, self._objects)
+
+        self.reset()
+
+    def get_objects(self):
+        return self._filtered
+
+    def get_object(self, index):
+        return self._filtered[index.row()]
+
+    @Slot(int)
+    def setFilter(self, filter_index):
+        self._filter = filter_index
+        self.sort()
+
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -565,7 +656,7 @@ class qtPodder(QObject):
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
-        self.episode_model = gPodderListModel()
+        self.episode_model = gPodderEpisodeListModel()
         self.last_episode = None
 
         # A dictionary of episodes that are currently active
@@ -615,6 +706,7 @@ class qtPodder(QObject):
 
         self.do_start_progress.connect(self.on_start_progress)
         self.do_end_progress.connect(self.on_end_progress)
+        self.do_show_message.connect(self.on_show_message)
 
         self.load_podcasts()
 
@@ -644,19 +736,39 @@ class qtPodder(QObject):
             # FIXME: Send last episode to player
             #self.select_episode(self.last_episode)
 
+    def on_episode_deleted(self, episode):
+        # Remove episode from play queue (if it's in there)
+        self.main.removeQueuedEpisode(episode)
+
+        # If the episode that has been deleted is currently
+        # being played back (or paused), stop playback now.
+        if self.main.currentEpisode == episode:
+            self.main.togglePlayback(None)
+
+    def enqueue_episode(self, episode):
+        self.main.enqueueEpisode(episode)
+
     def run(self):
         return self.app.exec_()
 
     quit = Signal()
 
     def on_quit(self):
+        # Make sure the audio playback is stopped immediately
+        self.main.togglePlayback(None)
         self.save_pending_data()
         self.view.hide()
         self.core.shutdown()
         self.app.quit()
 
-    def show_message(self, message):
+    do_show_message = Signal(unicode)
+
+    @Slot(unicode)
+    def on_show_message(self, message):
         self.main.showMessage(message)
+
+    def show_message(self, message):
+        self.do_show_message.emit(message)
 
     def show_input_dialog(self, message, value='', accept=_('OK'),
             reject=_('Cancel'), is_text=True):
@@ -692,6 +804,14 @@ class qtPodder(QObject):
         self.mygpo_client.flush()
 
     def remove_podcast(self, podcast):
+        # Remove queued episodes for this specific podcast
+        self.main.removeQueuedEpisodesForPodcast(podcast)
+
+        if self.main.currentEpisode is not None:
+            # If the currently-playing episode is in the podcast
+            # that is to be deleted, stop playback immediately.
+            if self.main.currentEpisode.qpodcast == podcast:
+                self.main.togglePlayback(None)
         self.podcast_model.remove_object(podcast)
         self.mygpo_client.on_unsubscribe([podcast.url])
         self.mygpo_client.flush()

@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Item {
@@ -8,6 +10,7 @@ Item {
 
     property alias model: listView.model
     property alias moving: listView.moving
+    property bool hasItems: listView.visible
 
     signal podcastSelected(variant podcast)
     signal podcastContextMenu(variant podcast)
@@ -35,8 +38,9 @@ Item {
         section.property: 'section'
         section.delegate: Item {
             height: Config.headerHeight
-            Text {
+            Label {
                 font.pixelSize: parent.height * .5
+                wrapMode: Text.NoWrap
                 text: section
                 color: "#aaa"
                 anchors {
@@ -58,6 +62,10 @@ Item {
         footer: Item { height: Config.headerHeight }
 
         cacheBuffer: height
+    }
+
+    ScrollDecorator {
+        flickableItem: listView
     }
 
 }

@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Item {
@@ -23,7 +25,7 @@ Item {
         footer: Item { height: Config.headerHeight }
 
         delegate: SelectableItem {
-            Text {
+            Label {
                 anchors.leftMargin: Config.switcherWidth
                 anchors {
                     left: parent.left
@@ -40,6 +42,10 @@ Item {
                 contextMenuArea.close()
             }
         }
+    }
+
+    ScrollDecorator {
+        flickableItem: listView
     }
 
     function showSubscribe() {

@@ -18,7 +18,7 @@
 #
 
 
-from PySide.QtCore import QObject, Property, Signal
+from PySide.QtCore import QObject, Property, Signal, Slot
 
 import gpodder
 
@@ -57,6 +57,11 @@ class QEpisode(QObject):
 
         # Playback tracking
         self._qt_playing = False
+
+    @Slot(QObject, result=bool)
+    def equals(self, other):
+        """Needed for Python object identity comparison in JavaScript"""
+        return self == other
 
     def __getattr__(self, name):
         logger.warn('Attribute access in %s: %s', self.__class__.__name__, name)
@@ -220,6 +225,11 @@ class QPodcast(QObject):
         self._podcast = podcast
         self._updating = False
 
+    @Slot(QObject, result=bool)
+    def equals(self, other):
+        """Needed for Python object identity comparison in JavaScript"""
+        return self == other
+
     @classmethod
     def sort_key(cls, qpodcast):
         if isinstance(qpodcast, cls):
@@ -234,6 +244,10 @@ class QPodcast(QObject):
         return getattr(self._podcast, name)
 
     def qupdate(self, force=False, finished_callback=None):
+        if self._updating:
+            # Update in progress - just wait, don't re-update
+            return
+
         def t(self):
             self._updating = True
             self.changed.emit()

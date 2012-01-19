@@ -1,5 +1,6 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -18,17 +19,50 @@ Image {
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
+    property variant currentPodcast: undefined
+    property bool hasPodcasts: podcastList.hasItems
+    property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
+    property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity && !myGpoSheetVisible
+    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity && !myGpoSheetVisible
+    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity && !myGpoSheetVisible
+    property bool myGpoSheetVisible: false
+    property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
+
+    function openMyGpo() {
+        myGpoEnableSwitch.checked = controller.myGpoEnabled
+        myGpoUsernameField.text = controller.myGpoUsername
+        myGpoPasswordField.text = controller.myGpoPassword
+        myGpoDeviceCaptionField.text = controller.myGpoDeviceCaption
+        myGpoSheet.open()
+        myGpoSheetVisible = true
+    }
+
+    function goBack() {
+        if (nowPlayingThrobber.opened) {
+            nowPlayingThrobber.opened = false
+        } else {
+            closeButton.clicked()
+        }
+    }
+
+    function showFilterDialog() {
+        episodeList.showFilterDialog()
+    }
+
+    function clickPlayButton() {
+        nowPlayingThrobber.clicked()
+    }
+
+    function clickSearchButton() {
+        searchButton.clicked()
+    }
 
     Keys.onPressed: {
         console.log(event.key)
         if (event.key == Qt.Key_Escape) {
-            if (contextMenu.state == 'opened') {
-                contextMenu.close()
-            } else if (main.state == 'episodes') {
-                main.state = 'podcasts'
-            }
+            goBack()
         }
         if (event.key == Qt.Key_F && event.modifiers & Qt.ControlModifier) {
             searchButton.clicked()
@@ -41,9 +75,28 @@ Image {
 
     state: 'podcasts'
 
+    function enqueueEpisode(episode) {
+        if (currentEpisode === undefined) {
+            togglePlayback(episode);
+        } else {
+            mediaPlayer.enqueueEpisode(episode);
+        }
+    }
+
+    function removeQueuedEpisodesForPodcast(podcast) {
+        mediaPlayer.removeQueuedEpisodesForPodcast(podcast);
+    }
+
+    function removeQueuedEpisode(episode) {
+        mediaPlayer.removeQueuedEpisode(episode);
+    }
+
     function togglePlayback(episode) {
-        controller.currentEpisodeChanging()
-        mediaPlayer.togglePlayback(episode)
+        if (episode !== undefined && episode.qfiletype == 'video') {
+            controller.playVideo(episode)
+        } else {
+            mediaPlayer.togglePlayback(episode)
+        }
     }
 
     function openShowNotes(episode) {
@@ -52,9 +105,8 @@ Image {
     }
 
     function openContextMenu(items) {
-        contextMenu.subscribeMode = false
-        contextMenu.state = 'opened'
-        contextMenu.items = items
+        hrmtnContextMenu.items = items
+        hrmtnContextMenu.open()
     }
 
     function startProgress(text) {
@@ -127,7 +179,10 @@ Image {
 
             anchors.fill: parent
 
-            onPodcastSelected: controller.podcastSelected(podcast)
+            onPodcastSelected: {
+                controller.podcastSelected(podcast)
+                main.currentPodcast = podcast
+            }
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
             onSubscribe: contextMenu.showSubscribe()
 
@@ -206,6 +261,7 @@ Image {
 
     CornerButton {
         id: extraCloseButton
+        visible: false
         z: (contextMenu.state == 'opened')?2:0
         tab: 'artwork/back-tab.png'
         icon: 'artwork/back.png'
@@ -222,6 +278,7 @@ Image {
         property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
 
         id: nowPlayingThrobber
+        visible: false
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         opacity: shouldAppear
@@ -243,7 +300,26 @@ Image {
         anchors.right: parent.right
         anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutCirc } }
+        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.quickTransition; easing.type: Easing.OutCirc } }
+    }
+
+    ContextMenu {
+        id: hrmtnContextMenu
+        property variant items: []
+
+        MenuLayout {
+            Repeater {
+                model: hrmtnContextMenu.items
+
+                MenuItem {
+                    text: modelData.caption
+                    onClicked: {
+                        hrmtnContextMenu.close()
+                        controller.contextMenuResponse(index)
+                    }
+                }
+            }
+        }
     }
 
     ContextMenuArea {
@@ -299,7 +375,7 @@ Image {
 
     Item {
         id: titleBar
-        height: taskSwitcher.height
+        height: taskSwitcher.height*.8
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -344,14 +420,15 @@ Image {
             }
         }
 
-        Text {
+        Label {
             id: titleBarText
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
             anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
+            wrapMode: Text.NoWrap
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?controller.episodeListTitle:"gPodder")
+            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder")
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -372,6 +449,7 @@ Image {
             onClicked: contextMenu.showSubscribe()
 
             visible: (contextMenu.state == 'closed' && main.state == 'podcasts')
+            opacity: 0
         }
 
         TitlebarButton {
@@ -391,6 +469,7 @@ Image {
                     controller.quit()
                 } else if (main.state == 'episodes') {
                     main.state = 'podcasts'
+                    main.currentPodcast = undefined
                 } else if (main.state == 'shownotes') {
                     main.state = 'episodes'
                 }
@@ -411,7 +490,7 @@ Image {
 
         Behavior on opacity { PropertyAnimation { } }
 
-        Text {
+        Label {
             id: messageDialogText
             anchors.centerIn: parent
             color: 'white'
@@ -425,19 +504,82 @@ Image {
         inputDialogField.text = value
         inputDialogAccept.text = accept
         inputDialogReject.text = reject
-        inputDialog.scale = .5
-        inputDialog.opacity = 1
-        inputDialog.scale = 1
         inputDialogField.visible = textInput
+
+        if (textInput) {
+            inputSheet.open()
+        } else {
+            queryDialog.open()
+        }
+    }
+
+    QueryDialog {
+        id: queryDialog
+
+        acceptButtonText: inputDialogAccept.text
+        rejectButtonText: inputDialogReject.text
+
+        message: inputDialogText.text
+
+        onAccepted: inputDialog.accept()
+        onRejected: inputDialog.close()
+    }
+
+    Sheet {
+        id: inputSheet
+
+        acceptButtonText: inputDialogAccept.text
+        rejectButtonText: inputDialogReject.text
+
+        content: Item {
+            anchors.fill: parent
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.log('caught')
+            }
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: Config.smallSpacing
+                spacing: Config.smallSpacing
+
+                Item {
+                    height: 1
+                    width: parent.width
+                }
+
+                Label {
+                    id: inputDialogText
+                    anchors.margins: Config.smallSpacing
+                    width: parent.width
+                }
+
+                Item {
+                    height: 1
+                    width: parent.width
+                }
+
+                InputField {
+                    id: inputDialogField
+                    width: parent.width
+                    onAccepted: {
+                        inputDialog.accept()
+                        inputSheet.close()
+                    }
+                    actionName: inputDialogAccept.text
+                }
+            }
+        }
+
+        onAccepted: inputDialog.accept()
+        onRejected: inputDialog.close()
     }
 
     Item {
         id: inputDialog
         anchors.fill: parent
         opacity: 0
-        scale: .5
-
-        z: 20
 
         function accept() {
             opacity = 0
@@ -453,51 +595,16 @@ Image {
                                            inputDialogField.visible)
         }
 
-        Behavior on scale { PropertyAnimation { duration: Config.slowTransition; easing.type: Easing.OutBack } }
-
-        Behavior on opacity { PropertyAnimation { duration: Config.quickTransition } }
-
-        MouseArea {
-            // don't let clicks into the input dialog fall through
-            anchors.fill: contentArea
+        SimpleButton {
+            id: inputDialogReject
+            width: parent.width / 2
+            onClicked: inputDialog.close()
         }
 
-        Column {
-            id: contentArea
-            anchors.centerIn: parent
-            spacing: Config.largeSpacing
-            width: 300
-
-            Text {
-                id: inputDialogText
-                color: 'white'
-                font.pixelSize: 20 * Config.scale
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            InputField {
-                id: inputDialogField
-                width: parent.width
-                onAccepted: inputDialog.accept()
-                actionName: inputDialogAccept.text
-            }
-
-            Row {
-                spacing: Config.smallSpacing
-                width: parent.width
-
-                SimpleButton {
-                    id: inputDialogReject
-                    width: parent.width / 2
-                    onClicked: inputDialog.close()
-                }
-
-                SimpleButton {
-                    id: inputDialogAccept
-                    width: parent.width / 2
-                    onClicked: inputDialog.accept()
-                }
-            }
+        SimpleButton {
+            id: inputDialogAccept
+            width: parent.width / 2
+            onClicked: inputDialog.accept()
         }
     }
 
@@ -511,12 +618,119 @@ Image {
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
-        Text {
+        Label {
             text: parent.text
-            color: 'white'
-            font.pixelSize: 30 * Config.scale
             anchors.horizontalCenter: parent.horizontalCenter
         }
+
+        BusyIndicator {
+            anchors.horizontalCenter: parent.horizontalCenter
+            running: parent.opacity > 0
+        }
     }
+
+    Sheet {
+        id: myGpoSheet
+
+        acceptButtonText: _('Save')
+        rejectButtonText: _('Cancel')
+        visualParent: main
+
+        content: Item {
+            id: myGpoSheetContent
+            anchors.fill: parent
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.log('caught')
+            }
+
+            Flickable {
+                anchors.fill: parent
+                anchors.margins: Config.largeSpacing
+                contentWidth: myGpoSettingsColumn.width
+                contentHeight: myGpoSettingsColumn.height
+
+                Column {
+                    id: myGpoSettingsColumn
+                    width: myGpoSheetContent.width - Config.largeSpacing * 2
+                    spacing: Config.smallSpacing
+
+                    Item {
+                        width: parent.width
+                        height: myGpoEnableSwitch.height
+
+                        Label {
+                            id: enableText
+                            anchors.left: parent.left
+                            anchors.right: myGpoEnableSwitch.left
+                            elide: Text.ElideRight
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: _('Enable gpodder.net syncing')
+                        }
+                        Switch {
+                            id: myGpoEnableSwitch
+                            anchors.right: parent.right
+                        }
+                    }
+
+                    Item { height: Config.largeSpacing; width: 1 }
+
+                    Label { text: _('Username') }
+                    InputField { id: myGpoUsernameField; anchors.left: parent.left; anchors.right: parent.right }
+
+                    Item { height: 1; width: 1 }
+
+                    Label { text: _('Password') }
+                    InputField { id: myGpoPasswordField; anchors.left: parent.left; anchors.right: parent.right; echoMode: TextInput.Password }
+
+                    Item { height: 1; width: 1 }
+
+                    Label { text: _('Device name') }
+                    InputField { id: myGpoDeviceCaptionField; anchors.left: parent.left; anchors.right: parent.right }
+
+                    Item { height: Config.largeSpacing; width: 1 }
+
+                    Button {
+                        text: _('Replace list on server')
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        onClicked: {
+                            myGpoSheet.accept()
+                            controller.myGpoUploadList()
+                        }
+                    }
+
+                    /*Button {
+                        text: _('Download list from server')
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        onClicked: controller.myGpoDownloadList()
+                    }*/
+
+                    Item { height: Config.largeSpacing; width: 1 }
+
+                    Button {
+                        text: _('No account? Register here')
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        onClicked: Qt.openUrlExternally('http://gpodder.net/register/')
+                    }
+                }
+            }
+
+        }
+
+        onAccepted: {
+            controller.myGpoUsername = myGpoUsernameField.text
+            controller.myGpoPassword = myGpoPasswordField.text
+            controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
+            controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
+            controller.saveMyGpoSettings()
+            main.myGpoSheetVisible = false
+        }
+
+        onRejected: {
+            main.myGpoSheetVisible = false
+        }
+    }
+
 }
 

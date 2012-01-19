@@ -1,18 +1,25 @@
 
 import Qt 4.7
+import com.nokia.meego 1.0
 
-TextInput {
-    // not used for now, but might be used in the future
-    property string placeholderText: ''
-    // the name of the action carried out when enter is pressed
+TextField {
+    id: textField
     property string actionName: ''
 
-    color: 'white'
-    font.pixelSize: 20
     inputMethodHints: Qt.ImhNoAutoUppercase
+    signal accepted()
+
+    Keys.onReturnPressed: accepted()
+    Keys.onEnterPressed: accepted()
 
     function closeVirtualKeyboard() {
-        // noop on this platform
+        textField.platformCloseSoftwareInputPanel()
+    }
+
+    platformSipAttributes: SipAttributes {
+        actionKeyLabel: textField.actionName
+        actionKeyHighlighted: true
+        actionKeyEnabled: true
     }
 }
 

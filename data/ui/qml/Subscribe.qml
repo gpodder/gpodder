@@ -1,6 +1,8 @@
 
 import Qt 4.7
 
+import com.nokia.meego 1.0
+
 import 'config.js' as Config
 
 Item {
@@ -11,7 +13,6 @@ Item {
     function show() {
         searchInput.text = ''
         searchResultsListModel.source = ''
-        searchInput.forceActiveFocus()
         topBar.opened = true
     }
 
@@ -41,7 +42,7 @@ Item {
             top: parent.top
         }
 
-        Text {
+        Label {
             id: searchLabel
             text: _('Search for:')
             color: 'white'
@@ -197,14 +198,14 @@ Item {
                     verticalCenter: parent.verticalCenter
                 }
 
-                Text {
+                Label {
                     text: title
                     anchors.leftMargin: Config.largeSpacing
                     color: 'white'
                     font.pixelSize: 25
                 }
 
-                Text {
+                Label {
                     text: url
                     anchors.leftMargin: Config.largeSpacing
                     color: '#aaa'
@@ -212,7 +213,7 @@ Item {
                 }
             }
 
-            Text {
+            Label {
                 id: subscriberCount
                 anchors {
                     verticalCenter: parent.verticalCenter
@@ -247,23 +248,13 @@ Item {
         }
     }
 
-    Rectangle {
+    BusyIndicator {
         anchors.centerIn: parent
+        running: opacity > 0
+        platformStyle: BusyIndicatorStyle { size: "large" }
 
-        width: 100
-        height: 50
-
-        color: 'black'
         opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
-
         Behavior on opacity { PropertyAnimation { } }
-
-        Text {
-            anchors.centerIn: parent
-            text: _('Loading.')
-            color: 'white'
-            font.pixelSize: 30
-        }
     }
 
     Item {
@@ -290,7 +281,7 @@ Item {
                     }
                 }
 
-                Text {
+                Label {
                     anchors.top: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
@@ -303,7 +294,7 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
-                    property string modelData: 'http://gpodder.net/gpodder-examples.xml'
+                    property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.net/gpodder-examples.xml')
                     anchors.fill: parent
                     onSelected: {
                         searchResultsListModel.source = item
@@ -311,18 +302,22 @@ Item {
                     }
                 }
 
-                Text {
+                Label {
                     anchors.top: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 30
                     color: 'white'
-                    text: _('Examples')
+                    text: controller.myGpoEnabled?_('My gpodder.net'):_('Examples')
                 }
             }
         }
     }
 
-    Text {
+    ScrollDecorator {
+        flickableItem: listView
+    }
+
+    Label {
         visible: directoryButtons.visible
         anchors.right: parent.right
         anchors.bottom: parent.bottom
