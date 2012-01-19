@@ -45,7 +45,7 @@ import os.path
 import os
 import shutil
 
-from email.Utils import formatdate
+from email.utils import formatdate
 import gpodder
 
 

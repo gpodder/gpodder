@@ -65,7 +65,7 @@ def get_param(s, param='filename', header='content-disposition'):
     msg = email.message_from_string(s)
     if header in msg:
         value = msg.get_param(param, header=header)
-        decoded_list = email.Header.decode_header(value)
+        decoded_list = email.header.decode_header(value)
         value = []
         for part, encoding in decoded_list:
             if encoding:

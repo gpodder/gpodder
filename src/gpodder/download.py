@@ -47,12 +47,7 @@ import collections
 import mimetypes
 import email
 
-try:
-    # Python 2
-    from email.Header import decode_header
-except ImportError:
-    # Python 3
-    from email.header import decode_header
+from email.header import decode_header
 
 import cgi
 
