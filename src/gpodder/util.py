@@ -1182,6 +1182,33 @@ def open_website(url):
     else:
         threading.Thread(target=webbrowser.open, args=(url,)).start()
 
+def convert_bytes(d):
+    """
+    Convert byte strings to unicode strings
+
+    This function will decode byte strings into unicode
+    strings. Any other data types will be left alone.
+
+    >>> convert_bytes(None)
+    >>> convert_bytes(1)
+    1
+    >>> convert_bytes(True)
+    True
+    >>> convert_bytes(3.1415)
+    3.1415
+    >>> convert_bytes('Hello')
+    u'Hello'
+    >>> convert_bytes(u'Hey')
+    u'Hey'
+    """
+    if d is None:
+        return d
+    if any(isinstance(d, t) for t in (int, bool, float)):
+        return d
+    elif not isinstance(d, unicode):
+        return d.decode('utf-8', 'ignore')
+    return d
+
 def sanitize_encoding(filename):
     r"""
     Generate a sanitized version of a string (i.e.
@@ -1290,12 +1317,16 @@ def find_mount_point(directory):
     >>> restore()
     """
     if isinstance(directory, unicode):
+        # XXX: This is only valid for Python 2 - misleading error in Python 3?
         # We do not accept unicode strings, because they could fail when
         # trying to be converted to some native encoding, so fail loudly
         # and leave it up to the callee to encode into the proper encoding.
         raise ValueError('Convert unicode objects to str first.')
 
     if not isinstance(directory, str):
+        # In Python 2, we assume it's a byte str; in Python 3, we assume
+        # that it's a unicode str. The abspath/ismount/split functions of
+        # os.path work with unicode str in Python 3, but not in Python 2.
         raise ValueError('Directory names should be of type str.')
 
     directory = os.path.abspath(directory)

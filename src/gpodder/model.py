@@ -40,7 +40,14 @@ import glob
 import shutil
 import time
 import datetime
-import rfc822
+
+try:
+    # Python 2
+    from rfc822 import mktime_tz
+except ImportError:
+    # Python 3
+    from email.utils import mktime_tz
+
 import hashlib
 import feedparser
 import collections
@@ -212,7 +219,7 @@ class PodcastEpisode(PodcastModelObject):
             episode.description = entry.get('subtitle', '')
 
         if entry.get('updated_parsed', None):
-            episode.published = rfc822.mktime_tz(entry.updated_parsed+(0,))
+            episode.published = mktime_tz(entry.updated_parsed+(0,))
 
         enclosures = entry.get('enclosures', [])
         media_rss_content = entry.get('media_content', [])
@@ -368,9 +375,22 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def trimmed_title(self):
         """Return the title with the common prefix trimmed"""
+        # Minimum amount of leftover characters after trimming. This
+        # avoids things like "Common prefix 123" to become just "123".
+        # If there are LEFTOVER_MIN or less characters after trimming,
+        # the original title will be returned without trimming.
+        LEFTOVER_MIN = 5
+
+        # "Podcast Name - Title" and "Podcast Name: Title" -> "Title"
+        for postfix in (' - ', ': '):
+            prefix = self.parent.title + postfix
+            if (self.title.startswith(prefix) and
+                    len(self.title)-len(prefix) > LEFTOVER_MIN):
+                return self.title[len(prefix):]
+
         if (self.parent._common_prefix is not None and
                 self.title.startswith(self.parent._common_prefix) and
-                len(self.title)-len(self.parent._common_prefix) > 5):
+                len(self.title)-len(self.parent._common_prefix) > LEFTOVER_MIN):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
@@ -454,10 +474,7 @@ class PodcastEpisode(PodcastModelObject):
             return _('No description available')
         else:
             # Decode the description to avoid gPodder bug 1277
-            if isinstance(desc, str):
-                desc = desc.decode('utf-8', 'ignore')
-
-            desc = desc.strip()
+            desc = util.convert_bytes(desc).strip()
 
             if len(desc) > MAX_LINE_LENGTH:
                 return desc[:MAX_LINE_LENGTH] + '...'
@@ -873,9 +890,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def sort_key(cls, podcast):
-        key = podcast.title.lower()
-        if not isinstance(key, unicode):
-            key = key.decode('utf-8', 'ignore')
+        key = util.convert_bytes(podcast.title.lower())
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod

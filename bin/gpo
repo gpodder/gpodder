@@ -283,7 +283,7 @@ class gPodderCli(object):
 
         episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
                 for i, e in enumerate(podcast.get_episodes()))
-	return episodes
+        return episodes
 
     @FirstArgumentIsPodcastURL
     def info(self, url):
@@ -576,7 +576,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args:
         cli._parse_single(args)
-    elif sys.stdin.isatty():
+    elif sys.stdin.isatty() and sys.stdout.isatty():
         cli._shell()
     else:
         sys.stdout.write(__doc__)

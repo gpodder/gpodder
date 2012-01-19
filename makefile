@@ -136,6 +136,7 @@ clean:
 	$(PYTHON) setup.py clean
 	find src/ -name '*.pyc' -exec rm '{}' \;
 	find src/ -name '*.pyo' -exec rm '{}' \;
+	find src/ -type d -name '__pycache__' -exec rm -r '{}' \;
 	find data/ui/ -name '*.ui.h' -exec rm '{}' \;
 	rm -f MANIFEST PKG-INFO data/messages.pot~ $(DESKTOPFILE_H)
 	rm -f data/gpodder-??x??.png .coverage
