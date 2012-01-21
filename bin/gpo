@@ -49,6 +49,8 @@
 
     youtube [URL]              Resolve the YouTube URL to a download URL
     rewrite [OLDURL] [NEWURL]  Change the feed URL of [OLDURL] to [NEWURL]
+    webui [public]             Start gPodder's Web UI server
+                               (public = listen on all network interfaces)
 
 """
 
@@ -417,6 +419,17 @@ class gPodderCli(object):
         print yurl
         return True
 
+    def webui(self, public=None):
+        from gpodder import webui
+        if public == 'public':
+            # Warn the user that the web UI is listening on all network
+            # interfaces, which could lead to problems.
+            # Only use this on a trusted, private network!
+            self._warn(_('Listening on ALL network interfaces.'))
+            webui.main(only_localhost=False)
+        else:
+            webui.main()
+
     @FirstArgumentIsPodcastURL
     def rewrite(self, old_url, new_url):
         podcast = self.client.get_podcast(old_url)
@@ -486,6 +499,9 @@ class gPodderCli(object):
 
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
+
+    # Warnings look like error messages for now
+    _warn = _error
 
     def _info(self, *args):
         print >>sys.stdout, ' '.join(args)
