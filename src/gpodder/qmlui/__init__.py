@@ -683,10 +683,7 @@ class qtPodder(QObject):
                 self.media_buttons_handler)
 
         # Load the QML UI (this could take a while...)
-        if gpodder.ui.harmattan:
-            self.view.setSource(QUrl.fromLocalFile(QML('main_harmattan.qml')))
-        else:
-            self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
+        self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
