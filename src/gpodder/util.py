@@ -1192,6 +1192,8 @@ def convert_bytes(d):
     >>> convert_bytes(None)
     >>> convert_bytes(1)
     1
+    >>> convert_bytes(4711L)
+    4711L
     >>> convert_bytes(True)
     True
     >>> convert_bytes(3.1415)
@@ -1203,7 +1205,7 @@ def convert_bytes(d):
     """
     if d is None:
         return d
-    if any(isinstance(d, t) for t in (int, bool, float)):
+    if any(isinstance(d, t) for t in (int, long, bool, float)):
         return d
     elif not isinstance(d, unicode):
         return d.decode('utf-8', 'ignore')
