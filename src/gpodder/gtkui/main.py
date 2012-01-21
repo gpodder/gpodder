@@ -300,13 +300,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.auto_update_feeds:
             self.restart_auto_update_timer()
 
-        # Delete old episodes if the user wishes to
-        if self.config.auto_remove_played_episodes and \
-                self.config.episode_old_age > 0:
-            old_episodes = list(self.get_expired_episodes())
-            if len(old_episodes) > 0:
-                self.delete_episode_list(old_episodes, confirm=False)
-                self.update_podcast_list_model(set(e.channel.url for e in old_episodes))
+        # Find expired (old) episodes and delete them
+        old_episodes = list(self.get_expired_episodes())
+        if len(old_episodes) > 0:
+            self.delete_episode_list(old_episodes, confirm=False)
+            updated_urls = set(e.channel.url for e in old_episodes)
+            self.update_podcast_list_model(updated_urls)
 
         # Do the initial sync with the web service
         util.idle_add(self.mygpo_client.flush, True)
@@ -2481,6 +2480,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         sys.exit(0)
 
     def get_expired_episodes(self):
+        # XXX: Move out of gtkui and into a generic module (gpodder.model)?
+
+        # Only expire episodes if the age in days is positive
+        if self.config.episode_old_age < 1:
+            return
+
         for channel in self.channels:
             for episode in channel.get_downloaded_episodes():
                 # Never consider archived episodes as old
