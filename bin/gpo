@@ -555,7 +555,11 @@ class gPodderCli(object):
 
 
     def _parse_single(self, command_line):
-        result = self._parse(command_line)
+        try:
+            result = self._parse(command_line)
+        except KeyboardInterrupt:
+            self._error('Keyboard interrupt.')
+            result = -1
         self._atexit()
         return result
 
