@@ -248,10 +248,8 @@ class Controller(QObject):
         else:
             menu.append(helper.Action(_('Update'), 'update', podcast))
             menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
-            menu.append(helper.Action('', '', None))
             menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
             menu.append(helper.Action(_('Change section'), 'change-section', podcast))
-            menu.append(helper.Action('', '', None))
             menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
         #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
