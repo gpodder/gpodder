@@ -336,6 +336,7 @@ class gPodderCli(object):
 
     def list(self):
         for podcast in self.client.get_podcasts():
+            print '#', ingreen(podcast.title)
             print podcast.url
 
         return True
