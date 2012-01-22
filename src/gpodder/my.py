@@ -59,6 +59,7 @@ if not hasattr(mygpoclient, 'require_version') or \
     sys.exit(1)
 
 from mygpoclient import api
+from mygpoclient import public
 
 from mygpoclient import util as mygpoutil
 
@@ -587,4 +588,19 @@ class MygPoClient(object):
 
     def open_website(self):
         util.open_website('http://' + self._config.mygpo_server)
+
+
+class Directory(object):
+    def __init__(self):
+        self.client = public.PublicClient()
+
+    def toplist(self):
+        return [(p.title or p.url, p.url)
+                for p in self.client.get_toplist()
+                if p.url]
+
+    def search(self, query):
+        return [(p.title or p.url, p.url)
+                for p in self.client.search_podcasts(query)
+                if p.url]
 
