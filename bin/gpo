@@ -336,7 +336,11 @@ class gPodderCli(object):
 
     def list(self):
         for podcast in self.client.get_podcasts():
-            print '#', ingreen(podcast.title)
+            if podcast.update_enabled():
+                print '#', ingreen(podcast.title)
+            else:
+                print '#', inred(podcast.title), '-', _('Updates disabled')
+
             print podcast.url
 
         return True
