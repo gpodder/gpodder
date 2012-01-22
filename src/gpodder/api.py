@@ -224,6 +224,9 @@ class PodcastClient(object):
         the resulting object.
         """
         url = util.normalize_feed_url(url)
+        if url is None:
+            return None
+
         podcast = self._model.load_podcast(url, create=True, \
                 max_episodes=self._config.max_episodes_per_feed, \
                 mimetype_prefs=self._config.mimetype_prefs)
