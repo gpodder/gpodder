@@ -248,10 +248,8 @@ class Controller(QObject):
         else:
             menu.append(helper.Action(_('Update'), 'update', podcast))
             menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
-            menu.append(helper.Action('', '', None))
             menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
             menu.append(helper.Action(_('Change section'), 'change-section', podcast))
-            menu.append(helper.Action('', '', None))
             menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
         #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
@@ -683,10 +681,7 @@ class qtPodder(QObject):
                 self.media_buttons_handler)
 
         # Load the QML UI (this could take a while...)
-        if gpodder.ui.harmattan:
-            self.view.setSource(QUrl.fromLocalFile(QML('main_harmattan.qml')))
-        else:
-            self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
+        self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))

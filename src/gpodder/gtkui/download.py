@@ -29,6 +29,7 @@ from gpodder import util
 from gpodder import download
 
 import gtk
+import cgi
 
 import collections
 
@@ -53,6 +54,8 @@ class DownloadStatusModel(gtk.ListStore):
         self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
 
     def _format_message(self, episode, message, podcast):
+        episode = cgi.escape(episode)
+        podcast = cgi.escape(podcast)
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
     def request_update(self, iter, task=None):
@@ -96,8 +99,8 @@ class DownloadStatusModel(gtk.ListStore):
             progress_message = ('unknown size')
 
         self.set(iter,
-                self.C_NAME, self._format_message(task.markup_name, \
-                    status_message, task.markup_podcast_name),
+                self.C_NAME, self._format_message(task.episode.title,
+                    status_message, task.episode.channel.title),
                 self.C_PROGRESS, 100.*task.progress, \
                 self.C_PROGRESS_TEXT, progress_message, \
                 self.C_ICON_NAME, self._status_ids[task.status])

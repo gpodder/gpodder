@@ -30,6 +30,9 @@
   - Subscription management -
 
     subscribe URL [TITLE]      Subscribe to a new feed at URL (as TITLE)
+    search QUERY               Search the gpodder.net directory for QUERY
+    toplist                    Show the gpodder.net top-subscribe podcasts
+
     rename URL TITLE           Rename feed at URL to TITLE
     unsubscribe URL            Unsubscribe from feed at URL
     enable URL                 Enable feed updates for the feed at URL
@@ -47,8 +50,10 @@
 
   - Other commands -
 
-    youtube [URL]              Resolve the YouTube URL to a download URL
-    rewrite [OLDURL] [NEWURL]  Change the feed URL of [OLDURL] to [NEWURL]
+    youtube URL                Resolve the YouTube URL to a download URL
+    rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
+    webui [public]             Start gPodder's Web UI server
+                               (public = listen on all network interfaces)
 
 """
 
@@ -110,11 +115,13 @@ _ = gpodder.gettext
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 
-# Use only the gPodder API here, so this serves both as an example
-# and as a motivation to provide all functionality in the API :)
 from gpodder import api
+from gpodder import my
+from gpodder import util
 
 have_ansi = sys.stdout.isatty() and not gpodder.win32
+interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
+is_single_command = False
 
 def inred(x):
     if have_ansi:
@@ -230,6 +237,11 @@ class gPodderCli(object):
     # -------------------------------------------------------------------
 
     def subscribe(self, url, title=None):
+        url = util.normalize_feed_url(url)
+        if url is None:
+            self._error(_('Invalid URL.'))
+            return True
+
         if self.client.get_podcast(url) is not None:
             self._info(_('You are already subscribed to %s.' % url))
             return True
@@ -324,6 +336,11 @@ class gPodderCli(object):
 
     def list(self):
         for podcast in self.client.get_podcasts():
+            if podcast.update_enabled():
+                print '#', ingreen(podcast.title)
+            else:
+                print '#', inred(podcast.title), '-', _('Updates disabled')
+
             print podcast.url
 
         return True
@@ -417,6 +434,74 @@ class gPodderCli(object):
         print yurl
         return True
 
+    def webui(self, public=None):
+        from gpodder import webui
+        if public == 'public':
+            # Warn the user that the web UI is listening on all network
+            # interfaces, which could lead to problems.
+            # Only use this on a trusted, private network!
+            self._warn(_('Listening on ALL network interfaces.'))
+            webui.main(only_localhost=False)
+        else:
+            webui.main()
+
+    def search(self, *terms):
+        query = ' '.join(terms)
+        if not query:
+            return
+
+        directory = my.Directory()
+        results = directory.search(query)
+        self._show_directory_results(results)
+
+    def toplist(self):
+        directory = my.Directory()
+        results = directory.toplist()
+        self._show_directory_results(results, True)
+
+    def _show_directory_results(self, results, multiple=False):
+        if not results:
+            self._error(_('No podcasts found.'))
+            return
+
+        if not interactive_console or is_single_command:
+            print '\n'.join(url for title, url in results)
+            return
+
+        def show_list():
+            self._pager('\n'.join(u'%3d: %s\n     %s' %
+                (index+1, title, url if title != url else '')
+                for index, (title, url) in enumerate(results)))
+
+        show_list()
+
+        msg = _('Enter index to subscribe, ? for list')
+        while True:
+            index = raw_input(msg + ': ')
+
+            if not index:
+                return
+
+            if index == '?':
+                show_list()
+                continue
+
+            try:
+                index = int(index)
+            except ValueError:
+                self._error(_('Invalid value.'))
+                continue
+
+            if not (1 <= index <= len(results)):
+                self._error(_('Invalid value.'))
+                continue
+
+            title, url = results[index-1]
+            self._info(_('Adding %s...') % title)
+            self.subscribe(url)
+            if not multiple:
+                break
+
     @FirstArgumentIsPodcastURL
     def rewrite(self, old_url, new_url):
         podcast = self.client.get_podcast(old_url)
@@ -451,7 +536,7 @@ class gPodderCli(object):
 
     def _shell(self):
         print '\n'.join(x.strip() for x in ("""
-        gPodder %(__version__)s (%(__date__)s) - %(__url__)s
+        gPodder %(__version__)s "%(__relname__)s" (%(__date__)s) - %(__url__)s
         %(__copyright__)s
         License: %(__license__)s
 
@@ -481,11 +566,16 @@ class gPodderCli(object):
                 self._parse(shlex.split(line))
             except KeyboardInterrupt:
                 self._error('Keyboard interrupt.')
+            except EOFError:
+                self._error('EOF.')
 
         self._atexit()
 
     def _error(self, *args):
         print >>sys.stderr, inred(' '.join(args))
+
+    # Warnings look like error messages for now
+    _warn = _error
 
     def _info(self, *args):
         print >>sys.stdout, ' '.join(args)
@@ -539,7 +629,11 @@ class gPodderCli(object):
 
 
     def _parse_single(self, command_line):
-        result = self._parse(command_line)
+        try:
+            result = self._parse(command_line)
+        except KeyboardInterrupt:
+            self._error('Keyboard interrupt.')
+            result = -1
         self._atexit()
         return result
 
@@ -575,8 +669,9 @@ if __name__ == '__main__':
     cli = gPodderCli()
     args = sys.argv[1:]
     if args:
+        is_single_command = True
         cli._parse_single(args)
-    elif sys.stdin.isatty() and sys.stdout.isatty():
+    elif interactive_console:
         cli._shell()
     else:
         sys.stdout.write(__doc__)

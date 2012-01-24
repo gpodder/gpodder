@@ -49,7 +49,6 @@ import email
 
 from email.header import decode_header
 
-import cgi
 
 _ = gpodder.gettext
 
@@ -473,6 +472,7 @@ class DownloadTask(object):
         task.status_changed   # True if the status has been changed (see below)
         task.url              # URL of the episode being downloaded
         task.podcast_url      # URL of the podcast this download belongs to
+        task.episode          # Episode object of this task
 
     You can cancel a running download task by setting its status:
 
@@ -582,10 +582,6 @@ class DownloadTask(object):
         self.__status_changed = True
         self.__episode = episode
         self._config = config
-
-        # Set names for the downloads list
-        self.markup_name = cgi.escape(self.__episode.title)
-        self.markup_podcast_name = cgi.escape(self.__episode.channel.title)
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)

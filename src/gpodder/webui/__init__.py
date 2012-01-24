@@ -39,11 +39,22 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
     player = None
 
     @classmethod
-    def run(cls, server_class=BaseHTTPServer.HTTPServer):
-        server_address = ('', cls.DEFAULT_PORT)
-        print >>sys.stderr, 'Listening on port %d...' % cls.DEFAULT_PORT
+    def run(cls, only_localhost=True, server_class=BaseHTTPServer.HTTPServer):
+        if only_localhost:
+            server_address = ('localhost', cls.DEFAULT_PORT)
+        else:
+            server_address = ('', cls.DEFAULT_PORT)
+        print >>sys.stderr, """
+    Server running. Point your web browser to:
+    http://localhost:%s/
+
+    Press Ctrl+C to stop the web server.
+        """ % (cls.DEFAULT_PORT,)
         httpd = server_class(server_address, cls)
-        httpd.serve_forever()
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            del httpd
 
     def do_GET(self):
         self.send_response(200)
@@ -153,12 +164,12 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('<a href="/podcast">Podcasts</a>')
 
 
-def main():
+def main(only_localhost=True):
     WebUI.core = core.Core(model_class=model.Model)
     try:
         import android
         WebUI.player = android.Android()
     except:
         pass
-    return WebUI.run()
+    return WebUI.run(only_localhost)
 
