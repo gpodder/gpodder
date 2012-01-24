@@ -2995,8 +2995,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_import_from_file_activate(self, widget, filename=None):
         if filename is None:
-            dlg = gtk.FileChooserDialog(title=_('Import from OPML'), \
-                    parent=None, action=gtk.FILE_CHOOSER_ACTION_OPEN)
+            dlg = gtk.FileChooserDialog(title=_('Import from OPML'),
+                    parent=self.main_window,
+                    action=gtk.FILE_CHOOSER_ACTION_OPEN)
             dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
             dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
             dlg.set_filter(self.get_opml_filter())
