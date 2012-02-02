@@ -388,6 +388,11 @@ class PodcastEpisode(PodcastModelObject):
                     len(self.title)-len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
+        # "#001: Title" -> "001: Title"
+        if (not self.parent._common_prefix and re.match('^#\d+: ',
+            self.title) and len(self.title)-1 > LEFTOVER_MIN):
+            return self.title[1:]
+
         if (self.parent._common_prefix is not None and
                 self.title.startswith(self.parent._common_prefix) and
                 len(self.title)-len(self.parent._common_prefix) > LEFTOVER_MIN):
