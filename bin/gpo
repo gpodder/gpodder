@@ -172,9 +172,9 @@ class gPodderCli(object):
         self._prefixes, self._expansions = self._build_prefixes_expansions()
         self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
-        gpodder.user_hooks.on_ui_initialized(self.client.core.model,
-                self._hooks_podcast_update_cb,
-                self._hooks_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(self.client.core.model,
+                self._extensions_podcast_update_cb,
+                self._extensions_episode_download_cb)
 
     def _build_prefixes_expansions(self):
         prefixes = {}
@@ -204,12 +204,12 @@ class gPodderCli(object):
 
         return prefixes, expansions
 
-    def _hooks_podcast_update_cb(self, podcast):
-        self._info(_('Podcast update requested by hooks.'))
+    def _extensions_podcast_update_cb(self, podcast):
+        self._info(_('Podcast update requested by extensions.'))
         self._update_podcast(podcast)
 
-    def _hooks_episode_download_cb(self, episode):
-        self._info(_('Episode download requested by hooks.'))
+    def _extensions_episode_download_cb(self, episode):
+        self._info(_('Episode download requested by extensions.'))
         self._download_episode(episode)
 
     def _start_action(self, msg, *args):

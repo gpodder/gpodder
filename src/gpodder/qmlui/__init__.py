@@ -642,9 +642,9 @@ class qtPodder(QObject):
         # Initialize the gpodder.net client
         self.mygpo_client = my.MygPoClient(self.config)
 
-        gpodder.user_hooks.on_ui_initialized(self.model,
-                self.hooks_podcast_update_cb,
-                self.hooks_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
 
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
@@ -846,24 +846,24 @@ class qtPodder(QObject):
             return podcasts[0]
         return None
 
-    def hooks_podcast_update_cb(self, podcast):
-        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+    def extensions_podcast_update_cb(self, podcast):
+        logger.debug('extensions_podcast_update_cb(%s)', podcast)
         try:
             qpodcast = self.podcast_to_qpodcast(podcast)
             if qpodcast is not None:
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
-            logger.exception('hooks_podcast_update_cb(%s): %s', podcast, e)
+            logger.exception('extensions_podcast_update_cb(%s): %s', podcast, e)
 
-    def hooks_episode_download_cb(self, episode):
-        logger.debug('hooks_episode_download_cb(%s)', episode)
+    def extensions_episode_download_cb(self, episode):
+        logger.debug('extensions_episode_download_cb(%s)', episode)
         try:
             qpodcast = self.podcast_to_qpodcast(episode.channel)
             qepisode = self.wrap_episode(qpodcast, episode)
             self.controller.downloadEpisode(qepisode)
         except Exception, e:
-            logger.exception('hooks_episode_download_cb(%s): %s', episode, e)
+            logger.exception('extensions_episode_download_cb(%s): %s', episode, e)
 
 def main(args):
     gui = qtPodder(args, core.Core())

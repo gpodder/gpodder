@@ -77,13 +77,14 @@ from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktop.channel import gPodderChannel
 from gpodder.gtkui.desktop.preferences import gPodderPreferences
+from gpodder.gtkui.desktop.extensions import gPodderExtensionManager
 from gpodder.gtkui.desktop.shownotes import gPodderShownotes
 from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder import hooks
+from gpodder import extensions
 
 class gPodder(BuilderWidget, dbus.service.Object):
     # Delay until live search is started after typing stop
@@ -203,9 +204,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.active_channel = None
         self.channels = self.model.get_podcasts()
 
-        gpodder.user_hooks.on_ui_initialized(self.model,
-                self.hooks_podcast_update_cb,
-                self.hooks_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -1130,6 +1131,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             else:
                 self.downloads_finished(self.download_tasks_seen)
+                gpodder.user_extensions.on_all_episodes_downloaded()
                 logger.info('All downloads have finished.')
 
                 # Remove finished episodes
@@ -1639,13 +1641,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
 
-            result = gpodder.user_hooks.on_episodes_context_menu(episodes)
+            result = gpodder.user_extensions.on_episodes_context_menu(episodes)
             if result:
                 menu.append(gtk.SeparatorMenuItem())
                 for label, callback in result:
                     item = gtk.MenuItem(label)
-                    item.connect('activate', lambda item, callback:
-                            callback(episodes), callback)
+                    item.connect('activate', self.on_menuItem_activated,
+                        callback, episodes)
                     menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
@@ -1702,6 +1704,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.popup(None, None, None, event.button, event.time)
 
             return True
+            
+    def on_menuItem_activated(self, menuitem, callback, episodes):
+        threading.Thread(target=callback, args=(episodes,)).start()
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -2813,6 +2818,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 mygpo_client=self.mygpo_client, \
                 on_send_full_subscriptions=self.on_send_full_subscriptions, \
                 on_itemExportChannels_activate=self.on_itemExportChannels_activate)
+                
+    def on_itemExtensionSettings_activate(self, widget, *args):
+        gPodderExtensionManager(self.main_window, \
+                _config=self.config, \
+                parent_window=self.main_window)
 
     def on_goto_mygpo(self, widget):
         self.mygpo_client.open_website()
@@ -3314,13 +3324,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def hooks_podcast_update_cb(self, podcast):
-        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+    def extensions_podcast_update_cb(self, podcast):
+        logger.debug('extensions_podcast_update_cb(%s)', podcast)
         self.update_feed_cache(channels=[podcast],
                 show_new_episodes_dialog=False)
 
-    def hooks_episode_download_cb(self, episode):
-        logger.debug('hooks_episode_download_cb(%s)', episode)
+    def extensions_episode_download_cb(self, episode):
+        logger.debug('extension_episode_download_cb(%s)', episode)
         self.download_episode_list(episodes=[episode])
 
 def main(options=None):

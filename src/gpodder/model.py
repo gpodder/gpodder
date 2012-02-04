@@ -402,7 +402,7 @@ class PodcastEpisode(PodcastModelObject):
                 not self.downloading)
 
     def save(self):
-        gpodder.user_hooks.on_episode_save(self)
+        gpodder.user_extensions.on_episode_save(self)
 
         self._clear_changes()
 
@@ -470,7 +470,7 @@ class PodcastEpisode(PodcastModelObject):
     def delete_from_disk(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
-            gpodder.user_hooks.on_episode_delete(self, filename)
+            gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
         self.set_state(gpodder.STATE_DELETED)
@@ -923,7 +923,7 @@ class PodcastChannel(PodcastModelObject):
 
             tmp.save()
 
-            gpodder.user_hooks.on_podcast_subscribe(tmp)
+            gpodder.user_extensions.on_podcast_subscribe(tmp)
 
             return tmp
 
@@ -1091,7 +1091,7 @@ class PodcastChannel(PodcastModelObject):
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
-                gpodder.user_hooks.on_episode_removed_from_podcast(episode)
+                gpodder.user_extensions.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
 
                 # Remove the episode from the "children" episodes list
@@ -1149,10 +1149,10 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.NotFound
             #feedcore.InvalidFeed
             #feedcore.UnknownStatusCode
-            gpodder.user_hooks.on_podcast_update_failed(self, e)
+            gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 
-        gpodder.user_hooks.on_podcast_updated(self)
+        gpodder.user_extensions.on_podcast_updated(self)
 
         # Re-determine the common prefix for all episodes
         self._determine_common_prefix()
@@ -1167,7 +1167,7 @@ class PodcastChannel(PodcastModelObject):
         if self.download_folder is None:
             self.get_save_dir()
 
-        gpodder.user_hooks.on_podcast_save(self)
+        gpodder.user_extensions.on_podcast_save(self)
 
         self._clear_changes()
 
@@ -1317,7 +1317,7 @@ class PodcastChannel(PodcastModelObject):
         for episode in self.get_downloaded_episodes():
             filename = episode.local_filename(create=False, check_only=True)
             if filename is not None:
-                gpodder.user_hooks.on_episode_delete(episode, filename)
+                gpodder.user_extensions.on_episode_delete(episode, filename)
 
         shutil.rmtree(self.save_dir, True)
 
@@ -1339,7 +1339,7 @@ class Model(object):
 
     def _remove_podcast(self, podcast):
         self.children.remove(podcast)
-        gpodder.user_hooks.on_podcast_delete(self)
+        gpodder.user_extensions.on_podcast_delete(self)
 
     def get_podcasts(self):
         def podcast_factory(dct, db):

@@ -488,7 +488,7 @@ class WoodchuckLoader():
         logger.info('Got on_ui_initialized. Setting up woodchuck..')
 
         global woodchuck_loader
-        gpodder.user_hooks.unregister_hooks(woodchuck_loader)
+        gpodder.user_extensions.unregister_extensions(woodchuck_loader)
         woodchuck_loader = None
 
         if not woodchuck_imported:
@@ -508,12 +508,12 @@ class WoodchuckLoader():
 
         logger.info('Connected to Woodchuck server.')
 
-        gpodder.user_hooks.register_hooks(woodchuck_instance)
+        gpodder.user_extensions.register_extensions(woodchuck_instance)
 
         idle_add(check_subscriptions)
 
 woodchuck_loader = WoodchuckLoader()
 woodchuck_instance = None
 
-gpodder.user_hooks.register_hooks(woodchuck_loader)
+gpodder.user_extensions.register_extensions(woodchuck_loader)
 

@@ -61,6 +61,13 @@
           <accelerator key="P" modifiers="GDK_CONTROL_MASK"/>
         </child>
         <child>
+          <object class="GtkAction" id="itemExtensionSettings">
+            <property name="name">itemExtensionSettings</property>
+            <property name="label" translatable="yes">Extension Manager</property>
+            <signal handler="on_itemExtensionSettings_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="itemQuit">
             <property name="stock_id">gtk-quit</property>
             <property name="name">itemQuit</property>
@@ -330,6 +337,7 @@
           <menuitem action="itemRemoveOldEpisodes"/>
           <separator/>
           <menuitem action="itemPreferences"/>
+          <menuitem action="itemExtensionSettings"/>
           <separator/>
           <menuitem action="itemQuit"/>
         </menu>

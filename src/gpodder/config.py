@@ -142,6 +142,10 @@ defaults = {
     'youtube': {
         'preferred_fmt_id': 18,
     },
+
+    'extensions': {
+        'enabled': [],
+    },
 }
 
 # The sooner this goes away, the better

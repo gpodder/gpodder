@@ -31,12 +31,6 @@ from gpodder.gtkui.base import GtkBuilderWidget
 
 from gpodder.gtkui.widgets import NotificationWindow
 
-try:
-    import pynotify
-    if not pynotify.init('gPodder'):
-        pynotify = None
-except ImportError:
-    pynotify = None
 
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
@@ -137,16 +131,10 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.run()
             dlg.destroy()
         elif config is not None and config.enable_notifications:
-            if pynotify is not None:
+            if gpodder.notify.is_initted():
                 if title is None:
                     title = 'gPodder'
-                notification = pynotify.Notification(title, message,\
-                        gpodder.icon_file)
-                try:
-                    notification.show()
-                except:
-                    # See http://gpodder.org/bug/966
-                    pass
+                notification = gpodder.notify.message(title, message)
             elif widget and isinstance(widget, gtk.Widget):
                 if not widget.window:
                     widget = self.main_window

@@ -26,8 +26,9 @@ import gpodder
 from gpodder import util
 from gpodder import config
 from gpodder import dbsqlite
-from gpodder import hooks
+from gpodder import extensions
 from gpodder import model
+from gpodder import notification
 
 
 class Core(object):
@@ -38,16 +39,19 @@ class Core(object):
         # Initialize the gPodder home directory
         util.make_directory(gpodder.home)
 
-        # Load hook modules and install the hook manager
-        gpodder.user_hooks = hooks.HookManager()
-
-        # Load installed/configured plugins
-        gpodder.load_plugins()
-
         # Open the database and configuration file
         self.db = database_class(gpodder.database_file)
         self.model = model_class(self.db)
         self.config = config_class(gpodder.config_file)
+
+        # Initialize the notification system
+        gpodder.notify = notification.init_notify(self.config)
+
+        # Load extension modules and install the extension manager
+        gpodder.user_extensions = extensions.ExtensionManager(self.config)
+
+        # Load installed/configured plugins
+        gpodder.load_plugins()
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()

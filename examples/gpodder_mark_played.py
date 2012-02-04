@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Example script that can be used as post-play hook in media players
+# Example script that can be used as post-play extension in media players
 #
 # Set the configuration options "audio_played_dbus" and "video_played_dbus"
 # to True to let gPodder leave the played status untouched when playing

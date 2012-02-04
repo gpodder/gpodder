@@ -25,11 +25,10 @@
 
 """Miscellaneous helper functions for gPodder
 
-This module provides helper and utility functions for gPodder that 
+This module provides helper and utility functions for gPodder that
 are not tied to any specific part of gPodder.
 
 """
-
 import gpodder
 
 import logging
@@ -111,14 +110,37 @@ def _sanitize_char(c):
 SANITIZATION_TABLE = ''.join(map(_sanitize_char, map(chr, range(256))))
 del _sanitize_char
 
-# Used by file_type_by_extension()
-_BUILTIN_FILE_TYPES = None
+_MIME_TYPE_LIST = [
+    ('.aac', 'audio/aac'),
+    ('.axa', 'audio/annodex'),
+    ('.flac', 'audio/flac'),
+    ('.m4b', 'audio/m4b'),
+    ('.m4a', 'audio/mp4'),
+    ('.mp3', 'audio/mpeg'),
+    ('.spx', 'audio/ogg'),
+    ('.oga', 'audio/ogg'),
+    ('.ogg', 'audio/ogg'),
+    ('.wma', 'audio/x-ms-wma'),
+    ('.3gp', 'video/3gpp'),
+    ('.axv', 'video/annodex'),
+    ('.divx', 'video/divx'),
+    ('.m4v', 'video/m4v'),
+    ('.mp4', 'video/mp4'),
+    ('.ogv', 'video/ogg'),
+    ('.mov', 'video/quicktime'),
+    ('.flv', 'video/x-flv'),
+    ('.mkv', 'video/x-matroska'),
+    ('.wmv', 'video/x-ms-wmv'),
+]
+
+_MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
+_MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
 def make_directory( path):
     """
     Tries to create a directory if it does not exist already.
-    Returns True if the directory exists after the function 
+    Returns True if the directory exists after the function
     call, False otherwise.
     """
     if os.path.isdir( path):
@@ -135,7 +157,7 @@ def make_directory( path):
 
 def normalize_feed_url(url):
     """
-    Converts any URL to http:// or ftp:// so that it can be 
+    Converts any URL to http:// or ftp:// so that it can be
     used with "wget". If the URL cannot be converted (invalid
     or unknown scheme), "None" is returned.
 
@@ -285,9 +307,9 @@ def username_password_from_url(url):
 
 def calculate_size( path):
     """
-    Tries to calculate the size of a directory, including any 
-    subdirectories found. The returned value might not be 
-    correct if the user doesn't have appropriate permissions 
+    Tries to calculate the size of a directory, including any
+    subdirectories found. The returned value might not be
+    correct if the user doesn't have appropriate permissions
     to list all subdirectories of the given path.
     """
     if path is None:
@@ -433,12 +455,12 @@ def format_date(timestamp):
     except ValueError, ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
-    
+
     if timestamp_date == today:
        return _('Today')
     elif timestamp_date == yesterday:
        return _('Yesterday')
-   
+
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
@@ -460,7 +482,7 @@ def format_date(timestamp):
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
     """
-    Formats the given size in bytes to be human-readable, 
+    Formats the given size in bytes to be human-readable,
 
     Returns a localized "(unknown)" string when the bytesize
     has a negative value.
@@ -515,7 +537,7 @@ def delete_file(filename):
 def remove_html_tags(html):
     """
     Remove HTML tags from a string and replace numeric and
-    named entities with the corresponding character, so the 
+    named entities with the corresponding character, so the
     HTML text can be displayed in a simple text view.
     """
     if html is None:
@@ -529,7 +551,7 @@ def remove_html_tags(html):
     re_listing_tags = re.compile('<li[^>]*>', re.I)
 
     result = html
-    
+
     # Convert common HTML elements to their text equivalent
     result = re_newline_tags.sub('\n', result)
     result = re_listing_tags.sub('\n * ', result)
@@ -543,7 +565,7 @@ def remove_html_tags(html):
 
     # Convert named HTML entities to their unicode character
     result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
-    
+
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
 
@@ -599,15 +621,45 @@ def wrong_extension(extension):
 def extension_from_mimetype(mimetype):
     """
     Simply guesses what the file extension should be from the mimetype
+
+    >>> extension_from_mimetype('audio/mp4')
+    '.m4a'
+    >>> extension_from_mimetype('audio/ogg')
+    '.ogg'
+    >>> extension_from_mimetype('audio/mpeg')
+    '.mp3'
+    >>> extension_from_mimetype('video/x-matroska')
+    '.mkv'
+    >>> extension_from_mimetype('wrong-mimetype')
+    ''
     """
-    MIMETYPE_EXTENSIONS = {
-            # This is required for YouTube downloads on Maemo 5
-            'video/x-flv': '.flv',
-            'video/mp4': '.mp4',
-    }
-    if mimetype in MIMETYPE_EXTENSIONS:
-        return MIMETYPE_EXTENSIONS[mimetype]
+    if mimetype in _MIME_TYPES:
+        return _MIME_TYPES[mimetype]
     return mimetypes.guess_extension(mimetype) or ''
+
+
+def mimetype_from_extension(extension):
+    """
+    Simply guesses what the mimetype should be from the file extension
+
+    >>> mimetype_from_extension('.m4a')
+    'audio/mp4'
+    >>> mimetype_from_extension('.ogg')
+    'audio/ogg'
+    >>> mimetype_from_extension('.mp3')
+    'audio/mpeg'
+    >>> mimetype_from_extension('.mkv')
+    'video/x-matroska'
+    >>> mimetype_from_extension('.abc')
+    ''
+    """
+    if extension in _MIME_TYPES_EXT:
+        return _MIME_TYPES_EXT[extension]
+
+    # Need to prepend something to the extension, so guess_type works
+    type, encoding = mimetypes.guess_type('file'+extension)
+
+    return type or ''
 
 
 def extension_correct_for_mimetype(extension, mimetype):
@@ -622,6 +674,8 @@ def extension_correct_for_mimetype(extension, mimetype):
     True
     >>> extension_correct_for_mimetype('.ogg', 'audio/mpeg')
     False
+    >>> extension_correct_for_mimetype('.m4a', 'audio/mp4')
+    True
     >>> extension_correct_for_mimetype('mp3', 'audio/mpeg')
     Traceback (most recent call last):
       ...
@@ -636,10 +690,12 @@ def extension_correct_for_mimetype(extension, mimetype):
     if not extension.startswith('.'):
         raise ValueError('"%s" is not an extension (missing .)' % extension)
 
+    if (extension, mimetype) in _MIME_TYPE_LIST:
+        return True
+
     # Create a "default" extension from the mimetype, e.g. "application/ogg"
     # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
     default = ['.'+mimetype.split('/')[-1]]
-
     return extension in default+mimetypes.guess_all_extensions(mimetype)
 
 
@@ -649,10 +705,10 @@ def filename_from_url(url):
     from a URL, e.g. http://server.com/file.MP3?download=yes
     will result in the string ("file", ".mp3") being returned.
 
-    This function will also try to best-guess the "real" 
+    This function will also try to best-guess the "real"
     extension for a media file (audio, video) by
     trying to match an extension to these types and recurse
-    into the query string to find better matches, if the 
+    into the query string to find better matches, if the
     original extension does not resolve to a known type.
 
     http://my.net/redirect.php?my.net/file.ogg => ("file", ".ogg")
@@ -682,14 +738,16 @@ def filename_from_url(url):
 
 def file_type_by_extension(extension):
     """
-    Tries to guess the file type by looking up the filename 
-    extension from a table of known file types. Will return 
+    Tries to guess the file type by looking up the filename
+    extension from a table of known file types. Will return
     "audio", "video" or None.
 
     >>> file_type_by_extension('.aif')
     'audio'
     >>> file_type_by_extension('.3GP')
     'video'
+    >>> file_type_by_extension('.m4a')
+    'audio'
     >>> file_type_by_extension('.txt') is None
     True
     >>> file_type_by_extension(None) is None
@@ -705,23 +763,10 @@ def file_type_by_extension(extension):
     if not extension.startswith('.'):
         raise ValueError('Extension does not start with a dot: %s' % extension)
 
-    global _BUILTIN_FILE_TYPES
-    if _BUILTIN_FILE_TYPES is None:
-        # List all types that are not in the default mimetypes.types_map
-        # (even if they might be detected by mimetypes.guess_type)
-        # For OGG, see http://wiki.xiph.org/MIME_Types_and_File_Extensions
-        audio_types = ('.ogg', '.oga', '.spx', '.flac', '.axa', \
-                       '.aac', '.m4a', '.m4b', '.wma')
-        video_types = ('.ogv', '.axv', '.mp4', \
-                       '.mkv', '.m4v', '.divx', '.flv', '.wmv', '.3gp')
-        _BUILTIN_FILE_TYPES = {}
-        _BUILTIN_FILE_TYPES.update((ext, 'audio') for ext in audio_types)
-        _BUILTIN_FILE_TYPES.update((ext, 'video') for ext in video_types)
-
     extension = extension.lower()
 
-    if extension in _BUILTIN_FILE_TYPES:
-        return _BUILTIN_FILE_TYPES[extension]
+    if extension in _MIME_TYPES_EXT:
+        return _MIME_TYPES_EXT[extension].split('/')[0]
 
     # Need to prepend something to the extension, so guess_type works
     type, encoding = mimetypes.guess_type('file'+extension)
@@ -730,7 +775,7 @@ def file_type_by_extension(extension):
         filetype, rest = type.split('/', 1)
         if filetype in ('audio', 'video', 'image'):
             return filetype
-    
+
     return None
 
 
@@ -744,10 +789,10 @@ def get_first_line( s):
 
 def object_string_formatter( s, **kwargs):
     """
-    Makes attributes of object passed in as keyword 
-    arguments available as {OBJECTNAME.ATTRNAME} in 
-    the passed-in string and returns a string with 
-    the above arguments replaced with the attribute 
+    Makes attributes of object passed in as keyword
+    arguments available as {OBJECTNAME.ATTRNAME} in
+    the passed-in string and returns a string with
+    the above arguments replaced with the attribute
     values of the corresponding object.
 
     Example:
@@ -755,7 +800,7 @@ def object_string_formatter( s, **kwargs):
     e = Episode()
     e.title = 'Hello'
     s = '{episode.title} World'
-    
+
     print object_string_formatter( s, episode = e)
           => 'Hello World'
     """
