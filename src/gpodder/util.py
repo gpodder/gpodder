@@ -25,10 +25,11 @@
 
 """Miscellaneous helper functions for gPodder
 
-This module provides helper and utility functions for gPodder that
+This module provides helper and utility functions for gPodder that 
 are not tied to any specific part of gPodder.
 
 """
+
 import gpodder
 
 import logging
@@ -140,7 +141,7 @@ _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 def make_directory( path):
     """
     Tries to create a directory if it does not exist already.
-    Returns True if the directory exists after the function
+    Returns True if the directory exists after the function 
     call, False otherwise.
     """
     if os.path.isdir( path):
@@ -157,7 +158,7 @@ def make_directory( path):
 
 def normalize_feed_url(url):
     """
-    Converts any URL to http:// or ftp:// so that it can be
+    Converts any URL to http:// or ftp:// so that it can be 
     used with "wget". If the URL cannot be converted (invalid
     or unknown scheme), "None" is returned.
 
@@ -307,9 +308,9 @@ def username_password_from_url(url):
 
 def calculate_size( path):
     """
-    Tries to calculate the size of a directory, including any
-    subdirectories found. The returned value might not be
-    correct if the user doesn't have appropriate permissions
+    Tries to calculate the size of a directory, including any 
+    subdirectories found. The returned value might not be 
+    correct if the user doesn't have appropriate permissions 
     to list all subdirectories of the given path.
     """
     if path is None:
@@ -455,12 +456,12 @@ def format_date(timestamp):
     except ValueError, ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
-
+    
     if timestamp_date == today:
        return _('Today')
     elif timestamp_date == yesterday:
        return _('Yesterday')
-
+   
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
@@ -482,7 +483,7 @@ def format_date(timestamp):
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
     """
-    Formats the given size in bytes to be human-readable,
+    Formats the given size in bytes to be human-readable, 
 
     Returns a localized "(unknown)" string when the bytesize
     has a negative value.
@@ -537,7 +538,7 @@ def delete_file(filename):
 def remove_html_tags(html):
     """
     Remove HTML tags from a string and replace numeric and
-    named entities with the corresponding character, so the
+    named entities with the corresponding character, so the 
     HTML text can be displayed in a simple text view.
     """
     if html is None:
@@ -551,7 +552,7 @@ def remove_html_tags(html):
     re_listing_tags = re.compile('<li[^>]*>', re.I)
 
     result = html
-
+    
     # Convert common HTML elements to their text equivalent
     result = re_newline_tags.sub('\n', result)
     result = re_listing_tags.sub('\n * ', result)
@@ -565,7 +566,7 @@ def remove_html_tags(html):
 
     # Convert named HTML entities to their unicode character
     result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
-
+    
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
 
@@ -696,6 +697,7 @@ def extension_correct_for_mimetype(extension, mimetype):
     # Create a "default" extension from the mimetype, e.g. "application/ogg"
     # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
     default = ['.'+mimetype.split('/')[-1]]
+
     return extension in default+mimetypes.guess_all_extensions(mimetype)
 
 
@@ -705,10 +707,10 @@ def filename_from_url(url):
     from a URL, e.g. http://server.com/file.MP3?download=yes
     will result in the string ("file", ".mp3") being returned.
 
-    This function will also try to best-guess the "real"
+    This function will also try to best-guess the "real" 
     extension for a media file (audio, video) by
     trying to match an extension to these types and recurse
-    into the query string to find better matches, if the
+    into the query string to find better matches, if the 
     original extension does not resolve to a known type.
 
     http://my.net/redirect.php?my.net/file.ogg => ("file", ".ogg")
@@ -738,8 +740,8 @@ def filename_from_url(url):
 
 def file_type_by_extension(extension):
     """
-    Tries to guess the file type by looking up the filename
-    extension from a table of known file types. Will return
+    Tries to guess the file type by looking up the filename 
+    extension from a table of known file types. Will return 
     "audio", "video" or None.
 
     >>> file_type_by_extension('.aif')
@@ -775,7 +777,7 @@ def file_type_by_extension(extension):
         filetype, rest = type.split('/', 1)
         if filetype in ('audio', 'video', 'image'):
             return filetype
-
+    
     return None
 
 
@@ -789,10 +791,10 @@ def get_first_line( s):
 
 def object_string_formatter( s, **kwargs):
     """
-    Makes attributes of object passed in as keyword
-    arguments available as {OBJECTNAME.ATTRNAME} in
-    the passed-in string and returns a string with
-    the above arguments replaced with the attribute
+    Makes attributes of object passed in as keyword 
+    arguments available as {OBJECTNAME.ATTRNAME} in 
+    the passed-in string and returns a string with 
+    the above arguments replaced with the attribute 
     values of the corresponding object.
 
     Example:
@@ -800,7 +802,7 @@ def object_string_formatter( s, **kwargs):
     e = Episode()
     e.title = 'Hello'
     s = '{episode.title} World'
-
+    
     print object_string_formatter( s, episode = e)
           => 'Hello World'
     """

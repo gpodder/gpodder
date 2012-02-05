@@ -35,6 +35,8 @@ import inspect
 import json
 import os
 import functools
+import shlex
+import subprocess
 import sys
 from datetime import datetime
 
@@ -112,35 +114,19 @@ class ExtensionParent(object):
         self.authors = []
 
         if self.metadata is not None:
-            if self.metadata.has_key('id'):
-              self.id = self.metadata['id']
-
-            if self.metadata.has_key('name'):
-              self.name = self.metadata['name']
-
-            if self.metadata.has_key('desc'):
-              self.desc = self.metadata['desc']
-
-            if self.metadata.has_key('authors'):
-              self.desc = self.metadata['authors']
+            self.id = self.metadata.get('id', None)
+            self.name = self.metadata.get('name', None)
+            self.desc = self.metadata.get('desc', None)
+            self.authors = self.metadata.get('authors', None)
 
     def check_command(self, cmd):
         """Check if a command line command/program exists"""
 
-        import shlex
-        import subprocess
-
         # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-        if isinstance(cmd, unicode):
-            cmd = cmd.encode('ascii', 'ignore')
-
+        cmd = util.sanitize_encoding(cmd)
         program = shlex.split(cmd)[0]
-        try:
-            subprocess.Popen(shlex.split('%s --version' % program),
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-        except Exception as (errno, errstr):
-            raise ImportError('%s: %s' % (errstr, program))
+        if util.find_command(program) is None:
+            raise ImportError("Couldn't find program '%s'" % program)
 
     def notify_action(self, action, episode):
         """method to simple use the notification system"""
@@ -169,7 +155,7 @@ class ExtensionParent(object):
 
         return [(self.name, self.context_menu_callback)]
 
-    def update_episode_file(self, episode, filename):
+    def rename_episode_file(self, episode, filename):
         """method for simple update an episode with filename information"""
 
         if not os.path.exists(filename):
@@ -312,12 +298,12 @@ class ExtensionManager(object):
 
             self.modules.append((extension_consumer, state, ))
 
-    def register_extensions(self, obj):
+    def register_extension(self, obj):
         """Register an object that implements some extensions."""
 
         self.modules.append((ExtensionConsumer(module=obj), self.ENABLED))
 
-    def unregister_extensions(self, obj):
+    def unregister_extension(self, obj):
         """Unregister a previously registered object."""
 
         extension_module = (ExtensionConsumer(module=obj), self.ENABLED)
