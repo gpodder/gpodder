@@ -70,7 +70,7 @@ defaults = {
         'episodes': 200, # max episodes per feed
     },
 
-    # Automatic feed updates and download removal
+    # Automatic feed updates, download removal and retry on download timeout
     'auto': {
         'update': {
             'enabled': False,
@@ -83,6 +83,8 @@ defaults = {
             'unplayed': False,
             'unfinished': True,
         },
+
+        'retries': 3, # number of retries when downloads time out
     },
 
     'ui': {

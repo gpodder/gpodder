@@ -35,6 +35,7 @@ from gpodder import youtube
 from gpodder import vimeo
 import gpodder
 
+import socket
 import threading
 import urllib
 import urlparse
@@ -735,9 +736,40 @@ class DownloadTask(object):
                     self._config.youtube_preferred_fmt_id)
             url = vimeo.get_real_download_url(url)
 
-            downloader =  DownloadURLOpener(self.__episode.channel)
-            headers, real_url = downloader.retrieve_resume(url, \
-                    self.tempname, reporthook=self.status_updated)
+            downloader = DownloadURLOpener(self.__episode.channel)
+
+            # HTTP Status codes for which we retry the download
+            retry_codes = (408, 418, 504, 598, 599)
+            max_retries = max(0, self._config.auto.retries)
+
+            # Retry the download on timeout (bug 1013)
+            for retry in range(max_retries + 1):
+                if retry > 0:
+                    logger.info('Retrying download of %s (%d)', url, retry)
+                    time.sleep(1)
+
+                try:
+                    headers, real_url = downloader.retrieve_resume(url,
+                        self.tempname, reporthook=self.status_updated)
+                    # If we arrive here, the download was successful
+                    break
+                except urllib.ContentTooShortError, ctse:
+                    if retry < max_retries:
+                        logger.info('Content too short: %s - will retry.',
+                                url)
+                        continue
+                    raise
+                except socket.timeout, tmout:
+                    if retry < max_retries:
+                        logger.info('Socket timeout: %s - will retry.', url)
+                        continue
+                    raise
+                except gPodderDownloadHTTPError, http:
+                    if retry < max_retries and http.errcode in retry_codes:
+                        logger.info('HTTP error %d: %s - will retry.',
+                                http.errcode, url)
+                        continue
+                    raise
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type
