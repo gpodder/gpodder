@@ -116,6 +116,46 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
         rounded_rectangle(ctx, w_width/2-width/2, w_height/2+height, int(width*add_progress)+.5, bar_height)
         ctx.fill()
 
+def draw_cake(percentage, text=None, emblem=None, size=16):
+    # Download percentage bar icon - it turns out the cake is a lie (d'oh!)
+    # ..but the inital idea was to have a cake-style indicator, but that
+    # didn't work as well as the progress bar, but the name stuck..
+
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
+    ctx = pangocairo.CairoContext(cairo.Context(surface))
+
+    widget = gtk.ProgressBar()
+    style = widget.rc_get_style()
+    bgc = style.bg[gtk.STATE_NORMAL]
+    fgc = style.bg[gtk.STATE_SELECTED]
+    txc = style.text[gtk.STATE_NORMAL]
+
+    border = 1.5
+    height = int(size*.4)
+    width = size - 2*border
+    y = (size - height) / 2 + .5
+    x = border
+
+    # Background
+    ctx.rectangle(x, y, width, height)
+    ctx.set_source_rgb(bgc.red_float, bgc.green_float, bgc.blue_float)
+    ctx.fill()
+
+    # Filling
+    if percentage > 0:
+        fill_width = max(1, min(width-2, (width-2)*percentage+.5))
+        ctx.rectangle(x+1, y+1, fill_width, height-2)
+        ctx.set_source_rgb(fgc.red_float, fgc.green_float, fgc.blue_float)
+        ctx.fill()
+
+    # Border
+    ctx.rectangle(x, y, width, height)
+    ctx.set_source_rgb(txc.red_float, txc.green_float, txc.blue_float)
+    ctx.set_line_width(1)
+    ctx.stroke()
+
+    del ctx
+    return surface
 
 def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
     # Create temporary context to calculate the text size
@@ -227,6 +267,9 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
     return surface
 
+
+def draw_cake_pixbuf(percentage, text=None, emblem=None):
+    return cairo_surface_to_pixbuf(draw_cake(percentage, text, emblem))
 
 def draw_pill_pixbuf(left_text, right_text):
     return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text))

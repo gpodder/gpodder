@@ -116,6 +116,9 @@ class EpisodeListModel(gtk.ListStore):
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 
+    # Steps for the "downloading" icon progress
+    PROGRESS_STEPS = 20
+
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
@@ -314,8 +317,12 @@ class EpisodeListModel(gtk.ListStore):
         icon_theme = gtk.icon_theme_get_default()
 
         if episode.downloading:
-            tooltip.append(_('Downloading'))
-            status_icon = self.ICON_DOWNLOADING
+            tooltip.append('%s %d%%' % (_('Downloading'),
+                int(episode.download_task.progress*100)))
+
+            index = int(self.PROGRESS_STEPS*episode.download_task.progress)
+            status_icon = 'gpodder-progress-%d' % index
+
             view_show_downloaded = True
             view_show_unplayed = True
         else:

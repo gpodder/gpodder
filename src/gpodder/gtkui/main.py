@@ -66,7 +66,7 @@ from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
 
-from gpodder.gtkui.draw import draw_text_box_centered
+from gpodder.gtkui.draw import draw_text_box_centered, draw_cake_pixbuf
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
@@ -1112,14 +1112,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             title = [self.default_title]
 
-            # We have to update all episodes/channels for which the status has
-            # changed. Accessing task.status_changed has the side effect of
-            # re-setting the changed flag, so we need to get the "changed" list
-            # of tuples first and split it into two lists afterwards
-            changed = [(task.url, task.podcast_url) for task in \
+            # Accessing task.status_changed has the side effect of re-setting
+            # the changed flag, but we only do it once here so that's okay
+            channel_urls = [task.podcast_url for task in
                     self.download_tasks_seen if task.status_changed]
-            episode_urls = [episode_url for episode_url, channel_url in changed]
-            channel_urls = [channel_url for episode_url, channel_url in changed]
+            episode_urls = [task.url for task in self.download_tasks_seen]
 
             count = downloading + queued
             if count > 0:
@@ -3329,6 +3326,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
+
+    for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
+        pixbuf = draw_cake_pixbuf(float(i) /
+                float(EpisodeListModel.PROGRESS_STEPS))
+        icon_name = 'gpodder-progress-%d' % i
+        gtk.icon_theme_add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
