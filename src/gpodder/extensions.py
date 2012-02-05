@@ -17,14 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Loads and executes user extentions.
+Loads and executes user extensions
 
-Extentions are python scripts in the "Extensions" folder of $GPODDER_HOME. Each script
-must define a class named "gPodderExtensions", otherwise it will be ignored.
+Extensions are Python scripts in "$GPODDER_HOME/Extensions". Each script must
+define a class named "gPodderExtensions", otherwise it will be ignored.
 
-The extentions class defines several callbacks that will be called by the
-gPodder application at certain points. See the methods defined below
-for a list on what these callbacks are and the parameters they take.
+The extensions class defines several callbacks that will be called by gPodder
+at certain points. See the methods defined below for a list of callbacks and
+their parameters.
 
 For an example extension see examples/extensions.py
 """
