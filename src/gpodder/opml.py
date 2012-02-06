@@ -177,7 +177,8 @@ class Exporter(object):
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512
-            available = util.get_free_disk_space(os.path.dirname(self.filename))
+            path = os.path.dirname(self.filename) or os.path.curdir
+            available = util.get_free_disk_space(path)
             if available < 2*len(data)+FREE_DISK_SPACE_AFTER:
                 # On Windows, if we have zero bytes available, assume that we have
                 # not had the win32file module available + assume enough free space

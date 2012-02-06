@@ -33,6 +33,9 @@
     search QUERY               Search the gpodder.net directory for QUERY
     toplist                    Show the gpodder.net top-subscribe podcasts
 
+    import FILENAME|URL        Subscribe to all podcasts in an OPML file
+    export FILENAME            Export all subscriptions to an OPML file
+
     rename URL TITLE           Rename feed at URL to TITLE
     unsubscribe URL            Unsubscribe from feed at URL
     enable URL                 Enable feed updates for the feed at URL
@@ -117,6 +120,7 @@ gpodder.detect_platform()
 
 from gpodder import api
 from gpodder import my
+from gpodder import opml
 from gpodder import util
 
 have_ansi = sys.stdout.isatty() and not gpodder.win32
@@ -160,9 +164,9 @@ class gPodderCli(object):
     def __init__(self):
         self.client = api.PodcastClient()
         self._current_action = ''
-        self._commands = [(name, func)
-                for name, func in inspect.getmembers(self)
-                if inspect.ismethod(func) and not name.startswith('_')]
+        self._commands = dict((name.rstrip('_'), func)
+            for name, func in inspect.getmembers(self)
+            if inspect.ismethod(func) and not name.startswith('_'))
         self._prefixes, self._expansions = self._build_prefixes_expansions()
         self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
@@ -173,7 +177,7 @@ class gPodderCli(object):
     def _build_prefixes_expansions(self):
         prefixes = {}
         expansions = collections.defaultdict(list)
-        names = [name for name, func in self._commands]
+        names = sorted(self._commands.keys())
         names.extend(self.EXIT_COMMANDS)
 
         # Generator for all prefixes of a given string (longest first)
@@ -236,6 +240,14 @@ class gPodderCli(object):
 
     # -------------------------------------------------------------------
 
+    def import_(self, url):
+        for channel in opml.Importer(url).items:
+            self.subscribe(channel['url'], channel.get('title'))
+
+    def export(self, filename):
+        podcasts = self.client._model.get_podcasts()
+        opml.Exporter(filename).write(podcasts)
+
     def subscribe(self, url, title=None):
         url = util.normalize_feed_url(url)
         if url is None:
@@ -243,11 +255,15 @@ class gPodderCli(object):
             return True
 
         if self.client.get_podcast(url) is not None:
-            self._info(_('You are already subscribed to %s.' % url))
+            self._info(_('You are already subscribed to %s.') % url)
             return True
 
-        if self.client.create_podcast(url, title) is None:
-            self._error(_('Cannot download feed for %s.') % url)
+        try:
+            if self.client.create_podcast(url, title) is None:
+                self._error(_('Cannot subscribe to %s.') % url)
+                return True
+        except Exception, e:
+            self._error(e.strerror)
             return True
 
         self.client.commit()
@@ -599,7 +615,7 @@ class gPodderCli(object):
         if count < len(urls):
             return urls[count]
 
-        return NOne
+        return None
 
 
     def _tab_completion(self, text, count):
@@ -646,8 +662,9 @@ class gPodderCli(object):
         # Resolve command aliases
         command = self._prefixes.get(command, command)
 
-        for name, func in self._commands:
-            if inspect.ismethod(func) and name == command:
+        if command in self._commands:
+            func = self._commands[command]
+            if inspect.ismethod(func):
                 return self._checkargs(func, command_line)
 
         if command in self._expansions:
