@@ -127,6 +127,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_shownotes_window = None
         self.new_episodes_window = None
 
+        try:
+            from gpodder.gtkui import ubuntu
+            self.ubuntu = ubuntu.LauncherEntry()
+        except Exception, e:
+            self.ubuntu = None
+
         # Mac OS X-specific UI tweaks: Native main menu integration
         # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
         if getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
@@ -1038,6 +1044,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def remove_download_task_monitor(self, monitor):
         self.download_task_monitors.remove(monitor)
 
+    def set_download_progress(self, progress):
+        if self.ubuntu is not None:
+            self.ubuntu.set_progress(progress)
+
+    def set_new_episodes_count(self, count):
+        if self.ubuntu is not None:
+            self.ubuntu.set_count(count)
+
     def update_downloads_list(self, can_call_cleanup=True):
         try:
             model = self.download_status_model
@@ -1125,9 +1139,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     percentage = 100.0*done_size/total_size
                 else:
                     percentage = 0.0
+                self.set_download_progress(percentage/100.)
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             else:
+                self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
                 logger.info('All downloads have finished.')
@@ -1963,6 +1979,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         reloaded; i.e. something has been added or removed
         since the last update of the podcast list).
         """
+        _, _, new, _, _ = self.db.get_podcast_statistics()
+        self.set_new_episodes_count(new)
+
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
