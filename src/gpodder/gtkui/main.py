@@ -95,11 +95,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def __init__(self, bus_name, gpodder_core):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
-        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
-                self.on_itemUpdate_activate, \
-                self.playback_episodes, \
-                self.download_episode_list, \
-                self.episode_object_by_uri, \
+        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
+                self.on_itemUpdate_activate,
+                self.playback_episodes,
+                self.download_episode_list,
+                self.episode_object_by_uri,
                 bus_name)
         self.core = gpodder_core
         self.config = self.core.config
@@ -139,7 +139,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 igemi.ige_mac_menu_set_menu_bar(self.mainMenu)
 
                 # Reparent some items to the "Application" menu
-                for widget in ('/mainMenu/menuHelp/itemAbout', \
+                for widget in ('/mainMenu/menuHelp/itemAbout',
                                '/mainMenu/menuPodcasts/itemPreferences'):
                     item = self.uimanager1.get_widget(widget)
                     group = igemi.ige_mac_menu_add_app_menu_group()
@@ -229,8 +229,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             resumable_episodes = []
             if count:
                 util.idle_add(self.wNotebook.set_current_page, 1)
-                indicator = ProgressIndicator(_('Loading incomplete downloads'), \
-                        _('Some episodes have not finished downloading in a previous session.'), \
+                indicator = ProgressIndicator(_('Loading incomplete downloads'),
+                        _('Some episodes have not finished downloading in a previous session.'),
                         False, self.get_dialog_parent())
                 indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
 
@@ -385,8 +385,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model([episode.channel.url])
 
             # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, \
-                    start, end, total)
+            self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -1646,8 +1645,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(gtk.SeparatorMenuItem())
                 for label, callback in result:
                     item = gtk.MenuItem(label)
-                    item.connect('activate', self.on_menuItem_activated,
-                        callback, episodes)
+                    item.connect('activate', lambda item, callback:
+                            callback(episodes), callback)
                     menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
@@ -1704,9 +1703,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.popup(None, None, None, event.button, event.time)
 
             return True
-            
-    def on_menuItem_activated(self, menuitem, callback, episodes):
-        threading.Thread(target=callback, args=(episodes,)).start()
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -2820,8 +2816,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 on_itemExportChannels_activate=self.on_itemExportChannels_activate)
                 
     def on_itemExtensionSettings_activate(self, widget, *args):
-        gPodderExtensionManager(self.main_window, \
-                _config=self.config, \
+        gPodderExtensionManager(self.main_window,
+                _config=self.config,
                 parent_window=self.main_window)
 
     def on_goto_mygpo(self, widget):

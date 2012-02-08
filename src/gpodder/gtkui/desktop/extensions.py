@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gobject
 import gtk
 import pango
 import os.path
@@ -135,10 +134,7 @@ class ExtensionMultiChoice(gtk.VBox):
         self.pack_start(self.__treeView, False, False, 0)
 
     def _get_model(self, settings, value):
-        model = gtk.ListStore(
-            gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_INT
-        )
-
+        model = gtk.ListStore(bool, str, int)
         multichoice_list = zip(value, settings['list'])
         for index, (state, text) in enumerate(multichoice_list):
             model.append(row=(state, text, index))
@@ -298,16 +294,11 @@ class gPodderExtensionManager(BuilderWidget):
         self.treeviewExtensions.set_property('has-tooltip', True)
         self.treeviewExtensions.connect('query-tooltip', self.treeview_show_tooltip)
 
-        column_types = [ gobject.TYPE_INT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_PYOBJECT ]
+        column_types = [ int, str, bool, str, str, object ]
         self.model = gtk.ListStore(*column_types)
 
         for index, (extension_consumer, state) in enumerate( gpodder.user_extensions.get_extensions() ):
-            if extension_consumer.extension_file is not None:
+            if extension_consumer.metadata:
                 tooltip = extension_consumer.metadata['desc']
                 name = extension_consumer.metadata['name']
                 row = [ index, tooltip, state, name,

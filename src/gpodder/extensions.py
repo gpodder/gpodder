@@ -38,6 +38,7 @@ import functools
 import shlex
 import subprocess
 import sys
+import re
 from datetime import datetime
 
 import gpodder
@@ -56,9 +57,8 @@ EXTENSION_PARAMS = 'PARAMS'
 # The variable name that stores the extensions parameters
 EXTENSION_CONFIG = 'DEFAULT_CONFIG'
 
+# The variable name the directory where the extensions are stored
 EXTENSION_FOLDER = 'gpodder_extensions'
-FILE_EXTENSION_NAME = 'extension.py'
-FILE_META_NAME = 'metadata.json'
 
 
 def call_extensions(func):
@@ -111,13 +111,11 @@ class ExtensionParent(object):
         self.id = None
         self.name = None
         self.desc = None
-        self.authors = []
 
         if self.metadata is not None:
             self.id = self.metadata.get('id', None)
             self.name = self.metadata.get('name', None)
             self.desc = self.metadata.get('desc', None)
-            self.authors = self.metadata.get('authors', None)
 
     def check_command(self, cmd):
         """Check if a command line command/program exists"""
@@ -178,41 +176,31 @@ class ExtensionConsumer(object):
     and it loads default configuration
     """
 
-    def __init__(self, config=None, path=None, module=None):
+    def __init__(self, config=None, filename=None, module=None):
+        self.extension_file = filename
         self.module = module
         self._gpo_config = config
         self.config = None
-        self.extension_file = None
-        self.metadata = None
         self.params = None
-
-        if path is not None and module is None:
-            self.extension_file = os.path.join(path, FILE_EXTENSION_NAME)
-            metadata_file = os.path.join(path, FILE_META_NAME)
-            self.metadata = self._load_metadata(metadata_file)
-
-        elif path is None and module is not None:
+        self.metadata = None
+        
+        if filename is not None and module is None:
+            self.metadata = self._load_metadata(filename)
+        
+        elif filename is None and module is not None:
             pass
 
         else:
             logger.error("ExtensionConsumer couldn't initialize successfully")
 
-    def _load_module(self, filepath):
-        path, filename = os.path.split(filepath)
-        package_name = os.path.split(path)[1]
-        module_name, module_extension = os.path.splitext(filename)
+    def _load_module(self, filename):
+        basename, extension = os.path.splitext(os.path.basename(filename))
+        return imp.load_module(basename, file(filename, 'r'),
+            filename, (extension, 'r', imp.PY_SOURCE))
 
-        pkg_file, pkg_path, pkg_desc = imp.find_module(package_name, [ os.path.split(path)[0] ])
-        pkg = imp.load_module(package_name, None, pkg_path, pkg_desc)
-
-        module_file, module_path, module_desc = imp.find_module(module_name, pkg.__path__)
-        return imp.load_module('%s.%s' % (package_name, module_name),
-            file(filepath, 'r'), module_path, module_desc)
-
-    def _load_metadata(self, metadata_file):
-        with open(metadata_file, 'r') as f:
-            metadata = json.load(f)
-        return metadata
+    def _load_metadata(self, filename):
+        extension_py = open(filename).read()
+        return dict(re.findall("__([a-z]+)__ = '([^']+)'", extension_py))
 
     def _load_user_prefs(self, module_file):
         if not self.metadata['id'] in self._gpo_config.extensions.keys():
@@ -272,29 +260,26 @@ class ExtensionManager(object):
     EXTENSIONCONSUMER, STATE = range(2)
 
     def __init__(self, config):
-        extension_root_path = self._get_extension_root_path()
-        if extension_root_path is None:
-            return
-
         self.modules = []
-        enabled_extensions = []
         self._config = config
         enabled_extensions = self._config.extensions.enabled
 
-        pathname = os.path.join(extension_root_path, '*/')
-        for extension_path in glob.glob(pathname):
+        pathname = os.path.join(os.path.abspath(gpodder.__path__[0]), 
+            EXTENSION_FOLDER, '*.py')
+        for extension_file in glob.glob(pathname):
             extension_consumer = ExtensionConsumer(
-                config=self._config, path=extension_path)
+                config=self._config, filename=extension_file)
 
             state = self.DISABLED
-            extension_id = extension_consumer.metadata['id']
-            if extension_id in enabled_extensions:
-                error = extension_consumer.load_extension()
-                if error is None:
-                    state = self.ENABLED
-                else:
-                    state = self.DISABLED
-                    enabled_extensions.remove(extension_id)
+            if extension_consumer.metadata:
+                extension_id = extension_consumer.metadata['id']
+                if extension_id in enabled_extensions:
+                    error = extension_consumer.load_extension()
+                    if error is None:
+                        state = self.ENABLED
+                    else:
+                        state = self.DISABLED
+                        enabled_extensions.remove(extension_id)
 
             self.modules.append((extension_consumer, state, ))
 
@@ -311,20 +296,6 @@ class ExtensionManager(object):
             self.modules.remove(extension_module)
         else:
             logger.warn('Unregistered extension which was not registered.')
-
-    def _get_extension_root_path(self):
-        """returns the file-system path where the extensions are stored"""
-
-        extension_root_path = os.environ.get('GPODDER_EXTENSIONS', None)
-        if extension_root_path is None:
-            gpo_folder = os.path.dirname(gpodder.__file__)
-            extension_root_path = os.path.join(gpo_folder, EXTENSION_FOLDER)
-
-        if extension_root_path is not None:
-            sys.path.append(extension_root_path)
-
-        logger.info('Reading extension script from %s', extension_root_path)
-        return extension_root_path
 
     def get_extensions(self):
         """returns a list of all loaded extensions with the enabled/disable state"""
