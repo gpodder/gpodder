@@ -38,6 +38,7 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
+import gobject
 import cgi
 import re
 
@@ -122,7 +123,7 @@ class EpisodeListModel(gtk.ListStore):
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                int, int, str, bool, int, bool)
+                gobject.TYPE_INT64, int, str, bool, int, bool)
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
@@ -155,7 +156,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def _format_filesize(self, episode):
         if episode.file_size > 0:
-            return util.format_filesize(episode.file_size, 1)
+            return util.format_filesize(episode.file_size, digits=1)
         else:
             return None
 
