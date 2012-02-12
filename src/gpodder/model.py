@@ -41,13 +41,6 @@ import shutil
 import time
 import datetime
 
-try:
-    # Python 2
-    from rfc822 import mktime_tz
-except ImportError:
-    # Python 3
-    from email.utils import mktime_tz
-
 import hashlib
 import feedparser
 import collections
@@ -218,8 +211,7 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.description:
             episode.description = entry.get('subtitle', '')
 
-        if entry.get('updated_parsed', None):
-            episode.published = mktime_tz(entry.updated_parsed+(0,))
+        episode.published = feedcore.get_pubdate(entry)
 
         enclosures = entry.get('enclosures', [])
         media_rss_content = entry.get('media_content', [])
@@ -1011,8 +1003,7 @@ class PodcastChannel(PodcastModelObject):
             # max_episodes old episodes, new episodes will not be shown.
             # See also: gPodder Bug 1186
             try:
-                entries = sorted(feed.entries, \
-                        key=lambda x: x.get('updated_parsed', (0,)*9), \
+                entries = sorted(feed.entries, key=feedparser.get_pubdate,
                         reverse=True)[:max_episodes]
             except Exception, e:
                 logger.warn('Could not sort episodes: %s', e, exc_info=True)

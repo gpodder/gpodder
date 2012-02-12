@@ -24,6 +24,13 @@
 
 import feedparser
 
+try:
+    # Python 2
+    from rfc822 import mktime_tz
+except ImportError:
+    # Python 3
+    from email.utils import mktime_tz
+
 def patch_feedparser():
     """Monkey-patch the Universal Feed Parser"""
     # Detect the 'plain' content type as 'text/plain'
@@ -261,4 +268,36 @@ class Fetcher(object):
         exception types.
         """
         self._parse_feed(url, etag, modified)
+
+
+def get_pubdate(entry):
+    """Try to determine the real pubDate of a feedparser entry
+
+    This basically takes the updated_parsed value, but also uses some more
+    advanced techniques to work around various issues with ugly feeds.
+
+    "published" now also takes precedence over "updated" (with updated used as
+    a fallback if published is not set/available). RSS' "pubDate" element is
+    "updated", and will only be used if published_parsed is not available.
+    """
+
+    pubdate = entry.get('published_parsed', None)
+
+    if pubdate is None:
+        pubdate = entry.get('updated_parsed', None)
+
+    if pubdate is None:
+        # See http://code.google.com/p/feedparser/issues/detail?id=327
+        updated = entry.get('published', entry.get('updated', None))
+        if updated is not None:
+            # FIXME: This is kludgy. We should write our own date handler
+            # and register it with feedparser.registerDateHandler() and/or
+            # wait for feedparser to add support for this bogus date format.
+            pubdate = feedparser._parse_date(updated.replace(',', ''))
+
+    if pubdate is None:
+        # Cannot determine pubdate - party like it's 1970!
+        return 0
+
+    return mktime_tz(pubdate + (0,))
 
