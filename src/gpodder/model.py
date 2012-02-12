@@ -1003,7 +1003,7 @@ class PodcastChannel(PodcastModelObject):
             # max_episodes old episodes, new episodes will not be shown.
             # See also: gPodder Bug 1186
             try:
-                entries = sorted(feed.entries, key=feedparser.get_pubdate,
+                entries = sorted(feed.entries, key=feedcore.get_pubdate,
                         reverse=True)[:max_episodes]
             except Exception, e:
                 logger.warn('Could not sort episodes: %s', e, exc_info=True)
