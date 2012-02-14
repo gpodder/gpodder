@@ -114,6 +114,7 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 
 import gpodder
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
@@ -140,6 +141,11 @@ def ingreen(x):
 def inblue(x):
     if have_ansi:
         return '\033[94m' + x + '\033[0m'
+    return x
+
+def inyellow(x):
+    if have_ansi:
+        return '\033[93m' + x + '\033[0m'
     return x
 
 def FirstArgumentIsPodcastURL(function):
@@ -227,8 +233,14 @@ class gPodderCli(object):
             sys.stdout.write('\r' + self._current_action + result)
             sys.stdout.flush()
 
-    def _finish_action(self, success=True):
-        result = '['+ingreen('DONE')+']' if success else '['+inred('FAIL')+']'
+    def _finish_action(self, success=True, skip=False):
+        if skip:
+            result = '['+inyellow('SKIP')+']'
+        elif success:
+            result = '['+ingreen('DONE')+']'
+        else:
+            result = '['+inred('FAIL')+']'
+
         if have_ansi:
             print '\r' + self._current_action + result
         else:
@@ -369,15 +381,26 @@ class gPodderCli(object):
         except Exception, e:
             self._finish_action(False)
 
+    def _pending_message(self, count):
+        return N_('%(count)d new episode', '%(count)d new episodes',
+                count) % {'count': count}
+
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
+        count = 0
         for podcast in self.client.get_podcasts():
-            if url is None and podcast.update_enabled():
-                self._update_podcast(podcast)
-            elif podcast.url == url:
-                # Don't need to check for update_enabled()
-                self._update_podcast(podcast)
+            if url is not None and podcast.url != url:
+                continue
 
+            if podcast.update_enabled():
+                self._update_podcast(podcast)
+                count += sum(1 for e in podcast.get_episodes() if e.is_new)
+            else:
+                self._start_action(_('Skipping %(podcast)s') % {
+                    'podcast': podcast.title})
+                self._finish_action(skip=True)
+
+        print inblue(self._pending_message(count))
         return True
 
     @FirstArgumentIsPodcastURL
@@ -389,12 +412,12 @@ class gPodderCli(object):
                 for episode in podcast.get_episodes():
                     if episode.is_new:
                         if not podcast_printed:
-                            print podcast.title
+                            print '#', ingreen(podcast.title)
                             podcast_printed = True
-                        print '   ', episode.title
+                        print ' ', episode.title
                         count += 1
 
-        print count, 'episodes pending.'
+        print inblue(self._pending_message(count))
         return True
 
     def _download_episode(self, episode):
