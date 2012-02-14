@@ -158,7 +158,7 @@ if home != default_home:
 
 # Plugins to load by default
 DEFAULT_PLUGINS = ['gpodder.plugins.soundcloud', 'gpodder.plugins.xspf',
-                   'gpodder.plugins.woodchuck']
+                   'gpodder.plugins.woodchuck', 'gpodder.plugins.notification']
 
 def load_plugins():
     """Load (non-essential) plugin modules

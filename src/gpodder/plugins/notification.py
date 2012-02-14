@@ -17,59 +17,56 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# gpodder.notify - Initialize the platforms notification system
 # Bernd Schlapsi <brot@gmx.info>; 2011-11-20
 
 import gpodder
 import platform
 
-class NotifyInterface(object):
-    def __init__(self, config):
-        self.config = config
+import logging
+logger = logging.getLogger(__name__)
 
-    def message(self, title, message):
+
+class NotifyInterface(object):
+    def __init__(self):
+        logger.info('Notifications are not implemented on your platform.')
+
+    def on_notification_show(self, title, message):
         pass
 
 
 class NotifyPyNotify(object):
-    def __init__(self, config):
+    def __init__(self):
         import pynotify
         pynotify.init('gPodder')
         self.pynotify = pynotify
+        logger.info('Notification plug-in loaded successfully.')
 
-        self.config = config
-
-    def message(self, title, message):
+    def on_notification_show(self, title, message):
         if not self.pynotify.is_initted():
             return
 
-        if self.config is None or not self.config.enable_notifications:
-            return
-
-        notification = self.pynotify.Notification(title, message,
-            gpodder.icon_file)
+        notify = self.pynotify.Notification(title, message, gpodder.icon_file)
         try:
-            notification.show()
+            notify.show()
         except:
             # See http://gpodder.org/bug/966
             pass
 
 
-def init_notify(config):
-    system = platform.system()
-    if system == 'Linux':
-        try:
-            notify = NotifyPyNotify(config)
-        except ImportError:
-            # TODO: Notification class for harmattan?
-            notify = NotifyInterface(config)
+system = platform.system()
+if system == 'Linux':
+    try:
+        notify = NotifyPyNotify()
+    except ImportError:
+        # TODO: Notification class for harmattan?
+        notify = NotifyInterface()
 
-    elif system == 'Windows':
-        # TODO: Notification class for Windows (growl for windows?)
-        notify = NotifyInterface(config)
+elif system == 'Windows':
+    # TODO: Notification class for Windows (growl for windows?)
+    notify = NotifyInterface()
 
-    elif system == 'Darwin':
-        # TODO: Notification class for Mac (growl?)
-        notify = NotifyInterface(config)
+elif system == 'Darwin':
+    # TODO: Notification class for Mac (growl?)
+    notify = NotifyInterface()
 
-    return notify
+gpodder.user_extensions.register_extension(notify)

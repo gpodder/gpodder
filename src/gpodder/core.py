@@ -28,7 +28,6 @@ from gpodder import config
 from gpodder import dbsqlite
 from gpodder import extensions
 from gpodder import model
-from gpodder import notification
 
 
 class Core(object):
@@ -43,9 +42,6 @@ class Core(object):
         self.db = database_class(gpodder.database_file)
         self.model = model_class(self.db)
         self.config = config_class(gpodder.config_file)
-
-        # Initialize the notification system
-        gpodder.notify = notification.init_notify(self.config)
 
         # Load extension modules and install the extension manager
         gpodder.user_extensions = extensions.ExtensionManager(self.config)

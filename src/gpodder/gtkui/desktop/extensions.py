@@ -230,31 +230,31 @@ class gPodderExtensionPreference(BuilderWidget):
 
         Optional keyword arguments that modify the behaviour of this dialog:
 
-        - _extenstion_consumer: ExtensionConsumer class for which the preferences should be displayed
+        - _extenstion_container: ExtensionContainer class for which the preferences should be displayed
             {'cmd': {
                 'type': 'str',
                 'desc': 'Defines the command line bittorrent program'}
             }
         """
-        self.params = self._extension_consumer.params
-        self.config = self._extension_consumer.config
+        self.params = self._extension_container.params
+        self.config = self._extension_container.config
 
         self.vbox = gtk.VBox()
         self.viewport_extensionpref.add(self.vbox)
         for key, settings in self.params.items():
-            value = getattr(self._extension_consumer.config, key)
+            value = getattr(self._extension_container.config, key)
             widget = self.widgets[settings['type']](key, settings, value)
             self.vbox.pack_start(widget, False, False, 0)
 
         self.gPodderExtensionPreference.show_all()
 
     def on_btnRevert_clicked(self, widget):
-        self._extension_consumer.revert_settings()
-        self.config = self._extension_consumer.config
+        self._extension_container.revert_settings()
+        self.config = self._extension_container.config
 
         for w in self.vbox.get_children():
             key = w.get_key()
-            value = getattr(self._extension_consumer.config, key)
+            value = getattr(self._extension_container.config, key)
             w.set_value(self.params[key], value)
 
     def on_btnClose_clicked(self, widget):
@@ -267,7 +267,7 @@ class gPodderExtensionPreference(BuilderWidget):
 
 
 class gPodderExtensionManager(BuilderWidget):
-    C_INDEX, C_TOOLTIP, C_TOGGLE, C_NAME, C_ID, C_EXTENSIONCONSUMER = range(6)
+    C_INDEX, C_TOOLTIP, C_TOGGLE, C_NAME, C_ID, C_EXTENSIONCONTAINER = range(6)
 
     def new(self):
         toggle_cell = gtk.CellRendererToggle()
@@ -297,12 +297,12 @@ class gPodderExtensionManager(BuilderWidget):
         column_types = [ int, str, bool, str, str, object ]
         self.model = gtk.ListStore(*column_types)
 
-        for index, (extension_consumer, state) in enumerate( gpodder.user_extensions.get_extensions() ):
-            if extension_consumer.metadata:
-                tooltip = extension_consumer.metadata['desc']
-                name = extension_consumer.metadata['name']
+        for index, (extension_container, state) in enumerate( gpodder.user_extensions.get_extensions() ):
+            if extension_container.metadata:
+                tooltip = extension_container.metadata['desc']
+                name = extension_container.metadata['name']
                 row = [ index, tooltip, state, name,
-                    extension_consumer.metadata['id'], extension_consumer
+                    extension_container.metadata['id'], extension_container
                 ]
                 self.model.append(row)
 
@@ -317,17 +317,18 @@ class gPodderExtensionManager(BuilderWidget):
         value = model.get_value(iter, self.C_TOGGLE)
         name = model.get_value(iter, self.C_NAME)
         extension_id = model.get_value(iter, self.C_ID)
-        extension_consumer = model.get_value(iter, self.C_EXTENSIONCONSUMER)
+        extension_container = model.get_value(iter, self.C_EXTENSIONCONTAINER)
         new_value = not value
 
         if new_value and extension_id not in self._config.extensions.enabled:
-            error = extension_consumer.load_extension()
-            if error is None:
-                self._config.extensions.enabled.append(extension_id)
-                self.extension_statusbar.remove_all(self.context_id)
-            else:
-                self.extension_statusbar.push(self.context_id, "Error %s: %s" % (name, error))
+            try:
+                extension_container.load_extension()
+            except Exception, e:
+                self.extension_statusbar.push(self.context_id, "Error %s: %s" % (name, e))
                 return
+                
+            self._config.extensions.enabled.append(extension_id)
+            self.extension_statusbar.remove_all(self.context_id)
 
         if not new_value and extension_id in self._config.extensions.enabled:
             self._config.extensions.enabled.remove(extension_id)
@@ -336,16 +337,16 @@ class gPodderExtensionManager(BuilderWidget):
         self._set_preferences_button(not value)
         model.set_value(iter, self.C_TOGGLE, not value)
 
-    def _get_selected_extension_consumer(self):
+    def _get_selected_extension_container(self):
         selection = self.treeviewExtensions.get_selection()
         model, iter = selection.get_selected()
         if not iter:
             return None
 
-        return model.get_value(iter, self.C_EXTENSIONCONSUMER)
+        return model.get_value(iter, self.C_EXTENSIONCONTAINER)
 
     def _set_preferences_button(self, value):
-        extension = self._get_selected_extension_consumer()
+        extension = self._get_selected_extension_container()
 
         if extension and extension.params is not None and value:
             self.btnExtensionPrefs.set_sensitive(True)
@@ -360,7 +361,7 @@ class gPodderExtensionManager(BuilderWidget):
 
     def on_btnExtensionPrefs_clicked(self, widget):
         gPodderExtensionPreference(self.main_window,
-            _extension_consumer = self._get_selected_extension_consumer()
+            _extension_container = self._get_selected_extension_container()
         )
 
     def toggle_cell_handler(self, cell, path):
