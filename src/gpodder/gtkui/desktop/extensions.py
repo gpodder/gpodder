@@ -261,7 +261,7 @@ class gPodderExtensionPreference(BuilderWidget):
         for w in self.vbox.get_children():
             key = w.get_key()
             value = w.get_value()
-            setattr(self.config, key, value)
+            setattr(self._extension_container.config, key, value)
 
         self.main_window.destroy()
 
@@ -326,7 +326,7 @@ class gPodderExtensionManager(BuilderWidget):
             except Exception, e:
                 self.extension_statusbar.push(self.context_id, "Error %s: %s" % (name, e))
                 return
-                
+
             self._config.extensions.enabled.append(extension_id)
             self.extension_statusbar.remove_all(self.context_id)
 
@@ -354,10 +354,14 @@ class gPodderExtensionManager(BuilderWidget):
             self.btnExtensionPrefs.set_sensitive(False)
 
     def on_button_close_clicked(self, widget):
+        # sync enabled/disabled extensions
+        gpodder.user_extensions.get_extensions()
+
+        # close extension preference window
         self.main_window.destroy()
 
     def on_btnOK_clicked(self, widget):
-        self.main_window.destroy()
+        self.on_button_close_clicked(widget)
 
     def on_btnExtensionPrefs_clicked(self, widget):
         gPodderExtensionPreference(self.main_window,

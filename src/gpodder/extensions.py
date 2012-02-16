@@ -127,14 +127,14 @@ class ExtensionParent(object):
 
     def notify_action(self, action, episode):
         """method to simple use the notification system"""
-        
+
         if self.config is None or not self.config.enable_notifications:
             return
 
         name = 'gPodder-Extension'
         if self.name is not None:
             name = '%s: %s' % (name, self.name)
-            
+
         now = datetime.now()
         msg = "%s(%s): '%s/%s'" % (action, now.strftime('%x %X'),
             episode.channel.title, episode.title)
@@ -170,6 +170,13 @@ class ExtensionParent(object):
         episode.save()
         episode.db.commit()
 
+    def get_filename(self, episode):
+        filename = episode.local_filename(create=False, check_only=True)
+        if filename is not None and os.path.exists(filename):
+            return filename
+
+        return None
+
 
 class ExtensionContainer(object):
     """A class which manage one extension"""
@@ -181,9 +188,9 @@ class ExtensionContainer(object):
         self.config = None
         self.params = None
         self.metadata = None
-        
+
         if filename is not None and module is None:
-            self.metadata = self._load_metadata(filename)        
+            self.metadata = self._load_metadata(filename)
         elif filename is None and module is not None:
             pass
         else:
@@ -259,7 +266,7 @@ class ExtensionManager(object):
         self._config = config
         enabled_extensions = self._config.extensions.enabled
 
-        pathname = os.path.join(os.path.abspath(gpodder.__path__[0]), 
+        pathname = os.path.join(os.path.abspath(gpodder.__path__[0]),
             EXTENSION_FOLDER, '*.py')
         for extension_file in glob.glob(pathname):
             extension_container = ExtensionContainer(
