@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -194,6 +194,10 @@ class PodcastChannel(PodcastModelObject):
         YOUTUBE_PREFIX = 'Uploads by '
         if self.title.startswith(YOUTUBE_PREFIX):
             self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
+
+        YOUTUBE_RE = r'username: "([^"]*)" on YouTube'
+        if re.match(YOUTUBE_RE, self.title):
+            self.title = re.sub(YOUTUBE_RE, r'\1', self.title) + ' on YouTube'
         # End YouTube-specific title FIX
 
         try:

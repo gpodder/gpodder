@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -144,6 +144,9 @@ def normalize_feed_url(url):
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
             'fm4od:': 'http://onapp1.orf.at/webcam/fm4/fod/%s.xspf',
+            # YouTube playlists. To get a list of playlists per-user, use:
+            # https://gdata.youtube.com/feeds/api/users/<username>/playlists
+            'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
     }
 
     for prefix, expansion in PREFIXES.iteritems():

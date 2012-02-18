@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
+import gobject
 import xml.sax.saxutils
 
 try:
@@ -60,7 +61,7 @@ class EpisodeListModel(gtk.ListStore):
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                int, int, str, bool, bool, bool)
+                gobject.TYPE_INT64, int, str, bool, bool, bool)
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
@@ -103,7 +104,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def _format_filesize(self, episode):
         if episode.length > 0:
-            return util.format_filesize(episode.length, 1)
+            return util.format_filesize(episode.length, digits=1)
         else:
             return None
 

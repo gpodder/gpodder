@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -3833,10 +3833,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website('http://gpodder.org/wiki/User_Manual')
 
     def on_bug_tracker_activate(self, widget, *args):
-        if gpodder.ui.maemo:
-            util.open_website('http://bugs.maemo.org/enter_bug.cgi?product=gPodder')
-        else:
-            util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder')
+        util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder')
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
@@ -3851,7 +3848,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                  _('A podcast client with focus on usability'),
                                  gpodder.__copyright__,
                                  gpodder.__url__,
-                                 'http://bugs.maemo.org/enter_bug.cgi?product=gPodder',
+                                 'http://bugs.gpodder.org/enter_bug.cgi?product=gPodder',
                                  'http://gpodder.org/donate')
             return
 
