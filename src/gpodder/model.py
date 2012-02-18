@@ -194,6 +194,10 @@ class PodcastChannel(PodcastModelObject):
         YOUTUBE_PREFIX = 'Uploads by '
         if self.title.startswith(YOUTUBE_PREFIX):
             self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
+
+        YOUTUBE_RE = r'username: "([^"]*)" on YouTube'
+        if re.match(YOUTUBE_RE, self.title):
+            self.title = re.sub(YOUTUBE_RE, r'\1', self.title) + ' on YouTube'
         # End YouTube-specific title FIX
 
         try:

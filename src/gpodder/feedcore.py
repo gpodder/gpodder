@@ -71,7 +71,11 @@ def patch_feedparser():
         self._save('updated_parsed', parsed_value, overwrite=overwrite)
 
     try:
-        feedparser._FeedParserMixin._end_updated = _end_updated
+        # Fix for Maemo 4 and Feedparser 4.1 - upgrade your feedparser
+        if feedparser.__version__ != '4.1':
+            feedparser._FeedParserMixin._end_updated = _end_updated
+        else:
+            print 'Cannot apply YouTube fix for feedparser 4.1'
     except:
         pass
 
