@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -60,6 +60,25 @@ def patch_feedparser():
     # https://bugs.gpodder.org/show_bug.cgi?id=588
     if '*/*' not in feedparser.ACCEPT_HEADER.split(','):
         feedparser.ACCEPT_HEADER += ',*/*'
+
+    # Fix problem with YouTube feeds and pubDate/atom:modified
+    # https://bugs.gpodder.org/show_bug.cgi?id=1492
+    # http://code.google.com/p/feedparser/issues/detail?id=310
+    def _end_updated(self):
+        value = self.pop('updated')
+        parsed_value = feedparser._parse_date(value)
+        overwrite = ('youtube.com' not in self.baseuri)
+        self._save('updated_parsed', parsed_value, overwrite=overwrite)
+
+    try:
+        # Fix for Maemo 4 and Feedparser 4.1 - upgrade your feedparser
+        if feedparser.__version__ != '4.1':
+            feedparser._FeedParserMixin._end_updated = _end_updated
+        else:
+            print 'Cannot apply YouTube fix for feedparser 4.1'
+    except:
+        pass
+
 
 patch_feedparser()
 

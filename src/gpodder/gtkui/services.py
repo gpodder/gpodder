@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -161,17 +161,6 @@ class CoverDownloader(ObservableService):
             new_url = youtube.get_real_cover(channel.url)
             if new_url is not None:
                 url = new_url
-
-            if url is None and channel.link is not None and \
-                    channel.link.startswith('http://'):
-                # Try to use the favicon of the linked website's host
-                split_result = urlparse.urlsplit(channel.link)
-                scheme, netloc, path, query, fragment = split_result
-                path = '/favicon.ico'
-                query = ''
-                split_result = (scheme, netloc, path, query, fragment)
-                url = urlparse.urlunsplit(split_result)
-                log('Trying favicon: %s', url, sender=self)
 
             if url is not None:
                 image_data = None
