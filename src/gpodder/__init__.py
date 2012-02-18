@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 __author__    = 'Thomas Perl <thp@gpodder.org>'
 __version__   = '2.20'
 __date__      = '2011-10-19'
-__copyright__ = '© 2005-2011 Thomas Perl and the gPodder Team'
+__copyright__ = '© 2005-2012 Thomas Perl and the gPodder Team'
 __licence__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
 
