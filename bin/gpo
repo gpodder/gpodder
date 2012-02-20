@@ -66,6 +66,7 @@ import collections
 import os
 import re
 import inspect
+import functools
 try:
     import readline
 except ImportError:
@@ -128,25 +129,19 @@ have_ansi = sys.stdout.isatty() and not gpodder.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
-def inred(x):
-    if have_ansi:
-        return '\033[91m' + x + '\033[0m'
-    return x
+def incolor(color_id, s):
+    if have_ansi and incolor.want_colors:
+        return '\033[9%dm%s\033[0m' % (color_id, s)
+    return s
 
-def ingreen(x):
-    if have_ansi:
-        return '\033[92m' + x + '\033[0m'
-    return x
+# Add an attribute to the function to control its behavior - this avoids
+# setting another global variable, as "want_colors" is only relevant for
+# this single function in our case.
+incolor.want_colors = True
 
-def inblue(x):
-    if have_ansi:
-        return '\033[94m' + x + '\033[0m'
-    return x
-
-def inyellow(x):
-    if have_ansi:
-        return '\033[93m' + x + '\033[0m'
-    return x
+# ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
+inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
+        for x in range(1, 5))
 
 def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
@@ -169,6 +164,11 @@ class gPodderCli(object):
 
     def __init__(self):
         self.client = api.PodcastClient()
+        self.config = self.client._config
+
+        # Load configuration settings into our application state
+        incolor.want_colors = self.config.ui.cli.colors
+
         self._current_action = ''
         self._commands = dict((name.rstrip('_'), func)
             for name, func in inspect.getmembers(self)

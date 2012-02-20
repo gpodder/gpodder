@@ -88,6 +88,11 @@ defaults = {
     },
 
     'ui': {
+        # Settings for the Command-Line Interface
+        'cli': {
+            'colors': True,
+        },
+
         # Settings for the Gtk UI
         'gtk': {
             'state': {
@@ -267,10 +272,15 @@ class Config(object):
         if os.path.exists(self.__filename):
             try:
                 data = open(self.__filename, 'rb').read()
-                self.__json_config._restore(data)
+                new_keys_added = self.__json_config._restore(data)
             except:
                 logger.warn('Cannot parse config file: %s',
                         self.__filename, exc_info=True)
+                new_keys_added = False
+
+            if new_keys_added:
+                logger.info('New default keys added - saving config.')
+                self.save()
 
     def toggle_flag(self, name):
         setattr(self, name, not getattr(self, name))

@@ -123,6 +123,9 @@ class JsonConfig(object):
         the configuration and reload them later on. Any missing
         default values will be added on top of the restored config.
 
+        Returns True if new keys from the default config have been added,
+        False if no keys have been added (backup contains all default keys)
+
         >>> c = JsonConfig()
         >>> c.a.b = 10
         >>> backup = repr(c)
@@ -138,9 +141,16 @@ class JsonConfig(object):
         self._data = json.loads(backup)
         # Add newly-added default configuration options
         if self._default is not None:
-            self._merge_keys(self._default)
+            return self._merge_keys(self._default)
+
+        return False
 
     def _merge_keys(self, merge_source):
+        """Merge keys from merge_source into this config object
+
+        Return True if new keys were merged, False otherwise
+        """
+        added_new_key = False
         # Recurse into the data and add missing items
         work_queue = [(self._data, merge_source)]
         while work_queue:
@@ -149,9 +159,12 @@ class JsonConfig(object):
                 if key not in data:
                     # Copy defaults for missing key
                     data[key] = copy.deepcopy(value)
+                    added_new_key = True
                 elif isinstance(value, dict):
                     # Recurse into sub-dictionaries
                     work_queue.append((data[key], value))
+
+        return added_new_key
 
     def __repr__(self):
         """
