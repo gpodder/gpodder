@@ -20,6 +20,7 @@
 import gtk
 import pango
 import os.path
+import cgi
 
 import gpodder
 
@@ -267,7 +268,7 @@ class gPodderExtensionPreference(BuilderWidget):
 
 
 class gPodderExtensionManager(BuilderWidget):
-    C_INDEX, C_TOOLTIP, C_TOGGLE, C_NAME, C_ID, C_EXTENSIONCONTAINER = range(6)
+    C_INDEX, C_TOGGLE, C_LABEL, C_EXTENSIONCONTAINER = range(4)
 
     def new(self):
         toggle_cell = gtk.CellRendererToggle()
@@ -278,64 +279,47 @@ class gPodderExtensionManager(BuilderWidget):
 
         renderer = gtk.CellRendererText()
         renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column = gtk.TreeViewColumn(_('Name'), renderer, markup=self.C_NAME)
+        column = gtk.TreeViewColumn(_('Name'), renderer, markup=self.C_LABEL)
         column.set_clickable(False)
         column.set_resizable(True)
         column.set_expand(True)
         self.treeviewExtensions.append_column(column)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_('Extension-ID'), renderer, markup=self.C_ID)
-        column.set_clickable(False)
-        column.set_resizable(True)
-        column.set_expand(False)
-        self.treeviewExtensions.append_column(column)
+        self.model = gtk.ListStore(int, bool, str, object)
 
-        self.treeviewExtensions.set_property('has-tooltip', True)
-        self.treeviewExtensions.connect('query-tooltip', self.treeview_show_tooltip)
+        for index, (container, enabled) in enumerate(
+                gpodder.user_extensions.get_extensions()):
+            label = '%s\n<small>%s</small>' % (
+                    cgi.escape(container.metadata.title),
+                    cgi.escape(container.metadata.description))
 
-        column_types = [ int, str, bool, str, str, object ]
-        self.model = gtk.ListStore(*column_types)
+            self.model.append([index, enabled, label, container])
 
-        for index, (extension_container, state) in enumerate( gpodder.user_extensions.get_extensions() ):
-            if extension_container.metadata:
-                tooltip = extension_container.metadata['desc']
-                name = extension_container.metadata['name']
-                row = [ index, tooltip, state, name,
-                    extension_container.metadata['id'], extension_container
-                ]
-                self.model.append(row)
-
-        self.model.set_sort_column_id(self.C_NAME, gtk.SORT_ASCENDING)
+        self.model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.model)
         self.treeviewExtensions.columns_autosize()
 
-        self.context_id = self.extension_statusbar.get_context_id('Extension messages')
-
     def _set_enabled_extension_in_config(self, model, path):
-        iter = model.get_iter(path)
-        value = model.get_value(iter, self.C_TOGGLE)
-        name = model.get_value(iter, self.C_NAME)
-        extension_id = model.get_value(iter, self.C_ID)
-        extension_container = model.get_value(iter, self.C_EXTENSIONCONTAINER)
-        new_value = not value
+        it = model.get_iter(path)
+        container = model.get_value(it, self.C_EXTENSIONCONTAINER)
 
-        if new_value and extension_id not in self._config.extensions.enabled:
+        is_enabled = (container.name in self._config.extensions.enabled)
+        new_enabled = not model.get_value(it, self.C_TOGGLE)
+
+        if new_enabled and not is_enabled:
             try:
-                extension_container.load_extension()
+                container.load_extension()
             except Exception, e:
-                self.extension_statusbar.push(self.context_id, "Error %s: %s" % (name, e))
+                logger.error('Cannot load extension: %s', e, exc_info=True)
                 return
 
-            self._config.extensions.enabled.append(extension_id)
-            self.extension_statusbar.remove_all(self.context_id)
-
-        if not new_value and extension_id in self._config.extensions.enabled:
-            self._config.extensions.enabled.remove(extension_id)
+            self._config.extensions.enabled.append(container.name)
+        elif not new_enabled and is_enabled:
+            self._config.extensions.enabled.remove(container.name)
 
         self._config.schedule_save()
-        self._set_preferences_button(not value)
-        model.set_value(iter, self.C_TOGGLE, not value)
+        #self._set_preferences_button(not value)
+        model.set_value(it, self.C_TOGGLE, new_enabled)
 
     def _get_selected_extension_container(self):
         selection = self.treeviewExtensions.get_selection()
@@ -383,7 +367,7 @@ class gPodderExtensionManager(BuilderWidget):
         else:
             value = model.get_value(iter, self.C_TOGGLE)
 
-        self._set_preferences_button(value)
+        #self._set_preferences_button(value)
 
     def treeview_show_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # TODO: Copied some of the code from src/gpodder/gtkui/desktop/episodeselector.py (gPodderEpisodeSelector.treeview_episodes_query_tooltip)

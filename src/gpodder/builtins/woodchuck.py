@@ -19,6 +19,9 @@
 
 #  gpodder.woodchuck - Woodchuck support for gPodder (2011-07)
 
+__title__ = 'Woodchuck Plugin'
+__description__ = 'Let the woodchuck analyze your download habits.'
+
 import gpodder
 from gpodder import feedcore
 from gpodder.util import idle_add
@@ -467,7 +470,10 @@ def check_subscriptions():
         woodchuck_instance.stream_unregister(id)
         yield
 
-class WoodchuckLoader():
+class gPodderExtension:
+    def __init__(self, container):
+        pass
+
     def on_ui_initialized(self, model, update_podcast_callback,
             download_episode_callback):
         """
@@ -487,10 +493,6 @@ class WoodchuckLoader():
         """
         logger.info('Got on_ui_initialized. Setting up woodchuck..')
 
-        global woodchuck_loader
-        gpodder.user_extensions.unregister_extension(woodchuck_loader)
-        woodchuck_loader = None
-
         if not woodchuck_imported:
             return
 
@@ -504,16 +506,9 @@ class WoodchuckLoader():
 
         if not woodchuck_instance.available():
             logger.warn('Unable to contact Woodchuck server. Disabling.')
-            return
 
         logger.info('Connected to Woodchuck server.')
-
-        gpodder.user_extensions.register_extension(woodchuck_instance)
-
         idle_add(check_subscriptions)
 
-woodchuck_loader = WoodchuckLoader()
 woodchuck_instance = None
-
-gpodder.user_extensions.register_extension(woodchuck_loader)
 

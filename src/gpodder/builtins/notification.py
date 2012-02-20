@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Bernd Schlapsi <brot@gmx.info>; 2011-11-20
+
+__title__ = 'Gtk+ Desktop Notifications'
+__description__ = 'Display notification bubbles for different events.'
+__only_in__ = 'gtk'
+
+import gpodder
+
+import logging
+logger = logging.getLogger(__name__)
+
+try:
+    import pynotify
+except ImportError:
+    pynotify = None
+
+
+if pynotify is None:
+    class gPodderExtension(object):
+        def __init__(self, container):
+            logger.info('Could not find PyNotify.')
+else:
+    class gPodderExtension(object):
+        def __init__(self, container):
+            pynotify.init('gPodder')
+            logger.info('Notification plug-in loaded successfully.')
+
+        def on_notification_show(self, title, message):
+            notify = pynotify.Notification(title, message, gpodder.icon_file)
+
+            try:
+                notify.show()
+            except:
+                # See http://gpodder.org/bug/966
+                pass
+

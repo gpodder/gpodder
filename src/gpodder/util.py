@@ -1545,3 +1545,28 @@ def atomic_rename(old_name, new_name):
     else:
         os.rename(old_name, new_name)
 
+
+def check_command(self, cmd):
+    """Check if a command line command/program exists"""
+    # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
+    cmd = sanitize_encoding(cmd)
+    program = shlex.split(cmd)[0]
+    return (find_command(program) is not None)
+
+
+def rename_episode_file(self, episode, filename):
+    """Helper method to update a PodcastEpisode object
+
+    Useful after renaming/converting its download file.
+    """
+    if not os.path.exists(filename):
+        raise ValueError('Target filename does not exist.')
+
+    basename, extension = os.path.splitext(filename)
+
+    episode.download_filename = os.path.basename(filename)
+    episode.file_size = os.path.getsize(filename)
+    episode.mime_type = mimetype_from_extension(extension)
+    episode.save()
+    episode.db.commit()
+

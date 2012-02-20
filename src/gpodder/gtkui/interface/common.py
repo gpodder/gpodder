@@ -116,9 +116,6 @@ class BuilderWidget(GtkBuilderWidget):
         return self.main_window
 
     def show_message(self, message, title=None, important=False, widget=None):
-        # XXX: Dirty hack to get access to the gPodder-specific config object
-        config = getattr(self, '_config', getattr(self, 'config', None))
-
         if important:
             dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
             if title:
@@ -128,7 +125,7 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
             dlg.run()
             dlg.destroy()
-        elif config is not None and config.enable_notifications:
+        else:
             gpodder.user_extensions.on_notification_show(title, message)
 
     def show_confirmation(self, message, title=None):
