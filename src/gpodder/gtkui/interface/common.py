@@ -29,8 +29,6 @@ from gpodder import util
 
 from gpodder.gtkui.base import GtkBuilderWidget
 
-from gpodder.gtkui.widgets import NotificationWindow
-
 
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
@@ -132,20 +130,6 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.destroy()
         elif config is not None and config.enable_notifications:
             gpodder.user_extensions.on_notification_show(title, message)
-            
-            ### TODO: check with thp what we should do with this implementation
-            #
-            #if gpodder.notify.is_initted():
-            #    if title is None:
-            #        title = 'gPodder'
-            #    notification = gpodder.user_extensions.on_notification_show(title, message)
-            #elif widget and isinstance(widget, gtk.Widget):
-            #    if not widget.window:
-            #        widget = self.main_window
-            #    elif not gpodder.win32:
-            #        widget = self.main_window
-            #    notification = NotificationWindow(message, title, important=False, widget=widget)
-            #    notification.show_timeout()
 
     def show_confirmation(self, message, title=None):
         dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)

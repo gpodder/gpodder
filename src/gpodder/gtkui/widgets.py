@@ -92,51 +92,6 @@ class SimpleMessageArea(gtk.HBox):
                 rect.x, rect.y, rect.width, rect.height)
         return False
 
-class NotificationWindow(gtk.Window):
-    """A quick substitution widget for pynotify notifications."""
-    def __init__(self, message, title=None, important=False, widget=None):
-        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
-        self._finished = False
-        message_area = SimpleMessageArea('')
-        arrow = gtk.image_new_from_stock(gtk.STOCK_GO_UP, \
-                gtk.ICON_SIZE_BUTTON)
-        arrow.set_alignment(.5, 0.)
-        arrow.set_padding(6, 0)
-        message_area.pack_start(arrow, False)
-        message_area.reorder_child(arrow, 0)
-        if title is not None:
-            message_area.set_markup('<b>%s</b>\n<small>%s</small>' % (cgi.escape(title), cgi.escape(message)))
-        else:
-            message_area.set_markup(cgi.escape(message))
-        self.add(message_area)
-        self.set_gravity(gtk.gdk.GRAVITY_NORTH_WEST)
-        self.show_all()
-        if widget is not None:
-            _x, _y, ww, hh, _depth = self.window.get_geometry()
-            parent = widget
-            while not isinstance(parent, gtk.Window):
-                parent = parent.get_parent()
-            x, y, _w, _h, _depth = parent.window.get_geometry()
-            rect = widget.allocation
-            w, h = rect.width, rect.height
-            x += rect.x
-            y += rect.y
-            arrow_rect = arrow.allocation
-            if h < hh or w < ww:
-                self.move(x+w/2-arrow_rect.x-arrow_rect.width/2, y+h-5)
-            else:
-                self.move(x+w/2-ww/2, y+h/2-hh/2+20)
-                message_area.remove(arrow)
-
-    def show_timeout(self, timeout=8000):
-        gobject.timeout_add(timeout, self._hide_and_destroy)
-        self.show_all()
-
-    def _hide_and_destroy(self):
-        if not self._finished:
-            self.destroy()
-            self._finished = True
-        return False
 
 class SpinningProgressIndicator(gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter

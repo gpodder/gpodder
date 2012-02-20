@@ -129,7 +129,6 @@ credits_file = None
 icon_file = None
 images_folder = None
 user_extensions = None
-notify = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
