@@ -57,31 +57,32 @@ class ConfigModel(gtk.ListStore):
 
     def _fill_model(self):
         self.clear()
-        for key in sorted(self._config.Settings):
-            # Do not show config settings starting with "_" in the UI
-            if key.startswith('_'):
+        for key in sorted(self._config.all_keys()):
+            # Ignore Gtk window state data (position, size, ...)
+            if key.startswith('ui.gtk.state.'):
                 continue
 
-            default = self._config.Settings[key]
-            fieldtype = type(default)
-            value = getattr(self._config, key, default)
+            value = self._config._lookup(key)
+            fieldtype = type(value)
 
-            if value == default:
-                style = pango.STYLE_NORMAL
-            else:
-                style = pango.STYLE_ITALIC
+            style = pango.STYLE_NORMAL
+            #if value == default:
+            #    style = pango.STYLE_NORMAL
+            #else:
+            #    style = pango.STYLE_ITALIC
 
-            self.append((key, self._type_as_string(fieldtype), \
-                    str(value), fieldtype, fieldtype is not bool, style, \
+            self.append((key, self._type_as_string(fieldtype),
+                    str(value), fieldtype, fieldtype is not bool, style,
                     fieldtype is bool, bool(value)))
 
     def _on_update(self, name, old_value, new_value):
         for row in self:
             if row[self.C_NAME] == name:
-                if new_value == self._config.Settings[name]:
-                    style = pango.STYLE_NORMAL
-                else:
-                    style = pango.STYLE_ITALIC
+                style = pango.STYLE_NORMAL
+                #if new_value == self._config.Settings[name]:
+                #    style = pango.STYLE_NORMAL
+                #else:
+                #    style = pango.STYLE_ITALIC
                 self.set(row.iter, \
                         self.C_VALUE_TEXT, str(new_value), \
                         self.C_BOOLEAN_VALUE, bool(new_value), \

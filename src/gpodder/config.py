@@ -291,6 +291,16 @@ class Config(object):
         setattr(self, name, not getattr(self, name))
 
     def update_field(self, name, new_value):
+        field_type = type(self._lookup(name))
+        if field_type == list:
+            try:
+                new_value = eval(new_value, {}, {})
+                assert type(new_value) == list
+            except:
+                new_value = filter(None, [x.strip()
+                    for x in new_value.split(',')])
+        else:
+            new_value = field_type(new_value)
         setattr(self, name, new_value)
         return True
 
