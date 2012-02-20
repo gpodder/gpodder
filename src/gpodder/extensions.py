@@ -258,7 +258,6 @@ class ExtensionManager(object):
     extension
 
     """
-    DISABLED, ENABLED = range(2)
     EXTENSIONCONTAINER, STATE = range(2)
 
     def __init__(self, config):
@@ -272,44 +271,41 @@ class ExtensionManager(object):
             extension_container = ExtensionContainer(
                 config=self._config, filename=extension_file)
 
-            state = self.DISABLED
+            enabled = False
             if extension_container.metadata:
                 extension_id = extension_container.metadata['id']
                 if extension_id in enabled_extensions:
                     error = extension_container.load_extension()
                     if error is None:
-                        state = self.ENABLED
+                        enabled = True
                     else:
-                        state = self.DISABLED
                         enabled_extensions.remove(extension_id)
 
-            self.modules.append((extension_container, state, ))
+            self.modules.append((extension_container, enabled))
 
     def register_extension(self, obj):
         """Register an object that implements some extensions."""
 
-        self.modules.append((ExtensionContainer(module=obj), self.ENABLED))
+        self.modules.append((ExtensionContainer(module=obj), True))
 
     def unregister_extension(self, obj):
         """Unregister a previously registered object."""
 
-        extension_module = (ExtensionContainer(module=obj), self.ENABLED)
+        extension_module = (ExtensionContainer(module=obj), True)
         if extension_module in self.modules:
             self.modules.remove(extension_module)
         else:
             logger.warn('Unregistered extension which was not registered.')
 
     def get_extensions(self):
-        """returns a list of all loaded extensions with the enabled/disable state"""
+        """Get a list of all loaded extensions and their enabled flag"""
 
         enabled_extensions = self._config.extensions.enabled
         for index, (extension_container, enabled) in enumerate(self.modules):
             if extension_container.metadata:
-                if extension_container.metadata['id'] in enabled_extensions:
-                    enabled = self.ENABLED
-                else:
-                    enabled = self.DISABLED
-                self.modules[index] = (extension_container, enabled, )
+                enabled = (extension_container.metadata['id']
+                        in enabled_extensions)
+                self.modules[index] = (extension_container, enabled)
 
         return self.modules
 
