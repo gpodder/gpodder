@@ -179,6 +179,18 @@ class JsonConfig(object):
     def _lookup(self, name):
         return reduce(lambda d, k: d[k], name.split('.'), self._data)
 
+    def _keys_iter(self):
+        work_queue = []
+        work_queue.append(([], self._data))
+        while work_queue:
+            path, data = work_queue.pop(0)
+
+            if isinstance(data, dict):
+                for key in sorted(data.keys()):
+                    work_queue.append((path + [key], data[key]))
+            else:
+                yield '.'.join(path)
+
     def __getattr__(self, name):
         try:
             value = self._lookup(name)

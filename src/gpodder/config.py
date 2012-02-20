@@ -232,6 +232,9 @@ class Config(object):
         else:
             logger.warn('Observer not added: %s', repr(callback))
 
+    def all_keys(self):
+        return self.__json_config._keys_iter()
+
     def schedule_save(self):
         if self.__save_thread is None:
             self.__save_thread = threading.Thread(target=self.save_thread_proc)

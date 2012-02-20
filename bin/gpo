@@ -51,6 +51,10 @@
     pending [URL]              List new episodes (all or only from URL)
     episodes [URL]             List episodes (all or only from URL)
 
+  - Configuration -
+
+    set [key] [value]          List one (all) keys or set to a new value
+
   - Other commands -
 
     youtube URL                Resolve the YouTube URL to a download URL
@@ -130,14 +134,9 @@ interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
 def incolor(color_id, s):
-    if have_ansi and incolor.want_colors:
+    if have_ansi and cli.config.ui.cli.colors:
         return '\033[9%dm%s\033[0m' % (color_id, s)
     return s
-
-# Add an attribute to the function to control its behavior - this avoids
-# setting another global variable, as "want_colors" is only relevant for
-# this single function in our case.
-incolor.want_colors = True
 
 # ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
 inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
@@ -165,9 +164,6 @@ class gPodderCli(object):
     def __init__(self):
         self.client = api.PodcastClient()
         self.config = self.client._config
-
-        # Load configuration settings into our application state
-        incolor.want_colors = self.config.ui.cli.colors
 
         self._current_action = ''
         self._commands = dict((name.rstrip('_'), func)
@@ -282,6 +278,39 @@ class gPodderCli(object):
 
         self._info(_('Successfully added %s.' % url))
         return True
+
+    def _print_config(self, search_for):
+        for key in self.config.all_keys():
+            if search_for is None or search_for in key:
+                print key, '=', repr(self.config._lookup(key))
+
+    def set(self, key=None, value=None):
+        if value is None:
+            self._print_config(key)
+            return
+
+        try:
+            current_value = self.config._lookup(key)
+            current_type = type(current_value)
+        except KeyError:
+            self._error(_('This configuration option does not exist.'))
+            return
+
+        if current_type == dict:
+            self._error(_('Can only set leaf configuration nodes.'))
+            return
+
+        try:
+            if current_type == bool:
+                new_value = (value in ('1', 'true', 'True'))
+            else:
+                new_value = current_type(value)
+        except ValueError:
+            self._error(_('Wrong value type for this configuration option.'))
+            return
+
+        self.config.update_field(key, new_value)
+        self.set(key)
 
     @FirstArgumentIsPodcastURL
     def rename(self, url, title):
