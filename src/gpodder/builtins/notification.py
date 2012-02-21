@@ -21,7 +21,7 @@
 
 __title__ = 'Gtk+ Desktop Notifications'
 __description__ = 'Display notification bubbles for different events.'
-__only_in__ = 'gtk'
+__only_for__ = 'gtk'
 
 import gpodder
 

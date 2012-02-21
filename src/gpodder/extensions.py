@@ -60,7 +60,7 @@ def call_extensions(func):
     def handler(self, *args, **kwargs):
         result = None
         for container, enabled in self.containers:
-            if not enabled:
+            if not enabled or container.module is None:
                 continue
 
             try:
@@ -87,6 +87,32 @@ class ExtensionMetadata(object):
     def __init__(self, metadata):
         self.__dict__.update(metadata)
 
+    @property
+    def for_current_ui(self):
+        """Check if this extension makes sense for the current UI
+
+        The __only_for__ metadata field in an extension can be a string with
+        comma-separated values for UIs. This will be checked against boolean
+        variables in the "gpodder.ui" object.
+
+        Example metadata field in an extension:
+
+            __only_for__ = 'gtk,qml'
+
+        In this case, this function will return True if any of the following
+        expressions will evaluate to True:
+
+            gpodder.ui.gtk
+            gpodder.ui.qml
+
+        New, unknown UIs are silently ignored and will evaluate to False.
+        """
+        if not hasattr(self, 'only_for'):
+            return True
+
+        enabled_uis = filter(None, [x.strip() for x in self.only_for.split()])
+        return any(getattr(gpodder.ui, ui, False) for ui in enabled_uis)
+
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""
 
@@ -107,7 +133,7 @@ class ExtensionContainer(object):
             return {}
 
         extension_py = open(filename).read()
-        return dict(re.findall("__([a-z]+)__ = '([^']+)'", extension_py))
+        return dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
 
     def _load_module(self):
         basename, extension = os.path.splitext(os.path.basename(self.filename))
@@ -118,6 +144,11 @@ class ExtensionContainer(object):
         """Load and initialize the gPodder extension module"""
         if self.module is not None:
             logger.info('Module already loaded.')
+            return
+
+        if not self.metadata.for_current_ui:
+            logger.info('Not loading "%s" (only_for = "%s")',
+                    self.name, self.metadata.only_for)
             return
 
         try:

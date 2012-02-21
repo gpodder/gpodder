@@ -1020,7 +1020,7 @@ def idle_add(func, *args):
     if gpodder.ui.gtk:
         import gobject
         gobject.idle_add(func, *args)
-    elif gpodder.ui.qt:
+    elif gpodder.ui.qml:
         from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
 
         class IdleAddHandler(QObject):

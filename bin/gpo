@@ -121,6 +121,9 @@ import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
+# This is the command-line UI variant
+gpodder.ui.cli = True
+
 # Platform detection (i.e. Maemo 5, etc..)
 gpodder.detect_platform()
 

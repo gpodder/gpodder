@@ -65,8 +65,9 @@ class UI(object):
         self.desktop = False
         self.fremantle = False
         self.harmattan = False
-        self.qt = False
         self.gtk = False
+        self.qml = False
+        self.cli = False
 
 
 ui = UI()
