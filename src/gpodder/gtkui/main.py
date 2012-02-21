@@ -77,7 +77,6 @@ from gpodder.gtkui.download import DownloadStatusModel
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktop.channel import gPodderChannel
 from gpodder.gtkui.desktop.preferences import gPodderPreferences
-from gpodder.gtkui.desktop.extensions import gPodderExtensionManager
 from gpodder.gtkui.desktop.shownotes import gPodderShownotes
 from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
@@ -2814,11 +2813,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 mygpo_client=self.mygpo_client, \
                 on_send_full_subscriptions=self.on_send_full_subscriptions, \
                 on_itemExportChannels_activate=self.on_itemExportChannels_activate)
-                
-    def on_itemExtensionSettings_activate(self, widget, *args):
-        gPodderExtensionManager(self.main_window,
-                _config=self.config,
-                parent_window=self.main_window)
 
     def on_goto_mygpo(self, widget):
         self.mygpo_client.open_website()

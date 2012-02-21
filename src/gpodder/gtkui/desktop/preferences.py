@@ -20,6 +20,7 @@
 import gtk
 import pango
 import threading
+import cgi
 
 import gpodder
 
@@ -58,6 +59,8 @@ class NewEpisodeActionList(gtk.ListStore):
 
 
 class gPodderPreferences(BuilderWidget):
+    C_TOGGLE, C_LABEL, C_EXTENSION = range(3)
+
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = gtk.CellRendererPixbuf()
@@ -127,6 +130,64 @@ class gPodderPreferences(BuilderWidget):
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
+
+        # Configure the extensions manager GUI
+        toggle_cell = gtk.CellRendererToggle()
+        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
+        toggle_column = gtk.TreeViewColumn('', toggle_cell, active=self.C_TOGGLE)
+        toggle_column.set_clickable(True)
+        self.treeviewExtensions.append_column(toggle_column)
+
+        renderer = gtk.CellRendererText()
+        renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        column = gtk.TreeViewColumn(_('Name'), renderer, markup=self.C_LABEL)
+        column.set_clickable(False)
+        column.set_resizable(True)
+        column.set_expand(True)
+        self.treeviewExtensions.append_column(column)
+
+        self.extensions_model = gtk.ListStore(bool, str, object)
+
+        for container in gpodder.user_extensions.get_extensions():
+            label = '%s\n<small>%s</small>' % (
+                    cgi.escape(container.metadata.title),
+                    cgi.escape(container.metadata.description))
+            self.extensions_model.append([container.enabled, label, container])
+
+        self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
+        self.treeviewExtensions.set_model(self.extensions_model)
+        self.treeviewExtensions.columns_autosize()
+
+    def on_extensions_cell_toggled(self, cell, path):
+        model = self.treeviewExtensions.get_model()
+        it = model.get_iter(path)
+        container = model.get_value(it, self.C_EXTENSION)
+
+        enabled_extensions = list(self._config.extensions.enabled)
+        new_enabled = not model.get_value(it, self.C_TOGGLE)
+
+        if new_enabled and container.name not in enabled_extensions:
+            enabled_extensions.append(container.name)
+        elif not new_enabled and container.name in enabled_extensions:
+            enabled_extensions.remove(container.name)
+
+        self._config.extensions.enabled = enabled_extensions
+
+        model.set_value(it, self.C_TOGGLE, new_enabled)
+
+    def on_extensions_row_activated(self, treeview, path, view_column):
+        model = treeview.get_model()
+        container = model.get_value(model.get_iter(path), self.C_EXTENSION)
+
+        # This is one ugly hack, but it displays the container's attributes
+        # and the attributes of the metadata object of the container..
+        info = '\n'.join('<b>%s:</b> %s' %
+                tuple(map(cgi.escape, map(str, (key, value))))
+                for key, value in sorted(container.__dict__.items() +
+                    [('metadata.'+k, v)
+                        for k, v in container.metadata.__dict__.items()]))
+
+        self.show_message(info, _('Extension module info'), important=True)
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it

@@ -61,8 +61,8 @@ def call_extensions(func):
     @functools.wraps(func)
     def handler(self, *args, **kwargs):
         result = None
-        for container, enabled in self.containers:
-            if not enabled or container.module is None:
+        for container in self.containers:
+            if not container.enabled or container.module is None:
                 continue
 
             try:
@@ -139,6 +139,7 @@ class ExtensionContainer(object):
         self.config = config
         self.filename = filename
         self.module = module
+        self.enabled = False
 
         self.default_config = None
         self.parameters = None
@@ -163,6 +164,18 @@ class ExtensionContainer(object):
 
         return module
 
+    def set_enabled(self, enabled):
+        if enabled:
+            try:
+                self.load_extension()
+                self.enabled = True
+            except Exception, exception:
+                logger.error('Cannot load %s from %s: %s', self.name,
+                        self.filename, exception, exc_info=True)
+                self.enabled = False
+        else:
+            self.enabled = False
+
     def load_extension(self):
         """Load and initialize the gPodder extension module"""
         if self.module is not None:
@@ -174,18 +187,13 @@ class ExtensionContainer(object):
                     self.name, self.metadata.only_for)
             return
 
-        try:
-            module_file = self._load_module()
-            self.default_config = getattr(module_file, 'DefaultConfig', {})
-            self.parameters = getattr(module_file, 'Parameters', {})
+        module_file = self._load_module()
+        self.default_config = getattr(module_file, 'DefaultConfig', {})
+        self.parameters = getattr(module_file, 'Parameters', {})
 
-            self.module = module_file.gPodderExtension(self)
+        self.module = module_file.gPodderExtension(self)
 
-            logger.info('Module loaded: %s', self.filename)
-        except Exception, exception:
-            logger.error('Cannot load %s: %s', self.filename, exception,
-                    exc_info=True)
-            raise
+        logger.info('Module loaded: %s', self.filename)
 
 
 class ExtensionManager(object):
@@ -194,21 +202,25 @@ class ExtensionManager(object):
     def __init__(self, config):
         self.containers = []
         self._config = config
+        self._config.add_observer(self._config_value_changed)
         enabled_extensions = self._config.extensions.enabled
 
         for name, filename in self._find_extensions():
             logger.debug('Found extension "%s" in %s', name, filename)
             config = getattr(self._config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
-
             if name in enabled_extensions:
-                try:
-                    container.load_extension()
-                except Exception, e:
-                    enabled_extensions.remove(name)
-                    continue
+                container.set_enabled(True)
+            self.containers.append(container)
 
-            self.containers.append((container, name in enabled_extensions))
+    def _config_value_changed(self, name, old_value, new_value):
+        if name == 'extensions.enabled':
+            for container in self.containers:
+                new_enabled = (container.name in new_value)
+                if new_enabled != container.enabled:
+                    logger.info('Extension "%s" is now %s', container.name,
+                            'enabled' if new_enabled else 'disabled')
+                    container.set_enabled(new_enabled)
 
     def _find_extensions(self):
         extensions = {}
@@ -226,12 +238,6 @@ class ExtensionManager(object):
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
-
-        enabled_extensions = self._config.extensions.enabled
-        for index, (container, enabled) in enumerate(self.containers):
-            enabled = (container.name in enabled_extensions)
-            self.containers[index] = (container, enabled)
-
         return self.containers
 
     # Define all known handler functions here, decorate them with the
