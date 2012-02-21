@@ -41,8 +41,15 @@ if pynotify is None:
 else:
     class gPodderExtension(object):
         def __init__(self, container):
+            self.container = container
+
+        def on_load(self):
             pynotify.init('gPodder')
-            logger.info('Notification plug-in loaded successfully.')
+            logger.info('PyNotify initialized.')
+
+        def on_unload(self):
+            logger.info('Uninitializing PyNotify.')
+            pynotify.uninit()
 
         def on_notification_show(self, title, message):
             notify = pynotify.Notification(title, message, gpodder.icon_file)

@@ -53,6 +53,9 @@ class Core(object):
         self.config.mygpo.device.type = util.detect_device_type()
 
     def shutdown(self):
+        # Notify all extensions that we are being shut down
+        gpodder.user_extensions.shutdown()
+
         # Close the database and store outstanding changes
         self.db.close()
 

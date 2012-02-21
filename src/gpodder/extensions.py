@@ -152,28 +152,24 @@ class ExtensionContainer(object):
         extension_py = open(filename).read()
         return dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
 
-    def _load_module(self):
-        basename, extension = os.path.splitext(os.path.basename(self.filename))
-        fp = open(self.filename, 'r')
-        module = imp.load_module(basename, fp, self.filename,
-                (extension, 'r', imp.PY_SOURCE))
-        fp.close()
-
-        # Remove the .pyc file if it was created during import
-        util.delete_file(self.filename + 'c')
-
-        return module
-
     def set_enabled(self, enabled):
-        if enabled:
+        if enabled and not self.enabled:
             try:
                 self.load_extension()
                 self.enabled = True
+                if hasattr(self.module, 'on_load'):
+                    self.module.on_load()
             except Exception, exception:
                 logger.error('Cannot load %s from %s: %s', self.name,
                         self.filename, exception, exc_info=True)
                 self.enabled = False
-        else:
+        elif not enabled and self.enabled:
+            try:
+                if hasattr(self.module, 'on_unload'):
+                    self.module.on_unload()
+            except Exception, exception:
+                logger.error('Failed to on_unload %s: %s', self.name,
+                        exception, exc_info=True)
             self.enabled = False
 
     def load_extension(self):
@@ -187,7 +183,15 @@ class ExtensionContainer(object):
                     self.name, self.metadata.only_for)
             return
 
-        module_file = self._load_module()
+        basename, extension = os.path.splitext(os.path.basename(self.filename))
+        fp = open(self.filename, 'r')
+        module_file = imp.load_module(basename, fp, self.filename,
+                (extension, 'r', imp.PY_SOURCE))
+        fp.close()
+
+        # Remove the .pyc file if it was created during import
+        util.delete_file(self.filename + 'c')
+
         self.default_config = getattr(module_file, 'DefaultConfig', {})
         self.parameters = getattr(module_file, 'Parameters', {})
 
@@ -213,6 +217,10 @@ class ExtensionManager(object):
             if name in enabled_extensions:
                 container.set_enabled(True)
             self.containers.append(container)
+
+    def shutdown(self):
+        for container in self.containers:
+            container.set_enabled(False)
 
     def _config_value_changed(self, name, old_value, new_value):
         if name == 'extensions.enabled':
