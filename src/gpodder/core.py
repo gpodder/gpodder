@@ -44,7 +44,7 @@ class Core(object):
         self.config = config_class(gpodder.config_file)
 
         # Load extension modules and install the extension manager
-        gpodder.user_extensions = extensions.ExtensionManager(self.config)
+        gpodder.user_extensions = extensions.ExtensionManager(self)
 
         # Load installed/configured plugins
         gpodder.load_plugins()

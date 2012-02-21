@@ -126,8 +126,8 @@ class ExtensionMetadata(object):
         if not hasattr(self, 'only_for'):
             return True
 
-        enabled_uis = filter(None, [x.strip() for x in self.only_for.split()])
-        return any(getattr(gpodder.ui, ui, False) for ui in enabled_uis)
+        uis = filter(None, [x.strip() for x in self.only_for.split(',')])
+        return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
 
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""
@@ -199,15 +199,16 @@ class ExtensionContainer(object):
 class ExtensionManager(object):
     """Loads extensions and manages self-registering plugins"""
 
-    def __init__(self, config):
+    def __init__(self, core):
+        self.core = core
         self.containers = []
-        self._config = config
-        self._config.add_observer(self._config_value_changed)
-        enabled_extensions = self._config.extensions.enabled
+
+        core.config.add_observer(self._config_value_changed)
+        enabled_extensions = core.config.extensions.enabled
 
         for name, filename in self._find_extensions():
             logger.debug('Found extension "%s" in %s', name, filename)
-            config = getattr(self._config.extensions, name)
+            config = getattr(core.config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
             if name in enabled_extensions:
                 container.set_enabled(True)
