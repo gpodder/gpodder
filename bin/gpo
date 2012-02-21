@@ -627,7 +627,14 @@ class gPodderCli(object):
                 break
 
             try:
-                self._parse(shlex.split(line))
+                args = shlex.split(line)
+            except ValueError, value_error:
+                self._error(_('Syntax error: %(error)s') %
+                        {'error': value_error})
+                continue
+
+            try:
+                self._parse(args)
             except KeyboardInterrupt:
                 self._error('Keyboard interrupt.')
             except EOFError:
