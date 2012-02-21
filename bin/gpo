@@ -303,16 +303,7 @@ class gPodderCli(object):
             self._error(_('Can only set leaf configuration nodes.'))
             return
 
-        try:
-            if current_type == bool:
-                new_value = (value in ('1', 'true', 'True'))
-            else:
-                new_value = current_type(value)
-        except ValueError:
-            self._error(_('Wrong value type for this configuration option.'))
-            return
-
-        self.config.update_field(key, new_value)
+        self.config.update_field(key, value)
         self.set(key)
 
     @FirstArgumentIsPodcastURL
