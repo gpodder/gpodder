@@ -43,6 +43,8 @@ from datetime import datetime
 
 import gpodder
 
+_ = gpodder.gettext
+
 from gpodder import util
 
 import logging
@@ -84,8 +86,22 @@ def call_extensions(func):
     return handler
 
 class ExtensionMetadata(object):
-    def __init__(self, metadata):
+    # Default fallback metadata in case metadata fields are missing
+    DEFAULTS = {
+        'description': _('No description for this extension.'),
+    }
+
+    def __init__(self, container, metadata):
+        if 'title' not in metadata:
+            metadata['title'] = container.name
+
         self.__dict__.update(metadata)
+
+    def __getattr__(self, name):
+        try:
+            return self.DEFAULTS[name]
+        except KeyError:
+            raise AttributeError(name)
 
     @property
     def for_current_ui(self):
@@ -126,7 +142,7 @@ class ExtensionContainer(object):
 
         self.default_config = None
         self.parameters = None
-        self.metadata = ExtensionMetadata(self._load_metadata(filename))
+        self.metadata = ExtensionMetadata(self, self._load_metadata(filename))
 
     def _load_metadata(self, filename):
         if not filename or not os.path.exists(filename):
@@ -137,8 +153,15 @@ class ExtensionContainer(object):
 
     def _load_module(self):
         basename, extension = os.path.splitext(os.path.basename(self.filename))
-        return imp.load_module(basename, file(self.filename, 'r'),
-            self.filename, (extension, 'r', imp.PY_SOURCE))
+        fp = open(self.filename, 'r')
+        module = imp.load_module(basename, fp, self.filename,
+                (extension, 'r', imp.PY_SOURCE))
+        fp.close()
+
+        # Remove the .pyc file if it was created during import
+        util.delete_file(self.filename + 'c')
+
+        return module
 
     def load_extension(self):
         """Load and initialize the gPodder extension module"""
@@ -174,6 +197,7 @@ class ExtensionManager(object):
         enabled_extensions = self._config.extensions.enabled
 
         for name, filename in self._find_extensions():
+            logger.debug('Found extension "%s" in %s', name, filename)
             config = getattr(self._config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
 
@@ -187,10 +211,18 @@ class ExtensionManager(object):
             self.containers.append((container, name in enabled_extensions))
 
     def _find_extensions(self):
-        root = os.path.abspath(gpodder.__path__[0])
-        for filename in glob.glob(os.path.join(root, 'builtins', '*.py')):
+        extensions = {}
+
+        root = os.path.abspath(gpodder.__path__[0]) # XXX: Works always?
+        builtins = os.path.join(root, 'builtins', '*.py')
+        user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
+
+        # Let user extensions override built-in extensions of the same name
+        for filename in glob.glob(builtins) + glob.glob(user_extensions):
             name, _ = os.path.splitext(os.path.basename(filename))
-            yield (name, filename)
+            extensions[name] = filename
+
+        return sorted(extensions.items())
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
