@@ -131,6 +131,7 @@ from gpodder import api
 from gpodder import my
 from gpodder import opml
 from gpodder import util
+from gpodder.config import config_value_to_string
 
 have_ansi = sys.stdout.isatty() and not gpodder.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
@@ -284,8 +285,9 @@ class gPodderCli(object):
 
     def _print_config(self, search_for):
         for key in self.config.all_keys():
-            if search_for is None or search_for in key:
-                print key, '=', repr(self.config._lookup(key))
+            if search_for is None or search_for.lower() in key.lower():
+                value = config_value_to_string(self.config._lookup(key))
+                print key, '=', value
 
     def set(self, key=None, value=None):
         if value is None:

@@ -72,7 +72,8 @@ class ConfigModel(gtk.ListStore):
             #    style = pango.STYLE_ITALIC
 
             self.append((key, self._type_as_string(fieldtype),
-                    str(value), fieldtype, fieldtype is not bool, style,
+                    config.config_value_to_string(value),
+                    fieldtype, fieldtype is not bool, style,
                     fieldtype is bool, bool(value)))
 
     def _on_update(self, name, old_value, new_value):
@@ -83,9 +84,10 @@ class ConfigModel(gtk.ListStore):
                 #    style = pango.STYLE_NORMAL
                 #else:
                 #    style = pango.STYLE_ITALIC
+                new_value_text = config.config_value_to_string(new_value)
                 self.set(row.iter, \
-                        self.C_VALUE_TEXT, str(new_value), \
-                        self.C_BOOLEAN_VALUE, bool(new_value), \
+                        self.C_VALUE_TEXT, new_value_text,
+                        self.C_BOOLEAN_VALUE, bool(new_value),
                         self.C_FONT_STYLE, style)
                 break
 

@@ -180,6 +180,27 @@ gPodderSettings_LegacySupport = {
 logger = logging.getLogger(__name__)
 
 
+def config_value_to_string(config_value):
+    config_type = type(config_value)
+
+    if config_type == list:
+        return ','.join(map(config_value_to_string, config_value))
+    elif config_type in (str, unicode):
+        return config_value
+    else:
+        return str(config_value)
+
+def string_to_config_value(new_value, old_value):
+    config_type = type(old_value)
+
+    if config_type == list:
+        return filter(None, [x.strip() for x in new_value.split(',')])
+    elif config_type == bool:
+        return (new_value.strip().lower() in ('1', 'true'))
+    else:
+        return filed_type(new_value)
+
+
 class Config(object):
     # Number of seconds after which settings are auto-saved
     WRITE_TO_DISK_TIMEOUT = 60
@@ -292,18 +313,8 @@ class Config(object):
 
     def update_field(self, name, new_value):
         """Update a config field, converting strings to the right types"""
-        field_type = type(self._lookup(name))
-        if field_type == list:
-            try:
-                new_value = eval(new_value, {}, {})
-                assert type(new_value) == list
-            except:
-                new_value = filter(None, [x.strip()
-                    for x in new_value.split(',')])
-        elif field_type == bool:
-            new_value = (new_value in ('1', 'true', 'True'))
-        else:
-            new_value = field_type(new_value)
+        old_value = self._lookup(name)
+        new_value = string_to_config_value(new_value, old_value)
         setattr(self, name, new_value)
         return True
 
