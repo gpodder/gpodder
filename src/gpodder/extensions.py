@@ -85,6 +85,7 @@ def call_extensions(func):
 
     return handler
 
+
 class ExtensionMetadata(object):
     # Default fallback metadata in case metadata fields are missing
     DEFAULTS = {
@@ -128,6 +129,7 @@ class ExtensionMetadata(object):
 
         uis = filter(None, [x.strip() for x in self.only_for.split(',')])
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
+
 
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""
@@ -202,18 +204,19 @@ class ExtensionContainer(object):
         util.delete_file(self.filename + 'c')
 
         self.default_config = getattr(module_file, 'DefaultConfig', {})
-        self.parameters = getattr(module_file, 'Parameters', {})
+        self.manager.core.config.register_defaults(self.default_config)
+        self.config = getattr(self.manager.core.config.extensions, self.name)
 
         self.module = module_file.gPodderExtension(self)
-
         logger.info('Module loaded: %s', self.filename)
 
 
 class ExtensionManager(object):
     """Loads extensions and manages self-registering plugins"""
 
-    def __init__(self, core):
+    def __init__(self, core, filename=None):
         self.core = core
+        self.filename = filename
         self.containers = []
 
         core.config.add_observer(self._config_value_changed)
@@ -243,12 +246,16 @@ class ExtensionManager(object):
     def _find_extensions(self):
         extensions = {}
 
-        builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
+        if self.filename:
+            files = glob.glob(self.filename)
+        else:
+            builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
                 'extensions', '*.py')
-        user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
+            user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
+            files = glob.glob(builtins) + glob.glob(user_extensions)
 
         # Let user extensions override built-in extensions of the same name
-        for filename in glob.glob(builtins) + glob.glob(user_extensions):
+        for filename in files:
             name, _ = os.path.splitext(os.path.basename(filename))
             extensions[name] = filename
 
