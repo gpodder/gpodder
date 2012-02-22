@@ -31,12 +31,13 @@
  [ DEPENDENCIES ]
 
     - Python 2.6 or newer              http://python.org/
+    - "sqlite3" Python module          (usually included with Python)
     - Feedparser 5.0.1 or newer        http://code.google.com/p/feedparser/
     - mygpoclient 1.4 or newer         http://thp.io/2010/mygpoclient/
     - Python D-Bus bindings
 
-    gPodder is still compatible with Python 2.5, but you might need to
-    install sqlite3 and json ("simplejson") manually. We reserve the
+    gPodder might still work with Python 2.5, but you may need to
+    install the json module ("simplejson") manually. We reserve the
     right to drop support for Python 2.5 in future point releases.
 
     As an alternative to python-dbus on Mac OS X and Windows, you can use

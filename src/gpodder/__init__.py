@@ -56,6 +56,18 @@ except ImportError:
     sys.exit(1)
 del mygpoclient
 
+try:
+    import sqlite3
+except ImportError:
+    print """
+  Error: Module "sqlite3" not found.
+         Build Python with SQLite 3 support or get it from
+         http://code.google.com/p/pysqlite/
+"""
+    sys.exit(1)
+del sqlite3
+
+
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
