@@ -68,8 +68,8 @@ if __name__ == '__main__':
     images_folder = os.path.join(prefix, 'share', 'gpodder')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
-    if os.path.exists(src_dir) and os.path.exists(data_dir) and \
-            not prefix.startswith('/usr'):
+    if (os.path.exists(src_dir) and os.path.exists(data_dir) and
+            not os.path.exists(os.path.join(prefix, 'share'))):
         # Run gPodder from local source folder (not installed)
         print >>sys.stderr, 'Using modules from', src_dir
         sys.path.insert(0, src_dir)

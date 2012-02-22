@@ -111,8 +111,8 @@ prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 src_dir = os.path.join(prefix, 'src')
 data_dir = os.path.join(prefix, 'data')
 
-if os.path.exists(src_dir) and os.path.exists(data_dir) and \
-        not prefix.startswith('/usr'):
+if (os.path.exists(src_dir) and os.path.exists(data_dir) and
+        not os.path.exists(os.path.join(prefix, 'share'))):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
