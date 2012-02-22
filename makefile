@@ -88,7 +88,7 @@ release: distclean
 
 releasetest: unittest $(GPODDER_DESKTOP_FILE)
 	desktop-file-validate $(GPODDER_DESKTOP_FILE)
-	make -C data/po validate
+	$(MAKE) -C data/po validate
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
@@ -112,7 +112,7 @@ $(MANPAGE): src/gpodder/__init__.py $(BINFILE)
 ##########################################################################
 
 messages: $(MESSAGESPOT)
-	make -C data/po
+	$(MAKE) -C data/po
 
 data/ui/%.ui.h: $(UIFILES)
 	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
@@ -142,7 +142,7 @@ clean:
 	rm -f data/gpodder-??x??.png .coverage
 	rm -f $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 	rm -rf build
-	make -C data/po clean
+	$(MAKE) -C data/po clean
 
 debclean:
 	fakeroot debian/rules clean
