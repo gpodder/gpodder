@@ -222,8 +222,8 @@ class gPodderCli(object):
             line = line[:self.COLUMNS-7-3] + '...'
         else:
             line = line + (' '*(self.COLUMNS-7-len(line)))
-        self._current_action = line
-        sys.stdout.write(line)
+        self._current_action = util.sanitize_encoding(line)
+        sys.stdout.write(self._current_action)
         sys.stdout.flush()
 
     def _update_action(self, progress):
@@ -389,10 +389,11 @@ class gPodderCli(object):
 
     def list(self):
         for podcast in self.client.get_podcasts():
+            title = util.sanitize_encoding(podcast.title)
             if podcast.update_enabled():
-                print '#', ingreen(podcast.title)
+                print '#', ingreen(title)
             else:
-                print '#', inred(podcast.title), '-', _('Updates disabled')
+                print '#', inred(title), '-', _('Updates disabled')
 
             print podcast.url
 
@@ -592,9 +593,9 @@ class gPodderCli(object):
             rows_needed = len(output.splitlines()) + 2
             rows, cols = get_terminal_size()
             if rows_needed < rows:
-                print output
+                print util.sanitize_encoding(output)
             else:
-                pydoc.pager(output.encode(sys.stdout.encoding))
+                pydoc.pager(util.sanitize_encoding(output))
         else:
             print output
 
