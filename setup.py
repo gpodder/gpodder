@@ -62,12 +62,12 @@ def find_data_files(uis, scripts):
         # Skip translations if $LINGUAS is set
         share_locale = os.path.join('share', 'locale')
         if linguas is not None and dirpath.startswith(share_locale):
-            _, _, language, _ = dirpath.split('/', 3)
+            _, _, language, _ = dirpath.split(os.sep, 3)
             if language not in linguas:
                 info('Skipping translation:', language)
                 continue
 
-        # Skip share/icons if we don't have any UIs that requires them
+        # Skip desktop stuff if we don't have any UIs requiring it
         skip_folder = False
         uis_requiring_freedesktop = ('gtk', 'qml')
         freedesktop_folders = ('icons', 'dbus-1', 'applications')
@@ -92,7 +92,7 @@ def find_data_files(uis, scripts):
                 basename, _ = os.path.splitext(filename)
                 result = any(os.path.basename(s) == basename for s in scripts)
                 if not result:
-                    info('Skipping file without script:', filename)
+                    info('Skipping manpage without script:', filename)
                 return result
             filenames = filter(have_script, filenames)
 
@@ -106,7 +106,7 @@ def find_data_files(uis, scripts):
             # Skip .in files, but check if their target exist
             if filename.endswith('.in'):
                 filename = filename[:-3]
-                if not os.path.exists(filename) and installing:
+                if installing and not os.path.exists(filename):
                     raise MissingFile(filename)
                 return None
 
@@ -128,7 +128,7 @@ def find_packages(uis):
         dirparts.pop(0)
         package = '.'.join(dirparts)
 
-        # Find all parts of the package name ending in "ui"
+        # Extract all parts of the package name ending in "ui"
         ui_parts = filter(lambda p: p.endswith('ui'), dirparts)
         if uis is not None and ui_parts:
             # Strip the trailing "ui", e.g. "gtkui" -> "gtk"
@@ -147,7 +147,7 @@ def find_scripts(uis):
     # Functions for scripts to check if they should be installed
     file_checks = {
         'gpo': lambda uis: 'cli' in uis,
-        'gpodder': lambda uis: any(x in uis for x in ('qml', 'gtk')),
+        'gpodder': lambda uis: any(ui in uis for ui in ('qml', 'gtk')),
     }
 
     for dirpath, dirnames, filenames in os.walk('bin'):
@@ -161,12 +161,12 @@ def find_scripts(uis):
             yield os.path.join(dirpath, filename)
 
 
-# Recognized UIs: gtk, qml, web (default: install all UIs)
+# Recognized UIs: cli, gtk, qml, web (default: install all UIs)
 uis = os.environ.get('GPODDER_INSTALL_UIS', None)
 if uis is not None:
     uis = uis.split()
 
-    # The CLI depends on the Web UI to be available
+    # The CLI has a hard dependency on the Web UI
     if 'cli' in uis and 'web' not in uis:
         info('Adding Web UI as dependency of CLI')
         uis.append('web')
