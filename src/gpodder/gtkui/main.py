@@ -127,12 +127,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_shownotes_window = None
         self.new_episodes_window = None
 
-        try:
-            from gpodder.gtkui import ubuntu
-            self.ubuntu = ubuntu.LauncherEntry()
-        except Exception, e:
-            self.ubuntu = None
-
         # Mac OS X-specific UI tweaks: Native main menu integration
         # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
         if getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
@@ -1045,12 +1039,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_task_monitors.remove(monitor)
 
     def set_download_progress(self, progress):
-        if self.ubuntu is not None:
-            self.ubuntu.set_progress(progress)
-
-    def set_new_episodes_count(self, count):
-        if self.ubuntu is not None:
-            self.ubuntu.set_count(count)
+        gpodder.user_extensions.on_download_progress(progress)
 
     def update_downloads_list(self, can_call_cleanup=True):
         try:
@@ -1979,9 +1968,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         reloaded; i.e. something has been added or removed
         since the last update of the podcast list).
         """
-        _, _, new, _, _ = self.db.get_podcast_statistics()
-        self.set_new_episodes_count(new)
-
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 

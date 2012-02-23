@@ -150,7 +150,16 @@ class ExtensionContainer(object):
             return {}
 
         extension_py = open(filename).read()
-        return dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
+        metadata = dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
+
+        # Support for using gpodder.gettext() as _ to localize text
+        localized_metadata = dict(re.findall("__([a-z_]+)__ = _\('([^']+)'\)",
+            extension_py))
+
+        for key in localized_metadata:
+            metadata[key] = gpodder.gettext(localized_metadata[key])
+
+        return metadata
 
     def set_enabled(self, enabled):
         if enabled and not self.enabled:
@@ -378,6 +387,14 @@ class ExtensionManager(object):
 
         @param title: title of the notification
         @param message: message of the notification
+        """
+        pass
+
+    @call_extensions
+    def on_download_progress(self, progress):
+        """Called when the overall download progress changes
+
+        @param progress: The current progress value (0..1)
         """
         pass
 

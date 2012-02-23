@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
-#
-# gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
-#
-# gPodder is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# gPodder is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
 # Ubuntu Unity Launcher Integration
 # Thomas Perl <thp@gpodder.org>; 2012-02-06
+
+import gpodder
+
+_ = gpodder.gettext
+
+__title__ = _('Ubuntu Unity Integration')
+__description__ = _('Show download progress in the Unity Launcher icon.')
+__only_for__ = 'gtk'
 
 # FIXME: Due to the fact that we do not yet use the GI-style bindings, we will
 # have to run this module in its own interpreter and send commands to it using
@@ -32,28 +23,31 @@ import logging
 if __name__ != '__main__':
     logger = logging.getLogger(__name__)
 
-    class LauncherEntry:
+    class gPodderExtension:
         FILENAME = 'gpodder.desktop'
 
-        def __init__(self):
+        def __init__(self, container):
+            self.container = container
+            self.process = None
+
+        def on_load(self):
+            logger.info('Starting Ubuntu Unity Integration.')
             self.process = subprocess.Popen(['python', __file__],
                     stdin=subprocess.PIPE)
 
-        def set_count(self, count):
-            try:
-                self.process.stdin.write('count %d\n' % count)
-                self.process.stdin.flush()
-            except Exception, e:
-                logger.debug('Ubuntu count update failed.', exc_info=True)
+        def on_unload(self):
+            logger.info('Killing process...')
+            self.process.terminate()
+            self.process.wait()
+            logger.info('Process killed.')
 
-        def set_progress(self, progress):
+        def on_download_progress(self, progress):
             try:
                 self.process.stdin.write('progress %f\n' % progress)
                 self.process.stdin.flush()
             except Exception, e:
                 logger.debug('Ubuntu progress update failed.', exc_info=True)
-
-if __name__ == '__main__':
+else:
     from gi.repository import Unity, GObject
     import threading
     import sys
@@ -68,12 +62,12 @@ if __name__ == '__main__':
                 line = self.fileobj.readline()
                 if not line:
                     break
+
                 try:
                     command, value = line.strip().split()
-                    if command == 'count':
-                        GObject.idle_add(launcher_entry.set_count, int(value))
-                    elif command == 'progress':
-                        GObject.idle_add(launcher_entry.set_progress, float(value))
+                    if command == 'progress':
+                        GObject.idle_add(launcher_entry.set_progress,
+                                float(value))
                 except:
                     pass
 

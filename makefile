@@ -33,7 +33,8 @@ TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 			       src/gpodder/gtkui/desktop/*.py \
 			       src/gpodder/qmlui/*.py \
 			       src/gpodder/webui/*.py \
-			       src/gpodder/plugins/*.py)
+			       src/gpodder/plugins/*.py \
+			       share/gpodder/extensions/*.py)
 
 GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
