@@ -107,6 +107,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None)
     
     def new(self):
+        gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
 
         self.bluetooth_available = util.bluetooth_available()

@@ -398,3 +398,15 @@ class ExtensionManager(object):
         """
         pass
 
+    @call_extensions
+    def on_ui_object_available(self, name, ui_object):
+        """Called when an UI-specific object becomes available
+
+        XXX: Experimental. This hook might go away without notice (and be
+        replaced with something better). Only use for in-tree extensions.
+
+        @param name: The name/ID of the object
+        @param ui_object: The object itself
+        """
+        pass
+
