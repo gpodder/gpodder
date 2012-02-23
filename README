@@ -117,8 +117,10 @@
         export GPODDER_INSTALL_UIS="cli gtk"
         make install
 
-    The "make install" target also support DESTDIR and PREFIX for installing
-    into an alternative root (default /) and prefix (default /usr).
+    The "make install" target also supports DESTDIR and PREFIX for installing
+    into an alternative root (default /) and prefix (default /usr):
+
+        make install DESTDIR=tmp/ PREFIX=/usr/local/
 
 
  [ PYTHON 3 SUPPORT ]
