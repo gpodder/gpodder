@@ -1,0 +1,34 @@
+
+   gPodder' makefile commands
+   ----------------------- ---- --- -- -  -
+
+   For developers
+
+     make unittest           Run doctests and unittests
+     make manpage            Update generated manual pages from source
+     make messages           Update translation files in po/ from source
+     make headlink           Print commit URL for the current Git head
+
+     make clean              Remove generated and compiled files
+     make distclean          "make clean" + remove dist/
+
+   For maintainers
+
+     make releasetest        Run some basic release sanity checks
+     make release            Create the source tarball in dist/
+
+   For users/packagers
+
+     make install            Install gPodder into $DESTDIR/$PREFIX
+
+   ----------------------- ---- --- -- -  -
+
+   make install supports the following environment variables:
+
+     PREFIX                  The installation prefix (default: /usr)
+     DESTDIR                 The installation destination (default: /)
+     GPODDER_INSTALL_UIS     A space-separated list of UIs to install
+     LINGUAS                 A space-separated list of translations
+
+   See the README file for more information on how to install gPodder.
+

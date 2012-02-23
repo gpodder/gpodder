@@ -10,7 +10,7 @@
 #
 
 MERGE_DIR=_tmp_merge_dir
-MESSAGES_POT=../messages.pot
+MESSAGES_POT=messages.pot
 
 if [ "`which tx`" == "" ]; then
     echo "The Transifex client 'tx' was not found."
@@ -25,8 +25,8 @@ fi
 
 cd `dirname $0`
 
-if git status --porcelain | grep -q '^ M data/po'; then
-    echo "Uncommitted changes in data/po/ - cannot continue."
+if git status --porcelain | grep -q '^ M po'; then
+    echo "Uncommitted changes in po/ - cannot continue."
     echo "Please revert or commit current changes before continuing."
     exit 1
 fi
@@ -41,7 +41,7 @@ echo "Downloading UPDATED translations from Transifex..."
 tx pull --force
 
 FILES=`git status --porcelain |
-       grep '^ M data/po/.*.po$' |
+       grep '^ M po/.*.po$' |
        awk '{ print $2 }' |
        cut -d/ -f3`
 

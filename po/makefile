@@ -17,17 +17,19 @@
 #
 #
 
-PO_FILES=$(wildcard *.po)
-POT_FILE=../messages.pot
+PO_FILES = $(wildcard *.po)
+POT_FILE = messages.pot
+
+LOCALE_DIR = ../share/locale/
 
 # Check for $LINGUAS presence.
 ifeq ($(origin LINGUAS), undefined)
-	PO_INSTALL=$(PO_FILES)
+	PO_INSTALL = $(PO_FILES)
 else
-	PO_INSTALL=$(addsuffix .po,$(filter $(subst .po,,$(PO_FILES)),$(LINGUAS)))
+	PO_INSTALL = $(addsuffix .po,$(filter $(subst .po,,$(PO_FILES)),$(LINGUAS)))
 endif
 
-MO_FILES=$(addsuffix /LC_MESSAGES/gpodder.mo,$(addprefix ../locale/,$(subst .po,,$(PO_INSTALL))))
+MO_FILES = $(addsuffix /LC_MESSAGES/gpodder.mo,$(addprefix $(LOCALE_DIR),$(subst .po,,$(PO_INSTALL))))
 
 all: $(PO_INSTALL) $(MO_FILES)
 
@@ -36,18 +38,12 @@ all: $(PO_INSTALL) $(MO_FILES)
 	@msgmerge --silent $@ $< --output-file=$@
 
 %.mo: $(PO_INSTALL)
-	@echo "Compiling $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -> $(notdir $@)"
+	@echo "Compiling $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst $(LOCALE_DIR),,$@)) -> $(notdir $@)"
 	@mkdir -p $(@D)
-	@msgfmt $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst ../locale/,,$@)) -o $@
+	@msgfmt $(subst /LC_MESSAGES/gpodder.mo,.po,$(subst $(LOCALE_DIR),,$@)) -o $@
 
 clean:
-	rm -rf ../locale *~ *.mo
+	rm -rf $(LOCALE_DIR) *.mo
 
-statistics:
-	@(for file in *.po; do echo -n "$$file (`cat $$file | grep Revision-Date | cut -d' ' -f2`): "; msgfmt --statistics $$file 2>&1; done) | sort -t: -k2 -rn; done
-
-validate:
-	./validate.sh
-
-.PHONY: all clean statistics validate
+.PHONY: all clean
 

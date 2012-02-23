@@ -6,7 +6,7 @@ cat <<EOF
 
 EOF
 
-for translation in *.po; do
+for translation in `dirname $0`/*.po; do
     echo "     Checking: $translation"
     msgfmt --check "$translation" || exit 1
 done

@@ -109,17 +109,16 @@ gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
 prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 
 src_dir = os.path.join(prefix, 'src')
-data_dir = os.path.join(prefix, 'data')
 
-if (os.path.exists(src_dir) and os.path.exists(data_dir) and
-        not os.path.exists(os.path.join(prefix, 'share'))):
+if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
-
 
 import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
+
+gpodder.prefix = prefix
 
 # This is the command-line UI variant
 gpodder.ui.cli = True

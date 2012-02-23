@@ -19,13 +19,14 @@
 
 ##########################################################################
 
-BINFILE=bin/gpodder
-MESSAGESPOT=data/messages.pot
+BINFILE = bin/gpodder
+MESSAGESPOT = po/messages.pot
+POFILES = $(wildcard po/*.po)
+MANPAGE = share/man/man1/gpodder.1
 
-UIFILES=$(wildcard data/ui/*.ui \
-	           data/ui/desktop/*.ui)
+UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
-QMLFILES=$(wildcard data/ui/qml/*.qml)
+QMLFILES=$(wildcard share/gpodder/ui/qml/*.qml)
 TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 		               src/gpodder/gtkui/*.py \
 		               src/gpodder/gtkui/interface/*.py \
@@ -34,48 +35,25 @@ TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
 			       src/gpodder/webui/*.py \
 			       src/gpodder/plugins/*.py)
 
-HELP2MAN=help2man
-MANPAGE=data/man/gpodder.1
-
-GPODDER_SERVICE_FILE=data/org.gpodder.service
+GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 
-GPODDER_DESKTOP_FILE=data/gpodder.desktop
+GPODDER_DESKTOP_FILE=share/applications/gpodder.desktop
 GPODDER_DESKTOP_FILE_IN=$(addsuffix .in,$(GPODDER_DESKTOP_FILE))
-DESKTOPFILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
+GPODDER_DESKTOP_FILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
 
 DESTDIR ?= /
 PREFIX ?= /usr
 
 PYTHON ?= python
+HELP2MAN ?= help2man
 
 ##########################################################################
-
-all: help
 
 help:
-	@echo 'make test            run gpodder in local directory'
-	@echo 'make qmltest         run gpodder (qml ui) in local directory'
-	@echo 'make unittest        run doctests + unittests'
-	@echo 'make release         create source tarball in "dist/"'
-	@echo 'make releasetest     run some tests before the release'
-	@echo 'make install         install gpodder into "$(PREFIX)"'
-	@echo 'make manpage         update manpage (on release)'
-	@echo 'make messages        update messages.pot + .po files + .mo files'
-	@echo 'make clean           remove generated+temp+*.py{c,o} files'
-	@echo 'make distclean       do a "make clean" + remove "dist/"'
-	@echo 'make headlink        print URL for the current Git head'
+	@cat tools/make-help.txt
 
 ##########################################################################
-
-test:
-	@# set xterm title to know what this window does ;)
-	@echo -ne '\033]0;gPodder console (make test)\007'
-	$(BINFILE) --verbose
-
-qmltest:
-	@echo -ne '\033]0;gPodder/QML console\007'
-	$(BINFILE) --qml --verbose
 
 unittest:
 	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
@@ -88,13 +66,13 @@ release: distclean
 
 releasetest: unittest $(GPODDER_DESKTOP_FILE)
 	desktop-file-validate $(GPODDER_DESKTOP_FILE)
-	$(MAKE) -C data/po validate
+	sh po/validate.sh
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
 
-$(GPODDER_DESKTOP_FILE): $(GPODDER_DESKTOP_FILE_IN) data/po/*.po
-	intltool-merge -d -u data/po $< $@
+$(GPODDER_DESKTOP_FILE): $(GPODDER_DESKTOP_FILE_IN) $(POFILES)
+	intltool-merge -d -u po $< $@
 
 $(GPODDER_DESKTOP_FILE_IN).h: $(GPODDER_DESKTOP_FILE_IN)
 	intltool-extract --quiet --type=gettext/ini $<
@@ -107,17 +85,17 @@ install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 manpage: $(MANPAGE)
 
 $(MANPAGE): src/gpodder/__init__.py $(BINFILE)
-	$(HELP2MAN) --name="A Media aggregator and Podcast catcher" -N $(BINFILE) >$(MANPAGE)
+	$(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$(MANPAGE)
 
 ##########################################################################
 
 messages: $(MESSAGESPOT)
-	$(MAKE) -C data/po
+	$(MAKE) -C po
 
-data/ui/%.ui.h: $(UIFILES)
+%.ui.h: $(UIFILES)
 	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
 
-$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(QMLFILES) $(BINFILE) $(DESKTOPFILE_H)
+$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(QMLFILES) $(BINFILE) $(GPODDER_DESKTOP_FILE_H)
 	xgettext -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGESPOT) $^
 
 ##########################################################################
@@ -134,25 +112,22 @@ headlink:
 
 clean:
 	$(PYTHON) setup.py clean
-	find src/ -name '*.pyc' -exec rm '{}' \;
-	find src/ -name '*.pyo' -exec rm '{}' \;
-	find src/ -type d -name '__pycache__' -exec rm -r '{}' \;
-	find data/ui/ -name '*.ui.h' -exec rm '{}' \;
-	rm -f MANIFEST PKG-INFO data/messages.pot~ $(DESKTOPFILE_H)
-	rm -f data/gpodder-??x??.png .coverage
-	rm -f $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
+	find src/ '(' -name '*.pyc' -o -name '*.pyo' ')' -exec rm '{}' +
+	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
+	find share/gpodder/ui/ -name '*.ui.h' -exec rm '{}' +
+	rm -f MANIFEST PKG-INFO .coverage messages.mo
+	rm -f $(GPODDER_SERVICE_FILE)
+	rm -f $(GPODDER_DESKTOP_FILE)
+	rm -f $(GPODDER_DESKTOP_FILE_H)
 	rm -rf build
-	$(MAKE) -C data/po clean
-
-debclean:
-	fakeroot debian/rules clean
+	$(MAKE) -C po clean
 
 distclean: clean
 	rm -rf dist
 
 ##########################################################################
 
-.PHONY: all test unittest release releasetest install manpage clean distclean messages help headlink
+.PHONY: help unittest release releasetest install manpage clean distclean messages headlink
 
 ##########################################################################
 

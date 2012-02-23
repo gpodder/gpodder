@@ -135,6 +135,7 @@ class JsonConfig(object):
         >>> print c.a.b
         11
         >>> c._restore(backup)
+        False
         >>> print c.a.b
         10
         """

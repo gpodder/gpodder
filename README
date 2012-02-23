@@ -96,9 +96,29 @@
 
  [ RUNNING AND INSTALLATION ]
 
-    To run gPodder from source, use "bin/gpodder".
+    To run gPodder from source, use..
 
-    To install gPodder system-wide, use "make install".
+        bin/gpodder              for the Gtk+ UI
+        bin/gpodder --qml        for the QML UI
+        bin/gpo                  for the command-line interface
+
+    To install gPodder system-wide, use "make install". By default, this
+    will install *all* UIs and all translations. The following environment
+    variables are processed by setup.py:
+
+        LINGUAS                  space-separated list of languages to install
+        GPODDER_INSTALL_UIS      space-separated list of UIs to install
+
+    See setup.py for a list of recognized UIs.
+
+    Example: Install the CLI and Gtk UI with German and Dutch translations:
+
+        export LINGUAS="de nl"
+        export GPODDER_INSTALL_UIS="cli gtk"
+        make install
+
+    The "make install" target also support DESTDIR and PREFIX for installing
+    into an alternative root (default /) and prefix (default /usr).
 
 
  [ PYTHON 3 SUPPORT ]
@@ -140,5 +160,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2012-01-10 by Thomas Perl <thp.io/about>
+             Last updated: 2012-02-23 by Thomas Perl <thp.io/about>
 

@@ -61,24 +61,15 @@ if __name__ == '__main__':
     prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 
     src_dir = os.path.join(prefix, 'src')
-    data_dir = os.path.join(prefix, 'data')
     locale_dir = os.path.join(prefix, 'share', 'locale')
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
     credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
-    images_folder = os.path.join(prefix, 'share', 'gpodder')
+    images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
-    if (os.path.exists(src_dir) and os.path.exists(data_dir) and
-            not os.path.exists(os.path.join(prefix, 'share'))):
+    if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
         # Run gPodder from local source folder (not installed)
-        print >>sys.stderr, 'Using modules from', src_dir
         sys.path.insert(0, src_dir)
-        print >>sys.stderr, 'Using resources from', data_dir
-        locale_dir = os.path.join(data_dir, 'locale')
-        ui_folder = os.path.join(data_dir, 'ui')
-        credits_file = os.path.join(data_dir, 'credits.txt')
-        images_folder = os.path.join(data_dir, 'images')
-        icon_file = os.path.join(data_dir, 'gpodder.svg')
 
     # on Mac OS X, read from the defaults database the locale of the user
     if platform.system() == 'Darwin' and 'LANG' not in os.environ:
@@ -94,6 +85,8 @@ if __name__ == '__main__':
     gettext.bindtextdomain('gpodder', locale_dir)
 
     import gpodder
+
+    gpodder.prefix = prefix
 
     # Platform detection (i.e. Maemo 5, etc..)
     gpodder.detect_platform()
@@ -135,7 +128,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args(sys.argv)
 
     if gpodder.ui.desktop:
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'desktop'))
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
 
     if options.verbose:
         FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'

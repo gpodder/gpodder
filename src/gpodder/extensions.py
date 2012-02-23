@@ -26,7 +26,7 @@ The extensions class defines several callbacks that will be called by gPodder
 at certain points. See the methods defined below for a list of callbacks and
 their parameters.
 
-For an example extension see examples/extensions.py
+For an example extension see share/gpodder/examples/extensions.py
 """
 
 import glob
@@ -234,8 +234,8 @@ class ExtensionManager(object):
     def _find_extensions(self):
         extensions = {}
 
-        root = os.path.abspath(gpodder.__path__[0]) # XXX: Works always?
-        builtins = os.path.join(root, 'builtins', '*.py')
+        builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
+                'extensions', '*.py')
         user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
 
         # Let user extensions override built-in extensions of the same name

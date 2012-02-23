@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# This metadata block gets parsed by setup.py - use single quotes only
+__tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
 __version__   = '3.0.4'
 __date__      = '2012-01-24'
@@ -146,11 +148,12 @@ user_extensions = None
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
 
-# Paths (gPodder's home folder, config, db and download folder)
+# Paths (gPodder's home folder, config, db, download and data prefix)
 home = None
 config_file = None
 database_file = None
 downloads = None
+prefix = None
 
 # Function to set a new gPodder home folder
 def set_home(new_home):
