@@ -17,10 +17,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Public developer API for gPodder
+"""
 
-This module provides a nicely documented API for developers to
-integrate podcast functionality into their applications.
+                XXX DO NOT USE IN NEW CODE XXX
+
+This "public API" was created at a time where the internal structure
+of gPodder was very much in flux. Now, the situation has changed, and
+this module should not be used anymore. It only exists, because the
+"gpo" command-line utility still makes use of it.
+
+In the not too distant future, this module will be removed and code
+that is still useful will be moved into other modules (e.g. model or
+core) or into the "gpo" command-line utility itself.
+
+                XXX DO NOT USE IN NEW CODE XXX
+
 """
 
 import gpodder
