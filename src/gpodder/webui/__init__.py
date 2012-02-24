@@ -116,7 +116,7 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.close()
 
 
-def main(only_localhost=True):
-    WebUI.core = core.Core(model_class=model.Model)
+def main(only_localhost=True, core=None):
+    WebUI.core = core
     return WebUI.run(only_localhost)
 

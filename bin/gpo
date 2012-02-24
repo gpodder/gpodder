@@ -505,9 +505,9 @@ class gPodderCli(object):
             # interfaces, which could lead to problems.
             # Only use this on a trusted, private network!
             self._warn(_('Listening on ALL network interfaces.'))
-            webui.main(only_localhost=False)
+            webui.main(only_localhost=False, core=self.client.core)
         else:
-            webui.main()
+            webui.main(core=self.client.core)
 
     def search(self, *terms):
         query = ' '.join(terms)
