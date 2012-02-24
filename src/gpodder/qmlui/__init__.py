@@ -666,7 +666,7 @@ class qtPodder(QObject):
         if gpodder.ui.fremantle:
             for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
                 engine.addImportPath(path)
-	elif gpodder.win32:
+        elif gpodder.win32:
             for path in (r'C:\QtSDK\Desktop\Qt\4.7.4\msvc2008\imports',):
                 engine.addImportPath(path)
 
