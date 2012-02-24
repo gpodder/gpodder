@@ -25,18 +25,44 @@ import gpodder
 
 from gpodder import core
 from gpodder import model
+from gpodder import util
+
 
 import BaseHTTPServer
+
+try:
+    # For Python < 2.6, we use the "simplejson" add-on module
+    import simplejson as json
+except ImportError:
+    # Python 2.6 already ships with a nice "json" module
+    import json
 
 import os
 import re
 import sys
 
+def to_json(o):
+    return dict((key, getattr(o, key)) for key in o.__slots__ + ('id',))
+
+def json_response(path_parts):
+    core = WebUI.core
+
+    if path_parts == ['podcasts.json']:
+        return map(to_json, core.model.get_podcasts())
+    elif (len(path_parts) == 3 and path_parts[0] == 'podcast' and
+            path_parts[2] == 'episodes.json'):
+        podcast_id = int(path_parts[1])
+        for podcast in core.model.get_podcasts():
+            if podcast.id == podcast_id:
+                return map(to_json, podcast.get_all_episodes())
+
+    return None
+
 class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
+    STATIC_PATH = os.path.join(gpodder.prefix, 'share', 'gpodder', 'ui', 'web')
     DEFAULT_PORT = 8086
 
     core = None
-    player = None
 
     @classmethod
     def run(cls, only_localhost=True, server_class=BaseHTTPServer.HTTPServer):
@@ -57,119 +83,40 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
             del httpd
 
     def do_GET(self):
-        self.send_response(200)
-        if re.match('/coverart/\d+', self.path):
-            self.send_header('Content-type', 'image/jpeg')
-        elif self.path == '/logo':
-            self.send_header('Content-type', 'image/png')
-        else:
-            self.send_header('Content-type', 'text/html; charset=utf-8')
+        if self.path == '/':
+            self.path = '/static/index.html'
+
+        path_parts = filter(None, self.path.split('/'))[1:]
+        if '..' not in path_parts:
+            if self.path.startswith('/static/'):
+                filename = os.path.join(self.STATIC_PATH, *path_parts)
+                _, extension = os.path.splitext(filename)
+                mimetype = util.mimetype_from_extension(extension)
+
+                self.send_response(200)
+                self.send_header('Content-type', mimetype)
+                self.end_headers()
+                self.wfile.write(open(filename).read())
+                self.wfile.close()
+                return
+            elif self.path.startswith('/json/'):
+                data = json_response(path_parts)
+                if data is not None:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps(data))
+                    self.wfile.close()
+                    return
+
+        self.send_response(400)
+        self.send_header('Content-type', 'text/html')
         self.end_headers()
-
-        if re.match('/coverart/\d+', self.path):
-            id = int(self.path[10:])
-            for podcast in self.core.model.get_podcasts():
-                if podcast.id == id:
-                    self.wfile.write(open(podcast.cover_file).read())
-                    break
-            return
-        elif self.path == '/logo':
-            fn = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'gpodder.png')
-            self.wfile.write(open(fn).read())
-            return
-
-        print >>self.wfile, """
-        <html><head><title>gPodder WebUI</title>
-        <style type="text/css">
-          body {
-              font-family: sans-serif;
-              background-image: url(/logo);
-              background-repeat: no-repeat;
-          }
-          h1 {
-              margin: 0px;
-              padding: 0px;
-              padding-bottom: 30px;
-              padding-left: 60px;
-              font-size: 12pt;
-          }
-          ul {
-              margin: 0px;
-              padding: 0px;
-              list-style: none;
-          }
-          li {
-              padding-top: 1px;
-          }
-          li a {
-              display: block;
-              padding: 7px;
-              background-color: #ccc;
-          }
-          a {
-              color: black;
-              text-decoration: none;
-          }
-          img {
-              border: 0px;
-              width: 30px;
-              height: 30px;
-              vertical-align: middle;
-          }
-        </style>
-        </head>
-        <body>
-        """
-        if self.path == '/podcast':
-            print >>self.wfile, '<h1>Podcasts</h1><ul>'
-            for podcast in self.core.model.get_podcasts():
-                print >>self.wfile, \
-                        '<li><a href="/podcast/%d"><img src="/coverart/%d"> %s</a></li>' % \
-                        (podcast.id, podcast.id, podcast.title + ' DLs:' + str(podcast.get_statistics()[3]))
-        elif re.match('/podcast/\d+$', self.path):
-            id = int(self.path[9:])
-            for podcast in self.core.model.get_podcasts():
-                if podcast.id != id:
-                    continue
-
-                print >>self.wfile, '<h1><a href="/podcast">back</a> | %s</h1><ul>' % \
-                        podcast.title
-
-                for episode in podcast.get_all_episodes():
-                    print >>self.wfile, '<li>'
-                    if episode.was_downloaded(and_exists=True):
-                        print >>self.wfile, '<strong>'
-                    print >>self.wfile, '<a href="/podcast/%d/%d">%s</a>' % \
-                            (podcast.id, episode.id, episode.title)
-                    if episode.was_downloaded(and_exists=True):
-                        print >>self.wfile, '</strong>'
-                    print >>self.wfile, '</li>'
-        elif re.match('/podcast/\d+/\d+', self.path):
-            podcast_id, id= [int(x) for x in self.path[9:].split('/')]
-
-            for podcast in self.core.model.get_podcasts():
-                if podcast.id != podcast_id:
-                    continue
-
-                for episode in podcast.get_all_episodes():
-                    if episode.id == id:
-                        print >>self.wfile, '<h1><a href="/podcast/%d">back</a> | %s</h1><ul>' % \
-                                (podcast.id, episode.title)
-                        print 'playing:', episode.local_filename(create=False)
-                        if self.player is not None:
-                            self.player.mediaPlay(episode.local_filename(create=False))
-                            print >>self.wfile, repr(self.player.mediaPlayInfo()).replace('<', '&lt;')
-                        print >>self.wfile, '<p>',episode.description,'</p>'
-        else:
-            self.wfile.write('<a href="/podcast">Podcasts</a>')
+        self.wfile.write('<p>Invalid request</p>')
+        self.wfile.close()
 
 
 def main(only_localhost=True):
     WebUI.core = core.Core(model_class=model.Model)
-    try:
-        import android
-        WebUI.player = android.Android()
-    except:
-        pass
     return WebUI.run(only_localhost)
 
