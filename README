@@ -125,21 +125,24 @@
 
  [ PYTHON 3 SUPPORT ]
 
-    The CLI version of gPodder (bin/gpo) is compatible with Python 3
-    after converting the codebase with the 2to3 utility:
+    The CLI version of gPodder (bin/gpo) and the QML UI are compatible with
+    Python 3 after converting the codebase with the 2to3 utility:
 
-      2to3 -w bin/* src/gpodder/
+      2to3 -w bin/* src share/gpodder/extensions
 
     You will also need a copy of "mygpoclient" converted using 2to3 and
     a copy of "feedparser" converted using 2to3 (see the feedparser README
     for details on how to get it set up on Python 3, including sgmllib).
 
     Please note that the Gtk UI is not compatible with Python 3 (it will
-    be once we migrate the codebase to Gtk3/GObject Introspection), and
-    the QML UI - while theoretically compatible - has not been tested
-    with Python 3 yet due to the Python 3 support status in PySide.
+    be once we migrate the codebase to Gtk3/GObject Introspection).
 
-    As of January 2012, Python 3 support is still experimental. Please
+    The QML UI has been tested with PySide (Git revision a90f3bc) and
+    Python 3.2.2 - you can use the PySide buildscripts to build PySide:
+
+        http://github.com/PySide/BuildScripts
+
+    As of February 2012, Python 3 support is still experimental. Please
     report any bugs that you find to the gPodder bug tracker (see below).
 
 
@@ -162,5 +165,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2012-02-23 by Thomas Perl <thp.io/about>
+             Last updated: 2012-02-24 by Thomas Perl <thp.io/about>
 

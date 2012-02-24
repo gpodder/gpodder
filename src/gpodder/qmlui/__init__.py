@@ -119,7 +119,7 @@ class Controller(QObject):
 
     @Slot(result=unicode)
     def getCopyright(self):
-        return gpodder.__copyright__.decode('utf-8', 'ignore')
+        return util.convert_bytes(gpodder.__copyright__)
 
     @Slot(result=str)
     def getLicense(self):

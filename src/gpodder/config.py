@@ -280,7 +280,7 @@ class Config(object):
         logger.info('Flushing settings to disk')
 
         try:
-            fp = open(filename+'.tmp', 'wb')
+            fp = open(filename+'.tmp', 'wt')
             fp.write(repr(self.__json_config))
             fp.close()
             util.atomic_rename(filename+'.tmp', filename)
@@ -297,7 +297,7 @@ class Config(object):
 
         if os.path.exists(self.__filename):
             try:
-                data = open(self.__filename, 'rb').read()
+                data = open(self.__filename, 'rt').read()
                 new_keys_added = self.__json_config._restore(data)
             except:
                 logger.warn('Cannot parse config file: %s',

@@ -1273,6 +1273,10 @@ def sanitize_encoding(filename):
     >>> sanitize_encoding(u'unicode')
     'unicode'
     """
+    # The encoding problem goes away in Python 3.. hopefully!
+    if sys.version_info >= (3, 0):
+        return filename
+
     global encoding
     if not isinstance(filename, unicode):
         filename = filename.decode(encoding, 'ignore')
