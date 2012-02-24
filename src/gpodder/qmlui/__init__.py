@@ -627,8 +627,11 @@ class qtPodder(QObject):
 
         # Enable OpenGL rendering without requiring QtOpenGL
         # On Harmattan we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.harmattan and not gpodder.win32:
-            args += ['-graphicssystem', 'opengl']
+        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
+            if gpodder.ui.fremantle:
+                args += ['-graphicssystem', 'opengl']
+            elif not gpodder.win32:
+                args += ['-graphicssystem', 'raster']
 
         self.app = QApplication(args)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -696,6 +699,12 @@ class qtPodder(QObject):
             self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
             self.view.showFullScreen()
         else:
+            # On the Desktop, scale to fit my small laptop screen..
+            FACTOR = .8
+            self.view.scale(FACTOR, FACTOR)
+            size = self.view.size()
+            size *= FACTOR
+            self.view.resize(size)
             self.view.show()
 
         self.do_start_progress.connect(self.on_start_progress)
