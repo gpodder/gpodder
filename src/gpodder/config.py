@@ -93,6 +93,11 @@ defaults = {
             'colors': True,
         },
 
+        # Settings for the QML UI (MeeGo Harmattan / N9)
+        'qml': {
+            'autorotate': True,
+        },
+
         # Settings for the Gtk UI
         'gtk': {
             'state': {

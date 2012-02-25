@@ -63,6 +63,29 @@ EPISODE_LIST_FILTERS = [
     (_('Videos'), 'video'),
 ]
 
+
+class ConfigProxy(QObject):
+    def __init__(self, config):
+        QObject.__init__(self)
+        self._config = config
+
+        config.add_observer(self._on_config_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml.autorotate':
+            self.autorotateChanged.emit()
+
+    def get_autorotate(self):
+        return self._config.ui.qml.autorotate
+
+    def set_autorotate(self, autorotate):
+        self._config.ui.qml.autorotate = autorotate
+
+    autorotateChanged = Signal()
+
+    autorotate = Property(bool, get_autorotate, set_autorotate,
+            notify=autorotateChanged)
+
 class Controller(QObject):
     def __init__(self, root):
         QObject.__init__(self)
@@ -645,6 +668,8 @@ class qtPodder(QObject):
         self.db = self.core.db
         self.model = self.core.model
 
+        self.config_proxy = ConfigProxy(self.config)
+
         # Initialize the gpodder.net client
         self.mygpo_client = my.MygPoClient(self.config)
 
@@ -682,6 +707,7 @@ class qtPodder(QObject):
 
         root_context = self.view.rootContext()
         root_context.setContextProperty('controller', self.controller)
+        root_context.setContextProperty('configProxy', self.config_proxy)
         root_context.setContextProperty('mediaButtonsHandler',
                 self.media_buttons_handler)
 

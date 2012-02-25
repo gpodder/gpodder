@@ -24,7 +24,13 @@ PageStackWindow {
 
     initialPage: Page {
         id: mainPage
-        //orientationLock: PageOrientation.LockPortrait
+        orientationLock: {
+            if (configProxy.autorotate) {
+                PageOrientation.Automatic
+            } else {
+                PageOrientation.LockPortrait
+            }
+        }
 
         tools: ToolBarLayout {
             ToolIcon {
