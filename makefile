@@ -20,21 +20,7 @@
 ##########################################################################
 
 BINFILE = bin/gpodder
-MESSAGESPOT = po/messages.pot
-POFILES = $(wildcard po/*.po)
 MANPAGE = share/man/man1/gpodder.1
-
-UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
-UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
-QMLFILES=$(wildcard share/gpodder/ui/qml/*.qml)
-TRANSLATABLE_SOURCE=$(wildcard src/gpodder/*.py \
-		               src/gpodder/gtkui/*.py \
-		               src/gpodder/gtkui/interface/*.py \
-			       src/gpodder/gtkui/desktop/*.py \
-			       src/gpodder/qmlui/*.py \
-			       src/gpodder/webui/*.py \
-			       src/gpodder/plugins/*.py \
-			       share/gpodder/extensions/*.py)
 
 GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
@@ -42,6 +28,28 @@ GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 GPODDER_DESKTOP_FILE=share/applications/gpodder.desktop
 GPODDER_DESKTOP_FILE_IN=$(addsuffix .in,$(GPODDER_DESKTOP_FILE))
 GPODDER_DESKTOP_FILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
+
+MESSAGES = po/messages.pot
+POFILES = $(wildcard po/*.po)
+LOCALEDIR = share/locale
+MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
+
+UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
+UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
+QMLFILES=$(wildcard share/gpodder/ui/qml/*.qml)
+GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
+		          src/gpodder/gtkui/*.py \
+		          src/gpodder/gtkui/interface/*.py \
+			  src/gpodder/gtkui/desktop/*.py \
+			  src/gpodder/qmlui/*.py \
+			  src/gpodder/webui/*.py \
+			  src/gpodder/plugins/*.py \
+			  share/gpodder/extensions/*.py)
+
+GETTEXT_SOURCE += $(UIFILES_H)
+GETTEXT_SOURCE += $(QMLFILES)
+GETTEXT_SOURCE += $(wildcard bin/*)
+GETTEXT_SOURCE += $(GPODDER_DESKTOP_FILE_H)
 
 DESTDIR ?= /
 PREFIX ?= /usr
@@ -90,14 +98,20 @@ $(MANPAGE): src/gpodder/__init__.py $(BINFILE)
 
 ##########################################################################
 
-messages: $(MESSAGESPOT)
-	$(MAKE) -C po
+messages: $(MOFILES)
 
-%.ui.h: $(UIFILES)
-	intltool-extract --quiet --type=gettext/glade $(subst .ui.h,.ui,$@)
+%.po: $(MESSAGES)
+	msgmerge --silent $@ $< --output-file=$@
 
-$(MESSAGESPOT): $(TRANSLATABLE_SOURCE) $(UIFILES_H) $(QMLFILES) $(BINFILE) $(GPODDER_DESKTOP_FILE_H)
-	xgettext -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGESPOT) $^
+$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
+	@mkdir -p $(@D)
+	msgfmt $< -o $@
+
+%.ui.h: %.ui
+	intltool-extract --quiet --type=gettext/glade $<
+
+$(MESSAGES): $(GETTEXT_SOURCE)
+	xgettext -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
 
 ##########################################################################
 
@@ -120,8 +134,7 @@ clean:
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE_H)
-	rm -rf build
-	$(MAKE) -C po clean
+	rm -rf build $(LOCALEDIR)
 
 distclean: clean
 	rm -rf dist

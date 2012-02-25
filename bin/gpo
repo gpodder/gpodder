@@ -317,7 +317,10 @@ class gPodderCli(object):
             old_title = podcast.title
             podcast.rename(title)
             self.client.commit()
-            self._info(_('Renamed %s to %s.') % (old_title, title))
+            self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
+                'old_title': old_title,
+                'new_title': new_title,
+            })
 
         return True
 
@@ -577,7 +580,11 @@ class gPodderCli(object):
                 self._error(_('Invalid URL: %s') % new_url)
             else:
                 new_url = result
-                self._error(_('Changed URL from %s to %s.') % (old_url, new_url))
+                self._error(_('Changed URL from %(old_url)s to %(new_url)s.') %
+                {
+                    'old_url': old_url,
+                    'new_url': new_url,
+                })
         return True
 
     def help(self):
