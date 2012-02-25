@@ -150,7 +150,10 @@ class Controller(QObject):
             self.update_subset_stats()
 
         url = episode.get_playback_url()
-        subprocess.Popen(['video-suite', url])
+        if gpodder.ui.harmattan:
+            subprocess.Popen(['video-suite', url])
+        else:
+            util.gui_open(url)
 
         self.root.mygpo_client.on_playback([episode])
         self.root.mygpo_client.flush()
