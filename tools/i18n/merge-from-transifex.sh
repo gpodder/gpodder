@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # merge-from-transifex.sh
 # Fix problems with the "tx" command line client by forcing a download of
@@ -9,21 +9,23 @@
 # Thomas Perl <thp.io/about>; 2012-01-21
 #
 
+set -e
+
 MERGE_DIR=_tmp_merge_dir
 MESSAGES_POT=messages.pot
 
-if [ "`which tx`" == "" ]; then
+if [ "`which tx`" = "" ]; then
     echo "The Transifex client 'tx' was not found."
     echo "If you are on Debian: apt-get install transifex-client"
     exit 1
 fi
 
-if [ "`which git`" == "" ]; then
+if [ "`which git`" = "" ]; then
     echo "Please install 'git'. We need it to revert changes by 'tx' ;)"
     exit 1
 fi
 
-cd `dirname $0`
+cd `dirname $0`/../../po/
 
 if git status --porcelain | grep -q '^ M po'; then
     echo "Uncommitted changes in po/ - cannot continue."
@@ -72,7 +74,7 @@ echo "Downloading NEW translations from Transifex..."
 tx pull --all --disable-overwrite
 
 echo "Running validation script to check for errors..."
-sh validate.sh
+sh `dirname $0`/validate.sh
 
 echo "All done. Please review changes and stage them for commmit."
 

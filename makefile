@@ -67,15 +67,12 @@ help:
 unittest:
 	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
-deb:
-	debuild
-
 release: distclean
 	$(PYTHON) setup.py sdist
 
-releasetest: unittest $(GPODDER_DESKTOP_FILE)
+releasetest: unittest $(GPODDER_DESKTOP_FILE) $(POFILES)
 	desktop-file-validate $(GPODDER_DESKTOP_FILE)
-	sh po/validate.sh
+	sh tools/i18n/validate.sh
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
@@ -130,7 +127,7 @@ clean:
 	find src/ '(' -name '*.pyc' -o -name '*.pyo' ')' -exec rm '{}' +
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
 	find share/gpodder/ui/ -name '*.ui.h' -exec rm '{}' +
-	rm -f MANIFEST PKG-INFO .coverage po/messages.mo
+	rm -f MANIFEST PKG-INFO .coverage messages.mo po/messages.mo
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE_H)
