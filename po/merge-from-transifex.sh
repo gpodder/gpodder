@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # merge-from-transifex.sh
 # Fix problems with the "tx" command line client by forcing a download of
@@ -47,9 +47,11 @@ FILES=`git status --porcelain |
 
 echo "`echo $FILES | wc -w` files changed by 'tx'."
 
-echo "Moving files to merge directory..."
-mkdir "$MERGE_DIR"
-mv -v $FILES "$MERGE_DIR"
+if [ "$FILES" != "" ]; then
+    echo "Moving files to merge directory..."
+    mkdir "$MERGE_DIR"
+    mv -v $FILES "$MERGE_DIR"
+fi
 
 echo "Restoring original .po files from Git..."
 git checkout .
