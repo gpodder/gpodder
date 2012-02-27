@@ -203,7 +203,7 @@ def string_to_config_value(new_value, old_value):
     elif config_type == bool:
         return (new_value.strip().lower() in ('1', 'true'))
     else:
-        return filed_type(new_value)
+        return config_type(new_value)
 
 
 class Config(object):
