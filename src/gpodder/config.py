@@ -123,6 +123,7 @@ defaults = {
             'toolbar': True,
             'html_shownotes': True,
             'new_episodes': 'show', # ignore, show, queue, download
+            'live_search_delay': 200,
 
             'podcast_list': {
                 'all_episodes': True,

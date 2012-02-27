@@ -86,9 +86,6 @@ from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import extensions
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    # Delay until live search is started after typing stop
-    LIVE_SEARCH_DELAY = 500
-
     # Width (in pixels) of episode list icon
     EPISODE_LIST_ICON_WIDTH = 40
 
@@ -587,8 +584,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self._podcast_list_search_timeout is not None:
                 gobject.source_remove(self._podcast_list_search_timeout)
-            self._podcast_list_search_timeout = gobject.timeout_add(\
-                    self.LIVE_SEARCH_DELAY, \
+            self._podcast_list_search_timeout = gobject.timeout_add(
+                    self.config.ui.gtk.live_search_delay,
                     set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_podcasts_key_press(self, editable, event):
@@ -707,8 +704,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self._episode_list_search_timeout is not None:
                 gobject.source_remove(self._episode_list_search_timeout)
-            self._episode_list_search_timeout = gobject.timeout_add(\
-                    self.LIVE_SEARCH_DELAY, \
+            self._episode_list_search_timeout = gobject.timeout_add(
+                    self.config.ui.gtk.live_search_delay,
                     set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_episodes_key_press(self, editable, event):
