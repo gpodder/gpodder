@@ -358,6 +358,8 @@ class Controller(QObject):
         elif action.action == 'episode-toggle-archive':
             action.target.toggle_archive()
             self.update_subset_stats()
+        elif action.action == 'episode-delete':
+            self.deleteEpisode(action.target)
         elif action.action == 'episode-enqueue':
             self.root.enqueue_episode(action.target)
         elif action.action == 'mark-as-read':
@@ -458,6 +460,7 @@ class Controller(QObject):
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
             self.root.on_episode_deleted(episode)
+            self.root.episode_model.sort()
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -482,6 +485,10 @@ class Controller(QObject):
 
         toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
         menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+
+        if episode.state != gpodder.STATE_DELETED:
+            menu.append(helper.Action(_('Delete'), 'episode-delete', episode))
+
         menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
 
         self.show_context_menu(menu)
