@@ -319,7 +319,7 @@ class gPodderCli(object):
             self.client.commit()
             self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
                 'old_title': util.sanitize_encoding(old_title),
-                'new_title': util.sanitize_encoding(new_title),
+                'new_title': util.sanitize_encoding(title),
             })
 
         return True
