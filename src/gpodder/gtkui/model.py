@@ -429,7 +429,7 @@ class PodcastChannelProxy(object):
         self.url = ''
         self.section = ''
         self.id = None
-        self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
+        self.cover_file = util.podcast_image_filename('podcast-all.png')
         self.pause_subscription = False
         self.auto_archive_episodes = False
 

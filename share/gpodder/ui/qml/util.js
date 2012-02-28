@@ -11,15 +11,13 @@ function formatDuration(duration) {
 }
 
 function formatCoverURL(podcast) {
-    var cover_file = podcast.qcoverfile
-    var cover_url = podcast.qcoverurl
-    var podcast_url = podcast.qurl
-
-    if (cover_url == '') {
-        return ''
-    }
+    var cover_file = podcast.qcoverfile;
+    var cover_url = podcast.qcoverurl;
+    var podcast_url = podcast.qurl;
+    var podcast_title = podcast.qtitle;
 
     return ('image://cover/' + escape(cover_file) + '|' +
-        escape(cover_url) + '|' + escape(podcast_url))
+        escape(cover_url) + '|' + escape(podcast_url) + '|' +
+        escape(podcast_title));
 }
 

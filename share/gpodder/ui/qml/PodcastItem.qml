@@ -71,7 +71,6 @@ SelectableItem {
     Image {
     	id: cover
 
-        visible: modelData.qcoverurl != ''
         source: Util.formatCoverURL(modelData)
         asynchronous: true
         width: podcastItem.height * .8

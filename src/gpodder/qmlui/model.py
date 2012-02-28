@@ -398,9 +398,12 @@ class EpisodeSubsetView(QObject):
     def _return_empty(self):
         return convert('')
 
+    def _return_cover(self):
+        return convert('gpodder:episode-subset-view')
+
     qupdating = Property(bool, _return_false, notify=changed)
     qurl = Property(unicode, _return_empty, notify=changed)
-    qcoverfile = Property(unicode, _return_empty, notify=changed)
+    qcoverfile = Property(unicode, _return_cover, notify=changed)
     qcoverurl = Property(unicode, _return_empty, notify=changed)
     qsection = Property(unicode, _return_empty, notify=changed)
 

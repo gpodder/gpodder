@@ -120,9 +120,7 @@ class CoverDownloader(ObservableService):
         self.request_cover(channel, None, True)
 
     def get_default_cover(self, channel):
-        # "randomly" choose a cover based on the podcast title
-        basename = 'podcast-%d.png' % (hash(channel.title)%5)
-        filename = os.path.join(gpodder.images_folder, basename)
+        filename = util.cover_fallback_filename(channel.title)
         return gtk.gdk.pixbuf_new_from_file(filename)
 
     def __get_cover(self, channel, url, async=False, avoid_downloading=False):

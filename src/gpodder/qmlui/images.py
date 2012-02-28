@@ -21,6 +21,8 @@ from PySide.QtCore import Qt
 from PySide.QtGui import QImage
 from PySide.QtDeclarative import QDeclarativeImageProvider
 
+import gpodder
+
 from gpodder import youtube
 from gpodder import util
 
@@ -42,17 +44,26 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         if key in self._cache:
             return self._cache[key]
 
-        filename, cover_url, url = (urllib.unquote(x) for x in id.split('|'))
+        filename, cover_url, url, title = (urllib.unquote(x) for x in id.split('|'))
 
-        if 'undefined' in (filename, cover_url, url):
-            return QImage()
+        if filename == 'gpodder:episode-subset-view':
+            filename = util.podcast_image_filename('podcast-all.png', big=True)
+
+        if '' in (filename, cover_url, url):
+            if filename == '' or not os.path.exists(filename):
+                filename = util.cover_fallback_filename(title, big=True)
 
         data = None
 
         if os.path.exists(filename):
             data = open(filename, 'rb').read()
+            if data == '':
+                util.delete_file(filename)
+                filename = util.cover_fallback_filename(title, big=True)
+                data = open(filename, 'rb').read()
 
-        if data is None or data == '':
+        write_to_disk = True
+        if data is None or data == '' and cover_url:
             try:
                 yt_url = youtube.get_real_cover(url)
                 if yt_url is not None:
@@ -60,10 +71,14 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
                 data = util.urlopen(cover_url).read()
             except Exception, e:
                 logger.error('Error downloading cover: %s', e, exc_info=True)
-                data = ''
-            fp = open(filename, 'wb')
-            fp.write(data)
-            fp.close()
+                filename = util.cover_fallback_filename(title, big=True)
+                data = open(filename, 'rb').read()
+                write_to_disk = False
+
+            if write_to_disk:
+                fp = open(filename, 'wb')
+                fp.write(data)
+                fp.close()
 
         image = QImage()
         image.loadFromData(data)
