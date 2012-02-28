@@ -16,7 +16,8 @@ var quickTransition = 50
 var slowTransition = 150
 var fadeTransition = 300
 
-var selectColor = '#a07f5785' /* gpodder purple */
+var selectColor = '#a07f5785' /* gpodder dark purple */
+var newColor = '#cf65de' /* gpodder purple */
 var downloadColor = '#a08ae234' /* download green */
 var playbackColor = '#a0729fcf' /* playback blue */
 

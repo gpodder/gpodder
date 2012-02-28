@@ -14,7 +14,7 @@ SelectableItem {
 
     Item {
         id: counterBox
-        width: Config.iconSize * 1.9
+        width: Config.iconSize * 1.3
 
         anchors {
             left: parent.left
@@ -22,9 +22,8 @@ SelectableItem {
             bottom: parent.bottom
         }
 
-        Column {
+        Label {
             id: counters
-            visible: !spinner.visible
 
             property int newEpisodes: modelData.qnew
             property int downloadedEpisodes: modelData.qdownloaded
@@ -32,28 +31,14 @@ SelectableItem {
             anchors {
                 verticalCenter: parent.verticalCenter
                 right: parent.right
-                rightMargin: 5
+                rightMargin: 3
             }
 
-            Label {
-                anchors.right: parent.right
+            visible: !spinner.visible && (downloadedEpisodes > 0)
+            text: counters.downloadedEpisodes
+            color: "white"
 
-                visible: counters.downloadedEpisodes > 0
-                text: counters.downloadedEpisodes
-                color: "white"
-
-                font.pixelSize: podcastItem.height * .4
-            }
-
-            Label {
-                anchors.right: parent.right
-
-                visible: counters.newEpisodes > 0
-                text: '+' + counters.newEpisodes
-                color: 'yellow'
-
-                font.pixelSize: podcastItem.height * .3
-            }
+            font.pixelSize: podcastItem.height * .4
         }
     }
 
@@ -89,7 +74,7 @@ SelectableItem {
         id: titleBox
 
         text: modelData.qtitle
-        color: "white"
+        color: (counters.newEpisodes > 0)?Config.newColor:"white"
 
         anchors {
             verticalCenter: parent.verticalCenter

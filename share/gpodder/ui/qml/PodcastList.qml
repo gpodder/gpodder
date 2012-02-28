@@ -44,8 +44,7 @@ Item {
                 text: section
                 color: "#aaa"
                 anchors {
-                    //bottomMargin: Config.smallSpacing
-                    leftMargin: Config.switcherWidth / 3
+                    leftMargin: Config.iconSize * 1.3 + Config.smallSpacing
                     bottom: parent.bottom
                     left: parent.left
                     right: parent.right
