@@ -369,6 +369,20 @@ class PodcastEpisode(PodcastModelObject):
                     len(self.title)-len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
+        regex_patterns = {
+            # "Podcast Name <number>: ..." -> "<number>: ..."
+            r'^%s (\d+: .*)' % re.escape(self.parent.title),
+
+            # "Episode <number>: ..." -> "<number>: ..."
+            r'Episode (\d+:.*)',
+        }
+
+        for pattern in regex_patterns:
+            if re.match(pattern, self.title):
+                title = re.sub(pattern, r'\1', self.title)
+                if len(title) > LEFTOVER_MIN:
+                    return title
+
         # "#001: Title" -> "001: Title"
         if (not self.parent._common_prefix and re.match('^#\d+: ',
             self.title) and len(self.title)-1 > LEFTOVER_MIN):
