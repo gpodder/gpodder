@@ -369,13 +369,13 @@ class PodcastEpisode(PodcastModelObject):
                     len(self.title)-len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
-        regex_patterns = {
+        regex_patterns = [
             # "Podcast Name <number>: ..." -> "<number>: ..."
             r'^%s (\d+: .*)' % re.escape(self.parent.title),
 
             # "Episode <number>: ..." -> "<number>: ..."
             r'Episode (\d+:.*)',
-        }
+        ]
 
         for pattern in regex_patterns:
             if re.match(pattern, self.title):
@@ -442,6 +442,10 @@ class PodcastEpisode(PodcastModelObject):
             self.state = state
         if is_played is not None:
             self.is_new = not is_played
+
+            # "Mark as new" must "undelete" the episode
+            if self.is_new and self.state == gpodder.STATE_DELETED:
+                self.state = gpodder.STATE_NORMAL
         if is_locked is not None:
             self.archive = is_locked
         self.save()
