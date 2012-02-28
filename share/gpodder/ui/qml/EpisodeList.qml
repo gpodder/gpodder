@@ -106,7 +106,6 @@ Item {
         }
 
         header: Item { height: titleBar.height }
-        footer: Item { height: Config.headerHeight }
     }
 
     ScrollDecorator {
