@@ -23,6 +23,10 @@ Item {
         listView.openedIndex = -1
     }
 
+    onModelChanged: {
+        filterDialog.resetSelection();
+    }
+
     Text {
         anchors.centerIn: parent
         color: 'white'
@@ -117,7 +121,7 @@ Item {
         titleText: _('Show episodes')
 
         function resetSelection() {
-            selectedIndex = 0;
+            selectedIndex = episodeList.model.getFilter();
             accepted();
         }
 
@@ -134,8 +138,6 @@ Item {
             for (var index in filters) {
                 model.append({name: filters[index]});
             }
-
-            resetSelection();
         }
     }
 }

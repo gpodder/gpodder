@@ -598,10 +598,18 @@ class gPodderPodcastListModel(gPodderListModel):
         self.reset()
 
 class gPodderEpisodeListModel(gPodderListModel):
-    def __init__(self):
+    def __init__(self, config):
         gPodderListModel.__init__(self)
-        self._filter = 0
+        self._filter = config.ui.qml.state.episode_list_filter
         self._filtered = []
+
+        self._config = config
+        config.add_observer(self._on_config_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml.state.episode_list_filter':
+            self._filter = new_value
+            self.sort()
 
     def sort(self):
         caption, eql = EPISODE_LIST_FILTERS[self._filter]
@@ -621,10 +629,13 @@ class gPodderEpisodeListModel(gPodderListModel):
     def get_object(self, index):
         return self._filtered[index.row()]
 
+    @Slot(result=int)
+    def getFilter(self):
+        return self._filter
+
     @Slot(int)
     def setFilter(self, filter_index):
-        self._filter = filter_index
-        self.sort()
+        self._config.ui.qml.state.episode_list_filter = filter_index
 
 
 def QML(filename):
@@ -684,7 +695,7 @@ class qtPodder(QObject):
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
-        self.episode_model = gPodderEpisodeListModel()
+        self.episode_model = gPodderEpisodeListModel(self.config)
         self.last_episode = None
 
         # A dictionary of episodes that are currently active
