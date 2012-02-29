@@ -7,9 +7,6 @@ Item {
     id: episodeActions
 
     property variant episode: undefined
-    //color: 'black'
-    //source: 'artwork/episode-background.png'
-    //fillMode: Image.TileHorizontally
 
     height: Config.listItemHeight
 

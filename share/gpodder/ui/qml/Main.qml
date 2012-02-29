@@ -24,20 +24,10 @@ Image {
     property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity && !myGpoSheetVisible
-    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity && !myGpoSheetVisible
-    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity && !myGpoSheetVisible
-    property bool myGpoSheetVisible: false
+    property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity
+    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
+    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
-
-    function openMyGpo() {
-        myGpoEnableSwitch.checked = controller.myGpoEnabled
-        myGpoUsernameField.text = controller.myGpoUsername
-        myGpoPasswordField.text = controller.myGpoPassword
-        myGpoDeviceCaptionField.text = controller.myGpoDeviceCaption
-        myGpoSheet.open()
-        myGpoSheetVisible = true
-    }
 
     function goBack() {
         if (nowPlayingThrobber.opened) {
@@ -71,7 +61,18 @@ Image {
 
     width: 800
     height: 480
-    source: 'artwork/background-harmattan.png'
+
+    property bool useEmptyBackground: !podcastList.hasItems
+
+    anchors.topMargin: useEmptyBackground?-35:0
+    fillMode: useEmptyBackground?Image.Tile:Image.Stretch
+    source: {
+        if (useEmptyBackground) {
+            '/usr/share/themes/blanco/meegotouch/images/backgrounds/meegotouch-empty-application-background-black-portrait.png'
+        } else {
+            'artwork/background-harmattan.png'
+        }
+    }
 
     state: 'podcasts'
 
@@ -172,6 +173,7 @@ Image {
     Item {
         id: listContainer
         anchors.fill: parent
+        anchors.topMargin: titleBar.height
 
         PodcastList {
             id: podcastList
@@ -375,7 +377,8 @@ Image {
 
     Item {
         id: titleBar
-        height: taskSwitcher.height*.8
+        visible: podcastList.hasItems
+        height: visible?taskSwitcher.height*.8:0
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -626,109 +629,6 @@ Image {
         BusyIndicator {
             anchors.horizontalCenter: parent.horizontalCenter
             running: parent.opacity > 0
-        }
-    }
-
-    Sheet {
-        id: myGpoSheet
-
-        acceptButtonText: _('Save')
-        rejectButtonText: _('Cancel')
-        visualParent: main
-
-        content: Item {
-            id: myGpoSheetContent
-            anchors.fill: parent
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: console.log('caught')
-            }
-
-            Flickable {
-                anchors.fill: parent
-                anchors.margins: Config.largeSpacing
-                contentWidth: myGpoSettingsColumn.width
-                contentHeight: myGpoSettingsColumn.height
-
-                Column {
-                    id: myGpoSettingsColumn
-                    width: myGpoSheetContent.width - Config.largeSpacing * 2
-                    spacing: Config.smallSpacing
-
-                    Item {
-                        width: parent.width
-                        height: myGpoEnableSwitch.height
-
-                        Label {
-                            id: enableText
-                            anchors.left: parent.left
-                            anchors.right: myGpoEnableSwitch.left
-                            elide: Text.ElideRight
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: _('Enable gpodder.net syncing')
-                        }
-                        Switch {
-                            id: myGpoEnableSwitch
-                            anchors.right: parent.right
-                        }
-                    }
-
-                    Item { height: Config.largeSpacing; width: 1 }
-
-                    Label { text: _('Username') }
-                    InputField { id: myGpoUsernameField; anchors.left: parent.left; anchors.right: parent.right }
-
-                    Item { height: 1; width: 1 }
-
-                    Label { text: _('Password') }
-                    InputField { id: myGpoPasswordField; anchors.left: parent.left; anchors.right: parent.right; echoMode: TextInput.Password }
-
-                    Item { height: 1; width: 1 }
-
-                    Label { text: _('Device name') }
-                    InputField { id: myGpoDeviceCaptionField; anchors.left: parent.left; anchors.right: parent.right }
-
-                    Item { height: Config.largeSpacing; width: 1 }
-
-                    Button {
-                        text: _('Replace list on server')
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        onClicked: {
-                            myGpoSheet.accept()
-                            controller.myGpoUploadList()
-                        }
-                    }
-
-                    /*Button {
-                        text: _('Download list from server')
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        onClicked: controller.myGpoDownloadList()
-                    }*/
-
-                    Item { height: Config.largeSpacing; width: 1 }
-
-                    Button {
-                        text: _('No account? Register here')
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        onClicked: Qt.openUrlExternally('http://gpodder.net/register/')
-                    }
-                }
-            }
-
-        }
-
-        onAccepted: {
-            controller.myGpoUsername = myGpoUsernameField.text
-            controller.myGpoPassword = myGpoPasswordField.text
-            controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
-            controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
-            controller.saveMyGpoSettings()
-            main.myGpoSheetVisible = false
-        }
-
-        onRejected: {
-            main.myGpoSheetVisible = false
         }
     }
 

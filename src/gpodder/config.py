@@ -99,7 +99,7 @@ defaults = {
                 'episode_list_filter': 0,
             },
 
-            'autorotate': True,
+            'autorotate': False,
         },
 
         # Settings for the Gtk UI

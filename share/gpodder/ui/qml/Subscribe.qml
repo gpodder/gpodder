@@ -273,7 +273,7 @@ Item {
                 source: 'artwork/directory-toplist.png'
 
                 SelectableItem {
-                    property string modelData: 'http://gpodder.net/toplist.xml'
+                    property string modelData: 'http://gpodder.org/directory/toplist.xml'
                     anchors.fill: parent
                     onSelected: {
                         searchResultsListModel.source = item
@@ -294,7 +294,7 @@ Item {
                 source: 'artwork/directory-examples.png'
 
                 SelectableItem {
-                    property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.net/gpodder-examples.xml')
+                    property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.org/directory/examples.xml')
                     anchors.fill: parent
                     onSelected: {
                         searchResultsListModel.source = item

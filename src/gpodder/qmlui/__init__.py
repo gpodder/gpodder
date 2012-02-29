@@ -140,6 +140,15 @@ class Controller(QObject):
     def getVersion(self):
         return gpodder.__version__
 
+    @Slot(result=str)
+    def getReleased(self):
+        return gpodder.__date__
+
+    @Slot(result=unicode)
+    def getCredits(self):
+        credits_file = os.path.join(gpodder.prefix, 'share', 'gpodder', 'credits.txt')
+        return util.convert_bytes(open(credits_file).read())
+
     @Slot(result=unicode)
     def getCopyright(self):
         return util.convert_bytes(gpodder.__copyright__)

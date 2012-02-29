@@ -18,15 +18,31 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        color: 'white'
-        font.pixelSize: 30
+        color: '#aaa'
+        font.pixelSize: 60
+        font.weight: Font.Light
         horizontalAlignment: Text.AlignHCenter
-        text: '<big>' + _('No podcasts') + '</big><br><small>' + _('Touch here to add a podcast') + '</small>'
+        text: _('No podcasts.') + '\n' + _('Add your first podcast now.')
         visible: !listView.visible
+        wrapMode: Text.WordWrap
+        width: parent.width * .8
 
         MouseArea {
             anchors.fill: parent
             onClicked: podcastList.subscribe()
+        }
+
+    }
+
+    Button {
+        visible: !listView.visible
+        text: _('Add a new podcast')
+        onClicked: podcastList.subscribe()
+        anchors {
+            left: podcastList.left
+            right: podcastList.right
+            bottom: podcastList.bottom
+            margins: 70
         }
     }
 
@@ -56,8 +72,6 @@ Item {
             onSelected: podcastList.podcastSelected(item)
             onContextMenu: podcastList.podcastContextMenu(item)
         }
-
-        header: Item { height: titleBar.height }
 
         cacheBuffer: height
     }

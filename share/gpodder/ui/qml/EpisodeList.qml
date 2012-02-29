@@ -54,8 +54,8 @@ Item {
             width: parent.width
             property bool opened: (index == listView.openedIndex)
 
-            Rectangle {
-                color: '#aa000000'
+            Image {
+                source: 'artwork/episode-background.png'
                 anchors {
                     fill: parent
                     topMargin: 3
@@ -108,8 +108,6 @@ Item {
                 Behavior on y { PropertyAnimation { } }
             }
         }
-
-        header: Item { height: titleBar.height }
     }
 
     ScrollDecorator {
