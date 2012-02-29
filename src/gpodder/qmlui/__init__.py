@@ -747,11 +747,13 @@ class qtPodder(QObject):
             self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..
-            FACTOR = .8
-            self.view.scale(FACTOR, FACTOR)
-            size = self.view.size()
-            size *= FACTOR
-            self.view.resize(size)
+            desktop = self.app.desktop()
+            if desktop.height() < 1000:
+                FACTOR = .8
+                self.view.scale(FACTOR, FACTOR)
+                size = self.view.size()
+                size *= FACTOR
+                self.view.resize(size)
             self.view.show()
 
         self.do_start_progress.connect(self.on_start_progress)
