@@ -65,7 +65,6 @@
 """
 
 import sys
-import codecs
 import collections
 import os
 import re
@@ -97,10 +96,6 @@ for verbose_flag in ('-v', '--verbose'):
         break
     else:
         logging.basicConfig()
-
-# Avoid UnicodeDecodeError when output is not a terminal (less, cron, etc..)
-if sys.stdout.encoding is None:
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -140,6 +135,33 @@ def incolor(color_id, s):
     if have_ansi and cli.config.ui.cli.colors:
         return '\033[9%dm%s\033[0m' % (color_id, s)
     return s
+
+def safe_print(*args, **kwargs):
+    def convert(arg):
+        return unicode(util.convert_bytes(arg))
+
+    ofile = kwargs.get('file', sys.stdout)
+    output = u' '.join(map(convert, args))
+    if ofile.encoding is None:
+        output = util.sanitize_encoding(output)
+
+    try:
+        ofile.write(output)
+    except Exception, e:
+        print """
+        *** ENCODING FAIL ***
+
+        Please report this to http://bugs.gpodder.org/:
+
+        args = %s
+        map(convert, args) = %s
+
+        Exception = %s
+        """ % (repr(args), repr(map(convert, args)), e)
+
+    if kwargs.get('newline', True):
+        ofile.write(os.linesep)
+    ofile.flush()
 
 # ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
 inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
@@ -221,16 +243,14 @@ class gPodderCli(object):
             line = line[:self.COLUMNS-7-3] + '...'
         else:
             line = line + (' '*(self.COLUMNS-7-len(line)))
-        self._current_action = util.sanitize_encoding(line)
-        sys.stdout.write(self._current_action)
-        sys.stdout.flush()
+        self._current_action = line
+        safe_print(self._current_action, newline=False)
 
     def _update_action(self, progress):
         if have_ansi:
             progress = '%3.0f%%' % (progress*100.,)
             result = '['+inblue(progress)+']'
-            sys.stdout.write('\r' + self._current_action + result)
-            sys.stdout.flush()
+            safe_print('\r' + self._current_action + result, newline=False)
 
     def _finish_action(self, success=True, skip=False):
         if skip:
@@ -241,9 +261,9 @@ class gPodderCli(object):
             result = '['+inred('FAIL')+']'
 
         if have_ansi:
-            print '\r' + self._current_action + result
+            safe_print('\r' + self._current_action + result)
         else:
-            print result
+            safe_print(result)
         self._current_action = ''
 
     def _atexit(self):
@@ -286,7 +306,7 @@ class gPodderCli(object):
         for key in self.config.all_keys():
             if search_for is None or search_for.lower() in key.lower():
                 value = config_value_to_string(self.config._lookup(key))
-                print key, '=', value
+                safe_print(key, '=', value)
 
     def set(self, key=None, value=None):
         if value is None:
@@ -318,8 +338,8 @@ class gPodderCli(object):
             podcast.rename(title)
             self.client.commit()
             self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
-                'old_title': util.sanitize_encoding(old_title),
-                'new_title': util.sanitize_encoding(title),
+                'old_title': util.convert_bytes(old_title),
+                'new_title': util.convert_bytes(title),
             })
 
         return True
@@ -391,13 +411,13 @@ class gPodderCli(object):
 
     def list(self):
         for podcast in self.client.get_podcasts():
-            title = util.sanitize_encoding(podcast.title)
             if podcast.update_enabled():
-                print '#', ingreen(title)
+                safe_print('#', ingreen(podcast.title))
             else:
-                print '#', inred(title), '-', _('Updates disabled')
+                safe_print('#', inred(podcast.title),
+                        '-', _('Updates disabled'))
 
-            print podcast.url
+            safe_print(podcast.url)
 
         return True
 
@@ -428,7 +448,7 @@ class gPodderCli(object):
                     'podcast': podcast.title})
                 self._finish_action(skip=True)
 
-        print inblue(self._pending_message(count))
+        safe_print(inblue(self._pending_message(count)))
         return True
 
     @FirstArgumentIsPodcastURL
@@ -440,12 +460,12 @@ class gPodderCli(object):
                 for episode in podcast.get_episodes():
                     if episode.is_new:
                         if not podcast_printed:
-                            print '#', ingreen(podcast.title)
+                            safe_print('#', ingreen(podcast.title))
                             podcast_printed = True
-                        print ' ', episode.title
+                        safe_print(' ', episode.title)
                         count += 1
 
-        print inblue(self._pending_message(count))
+        safe_print(inblue(self._pending_message(count)))
         return True
 
     def _download_episode(self, episode):
@@ -462,12 +482,12 @@ class gPodderCli(object):
                 for episode in podcast.get_episodes():
                     if episode.is_new:
                         if not podcast_printed:
-                            print inblue(podcast.title)
+                            safe_print(inblue(podcast.title))
                             podcast_printed = True
                         self._download_episode(episode)
                         count += 1
 
-        print count, 'episodes downloaded.'
+        safe_print(count, 'episodes downloaded.')
         return True
 
     @FirstArgumentIsPodcastURL
@@ -498,7 +518,7 @@ class gPodderCli(object):
 
     def youtube(self, url):
         yurl = self.client.youtube_url_resolver(url)
-        print yurl
+        safe_print(yurl)
         return True
 
     def webui(self, public=None):
@@ -532,7 +552,7 @@ class gPodderCli(object):
             return
 
         if not interactive_console or is_single_command:
-            print '\n'.join(url for title, url in results)
+            safe_print('\n'.join(url for title, url in results))
             return
 
         def show_list():
@@ -588,7 +608,7 @@ class gPodderCli(object):
         return True
 
     def help(self):
-        sys.stderr.write(stylize(__doc__))
+        safe_print(stylize(__doc__), file=sys.stderr, newline=False)
         return True
 
     # -------------------------------------------------------------------
@@ -599,21 +619,21 @@ class gPodderCli(object):
             rows_needed = len(output.splitlines()) + 2
             rows, cols = get_terminal_size()
             if rows_needed < rows:
-                print util.sanitize_encoding(output)
+                safe_print(output)
             else:
                 pydoc.pager(util.sanitize_encoding(output))
         else:
-            print output
+            safe_print(output)
 
     def _shell(self):
-        print '\n'.join(x.strip() for x in ("""
+        safe_print(os.linesep.join(x.strip() for x in ("""
         gPodder %(__version__)s "%(__relname__)s" (%(__date__)s) - %(__url__)s
         %(__copyright__)s
         License: %(__license__)s
 
         Entering interactive shell. Type 'help' for help.
         Press Ctrl+D (EOF) or type 'quit' to quit.
-        """ % gpodder.__dict__).splitlines())
+        """ % gpodder.__dict__).splitlines()))
 
         if readline is not None:
             readline.parse_and_bind('tab: complete')
@@ -624,10 +644,10 @@ class gPodderCli(object):
             try:
                 line = raw_input('gpo> ')
             except EOFError:
-                print ''
+                safe_print('')
                 break
             except KeyboardInterrupt:
-                print ''
+                safe_print('')
                 continue
 
             if self._prefixes.get(line, line) in self.EXIT_COMMANDS:
@@ -650,13 +670,13 @@ class gPodderCli(object):
         self._atexit()
 
     def _error(self, *args):
-        print >>sys.stderr, inred(' '.join(args))
+        safe_print(inred(' '.join(args)), file=sys.stderr)
 
     # Warnings look like error messages for now
     _warn = _error
 
     def _info(self, *args):
-        print >>sys.stdout, ' '.join(args)
+        safe_print(*args)
 
     def _checkargs(self, func, command_line):
         args, varargs, keywords, defaults = inspect.getargspec(func)
@@ -730,9 +750,9 @@ class gPodderCli(object):
                 return self._checkargs(func, command_line)
 
         if command in self._expansions:
-            print _('Ambigous command. Did you mean..')
+            safe_print(_('Ambigous command. Did you mean..'))
             for cmd in self._expansions[command]:
-                print '   ', inblue(cmd)
+                safe_print('   ', inblue(cmd))
         else:
             self._error(_('The requested function is not available.'))
 
@@ -753,5 +773,5 @@ if __name__ == '__main__':
     elif interactive_console:
         cli._shell()
     else:
-        sys.stdout.write(__doc__)
+        safe_print(__doc__, newline=False)
 
