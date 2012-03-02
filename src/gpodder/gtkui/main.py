@@ -86,6 +86,18 @@ from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import extensions
 
+
+macapp = None
+if gpodder.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
+    try:
+        from gtk_osxapplication import *
+        macapp = OSXApplication()
+    except ImportError:
+        print >> sys.stderr, """
+        Warning: gtk-mac-integration not found, disabling native menus 
+        """
+
+
 class gPodder(BuilderWidget, dbus.service.Object):
     # Width (in pixels) of episode list icon
     EPISODE_LIST_ICON_WIDTH = 40
@@ -128,28 +140,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Mac OS X-specific UI tweaks: Native main menu integration
         # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
-        if getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
-            try:
-                import igemacintegration as igemi
+        if macapp is not None:
+            # Move the menu bar from the window to the Mac menu bar
+            self.mainMenu.hide()
+            macapp.set_menu_bar(self.mainMenu)
 
-                # Move the menu bar from the window to the Mac menu bar
-                self.mainMenu.hide()
-                igemi.ige_mac_menu_set_menu_bar(self.mainMenu)
+            # Reparent some items to the "Application" menu
+            item = self.uimanager1.get_widget('/mainMenu/menuHelp/itemAbout')
+            macapp.insert_app_menu_item(item, 0)
+            macapp.insert_app_menu_item(gtk.SeparatorMenuItem(), 1)
+            item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemPreferences')
+            macapp.insert_app_menu_item(item, 2)
 
-                # Reparent some items to the "Application" menu
-                for widget in ('/mainMenu/menuHelp/itemAbout',
-                               '/mainMenu/menuPodcasts/itemPreferences'):
-                    item = self.uimanager1.get_widget(widget)
-                    group = igemi.ige_mac_menu_add_app_menu_group()
-                    igemi.ige_mac_menu_add_app_menu_item(group, item, None)
-
-                quit_widget = '/mainMenu/menuPodcasts/itemQuit'
-                quit_item = self.uimanager1.get_widget(quit_widget)
-                igemi.ige_mac_menu_set_quit_menu_item(quit_item)
-            except ImportError:
-                print >>sys.stderr, """
-                Warning: ige-mac-integration not found - no native menus.
-                """
+            quit_item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemQuit')
+            quit_item.hide()
+        # end Mac OS X specific UI tweaks
 
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
@@ -2442,6 +2447,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
+    def quit_cb(self, macapp):
+        """Called when OSX wants to quit the app (Cmd-Q or gPodder > Quit)
+        """
+        # Event can't really be cancelled - don't even try
+        self.close_gpodder()
+        return False
+
     def close_gpodder(self):
         """ clean everything and exit properly
         """
@@ -2456,7 +2468,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core.shutdown()
 
         self.quit()
-        sys.exit(0)
+        if macapp is None:
+            sys.exit(0)
 
     def get_expired_episodes(self):
         # XXX: Move out of gtkui and into a generic module (gpodder.model)?
@@ -3394,10 +3407,16 @@ def main(options=None):
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
 
-    # Mac OS X: Handle "subscribe to podcast" events from Firefox
     if gpodder.osx:
         from gpodder.gtkui import macosx
+
+        # Handle "subscribe to podcast" events from firefox
         macosx.register_handlers(gp)
+
+        # Handle quit event
+        if macapp is not None:
+            macapp.connect('NSApplicationBlockTermination', gp.quit_cb)
+            macapp.ready()
 
     gp.run()
 
