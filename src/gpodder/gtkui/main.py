@@ -3356,14 +3356,10 @@ def main(options=None):
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
 
-    # mac OS X stuff :
-    # handle "subscribe to podcast" events from firefox
-    if platform.system() == 'Darwin':
+    # Mac OS X: Handle "subscribe to podcast" events from Firefox
+    if gpodder.osx:
         from gpodder.gtkui import macosx
         macosx.register_handlers(gp)
-    # end mac OS X stuff
 
     gp.run()
-
-
 

@@ -85,7 +85,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.fremantle:
+    elif gpodder.ui.fremantle or gpodder.ui.harmattan:
         encoding = 'utf-8'
     elif gpodder.win32:
         # To quote http://docs.python.org/howto/unicode.html:
@@ -1462,7 +1462,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.fremantle:
+    if gpodder.ui.fremantle or gpodder.ui.harmattan:
         return 'mobile'
     elif glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop

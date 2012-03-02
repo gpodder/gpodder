@@ -156,6 +156,14 @@
 
         export GPODDER_HOME=/media/usbdisk/gpodder-data/
 
+ [ LOGGING ]
+
+    By default, gPodder writes log files to $GPODDER_HOME/Logs/ and removes
+    them after a certain amount of times. To avoid this behavior, you can set
+    the environment variable GPODDER_WRITE_LOGS to "no", e.g:
+
+        export GPODDER_WRITE_LOGS=no
+
 
  [ MORE INFORMATION ]
 

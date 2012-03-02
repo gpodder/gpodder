@@ -63,7 +63,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         preferred_fmt_id = 18
 
     # For Maemo 5, we force fmt_id 5 for performance reasons
-    if gpodder.ui.fremantle and not gpodder.ui.harmattan:
+    if gpodder.ui.fremantle:
         preferred_fmt_id = 5
 
     vid = get_youtube_id(url)
@@ -100,7 +100,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        if gpodder.ui.fremantle:
+        if gpodder.ui.fremantle or gpodder.ui.harmattan:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
             if preferred_fmt_id == 5:

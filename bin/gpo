@@ -88,14 +88,12 @@ except ImportError:
     struct = None
 
 # A poor man's argparse/getopt - but it works for our use case :)
-for verbose_flag in ('-v', '--verbose'):
-    if verbose_flag in sys.argv:
-        FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
-        logging.basicConfig(format=FMT, level=logging.DEBUG)
-        sys.argv.remove(verbose_flag)
+verbose = False
+for flag in ('-v', '--verbose'):
+    if flag in sys.argv:
+        sys.argv.remove(flag)
+        verbose = True
         break
-    else:
-        logging.basicConfig()
 
 gpodder_script = sys.argv[0]
 if os.path.islink(gpodder_script):
@@ -125,11 +123,14 @@ from gpodder import api
 from gpodder import my
 from gpodder import opml
 from gpodder import util
+from gpodder import log
 from gpodder.config import config_value_to_string
 
 have_ansi = sys.stdout.isatty() and not gpodder.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
+
+log.setup(verbose)
 
 def incolor(color_id, s):
     if have_ansi and cli.config.ui.cli.colors:

@@ -76,7 +76,6 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 # Are we running in GUI, Maemo or console mode?
 class UI(object):
     def __init__(self):
-        self.desktop = False
         self.fremantle = False
         self.harmattan = False
         self.gtk = False
@@ -199,21 +198,14 @@ def detect_platform():
     global ui
 
     try:
-        ui.fremantle = ('Maemo 5' in open('/etc/issue').read())
-        if ui.fremantle:
-            print >>sys.stderr, 'Detected platform: Maemo 5 (Fremantle)'
+        etc_issue = open('/etc/issue').read()
     except Exception, e:
-        ui.fremantle = False
+        etc_issue = ''
 
-    try:
-        ui.harmattan = ('MeeGo 1.2 Harmattan' in open('/etc/issue').read())
-    except Exception, e:
-        ui.harmattan = False
+    ui.fremantle = ('Maemo 5' in etc_issue)
+    ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
 
-    ui.fremantle = ui.fremantle or ui.harmattan
-    ui.desktop = not ui.fremantle and not ui.harmattan
-
-    if ui.fremantle and 'GPODDER_HOME' not in os.environ:
+    if (ui.fremantle or ui.harmattan) and 'GPODDER_HOME' not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
         set_home(os.path.expanduser(new_home))
 
