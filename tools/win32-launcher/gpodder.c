@@ -61,14 +61,14 @@
     if(x == NULL) {BAILOUT("Cannot find function: " #x);}}
 
 
-const char *FindPythonDLL()
+const char *FindPythonDLL(HKEY rootKey)
 {
     static char InstallPath[MAX_PATH];
     DWORD InstallPathSize = MAX_PATH;
     HKEY RegKey;
     char *result = NULL;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+    if (RegOpenKeyEx(rootKey,
             "Software\\Python\\PythonCore\\2.7\\InstallPath",
             0, KEY_READ, &RegKey) != ERROR_SUCCESS) {
         return NULL;
@@ -150,7 +150,11 @@ int main(int argc, char** argv)
 
     if (python_dll == NULL) {
         /* Try to detect "just for me"-installed Python version (bug 1480) */
-        dll_path = FindPythonDLL();
+        dll_path = FindPythonDLL(HKEY_CURRENT_USER);
+        if (dll_path == NULL) {
+            /* Try to detect "for all users" Python (bug 1480, comment 9) */
+            dll_path = FindPythonDLL(HKEY_LOCAL_MACHINE);
+        }
         if (dll_path != NULL) {
             python_dll = LoadLibrary(dll_path);
         }
