@@ -214,9 +214,9 @@ class ExtensionContainer(object):
 class ExtensionManager(object):
     """Loads extensions and manages self-registering plugins"""
 
-    def __init__(self, core, filename=None):
+    def __init__(self, core, extension_list=[]):
         self.core = core
-        self.filename = filename
+        self.extension_list = extension_list
         self.containers = []
 
         core.config.add_observer(self._config_value_changed)
@@ -246,8 +246,8 @@ class ExtensionManager(object):
     def _find_extensions(self):
         extensions = {}
 
-        if self.filename:
-            files = glob.glob(self.filename)
+        if self.extension_list:
+            files = self.extension_list
         else:
             builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
                 'extensions', '*.py')
