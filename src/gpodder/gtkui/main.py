@@ -67,6 +67,7 @@ from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
 
 from gpodder.gtkui.draw import draw_text_box_centered, draw_cake_pixbuf
+from gpodder.gtkui.draw import EPISODE_LIST_ICON_SIZE
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
@@ -778,7 +779,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = gtk.CellRendererPixbuf()
-        iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
+        episode_list_icon_size = gtk.icon_size_register('episode-list',
+            EPISODE_LIST_ICON_SIZE, EPISODE_LIST_ICON_SIZE)
+        iconcell.set_property('stock-size', episode_list_icon_size)
         iconcell.set_fixed_size(self.EPISODE_LIST_ICON_WIDTH, -1)
 
         namecell = gtk.CellRendererText()

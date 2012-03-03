@@ -38,6 +38,7 @@ class TextExtents(object):
         tuple = ctx.text_extents(text)
         (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = tuple
 
+EPISODE_LIST_ICON_SIZE = 16
 
 RRECT_LEFT_SIDE = 1
 RRECT_RIGHT_SIDE = 2
@@ -116,10 +117,13 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
         rounded_rectangle(ctx, w_width/2-width/2, w_height/2+height, int(width*add_progress)+.5, bar_height)
         ctx.fill()
 
-def draw_cake(percentage, text=None, emblem=None, size=16):
+def draw_cake(percentage, text=None, emblem=None, size=None):
     # Download percentage bar icon - it turns out the cake is a lie (d'oh!)
     # ..but the inital idea was to have a cake-style indicator, but that
     # didn't work as well as the progress bar, but the name stuck..
+
+    if size is None:
+        size = EPISODE_LIST_ICON_SIZE
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = pangocairo.CairoContext(cairo.Context(surface))
