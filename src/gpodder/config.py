@@ -87,6 +87,13 @@ defaults = {
         'retries': 3, # number of retries when downloads time out
     },
 
+    # Software updates from gpodder.org (primary audience: Windows users)
+    'software_update': {
+        'check_on_startup': gpodder.win32, # check for updates on start
+        'last_check': 0, # unix timestamp of last update check
+        'interval': 5, # interval (in days) to check for updates
+    },
+
     'ui': {
         # Settings for the Command-Line Interface
         'cli': {

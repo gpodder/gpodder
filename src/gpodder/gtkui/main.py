@@ -307,6 +307,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
             self.on_itemUpdate_activate()
+        elif self.config.software_update.check_on_startup:
+            # Check for software updates from gpodder.org
+            diff = time.time() - self.config.software_update.last_check
+            if diff > (60*60*24)*self.config.software_update.interval:
+                self.config.software_update.last_check = int(time.time())
+                self.check_for_updates(silent=True)
 
     def episode_object_by_uri(self, uri):
         """Get an episode object given a local or remote URI
@@ -3022,6 +3028,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wiki_activate(self, widget, *args):
         util.open_website('http://gpodder.org/wiki/User_Manual')
+
+    def on_check_for_updates_activate(self, widget):
+        self.check_for_updates(silent=False)
+
+    def check_for_updates(self, silent):
+        """Check for updates and (optionally) show a message
+
+        If silent=False, a message will be shown even if no updates are
+        available (set silent=False when the check is manually triggered).
+        """
+        up_to_date, version, released, days = util.get_update_info()
+
+        if up_to_date and not silent:
+            title = _('No updates available')
+            message = _('You have the latest version of gPodder.')
+            self.show_message(message, title, important=True)
+
+        if not up_to_date:
+            title = _('New version available')
+            message = '\n'.join([
+                _('Installed version: %s') % gpodder.__version__,
+                _('Newest version: %s') % version,
+                _('Release date: %s') % released,
+                '',
+                _('Download the latest version from gpodder.org?'),
+            ])
+
+            if self.show_confirmation(message, title):
+                util.open_website('http://gpodder.org/downloads')
 
     def on_bug_tracker_activate(self, widget, *args):
         util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=%s' % gpodder.__version__)

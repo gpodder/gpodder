@@ -1584,3 +1584,31 @@ def podcast_image_filename(basename, big=False):
 def cover_fallback_filename(title, big=False):
     return podcast_image_filename('podcast-%d.png' % (hash(title)%5), big)
 
+
+def get_update_info(url='http://gpodder.org/downloads'):
+    """
+    Get up to date release information from gpodder.org.
+
+    Returns a tuple: (up_to_date, latest_version, release_date, days_since)
+
+    Example result (up to date version, 20 days after release):
+        (True, '3.0.4', '2012-01-24', 20)
+
+    Example result (outdated version, 10 days after release):
+        (False, '3.0.5', '2012-02-29', 10)
+    """
+    data = urlopen(url).read()
+    id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
+    info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
+
+    latest_version = info['latest-version']
+    release_date = info['release-date']
+
+    release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%d')
+    days_since_release = (datetime.datetime.today() - release_parsed).days
+
+    convert = lambda s: tuple(int(x) for x in s.split('.'))
+    up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
+
+    return up_to_date, latest_version, release_date, days_since_release
+
