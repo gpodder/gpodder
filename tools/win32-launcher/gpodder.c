@@ -31,12 +31,9 @@
 #include <shellapi.h>
 #include <string.h>
 
-#define PROGNAME "gPodder"
-
-#define BAILOUT(s) { \
-    MessageBox(NULL, s, "Error launching " PROGNAME, MB_OK); \
-    exit(1); \
-}
+#include "gpodder.h"
+#include "downloader.h"
+#include "folderselector.h"
 
 #if defined(GPODDER_GUI)
 # define MAIN_MODULE "bin\\gpodder"
@@ -90,7 +87,10 @@ int main(int argc, char** argv)
     char path_env[MAX_PATH];
     char current_dir[MAX_PATH];
     char *endmarker = NULL;
-    char *dll_path = NULL;
+    const char *dll_path = NULL;
+    const char *target_folder = NULL;
+    char tmp[MAX_PATH];
+    int force_select = 0;
     int i;
     void *MainPy;
     void *GtkModule;
@@ -112,22 +112,17 @@ int main(int argc, char** argv)
     SetConsoleTitle(PROGNAME);
 #endif
 
-    if (getenv("GPODDER_HOME") == NULL) {
-        /* Get path to the "My Documents" folder */
-        if (SHGetFolderPath(NULL,
-                    CSIDL_PERSONAL | CSIDL_FLAG_CREATE,
-                    NULL,
-                    0,
-                    gPodder_Home) != S_OK) {
-            BAILOUT("Cannot determine your home directory (SHGetFolderPath).");
+    for (i=1; i<argc; i++) {
+        if (strcmp(argv[i], "--select-folder") == 0) {
+            force_select = 1;
         }
+    }
 
-        strncat(gPodder_Home, "\\gPodder\\", MAX_PATH);
-        if (SetEnvironmentVariable("GPODDER_HOME", gPodder_Home) == 0) {
-            BAILOUT("SetEnvironmentVariable for GPODDER_HOME failed.");
-        }
-    } else {
-        strncpy(gPodder_Home, getenv("GPODDER_HOME"), MAX_PATH);
+    DetermineHomeFolder(force_select);
+
+    if (GetEnvironmentVariable("GPODDER_HOME",
+            gPodder_Home, sizeof(gPodder_Home)) == 0) {
+        BAILOUT("Cannot determine download folder (GPODDER_HOME). Exiting.");
     }
     CreateDirectory(gPodder_Home, NULL);
 

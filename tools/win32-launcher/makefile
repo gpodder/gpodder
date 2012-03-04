@@ -22,38 +22,30 @@
 # Thomas Perl <thp@gpodder.org>; 2009-04-29
 #
 
-CC=gcc
-LDFLAGS=-lkernel32 -lshell32 -lwininet
+CC ?= gcc
+LDFLAGS += -lkernel32 -lshell32 -lwininet -lole32
+MODULES := gpodder downloader folderselector
+TARGETS := gpodder gpo
 
-all: gpodder gpo
+all: $(TARGETS)
 
-gpodder: gpodder-res.o gpodder_gui.o downloader_gui.o
+gpodder: gpodder-res.o $(addsuffix _gui.o, $(MODULES))
 	$(CC) -o $@ -mwindows $^ $(LDFLAGS)
 
-gpo: gpo-res.o gpodder_cli.o downloader_cli.o
+gpo: gpo-res.o $(addsuffix _cli.o, $(MODULES))
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-gpodder_gui.o: gpodder.c
+%_gui.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
 
-gpodder_cli.o: gpodder.c
+%_cli.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
 
-downloader_gui.o: downloader.c
-	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
-
-downloader_cli.o: downloader.c
-	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
-
-gpodder-res.o: gpodder.res
-	windres $^ $@
-
-gpo-res.o: gpo.res
+%-res.o: %.res
 	windres $^ $@
 
 clean:
-	-rm -f *.o
-	-del *.o
+	rm -f *.o
 
 .PHONY: clean all
 .DEFAULT: all
