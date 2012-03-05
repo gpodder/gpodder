@@ -30,6 +30,7 @@ from gpodder import feedcore
 from gpodder import youtube
 from gpodder import vimeo
 from gpodder import schema
+from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
@@ -834,9 +835,13 @@ class PodcastChannel(PodcastModelObject):
         existing_files = set(filename for filename in \
                 glob.glob(os.path.join(self.save_dir, '*')) \
                 if not filename.endswith('.partial'))
-        external_files = existing_files.difference(list(known_files) + \
-                [os.path.join(self.save_dir, x) \
-                for x in ('folder.jpg', 'Unknown')])
+
+        ignore_files = ['folder'+ext for ext in
+                coverart.CoverDownloader.EXTENSIONS] + ['Unknown']
+
+        external_files = existing_files.difference(list(known_files) +
+                [os.path.join(self.save_dir, ignore_file)
+                 for ignore_file in ignore_files])
         if not external_files:
             return
 
@@ -1344,7 +1349,7 @@ class PodcastChannel(PodcastModelObject):
 
     @property
     def cover_file(self):
-        return os.path.join(self.save_dir, 'folder.jpg')
+        return os.path.join(self.save_dir, 'folder')
 
 
 class Model(object):

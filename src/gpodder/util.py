@@ -1575,16 +1575,6 @@ def rename_episode_file(self, episode, filename):
     episode.db.commit()
 
 
-def podcast_image_filename(basename, big=False):
-    if big:
-        return os.path.join(gpodder.images_folder, 'big', basename)
-
-    return os.path.join(gpodder.images_folder, basename)
-
-def cover_fallback_filename(title, big=False):
-    return podcast_image_filename('podcast-%d.png' % (hash(title)%5), big)
-
-
 def get_update_info(url='http://gpodder.org/downloads'):
     """
     Get up to date release information from gpodder.org.

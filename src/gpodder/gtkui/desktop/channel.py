@@ -29,6 +29,8 @@ from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderChannel(BuilderWidget):
+    MAX_SIZE = 120
+
     def new(self):
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
@@ -62,10 +64,31 @@ class gPodderChannel(BuilderWidget):
 
         #Add Drag and Drop Support
         flags = gtk.DEST_DEFAULT_ALL
-        targets = [ ('text/uri-list', 0, 2), ('text/plain', 0, 4) ]
+        targets = [('text/uri-list', 0, 2), ('text/plain', 0, 4)]
         actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
-        self.vboxCoverEditor.drag_dest_set( flags, targets, actions)
-        self.vboxCoverEditor.connect( 'drag_data_received', self.drag_data_received)
+        self.imgCover.drag_dest_set(flags, targets, actions)
+        self.imgCover.connect('drag_data_received', self.drag_data_received)
+        border = 6
+        self.imgCover.set_size_request(*((self.MAX_SIZE+border*2,)*2))
+        self.imgCoverEventBox.connect('button-press-event',
+                self.on_cover_popup_menu)
+
+    def on_cover_popup_menu(self, widget, event):
+        if event.button != 3:
+            return
+
+        menu = gtk.Menu()
+
+        item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
+        item.connect('activate', self.on_btnDownloadCover_clicked)
+        menu.append(item)
+
+        item = gtk.ImageMenuItem(gtk.STOCK_REFRESH)
+        item.connect('activate', self.on_btnClearCover_clicked)
+        menu.append(item)
+
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time, None)
 
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)
@@ -77,17 +100,21 @@ class gPodderChannel(BuilderWidget):
 
         if dlg.run() == gtk.RESPONSE_OK:
             url = dlg.get_uri()
-            self.cover_downloader.replace_cover(self.channel, url)
+            self.clear_cover_cache(self.channel.url)
+            self.cover_downloader.replace_cover(self.channel, custom_url=url)
 
         dlg.destroy()
 
     def on_btnClearCover_clicked(self, widget):
-        self.cover_downloader.replace_cover(self.channel)
+        self.clear_cover_cache(self.channel.url)
+        self.cover_downloader.replace_cover(self.channel, custom_url=False)
 
-    def cover_download_finished(self, channel_url, pixbuf):
-        if pixbuf is not None:
-            self.imgCover.set_from_pixbuf(pixbuf)
-        self.gPodderChannel.show()
+    def cover_download_finished(self, channel, pixbuf):
+        def set_cover(channel, pixbuf):
+            self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
+            self.gPodderChannel.show()
+
+        util.idle_add(set_cover, channel, pixbuf)
 
     def drag_data_received( self, widget, content, x, y, sel, ttype, time):
         files = sel.data.strip().split('\n')
@@ -98,7 +125,8 @@ class gPodderChannel(BuilderWidget):
         file = files[0]
 
         if file.startswith('file://') or file.startswith('http://'):
-            self.cover_downloader.replace_cover(self.channel, file)
+            self.clear_cover_cache(self.channel.url)
+            self.cover_downloader.replace_cover(self.channel, custom_url=file)
             return
 
         self.show_message( _('You can only drop local files and http:// URLs here.'), _('Drag and drop'))
@@ -106,11 +134,30 @@ class gPodderChannel(BuilderWidget):
     def on_gPodderChannel_destroy(self, widget, *args):
         self.cover_downloader.unregister('cover-available', self.cover_download_finished)
 
+    def scale_pixbuf(self, pixbuf):
+
+        # Resize if width is too large
+        if pixbuf.get_width() > self.MAX_SIZE:
+            f = float(self.MAX_SIZE)/pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+
+        # Resize if height is too large
+        if pixbuf.get_height() > self.MAX_SIZE:
+            f = float(self.MAX_SIZE)/pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+
+        return pixbuf
+
     def on_btnOK_clicked(self, widget, *args):
         self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
         self.channel.rename(self.entryTitle.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
+
+        self.clear_cover_cache(self.channel.url)
+        self.cover_downloader.request_cover(self.channel)
 
         new_section = self.combo_section.child.get_text().strip()
         if self.channel.section != new_section:
@@ -120,8 +167,6 @@ class gPodderChannel(BuilderWidget):
             section_changed = False
 
         self.channel.save()
-
-        self.cover_downloader.reload_cover_from_disk(self.channel)
 
         self.gPodderChannel.destroy()
 

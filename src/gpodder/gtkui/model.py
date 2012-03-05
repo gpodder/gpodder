@@ -30,6 +30,7 @@ _ = gpodder.gettext
 from gpodder import util
 from gpodder import model
 from gpodder import query
+from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
@@ -429,7 +430,10 @@ class PodcastChannelProxy(object):
         self.url = ''
         self.section = ''
         self.id = None
-        self.cover_file = util.podcast_image_filename('podcast-all.png')
+        self.cover_file = coverart.CoverDownloader.ALL_EPISODES_ID
+        self.cover_url = None
+        self.auth_username = None
+        self.auth_password = None
         self.pause_subscription = False
         self.auto_archive_episodes = False
 
@@ -779,6 +783,11 @@ class PodcastListModel(gtk.ListStore):
                 self.C_HAS_EPISODES, total > 0, \
                 self.C_DOWNLOADS, downloaded)
 
+    def clear_cover_cache(self, podcast_url):
+        if podcast_url in self._cover_cache:
+            logger.info('Clearing cover from cache: %s', podcast_url)
+            del self._cover_cache[podcast_url]
+
     def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
@@ -790,15 +799,4 @@ class PodcastListModel(gtk.ListStore):
             if row[self.C_URL] == channel.url:
                 row[self.C_COVER] = pixbuf
                 break
-
-    def delete_cover_by_url(self, url):
-        # Remove the cover from the model
-        for row in self:
-            if row[self.C_URL] == url:
-                row[self.C_COVER] = None
-                break
-
-        # Remove the cover from the cache
-        if url in self._cover_cache:
-            del self._cover_cache[url]
 

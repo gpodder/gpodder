@@ -23,8 +23,8 @@ from PySide.QtDeclarative import QDeclarativeImageProvider
 
 import gpodder
 
-from gpodder import youtube
 from gpodder import util
+from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
 
     def __init__(self):
         QDeclarativeImageProvider.__init__(self, self.IMAGE_TYPE)
+        self.downloader = coverart.CoverDownloader()
         self._cache = {}
 
     def requestImage(self, id, size, requestedSize):
@@ -44,49 +45,26 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         if key in self._cache:
             return self._cache[key]
 
-        filename, cover_url, url, title = (urllib.unquote(x) for x in id.split('|'))
+        cover_file, cover_url, podcast_url, podcast_title = (urllib.unquote(x)
+                for x in id.split('|'))
 
-        if filename == 'gpodder:episode-subset-view':
-            filename = util.podcast_image_filename('podcast-all.png', big=True)
+        def get_filename():
+            return self.downloader.get_cover(cover_file, cover_url,
+                    podcast_url, podcast_title, None, None, True)
 
-        if '' in (filename, cover_url, url):
-            if filename == '' or not os.path.exists(filename):
-                filename = util.cover_fallback_filename(title, big=True)
-
-        data = None
-
-        if os.path.exists(filename):
-            data = open(filename, 'rb').read()
-            if data == '':
-                util.delete_file(filename)
-                filename = util.cover_fallback_filename(title, big=True)
-                data = open(filename, 'rb').read()
-
-        write_to_disk = True
-        if data is None or data == '' and cover_url:
-            try:
-                yt_url = youtube.get_real_cover(url)
-                if yt_url is not None:
-                    cover_url = yt_url
-                data = util.urlopen(cover_url).read()
-            except Exception, e:
-                logger.error('Error downloading cover: %s', e, exc_info=True)
-                filename = util.cover_fallback_filename(title, big=True)
-                data = open(filename, 'rb').read()
-                write_to_disk = False
-
-            if write_to_disk:
-                fp = open(filename, 'wb')
-                fp.write(data)
-                fp.close()
+        filename = get_filename()
 
         image = QImage()
-        image.loadFromData(data)
-        if image.isNull():
-            return image
-        else:
-            self._cache[key] = image.scaled(requestedSize, \
-                    Qt.KeepAspectRatioByExpanding, \
+        if not image.load(filename):
+            if filename.startswith(cover_file):
+                logger.info('Deleting broken cover art: %s', filename)
+                util.delete_file(filename)
+                image.load(get_filename())
+
+        if not image.isNull():
+            self._cache[key] = image.scaled(requestedSize,
+                    Qt.KeepAspectRatioByExpanding,
                     Qt.SmoothTransformation)
-            return self._cache[key]
+
+        return self._cache[key]
 

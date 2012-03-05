@@ -183,7 +183,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.podcast_list_model = PodcastListModel(self.cover_downloader)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
-        self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         # Source IDs for timeouts for search-as-you-type
         self._podcast_list_search_timeout = None
@@ -1533,7 +1532,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append( gtk.SeparatorMenuItem())
 
-            item = gtk.ImageMenuItem(_('Podcast details'))
+            item = gtk.ImageMenuItem(_('Podcast settings'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemEditChannel_activate)
             menu.append(item)
@@ -1552,21 +1551,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             return True
 
-    def cover_file_removed(self, channel_url):
-        """
-        The Cover Downloader calls this when a previously-
-        available cover has been removed from the disk. We
-        have to update our model to reflect this change.
-        """
-        self.podcast_list_model.delete_cover_by_url(channel_url)
-    
     def cover_download_finished(self, channel, pixbuf):
         """
         The Cover Downloader calls this when it has finished
         downloading (or registering, if already downloaded)
         a new channel cover, which is ready for displaying.
         """
-        self.podcast_list_model.add_cover_by_channel(channel, pixbuf)
+        util.idle_add(self.podcast_list_model.add_cover_by_channel,
+                channel, pixbuf)
 
     def save_episodes_as_file(self, episodes):
         for episode in episodes:
@@ -2284,7 +2276,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
 
     def _update_cover(self, channel):
-        if channel is not None and not os.path.exists(channel.cover_file) and channel.image:
+        if channel is not None:
             self.cover_downloader.request_cover(channel)
 
     def show_update_feeds_buttons(self):
@@ -2877,11 +2869,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        gPodderChannel(self.main_window, \
-                channel=self.active_channel, \
-                update_podcast_list_model=self.update_podcast_list_model, \
-                cover_downloader=self.cover_downloader, \
-                sections=set(c.section for c in self.channels))
+        gPodderChannel(self.main_window,
+                channel=self.active_channel,
+                update_podcast_list_model=self.update_podcast_list_model,
+                cover_downloader=self.cover_downloader,
+                sections=set(c.section for c in self.channels),
+                clear_cover_cache=self.podcast_list_model.clear_cover_cache)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (
