@@ -52,10 +52,11 @@ def setup(verbose=True):
         logging_basename = time.strftime('%Y-%m-%d.log')
         logging_directory = os.path.join(gpodder.home, 'Logs')
         if not os.path.isdir(logging_directory):
-            logger.warn('Cannot create output directory: %s', logging_directory)
             try:
                 os.makedirs(logging_directory)
             except:
+                logger.warn('Cannot create output directory: %s',
+                        logging_directory)
                 return False
 
         # Keep logs around for 5 days
