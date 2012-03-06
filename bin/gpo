@@ -145,6 +145,8 @@ def safe_print(*args, **kwargs):
     output = u' '.join(map(convert, args))
     if ofile.encoding is None:
         output = util.sanitize_encoding(output)
+    else:
+        output = output.encode(ofile.encoding, 'replace')
 
     try:
         ofile.write(output)
