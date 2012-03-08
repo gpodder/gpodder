@@ -231,10 +231,10 @@ class EpisodeListModel(gtk.ListStore):
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
+            return '%s%s%s\n%s' % (a, cgi.escape(title), b,
                     _('from %s') % cgi.escape(episode.channel.title))
         elif include_description:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
+            return '%s%s%s\n%s' % (a, cgi.escape(title), b,
                     cgi.escape(episode.one_line_description()))
         else:
             return ''.join((a, cgi.escape(title), b))
