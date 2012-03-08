@@ -40,6 +40,8 @@ import gettext
 
 import subprocess
 
+logger = logging.getLogger(__name__)
+
 try:
     import dbus
     import dbus.glib

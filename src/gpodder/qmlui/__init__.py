@@ -30,8 +30,15 @@ import os
 import threading
 import signal
 import functools
-import gpodder
 import subprocess
+
+import dbus
+import dbus.service
+
+from dbus.mainloop.glib import DBusGMainLoop
+
+
+import gpodder
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
@@ -675,8 +682,12 @@ class DeclarativeView(QDeclarativeView):
         event.ignore()
 
 class qtPodder(QObject):
-    def __init__(self, args, gpodder_core):
+    def __init__(self, args, gpodder_core, dbus_bus_name):
         QObject.__init__(self)
+
+        self.dbus_bus_name = dbus_bus_name
+        # TODO: Expose the same D-Bus API as the Gtk UI D-Bus object (/gui)
+        # TODO: Create a gpodder.dbusproxy.DBusPodcastsProxy object (/podcasts)
 
         # Enable OpenGL rendering without requiring QtOpenGL
         # On Harmattan we let the system choose the best graphicssystem
@@ -933,6 +944,16 @@ class qtPodder(QObject):
             logger.exception('extensions_episode_download_cb(%s): %s', episode, e)
 
 def main(args):
-    gui = qtPodder(args, core.Core())
+    try:
+        dbus_main_loop = DBusGMainLoop(set_as_default=True)
+        gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
+
+        bus_name = dbus.service.BusName(gpodder.dbus_bus_name,
+                bus=gpodder.dbus_session_bus)
+    except dbus.exceptions.DBusException, dbe:
+        logger.warn('Cannot get "on the bus".', exc_info=True)
+        bus_name = None
+
+    gui = qtPodder(args, core.Core(), bus_name)
     return gui.run()
 
