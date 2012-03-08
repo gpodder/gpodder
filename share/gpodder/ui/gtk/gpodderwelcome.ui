@@ -5,7 +5,7 @@
     <property name="default_height">230</property>
     <property name="default_width">340</property>
     <property name="modal">True</property>
-    <property name="title" translatable="yes">gPodder startup assistant</property>
+    <property name="title" translatable="yes">Getting started</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog1-vbox">
@@ -13,52 +13,41 @@
         <property name="visible">True</property>
         <child>
           <object class="GtkVBox" id="vbox1">
-            <property name="border_width">6</property>
-            <property name="spacing">6</property>
+            <property name="border_width">12</property>
+            <property name="spacing">12</property>
             <property name="visible">True</property>
             <child>
               <object class="GtkTable" id="table1">
                 <property name="column_spacing">6</property>
-                <property name="n_columns">2</property>
+                <property name="n_columns">1</property>
                 <property name="n_rows">2</property>
                 <property name="row_spacing">6</property>
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkImage" id="image1">
-                    <property name="icon_name" translatable="yes">gpodder</property>
-                    <property name="icon_size">6</property>
-                    <property name="visible">True</property>
-                    <property name="xpad">5</property>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">2</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel" id="label1">
-                    <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Welcome to gPodder&lt;/big&gt;&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;big&gt;Welcome to gPodder&lt;/big&gt;</property>
                     <property name="use_markup">True</property>
                     <property name="visible">True</property>
                     <property name="xalign">0.0</property>
                     <property name="yalign">1.0</property>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
+                    <property name="left_attach">0</property>
+                    <property name="right_attach">1</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="label2">
-                    <property name="label" translatable="yes">Your subscription list is empty. What do you want to do?</property>
+                    <property name="label" translatable="yes">Your podcast list is empty.</property>
                     <property name="visible">True</property>
                     <property name="xalign">0.0</property>
                     <property name="yalign">0.0</property>
                   </object>
                   <packing>
-                    <property name="bottom_attach">2</property>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
                     <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                    <property name="left_attach">0</property>
+                    <property name="right_attach">1</property>
                   </packing>
                 </child>
               </object>
@@ -67,8 +56,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox2">
-                <property name="border_width">12</property>
+              <object class="GtkVBox" id="vbox_buttons">
                 <property name="spacing">6</property>
                 <property name="visible">True</property>
                 <child>
@@ -80,14 +68,19 @@
                   </object>
                 </child>
                 <child>
+                  <object class="GtkButton" id="btnAddURL">
+                    <property name="is_focus">True</property>
+                    <property name="label" translatable="yes">Add a podcast by entering its URL</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_add_podcast_via_url" name="clicked"/>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkButton" id="btnMygPodder">
-                    <property name="label" translatable="yes">Download my subscriptions from gpodder.net</property>
+                    <property name="label" translatable="yes">Restore my subscriptions from gpodder.net</property>
                     <property name="visible">True</property>
                     <signal handler="on_setup_my_gpodder" name="clicked"/>
                   </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
               <packing>

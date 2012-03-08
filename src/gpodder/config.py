@@ -131,7 +131,7 @@ defaults = {
                 },
             },
 
-            'toolbar': True,
+            'toolbar': False,
             'html_shownotes': True,
             'new_episodes': 'show', # ignore, show, queue, download
             'live_search_delay': 200,

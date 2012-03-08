@@ -84,7 +84,12 @@ def on_row_activated(treeview, path, column):
         provider = model.get_value(iter, C_PROVIDER)
         use_provider(provider)
 
+def on_cursor_changed(treeview):
+    path, column = treeview.get_cursor()
+    on_row_activated(treeview, path, column)
+
 tv.connect('row-activated', on_row_activated)
+tv.connect('cursor-changed', on_cursor_changed)
 
 sw = gtk.ScrolledWindow()
 sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)

@@ -2671,16 +2671,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            welcome_window = gPodderWelcome(self.main_window,
-                    center_on_widget=self.main_window)
+            def show_welcome_window():
+                def on_show_example_podcasts(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_itemImportChannels_activate(None)
 
-            result = welcome_window.main_window.run()
+                def on_add_podcast_via_url(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_itemAddChannel_activate(None)
 
-            welcome_window.main_window.destroy()
-            if result == gPodderWelcome.RESPONSE_OPML:
-                self.on_itemImportChannels_activate(None)
-            elif result == gPodderWelcome.RESPONSE_MYGPO:
-                self.on_download_subscriptions_from_mygpo(None)
+                def on_setup_my_gpodder(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_download_subscriptions_from_mygpo(None)
+
+                welcome_window = gPodderWelcome(self.main_window,
+                        center_on_widget=self.main_window,
+                        on_show_example_podcasts=on_show_example_podcasts,
+                        on_add_podcast_via_url=on_add_podcast_via_url,
+                        on_setup_my_gpodder=on_setup_my_gpodder)
+
+                welcome_window.main_window.run()
+                welcome_window.main_window.destroy()
+
+            util.idle_add(show_welcome_window)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -2837,8 +2850,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_download_subscriptions_from_mygpo(self, action=None):
         title = _('Login to gpodder.net')
         message = _('Please login to download your subscriptions.')
-        success, (username, password) = self.show_login_dialog(title, message, \
-                self.config.mygpo.username, self.config.mygpo.password)
+
+        def on_register_button_clicked():
+            util.open_website('http://gpodder.net/register/')
+
+        success, (username, password) = self.show_login_dialog(title, message,
+                self.config.mygpo.username, self.config.mygpo.password,
+                register_callback=on_register_button_clicked)
         if not success:
             return
 

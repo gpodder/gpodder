@@ -26,25 +26,16 @@ _ = gpodder.gettext
 from gpodder.gtkui.interface.common import BuilderWidget
 
 class gPodderWelcome(BuilderWidget):
-    RESPONSE_OPML = 1
-    RESPONSE_MYGPO = 2
+    PADDING = 10
 
     def new(self):
-        self.image1.set_from_file(gpodder.icon_file)
-        for widget in (self.btnOPML, self.btnMygPodder):
+        for widget in self.vbox_buttons.get_children():
             for child in widget.get_children():
                 if isinstance(child, gtk.Alignment):
-                    child.set_padding(20, 20, 20, 20)
+                    child.set_padding(self.PADDING, self.PADDING,
+                        self.PADDING, self.PADDING)
                 else:
-                    child.set_padding(20, 20)
-
-        self.main_window.show()
-
-    def on_show_example_podcasts(self, button):
-        self.main_window.response(self.RESPONSE_OPML)
-
-    def on_setup_my_gpodder(self, gpodder):
-        self.main_window.response(self.RESPONSE_MYGPO)
+                    child.set_padding(self.PADDING, self.PADDING)
 
     def on_btnCancel_clicked(self, button):
         self.main_window.response(gtk.RESPONSE_CANCEL)

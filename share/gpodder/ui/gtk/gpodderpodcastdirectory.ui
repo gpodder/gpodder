@@ -15,11 +15,13 @@
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
+    <property name="border-width">6</property>
     <signal handler="on_gPodderPodcastDirectory_destroy" name="destroy"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="vboxOPML">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
+        <property name="spacing">6</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hboxBottomButtons">
             <property name="visible">True</property>
@@ -95,23 +97,6 @@
                     <property name="homogeneous">False</property>
                     <property name="spacing">5</property>
                     <child>
-                      <object class="GtkLabel" id="labelOpmlUrl">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">OPML/Search:</property>
-                        <property name="use_underline">False</property>
-                        <property name="use_markup">False</property>
-                        <property name="wrap">False</property>
-                        <property name="selectable">False</property>
-                        <property name="width_chars">-1</property>
-                        <property name="single_line_mode">False</property>
-                      </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkEntry" id="entryURL">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -120,6 +105,7 @@
                         <property name="invisible_char">●</property>
                         <property name="activates_default">False</property>
                         <signal handler="on_btnDownloadOpml_clicked" name="activate"/>
+                        <signal handler="on_entryURL_changed" name="changed"/>
                       </object>
                       <packing>
                         <property name="padding">0</property>
@@ -129,57 +115,11 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="btnDownloadOpml">
+                        <property name="label" translatable="yes">Download</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="focus_on_click">True</property>
                         <signal handler="on_btnDownloadOpml_clicked" name="clicked"/>
-                        <child>
-                          <object class="GtkAlignment" id="alignment15">
-                            <property name="visible">True</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
-                            <property name="top_padding">0</property>
-                            <property name="bottom_padding">0</property>
-                            <property name="left_padding">0</property>
-                            <property name="right_padding">0</property>
-                            <child>
-                              <object class="GtkHBox" id="hbox26">
-                                <property name="visible">True</property>
-                                <property name="homogeneous">False</property>
-                                <property name="spacing">2</property>
-                                <child>
-                                  <object class="GtkImage" id="image2426">
-                                    <property name="visible">True</property>
-                                    <property name="stock">gtk-goto-bottom</property>
-                                    <property name="icon_size">4</property>
-                                  </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label91">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Download</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="use_markup">False</property>
-                                    <property name="wrap">False</property>
-                                    <property name="selectable">False</property>
-                                    <property name="width_chars">-1</property>
-                                    <property name="single_line_mode">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
                       </object>
                       <packing>
                         <property name="padding">0</property>
@@ -207,7 +147,7 @@
                       <object class="GtkTreeView" id="treeviewChannelChooser">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="headers_visible">True</property>
+                        <property name="headers_visible">False</property>
                         <property name="rules_hint">False</property>
                         <property name="reorderable">False</property>
                         <property name="enable_search">True</property>
@@ -254,7 +194,7 @@
                   <object class="GtkTreeView" id="treeviewTopPodcastsChooser">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="headers_visible">True</property>
+                    <property name="headers_visible">False</property>
                     <property name="rules_hint">False</property>
                     <property name="reorderable">False</property>
                     <property name="enable_search">True</property>
@@ -292,23 +232,6 @@
                     <property name="homogeneous">False</property>
                     <property name="spacing">5</property>
                     <child>
-                      <object class="GtkLabel" id="label141">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Search for:</property>
-                        <property name="use_underline">False</property>
-                        <property name="use_markup">False</property>
-                        <property name="wrap">False</property>
-                        <property name="selectable">False</property>
-                        <property name="width_chars">-1</property>
-                        <property name="single_line_mode">False</property>
-                      </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkEntry" id="entryYoutubeSearch">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -328,8 +251,7 @@
                       <object class="GtkButton" id="btnSearchYouTube">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="use_stock">True</property>
-                        <property name="label">gtk-find</property>
+                        <property name="label" translatable="true">Search</property>
                         <property name="use_underline">True</property>
                         <property name="focus_on_click">True</property>
                         <signal handler="on_btnSearchYouTube_clicked" name="clicked"/>
@@ -360,7 +282,7 @@
                       <object class="GtkTreeView" id="treeviewYouTubeChooser">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="headers_visible">True</property>
+                        <property name="headers_visible">False</property>
                         <property name="rules_hint">False</property>
                         <property name="reorderable">False</property>
                         <property name="enable_search">True</property>

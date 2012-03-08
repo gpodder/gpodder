@@ -182,9 +182,13 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             return None
 
-    def show_login_dialog(self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
-        """ An authentication dialog based on
-                http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
+    def show_login_dialog(self, title, message, username=None, password=None,
+            username_prompt=None, register_callback=None, register_text=None):
+        if username_prompt is None:
+            username_prompt = _('Username')
+
+        if register_text is None:
+            register_text = _('New user')
 
         dialog = gtk.MessageDialog(
             self.main_window,
@@ -199,7 +203,7 @@ class BuilderWidget(GtkBuilderWidget):
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         if register_callback is not None:
-            dialog.add_button(_('New user'), gtk.RESPONSE_HELP)
+            dialog.add_button(register_text, gtk.RESPONSE_HELP)
 
         username_entry = gtk.Entry()
         password_entry = gtk.Entry()
