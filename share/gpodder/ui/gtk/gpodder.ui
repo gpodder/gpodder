@@ -618,56 +618,10 @@
                             <property name="homogeneous">False</property>
                             <child>
                               <object class="GtkButton" id="btnUpdateFeeds">
+                                <property name="label" translatable="yes">Check for new episodes</property>
                                 <property name="can_focus">True</property>
                                 <property name="focus_on_click">True</property>
                                 <signal handler="on_itemUpdate_activate" name="clicked"/>
-                                <child>
-                                  <object class="GtkAlignment" id="alignment24">
-                                    <property name="visible">True</property>
-                                    <property name="xscale">0</property>
-                                    <property name="yscale">0</property>
-                                    <property name="top_padding">0</property>
-                                    <property name="bottom_padding">0</property>
-                                    <property name="left_padding">0</property>
-                                    <property name="right_padding">0</property>
-                                    <child>
-                                      <object class="GtkHBox" id="hbox37">
-                                        <property name="visible">True</property>
-                                        <property name="homogeneous">False</property>
-                                        <property name="spacing">2</property>
-                                        <child>
-                                          <object class="GtkImage" id="image2982">
-                                            <property name="visible">True</property>
-                                            <property name="stock">gtk-refresh</property>
-                                            <property name="icon_size">4</property>
-                                          </object>
-                                          <packing>
-                                            <property name="padding">0</property>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="label120">
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes">Check for Updates</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="use_markup">False</property>
-                                            <property name="wrap">False</property>
-                                            <property name="selectable">False</property>
-                                            <property name="width_chars">-1</property>
-                                            <property name="single_line_mode">False</property>
-                                          </object>
-                                          <packing>
-                                            <property name="padding">0</property>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
                               </object>
                               <packing>
                                 <property name="padding">0</property>
