@@ -34,8 +34,7 @@ class Core(object):
     def __init__(self,
                  config_class=config.Config,
                  database_class=dbsqlite.Database,
-                 model_class=model.Model,
-                 extension_list=[]):
+                 model_class=model.Model):
         # Initialize the gPodder home directory
         util.make_directory(gpodder.home)
 
@@ -45,8 +44,7 @@ class Core(object):
         self.config = config_class(gpodder.config_file)
 
         # Load extension modules and install the extension manager
-        gpodder.user_extensions = extensions.ExtensionManager(self,
-            extension_list=extension_list)
+        gpodder.user_extensions = extensions.ExtensionManager(self)
 
         # Load installed/configured plugins
         gpodder.load_plugins()

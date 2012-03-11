@@ -214,13 +214,17 @@ class ExtensionContainer(object):
 class ExtensionManager(object):
     """Loads extensions and manages self-registering plugins"""
 
-    def __init__(self, core, extension_list=[]):
+    def __init__(self, core):
         self.core = core
-        self.extension_list = extension_list
+        self.filenames = os.environ.get('GPODDER_EXTENSIONS', '').split()
         self.containers = []
 
         core.config.add_observer(self._config_value_changed)
         enabled_extensions = core.config.extensions.enabled
+
+        if os.environ.get('GPODDER_DISABLE_EXTENSIONS', '') != '':
+            logger.info('Disabling all extensions (from environment)')
+            return
 
         for name, filename in self._find_extensions():
             logger.debug('Found extension "%s" in %s', name, filename)
@@ -246,16 +250,18 @@ class ExtensionManager(object):
     def _find_extensions(self):
         extensions = {}
 
-        if self.extension_list:
-            files = self.extension_list
-        else:
+        if not self.filenames:
             builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
                 'extensions', '*.py')
             user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
-            files = glob.glob(builtins) + glob.glob(user_extensions)
+            self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
 
         # Let user extensions override built-in extensions of the same name
-        for filename in files:
+        for filename in self.filenames:
+            if not filename or not os.path.exists(filename):
+                logger.info('Skipping non-existing file: %s', filename)
+                continue
+
             name, _ = os.path.splitext(os.path.basename(filename))
             extensions[name] = filename
 

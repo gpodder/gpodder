@@ -164,6 +164,23 @@
 
         export GPODDER_WRITE_LOGS=no
 
+ [ EXTENSIONS ]
+
+    Extensions are normally loaded from gPodder's "extensions/" folder (in
+    share/gpodder/extensions/) and from $GPODDER_HOME/Extensions/ You can
+    override this by setting an environment variable:
+
+        export GPODDER_EXTENSIONS="/path/to/extension1.py extension2.py"
+
+    In addition to that, if you want to disable loading of all extensions,
+    you can do this by setting the following environment variable to a non-
+    empty value:
+
+        export GPODDER_DISABLE_EXTENSIONS=yes
+
+    If you want to report a bug, please try to disable all extensions and
+    check if the bug still appears to see if an extension causes the bug.
+
 
  [ MORE INFORMATION ]
 
