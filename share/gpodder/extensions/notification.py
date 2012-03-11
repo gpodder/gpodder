@@ -50,7 +50,11 @@ else:
             pynotify.uninit()
 
         def on_notification_show(self, title, message):
-            notify = pynotify.Notification(title, message, gpodder.icon_file)
+            if not message and not title:
+                return
+
+            notify = pynotify.Notification(title or '', message or '',
+                    gpodder.icon_file)
 
             try:
                 notify.show()

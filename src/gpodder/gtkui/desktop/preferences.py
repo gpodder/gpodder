@@ -173,7 +173,14 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.extensions.enabled = enabled_extensions
 
-        model.set_value(it, self.C_TOGGLE, new_enabled)
+        now_enabled = (container.name in self._config.extensions.enabled)
+
+        if new_enabled == now_enabled:
+            model.set_value(it, self.C_TOGGLE, new_enabled)
+        elif container.error is not None:
+            self.show_message(container.error.message,
+                    _('Extension cannot be activated'), important=True)
+            model.set_value(it, self.C_TOGGLE, False)
 
     def on_extensions_row_activated(self, treeview, path, view_column):
         model = treeview.get_model()

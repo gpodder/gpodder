@@ -31,12 +31,7 @@ import gpodder
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    from mutagen import File
-    mutagen_installed = True
-except:
-    logger.error( '(tagging extension) Could not find mutagen')
-    mutagen_installed = False
+from mutagen import File
 
 _ = gpodder.gettext
 
@@ -56,10 +51,6 @@ class gPodderExtension:
         self.container = container
 
     def on_episode_downloaded(self, episode):
-        # exit if mutagen is not installed
-        if not mutagen_installed:
-            return
-
         info = self.read_episode_info(episode)
         self.write_info2file(info)
 

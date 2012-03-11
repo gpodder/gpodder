@@ -130,7 +130,14 @@ class ExtensionMetadata(object):
         uis = filter(None, [x.strip() for x in self.only_for.split(',')])
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
 
-class MissingDependency(Exception): pass
+class MissingDependency(Exception):
+    def __init__(self, message, dependency, cause=None):
+        Exception.__init__(self, message)
+        self.dependency = dependency
+        self.cause = cause
+
+class MissingModule(MissingDependency): pass
+class MissingCommand(MissingDependency): pass
 
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""
@@ -143,6 +150,7 @@ class ExtensionContainer(object):
         self.filename = filename
         self.module = module
         self.enabled = False
+        self.error = None
 
         self.default_config = None
         self.parameters = None
@@ -151,7 +159,8 @@ class ExtensionContainer(object):
     def require_command(self, command):
         result = util.find_command(command)
         if result is None:
-            raise MissingDependency(command)
+            msg = _('Command not found: %(command)s') % {'command': command}
+            raise MissingCommand(msg, command)
         return result
 
     def _load_metadata(self, filename):
@@ -174,12 +183,24 @@ class ExtensionContainer(object):
         if enabled and not self.enabled:
             try:
                 self.load_extension()
+                self.error = None
                 self.enabled = True
                 if hasattr(self.module, 'on_load'):
                     self.module.on_load()
             except Exception, exception:
                 logger.error('Cannot load %s from %s: %s', self.name,
                         self.filename, exception, exc_info=True)
+                if isinstance(exception, ImportError):
+                    # Wrap ImportError in MissingCommand for user-friendly
+                    # message (might be displayed in the GUI)
+                    match = re.match('No module named (.*)', exception.message)
+                    if match:
+                        module = match.group(1)
+                        msg = _('Python module not found: %(module)s') % {
+                            'module': module
+                        }
+                        exception = MissingCommand(msg, module, exception)
+                self.error = exception
                 self.enabled = False
         elif not enabled and self.enabled:
             try:
@@ -203,12 +224,13 @@ class ExtensionContainer(object):
 
         basename, extension = os.path.splitext(os.path.basename(self.filename))
         fp = open(self.filename, 'r')
-        module_file = imp.load_module(basename, fp, self.filename,
-                (extension, 'r', imp.PY_SOURCE))
+        try:
+            module_file = imp.load_module(basename, fp, self.filename,
+                    (extension, 'r', imp.PY_SOURCE))
+        finally:
+            # Remove the .pyc file if it was created during import
+            util.delete_file(self.filename + 'c')
         fp.close()
-
-        # Remove the .pyc file if it was created during import
-        util.delete_file(self.filename + 'c')
 
         self.default_config = getattr(module_file, 'DefaultConfig', {})
         if self.default_config:
@@ -258,6 +280,12 @@ class ExtensionManager(object):
                     logger.info('Extension "%s" is now %s', container.name,
                             'enabled' if new_enabled else 'disabled')
                     container.set_enabled(new_enabled)
+                    if new_enabled and not container.enabled:
+                        logger.warn('Could not enable extension: %s',
+                                container.error)
+                        self.core.config.extensions.enabled = [x
+                                for x in self.core.config.extensions.enabled
+                                if x != container.name]
 
     def _find_extensions(self):
         extensions = {}
