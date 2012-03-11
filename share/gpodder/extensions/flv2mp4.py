@@ -8,10 +8,10 @@
 # Released under the same license terms as gPodder itself.
 
 import os
-import shlex
 import subprocess
 
 import gpodder
+
 from gpodder import util
 from gpodder import youtube
 
@@ -20,96 +20,75 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Convert FLV to MP4')
-__description__ = _('Put FLV files from YouTube into a MP4 container after download')
+__title__ = _('Convert .flv files from YouTube to .mp4')
+__description__ = _('Useful for playing downloaded videos on hardware players')
 __author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 
 DefaultConfig = {
-    'extensions': {
-        'flv2mp4': {
-            'context_menu': True,
-        }
-    }
+    'context_menu': True, # Show the conversion option in the context menu
 }
-
-FFMPEG_CMD = 'ffmpeg -i "%(infile)s" -vcodec copy -acodec copy "%(outfile)s"'
 
 
 class gPodderExtension:
+    MIME_TYPE = 'video/x-flv'
+
     def __init__(self, container):
         self.container = container
+        self.config = self.container.config
 
-        self.cmd = FFMPEG_CMD
-        program = shlex.split(self.cmd)[0]
-        if not util.find_command(program):
-            raise ImportError("Couldn't find program '%s'" % program)
-
-    def on_load(self):
-        logger.info('Extension "%s" is being loaded.' % __title__)
-
-    def on_unload(self):
-        logger.info('Extension "%s" is being unloaded.' % __title__)
+        # Dependency checks
+        self.container.require_command('ffmpeg')
 
     def on_episode_downloaded(self, episode):
-        self._convert_episode(episode)
+        if youtube.is_video_link(episode.url):
+            self._convert_episode(episode)
 
     def on_episodes_context_menu(self, episodes):
-        if not self.container.config.context_menu:
+        if not self.config.context_menu:
             return None
 
-        if 'video/x-flv' not in [e.mime_type for e in episodes if e.file_exists()]:
+        if not all(e.was_downloaded(and_exists=True) for e in episodes):
             return None
 
-        return [(self.container.metadata.title, self._convert_episodes)]
+        if not any(e.mime_type == self.MIME_TYPE for e in episodes):
+            return None
+
+        return [(_('Convert FLV to MP4'), self._convert_episodes)]
+
 
     def _convert_episode(self, episode):
-        retvalue = self._run_conversion(episode)
+        old_filename = episode.local_filename(create=False)
+        filename, ext = os.path.splitext(filename)
+        new_filename = filename + '.mp4'
 
-        if retvalue == 0:
-            logger.info('FLV conversion successful.')
-            self.rename_episode_file(episode, basename+'.mp4')
-            os.remove(filename)
-        else:
-            logger.info('Error converting file. FFMPEG installed?')
-            try:
-                os.remove(target)
-            except OSError:
-                pass
-
-    def _run_conversion(self, episode):
-        if not youtube.is_video_link(episode.url):
-            logger.debug('Not a YouTube video. Ignoring.')
-            return
-
-        filename = episode.local_filename(create=False)
-        dirname = os.path.dirname(filename)
-        basename, ext = os.path.splitext(os.path.basename(filename))
-
-        if open(filename, 'rb').read(3) != 'FLV':
+        if open(old_filename, 'rb').read(3) != 'FLV':
             logger.debug('Not a FLV file. Ignoring.')
             return
 
-        if ext == '.mp4':
+        if ext.lower() == '.mp4':
             # Move file out of place for conversion
-            newname = os.path.join(dirname, basename+'.flv')
-            os.rename(filename, newname)
-            filename = newname
+            tmp_filename = filename + '.flv'
+            os.rename(old_filename, tmp_filename)
+            old_filename = tmp_filename
 
-        target = os.path.join(dirname, basename+'.mp4')
-        cmd = FFMPEG_CMD % {
-            'infile': filename,
-            'outfile': target
-        }
+        cmd = ['ffmpeg',
+                '-i', old_filename,
+                '-vcodec', 'copy',
+                '-acodec', 'copy',
+                new_filename]
 
-        # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-        cmd = util.sanitize_encoding(cmd)
-
-        ffmpeg = subprocess.Popen(shlex.split(cmd),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        ffmpeg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
         stdout, stderr = ffmpeg.communicate()
-        return ffmpeg.returncode
+
+        if ffmpeg.returncode == 0:
+            logger.info('FLV conversion successful.')
+            util.rename_episode_file(episode, new_filename)
+            os.remove(old_filename)
+        else:
+            logger.warn('Error converting file: %s / %s', stdout, stderr)
 
     def _convert_episodes(self, episodes):
         for episode in episodes:
             self._convert_episode(episode)
+

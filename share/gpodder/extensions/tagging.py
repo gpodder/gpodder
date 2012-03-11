@@ -40,30 +40,20 @@ except:
 
 _ = gpodder.gettext
 
-__title__ = _('Tagging')
-__description__ = _('adds episode title and podcast title to the audio file')
+__title__ = _('Tag downloaded files using Mutagen')
+__description__ = _('Add episode and podcast titles to MP3/OGG tags')
 __author__ = 'Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {
-    'extensions': {
-        'tagging': {
-            "strip_album_from_title": True,
-            "genre_tag": u'Podcast',
-        }
-    }
+    'strip_album_from_title': True,
+    'genre_tag': 'Podcast',
 }
 
 
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
-
-    def on_load(self):
-        logger.info('Extension "%s" is being loaded.' % __title__)
-
-    def on_unload(self):
-        logger.info('Extension "%s" is being unloaded.' % __title__)
 
     def on_episode_downloaded(self, episode):
         # exit if mutagen is not installed

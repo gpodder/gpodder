@@ -30,75 +30,67 @@ import gpodder
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    from mutagen.oggvorbis import OggVorbis
-except:
-    logger.error( '(remove ogg cover extension) Could not find mutagen')
+from mutagen.oggvorbis import OggVorbis
 
 _ = gpodder.gettext
 
-__title__ = _('Remove Coverart from OGG')
+__title__ = _('Remove cover art from OGG files')
 __description__ = _('removes coverart from all downloaded ogg files')
 __author__ = 'Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {
-    'extensions': {
-        'rm_ogg_cover': {
-            'context_menu': True,
-        }
-    }
+    'context_menu': True, # Show item in context menu
 }
 
 
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
-
-    def on_load(self):
-        logger.info('Extension "%s" is being loaded.' % __title__)
-
-    def on_unload(self):
-        logger.info('Extension "%s" is being unloaded.' % __title__)
+        self.config = self.container.config
 
     def on_episode_downloaded(self, episode):
         self.rm_ogg_cover(episode)
 
     def on_episodes_context_menu(self, episodes):
-        if not self.container.config.context_menu:
+        if not self.config.context_menu:
             return None
 
         if 'audio/ogg' not in [e.mime_type for e in episodes
             if e.mime_type is not None and e.file_exists()]:
             return None
 
-        return [(self.container.metadata.title, self._rm_ogg_covers)]
+        return [(_('Remove cover art'), self._rm_ogg_covers)]
 
     def _rm_ogg_covers(self, episodes):
         for episode in episodes:
             self.rm_ogg_cover(episode)
 
     def rm_ogg_cover(self, episode):
-        filename = episode.local_filename(create=False, check_only=True)
+        filename = episode.local_filename(create=False)
         if filename is None:
             return
 
-        (basename, extension) = os.path.splitext(filename)
-        if episode.file_type() == 'audio' and extension.lower().endswith('ogg'):
-            logger.info(u'trying to remove cover from %s' % filename)
+        basename, extension = os.path.splitext(filename)
+
+        if episode.file_type() != 'audio':
+            return
+
+        if extension.lower() != '.ogg'):
+            return
+
+        try:
+            ogg = OggVorbis(filename)
+
             found = False
+            for key in ogg.keys():
+                if key.startswith('cover'):
+                    found = True
+                    ogg.pop(key)
 
-            try:
-                ogg = OggVorbis(filename)
-                for key in ogg.keys():
-                    if key.startswith('cover'):
-                        found = True
-                        ogg.pop(key)
+            if found:
+                logger.info('Removed cover art from OGG file: %s', filename)
+                ogg.save()
+        except Exception, e:
+            logger.warn('Failed to remove OGG cover: %s', e, exc_info=True)
 
-                if found:
-                    logger.info(u'removed cover from the ogg file successfully')
-                    ogg.save()
-                else:
-                    logger.info(u'there was no cover to remove in the ogg file')
-            except:
-                None

@@ -45,10 +45,8 @@ else:
 
         def on_load(self):
             pynotify.init('gPodder')
-            logger.info('PyNotify initialized.')
 
         def on_unload(self):
-            logger.info('Uninitializing PyNotify.')
             pynotify.uninit()
 
         def on_notification_show(self, title, message):

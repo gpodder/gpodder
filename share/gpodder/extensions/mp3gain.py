@@ -5,9 +5,8 @@
 #
 # (c) 2011-11-06 Bernd Schlapsi <brot@gmx.info>
 # Released under the same license terms as gPodder itself.
+
 import os
-import platform
-import shlex
 import subprocess
 
 import gpodder
@@ -18,77 +17,60 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('mp3gain')
-__description__ = _('This hook adjusts mp3s so that they all have the same volume. It don\'t decode and re-encode the audio file')
+__title__ = _('mp3gain Volume Normalizer')
+__description__ = _('Normalize the volume of MP3 files without re-encoding')
 __author__ = 'Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {
-    'extensions': {
-        'mp3gain': {
-            'context_menu': True,
-        }
-    }
-}
-
-CMD = {
-    'Linux': 'mp3gain -c "%s"',
-    'Windows': 'mp3gain.exe -c "%s"'
+    'context_menu': True,
 }
 
 
 class gPodderExtension:
+    MIME_TYPE = 'audio/mpeg'
+
     def __init__(self, container):
         self.container = container
+        self.config = self.container.config
 
-        self.cmd = CMD[platform.system()]
-        program = shlex.split(self.cmd)[0]
-        if not util.find_command(program):
-            raise ImportError("Couldn't find program '%s'" % program)
-
-    def on_load(self):
-        logger.info('Extension "%s" is being loaded.' % __title__)
-
-    def on_unload(self):
-        logger.info('Extension "%s" is being unloaded.' % __title__)
+        self.mp3gain = self.container.require_command('mp3gain')
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
 
     def on_episodes_context_menu(self, episodes):
-        if not self.container.config.context_menu:
+        if not self.config.context_menu:
             return None
 
-        if 'audio/mpeg' not in [e.mime_type for e in episodes
-            if e.mime_type is not None and e.file_exists()]:
+        if not all(e.was_downloaded(and_exists=True) for e in episodes):
             return None
 
-        return [(self.container.metadata.title, self._convert_episodes)]
+        if not any(e.mime_type == self.MIME_TYPE for e in episodes):
+            return None
+
+        return [(_('Normalize volume (mp3gain)'), self._convert_episodes)]
 
     def _convert_episode(self, episode):
-        filename = episode.local_filename(create=False, check_only=True)
+        if episode.mime_type != self.MIME_TYPE:
+            return
+
+        filename = episode.local_filename(create=False)
         if filename is None:
             return
 
-        (basename, extension) = os.path.splitext(filename)
-        if episode.file_type() == 'audio' and extension.lower().endswith('mp3'):
+        cmd = [self.mp3gain, '-c', filename]
 
-            cmd = self.cmd % filename
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
 
-            # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-            cmd = util.sanitize_encoding(cmd)
-
-            p = subprocess.Popen(shlex.split(cmd),
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-
-            if p.returncode == 0:
-                logger.info('mp3gain processing successfull.')
-
-            else:
-                logger.info('mp3gain processing not successfull.')
-                logger.debug(stdout + stderr)
+        if p.returncode == 0:
+            logger.info('mp3gain processing successful.')
+        else:
+            logger.warn('mp3gain failed: %s / %s', stdout, stderr)
 
     def _convert_episodes(self, episodes):
         for episode in episodes:
             self._convert_episode(episode)
+

@@ -130,6 +130,7 @@ class ExtensionMetadata(object):
         uis = filter(None, [x.strip() for x in self.only_for.split(',')])
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
 
+class MissingDependency(Exception): pass
 
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""
@@ -146,6 +147,12 @@ class ExtensionContainer(object):
         self.default_config = None
         self.parameters = None
         self.metadata = ExtensionMetadata(self, self._load_metadata(filename))
+
+    def require_command(self, command):
+        result = util.find_command(command)
+        if result is None:
+            raise MissingDependency(command)
+        return result
 
     def _load_metadata(self, filename):
         if not filename or not os.path.exists(filename):
@@ -204,7 +211,12 @@ class ExtensionContainer(object):
         util.delete_file(self.filename + 'c')
 
         self.default_config = getattr(module_file, 'DefaultConfig', {})
-        self.manager.core.config.register_defaults(self.default_config)
+        if self.default_config:
+            self.manager.core.config.register_defaults({
+                'extensions': {
+                    self.name: self.default_config,
+                }
+            })
         self.config = getattr(self.manager.core.config.extensions, self.name)
 
         self.module = module_file.gPodderExtension(self)

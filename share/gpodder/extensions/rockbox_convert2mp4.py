@@ -23,23 +23,19 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Convert to MP4')
-__description__ = _('Converts Files to MP4 to use on Rockbox devices')
-__author__ = 'Guy Sheffer <guysoft at gmail.com>, Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__title__ = _('Convert video files to MP4 for Rockbox')
+__description__ = _('Converts all videos to a Rockbox-compatible format')
+__author__ = 'Guy Sheffer <guysoft@gmail.com>, Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {
-    'extensions': {
-        'rockbox_convert2mp4': {
-            "device_height": 176.0,
-            "device_width": 224.0,
-            "ffmpeg_options": u'-vcodec mpeg2video -b 500k -ab 192k -ac 2 -ar 44100 -acodec libmp3lame',
-        }
-    }
+    'device_height': 176.0,
+    'device_width': 224.0,
+    'ffmpeg_options': '-vcodec mpeg2video -b 500k -ab 192k -ac 2 -ar 44100 -acodec libmp3lame',
 }
 
-ROCKBOX_EXTENTION = "mpg"
-EXTENTIONS_TO_CONVERT = ['.mp4',"." + ROCKBOX_EXTENTION]
+ROCKBOX_EXTENSION = "mpg"
+EXTENTIONS_TO_CONVERT = ['.mp4',"." + ROCKBOX_EXTENSION]
 FFMPEG_CMD = 'ffmpeg -y -i "%(from)s" -s %(width)sx%(height)s %(options)s "%(to)s"'
 
 
@@ -79,10 +75,10 @@ class gPodderExtension:
             logger.info("Ignore file with file-extension %s." % ext)
             return None
 
-        if filename.endswith(ROCKBOX_EXTENTION):
-            new_filename = "%s-convert.%s" % (basename, ROCKBOX_EXTENTION)
+        if filename.endswith(ROCKBOX_EXTENSION):
+            new_filename = "%s-convert.%s" % (basename, ROCKBOX_EXTENSION)
         else:
-            new_filename = "%s.%s" % (basename, ROCKBOX_EXTENTION)
+            new_filename = "%s.%s" % (basename, ROCKBOX_EXTENSION)
         return os.path.join(dirname, new_filename)
 
 

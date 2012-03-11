@@ -45,11 +45,7 @@ __author__ = 'Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {
-    'extensions': {
-        'tfh_shownotes': {
-            'context_menu': True,
-        }
-    }
+    'context_menu': True,
 }
 
 TFH_TITLE = 'Tin Foil Hat'
