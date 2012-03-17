@@ -58,7 +58,7 @@ class gPodderExtension:
 
     def _convert_episode(self, episode):
         old_filename = episode.local_filename(create=False)
-        filename, ext = os.path.splitext(filename)
+        filename, ext = os.path.splitext(old_filename)
         new_filename = filename + '.mp4'
 
         if open(old_filename, 'rb').read(3) != 'FLV':

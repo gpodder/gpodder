@@ -64,7 +64,7 @@ class gPodderExtension:
             extension = '.mp3'
 
         old_filename = episode.local_filename(create=False)
-        filename, _ = os.path.splitext(old_filename)
+        filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + extension
 
         cmd = ['ffmpeg', '-i', old_filename, '-sameq', new_filename]
@@ -74,12 +74,10 @@ class gPodderExtension:
 
         if ffmpeg.returncode == 0:
             logger.info('Converted M4A file.')
-            gpodder.user_extensions.on_notification_show(_('File converted'),
-                    episode)
+            gpodder.user_extensions.on_notification_show(_('File converted'), episode)
         else:
             logger.warn('Error converting file: %s / %s', stdout, stderr)
-            gpodder.user_extensions.on_notification_show(_('Conversion failed'),
-                    episode)
+            gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode)
 
     def _convert_episodes(self, episodes):
         for episode in episodes:

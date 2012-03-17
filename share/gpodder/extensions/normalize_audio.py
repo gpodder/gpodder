@@ -29,8 +29,8 @@ DefaultConfig = {
 
 # a tuple of (extension, command)
 CONVERT_COMMANDS = {
-    'ogg': 'normalize-ogg',
-    'mp3': 'normalize-mp3',
+    '.ogg': 'normalize-ogg',
+    '.mp3': 'normalize-mp3',
 }
 
 class gPodderExtension:
