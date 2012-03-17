@@ -76,7 +76,7 @@ class gPodderExtension:
         if episode.file_type() != 'audio':
             return
 
-        if extension.lower() != '.ogg'):
+        if extension.lower() != '.ogg':
             return
 
         try:

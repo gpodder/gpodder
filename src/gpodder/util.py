@@ -1558,7 +1558,7 @@ def check_command(self, cmd):
     return (find_command(program) is not None)
 
 
-def rename_episode_file(self, episode, filename):
+def rename_episode_file(episode, filename):
     """Helper method to update a PodcastEpisode object
 
     Useful after renaming/converting its download file.
