@@ -3323,13 +3323,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
-        # Allow tab switching with Ctrl + PgUp/PgDown
+        # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.state & gtk.gdk.CONTROL_MASK:
             if event.keyval == gtk.keysyms.Page_Up:
                 self.wNotebook.prev_page()
                 return True
             elif event.keyval == gtk.keysyms.Page_Down:
                 self.wNotebook.next_page()
+                return True
+            elif event.keyval == gtk.keysyms.Tab:
+                current_page = self.wNotebook.get_current_page()
+
+                if current_page == self.wNotebook.get_n_pages()-1:
+                    self.wNotebook.set_current_page(0)
+                else:
+                    self.wNotebook.next_page()
                 return True
 
         return False
