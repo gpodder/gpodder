@@ -234,8 +234,11 @@ class EpisodeListModel(gtk.ListStore):
             return '%s%s%s\n%s' % (a, cgi.escape(title), b,
                     _('from %s') % cgi.escape(episode.channel.title))
         elif include_description:
+            description = episode.one_line_description()
+            if description.startswith(title):
+                description = description[len(title):].strip()
             return '%s%s%s\n%s' % (a, cgi.escape(title), b,
-                    cgi.escape(episode.one_line_description()))
+                    cgi.escape(description))
         else:
             return ''.join((a, cgi.escape(title), b))
 
