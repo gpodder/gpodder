@@ -36,7 +36,7 @@ _ = gpodder.gettext
 
 __title__ = _('Remove cover art from OGG files')
 __description__ = _('removes coverart from all downloaded ogg files')
-__author__ = 'Bernd Schlapsi <brot@gmx.info>'
+__authors__ = 'Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {

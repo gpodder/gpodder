@@ -22,7 +22,7 @@ _ = gpodder.gettext
 
 __title__ = _('Convert .flv files from YouTube to .mp4')
 __description__ = _('Useful for playing downloaded videos on hardware players')
-__author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 
 DefaultConfig = {
     'context_menu': True, # Show the conversion option in the context menu

@@ -25,7 +25,7 @@ _ = gpodder.gettext
 
 __title__ = _('Convert video files to MP4 for Rockbox')
 __description__ = _('Converts all videos to a Rockbox-compatible format')
-__author__ = 'Guy Sheffer <guysoft@gmail.com>, Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__authors__ = 'Guy Sheffer <guysoft@gmail.com>, Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 
 
 DefaultConfig = {

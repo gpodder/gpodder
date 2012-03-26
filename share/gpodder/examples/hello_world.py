@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 __title__ = 'Hello World Extension'
 __description__ = 'Explain in one sentence what this extension does.'
 __only_for__ = 'gtk, cli, qml'
-__author__ = 'Thomas Perl <m@thp.io>'
+__authors__ = 'Thomas Perl <m@thp.io>'
 
 class gPodderExtension:
     # The extension will be instantiated the first time it's used

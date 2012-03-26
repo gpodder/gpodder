@@ -420,9 +420,6 @@ def get_free_disk_space(path):
     function returns zero.
     """
 
-    if path == '':
-        raise ValueError(_("Can't get free disk space at path ''"))
-
     if not os.path.exists(path):
         return 0
 
