@@ -66,7 +66,8 @@ from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.gtkui.desktopfile import UserAppsReader
 
-from gpodder.gtkui.draw import draw_text_box_centered
+from gpodder.gtkui.draw import draw_text_box_centered, draw_cake_pixbuf
+from gpodder.gtkui.draw import EPISODE_LIST_ICON_SIZE
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
@@ -83,22 +84,31 @@ from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder import hooks
+from gpodder import extensions
+
+
+macapp = None
+if gpodder.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
+    try:
+        from gtk_osxapplication import *
+        macapp = OSXApplication()
+    except ImportError:
+        print >> sys.stderr, """
+        Warning: gtk-mac-integration not found, disabling native menus 
+        """
+
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    # Delay until live search is started after typing stop
-    LIVE_SEARCH_DELAY = 500
-
     # Width (in pixels) of episode list icon
     EPISODE_LIST_ICON_WIDTH = 40
 
     def __init__(self, bus_name, gpodder_core):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
-        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels, \
-                self.on_itemUpdate_activate, \
-                self.playback_episodes, \
-                self.download_episode_list, \
-                self.episode_object_by_uri, \
+        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
+                self.on_itemUpdate_activate,
+                self.playback_episodes,
+                self.download_episode_list,
+                self.episode_object_by_uri,
                 bus_name)
         self.core = gpodder_core
         self.config = self.core.config
@@ -107,18 +117,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None)
     
     def new(self):
+        gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
 
         self.bluetooth_available = util.bluetooth_available()
 
-        self.config.connect_gtk_window(self.gPodder, '_main_window')
+        self.config.connect_gtk_window(self.main_window, 'main_window')
 
-        # Default/last paned position for sidebar toggling
-        self._last_paned_position = 200
-        self._last_paned_position_toggling = False
-        self.item_sidebar.set_active(self.config._paned_position > 0)
-
-        self.config.connect_gtk_paned('_paned_position', self.channelPaned)
+        self.config.connect_gtk_paned('paned_position', self.channelPaned)
 
         self.main_window.show()
 
@@ -134,28 +140,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Mac OS X-specific UI tweaks: Native main menu integration
         # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
-        if getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
-            try:
-                import igemacintegration as igemi
+        if macapp is not None:
+            # Move the menu bar from the window to the Mac menu bar
+            self.mainMenu.hide()
+            macapp.set_menu_bar(self.mainMenu)
 
-                # Move the menu bar from the window to the Mac menu bar
-                self.mainMenu.hide()
-                igemi.ige_mac_menu_set_menu_bar(self.mainMenu)
+            # Reparent some items to the "Application" menu
+            item = self.uimanager1.get_widget('/mainMenu/menuHelp/itemAbout')
+            macapp.insert_app_menu_item(item, 0)
+            macapp.insert_app_menu_item(gtk.SeparatorMenuItem(), 1)
+            item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemPreferences')
+            macapp.insert_app_menu_item(item, 2)
 
-                # Reparent some items to the "Application" menu
-                for widget in ('/mainMenu/menuHelp/itemAbout', \
-                               '/mainMenu/menuPodcasts/itemPreferences'):
-                    item = self.uimanager1.get_widget(widget)
-                    group = igemi.ige_mac_menu_add_app_menu_group()
-                    igemi.ige_mac_menu_add_app_menu_item(group, item, None)
-
-                quit_widget = '/mainMenu/menuPodcasts/itemQuit'
-                quit_item = self.uimanager1.get_widget(quit_widget)
-                igemi.ige_mac_menu_set_quit_menu_item(quit_item)
-            except ImportError:
-                print >>sys.stderr, """
-                Warning: ige-mac-integration not found - no native menus.
-                """
+            quit_item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemQuit')
+            quit_item.hide()
+        # end Mac OS X specific UI tweaks
 
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
@@ -184,7 +183,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.podcast_list_model = PodcastListModel(self.cover_downloader)
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
-        self.cover_downloader.register('cover-removed', self.cover_file_removed)
 
         # Source IDs for timeouts for search-as-you-type
         self._podcast_list_search_timeout = None
@@ -208,9 +206,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.active_channel = None
         self.channels = self.model.get_podcasts()
 
-        gpodder.user_hooks.on_ui_initialized(self.model,
-                self.hooks_podcast_update_cb,
-                self.hooks_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -233,8 +231,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             resumable_episodes = []
             if count:
                 util.idle_add(self.wNotebook.set_current_page, 1)
-                indicator = ProgressIndicator(_('Loading incomplete downloads'), \
-                        _('Some episodes have not finished downloading in a previous session.'), \
+                indicator = ProgressIndicator(_('Loading incomplete downloads'),
+                        _('Some episodes have not finished downloading in a previous session.'),
                         False, self.get_dialog_parent())
                 indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
 
@@ -313,24 +311,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
             self.on_itemUpdate_activate()
-
-    def on_view_sidebar_toggled(self, menu_item):
-        self.channelPaned.child_set_property(self.vboxChannelNavigator, \
-                'shrink', not menu_item.get_active())
-
-        if self._last_paned_position_toggling:
-            return
-
-        active = menu_item.get_active()
-        if active:
-            if self._last_paned_position == 0:
-                self._last_paned_position = 200
-            self.channelPaned.set_position(self._last_paned_position)
-        else:
-            current_position = self.channelPaned.get_position()
-            if current_position > 0:
-                self._last_paned_position = current_position
-                self.channelPaned.set_position(0)
+        elif self.config.software_update.check_on_startup:
+            # Check for software updates from gpodder.org
+            diff = time.time() - self.config.software_update.last_check
+            if diff > (60*60*24)*self.config.software_update.interval:
+                self.config.software_update.last_check = int(time.time())
+                self.check_for_updates(silent=True)
 
     def episode_object_by_uri(self, uri):
         """Get an episode object given a local or remote URI
@@ -407,8 +393,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model([episode.channel.url])
 
             # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, \
-                    start, end, total)
+            self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -610,8 +595,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self._podcast_list_search_timeout is not None:
                 gobject.source_remove(self._podcast_list_search_timeout)
-            self._podcast_list_search_timeout = gobject.timeout_add(\
-                    self.LIVE_SEARCH_DELAY, \
+            self._podcast_list_search_timeout = gobject.timeout_add(
+                    self.config.ui.gtk.live_search_delay,
                     set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_podcasts_key_press(self, editable, event):
@@ -730,8 +715,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self._episode_list_search_timeout is not None:
                 gobject.source_remove(self._episode_list_search_timeout)
-            self._episode_list_search_timeout = gobject.timeout_add(\
-                    self.LIVE_SEARCH_DELAY, \
+            self._episode_list_search_timeout = gobject.timeout_add(
+                    self.config.ui.gtk.live_search_delay,
                     set_search_term, self, editable.get_chars(0, -1))
 
     def on_entry_search_episodes_key_press(self, editable, event):
@@ -804,7 +789,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = gtk.CellRendererPixbuf()
-        iconcell.set_property('stock-size', gtk.ICON_SIZE_BUTTON)
+        episode_list_icon_size = gtk.icon_size_register('episode-list',
+            EPISODE_LIST_ICON_SIZE, EPISODE_LIST_ICON_SIZE)
+        iconcell.set_property('stock-size', episode_list_icon_size)
         iconcell.set_fixed_size(self.EPISODE_LIST_ICON_WIDTH, -1)
 
         namecell = gtk.CellRendererText()
@@ -1062,6 +1049,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def remove_download_task_monitor(self, monitor):
         self.download_task_monitors.remove(monitor)
 
+    def set_download_progress(self, progress):
+        gpodder.user_extensions.on_download_progress(progress)
+
     def update_downloads_list(self, can_call_cleanup=True):
         try:
             model = self.download_status_model
@@ -1135,14 +1125,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             title = [self.default_title]
 
-            # We have to update all episodes/channels for which the status has
-            # changed. Accessing task.status_changed has the side effect of
-            # re-setting the changed flag, so we need to get the "changed" list
-            # of tuples first and split it into two lists afterwards
-            changed = [(task.url, task.podcast_url) for task in \
+            # Accessing task.status_changed has the side effect of re-setting
+            # the changed flag, but we only do it once here so that's okay
+            channel_urls = [task.podcast_url for task in
                     self.download_tasks_seen if task.status_changed]
-            episode_urls = [episode_url for episode_url, channel_url in changed]
-            channel_urls = [channel_url for episode_url, channel_url in changed]
+            episode_urls = [task.url for task in self.download_tasks_seen]
 
             count = downloading + queued
             if count > 0:
@@ -1152,10 +1139,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     percentage = 100.0*done_size/total_size
                 else:
                     percentage = 0.0
+                self.set_download_progress(percentage/100.)
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             else:
+                self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
+                gpodder.user_extensions.on_all_episodes_downloaded()
                 logger.info('All downloads have finished.')
 
                 # Remove finished episodes
@@ -1189,21 +1179,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self._on_config_changed, *args)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'show_toolbar':
+        if name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
-        elif name == 'episode_list_descriptions':
+        elif name == 'ui.gtk.episode_list.descriptions':
             self.update_episode_list_model()
-        elif name in ('auto_update_feeds', 'auto_update_frequency'):
+        elif name in ('auto.update.enabled', 'auto.update.frequency'):
             self.restart_auto_update_timer()
-        elif name in ('podcast_list_view_all', 'podcast_list_sections'):
+        elif name in ('ui.gtk.podcast_list.all_episodes',
+                'ui.gtk.podcast_list.sections'):
             # Force a update of the podcast list model
             self.update_podcast_list_model()
-        elif name == 'episode_list_columns':
+        elif name == 'ui.gtk.episode_list.columns':
             self.update_episode_list_columns_visibility()
-        elif name == '_paned_position':
-            self._last_paned_position_toggling = True
-            self.item_sidebar.set_active(new_value > 0)
-            self._last_paned_position_toggling = False
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -1545,7 +1532,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu.append( gtk.SeparatorMenuItem())
 
-            item = gtk.ImageMenuItem(_('Podcast details'))
+            item = gtk.ImageMenuItem(_('Podcast settings'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemEditChannel_activate)
             menu.append(item)
@@ -1564,21 +1551,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             return True
 
-    def cover_file_removed(self, channel_url):
-        """
-        The Cover Downloader calls this when a previously-
-        available cover has been removed from the disk. We
-        have to update our model to reflect this change.
-        """
-        self.podcast_list_model.delete_cover_by_url(channel_url)
-    
     def cover_download_finished(self, channel, pixbuf):
         """
         The Cover Downloader calls this when it has finished
         downloading (or registering, if already downloaded)
         a new channel cover, which is ready for displaying.
         """
-        self.podcast_list_model.add_cover_by_channel(channel, pixbuf)
+        util.idle_add(self.podcast_list_model.add_cover_by_channel,
+                channel, pixbuf)
 
     def save_episodes_as_file(self, episodes):
         for episode in episodes:
@@ -1668,7 +1648,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
 
-            result = gpodder.user_hooks.on_episodes_context_menu(episodes)
+            result = gpodder.user_extensions.on_episodes_context_menu(episodes)
             if result:
                 menu.append(gtk.SeparatorMenuItem())
                 for label, callback in result:
@@ -2222,8 +2202,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # The URL is valid and does not exist already - subscribe!
                     channel = self.model.load_podcast(url=url, create=True, \
                             authentication_tokens=auth_tokens.get(url, None), \
-                            max_episodes=self.config.max_episodes_per_feed, \
-                            mimetype_prefs=self.config.mimetype_prefs)
+                            max_episodes=self.config.max_episodes_per_feed)
 
                     try:
                         username, password = util.username_password_from_url(url)
@@ -2297,7 +2276,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
 
     def _update_cover(self, channel):
-        if channel is not None and not os.path.exists(channel.cover_file) and channel.image:
+        if channel is not None:
             self.cover_downloader.request_cover(channel)
 
     def show_update_feeds_buttons(self):
@@ -2348,8 +2327,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
 
                 try:
-                    channel.update(max_episodes=self.config.max_episodes_per_feed,
-                            mimetype_prefs=self.config.mimetype_prefs)
+                    channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception, e:
                     d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
@@ -2409,26 +2387,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     count = len(episodes)
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
-                    # Are we minimized and should we auto download?
-                    if (self.is_iconified() and (self.config.auto_download == 'minimized')) or (self.config.auto_download == 'always'):
+
+                    if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
                         self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                        self.show_update_feeds_buttons()
                     elif self.config.auto_download == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
                         self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
-                        self.show_update_feeds_buttons()
                     else:
-                        self.show_update_feeds_buttons()
-                        # New episodes are available and we are not minimized
-                        if (not self.config.do_not_show_new_episodes_dialog
-                            and show_new_episodes_dialog):
+                        if (show_new_episodes_dialog and
+                                self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else:
+                        else: # !show_new_episodes_dialog or auto_download == 'ignore'
                             message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
                             self.pbFeedUpdate.set_text(message)
+
+                    self.show_update_feeds_buttons()
 
             util.idle_add(update_feed_cache_finish_callback)
 
@@ -2463,6 +2439,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
+    def quit_cb(self, macapp):
+        """Called when OSX wants to quit the app (Cmd-Q or gPodder > Quit)
+        """
+        # Event can't really be cancelled - don't even try
+        self.close_gpodder()
+        return False
+
     def close_gpodder(self):
         """ clean everything and exit properly
         """
@@ -2477,7 +2460,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core.shutdown()
 
         self.quit()
-        sys.exit(0)
+        if macapp is None:
+            sys.exit(0)
 
     def get_expired_episodes(self):
         # XXX: Move out of gtkui and into a generic module (gpodder.model)?
@@ -2687,16 +2671,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.channels:
             self.update_feed_cache()
         else:
-            welcome_window = gPodderWelcome(self.main_window,
-                    center_on_widget=self.main_window)
+            def show_welcome_window():
+                def on_show_example_podcasts(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_itemImportChannels_activate(None)
 
-            result = welcome_window.main_window.run()
+                def on_add_podcast_via_url(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_itemAddChannel_activate(None)
 
-            welcome_window.main_window.destroy()
-            if result == gPodderWelcome.RESPONSE_OPML:
-                self.on_itemImportChannels_activate(None)
-            elif result == gPodderWelcome.RESPONSE_MYGPO:
-                self.on_download_subscriptions_from_mygpo(None)
+                def on_setup_my_gpodder(widget):
+                    welcome_window.main_window.response(gtk.RESPONSE_CANCEL)
+                    self.on_download_subscriptions_from_mygpo(None)
+
+                welcome_window = gPodderWelcome(self.main_window,
+                        center_on_widget=self.main_window,
+                        on_show_example_podcasts=on_show_example_podcasts,
+                        on_add_podcast_via_url=on_add_podcast_via_url,
+                        on_setup_my_gpodder=on_setup_my_gpodder)
+
+                welcome_window.main_window.run()
+                welcome_window.main_window.destroy()
+
+            util.idle_add(show_welcome_window)
 
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
@@ -2853,13 +2850,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_download_subscriptions_from_mygpo(self, action=None):
         title = _('Login to gpodder.net')
         message = _('Please login to download your subscriptions.')
-        success, (username, password) = self.show_login_dialog(title, message, \
-                self.config.mygpo_username, self.config.mygpo_password)
+
+        def on_register_button_clicked():
+            util.open_website('http://gpodder.net/register/')
+
+        success, (username, password) = self.show_login_dialog(title, message,
+                self.config.mygpo.username, self.config.mygpo.password,
+                register_callback=on_register_button_clicked)
         if not success:
             return
 
-        self.config.mygpo_username = username
-        self.config.mygpo_password = password
+        self.config.mygpo.username = username
+        self.config.mygpo.password = password
 
         dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                 custom_title=_('Subscriptions on gpodder.net'), \
@@ -2868,10 +2870,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # TODO: Refactor this into "gpodder.my" or mygpoclient, so that
         #       we do not have to hardcode the URL here
-        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo_username
+        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo.username
         url = util.url_add_authentication(OPML_URL, \
-                self.config.mygpo_username, \
-                self.config.mygpo_password)
+                self.config.mygpo.username, \
+                self.config.mygpo.password)
         dir.download_opml_file(url)
 
     def on_itemAddChannel_activate(self, widget=None):
@@ -2885,11 +2887,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message( message, title, widget=self.treeChannels)
             return
 
-        gPodderChannel(self.main_window, \
-                channel=self.active_channel, \
-                update_podcast_list_model=self.update_podcast_list_model, \
-                cover_downloader=self.cover_downloader, \
-                sections=set(c.section for c in self.channels))
+        gPodderChannel(self.main_window,
+                channel=self.active_channel,
+                update_podcast_list_model=self.update_podcast_list_model,
+                cover_downloader=self.cover_downloader,
+                sections=set(c.section for c in self.channels),
+                clear_cover_cache=self.podcast_list_model.clear_cover_cache)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (
@@ -3042,13 +3045,42 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemImportChannels_activate(self, widget, *args):
         dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
                 add_urls_callback=self.add_podcast_list)
-        util.idle_add(dir.download_opml_file, self.config.example_opml)
+        util.idle_add(dir.download_opml_file, my.EXAMPLES_OPML)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
 
     def on_wiki_activate(self, widget, *args):
         util.open_website('http://gpodder.org/wiki/User_Manual')
+
+    def on_check_for_updates_activate(self, widget):
+        self.check_for_updates(silent=False)
+
+    def check_for_updates(self, silent):
+        """Check for updates and (optionally) show a message
+
+        If silent=False, a message will be shown even if no updates are
+        available (set silent=False when the check is manually triggered).
+        """
+        up_to_date, version, released, days = util.get_update_info()
+
+        if up_to_date and not silent:
+            title = _('No updates available')
+            message = _('You have the latest version of gPodder.')
+            self.show_message(message, title, important=True)
+
+        if not up_to_date:
+            title = _('New version available')
+            message = '\n'.join([
+                _('Installed version: %s') % gpodder.__version__,
+                _('Newest version: %s') % version,
+                _('Release date: %s') % released,
+                '',
+                _('Download the latest version from gpodder.org?'),
+            ])
+
+            if self.show_confirmation(message, title):
+                util.open_website('http://gpodder.org/downloads')
 
     def on_bug_tracker_activate(self, widget, *args):
         util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=%s' % gpodder.__version__)
@@ -3065,14 +3097,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         bg = gtk.HBox(spacing=10)
         bg.pack_start(gtk.image_new_from_file(gpodder.icon_file), expand=False)
         vb = gtk.VBox()
+        vb.set_spacing(6)
         label = gtk.Label()
         label.set_alignment(0, 1)
         label.set_markup('<b><big>gPodder</big> %s</b>' % gpodder.__version__)
-        vb.pack_start(label)
-        label = gtk.Label()
-        label.set_alignment(0, 0)
-        label.set_markup('<small>%s</small>' % \
-                cgi.escape(_('A podcast client with focus on usability')))
         vb.pack_start(label)
         label = gtk.Label()
         label.set_alignment(0, 0)
@@ -3295,13 +3323,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
-        # Allow tab switching with Ctrl + PgUp/PgDown
+        # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.state & gtk.gdk.CONTROL_MASK:
             if event.keyval == gtk.keysyms.Page_Up:
                 self.wNotebook.prev_page()
                 return True
             elif event.keyval == gtk.keysyms.Page_Down:
                 self.wNotebook.next_page()
+                return True
+            elif event.keyval == gtk.keysyms.Tab:
+                current_page = self.wNotebook.get_current_page()
+
+                if current_page == self.wNotebook.get_n_pages()-1:
+                    self.wNotebook.set_current_page(0)
+                else:
+                    self.wNotebook.next_page()
                 return True
 
         return False
@@ -3347,18 +3383,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
-    def hooks_podcast_update_cb(self, podcast):
-        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+    def extensions_podcast_update_cb(self, podcast):
+        logger.debug('extensions_podcast_update_cb(%s)', podcast)
         self.update_feed_cache(channels=[podcast],
                 show_new_episodes_dialog=False)
 
-    def hooks_episode_download_cb(self, episode):
-        logger.debug('hooks_episode_download_cb(%s)', episode)
+    def extensions_episode_download_cb(self, episode):
+        logger.debug('extension_episode_download_cb(%s)', episode)
         self.download_episode_list(episodes=[episode])
 
 def main(options=None):
     gobject.threads_init()
     gobject.set_application_name('gPodder')
+
+    for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
+        pixbuf = draw_cake_pixbuf(float(i) /
+                float(EpisodeListModel.PROGRESS_STEPS))
+        icon_name = 'gpodder-progress-%d' % i
+        gtk.icon_theme_add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
     gtk.window_set_default_icon_name('gpodder')
     gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
@@ -3384,14 +3426,16 @@ def main(options=None):
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
 
-    # mac OS X stuff :
-    # handle "subscribe to podcast" events from firefox
-    if platform.system() == 'Darwin':
+    if gpodder.osx:
         from gpodder.gtkui import macosx
+
+        # Handle "subscribe to podcast" events from firefox
         macosx.register_handlers(gp)
-    # end mac OS X stuff
+
+        # Handle quit event
+        if macapp is not None:
+            macapp.connect('NSApplicationBlockTermination', gp.quit_cb)
+            macapp.ready()
 
     gp.run()
-
-
 

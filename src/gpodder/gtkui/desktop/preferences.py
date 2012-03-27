@@ -20,6 +20,7 @@
 import gtk
 import pango
 import threading
+import cgi
 
 import gpodder
 
@@ -34,39 +35,32 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 from gpodder.gtkui.desktopfile import PlayerListModel
 
 class NewEpisodeActionList(gtk.ListStore):
-    C_CAPTION, C_AUTO_DOWNLOAD, C_HIDE_DIALOG = range(3)
+    C_CAPTION, C_AUTO_DOWNLOAD = range(2)
 
     ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str, bool)
+        gtk.ListStore.__init__(self, str, str)
         self._config = config
-        self.append((_('Do nothing'), 'never', True))
-        self.append((_('Show episode list'), 'never', False))
-        self.append((_('Add to download list'), 'queue', False))
-        self.append((_('Download if minimized'), 'minimized', False))
-        self.append((_('Download immediately'), 'always', False))
+        self.append((_('Do nothing'), 'ignore'))
+        self.append((_('Show episode list'), 'show'))
+        self.append((_('Add to download list'), 'queue'))
+        self.append((_('Download immediately'), 'download'))
 
     def get_index(self):
-        if self._config.do_not_show_new_episodes_dialog:
-            return 0
-        else:
-            for index, row in enumerate(self):
-                if row[self.C_HIDE_DIALOG]:
-                    continue
-
-                if self._config.auto_download == \
-                        row[self.C_AUTO_DOWNLOAD]:
-                    return index
+        for index, row in enumerate(self):
+            if self._config.auto_download == row[self.C_AUTO_DOWNLOAD]:
+                return index
 
         return 1 # Some sane default
 
     def set_index(self, index):
-        self._config.do_not_show_new_episodes_dialog = self[index][self.C_HIDE_DIALOG]
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
 
 class gPodderPreferences(BuilderWidget):
+    C_TOGGLE, C_LABEL, C_EXTENSION = range(3)
+
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = gtk.CellRendererPixbuf()
@@ -87,8 +81,6 @@ class gPodderPreferences(BuilderWidget):
         self.combo_video_player_app.set_model(self.video_player_model)
         index = self.video_player_model.get_index(self._config.videoplayer)
         self.combo_video_player_app.set_active(index)
-
-        self._config.connect_gtk_togglebutton('enable_notifications', self.checkbutton_enable_notifications)
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
@@ -128,20 +120,85 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
 
         # Have to do this before calling set_active on checkbutton_enable
-        self._enable_mygpo = self._config.mygpo_enabled
+        self._enable_mygpo = self._config.mygpo.enabled
 
         # Initialize the UI state with configuration settings
-        self.checkbutton_enable.set_active(self._config.mygpo_enabled)
-        self.entry_username.set_text(self._config.mygpo_username)
-        self.entry_password.set_text(self._config.mygpo_password)
-        self.entry_caption.set_text(self._config.mygpo_device_caption)
+        self.checkbutton_enable.set_active(self._config.mygpo.enabled)
+        self.entry_username.set_text(self._config.mygpo.username)
+        self.entry_password.set_text(self._config.mygpo.password)
+        self.entry_caption.set_text(self._config.mygpo.device.caption)
 
         # Disable mygpo sync while the dialog is open
-        self._config.mygpo_enabled = False
+        self._config.mygpo.enabled = False
+
+        # Configure the extensions manager GUI
+        toggle_cell = gtk.CellRendererToggle()
+        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
+        toggle_column = gtk.TreeViewColumn('', toggle_cell, active=self.C_TOGGLE)
+        toggle_column.set_clickable(True)
+        self.treeviewExtensions.append_column(toggle_column)
+
+        renderer = gtk.CellRendererText()
+        renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        column = gtk.TreeViewColumn(_('Name'), renderer, markup=self.C_LABEL)
+        column.set_clickable(False)
+        column.set_resizable(True)
+        column.set_expand(True)
+        self.treeviewExtensions.append_column(column)
+
+        self.extensions_model = gtk.ListStore(bool, str, object)
+
+        for container in gpodder.user_extensions.get_extensions():
+            label = '%s\n<small>%s</small>' % (
+                    cgi.escape(container.metadata.title),
+                    cgi.escape(container.metadata.description))
+            self.extensions_model.append([container.enabled, label, container])
+
+        self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
+        self.treeviewExtensions.set_model(self.extensions_model)
+        self.treeviewExtensions.columns_autosize()
+
+    def on_extensions_cell_toggled(self, cell, path):
+        model = self.treeviewExtensions.get_model()
+        it = model.get_iter(path)
+        container = model.get_value(it, self.C_EXTENSION)
+
+        enabled_extensions = list(self._config.extensions.enabled)
+        new_enabled = not model.get_value(it, self.C_TOGGLE)
+
+        if new_enabled and container.name not in enabled_extensions:
+            enabled_extensions.append(container.name)
+        elif not new_enabled and container.name in enabled_extensions:
+            enabled_extensions.remove(container.name)
+
+        self._config.extensions.enabled = enabled_extensions
+
+        now_enabled = (container.name in self._config.extensions.enabled)
+
+        if new_enabled == now_enabled:
+            model.set_value(it, self.C_TOGGLE, new_enabled)
+        elif container.error is not None:
+            self.show_message(container.error.message,
+                    _('Extension cannot be activated'), important=True)
+            model.set_value(it, self.C_TOGGLE, False)
+
+    def on_extensions_row_activated(self, treeview, path, view_column):
+        model = treeview.get_model()
+        container = model.get_value(model.get_iter(path), self.C_EXTENSION)
+
+        # This is one ugly hack, but it displays the container's attributes
+        # and the attributes of the metadata object of the container..
+        info = '\n'.join('<b>%s:</b> %s' %
+                tuple(map(cgi.escape, map(str, (key, value))))
+                for key, value in sorted(container.__dict__.items() +
+                    [('metadata.'+k, v)
+                        for k, v in container.metadata.__dict__.items()]))
+
+        self.show_message(info, _('Extension module info'), important=True)
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it
-        self._config.mygpo_enabled = self._enable_mygpo
+        self._config.mygpo.enabled = self._enable_mygpo
         # Make sure the device is successfully created/updated
         self.mygpo_client.create_device()
         # Flush settings for mygpo client now
@@ -226,21 +283,21 @@ class gPodderPreferences(BuilderWidget):
         self._enable_mygpo = widget.get_active()
 
     def on_username_changed(self, widget):
-        self._config.mygpo_username = widget.get_text()
+        self._config.mygpo.username = widget.get_text()
 
     def on_password_changed(self, widget):
-        self._config.mygpo_password = widget.get_text()
+        self._config.mygpo.password = widget.get_text()
 
     def on_device_caption_changed(self, widget):
-        self._config.mygpo_device_caption = widget.get_text()
+        self._config.mygpo.device.caption = widget.get_text()
 
     def on_button_overwrite_clicked(self, button):
         title = _('Replace subscription list on server')
         message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
         if self.show_confirmation(message, title):
             def thread_proc():
-                self._config.mygpo_enabled = True
+                self._config.mygpo.enabled = True
                 self.on_send_full_subscriptions()
-                self._config.mygpo_enabled = False
+                self._config.mygpo.enabled = False
             threading.Thread(target=thread_proc).start()
 

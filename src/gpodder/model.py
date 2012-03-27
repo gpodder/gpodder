@@ -30,6 +30,7 @@ from gpodder import feedcore
 from gpodder import youtube
 from gpodder import vimeo
 from gpodder import schema
+from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,13 +41,6 @@ import glob
 import shutil
 import time
 import datetime
-
-try:
-    # Python 2
-    from rfc822 import mktime_tz
-except ImportError:
-    # Python 3
-    from email.utils import mktime_tz
 
 import hashlib
 import feedparser
@@ -181,7 +175,7 @@ class PodcastEpisode(PodcastModelObject):
                 youtube.is_video_link(self.link))
 
     @classmethod
-    def from_feedparser_entry(cls, entry, channel, mimetype_prefs=''):
+    def from_feedparser_entry(cls, entry, channel):
         episode = cls(channel)
         episode.guid = entry.get('id', '')
 
@@ -218,8 +212,7 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.description:
             episode.description = entry.get('subtitle', '')
 
-        if entry.get('updated_parsed', None):
-            episode.published = mktime_tz(entry.updated_parsed+(0,))
+        episode.published = feedcore.get_pubdate(entry)
 
         enclosures = entry.get('enclosures', [])
         media_rss_content = entry.get('media_content', [])
@@ -228,25 +221,14 @@ class PodcastEpisode(PodcastModelObject):
         video_available = any(e.get('type', '').startswith('video/') \
                 for e in enclosures + media_rss_content)
 
-        # Create the list of preferred mime types
-        mimetype_prefs = mimetype_prefs.split(',')
-
-        def calculate_preference_value(enclosure):
-            """Calculate preference value of an enclosure
-
-            This is based on mime types and allows users to prefer
-            certain mime types over others (e.g. MP3 over AAC, ...)
-            """
-            mimetype = enclosure.get('type', None)
-            try:
-                # If the mime type is found, return its (zero-based) index
-                return mimetype_prefs.index(mimetype)
-            except ValueError:
-                # If it is not found, assume it comes after all listed items
-                return len(mimetype_prefs)
+        # XXX: Make it possible for hooks/extensions to override this by
+        # giving them a list of enclosures and the "self" object (podcast)
+        # and letting them sort and/or filter the list of enclosures to
+        # get the desired enclosure picked by the algorithm below.
+        filter_and_sort_enclosures = lambda x: x
 
         # Enclosures
-        for e in sorted(enclosures, key=calculate_preference_value):
+        for e in filter_and_sort_enclosures(enclosures):
             episode.mime_type = e.get('type', 'application/octet-stream')
             if episode.mime_type == '':
                 # See Maemo bug 10036
@@ -280,7 +262,7 @@ class PodcastEpisode(PodcastModelObject):
             return episode
 
         # Media RSS content
-        for m in sorted(media_rss_content, key=calculate_preference_value):
+        for m in filter_and_sort_enclosures(media_rss_content):
             episode.mime_type = m.get('type', 'application/octet-stream')
             if '/' not in episode.mime_type:
                 continue
@@ -388,6 +370,25 @@ class PodcastEpisode(PodcastModelObject):
                     len(self.title)-len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
+        regex_patterns = [
+            # "Podcast Name <number>: ..." -> "<number>: ..."
+            r'^%s (\d+: .*)' % re.escape(self.parent.title),
+
+            # "Episode <number>: ..." -> "<number>: ..."
+            r'Episode (\d+:.*)',
+        ]
+
+        for pattern in regex_patterns:
+            if re.match(pattern, self.title):
+                title = re.sub(pattern, r'\1', self.title)
+                if len(title) > LEFTOVER_MIN:
+                    return title
+
+        # "#001: Title" -> "001: Title"
+        if (not self.parent._common_prefix and re.match('^#\d+: ',
+            self.title) and len(self.title)-1 > LEFTOVER_MIN):
+            return self.title[1:]
+
         if (self.parent._common_prefix is not None and
                 self.title.startswith(self.parent._common_prefix) and
                 len(self.title)-len(self.parent._common_prefix) > LEFTOVER_MIN):
@@ -416,7 +417,7 @@ class PodcastEpisode(PodcastModelObject):
                 not self.downloading)
 
     def save(self):
-        gpodder.user_hooks.on_episode_save(self)
+        gpodder.user_extensions.on_episode_save(self)
 
         self._clear_changes()
 
@@ -442,6 +443,10 @@ class PodcastEpisode(PodcastModelObject):
             self.state = state
         if is_played is not None:
             self.is_new = not is_played
+
+            # "Mark as new" must "undelete" the episode
+            if self.is_new and self.state == gpodder.STATE_DELETED:
+                self.state = gpodder.STATE_NORMAL
         if is_locked is not None:
             self.archive = is_locked
         self.save()
@@ -484,7 +489,7 @@ class PodcastEpisode(PodcastModelObject):
     def delete_from_disk(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
-            gpodder.user_hooks.on_episode_delete(self, filename)
+            gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
         self.set_state(gpodder.STATE_DELETED)
@@ -830,9 +835,13 @@ class PodcastChannel(PodcastModelObject):
         existing_files = set(filename for filename in \
                 glob.glob(os.path.join(self.save_dir, '*')) \
                 if not filename.endswith('.partial'))
-        external_files = existing_files.difference(list(known_files) + \
-                [os.path.join(self.save_dir, x) \
-                for x in ('folder.jpg', 'Unknown')])
+
+        ignore_files = ['folder'+ext for ext in
+                coverart.CoverDownloader.EXTENSIONS] + ['Unknown']
+
+        external_files = existing_files.difference(list(known_files) +
+                [os.path.join(self.save_dir, ignore_file)
+                 for ignore_file in ignore_files])
         if not external_files:
             return
 
@@ -895,8 +904,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None,\
-            max_episodes=0, \
-            mimetype_prefs=''):
+            max_episodes=0):
         if isinstance(url, unicode):
             url = url.encode('utf-8')
 
@@ -917,7 +925,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
 
             try:
-                tmp.update(max_episodes, mimetype_prefs)
+                tmp.update(max_episodes)
             except Exception, e:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
@@ -938,7 +946,7 @@ class PodcastChannel(PodcastModelObject):
 
             tmp.save()
 
-            gpodder.user_hooks.on_podcast_subscribe(tmp)
+            gpodder.user_extensions.on_podcast_subscribe(tmp)
 
             return tmp
 
@@ -981,7 +989,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
-    def _consume_updated_feed(self, feed, max_episodes=0, mimetype_prefs=''):
+    def _consume_updated_feed(self, feed, max_episodes=0):
         #self.parse_error = feed.get('bozo_exception', None)
 
         self._consume_updated_title(feed.feed.get('title', self.url))
@@ -1018,8 +1026,7 @@ class PodcastChannel(PodcastModelObject):
             # max_episodes old episodes, new episodes will not be shown.
             # See also: gPodder Bug 1186
             try:
-                entries = sorted(feed.entries, \
-                        key=lambda x: x.get('updated_parsed', (0,)*9), \
+                entries = sorted(feed.entries, key=feedcore.get_pubdate,
                         reverse=True)[:max_episodes]
             except Exception, e:
                 logger.warn('Could not sort episodes: %s', e, exc_info=True)
@@ -1042,7 +1049,7 @@ class PodcastChannel(PodcastModelObject):
         # Search all entries for new episodes
         for entry in entries:
             try:
-                episode = self.EpisodeClass.from_feedparser_entry(entry, self, mimetype_prefs)
+                episode = self.EpisodeClass.from_feedparser_entry(entry, self)
                 if episode is not None:
                     if not episode.title:
                         logger.warn('Using filename as title for %s',
@@ -1107,7 +1114,7 @@ class PodcastChannel(PodcastModelObject):
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
-                gpodder.user_hooks.on_episode_removed_from_podcast(episode)
+                gpodder.user_extensions.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
 
                 # Remove the episode from the "children" episodes list
@@ -1127,7 +1134,7 @@ class PodcastChannel(PodcastModelObject):
         self.http_etag = feed.headers.get('etag', self.http_etag)
         self.http_last_modified = feed.headers.get('last-modified', self.http_last_modified)
 
-    def update(self, max_episodes=0, mimetype_prefs=''):
+    def update(self, max_episodes=0):
         try:
             self.feed_fetcher.fetch_channel(self)
         except CustomFeed, updated:
@@ -1136,7 +1143,7 @@ class PodcastChannel(PodcastModelObject):
             self.save()
         except feedcore.UpdatedFeed, updated:
             feed = updated.data
-            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NewLocation, updated:
@@ -1145,7 +1152,7 @@ class PodcastChannel(PodcastModelObject):
             if feed.href in set(x.url for x in self.model.get_podcasts()):
                 raise Exception('Already subscribed to ' + feed.href)
             self.url = feed.href
-            self._consume_updated_feed(feed, max_episodes, mimetype_prefs)
+            self._consume_updated_feed(feed, max_episodes)
             self._update_etag_modified(feed)
             self.save()
         except feedcore.NotModified, updated:
@@ -1165,10 +1172,10 @@ class PodcastChannel(PodcastModelObject):
             #feedcore.NotFound
             #feedcore.InvalidFeed
             #feedcore.UnknownStatusCode
-            gpodder.user_hooks.on_podcast_update_failed(self, e)
+            gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 
-        gpodder.user_hooks.on_podcast_updated(self)
+        gpodder.user_extensions.on_podcast_updated(self)
 
         # Re-determine the common prefix for all episodes
         self._determine_common_prefix()
@@ -1183,7 +1190,7 @@ class PodcastChannel(PodcastModelObject):
         if self.download_folder is None:
             self.get_save_dir()
 
-        gpodder.user_hooks.on_podcast_save(self)
+        gpodder.user_extensions.on_podcast_save(self)
 
         self._clear_changes()
 
@@ -1320,6 +1327,9 @@ class PodcastChannel(PodcastModelObject):
 
         save_dir = os.path.join(gpodder.downloads, self.download_folder)
 
+        # Avoid encoding errors for OS-specific functions (bug 1570)
+        save_dir = util.sanitize_encoding(save_dir)
+
         # Create save_dir if it does not yet exist
         if not util.make_directory(save_dir):
             logger.error('Could not create save_dir: %s', save_dir)
@@ -1333,13 +1343,13 @@ class PodcastChannel(PodcastModelObject):
         for episode in self.get_downloaded_episodes():
             filename = episode.local_filename(create=False, check_only=True)
             if filename is not None:
-                gpodder.user_hooks.on_episode_delete(episode, filename)
+                gpodder.user_extensions.on_episode_delete(episode, filename)
 
         shutil.rmtree(self.save_dir, True)
 
     @property
     def cover_file(self):
-        return os.path.join(self.save_dir, 'folder.jpg')
+        return os.path.join(self.save_dir, 'folder')
 
 
 class Model(object):
@@ -1355,7 +1365,7 @@ class Model(object):
 
     def _remove_podcast(self, podcast):
         self.children.remove(podcast)
-        gpodder.user_hooks.on_podcast_delete(self)
+        gpodder.user_extensions.on_podcast_delete(self)
 
     def get_podcasts(self):
         def podcast_factory(dct, db):
@@ -1371,10 +1381,10 @@ class Model(object):
         return self.children
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
-                     max_episodes=0, mimetype_prefs=''):
+                     max_episodes=0):
         return self.PodcastClass.load(self, url, create,
                                       authentication_tokens,
-                                      max_episodes, mimetype_prefs)
+                                      max_episodes)
 
     @classmethod
     def podcast_sort_key(cls, podcast):

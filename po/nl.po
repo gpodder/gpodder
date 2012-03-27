@@ -1,0 +1,4591 @@
+# translation of nl.po to Nederlands
+# gPodder translation template.
+# Copyright (C) 2006 Thomas Perl
+# This file is distributed under the same license as the gPodder package.
+#
+# Thomas Perl <thp@perli.net>, 2006.
+# Pieter De Decker <pdedecker@gmail.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: nl\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-03-27 01:32+0200\n"
+"PO-Revision-Date: 2009-01-31 23:20+0100\n"
+"Last-Translator: Iwan van der Kleijn <iwanvanderkleijn@gmail.com>\n"
+"Language-Team: Nederlands <nl@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"X-Rosetta-Export-Date: 2007-09-18 00:08:31+0000\n"
+
+#: src/gpodder/config.py:56
+#, fuzzy, python-format
+msgid "gPodder on %s"
+msgstr "gPodder heeft %s gevonden"
+
+#: src/gpodder/download.py:335
+#, fuzzy
+msgid "Wrong username/password"
+msgstr "Voer uw naam en wachtwoord in."
+
+#: src/gpodder/download.py:531
+#, fuzzy
+msgid "Added"
+msgstr "Geadvanceerd"
+
+#: src/gpodder/download.py:531
+msgid "Queued"
+msgstr "In wachtrij"
+
+#: src/gpodder/download.py:531 src/gpodder/gtkui/model.py:325
+#, fuzzy
+msgid "Downloading"
+msgstr "downloaden"
+
+#: src/gpodder/download.py:532 src/gpodder/qmlui/__init__.py:68
+msgid "Finished"
+msgstr ""
+
+#: src/gpodder/download.py:532
+#, fuzzy
+msgid "Failed"
+msgstr "Filter:"
+
+#: src/gpodder/download.py:532
+#, fuzzy
+msgid "Cancelled"
+msgstr "Annuleren"
+
+#: src/gpodder/download.py:532
+msgid "Paused"
+msgstr ""
+
+#: src/gpodder/download.py:837
+#, fuzzy
+msgid "Missing content from server"
+msgstr "Ontbrekende componenten:"
+
+#: src/gpodder/download.py:843
+#, fuzzy, python-format
+msgid "I/O Error: %(error)s: %(filename)s"
+msgstr "Fout bij het openen van %s: %s"
+
+#: src/gpodder/download.py:850
+#, fuzzy, python-format
+msgid "HTTP Error %(code)s: %(message)s"
+msgstr "Fout bij het openen van %s: %s"
+
+#: src/gpodder/download.py:854
+#, fuzzy, python-format
+msgid "Error: %s"
+msgstr "Fout bij het openen van %s: %s"
+
+#: src/gpodder/extensions.py:92
+#, fuzzy
+msgid "No description for this extension."
+msgstr "Geen beschrijving beschikbaar"
+
+#: src/gpodder/extensions.py:162
+#, fuzzy, python-format
+msgid "Command not found: %(command)s"
+msgstr "Gebruikersprogramma of commando niet aangetroffen"
+
+#: src/gpodder/extensions.py:199
+#, fuzzy, python-format
+msgid "Python module not found: %(module)s"
+msgstr "De Python module \"%s\" is niet geïnstalleerd"
+
+#: src/gpodder/model.py:479 src/gpodder/plugins/soundcloud.py:155
+msgid "No description available"
+msgstr "Geen beschrijving beschikbaar"
+
+#: src/gpodder/model.py:710
+msgid "unknown"
+msgstr "onbekend"
+
+#: src/gpodder/model.py:798 src/gpodder/model.py:1233
+msgid "Other"
+msgstr ""
+
+#: src/gpodder/model.py:1216 src/gpodder/model.py:1231
+msgid "Video"
+msgstr ""
+
+#: src/gpodder/model.py:1229
+msgid "Audio"
+msgstr ""
+
+#: src/gpodder/my.py:166
+#, fuzzy, python-format
+msgid "Add %s"
+msgstr "Toevoegen van %s"
+
+#: src/gpodder/my.py:168
+#, fuzzy, python-format
+msgid "Remove %s"
+msgstr "%s verwijderen?"
+
+#: src/gpodder/util.py:390
+#, fuzzy, python-format
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
+msgstr[0] "%d dagen geleden"
+msgstr[1] "%d dagen geleden"
+
+#: src/gpodder/util.py:458
+msgid "Today"
+msgstr "Vandaag"
+
+#: src/gpodder/util.py:460
+msgid "Yesterday"
+msgstr "Gisteren"
+
+#: src/gpodder/util.py:503 src/gpodder/util.py:506
+msgid "(unknown)"
+msgstr "(onbekend)"
+
+#: src/gpodder/util.py:1161 src/gpodder/util.py:1180
+#, fuzzy, python-format
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
+msgstr[0] "%i seconden"
+msgstr[1] "%i seconden"
+
+#: src/gpodder/util.py:1174
+#, fuzzy, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "%i uur"
+msgstr[1] "%i uur"
+
+#: src/gpodder/util.py:1177
+#, fuzzy, python-format
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
+msgstr[0] "%i minuten"
+msgstr[1] "%i minuten"
+
+#: src/gpodder/util.py:1183
+msgid "and"
+msgstr "en"
+
+#: src/gpodder/gtkui/config.py:50
+msgid "Integer"
+msgstr "Integer"
+
+#: src/gpodder/gtkui/config.py:52
+msgid "Float"
+msgstr "Float"
+
+#: src/gpodder/gtkui/config.py:54
+msgid "Boolean"
+msgstr "Boolean"
+
+#: src/gpodder/gtkui/config.py:56
+msgid "String"
+msgstr "String"
+
+#: src/gpodder/gtkui/desktopfile.py:65
+#, fuzzy, python-format
+msgid "Command: %s"
+msgstr "Opdrachtregel:"
+
+#: src/gpodder/gtkui/desktopfile.py:111
+msgid "Default application"
+msgstr "Standaard programma"
+
+#: src/gpodder/gtkui/main.py:178 share/applications/gpodder.desktop.in.h:1
+msgid "gPodder"
+msgstr "gPodder"
+
+#: src/gpodder/gtkui/main.py:234
+#, fuzzy
+msgid "Loading incomplete downloads"
+msgstr "Niet downloaden"
+
+#: src/gpodder/gtkui/main.py:235
+msgid "Some episodes have not finished downloading in a previous session."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:237
+#, python-format
+msgid "%(count)d partial file"
+msgid_plural "%(count)d partial files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/gpodder/gtkui/main.py:274
+#, fuzzy
+msgid "Resume all"
+msgstr "Nooit downloaden"
+
+#: src/gpodder/gtkui/main.py:284
+msgid "Incomplete downloads from a previous session were found."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:407
+msgid "Action"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:450
+#, fuzzy
+msgid "Confirm changes from gpodder.net"
+msgstr "Download lijst van my.gpodder.org"
+
+#: src/gpodder/gtkui/main.py:451
+#, fuzzy
+msgid "Select the actions you want to carry out."
+msgstr "Selecteer de afleveringen die u nu wilt downloaden."
+
+#: src/gpodder/gtkui/main.py:491
+#, fuzzy
+msgid "Uploading subscriptions"
+msgstr "A_bonnementen"
+
+#: src/gpodder/gtkui/main.py:492
+#, fuzzy
+msgid "Your subscriptions are being uploaded to the server."
+msgstr "Uw lokale abonnementenlijst is bijgewerkt."
+
+#: src/gpodder/gtkui/main.py:497
+#, fuzzy
+msgid "List uploaded successfully."
+msgstr "Update geslaagd"
+
+#: src/gpodder/gtkui/main.py:504
+#, fuzzy
+msgid "Error while uploading"
+msgstr "Fout bij bijwerken van %s"
+
+#: src/gpodder/gtkui/main.py:799 src/gpodder/gtkui/main.py:919
+#: src/gpodder/gtkui/main.py:2574 src/gpodder/gtkui/main.py:2762
+#: src/gpodder/gtkui/desktop/episodeselector.py:131
+msgid "Episode"
+msgstr "Aflevering"
+
+#: src/gpodder/gtkui/main.py:818
+msgid "Size"
+msgstr "Grootte"
+
+#: src/gpodder/gtkui/main.py:823
+#, fuzzy
+msgid "Duration"
+msgstr "Beschrijving:"
+
+#: src/gpodder/gtkui/main.py:827
+msgid "Released"
+msgstr "Uitgegeven"
+
+#: src/gpodder/gtkui/main.py:854
+msgid "Visible columns"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:939
+msgid "Progress"
+msgstr "Voortgang"
+
+#: src/gpodder/gtkui/main.py:973
+#, fuzzy
+msgid "Loading episodes"
+msgstr "Downloaden van nieuwe afleveringen"
+
+#: src/gpodder/gtkui/main.py:976
+#, fuzzy
+msgid "No episodes in current view"
+msgstr "Geen podcast geselecteerd"
+
+#: src/gpodder/gtkui/main.py:978
+#, fuzzy
+msgid "No episodes available"
+msgstr "Nieuwe afleveringen beschikbaar"
+
+#: src/gpodder/gtkui/main.py:984
+#, fuzzy
+msgid "No podcasts in this view"
+msgstr "Geen podcast geselecteerd"
+
+#: src/gpodder/gtkui/main.py:986
+#, fuzzy
+msgid "No subscriptions"
+msgstr "A_bonnementen"
+
+#: src/gpodder/gtkui/main.py:988
+#, fuzzy
+msgid "No active downloads"
+msgstr "Nooit downloaden"
+
+#: src/gpodder/gtkui/main.py:1114 share/gpodder/ui/gtk/gpodder.ui.h:44
+msgid "Downloads"
+msgstr "Downloads"
+
+#: src/gpodder/gtkui/main.py:1118
+#, python-format
+msgid "%(count)d active"
+msgid_plural "%(count)d active"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/gpodder/gtkui/main.py:1120
+#, fuzzy, python-format
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
+msgstr[0] "Gedownload"
+msgstr[1] "Gedownload"
+
+#: src/gpodder/gtkui/main.py:1122
+#, fuzzy, python-format
+msgid "%(count)d queued"
+msgid_plural "%(count)d queued"
+msgstr[0] "In wachtrij"
+msgstr[1] "In wachtrij"
+
+#: src/gpodder/gtkui/main.py:1136
+#, fuzzy, python-format
+msgid "downloading %(count)d file"
+msgid_plural "downloading %(count)d files"
+msgstr[0] "%d downloads"
+msgstr[1] "%d downloads"
+
+#: src/gpodder/gtkui/main.py:1173
+msgid "Please report this problem and restart gPodder:"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1173
+msgid "Unhandled exception"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1240
+#, python-format
+msgid "Feedparser error: %s"
+msgstr "Feedparser foutmelding: %s"
+
+#: src/gpodder/gtkui/main.py:1354
+#, fuzzy
+msgid "These downloads failed:"
+msgstr "Nooit downloaden"
+
+#: src/gpodder/gtkui/main.py:1356 src/gpodder/gtkui/main.py:1359
+#, fuzzy
+msgid "Downloads finished"
+msgstr "gPodder-downloads voltooid"
+
+#: src/gpodder/gtkui/main.py:1362
+#, fuzzy
+msgid "Downloads failed"
+msgstr "Gedownload"
+
+#: src/gpodder/gtkui/main.py:1387
+#, fuzzy, python-format
+msgid "%(count)d more episode"
+msgid_plural "%(count)d more episodes"
+msgstr[0] "nog %d afleveringen"
+msgstr[1] "nog %d afleveringen"
+
+#: src/gpodder/gtkui/main.py:1460 src/gpodder/gtkui/main.py:1697
+#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:25
+msgid "Episode details"
+msgstr "Details aflevering"
+
+#: src/gpodder/gtkui/main.py:1471
+#, fuzzy
+msgid "Start download now"
+msgstr "Beperk aantal downloads tot"
+
+#: src/gpodder/gtkui/main.py:1473 src/gpodder/gtkui/main.py:1636
+#: src/gpodder/gtkui/desktop/episodeselector.py:143
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:65
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
+#: share/gpodder/ui/gtk/gpodder.ui.h:20
+#: share/gpodder/ui/qml/EpisodeActions.qml:18
+msgid "Download"
+msgstr "Download"
+
+#: src/gpodder/gtkui/main.py:1474 src/gpodder/qmlui/__init__.py:408
+#: src/gpodder/qmlui/__init__.py:846 share/gpodder/ui/gtk/gpodder.ui.h:21
+#: share/gpodder/ui/qml/EpisodeActions.qml:26
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: src/gpodder/gtkui/main.py:1475 share/gpodder/ui/qml/EpisodeActions.qml:34
+#, fuzzy
+msgid "Pause"
+msgstr "Waarde"
+
+#: src/gpodder/gtkui/main.py:1477
+#, fuzzy
+msgid "Remove from list"
+msgstr "Oude afleveringen verwijderen"
+
+#: src/gpodder/gtkui/main.py:1512 share/gpodder/ui/gtk/gpodder.ui.h:13
+#, fuzzy
+msgid "Update podcast"
+msgstr "Update geselecteerde podcast"
+
+#: src/gpodder/gtkui/main.py:1519 src/gpodder/qmlui/__init__.py:292
+#, fuzzy
+msgid "Mark episodes as old"
+msgstr "Aflevering als afgespeeld markeren"
+
+#: src/gpodder/gtkui/main.py:1523 src/gpodder/gtkui/main.py:1690
+#: src/gpodder/qmlui/__init__.py:502
+msgid "Archive"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1528
+#, fuzzy
+msgid "Remove podcast"
+msgstr "Voeg een podcast toe"
+
+#: src/gpodder/gtkui/main.py:1535 share/gpodder/ui/gtk/gpodder.ui.h:10
+#, fuzzy
+msgid "Podcast settings"
+msgstr "Podcasts"
+
+#: src/gpodder/gtkui/main.py:1595
+msgid "Error converting file."
+msgstr "Fout bij conversie van bestand."
+
+#: src/gpodder/gtkui/main.py:1595
+msgid "Bluetooth file transfer"
+msgstr "Bluetooth bestandsoverdracht"
+
+#: src/gpodder/gtkui/main.py:1626
+msgid "Preview"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1628 share/gpodder/ui/qml/EpisodeActions.qml:34
+msgid "Stream"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1663
+#, fuzzy
+msgid "Send to"
+msgstr "Ingesteld op"
+
+#: src/gpodder/gtkui/main.py:1667
+msgid "Local folder"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1672
+#, fuzzy
+msgid "Bluetooth device"
+msgstr "Bluetooth-apparaat"
+
+#: src/gpodder/gtkui/main.py:1681 src/gpodder/qmlui/__init__.py:65
+msgid "New"
+msgstr "Nieuw"
+
+#: src/gpodder/gtkui/main.py:1874
+#, fuzzy
+msgid "Please check your media player settings in the preferences dialog."
+msgstr ""
+"De geselecteerde mediaspeler kan niet gevonden worden. Controleer de "
+"instellingen van gPodder bij Voorkeuren om dit op te lossen."
+
+#: src/gpodder/gtkui/main.py:1875
+#, fuzzy
+msgid "Error opening player"
+msgstr "Fout bij het openen van mediaspeler: %s"
+
+#: src/gpodder/gtkui/main.py:2110
+#, fuzzy
+msgid "Adding podcasts"
+msgstr "Toevoegen van podcast %s"
+
+#: src/gpodder/gtkui/main.py:2111
+#, fuzzy
+msgid "Please wait while episode information is downloaded."
+msgstr "Wacht a.u.b. terwijl uw instellingen worden omgezet."
+
+#: src/gpodder/gtkui/main.py:2118
+#, fuzzy
+msgid "Existing subscriptions skipped"
+msgstr "Eén abonnement geëxporteerd"
+
+#: src/gpodder/gtkui/main.py:2119
+#, fuzzy
+msgid "You are already subscribed to these podcasts:"
+msgstr "U bent al geabonneerd op deze podcast: %s"
+
+#: src/gpodder/gtkui/main.py:2127
+#, fuzzy
+msgid "Podcast requires authentication"
+msgstr "Authenticatie noodzakelijk voor deze feed "
+
+#: src/gpodder/gtkui/main.py:2128
+#, python-format
+msgid "Please login to %s:"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2136 src/gpodder/gtkui/main.py:2222
+#, fuzzy
+msgid "Authentication failed"
+msgstr "Authenticatie is mislukt."
+
+#: src/gpodder/gtkui/main.py:2142
+msgid "Website redirection detected"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2143
+#, python-format
+msgid "The URL %(url)s redirects to %(target)s."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2144
+#, fuzzy
+msgid "Do you want to visit the website now?"
+msgstr "Weet u zeker dat u gPodder wilt afsluiten?"
+
+#: src/gpodder/gtkui/main.py:2153
+#, fuzzy
+msgid "Could not add some podcasts"
+msgstr "De podcast kon niet worden toegevoegd."
+
+#: src/gpodder/gtkui/main.py:2154
+msgid "Some podcasts could not be added to your list:"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2156
+#, fuzzy
+msgid "Unknown"
+msgstr "onbekend"
+
+#: src/gpodder/gtkui/main.py:2231
+msgid "Redirection detected"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2266
+#, fuzzy
+msgid "Merging episode actions"
+msgstr "Nieuwe afleveringen in %s"
+
+#: src/gpodder/gtkui/main.py:2267
+#, fuzzy
+msgid "Episode actions from gpodder.net are merged."
+msgstr "Download mijn abonnementen van my.gpodder.org"
+
+#: src/gpodder/gtkui/main.py:2292
+#, fuzzy
+msgid "Cancelling..."
+msgstr "Annuleren"
+
+#: src/gpodder/gtkui/main.py:2318
+#, fuzzy, python-format
+msgid "Updating %(count)d feed..."
+msgid_plural "Updating %(count)d feeds..."
+msgstr[0] "Bijwerken van %d feeds"
+msgstr[1] "Bijwerken van %d feeds"
+
+#: src/gpodder/gtkui/main.py:2335
+#, fuzzy, python-format
+msgid "Error while updating %(url)s: %(message)s"
+msgstr "Fout bij het openen van %s: %s"
+
+#: src/gpodder/gtkui/main.py:2337
+#, fuzzy, python-format
+msgid "The feed at %(url)s could not be updated."
+msgstr "De map %s kon niet worden aangemaakt"
+
+#: src/gpodder/gtkui/main.py:2338
+#, fuzzy
+msgid "Error while updating feed"
+msgstr "Fout bij bijwerken van %s"
+
+#: src/gpodder/gtkui/main.py:2353
+#, python-format
+msgid "Updated %(podcast)s (%(position)d/%(total)d)"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2380
+msgid "No new episodes"
+msgstr "Geen nieuwe afleveringen"
+
+#: src/gpodder/gtkui/main.py:2393
+#, fuzzy, python-format
+msgid "Downloading %(count)d new episode."
+msgid_plural "Downloading %(count)d new episodes."
+msgstr[0] "%d nieuwe afleveringen gedownload."
+msgstr[1] "%d nieuwe afleveringen gedownload."
+
+#: src/gpodder/gtkui/main.py:2394 src/gpodder/gtkui/main.py:2398
+#: src/gpodder/gtkui/main.py:2780
+msgid "New episodes available"
+msgstr "Nieuwe afleveringen beschikbaar"
+
+#: src/gpodder/gtkui/main.py:2397
+#, fuzzy, python-format
+msgid "%(count)d new episode added to download list."
+msgid_plural "%(count)d new episodes added to download list."
+msgstr[0] "Geen nieuwe afleveringen te downloaden"
+msgstr[1] "Geen nieuwe afleveringen te downloaden"
+
+#: src/gpodder/gtkui/main.py:2404
+#, fuzzy, python-format
+msgid "%(count)d new episode available"
+msgid_plural "%(count)d new episodes available"
+msgstr[0] "Nieuwe afleveringen beschikbaar"
+msgstr[1] "Nieuwe afleveringen beschikbaar"
+
+#: src/gpodder/gtkui/main.py:2425
+msgid "Quit gPodder"
+msgstr "gPodder afsluiten"
+
+#: src/gpodder/gtkui/main.py:2426
+msgid ""
+"You are downloading episodes. You can resume downloads the next time you "
+"start gPodder. Do you want to quit now?"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2508
+msgid "Episodes are locked"
+msgstr "Afleveringen zijn beveiligd"
+
+#: src/gpodder/gtkui/main.py:2509
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+"De geselecteerde afleveringen zijn beveiligd. Verwijder de beveiliging en "
+"probeer het opnieuw."
+
+#: src/gpodder/gtkui/main.py:2514
+#, fuzzy, python-format
+msgid "Delete %(count)d episode?"
+msgid_plural "Delete %(count)d episodes?"
+msgstr[0] "%d afleveringen verwijderen?"
+msgstr[1] "%d afleveringen verwijderen?"
+
+#: src/gpodder/gtkui/main.py:2515
+#, fuzzy
+msgid "Deleting episodes removes downloaded files."
+msgstr "Selecteer de podcasts die u wilt verwijderen van uw apparaat."
+
+#: src/gpodder/gtkui/main.py:2520
+#, fuzzy
+msgid "Deleting episodes"
+msgstr "Afleveringen selecteren"
+
+#: src/gpodder/gtkui/main.py:2521
+#, fuzzy
+msgid "Please wait while episodes are deleted"
+msgstr "Wacht a.u.b. terwijl uw instellingen worden omgezet."
+
+#: src/gpodder/gtkui/main.py:2577
+#, fuzzy, python-format
+msgid "Select older than %(count)d day"
+msgid_plural "Select older than %(count)d days"
+msgstr[0] "Selecteer ouder dan %d dagen"
+msgstr[1] "Selecteer ouder dan %d dagen"
+
+#: src/gpodder/gtkui/main.py:2579
+msgid "Select played"
+msgstr "Selecteer afgespeeld"
+
+#: src/gpodder/gtkui/main.py:2580
+#, fuzzy
+msgid "Select finished"
+msgstr "Niets selecteren"
+
+#: src/gpodder/gtkui/main.py:2584
+#, fuzzy
+msgid "Select the episodes you want to delete:"
+msgstr "Selecteer de afleveringen die u nu wilt downloaden."
+
+#: src/gpodder/gtkui/main.py:2600 share/gpodder/ui/gtk/gpodder.ui.h:4
+#, fuzzy
+msgid "Delete episodes"
+msgstr "Geselecteerde afleveringen verwijderen"
+
+#: src/gpodder/gtkui/main.py:2656 src/gpodder/gtkui/main.py:2885
+#: src/gpodder/gtkui/main.py:2985
+msgid "No podcast selected"
+msgstr "Geen podcast geselecteerd"
+
+#: src/gpodder/gtkui/main.py:2657
+#, fuzzy
+msgid "Please select a podcast in the podcasts list to update."
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:2722
+#, python-format
+msgid "Download error while downloading %(episode)s: %(message)s"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2723
+#, fuzzy
+msgid "Download error"
+msgstr "Download naar:"
+
+#: src/gpodder/gtkui/main.py:2765
+#, fuzzy
+msgid "Select the episodes you want to download:"
+msgstr "Selecteer de afleveringen die u nu wilt downloaden."
+
+#: src/gpodder/gtkui/main.py:2788 src/gpodder/qmlui/__init__.py:499
+#, fuzzy
+msgid "Mark as old"
+msgstr "Markeer als afgespeeld"
+
+#: src/gpodder/gtkui/main.py:2796
+#, fuzzy
+msgid "Please check for new episodes later."
+msgstr "Controleren op nieuwe afleveringen"
+
+#: src/gpodder/gtkui/main.py:2797
+#, fuzzy
+msgid "No new episodes available"
+msgstr "Nieuwe afleveringen beschikbaar"
+
+#: src/gpodder/gtkui/main.py:2851
+#, fuzzy
+msgid "Login to gpodder.net"
+msgstr "Ga naar gpodder.org"
+
+#: src/gpodder/gtkui/main.py:2852
+#, fuzzy
+msgid "Please login to download your subscriptions."
+msgstr "A_bonnementen"
+
+#: src/gpodder/gtkui/main.py:2867
+#, fuzzy
+msgid "Subscriptions on gpodder.net"
+msgstr "Upload abonnementen geslaagd."
+
+#: src/gpodder/gtkui/main.py:2886
+msgid "Please select a podcast in the podcasts list to edit."
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:2899
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:76
+msgid "Podcast"
+msgstr "Podcast"
+
+#: src/gpodder/gtkui/main.py:2905 share/gpodder/ui/gtk/gpodder.ui.h:12
+#, fuzzy
+msgid "Remove podcasts"
+msgstr "Voeg een podcast toe"
+
+#: src/gpodder/gtkui/main.py:2906
+#, fuzzy
+msgid "Select the podcast you want to remove."
+msgstr "Selecteer de afleveringen die u nu wilt downloaden."
+
+#: src/gpodder/gtkui/main.py:2910
+#: src/gpodder/gtkui/desktop/episodeselector.py:104
+#: share/gpodder/ui/qml/MediaPlayer.qml:240
+msgid "Remove"
+msgstr "Verwijder"
+
+#: src/gpodder/gtkui/main.py:2919
+#, fuzzy
+msgid "Removing podcast"
+msgstr "%s wordt verwijderd"
+
+#: src/gpodder/gtkui/main.py:2920
+#, fuzzy
+msgid "Please wait while the podcast is removed"
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:2921
+#, fuzzy
+msgid "Do you really want to remove this podcast and its episodes?"
+msgstr ""
+"Weet u zeker dat u <b>%s</b> en alle gedownloade afleveringen wilt "
+"verwijderen?"
+
+#: src/gpodder/gtkui/main.py:2923
+#, fuzzy
+msgid "Removing podcasts"
+msgstr "Toevoegen van podcast %s"
+
+#: src/gpodder/gtkui/main.py:2924
+#, fuzzy
+msgid "Please wait while the podcasts are removed"
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:2925
+#, fuzzy
+msgid "Do you really want to remove the selected podcasts and their episodes?"
+msgstr ""
+"Weet u zeker dat u <b>%s</b> en alle gedownloade afleveringen wilt "
+"verwijderen?"
+
+#: src/gpodder/gtkui/main.py:2986
+#, fuzzy
+msgid "Please select a podcast in the podcasts list to remove."
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:2996
+msgid "OPML files"
+msgstr "OPML bestanden"
+
+#: src/gpodder/gtkui/main.py:3001
+msgid "Import from OPML"
+msgstr "Importeren van OPML"
+
+#: src/gpodder/gtkui/main.py:3015
+msgid "Import podcasts from OPML file"
+msgstr "Importeer podcasts van OPML bestand"
+
+#: src/gpodder/gtkui/main.py:3022
+msgid "Nothing to export"
+msgstr "Niets om te exporteren"
+
+#: src/gpodder/gtkui/main.py:3023
+msgid ""
+"Your list of podcast subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Uw abonnementenlijst is leeg. Abonneer u eerst op een podcast voordat u uw "
+"abonnementenlijst exporteert."
+
+#: src/gpodder/gtkui/main.py:3027
+msgid "Export to OPML"
+msgstr "Naar OPML exporteren"
+
+#: src/gpodder/gtkui/main.py:3038
+#, fuzzy, python-format
+msgid "%(count)d subscription exported"
+msgid_plural "%(count)d subscriptions exported"
+msgstr[0] "%d abonnementen geëxporteerd"
+msgstr[1] "%d abonnementen geëxporteerd"
+
+#: src/gpodder/gtkui/main.py:3039
+msgid "Your podcast list has been successfully exported."
+msgstr "De export van uw lijst met podcasts is geslaagd. "
+
+#: src/gpodder/gtkui/main.py:3041
+msgid "Could not export OPML to file. Please check your permissions."
+msgstr "Kan OPML niet naar bestand exporteren. Controleer uw rechten."
+
+#: src/gpodder/gtkui/main.py:3041
+msgid "OPML export failed"
+msgstr "Exporteren naar OPML mislukt"
+
+#: src/gpodder/gtkui/main.py:3068
+#, fuzzy
+msgid "No updates available"
+msgstr "Nieuwe afleveringen beschikbaar"
+
+#: src/gpodder/gtkui/main.py:3069
+msgid "You have the latest version of gPodder."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3073
+#, fuzzy
+msgid "New version available"
+msgstr "Nieuwe aflevering beschikbaar"
+
+#: src/gpodder/gtkui/main.py:3075
+#, python-format
+msgid "Installed version: %s"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3076
+#, fuzzy, python-format
+msgid "Newest version: %s"
+msgstr "%s wordt geopend"
+
+#: src/gpodder/gtkui/main.py:3077
+#, fuzzy, python-format
+msgid "Release date: %s"
+msgstr "Uitgegeven"
+
+#: src/gpodder/gtkui/main.py:3079
+#, fuzzy
+msgid "Download the latest version from gpodder.org?"
+msgstr "Download mijn abonnementen van my.gpodder.org"
+
+#: src/gpodder/gtkui/main.py:3092 share/gpodder/ui/qml/main_default.qml:118
+#, fuzzy
+msgid "About gPodder"
+msgstr "gPodder afsluiten"
+
+#: src/gpodder/gtkui/main.py:3119
+#, fuzzy
+msgid "Donate / Wishlist"
+msgstr "Verlanglijst op Amazon"
+
+#: src/gpodder/gtkui/main.py:3122
+msgid "Report a problem"
+msgstr "Meldt een probleem"
+
+#: src/gpodder/gtkui/main.py:3148
+msgid "translator-credits"
+msgstr ""
+"Pieter De Decker <pdedecker@gmail.com>\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Pieter De Decker <https://launchpad.net/~pdedecker>\n"
+"  Roel Groeneveld <https://launchpad.net/~roel-groeneveld>\n"
+"  Iwan van der Kleijn <https://launchpad.net/~iwanvanderkleijn>"
+
+#: src/gpodder/gtkui/main.py:3150
+msgid "Translation by:"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3154
+msgid "Thanks to:"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3232
+#, fuzzy
+msgid "Please select an episode from the episode list to display shownotes."
+msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#: src/gpodder/gtkui/main.py:3232
+msgid "No episode selected"
+msgstr "Niets geselecteerd"
+
+#: src/gpodder/gtkui/main.py:3416
+msgid "Cannot start gPodder"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3417
+#, fuzzy, python-format
+msgid "D-Bus error: %s"
+msgstr "Fout bij het openen van %s: %s"
+
+#: src/gpodder/gtkui/model.py:68
+#, fuzzy, python-format
+msgid "released %s"
+msgstr "Uitgegeven"
+
+#: src/gpodder/gtkui/model.py:69 src/gpodder/gtkui/model.py:87
+#: src/gpodder/gtkui/model.py:235 src/gpodder/gtkui/desktop/shownotes.py:122
+#, fuzzy, python-format
+msgid "from %s"
+msgstr "<i>van %s</i>"
+
+#: src/gpodder/gtkui/model.py:80 src/gpodder/gtkui/model.py:391
+#, fuzzy
+msgid "played"
+msgstr "Niet afgespeeld"
+
+#: src/gpodder/gtkui/model.py:82
+#, fuzzy
+msgid "unplayed"
+msgstr "Niet afgespeeld"
+
+#: src/gpodder/gtkui/model.py:85
+#, fuzzy
+msgid "today"
+msgstr "Vandaag"
+
+#: src/gpodder/gtkui/model.py:86
+#, fuzzy, python-format
+msgid "downloaded %s"
+msgstr "Download %s"
+
+#: src/gpodder/gtkui/model.py:335 src/gpodder/qmlui/__init__.py:67
+#, fuzzy
+msgid "Deleted"
+msgstr "Verwijder"
+
+#: src/gpodder/gtkui/model.py:340
+#, fuzzy
+msgid "New episode"
+msgstr "Nieuwe afleveringen:"
+
+#: src/gpodder/gtkui/model.py:354
+#, fuzzy
+msgid "Downloaded episode"
+msgstr "Download nieuwe afleveringen"
+
+#: src/gpodder/gtkui/model.py:357
+#, fuzzy
+msgid "Downloaded video episode"
+msgstr "Download nieuwe afleveringen"
+
+#: src/gpodder/gtkui/model.py:360
+#, fuzzy
+msgid "Downloaded image"
+msgstr "Gedownload"
+
+#: src/gpodder/gtkui/model.py:363
+#, fuzzy
+msgid "Downloaded file"
+msgstr "Gedownload"
+
+#: src/gpodder/gtkui/model.py:378
+#, fuzzy
+msgid "missing file"
+msgstr "Bestanden worden verwijderd"
+
+#: src/gpodder/gtkui/model.py:382
+#, fuzzy
+msgid "never displayed"
+msgstr "Selecteer afgespeeld"
+
+#: src/gpodder/gtkui/model.py:384
+#, fuzzy
+msgid "never played"
+msgstr "Selecteer afgespeeld"
+
+#: src/gpodder/gtkui/model.py:386
+#, fuzzy
+msgid "never opened"
+msgstr "Selecteer afgespeeld"
+
+#: src/gpodder/gtkui/model.py:389
+#, fuzzy
+msgid "displayed"
+msgstr "Niet afgespeeld"
+
+#: src/gpodder/gtkui/model.py:393
+#, fuzzy
+msgid "opened"
+msgstr "%s geopend"
+
+#: src/gpodder/gtkui/model.py:395
+msgid "deletion prevented"
+msgstr ""
+
+#: src/gpodder/gtkui/model.py:430 src/gpodder/qmlui/__init__.py:611
+#: share/gpodder/ui/gtk/gpodder.ui.h:31
+#, fuzzy
+msgid "All episodes"
+msgstr "Afleveringen verwijderen"
+
+#: src/gpodder/gtkui/model.py:431
+#, fuzzy
+msgid "from all podcasts"
+msgstr "Top _podcasts"
+
+#: src/gpodder/gtkui/model.py:622
+#, fuzzy
+msgid "Subscription paused"
+msgstr "A_bonnementen"
+
+#: src/gpodder/gtkui/interface/addpodcast.py:74
+#, fuzzy
+msgid "Nothing to paste."
+msgstr "Niets om te exporteren"
+
+#: src/gpodder/gtkui/interface/addpodcast.py:74
+msgid "Clipboard is empty"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:188
+#: share/gpodder/ui/qml/main_default.qml:306
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: src/gpodder/gtkui/interface/common.py:191
+msgid "New user"
+msgstr "Nieuwe gebruiker"
+
+#: src/gpodder/gtkui/interface/common.py:198
+msgid "Login"
+msgstr ""
+
+#: src/gpodder/gtkui/interface/common.py:200
+msgid "Authentication required"
+msgstr "Authenticatie vereist"
+
+#: src/gpodder/gtkui/interface/common.py:231
+#: share/gpodder/ui/qml/main_default.qml:311
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: src/gpodder/gtkui/interface/common.py:253
+msgid "Select destination"
+msgstr "Kies bestemming"
+
+#: src/gpodder/gtkui/interface/configeditor.py:34
+msgid "Setting"
+msgstr "Instelling"
+
+#: src/gpodder/gtkui/interface/configeditor.py:41
+msgid "Set to"
+msgstr "Ingesteld op"
+
+#: src/gpodder/gtkui/interface/configeditor.py:81
+#, fuzzy, python-format
+msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
+msgstr ""
+"Kan de waarde van <b>%s</b> niet veranderen naar <i>%s</i>.\n"
+"\n"
+"Vereiste datatype: %s"
+
+#: src/gpodder/gtkui/interface/configeditor.py:85
+#, fuzzy
+msgid "Error setting option"
+msgstr "Wachtwoordauthentificatie"
+
+#: src/gpodder/gtkui/desktop/channel.py:97
+msgid "Select new podcast cover artwork"
+msgstr "Selecteer afbeelding voor podcast"
+
+#: src/gpodder/gtkui/desktop/channel.py:122
+msgid "You can only drop a single image or URL here."
+msgstr "U kan maar één afbeelding of URL naar hier slepen."
+
+#: src/gpodder/gtkui/desktop/channel.py:122
+#: src/gpodder/gtkui/desktop/channel.py:132
+msgid "Drag and drop"
+msgstr "Slepen"
+
+#: src/gpodder/gtkui/desktop/channel.py:132
+msgid "You can only drop local files and http:// URLs here."
+msgstr "U kan hier enkel lokale bestanden en http://-URL's naartoe slepen."
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:283
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
+msgid "Select all"
+msgstr "Alles selecteren"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:287
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
+msgid "Select none"
+msgstr "Niets selecteren"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:315
+msgid "Nothing selected"
+msgstr "Niets geselecteerd"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:316
+#, fuzzy, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
+msgstr[0] "nog %d afleveringen"
+msgstr[1] "nog %d afleveringen"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:318
+#, fuzzy, python-format
+msgid "size: %s"
+msgstr "Totale grootte: %s"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:63
+#: share/gpodder/ui/qml/Subscribe.qml:69
+#, fuzzy
+msgid "Search"
+msgstr "Zoek naar:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
+msgid "The specified URL does not provide any valid OPML podcast items."
+msgstr "De opgegeven URL bevat geen geldige OPML-podcast informatie."
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
+msgid "No feeds found"
+msgstr "Geen feeds gevonden"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
+msgid "There are no YouTube channels that would match this query."
+msgstr ""
+"Er zijn geen kanalen op YouTube welke overeenstemmen met deze zoekopdracht."
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
+msgid "No channels found"
+msgstr "Geen feeds gevonden"
+
+#: src/gpodder/gtkui/desktop/preferences.py:45
+msgid "Do nothing"
+msgstr "Niets doen"
+
+#: src/gpodder/gtkui/desktop/preferences.py:46
+#, fuzzy
+msgid "Show episode list"
+msgstr "_Afleveringen"
+
+#: src/gpodder/gtkui/desktop/preferences.py:47
+#, fuzzy
+msgid "Add to download list"
+msgstr "downloadlink"
+
+#: src/gpodder/gtkui/desktop/preferences.py:48
+#, fuzzy
+msgid "Download immediately"
+msgstr "Gedownload"
+
+#: src/gpodder/gtkui/desktop/preferences.py:143
+msgid "Name"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:182
+msgid "Extension cannot be activated"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:197
+msgid "Extension module info"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:223
+#, fuzzy
+msgid "Configure audio player"
+msgstr "gPodder - configuratie bewerken"
+
+#: src/gpodder/gtkui/desktop/preferences.py:224
+#: src/gpodder/gtkui/desktop/preferences.py:234
+#, fuzzy
+msgid "Command:"
+msgstr "Opdrachtregel:"
+
+#: src/gpodder/gtkui/desktop/preferences.py:233
+#, fuzzy
+msgid "Configure video player"
+msgstr "MP3-speler"
+
+#: src/gpodder/gtkui/desktop/preferences.py:245
+#: src/gpodder/gtkui/desktop/preferences.py:263
+#, fuzzy
+msgid "manually"
+msgstr "Handleiding"
+
+#: src/gpodder/gtkui/desktop/preferences.py:265
+#, python-format
+msgid "after %(count)d day"
+msgid_plural "after %(count)d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:295
+#, fuzzy
+msgid "Replace subscription list on server"
+msgstr "Upload abonnementen bij afsluiten"
+
+#: src/gpodder/gtkui/desktop/preferences.py:296
+msgid ""
+"Remote podcasts that have not been added locally will be removed on the "
+"server. Continue?"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/shownotes.py:110
+#: src/gpodder/qmlui/__init__.py:858
+msgid "Please wait..."
+msgstr "Even geduld..."
+
+#: src/gpodder/gtkui/desktop/shownotes.py:114
+msgid "Loading shownotes..."
+msgstr "Details van aflevering worden geladen..."
+
+#: src/gpodder/qmlui/__init__.py:63
+msgid "All"
+msgstr ""
+
+#: src/gpodder/qmlui/__init__.py:64
+#, fuzzy
+msgid "Hide deleted"
+msgstr "Afleveringen verwijderen"
+
+#: src/gpodder/qmlui/__init__.py:66
+msgid "Downloaded"
+msgstr "Gedownload"
+
+#: src/gpodder/qmlui/__init__.py:69
+#, fuzzy
+msgid "Archived"
+msgstr "Afleveringen verwijderen"
+
+#: src/gpodder/qmlui/__init__.py:70
+msgid "Videos"
+msgstr ""
+
+#: src/gpodder/qmlui/__init__.py:220
+#, fuzzy
+msgid "Uploading subscriptions..."
+msgstr "A_bonnementen"
+
+#: src/gpodder/qmlui/__init__.py:227
+#, fuzzy
+msgid "Error on upload:"
+msgstr "Fout bij bijwerken van %s"
+
+#: src/gpodder/qmlui/__init__.py:289
+#, fuzzy
+msgid "Update all"
+msgstr "Alle feeds bijwerken"
+
+#: src/gpodder/qmlui/__init__.py:291
+#, fuzzy
+msgid "Update"
+msgstr "Alle feeds bijwerken"
+
+#: src/gpodder/qmlui/__init__.py:293 src/gpodder/qmlui/__init__.py:390
+#: src/gpodder/qmlui/__init__.py:399
+#, fuzzy
+msgid "Rename"
+msgstr "Gebruikersnaam"
+
+#: src/gpodder/qmlui/__init__.py:294
+#, fuzzy
+msgid "Change section"
+msgstr "Voorkomen wissen"
+
+#: src/gpodder/qmlui/__init__.py:295 src/gpodder/qmlui/__init__.py:370
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+#, fuzzy
+msgid "Unsubscribe"
+msgstr "Abonneren"
+
+#: src/gpodder/qmlui/__init__.py:328
+#, fuzzy
+msgid "Merging episode actions..."
+msgstr "Nieuwe afleveringen in %s"
+
+#: src/gpodder/qmlui/__init__.py:332
+#, fuzzy, python-format
+msgid "Merging episode actions (%d)"
+msgstr "Nieuwe afleveringen in %s"
+
+#: src/gpodder/qmlui/__init__.py:369
+#, fuzzy
+msgid "Remove this podcast and episodes?"
+msgstr "Podcast en afleveringen verwijderen?"
+
+#: src/gpodder/qmlui/__init__.py:389
+#, fuzzy
+msgid "New section name:"
+msgstr "Gebruikersnaam:"
+
+#: src/gpodder/qmlui/__init__.py:398
+#, fuzzy
+msgid "New name:"
+msgstr "Voltooid: %s"
+
+#: src/gpodder/qmlui/__init__.py:481
+#, fuzzy
+msgid "Delete this episode?"
+msgstr "Geselecteerde afleveringen verwijderen"
+
+#: src/gpodder/qmlui/__init__.py:481 src/gpodder/qmlui/__init__.py:506
+#: share/gpodder/ui/gtk/gpodder.ui.h:22
+#: share/gpodder/ui/qml/EpisodeActions.qml:42
+msgid "Delete"
+msgstr "Verwijder"
+
+#: src/gpodder/qmlui/__init__.py:499
+msgid "Mark as new"
+msgstr "Markeer als nieuw"
+
+#: src/gpodder/qmlui/__init__.py:502
+msgid "Allow deletion"
+msgstr "Sta wissen toe"
+
+#: src/gpodder/qmlui/__init__.py:508
+#, fuzzy
+msgid "Add to play queue"
+msgstr "MP3-speler"
+
+#: src/gpodder/qmlui/__init__.py:529 src/gpodder/qmlui/__init__.py:533
+#, fuzzy
+msgid "Adding podcasts..."
+msgstr "Toevoegen van podcast %s"
+
+#: src/gpodder/qmlui/__init__.py:845
+msgid "OK"
+msgstr ""
+
+#: src/gpodder/plugins/soundcloud.py:153
+#, fuzzy
+msgid "Unknown track"
+msgstr "onbekend"
+
+#: src/gpodder/plugins/soundcloud.py:180
+#, python-format
+msgid "%s on Soundcloud"
+msgstr ""
+
+#: src/gpodder/plugins/soundcloud.py:189
+#, python-format
+msgid "Tracks published by %s on Soundcloud."
+msgstr ""
+
+#: src/gpodder/plugins/soundcloud.py:216
+#, python-format
+msgid "%s's favorites on Soundcloud"
+msgstr ""
+
+#: src/gpodder/plugins/soundcloud.py:222
+#, python-format
+msgid "Tracks favorited by %s on Soundcloud."
+msgstr ""
+
+#: share/gpodder/extensions/flv2mp4.py:23
+msgid "Convert .flv files from YouTube to .mp4"
+msgstr ""
+
+#: share/gpodder/extensions/flv2mp4.py:24
+msgid "Useful for playing downloaded videos on hardware players"
+msgstr ""
+
+#: share/gpodder/extensions/flv2mp4.py:56
+msgid "Convert FLV to MP4"
+msgstr ""
+
+#: share/gpodder/extensions/m4a_converter.py:19
+msgid "Convert M4A audio to MP3 or OGG"
+msgstr ""
+
+#: share/gpodder/extensions/m4a_converter.py:20
+msgid "Transcode .m4a files to .mp3 or .ogg using ffmpeg"
+msgstr ""
+
+#: share/gpodder/extensions/m4a_converter.py:53
+#, python-format
+msgid "Convert to %(format)s"
+msgstr ""
+
+#: share/gpodder/extensions/m4a_converter.py:77
+#, fuzzy
+msgid "File converted"
+msgstr "iPod OGG converteerder"
+
+#: share/gpodder/extensions/m4a_converter.py:80
+#, fuzzy
+msgid "Conversion failed"
+msgstr "Bestand wordt geconverteerd"
+
+#: share/gpodder/extensions/normalize_audio.py:21
+msgid "Normalize audio with re-encoding"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:22
+msgid "Normalize the volume of audio files with normalize-audio"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:83
+#, fuzzy
+msgid "File normalized"
+msgstr "Bestandsnaam"
+
+#: share/gpodder/extensions/rename_download.py:16
+#, fuzzy
+msgid "Rename episodes after download"
+msgstr "één aflevering gedownload:"
+
+#: share/gpodder/extensions/rename_download.py:17
+#, fuzzy
+msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
+msgstr "Geen nieuwe afleveringen beschikbaar"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:37
+#, fuzzy
+msgid "Remove cover art from OGG files"
+msgstr "Oude afleveringen verwijderen"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:38
+msgid "removes coverart from all downloaded ogg files"
+msgstr ""
+
+#: share/gpodder/extensions/rm_ogg_cover.py:63
+#, fuzzy
+msgid "Remove cover art"
+msgstr "Voeg een podcast toe"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:26
+msgid "Convert video files to MP4 for Rockbox"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:27
+msgid "Converts all videos to a Rockbox-compatible format"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:38
+msgid "Tag downloaded files using Mutagen"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:39
+#, fuzzy
+msgid "Add episode and podcast titles to MP3/OGG tags"
+msgstr "_Afleveringen"
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:10
+msgid "Ubuntu App Indicator"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:11
+msgid "Show a status indicator in the top bar."
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:34
+msgid "Show main window"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:44
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Quit"
+msgstr "Sluiten"
+
+#: share/gpodder/extensions/ubuntu_unity.py:10
+msgid "Ubuntu Unity Integration"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_unity.py:11
+msgid "Show download progress in the Unity Launcher icon."
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
+#: share/gpodder/ui/qml/Main.qml:434 share/gpodder/ui/qml/PodcastList.qml:39
+msgid "Add a new podcast"
+msgstr "Voeg een podcast toe"
+
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+msgid "URL:"
+msgstr "URL:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
+msgid "gPodder Podcast Editor"
+msgstr "gPodder - podcast bewerken"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+msgid "Section:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "Disable feed updates (pause subscription)"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
+msgid "General"
+msgstr "Algemeen"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "<b>HTTP/FTP Authentication</b>"
+msgstr "<b>HTTP/FTP-authenticatie</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
+msgid "Username:"
+msgstr "Gebruikersnaam:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
+msgid "Password:"
+msgstr "Wachtwoord:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+msgid "<b>Locations</b>"
+msgstr "<b>Lokaties</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Download to:"
+msgstr "Download naar:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+msgid "Website:"
+msgstr "Website:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+msgid "website label"
+msgstr "websitelabel"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
+msgid "Advanced"
+msgstr "Geadvanceerd"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
+msgid "gPodder Configuration Editor"
+msgstr "gPodder - configuratie bewerken"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
+#: share/gpodder/ui/qml/Subscribe.qml:47
+msgid "Search for:"
+msgstr "Zoek naar:"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
+msgid "Show All"
+msgstr "Alles tonen"
+
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
+msgid "Select episodes"
+msgstr "Afleveringen selecteren"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
+msgid "Find new podcasts"
+msgstr "Nieuwe podcasts zoeken"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
+msgid "Select All"
+msgstr "Alles selecteren"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
+msgid "Select None"
+msgstr "Niets selecteren"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
+msgid "_OPML/Search"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
+msgid "Top _podcasts"
+msgstr "Top _podcasts"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
+msgid "_YouTube"
+msgstr "_YouTube"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:5
+msgid "Preferences"
+msgstr "_Voorkeuren"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
+#, fuzzy
+msgid "Audio player:"
+msgstr "MP3-speler"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
+#, fuzzy
+msgid "Video player:"
+msgstr "MP3-speler"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
+msgid "Extensions"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "Synchronize subscriptions and episode actions"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
+msgid "Replace list on server with local subscriptions"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
+#, fuzzy
+msgid "Device name:"
+msgstr "Apparaat"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
+#: share/gpodder/ui/qml/main_default.qml:297
+#, fuzzy
+msgid "gpodder.net"
+msgstr "Ga naar gpodder.org"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
+#, fuzzy
+msgid "Update interval:"
+msgstr "Alle feeds bijwerken"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
+msgid "Maximum number of episodes per podcast:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
+#, fuzzy
+msgid "When new episodes are found:"
+msgstr "Geen nieuwe afleveringen beschikbaar"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
+#, fuzzy
+msgid "Updating"
+msgstr "Bijwerken van \"%s\""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
+#, fuzzy
+msgid "Delete played episodes:"
+msgstr "Oude afleveringen verwijderen"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
+#, fuzzy
+msgid "Remove played episodes even if unfinished"
+msgstr "Podcasts verwijderen van apparaat"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
+#, fuzzy
+msgid "Also remove unplayed episodes"
+msgstr "Oude afleveringen verwijderen"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
+#, fuzzy
+msgid "Clean-up"
+msgstr "<b>Opruiming</b>"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
+msgid "Edit config"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
+msgid "_Download"
+msgstr "_Download"
+
+#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:3
+#, fuzzy
+msgid "C_ancel download"
+msgstr "Download annuleren"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:1
+msgid "_Podcasts"
+msgstr "_Podcasts"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+msgid "Check for new episodes"
+msgstr "Controleren op nieuwe afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+msgid "Download new episodes"
+msgstr "Download nieuwe afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "_Subscriptions"
+msgstr "A_bonnementen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+#, fuzzy
+msgid "Discover new podcasts"
+msgstr "Nieuwe podcasts zoeken"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+#, fuzzy
+msgid "Add podcast via URL"
+msgstr "Toevoegen van podcast %s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:14
+#, fuzzy
+msgid "Import from OPML file"
+msgstr "Importeren van OPML"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:15
+#, fuzzy
+msgid "Export to OPML file"
+msgstr "Naar OPML exporteren"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:16
+#, fuzzy
+msgid "Go to gpodder.net"
+msgstr "Ga naar gpodder.org"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:17
+msgid "_Episodes"
+msgstr "_Afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:18
+#: share/gpodder/ui/qml/EpisodeActions.qml:34
+msgid "Play"
+msgstr "Afspelen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:19
+msgid "Open"
+msgstr "Open"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:23
+msgid "Toggle new status"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:24
+#, fuzzy
+msgid "Change delete lock"
+msgstr "Kanalen_lijst"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:26
+msgid "_View"
+msgstr "_Tonen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:27
+#, fuzzy
+msgid "\"All episodes\" in podcast list"
+msgstr "_Afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:28
+#, fuzzy
+msgid "Use sections for podcast list"
+msgstr "Fout bij het opslaan van podcast lijst."
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:29
+#, fuzzy
+msgid "Toolbar"
+msgstr "Werkbalk tonen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:30
+#, fuzzy
+msgid "Episode descriptions"
+msgstr "Toon afleveringsbeschrijving"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:32
+#, fuzzy
+msgid "Hide deleted episodes"
+msgstr "Afleveringen verwijderen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:33
+#, fuzzy
+msgid "Downloaded episodes"
+msgstr "Download nieuwe afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:34
+#, fuzzy
+msgid "Unplayed episodes"
+msgstr "Downloaden van nieuwe afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:35
+#, fuzzy
+msgid "Hide podcasts without episodes"
+msgstr "Podcast en afleveringen verwijderen?"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:36
+msgid "_Help"
+msgstr "_Help"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:37
+msgid "User manual"
+msgstr "Handleiding"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:38
+msgid "Software updates"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:39
+#, fuzzy
+msgid "Filter:"
+msgstr "Filter:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:40
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:41
+msgid "Limit rate to"
+msgstr "Beperk downloadsnelheid tot"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:42
+msgid "KiB/s"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:43
+msgid "Limit downloads to"
+msgstr "Beperk aantal downloads tot"
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
+#, fuzzy
+msgid "Getting started"
+msgstr "Instelling"
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
+#, fuzzy
+msgid "<big>Welcome to gPodder</big>"
+msgstr "<b><big>Welkom bij gPodder</big></b>"
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
+#, fuzzy
+msgid "Your podcast list is empty."
+msgstr "Uw lijst met abonnementen is leeg."
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
+msgid "Choose from a list of example podcasts"
+msgstr "Kies uit een lijst van voorbeeld podcasts"
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
+#, fuzzy
+msgid "Add a podcast by entering its URL"
+msgstr "Toevoegen van podcast %s"
+
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
+#, fuzzy
+msgid "Restore my subscriptions from gpodder.net"
+msgstr "Download mijn abonnementen van my.gpodder.org"
+
+#: share/gpodder/ui/qml/EpisodeActions.qml:50
+#, fuzzy
+msgid "Shownotes"
+msgstr "%d afleveringen gedownload:"
+
+#: share/gpodder/ui/qml/EpisodeList.qml:35
+#, fuzzy
+msgid "No episodes"
+msgstr "Geen nieuwe afleveringen"
+
+#: share/gpodder/ui/qml/EpisodeList.qml:35
+msgid "Touch to change filter"
+msgstr ""
+
+#: share/gpodder/ui/qml/EpisodeList.qml:119
+#, fuzzy
+msgid "Show episodes"
+msgstr "_Afleveringen"
+
+#: share/gpodder/ui/qml/main_default.qml:102
+#, fuzzy
+msgid "Settings"
+msgstr "Instelling"
+
+#: share/gpodder/ui/qml/main_default.qml:110
+msgid "Now playing"
+msgstr ""
+
+#: share/gpodder/ui/qml/main_default.qml:185
+#, fuzzy
+msgid "About"
+msgstr "Afgebroken"
+
+#: share/gpodder/ui/qml/main_default.qml:210
+msgid "Thanks"
+msgstr ""
+
+#: share/gpodder/ui/qml/main_default.qml:220
+msgid "Credits"
+msgstr ""
+
+#: share/gpodder/ui/qml/main_default.qml:283
+#, fuzzy
+msgid "gPodder settings"
+msgstr "Podcasts"
+
+#: share/gpodder/ui/qml/main_default.qml:287
+#, fuzzy
+msgid "Screen orientation"
+msgstr "%d afleveringen gedownload:"
+
+#: share/gpodder/ui/qml/main_default.qml:291
+#, fuzzy
+msgid "Automatic rotation"
+msgstr "Automatisch:"
+
+#: share/gpodder/ui/qml/main_default.qml:301
+#, fuzzy
+msgid "Enable synchronization"
+msgstr "Na synchronisatie"
+
+#: share/gpodder/ui/qml/main_default.qml:316
+#, fuzzy
+msgid "Device name"
+msgstr "Apparaat"
+
+#: share/gpodder/ui/qml/main_default.qml:322
+#, fuzzy
+msgid "Replace list on server"
+msgstr "Upload abonnementen bij afsluiten"
+
+#: share/gpodder/ui/qml/main_default.qml:334
+msgid "No account? Register here"
+msgstr ""
+
+#: share/gpodder/ui/qml/Main.qml:434
+#, fuzzy
+msgid "Context menu"
+msgstr "Sluit dit menu"
+
+#: share/gpodder/ui/qml/MediaPlayer.qml:191
+#: share/gpodder/ui/qml/MediaPlayer.qml:239
+#, fuzzy
+msgid "Play queue"
+msgstr "Niet afgespeeld"
+
+#: share/gpodder/ui/qml/PlaybackBar.qml:12
+#: share/gpodder/ui/qml/PlaybackBar.qml:14
+#, fuzzy, python-format
+msgid "%(count)s minute"
+msgid_plural "%(count)s minutes"
+msgstr[0] "%i minuten"
+msgstr[1] "%i minuten"
+
+#: share/gpodder/ui/qml/PlaybackBar.qml:16
+#: share/gpodder/ui/qml/PlaybackBar.qml:18
+#, fuzzy, python-format
+msgid "%(count)s second"
+msgid_plural "%(count)s seconds"
+msgstr[0] "%i seconden"
+msgstr[1] "%i seconden"
+
+#: share/gpodder/ui/qml/PodcastList.qml:25
+#, fuzzy
+msgid "No podcasts."
+msgstr "Top _podcasts"
+
+#: share/gpodder/ui/qml/PodcastList.qml:25
+msgid "Add your first podcast now."
+msgstr ""
+
+#: share/gpodder/ui/qml/Subscribe.qml:59
+#, fuzzy
+msgid "Search term or URL"
+msgstr "Zoek naar:"
+
+#: share/gpodder/ui/qml/Subscribe.qml:109
+#, fuzzy, python-format
+msgid "%(count)s podcast selected"
+msgid_plural "%(count)s podcasts selected"
+msgstr[0] "Geen podcast geselecteerd"
+msgstr[1] "Geen podcast geselecteerd"
+
+#: share/gpodder/ui/qml/Subscribe.qml:289
+msgid "Toplist"
+msgstr ""
+
+#: share/gpodder/ui/qml/Subscribe.qml:310
+#, fuzzy
+msgid "My gpodder.net"
+msgstr "Ga naar gpodder.org"
+
+#: share/gpodder/ui/qml/Subscribe.qml:310
+#, fuzzy
+msgid "Examples"
+msgstr "Voeg een podcast toe"
+
+#: share/gpodder/ui/qml/Subscribe.qml:327
+#, fuzzy
+msgid "powered by gpodder.net"
+msgstr "Ga naar gpodder.org"
+
+#: bin/gpo:236
+#, fuzzy
+msgid "Podcast update requested by extensions."
+msgstr "Authenticatie noodzakelijk voor deze feed "
+
+#: bin/gpo:240
+msgid "Episode download requested by extensions."
+msgstr ""
+
+#: bin/gpo:288
+#, fuzzy
+msgid "Invalid URL."
+msgstr "Ongeldige URL"
+
+#: bin/gpo:292
+#, fuzzy, python-format
+msgid "You are already subscribed to %s."
+msgstr "U bent al geabonneerd op deze podcast: %s"
+
+#: bin/gpo:297
+#, fuzzy, python-format
+msgid "Cannot subscribe to %s."
+msgstr "Kies kanalen om u op te abonneren"
+
+#: bin/gpo:305
+#, python-format
+msgid "Successfully added %s."
+msgstr ""
+
+#: bin/gpo:323
+msgid "This configuration option does not exist."
+msgstr ""
+
+#: bin/gpo:327
+msgid "Can only set leaf configuration nodes."
+msgstr ""
+
+#: bin/gpo:338 bin/gpo:355 bin/gpo:383 bin/gpo:501 bin/gpo:514 bin/gpo:599
+#, fuzzy, python-format
+msgid "You are not subscribed to %s."
+msgstr "U bent al geabonneerd op deze podcast: %s"
+
+#: bin/gpo:343
+#, python-format
+msgid "Renamed %(old_title)s to %(new_title)s."
+msgstr ""
+
+#: bin/gpo:359
+#, fuzzy, python-format
+msgid "Unsubscribed from %s."
+msgstr "Abonneren"
+
+#: bin/gpo:421
+#, fuzzy
+msgid "Updates disabled"
+msgstr "Bijwerken van geselecteerde feed"
+
+#: bin/gpo:436
+#, fuzzy, python-format
+msgid "%(count)d new episode"
+msgid_plural "%(count)d new episodes"
+msgstr[0] "%i nieuwe afleveringen:"
+msgstr[1] "%i nieuwe afleveringen:"
+
+#: bin/gpo:450
+#, fuzzy, python-format
+msgid "Skipping %(podcast)s"
+msgstr "Podcast %s wordt overgeslagen"
+
+#: bin/gpo:505
+#, python-format
+msgid "Disabling feed update from %s."
+msgstr ""
+
+#: bin/gpo:518
+#, fuzzy, python-format
+msgid "Enabling feed update from %s."
+msgstr "Laden van bestanden van %s"
+
+#: bin/gpo:533
+msgid "Listening on ALL network interfaces."
+msgstr ""
+
+#: bin/gpo:554
+#, fuzzy
+msgid "No podcasts found."
+msgstr "Geen feeds gevonden"
+
+#: bin/gpo:568
+msgid "Enter index to subscribe, ? for list"
+msgstr ""
+
+#: bin/gpo:582 bin/gpo:586
+#, fuzzy
+msgid "Invalid value."
+msgstr "Ongeldige URL"
+
+#: bin/gpo:590
+#, python-format
+msgid "Adding %s..."
+msgstr "Toevoegen van %s..."
+
+#: bin/gpo:603
+#, fuzzy, python-format
+msgid "Invalid URL: %s"
+msgstr "Ongeldige URL"
+
+#: bin/gpo:606
+#, python-format
+msgid "Changed URL from %(old_url)s to %(new_url)s."
+msgstr ""
+
+#: bin/gpo:662
+#, python-format
+msgid "Syntax error: %(error)s"
+msgstr ""
+
+#: bin/gpo:756
+msgid "Ambigous command. Did you mean.."
+msgstr ""
+
+#: bin/gpo:760
+#, fuzzy
+msgid "The requested function is not available."
+msgstr "Deze mogelijkheid is niet beschikbaar voor iPod"
+
+#: bin/gpodder:112
+msgid "Print debugging output to stdout"
+msgstr "Debuguitvoer naar stdout sturen"
+
+#: bin/gpodder:116
+msgid "Start the QML interface of gPodder"
+msgstr ""
+
+#: bin/gpodder:119
+#, fuzzy
+msgid "Subscribe to the given URL"
+msgstr "Kanaal importeren door opgave URL"
+
+#: bin/gpodder:124
+msgid "Mac OS X application process number"
+msgstr ""
+
+#: share/applications/gpodder.desktop.in.h:2
+#, fuzzy
+msgid "gPodder Podcast Client"
+msgstr "gPodder - podcast bewerken"
+
+#: share/applications/gpodder.desktop.in.h:3
+#, fuzzy
+msgid "Podcast Client"
+msgstr "Podcasts"
+
+#: share/applications/gpodder.desktop.in.h:4
+msgid "Subscribe to audio and video content from the web"
+msgstr ""
+
+#, fuzzy
+#~ msgid "Podcast details"
+#~ msgstr "Podcasts"
+
+#~ msgid "Feed URL:"
+#~ msgstr "Feed-URL:"
+
+#~ msgid "Title:"
+#~ msgstr "Titel:"
+
+#~ msgid "Cover"
+#~ msgstr "Afbeelding"
+
+#~ msgid "Go to website"
+#~ msgstr "Ga naar website"
+
+#, fuzzy
+#~ msgid "OPML/Search:"
+#~ msgstr "Zoek naar:"
+
+#~ msgid "Check for Updates"
+#~ msgstr "_Controleren op nieuwe afleveringen"
+
+#~ msgid "gPodder startup assistant"
+#~ msgstr "gPodder start assistent"
+
+#~ msgid "gpodder"
+#~ msgstr "gPodder"
+
+#~ msgid "Your subscription list is empty. What do you want to do?"
+#~ msgstr "Uw lijst met abonnementen is leeg. Wat wilt u doen?"
+
+#, fuzzy
+#~ msgid "Enable gpodder.net syncing"
+#~ msgstr "Podcasts"
+
+#, fuzzy
+#~ msgid "Download list from server"
+#~ msgstr "Download lijst van my.gpodder.org"
+
+#, fuzzy
+#~ msgid "Touch here to add a podcast"
+#~ msgstr "De podcast kon niet worden toegevoegd."
+
+#, fuzzy
+#~ msgid "Download if minimized"
+#~ msgstr "gPodder-downloads voltooid"
+
+#~ msgid "Enable notification bubbles"
+#~ msgstr "Berichtenballonnen inschakelen"
+
+#, fuzzy
+#~ msgid "Podcast list"
+#~ msgstr "Podcasts"
+
+#, fuzzy
+#~ msgid "Loading."
+#~ msgstr "downloaden"
+
+#, fuzzy
+#~ msgid "%(count)d action processed"
+#~ msgid_plural "%(count)d actions processed"
+#~ msgstr[0] "%d abonnementen geëxporteerd"
+#~ msgstr[1] "%d abonnementen geëxporteerd"
+
+#, fuzzy
+#~ msgid "Podcast already added"
+#~ msgstr "Podcasts verwijderd"
+
+#, fuzzy
+#~ msgid "%(count)d paused"
+#~ msgid_plural "%(count)d paused"
+#~ msgstr[0] "In wachtrij"
+#~ msgstr[1] "In wachtrij"
+
+#~ msgid "Opening %s"
+#~ msgstr "%s wordt geopend"
+
+#, fuzzy
+#~ msgid "Opening %(count)d episode"
+#~ msgid_plural "Opening %(count)d episodes"
+#~ msgstr[0] "%d downloads"
+#~ msgstr[1] "%d downloads"
+
+#, fuzzy
+#~ msgid "New episodes are available."
+#~ msgstr "Nieuwe afleveringen beschikbaar"
+
+#, fuzzy
+#~ msgid "New episodes have been added to the download list."
+#~ msgstr "Geen nieuwe afleveringen te downloaden"
+
+#, fuzzy
+#~ msgid "No new episodes. Please check for new episodes later."
+#~ msgstr ""
+#~ "Er zijn geen nieuwe afleveringen beschikbaar voor uw podcastfeeds.\n"
+#~ "Probeer het later opnieuw."
+
+#~ msgid "Updating \"%s\"..."
+#~ msgstr "Bijwerken van \"%s\""
+
+#, fuzzy
+#~ msgid "About %s"
+#~ msgstr "Afgebroken"
+
+#~ msgid "Visit website"
+#~ msgstr "Bezoek website"
+
+#, fuzzy
+#~ msgid "Report bug"
+#~ msgstr "Meldt een probleem"
+
+#, fuzzy
+#~ msgid "Donate"
+#~ msgstr "Gedownload"
+
+#, fuzzy
+#~ msgid "Size: %s"
+#~ msgstr "Totale grootte: %s"
+
+#, fuzzy
+#~ msgid "Resume download"
+#~ msgstr "Nooit downloaden"
+
+#, fuzzy
+#~ msgid "Pause download"
+#~ msgstr "Download annuleren"
+
+#, fuzzy
+#~ msgid "Downloading %s"
+#~ msgstr "downloaden"
+
+#, fuzzy
+#~ msgid "Old episode"
+#~ msgstr "nog %d afleveringen"
+
+#~ msgid "Unplayed"
+#~ msgstr "Niet afgespeeld"
+
+#, fuzzy
+#~ msgid "Pause subscription"
+#~ msgstr "A_bonnementen"
+
+#, fuzzy
+#~ msgid "Rename podcast"
+#~ msgstr "Voeg een podcast toe"
+
+#, fuzzy
+#~ msgid "Podcast renamed: %s"
+#~ msgstr "Podcasts verwijderd"
+
+#, fuzzy
+#~ msgid "Downloading episode"
+#~ msgstr "Downloaden van nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid "Checking for new episodes..."
+#~ msgstr "Controleren op nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid ""
+#~ "Longpress on an episode in 'New episodes available' to display its "
+#~ "shownotes."
+#~ msgstr "Kies een podcast uit de abonnementenlijst om ze te bewerken."
+
+#, fuzzy
+#~ msgid "in downloads list"
+#~ msgstr "downloadlink"
+
+#, fuzzy
+#~ msgid "%(count)d unplayed download"
+#~ msgid_plural "%(count)d unplayed downloads"
+#~ msgstr[0] "%d afleveringen gedownload:"
+#~ msgstr[1] "%d afleveringen gedownload:"
+
+#~ msgid "Subscribe"
+#~ msgstr "Abonneren"
+
+#, fuzzy
+#~ msgid "Select a source"
+#~ msgstr "Niets selecteren"
+
+#, fuzzy
+#~ msgid "Search on gpodder.net"
+#~ msgstr "Inloggen op my.gpodder.org"
+
+#, fuzzy
+#~ msgid "Open OPML file"
+#~ msgstr "OPML bestanden"
+
+#, fuzzy
+#~ msgid "OPML file from the web"
+#~ msgstr "OPML bestanden"
+
+#, fuzzy
+#~ msgid "Podcast Top 50"
+#~ msgstr "Podcast"
+
+#, fuzzy
+#~ msgid "Download from gpodder.net"
+#~ msgstr "Download lijst van my.gpodder.org"
+
+#, fuzzy
+#~ msgid "Loading podcast list"
+#~ msgstr "Fout bij het opslaan van podcast lijst."
+
+#, fuzzy
+#~ msgid "No podcasts found. Try another source."
+#~ msgstr "Geen feeds gevonden"
+
+#, fuzzy
+#~ msgid "Automatic"
+#~ msgstr "Automatisch:"
+
+#, fuzzy
+#~ msgid "Manually"
+#~ msgstr "Handleiding"
+
+#, fuzzy
+#~ msgid "Every %(count)d minute"
+#~ msgid_plural "Every %(count)d minutes"
+#~ msgstr[0] "%i minuten"
+#~ msgstr[1] "%i minuten"
+
+#, fuzzy
+#~ msgid "Hourly"
+#~ msgstr "1 uur"
+
+#, fuzzy
+#~ msgid "Every %(count)d hour"
+#~ msgid_plural "Every %(count)d hours"
+#~ msgstr[0] "%i uur"
+#~ msgstr[1] "%i uur"
+
+#, fuzzy
+#~ msgid "Daily"
+#~ msgstr "dagen"
+
+#, fuzzy
+#~ msgid "Download when on Wi-Fi"
+#~ msgstr "één download"
+
+#, fuzzy
+#~ msgid "Media Player"
+#~ msgstr "Speler"
+
+#, fuzzy
+#~ msgid "MPlayer"
+#~ msgstr "Speler"
+
+#, fuzzy
+#~ msgid "Show \"All episodes\" view"
+#~ msgstr "_Afleveringen"
+
+#, fuzzy
+#~ msgid "Edit username/password"
+#~ msgstr "gebruikersnaam en wachtwoord vereist"
+
+#, fuzzy
+#~ msgid "Cancel selected"
+#~ msgstr "Annuleren"
+
+#, fuzzy
+#~ msgid "Pause selected"
+#~ msgstr "Bijwerken van geselecteerde feed"
+
+#, fuzzy
+#~ msgid "Resume selected"
+#~ msgstr "Niets geselecteerd"
+
+#~ msgid "Cancel download"
+#~ msgstr "Download annuleren"
+
+#, fuzzy
+#~ msgid "Show in download manager"
+#~ msgstr "Verplaatsen van downloadmap"
+
+#, fuzzy
+#~ msgid "Episodes"
+#~ msgstr "_Afleveringen"
+
+#, fuzzy
+#~ msgid "Set username/password"
+#~ msgstr "gebruikersnaam en wachtwoord vereist"
+
+#, fuzzy
+#~ msgid "OPML file on the web"
+#~ msgstr "OPML bestanden"
+
+#, fuzzy
+#~ msgid "Select podcasts to add"
+#~ msgstr "Podcasts verwijderen van apparaat?"
+
+#, fuzzy
+#~ msgid "Delete played episodes on startup"
+#~ msgstr "Oude afgespeelde afleveringen verwijderen bij opstarten"
+
+#, fuzzy
+#~ msgid "Display and view settings"
+#~ msgstr "%d afleveringen gedownload:"
+
+#, fuzzy
+#~ msgid "Feed updating and downloads"
+#~ msgstr "%d afleveringen gedownload:"
+
+#, fuzzy
+#~ msgid "Player applications"
+#~ msgstr "Standaard programma"
+
+#, fuzzy
+#~ msgid "Subscriptions"
+#~ msgstr "A_bonnementen"
+
+#, fuzzy
+#~ msgid "Synchronize with gpodder.net"
+#~ msgstr "Synchroniseer naar %s"
+
+#, fuzzy
+#~ msgid "When new episodes are found"
+#~ msgstr "Geen nieuwe afleveringen beschikbaar"
+
+#, fuzzy
+#~ msgid "gpodder.net Synchronization"
+#~ msgstr "Synchronisatie van iPod"
+
+#, fuzzy
+#~ msgid "Add new podcast"
+#~ msgstr "Voeg een podcast toe"
+
+#, fuzzy
+#~ msgid "Support gPodder"
+#~ msgstr "gPodder afsluiten"
+
+#, fuzzy
+#~ msgid "Welcome to gPodder!"
+#~ msgstr "<b><big>Welkom bij gPodder</big></b>"
+
+#, fuzzy
+#~ msgid "Maintainer:"
+#~ msgstr "Huidige onderhouder:"
+
+#~ msgid "Patches, bug reports and donations by:"
+#~ msgstr "Patches, foutmeldingen en donaties naar: "
+
+#, fuzzy
+#~ msgid "Website"
+#~ msgstr "Website:"
+
+#, fuzzy
+#~ msgid "No device configured."
+#~ msgstr "Geen apparaat geconfigureerd"
+
+#, fuzzy
+#~ msgid "Synchronizing: %(index)s of %(count)s"
+#~ msgstr "Synchroniseren: %d van %d"
+
+#, fuzzy
+#~ msgid "Error: Cannot open device!"
+#~ msgstr "Kan apparaat niet openen"
+
+#~ msgid "Downloads (%d)"
+#~ msgstr "Downloads (%d)"
+
+#, fuzzy
+#~ msgid "All downloads finished"
+#~ msgstr "gPodder-downloads voltooid"
+
+#~ msgid "disk usage"
+#~ msgstr "gebruik van schijf"
+
+#~ msgid "Updated M3U playlist in download folder."
+#~ msgstr "Bijgewerkte M3U afspeellijst in downloadmap."
+
+#~ msgid "Updated playlist"
+#~ msgstr "Bijgewerkte afspeellijst"
+
+#, fuzzy
+#~ msgid "Keep episodes"
+#~ msgstr "Nieuwe afleveringen:"
+
+#, fuzzy
+#~ msgid "Synchronize to device"
+#~ msgstr "Synchroniseer naar %s"
+
+#~ msgid "iPod"
+#~ msgstr "iPod"
+
+#~ msgid "MP3 player"
+#~ msgstr "MP3-speler"
+
+#, fuzzy
+#~ msgid "Keep episode"
+#~ msgstr "Nieuwe afleveringen:"
+
+#~ msgid "Do you really want to quit gPodder now?"
+#~ msgstr "Weet u zeker dat u gPodder wilt afsluiten?"
+
+#~ msgid "Please check your permissions and free disk space."
+#~ msgstr "Controleer of u genoeg rechten en schijfruimte hebt."
+
+#~ msgid "Status"
+#~ msgstr "Status"
+
+#, fuzzy
+#~ msgid "Unable to stream episode"
+#~ msgstr "nog één aflevering"
+
+#~ msgid "Podcasts (%d)"
+#~ msgstr "Podcasts (%d)"
+
+#, fuzzy
+#~ msgid "No downloadable episodes in feed"
+#~ msgstr "Download alle nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid ""
+#~ "Send podcast episodes to Bluetooth devices. Needs the bluetooth-sendto "
+#~ "command from gnome-bluetooth."
+#~ msgstr ""
+#~ "Verstuur podcast afleveringen naar Bluetooth-apparaat. Het component "
+#~ "\"PyBluez\" is noodzakelijk."
+
+#, fuzzy
+#~ msgid "HTML episode shownotes"
+#~ msgstr "%d afleveringen gedownload:"
+
+#~ msgid "iPod synchronization"
+#~ msgstr "Synchronisatie van iPod"
+
+#~ msgid ""
+#~ "Support synchronization of podcasts to Apple iPod devices via libgpod."
+#~ msgstr ""
+#~ "Ondersteunt synchronisatie van podcasts naar Apple iPods door middel van "
+#~ "libgpod."
+
+#~ msgid ""
+#~ "Convert OGG podcasts to MP3 files on synchronization to iPods using "
+#~ "oggdec and LAME."
+#~ msgstr ""
+#~ "Zet OGG podcasts om naar MP3 bestanden tijdens de synchronisatie met "
+#~ "iPods door middel van oggdec en LAME."
+
+#~ msgid "iPod video podcasts"
+#~ msgstr "iPod video podcasts"
+
+#~ msgid ""
+#~ "Detect video lengths via MPlayer, to synchronize video podcasts to iPods."
+#~ msgstr ""
+#~ "Detecteer video lengte tijdens de synchronisatie van video podcasts met "
+#~ "iPods door middel van MPlayer"
+
+#~ msgid "Rockbox cover art support"
+#~ msgstr "Rockbox afbeeldingen van hoes/omslag"
+
+#~ msgid ""
+#~ "Copy podcast cover art to filesystem-based MP3 players running Rockbox."
+#~ "org firmware. Needs Python Imaging."
+#~ msgstr ""
+#~ "Kopieer de afbeeldingen van hoezen/omslag naar MP3 spelers welke gebruik "
+#~ "maken van Rockbox. Hiervoor is het component \"Python Imaging\" "
+#~ "noodzakelijk."
+
+#~ msgid "Cancelled by user"
+#~ msgstr "Geannuleerd door gebruiker"
+
+#~ msgid "Writing data to disk"
+#~ msgstr "Data wordt naar schijf geschreven"
+
+#~ msgid "Opening iPod database"
+#~ msgstr "iPod-database wordt geopend"
+
+#~ msgid "iPod opened"
+#~ msgstr "iPod geopend"
+
+#~ msgid "Saving iPod database"
+#~ msgstr "iPod-database wordt opgeslagen..."
+
+#~ msgid "Writing extended gtkpod database"
+#~ msgstr "De gtkpod database (\"extended\") wordt opgeslagen"
+
+#~ msgid "Removing %s"
+#~ msgstr "%s wordt verwijderd"
+
+#~ msgid "Adding %s"
+#~ msgstr "Toevoegen van %s"
+
+#, fuzzy
+#~ msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
+#~ msgstr ""
+#~ "Fout bij het kopiëren van %s: niet genoeg schijfruimte beschikbaar op %s."
+
+#~ msgid "Opening MP3 player"
+#~ msgstr "MP3-speler wordt geopend"
+
+#~ msgid "MP3 player opened"
+#~ msgstr "MP3-speler geopend"
+
+#, fuzzy
+#~ msgid "Error opening %(filename)s: %(message)s"
+#~ msgstr "Fout bij het openen van %s: %s"
+
+#, fuzzy
+#~ msgid "MTP device"
+#~ msgstr "Apparaten selecteren"
+
+#~ msgid "Opening the MTP device"
+#~ msgstr "MTP-toestel wordt geopend"
+
+#~ msgid "%s opened"
+#~ msgstr "%s geopend"
+
+#~ msgid "Closing %s"
+#~ msgstr "%s wordt afgesloten"
+
+#~ msgid "%s closed"
+#~ msgstr "%s is afgesloten"
+
+#~ msgid "Available"
+#~ msgstr "Beschikbaar"
+
+#~ msgid "Missing dependencies"
+#~ msgstr "Ontbrekende onderdelen "
+
+#~ msgid "Command \"%s\" not installed"
+#~ msgstr "Opdracht \"%s\" niet geïnstalleerd"
+
+#~ msgid "Feature"
+#~ msgstr "Mogelijkheid"
+
+#~ msgid "Missing components:"
+#~ msgstr "Ontbrekende componenten:"
+
+#~ msgid "Use"
+#~ msgstr "Gebruik"
+
+#, fuzzy
+#~ msgid "Please wait your media file list is being read from device."
+#~ msgstr ""
+#~ "Even geduld terwijl gPodder de lijst met mediabestanden ophaalt van het "
+#~ "apparaat."
+
+#~ msgid "Folder %s could not be created."
+#~ msgstr "De map %s kon niet worden aangemaakt"
+
+#~ msgid "Error writing playlist"
+#~ msgstr "Fout bij het opslaan van afspeellijst"
+
+#~ msgid "The playlist on your MP3 player has been updated."
+#~ msgstr "De afspeellijst op uw MP3 speler is bijgewerkt"
+
+#~ msgid "Update successful"
+#~ msgstr "Update geslaagd"
+
+#~ msgid "Error writing playlist file"
+#~ msgstr "Fout bij schrijven van afspeellijst"
+
+#, fuzzy
+#~ msgid "None"
+#~ msgstr "gereed."
+
+#, fuzzy
+#~ msgid "Filesystem-based"
+#~ msgstr ""
+#~ "Geen\n"
+#~ "iPod\n"
+#~ "MP3-speler met bestandssysteem\n"
+#~ "MTP-toestel"
+
+#, fuzzy
+#~ msgid "Mark it as played"
+#~ msgstr "Markeer als afgespeeld"
+
+#, fuzzy
+#~ msgid "Delete it from gPodder"
+#~ msgstr "Aflevering verwijderen uit gPodder"
+
+#, fuzzy
+#~ msgid "Select folder for mount point"
+#~ msgstr "Kies aankoppelingspunt iPod"
+
+#, fuzzy
+#~ msgid "%(position)d of %(count)d done"
+#~ msgstr "%d van %d kanalen bijgewerkt"
+
+#~ msgid "Processing (%d%%)"
+#~ msgstr "Verwerken (%d%%)"
+
+#~ msgid "No device configured"
+#~ msgstr "Geen apparaat geconfigureerd"
+
+#, fuzzy
+#~ msgid "Please set up your device in the preferences dialog."
+#~ msgstr ""
+#~ "De geselecteerde mediaspeler kan niet gevonden worden. Controleer de "
+#~ "instellingen van gPodder bij Voorkeuren om dit op te lossen."
+
+#~ msgid "Cannot open device"
+#~ msgstr "Kan apparaat niet openen"
+
+#, fuzzy
+#~ msgid "Please check the settings in the preferences dialog."
+#~ msgstr ""
+#~ "De geselecteerde mediaspeler kan niet gevonden worden. Controleer de "
+#~ "instellingen van gPodder bij Voorkeuren om dit op te lossen."
+
+#, fuzzy
+#~ msgid "Cannot sync to iPod"
+#~ msgstr "Kan niet synchroniseren met iPod."
+
+#, fuzzy
+#~ msgid "Please install python-gpod and restart gPodder."
+#~ msgstr ""
+#~ "Installeer het component \"python-gpod\" en herstart vervolgens gPodder "
+
+#~ msgid "Cannot sync to MTP device"
+#~ msgstr "Kan niet synchroniseren met MTP-toestel."
+
+#, fuzzy
+#~ msgid "Please install libmtp and restart gPodder."
+#~ msgstr ""
+#~ "Installeer a.u.b. het component \"python-pymtp\" en herstart vervolgens "
+#~ "gPodder "
+
+#, fuzzy
+#~ msgid "Device synchronized"
+#~ msgstr "Synchronisatie van MTP-toestel"
+
+#, fuzzy
+#~ msgid "Your device has been synchronized."
+#~ msgstr "Uw apparaat is bijgewerkt door gPodder."
+
+#~ msgid "Error closing device"
+#~ msgstr "Fout bij sluiten apparaat"
+
+#, fuzzy
+#~ msgid "Please check settings and permission."
+#~ msgstr "Controleer of u genoeg rechten en schijfruimte hebt."
+
+#, fuzzy
+#~ msgid "Not enough space left on device"
+#~ msgstr "Onvoldoende beschikbare ruimte op apparaat."
+
+#~ msgid "Copied"
+#~ msgstr "Gekopieerd"
+
+#~ msgid "Play count"
+#~ msgstr "Aantal keren afgespeeld"
+
+#~ msgid "Delete podcasts from device?"
+#~ msgstr "Podcasts verwijderen van apparaat?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Do you really want to remove these episodes from your device? Episodes in "
+#~ "your library will not be deleted."
+#~ msgstr ""
+#~ "Weet u zeker dat u alle afleveringen van uw MP3-speler wilt verwijderen?"
+
+#~ msgid "There has been an error closing your device."
+#~ msgstr "Er is een fout opgetreden bij het sluiten van uw apparaat."
+
+#~ msgid "Remove podcasts from device"
+#~ msgstr "Podcasts verwijderen van apparaat"
+
+#, fuzzy
+#~ msgid "Select episodes to remove from your device."
+#~ msgstr "Selecteer de podcasts die u wilt verwijderen van uw apparaat."
+
+#~ msgid "No files on device"
+#~ msgstr "Geen bestanden op apparaat"
+
+#~ msgid "The devices contains no files to be removed."
+#~ msgstr "Het apparaat bevat geen bestanden die verwijderd moeten worden"
+
+#~ msgid "Cannot manage iPod playlist"
+#~ msgstr "Kan de iPod afspeellijst niet bewerken"
+
+#~ msgid "Cannot manage MTP device playlist"
+#~ msgstr "Kan afspeellijst van MTP-toestel niet bewerken"
+
+#~ msgid "This feature is not available for MTP devices."
+#~ msgstr "Deze mogelijkheid is niet beschikbaar voor MTP-toestellen"
+
+#~ msgid "gPodder media aggregator"
+#~ msgstr "gPodder media-aggregator"
+
+#~ msgid "Downloading episodes"
+#~ msgstr "Downloaden van nieuwe afleveringen"
+
+#~ msgid "Looking for new episodes"
+#~ msgstr "Zoeken naar nieuwe afleveringen"
+
+#~ msgid "Synchronizing to player"
+#~ msgstr "Synchroniseren met speler"
+
+#~ msgid "Cleaning files"
+#~ msgstr "Bestanden worden opgeschoond"
+
+#~ msgid "Download all new episodes"
+#~ msgstr "Download alle nieuwe afleveringen"
+
+#~ msgid "Edit %s"
+#~ msgstr "%s bewerken"
+
+#, fuzzy
+#~ msgid "Edit podcast authentication"
+#~ msgstr "Wachtwoordauthentificatie"
+
+#~ msgid "Please enter your username and password."
+#~ msgstr "Voer uw naam en wachtwoord in."
+
+#, fuzzy
+#~ msgid "Username and password removed."
+#~ msgstr "gebruikersnaam en wachtwoord vereist"
+
+#, fuzzy
+#~ msgid "Authentication updated"
+#~ msgstr "Authenticatie is mislukt."
+
+#, fuzzy
+#~ msgid "Username and password saved."
+#~ msgstr "gebruikersnaam en wachtwoord vereist"
+
+#, fuzzy
+#~ msgid "Load podcast list"
+#~ msgstr "Fout bij het opslaan van podcast lijst."
+
+#, fuzzy
+#~ msgid "Loading podcast list, please wait"
+#~ msgstr "Fout bij het opslaan van podcast lijst."
+
+#, fuzzy
+#~ msgid "Gestures in gPodder"
+#~ msgstr "gPodder afsluiten"
+
+#~ msgid "Edit selected podcast"
+#~ msgstr "Bewerk geselecteerde aflevering"
+
+#, fuzzy
+#~ msgid "Update podcast feed"
+#~ msgstr "De podcastfeeds worden gedownload..."
+
+#, fuzzy
+#~ msgid "Episode list"
+#~ msgstr "_Afleveringen"
+
+#, fuzzy
+#~ msgid "Display shownotes"
+#~ msgstr "%d afleveringen gedownload:"
+
+#, fuzzy
+#~ msgid "Playback episode"
+#~ msgstr "Afleveringen selecteren"
+
+#, fuzzy
+#~ msgid "Selection is empty."
+#~ msgstr "Niets selecteren"
+
+#, fuzzy
+#~ msgid "unplayed download"
+#~ msgstr "Download annuleren"
+
+#, fuzzy
+#~ msgid "new episode"
+#~ msgstr "Geen nieuwe afleveringen"
+
+#~ msgid "<b>Synchronization</b>"
+#~ msgstr "<b>Synchronisatie</b>"
+
+#~ msgid "Playlist name:"
+#~ msgstr "Naam van afspeellijst:"
+
+#~ msgid "Skip this podcast when syncing to my device"
+#~ msgstr "Deze podcast niet synchroniseren met mijn apparaat"
+
+#~ msgid "Additional components"
+#~ msgstr "Extra componenten"
+
+#~ msgid "Install package"
+#~ msgstr "Installeer component (\"package\")"
+
+#~ msgid "<b><big>Playlist manager</big></b>"
+#~ msgstr "<b><big>Bewerken van afspeellijst</big></b>"
+
+#~ msgid "Create your playlist by selecting and sorting these episodes."
+#~ msgstr ""
+#~ "Maak uw afspeellijst aan door het selecteren en sorteren van deze "
+#~ "afleveringen."
+
+#~ msgid "Manage playlist on MP3 player"
+#~ msgstr "Bewerk afspeellijst van MP3-speler"
+
+#~ msgid "<b><big>Select episodes</big></b>"
+#~ msgstr "<b><big>Geselecteerde afleveringen</big></b>"
+
+#, fuzzy
+#~ msgid "After syncing an episode:"
+#~ msgstr "%d downloads"
+
+#, fuzzy
+#~ msgid "Check for new episodes on startup"
+#~ msgstr "Controleren op nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid "Device type:"
+#~ msgstr "Apparaat"
+
+#, fuzzy
+#~ msgid "Devices"
+#~ msgstr "Apparaat"
+
+#, fuzzy
+#~ msgid "Mountpoint:"
+#~ msgstr "iPod aankoppelingspunt:"
+
+#, fuzzy
+#~ msgid "Only sync unplayed episodes"
+#~ msgstr "Downloaden van nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid "Show icon in system tray"
+#~ msgstr "gPodder-pictogram tonen in het mededelingengebied"
+
+#~ msgid "<b><big>Synchronizing Podcasts</big></b>"
+#~ msgstr "<b><big>Podcasts worden gesynchroniseerd</big></b>"
+
+#~ msgid "Copying Files To Device"
+#~ msgstr "Bestanden worden naar apparaat gestuurd"
+
+#~ msgid ""
+#~ "Episodes marked for synchronization are now transferred to your player "
+#~ "device."
+#~ msgstr ""
+#~ "Afleveringen die gemarkeerd zijn voor synchronisatie worden nu naar uw "
+#~ "speler gestuurd."
+
+#~ msgid "Initializing..."
+#~ msgstr "Initialiseren..."
+
+#~ msgid "Close"
+#~ msgstr "_Sluiten"
+
+#~ msgid "Copy selected episodes to device"
+#~ msgstr "Kopieer geselecteerde afleveringen naar apparaat"
+
+#~ msgid "Device"
+#~ msgstr "Apparaat"
+
+#~ msgid "Manage device playlist"
+#~ msgstr "Bewerk afspeellijst van apparaat"
+
+#, fuzzy
+#~ msgid "Select and remove episodes from device"
+#~ msgstr "Afleveringen verwijderen van apparaat"
+
+#, fuzzy
+#~ msgid "Sync episodes to device"
+#~ msgstr "Kopieer afleveringen naar apparaat"
+
+#~ msgid "Transfer"
+#~ msgstr "Naar apparaat"
+
+#, fuzzy
+#~ msgid "Configuration editor"
+#~ msgstr "gPodder - configuratie bewerken"
+
+#, fuzzy
+#~ msgid "Add new podcasts"
+#~ msgstr "Voeg een podcast toe"
+
+#~ msgid "Advanced..."
+#~ msgstr "Geavanceerd..."
+
+#, fuzzy
+#~ msgid ""
+#~ "Nokia Media Player\n"
+#~ "MPlayer"
+#~ msgstr "Speler"
+
+#, fuzzy
+#~ msgid "Copy selected text"
+#~ msgstr "Kopieer geselecteerde afleveringen naar apparaat"
+
+#, fuzzy
+#~ msgid "Limit DLs to"
+#~ msgstr "Beperk downloadsnelheid tot"
+
+#, fuzzy
+#~ msgid "gpodder.net Settings"
+#~ msgstr "Ga naar gpodder.org"
+
+#, fuzzy
+#~ msgid "My gpodder.net account"
+#~ msgstr "Podcasts"
+
+#, fuzzy
+#~ msgid "Your podcast list is empty. What do you want to do?"
+#~ msgstr "Uw lijst met abonnementen is leeg. Wat wilt u doen?"
+
+#, fuzzy
+#~ msgid "Force using the Maemo 4 user interface"
+#~ msgstr "Start de Maemo gebruikersinterface van gPodder"
+
+#, fuzzy
+#~ msgid "Force using the Maemo 5 user interface"
+#~ msgstr "Start de Maemo gebruikersinterface van gPodder"
+
+#, fuzzy
+#~ msgid "manual only"
+#~ msgstr "Handleiding"
+
+#~ msgid "Don't ask me again"
+#~ msgstr "Vraag me dit niet opnieuw"
+
+#~ msgid "Ask before closing gPodder"
+#~ msgstr "Vraag stellen voorafgaande aan afsluiten van gPodder"
+
+#, fuzzy
+#~ msgid "%(position)d/%(total)d updated"
+#~ msgstr "%d van %d kanalen bijgewerkt"
+
+#, fuzzy
+#~ msgid "Updating..."
+#~ msgstr "Bijwerken van \"%s\""
+
+#~ msgid "MTP device synchronization"
+#~ msgstr "Synchronisatie van MTP-toestel"
+
+#~ msgid ""
+#~ "Support synchronization of podcasts to devices using the Media Transfer "
+#~ "Protocol via pymtp."
+#~ msgstr ""
+#~ "Ondersteunt synchronisatie van podcasts naar  Media Transfer Protocol "
+#~ "(MTP)-toestellen door middel van pymtp."
+
+#~ msgid "Open download folder"
+#~ msgstr "Open downloadmap"
+
+#~ msgid "Update Feed"
+#~ msgstr "Feed bijwerken"
+
+#~ msgid "Update M3U playlist"
+#~ msgstr "Update M3U afspeellijst"
+
+#~ msgid "Allow deletion of all episodes"
+#~ msgstr "Sta verwijdering van alle afleveringen toe"
+
+#~ msgid "Prohibit deletion of all episodes"
+#~ msgstr "Voorkom verwijdering van alle afleveringen"
+
+#~ msgid "OPML:"
+#~ msgstr "OPML:"
+
+#, fuzzy
+#~ msgid "Remove multiple podcasts"
+#~ msgstr "Voeg een podcast toe"
+
+#, fuzzy
+#~ msgid "Play all downloads"
+#~ msgstr "Download annuleren"
+
+#, fuzzy
+#~ msgid "Update feed"
+#~ msgstr "Feed bijwerken"
+
+#, fuzzy
+#~ msgid "Synchronization"
+#~ msgstr "Synchronisatiefout"
+
+#, fuzzy
+#~ msgid "<b>Device configuration</b>"
+#~ msgstr "<b>Apparaat configuratie</b>"
+
+#, fuzzy
+#~ msgid "Device ID:"
+#~ msgstr "Apparaat"
+
+#, fuzzy
+#~ msgid "Device Name:"
+#~ msgstr "Apparaat"
+
+#, fuzzy
+#~ msgid "Enable synchronization of subscription list"
+#~ msgstr "<b>Synchronisatie-opties</b>"
+
+#~ msgid "Select device"
+#~ msgstr "Apparaten selecteren"
+
+#, fuzzy
+#~ msgid "Type:"
+#~ msgstr "Type"
+
+#~ msgid "Do not download"
+#~ msgstr "Niet downloaden"
+
+#~ msgid "Save to disk"
+#~ msgstr "Bewaar op schijf"
+
+#~ msgid "Send via bluetooth"
+#~ msgstr "Verstuur via Bluetooth"
+
+#~ msgid "Transfer to %s"
+#~ msgstr "Verstuur naar %s"
+
+#~ msgid "Mark as unplayed"
+#~ msgstr "Markeer als niet afgespeeld"
+
+#~ msgid "Prohibit deletion"
+#~ msgstr "Voorkomen wissen"
+
+#, fuzzy
+#~ msgid "Select a device"
+#~ msgstr "Apparaten selecteren"
+
+#, fuzzy
+#~ msgid "Device:"
+#~ msgstr "Apparaat"
+
+#, fuzzy
+#~ msgid "Use device"
+#~ msgstr "Apparaten selecteren"
+
+#, fuzzy
+#~ msgid "Desktop"
+#~ msgstr "Bureaublad:"
+
+#, fuzzy
+#~ msgid "Downloading device list"
+#~ msgstr "Downloaden van lijst van afleveringen"
+
+#, fuzzy
+#~ msgid "Error getting list"
+#~ msgstr "Fout bij het opslaan van afspeellijst"
+
+#~ msgid "Go to gpodder.org"
+#~ msgstr "Ga naar gpodder.org"
+
+#, fuzzy
+#~ msgid "every %d minutes"
+#~ msgstr "%i minuten"
+
+#~ msgid "%s is locked"
+#~ msgstr "%s is beveiligd"
+
+#~ msgid ""
+#~ "You cannot delete this locked episode. You must unlock it before you can "
+#~ "delete it."
+#~ msgstr ""
+#~ "U kan deze aflevering niet verwijderen omdat hij beveiligd is. Verwijder "
+#~ "de beveiliging en probeer het opnieuw."
+
+#~ msgid "Remove %s?"
+#~ msgstr "%s verwijderen?"
+
+#~ msgid ""
+#~ "If you remove this episode, it will be deleted from your computer. If you "
+#~ "want to listen to this episode again, you will have to re-download it."
+#~ msgstr ""
+#~ "Indien u deze aflevering verwijdert, zal u die opnieuw moeten downloaden "
+#~ "als u ze opnieuw wilt beluisteren."
+
+#~ msgid ""
+#~ "If you remove these episodes, they will be deleted from your computer. If "
+#~ "you want to listen to any of these episodes again, you will have to re-"
+#~ "download the episodes in question."
+#~ msgstr ""
+#~ "Indien u deze afleveringen verwijdert, zal u ze opnieuw moeten downloaden "
+#~ "als u ze opnieuw wilt beluisteren."
+
+#, fuzzy
+#~ msgid "Remove %(unlocked)d out of %(selected)d episodes?"
+#~ msgstr "%d van %d afleveringen verwijderen?"
+
+#~ msgid ""
+#~ "The selection contains locked episodes that will not be deleted. If you "
+#~ "want to listen to the deleted episodes, you will have to re-download them."
+#~ msgstr ""
+#~ "Deze selectie bevat beveiligde afleveringen. Deze zullen niet verwijderd "
+#~ "worden. Als u opnieuw wilt luisteren naar verwijderde afleveringen, dan "
+#~ "zal u deze opnieuw moeten downloaden."
+
+#, fuzzy
+#~ msgid "Removing episodes"
+#~ msgstr "Downloaden van nieuwe afleveringen"
+
+#~ msgid "Remove old episodes"
+#~ msgstr "Oude afleveringen verwijderen"
+
+#, fuzzy
+#~ msgid "Go to my.gpodder.org"
+#~ msgstr "Ga naar gpodder.org"
+
+#, fuzzy
+#~ msgid "%d done"
+#~ msgid_plural "%d done"
+#~ msgstr[0] "%d van %d gereed"
+#~ msgstr[1] "%d van %d gereed"
+
+#, fuzzy
+#~ msgid "There has been an error updating %(url)s: %(message)s"
+#~ msgstr "Er is een fout opgetreden bij het openen van uw apparaat."
+
+#~ msgid "Custom command"
+#~ msgstr "Opdracht:"
+
+#~ msgid ""
+#~ "You can specify a custom format string for the file names on your MP3 "
+#~ "player here."
+#~ msgstr ""
+#~ "U kan hier een aangepaste opmaakstring invullen voor de bestandsnamen op "
+#~ "uw MP3-speler."
+
+#~ msgid ""
+#~ "The format string will be used to generate a file name on your device. "
+#~ "The file extension (e.g. \".mp3\") will be added automatically."
+#~ msgstr ""
+#~ "De opmaakstring wordt gebruikt om de bestandsnamen op uw apparaat te "
+#~ "bepalen. De bestandsextensie (bv. \".mp3\") zal automatisch worden "
+#~ "toegevoegd."
+
+#~ msgid "Custom format strings"
+#~ msgstr "Aangepaste opmaakstrings"
+
+#~ msgid "Select folder for MP3 player"
+#~ msgstr "Kies map voor MP3-speler"
+
+#~ msgid "/path/to/fs-based-player"
+#~ msgstr "/pad/naar/speler-met-bestandssysteem"
+
+#~ msgid "/path/to/ipod"
+#~ msgstr "/pad/naar/ipod"
+
+#~ msgid "<b>Advanced window options</b>"
+#~ msgstr "<b>Opties venster \"Geavanceerd\"</b>"
+
+#~ msgid "<b>Audio Media Player</b>"
+#~ msgstr "<b>Audiospeler</b>"
+
+#, fuzzy
+#~ msgid "<b>Automatic download of episode list</b>"
+#~ msgstr "Downloaden van lijst van afleveringen"
+
+#~ msgid "<b>Clean-up</b>"
+#~ msgstr "<b>Opruiming</b>"
+
+#~ msgid "<b>Device Configuration</b>"
+#~ msgstr "<b>Apparaat configuratie</b>"
+
+#~ msgid "<b>Download Folder</b>"
+#~ msgstr "<b>Download map</b>"
+
+#~ msgid "<b>Notification Area Integration</b>"
+#~ msgstr "<b>Integratie met mededelingengebied</b>"
+
+#~ msgid "<b>Synchronization Options</b>"
+#~ msgstr "<b>Synchronisatie-opties</b>"
+
+#~ msgid "<b>Video Media Player</b>"
+#~ msgstr "<b>Videospeler</b>"
+
+#, fuzzy
+#~ msgid "Always automatically download new episodes"
+#~ msgstr "Downloaden van lijst van afleveringen"
+
+#, fuzzy
+#~ msgid "Automatically download new episodes when gPodder is minimized"
+#~ msgstr ""
+#~ "Nieuwe afleveringen automatisch downloaden wanneer gPodder "
+#~ "geminimaliseerd is"
+
+#, fuzzy
+#~ msgid "Check for new episodes every"
+#~ msgstr "Controleren op nieuwe afleveringen"
+
+#, fuzzy
+#~ msgid "Close to system notification area"
+#~ msgstr "gPodder-pictogram tonen in het mededelingengebied"
+
+#~ msgid "Create a subfolder for each podcast"
+#~ msgstr "Submap aanmaken voor elke podcast"
+
+#~ msgid "Custom filename:"
+#~ msgstr "Aangepaste bestandsnaam:"
+
+#~ msgid "Delete episodes on device that have been marked played in gPodder"
+#~ msgstr ""
+#~ "Verwijder afleveringen op het apparaat welke zijn gemarkeerd als "
+#~ "\"afgespeeld\" in gPodder"
+
+#, fuzzy
+#~ msgid "Delete episodes played on iPod from gPodder"
+#~ msgstr "Aflevering verwijderen uit gPodder"
+
+#~ msgid ""
+#~ "If checked, a subfolder will be created for each podcast synchronized. If "
+#~ "not checked, all episodes will be copied directly to the folder specified "
+#~ "by \"Sync to folder:\"."
+#~ msgstr ""
+#~ "Als u deze optie inschakelt zal er een submap worden aangemaakt voor elke "
+#~ "podcast dat gesynchroniseerd wordt met uw apparaat. Indien u dat niet "
+#~ "doet zullen alle afleveringen gewoon naar de map gekopieerd worden die u "
+#~ "heeft opgegeven bij \"Synchroniseren met map:\"."
+
+#, fuzzy
+#~ msgid ""
+#~ "If checked, gPodder will delete played episodes that are older than the "
+#~ "specified amount of days (in the Downloads tab) on every startup."
+#~ msgstr ""
+#~ "Als u deze optie inschakelt zal gPodder alle oude afgespeelde "
+#~ "afleveringen (zie Downloads-tab) verwijderen bij het opstarten."
+
+#~ msgid ""
+#~ "If checked, gPodder will update the status of the episode as if it has "
+#~ "been played locally after copying it to your device"
+#~ msgstr ""
+#~ "Als u deze optie inschakelt zal gPodder automatisch afleveringen als "
+#~ "afgespeeld markeren nadat ze naar uw MP3-speler gestuurd zijn."
+
+#, fuzzy
+#~ msgid "MTP-based player"
+#~ msgstr "MP3-speler"
+
+#, fuzzy
+#~ msgid "Never automatically download new episodes"
+#~ msgstr "Downloaden van lijst van afleveringen"
+
+#~ msgid "Only show tray icon when minimized"
+#~ msgstr "Systeempictogram enkel tonen als gPodder geminimaliseerd is"
+
+#~ msgid "Only sync tracks that have not been played"
+#~ msgstr "Synchroniseer alleen afleveringen die nog niet afgespeeld zijn"
+
+#~ msgid "Select download folder"
+#~ msgstr "Kies downloadmap"
+
+#~ msgid "Show gPodder icon in the system notification area"
+#~ msgstr "gPodder-pictogram tonen in het mededelingengebied"
+
+#~ msgid "Start gPodder minimized"
+#~ msgstr "gPodder geminimaliseerd starten"
+
+#~ msgid "Sync to folder:"
+#~ msgstr "Synchroniseren met map:"
+
+#~ msgid "Tray Icon"
+#~ msgstr "Systeempictogram"
+
+#~ msgid "Type of device:"
+#~ msgstr "Apparaattype:"
+
+#~ msgid "days"
+#~ msgstr "dagen"
+
+#~ msgid "gPodder Preferences"
+#~ msgstr "gPodder Voorkeuren"
+
+#~ msgid "minutes"
+#~ msgstr "minuten"
+
+#, fuzzy
+#~ msgid "Search podcast.de:"
+#~ msgstr "Zoeken naar podcasts"
+
+#, fuzzy
+#~ msgid "Search podcast.de"
+#~ msgstr "Zoeken naar podcasts"
+
+#, fuzzy
+#~ msgid "Really delete this podcast and all downloaded episodes?"
+#~ msgstr ""
+#~ "Weet u zeker dat u <b>%s</b> en alle gedownloade afleveringen wilt "
+#~ "verwijderen?"
+
+#, fuzzy
+#~ msgid "<b>General</b>"
+#~ msgstr "Algemeen"
+
+#~ msgid "gPodder downloads finished"
+#~ msgstr "gPodder-downloads voltooid"
+
+#, fuzzy
+#~ msgid "gPodder downloads failed"
+#~ msgstr "gPodder-downloads voltooid"
+
+#~ msgid "Login to my.gpodder.org"
+#~ msgstr "Inloggen op my.gpodder.org"
+
+#~ msgid "Please enter your e-mail address and your password."
+#~ msgstr "Voer uw email adres en wachtwoord in."
+
+#~ msgid "E-Mail Address"
+#~ msgstr "Email adres"
+
+#, fuzzy
+#~ msgid "Added %(added)d new and skipped %(skipped)d existing subscriptions."
+#~ msgstr "%d nieuwe abonnementen toegevoegd en %d bestaande overgeslagen."
+
+#~ msgid "Result of subscription download"
+#~ msgstr "Resultaat van het downloaden van de abonnementen"
+
+#~ msgid "Please set up your username and password first."
+#~ msgstr "Gelieve eerst uw gebruikersnaam en wachtwoord te registreren."
+
+#~ msgid "Username and password needed"
+#~ msgstr "gebruikersnaam en wachtwoord vereist"
+
+#~ msgid "Results of upload"
+#~ msgstr "Resultaat van upload"
+
+#~ msgid "Please have a look at the website for more information."
+#~ msgstr "Voor meer informatie kunt u terecht op de website."
+
+#~ msgid "Authentication failed."
+#~ msgstr "Authenticatie is mislukt."
+
+#~ msgid "Protocol error."
+#~ msgstr "Fout met het protocol."
+
+#~ msgid "Unknown response."
+#~ msgstr "Onbekend antwoord."
+
+#, fuzzy
+#~ msgid "Upload to my.gpodder.org"
+#~ msgstr "Upload lijst naar my.gpodder.org"
+
+#~ msgid "%d of %d done"
+#~ msgstr "%d van %d gereed"
+
+#~ msgid "Error updating %s"
+#~ msgstr "Fout bij bijwerken van %s"
+
+#~ msgid "Updated %s (%d/%d)"
+#~ msgstr "%s bijgewerkt (%d/%d)"
+
+#~ msgid ""
+#~ "%s\n"
+#~ "%s"
+#~ msgstr ""
+#~ "%s\n"
+#~ "%s"
+
+#~ msgid "Your device has been updated by gPodder."
+#~ msgstr "Uw apparaat is bijgewerkt door gPodder."
+
+#~ msgid "Operation finished"
+#~ msgstr "Operatie voltooid"
+
+#, fuzzy
+#~ msgid "Downloading one new episode."
+#~ msgstr "Eén nieuwe aflevering gedownload."
+
+#, fuzzy
+#~ msgid "%i new episodes are available for download"
+#~ msgstr "Geen nieuwe afleveringen beschikbaar"
+
+#, fuzzy
+#~ msgid "Updating podcast feeds"
+#~ msgstr "De podcastfeeds worden gedownload..."
+
+#~ msgid "Do you really want to remove <b>%s</b> and all downloaded episodes?"
+#~ msgstr ""
+#~ "Weet u zeker dat u <b>%s</b> en alle gedownloade afleveringen wilt "
+#~ "verwijderen?"
+
+#~ msgid "Do not delete my downloaded episodes"
+#~ msgstr "Mijn gedownloade afleveringen niet verwijderen"
+
+#, fuzzy
+#~ msgid "Podcast removed: %s"
+#~ msgstr "Podcasts verwijderd"
+
+#~ msgid "One subscription exported"
+#~ msgstr "Eén abonnement geëxporteerd"
+
+#, fuzzy
+#~ msgid "%d subscriptions"
+#~ msgstr "A_bonnementen"
+
+#~ msgid "one day ago"
+#~ msgstr "gisteren"
+
+#~ msgid "0 seconds"
+#~ msgstr "0 seconden"
+
+#~ msgid "1 hour"
+#~ msgstr "1 uur"
+
+#~ msgid "1 minute"
+#~ msgstr "1 minuut"
+
+#~ msgid "1 second"
+#~ msgstr "1 seconde"
+
+#~ msgid "one more episode"
+#~ msgstr "nog één aflevering"
+
+#, fuzzy
+#~ msgid "1 podcast selected"
+#~ msgstr "Geen podcast geselecteerd"
+
+#~ msgid "kb/s"
+#~ msgstr "kb/s"
+
+#, fuzzy
+#~ msgid "Clean up list"
+#~ msgstr "<b>Opruiming</b>"
+
+#, fuzzy
+#~ msgid "Loading, please wait"
+#~ msgstr "Fout bij het opslaan van podcast lijst."
+
+#~ msgid ""
+#~ "gPodder can automatically upload your subscription list to my.gpodder.org "
+#~ "when you close it. Do you want to enable this feature?"
+#~ msgstr ""
+#~ "gPodder kan bij sluiten automatisch uw lijst met abonnementen uploaden "
+#~ "naar my.gpoddder.org. Wilt u deze mogelijkheid activeren?"
+
+#~ msgid "My podcast subscriptions"
+#~ msgstr "Mijn podcast abonnementen"
+
+#, fuzzy
+#~ msgid "Your subscription list is empty. Add some podcasts first."
+#~ msgstr "Uw lijst met abonnementen is leeg. Wat wilt u doen?"
+
+#~ msgid "Could not send list"
+#~ msgstr "De lijst kon niet worden verzonden"
+
+#~ msgid "There was an error sending your subscription list via e-mail."
+#~ msgstr ""
+#~ "Er is een fout opgetreden bij het verzenden van uw abonnementenlijst via "
+#~ "email."
+
+#, fuzzy
+#~ msgid "Send list via e-mail"
+#~ msgstr "Verstuur abonnementenlijst via email"
+
+#~ msgid "Speed"
+#~ msgstr "Snelheid"
+
+#~ msgid "Never download"
+#~ msgstr "Nooit downloaden"
+
+#~ msgid "Hide gPodder"
+#~ msgstr "gPodder verbergen"
+
+#~ msgid "Show gPodder"
+#~ msgstr "gPodder tonen"
+
+#, fuzzy
+#~ msgid "Update the feed cache on startup."
+#~ msgstr "Update abonnementen bij opstarten"
+
+#, fuzzy
+#~ msgid ""
+#~ "Only sync episodes to a device that have not been marked played in "
+#~ "gPodder."
+#~ msgstr ""
+#~ "Verwijder afleveringen op het apparaat welke zijn gemarkeerd als "
+#~ "\"afgespeeld\" in gPodder"
+
+#, fuzzy
+#~ msgid "After syncing an episode, delete it from gPodder."
+#~ msgstr "Aflevering verwijderen uit gPodder"
+
+#, fuzzy
+#~ msgid "Ask the user to confirm quitting the application."
+#~ msgstr "Vraag gebruiker bevestiging om af te sluiten"
+
+#, fuzzy
+#~ msgid "Auto download episodes (never, minimized, always)"
+#~ msgstr ""
+#~ "Nieuwe afleveringen automatisch downloaden wanneer gPodder "
+#~ "geminimaliseerd is"
+
+#, fuzzy
+#~ msgid ""
+#~ "Do not show the new episodes dialog after updating feed cache when "
+#~ "gPodder is not minimized"
+#~ msgstr "Download nieuwe afleveringen na bijwerken van feeds"
+
+#, fuzzy
+#~ msgid "Call 'sync' after tranfering episodes to a device."
+#~ msgstr "Kopieer geselecteerde afleveringen naar apparaat"
+
+#~ msgid "Already added: %s"
+#~ msgstr "%s is al toegevoegd."
+
+#~ msgid "Could not load feed from URL: %s"
+#~ msgstr "Het feed op %s kon niet geladen worden."
+
+#~ msgid "Could not remove podcast."
+#~ msgstr "De podcast kon niet worden verwijderd."
+
+#~ msgid "done."
+#~ msgstr "gereed."
+
+#~ msgid "Downloaded one new episode."
+#~ msgstr "Eén nieuwe aflevering gedownload."
+
+#~ msgid "Downloaded %d new episodes."
+#~ msgstr "%d nieuwe afleveringen gedownload."
+
+#~ msgid "No device configured. Please use the GUI."
+#~ msgstr "Geen apparaat geconfigureerd. Gelieve de GUI te gebruiken."
+
+#~ msgid "Synchronization finished."
+#~ msgstr "Synchronisatie voltooid."
+
+#~ msgid "Cannot open device."
+#~ msgstr "Kan apparaat niet openen."
+
+#~ msgid "Cannot close device."
+#~ msgstr "Kan apparaat niet sluiten."
+
+#~ msgid "Free space on device %s: %s"
+#~ msgstr "Vrije ruimte op apparaat %s: %s"
+
+#~ msgid "Size of episodes to sync: %s"
+#~ msgstr "Grootte van te synchroniseren afleveringen: %s"
+
+#~ msgid "Need to free at least %s more"
+#~ msgstr "U moet minstens %s meer vrijmaken"
+
+#~ msgid "Free space after sync: %s"
+#~ msgstr "Vrije ruimte na synchronisatie: %s"
+
+#~ msgid "Enter podcast URL..."
+#~ msgstr "Geef de podcast URL..."
+
+#, fuzzy
+#~ msgid "Classic menu"
+#~ msgstr "Sluit dit menu"
+
+#, fuzzy
+#~ msgid "%d downloading"
+#~ msgstr "downloaden"
+
+#~ msgid "Loading episodes for %s"
+#~ msgstr "De afleveringen van %s worden geladen"
+
+#~ msgid "%s URLs are not supported"
+#~ msgstr "%s URLs worden niet ondersteund"
+
+#~ msgid "gPodder does not understand the URL you supplied."
+#~ msgstr "gPodder begrijpt niet de URL welke u heeft ingevoerd"
+
+#~ msgid "Already added"
+#~ msgstr "Al toegevoegd"
+
+#, fuzzy
+#~ msgid "Downloading episode information for %s"
+#~ msgstr ""
+#~ "Wacht a.u.b. totdat gPodder de informatie voor aflevering %s heeft "
+#~ "gedownload"
+
+#~ msgid "Downloading feed..."
+#~ msgstr "Feed wordt gedownload..."
+
+#~ msgid ""
+#~ "You have supplied <b>%s</b> as username and a password for this feed. "
+#~ "Would you like to use the same authentication data for downloading "
+#~ "episodes?"
+#~ msgstr ""
+#~ "U heeft <b>%s</b> als gebruikersnaam (en een wachtwoord) opgegeven voor "
+#~ "dit feed. Wilt u dezelfde login ook gebruiken voor het downloaden van "
+#~ "afleveringen?"
+
+#, fuzzy
+#~ msgid "Retry adding channel"
+#~ msgstr "Kanaal b_ewerken"
+
+#~ msgid "The URL is a website"
+#~ msgstr "De URL is van een website"
+
+#~ msgid ""
+#~ "The URL you specified points to a web page. You need to find the \"feed\" "
+#~ "URL of the podcast to add to gPodder. Do you want to visit this website "
+#~ "now and look for the podcast feed URL?\n"
+#~ "\n"
+#~ "(Hint: Look for \"XML feed\", \"RSS feed\" or \"Podcast feed\" if you are "
+#~ "unsure for what to look. If there is only an iTunes URL, try adding this "
+#~ "one.)"
+#~ msgstr ""
+#~ "De URL welke u heeft invoerd is van een website. U dient de \"feed\" URL "
+#~ "van de podcast in te voeren. Wilt u deze website bezoeken om de podcast "
+#~ "feed op te zoeken?\n"
+#~ "\n"
+#~ "(Tip: bij twijfel zoek dan naar \"XML feed\", \"RSS feed\" of \"Podcast "
+#~ "feed\". Als er alleen een URL van iTunes aanwezig is, voer deze dan "
+#~ "in.)   "
+
+#~ msgid "Error adding podcast"
+#~ msgstr "Fout bij toevoegen van podcast"
+
+#~ msgid ""
+#~ "The podcast could not be added. Please check the spelling of the URL or "
+#~ "try again later."
+#~ msgstr ""
+#~ "De podcast kon niet worden toegevoegd. Controleer de URL op fouten of "
+#~ "probeer het later opnieuw."
+
+#, fuzzy
+#~ msgid "Cannot connect to server"
+#~ msgstr "Kan niet synchroniseren met MTP-toestel."
+
+#~ msgid "Do you really want to delete this episode?"
+#~ msgstr "Weet u zeker dat u deze aflevering wilt verwijderen?"
+
+#~ msgid "Do you really want to delete %d episodes?"
+#~ msgstr "Weet u zeker dat u %d afleveringen wilt verwijderen?"
+
+#~ msgid "Select the episodes you want to delete from your hard disk."
+#~ msgstr ""
+#~ "Selecteer de afleveringen die u van uw harde schijf wilt verwijderen."
+
+#~ msgid "Database upgrade required"
+#~ msgstr "Opwaardering van database vereist"
+
+#~ msgid ""
+#~ "gPodder is now using a new (much faster) database backend and needs to "
+#~ "convert your current data. This can take some time. Start the conversion "
+#~ "now?"
+#~ msgstr ""
+#~ "gPodder gebruikt een nieuwe (en veel snellere) database en moet uw "
+#~ "huidige gegevens omzetten. Dit kan enige tijd duren. Met het omzetten "
+#~ "beginnen? "
+
+#~ msgid "Migrating to SQLite"
+#~ msgstr "Migratie naar SQLite wordt uitgevoerd"
+
+#~ msgid "SQLite migration"
+#~ msgstr "Migratie naar SQLite"
+
+#~ msgid "Migration finished in %s"
+#~ msgstr "Migratie voltooid in %s"
+
+#~ msgid "No new episodes available for download"
+#~ msgstr "Geen nieuwe afleveringen beschikbaar"
+
+#~ msgid ""
+#~ "To use the synchronization feature, please configure your device in the "
+#~ "preferences dialog first."
+#~ msgstr ""
+#~ "Om de synchronisatie-functionaliteit te gebruiken moet u eerst uw "
+#~ "apparaat configureren in Voorkeuren."
+
+#~ msgid "There has been an error opening your device."
+#~ msgstr "Er is een fout opgetreden bij het openen van uw apparaat."
+
+#~ msgid ""
+#~ "%s remaining on device.\n"
+#~ "Please free up %s and try again."
+#~ msgstr ""
+#~ "%s beschikbaar op apparaat.\n"
+#~ "Maak minstens %s vrij en probeer het opnieuw. "
+
+#~ msgid ""
+#~ "The selected episodes will be removed from your device. This cannot be "
+#~ "undone. Files in your gPodder library will be unaffected. Do you really "
+#~ "want to delete these episodes from your device?"
+#~ msgstr ""
+#~ "De geselecteerde afleveringen zullen worden verwijderd van het apparaat. "
+#~ "Dit kan niet ongedaan gemaakt worden. Bestanden in uw gPodder map blijven "
+#~ "onaangetast. Deze afleveringen verwijderen van het apparaat?"
+
+#~ msgid ""
+#~ "To use the playlist feature, please configure your Filesystem based MP3-"
+#~ "Player in the preferences dialog first."
+#~ msgstr ""
+#~ "Om de afspeellijst-functionaliteit te gebruiken moet u eerst uw MP3 "
+#~ "toestel configureren in Voorkeuren."
+
+#~ msgid "Add Google Video search"
+#~ msgstr "Voeg Google Video zoekopdracht toe"
+
+#~ msgid "Import podcasts from Video Center"
+#~ msgstr "Importeer podcasts van Video Center"
+
+#~ msgid "Have you installed Video Center on your tablet?"
+#~ msgstr "Heeft u Video Center geïnstalleerd op uw tablet?"
+
+#~ msgid "Cannot find Video Center subscriptions"
+#~ msgstr "Video Center abonnementen niet gevonden"
+
+#, fuzzy
+#~ msgid "Please select an episode"
+#~ msgstr "Geselecteerde aflevering afspelen"
+
+#~ msgid ""
+#~ "There has been an error moving your downloads to the specified location. "
+#~ "The old download directory will be used instead."
+#~ msgstr ""
+#~ "Er is een fout opgetreden bij het verplaatsen van uw downloadmap naar de "
+#~ "opgegeven lokatie. De oude downloadmap zal worden gebruikt."
+
+#~ msgid "Error moving downloads"
+#~ msgstr "Fout bij verplaatsen van downloads"
+
+#~ msgid "Moving downloads from <b>%s</b> to <b>%s</b>..."
+#~ msgstr "Downloads worden verplaatst van <b>%s</b> naar <b>%s</b>..."
+
+#~ msgid "%s of %s"
+#~ msgstr "%s van %s"
+
+#~ msgid "Finishing... please wait."
+#~ msgstr "Bezig met voltooien... even geduld."
+
+#~ msgid "One episode selected"
+#~ msgstr "Eén aflevering geselecteerd"
+
+#~ msgid "%d episodes selected"
+#~ msgstr "%d afleveringen geselecteerd"
+
+#~ msgid "Loading LocalDB for %s"
+#~ msgstr "Laden van \"LocalDB\" voor %s"
+
+#~ msgid "Writing changes to database"
+#~ msgstr "Wijzigingen worden opgeslagen in database"
+
+#~ msgid "Migrating settings for %s"
+#~ msgstr "Migratie instellingen voor %s"
+
+#~ msgid "Show previous message again"
+#~ msgstr "Recentste bericht opnieuw tonen"
+
+#, fuzzy
+#~ msgid "Enable episode list gestures"
+#~ msgstr "Eén aflevering geselecteerd"
+
+#~ msgid "Export podcasts to OPML file"
+#~ msgstr "Podcasts naar OPML bestand exporteren"
+
+#~ msgid "Import subscriptions from Video Center"
+#~ msgstr "Importeer abonnementen van Video Center"
+
+#~ msgid "Search for podcasts"
+#~ msgstr "Zoeken naar podcasts"
+
+#~ msgid "Subscribe to new podcast URL"
+#~ msgstr "Abonneren op nieuwe podcast"
+
+#~ msgid "Unsubscribe from selected podcast"
+#~ msgstr "Abonnement verwijderen"
+
+#~ msgid "List all channel subscriptions"
+#~ msgstr "Alle kanalen tonen"
+
+#~ msgid "Update channel list, download new podcasts"
+#~ msgstr "Kanalenlijst bijwerken, nieuwe podcasts downloaden"
+
+#~ msgid "Update channel list and exit"
+#~ msgstr "Kanalenlijst bijwerken en afsluiten"
+
+#~ msgid "Synchronize channels to configured device"
+#~ msgstr "Synchroniseer de kanalen naar geconfigureerd apparaat"
+
+#~ msgid "Delete channel specified by URL"
+#~ msgstr "Kanaal verwijderen door opgave URL"
+
+#~ msgid "Get sync statistics"
+#~ msgstr "Toon synchronisatie statistieken"
+
+#, fuzzy
+#~ msgid "Change URL"
+#~ msgstr "URL wijzigen?"
+
+#~ msgid ""
+#~ "Please wait while gPodder converts your media file for bluetooth file "
+#~ "transfer."
+#~ msgstr ""
+#~ "Even geduld, gPodder is uw mediabestanden aan het converteren voor "
+#~ "Bluetooth bestandsoverdracht."
+
+#~ msgid "one new episode:"
+#~ msgstr "één nieuwe aflevering:"
+
+#~ msgid "downloading"
+#~ msgstr "downloaden"
+
+#~ msgid "Update has been cancelled"
+#~ msgstr "Bijwerken is geannuleerd"
+
+#~ msgid "Cancelling, please wait..."
+#~ msgstr "Wordt geannuleerd. Even geduld a.u.b."
+
+#~ msgid "The specified URL is invalid. The old URL has been used instead."
+#~ msgstr ""
+#~ "De opgegeven URL is ongeldig. In plaats daarvan is de oude gebruikt."
+
+#~ msgid "needs python-eyed3"
+#~ msgstr "vereist python-eyed3"
+
+#~ msgid "Update tags on MP3 files"
+#~ msgstr "Update tags in MP3 bestanden"
+
+#~ msgid "Support the \"Update tags after download\" option for MP3 files."
+#~ msgstr "Ondersteun de optie \"Update tags na downoad\" voor MP3 bestanden. "
+
+#~ msgid "Update tags on OGG files"
+#~ msgstr "Update tags in OGG bestanden"
+
+#~ msgid "Support the \"Update tags after download\" option for OGG files."
+#~ msgstr "Ondersteun de optie \"Update tags na downoad\" voor OGG bestanden. "
+
+#~ msgid " (downloaded)"
+#~ msgstr "(gedownload)"
+
+#~ msgid "<b>File Metadata</b>"
+#~ msgstr "<b>Bestand metadata</b>"
+
+#~ msgid "<b>Network Proxy</b>"
+#~ msgstr "<b>Netwerk-proxy</b>"
+
+#~ msgid "FTP Proxy:"
+#~ msgstr "FTP-proxy:"
+
+#~ msgid "HTTP Proxy:"
+#~ msgstr "HTTP-proxy:"
+
+#~ msgid "Specify custom proxy server settings:"
+#~ msgstr "Specificeer proxy server instellingen"
+
+#~ msgid "Update gtkpod extended database after synchronization"
+#~ msgstr "Update gtkpod database na synchronisatie"
+
+#~ msgid "Update tags on audio files after download"
+#~ msgstr "Update tags in audiobestanden na downloaden"
+
+#~ msgid "Use proxy defaults from environment variables"
+#~ msgstr "Proxy-instellingen van het systeem overnemen"
+
+#~ msgid ""
+#~ "Writes episode and podcast info to the downloaded file's tag field (ID3 "
+#~ "for MP3, vorbis tag for OGG, etc..)"
+#~ msgstr ""
+#~ "Schrijf afleverings- en kanaalinformatie weg naar de tags van het "
+#~ "gedownloade bestand (ID3-tags bij MP3, Vorbis-tag bij OGG, enzovoort)."
+
+#, fuzzy
+#~ msgid "Change feed URL of selected podcast"
+#~ msgstr "Update geselecteerde podcast"
+
+#~ msgid "Do you really want to move this podcast to <b>%s</b>?"
+#~ msgstr "Weet u zeker dat u deze podcast wilt verplaatsen naar <b>%s</b>?"
+
+#~ msgid "Please restart gPodder for the changes to take effect."
+#~ msgstr "Gelieve gPodder te herstarten om de wijzigingen door te voeren."
+
+#~ msgid "<b>Feed cache updates</b>"
+#~ msgstr "<b>Updates van abonnementen</b>"
+
+#~ msgid "Show notifications"
+#~ msgstr "Berichtenballonnen inschakelen"
+
+#~ msgid "Status icon"
+#~ msgstr "Status pictogram"
+
+#~ msgid "Update feed cache every"
+#~ msgstr "Update abonnementen om de"
+
+#~ msgid "Update feed cache on startup"
+#~ msgstr "Update abonnementen bij opstarten"
+
+#~ msgid "Run local version in current directory"
+#~ msgstr "Lokale versie in huidige map uitvoeren"
+
+#, fuzzy
+#~ msgid ""
+#~ "An error happened while trying to download <b>%s</b>. Please try again "
+#~ "later."
+#~ msgstr "Er trad een fout op bij het downloaden van <b>%s</b>."
+
+#, fuzzy
+#~ msgid ""
+#~ "An error (HTTP %d) happened while trying to download <b>%s</b>. You can "
+#~ "try to resume the download later."
+#~ msgstr "Er trad een fout op (HTTP %d) bij het downloaden van <b>%s</b>."
+
+#~ msgid "Cancel download?"
+#~ msgstr "Download annuleren?"
+
+#~ msgid ""
+#~ "Cancelling this download will remove the partially downloaded file and "
+#~ "stop the download."
+#~ msgstr ""
+#~ "Deze download zal worden geannuleerd en het gedeeltelijk gedownload "
+#~ "bestand zal worden verwijderd."
+
+#~ msgid "Cancel downloads?"
+#~ msgstr "Downloads annuleren?"
+
+#~ msgid ""
+#~ "Cancelling the download will stop the %d selected downloads and remove "
+#~ "partially downloaded files."
+#~ msgstr ""
+#~ "%d downloads zullen worden geannuleerd en de gedeeltelijk gedownloade "
+#~ "bestanden zullen worden verwijderd."
+
+#~ msgid ""
+#~ "The user command [%s] was not found.\n"
+#~ "Please check your user command settings in the preferences dialog."
+#~ msgstr ""
+#~ "De opdracht [%s] is niet gevonden.\n"
+#~ "Controleer de instellingen voor opdrachten bij Voorkeuren."
+
+#~ msgid "User command permission denied"
+#~ msgstr "De opdracht mag niet worden uitgevoerd."
+
+#~ msgid ""
+#~ "Permission denied when trying to execute user command [%s].\n"
+#~ "Please check that you have permissions to execute this command."
+#~ msgstr ""
+#~ "Het gebruikersprogramma of commando %s mag niet worden uitgevoerd.\n"
+#~ "Controleer of u voldoende volmachten heeft om deze opdracht uit te voeren."
+
+#~ msgid "User command returned an error"
+#~ msgstr "De opdracht resulteerde in een fout."
+
+#~ msgid "The user command [%s] returned an error code of [%d]"
+#~ msgstr ""
+#~ "Het gebruikersprogramma of commando %s resulteerde in foutmelding [%d]"
+
+#~ msgid "Show"
+#~ msgstr "Tonen"
+
+#~ msgid "Quit anyway"
+#~ msgstr "Toch afsluiten"
+
+#~ msgid "Keep dowloading"
+#~ msgstr "Blijf downloaden"
+
+#~ msgid ""
+#~ "gPodder is downloading episodes\n"
+#~ "do you want to exit anyway?"
+#~ msgstr ""
+#~ "gPodder is afleveringen aan het downloaden\n"
+#~ "wilt u toch afsluiten?"
+
+#~ msgid "downloading one episode"
+#~ msgstr "één download"
+
+#~ msgid "%s (completed)"
+#~ msgstr "%s (voltooid)"
+
+#~ msgid "Estimated remaining time: "
+#~ msgstr "Geschatte overige tijd:"
+
+#~ msgid "_OPML"
+#~ msgstr "_OPML"
+
+#~ msgid ""
+#~ "You are downloading episodes. If you close gPodder now, the downloads "
+#~ "will be aborted."
+#~ msgstr ""
+#~ "U bent nog afleveringen aan het downloaden. Als u gPodder nu afsluit "
+#~ "zullen uw downloads worden afgebroken."
+
+#, fuzzy
+#~ msgid "Updating %d feed."
+#~ msgstr "%s bijwerken (%d/%d)"
+
+#~ msgid ""
+#~ "gPodder currently only supports URLs starting with <b>http://</b>, "
+#~ "<b>feed://</b> or <b>ftp://</b>."
+#~ msgstr ""
+#~ "gPodder ondersteund momenteel enkel URLs die beginnen met <b>http://</b>, "
+#~ "<b>feed://</b> of <b>ftp://</b>."
+
+#~ msgid "Additional information"
+#~ msgstr "Extra informatie"
+
+#~ msgid "Download:"
+#~ msgstr "Download:"
+
+#~ msgid "Episode Information"
+#~ msgstr "Afleveringsinformatie"
+
+#~ msgid "Getting download status..."
+#~ msgstr "Bezig met ophalen van downloadstatus..."
+
+#~ msgid "Released:"
+#~ msgstr "Uitgave:"
+
+#~ msgid "website link"
+#~ msgstr "websitelink"
+
+#~ msgid "<b>Bluetooth Support</b>"
+#~ msgstr "<b>Bluetooth-ondersteuning</b>"
+
+#~ msgid "<b>Download Method</b>"
+#~ msgstr "<b>Download methode</b>"
+
+#~ msgid "<b>File Conversion Script</b>"
+#~ msgstr "<b>Bestandsconversiescript</b>"
+
+#~ msgid "<b>Nokia N800</b>"
+#~ msgstr "<b>Nokia N800</b>"
+
+#~ msgid "<b>Torrent Download Folder</b>"
+#~ msgstr "<b>Torrent downloadmap</b>"
+
+#~ msgid "Always send to"
+#~ msgstr "Altijd verzenden naar"
+
+#~ msgid "Ask for device when sending"
+#~ msgstr "Vraag naar apparaat bij verzenden"
+
+#~ msgid "BitTorrent"
+#~ msgstr "BitTorrent"
+
+#~ msgid "Bluetooth"
+#~ msgstr "Bluetooth"
+
+#~ msgid "Download using gnome-bittorrent"
+#~ msgstr "Download met gnome-bittorrent"
+
+#~ msgid "Enable Bluetooth support"
+#~ msgstr "Bluetooth-ondersteuning inschakelen"
+
+#, fuzzy
+#~ msgid "Import podcasts from web"
+#~ msgstr "Importeer kanalen van internet"
+
+#~ msgid "Just save .torrent files in download folder"
+#~ msgstr "Sla .torrent bestanden op in download-map"
+
+#~ msgid "Select A Converter Script"
+#~ msgstr "Kies een converteerscript"
+
+#~ msgid "Select BitTorrent folder"
+#~ msgstr "Selecteer BitTorrent map"
+
+#, fuzzy
+#~ msgid "Loading %s (%d/%d)"
+#~ msgstr "%s bijwerken (%d/%d)"
+
+#~ msgid "Episode already downloaded"
+#~ msgstr "Aflevering al gedownload"
+
+#~ msgid ""
+#~ "You have already downloaded this episode. Click on the episode to play it."
+#~ msgstr ""
+#~ "U heeft deze aflevering al gedownload. Klik op de aflevering om ze af te "
+#~ "spelen."
+
+#~ msgid "Download in progress"
+#~ msgstr "Bezig met downloaden"
+
+#~ msgid ""
+#~ "You are currently downloading this episode. Please check the download "
+#~ "status tab to check when the download is finished."
+#~ msgstr ""
+#~ "U bent momenteel deze aflevering aan het downloaden. Op de tab "
+#~ "Downloadstatus kan u de voorgang van de download volgen."
+
+#~ msgid "Do you really want to completely remove the selected episodes?"
+#~ msgstr "Weet u zeker dat u de geselecteerde afleveringen wilt verwijderen?"
+
+#~ msgid ""
+#~ "Please select an episode that you want to download and then click on the "
+#~ "download button to start downloading the selected episode."
+#~ msgstr ""
+#~ "Kies een aflevering om te downloaden en klik dan op Download om de "
+#~ "aflevering te downloaden."
+
+#~ msgid "Used disk space: %s"
+#~ msgstr "Gebruikte schijfruimte: %s"
+
+#~ msgid "You can drag a cover file here."
+#~ msgstr "U kan hier een cover naartoe slepen."
+
+#, fuzzy
+#~ msgid "Downloading podcast cover..."
+#~ msgstr "Kanaalafbeelding wordt gedownload..."
+
+#~ msgid "Could not load channel feed from URL: %s"
+#~ msgstr "Het RSS-feed op %s kon niet geladen worden."
+
+#~ msgid "Channel"
+#~ msgstr "Kanaal"
+
+#~ msgid "No channels available"
+#~ msgstr "Geen kanalen beschikbaar"
+
+#~ msgid ""
+#~ "You need to subscribe to some podcast feeds before you can start "
+#~ "downloading podcasts. Use your favorite search engine to look for "
+#~ "interesting podcasts."
+#~ msgstr ""
+#~ "U moet u eerst abonneren op een podcastfeed voordat u podcasts kan "
+#~ "beginnen downloaden. Gebruik uw favoriete zoekmachine om naar "
+#~ "interessante podcasts te zoeken."
+
+#~ msgid "Edit \"%s\""
+#~ msgstr "\"%s\" bewerken"
+
+#~ msgid "Remove \"%s\""
+#~ msgstr "\"%s\" verwijderen"
+
+#~ msgid "Finished downloads:"
+#~ msgstr "Voltooide downloads:"
+
+#~ msgid "Bug Tracker"
+#~ msgstr "Bugtracker"
+
+#~ msgid "Documentation Wiki"
+#~ msgstr "Documentatie (wiki)"
+
+#~ msgid "Download _all new episodes"
+#~ msgstr "Download _alle nieuwe afleveringen"
+
+#~ msgid "Download all available"
+#~ msgstr "Download alles"
+
+#~ msgid "Download selected episodes"
+#~ msgstr "Download geselecteerde afleveringen"
+
+#~ msgid "E_xport to OPML"
+#~ msgstr "E_xporteren naar OPML"
+
+#~ msgid "Remove _old episodes"
+#~ msgstr "_Oude afleveringen verwijderen"
+
+#~ msgid "Toggle downloaded status for selection"
+#~ msgstr "Downloadstatus van selectie veranderen"
+
+#~ msgid "Toggle lock status for selection"
+#~ msgstr "Beveiligingsstatus van selectie veranderen"
+
+#~ msgid "Toggle played status for selection"
+#~ msgstr "Afspeelstatus van selectie veranderen"
+
+#~ msgid "_Channel"
+#~ msgstr "_Kanaal"
+
+#~ msgid "_Check for Updates"
+#~ msgstr "_Controleren op updates"
+
+#~ msgid "_Import channels from web"
+#~ msgstr "_Importeren kanalen van internet"
+
+#~ msgid "_Preferences"
+#~ msgstr "_Voorkeuren"
+
+#~ msgid "_Synchronize"
+#~ msgstr "_Synchroniseren"
+
+#~ msgid "gPodder Homepage"
+#~ msgstr "gPodder-website"
+
+#~ msgid ""
+#~ "Podcast feeds contain channel metadata and information about current "
+#~ "episodes."
+#~ msgstr ""
+#~ "Podcastfeeds bevatten metadata en informatie over de huidige afleveringen."
+
+#~ msgid "<b>Automated Actions, Startup and Quit</b>"
+#~ msgstr "<b>Geautomatiseerde acties, opstarten en afsluiten</b>"
+
+#~ msgid "<b>Import from Web (OPML)</b>"
+#~ msgstr "<b>Importeer van web (OPML)</b>"
+
+#~ msgid "Consider episodes old after"
+#~ msgstr "Afleveringen zijn oud na"
+
+#~ msgid "Enable download queue:"
+#~ msgstr "Activeer download wachtrij"
+
+#~ msgid "Extras"
+#~ msgstr "Extra's"
+
+#~ msgid "kb/s per episode"
+#~ msgstr "kb/s per aflevering"
+
+#~ msgid "Episode information: %s"
+#~ msgstr "Afleveringsinformatie: %s"
+
+#~ msgid "Save %s to folder..."
+#~ msgstr "%s opslaan in map..."
+
+#~ msgid "Play %s"
+#~ msgstr "%s afspelen"
+
+#~ msgid "Mark %s as deleted"
+#~ msgstr "%s als verwijderd markeren"
+
+#~ msgid "Unlock %s"
+#~ msgstr "Beveiliging uitschakelen voor %s"
+
+#~ msgid "Lock %s"
+#~ msgstr "Verwijderbeveiliging inschakelen voor %s "
+
+#~ msgid ""
+#~ "If you hide gPodder, it will continue to run in the system tray "
+#~ "notification area."
+#~ msgstr ""
+#~ "Als u gPodder verbergt zal het verder draaien op de achtergrond in het "
+#~ "mededelingengebied."
+
+#, fuzzy
+#~ msgid "Synchronize to iPod/player"
+#~ msgstr "Synchroniseren met iPod/speler"
+
+#~ msgid "Libraries needed: gpod, pymad"
+#~ msgstr "Benodigde bibliotheken: gpod, pymad"
+
+#~ msgid ""
+#~ "To use the iPod synchronization feature, you need to install the "
+#~ "<b>python-gpod</b> and <b>python-pymad</b> libraries from your "
+#~ "distribution vendor. More information about the needed libraries can be "
+#~ "found on the gPodder website."
+#~ msgstr ""
+#~ "Om te kunnen synchroniseren met uw iPod moet u eerst <b>python-gpod</b> "
+#~ "en <b>python-pymad</b> downloaden. Meer informatie over deze bibliotheken "
+#~ "kan u vinden op de website van gPodder."
+
+#~ msgid "You have already downloaded the most recent episodes from <b>%s</b>."
+#~ msgstr "U heeft al de meest recente afleveringen gedownload van <b>%s</b>."
+
+#~ msgid "(...%d more episodes...)"
+#~ msgstr "(... %d meer afleveringen...)"
+
+#~ msgid "Download new episodes?"
+#~ msgstr "Nieuwe afleveringen downloaden?"
+
+#~ msgid ""
+#~ "New episodes are available for download. If you want, you can download "
+#~ "these episodes to your computer now."
+#~ msgstr ""
+#~ "Er zijn nieuwe afleveringen beschikbaar. Als u dat wil, kan u ze nu "
+#~ "downloaden."
+
+#~ msgid "Download %s?"
+#~ msgstr "%s downloaden?"
+
+#~ msgid ""
+#~ "A new episode is available for download. If you want, you can download "
+#~ "this episode to your computer now."
+#~ msgstr ""
+#~ "Er is een nieuwe aflevering beschikbaar. Als u dat wil, kan u die nu "
+#~ "downloaden."
+
+#~ msgid "Copied Podcasts"
+#~ msgstr "Podcasts gekopieerd"
+
+#~ msgid ""
+#~ "The selected episodes have been copied to your device. You can now unplug "
+#~ "the device."
+#~ msgstr ""
+#~ "De geselecteerde afleveringen zijn naar uw apparaat gekopieerd. U kan het "
+#~ "apparaat nu afkoppelen."
+
+#~ msgid ""
+#~ "Make sure your device is connected to your computer and mounted. Please "
+#~ "also make sure you have set the correct path to your device in the "
+#~ "preferences dialog."
+#~ msgstr ""
+#~ "Controleer of uw apparaat verbonden is met uw computer. Ga ook na of u "
+#~ "het correcte pad naar uw apparaat heeft ingesteld in Voorkeuren."
+
+#~ msgid "Device cleaned"
+#~ msgstr "Apparaat opgeruimd"
+
+#~ msgid "An error has occurred"
+#~ msgstr "Er is een fout opgetreden"
+
+#~ msgid "Synchronization aborted"
+#~ msgstr "Synchronisatie afgebroken"
+
+#~ msgid ""
+#~ "The synchronization progress has been interrupted by the user. Please "
+#~ "retry synchronization at a later time."
+#~ msgstr ""
+#~ "De synchronisatie is onderbroken door de gebruiker. Probeer het later "
+#~ "opnieuw."
+
+#~ msgid "Converting %s (%s%%)"
+#~ msgstr "%s (%s%%) wordt geconverteerd"
+
+#~ msgid "%s (to \"%s\")"
+#~ msgstr "%s (naar \"%s\")"
+
+#~ msgid ""
+#~ "To start the synchronization process, please connect your iPod to the "
+#~ "computer."
+#~ msgstr ""
+#~ "Om de synchronisatie te starten dient u eerst uw iPod te verbinden met uw "
+#~ "computer."
+
+#~ msgid "Have you set up your iPod correctly?"
+#~ msgstr "Heeft u uw iPod correct ingesteld?"
+
+#~ msgid "Please connect your iPod"
+#~ msgstr "Koppel uw iPod aan"
+
+#~ msgid "Waiting for iPod"
+#~ msgstr "Wachten op iPod"
+
+#~ msgid "Already on iPod: %s"
+#~ msgstr "Al aanwezig op iPod: %s"
+
+#~ msgid "Sync to Podcasts playlist / Podcasts folder"
+#~ msgstr "Synchroniseren met afspeellijst/map Podcasts"
+
+#~ msgid "Sync to playlist/folder:"
+#~ msgstr "Synchroniseren met afspeellijst/map:"
+
+#~ msgid ""
+#~ "Do you really want to completely remove all episodes in the <b>Podcasts</"
+#~ "b> playlist on your iPod?"
+#~ msgstr ""
+#~ "Weet u zeker dat u alle afleveringen in de <b>Podcasts</b>-afspeellijst "
+#~ "op uw iPod wilt verwijderen?"
+
+#~ msgid "gPodder mailing list"
+#~ msgstr "gPodder mailinglijst"
+
+#~ msgid "<b>1</b> new episode in <b>%s</b>"
+#~ msgstr "<b>1</b> nieuwe aflevering in <b>%s</b>"
+
+#~ msgid ""
+#~ "New episodes are available to be downloaded:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "Do you want to download these episodes now?"
+#~ msgstr ""
+#~ "Er zijn nieuwe afleveringen beschikbaar:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "Wilt u deze nu downloaden?"
+
+#~ msgid "Save episode as file"
+#~ msgstr "Sla aflevering op als bestand"
+
+#~ msgid "Copy to file"
+#~ msgstr "Kopieer naar bestand"
+
+#~ msgid "No cover available."
+#~ msgstr "Geen afbeelding beschikbaar."
+
+#~ msgid "Edit channel information"
+#~ msgstr "Kanaalinformatie bewerken"
+
+#~ msgid "local download database, generated by gPodder"
+#~ msgstr "lokale downloaddatabase, aangemaakt door gPodder"
+
+#~ msgid "Error: cannot find wget."
+#~ msgstr "Fout: wget kon niet worden gevonden."
+
+#~ msgid "Contributors / patch writers:"
+#~ msgstr "Medewerkers / patchschrijvers"
+
+#~ msgid "See the AUTHORS file for all contributors"
+#~ msgstr "Zie bestand AUTHORS voor de namen van alle medewerkers."
+
+#~ msgid "I will now revert your channel list to its original state."
+#~ msgstr ""
+#~ "De lijst met kanalen wordt teruggebracht naar de oorspronkelijke staat."
+
+#~ msgid "Error downloading %s. Using cached file instead."
+#~ msgstr "Fout bij download van %s. De gebufferde versie zal worden gebruikt."
+
+#~ msgid "%s - downloading %s (%s%%)"
+#~ msgstr "%s - Downloaden van %s (%s%%)"
+
+#~ msgid "<b>Table Style</b>"
+#~ msgstr "<b>Tabelstijl</b>"
+
+#~ msgid "Display unplayed status in episode list"
+#~ msgstr "Geef afspeelstatus weer in lijst van afleveringen"
+
+#~ msgid "Download newest podcasts?"
+#~ msgstr "Nieuwste podcasts downloaden?"
+
+#~ msgid "Would you like to download the three newest episodes from <b>%s</b>?"
+#~ msgstr "Wilt u de drie nieuwste afleveringen van <b>%s</b> downloaden?"
+
+#~ msgid "Channel name"
+#~ msgstr "Kanaalnaam"
+
+#~ msgid ""
+#~ "If you have to use a HTTP or FTP proxy server,\n"
+#~ "you can use the usual format of the environment variables:\n"
+#~ "\n"
+#~ "<b>http://username:password@proxy_host:proxy_port/</b>"
+#~ msgstr ""
+#~ "Als u een HTTP- of FTP-proxy moet gebruiken,\n"
+#~ "kan u het gebruikelijke formaat van omgevingsvariabelen gebruiken:\n"
+#~ "\n"
+#~ "<b>http://gebruikersnaam:wachtwoord@proxyhost:proxypoort/</b>"
+
+#~ msgid "Podcast directory:"
+#~ msgstr "Podcastdirectory:"
+
+#~ msgid "Proxy"
+#~ msgstr "Proxy"
+
+#~ msgid "Show \"gPodder downloads\" link"
+#~ msgstr "Snelkoppeling \"gPodder downloads\" tonen"
+
+#~ msgid "Update tags on audio files after downloading"
+#~ msgstr "Audiotags bijwerken na download"
+
+#~ msgid "Use environment variables"
+#~ msgstr "Gebruik omgevingsvariabelen"
+
+#, fuzzy
+#~ msgid "download to label"
+#~ msgstr "download naar label"

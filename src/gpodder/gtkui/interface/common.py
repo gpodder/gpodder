@@ -29,14 +29,6 @@ from gpodder import util
 
 from gpodder.gtkui.base import GtkBuilderWidget
 
-from gpodder.gtkui.widgets import NotificationWindow
-
-try:
-    import pynotify
-    if not pynotify.init('gPodder'):
-        pynotify = None
-except ImportError:
-    pynotify = None
 
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
@@ -124,9 +116,6 @@ class BuilderWidget(GtkBuilderWidget):
         return self.main_window
 
     def show_message(self, message, title=None, important=False, widget=None):
-        # XXX: Dirty hack to get access to the gPodder-specific config object
-        config = getattr(self, '_config', getattr(self, 'config', None))
-
         if important:
             dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
             if title:
@@ -136,24 +125,8 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
             dlg.run()
             dlg.destroy()
-        elif config is not None and config.enable_notifications:
-            if pynotify is not None:
-                if title is None:
-                    title = 'gPodder'
-                notification = pynotify.Notification(title, message,\
-                        gpodder.icon_file)
-                try:
-                    notification.show()
-                except:
-                    # See http://gpodder.org/bug/966
-                    pass
-            elif widget and isinstance(widget, gtk.Widget):
-                if not widget.window:
-                    widget = self.main_window
-                elif not gpodder.win32:
-                    widget = self.main_window
-                notification = NotificationWindow(message, title, important=False, widget=widget)
-                notification.show_timeout()
+        else:
+            gpodder.user_extensions.on_notification_show(title, message)
 
     def show_confirmation(self, message, title=None):
         dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
@@ -209,9 +182,13 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             return None
 
-    def show_login_dialog(self, title, message, username=None, password=None, username_prompt=_('Username'), register_callback=None):
-        """ An authentication dialog based on
-                http://ardoris.wordpress.com/2008/07/05/pygtk-text-entry-dialog/ """
+    def show_login_dialog(self, title, message, username=None, password=None,
+            username_prompt=None, register_callback=None, register_text=None):
+        if username_prompt is None:
+            username_prompt = _('Username')
+
+        if register_text is None:
+            register_text = _('New user')
 
         dialog = gtk.MessageDialog(
             self.main_window,
@@ -226,7 +203,7 @@ class BuilderWidget(GtkBuilderWidget):
         dialog.set_default_response(gtk.RESPONSE_OK)
 
         if register_callback is not None:
-            dialog.add_button(_('New user'), gtk.RESPONSE_HELP)
+            dialog.add_button(register_text, gtk.RESPONSE_HELP)
 
         username_entry = gtk.Entry()
         password_entry = gtk.Entry()

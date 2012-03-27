@@ -37,7 +37,7 @@ import re
 import urllib
 
 # See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
-# Currently missing: the WebM 480p and 720 formats; 3GP profile
+# Currently missing: 3GP profile
 supported_formats = [
     (37, '37/1920x1080/9/0/115', '1920x1080 (HD)'),
     (22, '22/1280x720/9/0/115', '1280x720 (HD)'),
@@ -46,6 +46,13 @@ supported_formats = [
     (18, '18/640x360/9/0/115', '640x360 (iPod)'),
     (18, '18/480x360/9/0/115', '480x360 (iPod)'),
     (5, '5/320x240/7/0/0', '320x240 (FLV)'),
+
+    # WebM formats have lower priority, because "most" players are still less
+    # compatible with WebM than their equivalent MP4 formats above (bug 1336)
+    # If you really want WebM files, set the preferred fmt_id to any of these:
+    (45, '45/1280x720/99/0/0', 'WebM 720p'),
+    (44, '44/854x480/99/0/0', 'WebM 480p'),
+    (43, '43/640x360/99/0/0', 'WebM 360p'),
 ]
 
 class YouTubeError(Exception): pass
@@ -56,7 +63,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         preferred_fmt_id = 18
 
     # For Maemo 5, we force fmt_id 5 for performance reasons
-    if gpodder.ui.fremantle and not gpodder.ui.harmattan:
+    if gpodder.ui.fremantle:
         preferred_fmt_id = 5
 
     vid = get_youtube_id(url)
@@ -93,7 +100,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        if gpodder.ui.fremantle:
+        if gpodder.ui.fremantle or gpodder.ui.harmattan:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
             if preferred_fmt_id == 5:

@@ -41,6 +41,7 @@ import platform
 import glob
 import stat
 import shlex
+import shutil
 import socket
 import sys
 import string
@@ -84,7 +85,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.fremantle:
+    elif gpodder.ui.fremantle or gpodder.ui.harmattan:
         encoding = 'utf-8'
     elif gpodder.win32:
         # To quote http://docs.python.org/howto/unicode.html:
@@ -110,8 +111,31 @@ def _sanitize_char(c):
 SANITIZATION_TABLE = ''.join(map(_sanitize_char, map(chr, range(256))))
 del _sanitize_char
 
-# Used by file_type_by_extension()
-_BUILTIN_FILE_TYPES = None
+_MIME_TYPE_LIST = [
+    ('.aac', 'audio/aac'),
+    ('.axa', 'audio/annodex'),
+    ('.flac', 'audio/flac'),
+    ('.m4b', 'audio/m4b'),
+    ('.m4a', 'audio/mp4'),
+    ('.mp3', 'audio/mpeg'),
+    ('.spx', 'audio/ogg'),
+    ('.oga', 'audio/ogg'),
+    ('.ogg', 'audio/ogg'),
+    ('.wma', 'audio/x-ms-wma'),
+    ('.3gp', 'video/3gpp'),
+    ('.axv', 'video/annodex'),
+    ('.divx', 'video/divx'),
+    ('.m4v', 'video/m4v'),
+    ('.mp4', 'video/mp4'),
+    ('.ogv', 'video/ogg'),
+    ('.mov', 'video/quicktime'),
+    ('.flv', 'video/x-flv'),
+    ('.mkv', 'video/x-matroska'),
+    ('.wmv', 'video/x-ms-wmv'),
+]
+
+_MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
+_MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
 def make_directory( path):
@@ -595,15 +619,45 @@ def wrong_extension(extension):
 def extension_from_mimetype(mimetype):
     """
     Simply guesses what the file extension should be from the mimetype
+
+    >>> extension_from_mimetype('audio/mp4')
+    '.m4a'
+    >>> extension_from_mimetype('audio/ogg')
+    '.ogg'
+    >>> extension_from_mimetype('audio/mpeg')
+    '.mp3'
+    >>> extension_from_mimetype('video/x-matroska')
+    '.mkv'
+    >>> extension_from_mimetype('wrong-mimetype')
+    ''
     """
-    MIMETYPE_EXTENSIONS = {
-            # This is required for YouTube downloads on Maemo 5
-            'video/x-flv': '.flv',
-            'video/mp4': '.mp4',
-    }
-    if mimetype in MIMETYPE_EXTENSIONS:
-        return MIMETYPE_EXTENSIONS[mimetype]
+    if mimetype in _MIME_TYPES:
+        return _MIME_TYPES[mimetype]
     return mimetypes.guess_extension(mimetype) or ''
+
+
+def mimetype_from_extension(extension):
+    """
+    Simply guesses what the mimetype should be from the file extension
+
+    >>> mimetype_from_extension('.m4a')
+    'audio/mp4'
+    >>> mimetype_from_extension('.ogg')
+    'audio/ogg'
+    >>> mimetype_from_extension('.mp3')
+    'audio/mpeg'
+    >>> mimetype_from_extension('.mkv')
+    'video/x-matroska'
+    >>> mimetype_from_extension('.abc')
+    ''
+    """
+    if extension in _MIME_TYPES_EXT:
+        return _MIME_TYPES_EXT[extension]
+
+    # Need to prepend something to the extension, so guess_type works
+    type, encoding = mimetypes.guess_type('file'+extension)
+
+    return type or ''
 
 
 def extension_correct_for_mimetype(extension, mimetype):
@@ -618,6 +672,8 @@ def extension_correct_for_mimetype(extension, mimetype):
     True
     >>> extension_correct_for_mimetype('.ogg', 'audio/mpeg')
     False
+    >>> extension_correct_for_mimetype('.m4a', 'audio/mp4')
+    True
     >>> extension_correct_for_mimetype('mp3', 'audio/mpeg')
     Traceback (most recent call last):
       ...
@@ -631,6 +687,9 @@ def extension_correct_for_mimetype(extension, mimetype):
         raise ValueError('"%s" is not a mimetype (missing /)' % mimetype)
     if not extension.startswith('.'):
         raise ValueError('"%s" is not an extension (missing .)' % extension)
+
+    if (extension, mimetype) in _MIME_TYPE_LIST:
+        return True
 
     # Create a "default" extension from the mimetype, e.g. "application/ogg"
     # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
@@ -686,6 +745,8 @@ def file_type_by_extension(extension):
     'audio'
     >>> file_type_by_extension('.3GP')
     'video'
+    >>> file_type_by_extension('.m4a')
+    'audio'
     >>> file_type_by_extension('.txt') is None
     True
     >>> file_type_by_extension(None) is None
@@ -701,23 +762,10 @@ def file_type_by_extension(extension):
     if not extension.startswith('.'):
         raise ValueError('Extension does not start with a dot: %s' % extension)
 
-    global _BUILTIN_FILE_TYPES
-    if _BUILTIN_FILE_TYPES is None:
-        # List all types that are not in the default mimetypes.types_map
-        # (even if they might be detected by mimetypes.guess_type)
-        # For OGG, see http://wiki.xiph.org/MIME_Types_and_File_Extensions
-        audio_types = ('.ogg', '.oga', '.spx', '.flac', '.axa', \
-                       '.aac', '.m4a', '.m4b', '.wma')
-        video_types = ('.ogv', '.axv', '.mp4', \
-                       '.mkv', '.m4v', '.divx', '.flv', '.wmv', '.3gp')
-        _BUILTIN_FILE_TYPES = {}
-        _BUILTIN_FILE_TYPES.update((ext, 'audio') for ext in audio_types)
-        _BUILTIN_FILE_TYPES.update((ext, 'video') for ext in video_types)
-
     extension = extension.lower()
 
-    if extension in _BUILTIN_FILE_TYPES:
-        return _BUILTIN_FILE_TYPES[extension]
+    if extension in _MIME_TYPES_EXT:
+        return _MIME_TYPES_EXT[extension].split('/')[0]
 
     # Need to prepend something to the extension, so guess_type works
     type, encoding = mimetypes.guess_type('file'+extension)
@@ -969,7 +1017,7 @@ def idle_add(func, *args):
     if gpodder.ui.gtk:
         import gobject
         gobject.idle_add(func, *args)
-    elif gpodder.ui.qt:
+    elif gpodder.ui.qml:
         from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
 
         class IdleAddHandler(QObject):
@@ -1222,6 +1270,10 @@ def sanitize_encoding(filename):
     >>> sanitize_encoding(u'unicode')
     'unicode'
     """
+    # The encoding problem goes away in Python 3.. hopefully!
+    if sys.version_info >= (3, 0):
+        return filename
+
     global encoding
     if not isinstance(filename, unicode):
         filename = filename.decode(encoding, 'ignore')
@@ -1407,7 +1459,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.fremantle:
+    if gpodder.ui.fremantle or gpodder.ui.harmattan:
         return 'mobile'
     elif glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop
@@ -1479,4 +1531,71 @@ def is_known_redirecter(url):
         return True
 
     return False
+
+
+def atomic_rename(old_name, new_name):
+    """Atomically rename/move a (temporary) file
+
+    This is usually used when updating a file safely by writing
+    the new contents into a temporary file and then moving the
+    temporary file over the original file to replace it.
+    """
+    if gpodder.win32:
+        # Win32 does not support atomic rename with os.rename
+        shutil.move(old_name, new_name)
+    else:
+        os.rename(old_name, new_name)
+
+
+def check_command(self, cmd):
+    """Check if a command line command/program exists"""
+    # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
+    cmd = sanitize_encoding(cmd)
+    program = shlex.split(cmd)[0]
+    return (find_command(program) is not None)
+
+
+def rename_episode_file(episode, filename):
+    """Helper method to update a PodcastEpisode object
+
+    Useful after renaming/converting its download file.
+    """
+    if not os.path.exists(filename):
+        raise ValueError('Target filename does not exist.')
+
+    basename, extension = os.path.splitext(filename)
+
+    episode.download_filename = os.path.basename(filename)
+    episode.file_size = os.path.getsize(filename)
+    episode.mime_type = mimetype_from_extension(extension)
+    episode.save()
+    episode.db.commit()
+
+
+def get_update_info(url='http://gpodder.org/downloads'):
+    """
+    Get up to date release information from gpodder.org.
+
+    Returns a tuple: (up_to_date, latest_version, release_date, days_since)
+
+    Example result (up to date version, 20 days after release):
+        (True, '3.0.4', '2012-01-24', 20)
+
+    Example result (outdated version, 10 days after release):
+        (False, '3.0.5', '2012-02-29', 10)
+    """
+    data = urlopen(url).read()
+    id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
+    info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
+
+    latest_version = info['latest-version']
+    release_date = info['release-date']
+
+    release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%d')
+    days_since_release = (datetime.datetime.today() - release_parsed).days
+
+    convert = lambda s: tuple(int(x) for x in s.split('.'))
+    up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
+
+    return up_to_date, latest_version, release_date, days_since_release
 

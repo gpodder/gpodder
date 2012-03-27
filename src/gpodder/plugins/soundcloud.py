@@ -150,9 +150,9 @@ class SoundcloudUser(object):
                 filesize, filetype, filename = self.cache[url]
 
                 yield {
-                    'title': track.get('title', track.get('permalink', _('Unknown track'))),
-                    'link': track.get('permalink_url', 'http://soundcloud.com/'+self.username),
-                    'description': track.get('description', _('No description available')),
+                    'title': track.get('title', track.get('permalink')) or _('Unknown track'),
+                    'link': track.get('permalink_url') or 'http://soundcloud.com/'+self.username,
+                    'description': track.get('description') or _('No description available'),
                     'url': url,
                     'file_size': int(filesize),
                     'mime_type': filetype,

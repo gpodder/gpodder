@@ -93,7 +93,7 @@ class gPodderEpisodeSelector(BuilderWidget):
     COLUMN_ADDITIONAL = 3
 
     def new( self):
-        self._config.connect_gtk_window(self.gPodderEpisodeSelector, '_episode_selector', True)
+        self._config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
         if not hasattr( self, 'callback'):
             self.callback = None
 

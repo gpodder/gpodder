@@ -63,6 +63,8 @@ from mygpoclient import public
 
 from mygpoclient import util as mygpoutil
 
+EXAMPLES_OPML = 'http://gpodder.org/directory.opml'
+TOPLIST_OPML = 'http://gpodder.org/toplist.opml'
 
 # Database model classes
 class SinceValue(object):
@@ -197,8 +199,8 @@ class MygPoClient(object):
 
         # Insert our new update action
         action = UpdateDeviceAction(self.device_id, \
-                self._config.mygpo_device_caption, \
-                self._config.mygpo_device_type)
+                self._config.mygpo.device.caption, \
+                self._config.mygpo.device.type)
         self._store.save(action)
 
     def get_rewritten_urls(self):
@@ -307,14 +309,14 @@ class MygPoClient(object):
 
     @property
     def host(self):
-        return self._config.mygpo_server
+        return self._config.mygpo.server
 
     @property
     def device_id(self):
-        return self._config.mygpo_device_uid
+        return self._config.mygpo.device.uid
 
     def can_access_webservice(self):
-        return self._config.mygpo_enabled and self._config.mygpo_device_uid
+        return self._config.mygpo.enabled and self._config.mygpo.device.uid
 
     def set_subscriptions(self, urls):
         if self.can_access_webservice():
@@ -442,12 +444,12 @@ class MygPoClient(object):
             logger.debug('Flush requested, already waiting.')
 
     def on_config_changed(self, name=None, old_value=None, new_value=None):
-        if name in ('mygpo_username', 'mygpo_password', 'mygpo_server') \
+        if name in ('mygpo.username', 'mygpo.password', 'mygpo.server') \
                 or self._client is None:
-            self._client = api.MygPodderClient(self._config.mygpo_username,
-                    self._config.mygpo_password, self._config.mygpo_server)
+            self._client = api.MygPodderClient(self._config.mygpo.username,
+                    self._config.mygpo.password, self._config.mygpo.server)
             logger.info('Reloading settings.')
-        elif name.startswith('mygpo_device_'):
+        elif name.startswith('mygpo.device.'):
             # Update or create the device
             self.create_device()
 
@@ -587,7 +589,7 @@ class MygPoClient(object):
         return result
 
     def open_website(self):
-        util.open_website('http://' + self._config.mygpo_server)
+        util.open_website('http://' + self._config.mygpo.server)
 
 
 class Directory(object):

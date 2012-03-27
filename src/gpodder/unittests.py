@@ -39,7 +39,7 @@ except ImportError, e:
 
 # Which package and which modules in the package should be tested?
 package = 'gpodder'
-modules = ['util']
+modules = ['util', 'jsonconfig']
 coverage_modules = []
 
 suite = unittest.TestSuite()

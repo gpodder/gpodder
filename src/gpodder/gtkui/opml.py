@@ -39,5 +39,5 @@ class OpmlListModel(gtk.ListStore):
     def _format_channel(self, channel):
         title = cgi.escape(urllib.unquote_plus(channel['title']))
         description = cgi.escape(channel['description'])
-        return '<b>%s</b>\n<span size="small">%s</span>' % (title, description)
+        return '<b>%s</b>\n%s' % (title, description)
 

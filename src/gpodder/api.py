@@ -17,10 +17,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""Public developer API for gPodder
+"""
 
-This module provides a nicely documented API for developers to
-integrate podcast functionality into their applications.
+                XXX DO NOT USE IN NEW CODE XXX
+
+This "public API" was created at a time where the internal structure
+of gPodder was very much in flux. Now, the situation has changed, and
+this module should not be used anymore. It only exists, because the
+"gpo" command-line utility still makes use of it.
+
+In the not too distant future, this module will be removed and code
+that is still useful will be moved into other modules (e.g. model or
+core) or into the "gpo" command-line utility itself.
+
+                XXX DO NOT USE IN NEW CODE XXX
+
 """
 
 import gpodder
@@ -108,8 +119,7 @@ class Podcast(object):
         Downloads the podcast feed (using the feed cache), and
         adds new episodes and updated information to the database.
         """
-        self._podcast.update(self._manager._config.max_episodes_per_feed, \
-                self._manager._config.mimetype_prefs)
+        self._podcast.update(self._manager._config.max_episodes_per_feed)
 
     def feed_update_status_msg(self):
         """Show the feed update status
@@ -228,8 +238,7 @@ class PodcastClient(object):
             return None
 
         podcast = self._model.load_podcast(url, create=True, \
-                max_episodes=self._config.max_episodes_per_feed, \
-                mimetype_prefs=self._config.mimetype_prefs)
+                max_episodes=self._config.max_episodes_per_feed)
         if podcast is not None:
             if title is not None:
                 podcast.rename(title)

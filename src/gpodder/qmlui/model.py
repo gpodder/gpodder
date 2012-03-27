@@ -33,6 +33,7 @@ from gpodder import youtube
 from gpodder import download
 from gpodder import query
 from gpodder import model
+from gpodder import coverart
 
 import threading
 import os
@@ -398,9 +399,12 @@ class EpisodeSubsetView(QObject):
     def _return_empty(self):
         return convert('')
 
+    def _return_cover(self):
+        return convert(coverart.CoverDownloader.ALL_EPISODES_ID)
+
     qupdating = Property(bool, _return_false, notify=changed)
     qurl = Property(unicode, _return_empty, notify=changed)
-    qcoverfile = Property(unicode, _return_empty, notify=changed)
+    qcoverfile = Property(unicode, _return_cover, notify=changed)
     qcoverurl = Property(unicode, _return_empty, notify=changed)
     qsection = Property(unicode, _return_empty, notify=changed)
 

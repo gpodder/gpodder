@@ -17,10 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# This metadata block gets parsed by setup.py - use single quotes only
+__tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.0.4'
-__date__      = '2012-01-24'
-__relname__   = 'Weekend Vampire'
+__version__   = '3.1.0'
+__date__      = '2012-03-27'
+__relname__   = 'The Discipline of D.E.'
 __copyright__ = '© 2005-2012 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -56,17 +58,29 @@ except ImportError:
     sys.exit(1)
 del mygpoclient
 
+try:
+    import sqlite3
+except ImportError:
+    print """
+  Error: Module "sqlite3" not found.
+         Build Python with SQLite 3 support or get it from
+         http://code.google.com/p/pysqlite/
+"""
+    sys.exit(1)
+del sqlite3
+
+
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
 # Are we running in GUI, Maemo or console mode?
 class UI(object):
     def __init__(self):
-        self.desktop = False
         self.fremantle = False
         self.harmattan = False
-        self.qt = False
         self.gtk = False
+        self.qml = False
+        self.cli = False
 
 
 ui = UI()
@@ -128,23 +142,24 @@ ui_folders = []
 credits_file = None
 icon_file = None
 images_folder = None
-user_hooks = None
+user_extensions = None
 
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
 
-# Paths (gPodder's home folder, config, db and download folder)
+# Paths (gPodder's home folder, config, db, download and data prefix)
 home = None
 config_file = None
 database_file = None
 downloads = None
+prefix = None
 
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
     home = os.path.abspath(new_home)
 
-    config_file = os.path.join(home, 'Settings')
+    config_file = os.path.join(home, 'Settings.json')
     database_file = os.path.join(home, 'Database')
     downloads = os.path.join(home, 'Downloads')
 
@@ -156,8 +171,10 @@ if home != default_home:
     print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
 
 # Plugins to load by default
-DEFAULT_PLUGINS = ['gpodder.plugins.soundcloud', 'gpodder.plugins.xspf',
-                   'gpodder.plugins.woodchuck']
+DEFAULT_PLUGINS = [
+    'gpodder.plugins.soundcloud',
+    'gpodder.plugins.xspf',
+]
 
 def load_plugins():
     """Load (non-essential) plugin modules
@@ -181,21 +198,14 @@ def detect_platform():
     global ui
 
     try:
-        ui.fremantle = ('Maemo 5' in open('/etc/issue').read())
-        if ui.fremantle:
-            print >>sys.stderr, 'Detected platform: Maemo 5 (Fremantle)'
+        etc_issue = open('/etc/issue').read()
     except Exception, e:
-        ui.fremantle = False
+        etc_issue = ''
 
-    try:
-        ui.harmattan = ('MeeGo 1.2 Harmattan' in open('/etc/issue').read())
-    except Exception, e:
-        ui.harmattan = False
+    ui.fremantle = ('Maemo 5' in etc_issue)
+    ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
 
-    ui.fremantle = ui.fremantle or ui.harmattan
-    ui.desktop = not ui.fremantle and not ui.harmattan
-
-    if ui.fremantle and 'GPODDER_HOME' not in os.environ:
+    if (ui.fremantle or ui.harmattan) and 'GPODDER_HOME' not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
         set_home(os.path.expanduser(new_home))
 

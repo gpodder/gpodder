@@ -76,6 +76,8 @@ class Matcher(object):
             return episode.description
         elif k == 'since':
             return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
+        elif k == 'age':
+            return episode.age_in_days()
         elif k in ('minutes', 'min'):
             return float(episode.total_time) / 60
         elif k in ('remaining', 'rem'):

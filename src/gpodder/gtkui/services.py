@@ -32,11 +32,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder import util
-from gpodder import youtube
+from gpodder import coverart
 
 import gtk
-import os
-import urlparse
 import threading
 
 
@@ -50,10 +48,8 @@ class CoverDownloader(ObservableService):
     'cover-available' message (via the ObservableService).
     """
 
-    # Maximum width/height of the cover in pixels
-    MAX_SIZE = 360
-
     def __init__(self):
+        self.downloader = coverart.CoverDownloader()
         signal_names = ['cover-available', 'cover-removed']
         ObservableService.__init__(self, signal_names)
 
@@ -97,87 +93,39 @@ class CoverDownloader(ObservableService):
         (url, pixbuf) = self.__get_cover(channel, custom_url, False, avoid_downloading)
         return pixbuf
 
-    def remove_cover(self, channel):
-        """
-        Removes the current cover for the channel
-        so that a new one is downloaded the next
-        time we request the channel cover.
-        """
-        util.delete_file(channel.cover_file)
-        self.notify('cover-removed', channel.url)
-
     def replace_cover(self, channel, custom_url=None):
         """
         This is a convenience function that deletes
         the current cover file and requests a new
         cover from the URL specified.
         """
-        self.remove_cover(channel)
         self.request_cover(channel, custom_url)
 
-    def reload_cover_from_disk(self, channel):
-        self.notify('cover-removed', channel.url)
-        self.request_cover(channel, None, True)
-
-    def get_default_cover(self, channel):
-        # "randomly" choose a cover based on the podcast title
-        basename = 'podcast-%d.png' % (hash(channel.title)%5)
-        filename = os.path.join(gpodder.images_folder, basename)
-        return gtk.gdk.pixbuf_new_from_file(filename)
-
     def __get_cover(self, channel, url, async=False, avoid_downloading=False):
-        if not async and avoid_downloading and not os.path.exists(channel.cover_file):
-            return (channel.url, self.get_default_cover(channel))
+        def get_filename():
+            return self.downloader.get_cover(channel.cover_file,
+                    url or channel.cover_url, channel.url, channel.title,
+                    channel.auth_username, channel.auth_password,
+                    not avoid_downloading)
 
-        if not os.path.exists(channel.cover_file):
-            if url is None and channel.cover_url is not None:
-                # We have to use authenticate_url, because password-protected
-                # feeds might keep their cover art also protected (bug 1521)
-                url = channel.authenticate_url(channel.cover_url)
+        if url is not None:
+            filename = get_filename()
+            if filename.startswith(channel.cover_file):
+                logger.info('Replacing cover: %s', filename)
+                util.delete_file(filename)
 
-            new_url = youtube.get_real_cover(channel.url)
-            if new_url is not None:
-                url = new_url
-
-            if url is not None:
-                image_data = None
-                try:
-                    logger.debug('Trying to download: %s', url)
-
-                    image_data = util.urlopen(url).read()
-                except:
-                    logger.warn('Cannot get image from %s', url, exc_info=True)
-
-                if image_data is not None:
-                    logger.debug('Saving image data to %s', channel.cover_file)
-                    try:
-                        fp = open(channel.cover_file, 'wb')
-                        fp.write(image_data)
-                        fp.close()
-                    except IOError, ioe:
-                        logger.error('Cannot save image due to I/O error', exc_info=True)
-
+        filename = get_filename()
         pixbuf = None
-        if os.path.exists(channel.cover_file):
-            try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(channel.cover_file.decode(util.encoding, 'ignore'))
-            except:
-                logger.error('Data error while loading %s', channel.cover_file)
 
-        if pixbuf is None:
-            pixbuf = self.get_default_cover(channel)
-
-        # Resize if width is too large
-        if pixbuf.get_width() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE)/pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
-
-        # Resize if height is too large
-        if pixbuf.get_height() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE)/pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        try:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        except Exception, e:
+            logger.warn('Cannot load cover art', exc_info=True)
+            if filename.startswith(channel.cover_file):
+                logger.info('Deleting broken cover: %s', filename)
+                util.delete_file(filename)
+                filename = get_filename()
+                pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
 
         if async:
             self.notify('cover-available', channel, pixbuf)

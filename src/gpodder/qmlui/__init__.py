@@ -30,8 +30,15 @@ import os
 import threading
 import signal
 import functools
-import gpodder
 import subprocess
+
+import dbus
+import dbus.service
+
+from dbus.mainloop.glib import DBusGMainLoop
+
+
+import gpodder
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
@@ -63,6 +70,29 @@ EPISODE_LIST_FILTERS = [
     (_('Videos'), 'video'),
 ]
 
+
+class ConfigProxy(QObject):
+    def __init__(self, config):
+        QObject.__init__(self)
+        self._config = config
+
+        config.add_observer(self._on_config_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml.autorotate':
+            self.autorotateChanged.emit()
+
+    def get_autorotate(self):
+        return self._config.ui.qml.autorotate
+
+    def set_autorotate(self, autorotate):
+        self._config.ui.qml.autorotate = autorotate
+
+    autorotateChanged = Signal()
+
+    autorotate = Property(bool, get_autorotate, set_autorotate,
+            notify=autorotateChanged)
+
 class Controller(QObject):
     def __init__(self, root):
         QObject.__init__(self)
@@ -75,13 +105,13 @@ class Controller(QObject):
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
                 old_value, new_value)
-        if name == 'mygpo_enabled':
+        if name == 'mygpo.enabled':
             self.myGpoEnabledChanged.emit()
-        elif name == 'mygpo_username':
+        elif name == 'mygpo.username':
             self.myGpoUsernameChanged.emit()
-        elif name == 'mygpo_password':
+        elif name == 'mygpo.password':
             self.myGpoPasswordChanged.emit()
-        elif name == 'mygpo_device_caption':
+        elif name == 'mygpo.device.caption':
             self.myGpoDeviceCaptionChanged.emit()
 
     episodeListTitleChanged = Signal()
@@ -117,9 +147,18 @@ class Controller(QObject):
     def getVersion(self):
         return gpodder.__version__
 
+    @Slot(result=str)
+    def getReleased(self):
+        return gpodder.__date__
+
+    @Slot(result=unicode)
+    def getCredits(self):
+        credits_file = os.path.join(gpodder.prefix, 'share', 'gpodder', 'credits.txt')
+        return util.convert_bytes(open(credits_file).read())
+
     @Slot(result=unicode)
     def getCopyright(self):
-        return gpodder.__copyright__.decode('utf-8', 'ignore')
+        return util.convert_bytes(gpodder.__copyright__)
 
     @Slot(result=str)
     def getLicense(self):
@@ -150,7 +189,10 @@ class Controller(QObject):
             self.update_subset_stats()
 
         url = episode.get_playback_url()
-        subprocess.Popen(['video-suite', url])
+        if gpodder.ui.harmattan:
+            subprocess.Popen(['video-suite', url])
+        else:
+            util.gui_open(url)
 
         self.root.mygpo_client.on_playback([episode])
         self.root.mygpo_client.flush()
@@ -198,10 +240,10 @@ class Controller(QObject):
     myGpoEnabledChanged = Signal()
 
     def getMyGpoEnabled(self):
-        return self.root.config.mygpo_enabled
+        return self.root.config.mygpo.enabled
 
     def setMyGpoEnabled(self, enabled):
-        self.root.config.mygpo_enabled = enabled
+        self.root.config.mygpo.enabled = enabled
 
     myGpoEnabled = Property(bool, getMyGpoEnabled,
             setMyGpoEnabled, notify=myGpoEnabledChanged)
@@ -209,10 +251,10 @@ class Controller(QObject):
     myGpoUsernameChanged = Signal()
 
     def getMyGpoUsername(self):
-        return model.convert(self.root.config.mygpo_username)
+        return model.convert(self.root.config.mygpo.username)
 
     def setMyGpoUsername(self, username):
-        self.root.config.mygpo_username = username
+        self.root.config.mygpo.username = username
 
     myGpoUsername = Property(unicode, getMyGpoUsername,
             setMyGpoUsername, notify=myGpoUsernameChanged)
@@ -220,10 +262,10 @@ class Controller(QObject):
     myGpoPasswordChanged = Signal()
 
     def getMyGpoPassword(self):
-        return model.convert(self.root.config.mygpo_password)
+        return model.convert(self.root.config.mygpo.password)
 
     def setMyGpoPassword(self, password):
-        self.root.config.mygpo_password = password
+        self.root.config.mygpo.password = password
 
     myGpoPassword = Property(unicode, getMyGpoPassword,
             setMyGpoPassword, notify=myGpoPasswordChanged)
@@ -231,10 +273,10 @@ class Controller(QObject):
     myGpoDeviceCaptionChanged = Signal()
 
     def getMyGpoDeviceCaption(self):
-        return model.convert(self.root.config.mygpo_device_caption)
+        return model.convert(self.root.config.mygpo.device.caption)
 
     def setMyGpoDeviceCaption(self, caption):
-        self.root.config.mygpo_device_caption = caption
+        self.root.config.mygpo.device.caption = caption
 
     myGpoDeviceCaption = Property(unicode, getMyGpoDeviceCaption,
             setMyGpoDeviceCaption, notify=myGpoDeviceCaptionChanged)
@@ -332,6 +374,8 @@ class Controller(QObject):
         elif action.action == 'episode-toggle-archive':
             action.target.toggle_archive()
             self.update_subset_stats()
+        elif action.action == 'episode-delete':
+            self.deleteEpisode(action.target)
         elif action.action == 'episode-enqueue':
             self.root.enqueue_episode(action.target)
         elif action.action == 'mark-as-read':
@@ -432,6 +476,7 @@ class Controller(QObject):
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
             self.root.on_episode_deleted(episode)
+            self.root.episode_model.sort()
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -456,6 +501,10 @@ class Controller(QObject):
 
         toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
         menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+
+        if episode.state != gpodder.STATE_DELETED:
+            menu.append(helper.Action(_('Delete'), 'episode-delete', episode))
+
         menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
 
         self.show_context_menu(menu)
@@ -484,8 +533,7 @@ class Controller(QObject):
                     self.root.start_progress(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
                     try:
                         podcast = self.root.model.load_podcast(url=url, create=True,
-                                max_episodes=self.root.config.max_episodes_per_feed,
-                                mimetype_prefs=self.root.config.mimetype_prefs)
+                                max_episodes=self.root.config.max_episodes_per_feed)
                         podcast.save()
                         self.root.insert_podcast(model.QPodcast(podcast))
                     except Exception, e:
@@ -573,10 +621,18 @@ class gPodderPodcastListModel(gPodderListModel):
         self.reset()
 
 class gPodderEpisodeListModel(gPodderListModel):
-    def __init__(self):
+    def __init__(self, config):
         gPodderListModel.__init__(self)
-        self._filter = 0
+        self._filter = config.ui.qml.state.episode_list_filter
         self._filtered = []
+
+        self._config = config
+        config.add_observer(self._on_config_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml.state.episode_list_filter':
+            self._filter = new_value
+            self.sort()
 
     def sort(self):
         caption, eql = EPISODE_LIST_FILTERS[self._filter]
@@ -596,10 +652,13 @@ class gPodderEpisodeListModel(gPodderListModel):
     def get_object(self, index):
         return self._filtered[index.row()]
 
+    @Slot(result=int)
+    def getFilter(self):
+        return self._filter
+
     @Slot(int)
     def setFilter(self, filter_index):
-        self._filter = filter_index
-        self.sort()
+        self._config.ui.qml.state.episode_list_filter = filter_index
 
 
 def QML(filename):
@@ -623,13 +682,20 @@ class DeclarativeView(QDeclarativeView):
         event.ignore()
 
 class qtPodder(QObject):
-    def __init__(self, args, gpodder_core):
+    def __init__(self, args, gpodder_core, dbus_bus_name):
         QObject.__init__(self)
+
+        self.dbus_bus_name = dbus_bus_name
+        # TODO: Expose the same D-Bus API as the Gtk UI D-Bus object (/gui)
+        # TODO: Create a gpodder.dbusproxy.DBusPodcastsProxy object (/podcasts)
 
         # Enable OpenGL rendering without requiring QtOpenGL
         # On Harmattan we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.harmattan and not gpodder.win32:
-            args += ['-graphicssystem', 'opengl']
+        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
+            if gpodder.ui.fremantle:
+                args += ['-graphicssystem', 'opengl']
+            elif not gpodder.win32:
+                args += ['-graphicssystem', 'raster']
 
         self.app = QApplication(args)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -640,12 +706,14 @@ class qtPodder(QObject):
         self.db = self.core.db
         self.model = self.core.model
 
+        self.config_proxy = ConfigProxy(self.config)
+
         # Initialize the gpodder.net client
         self.mygpo_client = my.MygPoClient(self.config)
 
-        gpodder.user_hooks.on_ui_initialized(self.model,
-                self.hooks_podcast_update_cb,
-                self.hooks_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
 
         self.view = DeclarativeView()
         self.view.closing.connect(self.on_quit)
@@ -654,7 +722,7 @@ class qtPodder(QObject):
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.podcast_model = gPodderPodcastListModel()
-        self.episode_model = gPodderEpisodeListModel()
+        self.episode_model = gPodderEpisodeListModel(self.config)
         self.last_episode = None
 
         # A dictionary of episodes that are currently active
@@ -667,7 +735,7 @@ class qtPodder(QObject):
         if gpodder.ui.fremantle:
             for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
                 engine.addImportPath(path)
-	elif gpodder.win32:
+        elif gpodder.win32:
             for path in (r'C:\QtSDK\Desktop\Qt\4.7.4\msvc2008\imports',):
                 engine.addImportPath(path)
 
@@ -677,6 +745,7 @@ class qtPodder(QObject):
 
         root_context = self.view.rootContext()
         root_context.setContextProperty('controller', self.controller)
+        root_context.setContextProperty('configProxy', self.config_proxy)
         root_context.setContextProperty('mediaButtonsHandler',
                 self.media_buttons_handler)
 
@@ -697,6 +766,14 @@ class qtPodder(QObject):
             self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
             self.view.showFullScreen()
         else:
+            # On the Desktop, scale to fit my small laptop screen..
+            desktop = self.app.desktop()
+            if desktop.height() < 1000:
+                FACTOR = .8
+                self.view.scale(FACTOR, FACTOR)
+                size = self.view.size()
+                size *= FACTOR
+                self.view.resize(size)
             self.view.show()
 
         self.do_start_progress.connect(self.on_start_progress)
@@ -847,26 +924,36 @@ class qtPodder(QObject):
             return podcasts[0]
         return None
 
-    def hooks_podcast_update_cb(self, podcast):
-        logger.debug('hooks_podcast_update_cb(%s)', podcast)
+    def extensions_podcast_update_cb(self, podcast):
+        logger.debug('extensions_podcast_update_cb(%s)', podcast)
         try:
             qpodcast = self.podcast_to_qpodcast(podcast)
             if qpodcast is not None:
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
-            logger.exception('hooks_podcast_update_cb(%s): %s', podcast, e)
+            logger.exception('extensions_podcast_update_cb(%s): %s', podcast, e)
 
-    def hooks_episode_download_cb(self, episode):
-        logger.debug('hooks_episode_download_cb(%s)', episode)
+    def extensions_episode_download_cb(self, episode):
+        logger.debug('extensions_episode_download_cb(%s)', episode)
         try:
             qpodcast = self.podcast_to_qpodcast(episode.channel)
             qepisode = self.wrap_episode(qpodcast, episode)
             self.controller.downloadEpisode(qepisode)
         except Exception, e:
-            logger.exception('hooks_episode_download_cb(%s): %s', episode, e)
+            logger.exception('extensions_episode_download_cb(%s): %s', episode, e)
 
 def main(args):
-    gui = qtPodder(args, core.Core())
+    try:
+        dbus_main_loop = DBusGMainLoop(set_as_default=True)
+        gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
+
+        bus_name = dbus.service.BusName(gpodder.dbus_bus_name,
+                bus=gpodder.dbus_session_bus)
+    except dbus.exceptions.DBusException, dbe:
+        logger.warn('Cannot get "on the bus".', exc_info=True)
+        bus_name = None
+
+    gui = qtPodder(args, core.Core(), bus_name)
     return gui.run()
 

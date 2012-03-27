@@ -1,0 +1,82 @@
+.TH GPO "1" "March 2012" "gpodder 3.1.0" "User Commands"
+.SH NAME
+gpo \- Text mode interface of gPodder
+.SH SYNOPSIS
+.B gpo
+[\fI--verbose|-v\fR]
+[\fICOMMAND\fR] [\fIparams...\fR]
+
+.SH DESCRIPTION
+.PP
+gpo is the text mode interface of gPodder. Run it without any arguments to
+start the interactive shell (see below). Use "gpo help" to get a list of
+supported commands.
+.PP
+gpo can be used to manage podcasts from the command line without having to
+start gPodder. It can also be used to automate tasks such as downloading or
+updating feeds.
+.PP
+The database and files are the same as used by \fIgpodder(1)\fR.
+
+.SH INTERACTIVE SHELL MODE
+.PP
+If you run "gpo" without \fICOMMAND\fR it will enter its interactive shell
+mode. From there, you can type commands directly. When readline is available,
+this shell supports completion using <Tab>. Podcast feed URLs are also
+completed for commands that take the URL of a podcast as argument.
+.PP
+Some commands (e.g. \fIsearch\fR and \fItoplist\fR) will provide a query in
+interactive shell mode (to subscribe to podcasts). These queries will not be
+shown when started directly from the command line.
+
+.SH COMMAND PREFIXES
+.PP
+For all commands, you can use only the first few characters instead of the
+full command, as long as the command is unique. If not, gpo will show you all
+matching commands and the shortest prefix of each.
+.PP
+Please note that future additions to the command set could change the shortest
+prefix of any given command, so usage of the full command in scripts is
+recommended (e.g. use "gpo update" and not "gpo up" in scripts and cronjobs).
+The short command prefixes are mostly useful for interactive usage.
+
+.SH EXAMPLES
+
+.PP
+.B gpo
+.RS 4
+Enter interactive shell mode
+.RE
+.PP
+.B gpo update && gpo download
+.RS 4
+Check for new episodes, then download all new episodes
+.RE
+
+.PP
+.B gpo search linux outlaws
+.RS 4
+Search the directory for podcasts named "linux outlaws"
+.RE
+
+.PP
+.B gpo youtube http://youtube.com/watch?v=oHg5SJYRHA0
+.RS 4
+Print download URL of a YouTube video to stdout
+.RE
+
+.PP
+.B gpo webui
+.RS 4
+Start a web server serving the gPodder Web UI on localhost
+.RE
+
+.SH SEE ALSO
+.PP
+gpodder(1)
+
+.SH BUGS
+.PP
+If you find bugs, don't keep them for yourself!
+.PP
+Report bugs and feature requests at \fIhttp://bugs.gpodder.org/\fR

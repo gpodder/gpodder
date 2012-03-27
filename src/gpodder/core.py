@@ -26,7 +26,7 @@ import gpodder
 from gpodder import util
 from gpodder import config
 from gpodder import dbsqlite
-from gpodder import hooks
+from gpodder import extensions
 from gpodder import model
 
 
@@ -38,21 +38,24 @@ class Core(object):
         # Initialize the gPodder home directory
         util.make_directory(gpodder.home)
 
-        # Load hook modules and install the hook manager
-        gpodder.user_hooks = hooks.HookManager()
-
-        # Load installed/configured plugins
-        gpodder.load_plugins()
-
         # Open the database and configuration file
         self.db = database_class(gpodder.database_file)
         self.model = model_class(self.db)
         self.config = config_class(gpodder.config_file)
 
+        # Load extension modules and install the extension manager
+        gpodder.user_extensions = extensions.ExtensionManager(self)
+
+        # Load installed/configured plugins
+        gpodder.load_plugins()
+
         # Update the current device in the configuration
-        self.config.mygpo_device_type = util.detect_device_type()
+        self.config.mygpo.device.type = util.detect_device_type()
 
     def shutdown(self):
+        # Notify all extensions that we are being shut down
+        gpodder.user_extensions.shutdown()
+
         # Close the database and store outstanding changes
         self.db.close()
 

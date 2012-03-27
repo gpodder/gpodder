@@ -30,6 +30,7 @@ _ = gpodder.gettext
 from gpodder import util
 from gpodder import opml
 from gpodder import youtube
+from gpodder import my
 
 from gpodder.gtkui.opml import OpmlListModel
 
@@ -56,12 +57,20 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.notebookChannelAdder.connect('switch-page', lambda a, b, c: self.on_change_tab(c))
 
+    def on_entryURL_changed(self, entry):
+        url = entry.get_text()
+        if self.is_search_term(url):
+            self.btnDownloadOpml.set_label(_('Search'))
+        else:
+            self.btnDownloadOpml.set_label(_('Download'))
+
     def setup_treeview(self, tv):
         togglecell = gtk.CellRendererToggle()
         togglecell.set_property( 'activatable', True)
         togglecell.connect( 'toggled', self.callback_edited)
         togglecolumn = gtk.TreeViewColumn( '', togglecell, active=OpmlListModel.C_SELECTED)
-        
+        togglecolumn.set_min_width(40)
+
         titlecell = gtk.CellRendererText()
         titlecell.set_property('ellipsize', pango.ELLIPSIZE_END)
         titlecolumn = gtk.TreeViewColumn(_('Podcast'), titlecell, markup=OpmlListModel.C_DESCRIPTION_MARKUP)
@@ -104,9 +113,12 @@ class gPodderPodcastDirectory(BuilderWidget):
         tv.set_model(model)
         tv.set_sensitive(True)
 
+    def is_search_term(self, url):
+        return ('://' not in url and not os.path.exists(url))
+
     def thread_func(self, tab=0):
         if tab == 1:
-            model = OpmlListModel(opml.Importer(self._config.toplist_opml))
+            model = OpmlListModel(opml.Importer(my.TOPLIST_OPML))
             if len(model) == 0:
                 self.notification(_('The specified URL does not provide any valid OPML podcast items.'), _('No feeds found'))
         elif tab == 2:
@@ -115,7 +127,7 @@ class gPodderPodcastDirectory(BuilderWidget):
                 self.notification(_('There are no YouTube channels that would match this query.'), _('No channels found'))
         else:
             url = self.entryURL.get_text()
-            if '://' not in url and not os.path.exists(url):
+            if self.is_search_term(url):
                 url = 'http://gpodder.net/search.opml?q=' + urllib.quote(url)
             model = OpmlListModel(opml.Importer(url))
             if len(model) == 0:

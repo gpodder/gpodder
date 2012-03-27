@@ -30,6 +30,7 @@ _ = gpodder.gettext
 from gpodder import util
 from gpodder import model
 from gpodder import query
+from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ from gpodder.gtkui import draw
 
 import os
 import gtk
+import gobject
 import cgi
 import re
 
@@ -116,10 +118,13 @@ class EpisodeListModel(gtk.ListStore):
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 
+    # Steps for the "downloading" icon progress
+    PROGRESS_STEPS = 20
+
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                int, int, str, bool, int, bool)
+                gobject.TYPE_INT64, int, str, bool, int, bool)
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
@@ -152,7 +157,7 @@ class EpisodeListModel(gtk.ListStore):
 
     def _format_filesize(self, episode):
         if episode.file_size > 0:
-            return util.format_filesize(episode.file_size, 1)
+            return util.format_filesize(episode.file_size, digits=1)
         else:
             return None
 
@@ -226,11 +231,14 @@ class EpisodeListModel(gtk.ListStore):
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             a, b = '<b>', '</b>'
         if include_description and self._all_episodes_view:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
+            return '%s%s%s\n%s' % (a, cgi.escape(title), b,
                     _('from %s') % cgi.escape(episode.channel.title))
         elif include_description:
-            return '%s%s%s\n<small>%s</small>' % (a, cgi.escape(title), b,
-                    cgi.escape(episode.one_line_description()))
+            description = episode.one_line_description()
+            if description.startswith(title):
+                description = description[len(title):].strip()
+            return '%s%s%s\n%s' % (a, cgi.escape(title), b,
+                    cgi.escape(description))
         else:
             return ''.join((a, cgi.escape(title), b))
 
@@ -314,8 +322,12 @@ class EpisodeListModel(gtk.ListStore):
         icon_theme = gtk.icon_theme_get_default()
 
         if episode.downloading:
-            tooltip.append(_('Downloading'))
-            status_icon = self.ICON_DOWNLOADING
+            tooltip.append('%s %d%%' % (_('Downloading'),
+                int(episode.download_task.progress*100)))
+
+            index = int(self.PROGRESS_STEPS*episode.download_task.progress)
+            status_icon = 'gpodder-progress-%d' % index
+
             view_show_downloaded = True
             view_show_unplayed = True
         else:
@@ -421,7 +433,10 @@ class PodcastChannelProxy(object):
         self.url = ''
         self.section = ''
         self.id = None
-        self.cover_file = os.path.join(gpodder.images_folder, 'podcast-all.png')
+        self.cover_file = coverart.CoverDownloader.ALL_EPISODES_ID
+        self.cover_url = None
+        self.auth_username = None
+        self.auth_password = None
         self.pause_subscription = False
         self.auto_archive_episodes = False
 
@@ -771,6 +786,11 @@ class PodcastListModel(gtk.ListStore):
                 self.C_HAS_EPISODES, total > 0, \
                 self.C_DOWNLOADS, downloaded)
 
+    def clear_cover_cache(self, podcast_url):
+        if podcast_url in self._cover_cache:
+            logger.info('Clearing cover from cache: %s', podcast_url)
+            del self._cover_cache[podcast_url]
+
     def add_cover_by_channel(self, channel, pixbuf):
         # Resize and add the new cover image
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
@@ -782,15 +802,4 @@ class PodcastListModel(gtk.ListStore):
             if row[self.C_URL] == channel.url:
                 row[self.C_COVER] = pixbuf
                 break
-
-    def delete_cover_by_url(self, url):
-        # Remove the cover from the model
-        for row in self:
-            if row[self.C_URL] == url:
-                row[self.C_COVER] = None
-                break
-
-        # Remove the cover from the cache
-        if url in self._cover_cache:
-            del self._cover_cache[url]
 

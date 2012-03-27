@@ -81,7 +81,7 @@ class DBusPodcastsProxy(dbus.service.Object):
             title = safe_str(podcast.title)
             url = safe_str(podcast.url)
             description = safe_first_line(podcast.description)
-            cover_file = safe_str(podcast.cover_file)
+            cover_file = ''
 
             return (title, url, description, cover_file)
 
