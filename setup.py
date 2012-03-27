@@ -118,6 +118,7 @@ def find_data_files(uis, scripts):
 
 
 def find_packages(uis):
+    yield 'mygpoclient'
     src_gpodder = os.path.join('src', 'gpodder')
     for dirpath, dirnames, filenames in os.walk(src_gpodder):
         if '__init__.py' not in filenames:
