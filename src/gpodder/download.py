@@ -765,9 +765,9 @@ class DownloadTask(object):
                         continue
                     raise
                 except gPodderDownloadHTTPError, http:
-                    if retry < max_retries and http.errcode in retry_codes:
+                    if retry < max_retries and http.error_code in retry_codes:
                         logger.info('HTTP error %d: %s - will retry.',
-                                http.errcode, url)
+                                http.error_code, url)
                         continue
                     raise
 
