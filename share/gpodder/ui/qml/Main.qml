@@ -45,6 +45,13 @@ Image {
         nowPlayingThrobber.clicked()
     }
 
+    function showMultiEpisodesSheet(label, action) {
+        multiEpisodesSheet.acceptButtonText = label;
+        multiEpisodesSheet.action = action;
+        multiEpisodesList.selected = [];
+        multiEpisodesSheet.open();
+    }
+
     function clickSearchButton() {
         searchButton.clicked()
     }
@@ -526,6 +533,61 @@ Image {
 
         onAccepted: inputDialog.accept()
         onRejected: inputDialog.close()
+    }
+
+    Sheet {
+        id: multiEpisodesSheet
+        property string action: 'delete'
+        acceptButtonText: _('Delete')
+
+        rejectButtonText: _('Cancel')
+
+        visualParent: rootWindow
+
+        onAccepted: {
+            controller.multiEpisodeAction(multiEpisodesList.selected, action);
+        }
+
+        content: Item {
+            anchors.fill: parent
+            ListView {
+                id: multiEpisodesList
+                property variant selected: []
+
+                anchors.fill: parent
+                anchors.bottomMargin: Config.largeSpacing
+                model: episodeList.model
+
+                delegate: EpisodeItem {
+                    inSelection: multiEpisodesList.selected.indexOf(index) !== -1
+                    onSelected: {
+                        var newSelection = [];
+                        var found = false;
+
+                        for (var i=0; i<multiEpisodesList.selected.length; i++) {
+                            var value = multiEpisodesList.selected[i];
+                            if (value === index) {
+                                found = true;
+                            } else {
+                                newSelection.push(value);
+                            }
+                        }
+
+                        if (!found) {
+                            if (multiEpisodesSheet.action === 'delete' && item.qarchive) {
+                                // cannot delete archived episodes
+                            } else {
+                                newSelection.push(index);
+                            }
+                        }
+
+                        multiEpisodesList.selected = newSelection;
+                    }
+                }
+            }
+
+            ScrollDecorator { flickableItem: multiEpisodesList }
+        }
     }
 
     Sheet {
