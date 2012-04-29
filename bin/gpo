@@ -297,7 +297,10 @@ class gPodderCli(object):
                 self._error(_('Cannot subscribe to %s.') % url)
                 return True
         except Exception, e:
-            self._error(e.strerror)
+            if hasattr(e, 'strerror'):
+                self._error(e.strerror)
+            else:
+                self._error(str(e))
             return True
 
         self.client.commit()
