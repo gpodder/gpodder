@@ -688,7 +688,7 @@ class gPodderEpisodeListModel(gPodderListModel):
 
     @Slot(int, result=QObject)
     def get_object_by_index(self, index):
-        return self._filtered[index]
+        return self._filtered[int(index)]
 
     @Slot(result=int)
     def getFilter(self):
