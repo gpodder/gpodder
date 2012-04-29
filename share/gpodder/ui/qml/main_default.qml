@@ -44,15 +44,15 @@ PageStackWindow {
             ToolIcon {
                 id: toolMenu
                 onClicked: {
-                    /*if (mainObject.currentPodcast !== undefined) {
-                        controller.podcastContextMenu(mainObject.currentPodcast)
-                    } else {*/
-                        hrmtnMainViewMenu.open()
-                    //}
+                    if (mainObject.state === 'episodes') {
+                        hrmtnEpisodesMenu.open();
+                    } else {
+                        hrmtnMainViewMenu.open();
+                    }
                 }
                 anchors.right: parent.right
                 iconId: "toolbar-view-menu"
-                visible: (!toolBack.visible && mainObject.state == 'podcasts') //|| (mainObject.currentPodcast !== undefined && mainObject.state == 'episodes')
+                visible: (!toolBack.visible && mainObject.state == 'podcasts') || (mainObject.currentPodcast !== undefined && mainObject.state == 'episodes')
             }
 
             ToolIcon {
@@ -99,6 +99,10 @@ PageStackWindow {
 
             MenuLayout {
                 MenuItem {
+                    text: _('Now playing')
+                    onClicked: nowPlayingMenuItem.clicked()
+                }
+                MenuItem {
                     text: _('Settings')
                     onClicked: {
                         hrmtnMainViewMenu.close()
@@ -107,18 +111,50 @@ PageStackWindow {
                     }
                 }
                 MenuItem {
-                    text: _('Now playing')
-                    onClicked: {
-                        hrmtnMainViewMenu.close()
-                        mainObject.clickPlayButton()
-                    }
-                    visible: mainObject.hasPlayButton
-                }
-                MenuItem {
                     text: _('About gPodder')
                     onClicked: {
                         hrmtnMainViewMenu.close()
                         pageStack.push(aboutBox)
+                    }
+                }
+            }
+        }
+
+        ContextMenu {
+            id: hrmtnEpisodesMenu
+
+            MenuLayout {
+                MenuItem {
+                    id: nowPlayingMenuItem
+                    text: _('Now playing')
+                    onClicked: {
+                        if (mainObject.hasPlayButton) {
+                            hrmtnMainViewMenu.close();
+                            mainObject.clickPlayButton();
+                        } else {
+                            mainObject.showMessage(_('Playlist empty'));
+                        }
+                    }
+                }
+                MenuItem {
+                    text: _('Download episodes')
+                    onClicked: {
+                        mainObject.showMultiEpisodesSheet(_('Download'), 'download');
+                        hrmtnMainViewMenu.close()
+                    }
+                }
+                MenuItem {
+                    text: _('Playback episodes')
+                    onClicked: {
+                        mainObject.showMultiEpisodesSheet(_('Play'), 'play');
+                        hrmtnMainViewMenu.close()
+                    }
+                }
+                MenuItem {
+                    text: _('Delete episodes')
+                    onClicked: {
+                        mainObject.showMultiEpisodesSheet(_('Delete'), 'delete');
+                        hrmtnMainViewMenu.close()
                     }
                 }
             }

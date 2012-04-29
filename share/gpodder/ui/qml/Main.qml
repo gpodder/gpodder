@@ -45,6 +45,13 @@ Image {
         nowPlayingThrobber.clicked()
     }
 
+    function showMultiEpisodesSheet(label, action) {
+        multiEpisodesSheet.acceptButtonText = label;
+        multiEpisodesSheet.action = action;
+        multiEpisodesList.selected = [];
+        multiEpisodesSheet.open();
+    }
+
     function clickSearchButton() {
         searchButton.clicked()
     }
@@ -526,6 +533,113 @@ Image {
 
         onAccepted: inputDialog.accept()
         onRejected: inputDialog.close()
+    }
+
+    Sheet {
+        id: multiEpisodesSheet
+        property string action: 'delete'
+        acceptButtonText: _('Delete')
+
+        rejectButtonText: _('Cancel')
+
+        visualParent: rootWindow
+
+        onAccepted: {
+            controller.multiEpisodeAction(multiEpisodesList.selected, action);
+        }
+
+        content: Item {
+            anchors.fill: parent
+            ListView {
+                id: multiEpisodesList
+                property variant selected: []
+
+                anchors.fill: parent
+                anchors.bottomMargin: Config.largeSpacing
+                model: episodeList.model
+
+                delegate: EpisodeItem {
+                    inSelection: multiEpisodesList.selected.indexOf(index) !== -1
+                    onSelected: {
+                        var newSelection = [];
+                        var found = false;
+
+                        for (var i=0; i<multiEpisodesList.selected.length; i++) {
+                            var value = multiEpisodesList.selected[i];
+                            if (value === index) {
+                                found = true;
+                            } else {
+                                newSelection.push(value);
+                            }
+                        }
+
+                        if (!found) {
+                            if (multiEpisodesSheet.action === 'delete' && item.qarchive) {
+                                // cannot delete archived episodes
+                            } else {
+                                newSelection.push(index);
+                            }
+                        }
+
+                        multiEpisodesList.selected = newSelection;
+                    }
+
+                    onContextMenu: multiEpisodesSheetContextMenu.open();
+                }
+            }
+
+            ScrollDecorator { flickableItem: multiEpisodesList }
+
+            ContextMenu {
+                id: multiEpisodesSheetContextMenu
+
+                MenuLayout {
+                    MenuItem {
+                        text: _('Select all')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                newSelection.push(i);
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Select downloaded')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                if (episodeList.model.get_object_by_index(i).qdownloaded) {
+                                    newSelection.push(i);
+                                }
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Select none')
+                        onClicked: {
+                            multiEpisodesList.selected = [];
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Invert selection')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                if (multiEpisodesList.selected.indexOf(i) === -1) {
+                                    newSelection.push(i);
+                                }
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Sheet {

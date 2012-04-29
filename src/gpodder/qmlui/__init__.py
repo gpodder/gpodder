@@ -131,6 +131,40 @@ class Controller(QObject):
     def getEpisodeListFilterNames(self):
         return [caption for caption, eql in EPISODE_LIST_FILTERS]
 
+    @Slot('QVariant', str)
+    def multiEpisodeAction(self, selected, action):
+        if not selected:
+            return
+
+        count = len(selected)
+        episodes = map(self.root.episode_model.get_object_by_index, selected)
+
+        def delete():
+            for episode in episodes:
+                if not episode.qarchive:
+                    episode.delete_episode()
+            self.update_subset_stats()
+            self.root.mygpo_client.on_delete(episodes)
+            self.root.mygpo_client.flush()
+            for episode in episodes:
+                self.root.on_episode_deleted(episode)
+            self.root.episode_model.sort()
+
+        if action == 'delete':
+            msg = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
+            self.confirm_action(msg, _('Delete'), delete)
+        elif action == 'download':
+            for episode in episodes:
+                if episode.qdownloaded:
+                    print '    XXX     already downloaded'
+                    continue
+                episode.qdownload(self.root.config, self.update_subset_stats)
+            self.root.mygpo_client.on_download(episodes)
+            self.root.mygpo_client.flush()
+        elif action == 'play':
+            for episode in episodes:
+                self.root.enqueue_episode(episode)
+
     @Slot(str, result=str)
     def translate(self, x):
         return _(x)
@@ -651,6 +685,10 @@ class gPodderEpisodeListModel(gPodderListModel):
 
     def get_object(self, index):
         return self._filtered[index.row()]
+
+    @Slot(int, result=QObject)
+    def get_object_by_index(self, index):
+        return self._filtered[index]
 
     @Slot(result=int)
     def getFilter(self):

@@ -1495,6 +1495,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
 
+    def on_open_download_folder(self, item):
+        assert self.active_channel is not None
+        util.gui_open(self.active_channel.save_dir)
+
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -1512,6 +1516,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item = gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemUpdateChannel_activate)
+            menu.append(item)
+
+            menu.append(gtk.SeparatorMenuItem())
+
+            item = gtk.MenuItem(_('Open download folder'))
+            item.connect('activate', self.on_open_download_folder)
             menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
