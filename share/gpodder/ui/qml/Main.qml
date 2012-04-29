@@ -583,10 +583,62 @@ Image {
 
                         multiEpisodesList.selected = newSelection;
                     }
+
+                    onContextMenu: multiEpisodesSheetContextMenu.open();
                 }
             }
 
             ScrollDecorator { flickableItem: multiEpisodesList }
+
+            ContextMenu {
+                id: multiEpisodesSheetContextMenu
+
+                MenuLayout {
+                    MenuItem {
+                        text: _('Select all')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                newSelection.push(i);
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Select downloaded')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                if (episodeList.model.get_object_by_index(i).qdownloaded) {
+                                    newSelection.push(i);
+                                }
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Select none')
+                        onClicked: {
+                            multiEpisodesList.selected = [];
+                        }
+                    }
+
+                    MenuItem {
+                        text: _('Invert selection')
+                        onClicked: {
+                            var newSelection = [];
+                            for (var i=0; i<multiEpisodesList.count; i++) {
+                                if (multiEpisodesList.selected.indexOf(i) === -1) {
+                                    newSelection.push(i);
+                                }
+                            }
+                            multiEpisodesList.selected = newSelection;
+                        }
+                    }
+                }
+            }
         }
     }
 
