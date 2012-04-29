@@ -542,8 +542,6 @@ Image {
 
         rejectButtonText: _('Cancel')
 
-        visualParent: rootWindow
-
         onAccepted: {
             controller.multiEpisodeAction(multiEpisodesList.selected, action);
         }
