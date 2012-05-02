@@ -114,6 +114,14 @@ def find_data_files(uis, scripts):
 
         filenames = filter(None, map(convert_filename, filenames))
         if filenames:
+            # Some distros/ports install manpages into $PREFIX/man instead
+            # of $PREFIX/share/man (e.g. FreeBSD). To allow this, we strip
+            # the "share/" part if the variable GPODDER_MANPATH_NO_SHARE is
+            # set to any value in the environment.
+            if dirpath.startswith(share_man):
+                if 'GPODDER_MANPATH_NO_SHARE' in os.environ:
+                    dirpath = dirpath.replace(share_man, 'man')
+
             yield (dirpath, filenames)
 
 
