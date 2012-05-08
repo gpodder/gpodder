@@ -23,33 +23,29 @@ gPodder = {
 
     createEpisode: function(episode) {
         var li = document.createElement('li');
-        li.setAttribute('gpodder:episode', JSON.stringify(episode));
-        li.onclick = function() {
-            if (gPodder.currentlySelectedEpisode !== null) {
-                var e = gPodder.currentlySelectedEpisode;
-                e.innerHTML = gPodder.quote(JSON.parse(e.getAttribute('gpodder:episode')).title);
-                gPodder.currentlySelectedEpisode.setAttribute('class', '');
-            }
+        var a = document.createElement('a');
+        a.setAttribute('gpodder:episode', JSON.stringify(episode));
+        a.href = '#';
+        a.onclick = function() {
             gPodder.selectEpisode(this);
             gPodder.currentlySelectedEpisode = this;
-            this.setAttribute('class', 'selected');
         };
-        li.appendChild(document.createTextNode(episode.title));
+        li.appendChild(a);
+        a.appendChild(document.createTextNode(episode.title));
         return li;
     },
 
     createPodcast: function(podcast) {
         var li = document.createElement('li');
-        li.setAttribute('gpodder:podcast', JSON.stringify(podcast));
-        li.onclick = function() {
-            if (gPodder.currentlySelectedPodcast !== null) {
-                gPodder.currentlySelectedPodcast.setAttribute('class', '');
-            }
+        var a = document.createElement('a');
+        a.setAttribute('gpodder:podcast', JSON.stringify(podcast));
+        a.href = '#episodes_page';
+        a.onclick = function() {
             gPodder.selectPodcast(this);
             gPodder.currentlySelectedPodcast = this;
-            this.setAttribute('class', 'selected');
         };
-        li.appendChild(document.createTextNode(podcast.title));
+        li.appendChild(a);
+        a.appendChild(document.createTextNode(podcast.title));
         return li;
     },
 
@@ -65,6 +61,7 @@ gPodder = {
                 for (i=0; i<lis.length; i++) {
                     podcasts_ul.appendChild(lis[i]);
                 }
+                $('#podcasts').listview('refresh');
             }
         };
         xmlhttp.open('GET', gPodder.url.podcasts, true);
@@ -79,12 +76,14 @@ gPodder = {
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4) {
                 episodes_ul.innerHTML = '';
+                $('#episodes_title').html(podcast.title);
 
                 var episodes = JSON.parse(xmlhttp.responseText);
                 var lis = episodes.map(gPodder.createEpisode);
                 for (i=0; i<lis.length; i++) {
                     episodes_ul.appendChild(lis[i]);
                 }
+                $('#episodes').listview('refresh');
             }
         };
         xmlhttp.open('GET', gPodder.url.episodes(podcast), true);
