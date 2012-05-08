@@ -25,7 +25,7 @@ gPodder = {
         var li = document.createElement('li');
         var a = document.createElement('a');
         a.setAttribute('gpodder:episode', JSON.stringify(episode));
-        a.href = '#';
+        a.href = '#episode_details';
         a.onclick = function() {
             gPodder.selectEpisode(this);
             gPodder.currentlySelectedEpisode = this;
@@ -92,7 +92,7 @@ gPodder = {
 
     selectEpisode: function(li) {
         var episode = JSON.parse(li.getAttribute('gpodder:episode'));
-        li.innerHTML = '';
+        var content = '';
 
         var keys = new Array();
         for (var key in episode) {
@@ -107,8 +107,10 @@ gPodder = {
             }
             var key = gPodder.quote(keys[i]);
             var data = gPodder.quote(data);
-            li.innerHTML += '<strong>' + key + '</strong> = ' + data + '<br>';
+            content += '<strong>' + key + '</strong> = ' + data + '<br>';
         }
+
+        $('#episode_details_content').html(content);
     },
 
 };
