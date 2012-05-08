@@ -93,6 +93,7 @@ gPodder = {
     selectEpisode: function(li) {
         var episode = JSON.parse(li.getAttribute('gpodder:episode'));
         var content = '';
+        var media_url = '';
 
         var keys = new Array();
         for (var key in episode) {
@@ -102,6 +103,11 @@ gPodder = {
 
         for (var i=0; i<keys.length; i++) {
             var data = episode[keys[i]];
+
+            if (keys[i] === 'url') {
+                content += '<audio controls="controls"><source src="' + data + '" type="audio/mp3" /></audio><br>';
+            }
+
             if (data !== null && data.length !== undefined && data.length > 50) {
                 data = data.substring(0, 48) + '...';
             }
