@@ -74,7 +74,7 @@ echo "Downloading NEW translations from Transifex..."
 tx pull --all --disable-overwrite
 
 echo "Running validation script to check for errors..."
-sh `dirname $0`/validate.sh
+sh ../tools/i18n/validate.sh
 
 echo "All done. Please review changes and stage them for commmit."
 
