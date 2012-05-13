@@ -33,6 +33,8 @@ if git status --porcelain | grep -q '^ M po'; then
     exit 1
 fi
 
+rm *.po
+
 if [ -d "$MERGE_DIR" ]; then
     echo "The directory $MERGE_DIR still exists. Please remove it."
     exit 1
@@ -40,20 +42,12 @@ fi
 
 # First, pull translations from Transifex, overwriting existing .po files
 echo "Downloading UPDATED translations from Transifex..."
-tx pull --force
+tx pull --force --all
+FILES=*.po
 
-FILES=`git status --porcelain |
-       grep '^ M po/.*.po$' |
-       awk '{ print $2 }' |
-       cut -d/ -f3`
-
-echo "`echo $FILES | wc -w` files changed by 'tx'."
-
-if [ "$FILES" != "" ]; then
-    echo "Moving files to merge directory..."
-    mkdir "$MERGE_DIR"
-    mv -v $FILES "$MERGE_DIR"
-fi
+echo "Moving files to merge directory..."
+mkdir "$MERGE_DIR"
+mv -v $FILES "$MERGE_DIR"
 
 echo "Restoring original .po files from Git..."
 git checkout .
@@ -68,10 +62,6 @@ done
 
 echo "Removing merge directory..."
 rm -rf "$MERGE_DIR"
-
-# To finish things off, fetch new translations from the server
-echo "Downloading NEW translations from Transifex..."
-tx pull --all --disable-overwrite
 
 echo "Running validation script to check for errors..."
 sh ../tools/i18n/validate.sh
