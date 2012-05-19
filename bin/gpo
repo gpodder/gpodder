@@ -241,7 +241,7 @@ class gPodderCli(object):
         self._download_episode(episode)
 
     def _start_action(self, msg, *args):
-        line = msg % args
+        line = util.convert_bytes(msg % args)
         if len(line) > self.COLUMNS-7:
             line = line[:self.COLUMNS-7-3] + '...'
         else:
