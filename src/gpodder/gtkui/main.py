@@ -83,6 +83,7 @@ from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
 from gpodder.gtkui.desktop.sync import gPodderSyncUI
+from gpodder.gtkui import flattr
 
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import extensions
@@ -115,6 +116,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config = self.core.config
         self.db = self.core.db
         self.model = self.core.model
+        self.flattr = self.core.flattr
         BuilderWidget.__init__(self, None)
     
     def new(self):
@@ -762,7 +764,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
+        self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -1905,6 +1907,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
+            # flattr episode if auto-flattr is enabled
+            if self.config.flattr.token and self.config.flattr.flattr_on_play:
+                status = self.flattr.flattr_url(episode.payment_url)
+                self.show_message(status, title=_('Flattr status'))
+
             groups[player].append(filename)
 
         # Open episodes with system default player
@@ -2916,6 +2923,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemPreferences_activate(self, widget, *args):
         gPodderPreferences(self.main_window, \
                 _config=self.config, \
+                flattr=self.flattr, \
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
@@ -2970,7 +2978,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
                 sections=set(c.section for c in self.channels),
-                clear_cover_cache=self.podcast_list_model.clear_cover_cache)
+                clear_cover_cache=self.podcast_list_model.clear_cover_cache,
+                _config=self.config,
+                _flattr=self.flattr)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (
@@ -3165,6 +3175,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
 
+    def set_flattr_information(self, widget):
+        self.flattr_possible = flattr.set_flattr_button(self.flattr,
+            self.flattr.GPODDER_THING, self.config.flattr.token,
+            widget)
+
+    def on_flattr_button_clicked(self, widget, event):
+        if self.flattr_possible:
+            status = self.flattr.flattr_url(self.channel.payment_url)
+            self.show_message(status, title=_('Flattr status'))
+            self.set_flattr_information(widget.get_children()[0])
+
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.Dialog(_('About gPodder'), self.main_window, \
                 gtk.DIALOG_MODAL)
@@ -3200,6 +3221,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         button.connect('clicked', self.on_bug_tracker_activate)
         button_box.pack_start(button)
         out.pack_start(button_box, expand=False)
+
+        flattr_image = gtk.Image()
+        eventbox = gtk.EventBox()
+        eventbox.add(flattr_image)
+        eventbox.connect('button-press-event', self.on_flattr_button_clicked)
+        out.pack_start(eventbox)
+        self.set_flattr_information(flattr_image)
 
         credits = gtk.TextView()
         credits.set_left_margin(5)
@@ -3322,6 +3350,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_episode_shownotes(self, episode):
         if self.episode_shownotes_window is None:
             self.episode_shownotes_window = gPodderShownotes(self.gPodder, _config=self.config, \
+                    _flattr=self.flattr, \
                     _download_episode_list=self.download_episode_list, \
                     _playback_episodes=self.playback_episodes, \
                     _delete_episode_list=self.delete_episode_list, \

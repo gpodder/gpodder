@@ -50,6 +50,17 @@ import string
 _ = gpodder.gettext
 
 
+def get_payment_priority(url):
+    """
+    at the moment we only support flattr.com as an payment provider, so we
+    sort the payment providers and prefer flattr.com ("1" is higher priority than "2")
+    """
+    if 'flattr.com' in url:
+        return 1
+    return 2
+
+class CustomFeed(feedcore.ExceptionWithData): pass
+
 class gPodderFetcher(feedcore.Fetcher):
     """
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
@@ -225,6 +236,12 @@ class PodcastEpisode(PodcastModelObject):
         # get the desired enclosure picked by the algorithm below.
         filter_and_sort_enclosures = lambda x: x
 
+        # read the flattr auto-url, if exists
+        payment_info = [link['href'] for link in entry.get('links', [])
+            if link['rel'] == 'payment']
+        if payment_info:
+            episode.payment_url = sorted(payment_info, key=get_payment_priority)[0]
+
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
             episode.mime_type = e.get('type', 'application/octet-stream')
@@ -331,6 +348,7 @@ class PodcastEpisode(PodcastModelObject):
         self.link = ''
         self.published = 0
         self.download_filename = None
+        self.payment_url = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -760,9 +778,8 @@ class PodcastEpisode(PodcastModelObject):
         return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
-
 
 
 class PodcastChannel(PodcastModelObject):
@@ -786,6 +803,7 @@ class PodcastChannel(PodcastModelObject):
         self.link = ''
         self.description = ''
         self.cover_url = None
+        self.payment_url = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1004,9 +1022,14 @@ class PodcastChannel(PodcastModelObject):
         #self.parse_error = feed.get('bozo_exception', None)
 
         self._consume_updated_title(feed.feed.get('title', self.url))
-
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
+
+        # read the flattr auto-url, if exists
+        payment_info = [link['href'] for link in feed.feed.get('links', [])
+            if link['rel'] == 'payment']
+        if payment_info:
+            self.payment_url = sorted(payment_info, key=get_payment_priority)[0]
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):

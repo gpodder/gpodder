@@ -967,7 +967,7 @@ def url_add_authentication(url, username, password):
     return urlparse.urlunsplit(url_parts)
 
 
-def urlopen(url):
+def urlopen(url, headers=None, data=None):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
@@ -981,8 +981,13 @@ def urlopen(url):
     else:
         opener = urllib2.build_opener()
 
-    headers = {'User-agent': gpodder.user_agent}
-    request = urllib2.Request(url, headers=headers)
+    if headers is None:
+        headers = {}
+    else:
+        headers = dict(headers)
+
+    headers.update({'User-agent': gpodder.user_agent})
+    request = urllib2.Request(url, data=data, headers=headers)
     return opener.open(request)
 
 def get_real_url(url):

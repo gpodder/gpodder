@@ -19,6 +19,9 @@
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gpodder
 
 _ = gpodder.gettext
@@ -26,7 +29,7 @@ _ = gpodder.gettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
-
+from gpodder.gtkui.flattr import set_flattr_button
 
 class gPodderShownotesBase(BuilderWidget):
     def new(self):
@@ -86,6 +89,19 @@ class gPodderShownotesBase(BuilderWidget):
     def on_episode_status_changed(self):
         """Called when the episode/download status is changed"""
         pass
+
+    #############################################################
+
+    def set_flattr_information(self):
+        self.flattr_possible = set_flattr_button(self._flattr,
+            self.episode.payment_url, self._config.flattr.token,
+            self.flattr_image, self.flattr_button)
+
+    def on_flattr_button_clicked(self, widget):
+        if self.flattr_possible:
+            status = self._flattr.flattr_url(self.episode.payment_url)
+            self.show_message(status, title=_('Flattr status'))
+            self.set_flattr_information()
 
     #############################################################
 
@@ -178,3 +194,5 @@ class gPodderShownotesBase(BuilderWidget):
         # Load the shownotes into the UI
         self.on_display_text()
 
+        # Set flattr information
+        self.set_flattr_information()

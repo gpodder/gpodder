@@ -20,6 +20,10 @@
 import gtk
 import pango
 import cgi
+import urlparse
+
+import logging
+logger = logging.getLogger(__name__)
 
 import gpodder
 
@@ -101,6 +105,42 @@ class OnSyncActionList(gtk.ListStore):
         self._config.device_sync.after_sync.delete_episodes = self[index][self.C_ON_SYNC_DELETE]
         self._config.device_sync.after_sync.mark_episodes_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
 
+
+
+class gPodderFlattrSignIn(BuilderWidget):
+
+    def new(self):
+        import webkit
+
+        self.web = webkit.WebView()
+        self.web.connect('resource-request-starting', self.on_web_request)
+        self.main_window.connect('destroy', self.set_flattr_preferences)
+
+        auth_url = self.flattr.get_auth_url()
+        logger.info(auth_url)
+        self.web.open(auth_url)
+
+        self.scrolledwindow_web.add(self.web)
+        self.web.show()
+
+    def on_web_request(self, web_view, web_frame, web_resource, request, response):
+        uri = request.get_uri()
+        if uri.startswith(self.flattr.CALLBACK):
+            uri_parsed = urlparse.urlparse(uri)
+            query = urlparse.parse_qs(uri_parsed.path[2:])
+            if 'code' in query:
+                code = query['code'][0]
+                token = self.flattr.request_access_token(code)
+                self._config.flattr.token = token
+            else:
+                self.show_message(query['error_description'][0], _('Error'),
+                        important=True)
+
+            # Destroy the window later
+            util.idle_add(self.main_window.destroy)
+
+    def on_btn_close_clicked(self, widget):
+        util.idle_add(self.main_window.destroy)
 
 
 class gPodderPreferences(BuilderWidget):
@@ -193,6 +233,9 @@ class gPodderPreferences(BuilderWidget):
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
 
+        # Initialize Flattr settings
+        self.set_flattr_preferences()
+
         # Configure the extensions manager GUI
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
@@ -219,6 +262,38 @@ class gPodderPreferences(BuilderWidget):
         self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
+
+    def set_flattr_preferences(self, widget=None):
+        if not self._config.flattr.token:
+            self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
+            self.button_flattr_login.set_label(_('Sign in to Flattr'))
+        else:
+            flattr_user = self.flattr.get_auth_username()
+            self.label_flattr.set_markup(_('Logged in as <b>%(username)s</b>') % {'username': flattr_user})
+            self.button_flattr_login.set_label(_('Sign out'))
+
+        self.checkbutton_flattr_on_play.set_active(self._config.flattr.flattr_on_play)
+
+    def on_button_flattr_login(self, widget):
+        if not self._config.flattr.token:
+            try:
+                import webkit
+            except ImportError, ie:
+                self.show_message(_('Flattr integration requires WebKit/Gtk.'),
+                        _('WebKit/Gtk not found'), important=True)
+                self.main_window.destroy()
+                return
+
+            gPodderFlattrSignIn(self.parent_window,
+                    _config=self._config,
+                    flattr=self.flattr,
+                    set_flattr_preferences=self.set_flattr_preferences)
+        else:
+            self._config.flattr.token = ''
+            self.set_flattr_preferences()
+
+    def on_check_flattr_on_play(self, widget):
+        self._config.flattr.flattr_on_play = widget.get_active()
 
     def on_extensions_cell_toggled(self, cell, path):
         model = self.treeviewExtensions.get_model()
