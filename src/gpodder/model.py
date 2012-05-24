@@ -226,6 +226,11 @@ class PodcastEpisode(PodcastModelObject):
         # and letting them sort and/or filter the list of enclosures to
         # get the desired enclosure picked by the algorithm below.
         filter_and_sort_enclosures = lambda x: x
+        
+        # read the flattr auto-url, if exists
+        linkinfo = [link['href'] for link in entry.get('links', []) if link['rel'] == 'payment']        
+        if linkinfo:
+            episode.flattr_url = linkinfo[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -784,6 +789,7 @@ class PodcastChannel(PodcastModelObject):
         self.link = ''
         self.description = ''
         self.cover_url = None
+        self.flattr_url = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -993,9 +999,14 @@ class PodcastChannel(PodcastModelObject):
         #self.parse_error = feed.get('bozo_exception', None)
 
         self._consume_updated_title(feed.feed.get('title', self.url))
-
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
+        
+        # read the flattr auto-url, if exists
+        linkinfo = [link['href'] for link in feed.feed.get('links', []) if link['rel'] == 'payment']        
+        if linkinfo:
+            self.flattr_url = linkinfo[0]
+
         # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
         VIMEO_PREFIX = 'Vimeo / '
