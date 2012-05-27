@@ -338,6 +338,7 @@ class PodcastEpisode(PodcastModelObject):
         self.link = ''
         self.published = 0
         self.download_filename = None
+        self.flattr_url = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -765,6 +766,11 @@ class PodcastEpisode(PodcastModelObject):
     def update_from(self, episode):
         for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size'):
             setattr(self, k, getattr(episode, k))
+            
+    def flattr_exists(self):
+        if self.flattr_url:
+            return True
+        return False
 
 
 

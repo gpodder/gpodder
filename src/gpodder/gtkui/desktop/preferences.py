@@ -22,6 +22,9 @@ import pango
 import threading
 import cgi
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gpodder
 
 _ = gpodder.gettext
@@ -56,6 +59,40 @@ class NewEpisodeActionList(gtk.ListStore):
 
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
+
+
+class gPodderFlattrSignIn(BuilderWidget):
+
+    def new(self):
+        try:
+            import webkit
+            
+            self.web = webkit.WebView()
+            self.web.connect('resource-request-starting', self.on_web_request)            
+            
+            auth_uri = self.flattr.get_auth_uri()
+            logger.info(auth_uri)
+            self.web.open(auth_uri)
+            
+            self.scrolledwindow_web.add(self.web)
+            self.web.show()
+        except ImportError:
+            # TODO: Error-Message
+            logger.info('import error webkit')
+
+    def on_web_request(self, web_view, web_frame, web_resource, request, response):
+        uri = request.get_uri()
+        if uri.startswith(self.flattr.get_callback_uri()):
+            logger.info('callback-uri: %s' % uri)
+            dummy, code = uri.split('=')
+            self._config.flattr.token = self.flattr.request_access_token(code)
+            
+            # at the moment destroying the window results in a core dump, so we have
+            # to save the configuration data so the access token is stored correctly
+            # for the next start of gPodder
+            self._config.save()
+            
+            self.gPodderFlattrSignIn.destroy()
 
 
 class gPodderPreferences(BuilderWidget):
@@ -130,6 +167,9 @@ class gPodderPreferences(BuilderWidget):
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
+        
+        # Initialize Flattr settings
+        self.set_flattr_preferences()
 
         # Configure the extensions manager GUI
         toggle_cell = gtk.CellRendererToggle()
@@ -157,6 +197,25 @@ class gPodderPreferences(BuilderWidget):
         self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
+        
+    def set_flattr_preferences(self):
+        if not self._config.flattr.token:
+            self.label_flattr.set_text('Please sign in with Flattr and Support Publishers')
+            self.button_flattr_login.set_label('Sign in')
+        else:
+            flattr_user = self.flattr.get_auth_username()
+            self.label_flattr.set_text('You are flattring as %s' % flattr_user)
+            self.button_flattr_login.set_label('Sign out')
+        
+    def on_button_flattr_login(self, widget):
+        if not self._config.flattr.token:
+            gPodderFlattrSignIn(self.parent_window, _config=self._config, flattr=self.flattr)
+        else:
+            self._config.flattr.token = ''
+        self.set_flattr_preferences()
+        
+    def on_check_autoflattr(self, widget):
+        self._config.flattr.autoflattr = widget.get_active()
 
     def on_extensions_cell_toggled(self, cell, path):
         model = self.treeviewExtensions.get_model()

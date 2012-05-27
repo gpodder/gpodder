@@ -114,6 +114,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config = self.core.config
         self.db = self.core.db
         self.model = self.core.model
+        self.flattr = self.core.flattr
         BuilderWidget.__init__(self, None)
     
     def new(self):
@@ -812,6 +813,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lockcell.set_property('icon-name', 'emblem-readonly')
         namecolumn.pack_start(lockcell, False)
         namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
+        
+        flattrcell = gtk.CellRendererPixbuf()
+        flattrcell.set_fixed_size(40, 40)
+        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)        
+        flattrcolumn = gtk.TreeViewColumn(_('Flattr'), flattrcell)
+        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, 'flattr.png'))
+        flattrcell.set_property('pixbuf', pixbuf)
+        flattrcolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
 
         sizecell = gtk.CellRendererText()
         sizecell.set_property('xalign', 1)
@@ -830,7 +839,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_reorderable(True)
         self.treeAvailable.append_column(namecolumn)
 
-        for itemcolumn in (sizecolumn, timecolumn, releasecolumn):
+        for itemcolumn in (flattrcolumn, sizecolumn, timecolumn, releasecolumn):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
             TreeViewHelper.register_column(self.treeAvailable, itemcolumn)
@@ -2848,6 +2857,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemPreferences_activate(self, widget, *args):
         gPodderPreferences(self.main_window, \
                 _config=self.config, \
+                flattr=self.flattr, \
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \

@@ -177,6 +177,54 @@
               </packing>
             </child>
             <child>
+              <object class="GtkTable" id="flattr_config">
+                <property name="border_width">6</property>
+                <property name="column_spacing">6</property>
+                <property name="n_columns">3</property>
+                <property name="n_rows">3</property>
+                <property name="row_spacing">6</property>
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel" id="label_flattr">
+                    <property name="label" translatable="yes">Please sign in with Flattr and Support Publishers</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">1</property>
+                    <property name="x_options">fill</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_flattr_login">
+                    <property name="label" translatable="yes">Sign in</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_button_flattr_login" name="clicked"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">3</property>
+                    <property name="x_options">fill</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="checkbutton_autoflattr">
+                    <property name="label" translatable="yes">Enable Auto-Flattr to automatically flattr episodes once playback starts</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_check_autoflattr" name="toggled"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="tab-label" translatable="yes">Flattr</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkTable" id="mygpo_config">
                 <property name="border_width">6</property>
                 <property name="column_spacing">6</property>

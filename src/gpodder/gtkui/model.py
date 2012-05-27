@@ -111,7 +111,7 @@ class EpisodeListModel(gtk.ListStore):
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
-            C_LOCKED = range(17)
+            C_LOCKED, C_VIEW_FLATTR = range(18)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
@@ -124,7 +124,7 @@ class EpisodeListModel(gtk.ListStore):
     def __init__(self, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, int, str, bool, int, bool)
+                gobject.TYPE_INT64, int, str, bool, int, bool, bool)
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
@@ -286,7 +286,8 @@ class EpisodeListModel(gtk.ListStore):
                     episode.get_play_info_string(), \
                     bool(episode.total_time), \
                     episode.total_time, \
-                    episode.archive))
+                    episode.archive, \
+                    episode.flattr_exists()))
 
             self.update_by_iter(iter, include_description)
 
@@ -417,7 +418,8 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_TOTAL_TIME, episode.total_time, \
                 self.C_LOCKED, episode.archive, \
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
-                self.C_FILESIZE, episode.file_size)
+                self.C_FILESIZE, episode.file_size, \
+                self.C_VIEW_FLATTR, episode.flattr_exists())
 
 
 class PodcastChannelProxy(object):

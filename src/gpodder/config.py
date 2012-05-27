@@ -162,6 +162,11 @@ defaults = {
     'extensions': {
         'enabled': [],
     },
+    
+    'flattr': {
+        'token': '',
+        'autoflattr': False,
+    },
 }
 
 # The sooner this goes away, the better
