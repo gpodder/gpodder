@@ -18,6 +18,10 @@
 #
 
 import gtk
+import os
+
+import logging
+logger = logging.getLogger(__name__)
 
 import gpodder
 
@@ -86,6 +90,11 @@ class gPodderShownotesBase(BuilderWidget):
     def on_episode_status_changed(self):
         """Called when the episode/download status is changed"""
         pass
+        
+    #############################################################
+        
+    def on_flattr_button_clicked(self, widget=None):
+        None
 
     #############################################################
 
@@ -174,4 +183,26 @@ class gPodderShownotesBase(BuilderWidget):
 
         # Load the shownotes into the UI
         self.on_display_text()
+
+        # Set flattr information
+        flattr_badge = None
+        if self.episode.flattr_url:
+            flattrs, flattred = self._flattr.get_thing_info(self.episode.flattr_url)
+            flattrs_text = 'Flattrs: %i' % flattrs            
+            if not flattred and self._config.flattr.token:
+                flattr_badge = 'flattr-badge-color.png'
+                flattrs_text = flattrs_text + "\nNot Flattred"
+            elif not flattred and not self._config.flattr.token:
+                flattr_badge = 'flattr-badge-grey.png'
+                flattrs_text = flattrs_text + "\nNot Signed In"
+            elif flattred:
+                flattr_badge = 'flattr-badge-grey.png'
+                flattrs_text = flattrs_text + "\nFlattred"
+        else:
+            flattr_badge = 'flattr-badge-grey.png'
+            flattrs_text = 'Flattrs: NA\nNot Flattr information'
+                
+        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, flattr_badge))
+        self.flattr_image.set_from_pixbuf(pixbuf)
+        self.flattr_label.set_text(flattrs_text)
 
