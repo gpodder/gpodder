@@ -806,6 +806,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
+        
+        flattrcell = gtk.CellRendererPixbuf()
+        flattrcell.set_fixed_size(40, -1)
+        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)        
+        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, 'flattr_icon_color.png'))
+        flattrcell.set_property('pixbuf', pixbuf)
+        namecolumn.pack_start(flattrcell, False)
+        namecolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
 
         lockcell = gtk.CellRendererPixbuf()
         lockcell.set_fixed_size(40, -1)
@@ -813,14 +821,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lockcell.set_property('icon-name', 'emblem-readonly')
         namecolumn.pack_start(lockcell, False)
         namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
-        
-        flattrcell = gtk.CellRendererPixbuf()
-        flattrcell.set_fixed_size(40, 40)
-        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)        
-        flattrcolumn = gtk.TreeViewColumn(_('Flattr'), flattrcell)
-        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, 'flattr.png'))
-        flattrcell.set_property('pixbuf', pixbuf)
-        flattrcolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
 
         sizecell = gtk.CellRendererText()
         sizecell.set_property('xalign', 1)
@@ -839,7 +839,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_reorderable(True)
         self.treeAvailable.append_column(namecolumn)
 
-        for itemcolumn in (flattrcolumn, sizecolumn, timecolumn, releasecolumn):
+        for itemcolumn in (sizecolumn, timecolumn, releasecolumn):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
             TreeViewHelper.register_column(self.treeAvailable, itemcolumn)
@@ -3264,6 +3264,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_episode_shownotes(self, episode):
         if self.episode_shownotes_window is None:
             self.episode_shownotes_window = gPodderShownotes(self.gPodder, _config=self.config, \
+                    _flattr=self.flattr, \
                     _download_episode_list=self.download_episode_list, \
                     _playback_episodes=self.playback_episodes, \
                     _delete_episode_list=self.delete_episode_list, \
