@@ -759,6 +759,7 @@ class qtPodder(QObject):
 
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
+        self.tracker_miner_config = helper.TrackerMinerConfig()
         self.podcast_model = gPodderPodcastListModel()
         self.episode_model = gPodderEpisodeListModel(self.config)
         self.last_episode = None
@@ -786,6 +787,8 @@ class qtPodder(QObject):
         root_context.setContextProperty('configProxy', self.config_proxy)
         root_context.setContextProperty('mediaButtonsHandler',
                 self.media_buttons_handler)
+        root_context.setContextProperty('trackerMinerConfig',
+                self.tracker_miner_config)
 
         # Load the QML UI (this could take a while...)
         self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))

@@ -275,6 +275,7 @@ PageStackWindow {
 
         function loadSettings() {
             settingsAutorotate.checked = configProxy.autorotate
+            settingsIndexing.checked = trackerMinerConfig.get_index_podcasts()
 
             myGpoEnableSwitch.checked = controller.myGpoEnabled
             myGpoUsernameField.text = controller.myGpoUsername
@@ -327,6 +328,16 @@ PageStackWindow {
                         text: _('Automatic rotation')
                         onCheckedChanged: {
                             configProxy.autorotate = checked
+                        }
+                    }
+
+                    SettingsHeader { text: _('Media indexing') }
+
+                    SettingsSwitch {
+                        id: settingsIndexing
+                        text: _('Show podcasts in Music app')
+                        onCheckedChanged: {
+                            trackerMinerConfig.set_index_podcasts(checked)
                         }
                     }
 
