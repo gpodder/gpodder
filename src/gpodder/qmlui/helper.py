@@ -19,10 +19,14 @@
 
 import gpodder
 
+import os
+
 from gpodder import util
 
 from PySide import QtCore
 
+import logging
+logger = logging.getLogger(__name__)
 
 class Action(QtCore.QObject):
     def __init__(self, caption, action, target=None):
@@ -107,4 +111,69 @@ class MediaButtonsHandler(QtCore.QObject):
     pausePressed = QtCore.Signal()
     previousPressed = QtCore.Signal()
     nextPressed = QtCore.Signal()
+
+class TrackerMinerConfig(QtCore.QObject):
+    FILENAME = os.path.expanduser('~/.config/tracker/tracker-miner-fs.cfg')
+    SECTION = 'IgnoredDirectories'
+    ENTRY = '$HOME/MyDocs/gPodder/'
+
+    def __init__(self, filename=None):
+        QtCore.QObject.__init__(self)
+        self._filename = filename or TrackerMinerConfig.FILENAME
+        self._index_podcasts = self.get_index_podcasts()
+
+    @QtCore.Slot(result=bool)
+    def get_index_podcasts(self):
+        """
+        Returns True if the gPodder directory is indexed, False otherwise
+        """
+        if not os.path.exists(self._filename):
+            logger.warn('File does not exist: %s', self._filename)
+            return False
+
+        for line in open(self._filename, 'r'):
+            if line.startswith(TrackerMinerConfig.SECTION + '='):
+                return (TrackerMinerConfig.ENTRY not in line)
+
+    @QtCore.Slot(bool, result=bool)
+    def set_index_podcasts(self, index_podcasts):
+        """
+        If index_podcasts is True, make sure the gPodder directory is indexed
+        If index_podcasts is False, ignore the gPodder directory in Tracker
+        """
+        if not os.path.exists(self._filename):
+            logger.warn('File does not exist: %s', self._filename)
+            return False
+
+        if self._index_podcasts == index_podcasts:
+            # Nothing to do
+            return True
+
+        tmp_filename = self._filename + '.gpodder.tmp'
+
+        out = open(tmp_filename, 'w')
+        for line in open(self._filename, 'r'):
+            if line.startswith(TrackerMinerConfig.SECTION + '='):
+                _, rest = line.rstrip('\n').split('=', 1)
+                directories = filter(None, rest.split(';'))
+
+                if index_podcasts:
+                    if TrackerMinerConfig.ENTRY in directories:
+                        directories.remove(TrackerMinerConfig.ENTRY)
+                else:
+                    if TrackerMinerConfig.ENTRY not in directories:
+                        directories.append(TrackerMinerConfig.ENTRY)
+
+                line = '%(section)s=%(value)s;\n' % {
+                    'section': TrackerMinerConfig.SECTION,
+                    'value': ';'.join(directories),
+                }
+                logger.info('Writing new config line: %s', line)
+
+            out.write(line)
+        out.close()
+
+        os.rename(tmp_filename, self._filename)
+        self._index_podcasts = index_podcasts
+        return True
 
