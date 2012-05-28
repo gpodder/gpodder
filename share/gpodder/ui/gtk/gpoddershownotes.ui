@@ -58,9 +58,15 @@
                 <property name="spacing">2</property>
                 <property name="visible">True</property>
                 <child>
-                      <object class="GtkImage" id="flattr_image">
-                        <property name="visible">True</property>
-                      </object>
+                    <object class="GtkEventBox" id="flattr_image_events">
+                      <property name="visible">True</property>
+                      <signal handler="on_flattr_button_clicked" name="button-press-event"/>
+                      <child>
+                        <object class="GtkImage" id="flattr_image">
+                          <property name="visible">True</property>
+                        </object>
+                      </child>
+                    </object>
                 </child>
                 <child>
                   <object class="GtkLabel" id="flattr_label">
