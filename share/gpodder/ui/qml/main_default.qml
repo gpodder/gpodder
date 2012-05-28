@@ -75,6 +75,7 @@ PageStackWindow {
             ToolButton {
                 id: toolFilter
                 visible: mainObject.hasFilterButton
+                width: 300
                 onClicked: mainObject.showFilterDialog()
                 anchors.centerIn: parent
 
