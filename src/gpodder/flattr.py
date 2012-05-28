@@ -46,19 +46,19 @@ class Flattr(object):
         return headers
 
     def _flattr_get_request(self, url):
-        response, content = self.http.request(url, headers=self.__get_headers())        
+        response, content = self.http.request(url, headers=self.__get_headers())
         if response['status'] == '200':
             return json.loads(content)
         return {}
         
-    def get_callback_uri(self):
+    def get_callback_url(self):
         return CALLBACK
         
-    def get_auth_uri(self):
+    def get_auth_url(self):
         return 'https://flattr.com/oauth/authorize?scope=%s&response_type=code&client_id=%s&redirect_uri=%s' % (SCOPE, KEY, CALLBACK)
         
     def request_access_token(self, code):
-        url = 'https://flattr.com/oauth/token'
+        request_url = 'https://flattr.com/oauth/token'
 
         self.http.add_credentials(KEY, SECRET)
         params = {
@@ -66,28 +66,56 @@ class Flattr(object):
             'grant_type': 'authorization_code',
             'redirect_uri': CALLBACK
         }
-        response, content = self.http.request(url, 'POST',
+        response, content = self.http.request(request_url, 'POST',
             json.dumps(params), headers={'Content-Type': 'application/json'})
         content = json.loads(content)
-        if response['status'] == '200' and content.has_key('access_token'):
-            return content['access_token']
+        
+        if response['status'] == '200':
+            return content.get('access_token', '')
 
         return ''
 
     def get_thing_info(self, url):
-        uri = 'https://api.flattr.com/rest/v2/things/lookup/?url=%s' % url
+        request_url = 'https://api.flattr.com/rest/v2/things/lookup/?url=%s' % url
+        thingdata = {}
         
-        thingdata = self._flattr_get_request(uri)
+        if self._config.flattr.token:
+            thingdata = self._flattr_get_request(request_url)
+            
         flattrs = int(thingdata.get('flattrs', 0))
-        flattred = bool(thingdata.get('flattred', False))        
-
+        flattred = bool(thingdata.get('flattred', None))
         return flattrs, flattred
         
     def get_auth_username(self):
-        uri = 'https://api.flattr.com/rest/v2/user'
+        request_url = 'https://api.flattr.com/rest/v2/user'
         
         if self._config.token:
-            userdata = self._flattr_get_request(uri)    
+            userdata = self._flattr_get_request(request_url)    
             return userdata.get('username', '?')
 
         return ''
+
+    def flattr_url(self, url):
+        request_url = 'https://api.flattr.com/rest/v2/flattr'
+        params = {
+            'url': url
+        }
+        
+        response, content = self.http.request(request_url, 'POST',
+            json.dumps(params), headers=self.__get_headers())
+        content = json.loads(content)
+            
+        if response['status'] == '200':
+            return content.get('description', '?')
+            
+        elif response['status'] == '401':
+            return "Current user don't have enough means to flattr"
+            
+        elif response['status'] == '403':
+            return "The current user have already flattred the thing or the user is the owner of the thing"
+            
+        elif response['status'] == '403':
+            return "Thing does not exist"
+            
+        else:
+            return "Request is not valid"
