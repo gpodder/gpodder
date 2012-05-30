@@ -70,9 +70,9 @@ class gPodderFlattrSignIn(BuilderWidget):
             self.web = webkit.WebView()
             self.web.connect('resource-request-starting', self.on_web_request)            
             
-            auth_uri = self.flattr.get_auth_uri()
-            logger.info(auth_uri)
-            self.web.open(auth_uri)
+            auth_url = self.flattr.get_auth_url()
+            logger.info(auth_url)
+            self.web.open(auth_url)
             
             self.scrolledwindow_web.add(self.web)
             self.web.show()
@@ -82,7 +82,7 @@ class gPodderFlattrSignIn(BuilderWidget):
 
     def on_web_request(self, web_view, web_frame, web_resource, request, response):
         uri = request.get_uri()
-        if uri.startswith(self.flattr.get_callback_uri()):
+        if uri.startswith(self.flattr.CALLBACK):
             logger.info('callback-uri: %s' % uri)
             dummy, code = uri.split('=')
             self._config.flattr.token = self.flattr.request_access_token(code)

@@ -18,7 +18,6 @@
 #
 
 import gtk
-import os
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ _ = gpodder.gettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
-
+from gpodder.gtkui.draw import draw_flattr_button
 
 class gPodderShownotesBase(BuilderWidget):
     def new(self):
@@ -94,29 +93,26 @@ class gPodderShownotesBase(BuilderWidget):
     #############################################################
     
     def set_flattr_information(self):
-        flattr_badge = 'flattr-badge-grey.png'
-        flattrs_text = 'Flattrs: NA\nNot Flattr information'
         if self.episode.flattr_url:
             flattrs, flattred = self._flattr.get_thing_info(self.episode.flattr_url)
-            flattrs_text = 'Flattrs: %i' % flattrs            
-            if flattred is None:
-                flattr_badge = 'flattr-badge-grey.png'
-                flattrs_text = flattrs_text + "\nNot Signed In"                
+        
+            if flattred is None or not self._config.flattr.token:
+                flattr_badge = self._flattr.IMAGE_FLATTR_GREY
+                self.flattr_possible = False            
             elif flattred:
-                flattr_badge = 'flattr-badge-grey.png'
-                flattrs_text = flattrs_text + "\nFlattred"
+                flattr_badge = self._flattr.IMAGE_FLATTRED
+                self.flattr_possible = False
             else:
-                flattr_badge = 'flattr-badge-color.png'
-                flattrs_text = flattrs_text + "\nNot Flattred"
-                
-        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, flattr_badge))
-        self.flattr_image.set_from_pixbuf(pixbuf)
-        self.flattr_label.set_text(flattrs_text)
+                flattr_badge = self._flattr.IMAGE_FLATTR
+                self.flattr_possible = True
+            
+            draw_flattr_button(self.flattr_image, flattr_badge, flattrs)
         
     def on_flattr_button_clicked(self, widget, event):
-        status = self._flattr.flattr_url(self.episode.flattr_url)
-        self.show_message(status, title='Flattr-Status')
-        self.set_flattr_information()
+        if self.flattr_possible:
+            status = self._flattr.flattr_url(self.episode.flattr_url)
+            self.show_message(status, title='Flattr-Status')
+            self.set_flattr_information()
 
     #############################################################
 
