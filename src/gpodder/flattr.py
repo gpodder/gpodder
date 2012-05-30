@@ -23,18 +23,25 @@
 #  Bernd Schlapsi <brot@gmx.info>   2012-05-26
 #
 
-import json
 import httplib2
+import json
+import os.path
 
 import logging
 logger = logging.getLogger(__name__)
 
+import gpodder
+
 KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
 SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
-CALLBACK = 'gpodder://flattr-token/'
 SCOPE = 'flattr'
 
 class Flattr(object):
+    CALLBACK = 'gpodder://flattr-token/'
+    IMAGE_FLATTR = os.path.join(gpodder.images_folder, 'button-flattr.png')
+    IMAGE_FLATTR_GREY = os.path.join(gpodder.images_folder, 'button-flattr-grey.png')
+    IMAGE_FLATTRED = os.path.join(gpodder.images_folder, 'button-flattred.png')
+
     def __init__(self, config):
         self._config = config
         self.http = httplib2.Http()
@@ -51,11 +58,8 @@ class Flattr(object):
             return json.loads(content)
         return {}
         
-    def get_callback_url(self):
-        return CALLBACK
-        
     def get_auth_url(self):
-        return 'https://flattr.com/oauth/authorize?scope=%s&response_type=code&client_id=%s&redirect_uri=%s' % (SCOPE, KEY, CALLBACK)
+        return 'https://flattr.com/oauth/authorize?scope=%s&response_type=code&client_id=%s&redirect_uri=%s' % (SCOPE, KEY, self.CALLBACK)
         
     def request_access_token(self, code):
         request_url = 'https://flattr.com/oauth/token'
@@ -64,7 +68,7 @@ class Flattr(object):
         params = {
             'code': code,
             'grant_type': 'authorization_code',
-            'redirect_uri': CALLBACK
+            'redirect_uri': self.CALLBACK
         }
         response, content = self.http.request(request_url, 'POST',
             json.dumps(params), headers={'Content-Type': 'application/json'})

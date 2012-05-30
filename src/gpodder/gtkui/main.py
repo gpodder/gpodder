@@ -807,10 +807,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
         
+        if self.config.flattr.token:
+            flattr_icon = 'flattr_icon_color.png'
+        else:
+            flattr_icon = 'flattr_icon_grey.png'
         flattrcell = gtk.CellRendererPixbuf()
         flattrcell.set_fixed_size(40, -1)
-        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)        
-        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, 'flattr_icon_color.png'))
+        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
+        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, flattr_icon))
         flattrcell.set_property('pixbuf', pixbuf)
         namecolumn.pack_start(flattrcell, False)
         namecolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
