@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Optification - remove symlinks created by postinst
+
+SYMLINKS=/opt/gpodder/optification.symlinks
+
+if [ -f $SYMLINKS ]; then
+    for file in $(cat $SYMLINKS); do
+        if [ -L $file ]; then
+            echo "Removing symlink: $file"
+            rm -f $file
+        fi
+    done
+fi
+
+echo "Removing: $SYMLINKS"
+rm -f $SYMLINKS
+

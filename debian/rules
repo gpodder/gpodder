@@ -17,6 +17,10 @@ SETUP		= GPODDER_INSTALL_UIS="cli qml" $(PYTHON) setup.py
 PACKAGE		= gpodder
 DESTDIR		= debian/$(PACKAGE)
 PREFIX		= usr
+OPTDIR          = opt/gpodder
+
+ORG_DIST_PACKAGES = $(PREFIX)/lib/$(PYTHON)/dist-packages
+OPT_DIST_PACKAGES = $(OPTDIR)/lib/$(PYTHON)/dist-packages
 
 configure: configure-stamp
 configure-stamp:
@@ -47,6 +51,17 @@ install: build
 	dh_clean -k
 	dh_installdirs
 	${SETUP} install --no-compile --install-layout=deb --root='$(DESTDIR)' --prefix='$(PREFIX)'
+	# Optification
+	mkdir -p $(DESTDIR)/$(OPTDIR)/share
+	mv $(DESTDIR)/$(PREFIX)/share/{gpodder,locale,man} $(DESTDIR)/$(OPTDIR)/share/
+	mkdir -p $(DESTDIR)/$(OPT_DIST_PACKAGES)
+	rm -f $(DESTDIR)/$(ORG_DIST_PACKAGES)/gpodder-?.?.?.egg-info
+	mv $(DESTDIR)/$(ORG_DIST_PACKAGES)/* $(DESTDIR)/$(OPT_DIST_PACKAGES)/
+	mkdir -p $(DESTDIR)/$(OPTDIR)/bin
+	mv $(DESTDIR)/$(PREFIX)/bin/* $(DESTDIR)/$(OPTDIR)/bin/
+	mv $(DESTDIR)/$(PREFIX)/share/pixmaps/gpodder.png $(DESTDIR)/$(OPTDIR)/gpodder.png
+	rm -rf $(DESTDIR)/$(PREFIX)/share/{icons,pixmaps}/
+	rm -rf $(DESTDIR)/$(PREFIX)/{bin,lib}/
 
 binary-arch:
 

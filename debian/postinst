@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Optification - link stuff into /usr here
+
+SYMLINKS=/opt/gpodder/optification.symlinks
+
+rm -f $SYMLINKS
+
+link_to() {
+    DESTDIR=$1
+    shift
+
+    mkdir -p $DESTDIR
+    echo "Symlinking files to $DESTDIR"
+    for file in $*; do
+        echo " $file"
+        ln -sf $file $DESTDIR
+        echo $DESTDIR/$(basename $file) >>$SYMLINKS
+    done
+}
+
+link_to /usr/bin /opt/gpodder/bin/*
+link_to /usr/share /opt/gpodder/share/gpodder
+link_to /usr/share/man/man1 /opt/gpodder/share/man/man1/*
+link_to /usr/lib/python2.6/dist-packages/ /opt/gpodder/lib/python2.6/dist-packages/*
+
+echo -n "Symlinking languages:"
+for lang in /opt/gpodder/share/locale/*; do
+    echo -n " $(basename $lang)"
+    mkdir -p /usr/share/locale/$(basename $lang)/LC_MESSAGES
+    ln -sf $lang/LC_MESSAGES/gpodder.mo /usr/share/locale/$(basename $lang)/LC_MESSAGES/
+    echo /usr/share/locale/$(basename $lang)/LC_MESSAGES/gpodder.mo >> $SYMLINKS
+done
+echo " - OK"
+
