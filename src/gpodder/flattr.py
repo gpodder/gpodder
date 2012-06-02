@@ -36,6 +36,9 @@ KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
 SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
 SCOPE = 'flattr'
 
+if not gpodder.images_folder:
+    gpodder.images_folder = ''
+
 class Flattr(object):
     CALLBACK = 'gpodder://flattr-token/'
     IMAGE_FLATTR = os.path.join(gpodder.images_folder, 'button-flattr.png')
