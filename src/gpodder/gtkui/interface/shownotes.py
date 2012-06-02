@@ -98,15 +98,20 @@ class gPodderShownotesBase(BuilderWidget):
         
             if flattred is None or not self._config.flattr.token:
                 flattr_badge = self._flattr.IMAGE_FLATTR_GREY
-                self.flattr_possible = False            
+                self.flattr_possible = False
+                tooltip_text = "Please Sign In"
             elif flattred:
                 flattr_badge = self._flattr.IMAGE_FLATTRED
                 self.flattr_possible = False
+                tooltip_text = "Already flattred"
             else:
                 flattr_badge = self._flattr.IMAGE_FLATTR
                 self.flattr_possible = True
+                tooltip_text = "Please click to flattr"
             
             draw_flattr_button(self.flattr_image, flattr_badge, flattrs)
+            tooltips = gtk.Tooltips()
+            tooltips.set_tip(self.flattr_image, tooltip_text, tip_private=None)
         
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:

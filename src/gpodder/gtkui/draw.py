@@ -325,10 +325,7 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
     layout.set_font_description(font_desc)
     fwidth, fheight = layout.get_pixel_size()
 
-    # works for me with the logo in the size 152x40
-    x_values = {1: 89, 2: 86, 3: 82, 4: 79, 5: 76}    
-    #x_values = {1: 80, 2: 85, 3: 88, 4: 90, 5: 95} logo-size: 152x40    
-    x = x_values[len(flattrs_count)]
+    x = 95 - abs(fwidth / 2) # 95 is the center of the bubble
     y = abs(iheight / 2) - abs(fheight / 2)
     
     cm = pixmap.get_colormap()
