@@ -772,7 +772,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
+        self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -807,16 +807,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
         
-        if self.config.flattr.token:
-            flattr_icon = 'flattr_icon_color.png'
-        else:
-            flattr_icon = 'flattr_icon_grey.png'
         flattrcell = gtk.CellRendererPixbuf()
         flattrcell.set_fixed_size(40, -1)
         flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, flattr_icon))
-        flattrcell.set_property('pixbuf', pixbuf)
         namecolumn.pack_start(flattrcell, False)
+        namecolumn.add_attribute(flattrcell, 'pixbuf', EpisodeListModel.C_ICON_FLATTR)
         namecolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
 
         lockcell = gtk.CellRendererPixbuf()
@@ -1847,6 +1842,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
+                    
+            # flattr episode if auto-flattr is enabled
+            if self.config.flattr.token and self.config.flattr.autoflattr:
+                status = self.flattr.flattr_url(episode.flattr_url)
+                self.show_message(status, title=_('Flattr-Status'))
 
             groups[player].append(filename)
 
@@ -2912,11 +2912,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         gPodderChannel(self.main_window,
-                channel=self.active_channel,
+                channel=self.active_channel,                
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
                 sections=set(c.section for c in self.channels),
-                clear_cover_cache=self.podcast_list_model.clear_cover_cache)
+                clear_cover_cache=self.podcast_list_model.clear_cover_cache,
+                _config=self.config,
+                _flattr=self.flattr)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (
