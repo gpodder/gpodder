@@ -66,14 +66,15 @@ class gPodderFlattrSignIn(BuilderWidget):
     def new(self):
         try:
             import webkit
-            
+
             self.web = webkit.WebView()
-            self.web.connect('resource-request-starting', self.on_web_request)            
-            
+            self.web.connect('resource-request-starting', self.on_web_request)
+            self.main_window.connect('destroy', self.set_flattr_preferences)
+
             auth_url = self.flattr.get_auth_url()
             logger.info(auth_url)
             self.web.open(auth_url)
-            
+
             self.scrolledwindow_web.add(self.web)
             self.web.show()
         except ImportError:
@@ -86,13 +87,9 @@ class gPodderFlattrSignIn(BuilderWidget):
             logger.info('callback-uri: %s' % uri)
             dummy, code = uri.split('=')
             self._config.flattr.token = self.flattr.request_access_token(code)
-            
-            # at the moment destroying the window results in a core dump, so we have
-            # to save the configuration data so the access token is stored correctly
-            # for the next start of gPodder
-            self._config.save()
-            
-            self.gPodderFlattrSignIn.destroy()
+
+            # Destroy the window later
+            util.idle_add(self.main_window.destroy)
 
 
 class gPodderPreferences(BuilderWidget):
@@ -198,7 +195,7 @@ class gPodderPreferences(BuilderWidget):
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
         
-    def set_flattr_preferences(self):
+    def set_flattr_preferences(self, widget=None):
         if not self._config.flattr.token:
             self.label_flattr.set_text('Please sign in with Flattr and Support Publishers')
             self.button_flattr_login.set_label('Sign in')
@@ -206,14 +203,17 @@ class gPodderPreferences(BuilderWidget):
             flattr_user = self.flattr.get_auth_username()
             self.label_flattr.set_text('You are flattring as %s' % flattr_user)
             self.button_flattr_login.set_label('Sign out')
-        
+
     def on_button_flattr_login(self, widget):
         if not self._config.flattr.token:
-            gPodderFlattrSignIn(self.parent_window, _config=self._config, flattr=self.flattr)
+            gPodderFlattrSignIn(self.parent_window,
+                    _config=self._config,
+                    flattr=self.flattr,
+                    set_flattr_preferences=self.set_flattr_preferences)
         else:
             self._config.flattr.token = ''
-        self.set_flattr_preferences()
-        
+            self.set_flattr_preferences()
+
     def on_check_autoflattr(self, widget):
         self._config.flattr.autoflattr = widget.get_active()
 
