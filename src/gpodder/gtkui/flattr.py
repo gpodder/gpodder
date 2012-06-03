@@ -36,17 +36,15 @@ ICON_FLATTR_GREY = os.path.join(gpodder.images_folder, 'flattr_icon_grey.png')
 
 
 def set_flattr_button(cls, url, token, widget):
-    flattr_possible = None
+    flattr_possible = False
     if url:
         flattrs, flattred = cls.get_thing_info(url)
     
         if flattred is None or not token:
             flattr_badge = IMAGE_FLATTR_GREY
-            flattr_possible = False
             tooltip_text = _('Please sign in')
         elif flattred:
             flattr_badge = IMAGE_FLATTRED
-            flattr_possible = False
             tooltip_text = _('Already flattred')
         else:
             flattr_badge = IMAGE_FLATTR

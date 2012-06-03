@@ -178,18 +178,18 @@ class gPodderChannel(BuilderWidget):
                 sections_changed=section_changed)
 
     def set_flattr_information(self):
-        self.flattr_possible = flattr.set_flattr_button(
-            self._flattr, 
-            self.channel.flattr_url,
-            self._config.flattr.token,
-            self.flattr_image
-        )
-        if self.flattr_possible is None:
-            self.label_flattr_info.set_visible(True)
-            self.flattr_image.set_visible(False)
-        else:
+        if self.channel.flattr_url:
+            self.flattr_possible = flattr.set_flattr_button(
+                self._flattr, 
+                self.channel.flattr_url,
+                self._config.flattr.token,
+                self.flattr_image
+            )
             self.label_flattr_info.set_visible(False)
             self.flattr_image.set_visible(True)
+        else:
+            self.label_flattr_info.set_visible(True)
+            self.flattr_image.set_visible(False)
 
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
