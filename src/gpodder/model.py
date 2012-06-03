@@ -228,7 +228,7 @@ class PodcastEpisode(PodcastModelObject):
         filter_and_sort_enclosures = lambda x: x
         
         # read the flattr auto-url, if exists
-        linkinfo = [link['href'] for link in feed.feed.get('links', [])
+        linkinfo = [link['href'] for link in entry.get('links', [])
             if link['rel'] == 'payment' and 'flattr.com' in link['href']]
         if linkinfo:
             episode.flattr_url = linkinfo[0]
