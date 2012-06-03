@@ -80,12 +80,12 @@ msgstr "Pro tento doplněk není dostupný popis."
 #: src/gpodder/extensions.py:162
 #, python-format
 msgid "Command not found: %(command)s"
-msgstr ""
+msgstr "Příkaz %(command)s nebyl nalezen"
 
 #: src/gpodder/extensions.py:199
 #, python-format
 msgid "Python module not found: %(module)s"
-msgstr ""
+msgstr "Python modul %(module)s nebyl nalezen"
 
 #: src/gpodder/model.py:479 src/gpodder/plugins/soundcloud.py:155
 msgid "No description available"
@@ -406,7 +406,7 @@ msgstr "Aktualizovat podcast"
 
 #: src/gpodder/gtkui/main.py:1523
 msgid "Open download folder"
-msgstr ""
+msgstr "Otevřít složku pro stahování"
 
 #: src/gpodder/gtkui/main.py:1529 src/gpodder/qmlui/__init__.py:326
 msgid "Mark episodes as old"
@@ -811,34 +811,34 @@ msgstr "Export do OPML selhal"
 
 #: src/gpodder/gtkui/main.py:3078
 msgid "No updates available"
-msgstr ""
+msgstr "Žádné aktualizace nejsou k dispozici"
 
 #: src/gpodder/gtkui/main.py:3079
 msgid "You have the latest version of gPodder."
-msgstr ""
+msgstr "Máte poslední verzi gPodderu."
 
 #: src/gpodder/gtkui/main.py:3083
 msgid "New version available"
-msgstr ""
+msgstr "Je k dispozici nová verze"
 
 #: src/gpodder/gtkui/main.py:3085
 #, python-format
 msgid "Installed version: %s"
-msgstr ""
+msgstr "Nainstalovaná verze: %s"
 
 #: src/gpodder/gtkui/main.py:3086
 #, python-format
 msgid "Newest version: %s"
-msgstr ""
+msgstr "Nejnovější verze: %s"
 
 #: src/gpodder/gtkui/main.py:3087
 #, python-format
 msgid "Release date: %s"
-msgstr ""
+msgstr "Datum vydání: %s"
 
 #: src/gpodder/gtkui/main.py:3089
 msgid "Download the latest version from gpodder.org?"
-msgstr ""
+msgstr "Stáhnout nejnovější verzi z gpodder.org?"
 
 #: src/gpodder/gtkui/main.py:3102 share/gpodder/ui/qml/main_default.qml:115
 msgid "About gPodder"
@@ -1117,7 +1117,7 @@ msgstr "Jméno"
 
 #: src/gpodder/gtkui/desktop/preferences.py:182
 msgid "Extension cannot be activated"
-msgstr ""
+msgstr "Rozšíření nemůže být aktivováno"
 
 #: src/gpodder/gtkui/desktop/preferences.py:197
 msgid "Extension module info"
@@ -1158,6 +1158,8 @@ msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
+"Podcasty na serveru, které nejsou v místním seznamu, budou smazány. "
+"Pokračovat?"
 
 #: src/gpodder/gtkui/desktop/shownotes.py:110
 #: src/gpodder/qmlui/__init__.py:899
@@ -1287,93 +1289,93 @@ msgstr "Stopy publikoval %s na Soundcloudu"
 #: src/gpodder/plugins/soundcloud.py:216
 #, python-format
 msgid "%s's favorites on Soundcloud"
-msgstr ""
+msgstr "Oblíbené od %s na Soundcloud"
 
 #: src/gpodder/plugins/soundcloud.py:222
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
-msgstr ""
+msgstr "Sledovat oblíbené %s na Soundcloud."
 
 #: share/gpodder/extensions/flv2mp4.py:23
 msgid "Convert .flv files from YouTube to .mp4"
-msgstr ""
+msgstr "Převést .flv soubory z YouTube na .mp4"
 
 #: share/gpodder/extensions/flv2mp4.py:24
 msgid "Useful for playing downloaded videos on hardware players"
-msgstr ""
+msgstr "Vhodné pro přehrávání stažených videí na mp4 přehrávačích"
 
 #: share/gpodder/extensions/flv2mp4.py:56
 msgid "Convert FLV to MP4"
-msgstr ""
+msgstr "Převést FLV na MP4"
 
 #: share/gpodder/extensions/m4a_converter.py:19
 msgid "Convert M4A audio to MP3 or OGG"
-msgstr ""
+msgstr "Převést M4A na MP3 nebo OGG"
 
 #: share/gpodder/extensions/m4a_converter.py:20
 msgid "Transcode .m4a files to .mp3 or .ogg using ffmpeg"
-msgstr ""
+msgstr "Převést .mp4a soubory na .mp3 nebo .ogg za použití ffmpeg"
 
 #: share/gpodder/extensions/m4a_converter.py:53
 #, python-format
 msgid "Convert to %(format)s"
-msgstr ""
+msgstr "Převést na %(format)s"
 
 #: share/gpodder/extensions/m4a_converter.py:77
 msgid "File converted"
-msgstr ""
+msgstr "Soubor převeden"
 
 #: share/gpodder/extensions/m4a_converter.py:80
 msgid "Conversion failed"
-msgstr ""
+msgstr "Při převodu došlo k chybě"
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
-msgstr ""
+msgstr "Normalizovat audio"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
-msgstr ""
+msgstr "Normalizovat úroveň hlasitosti"
 
 #: share/gpodder/extensions/normalize_audio.py:83
 msgid "File normalized"
-msgstr ""
+msgstr "Normalizace proběhla"
 
 #: share/gpodder/extensions/rename_download.py:16
 msgid "Rename episodes after download"
-msgstr ""
+msgstr "Po stažení přejmenovat epizody"
 
 #: share/gpodder/extensions/rename_download.py:17
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr ""
+msgstr "Po stažení přejmenovat epizody na \"<Název epizody>.<přípona>\""
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
-msgstr ""
+msgstr "Odstranit přebal z OGG souborů"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:38
 msgid "removes coverart from all downloaded ogg files"
-msgstr ""
+msgstr "Odstraní přebaly ze všech stažených ogg souborů"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:63
 msgid "Remove cover art"
-msgstr ""
+msgstr "Odstranit přebal"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
-msgstr ""
+msgstr "Převést video soubory do MP4 pro Rockbox"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:27
 msgid "Converts all videos to a Rockbox-compatible format"
-msgstr ""
+msgstr "Převede všechna videa na Rockbox kompatibilní formát"
 
 #: share/gpodder/extensions/tagging.py:38
 msgid "Tag downloaded files using Mutagen"
-msgstr ""
+msgstr "Označit stažené soubory pomocí Mutagen"
 
 #: share/gpodder/extensions/tagging.py:39
 msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr ""
+msgstr "Přidat názvy epizod a podcastů do MP3/OGG tagů"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:10
 msgid "Ubuntu App Indicator"
@@ -1635,7 +1637,7 @@ msgstr "Přepnout na nový status"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:24
 msgid "Change delete lock"
-msgstr ""
+msgstr "Přepnout příznak smazání"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:26
 msgid "_View"
@@ -1683,7 +1685,7 @@ msgstr "Uživatelský návod"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:38
 msgid "Software updates"
-msgstr ""
+msgstr "Softwarové aktualizace"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:39
 msgid "Filter:"
@@ -1707,15 +1709,15 @@ msgstr "Omezit počet stahování na"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
 msgid "Getting started"
-msgstr ""
+msgstr "Úvodem"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
-msgstr ""
+msgstr "<big>Vítejte v gPodderu</big>"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
 msgid "Your podcast list is empty."
-msgstr ""
+msgstr "Seznam podcastů je prázdný."
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
 msgid "Choose from a list of example podcasts"
@@ -1723,11 +1725,11 @@ msgstr "Vybrat ze seznamu ukázkových podcastů"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
 msgid "Add a podcast by entering its URL"
-msgstr ""
+msgstr "Přidejte podcast zadáním jeho URL"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
 msgid "Restore my subscriptions from gpodder.net"
-msgstr ""
+msgstr "Obnovit mé odběry z gpodder.net"
 
 #: share/gpodder/ui/qml/EpisodeActions.qml:50
 msgid "Shownotes"
@@ -1739,7 +1741,7 @@ msgstr "Žádné epizody"
 
 #: share/gpodder/ui/qml/EpisodeList.qml:35
 msgid "Touch to change filter"
-msgstr ""
+msgstr "Dotykem změníte filtr"
 
 #: share/gpodder/ui/qml/EpisodeList.qml:119
 msgid "Show episodes"
@@ -1756,15 +1758,15 @@ msgstr "Nastavení"
 
 #: share/gpodder/ui/qml/main_default.qml:136
 msgid "Playlist empty"
-msgstr ""
+msgstr "Seznam k přehrání je prázdný"
 
 #: share/gpodder/ui/qml/main_default.qml:141
 msgid "Download episodes"
-msgstr ""
+msgstr "Stažené epizody"
 
 #: share/gpodder/ui/qml/main_default.qml:148
 msgid "Playback episodes"
-msgstr ""
+msgstr "Přehrát epizody"
 
 #: share/gpodder/ui/qml/main_default.qml:222
 msgid "About"
@@ -1776,11 +1778,11 @@ msgstr "Poděkování"
 
 #: share/gpodder/ui/qml/main_default.qml:257
 msgid "Credits"
-msgstr ""
+msgstr "Zásluhy"
 
 #: share/gpodder/ui/qml/main_default.qml:321
 msgid "gPodder settings"
-msgstr ""
+msgstr "Nastavení gPodderu"
 
 #: share/gpodder/ui/qml/main_default.qml:325
 msgid "Screen orientation"
@@ -1821,11 +1823,11 @@ msgstr "Kontextové menu"
 
 #: share/gpodder/ui/qml/Main.qml:607
 msgid "Select downloaded"
-msgstr ""
+msgstr "Vybrat stažené"
 
 #: share/gpodder/ui/qml/Main.qml:627
 msgid "Invert selection"
-msgstr ""
+msgstr "Obrátit výběr"
 
 #: share/gpodder/ui/qml/MediaPlayer.qml:191
 #: share/gpodder/ui/qml/MediaPlayer.qml:239
@@ -1876,7 +1878,7 @@ msgstr "Seznam nejlepších"
 
 #: share/gpodder/ui/qml/Subscribe.qml:310
 msgid "My gpodder.net"
-msgstr ""
+msgstr "Můj gpodder.net"
 
 #: share/gpodder/ui/qml/Subscribe.qml:310
 msgid "Examples"
@@ -1919,7 +1921,7 @@ msgstr "Tato možnost nastavení neexistuje."
 
 #: bin/gpo:330
 msgid "Can only set leaf configuration nodes."
-msgstr ""
+msgstr "Lze nastavit jen koncové větve konfigurace."
 
 #: bin/gpo:341 bin/gpo:358 bin/gpo:386 bin/gpo:504 bin/gpo:517 bin/gpo:602
 #, python-format
@@ -1956,16 +1958,16 @@ msgstr "Přeskakování %(podcast)s"
 #: bin/gpo:508
 #, python-format
 msgid "Disabling feed update from %s."
-msgstr ""
+msgstr "Zakázána aktualizace kanálu z %s"
 
 #: bin/gpo:521
 #, python-format
 msgid "Enabling feed update from %s."
-msgstr ""
+msgstr "Povolena aktualizace kanálu z %s"
 
 #: bin/gpo:536
 msgid "Listening on ALL network interfaces."
-msgstr ""
+msgstr "Naslouchá se na VŠECH síťových rozhraních."
 
 #: bin/gpo:557
 msgid "No podcasts found."
@@ -1973,7 +1975,7 @@ msgstr "Nebyly nalezeny žádné podcasty"
 
 #: bin/gpo:571
 msgid "Enter index to subscribe, ? for list"
-msgstr ""
+msgstr "Pro přihlášení zadejte pořadové číslo, ? vypíše seznam"
 
 #: bin/gpo:585 bin/gpo:589
 msgid "Invalid value."
@@ -2021,7 +2023,7 @@ msgstr "Odebírat ze zadané URL adresy"
 
 #: bin/gpodder:124
 msgid "Mac OS X application process number"
-msgstr ""
+msgstr "Mac OS X: číslo procesu"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
