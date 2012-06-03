@@ -197,12 +197,14 @@ class gPodderPreferences(BuilderWidget):
         
     def set_flattr_preferences(self, widget=None):
         if not self._config.flattr.token:
-            self.label_flattr.set_text('Please sign in with Flattr and Support Publishers')
-            self.button_flattr_login.set_label('Sign in')
+            self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
+            self.button_flattr_login.set_label(_('Sign in'))
         else:
             flattr_user = self.flattr.get_auth_username()
-            self.label_flattr.set_text('You are flattring as %s' % flattr_user)
-            self.button_flattr_login.set_label('Sign out')
+            self.label_flattr.set_markup(_('You are flattring as <b>%s</b>') % flattr_user)
+            self.button_flattr_login.set_label(_('Sign out'))
+            
+        self.checkbutton_autoflattr.set_active(self._config.flattr.autoflattr)
 
     def on_button_flattr_login(self, widget):
         if not self._config.flattr.token:

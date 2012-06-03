@@ -36,6 +36,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
+from gpodder.gtkui.flattr import get_flattr_icon
 
 import os
 import gtk
@@ -111,7 +112,7 @@ class EpisodeListModel(gtk.ListStore):
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
-            C_LOCKED, C_VIEW_FLATTR = range(18)
+            C_LOCKED, C_VIEW_FLATTR, C_ICON_FLATTR = range(19)
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
@@ -121,11 +122,14 @@ class EpisodeListModel(gtk.ListStore):
     # Steps for the "downloading" icon progress
     PROGRESS_STEPS = 20
 
-    def __init__(self, on_filter_changed=lambda has_episodes: None):
+    def __init__(self, config, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, int, str, bool, int, bool, bool)
+                gobject.TYPE_INT64, int, str, bool, int, bool, bool,
+                gtk.gdk.Pixbuf)
 
+        self._config = config
+        
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
         self._on_filter_changed = on_filter_changed
@@ -287,7 +291,8 @@ class EpisodeListModel(gtk.ListStore):
                     bool(episode.total_time), \
                     episode.total_time, \
                     episode.archive, \
-                    episode.flattr_exists()))
+                    episode.flattr_exists(), \
+                    get_flattr_icon(self._config.flattr.token)))
 
             self.update_by_iter(iter, include_description)
 
@@ -419,7 +424,8 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_LOCKED, episode.archive, \
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                 self.C_FILESIZE, episode.file_size, \
-                self.C_VIEW_FLATTR, episode.flattr_exists())
+                self.C_VIEW_FLATTR, episode.flattr_exists(),
+                self.C_ICON_FLATTR, get_flattr_icon(self._config.flattr.token))
 
 
 class PodcastChannelProxy(object):

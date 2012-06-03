@@ -32,18 +32,15 @@ logger = logging.getLogger(__name__)
 
 import gpodder
 
+_ = gpodder.gettext
+
 KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
 SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
 SCOPE = 'flattr'
 
-if not gpodder.images_folder:
-    gpodder.images_folder = ''
 
 class Flattr(object):
     CALLBACK = 'gpodder://flattr-token/'
-    IMAGE_FLATTR = os.path.join(gpodder.images_folder, 'button-flattr.png')
-    IMAGE_FLATTR_GREY = os.path.join(gpodder.images_folder, 'button-flattr-grey.png')
-    IMAGE_FLATTRED = os.path.join(gpodder.images_folder, 'button-flattred.png')
 
     def __init__(self, config):
         self._config = config
@@ -116,13 +113,13 @@ class Flattr(object):
             return content.get('description', '?')
             
         elif response['status'] == '401':
-            return "Current user don't have enough means to flattr"
+            return _('Current user do not have enough means to flattr')
             
         elif response['status'] == '403':
-            return "The current user have already flattred the thing or the user is the owner of the thing"
+            return _('The current user have already flattred the thing or the user is the owner of the thing')
             
         elif response['status'] == '403':
-            return "Thing does not exist"
+            return _('Thing does not exist')
             
         else:
-            return "Request is not valid"
+            return _('Request is not valid')
