@@ -25,7 +25,7 @@ import gpodder
 
 _ = gpodder.gettext
 
-from gpodder.gtkui.draw import draw_flattr_button
+from gpodder.gtkui import draw
 
 
 IMAGE_FLATTR = os.path.join(gpodder.images_folder, 'button-flattr.png')
@@ -43,7 +43,7 @@ def set_flattr_button(cls, url, token, widget):
         if flattred is None or not token:
             flattr_badge = IMAGE_FLATTR_GREY
             flattr_possible = False
-            tooltip_text = _('Please Sign In')
+            tooltip_text = _('Please sign in')
         elif flattred:
             flattr_badge = IMAGE_FLATTRED
             flattr_possible = False
@@ -51,9 +51,9 @@ def set_flattr_button(cls, url, token, widget):
         else:
             flattr_badge = IMAGE_FLATTR
             flattr_possible = True
-            tooltip_text = _('Please click to flattr')
+            tooltip_text = _('Flattr this')
         
-        draw_flattr_button(widget, flattr_badge, flattrs)
+        draw.draw_flattr_button(widget, flattr_badge, flattrs)
         tooltips = gtk.Tooltips()
         tooltips.set_tip(widget, tooltip_text, tip_private=None)
     
