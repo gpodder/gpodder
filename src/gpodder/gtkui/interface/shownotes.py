@@ -103,7 +103,7 @@ class gPodderShownotesBase(BuilderWidget):
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
             status = self._flattr.flattr_url(self.episode.flattr_url)
-            self.show_message(status, title=_('Flattr-Status'))
+            self.show_message(status, title=_('Flattr status'))
             self.set_flattr_information()
 
     #############################################################

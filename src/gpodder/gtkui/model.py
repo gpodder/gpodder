@@ -36,7 +36,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
-from gpodder.gtkui.flattr import get_flattr_icon
+from gpodder.gtkui import flattr
 
 import os
 import gtk
@@ -292,7 +292,7 @@ class EpisodeListModel(gtk.ListStore):
                     episode.total_time, \
                     episode.archive, \
                     episode.flattr_exists(), \
-                    get_flattr_icon(self._config.flattr.token)))
+                    flattr.get_flattr_icon(self._config.flattr.token)))
 
             self.update_by_iter(iter, include_description)
 
@@ -425,7 +425,7 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_FILESIZE_TEXT, self._format_filesize(episode), \
                 self.C_FILESIZE, episode.file_size, \
                 self.C_VIEW_FLATTR, episode.flattr_exists(),
-                self.C_ICON_FLATTR, get_flattr_icon(self._config.flattr.token))
+                self.C_ICON_FLATTR, flattr.get_flattr_icon(self._config.flattr.token))
 
 
 class PodcastChannelProxy(object):

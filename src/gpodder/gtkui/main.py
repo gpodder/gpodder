@@ -1846,7 +1846,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # flattr episode if auto-flattr is enabled
             if self.config.flattr.token and self.config.flattr.autoflattr:
                 status = self.flattr.flattr_url(episode.flattr_url)
-                self.show_message(status, title=_('Flattr-Status'))
+                self.show_message(status, title=_('Flattr status'))
 
             groups[player].append(filename)
 
@@ -2912,7 +2912,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         gPodderChannel(self.main_window,
-                channel=self.active_channel,                
+                channel=self.active_channel,
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
                 sections=set(c.section for c in self.channels),

@@ -94,7 +94,7 @@ class Flattr(object):
         request_url = 'https://api.flattr.com/rest/v2/user'
         
         if self._config.token:
-            userdata = self._flattr_get_request(request_url)    
+            userdata = self._flattr_get_request(request_url)
             return userdata.get('username', '?')
 
         return ''
@@ -113,13 +113,15 @@ class Flattr(object):
             return content.get('description', '?')
             
         elif response['status'] == '401':
-            return _('Current user do not have enough means to flattr')
-            
+            return _('You do not have enough means to flattr')
+
         elif response['status'] == '403':
-            return _('The current user have already flattred the thing or the user is the owner of the thing')
-            
+            # The current user have already flattred the thing or the user is the owner of the thing
+            # we just silently ignore this case
+            None
+
         elif response['status'] == '403':
             return _('Thing does not exist')
             
         else:
-            return _('Request is not valid')
+            return _('Invalid request')
