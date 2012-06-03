@@ -38,7 +38,16 @@ SelectableItem {
 
     Image {
         id: icon
-        source: 'artwork/' + modelData.qfiletype + (modelData.qdownloading?'-downloading':(modelData.qplaying?'-playing':'')) + '.png'
+        source: {
+            if (episodeModel.is_subset_view) {
+                Util.formatCoverURL(modelData.qpodcast)
+            } else {
+                'artwork/' + modelData.qfiletype + (modelData.qdownloading?'-downloading':(modelData.qplaying?'-playing':'')) + '.png'
+            }
+        }
+        sourceSize.width: width
+        sourceSize.height: height
+
         width: Config.iconSize
         height: Config.iconSize
         anchors.verticalCenter: parent.verticalCenter

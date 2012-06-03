@@ -659,9 +659,23 @@ class gPodderEpisodeListModel(gPodderListModel):
         gPodderListModel.__init__(self)
         self._filter = config.ui.qml.state.episode_list_filter
         self._filtered = []
+        self._is_subset_view = False
 
         self._config = config
         config.add_observer(self._on_config_changed)
+
+    is_subset_view_changed = Signal()
+
+    def get_is_subset_view(self):
+        return self._is_subset_view
+
+    def set_is_subset_view(self, is_subset_view):
+        if is_subset_view != self.is_subset_view:
+            self._is_subset_view = is_subset_view
+            self.is_subset_view_changed.emit()
+
+    is_subset_view = Property(bool, get_is_subset_view,
+            set_is_subset_view, notify=is_subset_view_changed)
 
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.qml.state.episode_list_filter':
@@ -944,10 +958,12 @@ class qtPodder(QObject):
             # Normal QPodcast instance
             wrap = functools.partial(self.wrap_episode, podcast)
             objects = podcast.get_all_episodes()
+            self.episode_model.set_is_subset_view(False)
         else:
             # EpisodeSubsetView
             wrap = lambda args: self.wrap_episode(*args)
             objects = podcast.get_all_episodes_with_podcast()
+            self.episode_model.set_is_subset_view(True)
 
         self.episode_model.set_objects(map(wrap, objects))
         self.main.state = 'episodes'
