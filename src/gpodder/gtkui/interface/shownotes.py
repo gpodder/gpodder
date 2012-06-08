@@ -29,7 +29,7 @@ _ = gpodder.gettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.draw import draw_flattr_button
+from gpodder.gtkui.flattr import set_flattr_button
 
 class gPodderShownotesBase(BuilderWidget):
     def new(self):
@@ -93,30 +93,17 @@ class gPodderShownotesBase(BuilderWidget):
     #############################################################
     
     def set_flattr_information(self):
-        if self.episode.flattr_url:
-            flattrs, flattred = self._flattr.get_thing_info(self.episode.flattr_url)
-        
-            if flattred is None or not self._config.flattr.token:
-                flattr_badge = self._flattr.IMAGE_FLATTR_GREY
-                self.flattr_possible = False
-                tooltip_text = "Please Sign In"
-            elif flattred:
-                flattr_badge = self._flattr.IMAGE_FLATTRED
-                self.flattr_possible = False
-                tooltip_text = "Already flattred"
-            else:
-                flattr_badge = self._flattr.IMAGE_FLATTR
-                self.flattr_possible = True
-                tooltip_text = "Please click to flattr"
-            
-            draw_flattr_button(self.flattr_image, flattr_badge, flattrs)
-            tooltips = gtk.Tooltips()
-            tooltips.set_tip(self.flattr_image, tooltip_text, tip_private=None)
+        self.flattr_possible = set_flattr_button(
+            self._flattr, 
+            self.episode.flattr_url,
+            self._config.flattr.token,
+            self.flattr_image
+        )
         
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
             status = self._flattr.flattr_url(self.episode.flattr_url)
-            self.show_message(status, title='Flattr-Status')
+            self.show_message(status, title=_('Flattr status'))
             self.set_flattr_information()
 
     #############################################################

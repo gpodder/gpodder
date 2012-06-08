@@ -83,6 +83,8 @@ from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
+from gpodder.gtkui import flattr
+
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import extensions
 
@@ -772,7 +774,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         # For loading the list model
-        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
+        self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -807,16 +809,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
         
-        if self.config.flattr.token:
-            flattr_icon = 'flattr_icon_color.png'
-        else:
-            flattr_icon = 'flattr_icon_grey.png'
         flattrcell = gtk.CellRendererPixbuf()
         flattrcell.set_fixed_size(40, -1)
         flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, flattr_icon))
-        flattrcell.set_property('pixbuf', pixbuf)
         namecolumn.pack_start(flattrcell, False)
+        namecolumn.add_attribute(flattrcell, 'pixbuf', EpisodeListModel.C_ICON_FLATTR)
         namecolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
 
         lockcell = gtk.CellRendererPixbuf()
@@ -1847,6 +1844,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
+                    
+            # flattr episode if auto-flattr is enabled
+            if self.config.flattr.token and self.config.flattr.autoflattr:
+                status = self.flattr.flattr_url(episode.flattr_url)
+                self.show_message(status, title=_('Flattr status'))
 
             groups[player].append(filename)
 
@@ -2916,7 +2918,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
                 sections=set(c.section for c in self.channels),
-                clear_cover_cache=self.podcast_list_model.clear_cover_cache)
+                clear_cover_cache=self.podcast_list_model.clear_cover_cache,
+                _config=self.config,
+                _flattr=self.flattr)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (
@@ -3111,6 +3115,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
+        
+    def set_flattr_information(self, widget):
+        self.flattr_possible = flattr.set_flattr_button(
+            self.flattr, 
+            self.flattr.GPODDER_THING,
+            self.config.flattr.token,
+            widget
+        )
+        
+    def on_flattr_button_clicked(self, widget, event):
+        if self.flattr_possible:
+            status = self.flattr.flattr_url(self.channel.flattr_url)
+            self.show_message(status, title=_('Flattr status'))
+            self.set_flattr_information(widget.get_children()[0])
 
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.Dialog(_('About gPodder'), self.main_window, \
@@ -3147,6 +3165,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         button.connect('clicked', self.on_bug_tracker_activate)
         button_box.pack_start(button)
         out.pack_start(button_box, expand=False)
+        
+        flattr_image = gtk.Image()
+        eventbox = gtk.EventBox()
+        eventbox.add(flattr_image)
+        eventbox.connect('button-press-event', self.on_flattr_button_clicked)
+        out.pack_start(eventbox)
+        self.set_flattr_information(flattr_image)
 
         credits = gtk.TextView()
         credits.set_left_margin(5)

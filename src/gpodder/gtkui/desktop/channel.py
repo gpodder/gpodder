@@ -25,6 +25,8 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder.gtkui import flattr
+
 from gpodder.gtkui.interface.common import BuilderWidget
 
 
@@ -72,6 +74,8 @@ class gPodderChannel(BuilderWidget):
         self.imgCover.set_size_request(*((self.MAX_SIZE+border*2,)*2))
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
+                
+        self.set_flattr_information()
 
     def on_cover_popup_menu(self, widget, event):
         if event.button != 3:
@@ -173,3 +177,22 @@ class gPodderChannel(BuilderWidget):
         self.update_podcast_list_model(selected=True,
                 sections_changed=section_changed)
 
+    def set_flattr_information(self):
+        if self.channel.flattr_url:
+            self.flattr_possible = flattr.set_flattr_button(
+                self._flattr, 
+                self.channel.flattr_url,
+                self._config.flattr.token,
+                self.flattr_image
+            )
+            self.label_flattr_info.set_visible(False)
+            self.flattr_image.set_visible(True)
+        else:
+            self.label_flattr_info.set_visible(True)
+            self.flattr_image.set_visible(False)
+
+    def on_flattr_button_clicked(self, widget, event):
+        if self.flattr_possible:
+            status = self._flattr.flattr_url(self.channel.flattr_url)
+            self.show_message(status, title=_('Flattr status'))
+            self.set_flattr_information()
