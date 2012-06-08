@@ -41,6 +41,7 @@ SCOPE = 'flattr'
 
 class Flattr(object):
     CALLBACK = 'gpodder://flattr-token/'
+    GPODDER_THING = 'https://flattr.com/submit/auto?user_id=thp&url=http://gpodder.org/'
 
     def __init__(self, config):
         self._config = config
