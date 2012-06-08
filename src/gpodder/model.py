@@ -765,7 +765,7 @@ class PodcastEpisode(PodcastModelObject):
         return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'flattr_url'):
             setattr(self, k, getattr(episode, k))
             
     def flattr_exists(self):
