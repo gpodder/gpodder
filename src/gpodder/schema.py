@@ -170,7 +170,8 @@ def upgrade(db, filename):
     if version == 2:
         UPGRADE_V2_TO_V3 = """
         ALTER TABLE podcast ADD COLUMN flattr_url TEXT NULL DEFAULT NULL;
-        ALTER TABLE episode ADD COLUMN flattr_url TEXT NULL DEFAULT NULL
+        ALTER TABLE episode ADD COLUMN flattr_url TEXT NULL DEFAULT NULL;
+        UPDATE podcast SET http_last_modified=NULL, http_etag=NULL;
         """
 
         for sql in UPGRADE_V2_TO_V3.strip().split('\n'):
