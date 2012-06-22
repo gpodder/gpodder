@@ -2314,6 +2314,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Only update podcasts for which updates are enabled
             channels = [c for c in self.channels if not c.pause_subscription]
 
+        for channel in channels:
+            self.podcast_list_model.set_updating(channel, True)
+
         self.itemUpdate.set_sensitive(False)
         self.itemUpdateChannel.set_sensitive(False)
 
@@ -2347,6 +2350,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         message = _('The feed at %(url)s could not be updated.')
                     self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
                     logger.error('Error: %s', str(e), exc_info=True)
+
+                self.podcast_list_model.set_updating(channel, False)
 
                 updated_channels.append(channel)
 

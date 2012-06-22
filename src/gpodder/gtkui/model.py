@@ -468,6 +468,13 @@ class PodcastListModel(gtk.ListStore):
                 object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
+        theme = gtk.icon_theme_get_default()
+        icon = theme.lookup_icon('gtk-refresh', 16, 0)
+        if icon is not None:
+            self._refresh_icon = icon.load_icon()
+        else:
+            self._refresh_icon = None
+
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
         self._view_mode = -1
@@ -607,9 +614,38 @@ class PodcastListModel(gtk.ListStore):
 
         return pixbuf_overlay
 
-    def _get_pill_image(self, channel, count_downloaded, count_unplayed):
+    def _get_pill_image(self, channel, count_downloaded, count_unplayed, updating):
         if count_unplayed > 0 or count_downloaded > 0:
-            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+            pill = draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+
+            if updating:
+                SPACING = 2
+                pill_width, pill_height = pill.get_width(), pill.get_height()
+                refresh_width, refresh_height = (self._refresh_icon.get_width(),
+                        self._refresh_icon.get_height())
+
+                width = pill_width + refresh_width + SPACING
+                height = max(pill_height, refresh_height)
+
+                pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8,
+                        width, height)
+                pixbuf.fill(0x00000000)
+
+                # Render pill
+                x = 0
+                y = (height - pill_height) / 2
+                pill.copy_area(0, 0, pill_width, pill_height, pixbuf, x, y)
+
+                # Render refresh icon
+                x = (width - refresh_width)
+                y = (height - refresh_height) / 2
+                self._refresh_icon.copy_area(0, 0, refresh_width,
+                        refresh_height, pixbuf, x, y)
+
+                return pixbuf
+            return pill
+        elif updating:
+            return self._refresh_icon
         else:
             return None
 
@@ -687,6 +723,17 @@ class PodcastListModel(gtk.ListStore):
         # have been added to the list to get the stats right
         for it in added_sections:
             self.update_by_iter(it)
+
+    def set_updating(self, channel, updating):
+        path = self.get_path_from_url(channel.url)
+        it = self.get_iter(path)
+
+        _, _, _, downloaded, unplayed = channel.get_statistics()
+        pixbuf = self._get_pill_image(channel, downloaded, unplayed, updating)
+
+        self.set(it,
+                self.C_PILL, pixbuf,
+                self.C_PILL_VISIBLE, pixbuf is not None)
 
     def get_filter_path_from_url(self, url):
         # Return the path of the filtered model for a given URL
@@ -771,7 +818,7 @@ class PodcastListModel(gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
-        pill_image = self._get_pill_image(channel, downloaded, unplayed)
+        pill_image = self._get_pill_image(channel, downloaded, unplayed, False)
 
         self.set(iter, \
                 self.C_TITLE, channel.title, \
