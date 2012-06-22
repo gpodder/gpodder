@@ -469,7 +469,7 @@ class PodcastListModel(gtk.ListStore):
                 bool, bool, int, bool, str)
 
         theme = gtk.icon_theme_get_default()
-        icon = theme.lookup_icon('gtk-refresh', 16, 0)
+        icon = theme.lookup_icon(gtk.STOCK_REFRESH, 32, 0)
         if icon is not None:
             self._refresh_icon = icon.load_icon()
         else:
@@ -615,6 +615,9 @@ class PodcastListModel(gtk.ListStore):
         return pixbuf_overlay
 
     def _get_pill_image(self, channel, count_downloaded, count_unplayed, updating):
+        if updating:
+            return self._refresh_icon
+
         if count_unplayed > 0 or count_downloaded > 0:
             pill = draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
 
@@ -726,6 +729,10 @@ class PodcastListModel(gtk.ListStore):
 
     def set_updating(self, channel, updating):
         path = self.get_path_from_url(channel.url)
+        if not path:
+            logger.warn('Could not find item for podcast %s', channel.url)
+            return
+
         it = self.get_iter(path)
 
         _, _, _, downloaded, unplayed = channel.get_statistics()

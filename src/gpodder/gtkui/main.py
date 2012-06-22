@@ -61,6 +61,7 @@ N_ = gpodder.ngettext
 from gpodder.gtkui.model import Model
 from gpodder.gtkui.model import PodcastListModel
 from gpodder.gtkui.model import EpisodeListModel
+from gpodder.gtkui.model import PodcastChannelProxy
 from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
@@ -218,8 +219,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client = my.MygPoClient(self.config)
 
         # Now, update the feed cache, when everything's in place
-        self.btnUpdateFeeds.show()
-        self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
         self.message_area = None
@@ -1504,15 +1503,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not paths:
             return True
 
-        # Check for valid channel id, if there's no id then
-        # assume that it is a proxy channel or equivalent
-        # and cannot be operated with right click
-        if self.active_channel.id is None:
+        menu = gtk.Menu()
+
+        if event is not None and event.button != 3:
             return True
 
-        if event is None or event.button == 3:
-            menu = gtk.Menu()
-
+        if isinstance(self.active_channel, PodcastChannelProxy):
+            item = gtk.ImageMenuItem( _('Check for new episodes'))
+            item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
+            item.connect('activate', lambda item: self.update_feed_cache())
+            menu.append(item)
+        else:
             item = gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
             item.connect('activate', self.on_itemUpdateChannel_activate)
@@ -1547,19 +1548,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_itemEditChannel_activate)
             menu.append(item)
 
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so 
-            # the tooltip will not appear over the menu
-            self.treeview_allow_tooltips(self.treeChannels, False)
-            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
+        menu.show_all()
 
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, 3, 0)
-            else:
-                menu.popup(None, None, None, event.button, event.time)
+        # Disable tooltips while we are showing the menu, so
+        # the tooltip will not appear over the menu
+        self.treeview_allow_tooltips(self.treeChannels, False)
+        menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
 
-            return True
+        if event is None:
+            func = TreeViewHelper.make_popup_position_func(treeview)
+            menu.popup(None, None, func, 3, 0)
+        else:
+            menu.popup(None, None, None, event.button, event.time)
+
+        return True
 
     def cover_download_finished(self, channel, pixbuf):
         """
@@ -2292,18 +2294,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
-        self.hboxUpdateFeeds.hide()
-        self.btnUpdateFeeds.show()
         self.itemUpdate.set_sensitive(True)
         self.itemUpdateChannel.set_sensitive(True)
-
-    def on_btnCancelFeedUpdate_clicked(self, widget):
-        if not self.feed_cache_update_cancelled:
-            self.pbFeedUpdate.set_text(_('Cancelling...'))
-            self.feed_cache_update_cancelled = True
-            self.btnCancelFeedUpdate.set_sensitive(False)
-        else:
-            self.show_update_feeds_buttons()
 
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
@@ -2320,25 +2312,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.itemUpdate.set_sensitive(False)
         self.itemUpdateChannel.set_sensitive(False)
 
-        self.feed_cache_update_cancelled = False
-        self.btnCancelFeedUpdate.show()
-        self.btnCancelFeedUpdate.set_sensitive(True)
-        self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_BUTTON))
-        self.hboxUpdateFeeds.show_all()
-        self.btnUpdateFeeds.hide()
-
-        count = len(channels)
-        text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
-
-        self.pbFeedUpdate.set_text(text)
-        self.pbFeedUpdate.set_fraction(0)
-
         def update_feed_cache_proc():
             updated_channels = []
             for updated, channel in enumerate(channels):
-                if self.feed_cache_update_cancelled:
-                    break
-
                 try:
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
@@ -2364,12 +2340,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.debug('Updated channel is active, updating UI')
                         self.update_episode_list_model()
 
-                    d = {'podcast': channel.title, 'position': updated+1, 'total': count}
-                    progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
-
-                    self.pbFeedUpdate.set_text(progression)
-                    self.pbFeedUpdate.set_fraction(float(updated+1)/float(count))
-
                 util.idle_add(update_progress, channel)
 
             def update_feed_cache_finish_callback():
@@ -2381,27 +2351,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
                     self.update_episode_list_model()
 
-                if self.feed_cache_update_cancelled:
-                    # The user decided to abort the feed update
-                    self.show_update_feeds_buttons()
-
                 # Only search for new episodes in podcasts that have been
                 # updated, not in other podcasts (for single-feed updates)
                 episodes = self.get_new_episodes([c for c in updated_channels])
 
                 if not episodes:
                     # Nothing new here - but inform the user
-                    self.pbFeedUpdate.set_fraction(1.0)
-                    self.pbFeedUpdate.set_text(_('No new episodes'))
-                    self.feed_cache_update_cancelled = True
-                    self.btnCancelFeedUpdate.show()
-                    self.btnCancelFeedUpdate.set_sensitive(True)
                     self.itemUpdate.set_sensitive(True)
-                    self.btnCancelFeedUpdate.set_image(gtk.image_new_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_BUTTON))
                 else:
                     count = len(episodes)
-                    # New episodes are available
-                    self.pbFeedUpdate.set_fraction(1.0)
 
                     if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
@@ -2415,9 +2373,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if (show_new_episodes_dialog and
                                 self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else: # !show_new_episodes_dialog or auto_download == 'ignore'
-                            message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
-                            self.pbFeedUpdate.set_text(message)
 
                     self.show_update_feeds_buttons()
 
@@ -2808,8 +2763,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():
-            self.show_message(_('Please check for new episodes later.'), \
-                    _('No new episodes available'), widget=self.btnUpdateFeeds)
+            self.show_message(_('Please check for new episodes later.'),
+                    _('No new episodes available'))
 
     def get_new_episodes(self, channels=None):
         return [e for c in channels or self.channels for e in
@@ -3193,6 +3148,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
+        if isinstance(self.active_channel, PodcastChannelProxy):
+            # Double-click on "all episodes" = check for new episodes
+            self.update_feed_cache()
         self.treeChannels.set_cursor(path)
 
     def on_treeChannels_cursor_changed(self, widget, *args):
