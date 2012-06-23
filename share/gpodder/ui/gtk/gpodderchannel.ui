@@ -462,23 +462,27 @@
                     <property name="border_width">10</property>
                     <property name="spacing">5</property>
                     <child>
-                       <object class="GtkEventBox" id="flattr_image_events">
-                         <property name="visible">True</property>
-                         <signal handler="on_flattr_button_clicked" name="button-press-event"/>
-                         <child>
-                           <object class="GtkImage" id="flattr_image">
-                             <property name="visible">True</property>
-                           </object>
-                         </child>
-                       </object>
-                       <packing>
-                         <property name="expand">False</property>
-                         <property name="fill">False</property>
-                         <property name="pack_type">start</property>
-                         <property name="position">1</property>
-                       </packing>
+                      <object class="GtkButton" id="flattr_button">
+                        <property name="label" translatable="yes">Flattr this</property>
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_flattr_button_clicked"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="pack_type">start</property>
+                      </packing>
                     </child>
-
+                    <child>
+                      <object class="GtkImage" id="flattr_image">
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="pack_type">start</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>

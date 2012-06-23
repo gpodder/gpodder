@@ -228,10 +228,10 @@ class PodcastEpisode(PodcastModelObject):
         filter_and_sort_enclosures = lambda x: x
 
         # read the flattr auto-url, if exists
-        linkinfo = [link['href'] for link in entry.get('links', [])
+        payment_info = [link['href'] for link in entry.get('links', [])
             if link['rel'] == 'payment' and 'flattr.com' in link['href']]
-        if linkinfo:
-            episode.flattr_url = linkinfo[0]
+        if payment_info:
+            episode.payment_url = payment_info[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -339,7 +339,7 @@ class PodcastEpisode(PodcastModelObject):
         self.link = ''
         self.published = 0
         self.download_filename = None
-        self.flattr_url = None
+        self.payment_url = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -765,12 +765,8 @@ class PodcastEpisode(PodcastModelObject):
         return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'flattr_url'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
-
-    def flattr_exists(self):
-        return (self.flattr_url is not None)
-
 
 
 class PodcastChannel(PodcastModelObject):
@@ -794,7 +790,7 @@ class PodcastChannel(PodcastModelObject):
         self.link = ''
         self.description = ''
         self.cover_url = None
-        self.flattr_url = None
+        self.payment_url = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1008,10 +1004,10 @@ class PodcastChannel(PodcastModelObject):
         self.description = feed.feed.get('subtitle', self.description)
 
         # read the flattr auto-url, if exists
-        linkinfo = [link['href'] for link in feed.feed.get('links', [])
+        payment_info = [link['href'] for link in feed.feed.get('links', [])
             if link['rel'] == 'payment' and 'flattr.com' in link['href']]
-        if linkinfo:
-            self.flattr_url = linkinfo[0]
+        if payment_info:
+            self.payment_url = payment_info[0]
 
         # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '

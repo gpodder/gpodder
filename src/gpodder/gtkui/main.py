@@ -809,13 +809,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
 
-        flattrcell = gtk.CellRendererPixbuf()
-        flattrcell.set_fixed_size(40, -1)
-        flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
-        namecolumn.pack_start(flattrcell, False)
-        namecolumn.add_attribute(flattrcell, 'pixbuf', EpisodeListModel.C_ICON_FLATTR)
-        namecolumn.add_attribute(flattrcell, 'visible', EpisodeListModel.C_VIEW_FLATTR)
-
         lockcell = gtk.CellRendererPixbuf()
         lockcell.set_fixed_size(40, -1)
         lockcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
@@ -1846,8 +1839,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
             # flattr episode if auto-flattr is enabled
-            if self.config.flattr.token and self.config.flattr.autoflattr:
-                status = self.flattr.flattr_url(episode.flattr_url)
+            if self.config.flattr.token and self.config.flattr.flattr_on_play:
+                status = self.flattr.flattr_url(episode.payment_url)
                 self.show_message(status, title=_('Flattr status'))
 
             groups[player].append(filename)
@@ -3123,7 +3116,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
-            status = self.flattr.flattr_url(self.channel.flattr_url)
+            status = self.flattr.flattr_url(self.channel.payment_url)
             self.show_message(status, title=_('Flattr status'))
             self.set_flattr_information(widget.get_children()[0])
 

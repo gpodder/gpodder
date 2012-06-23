@@ -93,6 +93,9 @@ class gPodderFlattrSignIn(BuilderWidget):
 
             # Destroy the window later
             util.idle_add(self.main_window.destroy)
+            
+    def on_btn_close_clicked(self, widget):
+        util.idle_add(self.main_window.destroy)
 
 
 class gPodderPreferences(BuilderWidget):
@@ -207,7 +210,7 @@ class gPodderPreferences(BuilderWidget):
             self.label_flattr.set_markup(_('Logged in as <b>%(username)s</b>') % {'username': flattr_user})
             self.button_flattr_login.set_label(_('Sign out'))
 
-        self.checkbutton_autoflattr.set_active(self._config.flattr.autoflattr)
+        self.checkbutton_flattr_on_play.set_active(self._config.flattr.flattr_on_play)
 
     def on_button_flattr_login(self, widget):
         if not self._config.flattr.token:
@@ -227,8 +230,8 @@ class gPodderPreferences(BuilderWidget):
             self._config.flattr.token = ''
             self.set_flattr_preferences()
 
-    def on_check_autoflattr(self, widget):
-        self._config.flattr.autoflattr = widget.get_active()
+    def on_check_flattr_on_play(self, widget):
+        self._config.flattr.flattr_on_play = widget.get_active()
 
     def on_extensions_cell_toggled(self, cell, path):
         model = self.treeviewExtensions.get_model()

@@ -8,7 +8,7 @@
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="modal">True</property>
     <property name="default_width">700</property>
-    <property name="default_height">680</property>
+    <property name="default_height">720</property>
     <property name="destroy_with_parent">False</property>
     <property name="skip_taskbar_hint">False</property>
     <property name="skip_pager_hint">False</property>
@@ -18,6 +18,8 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="vbox_flattr">
         <property name="visible">True</property>
+        <property name="spacing">0</property>
+        <property name="border_width">0</property>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow_web">
             <property name="visible">True</property>
@@ -33,6 +35,19 @@
             <property name="padding">0</property>
             <property name="expand">True</property>
             <property name="fill">True</property>
+          </packing>          
+        </child>
+        <child>
+          <object class="GtkButton" id="btn_close">
+            <property name="visible">True</property>
+            <property name="label">gtk-cancel</property>
+            <property name="use_stock">True</property>
+            <signal handler="on_btn_close_clicked" name="clicked"/>
+          </object>
+          <packing>
+            <property name="padding">15</property>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
           </packing>
         </child>
       </object>
