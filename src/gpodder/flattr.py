@@ -23,106 +23,113 @@
 #  Bernd Schlapsi <brot@gmx.info>   2012-05-26
 #
 
-import httplib2
+import urllib
 import json
-import os.path
 
 import logging
 logger = logging.getLogger(__name__)
+
+from gpodder import util
 
 import gpodder
 
 _ = gpodder.gettext
 
-KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
-SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
-SCOPE = 'flattr'
-
 
 class Flattr(object):
+    KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
+    SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
+
     CALLBACK = 'gpodder://flattr-token/'
-    GPODDER_THING = 'https://flattr.com/submit/auto?user_id=thp&url=http://gpodder.org/'
+    GPODDER_THING = ('https://flattr.com/submit/auto?' +
+            'user_id=thp&url=http://gpodder.org/')
+
+    # OAuth URLs
+    OAUTH_BASE = 'https://flattr.com/oauth'
+    AUTH_URL_TEMPLATE = (OAUTH_BASE + '/authorize?scope=flattr&' +
+            'response_type=code&client_id=%(client_id)s&' +
+            'redirect_uri=%(redirect_uri)s')
+    OAUTH_TOKEN_URL = OAUTH_BASE + '/token'
+
+    # REST API URLs
+    API_BASE = 'https://api.flattr.com/rest/v2'
+    USER_INFO_URL = API_BASE + '/user'
+    FLATTR_URL = API_BASE + '/flattr'
+    THING_INFO_URL_TEMPLATE = API_BASE + '/things/lookup/?url=%(url)s'
 
     def __init__(self, config):
         self._config = config
-        self.http = httplib2.Http()
 
-    def __get_headers(self):
+    def request(self, url, data=None):
         headers = {'Content-Type': 'application/json'}
-        if self._config.token:
-            headers['Authorization'] = 'Bearer %s' % self._config.token
-        return headers
 
-    def _flattr_get_request(self, url):
-        response, content = self.http.request(url, headers=self.__get_headers())
-        if response['status'] == '200':
-            return json.loads(content)
-        return {}
+        if url == self.OAUTH_TOKEN_URL:
+            # Inject username and password into the request URL
+            url = util.url_add_authentication(url, self.KEY, self.SECRET)
+        elif self._config.token:
+            headers['Authorization'] = 'Bearer ' + self._config.token
+
+        if data is not None:
+            data = json.dumps(data)
+
+        response = util.urlopen(url, headers, data)
+        if response.getcode() == 200:
+            return json.loads(response.read())
+
+        return {'_gpodder_statuscode': response.getcode()}
 
     def get_auth_url(self):
-        return 'https://flattr.com/oauth/authorize?scope=%s&response_type=code&client_id=%s&redirect_uri=%s' % (SCOPE, KEY, self.CALLBACK)
+        return self.AUTH_URL_TEMPLATE % {
+                'client_id': KEY,
+                'redirect_uri': self.CALLBACK,
+        }
 
     def request_access_token(self, code):
         request_url = 'https://flattr.com/oauth/token'
 
-        self.http.add_credentials(KEY, SECRET)
         params = {
             'code': code,
             'grant_type': 'authorization_code',
-            'redirect_uri': self.CALLBACK
+            'redirect_uri': self.CALLBACK,
         }
-        response, content = self.http.request(request_url, 'POST',
-            json.dumps(params), headers={'Content-Type': 'application/json'})
-        content = json.loads(content)
 
-        if response['status'] == '200':
-            return content.get('access_token', '')
-
-        return ''
+        content = self.request(self.OAUTH_TOKEN_URL, data=params)
+        return content.get('access_token', '')
 
     def get_thing_info(self, url):
-        request_url = 'https://api.flattr.com/rest/v2/things/lookup/?url=%s' % url
-        thingdata = {}
+        if not self._config.flattr.token:
+            return (0, False)
 
-        if self._config.flattr.token:
-            thingdata = self._flattr_get_request(request_url)
-
-        flattrs = int(thingdata.get('flattrs', 0))
-        flattred = bool(thingdata.get('flattred', None))
-        return flattrs, flattred
+        url = self.THING_INFO_URL_TEMPLATE % {'url': urllib.quote_plus(url)}
+        data = self.request(url)
+        return int(data.get('flattrs', 0)), bool(data.get('flattred', False))
 
     def get_auth_username(self):
-        request_url = 'https://api.flattr.com/rest/v2/user'
+        if not self._config.token:
+            return ''
 
-        if self._config.token:
-            userdata = self._flattr_get_request(request_url)
-            return userdata.get('username', '?')
-
-        return ''
+        data = self.request(self.USER_INFO_URL)
+        return data.get('username', '')
 
     def flattr_url(self, url):
-        request_url = 'https://api.flattr.com/rest/v2/flattr'
         params = {
             'url': url
         }
 
-        response, content = self.http.request(request_url, 'POST',
-            json.dumps(params), headers=self.__get_headers())
-        content = json.loads(content)
+        content = self.request(self.FLATTR_URL, data=params)
 
-        if response['status'] == '200':
-            return content.get('description', '?')
+        if '_gpodder_statuscode' in content:
+            status_code = content['_gpodder_statuscode']
+            if status_code == 401:
+                return _('Not enough means to flattr')
+            elif status_code == 404:
+                return _('Item does not exist on Flattr')
+            elif status_code == 403:
+                # The current user have already flattred the thing or the user
+                # is the owner of the thing we just silently ignore this case
+                None
+            else:
+                return _('Invalid request')
 
-        elif response['status'] == '401':
-            return _('You do not have enough means to flattr')
+        return content.get('description', _('No description'))
 
-        elif response['status'] == '403':
-            # The current user have already flattred the thing or the user is the owner of the thing
-            # we just silently ignore this case
-            None
-
-        elif response['status'] == '403':
-            return _('Thing does not exist')
-
-        else:
-            return _('Invalid request')
