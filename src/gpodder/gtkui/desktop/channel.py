@@ -74,7 +74,7 @@ class gPodderChannel(BuilderWidget):
         self.imgCover.set_size_request(*((self.MAX_SIZE+border*2,)*2))
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
-                
+
         self.set_flattr_information()
 
     def on_cover_popup_menu(self, widget, event):
@@ -180,7 +180,7 @@ class gPodderChannel(BuilderWidget):
     def set_flattr_information(self):
         if self.channel.flattr_url:
             self.flattr_possible = flattr.set_flattr_button(
-                self._flattr, 
+                self._flattr,
                 self.channel.flattr_url,
                 self._config.flattr.token,
                 self.flattr_image

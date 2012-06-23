@@ -52,7 +52,7 @@ class Core(object):
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()
-        
+
         # Initialize flattr integration
         self.flattr = flattr.Flattr(getattr(self.config, 'flattr'))
 

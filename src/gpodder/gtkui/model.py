@@ -129,7 +129,7 @@ class EpisodeListModel(gtk.ListStore):
                 gtk.gdk.Pixbuf)
 
         self._config = config
-        
+
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes
         self._on_filter_changed = on_filter_changed

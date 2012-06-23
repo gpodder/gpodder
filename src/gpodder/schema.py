@@ -166,7 +166,7 @@ def upgrade(db, filename):
             db.execute(sql)
 
         version = 2
-        
+
     if version == 2:
         UPGRADE_V2_TO_V3 = """
         ALTER TABLE podcast ADD COLUMN flattr_url TEXT NULL DEFAULT NULL;

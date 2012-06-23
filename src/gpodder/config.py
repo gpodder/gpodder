@@ -162,7 +162,7 @@ defaults = {
     'extensions': {
         'enabled': [],
     },
-    
+
     'flattr': {
         'token': '',
         'autoflattr': False,

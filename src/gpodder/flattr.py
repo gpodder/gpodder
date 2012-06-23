@@ -58,10 +58,10 @@ class Flattr(object):
         if response['status'] == '200':
             return json.loads(content)
         return {}
-        
+
     def get_auth_url(self):
         return 'https://flattr.com/oauth/authorize?scope=%s&response_type=code&client_id=%s&redirect_uri=%s' % (SCOPE, KEY, self.CALLBACK)
-        
+
     def request_access_token(self, code):
         request_url = 'https://flattr.com/oauth/token'
 
@@ -74,7 +74,7 @@ class Flattr(object):
         response, content = self.http.request(request_url, 'POST',
             json.dumps(params), headers={'Content-Type': 'application/json'})
         content = json.loads(content)
-        
+
         if response['status'] == '200':
             return content.get('access_token', '')
 
@@ -83,17 +83,17 @@ class Flattr(object):
     def get_thing_info(self, url):
         request_url = 'https://api.flattr.com/rest/v2/things/lookup/?url=%s' % url
         thingdata = {}
-        
+
         if self._config.flattr.token:
             thingdata = self._flattr_get_request(request_url)
-            
+
         flattrs = int(thingdata.get('flattrs', 0))
         flattred = bool(thingdata.get('flattred', None))
         return flattrs, flattred
-        
+
     def get_auth_username(self):
         request_url = 'https://api.flattr.com/rest/v2/user'
-        
+
         if self._config.token:
             userdata = self._flattr_get_request(request_url)
             return userdata.get('username', '?')
@@ -105,14 +105,14 @@ class Flattr(object):
         params = {
             'url': url
         }
-        
+
         response, content = self.http.request(request_url, 'POST',
             json.dumps(params), headers=self.__get_headers())
         content = json.loads(content)
-            
+
         if response['status'] == '200':
             return content.get('description', '?')
-            
+
         elif response['status'] == '401':
             return _('You do not have enough means to flattr')
 
@@ -123,6 +123,6 @@ class Flattr(object):
 
         elif response['status'] == '403':
             return _('Thing does not exist')
-            
+
         else:
             return _('Invalid request')

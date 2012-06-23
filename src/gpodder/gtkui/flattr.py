@@ -39,7 +39,7 @@ def set_flattr_button(cls, url, token, widget):
     flattr_possible = False
     if url:
         flattrs, flattred = cls.get_thing_info(url)
-    
+
         if flattred is None or not token:
             flattr_badge = IMAGE_FLATTR_GREY
             tooltip_text = _('Please sign in')
@@ -50,11 +50,11 @@ def set_flattr_button(cls, url, token, widget):
             flattr_badge = IMAGE_FLATTR
             flattr_possible = True
             tooltip_text = _('Flattr this')
-        
+
         draw.draw_flattr_button(widget, flattr_badge, flattrs)
         tooltips = gtk.Tooltips()
         tooltips.set_tip(widget, tooltip_text, tip_private=None)
-    
+
     return flattr_possible
 
 
@@ -62,6 +62,6 @@ def get_flattr_icon(token):
     icon = ICON_FLATTR_GREY
     if token:
         icon = ICON_FLATTR
-    
+
     return gtk.gdk.pixbuf_new_from_file(icon)
 

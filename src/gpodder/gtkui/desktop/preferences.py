@@ -164,7 +164,7 @@ class gPodderPreferences(BuilderWidget):
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
-        
+
         # Initialize Flattr settings
         self.set_flattr_preferences()
 
@@ -194,7 +194,7 @@ class gPodderPreferences(BuilderWidget):
         self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
-        
+
     def set_flattr_preferences(self, widget=None):
         if not self._config.flattr.token:
             self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
@@ -203,7 +203,7 @@ class gPodderPreferences(BuilderWidget):
             flattr_user = self.flattr.get_auth_username()
             self.label_flattr.set_markup(_('Logged in as <b>%(username)s</b>') % {'username': flattr_user})
             self.button_flattr_login.set_label(_('Sign out'))
-            
+
         self.checkbutton_autoflattr.set_active(self._config.flattr.autoflattr)
 
     def on_button_flattr_login(self, widget):

@@ -808,7 +808,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         namecolumn.set_resizable(True)
         namecolumn.set_expand(True)
-        
+
         flattrcell = gtk.CellRendererPixbuf()
         flattrcell.set_fixed_size(40, -1)
         flattrcell.set_property('stock-size', gtk.ICON_SIZE_MENU)
@@ -1844,7 +1844,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
-                    
+
             # flattr episode if auto-flattr is enabled
             if self.config.flattr.token and self.config.flattr.autoflattr:
                 status = self.flattr.flattr_url(episode.flattr_url)
@@ -3115,15 +3115,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
-        
+
     def set_flattr_information(self, widget):
-        self.flattr_possible = flattr.set_flattr_button(
-            self.flattr, 
-            self.flattr.GPODDER_THING,
-            self.config.flattr.token,
-            widget
-        )
-        
+        self.flattr_possible = flattr.set_flattr_button(self.flattr,
+            self.flattr.GPODDER_THING, self.config.flattr.token,
+            widget)
+
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
             status = self.flattr.flattr_url(self.channel.flattr_url)
@@ -3165,7 +3162,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         button.connect('clicked', self.on_bug_tracker_activate)
         button_box.pack_start(button)
         out.pack_start(button_box, expand=False)
-        
+
         flattr_image = gtk.Image()
         eventbox = gtk.EventBox()
         eventbox.add(flattr_image)

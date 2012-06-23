@@ -226,7 +226,7 @@ class PodcastEpisode(PodcastModelObject):
         # and letting them sort and/or filter the list of enclosures to
         # get the desired enclosure picked by the algorithm below.
         filter_and_sort_enclosures = lambda x: x
-        
+
         # read the flattr auto-url, if exists
         linkinfo = [link['href'] for link in entry.get('links', [])
             if link['rel'] == 'payment' and 'flattr.com' in link['href']]
@@ -767,11 +767,9 @@ class PodcastEpisode(PodcastModelObject):
     def update_from(self, episode):
         for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'flattr_url'):
             setattr(self, k, getattr(episode, k))
-            
+
     def flattr_exists(self):
-        if self.flattr_url:
-            return True
-        return False
+        return (self.flattr_url is not None)
 
 
 
@@ -1008,7 +1006,7 @@ class PodcastChannel(PodcastModelObject):
         self._consume_updated_title(feed.feed.get('title', self.url))
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
-        
+
         # read the flattr auto-url, if exists
         linkinfo = [link['href'] for link in feed.feed.get('links', [])
             if link['rel'] == 'payment' and 'flattr.com' in link['href']]

@@ -309,7 +309,7 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
     """
     if isinstance(flattrs_count, int):
         flattrs_count = str(flattrs_count)
-        
+
     pixbuf = gtk.gdk.pixbuf_new_from_file(flattr_image)
     iwidth, iheight = pixbuf.get_width(), pixbuf.get_height()
     pixmap, mask = pixbuf.render_pixmap_and_mask()
@@ -319,7 +319,7 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
     font_desc = style.font_desc
     #font_desc.set_size(12*pango.SCALE)
     font_desc.set_size(9*pango.SCALE)
-    
+
     # set font and text
     layout = widget.create_pango_layout(flattrs_count)
     layout.set_font_description(font_desc)
@@ -327,7 +327,7 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
 
     x = 95 - abs(fwidth / 2) # 95 is the center of the bubble
     y = abs(iheight / 2) - abs(fheight / 2)
-    
+
     cm = pixmap.get_colormap()
     red = cm.alloc_color('black')
     gc = pixmap.new_gc(foreground=red)

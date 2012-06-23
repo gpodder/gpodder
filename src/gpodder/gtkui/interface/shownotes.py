@@ -89,17 +89,14 @@ class gPodderShownotesBase(BuilderWidget):
     def on_episode_status_changed(self):
         """Called when the episode/download status is changed"""
         pass
-        
+
     #############################################################
-    
+
     def set_flattr_information(self):
-        self.flattr_possible = set_flattr_button(
-            self._flattr, 
-            self.episode.flattr_url,
-            self._config.flattr.token,
-            self.flattr_image
-        )
-        
+        self.flattr_possible = set_flattr_button(self._flattr,
+            self.episode.flattr_url, self._config.flattr.token,
+            self.flattr_image)
+
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
             status = self._flattr.flattr_url(self.episode.flattr_url)
