@@ -50,6 +50,11 @@ import string
 _ = gpodder.gettext
 
 
+def payment_sorting(url):
+    if 'flattr.com' in url:
+        return 1
+    return 2
+
 class CustomFeed(feedcore.ExceptionWithData): pass
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -229,9 +234,9 @@ class PodcastEpisode(PodcastModelObject):
 
         # read the flattr auto-url, if exists
         payment_info = [link['href'] for link in entry.get('links', [])
-            if link['rel'] == 'payment' and 'flattr.com' in link['href']]
+            if link['rel'] == 'payment']
         if payment_info:
-            episode.payment_url = payment_info[0]
+            episode.payment_url = sorted(payment_info, key=payment_sorting)[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -1005,9 +1010,9 @@ class PodcastChannel(PodcastModelObject):
 
         # read the flattr auto-url, if exists
         payment_info = [link['href'] for link in feed.feed.get('links', [])
-            if link['rel'] == 'payment' and 'flattr.com' in link['href']]
+            if link['rel'] == 'payment']
         if payment_info:
-            self.payment_url = payment_info[0]
+            self.payment_url = sorted(payment_info, key=payment_sorting)[0]
 
         # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
