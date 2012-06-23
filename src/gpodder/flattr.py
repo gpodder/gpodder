@@ -80,7 +80,7 @@ class Flattr(object):
 
     def get_auth_url(self):
         return self.AUTH_URL_TEMPLATE % {
-                'client_id': KEY,
+                'client_id': self.KEY,
                 'redirect_uri': self.CALLBACK,
         }
 

@@ -21,6 +21,7 @@ import gtk
 import pango
 import threading
 import cgi
+import urlparse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -64,29 +65,31 @@ class NewEpisodeActionList(gtk.ListStore):
 class gPodderFlattrSignIn(BuilderWidget):
 
     def new(self):
-        try:
-            import webkit
+        import webkit
 
-            self.web = webkit.WebView()
-            self.web.connect('resource-request-starting', self.on_web_request)
-            self.main_window.connect('destroy', self.set_flattr_preferences)
+        self.web = webkit.WebView()
+        self.web.connect('resource-request-starting', self.on_web_request)
+        self.main_window.connect('destroy', self.set_flattr_preferences)
 
-            auth_url = self.flattr.get_auth_url()
-            logger.info(auth_url)
-            self.web.open(auth_url)
+        auth_url = self.flattr.get_auth_url()
+        logger.info(auth_url)
+        self.web.open(auth_url)
 
-            self.scrolledwindow_web.add(self.web)
-            self.web.show()
-        except ImportError:
-            # TODO: Error-Message
-            logger.info('import error webkit')
+        self.scrolledwindow_web.add(self.web)
+        self.web.show()
 
     def on_web_request(self, web_view, web_frame, web_resource, request, response):
         uri = request.get_uri()
         if uri.startswith(self.flattr.CALLBACK):
-            logger.info('callback-uri: %s' % uri)
-            dummy, code = uri.split('=')
-            self._config.flattr.token = self.flattr.request_access_token(code)
+            uri_parsed = urlparse.urlparse(uri)
+            query = urlparse.parse_qs(uri_parsed.path[2:])
+            if 'code' in query:
+                code = query['code'][0]
+                token = self.flattr.request_access_token(code)
+                self._config.flattr.token = token
+            else:
+                self.show_message(query['error_description'][0], _('Error'),
+                        important=True)
 
             # Destroy the window later
             util.idle_add(self.main_window.destroy)
@@ -208,6 +211,14 @@ class gPodderPreferences(BuilderWidget):
 
     def on_button_flattr_login(self, widget):
         if not self._config.flattr.token:
+            try:
+                import webkit
+            except ImportError, ie:
+                self.show_message(_('Flattr integration requires WebKit/Gtk.'),
+                        _('WebKit/Gtk not found'), important=True)
+                self.main_window.destroy()
+                return
+
             gPodderFlattrSignIn(self.parent_window,
                     _config=self._config,
                     flattr=self.flattr,
