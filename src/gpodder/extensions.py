@@ -419,6 +419,21 @@ class ExtensionManager(object):
         pass
 
     @call_extensions
+    def on_channel_context_menu(self, channel):
+        """Called when the channel list context menu is opened
+
+        You can add additional context menu entries here. You have to return a
+        list of tuples, where the first item is a label and the second item is a
+        callable that will get the channel as its first and only parameter.
+
+        Example return value:
+
+        [('Update channel', lambda channel: ...)]
+        @param channel: A gpodder.model.PodcastChannel instance
+        """
+        pass
+
+    @call_extensions
     def on_episode_delete(self, episode, filename):
         """Called just before the episode's disk file is about to be
         deleted."""
