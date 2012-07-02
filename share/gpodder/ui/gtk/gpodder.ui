@@ -219,6 +219,21 @@
           </object>
         </child>
         <child>
+          <object class="GtkAction" id="menuExtras">
+            <property name="name">menuExtras</property>
+            <property name="label" translatable="yes">E_xtras</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkAction" id="item_sync">
+            <property name="stock_id">gtk-refresh</property>
+            <property name="name">item_sync</property>
+            <property name="label" translatable="yes">Sync to Device</property>
+            <signal handler="on_sync_to_device_activate" name="activate"/>
+          </object>
+          <accelerator key="S" modifiers="GDK_CONTROL_MASK"/>
+        </child>
+        <child>
           <object class="GtkAction" id="menuView">
             <property name="name">menuView</property>
             <property name="label" translatable="yes">_View</property>
@@ -362,6 +377,9 @@
           <menuitem action="item_toggle_lock"/>
           <separator/>
           <menuitem action="item_episode_details"/>
+        </menu>
+        <menu action="menuExtras">
+          <menuitem action="item_sync"/>
         </menu>
         <menu action="menuView">
           <menuitem action="itemShowAllEpisodes"/>
@@ -928,7 +946,7 @@
                 <child type="tab">
                   <object class="GtkLabel" id="labelDownloads">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Downloads</property>
+                    <property name="label" translatable="yes">Tasks</property>
                     <property name="use_underline">False</property>
                     <property name="use_markup">False</property>
                     <property name="wrap">False</property>
