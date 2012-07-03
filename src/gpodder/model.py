@@ -50,7 +50,11 @@ import string
 _ = gpodder.gettext
 
 
-def payment_sorting(url):
+def get_payment_priority(url):
+    """
+    at the moment we only support flattr.com as an payment provider, so we
+    sort the payment providers and prefer flattr.com ("1" is higher priority than "2")
+    """
     if 'flattr.com' in url:
         return 1
     return 2
@@ -236,7 +240,7 @@ class PodcastEpisode(PodcastModelObject):
         payment_info = [link['href'] for link in entry.get('links', [])
             if link['rel'] == 'payment']
         if payment_info:
-            episode.payment_url = sorted(payment_info, key=payment_sorting)[0]
+            episode.payment_url = sorted(payment_info, key=get_payment_priority)[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -1012,7 +1016,7 @@ class PodcastChannel(PodcastModelObject):
         payment_info = [link['href'] for link in feed.feed.get('links', [])
             if link['rel'] == 'payment']
         if payment_info:
-            self.payment_url = sorted(payment_info, key=payment_sorting)[0]
+            self.payment_url = sorted(payment_info, key=get_payment_priority)[0]
 
         # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
