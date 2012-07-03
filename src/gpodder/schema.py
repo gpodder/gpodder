@@ -43,7 +43,7 @@ EpisodeColumns = (
     'current_position',
     'current_position_updated',
     'last_playback',
-    'flattr_url',
+    'payment_url',
 )
 
 PodcastColumns = (
@@ -60,7 +60,7 @@ PodcastColumns = (
     'download_folder',
     'pause_subscription',
     'section',
-    'flattr_url',
+    'payment_url',
 )
 
 CURRENT_VERSION = 3
@@ -75,7 +75,7 @@ def initialize_database(db):
         link TEXT NOT NULL DEFAULT '',
         description TEXT NOT NULL DEFAULT '',
         cover_url TEXT NULL DEFAULT NULL,
-        flattr_url TEXT NULL DEFAULT NULL,
+        payment_url TEXT NULL DEFAULT NULL,
         auth_username TEXT NULL DEFAULT NULL,
         auth_password TEXT NULL DEFAULT NULL,
         http_last_modified TEXT NULL DEFAULT NULL,
@@ -103,7 +103,7 @@ def initialize_database(db):
         title TEXT NOT NULL DEFAULT '',
         description TEXT NOT NULL DEFAULT '',
         url TEXT NOT NULL,
-        flattr_url TEXT NULL DEFAULT NULL,
+        payment_url TEXT NULL DEFAULT NULL,
         published INTEGER NOT NULL DEFAULT 0,
         guid TEXT NOT NULL,
         link TEXT NOT NULL DEFAULT '',
@@ -169,8 +169,8 @@ def upgrade(db, filename):
 
     if version == 2:
         UPGRADE_V2_TO_V3 = """
-        ALTER TABLE podcast ADD COLUMN flattr_url TEXT NULL DEFAULT NULL;
-        ALTER TABLE episode ADD COLUMN flattr_url TEXT NULL DEFAULT NULL;
+        ALTER TABLE podcast ADD COLUMN payment_url TEXT NULL DEFAULT NULL;
+        ALTER TABLE episode ADD COLUMN payment_url TEXT NULL DEFAULT NULL;
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL;
         """
 

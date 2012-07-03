@@ -178,21 +178,20 @@ class gPodderChannel(BuilderWidget):
                 sections_changed=section_changed)
 
     def set_flattr_information(self):
-        if self.channel.flattr_url:
-            self.flattr_possible = flattr.set_flattr_button(
-                self._flattr,
-                self.channel.flattr_url,
-                self._config.flattr.token,
-                self.flattr_image
-            )
+        if self.channel.payment_url:
+            self.flattr_possible = flattr.set_flattr_button(self._flattr,
+                self.channel.payment_url, self._config.flattr.token,
+                self.flattr_image, self.flattr_button)
             self.label_flattr_info.set_visible(False)
             self.flattr_image.set_visible(True)
+            self.flattr_button.set_visible(True)
         else:
             self.label_flattr_info.set_visible(True)
             self.flattr_image.set_visible(False)
+            self.flattr_button.set_visible(False)
 
-    def on_flattr_button_clicked(self, widget, event):
+    def on_flattr_button_clicked(self, widget):
         if self.flattr_possible:
-            status = self._flattr.flattr_url(self.channel.flattr_url)
+            status = self._flattr.flattr_url(self.channel.payment_url)
             self.show_message(status, title=_('Flattr status'))
             self.set_flattr_information()

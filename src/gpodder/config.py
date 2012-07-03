@@ -165,7 +165,7 @@ defaults = {
 
     'flattr': {
         'token': '',
-        'autoflattr': False,
+        'flattr_on_play': False,
     },
 }
 

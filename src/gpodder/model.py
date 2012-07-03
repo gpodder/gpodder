@@ -50,6 +50,15 @@ import string
 _ = gpodder.gettext
 
 
+def get_payment_priority(url):
+    """
+    at the moment we only support flattr.com as an payment provider, so we
+    sort the payment providers and prefer flattr.com ("1" is higher priority than "2")
+    """
+    if 'flattr.com' in url:
+        return 1
+    return 2
+
 class CustomFeed(feedcore.ExceptionWithData): pass
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -228,10 +237,10 @@ class PodcastEpisode(PodcastModelObject):
         filter_and_sort_enclosures = lambda x: x
 
         # read the flattr auto-url, if exists
-        linkinfo = [link['href'] for link in entry.get('links', [])
-            if link['rel'] == 'payment' and 'flattr.com' in link['href']]
-        if linkinfo:
-            episode.flattr_url = linkinfo[0]
+        payment_info = [link['href'] for link in entry.get('links', [])
+            if link['rel'] == 'payment']
+        if payment_info:
+            episode.payment_url = sorted(payment_info, key=get_payment_priority)[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -339,7 +348,7 @@ class PodcastEpisode(PodcastModelObject):
         self.link = ''
         self.published = 0
         self.download_filename = None
-        self.flattr_url = None
+        self.payment_url = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -765,12 +774,8 @@ class PodcastEpisode(PodcastModelObject):
         return hash((self.title, self.published))
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'flattr_url'):
+        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
-
-    def flattr_exists(self):
-        return (self.flattr_url is not None)
-
 
 
 class PodcastChannel(PodcastModelObject):
@@ -794,7 +799,7 @@ class PodcastChannel(PodcastModelObject):
         self.link = ''
         self.description = ''
         self.cover_url = None
-        self.flattr_url = None
+        self.payment_url = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1008,10 +1013,10 @@ class PodcastChannel(PodcastModelObject):
         self.description = feed.feed.get('subtitle', self.description)
 
         # read the flattr auto-url, if exists
-        linkinfo = [link['href'] for link in feed.feed.get('links', [])
-            if link['rel'] == 'payment' and 'flattr.com' in link['href']]
-        if linkinfo:
-            self.flattr_url = linkinfo[0]
+        payment_info = [link['href'] for link in feed.feed.get('links', [])
+            if link['rel'] == 'payment']
+        if payment_info:
+            self.payment_url = sorted(payment_info, key=get_payment_priority)[0]
 
         # Start YouTube- and Vimeo-specific title FIX
         YOUTUBE_PREFIX = 'Uploads by '
