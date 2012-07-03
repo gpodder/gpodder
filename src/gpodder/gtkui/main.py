@@ -1540,7 +1540,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
 
-            menu.append( gtk.SeparatorMenuItem())
+            result = gpodder.user_extensions.on_channel_context_menu(self.active_channel)
+            if result:
+                menu.append(gtk.SeparatorMenuItem())
+                for label, callback in result:
+                    item = gtk.MenuItem(label)
+                    item.connect('activate', lambda item, callback: callback(self.active_channel), callback)
+                    menu.append(item)
+
+            menu.append(gtk.SeparatorMenuItem())
 
             item = gtk.ImageMenuItem(_('Podcast settings'))
             item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
