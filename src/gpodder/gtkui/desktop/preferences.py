@@ -84,8 +84,8 @@ class OnSyncActionList(gtk.ListStore):
         gtk.ListStore.__init__(self, str, bool, bool)
         self._config = config
         self.append((_('Do nothing'), False, False))
-        self.append((_('Mark it as played'), False, True))
-        self.append((_('Delete it from gPodder'), True, False))
+        self.append((_('Mark as played'), False, True))
+        self.append((_('Delete from gPodder'), True, False))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -371,10 +371,11 @@ class gPodderPreferences(BuilderWidget):
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
         self.device_type_model.set_index(index)
-        if index == 0:
+        device_type = self._config.device_sync.device_type
+        if device_type == 'none':
             self.btn_filesystemMountpoint.set_label('')
             self.btn_filesystemMountpoint.set_sensitive(False)
-        if index == 1: #JOSEPH: add back in ipod & mtp support
+        elif device_type == 'filesystem': #JOSEPH: add back in ipod & mtp support
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
 

@@ -157,9 +157,9 @@ defaults = {
 
     'device_sync': {
         # Settings for Device sync
-        'device_type': 'None',
+        'device_type': 'none', # Possible values: 'none', 'filesystem'
         'device_folder': '/media',
-        'one_folder_per_podcasts': True,
+        'one_folder_per_podcast': True,
         'skip_played_episodes': True,
         'delete_played_episodes': False,
         'max_filename_length': 999,
