@@ -40,19 +40,19 @@ try:
     import gpod
 except:
     gpod_available = False
-    logger.warning('(gpodder.sync) Could not find gpod')
+    logger.warning('Could not find gpod')
 
 pymtp_available = True
 try:
     import gpodder.gpopymtp as pymtp
 except:
     pymtp_available = False
-    logger.warning('(gpodder.sync) Could not load gpopymtp (libmtp not installed?).')
+    logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 try:
     import eyeD3
 except:
-    logger.warning( '(gpodder.sync) Could not find eyeD3')
+    logger.warning( 'Could not find eyeD3')
 
 import os.path
 import glob
@@ -191,7 +191,7 @@ class Device(services.ObservableService):
             logger.warning('Not syncing disks. Unmount your device before unplugging.')
         return True
 
-    def add_sync_tasks(self,tracklist=[], force_played=False):
+    def add_sync_tasks(self,tracklist, force_played=False):
            
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
@@ -497,7 +497,7 @@ class MP3PlayerDevice(Device):
     def add_track(self, episode,reporthook=None):
         self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
 
-        if self._config.device_sync.one_folder_per_podcasts:
+        if self._config.device_sync.one_folder_per_podcast:
             # Add channel title as subfolder
             folder = episode.channel.title
             # Clean up the folder name for use on limited devices
@@ -594,7 +594,7 @@ class MP3PlayerDevice(Device):
     def get_all_tracks(self):
         tracks = []
 
-        if self._config.one_folder_per_podcasts:
+        if self._config.one_folder_per_podcast:
             files = glob.glob(os.path.join(self.destination, '*', '*'))
         else:
             files = glob.glob(os.path.join(self.destination, '*'))
@@ -605,7 +605,7 @@ class MP3PlayerDevice(Device):
 
             timestamp = util.file_modification_timestamp(filename)
             modified = util.format_date(timestamp)
-            if self._config.one_folder_per_podcasts:
+            if self._config.one_folder_per_podcast:
                 podcast_name = os.path.basename(os.path.dirname(filename))
             else:
                 podcast_name = None
@@ -624,7 +624,7 @@ class MP3PlayerDevice(Device):
         self.notify('status', _('Removing %s') % track.title)
         util.delete_file(track.filename)
         directory = os.path.dirname(track.filename)
-        if self.directory_is_empty(directory) and self._config.one_folder_per_podcasts:
+        if self.directory_is_empty(directory) and self._config.one_folder_per_podcast:
             try:
                 os.rmdir(directory)
             except:
@@ -871,6 +871,7 @@ class SyncTask(DownloadTask):
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
     (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
 
+
     def __str__(self):
         return self.__episode.title
 
@@ -900,6 +901,14 @@ class SyncTask(DownloadTask):
             return False
 
     status_changed = property(fget=__get_status_changed)
+    
+    def __get_activity(self):
+        return self.__activity
+
+    def __set_activity(self, activity):
+        self.__activity = activity
+
+    activity = property(fget=__get_activity, fset=__set_activity)
 
     def __get_url(self):
         return "Test Ep URL"
@@ -927,6 +936,7 @@ class SyncTask(DownloadTask):
 
     def __init__(self,episode):
         self.__status = SyncTask.INIT
+        self.__activity=SyncTask.ACTIVITY_SYNCHRONIZE
         self.__status_changed = True
         self.__episode = episode
         

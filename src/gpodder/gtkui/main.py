@@ -1081,7 +1081,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.download_status_model.request_update(row.iter)
 
                 task = row[self.download_status_model.C_TASK]
-                speed, size, status, progress, activity = task.speed, task.total_size, task.status, task.progress, type(task).__name__
+                speed, size, status, progress, activity = task.speed, task.total_size, task.status, task.progress, task.activity
 
                 # Let the download task monitors know of changes
                 for monitor in self.download_task_monitors:
@@ -1096,10 +1096,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status == download.DownloadTask.DOWNLOADING and activity=='DownloadTask'):
+                if (status == download.DownloadTask.DOWNLOADING and activity==download.DownloadTask.ACTIVITY_DOWNLOAD):
                     downloading += 1
                     total_speed += speed
-                elif (status == download.DownloadTask.DOWNLOADING and activity=='SyncTask'):
+                elif (status == download.DownloadTask.DOWNLOADING and activity==download.DownloadTask.ACTIVITY_SYNCHRONIZE):
                     synchronizing+=1
                 elif status == download.DownloadTask.FAILED:
                     failed += 1
@@ -1115,7 +1115,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
 
-            text = [_('Tasks')]
+            text = [_('Progress')]
             if downloading + failed + queued + synchronizing > 0:
                 s = []
                 if downloading > 0:

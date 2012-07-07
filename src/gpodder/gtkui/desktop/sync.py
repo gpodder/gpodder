@@ -132,8 +132,8 @@ class gPodderSyncUI(object):
 
             if total_size > free_space:
                 title = _('Not enough space left on device')
-                message = _('You need to free up %s.\nDo you want to continue?') \
-                                % (util.format_filesize(total_size-free_space),)
+                message = (_('Additional free space required: %(required_space)s\nDo you want to continue?') %
+               {'required_space': util.format_filesize(total_size - free_space)})
                 if not self.show_confirmation(message, title):
                     device.cancel()
                     device.close()
