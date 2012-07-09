@@ -1096,11 +1096,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status == download.DownloadTask.DOWNLOADING and activity==download.DownloadTask.ACTIVITY_DOWNLOAD):
+                if (status == download.DownloadTask.DOWNLOADING and
+                        activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
                     downloading += 1
                     total_speed += speed
-                elif (status == download.DownloadTask.DOWNLOADING and activity==download.DownloadTask.ACTIVITY_SYNCHRONIZE):
-                    synchronizing+=1
+                elif (status == download.DownloadTask.DOWNLOADING and
+                        activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE):
+                    synchronizing += 1
                 elif status == download.DownloadTask.FAILED:
                     failed += 1
                 elif status == download.DownloadTask.DONE:
@@ -1121,7 +1123,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if downloading > 0:
                     s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count':downloading})
                 if synchronizing > 0:
-                    s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count':synchronizing})                    
+                    s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count':synchronizing})
                 if failed > 0:
                     s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count':failed})
                 if queued > 0:
@@ -1356,31 +1358,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
 
     def downloads_finished(self, download_tasks_seen):
+        # Separate tasks into downloads & syncs
+        # Since calling notify_as_finished or notify_as_failed clears the flag,
+        # need to iterate through downloads & syncs separately, else all sync
+        # tasks will have their flags cleared if we do downloads first
 
-        #separate tasks into downloads & syncs
-        #since calling notify_as_finished or notify_as_failed clears the flag,
-        #need to iterate through downloads & syncs separately, else all sync
-        #tasks will have their flags cleared if we do downloads first
-                     
-        download_tasks=filter((lambda task: type(task).__name__=='DownloadTask'),download_tasks_seen)
+        def filter_by_activity(activity, tasks):
+            return filter(lambda task: task.activity == activity, tasks)
 
-        sync_tasks=filter((lambda task: type(task).__name__=='SyncTask'),download_tasks_seen)
+        download_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_DOWNLOAD,
+                download_tasks_seen)
 
-        finished_downloads = [str(task) for task in download_tasks if 
-                              task.notify_as_finished()]
-        failed_downloads = [str(task)+' ('+task.error_message+')' 
-                            for task in download_tasks if 
-                            task.notify_as_failed()]
+        finished_downloads = [str(task)
+                for task in download_tasks if task.notify_as_finished()]
+        failed_downloads = ['%s (%s)' % (str(task), task.error_message)
+                for task in download_tasks if task.notify_as_failed()]
 
-        #Note that 'finished_ / failed_downloads' is a list of strings
-        #Whereas 'finished_ / failed_syncs' is a list of SyncTask objects        
-        finished_syncs=filter((lambda task: task.notify_as_finished()),sync_tasks)
-        
-        failed_syncs=filter((lambda task: task.notify_as_failed()),sync_tasks)
+        sync_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_SYNCHRONIZE,
+                download_tasks_seen)
+
+        finished_syncs = [task for task in sync_tasks if task.notify_as_finished()]
+        failed_syncs = [task for task in sync_tasks if task.notify_as_failed()]
+
+        # Note that 'finished_ / failed_downloads' is a list of strings
+        # Whereas 'finished_ / failed_syncs' is a list of SyncTask objects
 
         if finished_downloads and failed_downloads:
             message = self.format_episode_list(finished_downloads, 5)
-            message += '\n\n<i>%s</i>\n' % _('These downloads failed:')
+            message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
             message += self.format_episode_list(failed_downloads, 5)
             self.show_message(message, _('Downloads finished'), True, widget=self.labelDownloads)
         elif finished_downloads:
@@ -1392,7 +1397,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if finished_syncs and failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
-            message += '\n\n<i>%s</i>\n' % _('These syncs failed:')
+            message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
             message += self.format_episode_list(map((lambda task: str(task)),failed_syncs), 5)
             self.show_message(message, _('Device synchronization finished'), True, widget=self.labelDownloads)
         elif finished_syncs:
@@ -1402,21 +1407,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(map((lambda task: str(task)),failed_syncs))
             self.show_message(message, _('Device synchronization failed'), True, widget=self.labelDownloads)
 
-
-        #do post sync processing if appropriate
-        for task in finished_syncs+failed_syncs:
+        # Do post-sync processing if required
+        for task in finished_syncs + failed_syncs:
             if self.config.device_sync.after_sync.mark_episodes_played:
                 logger.info('Marking as played on transfer: %s', task.episode.url)
-                task.episode.mark(is_played=True)                
-                           
+                task.episode.mark(is_played=True)
+
             if self.config.device_sync.after_sync.delete_episodes:
                 logger.info('Removing episode after transfer: %s', task.episode.url)
                 task.episode.delete_from_disk()
-            
+
             self.sync_ui.device.close()
 
-
-        #update icon list to show changes, if any
+        # Update icon list to show changes, if any
         self.update_episode_list_icons(all=True)
 
 
@@ -3469,15 +3472,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_episode_list(episodes=[episode])
 
     def on_sync_to_device_activate(self, widget, episodes=None, force_played=True):
-        self.sync_ui = gPodderSyncUI(self.config, self.notification, 
-                self.main_window, self.show_confirmation, 
-                self.update_episode_list_icons, 
-                self.update_podcast_list_model, self.toolPreferences, 
+        self.sync_ui = gPodderSyncUI(self.config, self.notification,
+                self.main_window,
+                self.show_confirmation,
+                self.update_episode_list_icons,
+                self.update_podcast_list_model,
+                self.toolPreferences,
                 gPodderEpisodeSelector,
-                self.download_status_model,self.download_queue_manager,
-                self.enable_download_list_update, 
-                self.commit_changes_to_database
-                )
+                self.download_status_model,
+                self.download_queue_manager,
+                self.enable_download_list_update,
+                self.commit_changes_to_database)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
 

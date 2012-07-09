@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@
 # sync.py -- Device synchronization
 # Thomas Perl <thp@perli.net> 2007-12-06
 # based on libipodsync.py (2006-04-05 Thomas Perl)
+# Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
 import gpodder
 
 from gpodder import util
 from gpodder import services
-from download import DownloadTask
+from gpodder import download
 
 import logging
 logger = logging.getLogger(__name__)
@@ -35,24 +36,31 @@ import calendar
 
 _ = gpodder.gettext
 
-gpod_available = True
-try:
-    import gpod
-except:
-    gpod_available = False
-    logger.warning('Could not find gpod')
+#
+# TODO: Re-enable iPod and MTP sync support
+#
 
-pymtp_available = True
-try:
-    import gpodder.gpopymtp as pymtp
-except:
-    pymtp_available = False
-    logger.warning('Could not load gpopymtp (libmtp not installed?).')
+pymtp_available = False
+gpod_available = False
+
+#gpod_available = True
+#try:
+#    import gpod
+#except:
+#    gpod_available = False
+#    logger.warning('Could not find gpod')
+#
+#pymtp_available = True
+#try:
+#    import gpodder.gpopymtp as pymtp
+#except:
+#    pymtp_available = False
+#    logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 try:
     import eyeD3
 except:
-    logger.warning( 'Could not find eyeD3')
+    logger.warning('Could not find eyeD3')
 
 import os.path
 import glob
@@ -103,13 +111,16 @@ if pymtp_available:
             # logger.info('MTP.mkdir: %s = %u' % (path, folder_id))
             return folder_id
 
-def open_device(self):
-    config=self._config
-    device_type=self._config.device_sync.device_type
+def open_device(gui):
+    config = gui._config
+    device_type = gui._config.device_sync.device_type
+
     if device_type == 'filesystem':
-        return MP3PlayerDevice(config,self.download_status_model, self.download_queue_manager)
-    else:
-        return None
+        return MP3PlayerDevice(config,
+                gui.download_status_model,
+                gui.download_queue_manager)
+
+    return None
 
 def get_track_length(filename):
     if util.find_command('mplayer') is not None:
@@ -132,7 +143,7 @@ def get_track_length(filename):
 class SyncTrack(object):
     """
     This represents a track that is on a device. You need
-    to specify at least the following keyword arguments, 
+    to specify at least the following keyword arguments,
     because these will be used to display the track in the
     GUI. All other keyword arguments are optional and can
     be used to reference internal objects, etc... See the
@@ -192,11 +203,10 @@ class Device(services.ObservableService):
         return True
 
     def add_sync_tasks(self,tracklist, force_played=False):
-           
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
             does_not_exist = not track.was_downloaded(and_exists=True)
-            exclude_played = (not track.is_new and 
+            exclude_played = (not track.is_new and
                     self._config.device_sync.skip_played_episodes)
             wrong_type = track.file_type() not in self.allowed_types
 
@@ -204,11 +214,11 @@ class Device(services.ObservableService):
                 logger.info('Excluding %s from sync', track.title)
                 tracklist.remove(track)
 
-        for id, track in enumerate(sorted(tracklist, key=lambda e: e.pubdate_prop)):
+        for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
             if self.cancelled:
                 return False
 
-            #JOSEPH: need to check if track is added properly?
+            # XXX: need to check if track is added properly?
             sync_task=SyncTask(track)
 
             sync_task.status=sync_task.QUEUED
@@ -218,12 +228,13 @@ class Device(services.ObservableService):
 
         return True
 
-    def remove_tracks(self, tracklist=[]):
-        for id, track in enumerate(tracklist):
+    def remove_tracks(self, tracklist):
+        for idx, track in enumerate(tracklist):
             if self.cancelled:
                 return False
-            self.notify('progress', id, len(tracklist))
+            self.notify('progress', idx, len(tracklist))
             self.remove_track(track)
+
         return True
 
     def get_all_tracks(self):
@@ -256,7 +267,6 @@ class iPodDevice(Device):
 
         self.itdb = None
         self.podcast_playlist = None
-        
 
     def get_free_space(self):
         # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
@@ -292,11 +302,12 @@ class iPodDevice(Device):
             self.notify('status', _('Saving iPod database'))
             gpod.itdb_write(self.itdb, None)
             self.itdb = None
-            
+
             if self._config.ipod_write_gtkpod_extended:
                 self.notify('status', _('Writing extended gtkpod database'))
-                ext_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB.ext')
-                idb_filename = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes', 'iTunesDB')
+                itunes_folder = os.path.join(self.mountpoint, 'iPod_Control', 'iTunes')
+                ext_filename = os.path.join(itunes_folder, 'iTunesDB.ext')
+                idb_filename = os.path.join(itunes_folder, 'iTunesDB')
                 if os.path.exists(ext_filename) and os.path.exists(idb_filename):
                     try:
                         db = gpod.ipod.Database(self.mountpoint)
@@ -304,13 +315,11 @@ class iPodDevice(Device):
                         gpod.gtkpod.write(ext_filename, db, idb_filename)
                         db.close()
                     except:
-                        logger.error('Error when writing iTunesDB.ext', sender=self, traceback=True)
+                        logger.error('Error writing iTunesDB.ext')
                 else:
-                    logger.warning('I could not find %s or %s. Will not update extended gtkpod DB.', ext_filename, idb_filename, sender=self)
-            else:
-                logger.info('Not writing extended gtkpod DB. Set "ipod_write_gpod_extended" to True if I should write it.', sender=self)            
-            
-            
+                    logger.warning('Could not find %s or %s.',
+                            ext_filename, idb_filename)
+
         Device.close(self)
         return True
 
@@ -325,18 +334,18 @@ class iPodDevice(Device):
                 gtrack = track.libgpodtrack
                 if gtrack.playcount > 0:
                     if delete_from_db and not gtrack.rating:
-                        logger.info('Deleting episode from db %s', gtrack.title, sender=self)
+                        logger.info('Deleting episode from db %s', gtrack.title)
                         channel.delete_episode(episode)
                     else:
-                        logger.info('Marking episode as played %s', gtrack.title, sender=self)
+                        logger.info('Marking episode as played %s', gtrack.title)
 
     def purge(self):
         for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
             if gpod.itdb_filename_on_ipod(track) is None:
-                logger.info('Episode has no file: %s', track.title, sender=self)
+                logger.info('Episode has no file: %s', track.title)
                 # self.remove_track_gpod(track)
             elif track.playcount > 0  and not track.rating:
-                logger.info('Purging episode: %s', track.title, sender=self)
+                logger.info('Purging episode: %s', track.title)
                 self.remove_track_gpod(track)
 
     def get_all_tracks(self):
@@ -346,7 +355,7 @@ class iPodDevice(Device):
 
             if filename is None:
                 # This can happen if the episode is deleted on the device
-                logger.info('Episode has no file: %s', track.title, sender=self)
+                logger.info('Episode has no file: %s', track.title)
                 self.remove_track_gpod(track)
                 continue
 
@@ -358,12 +367,17 @@ class iPodDevice(Device):
                 released = util.format_date(released)
             except ValueError, ve:
                 # timestamp out of range for platform time_t (bug 418)
-                logger.info('Cannot convert track time: %s', ve, sender=self)
+                logger.info('Cannot convert track time: %s', ve)
                 released = 0
 
-            t = SyncTrack(track.title, length, modified, modified_sort=timestamp, libgpodtrack=track, playcount=track.playcount, released=released, podcast=track.artist)
+            t = SyncTrack(track.title, length, modified,
+                    modified_sort=timestamp,
+                    libgpodtrack=track,
+                    playcount=track.playcount,
+                    released=released,
+                    podcast=track.artist)
             tracks.append(t)
-        return tracks        
+        return tracks
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
@@ -375,7 +389,7 @@ class iPodDevice(Device):
         try:
             gpod.itdb_playlist_remove_track(self.podcasts_playlist, track)
         except:
-            logger.info('Track %s not in playlist', track.title, sender=self)
+            logger.info('Track %s not in playlist', track.title)
 
         gpod.itdb_track_unlink(track)
         util.delete_file(filename)
@@ -395,7 +409,7 @@ class iPodDevice(Device):
         local_filename = original_filename
 
         if util.calculate_size(original_filename) > self.get_free_space():
-            logger.error('Not enough space on %s, sync aborted...', self.mountpoint, sender = self)
+            logger.error('Not enough space on %s, sync aborted...', self.mountpoint)
             d = {'episode': episode.title, 'mountpoint': self.mountpoint}
             message =_('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
             self.errors.append(message % d)
@@ -406,11 +420,11 @@ class iPodDevice(Device):
 
         (fn, extension) = os.path.splitext(local_filename)
         if extension.lower().endswith('ogg'):
-            logger.error('Cannot copy .ogg files to iPod.', sender=self)
+            logger.error('Cannot copy .ogg files to iPod.')
             return False
 
         track = gpod.itdb_track_new()
-        
+
         # Add release time to track if pubdate has a valid value
         if episode.pubdate > 0:
             try:
@@ -422,7 +436,7 @@ class iPodDevice(Device):
                 #
                 # + 2082844800 for unixtime => mactime (1970 => 1904)
                 track.time_released = int(episode.pubdate + 2082844800)
-        
+
         track.title = str(episode.title)
         track.album = str(episode.channel.title)
         track.artist = str(episode.channel.title)
@@ -459,7 +473,6 @@ class iPodDevice(Device):
 
     def set_podcast_flags(self, track, episode):
         try:
-
             # Set several flags for to podcast values
             track.remember_playback_position = 0x01
             track.flag1 = 0x02
@@ -467,17 +480,18 @@ class iPodDevice(Device):
             track.flag3 = 0x01
             track.flag4 = 0x01
         except:
-            logger.warning('Seems like your python-gpod is out-of-date.', sender=self)
-    
+            logger.warning('Seems like your python-gpod is out-of-date.')
+
 
 class MP3PlayerDevice(Device):
-
-    def __init__(self, config,download_status_model,download_queue_manager):
+    def __init__(self, config,
+            download_status_model,
+            download_queue_manager):
         Device.__init__(self, config)
         self.destination = self._config.device_sync.device_folder
         self.buffer_size = 1024*1024 # 1 MiB
-        self.download_status_model=download_status_model
-        self.download_queue_manager=download_queue_manager
+        self.download_status_model = download_status_model
+        self.download_queue_manager = download_queue_manager
 
     def get_free_space(self):
         return util.get_free_disk_space(self.destination)
@@ -485,14 +499,13 @@ class MP3PlayerDevice(Device):
     def open(self):
         Device.open(self)
         self.notify('status', _('Opening MP3 player'))
+
         if util.directory_is_writable(self.destination):
             self.notify('status', _('MP3 player opened'))
-            # build the initial tracks_list
             self.tracks_list = self.get_all_tracks()
-
             return True
-        else:
-            return False
+
+        return False
 
     def add_track(self, episode,reporthook=None):
         self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
@@ -501,22 +514,24 @@ class MP3PlayerDevice(Device):
             # Add channel title as subfolder
             folder = episode.channel.title
             # Clean up the folder name for use on limited devices
-            folder = util.sanitize_filename(folder, self._config.device_sync.max_filename_length)
+            folder = util.sanitize_filename(folder,
+                    self._config.device_sync.max_filename_length)
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
 
         folder = util.sanitize_encoding(folder)
 
-        #filename = episode.local_filename(create=False)
+        filename = episode.local_filename(create=False)
         # The file has to exist, if we ought to transfer it, and therefore,
         # local_filename(create=False) must never return None as filename
-        assert episode.local_filename(create=False) is not None
+        assert filename is not None
 
-        from_file = util.sanitize_encoding(episode.local_filename(create=False))
-        filename_base = util.sanitize_filename(episode.sync_filename(self._config.device_sync.custom_sync_name_enabled,
-                                                                     self._config.device_sync.custom_sync_name),
-                                                                     self._config.device_sync.max_filename_length)
+        from_file = util.sanitize_encoding(filename)
+        filename_base = util.sanitize_filename(episode.sync_filename(
+            self._config.device_sync.custom_sync_name_enabled,
+            self._config.device_sync.custom_sync_name),
+            self._config.device_sync.max_filename_length)
 
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
@@ -536,13 +551,14 @@ class MP3PlayerDevice(Device):
                 return False
 
         if not os.path.exists(to_file):
-            logger.info('Copying %s => %s', os.path.basename(from_file), to_file.decode(util.encoding))
-            self.copy_file_progress(from_file, to_file,reporthook)
+            logger.info('Copying %s => %s',
+                    os.path.basename(from_file),
+                    to_file.decode(util.encoding))
+            self.copy_file_progress(from_file, to_file, reporthook)
 
         return True
 
     def copy_file_progress(self, from_file, to_file, reporthook=None):
-        
         try:
             out_file = open(to_file, 'wb')
         except IOError, ioerror:
@@ -559,8 +575,8 @@ class MP3PlayerDevice(Device):
             self.cancel()
             return False
 
-        in_file.seek(0, 2)
-        bytes = in_file.tell()
+        in_file.seek(0, os.SEEK_END)
+        total_bytes = in_file.tell()
         in_file.seek(0)
 
         bytes_read = 0
@@ -583,14 +599,13 @@ class MP3PlayerDevice(Device):
                     logger.error('Error while trying to unlink %s. OH MY!' % to_file)
                 self.cancel()
                 return False
-            #self.notify('sub-progress', int(min(100, 100*float(bytes_read)/float(bytes))))
-            reporthook(bytes_read, 1, bytes)
+            reporthook(bytes_read, 1, total_bytes)
             s = in_file.read(self.buffer_size)
         out_file.close()
         in_file.close()
 
         return True
-    
+
     def get_all_tracks(self):
         tracks = []
 
@@ -610,14 +625,18 @@ class MP3PlayerDevice(Device):
             else:
                 podcast_name = None
 
-            t = SyncTrack(title, length, modified, modified_sort=timestamp, filename=filename, podcast=podcast_name)
+            t = SyncTrack(title, length, modified,
+                    modified_sort=timestamp,
+                    filename=filename,
+                    podcast=podcast_name)
             tracks.append(t)
         return tracks
 
     def episode_on_device(self, episode):
-        e = util.sanitize_filename(episode.sync_filename(self._config.device_sync.custom_sync_name_enabled,
-                                                         self._config.device_sync.custom_sync_name),
-                                                         self._config.device_sync.max_filename_length)
+        e = util.sanitize_filename(episode.sync_filename(
+            self._config.device_sync.custom_sync_name_enabled,
+            self._config.device_sync.custom_sync_name),
+            self._config.device_sync.max_filename_length)
         return self._track_on_device(e)
 
     def remove_track(self, track):
@@ -667,7 +686,7 @@ class MTPDevice(Device):
             d = time.gmtime(date)
             return time.strftime("%Y%m%d-%H%M%S.0Z", d)
         except Exception, exc:
-            logger.error('ERROR: An error has happend while trying to convert date to an mtp string (%s)')
+            logger.error('ERROR: An error has happend while trying to convert date to an mtp string')
             return None
 
     def __mtp_to_date(self, mtp):
@@ -675,7 +694,6 @@ class MTPDevice(Device):
         this parse the mtp's string representation for date
         according to specifications (YYYYMMDDThhmmss.s) to
         a python time object
-
         """
         if not mtp:
             return None
@@ -772,7 +790,7 @@ class MTPDevice(Device):
             needed = util.calculate_size(filename)
             free = self.get_free_space()
             if needed > free:
-                logger.error('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed), sender=self)
+                logger.error('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed))
                 self.cancelled = True
                 return False
 
@@ -858,13 +876,11 @@ class MTPDevice(Device):
             return self.__MTPDevice.get_freespace()
         else:
             return 0
-        
+
 class SyncCancelledException(Exception): pass
-  
 
-class SyncTask(DownloadTask):
-    #An object representing the synchronization task of an episode
-
+class SyncTask(download.DownloadTask):
+    # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
@@ -884,14 +900,14 @@ class SyncTask(DownloadTask):
             self.__status = status
 
     status = property(fget=__get_status, fset=__set_status)
-    
+
     def __get_device(self):
         return self.__device
 
     def __set_device(self, device):
         self.__device = device
 
-    device = property(fget=__get_device, fset=__set_device)    
+    device = property(fget=__get_device, fset=__set_device)
 
     def __get_status_changed(self):
         if self.__status_changed:
@@ -901,7 +917,7 @@ class SyncTask(DownloadTask):
             return False
 
     status_changed = property(fget=__get_status_changed)
-    
+
     def __get_activity(self):
         return self.__activity
 
@@ -910,15 +926,11 @@ class SyncTask(DownloadTask):
 
     activity = property(fget=__get_activity, fset=__set_activity)
 
-    def __get_url(self):
-        return "Test Ep URL"
+    def __get_empty_string(self):
+        return ''
 
-    url = property(fget=__get_url)
-
-    def __get_podcast_url(self):
-        return "Test Channel URL"
-
-    podcast_url = property(fget=__get_podcast_url)
+    url = property(fget=__get_empty_string)
+    podcast_url = property(fget=__get_empty_string)
 
     def __get_episode(self):
         return self.__episode
@@ -930,21 +942,19 @@ class SyncTask(DownloadTask):
             self.status = self.CANCELLED
 
     def removed_from_list(self):
-        #JOSEPH: really need to delete this  
-        if self.status not in (self.DOWNLOADING, self.QUEUED, self.DONE):
-            util.delete_file(self.tempname)
+        # XXX: Should we delete temporary/incomplete files here?
+        pass
 
-    def __init__(self,episode):
+    def __init__(self, episode):
         self.__status = SyncTask.INIT
-        self.__activity=SyncTask.ACTIVITY_SYNCHRONIZE
+        self.__activity = SyncTask.ACTIVITY_SYNCHRONIZE
         self.__status_changed = True
         self.__episode = episode
-        
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=False)
         self.tempname = self.filename + '.partial'
-        
+
         self.total_size = self.__episode.file_size
         self.speed = 0.0
         self.progress = 0.0
@@ -961,7 +971,6 @@ class SyncTask(DownloadTask):
 
         # Callbacks
         self._progress_updated = lambda x: None
-
 
     def notify_as_finished(self):
         if self.status == SyncTask.DONE:
@@ -993,7 +1002,7 @@ class SyncTask(DownloadTask):
             self.total_size = float(totalSize)
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))            
+            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
             self._progress_updated(self.progress)
 
         if self.status == SyncTask.CANCELLED:
@@ -1001,7 +1010,6 @@ class SyncTask(DownloadTask):
 
         if self.status == SyncTask.PAUSED:
             raise SyncCancelledException()
-
 
     def recycle(self):
         self.episode.download_task = None
@@ -1027,11 +1035,8 @@ class SyncTask(DownloadTask):
         self._notification_shown = False
 
         try:
-
-            logger.info("Starting SyncTask")
-            self.device.add_track(self.episode,reporthook=self.status_updated)
-        
-
+            logger.info('Starting SyncTask')
+            self.device.add_track(self.episode, reporthook=self.status_updated)
         except Exception, e:
             self.status = SyncTask.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)
@@ -1046,7 +1051,7 @@ class SyncTask(DownloadTask):
             self.progress = 1.0
             gpodder.user_extensions.on_episode_downloaded(self.__episode)
             return True
-        
+
         self.speed = 0.0
 
         # We finished, but not successfully (at least not really)

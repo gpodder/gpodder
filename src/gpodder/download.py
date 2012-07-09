@@ -531,9 +531,10 @@ class DownloadTask(object):
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
     (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
-    
-    (ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE) = range(2)
-    
+
+    # Wheter this task represents a file download or a device sync operation
+    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = range(2)
+
 
     def __str__(self):
         return self.__episode.title
@@ -592,7 +593,7 @@ class DownloadTask(object):
     def __init__(self, episode, config):
         assert episode.download_task is None
         self.__status = DownloadTask.INIT
-        self.__activity=DownloadTask.ACTIVITY_DOWNLOAD
+        self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode
         self._config = config

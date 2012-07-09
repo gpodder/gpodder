@@ -93,7 +93,7 @@ class OnSyncActionList(gtk.ListStore):
                     row[self.C_ON_SYNC_DELETE]):
                 return index
             if (self._config.device_sync.after_sync.mark_episodes_played and
-                    row[self.C_ON_SYNC_MARK_PLAYED] and not  
+                    row[self.C_ON_SYNC_MARK_PLAYED] and not
                     self._config.device_sync.after_sync.delete_episodes):
                 return index
         return 0 # Some sane default
@@ -375,9 +375,12 @@ class gPodderPreferences(BuilderWidget):
         if device_type == 'none':
             self.btn_filesystemMountpoint.set_label('')
             self.btn_filesystemMountpoint.set_sensitive(False)
-        elif device_type == 'filesystem': #JOSEPH: add back in ipod & mtp support
+        elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
+        else:
+            # TODO: Add support for iPod and MTP devices
+            pass
 
         children = self.btn_filesystemMountpoint.get_children()
         if children:
@@ -385,9 +388,10 @@ class gPodderPreferences(BuilderWidget):
             label.set_alignment(0., .5)
 
     def on_btn_device_mountpoint_clicked(self, widget):
-        fs = gtk.FileChooserDialog( title = _('Select folder for mount point'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
-        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
+                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
         fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
         if fs.run() == gtk.RESPONSE_OK:
             filename = fs.get_filename()
