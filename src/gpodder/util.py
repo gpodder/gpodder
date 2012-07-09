@@ -305,6 +305,13 @@ def username_password_from_url(url):
 
     return (username, password)
 
+def directory_is_writable(path):
+    """
+    Returns True if the specified directory exists and is writable
+    by the current user.
+    """
+    return os.path.isdir(path) and os.access(path, os.W_OK)
+
 
 def calculate_size( path):
     """
@@ -370,6 +377,20 @@ def file_age_in_days(filename):
         return 0
     else:
         return (datetime.datetime.now()-dt).days
+
+def file_modification_timestamp(filename):
+    """
+    Returns the modification date of the specified file as a number
+    or -1 if the modification date cannot be determined.
+    """
+    if filename is None:
+        return -1
+    try:
+        s = os.stat(filename)
+        return s[stat.ST_MTIME]
+    except:
+        logger.warn('Cannot get modification timestamp for %s', filename)
+        return -1
 
 
 def file_age_to_string(days):

@@ -155,6 +155,23 @@ defaults = {
         },
     },
 
+    'device_sync': {
+        # Settings for Device sync
+        'device_type': 'none', # Possible values: 'none', 'filesystem'
+        'device_folder': '/media',
+        'one_folder_per_podcast': True,
+        'skip_played_episodes': True,
+        'delete_played_episodes': False,
+        'max_filename_length': 999,
+        'custom_sync_name': '{episode.pubdate_prop}_{episode.title}',
+        'custom_sync_name_enabled': False,
+            'after_sync':   {
+                'mark_episodes_played': False,
+                'delete_episodes': False,
+                'sync_disks': False,
+            },
+        },
+
     'youtube': {
         'preferred_fmt_id': 18,
     },

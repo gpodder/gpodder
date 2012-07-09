@@ -57,6 +57,52 @@ class NewEpisodeActionList(gtk.ListStore):
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
+class DeviceTypeActionList(gtk.ListStore):
+    C_CAPTION, C_DEVICE_TYPE = range(2)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, str)
+        self._config = config
+        self.append((_('None'), 'none'))
+        self.append((_('Filesystem-based'), 'filesystem'))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.device_sync.device_type == row[self.C_DEVICE_TYPE]:
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.device_sync.device_type = self[index][self.C_DEVICE_TYPE]
+
+
+class OnSyncActionList(gtk.ListStore):
+    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = range(3)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, bool, bool)
+        self._config = config
+        self.append((_('Do nothing'), False, False))
+        self.append((_('Mark as played'), False, True))
+        self.append((_('Delete from gPodder'), True, False))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if (self._config.device_sync.after_sync.delete_episodes and
+                    row[self.C_ON_SYNC_DELETE]):
+                return index
+            if (self._config.device_sync.after_sync.mark_episodes_played and
+                    row[self.C_ON_SYNC_MARK_PLAYED] and not  
+                    self._config.device_sync.after_sync.delete_episodes):
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.device_sync.after_sync.delete_episodes = self[index][self.C_ON_SYNC_DELETE]
+        self._config.device_sync.after_sync.mark_episodes_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
+
+
 
 class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION = range(3)
@@ -118,6 +164,23 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
         self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
+
+        self.device_type_model = DeviceTypeActionList(self._config)
+        self.combobox_device_type.set_model(self.device_type_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_device_type.pack_start(cellrenderer, True)
+        self.combobox_device_type.add_attribute(cellrenderer, 'text', DeviceTypeActionList.C_CAPTION)
+        self.combobox_device_type.set_active(self.device_type_model.get_index())
+
+        self.on_sync_model = OnSyncActionList(self._config)
+        self.combobox_on_sync.set_model(self.on_sync_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_on_sync.pack_start(cellrenderer, True)
+        self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
+        self.combobox_on_sync.set_active(self.on_sync_model.get_index())
+
+        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes', self.checkbutton_skip_played_episodes)
+
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -300,4 +363,39 @@ class gPodderPreferences(BuilderWidget):
                 self.on_send_full_subscriptions()
                 self._config.mygpo.enabled = False
             threading.Thread(target=thread_proc).start()
+
+    def on_combobox_on_sync_changed(self, widget):
+        index = self.combobox_on_sync.get_active()
+        self.on_sync_model.set_index(index)
+
+    def on_combobox_device_type_changed(self, widget):
+        index = self.combobox_device_type.get_active()
+        self.device_type_model.set_index(index)
+        device_type = self._config.device_sync.device_type
+        if device_type == 'none':
+            self.btn_filesystemMountpoint.set_label('')
+            self.btn_filesystemMountpoint.set_sensitive(False)
+        elif device_type == 'filesystem': #JOSEPH: add back in ipod & mtp support
+            self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+
+        children = self.btn_filesystemMountpoint.get_children()
+        if children:
+            label = children.pop()
+            label.set_alignment(0., .5)
+
+    def on_btn_device_mountpoint_clicked(self, widget):
+        fs = gtk.FileChooserDialog( title = _('Select folder for mount point'), action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button( gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button( gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            filename = fs.get_filename()
+            if self._config.device_sync.device_type == 'filesystem':
+                self._config.device_sync.device_folder = filename
+
+            # Request an update of the mountpoint button
+            self.on_combobox_device_type_changed(None)
+
+        fs.destroy()
 

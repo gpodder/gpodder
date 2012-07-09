@@ -667,8 +667,12 @@ class PodcastEpisode(PodcastModelObject):
             return False
         return True
 
-    def sync_filename(self):
-        return self.title
+    def sync_filename(self, use_custom=False, custom_format=None):
+        if use_custom:
+            return util.object_string_formatter(custom_format,
+                    episode=self, podcast=self.channel)
+        else:
+            return self.title
 
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
