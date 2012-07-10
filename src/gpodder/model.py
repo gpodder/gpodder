@@ -50,8 +50,6 @@ import string
 _ = gpodder.gettext
 
 
-class CustomFeed(feedcore.ExceptionWithData): pass
-
 class gPodderFetcher(feedcore.Fetcher):
     """
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
@@ -72,8 +70,8 @@ class gPodderFetcher(feedcore.Fetcher):
         for handler in self.custom_handlers:
             custom_feed = handler.handle_url(url)
             if custom_feed is not None:
-                raise CustomFeed(custom_feed)
-        self.fetch(url, etag, modified)
+                return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
+        return self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
@@ -974,6 +972,15 @@ class PodcastChannel(PodcastModelObject):
         if not self.title or self.title == self.url:
             self.title = new_title
 
+            # Start YouTube- and Vimeo-specific title FIX
+            YOUTUBE_PREFIX = 'Uploads by '
+            VIMEO_PREFIX = 'Vimeo / '
+            if self.title.startswith(YOUTUBE_PREFIX):
+                self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
+            elif self.title.startswith(VIMEO_PREFIX):
+                self.title = self.title[len(VIMEO_PREFIX):] + ' on Vimeo'
+            # End YouTube- and Vimeo-specific title FIX
+
     def _consume_custom_feed(self, custom_feed, max_episodes=0):
         self._consume_updated_title(custom_feed.get_title())
         self.link = custom_feed.get_link()
@@ -1000,14 +1007,6 @@ class PodcastChannel(PodcastModelObject):
 
         self.link = feed.feed.get('link', self.link)
         self.description = feed.feed.get('subtitle', self.description)
-        # Start YouTube- and Vimeo-specific title FIX
-        YOUTUBE_PREFIX = 'Uploads by '
-        VIMEO_PREFIX = 'Vimeo / '
-        if self.title.startswith(YOUTUBE_PREFIX):
-            self.title = self.title[len(YOUTUBE_PREFIX):] + ' on YouTube'
-        elif self.title.startswith(VIMEO_PREFIX):
-            self.title = self.title[len(VIMEO_PREFIX):] + ' on Vimeo'
-        # End YouTube- and Vimeo-specific title FIX
 
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
@@ -1134,34 +1133,26 @@ class PodcastChannel(PodcastModelObject):
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
 
-    def _update_etag_modified(self, feed):
-        self.http_etag = feed.headers.get('etag', self.http_etag)
-        self.http_last_modified = feed.headers.get('last-modified', self.http_last_modified)
-
     def update(self, max_episodes=0):
         try:
-            self.feed_fetcher.fetch_channel(self)
-        except CustomFeed, updated:
-            custom_feed = updated.data
-            self._consume_custom_feed(custom_feed, max_episodes)
-            self.save()
-        except feedcore.UpdatedFeed, updated:
-            feed = updated.data
-            self._consume_updated_feed(feed, max_episodes)
-            self._update_etag_modified(feed)
-            self.save()
-        except feedcore.NewLocation, updated:
-            feed = updated.data
-            logger.info('New feed location: %s => %s', self.url, feed.href)
-            if feed.href in set(x.url for x in self.model.get_podcasts()):
-                raise Exception('Already subscribed to ' + feed.href)
-            self.url = feed.href
-            self._consume_updated_feed(feed, max_episodes)
-            self._update_etag_modified(feed)
-            self.save()
-        except feedcore.NotModified, updated:
-            feed = updated.data
-            self._update_etag_modified(feed)
+            result = self.feed_fetcher.fetch_channel(self)
+
+            if result.status == feedcore.CUSTOM_FEED:
+                self._consume_custom_feed(result.feed, max_episodes)
+            elif result.status == feedcore.UPDATED_FEED:
+                self._consume_updated_feed(result.feed, max_episodes)
+            elif result.status == feedcore.NEW_LOCATION:
+                url = result.feed.href
+                logger.info('New feed location: %s => %s', self.url, url)
+                if url in set(x.url for x in self.model.get_podcasts()):
+                    raise Exception('Already subscribed to ' + url)
+                self.url = url
+                self._consume_updated_feed(result.feed, max_episodes)
+            elif result.status == feedcore.NOT_MODIFIED:
+                pass
+
+            self.http_etag = result.feed.headers.get('etag', self.http_etag)
+            self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
             self.save()
         except Exception, e:
             # "Not really" errors
