@@ -1249,7 +1249,7 @@ def open_website(url):
                                   'open_new_window', \
                                   (url,))
     else:
-        threading.Thread(target=webbrowser.open, args=(url,)).start()
+        run_in_background(lambda: webbrowser.open(url))
 
 def convert_bytes(d):
     """
@@ -1619,4 +1619,12 @@ def get_update_info(url='http://gpodder.org/downloads'):
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
     return up_to_date, latest_version, release_date, days_since_release
+
+
+def run_in_background(function, daemon=False):
+    logger.debug('run_in_background: %s (%s)', function, str(daemon))
+    thread = threading.Thread(target=function)
+    thread.setDaemon(daemon)
+    thread.start()
+    return thread
 

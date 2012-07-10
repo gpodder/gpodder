@@ -31,7 +31,6 @@ import glob
 import time
 import tempfile
 import collections
-import threading
 import urllib
 import cgi
 
@@ -214,7 +213,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
-        threading.Thread(target=self.user_apps_reader.read).start()
+        util.run_in_background(self.user_apps_reader.read)
 
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
@@ -293,7 +292,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     util.idle_add(self.wNotebook.set_current_page, 0)
             else:
                 util.idle_add(self.clean_up_downloads, True)
-        threading.Thread(target=find_partial_downloads).start()
+        util.run_in_background(find_partial_downloads)
 
         # Start the auto-update procedure
         self._auto_update_timer_source_id = None
@@ -1675,7 +1674,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 util.delete_file(destfile)
 
-        threading.Thread(target=convert_and_send_thread, args=[episodes_to_copy]).start()
+        util.run_in_background(lambda: convert_and_send_thread(episodes_to_copy))
 
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
@@ -2271,6 +2270,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         selected=[e.check_is_new() for e in episodes])
 
 
+        @util.run_in_background
         def thread_proc():
             # After the initial sorting and splitting, try all queued podcasts
             length = len(queued)
@@ -2319,7 +2319,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 worked.append(channel.url)
 
             util.idle_add(on_after_update)
-        threading.Thread(target=thread_proc).start()
 
     def find_episode(self, podcast_url, episode_url):
         """Find an episode given its podcast and episode URL
@@ -2399,6 +2398,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
 
+        @util.run_in_background
         def update_feed_cache_proc():
             updated_channels = []
             for updated, channel in enumerate(channels):
@@ -2486,8 +2486,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.show_update_feeds_buttons()
 
             util.idle_add(update_feed_cache_finish_callback)
-
-        threading.Thread(target=update_feed_cache_proc).start()
 
     def on_gPodder_delete_event(self, widget, *args):
         """Called when the GUI wants to close the window
@@ -2610,6 +2608,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model(channel_urls)
             self.play_or_download()
 
+        @util.run_in_background
         def thread_proc():
             episode_urls = set()
             channel_urls = set()
@@ -2635,8 +2634,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.flush()
 
             util.idle_add(finish_deletion, episode_urls, channel_urls)
-
-        threading.Thread(target=thread_proc).start()
 
         return True
 
@@ -3016,6 +3013,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model(select_url=select_url)
             progress.on_finished()
 
+        @util.run_in_background
         def thread_proc():
             select_url = None
 
@@ -3056,8 +3054,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)
-
-        threading.Thread(target=thread_proc).start()
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         if self.active_channel is None:

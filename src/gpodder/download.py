@@ -342,9 +342,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
         return (None, None)
 
 
-class DownloadQueueWorker(threading.Thread):
+class DownloadQueueWorker(object):
     def __init__(self, queue, exit_callback, continue_check_callback, minimum_tasks):
-        threading.Thread.__init__(self)
         self.queue = queue
         self.exit_callback = exit_callback
         self.continue_check_callback = continue_check_callback
@@ -355,8 +354,11 @@ class DownloadQueueWorker(threading.Thread):
         # download, even if a download limit is in effect.
         self.minimum_tasks = minimum_tasks
 
+    def __repr__(self):
+        return threading.current_thread().getName()
+
     def run(self):
-        logger.info('Starting new thread: %s', self.getName())
+        logger.info('Starting new thread: %s', self)
         while True:
             # Check if this thread is allowed to continue accepting tasks
             # (But only after reducing minimum_tasks to zero - see above)
@@ -367,11 +369,11 @@ class DownloadQueueWorker(threading.Thread):
 
             try:
                 task = self.queue.pop()
-                logger.info('%s is processing: %s', self.getName(), task)
+                logger.info('%s is processing: %s', self, task)
                 task.run()
                 task.recycle()
             except IndexError, e:
-                logger.info('No more tasks for %s to carry out.', self.getName())
+                logger.info('No more tasks for %s to carry out.', self)
                 break
         self.exit_callback(self)
 
@@ -421,10 +423,10 @@ class DownloadQueueManager(object):
                 else:
                     minimum_tasks = 0
 
-                worker = DownloadQueueWorker(self.tasks, self.__exit_callback, \
+                worker = DownloadQueueWorker(self.tasks, self.__exit_callback,
                         self.__continue_check_callback, minimum_tasks)
                 self.worker_threads.append(worker)
-                worker.start()
+                util.run_in_background(worker.run)
 
     def are_queued_or_active_tasks(self):
         with self.worker_threads_access:

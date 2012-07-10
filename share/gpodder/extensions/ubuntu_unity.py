@@ -49,7 +49,7 @@ if __name__ != '__main__':
                 logger.debug('Ubuntu progress update failed.', exc_info=True)
 else:
     from gi.repository import Unity, GObject
-    import threading
+    from gpodder import util
     import sys
 
     class InputReader:
@@ -88,7 +88,7 @@ else:
 
     GObject.threads_init()
     loop = GObject.MainLoop()
-    threading.Thread(target=loop.run).start()
+    util.run_in_background(loop.run)
 
     launcher_entry = LauncherEntry()
     reader = InputReader(sys.stdin, launcher_entry)

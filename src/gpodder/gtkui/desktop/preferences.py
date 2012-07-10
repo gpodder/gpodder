@@ -19,7 +19,6 @@
 
 import gtk
 import pango
-import threading
 import cgi
 
 import gpodder
@@ -358,11 +357,11 @@ class gPodderPreferences(BuilderWidget):
         title = _('Replace subscription list on server')
         message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
         if self.show_confirmation(message, title):
+            @util.run_in_background
             def thread_proc():
                 self._config.mygpo.enabled = True
                 self.on_send_full_subscriptions()
                 self._config.mygpo.enabled = False
-            threading.Thread(target=thread_proc).start()
 
     def on_combobox_on_sync_changed(self, widget):
         index = self.combobox_on_sync.get_active()

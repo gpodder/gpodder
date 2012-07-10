@@ -27,7 +27,6 @@ from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
 
 import os
-import threading
 import signal
 import functools
 import subprocess
@@ -262,8 +261,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=upload_proc, args=[self])
-        t.start()
+        util.run_in_background(lambda: upload_proc(self))
 
     @Slot()
     def saveMyGpoSettings(self):
@@ -374,8 +372,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=merge_proc, args=[self])
-        t.start()
+        util.run_in_background(lambda: merge_proc(self))
 
         for podcast in self.root.podcast_model.get_objects():
             podcast.qupdate(finished_callback=self.update_subset_stats)
@@ -576,8 +573,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=subscribe_proc, args=[self, urls])
-        t.start()
+        util.run_in_background(lambda: subscribe_proc(self, urls))
 
     @Slot()
     def currentEpisodeChanging(self):

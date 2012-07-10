@@ -32,7 +32,6 @@ import atexit
 import os
 import shutil
 import time
-import threading
 import logging
 
 _ = gpodder.gettext
@@ -298,9 +297,7 @@ class Config(object):
 
     def schedule_save(self):
         if self.__save_thread is None:
-            self.__save_thread = threading.Thread(target=self.save_thread_proc)
-            self.__save_thread.setDaemon(True)
-            self.__save_thread.start()
+            self.__save_thread = util.run_in_background(self.save_thread_proc, True)
 
     def save_thread_proc(self):
         time.sleep(self.WRITE_TO_DISK_TIMEOUT)

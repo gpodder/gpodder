@@ -22,7 +22,6 @@
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
 import gtk
-import threading
 import gpodder
 
 _ = gpodder.gettext
@@ -143,11 +142,10 @@ class gPodderSyncUI(object):
                     return
 
             # Finally start the synchronization process
+            @util.run_in_background
             def sync_thread_func():
                 self.enable_download_list_update()
                 device.add_sync_tasks(episodes, force_played=force_played)
-
-            threading.Thread(target=sync_thread_func).start()
 
         # This function is used to remove files from the device
         def cleanup_episodes():
@@ -175,5 +173,5 @@ class gPodderSyncUI(object):
         #  1. Remove old episodes (in worker thread)
         #  2. Check for free space (in UI thread)
         #  3. Sync the device (in UI thread)
-        threading.Thread(target=cleanup_episodes).start()
+        util.run_in_background(cleanup_episodes)
 
