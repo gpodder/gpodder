@@ -140,21 +140,21 @@ PageStackWindow {
                 MenuItem {
                     text: _('Download episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Download'), 'download');
+                        mainObject.showMultiEpisodesSheet(text, _('Download'), 'download');
                         hrmtnMainViewMenu.close()
                     }
                 }
                 MenuItem {
                     text: _('Playback episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Play'), 'play');
+                        mainObject.showMultiEpisodesSheet(text, _('Play'), 'play');
                         hrmtnMainViewMenu.close()
                     }
                 }
                 MenuItem {
                     text: _('Delete episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Delete'), 'delete');
+                        mainObject.showMultiEpisodesSheet(text, _('Delete'), 'delete');
                         hrmtnMainViewMenu.close()
                     }
                 }

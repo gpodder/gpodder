@@ -45,11 +45,13 @@ Image {
         nowPlayingThrobber.clicked()
     }
 
-    function showMultiEpisodesSheet(label, action) {
+    function showMultiEpisodesSheet(title, label, action) {
+        multiEpisodesSheet.title = title;
         multiEpisodesSheet.acceptButtonText = label;
         multiEpisodesSheet.action = action;
         multiEpisodesList.selected = [];
         multiEpisodesSheet.open();
+        multiEpisodesSheet.opened = true;
     }
 
     function clickSearchButton() {
@@ -438,7 +440,7 @@ Image {
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
             wrapMode: Text.NoWrap
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder")
+            text: multiEpisodesSheet.opened?multiEpisodesSheet.title:((contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder"))
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -538,12 +540,19 @@ Image {
     Sheet {
         id: multiEpisodesSheet
         property string action: 'delete'
+        property bool opened: false
+        property string title: ''
         acceptButtonText: _('Delete')
 
         rejectButtonText: _('Cancel')
 
         onAccepted: {
             controller.multiEpisodeAction(multiEpisodesList.selected, action);
+            multiEpisodesSheet.opened = false;
+        }
+
+        onRejected: {
+            multiEpisodesSheet.opened = false;
         }
 
         content: Item {
