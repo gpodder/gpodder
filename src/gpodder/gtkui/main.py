@@ -508,16 +508,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         util.idle_add(indicator.on_finished)
 
-    def on_podcast_selected(self, treeview, path, column):
-        # for Maemo 5's UI
-        model = treeview.get_model()
-        channel = model.get_value(model.get_iter(path), \
-                PodcastListModel.C_CHANNEL)
-        self.active_channel = channel
-        self.update_episode_list_model()
-        self.episodes_window.channel = self.active_channel
-        self.episodes_window.show()
-
     def on_button_subscribe_clicked(self, button):
         self.on_itemImportChannels_activate(button)
 
@@ -907,8 +897,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(gtk.SELECTION_MULTIPLE)
-        # Update the sensitivity of the toolbar buttons on the Desktop
-        selection.connect('changed', lambda s: self.play_or_download())
+        selection.connect('changed', self.on_episode_list_selection_changed)
+
+    def on_episode_list_selection_changed(self, selection):
+        # Update the toolbar buttons
+        self.play_or_download()
+
+        if (self.episode_shownotes_window is not None and
+                self.episode_shownotes_window.episode is not None):
+            rows = selection.count_selected_rows()
+            if rows != 1:
+                self.episode_shownotes_window.on_close_button_clicked()
+            else:
+                episode = self.get_selected_episodes()[0]
+                self.show_episode_shownotes(episode)
 
     def init_download_list_treeview(self):
         # enable multiple selection support
@@ -3302,7 +3304,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = self.get_selected_episodes()
         if episodes:
             episode = episodes.pop(0)
-            self.show_episode_shownotes(episode)
+            if episode is not None:
+                self.show_episode_shownotes(episode)
         else:
             self.show_message(_('Please select an episode from the episode list to display shownotes.'), _('No episode selected'), widget=self.treeAvailable)
 
@@ -3325,6 +3328,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _episode_list_status_changed=self.episode_list_status_changed, \
                     _cancel_task_list=self.cancel_task_list, \
                     _streaming_possible=self.streaming_possible())
+
+            if self.config.ui.gtk.episode_list.embed_shownotes:
+                self.episode_shownotes_window.main_window.vbox.reparent(self.vbox_episode_list)
+                self.episode_shownotes_window.main_window.vbox.set_border_width(0)
+                self.episode_shownotes_window.vbox1.set_border_width(0)
+
         self.episode_shownotes_window.show(episode)
         if episode.downloading:
             self.update_downloads_list()

@@ -141,19 +141,19 @@ class gPodderShownotesBase(BuilderWidget):
 
     def _download_status_changed(self, task):
         """Called from main window for download status changes"""
-        if self.main_window.get_property('visible'):
+        if self.main_window.vbox.get_property('visible'):
             self.task = task
             self.on_episode_status_changed()
 
     def _download_status_progress(self):
         """Called from main window for progress updates"""
-        if self.main_window.get_property('visible'):
+        if self.main_window.vbox.get_property('visible'):
             self.on_download_status_progress()
 
     #############################################################
 
     def show(self, episode):
-        if self.main_window.get_property('visible'):
+        if self.episode is not None:
             if episode == self.episode:
                 return
 
@@ -165,8 +165,11 @@ class gPodderShownotesBase(BuilderWidget):
 
         self.on_show_window()
         self.on_episode_status_changed()
-        self.main_window.show()
-        self.main_window.present()
+
+        if not self._config.ui.gtk.episode_list.embed_shownotes:
+            if not self.main_window.get_property('visible'):
+                self.main_window.show()
+                self.main_window.present()
 
         # Make sure the window comes up quick
         while gtk.events_pending():
