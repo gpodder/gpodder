@@ -24,6 +24,7 @@
 #
 
 import urllib
+import urllib2
 import json
 
 import logging
@@ -72,7 +73,11 @@ class Flattr(object):
         if data is not None:
             data = json.dumps(data)
 
-        response = util.urlopen(url, headers, data)
+        try:
+            response = util.urlopen(url, headers, data)
+        except urllib2.HTTPError, error:
+            return {'_gpodder_statuscode': error.getcode()}
+
         if response.getcode() == 200:
             return json.loads(response.read())
 
@@ -112,6 +117,13 @@ class Flattr(object):
         return data.get('username', '')
 
     def flattr_url(self, url):
+        """Flattr an object given its Flattr URL
+
+        Returns a tuple (success, message):
+
+            success ... True if the item was Flattr'd
+            message ... The success or error message
+        """
         params = {
             'url': url
         }
@@ -121,14 +133,13 @@ class Flattr(object):
         if '_gpodder_statuscode' in content:
             status_code = content['_gpodder_statuscode']
             if status_code == 401:
-                return _('Not enough means to flattr')
+                return (False, _('Not enough means to flattr'))
             elif status_code == 404:
-                return _('Item does not exist on Flattr')
+                return (False, _('Item does not exist on Flattr'))
             elif status_code == 403:
-                # The current user have already flattred the thing or the user
-                # is the owner of the thing we just silently ignore this case
-                None
+                return (True, _('Already flattred or own item'))
             else:
-                return _('Invalid request')
+                return (False, _('Invalid request'))
 
-        return content.get('description', _('No description'))
+        return (True, content.get('description', _('No description')))
+

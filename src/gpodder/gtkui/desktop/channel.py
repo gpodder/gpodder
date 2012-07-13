@@ -192,6 +192,6 @@ class gPodderChannel(BuilderWidget):
 
     def on_flattr_button_clicked(self, widget):
         if self.flattr_possible:
-            status = self._flattr.flattr_url(self.channel.payment_url)
-            self.show_message(status, title=_('Flattr status'))
+            success, message = self._flattr.flattr_url(self.channel.payment_url)
+            self.show_message(message, title=_('Flattr status'), important=not success)
             self.set_flattr_information()

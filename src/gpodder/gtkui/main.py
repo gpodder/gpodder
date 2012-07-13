@@ -1909,8 +1909,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # flattr episode if auto-flattr is enabled
             if self.config.flattr.token and self.config.flattr.flattr_on_play:
-                status = self.flattr.flattr_url(episode.payment_url)
-                self.show_message(status, title=_('Flattr status'))
+                success, message = self.flattr.flattr_url(episode.payment_url)
+                self.show_message(message, title=_('Flattr status'), important=not success)
 
             groups[player].append(filename)
 
@@ -3182,8 +3182,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_flattr_button_clicked(self, widget, event):
         if self.flattr_possible:
-            status = self.flattr.flattr_url(self.channel.payment_url)
-            self.show_message(status, title=_('Flattr status'))
+            success, message = self.flattr.flattr_url(self.channel.payment_url)
+            self.show_message(message, title=_('Flattr status'), important=not success)
             self.set_flattr_information(widget.get_children()[0])
 
     def on_itemAbout_activate(self, widget, *args):
