@@ -80,6 +80,10 @@ class ConfigProxy(QObject):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.qml.autorotate':
             self.autorotateChanged.emit()
+        elif name == 'flattr.token':
+            self.flattrTokenChanged.emit()
+        elif name == 'flattr.flattr_on_play':
+            self.flattrOnPlayChanged.emit()
 
     def get_autorotate(self):
         return self._config.ui.qml.autorotate
@@ -91,6 +95,29 @@ class ConfigProxy(QObject):
 
     autorotate = Property(bool, get_autorotate, set_autorotate,
             notify=autorotateChanged)
+
+    def get_flattr_token(self):
+        return self._config.flattr.token
+
+    def set_flattr_token(self, flattr_token):
+        self._config.flattr.token = flattr_token
+
+    flattrTokenChanged = Signal()
+
+    flattrToken = Property(unicode, get_flattr_token, set_flattr_token,
+            notify=flattrTokenChanged)
+
+    def get_flattr_on_play(self):
+        return self._config.flattr.flattr_on_play
+
+    def set_flattr_on_play(self, flattr_on_play):
+        self._config.flattr.flattr_on_play = flattr_on_play
+
+    flattrOnPlayChanged = Signal()
+
+    flattrOnPlay = Property(bool, get_flattr_on_play, set_flattr_on_play,
+            notify=flattrOnPlayChanged)
+
 
 class Controller(QObject):
     def __init__(self, root):
@@ -125,6 +152,19 @@ class Controller(QObject):
 
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
+
+    @Slot(result=str)
+    def getFlattrLoginURL(self):
+        return self.root.core.flattr.get_auth_url()
+
+    @Slot(result=str)
+    def getFlattrCallbackURL(self):
+        return self.root.core.flattr.CALLBACK
+
+    @Slot(str)
+    def processFlattrCode(self, url):
+        if not self.root.core.flattr.process_retrieved_code(url):
+            self.root.show_message(_('Could not log in to Flattr.'))
 
     @Slot(result='QStringList')
     def getEpisodeListFilterNames(self):

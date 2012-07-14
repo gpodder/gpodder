@@ -126,13 +126,7 @@ class gPodderFlattrSignIn(BuilderWidget):
     def on_web_request(self, web_view, web_frame, web_resource, request, response):
         uri = request.get_uri()
         if uri.startswith(self.flattr.CALLBACK):
-            uri_parsed = urlparse.urlparse(uri)
-            query = urlparse.parse_qs(uri_parsed.path[2:])
-            if 'code' in query:
-                code = query['code'][0]
-                token = self.flattr.request_access_token(code)
-                self._config.flattr.token = token
-            else:
+            if not self.flattr.process_retrieved_code(uri):
                 self.show_message(query['error_description'][0], _('Error'),
                         important=True)
 

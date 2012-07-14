@@ -25,6 +25,7 @@
 
 import urllib
 import urllib2
+import urlparse
 import json
 
 import logging
@@ -38,10 +39,10 @@ _ = gpodder.gettext
 
 
 class Flattr(object):
-    KEY = '4sRHRAlZkrcYYOu7oYUfqxREmee1qJ9l1RTJh5zsnCgbgB9upTAGhiatmflDPlPG'
-    SECRET = '3ygatFtG8AIe1Hzgr0Nz8OTlT4Oygt59ScacHuJGUhKMPaT71wwZafaTaPih8ehQ'
+    KEY = 'DD2bUSu1TJ7voHz9yNgtC7ld54lKg29Kw2MhL68uG5QUCgT1UZkmXvpSqBtxut7R'
+    SECRET = 'lJYWGXhcTXWm4FdOvn0iJg1ZIkm3DkKPTzCpmJs5xehrKk55yWe736XCg9vKj5p3'
 
-    CALLBACK = 'gpodder://flattr-token/'
+    CALLBACK = 'http://gpodder.org/flattr/token.html'
     GPODDER_THING = ('https://flattr.com/submit/auto?' +
             'user_id=thp&url=http://gpodder.org/')
 
@@ -89,7 +90,19 @@ class Flattr(object):
                 'redirect_uri': self.CALLBACK,
         }
 
-    def request_access_token(self, code):
+    def process_retrieved_code(self, url):
+        url_parsed = urlparse.urlparse(url)
+        query = urlparse.parse_qs(url_parsed.query)
+
+        if 'code' in query:
+            code = query['code'][0]
+            logger.info('Got code: %s', code)
+            self._config.token = self._request_access_token(code)
+            return True
+
+        return False
+
+    def _request_access_token(self, code):
         request_url = 'https://flattr.com/oauth/token'
 
         params = {
@@ -102,7 +115,7 @@ class Flattr(object):
         return content.get('access_token', '')
 
     def get_thing_info(self, url):
-        if not self._config.flattr.token:
+        if not self._config.token:
             return (0, False)
 
         url = self.THING_INFO_URL_TEMPLATE % {'url': urllib.quote_plus(url)}
