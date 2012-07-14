@@ -43,6 +43,37 @@ PageStackWindow {
             }
 
             ToolIcon {
+                id: toolFlattr
+                iconSource: 'artwork/flattr.png'
+                visible: mainObject.state == 'shownotes'
+
+                opacity: (mainObject.state == 'shownotes') && (labelFlattr.text !== '')
+                Behavior on opacity { PropertyAnimation { } }
+
+                anchors.right: toolPlay.visible?toolPlay.left:parent.right
+                onClicked: {
+                    controller.flattrEpisode(mainObject.showNotesEpisode);
+                }
+            }
+
+            Connections {
+                target: mainObject
+                onShowNotesEpisodeChanged: {
+                    controller.updateFlattrButtonText(mainObject.showNotesEpisode);
+                }
+            }
+
+            Label {
+                id: labelFlattr
+                color: 'white'
+                anchors.right: toolFlattr.left
+                opacity: toolFlattr.opacity
+                visible: toolFlattr.visible
+
+                text: controller.flattrButtonText
+            }
+
+            ToolIcon {
                 id: toolMenu
                 onClicked: {
                     if (mainObject.state === 'episodes') {
@@ -381,9 +412,9 @@ PageStackWindow {
                     Button {
                         text: {
                             if (configProxy.flattrToken !== '') {
-                                _('Log out')
+                                _('Sign out')
                             } else {
-                                _('Log in to Flattr')
+                                _('Sign in to Flattr')
                             }
                         }
                         anchors.horizontalCenter: parent.horizontalCenter

@@ -19,6 +19,7 @@ Image {
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
+    property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText

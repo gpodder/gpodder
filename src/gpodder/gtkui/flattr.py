@@ -33,36 +33,33 @@ IMAGE_FLATTR_GREY = os.path.join(gpodder.images_folder, 'button-flattr-grey.png'
 IMAGE_FLATTRED = os.path.join(gpodder.images_folder, 'button-flattred.png')
 
 
-def set_flattr_button(cls, url, token, widget_image, widget_button):
-    if not url:
+def set_flattr_button(flattr, payment_url, widget_image, widget_button):
+    if not payment_url:
         widget_image.hide()
         widget_button.hide()
         return False
-
-    flattr_possible = False
-    flattrs, flattred = cls.get_thing_info(url)
-
-    if flattred is None or not token:
+    elif not flattr.has_token():
         badge = IMAGE_FLATTR_GREY
         button_text = _('Sign in')
-        tooltip_text = _('Please sign in')
-    elif flattred:
+        return False
+
+    flattrs, flattred = flattr.get_thing_info(payment_url)
+    can_flattr_this = False
+
+    if flattred:
         badge = IMAGE_FLATTRED
         button_text = _('Flattred')
-        tooltip_text = _('Already flattred')
     else:
         badge = IMAGE_FLATTR
         button_text = _('Flattr this')
-        flattr_possible = True
-        tooltip_text = _('Flattr this')
+        can_flattr_this = True
 
     widget_button.set_label(button_text)
-    widget_button.set_sensitive(flattr_possible)
+    widget_button.set_sensitive(can_flattr_this)
     widget_button.show()
 
     draw.draw_flattr_button(widget_image, badge, flattrs)
-    tooltips = gtk.Tooltips()
-    tooltips.set_tip(widget_image, tooltip_text, tip_private=None)
     widget_image.show()
 
-    return flattr_possible
+    return can_flattr_this
+

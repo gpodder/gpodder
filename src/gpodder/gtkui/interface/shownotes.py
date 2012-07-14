@@ -94,8 +94,8 @@ class gPodderShownotesBase(BuilderWidget):
 
     def set_flattr_information(self):
         self.flattr_possible = set_flattr_button(self._flattr,
-            self.episode.payment_url, self._config.flattr.token,
-            self.flattr_image, self.flattr_button)
+            self.episode.payment_url, self.flattr_image,
+            self.flattr_button)
 
     def on_flattr_button_clicked(self, widget):
         if self.flattr_possible:

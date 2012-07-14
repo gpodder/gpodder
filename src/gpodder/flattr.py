@@ -90,6 +90,9 @@ class Flattr(object):
                 'redirect_uri': self.CALLBACK,
         }
 
+    def has_token(self):
+        return bool(self._config.token)
+
     def process_retrieved_code(self, url):
         url_parsed = urlparse.urlparse(url)
         query = urlparse.parse_qs(url_parsed.query)
@@ -114,13 +117,20 @@ class Flattr(object):
         content = self.request(self.OAUTH_TOKEN_URL, data=params)
         return content.get('access_token', '')
 
-    def get_thing_info(self, url):
+    def get_thing_info(self, payment_url):
+        """Get information about a Thing on Flattr
+
+        Return a tuple (flattrs, flattred):
+
+            flattrs ... The number of Flattrs this thing received
+            flattred ... True if this user already flattred this thing
+        """
         if not self._config.token:
             return (0, False)
 
-        url = self.THING_INFO_URL_TEMPLATE % {'url': urllib.quote_plus(url)}
+        url = self.THING_INFO_URL_TEMPLATE % {'url': urllib.quote_plus(payment_url)}
         data = self.request(url)
-        return int(data.get('flattrs', 0)), bool(data.get('flattred', False))
+        return (int(data.get('flattrs', 0)), bool(data.get('flattred', False)))
 
     def get_auth_username(self):
         if not self._config.token:
@@ -129,8 +139,8 @@ class Flattr(object):
         data = self.request(self.USER_INFO_URL)
         return data.get('username', '')
 
-    def flattr_url(self, url):
-        """Flattr an object given its Flattr URL
+    def flattr_url(self, payment_url):
+        """Flattr an object given its Flattr payment URL
 
         Returns a tuple (success, message):
 
@@ -138,7 +148,7 @@ class Flattr(object):
             message ... The success or error message
         """
         params = {
-            'url': url
+            'url': payment_url
         }
 
         content = self.request(self.FLATTR_URL, data=params)

@@ -127,6 +127,8 @@ class Controller(QObject):
         self.episode_list_title = u''
         self.current_input_dialog = None
         self.root.config.add_observer(self.on_config_changed)
+        self._flattr = self.root.core.flattr
+        self.flattr_button_text = u''
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -153,17 +155,84 @@ class Controller(QObject):
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
 
+    flattrButtonTextChanged = Signal()
+
+    def setFlattrButtonText(self, flattr_button_text):
+        if self.flattr_button_text != flattr_button_text:
+            self.flattr_button_text = flattr_button_text
+            self.flattrButtonTextChanged.emit()
+
+    def getFlattrButtonText(self):
+        return self.flattr_button_text
+
+    flattrButtonText = Property(unicode, getFlattrButtonText,
+            setFlattrButtonText, notify=flattrButtonTextChanged)
+
+    @Slot(QObject)
+    def updateFlattrButtonText(self, qepisode):
+        self.setFlattrButtonText('')
+
+        if qepisode is None:
+            return
+
+        episode = qepisode._episode
+
+        if not episode.payment_url:
+            return
+        if not self._flattr.has_token():
+            self.setFlattrButtonText(_('Sign in'))
+            return
+
+        @util.run_in_background
+        def get_flattr_info():
+            flattrs, flattred = self._flattr.get_thing_info(episode.payment_url)
+
+            if flattred:
+                self.setFlattrButtonText(_('Flattred (%(count)d)') % {
+                    'count': flattrs
+                })
+            else:
+                self.setFlattrButtonText(_('Flattr this (%(count)d)') % {
+                    'count': flattrs
+                })
+
+    @Slot(QObject)
+    def flattrEpisode(self, qepisode):
+        if not qepisode:
+            return
+
+        episode = qepisode._episode
+
+        if not episode.payment_url:
+            return
+        if not self._flattr.has_token():
+            self.root.show_message(_('Sign in to Flattr in the settings.'))
+            return
+
+        self.root.start_progress(_('Flattring episode...'))
+
+        @util.run_in_background
+        def flattr_episode():
+            try:
+                success, message = self._flattr.flattr_url(episode.payment_url)
+                if success:
+                    self.updateFlattrButtonText(qepisode)
+                else:
+                    self.root.show_message(message)
+            finally:
+                self.root.end_progress()
+
     @Slot(result=str)
     def getFlattrLoginURL(self):
-        return self.root.core.flattr.get_auth_url()
+        return self._flattr.get_auth_url()
 
     @Slot(result=str)
     def getFlattrCallbackURL(self):
-        return self.root.core.flattr.CALLBACK
+        return self._flattr.CALLBACK
 
     @Slot(str)
     def processFlattrCode(self, url):
-        if not self.root.core.flattr.process_retrieved_code(url):
+        if not self._flattr.process_retrieved_code(url):
             self.root.show_message(_('Could not log in to Flattr.'))
 
     @Slot(result='QStringList')

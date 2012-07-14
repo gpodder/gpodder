@@ -3175,17 +3175,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
 
-    def set_flattr_information(self, widget):
-        self.flattr_possible = flattr.set_flattr_button(self.flattr,
-            self.flattr.GPODDER_THING, self.config.flattr.token,
-            widget)
-
-    def on_flattr_button_clicked(self, widget, event):
-        if self.flattr_possible:
-            success, message = self.flattr.flattr_url(self.channel.payment_url)
-            self.show_message(message, title=_('Flattr status'), important=not success)
-            self.set_flattr_information(widget.get_children()[0])
-
     def on_itemAbout_activate(self, widget, *args):
         dlg = gtk.Dialog(_('About gPodder'), self.main_window, \
                 gtk.DIALOG_MODAL)
@@ -3221,13 +3210,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         button.connect('clicked', self.on_bug_tracker_activate)
         button_box.pack_start(button)
         out.pack_start(button_box, expand=False)
-
-        flattr_image = gtk.Image()
-        eventbox = gtk.EventBox()
-        eventbox.add(flattr_image)
-        eventbox.connect('button-press-event', self.on_flattr_button_clicked)
-        out.pack_start(eventbox)
-        self.set_flattr_information(flattr_image)
 
         credits = gtk.TextView()
         credits.set_left_margin(5)
