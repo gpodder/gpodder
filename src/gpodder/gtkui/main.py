@@ -1908,9 +1908,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
             # flattr episode if auto-flattr is enabled
-            if self.config.flattr.token and self.config.flattr.flattr_on_play:
+            if (episode.payment_url and self.config.flattr.token and
+                    self.config.flattr.flattr_on_play):
                 success, message = self.flattr.flattr_url(episode.payment_url)
-                self.show_message(message, title=_('Flattr status'), important=not success)
+                self.show_message(message, title=_('Flattr status'),
+                        important=not success)
 
             groups[player].append(filename)
 

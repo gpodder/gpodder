@@ -103,10 +103,13 @@ Image {
     }
 
     function togglePlayback(episode) {
-        if (episode !== undefined && episode.qfiletype == 'video') {
-            controller.playVideo(episode)
-        } else {
-            mediaPlayer.togglePlayback(episode)
+        if (episode !== undefined) {
+            if (episode.qfiletype == 'video') {
+                controller.playVideo(episode);
+            } else {
+                mediaPlayer.togglePlayback(episode);
+            }
+            controller.onPlayback(episode);
         }
     }
 

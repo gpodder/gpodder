@@ -169,6 +169,14 @@ class Controller(QObject):
             setFlattrButtonText, notify=flattrButtonTextChanged)
 
     @Slot(QObject)
+    def onPlayback(self, qepisode):
+        if (qepisode.payment_url and self.root.config.flattr.token and
+                self.root.config.flattr.flattr_on_play):
+            success, message = self._flattr.flattr_url(qepisode.payment_url)
+            if not success:
+                logger.warn('Flattr message on playback action: %s', message)
+
+    @Slot(QObject)
     def updateFlattrButtonText(self, qepisode):
         self.setFlattrButtonText('')
 
