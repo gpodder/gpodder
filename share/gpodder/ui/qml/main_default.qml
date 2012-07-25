@@ -407,7 +407,7 @@ PageStackWindow {
                         }
                     }
 
-                    SettingsHeader { text: _('Flattr') }
+                    SettingsHeader { text: 'Flattr' }
 
                     Button {
                         text: {

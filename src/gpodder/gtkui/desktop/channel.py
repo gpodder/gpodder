@@ -182,11 +182,9 @@ class gPodderChannel(BuilderWidget):
             self.flattr_possible = flattr.set_flattr_button(self._flattr,
                 self.channel.payment_url, self._config.flattr.token,
                 self.flattr_image, self.flattr_button)
-            self.label_flattr_info.set_visible(False)
             self.flattr_image.set_visible(True)
             self.flattr_button.set_visible(True)
         else:
-            self.label_flattr_info.set_visible(True)
             self.flattr_image.set_visible(False)
             self.flattr_button.set_visible(False)
 
