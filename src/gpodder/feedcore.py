@@ -95,7 +95,6 @@ class ExceptionWithData(Exception):
     def __str__(self):
         return '%s: %s' % (self.__class__.__name__, str(self.data))
 
-
 # Temporary errors
 class Offline(Exception): pass
 class BadRequest(Exception): pass
@@ -111,11 +110,13 @@ class UnknownStatusCode(ExceptionWithData): pass
 # Authentication error
 class AuthenticationRequired(Exception): pass
 
-# Successful parsing of the feed
-class UpdatedFeed(ExceptionWithData): pass
-class NewLocation(ExceptionWithData): pass
-class NotModified(ExceptionWithData): pass
+# Successful status codes
+UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = range(4)
 
+class Result:
+    def __init__(self, status, feed=None):
+        self.status = status
+        self.feed = feed
 
 
 class Fetcher(object):
@@ -140,29 +141,24 @@ class Fetcher(object):
         return None
 
     def _autodiscover_feed(self, feed):
-        try:
-            # First, try all <link> elements if available
-            for link in feed.feed.get('links', ()):
-                is_feed = link.get('type', '') in self.FEED_TYPES
-                is_alternate = link.get('rel', '') == 'alternate'
-                url = link.get('href', None)
+        # First, try all <link> elements if available
+        for link in feed.feed.get('links', ()):
+            is_feed = link.get('type', '') in self.FEED_TYPES
+            is_alternate = link.get('rel', '') == 'alternate'
+            url = link.get('href', None)
 
-                if url and is_feed and is_alternate:
-                    try:
-                        self._parse_feed(url, None, None, False)
-                    except UpdatedFeed, updated:
-                        raise
-                    except Exception:
-                        pass
+            if url and is_feed and is_alternate:
+                try:
+                    return self._parse_feed(url, None, None, False)
+                except Exception, e:
+                    pass
 
-            # Second, try to resolve the URL
-            url = self._resolve_url(feed.href)
-            if url:
-                self._parse_feed(url, None, None, False)
-        except UpdatedFeed, updated:
-            raise NewLocation(updated.data)
-        except Exception, e:
-            pass
+        # Second, try to resolve the URL
+        url = self._resolve_url(feed.href)
+        if url:
+            result = self._parse_feed(url, None, None, False)
+            result.status = NEW_LOCATION
+            return result
 
     def _check_offline(self, feed):
         if not hasattr(feed, 'headers'):
@@ -202,19 +198,22 @@ class Fetcher(object):
         new_location = feed.feed.get('newlocation', None)
         if new_location:
             feed.href = feed.feed.newlocation
-            raise NewLocation(feed)
+            return Result(NEW_LOCATION, feed)
+
+        return None
 
     def _check_statuscode(self, feed):
         status = self._normalize_status(feed.status)
         if status == 200:
-            raise UpdatedFeed(feed)
+            return Result(UPDATED_FEED, feed)
         elif status == 301:
-            raise NewLocation(feed)
+            return Result(NEW_LOCATION, feed)
         elif status == 302:
-            raise UpdatedFeed(feed)
+            return Result(UPDATED_FEED, feed)
         elif status == 304:
-            raise NotModified(feed)
-        elif status == 400:
+            return Result(NOT_MODIFIED, feed)
+
+        if status == 400:
             raise BadRequest('bad request')
         elif status == 401:
             raise AuthenticationRequired('authentication required')
@@ -230,7 +229,6 @@ class Fetcher(object):
             raise UnknownStatusCode(status)
 
     def _parse_feed(self, url, etag, modified, autodiscovery=True):
-        """Parse the feed and raise the result."""
         if url.startswith('file://'):
             is_local = True
             url = url[len('file://'):]
@@ -245,7 +243,7 @@ class Fetcher(object):
         if is_local:
             if feed.version:
                 feed.headers = {}
-                raise UpdatedFeed(feed)
+                return Result(UPDATED_FEED, feed)
             else:
                 raise InvalidFeed('Not a valid feed file')
         else:
@@ -256,18 +254,15 @@ class Fetcher(object):
                 self._autodiscover_feed(feed)
 
             self._check_valid_feed(feed)
-            self._check_rss_redirect(feed)
-            self._check_statuscode(feed)
+
+            redirect = self._check_rss_redirect(feed)
+            if redirect is not None:
+                return redirect
+
+            return self._check_statuscode(feed)
 
     def fetch(self, url, etag=None, modified=None):
-        """Download a feed, with optional etag an modified values
-
-        This method will always raise an exception that tells
-        the calling code the result of the fetch operation. See
-        the code for the feedcore module for all the possible
-        exception types.
-        """
-        self._parse_feed(url, etag, modified)
+        return self._parse_feed(url, etag, modified)
 
 
 def get_pubdate(entry):

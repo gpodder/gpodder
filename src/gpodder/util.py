@@ -305,6 +305,13 @@ def username_password_from_url(url):
 
     return (username, password)
 
+def directory_is_writable(path):
+    """
+    Returns True if the specified directory exists and is writable
+    by the current user.
+    """
+    return os.path.isdir(path) and os.access(path, os.W_OK)
+
 
 def calculate_size( path):
     """
@@ -370,6 +377,20 @@ def file_age_in_days(filename):
         return 0
     else:
         return (datetime.datetime.now()-dt).days
+
+def file_modification_timestamp(filename):
+    """
+    Returns the modification date of the specified file as a number
+    or -1 if the modification date cannot be determined.
+    """
+    if filename is None:
+        return -1
+    try:
+        s = os.stat(filename)
+        return s[stat.ST_MTIME]
+    except:
+        logger.warn('Cannot get modification timestamp for %s', filename)
+        return -1
 
 
 def file_age_to_string(days):
@@ -946,7 +967,7 @@ def url_add_authentication(url, username, password):
     return urlparse.urlunsplit(url_parts)
 
 
-def urlopen(url):
+def urlopen(url, headers=None, data=None):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
@@ -960,8 +981,13 @@ def urlopen(url):
     else:
         opener = urllib2.build_opener()
 
-    headers = {'User-agent': gpodder.user_agent}
-    request = urllib2.Request(url, headers=headers)
+    if headers is None:
+        headers = {}
+    else:
+        headers = dict(headers)
+
+    headers.update({'User-agent': gpodder.user_agent})
+    request = urllib2.Request(url, data=data, headers=headers)
     return opener.open(request)
 
 def get_real_url(url):
@@ -1228,7 +1254,7 @@ def open_website(url):
                                   'open_new_window', \
                                   (url,))
     else:
-        threading.Thread(target=webbrowser.open, args=(url,)).start()
+        run_in_background(lambda: webbrowser.open(url))
 
 def convert_bytes(d):
     """
@@ -1598,4 +1624,12 @@ def get_update_info(url='http://gpodder.org/downloads'):
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
     return up_to_date, latest_version, release_date, days_since_release
+
+
+def run_in_background(function, daemon=False):
+    logger.debug('run_in_background: %s (%s)', function, str(daemon))
+    thread = threading.Thread(target=function)
+    thread.setDaemon(daemon)
+    thread.start()
+    return thread
 

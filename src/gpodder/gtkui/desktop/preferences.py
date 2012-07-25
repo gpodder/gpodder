@@ -19,8 +19,11 @@
 
 import gtk
 import pango
-import threading
 import cgi
+import urlparse
+
+import logging
+logger = logging.getLogger(__name__)
 
 import gpodder
 
@@ -56,6 +59,82 @@ class NewEpisodeActionList(gtk.ListStore):
 
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
+
+class DeviceTypeActionList(gtk.ListStore):
+    C_CAPTION, C_DEVICE_TYPE = range(2)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, str)
+        self._config = config
+        self.append((_('None'), 'none'))
+        self.append((_('Filesystem-based'), 'filesystem'))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.device_sync.device_type == row[self.C_DEVICE_TYPE]:
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.device_sync.device_type = self[index][self.C_DEVICE_TYPE]
+
+
+class OnSyncActionList(gtk.ListStore):
+    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = range(3)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, bool, bool)
+        self._config = config
+        self.append((_('Do nothing'), False, False))
+        self.append((_('Mark as played'), False, True))
+        self.append((_('Delete from gPodder'), True, False))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if (self._config.device_sync.after_sync.delete_episodes and
+                    row[self.C_ON_SYNC_DELETE]):
+                return index
+            if (self._config.device_sync.after_sync.mark_episodes_played and
+                    row[self.C_ON_SYNC_MARK_PLAYED] and not
+                    self._config.device_sync.after_sync.delete_episodes):
+                return index
+        return 0 # Some sane default
+
+    def set_index(self, index):
+        self._config.device_sync.after_sync.delete_episodes = self[index][self.C_ON_SYNC_DELETE]
+        self._config.device_sync.after_sync.mark_episodes_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
+
+
+
+class gPodderFlattrSignIn(BuilderWidget):
+
+    def new(self):
+        import webkit
+
+        self.web = webkit.WebView()
+        self.web.connect('resource-request-starting', self.on_web_request)
+        self.main_window.connect('destroy', self.set_flattr_preferences)
+
+        auth_url = self.flattr.get_auth_url()
+        logger.info(auth_url)
+        self.web.open(auth_url)
+
+        self.scrolledwindow_web.add(self.web)
+        self.web.show()
+
+    def on_web_request(self, web_view, web_frame, web_resource, request, response):
+        uri = request.get_uri()
+        if uri.startswith(self.flattr.CALLBACK):
+            if not self.flattr.process_retrieved_code(uri):
+                self.show_message(query['error_description'][0], _('Error'),
+                        important=True)
+
+            # Destroy the window later
+            util.idle_add(self.main_window.destroy)
+
+    def on_btn_close_clicked(self, widget):
+        util.idle_add(self.main_window.destroy)
 
 
 class gPodderPreferences(BuilderWidget):
@@ -119,6 +198,23 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
         self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
 
+        self.device_type_model = DeviceTypeActionList(self._config)
+        self.combobox_device_type.set_model(self.device_type_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_device_type.pack_start(cellrenderer, True)
+        self.combobox_device_type.add_attribute(cellrenderer, 'text', DeviceTypeActionList.C_CAPTION)
+        self.combobox_device_type.set_active(self.device_type_model.get_index())
+
+        self.on_sync_model = OnSyncActionList(self._config)
+        self.combobox_on_sync.set_model(self.on_sync_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_on_sync.pack_start(cellrenderer, True)
+        self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
+        self.combobox_on_sync.set_active(self.on_sync_model.get_index())
+
+        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes', self.checkbutton_skip_played_episodes)
+
+
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
 
@@ -130,6 +226,9 @@ class gPodderPreferences(BuilderWidget):
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
+
+        # Initialize Flattr settings
+        self.set_flattr_preferences()
 
         # Configure the extensions manager GUI
         toggle_cell = gtk.CellRendererToggle()
@@ -157,6 +256,38 @@ class gPodderPreferences(BuilderWidget):
         self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
+
+    def set_flattr_preferences(self, widget=None):
+        if not self._config.flattr.token:
+            self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
+            self.button_flattr_login.set_label(_('Sign in to Flattr'))
+        else:
+            flattr_user = self.flattr.get_auth_username()
+            self.label_flattr.set_markup(_('Logged in as <b>%(username)s</b>') % {'username': flattr_user})
+            self.button_flattr_login.set_label(_('Sign out'))
+
+        self.checkbutton_flattr_on_play.set_active(self._config.flattr.flattr_on_play)
+
+    def on_button_flattr_login(self, widget):
+        if not self._config.flattr.token:
+            try:
+                import webkit
+            except ImportError, ie:
+                self.show_message(_('Flattr integration requires WebKit/Gtk.'),
+                        _('WebKit/Gtk not found'), important=True)
+                self.main_window.destroy()
+                return
+
+            gPodderFlattrSignIn(self.parent_window,
+                    _config=self._config,
+                    flattr=self.flattr,
+                    set_flattr_preferences=self.set_flattr_preferences)
+        else:
+            self._config.flattr.token = ''
+            self.set_flattr_preferences()
+
+    def on_check_flattr_on_play(self, widget):
+        self._config.flattr.flattr_on_play = widget.get_active()
 
     def on_extensions_cell_toggled(self, cell, path):
         model = self.treeviewExtensions.get_model()
@@ -295,9 +426,48 @@ class gPodderPreferences(BuilderWidget):
         title = _('Replace subscription list on server')
         message = _('Remote podcasts that have not been added locally will be removed on the server. Continue?')
         if self.show_confirmation(message, title):
+            @util.run_in_background
             def thread_proc():
                 self._config.mygpo.enabled = True
                 self.on_send_full_subscriptions()
                 self._config.mygpo.enabled = False
-            threading.Thread(target=thread_proc).start()
+
+    def on_combobox_on_sync_changed(self, widget):
+        index = self.combobox_on_sync.get_active()
+        self.on_sync_model.set_index(index)
+
+    def on_combobox_device_type_changed(self, widget):
+        index = self.combobox_device_type.get_active()
+        self.device_type_model.set_index(index)
+        device_type = self._config.device_sync.device_type
+        if device_type == 'none':
+            self.btn_filesystemMountpoint.set_label('')
+            self.btn_filesystemMountpoint.set_sensitive(False)
+        elif device_type == 'filesystem':
+            self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+        else:
+            # TODO: Add support for iPod and MTP devices
+            pass
+
+        children = self.btn_filesystemMountpoint.get_children()
+        if children:
+            label = children.pop()
+            label.set_alignment(0., .5)
+
+    def on_btn_device_mountpoint_clicked(self, widget):
+        fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
+                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            filename = fs.get_filename()
+            if self._config.device_sync.device_type == 'filesystem':
+                self._config.device_sync.device_folder = filename
+
+            # Request an update of the mountpoint button
+            self.on_combobox_device_type_changed(None)
+
+        fs.destroy()
 

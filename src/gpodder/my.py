@@ -32,7 +32,6 @@ import datetime
 import calendar
 import os
 import sys
-import threading
 import time
 
 import logging
@@ -437,9 +436,7 @@ class MygPoClient(object):
                 logger.debug('Flushing NOW.')
             else:
                 logger.debug('Flush requested.')
-            self._worker_thread = threading.Thread(target=self._worker_proc, args=[now])
-            self._worker_thread.setDaemon(True)
-            self._worker_thread.start()
+            self._worker_thread = util.run_in_background(lambda: self._worker_proc(now), True)
         else:
             logger.debug('Flush requested, already waiting.')
 

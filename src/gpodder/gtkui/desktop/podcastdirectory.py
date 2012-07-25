@@ -19,7 +19,6 @@
 
 import gtk
 import pango
-import threading
 import urllib
 import os.path
 
@@ -141,8 +140,8 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.entryURL.set_sensitive(False)
         self.btnOK.set_sensitive(False)
         self.treeviewChannelChooser.set_sensitive(False)
-        threading.Thread(target=self.thread_func).start()
-        threading.Thread(target=lambda: self.thread_func(1)).start()
+        util.run_in_background(self.thread_func)
+        util.run_in_background(lambda: self.thread_func(1))
 
     def select_all( self, value ):
         enabled = False
@@ -164,7 +163,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.entryYoutubeSearch.set_sensitive(False)
         self.treeviewYouTubeChooser.set_sensitive(False)
         self.btnSearchYouTube.set_sensitive(False)
-        threading.Thread(target = lambda: self.thread_func(2)).start()
+        util.run_in_background(lambda: self.thread_func(2))
 
     def on_btnSelectAll_clicked(self, widget, *args):
         self.select_all(True)

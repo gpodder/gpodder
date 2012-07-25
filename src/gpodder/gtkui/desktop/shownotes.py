@@ -54,6 +54,9 @@ SHOWNOTES_HTML_TEMPLATE = """
 
 class gPodderShownotes(gPodderShownotesBase):
     def on_create_window(self):
+        if self._config.ui.gtk.episode_list.embed_shownotes:
+            self.main_window.hide()
+
         self.textview.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#ffffff'))
         if self._config.enable_html_shownotes:
             try:
@@ -106,6 +109,7 @@ class gPodderShownotes(gPodderShownotesBase):
         vsb.set_value(vsb.get_value() - step)
 
     def on_show_window(self):
+        self.main_window.vbox.show()
         self.download_progress.set_fraction(0)
         self.download_progress.set_text(_('Please wait...'))
         self.main_window.set_title(self.episode.title)
@@ -149,6 +153,7 @@ class gPodderShownotes(gPodderShownotesBase):
             self.b.place_cursor(self.b.get_start_iter())
 
     def on_hide_window(self):
+        self.main_window.vbox.hide()
         self.episode = None
         if self.have_webkit:
             self.htmlview.load_html_string('', '')

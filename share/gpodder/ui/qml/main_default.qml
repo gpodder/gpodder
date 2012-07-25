@@ -1,6 +1,7 @@
 
 import Qt 4.7
 import com.nokia.meego 1.0
+import QtWebKit 1.0
 
 import 'config.js' as Config
 
@@ -39,6 +40,38 @@ PageStackWindow {
                 iconId: "icon-m-toolbar-back-white"
                 onClicked: mainObject.goBack()
                 visible: mainObject.canGoBack
+            }
+
+            ToolIcon {
+                id: toolFlattr
+                iconSource: 'artwork/flattr.png'
+                visible: mainObject.state == 'shownotes'
+
+                opacity: (mainObject.state == 'shownotes') && (labelFlattr.text !== '')
+                Behavior on opacity { PropertyAnimation { } }
+
+                anchors.right: toolPlay.visible?toolPlay.left:parent.right
+                onClicked: {
+                    controller.flattrEpisode(mainObject.showNotesEpisode);
+                }
+            }
+
+            Connections {
+                target: mainObject
+                onShowNotesEpisodeChanged: {
+                    controller.updateFlattrButtonText(mainObject.showNotesEpisode);
+                }
+            }
+
+            Label {
+                id: labelFlattr
+                color: 'white'
+                anchors.right: toolFlattr.left
+                anchors.verticalCenter: toolFlattr.verticalCenter
+                opacity: toolFlattr.opacity
+                visible: toolFlattr.visible
+
+                text: controller.flattrButtonText
             }
 
             ToolIcon {
@@ -140,21 +173,21 @@ PageStackWindow {
                 MenuItem {
                     text: _('Download episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Download'), 'download');
+                        mainObject.showMultiEpisodesSheet(text, _('Download'), 'download');
                         hrmtnMainViewMenu.close()
                     }
                 }
                 MenuItem {
                     text: _('Playback episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Play'), 'play');
+                        mainObject.showMultiEpisodesSheet(text, _('Play'), 'play');
                         hrmtnMainViewMenu.close()
                     }
                 }
                 MenuItem {
                     text: _('Delete episodes')
                     onClicked: {
-                        mainObject.showMultiEpisodesSheet(_('Delete'), 'delete');
+                        mainObject.showMultiEpisodesSheet(text, _('Delete'), 'delete');
                         hrmtnMainViewMenu.close()
                     }
                 }
@@ -271,12 +304,45 @@ PageStackWindow {
     }
 
     Page {
+        id: flattrLoginPage
+        orientationLock: mainPage.orientationLock
+
+        tools: ToolBarLayout {
+            ToolIcon {
+                id: flattrLoginPageClose
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: {
+                    pageStack.pop()
+                }
+            }
+        }
+
+        WebView {
+            id: flattrLoginWebView
+            anchors.fill: parent
+            preferredWidth: width
+            preferredHeight: height
+            onLoadFinished: {
+                var url_str = '' + url;
+                if (url_str.indexOf(controller.getFlattrCallbackURL()) == 0) {
+                    controller.processFlattrCode(url);
+                    pageStack.pop();
+                }
+            }
+        }
+    }
+
+
+    Page {
         id: settingsPage
         orientationLock: mainPage.orientationLock
 
         function loadSettings() {
             settingsAutorotate.checked = configProxy.autorotate
             settingsIndexing.checked = trackerMinerConfig.get_index_podcasts()
+
+            flattrOnPlaySwitch.checked = configProxy.flattrOnPlay
 
             myGpoEnableSwitch.checked = controller.myGpoEnabled
             myGpoUsernameField.text = controller.myGpoUsername
@@ -339,6 +405,38 @@ PageStackWindow {
                         text: _('Show podcasts in Music app')
                         onCheckedChanged: {
                             trackerMinerConfig.set_index_podcasts(checked)
+                        }
+                    }
+
+                    SettingsHeader { text: 'Flattr' }
+
+                    Button {
+                        text: {
+                            if (configProxy.flattrToken !== '') {
+                                _('Sign out')
+                            } else {
+                                _('Sign in to Flattr')
+                            }
+                        }
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width * .8
+                        onClicked: {
+                            if (configProxy.flattrToken !== '') {
+                                /* Logout */
+                                configProxy.flattrToken = '';
+                            } else {
+                                /* Login */
+                                flattrLoginWebView.url = controller.getFlattrLoginURL();
+                                pageStack.push(flattrLoginPage);
+                            }
+                        }
+                    }
+
+                    SettingsSwitch {
+                        id: flattrOnPlaySwitch
+                        text: _('Auto-Flattr on playback')
+                        onCheckedChanged: {
+                            configProxy.flattrOnPlay = checked
                         }
                     }
 

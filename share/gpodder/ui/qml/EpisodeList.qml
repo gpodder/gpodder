@@ -43,6 +43,14 @@ Item {
 
     ListView {
         id: listView
+
+        onContentHeightChanged: {
+            if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
+                /* Scroll the "opening" item into view at the bottom */
+                listView.positionViewAtEnd();
+            }
+        }
+
         anchors.fill: parent
         property int openedIndex: -1
         visible: count > 0
