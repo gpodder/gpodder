@@ -67,6 +67,7 @@ PageStackWindow {
                 id: labelFlattr
                 color: 'white'
                 anchors.right: toolFlattr.left
+                anchors.verticalCenter: toolFlattr.verticalCenter
                 opacity: toolFlattr.opacity
                 visible: toolFlattr.visible
 
