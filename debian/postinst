@@ -4,6 +4,17 @@
 
 SYMLINKS=/opt/gpodder/optification.symlinks
 
+# Clean up old leftover stuff from previous installs (gPodder bug 1672)
+DIST_PACKAGES=/usr/lib/python2.6/dist-packages
+echo "Checking for leftover files in $DIST_PACKAGES"
+for directory in gpodder mygpoclient; do
+    directory=$DIST_PACKAGES/$directory
+    if [ -e $directory ]; then
+        echo " Removing $directory"
+        rm -rf $directory
+    fi
+done
+
 rm -f $SYMLINKS
 
 link_to() {
