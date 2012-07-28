@@ -19,6 +19,9 @@
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gpodder
 
 _ = gpodder.gettext
@@ -26,7 +29,7 @@ _ = gpodder.gettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
-
+from gpodder.gtkui.flattr import set_flattr_button
 
 class gPodderShownotesBase(BuilderWidget):
     def new(self):
@@ -89,6 +92,19 @@ class gPodderShownotesBase(BuilderWidget):
 
     #############################################################
 
+    def set_flattr_information(self):
+        self.flattr_possible = set_flattr_button(self._flattr,
+            self.episode.payment_url, self.flattr_image,
+            self.flattr_button)
+
+    def on_flattr_button_clicked(self, widget):
+        if self.flattr_possible:
+            success, message = self._flattr.flattr_url(self.episode.payment_url)
+            self.show_message(message, title=_('Flattr status'), important=not success)
+            self.set_flattr_information()
+
+    #############################################################
+
     def on_play_button_clicked(self, widget=None):
         if self.episode:
             self._playback_episodes([self.episode])
@@ -141,19 +157,19 @@ class gPodderShownotesBase(BuilderWidget):
 
     def _download_status_changed(self, task):
         """Called from main window for download status changes"""
-        if self.main_window.get_property('visible'):
+        if self.main_window.vbox.get_property('visible'):
             self.task = task
             self.on_episode_status_changed()
 
     def _download_status_progress(self):
         """Called from main window for progress updates"""
-        if self.main_window.get_property('visible'):
+        if self.main_window.vbox.get_property('visible'):
             self.on_download_status_progress()
 
     #############################################################
 
     def show(self, episode):
-        if self.main_window.get_property('visible'):
+        if self.episode is not None:
             if episode == self.episode:
                 return
 
@@ -165,8 +181,11 @@ class gPodderShownotesBase(BuilderWidget):
 
         self.on_show_window()
         self.on_episode_status_changed()
-        self.main_window.show()
-        self.main_window.present()
+
+        if not self._config.ui.gtk.episode_list.embed_shownotes:
+            if not self.main_window.get_property('visible'):
+                self.main_window.show()
+                self.main_window.present()
 
         # Make sure the window comes up quick
         while gtk.events_pending():
@@ -175,3 +194,5 @@ class gPodderShownotesBase(BuilderWidget):
         # Load the shownotes into the UI
         self.on_display_text()
 
+        # Set flattr information
+        self.set_flattr_information()

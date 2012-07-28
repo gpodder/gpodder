@@ -428,7 +428,7 @@ class gPodderCli(object):
         return True
 
     def _update_podcast(self, podcast):
-        self._start_action('Updating %s', podcast.title)
+        self._start_action(' %s', podcast.title)
         try:
             podcast.update()
             self._finish_action()
@@ -442,6 +442,7 @@ class gPodderCli(object):
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
         count = 0
+        safe_print(_('Checking for new episodes'))
         for podcast in self.client.get_podcasts():
             if url is not None and podcast.url != url:
                 continue

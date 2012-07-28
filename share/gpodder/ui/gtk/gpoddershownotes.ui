@@ -48,56 +48,102 @@
             <property name="position">2</property>
           </packing>
         </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="gpodderepisode-action_area">
-            <property name="border_width">5</property>
-            <property name="layout_style">end</property>
-            <property name="spacing">6</property>
+        <child>
+          <object class="GtkHBox" id="gpodderepisode-footer-area">
             <property name="visible">True</property>
             <child>
-              <object class="GtkButton" id="btnPlay">
-                <property name="label">gtk-media-play</property>
-                <property name="use_stock">True</property>
+              <object class="GtkHButtonBox" id="gpodderepisode-flattr_area">
                 <property name="visible">True</property>
-                <signal handler="on_play_button_clicked" name="clicked"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnDownload">
-                <property name="label" translatable="yes">_Download</property>
-                <property name="use_underline">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_download_button_clicked" name="clicked"/>
+                <property name="can_focus">False</property>
+                <property name="border_width">10</property>
+                <property name="spacing">5</property>
+                <child>
+                  <object class="GtkButton" id="flattr_button">
+                    <property name="label" translatable="yes">Flattr this</property>
+                    <property name="visible">True</property>
+                    <signal name="clicked" handler="on_flattr_button_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="flattr_image">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack_type">start</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btnCancel">
-                <property name="label" translatable="yes">C_ancel download</property>
-                <property name="use_underline">True</property>
+              <object class="GtkHButtonBox" id="gpodderepisode-action_area">
+                <property name="border_width">5</property>
+                <property name="layout_style">end</property>
+                <property name="spacing">6</property>
                 <property name="visible">True</property>
-                <signal handler="on_cancel_button_clicked" name="clicked"/>
+                <child>
+                  <object class="GtkButton" id="btnPlay">
+                    <property name="label">gtk-media-play</property>
+                    <property name="use_stock">True</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_play_button_clicked" name="clicked"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btnDownload">
+                    <property name="label" translatable="yes">_Download</property>
+                    <property name="use_underline">True</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_download_button_clicked" name="clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btnCancel">
+                    <property name="label" translatable="yes">C_ancel download</property>
+                    <property name="use_underline">True</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_cancel_button_clicked" name="clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btnClose">
+                    <property name="label">gtk-close</property>
+                    <property name="use_stock">True</property>
+                    <property name="visible">True</property>
+                    <signal handler="on_close_button_clicked" name="clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
               </object>
               <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnClose">
-                <property name="label">gtk-close</property>
-                <property name="use_stock">True</property>
-                <property name="visible">True</property>
-                <signal handler="on_close_button_clicked" name="clicked"/>
-              </object>
-              <packing>
-                <property name="position">3</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack_type">end</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="pack_type">end</property>
           </packing>
         </child>

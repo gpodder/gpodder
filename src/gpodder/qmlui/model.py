@@ -35,7 +35,6 @@ from gpodder import query
 from gpodder import model
 from gpodder import coverart
 
-import threading
 import os
 
 convert = util.convert_bytes
@@ -177,9 +176,7 @@ class QEpisode(QObject):
 
             self._wrapper_manager.remove_active_episode(self)
 
-        thread = threading.Thread(target=t, args=[self])
-        thread.setDaemon(True)
-        thread.start()
+        util.run_in_background(lambda: t(self), True)
 
     def _description(self):
         return convert(self._episode.description_html)
@@ -267,7 +264,7 @@ class QPodcast(QObject):
             if finished_callback is not None:
                 finished_callback()
 
-        threading.Thread(target=t, args=[self]).start()
+        util.run_in_background(lambda: t(self))
 
     changed = Signal()
 

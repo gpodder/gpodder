@@ -416,6 +416,67 @@
                     <property name="position">4</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkHSeparator" id="hseparator_flattr">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_flattr">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Flattr&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hboxFlattr">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="border_width">10</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkButton" id="flattr_button">
+                        <property name="label" translatable="yes">Flattr this</property>
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_flattr_button_clicked"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="pack_type">start</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="flattr_image">
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="pack_type">start</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="pack_type">start</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="position">1</property>

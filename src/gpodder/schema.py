@@ -43,6 +43,7 @@ EpisodeColumns = (
     'current_position',
     'current_position_updated',
     'last_playback',
+    'payment_url',
 )
 
 PodcastColumns = (
@@ -59,9 +60,29 @@ PodcastColumns = (
     'download_folder',
     'pause_subscription',
     'section',
+    'payment_url',
 )
 
-CURRENT_VERSION = 2
+CURRENT_VERSION = 3
+
+
+# SQL commands to upgrade old database versions to new ones
+# Each item is a tuple (old_version, new_version, sql_commands) that should be
+# applied to the database to migrate from old_version to new_version.
+UPGRADE_SQL = [
+        # Version 2: Section labels for the podcast list
+        (1, 2, """
+        ALTER TABLE podcast ADD COLUMN section TEXT NOT NULL DEFAULT ''
+        """),
+
+        # Version 3: Flattr integration (+ invalidate http_* fields to force
+        # a feed update, so that payment URLs are parsed during the next check)
+        (2, 3, """
+        ALTER TABLE podcast ADD COLUMN payment_url TEXT NULL DEFAULT NULL
+        ALTER TABLE episode ADD COLUMN payment_url TEXT NULL DEFAULT NULL
+        UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
+        """),
+]
 
 def initialize_database(db):
     # Create table for podcasts
@@ -80,7 +101,8 @@ def initialize_database(db):
         auto_archive_episodes INTEGER NOT NULL DEFAULT 0,
         download_folder TEXT NOT NULL DEFAULT '',
         pause_subscription INTEGER NOT NULL DEFAULT 0,
-        section TEXT NOT NULL DEFAULT ''
+        section TEXT NOT NULL DEFAULT '',
+        payment_url TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -112,7 +134,8 @@ def initialize_database(db):
         total_time INTEGER NOT NULL DEFAULT 0,
         current_position INTEGER NOT NULL DEFAULT 0,
         current_position_updated INTEGER NOT NULL DEFAULT 0,
-        last_playback INTEGER NOT NULL DEFAULT 0
+        last_playback INTEGER NOT NULL DEFAULT 0,
+        payment_url TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -153,15 +176,13 @@ def upgrade(db, filename):
 
     db.execute("DELETE FROM version")
 
-    if version == 1:
-        UPGRADE_V1_TO_V2 = """
-        ALTER TABLE podcast ADD COLUMN section TEXT NOT NULL DEFAULT ''
-        """
+    for old_version, new_version, upgrade in UPGRADE_SQL:
+        if version == old_version:
+            for sql in upgrade.strip().split('\n'):
+                db.execute(sql)
+            version = new_version
 
-        for sql in UPGRADE_V1_TO_V2.strip().split('\n'):
-            db.execute(sql)
-
-        version = 2
+    assert version == CURRENT_VERSION
 
     db.execute("INSERT INTO version (version) VALUES (%d)" % version)
     db.commit()
@@ -202,6 +223,7 @@ def convert_gpodder2_db(old_db, new_db):
                 row['foldername'],
                 not row['feed_update_enabled'],
                 '',
+                None,
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
@@ -232,6 +254,7 @@ def convert_gpodder2_db(old_db, new_db):
                 row['current_position'],
                 row['current_position_updated'],
                 0,
+                None,
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)

@@ -35,7 +35,6 @@ from gpodder import util
 from gpodder import coverart
 
 import gtk
-import threading
 
 
 class CoverDownloader(ObservableService):
@@ -72,8 +71,8 @@ class CoverDownloader(ObservableService):
         when we have no cover on the local disk.
         """
         logger.debug('cover download request for %s', channel.url)
-        args = [channel, custom_url, True, avoid_downloading]
-        threading.Thread(target=self.__get_cover, args=args).start()
+        util.run_in_background(lambda: self.__get_cover(channel,
+            custom_url, True, avoid_downloading))
 
     def get_cover(self, channel, custom_url=None, avoid_downloading=False):
         """

@@ -19,6 +19,7 @@ Image {
     property alias podcastModel: podcastList.model
     property alias episodeModel: episodeList.model
     property alias currentEpisode: mediaPlayer.episode
+    property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText
@@ -45,11 +46,13 @@ Image {
         nowPlayingThrobber.clicked()
     }
 
-    function showMultiEpisodesSheet(label, action) {
+    function showMultiEpisodesSheet(title, label, action) {
+        multiEpisodesSheet.title = title;
         multiEpisodesSheet.acceptButtonText = label;
         multiEpisodesSheet.action = action;
         multiEpisodesList.selected = [];
         multiEpisodesSheet.open();
+        multiEpisodesSheet.opened = true;
     }
 
     function clickSearchButton() {
@@ -100,10 +103,13 @@ Image {
     }
 
     function togglePlayback(episode) {
-        if (episode !== undefined && episode.qfiletype == 'video') {
-            controller.playVideo(episode)
-        } else {
-            mediaPlayer.togglePlayback(episode)
+        if (episode !== undefined) {
+            if (episode.qfiletype == 'video') {
+                controller.playVideo(episode);
+            } else {
+                mediaPlayer.togglePlayback(episode);
+            }
+            controller.onPlayback(episode);
         }
     }
 
@@ -438,7 +444,7 @@ Image {
             anchors.right: searchButton.visible?searchButton.left:searchButton.right
             wrapMode: Text.NoWrap
             clip: true
-            text: (contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder")
+            text: multiEpisodesSheet.opened?multiEpisodesSheet.title:((contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder"))
             color: 'white'
             font.pixelSize: parent.height * .5
             font.bold: false
@@ -538,12 +544,19 @@ Image {
     Sheet {
         id: multiEpisodesSheet
         property string action: 'delete'
+        property bool opened: false
+        property string title: ''
         acceptButtonText: _('Delete')
 
         rejectButtonText: _('Cancel')
 
         onAccepted: {
             controller.multiEpisodeAction(multiEpisodesList.selected, action);
+            multiEpisodesSheet.opened = false;
+        }
+
+        onRejected: {
+            multiEpisodesSheet.opened = false;
         }
 
         content: Item {

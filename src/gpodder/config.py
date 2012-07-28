@@ -32,7 +32,6 @@ import atexit
 import os
 import shutil
 import time
-import threading
 import logging
 
 _ = gpodder.gettext
@@ -147,11 +146,33 @@ defaults = {
                 'descriptions': True,
                 'view_mode': 1,
                 'columns': int('101', 2), # bitfield of visible columns
+                'embed_shownotes': False, # show shownotes below episode list
             },
 
             'download_list': {
                 'remove_finished': True,
             },
+        },
+    },
+
+    # Synchronization with portable devices (MP3 players, etc..)
+    'device_sync': {
+        'device_type': 'none', # Possible values: 'none', 'filesystem'
+        'device_folder': '/media',
+
+        'one_folder_per_podcast': True,
+        'skip_played_episodes': True,
+        'delete_played_episodes': False,
+
+        'max_filename_length': 999,
+
+        'custom_sync_name': '{episode.pubdate_prop}_{episode.title}',
+        'custom_sync_name_enabled': False,
+
+        'after_sync': {
+            'mark_episodes_played': False,
+            'delete_episodes': False,
+            'sync_disks': False,
         },
     },
 
@@ -161,6 +182,11 @@ defaults = {
 
     'extensions': {
         'enabled': [],
+    },
+
+    'flattr': {
+        'token': '',
+        'flattr_on_play': False,
     },
 }
 
@@ -277,9 +303,7 @@ class Config(object):
 
     def schedule_save(self):
         if self.__save_thread is None:
-            self.__save_thread = threading.Thread(target=self.save_thread_proc)
-            self.__save_thread.setDaemon(True)
-            self.__save_thread.start()
+            self.__save_thread = util.run_in_background(self.save_thread_proc, True)
 
     def save_thread_proc(self):
         time.sleep(self.WRITE_TO_DISK_TIMEOUT)

@@ -36,6 +36,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
+from gpodder.gtkui import flattr
 
 import os
 import gtk
@@ -121,10 +122,12 @@ class EpisodeListModel(gtk.ListStore):
     # Steps for the "downloading" icon progress
     PROGRESS_STEPS = 20
 
-    def __init__(self, on_filter_changed=lambda has_episodes: None):
+    def __init__(self, config, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
                 gobject.TYPE_INT64, int, str, bool, int, bool)
+
+        self._config = config
 
         # Callback for when the filter / list changes, gets one parameter
         # (has_episodes) that is True if the list has any episodes

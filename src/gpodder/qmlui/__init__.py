@@ -27,7 +27,6 @@ from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
 
 import os
-import threading
 import signal
 import functools
 import subprocess
@@ -81,6 +80,10 @@ class ConfigProxy(QObject):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.qml.autorotate':
             self.autorotateChanged.emit()
+        elif name == 'flattr.token':
+            self.flattrTokenChanged.emit()
+        elif name == 'flattr.flattr_on_play':
+            self.flattrOnPlayChanged.emit()
 
     def get_autorotate(self):
         return self._config.ui.qml.autorotate
@@ -93,6 +96,29 @@ class ConfigProxy(QObject):
     autorotate = Property(bool, get_autorotate, set_autorotate,
             notify=autorotateChanged)
 
+    def get_flattr_token(self):
+        return self._config.flattr.token
+
+    def set_flattr_token(self, flattr_token):
+        self._config.flattr.token = flattr_token
+
+    flattrTokenChanged = Signal()
+
+    flattrToken = Property(unicode, get_flattr_token, set_flattr_token,
+            notify=flattrTokenChanged)
+
+    def get_flattr_on_play(self):
+        return self._config.flattr.flattr_on_play
+
+    def set_flattr_on_play(self, flattr_on_play):
+        self._config.flattr.flattr_on_play = flattr_on_play
+
+    flattrOnPlayChanged = Signal()
+
+    flattrOnPlay = Property(bool, get_flattr_on_play, set_flattr_on_play,
+            notify=flattrOnPlayChanged)
+
+
 class Controller(QObject):
     def __init__(self, root):
         QObject.__init__(self)
@@ -101,6 +127,8 @@ class Controller(QObject):
         self.episode_list_title = u''
         self.current_input_dialog = None
         self.root.config.add_observer(self.on_config_changed)
+        self._flattr = self.root.core.flattr
+        self.flattr_button_text = u''
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -126,6 +154,94 @@ class Controller(QObject):
 
     episodeListTitle = Property(unicode, getEpisodeListTitle, \
             setEpisodeListTitle, notify=episodeListTitleChanged)
+
+    flattrButtonTextChanged = Signal()
+
+    def setFlattrButtonText(self, flattr_button_text):
+        if self.flattr_button_text != flattr_button_text:
+            self.flattr_button_text = flattr_button_text
+            self.flattrButtonTextChanged.emit()
+
+    def getFlattrButtonText(self):
+        return self.flattr_button_text
+
+    flattrButtonText = Property(unicode, getFlattrButtonText,
+            setFlattrButtonText, notify=flattrButtonTextChanged)
+
+    @Slot(QObject)
+    def onPlayback(self, qepisode):
+        if (qepisode.payment_url and self.root.config.flattr.token and
+                self.root.config.flattr.flattr_on_play):
+            success, message = self._flattr.flattr_url(qepisode.payment_url)
+            if not success:
+                logger.warn('Flattr message on playback action: %s', message)
+
+    @Slot(QObject)
+    def updateFlattrButtonText(self, qepisode):
+        self.setFlattrButtonText('')
+
+        if qepisode is None:
+            return
+
+        episode = qepisode._episode
+
+        if not episode.payment_url:
+            return
+        if not self._flattr.has_token():
+            self.setFlattrButtonText(_('Sign in'))
+            return
+
+        @util.run_in_background
+        def get_flattr_info():
+            flattrs, flattred = self._flattr.get_thing_info(episode.payment_url)
+
+            if flattred:
+                self.setFlattrButtonText(_('Flattred (%(count)d)') % {
+                    'count': flattrs
+                })
+            else:
+                self.setFlattrButtonText(_('Flattr this (%(count)d)') % {
+                    'count': flattrs
+                })
+
+    @Slot(QObject)
+    def flattrEpisode(self, qepisode):
+        if not qepisode:
+            return
+
+        episode = qepisode._episode
+
+        if not episode.payment_url:
+            return
+        if not self._flattr.has_token():
+            self.root.show_message(_('Sign in to Flattr in the settings.'))
+            return
+
+        self.root.start_progress(_('Flattring episode...'))
+
+        @util.run_in_background
+        def flattr_episode():
+            try:
+                success, message = self._flattr.flattr_url(episode.payment_url)
+                if success:
+                    self.updateFlattrButtonText(qepisode)
+                else:
+                    self.root.show_message(message)
+            finally:
+                self.root.end_progress()
+
+    @Slot(result=str)
+    def getFlattrLoginURL(self):
+        return self._flattr.get_auth_url()
+
+    @Slot(result=str)
+    def getFlattrCallbackURL(self):
+        return self._flattr.CALLBACK
+
+    @Slot(str)
+    def processFlattrCode(self, url):
+        if not self._flattr.process_retrieved_code(url):
+            self.root.show_message(_('Could not log in to Flattr.'))
 
     @Slot(result='QStringList')
     def getEpisodeListFilterNames(self):
@@ -262,8 +378,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=upload_proc, args=[self])
-        t.start()
+        util.run_in_background(lambda: upload_proc(self))
 
     @Slot()
     def saveMyGpoSettings(self):
@@ -374,8 +489,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=merge_proc, args=[self])
-        t.start()
+        util.run_in_background(lambda: merge_proc(self))
 
         for podcast in self.root.podcast_model.get_objects():
             podcast.qupdate(finished_callback=self.update_subset_stats)
@@ -576,8 +690,7 @@ class Controller(QObject):
             finally:
                 self.root.end_progress()
 
-        t = threading.Thread(target=subscribe_proc, args=[self, urls])
-        t.start()
+        util.run_in_background(lambda: subscribe_proc(self, urls))
 
     @Slot()
     def currentEpisodeChanging(self):

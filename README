@@ -61,7 +61,8 @@
     - Qt Quick Components              http://qt.gitorious.org/qt-components
 
     The QML UI depends on the QtMultimediaKit QML bindings for playing
-    back audio (libdeclarative-multimedia in Debian).
+    back audio (libdeclarative-multimedia in Debian) and on the WebKit QML
+    bindings for Flattr integration (libqtwebkit-qmlwebkitplugin in Debian).
 
     The QML UI now also depends on Qt Quick Components. On MeeGo 1.2 Harmattan,
     these components are pre-installed. You can install them on your Desktop by
@@ -78,6 +79,7 @@
 
     - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
     - HTML shownotes: python-webkit
+    - Flattr integration: python-webkit
     - Size detection on Windows: PyWin32
     - Native OS X support: ige-mac-integration
 
