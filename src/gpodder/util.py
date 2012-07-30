@@ -807,34 +807,37 @@ def get_first_line( s):
     return s.strip().split('\n')[0].strip()
 
 
-def object_string_formatter( s, **kwargs):
+def object_string_formatter(s, **kwargs):
     """
-    Makes attributes of object passed in as keyword 
-    arguments available as {OBJECTNAME.ATTRNAME} in 
-    the passed-in string and returns a string with 
-    the above arguments replaced with the attribute 
+    Makes attributes of object passed in as keyword
+    arguments available as {OBJECTNAME.ATTRNAME} in
+    the passed-in string and returns a string with
+    the above arguments replaced with the attribute
     values of the corresponding object.
 
-    Example:
+    >>> class x: pass
+    >>> a = x()
+    >>> a.title = 'Hello world'
+    >>> object_string_formatter('{episode.title}', episode=a)
+    'Hello world'
 
-    e = Episode()
-    e.title = 'Hello'
-    s = '{episode.title} World'
-    
-    print object_string_formatter( s, episode = e)
-          => 'Hello World'
+    >>> class x: pass
+    >>> a = x()
+    >>> a.published = 123
+    >>> object_string_formatter('Hi {episode.published} 456', episode=a)
+    'Hi 123 456'
     """
     result = s
-    for ( key, o ) in kwargs.items():
-        matches = re.findall( r'\{%s\.([^\}]+)\}' % key, s)
+    for key, o in kwargs.iteritems():
+        matches = re.findall(r'\{%s\.([^\}]+)\}' % key, s)
         for attr in matches:
-            if hasattr( o, attr):
+            if hasattr(o, attr):
                 try:
-                    from_s = '{%s.%s}' % ( key, attr )
-                    to_s = getattr( o, attr)
-                    result = result.replace( from_s, to_s)
+                    from_s = '{%s.%s}' % (key, attr)
+                    to_s = str(getattr(o, attr))
+                    result = result.replace(from_s, to_s)
                 except:
-                    logger.warn('Could not replace attribute "%s" in string "%s".', attr, s)
+                    logger.warn('Replace of "%s" failed for "%s".', attr, s)
 
     return result
 
