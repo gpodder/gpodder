@@ -1174,8 +1174,9 @@ class PodcastChannel(PodcastModelObject):
             elif result.status == feedcore.NOT_MODIFIED:
                 pass
 
-            self.http_etag = result.feed.headers.get('etag', self.http_etag)
-            self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
+            if hasattr(result.feed, 'headers'):
+                self.http_etag = result.feed.headers.get('etag', self.http_etag)
+                self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
             self.save()
         except Exception, e:
             # "Not really" errors
