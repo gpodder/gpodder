@@ -25,7 +25,6 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
-from gpodder.gtkui import flattr
 
 from gpodder.gtkui.interface.common import BuilderWidget
 
@@ -39,11 +38,17 @@ class gPodderChannel(BuilderWidget):
         self.labelURL.set_text(self.channel.url)
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
 
-        self.combo_section.child.set_text(self.channel.section)
         self.section_list = gtk.ListStore(str)
-        for section in sorted(self.sections):
+        active_index = 0
+        for index, section in enumerate(sorted(self.sections)):
             self.section_list.append([section])
+            if section == self.channel.section:
+                active_index = index
         self.combo_section.set_model(self.section_list)
+        cell_renderer = gtk.CellRendererText()
+        self.combo_section.pack_start(cell_renderer)
+        self.combo_section.add_attribute(cell_renderer, 'text', 0)
+        self.combo_section.set_active(active_index)
 
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
@@ -75,7 +80,18 @@ class gPodderChannel(BuilderWidget):
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
 
-        self.set_flattr_information()
+    def on_button_add_section_clicked(self, widget):
+        text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
+            affirmative_text=gtk.STOCK_ADD)
+
+        if text is not None:
+            for index, (section,) in enumerate(self.section_list):
+                if text == section:
+                    self.combo_section.set_active(index)
+                    return
+
+            self.section_list.append([text])
+            self.combo_section.set_active(len(self.section_list)-1)
 
     def on_cover_popup_menu(self, widget, event):
         if event.button != 3:
@@ -163,7 +179,7 @@ class gPodderChannel(BuilderWidget):
         self.clear_cover_cache(self.channel.url)
         self.cover_downloader.request_cover(self.channel)
 
-        new_section = self.combo_section.child.get_text().strip()
+        new_section = self.section_list[self.combo_section.get_active()][0]
         if self.channel.section != new_section:
             self.channel.section = new_section
             section_changed = True
@@ -177,19 +193,3 @@ class gPodderChannel(BuilderWidget):
         self.update_podcast_list_model(selected=True,
                 sections_changed=section_changed)
 
-    def set_flattr_information(self):
-        if self.channel.payment_url:
-            self.flattr_possible = flattr.set_flattr_button(self._flattr,
-                self.channel.payment_url, self._config.flattr.token,
-                self.flattr_image, self.flattr_button)
-            self.flattr_image.set_visible(True)
-            self.flattr_button.set_visible(True)
-        else:
-            self.flattr_image.set_visible(False)
-            self.flattr_button.set_visible(False)
-
-    def on_flattr_button_clicked(self, widget):
-        if self.flattr_possible:
-            success, message = self._flattr.flattr_url(self.channel.payment_url)
-            self.show_message(message, title=_('Flattr status'), important=not success)
-            self.set_flattr_information()
