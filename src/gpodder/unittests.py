@@ -26,6 +26,7 @@ import doctest
 import unittest
 import sys
 import os.path
+import locale
 
 try:
     # Unused here locally, but we import it to be able to give an early
@@ -54,8 +55,17 @@ for module in modules:
     m = __import__('.'.join((package, module)), fromlist=[module])
     coverage_modules.append(m)
     suite.addTest(doctest.DocTestSuite(m))
-
 runner = unittest.TextTestRunner(verbosity=2)
+
+loc = locale.getlocale()[0]
+if loc is None or not (loc.startswith("en_") # unix prefix
+      or loc.lower().startswith("english")): # windows prefix
+    print >>sys.stderr, """
+    Error: Unit tests needs an english locale.
+    Please rerun the tests with different languages settings, ex.:
+    LC_ALL=en_US python src/gpodder/unittests.py
+    """
+    sys.exit(2)
 
 try:
     import coverage
