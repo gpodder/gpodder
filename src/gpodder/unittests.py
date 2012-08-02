@@ -25,6 +25,7 @@
 import doctest
 import unittest
 import sys
+import os.path
 
 try:
     # Unused here locally, but we import it to be able to give an early
@@ -41,6 +42,11 @@ except ImportError, e:
 package = 'gpodder'
 modules = ['util', 'jsonconfig']
 coverage_modules = []
+
+# Add src dir to module path
+gpodder_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+src_path = os.path.abspath(os.path.join(gpodder_path, ".."))
+sys.path.insert(0, src_path)
 
 suite = unittest.TestSuite()
 
