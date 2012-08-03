@@ -482,6 +482,13 @@ PageStackWindow {
                         width: parent.width * .8
                         onClicked: Qt.openUrlExternally('http://gpodder.net/register/')
                     }
+
+                    Button {
+                        text: _('Privacy policy')
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width * .8
+                        onClicked: Qt.openUrlExternally('http://gpodder.net/privacy/')
+                    }
                 }
             }
         }
