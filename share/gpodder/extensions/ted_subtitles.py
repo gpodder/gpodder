@@ -3,6 +3,7 @@
 import os
 import json
 import logging
+import re
 
 from datetime import timedelta
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ class gPodderExtension(object):
         else:
             # ',000' required to be a valid srt line
             srt_time += ',000'
+
         return srt_time
 
     def ted_to_srt(self, jsonstring, introduration):
@@ -49,6 +51,7 @@ class gPodderExtension(object):
             srtContent += ''.join([str(captionIndex), os.linesep, startTime,
                                    ' --> ', endTime, os.linesep,
                                    caption['content'], os.linesep * 2])
+
         return srtContent
 
     def get_data_from_url(self, url):
@@ -60,15 +63,11 @@ class gPodderExtension(object):
         return response
 
     def on_episode_downloaded(self, episode):
-        if 'talk.ted.com' not in episode.guid:
+        guid_result = re.search(r'talk.ted.com:(\d+)', episode.guid)
+        if guid_result is not None:
+            talkId = int(guid_result.group(1))
+        else:
             logger.debug('Not a TED Talk. Ignoring.')
-            return
-
-        talkId = episode.guid.split(':')[-1]
-        try:
-            int(talkId)
-        except ValueError:
-            logger.warn('invalid talk id: %s', talkId)
             return
 
         sub_url = 'http://www.ted.com/talks/subtitles/id/%s/lang/eng' % talkId
