@@ -64,7 +64,7 @@ class gPodderExtension(object):
             logger.debug('Not a TED Talk. Ignoring.')
             return
 
-        talkId = episode.guid.split(':')[1]
+        talkId = episode.guid.split(':')[-1]
         try:
             int(talkId)
         except ValueError:
