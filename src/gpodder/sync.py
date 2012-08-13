@@ -488,7 +488,7 @@ class MP3PlayerDevice(Device):
             download_status_model,
             download_queue_manager):
         Device.__init__(self, config)
-        self.destination = self._config.device_sync.device_folder
+        self.destination = util.sanitize_encoding(self._config.device_sync.device_folder)
         self.buffer_size = 1024*1024 # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
