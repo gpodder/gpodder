@@ -62,6 +62,10 @@ class gPodderExtension(object):
             return ''
         return response
 
+    def get_srt_filename(self, audio_filename):
+        basename, _ = os.path.splitext(audio_filename)
+        return basename + '.srt'
+
     def on_episode_downloaded(self, episode):
         guid_result = re.search(r'talk.ted.com:(\d+)', episode.guid)
         if guid_result is not None:
@@ -83,11 +87,17 @@ class gPodderExtension(object):
 
         intro = episode_data.split('introDuration=')[1].split('&')[0] or 0
         current_filename = episode.local_filename(create=False)
-        basename, _ = os.path.splitext(current_filename)
+        srt_filename = self.get_srt_filename(current_filename)
         sub = self.ted_to_srt(sub_data, int(intro))
 
         try:
-            with open(basename + '.srt', 'w+') as srtFile:
+            with open(srt_filename, 'w+') as srtFile:
                 srtFile.write(sub.encode("utf-8"))
         except Exception, e:
             logger.warn("Can't write srt file: %s",e)
+
+    def on_episode_delete(self, episode, filename):
+        srt_filename = self.get_srt_filename(filename)
+        if os.path.exists(srt_filename):
+            os.remove(srt_filename)
+
