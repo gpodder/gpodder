@@ -24,12 +24,27 @@
 
 import feedparser
 
+import logging
+logger = logging.getLogger(__name__)
+
 try:
     # Python 2
     from rfc822 import mktime_tz
 except ImportError:
     # Python 3
     from email.utils import mktime_tz
+
+
+# Version check to avoid bug 1648
+feedparser_version = tuple(int(x) if x.isdigit() else x
+        for x in feedparser.__version__.split('.'))
+feedparser_miniumum_version = (5, 1, 2)
+if feedparser_version < feedparser_miniumum_version:
+    installed_version = feedparser.__version__
+    required_version = '.'.join(str(x) for x in feedparser_miniumum_version)
+    logger.warn('Your feedparser is too old. Installed: %s, recommended: %s',
+            installed_version, required_version)
+
 
 def patch_feedparser():
     """Monkey-patch the Universal Feed Parser"""
@@ -75,7 +90,10 @@ def patch_feedparser():
         value = self.pop('updated')
         parsed_value = feedparser._parse_date(value)
         overwrite = ('youtube.com' not in self.baseuri)
-        self._save('updated_parsed', parsed_value, overwrite=overwrite)
+        try:
+            self._save('updated_parsed', parsed_value, overwrite=overwrite)
+        except TypeError, te:
+            logger.warn('Your feedparser version is too old: %s', te)
 
     try:
         feedparser._FeedParserMixin._end_updated = _end_updated
