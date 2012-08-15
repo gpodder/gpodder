@@ -154,18 +154,37 @@ database_file = None
 downloads = None
 prefix = None
 
-# Function to set a new gPodder home folder
-def set_home(new_home):
-    global home, config_file, database_file, downloads
-    home = os.path.abspath(new_home)
-
-    config_file = os.path.join(home, 'Settings.json')
-    database_file = os.path.join(home, 'Database')
-    downloads = os.path.join(home, 'Downloads')
-
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
-set_home(os.environ.get('GPODDER_HOME', default_home))
+
+def set_home(dir):
+    global home, config_file, database_file
+    if os.path.exists(dir) and os.path.isdir(dir):
+        home = os.path.abspath(dir)
+    else:
+        home = default_home
+        print 'Directory: ' + dir + 'Does Not Exists'
+
+    config_file = os.path.join(home, 'Settings.json')
+    database_file = os.path.join(home, 'Database')    
+
+def set_download(dir):
+    global downloads
+    if os.path.exists(dir) and os.path.isdir(dir):    
+        downloads = os.path.abspath(dir)
+    else:
+        downloads = os.path.join(default_home, 'Downloads')
+        print 'Directory: ' + dir + 'Does Not Exists'
+
+# Set home location
+set_home(default_home)
+if os.environ.get('GPODDER_HOME', None) is not None:
+    set_home(os.environ.get('GPODDER_HOME'))
+
+# Sets download location
+set_download(os.path.join(home, 'Downloads'))
+if os.environ.get('GPODDER_DOWNLOAD_DIR', None) is not None:
+    set_download(os.environ.get('GPODDER_DOWNLOAD_DIR'))
 
 if home != default_home:
     print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
