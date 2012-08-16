@@ -83,12 +83,12 @@ msgstr "Deskribapenik ez hedapen honentzat"
 #: src/gpodder/extensions.py:162
 #, python-format
 msgid "Command not found: %(command)s"
-msgstr ""
+msgstr "Ez da komandoa aurkitu: %(command)s"
 
 #: src/gpodder/extensions.py:199
 #, python-format
 msgid "Python module not found: %(module)s"
-msgstr ""
+msgstr "Ez da Python modulua aurkitu: %(module)s"
 
 #: src/gpodder/flattr.py:159
 msgid "Not enough means to flattr"
@@ -149,11 +149,11 @@ msgstr "Bertan behera utzita"
 
 #: src/gpodder/sync.py:198
 msgid "Writing data to disk"
-msgstr ""
+msgstr "Datuak diskora idazten"
 
 #: src/gpodder/sync.py:281
 msgid "Opening iPod database"
-msgstr ""
+msgstr "iPod datu-basea irekitzen"
 
 #: src/gpodder/sync.py:291
 #, fuzzy
@@ -162,11 +162,11 @@ msgstr "irekia"
 
 #: src/gpodder/sync.py:302
 msgid "Saving iPod database"
-msgstr ""
+msgstr "iPod datu-basea gordetzen"
 
 #: src/gpodder/sync.py:307
 msgid "Writing extended gtkpod database"
-msgstr ""
+msgstr "Hedatutako gtkpod datu-basea idazten"
 
 #: src/gpodder/sync.py:383 src/gpodder/sync.py:643 src/gpodder/sync.py:837
 #, fuzzy, python-format
@@ -182,6 +182,8 @@ msgstr "%s gehitzen..."
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
 msgstr ""
+"Errorea %(episode)s kopiatzean: Ez dago behar adina leku libre "
+"%(mountpoint)s-(e)n"
 
 #: src/gpodder/sync.py:501
 #, fuzzy
@@ -200,11 +202,11 @@ msgstr "Errorea %(url)s eguneratzean: %(message)s"
 
 #: src/gpodder/sync.py:743 src/gpodder/sync.py:749
 msgid "MTP device"
-msgstr ""
+msgstr "MTP gailua"
 
 #: src/gpodder/sync.py:756
 msgid "Opening the MTP device"
-msgstr ""
+msgstr "MTP gailua irekitzen"
 
 #: src/gpodder/sync.py:766
 #, fuzzy, python-format
@@ -214,12 +216,12 @@ msgstr "irekia"
 #: src/gpodder/sync.py:771
 #, python-format
 msgid "Closing %s"
-msgstr ""
+msgstr "%s ixten"
 
 #: src/gpodder/sync.py:779
 #, python-format
 msgid "%s closed"
-msgstr ""
+msgstr "%s itxita"
 
 #: src/gpodder/sync.py:784 bin/gpo:594
 #, python-format
@@ -303,7 +305,7 @@ msgstr "Aplikazio lehenetsia"
 #: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:191
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Sign in"
-msgstr ""
+msgstr "Hasi saioa"
 
 #: src/gpodder/gtkui/flattr.py:51
 msgid "Flattred"
@@ -607,7 +609,7 @@ msgstr "Berria"
 #: src/gpodder/gtkui/main.py:1914 src/gpodder/gtkui/interface/shownotes.py:103
 #: src/gpodder/gtkui/desktop/channel.py:194
 msgid "Flattr status"
-msgstr ""
+msgstr "Flattr egoera"
 
 #: src/gpodder/gtkui/main.py:1963
 msgid "Please check your media player settings in the preferences dialog."
@@ -966,7 +968,7 @@ msgstr "Ez dago atalik eskuragarri"
 
 #: src/gpodder/gtkui/main.py:3158
 msgid "You have the latest version of gPodder."
-msgstr ""
+msgstr "gPodder-en azken bertsioa daukazu."
 
 #: src/gpodder/gtkui/main.py:3162
 #, fuzzy
@@ -976,12 +978,12 @@ msgstr "Atal berriak eskuragarri"
 #: src/gpodder/gtkui/main.py:3164
 #, python-format
 msgid "Installed version: %s"
-msgstr ""
+msgstr "Instalatutako bertsioa: %s"
 
 #: src/gpodder/gtkui/main.py:3165
 #, python-format
 msgid "Newest version: %s"
-msgstr ""
+msgstr "Bertsio berriena: %s"
 
 #: src/gpodder/gtkui/main.py:3166
 #, fuzzy, python-format
@@ -1266,11 +1268,11 @@ msgstr "Deskargatu berehala"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
 msgid "None"
-msgstr ""
+msgstr "Bat ere ez"
 
 #: src/gpodder/gtkui/desktop/preferences.py:70
 msgid "Filesystem-based"
-msgstr ""
+msgstr "Fitxategi-sisteman oinarritua"
 
 #: src/gpodder/gtkui/desktop/preferences.py:90
 #, fuzzy
@@ -1279,7 +1281,7 @@ msgstr "Markatu zahar bezala"
 
 #: src/gpodder/gtkui/desktop/preferences.py:91
 msgid "Delete from gPodder"
-msgstr ""
+msgstr "Ezabatu gPodder-etik"
 
 #: src/gpodder/gtkui/desktop/preferences.py:130
 #, fuzzy
@@ -1304,12 +1306,12 @@ msgstr ""
 #: src/gpodder/gtkui/desktop/preferences.py:266
 #, python-format
 msgid "Logged in as <b>%(username)s</b>"
-msgstr ""
+msgstr "<b>%(username)s</b> bezala saioa hasita"
 
 #: src/gpodder/gtkui/desktop/preferences.py:267
 #: share/gpodder/ui/qml/main_default.qml:415
 msgid "Sign out"
-msgstr ""
+msgstr "Amaitu saioa"
 
 #: src/gpodder/gtkui/desktop/preferences.py:276
 msgid "Flattr integration requires WebKit/Gtk."
@@ -1317,11 +1319,11 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:277
 msgid "WebKit/Gtk not found"
-msgstr ""
+msgstr "Ez da WebKit/Gtk aurkitu"
 
 #: src/gpodder/gtkui/desktop/preferences.py:313
 msgid "Extension cannot be activated"
-msgstr ""
+msgstr "Ezin da hedapena aktibatu"
 
 #: src/gpodder/gtkui/desktop/preferences.py:328
 msgid "Extension module info"
@@ -1378,7 +1380,7 @@ msgstr "Oharrak kargatzen..."
 
 #: src/gpodder/gtkui/desktop/sync.py:83
 msgid "No device configured"
-msgstr ""
+msgstr "Gailurik ez konfiguratuta"
 
 #: src/gpodder/gtkui/desktop/sync.py:84
 #, fuzzy
@@ -1389,7 +1391,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/sync.py:88
 msgid "Cannot open device"
-msgstr ""
+msgstr "Ezin da gailua ireki"
 
 #: src/gpodder/gtkui/desktop/sync.py:89
 #, fuzzy
@@ -1400,7 +1402,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/sync.py:136
 msgid "Not enough space left on device"
-msgstr ""
+msgstr "Ez dago leku libre nahikorik gailuan"
 
 #: src/gpodder/gtkui/desktop/sync.py:137
 #, python-format
@@ -1408,6 +1410,8 @@ msgid ""
 "Additional free space required: %(required_space)s\n"
 "Do you want to continue?"
 msgstr ""
+"Leku libre gehiago behar da: %(required_space)s\n"
+"Jarraitu nahi duzu?"
 
 #: src/gpodder/qmlui/__init__.py:62
 msgid "All"
@@ -1566,32 +1570,32 @@ msgstr "%s-k Soundcloud-en gustoko dituen pistak."
 
 #: share/gpodder/extensions/flv2mp4.py:23
 msgid "Convert .flv files from YouTube to .mp4"
-msgstr ""
+msgstr "Bihurtu YouTube-ko .flv fitxategiak .mp4-ra"
 
 #: share/gpodder/extensions/flv2mp4.py:24
 msgid "Useful for playing downloaded videos on hardware players"
-msgstr ""
+msgstr "Baliagarria deskargatutako bideoak hardware gailuetan erreproduzitzeko"
 
 #: share/gpodder/extensions/flv2mp4.py:56
 msgid "Convert FLV to MP4"
-msgstr ""
+msgstr "Bihurtu FLV MP4-ra"
 
 #: share/gpodder/extensions/m4a_converter.py:19
 msgid "Convert M4A audio to MP3 or OGG"
-msgstr ""
+msgstr "Bihurtu M4A audioa MP3 edo OGG-ra"
 
 #: share/gpodder/extensions/m4a_converter.py:20
 msgid "Transcode .m4a files to .mp3 or .ogg using ffmpeg"
-msgstr ""
+msgstr "Transkodetu .m4a fitxategiak .mp3 edo .ogg-era ffmpeg erabiliz"
 
 #: share/gpodder/extensions/m4a_converter.py:53
 #, python-format
 msgid "Convert to %(format)s"
-msgstr ""
+msgstr "Bihurtu %(format)s-(e)ra"
 
 #: share/gpodder/extensions/m4a_converter.py:77
 msgid "File converted"
-msgstr ""
+msgstr "Fitxategia bihurtuta"
 
 #: share/gpodder/extensions/m4a_converter.py:80
 #, fuzzy
@@ -1600,15 +1604,15 @@ msgstr "Errorea fitxategia bihurtzean."
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
-msgstr ""
+msgstr "Normalizatu audioa berkodetzearekin"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
-msgstr ""
+msgstr "Normalizatu audio fitxategien bolumena normalize-audio-rekin"
 
 #: share/gpodder/extensions/normalize_audio.py:83
 msgid "File normalized"
-msgstr ""
+msgstr "Fitxategia normalizatuta"
 
 #: share/gpodder/extensions/rename_download.py:16
 #, fuzzy
@@ -1618,6 +1622,7 @@ msgstr "Atal berriak aurkitzean:"
 #: share/gpodder/extensions/rename_download.py:17
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
 msgstr ""
+"Berrizendatu atalak deskargatzean honela: \"<Atalaren izenburua>.<luzapena>\""
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 #, fuzzy
@@ -1626,7 +1631,7 @@ msgstr "Inportatu OPML fitxategitik"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:38
 msgid "removes coverart from all downloaded ogg files"
-msgstr ""
+msgstr "azalak kentzen ditu deskargatutako ogg fitxategi guztietatik"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:63
 #, fuzzy
@@ -1635,15 +1640,15 @@ msgstr "Ezabatu podcast-a"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
-msgstr ""
+msgstr "Bihurtu bideo fitxategiak Rockbox-entzako MP4-ra"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:27
 msgid "Converts all videos to a Rockbox-compatible format"
-msgstr ""
+msgstr "Rockbox-ekin bateragarria den formatura bihurtzen ditu bideo guztiak"
 
 #: share/gpodder/extensions/tagging.py:38
 msgid "Tag downloaded files using Mutagen"
-msgstr ""
+msgstr "Etiketatu deskargatutako fitxategiak Mutagen-ekin"
 
 #: share/gpodder/extensions/tagging.py:39
 #, fuzzy
@@ -1858,11 +1863,11 @@ msgstr "Gailuaren izena:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
 msgid "Mountpoint:"
-msgstr ""
+msgstr "Muntaketa-puntua:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
 msgid "After syncing an episode:"
-msgstr ""
+msgstr "Atal bat sinkronizatu ondoren:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 #, fuzzy
@@ -1946,7 +1951,7 @@ msgstr "Aldatu ezabaketa blokeoa"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:26
 msgid "E_xtras"
-msgstr ""
+msgstr "_Gehigarriak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:27
 #, fuzzy
@@ -1999,7 +2004,7 @@ msgstr "Erabiltzaile-gida"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:40
 msgid "Software updates"
-msgstr ""
+msgstr "Software eguneraketak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:41
 msgid "Filter:"
@@ -2122,7 +2127,7 @@ msgstr "Biraketa automatikoa"
 
 #: share/gpodder/ui/qml/main_default.qml:400
 msgid "Media indexing"
-msgstr ""
+msgstr "Edukiak indexatzen"
 
 #: share/gpodder/ui/qml/main_default.qml:404
 #, fuzzy
