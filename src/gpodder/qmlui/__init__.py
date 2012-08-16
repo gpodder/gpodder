@@ -46,6 +46,7 @@ from gpodder import core
 from gpodder import util
 from gpodder import my
 from gpodder import query
+from gpodder import common
 
 from gpodder.model import Model
 
@@ -551,13 +552,17 @@ class Controller(QObject):
 
             self.start_input_dialog(title_changer(action.target))
 
-    def confirm_action(self, message, affirmative, callback):
-        def confirm(message, affirmative, callback):
+    def confirm_action(self, message, affirmative, callback,
+            negative_callback=None):
+        def confirm(message, affirmative, callback, negative_callback):
             args = (message, '', affirmative, _('Cancel'), False)
             if (yield args):
                 callback()
+            elif negative_callback is not None:
+                negative_callback()
 
-        self.start_input_dialog(confirm(message, affirmative, callback))
+        self.start_input_dialog(confirm(message, affirmative, callback,
+            negative_callback))
 
     def start_input_dialog(self, generator):
         """Carry out an input dialog with the UI
@@ -948,7 +953,48 @@ class qtPodder(QObject):
         self.do_end_progress.connect(self.on_end_progress)
         self.do_show_message.connect(self.on_show_message)
 
-        self.load_podcasts()
+        podcasts = self.load_podcasts()
+
+        self.resumable_episodes = None
+        self.do_offer_download_resume.connect(self.on_offer_download_resume)
+        util.run_in_background(self.find_partial_downloads(podcasts))
+
+    def find_partial_downloads(self, podcasts):
+        def start_progress_callback(count):
+            self.start_progress(_('Loading incomplete downloads'))
+
+        def progress_callback(title, progress):
+            self.start_progress('%s (%d%%)' % (
+                _('Loading incomplete downloads'),
+                progress*100))
+
+        def finish_progress_callback(resumable_episodes):
+            self.end_progress()
+            self.resumable_episodes = resumable_episodes
+            self.do_offer_download_resume.emit()
+
+        common.find_partial_downloads(podcasts,
+                start_progress_callback,
+                progress_callback,
+                finish_progress_callback)
+
+    do_offer_download_resume = Signal()
+
+    def on_offer_download_resume(self):
+        if self.resumable_episodes:
+            def download_episodes():
+                for episode in self.resumable_episodes:
+                    qepisode = self.wrap_simple_episode(episode)
+                    self.controller.downloadEpisode(qepisode)
+
+            def delete_episodes():
+                logger.debug('Deleting incomplete downloads.')
+                common.clean_up_downloads(delete_partial=True)
+
+            message = _('Incomplete downloads from a previous session were found.')
+            title = _('Resume')
+
+            self.controller.confirm_action(message, title, download_episodes, delete_episodes)
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
@@ -1059,12 +1105,20 @@ class qtPodder(QObject):
     def load_podcasts(self):
         podcasts = map(model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
+        return podcasts
 
     def wrap_episode(self, podcast, episode):
         try:
             return self.active_episode_wrappers[episode.id]
         except KeyError:
             return model.QEpisode(self, podcast, episode)
+
+    def wrap_simple_episode(self, episode):
+        for podcast in self.podcast_model.get_podcasts():
+            if podcast.id == episode.podcast_id:
+                return self.wrap_episode(podcast, episode)
+
+        return None
 
     def select_podcast(self, podcast):
         if isinstance(podcast, model.QPodcast):
