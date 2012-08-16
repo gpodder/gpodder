@@ -327,6 +327,7 @@ class EpisodeSubsetView(QObject):
         self.title = title
         self.description = description
         self.eql = eql
+        self.pause_subscription = False
 
         self._new_count = -1
         self._downloaded_count = -1

@@ -493,14 +493,17 @@ class Controller(QObject):
         util.run_in_background(lambda: merge_proc(self))
 
         for podcast in self.root.podcast_model.get_objects():
-            podcast.qupdate(finished_callback=self.update_subset_stats)
+            if not podcast.pause_subscription:
+                podcast.qupdate(finished_callback=self.update_subset_stats)
 
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
         action = self.context_menu_actions[index]
         if action.action == 'update':
-            action.target.qupdate(finished_callback=self.update_subset_stats)
+            podcast = action.target
+            if not podcast.pause_subscription:
+                podcast.qupdate(finished_callback=self.update_subset_stats)
         elif action.action == 'force-update':
             action.target.qupdate(force=True, \
                     finished_callback=self.update_subset_stats)
@@ -1152,7 +1155,7 @@ class qtPodder(QObject):
         logger.debug('extensions_podcast_update_cb(%s)', podcast)
         try:
             qpodcast = self.podcast_to_qpodcast(podcast)
-            if qpodcast is not None:
+            if qpodcast is not None and not qpodcast.pause_subscription:
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
