@@ -159,6 +159,28 @@
 
         export GPODDER_HOME=/media/usbdisk/gpodder-data/
 
+
+ [ CHANGING THE DOWNLOAD DIRECTORY ]
+
+    The run-time environment variable GPODDER_DOWNLOAD_DIR is used to
+    set the location for storing the downloads only (independent of the
+    data directory GPODDER_HOME):
+
+        export GPODDER_DOWNLOAD_DIR=/media/BigDisk/Podcasts/
+
+    In this case, the database and settings will be stored in the default
+    location, with the downloads stored in /media/BigDisk/Podcasts/.
+
+    Another example would be to set both environment variables:
+
+        export GPODDER_HOME=~/.config/gpodder/
+        export GPODDER_DOWNLOAD_DIR=~/Podcasts/
+
+    This will store the database and settings files in ~/.config/gpodder/
+    and the downloads in ~/Podcasts/. If GPODDER_DOWNLOAD_DIR is not set,
+    $GPODDER_HOME/Downloads/ will be used if it is set.
+
+
  [ LOGGING ]
 
     By default, gPodder writes log files to $GPODDER_HOME/Logs/ and removes
@@ -166,6 +188,7 @@
     the environment variable GPODDER_WRITE_LOGS to "no", e.g:
 
         export GPODDER_WRITE_LOGS=no
+
 
  [ EXTENSIONS ]
 
