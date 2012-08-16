@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-25 11:19+0200\n"
+"POT-Creation-Date: 2012-08-16 09:53+0200\n"
 "PO-Revision-Date: 2011-12-17 13:35+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Basque (http://www.transifex.net/projects/p/gpodder/team/"
@@ -120,15 +120,15 @@ msgstr "Ez dago deskribapenik eskuragarri"
 msgid "unknown"
 msgstr "ezezaguna"
 
-#: src/gpodder/model.py:818 src/gpodder/model.py:1251
+#: src/gpodder/model.py:818 src/gpodder/model.py:1252
 msgid "Other"
 msgstr "Bestelakoak"
 
-#: src/gpodder/model.py:1234 src/gpodder/model.py:1249
+#: src/gpodder/model.py:1235 src/gpodder/model.py:1250
 msgid "Video"
 msgstr "Bideoa"
 
-#: src/gpodder/model.py:1247
+#: src/gpodder/model.py:1248
 msgid "Audio"
 msgstr "Audioa"
 
@@ -252,28 +252,28 @@ msgstr "Atzo"
 msgid "(unknown)"
 msgstr "(ezezaguna)"
 
-#: src/gpodder/util.py:1187 src/gpodder/util.py:1206
+#: src/gpodder/util.py:1190 src/gpodder/util.py:1209
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
 msgstr[0] "Segundu %(count)d"
 msgstr[1] "%(count)d segundu"
 
-#: src/gpodder/util.py:1200
+#: src/gpodder/util.py:1203
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
 msgstr[0] "Ordu %(count)d"
 msgstr[1] "%(count)d ordu"
 
-#: src/gpodder/util.py:1203
+#: src/gpodder/util.py:1206
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
 msgstr[0] "Minutu %(count)d"
 msgstr[1] "%(count)d minutu"
 
-#: src/gpodder/util.py:1209
+#: src/gpodder/util.py:1212
 msgid "and"
 msgstr "eta"
 
@@ -311,8 +311,7 @@ msgstr "Hasi saioa"
 msgid "Flattred"
 msgstr ""
 
-#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
+#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
 msgid "Flattr this"
 msgstr ""
 
@@ -529,7 +528,7 @@ msgstr "Hasi deskarga orain"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
 #: share/gpodder/ui/gtk/gpodder.ui.h:20
 #: share/gpodder/ui/qml/EpisodeActions.qml:18
-#: share/gpodder/ui/qml/main_default.qml:175
+#: share/gpodder/ui/qml/main_default.qml:176
 msgid "Download"
 msgstr "Deskarga"
 
@@ -607,7 +606,6 @@ msgid "New"
 msgstr "Berria"
 
 #: src/gpodder/gtkui/main.py:1914 src/gpodder/gtkui/interface/shownotes.py:103
-#: src/gpodder/gtkui/desktop/channel.py:194
 msgid "Flattr status"
 msgstr "Flattr egoera"
 
@@ -810,7 +808,7 @@ msgid "Select the episodes you want to delete:"
 msgstr "Hautatu ezabatu nahi dituzun atalak:"
 
 #: src/gpodder/gtkui/main.py:2687 share/gpodder/ui/gtk/gpodder.ui.h:4
-#: share/gpodder/ui/qml/main_default.qml:187
+#: share/gpodder/ui/qml/main_default.qml:188
 msgid "Delete episodes"
 msgstr "Ezabatu atalak"
 
@@ -995,7 +993,7 @@ msgstr "%s-n argitaratua"
 msgid "Download the latest version from gpodder.org?"
 msgstr "Deskargatu nire harpidetzak gpodder.net-etik"
 
-#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:147
+#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:148
 msgid "About gPodder"
 msgstr "gPodder-i buruz"
 
@@ -1138,7 +1136,7 @@ msgid "Clipboard is empty"
 msgstr "Arbela hutsik dago"
 
 #: src/gpodder/gtkui/interface/common.py:188
-#: share/gpodder/ui/qml/main_default.qml:451
+#: share/gpodder/ui/qml/main_default.qml:452
 msgid "Username"
 msgstr "Erabiltzaile-izena"
 
@@ -1155,7 +1153,7 @@ msgid "Authentication required"
 msgstr "Autentifikazioa beharrezkoa da"
 
 #: src/gpodder/gtkui/interface/common.py:231
-#: share/gpodder/ui/qml/main_default.qml:456
+#: share/gpodder/ui/qml/main_default.qml:457
 msgid "Password"
 msgstr "Pasahitza"
 
@@ -1181,20 +1179,30 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Errorea aukera ezartzean"
 
-#: src/gpodder/gtkui/desktop/channel.py:101
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "Add section"
+msgstr "Ekintza"
+
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "New section:"
+msgstr "Sail berriaren izena:"
+
+#: src/gpodder/gtkui/desktop/channel.py:117
 msgid "Select new podcast cover artwork"
 msgstr "Hautatu podcast-aren azal berria"
 
-#: src/gpodder/gtkui/desktop/channel.py:126
+#: src/gpodder/gtkui/desktop/channel.py:142
 msgid "You can only drop a single image or URL here."
 msgstr "Irudi edo URL bakarra jaregin dezakezu hemen."
 
-#: src/gpodder/gtkui/desktop/channel.py:126
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:142
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "Drag and drop"
 msgstr "Arrastatu eta jaregin"
 
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Fitxategi lokal eta http:// URL-ak soilik jaregin ditzazkezu hemen."
 
@@ -1299,7 +1307,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:263
 #: share/gpodder/ui/gtk/gpodderflattrsignin.ui.h:1
-#: share/gpodder/ui/qml/main_default.qml:417
+#: share/gpodder/ui/qml/main_default.qml:418
 msgid "Sign in to Flattr"
 msgstr ""
 
@@ -1309,7 +1317,7 @@ msgid "Logged in as <b>%(username)s</b>"
 msgstr "<b>%(username)s</b> bezala saioa hasita"
 
 #: src/gpodder/gtkui/desktop/preferences.py:267
-#: share/gpodder/ui/qml/main_default.qml:415
+#: share/gpodder/ui/qml/main_default.qml:416
 msgid "Sign out"
 msgstr "Amaitu saioa"
 
@@ -1463,7 +1471,7 @@ msgstr ""
 #: src/gpodder/qmlui/__init__.py:271 src/gpodder/qmlui/__init__.py:629
 #: src/gpodder/qmlui/__init__.py:654 share/gpodder/ui/gtk/gpodder.ui.h:22
 #: share/gpodder/ui/qml/EpisodeActions.qml:42
-#: share/gpodder/ui/qml/main_default.qml:189 share/gpodder/ui/qml/Main.qml:549
+#: share/gpodder/ui/qml/main_default.qml:190 share/gpodder/ui/qml/Main.qml:549
 msgid "Delete"
 msgstr "Ezabatu"
 
@@ -1602,6 +1610,14 @@ msgstr "Fitxategia bihurtuta"
 msgid "Conversion failed"
 msgstr "Errorea fitxategia bihurtzean."
 
+#: share/gpodder/extensions/minimize_on_start.py:10
+msgid "Minimize on start"
+msgstr ""
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimizes the gPodder window on startup."
+msgstr ""
+
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
 msgstr "Normalizatu audioa berkodetzearekin"
@@ -1654,6 +1670,14 @@ msgstr "Etiketatu deskargatutako fitxategiak Mutagen-ekin"
 #, fuzzy
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "Podcast zerrendako \"Atal guztiak\""
+
+#: share/gpodder/extensions/ted_subtitles.py:16
+msgid "Subtitle Downloader for TED Talks"
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr ""
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:10
 msgid "Ubuntu App Indicator"
@@ -1737,11 +1761,6 @@ msgid "website label"
 msgstr "webgune etiketa"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-#, fuzzy
-msgid "<b>Flattr</b>"
-msgstr "<b>Kokalekuak</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "Advanced"
 msgstr "Aurreratua"
 
@@ -1820,7 +1839,7 @@ msgid "Device name:"
 msgstr "Gailuaren izena:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-#: share/gpodder/ui/qml/main_default.qml:442
+#: share/gpodder/ui/qml/main_default.qml:443
 msgid "gpodder.net"
 msgstr "gpodder.net"
 
@@ -1933,7 +1952,7 @@ msgstr "_Atalak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:18
 #: share/gpodder/ui/qml/EpisodeActions.qml:34
-#: share/gpodder/ui/qml/main_default.qml:182
+#: share/gpodder/ui/qml/main_default.qml:183
 msgid "Play"
 msgstr "Erreproduzitu"
 
@@ -2073,87 +2092,87 @@ msgstr "Ukitu iragazkia aldatzeko"
 msgid "Show episodes"
 msgstr "Bistaratu atal zerrenda"
 
-#: share/gpodder/ui/qml/main_default.qml:135
-#: share/gpodder/ui/qml/main_default.qml:162
+#: share/gpodder/ui/qml/main_default.qml:136
+#: share/gpodder/ui/qml/main_default.qml:163
 msgid "Now playing"
 msgstr "Orain erreproduzitzen"
 
-#: share/gpodder/ui/qml/main_default.qml:139
+#: share/gpodder/ui/qml/main_default.qml:140
 #, fuzzy
 msgid "Settings"
 msgstr "Ezarpena"
 
-#: share/gpodder/ui/qml/main_default.qml:168
+#: share/gpodder/ui/qml/main_default.qml:169
 #, fuzzy
 msgid "Playlist empty"
 msgstr "Arbela hutsik dago"
 
-#: share/gpodder/ui/qml/main_default.qml:173
+#: share/gpodder/ui/qml/main_default.qml:174
 #, fuzzy
 msgid "Download episodes"
 msgstr "Deskargatutako atalak"
 
-#: share/gpodder/ui/qml/main_default.qml:180
+#: share/gpodder/ui/qml/main_default.qml:181
 #, fuzzy
 msgid "Playback episodes"
 msgstr "Erreproduzitu gabeko atalak"
 
-#: share/gpodder/ui/qml/main_default.qml:254
+#: share/gpodder/ui/qml/main_default.qml:255
 msgid "About"
 msgstr "Honi buruz"
 
-#: share/gpodder/ui/qml/main_default.qml:279
+#: share/gpodder/ui/qml/main_default.qml:280
 #, fuzzy
 msgid "Thanks"
 msgstr "Eskerrak:"
 
-#: share/gpodder/ui/qml/main_default.qml:289
+#: share/gpodder/ui/qml/main_default.qml:290
 msgid "Credits"
 msgstr "Kredituak"
 
-#: share/gpodder/ui/qml/main_default.qml:386
+#: share/gpodder/ui/qml/main_default.qml:387
 #, fuzzy
 msgid "gPodder settings"
 msgstr "gpodder.net"
 
-#: share/gpodder/ui/qml/main_default.qml:390
+#: share/gpodder/ui/qml/main_default.qml:391
 #, fuzzy
 msgid "Screen orientation"
 msgstr "Hautatu helburua"
 
-#: share/gpodder/ui/qml/main_default.qml:394
+#: share/gpodder/ui/qml/main_default.qml:395
 msgid "Automatic rotation"
 msgstr "Biraketa automatikoa"
 
-#: share/gpodder/ui/qml/main_default.qml:400
+#: share/gpodder/ui/qml/main_default.qml:401
 msgid "Media indexing"
 msgstr "Edukiak indexatzen"
 
-#: share/gpodder/ui/qml/main_default.qml:404
+#: share/gpodder/ui/qml/main_default.qml:405
 #, fuzzy
 msgid "Show podcasts in Music app"
 msgstr "Ez dago podcast-ik ikuspegi honetan"
 
-#: share/gpodder/ui/qml/main_default.qml:436
+#: share/gpodder/ui/qml/main_default.qml:437
 msgid "Auto-Flattr on playback"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:446
+#: share/gpodder/ui/qml/main_default.qml:447
 #, fuzzy
 msgid "Enable synchronization"
 msgstr "Gaitu jakinarazpen burbuilak"
 
-#: share/gpodder/ui/qml/main_default.qml:461
+#: share/gpodder/ui/qml/main_default.qml:462
 #, fuzzy
 msgid "Device name"
 msgstr "Gailuaren izena:"
 
-#: share/gpodder/ui/qml/main_default.qml:467
+#: share/gpodder/ui/qml/main_default.qml:468
 #, fuzzy
 msgid "Replace list on server"
 msgstr "Ordezkatu zerbitzariko harpidetza zerrenda"
 
-#: share/gpodder/ui/qml/main_default.qml:479
+#: share/gpodder/ui/qml/main_default.qml:480
 msgid "No account? Register here"
 msgstr "Konturik ez daukazu? Erregistratu hemen"
 
@@ -2379,6 +2398,10 @@ msgstr "Podcast Bezeroa"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Harpidetu sareko audio eta bideo edukira"
+
+#, fuzzy
+#~ msgid "<b>Flattr</b>"
+#~ msgstr "<b>Kokalekuak</b>"
 
 #~ msgid "Downloads"
 #~ msgstr "Deskargak"

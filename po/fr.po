@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 3.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-25 11:19+0200\n"
+"POT-Creation-Date: 2012-08-16 09:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -117,15 +117,15 @@ msgstr "Aucune description disponible"
 msgid "unknown"
 msgstr "inconnu"
 
-#: src/gpodder/model.py:818 src/gpodder/model.py:1251
+#: src/gpodder/model.py:818 src/gpodder/model.py:1252
 msgid "Other"
 msgstr "Autre"
 
-#: src/gpodder/model.py:1234 src/gpodder/model.py:1249
+#: src/gpodder/model.py:1235 src/gpodder/model.py:1250
 msgid "Video"
 msgstr "Vidéo"
 
-#: src/gpodder/model.py:1247
+#: src/gpodder/model.py:1248
 msgid "Audio"
 msgstr "Audio"
 
@@ -249,28 +249,28 @@ msgstr "Hier"
 msgid "(unknown)"
 msgstr "(inconnu)"
 
-#: src/gpodder/util.py:1187 src/gpodder/util.py:1206
+#: src/gpodder/util.py:1190 src/gpodder/util.py:1209
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/gpodder/util.py:1200
+#: src/gpodder/util.py:1203
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/gpodder/util.py:1203
+#: src/gpodder/util.py:1206
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/gpodder/util.py:1209
+#: src/gpodder/util.py:1212
 msgid "and"
 msgstr "et"
 
@@ -308,8 +308,7 @@ msgstr ""
 msgid "Flattred"
 msgstr ""
 
-#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
+#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
 msgid "Flattr this"
 msgstr ""
 
@@ -533,7 +532,7 @@ msgstr "télécharger"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
 #: share/gpodder/ui/gtk/gpodder.ui.h:20
 #: share/gpodder/ui/qml/EpisodeActions.qml:18
-#: share/gpodder/ui/qml/main_default.qml:175
+#: share/gpodder/ui/qml/main_default.qml:176
 msgid "Download"
 msgstr "Télécharger"
 
@@ -614,7 +613,6 @@ msgid "New"
 msgstr "Nouveaux"
 
 #: src/gpodder/gtkui/main.py:1914 src/gpodder/gtkui/interface/shownotes.py:103
-#: src/gpodder/gtkui/desktop/channel.py:194
 msgid "Flattr status"
 msgstr ""
 
@@ -821,7 +819,7 @@ msgid "Select the episodes you want to delete:"
 msgstr "Sélectionner les épisodes que vous voulez supprimer:"
 
 #: src/gpodder/gtkui/main.py:2687 share/gpodder/ui/gtk/gpodder.ui.h:4
-#: share/gpodder/ui/qml/main_default.qml:187
+#: share/gpodder/ui/qml/main_default.qml:188
 #, fuzzy
 msgid "Delete episodes"
 msgstr "Épisodes"
@@ -1015,7 +1013,7 @@ msgstr "publié le"
 msgid "Download the latest version from gpodder.org?"
 msgstr "Télécharger mes abonnements depuis gpodder.net"
 
-#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:147
+#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:148
 msgid "About gPodder"
 msgstr "A propos de gPodder"
 
@@ -1168,7 +1166,7 @@ msgid "Clipboard is empty"
 msgstr "Presse-papiers vide"
 
 #: src/gpodder/gtkui/interface/common.py:188
-#: share/gpodder/ui/qml/main_default.qml:451
+#: share/gpodder/ui/qml/main_default.qml:452
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
@@ -1185,7 +1183,7 @@ msgid "Authentication required"
 msgstr "Authentification requise"
 
 #: src/gpodder/gtkui/interface/common.py:231
-#: share/gpodder/ui/qml/main_default.qml:456
+#: share/gpodder/ui/qml/main_default.qml:457
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -1212,20 +1210,30 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Erreur pendant la définition d'une option"
 
-#: src/gpodder/gtkui/desktop/channel.py:101
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "Add section"
+msgstr "Action"
+
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "New section:"
+msgstr "Nom de la nouvelle section:"
+
+#: src/gpodder/gtkui/desktop/channel.py:117
 msgid "Select new podcast cover artwork"
 msgstr "Sélectionner une nouvelle image de couverture pour le podcast"
 
-#: src/gpodder/gtkui/desktop/channel.py:126
+#: src/gpodder/gtkui/desktop/channel.py:142
 msgid "You can only drop a single image or URL here."
 msgstr "Vous pouvez seulement glisser-déposer une seule image ou une URL ici."
 
-#: src/gpodder/gtkui/desktop/channel.py:126
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:142
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "Drag and drop"
 msgstr "Glisser-déposer"
 
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "You can only drop local files and http:// URLs here."
 msgstr ""
 "Vous pouvez seulement déposer des fichiers locaux ou des URL http:// ici."
@@ -1333,7 +1341,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:263
 #: share/gpodder/ui/gtk/gpodderflattrsignin.ui.h:1
-#: share/gpodder/ui/qml/main_default.qml:417
+#: share/gpodder/ui/qml/main_default.qml:418
 msgid "Sign in to Flattr"
 msgstr ""
 
@@ -1343,7 +1351,7 @@ msgid "Logged in as <b>%(username)s</b>"
 msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:267
-#: share/gpodder/ui/qml/main_default.qml:415
+#: share/gpodder/ui/qml/main_default.qml:416
 msgid "Sign out"
 msgstr ""
 
@@ -1496,7 +1504,7 @@ msgstr ""
 #: src/gpodder/qmlui/__init__.py:271 src/gpodder/qmlui/__init__.py:629
 #: src/gpodder/qmlui/__init__.py:654 share/gpodder/ui/gtk/gpodder.ui.h:22
 #: share/gpodder/ui/qml/EpisodeActions.qml:42
-#: share/gpodder/ui/qml/main_default.qml:189 share/gpodder/ui/qml/Main.qml:549
+#: share/gpodder/ui/qml/main_default.qml:190 share/gpodder/ui/qml/Main.qml:549
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1643,6 +1651,14 @@ msgstr ""
 msgid "Conversion failed"
 msgstr "Erreur pendant la conversion du fichier."
 
+#: share/gpodder/extensions/minimize_on_start.py:10
+msgid "Minimize on start"
+msgstr ""
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimizes the gPodder window on startup."
+msgstr ""
+
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
 msgstr ""
@@ -1694,6 +1710,14 @@ msgstr ""
 #, fuzzy
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "\"Tous les épisodes\" dans la liste des podcasts"
+
+#: share/gpodder/extensions/ted_subtitles.py:16
+msgid "Subtitle Downloader for TED Talks"
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr ""
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:10
 msgid "Ubuntu App Indicator"
@@ -1781,11 +1805,6 @@ msgid "website label"
 msgstr "site web"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-#, fuzzy
-msgid "<b>Flattr</b>"
-msgstr "<b>Emplacements</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "Advanced"
 msgstr "Avancés"
 
@@ -1867,7 +1886,7 @@ msgid "Device name:"
 msgstr "Nom du périphérique:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-#: share/gpodder/ui/qml/main_default.qml:442
+#: share/gpodder/ui/qml/main_default.qml:443
 msgid "gpodder.net"
 msgstr "gpodder.net"
 
@@ -1984,7 +2003,7 @@ msgstr "Épisodes"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:18
 #: share/gpodder/ui/qml/EpisodeActions.qml:34
-#: share/gpodder/ui/qml/main_default.qml:182
+#: share/gpodder/ui/qml/main_default.qml:183
 msgid "Play"
 msgstr "Lire"
 
@@ -2128,87 +2147,87 @@ msgstr ""
 msgid "Show episodes"
 msgstr "Retourner à la liste des épisodes"
 
-#: share/gpodder/ui/qml/main_default.qml:135
-#: share/gpodder/ui/qml/main_default.qml:162
+#: share/gpodder/ui/qml/main_default.qml:136
+#: share/gpodder/ui/qml/main_default.qml:163
 msgid "Now playing"
 msgstr "En cours de lecture"
 
-#: share/gpodder/ui/qml/main_default.qml:139
+#: share/gpodder/ui/qml/main_default.qml:140
 #, fuzzy
 msgid "Settings"
 msgstr "Paramètre"
 
-#: share/gpodder/ui/qml/main_default.qml:168
+#: share/gpodder/ui/qml/main_default.qml:169
 #, fuzzy
 msgid "Playlist empty"
 msgstr "Presse-papiers vide"
 
-#: share/gpodder/ui/qml/main_default.qml:173
+#: share/gpodder/ui/qml/main_default.qml:174
 #, fuzzy
 msgid "Download episodes"
 msgstr "Épisode anonyme"
 
-#: share/gpodder/ui/qml/main_default.qml:180
+#: share/gpodder/ui/qml/main_default.qml:181
 #, fuzzy
 msgid "Playback episodes"
 msgstr "Épisode anonyme"
 
-#: share/gpodder/ui/qml/main_default.qml:254
+#: share/gpodder/ui/qml/main_default.qml:255
 msgid "About"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:279
+#: share/gpodder/ui/qml/main_default.qml:280
 #, fuzzy
 msgid "Thanks"
 msgstr "Remerciements à:"
 
-#: share/gpodder/ui/qml/main_default.qml:289
+#: share/gpodder/ui/qml/main_default.qml:290
 msgid "Credits"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:386
+#: share/gpodder/ui/qml/main_default.qml:387
 #, fuzzy
 msgid "gPodder settings"
 msgstr "gpodder.net"
 
-#: share/gpodder/ui/qml/main_default.qml:390
+#: share/gpodder/ui/qml/main_default.qml:391
 #, fuzzy
 msgid "Screen orientation"
 msgstr "Sélectionner la destination"
 
-#: share/gpodder/ui/qml/main_default.qml:394
+#: share/gpodder/ui/qml/main_default.qml:395
 msgid "Automatic rotation"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:400
+#: share/gpodder/ui/qml/main_default.qml:401
 msgid "Media indexing"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:404
+#: share/gpodder/ui/qml/main_default.qml:405
 #, fuzzy
 msgid "Show podcasts in Music app"
 msgstr "Aucun podcast dans cette vue"
 
-#: share/gpodder/ui/qml/main_default.qml:436
+#: share/gpodder/ui/qml/main_default.qml:437
 msgid "Auto-Flattr on playback"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:446
+#: share/gpodder/ui/qml/main_default.qml:447
 #, fuzzy
 msgid "Enable synchronization"
 msgstr "Activer les bulles de notifications"
 
-#: share/gpodder/ui/qml/main_default.qml:461
+#: share/gpodder/ui/qml/main_default.qml:462
 #, fuzzy
 msgid "Device name"
 msgstr "Nom du périphérique:"
 
-#: share/gpodder/ui/qml/main_default.qml:467
+#: share/gpodder/ui/qml/main_default.qml:468
 #, fuzzy
 msgid "Replace list on server"
 msgstr "Remplacer la liste des abonnements sur le serveur"
 
-#: share/gpodder/ui/qml/main_default.qml:479
+#: share/gpodder/ui/qml/main_default.qml:480
 msgid "No account? Register here"
 msgstr ""
 
@@ -2437,6 +2456,10 @@ msgstr "Podcast"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "S'abonner à du contenu audio et vidéo depuis le web"
+
+#, fuzzy
+#~ msgid "<b>Flattr</b>"
+#~ msgstr "<b>Emplacements</b>"
 
 #, fuzzy
 #~ msgid "Downloads"
