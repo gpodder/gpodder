@@ -65,7 +65,7 @@ help:
 ##########################################################################
 
 unittest:
-	PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
+	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
 release: distclean
 	$(PYTHON) setup.py sdist
