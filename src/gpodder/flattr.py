@@ -23,6 +23,8 @@
 #  Bernd Schlapsi <brot@gmx.info>   2012-05-26
 #
 
+import atexit
+import os
 import urllib
 import urllib2
 import urlparse
@@ -31,6 +33,7 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+from gpodder import minidb
 from gpodder import util
 
 import gpodder
@@ -38,7 +41,16 @@ import gpodder
 _ = gpodder.gettext
 
 
+class FlattrAction(object):
+    __slots__ = {'url': str}
+
+    def __init__(self, url):
+        self.url = url
+
+
 class Flattr(object):
+    STORE_FILE = 'flattr.cache'
+
     KEY = 'DD2bUSu1TJ7voHz9yNgtC7ld54lKg29Kw2MhL68uG5QUCgT1UZkmXvpSqBtxut7R'
     SECRET = 'lJYWGXhcTXWm4FdOvn0iJg1ZIkm3DkKPTzCpmJs5xehrKk55yWe736XCg9vKj5p3'
 
@@ -62,6 +74,43 @@ class Flattr(object):
     def __init__(self, config):
         self._config = config
 
+        self._store = minidb.Store(os.path.join(gpodder.home, self.STORE_FILE))
+        self._worker_thread = None
+        atexit.register(self._at_exit)
+        
+    def _at_exit(self):
+        self._worker_proc()
+        self._store.close()
+        
+    def _worker_proc(self):
+        self._store.commit()        
+        if not self.api_reachable():
+            self._worker_thread = None
+            return
+        
+        logger.debug('Processing stored flattr actions...')        
+        for flattr_action in self._store.load(FlattrAction):
+            success, message = self.flattr_url(flattr_action.url)
+            if success:
+                self._store.remove(flattr_action)
+        self._store.commit()
+        self._worker_thread = None
+        
+    def api_reachable(self):
+        reachable, response = util.website_reachable(self.API_BASE)
+        if not reachable:
+            return False
+            
+        try:
+            content = response.readline()
+            content = json.loads(content)
+            if 'message' in content and content['message'] == 'hello_world':
+                return True
+        except ValueError as err:
+            pass
+
+        return False
+
     def request(self, url, data=None):
         headers = {'Content-Type': 'application/json'}
 
@@ -78,6 +127,8 @@ class Flattr(object):
             response = util.urlopen(url, headers, data)
         except urllib2.HTTPError, error:
             return {'_gpodder_statuscode': error.getcode()}
+        except urllib2.URLError, error:
+            return {'_gpodder_no_connection': False}
 
         if response.getcode() == 200:
             return json.loads(response.read())
@@ -163,6 +214,14 @@ class Flattr(object):
                 return (True, _('Already flattred or own item'))
             else:
                 return (False, _('Invalid request'))
+                
+        if '_gpodder_no_connection' in content:
+            if not self._store.get(FlattrAction, url=payment_url):
+                flattr_action = FlattrAction(payment_url)
+                self._store.save(flattr_action)
+            return (False, _('No internet connection'))
+        
+        if self._worker_thread is None:        
+            self._worker_thread = util.run_in_background(lambda: self._worker_proc(), True)
 
         return (True, content.get('description', _('No description')))
-
