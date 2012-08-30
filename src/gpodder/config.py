@@ -166,7 +166,7 @@ defaults = {
 
         'max_filename_length': 999,
 
-        'custom_sync_name': '{episode.pubdate_prop}_{episode.title}',
+        'custom_sync_name': '{episode.sortdate}_{episode.title}',
         'custom_sync_name_enabled': False,
 
         'after_sync': {
