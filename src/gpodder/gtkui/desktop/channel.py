@@ -37,6 +37,7 @@ class gPodderChannel(BuilderWidget):
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
+        self.cbEnableDeviceSync.set_active(self.channel.sync_to_mp3_player)
 
         self.section_list = gtk.ListStore(str)
         active_index = 0
@@ -186,6 +187,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_btnOK_clicked(self, widget, *args):
         self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
+        self.channel.sync_to_mp3_player = self.cbEnableDeviceSync.get_active()
         self.channel.rename(self.entryTitle.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
