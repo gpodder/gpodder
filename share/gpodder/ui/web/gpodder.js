@@ -20,23 +20,25 @@ gPodder = {
         },
     },
 
-    createEpisode: function(episode) {
+	createEpisode: function(episode) {
 		var li = document.createElement('li');
 		var a = document.createElement('a');
 		var img = document.createElement('img');
 
-		if(episode.mime_type.indexOf('video') == 0)
-			img.setAttribute('src', '/static/images/video.png');
-		else if(episode.mime_type.indexOf('audio') == 0)
-			img.setAttribute('src', '/static/images/music.png');
-
-			//img.setAttribute('class', 'ui-li-icon');
+		if(episode.is_new)
+			img.setAttribute('src', '/static/images/label_black_new.png');
+		else
+			img.setAttribute('src', '/static/images/rss_black.png');
+			
+		if(episode.state === 1) //downloaded
+		{
+			if(episode.mime_type.indexOf('video') == 0)
+				img.setAttribute('src', '/static/images/video.png');
+			else if(episode.mime_type.indexOf('audio') == 0)
+				img.setAttribute('src', '/static/images/music.png');
+		}
+		//img.setAttribute('class', 'ui-li-icon');
 		var title = document.createElement('h3');
-		var duration = document.createElement('span');
-		duration.setAttribute('class', 'ui-li-aside');
-		var pubdate = new Date(episode.published * 1000);
-		duration.appendChild(document.createTextNode(pubdate.toDateString()));
-
 		title.appendChild(document.createTextNode(episode.title));
 		var description = document.createElement('p');
 		description.appendChild(document.createTextNode(episode.description));
@@ -52,7 +54,6 @@ gPodder = {
 		a.appendChild(img);
 		a.appendChild(title);
 		a.appendChild(description);
-		a.appendChild(duration);
 			
 		li.appendChild(a);
 		return li;
@@ -83,25 +84,25 @@ gPodder = {
     },
 
     init: function() {
-	$.getJSON(gPodder.url.podcasts, function(data) {
-		$('#podcasts').html('');
-		$.each(data, function() {
-			$('#podcasts').append(gPodder.createPodcast(this));
-		})
-                $('#podcasts').listview('refresh');
-	});
+		$.getJSON(gPodder.url.podcasts, function(data) {
+			$('#podcasts').html('');
+			$.each(data, function() {
+				$('#podcasts').append(gPodder.createPodcast(this));
+			})
+			$('#podcasts').listview('refresh');
+		});
     },
 
     selectPodcast: function(li) {
         var podcast = JSON.parse(li.getAttribute('gpodder:podcast'));
-	    $.getJSON(gPodder.url.episodes(podcast), function(data) {
-            $('#episodes_title').html(podcast.title);
-		    $('#episodes').html('');
-            $.each(data, function() {
-                $('#episodes').append(gPodder.createEpisode(this));
-            })
+	$.getJSON(gPodder.url.episodes(podcast), function(data) {
+                $('#episodes_title').html(podcast.title);
+		$('#episodes').html('');
+		$.each(data, function() {
+			$('#episodes').append(gPodder.createEpisode(this));
+		})
 	        $('#episodes').listview('refresh');
-	    });
+	});
     },
 
     selectEpisode: function(li) {
