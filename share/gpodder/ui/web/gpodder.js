@@ -1,4 +1,3 @@
-
 gPodder = {
     /* XXX: Partially ugly. Some parts would be shorter with JQuery. */
 
@@ -24,19 +23,48 @@ gPodder = {
     createEpisode: function(episode) {
         var li = document.createElement('li');
         var a = document.createElement('a');
+        var img = document.createElement('img');
+        var wrapper = document.createElement('p');
+
+        wrapper.setAttribute('class', 'listwrapper');
+
+        if(episode.mime_type.indexOf('video') == 0)
+            img.setAttribute('src', '/static/images/video.png');
+        else if(episode.mime_type.indexOf('audio') == 0)
+            img.setAttribute('src', '/static/images/audio.png');
+        wrapper.appendChild(img);
+        //img.setAttribute('class', 'ui-li-icon');
+        var title = document.createElement('h3');
+        title.appendChild(document.createTextNode(episode.title));
+        var description = document.createElement('p');
+        description.appendChild(document.createTextNode(episode.description));
+
         a.setAttribute('gpodder:episode', JSON.stringify(episode));
+        a.setAttribute('data-rel', 'dialog');
+        a.setAttribute('data-transition', 'pop');
+
         a.href = '#episode_details';
         a.onclick = function() {
             gPodder.selectEpisode(this);
             gPodder.currentlySelectedEpisode = this;
         };
+        a.appendChild(wrapper);
+        a.appendChild(title);
+        a.appendChild(description);
+
         li.appendChild(a);
-        a.appendChild(document.createTextNode(episode.title));
         return li;
     },
 
     createPodcast: function(podcast) {
         var li = document.createElement('li');
+        var img = document.createElement('img');
+        img.setAttribute('src', podcast.cover_url);
+        var title = document.createElement('h3');
+        title.appendChild(document.createTextNode(podcast.title));
+        var description = document.createElement('p');
+        description.appendChild(document.createTextNode(podcast.description));
+
         var a = document.createElement('a');
         a.setAttribute('gpodder:podcast', JSON.stringify(podcast));
         a.href = '#episodes_page';
@@ -44,80 +72,89 @@ gPodder = {
             gPodder.selectPodcast(this);
             gPodder.currentlySelectedPodcast = this;
         };
+        a.appendChild(img);
+        a.appendChild(title);
+        a.appendChild(description);
+
         li.appendChild(a);
-        a.appendChild(document.createTextNode(podcast.title));
         return li;
     },
 
     init: function() {
-        var xmlhttp = new XMLHttpRequest();
-        var podcasts_ul = document.getElementById('podcasts');
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4) {
-                podcasts_ul.innerHTML = '';
-
-                var podcasts = JSON.parse(xmlhttp.responseText);
-                var lis = podcasts.map(gPodder.createPodcast);
-                for (i=0; i<lis.length; i++) {
-                    podcasts_ul.appendChild(lis[i]);
-                }
-                $('#podcasts').listview('refresh');
-            }
-        };
-        xmlhttp.open('GET', gPodder.url.podcasts, true);
-        xmlhttp.send(null);
+        $.getJSON(gPodder.url.podcasts, function(data) {
+            $('#podcasts').html('');
+            $.each(data, function() {
+                $('#podcasts').append(gPodder.createPodcast(this));
+            })
+            $('#podcasts').listview('refresh');
+        });
     },
 
     selectPodcast: function(li) {
         var podcast = JSON.parse(li.getAttribute('gpodder:podcast'));
-
-        var xmlhttp = new XMLHttpRequest();
-        var episodes_ul = document.getElementById('episodes');
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4) {
-                episodes_ul.innerHTML = '';
+    $.getJSON(gPodder.url.episodes(podcast), function(data) {
                 $('#episodes_title').html(podcast.title);
-
-                var episodes = JSON.parse(xmlhttp.responseText);
-                var lis = episodes.map(gPodder.createEpisode);
-                for (i=0; i<lis.length; i++) {
-                    episodes_ul.appendChild(lis[i]);
-                }
-                $('#episodes').listview('refresh');
-            }
-        };
-        xmlhttp.open('GET', gPodder.url.episodes(podcast), true);
-        xmlhttp.send(null);
+        $('#episodes').html('');
+        $.each(data, function() {
+            $('#episodes').append(gPodder.createEpisode(this));
+        })
+            $('#episodes').listview('refresh');
+    });
     },
 
     selectEpisode: function(li) {
         var episode = JSON.parse(li.getAttribute('gpodder:episode'));
         var content = '';
-        var media_url = '';
 
-        var keys = new Array();
-        for (var key in episode) {
-            keys.push(key);
-        }
-        keys.sort();
+        if(episode.mime_type.indexOf("audio") == 0)
+            content += '<div align="center"><audio id="episode_player" width="100%" controls="controls"><source src="' + episode.url + '" type="' + episode.mime_type + '" /></audio></div><br/>';
+        else if(episode.mime_type.indexOf("video") == 0)
+            content += '<video width="100%" id="episode_player" controls="controls"><source src="' + episode.url + '" type="' + episode.mime_type + '" /></video><br/>';
 
-        for (var i=0; i<keys.length; i++) {
-            var data = episode[keys[i]];
+        // TODO: Add more fields in the dialog box (Pubdate, etc.)
+        var published = new Date(episode.published * 1000)
+        content += '<strong>' + episode.title + '</strong>';
 
-            if (keys[i] === 'url') {
-                content += '<audio controls="controls"><source src="' + data + '" type="audio/mp3" /></audio><br>';
-            }
+        //content += '<div data-role="collapsible">';
+        //content += '<h3>Details</h3>';
 
-            if (data !== null && data.length !== undefined && data.length > 50) {
-                data = data.substring(0, 48) + '...';
-            }
-            var key = gPodder.quote(keys[i]);
-            var data = gPodder.quote(data);
-            content += '<strong>' + key + '</strong> = ' + data + '<br>';
-        }
-
+        content += '<p>' + episode.description + '</p>';
+        content += '<strong>Released: </strong>' + published.toDateString() + '<br/>';
+        content += '<strong>Time: </strong>' + published.toTimeString() + '<br/>';
+        content += '<strong>Size: </strong>' + gPodder.bytesToSize(episode.file_size) + '<br/>';
+        content += '<strong>Link: </strong><a href="' + episode.link + '" rel="external">' + episode.link + '</a><br/>';
+        //content += '</div>'; // End collapsible
+        $('#episode_details_title').text(episode.title);
         $('#episode_details_content').html(content);
-    },
 
+        // Pause playback if the dialog is closed
+        $('#episode_details').bind('pagebeforehide', function() {
+            $('#episode_player').get(0).pause();
+        });
+        // Start the player at the last saved position
+        $('#episode_player').bind('loadedmetadata', function() {
+            this.currentTime = episode.current_position;
+        });
+
+        // TODO: Mark the episode as played
+        $('#episode_player').bind('play', function() {
+            console.log("played episode: " + episode.url);
+            $.post('/podcast/save', function() {
+                console.log("POSTED");
+            })
+        });
+
+        // TODO: Mark the current position
+        $('#episode_player').bind('pause', function() {
+            console.log("paused episode: " + episode.url + " at " + this.currentTime);
+        });
+
+    },
+    bytesToSize: function(bytes) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes == 0) return 'n/a';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+    }
 };
 
