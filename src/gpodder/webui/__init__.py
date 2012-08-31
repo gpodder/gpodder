@@ -115,6 +115,10 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write('<p>Invalid request</p>')
         self.wfile.close()
 
+	def do_POST(self):
+		self.send_response(200)
+		return
+
 
 def main(only_localhost=True, core=None):
     WebUI.core = core
