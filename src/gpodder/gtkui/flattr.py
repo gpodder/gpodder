@@ -34,7 +34,7 @@ IMAGE_FLATTRED = os.path.join(gpodder.images_folder, 'button-flattred.png')
 
 
 def set_flattr_button(flattr, payment_url, widget_image, widget_button):
-    if not payment_url:
+    if not flattr.api_reachable() or not payment_url:
         widget_image.hide()
         widget_button.hide()
         return False
