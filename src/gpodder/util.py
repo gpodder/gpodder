@@ -1636,3 +1636,16 @@ def run_in_background(function, daemon=False):
     thread.start()
     return thread
 
+
+def website_reachable(url='http://www.google.com'):
+    """
+    Check if a specific website is available.
+    """  
+    try:
+        response = urllib2.urlopen(url, timeout=1)
+        return (True, response)
+    except urllib2.URLError as err:
+        pass
+        
+    return (False, None)
+

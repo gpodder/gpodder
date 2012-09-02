@@ -19,9 +19,6 @@
 
 import gtk
 
-import logging
-logger = logging.getLogger(__name__)
-
 import gpodder
 
 _ = gpodder.gettext
