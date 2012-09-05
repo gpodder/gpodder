@@ -733,6 +733,10 @@ class PodcastEpisode(PodcastModelObject):
     
     pubdate_prop = property(fget=cute_pubdate)
 
+    @property
+    def sortdate(self):
+	    return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
+
     def calculate_filesize(self):
         filename = self.local_filename(create=False)
         if filename is None:
