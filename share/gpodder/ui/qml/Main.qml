@@ -207,6 +207,7 @@ Image {
 
         EpisodeList {
             id: episodeList
+            mainState: main.state
 
             opacity: 0
 

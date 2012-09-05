@@ -8,6 +8,12 @@ import 'config.js' as Config
 Item {
     id: episodeList
     property string currentFilterText
+    property string mainState
+
+    onMainStateChanged: {
+        // Don't remember contentY when leaving episode list
+        listView.lastContentY = 0;
+    }
 
     property alias model: listView.model
     property alias moving: listView.moving
@@ -48,6 +54,23 @@ Item {
             if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
                 /* Scroll the "opening" item into view at the bottom */
                 listView.positionViewAtEnd();
+            }
+        }
+
+        property real lastContentY: 0
+
+        onContentYChanged: {
+            // Keep Y scroll position when deleting episodes (bug 1660)
+            if (contentY === 0) {
+                if (lastContentY > 0) {
+                    contentY = lastContentY;
+                }
+            } else {
+                if (episodeList.mainState === 'episodes') {
+                    // Only store scroll position when the episode list is
+                    // shown (avoids overwriting it in onMainStateChanged)
+                    lastContentY = contentY;
+                }
             }
         }
 
