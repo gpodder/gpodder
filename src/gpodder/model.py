@@ -830,11 +830,7 @@ class PodcastChannel(PodcastModelObject):
         """Check the download folder for externally-downloaded files
 
         This will try to assign downloaded files with episodes in the
-        database and (failing that) will move downloaded files into
-        the "Unknown" subfolder in the download directory, so that
-        the user knows that gPodder doesn't know to which episode the
-        file belongs (the "Unknown" folder may be used by external
-        tools or future gPodder versions for better import support).
+        database.
 
         This will also cause missing files to be marked as deleted.
         """
@@ -857,7 +853,7 @@ class PodcastChannel(PodcastModelObject):
                 if not filename.endswith('.partial'))
 
         ignore_files = ['folder'+ext for ext in
-                coverart.CoverDownloader.EXTENSIONS] + ['Unknown']
+                coverart.CoverDownloader.EXTENSIONS]
 
         external_files = existing_files.difference(list(known_files) +
                 [os.path.join(self.save_dir, ignore_file)
@@ -908,14 +904,6 @@ class PodcastChannel(PodcastModelObject):
 
             if not found:
                 logger.warn('Unknown external file: %s', filename)
-                target_dir = os.path.join(self.save_dir, 'Unknown')
-                if util.make_directory(target_dir):
-                    target_file = os.path.join(target_dir, basename)
-                    logger.info('Moving %s => %s', filename, target_file)
-                    try:
-                        shutil.move(filename, target_file)
-                    except Exception, e:
-                        logger.error('Could not move file: %s', e, exc_info=True)
 
     @classmethod
     def sort_key(cls, podcast):
