@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-08-16 09:53+0200\n"
+"POT-Creation-Date: 2012-08-31 19:50-0600\n"
 "PO-Revision-Date: 2010-02-27 22:49-0500\n"
 "Last-Translator: Gherhardt Mathisz <gmathisz@gmail.com>\n"
 "Language-Team: Gherhardt Mathisz <gmathisz@gmail.com>\n"
@@ -45,7 +45,7 @@ msgid "Downloading"
 msgstr "Se descarcă"
 
 #: src/gpodder/download.py:534 src/gpodder/sync.py:887
-#: src/gpodder/qmlui/__init__.py:67
+#: src/gpodder/qmlui/__init__.py:68
 msgid "Finished"
 msgstr "Gata"
 
@@ -306,7 +306,7 @@ msgstr "Linie de comandă: %s"
 msgid "Default application"
 msgstr "Aplicația implicită"
 
-#: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:191
+#: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:192
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Sign in"
 msgstr ""
@@ -319,20 +319,21 @@ msgstr ""
 msgid "Flattr this"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:181 share/applications/gpodder.desktop.in.h:1
+#: src/gpodder/gtkui/main.py:182 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gtkui/main.py:237
+#: src/gpodder/gtkui/main.py:262 src/gpodder/qmlui/__init__.py:967
+#: src/gpodder/qmlui/__init__.py:971
 msgid "Loading incomplete downloads"
 msgstr "Se încarcă descărcările incomplete"
 
-#: src/gpodder/gtkui/main.py:238
+#: src/gpodder/gtkui/main.py:263
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr ""
 "Unele episoade nu au fost descărcate complet într-o sesiune anterioară."
 
-#: src/gpodder/gtkui/main.py:240
+#: src/gpodder/gtkui/main.py:265
 #, fuzzy, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
@@ -340,95 +341,95 @@ msgstr[0] "%d fișier parțial"
 msgstr[1] "%d fișiere parțiale"
 msgstr[2] "%d fișiere parțiale"
 
-#: src/gpodder/gtkui/main.py:277
+#: src/gpodder/gtkui/main.py:280
 msgid "Resume all"
 msgstr "Reia roate descărcările"
 
-#: src/gpodder/gtkui/main.py:287
+#: src/gpodder/gtkui/main.py:290 src/gpodder/qmlui/__init__.py:997
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Au fost găsite descărcări incomplete dintr-o sesiune anterioară."
 
-#: src/gpodder/gtkui/main.py:410
+#: src/gpodder/gtkui/main.py:390
 msgid "Action"
 msgstr "Acțiune"
 
-#: src/gpodder/gtkui/main.py:453
+#: src/gpodder/gtkui/main.py:433
 msgid "Confirm changes from gpodder.net"
 msgstr "Confirmă modificările de la my.gpodder.org"
 
-#: src/gpodder/gtkui/main.py:454
+#: src/gpodder/gtkui/main.py:434
 msgid "Select the actions you want to carry out."
 msgstr "Selectează acțiunea dorită"
 
-#: src/gpodder/gtkui/main.py:494
+#: src/gpodder/gtkui/main.py:474
 msgid "Uploading subscriptions"
 msgstr "Încarcă abonamentele"
 
-#: src/gpodder/gtkui/main.py:495
+#: src/gpodder/gtkui/main.py:475
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "Abonamentele sunt încărcate pe server"
 
-#: src/gpodder/gtkui/main.py:500
+#: src/gpodder/gtkui/main.py:480
 msgid "List uploaded successfully."
 msgstr "Lista a fost încărcată cu succes"
 
-#: src/gpodder/gtkui/main.py:507
+#: src/gpodder/gtkui/main.py:487
 msgid "Error while uploading"
 msgstr "Eroare la încărcare"
 
-#: src/gpodder/gtkui/main.py:792 src/gpodder/gtkui/main.py:924
-#: src/gpodder/gtkui/main.py:2661 src/gpodder/gtkui/main.py:2849
+#: src/gpodder/gtkui/main.py:772 src/gpodder/gtkui/main.py:904
+#: src/gpodder/gtkui/main.py:2630 src/gpodder/gtkui/main.py:2818
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "Episod"
 
-#: src/gpodder/gtkui/main.py:811
+#: src/gpodder/gtkui/main.py:791
 msgid "Size"
 msgstr "Mărime"
 
-#: src/gpodder/gtkui/main.py:816
+#: src/gpodder/gtkui/main.py:796
 msgid "Duration"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:820
+#: src/gpodder/gtkui/main.py:800
 msgid "Released"
 msgstr "Publicat"
 
-#: src/gpodder/gtkui/main.py:847
+#: src/gpodder/gtkui/main.py:827
 msgid "Visible columns"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:944 src/gpodder/gtkui/main.py:1123
+#: src/gpodder/gtkui/main.py:924 src/gpodder/gtkui/main.py:1103
 #: share/gpodder/ui/gtk/gpodder.ui.h:46
 msgid "Progress"
 msgstr "Progres"
 
-#: src/gpodder/gtkui/main.py:978
+#: src/gpodder/gtkui/main.py:958
 msgid "Loading episodes"
 msgstr "Încarcă episoade"
 
-#: src/gpodder/gtkui/main.py:981
+#: src/gpodder/gtkui/main.py:961
 msgid "No episodes in current view"
 msgstr "Nu există episoade în vizualizarea curentă"
 
-#: src/gpodder/gtkui/main.py:983
+#: src/gpodder/gtkui/main.py:963
 msgid "No episodes available"
 msgstr "Nu există episoade disponibile"
 
-#: src/gpodder/gtkui/main.py:989
+#: src/gpodder/gtkui/main.py:969
 msgid "No podcasts in this view"
 msgstr "Nu există podcast-uri în aceasta vizualizare"
 
-#: src/gpodder/gtkui/main.py:991
+#: src/gpodder/gtkui/main.py:971
 msgid "No subscriptions"
 msgstr "Nu există abonamente"
 
-#: src/gpodder/gtkui/main.py:993
+#: src/gpodder/gtkui/main.py:973
 #, fuzzy
 msgid "No active tasks"
 msgstr "Nu se descarcă nimic"
 
-#: src/gpodder/gtkui/main.py:1127 src/gpodder/gtkui/main.py:1129
+#: src/gpodder/gtkui/main.py:1107 src/gpodder/gtkui/main.py:1109
 #, fuzzy, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
@@ -436,7 +437,7 @@ msgstr[0] "%d activ"
 msgstr[1] "%d active"
 msgstr[2] "%d active"
 
-#: src/gpodder/gtkui/main.py:1131
+#: src/gpodder/gtkui/main.py:1111
 #, fuzzy, python-format
 msgid "%(count)d failed"
 msgid_plural "%(count)d failed"
@@ -444,7 +445,7 @@ msgstr[0] "%d a eșuat"
 msgstr[1] "%d au eșuat"
 msgstr[2] "%d au eșuat"
 
-#: src/gpodder/gtkui/main.py:1133
+#: src/gpodder/gtkui/main.py:1113
 #, fuzzy, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
@@ -452,7 +453,7 @@ msgstr[0] "%d în coada de așteptare"
 msgstr[1] "%d în coada de așteptare"
 msgstr[2] "%d în coada de așteptare"
 
-#: src/gpodder/gtkui/main.py:1147
+#: src/gpodder/gtkui/main.py:1127
 #, fuzzy, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
@@ -460,7 +461,7 @@ msgstr[0] "se descarcă %d fișier"
 msgstr[1] "se descarcă %d fișiere"
 msgstr[2] "se descarcă %d de fișiere"
 
-#: src/gpodder/gtkui/main.py:1157
+#: src/gpodder/gtkui/main.py:1137
 #, fuzzy, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
@@ -468,7 +469,7 @@ msgstr[0] "se descarcă %d fișier"
 msgstr[1] "se descarcă %d fișiere"
 msgstr[2] "se descarcă %d de fișiere"
 
-#: src/gpodder/gtkui/main.py:1159
+#: src/gpodder/gtkui/main.py:1139
 #, fuzzy, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
@@ -476,48 +477,48 @@ msgstr[0] "%d în coada de așteptare"
 msgstr[1] "%d în coada de așteptare"
 msgstr[2] "%d în coada de așteptare"
 
-#: src/gpodder/gtkui/main.py:1188
+#: src/gpodder/gtkui/main.py:1168
 msgid "Please report this problem and restart gPodder:"
 msgstr "Raportați aceasta problema și reporniți gPodder:"
 
-#: src/gpodder/gtkui/main.py:1188
+#: src/gpodder/gtkui/main.py:1168
 msgid "Unhandled exception"
 msgstr "Excepție netratată"
 
-#: src/gpodder/gtkui/main.py:1255
+#: src/gpodder/gtkui/main.py:1235
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Eroare de parser: %s "
 
-#: src/gpodder/gtkui/main.py:1391
+#: src/gpodder/gtkui/main.py:1371
 #, fuzzy
 msgid "Could not download some episodes:"
 msgstr "Anumite podcast-uri nu au fost adăugate"
 
-#: src/gpodder/gtkui/main.py:1393 src/gpodder/gtkui/main.py:1396
+#: src/gpodder/gtkui/main.py:1373 src/gpodder/gtkui/main.py:1376
 msgid "Downloads finished"
 msgstr "Descărcările sau încheiat"
 
-#: src/gpodder/gtkui/main.py:1399
+#: src/gpodder/gtkui/main.py:1379
 msgid "Downloads failed"
 msgstr "Descărcările au eșuate"
 
-#: src/gpodder/gtkui/main.py:1403
+#: src/gpodder/gtkui/main.py:1383
 #, fuzzy
 msgid "Could not sync some episodes:"
 msgstr "Anumite podcast-uri nu au fost adăugate"
 
-#: src/gpodder/gtkui/main.py:1405 src/gpodder/gtkui/main.py:1408
+#: src/gpodder/gtkui/main.py:1385 src/gpodder/gtkui/main.py:1388
 #, fuzzy
 msgid "Device synchronization finished"
 msgstr "Dispozitiv sincronizat"
 
-#: src/gpodder/gtkui/main.py:1411
+#: src/gpodder/gtkui/main.py:1391
 #, fuzzy
 msgid "Device synchronization failed"
 msgstr "Dispozitiv sincronizat"
 
-#: src/gpodder/gtkui/main.py:1451
+#: src/gpodder/gtkui/main.py:1431
 #, fuzzy, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
@@ -525,17 +526,17 @@ msgstr[0] "încă %d episod"
 msgstr[1] "încă %d episoade"
 msgstr[2] "încă %d  de episoade"
 
-#: src/gpodder/gtkui/main.py:1524 src/gpodder/gtkui/main.py:1779
+#: src/gpodder/gtkui/main.py:1504 src/gpodder/gtkui/main.py:1759
 #: share/gpodder/ui/gtk/gpoddershownotes.ui.h:1
 #: share/gpodder/ui/gtk/gpodder.ui.h:25
 msgid "Episode details"
 msgstr "Detalii despre episod"
 
-#: src/gpodder/gtkui/main.py:1535
+#: src/gpodder/gtkui/main.py:1515
 msgid "Start download now"
 msgstr "Începe descărcările acum"
 
-#: src/gpodder/gtkui/main.py:1537 src/gpodder/gtkui/main.py:1718
+#: src/gpodder/gtkui/main.py:1517 src/gpodder/gtkui/main.py:1698
 #: src/gpodder/gtkui/desktop/episodeselector.py:143
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:64
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
@@ -545,167 +546,167 @@ msgstr "Începe descărcările acum"
 msgid "Download"
 msgstr "Descărcare"
 
-#: src/gpodder/gtkui/main.py:1538 src/gpodder/qmlui/__init__.py:556
-#: src/gpodder/qmlui/__init__.py:1014 share/gpodder/ui/gtk/gpodder.ui.h:21
+#: src/gpodder/gtkui/main.py:1518 src/gpodder/qmlui/__init__.py:561
+#: src/gpodder/qmlui/__init__.py:1063 share/gpodder/ui/gtk/gpodder.ui.h:21
 #: share/gpodder/ui/qml/EpisodeActions.qml:26
 #: share/gpodder/ui/qml/Main.qml:551
 msgid "Cancel"
 msgstr "Renunță"
 
-#: src/gpodder/gtkui/main.py:1539 share/gpodder/ui/qml/EpisodeActions.qml:34
+#: src/gpodder/gtkui/main.py:1519 share/gpodder/ui/qml/EpisodeActions.qml:34
 msgid "Pause"
 msgstr "Întrerupt temporar"
 
-#: src/gpodder/gtkui/main.py:1541
+#: src/gpodder/gtkui/main.py:1521
 msgid "Remove from list"
 msgstr "Elimină din listă"
 
-#: src/gpodder/gtkui/main.py:1580 share/gpodder/ui/gtk/gpodder.ui.h:13
+#: src/gpodder/gtkui/main.py:1560 share/gpodder/ui/gtk/gpodder.ui.h:13
 msgid "Update podcast"
 msgstr "Actualizează podcast"
 
-#: src/gpodder/gtkui/main.py:1587
+#: src/gpodder/gtkui/main.py:1567
 msgid "Open download folder"
 msgstr "Deschide directorul de descărcare"
 
-#: src/gpodder/gtkui/main.py:1593 src/gpodder/qmlui/__init__.py:441
+#: src/gpodder/gtkui/main.py:1573 src/gpodder/qmlui/__init__.py:442
 #, fuzzy
 msgid "Mark episodes as old"
 msgstr "Marchează episodul ca redat"
 
-#: src/gpodder/gtkui/main.py:1597 src/gpodder/gtkui/main.py:1772
-#: src/gpodder/qmlui/__init__.py:650
+#: src/gpodder/gtkui/main.py:1577 src/gpodder/gtkui/main.py:1752
+#: src/gpodder/qmlui/__init__.py:658
 msgid "Archive"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1602
+#: src/gpodder/gtkui/main.py:1582
 #, fuzzy
 msgid "Remove podcast"
 msgstr "Îndepărtează podcast-urile"
 
-#: src/gpodder/gtkui/main.py:1617 share/gpodder/ui/gtk/gpodder.ui.h:10
+#: src/gpodder/gtkui/main.py:1597 share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Podcast settings"
 msgstr "Setări podcast"
 
-#: src/gpodder/gtkui/main.py:1677
+#: src/gpodder/gtkui/main.py:1657
 msgid "Error converting file."
 msgstr "Eroare de conversie a fișierului."
 
-#: src/gpodder/gtkui/main.py:1677
+#: src/gpodder/gtkui/main.py:1657
 msgid "Bluetooth file transfer"
 msgstr "Transfer fișier prin bluetooth"
 
-#: src/gpodder/gtkui/main.py:1708
+#: src/gpodder/gtkui/main.py:1688
 msgid "Preview"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1710 share/gpodder/ui/qml/EpisodeActions.qml:34
+#: src/gpodder/gtkui/main.py:1690 share/gpodder/ui/qml/EpisodeActions.qml:34
 msgid "Stream"
 msgstr "Flux"
 
-#: src/gpodder/gtkui/main.py:1745
+#: src/gpodder/gtkui/main.py:1725
 #, fuzzy
 msgid "Send to"
 msgstr "Setați pentru a"
 
-#: src/gpodder/gtkui/main.py:1749
+#: src/gpodder/gtkui/main.py:1729
 msgid "Local folder"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1754
+#: src/gpodder/gtkui/main.py:1734
 #, fuzzy
 msgid "Bluetooth device"
 msgstr "Selectează tipul de dispozitiv"
 
-#: src/gpodder/gtkui/main.py:1763 src/gpodder/qmlui/__init__.py:64
+#: src/gpodder/gtkui/main.py:1743 src/gpodder/qmlui/__init__.py:65
 msgid "New"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1914 src/gpodder/gtkui/interface/shownotes.py:103
+#: src/gpodder/gtkui/main.py:1883 src/gpodder/gtkui/interface/shownotes.py:103
 msgid "Flattr status"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1963
+#: src/gpodder/gtkui/main.py:1932
 msgid "Please check your media player settings in the preferences dialog."
 msgstr "Verifică în preferințe setările player-ului media."
 
-#: src/gpodder/gtkui/main.py:1964
+#: src/gpodder/gtkui/main.py:1933
 msgid "Error opening player"
 msgstr "Eroare la deschiderea player-ului"
 
-#: src/gpodder/gtkui/main.py:2199
+#: src/gpodder/gtkui/main.py:2168
 msgid "Adding podcasts"
 msgstr "Se adaugă podcast-uri"
 
-#: src/gpodder/gtkui/main.py:2200
+#: src/gpodder/gtkui/main.py:2169
 msgid "Please wait while episode information is downloaded."
 msgstr "Astepta-ți descărcarea informațiilor despre episod."
 
-#: src/gpodder/gtkui/main.py:2207
+#: src/gpodder/gtkui/main.py:2176
 msgid "Existing subscriptions skipped"
 msgstr "Abonamente care nu au fost descărcate"
 
-#: src/gpodder/gtkui/main.py:2208
+#: src/gpodder/gtkui/main.py:2177
 msgid "You are already subscribed to these podcasts:"
 msgstr "La aceste podcast-uri există deja abonamente:"
 
-#: src/gpodder/gtkui/main.py:2216
+#: src/gpodder/gtkui/main.py:2185
 msgid "Podcast requires authentication"
 msgstr "Acest podcast necesită autentificare"
 
-#: src/gpodder/gtkui/main.py:2217
+#: src/gpodder/gtkui/main.py:2186
 #, python-format
 msgid "Please login to %s:"
 msgstr "Autentificare necesară pentru %s:"
 
-#: src/gpodder/gtkui/main.py:2225 src/gpodder/gtkui/main.py:2312
+#: src/gpodder/gtkui/main.py:2194 src/gpodder/gtkui/main.py:2281
 msgid "Authentication failed"
 msgstr "Autentificarea a eșuat"
 
-#: src/gpodder/gtkui/main.py:2231
+#: src/gpodder/gtkui/main.py:2200
 msgid "Website redirection detected"
 msgstr "A fost detectată o redirecționare a paginii web"
 
-#: src/gpodder/gtkui/main.py:2232
+#: src/gpodder/gtkui/main.py:2201
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "URL-ul %(url)s vă trimite la %(target)s."
 
-#: src/gpodder/gtkui/main.py:2233
+#: src/gpodder/gtkui/main.py:2202
 msgid "Do you want to visit the website now?"
 msgstr "Doriți să vizitați pagina de web acum?"
 
-#: src/gpodder/gtkui/main.py:2242
+#: src/gpodder/gtkui/main.py:2211
 msgid "Could not add some podcasts"
 msgstr "Anumite podcast-uri nu au fost adăugate"
 
-#: src/gpodder/gtkui/main.py:2243
+#: src/gpodder/gtkui/main.py:2212
 msgid "Some podcasts could not be added to your list:"
 msgstr "Anumite podcast-uri nu au fost adăugate în listă:"
 
-#: src/gpodder/gtkui/main.py:2245
+#: src/gpodder/gtkui/main.py:2214
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/gpodder/gtkui/main.py:2321
+#: src/gpodder/gtkui/main.py:2290
 msgid "Redirection detected"
 msgstr "Sa detectat o redirecționare"
 
-#: src/gpodder/gtkui/main.py:2355
+#: src/gpodder/gtkui/main.py:2324
 #, fuzzy
 msgid "Merging episode actions"
 msgstr "Selectați episoadele"
 
-#: src/gpodder/gtkui/main.py:2356
+#: src/gpodder/gtkui/main.py:2325
 #, fuzzy
 msgid "Episode actions from gpodder.net are merged."
 msgstr "Descarcă abonamentele de la my.gpodder.org"
 
-#: src/gpodder/gtkui/main.py:2381
+#: src/gpodder/gtkui/main.py:2350
 msgid "Cancelling..."
 msgstr "Renunțare..."
 
-#: src/gpodder/gtkui/main.py:2407
+#: src/gpodder/gtkui/main.py:2376
 #, fuzzy, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
@@ -713,30 +714,30 @@ msgstr[0] "Se actualizează %d feed"
 msgstr[1] "Se actualizează %d feed-uri"
 msgstr[2] "Se actualizează %d de feed-uri"
 
-#: src/gpodder/gtkui/main.py:2425
+#: src/gpodder/gtkui/main.py:2394
 #, python-format
 msgid "Error while updating %(url)s: %(message)s"
 msgstr "Eroare la aducerea la zi a %(url)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2427
+#: src/gpodder/gtkui/main.py:2396
 #, python-format
 msgid "The feed at %(url)s could not be updated."
 msgstr "Catalogul %(url)s nu a putut fi actualizat"
 
-#: src/gpodder/gtkui/main.py:2428
+#: src/gpodder/gtkui/main.py:2397
 msgid "Error while updating feed"
 msgstr "Eroare la actualizarea feed-ului"
 
-#: src/gpodder/gtkui/main.py:2443
+#: src/gpodder/gtkui/main.py:2412
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "%(podcast)s adus la zi (%(position)d/%(total)d)"
 
-#: src/gpodder/gtkui/main.py:2470
+#: src/gpodder/gtkui/main.py:2439
 msgid "No new episodes"
 msgstr "Nu există episoade noi."
 
-#: src/gpodder/gtkui/main.py:2483
+#: src/gpodder/gtkui/main.py:2452
 #, fuzzy, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
@@ -744,12 +745,12 @@ msgstr[0] "Se descarcă %d nou episod."
 msgstr[1] "Se descarcă %d episoade noi."
 msgstr[2] "Se descarcă %d de episoade noi."
 
-#: src/gpodder/gtkui/main.py:2484 src/gpodder/gtkui/main.py:2488
-#: src/gpodder/gtkui/main.py:2867
+#: src/gpodder/gtkui/main.py:2453 src/gpodder/gtkui/main.py:2457
+#: src/gpodder/gtkui/main.py:2836
 msgid "New episodes available"
 msgstr "Episoade noi sunt disponibile"
 
-#: src/gpodder/gtkui/main.py:2487
+#: src/gpodder/gtkui/main.py:2456
 #, fuzzy, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
@@ -757,7 +758,7 @@ msgstr[0] "%d episod nou a fost adăugat la lista de descărcare."
 msgstr[1] "%d episoade noi au fost adăugate la lista de descărcare."
 msgstr[2] "%d de episoade noi au fost adăugate la lista de descărcare."
 
-#: src/gpodder/gtkui/main.py:2494
+#: src/gpodder/gtkui/main.py:2463
 #, fuzzy, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
@@ -765,22 +766,22 @@ msgstr[0] "Exită %d episod nou disponibil"
 msgstr[1] "Exită %d episode noi disponibile"
 msgstr[2] "Exită %d de episode noi disponibile"
 
-#: src/gpodder/gtkui/main.py:2513
+#: src/gpodder/gtkui/main.py:2482
 msgid "Quit gPodder"
 msgstr "Închide gPodder"
 
-#: src/gpodder/gtkui/main.py:2514
+#: src/gpodder/gtkui/main.py:2483
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
 msgstr ""
 "Se descarcă episoade. Pute-ți continua descărcarea cănd reporniți gPodder."
 
-#: src/gpodder/gtkui/main.py:2596
+#: src/gpodder/gtkui/main.py:2565
 msgid "Episodes are locked"
 msgstr "Episoadele sunt blocate"
 
-#: src/gpodder/gtkui/main.py:2597
+#: src/gpodder/gtkui/main.py:2566
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -788,7 +789,7 @@ msgstr ""
 "Episoadele alese sunt blocate. Deblocați episoadele înainte de a putea sa le "
 "ștergeți."
 
-#: src/gpodder/gtkui/main.py:2602 src/gpodder/qmlui/__init__.py:270
+#: src/gpodder/gtkui/main.py:2571 src/gpodder/qmlui/__init__.py:271
 #, fuzzy, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
@@ -796,21 +797,21 @@ msgstr[0] "Îndepărtează %d episod?"
 msgstr[1] "Îndepărtează %d episoade?"
 msgstr[2] "Îndepărtează %d de episoade?"
 
-#: src/gpodder/gtkui/main.py:2603
+#: src/gpodder/gtkui/main.py:2572
 #, fuzzy
 msgid "Deleting episodes removes downloaded files."
 msgstr "Selectați episoadele care trebuie îndepărtate de pe dispozitiv."
 
-#: src/gpodder/gtkui/main.py:2608
+#: src/gpodder/gtkui/main.py:2577
 #, fuzzy
 msgid "Deleting episodes"
 msgstr "Selectați episoadele"
 
-#: src/gpodder/gtkui/main.py:2609
+#: src/gpodder/gtkui/main.py:2578
 msgid "Please wait while episodes are deleted"
 msgstr "Așteptați până când episoadele au fost șterse."
 
-#: src/gpodder/gtkui/main.py:2664
+#: src/gpodder/gtkui/main.py:2633
 #, fuzzy, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
@@ -818,141 +819,141 @@ msgstr[0] "Selectează episoade mai vechi de %d zi"
 msgstr[1] "Selectează episoade mai vechi de %d zile"
 msgstr[2] "Selectează episoade mai vechi de %d de zile"
 
-#: src/gpodder/gtkui/main.py:2666
+#: src/gpodder/gtkui/main.py:2635
 msgid "Select played"
 msgstr "Selectează episoadele ascultate"
 
-#: src/gpodder/gtkui/main.py:2667
+#: src/gpodder/gtkui/main.py:2636
 #, fuzzy
 msgid "Select finished"
 msgstr "Nu selecta nimic"
 
-#: src/gpodder/gtkui/main.py:2671
+#: src/gpodder/gtkui/main.py:2640
 msgid "Select the episodes you want to delete:"
 msgstr "Selectează episoadele ce trebuie șterse:"
 
-#: src/gpodder/gtkui/main.py:2687 share/gpodder/ui/gtk/gpodder.ui.h:4
+#: src/gpodder/gtkui/main.py:2656 share/gpodder/ui/gtk/gpodder.ui.h:4
 #: share/gpodder/ui/qml/main_default.qml:188
 #, fuzzy
 msgid "Delete episodes"
 msgstr "Îndepărtează episoadele vechi"
 
-#: src/gpodder/gtkui/main.py:2743 src/gpodder/gtkui/main.py:2973
-#: src/gpodder/gtkui/main.py:3074
+#: src/gpodder/gtkui/main.py:2712 src/gpodder/gtkui/main.py:2942
+#: src/gpodder/gtkui/main.py:3043
 msgid "No podcast selected"
 msgstr "Nici un podcast nu a fost selectat"
 
-#: src/gpodder/gtkui/main.py:2744
+#: src/gpodder/gtkui/main.py:2713
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Selecteaza un podcast din listă, ce trebuie adus la zi."
 
-#: src/gpodder/gtkui/main.py:2809
+#: src/gpodder/gtkui/main.py:2778
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Eroare la descărcarea %(episode)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2810
+#: src/gpodder/gtkui/main.py:2779
 msgid "Download error"
 msgstr "Eroare la descărcare"
 
-#: src/gpodder/gtkui/main.py:2852
+#: src/gpodder/gtkui/main.py:2821
 msgid "Select the episodes you want to download:"
 msgstr "Selectează episoadele ce trebuie descărcate:"
 
-#: src/gpodder/gtkui/main.py:2875 src/gpodder/qmlui/__init__.py:647
+#: src/gpodder/gtkui/main.py:2844 src/gpodder/qmlui/__init__.py:655
 msgid "Mark as old"
 msgstr "Marcheaza ca vechi"
 
-#: src/gpodder/gtkui/main.py:2883
+#: src/gpodder/gtkui/main.py:2852
 msgid "Please check for new episodes later."
 msgstr "Verifică dacă există episoade noi mai târziu. "
 
-#: src/gpodder/gtkui/main.py:2884
+#: src/gpodder/gtkui/main.py:2853
 msgid "No new episodes available"
 msgstr "Nu există episoade noi"
 
-#: src/gpodder/gtkui/main.py:2939
+#: src/gpodder/gtkui/main.py:2908
 #, fuzzy
 msgid "Login to gpodder.net"
 msgstr "Mergi la gpodder.org"
 
-#: src/gpodder/gtkui/main.py:2940
+#: src/gpodder/gtkui/main.py:2909
 msgid "Please login to download your subscriptions."
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:2955
+#: src/gpodder/gtkui/main.py:2924
 #, fuzzy
 msgid "Subscriptions on gpodder.net"
 msgstr "Abonamente încărcate."
 
-#: src/gpodder/gtkui/main.py:2974
+#: src/gpodder/gtkui/main.py:2943
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Selectează un podcast din listă pentru a fi editat."
 
-#: src/gpodder/gtkui/main.py:2989
+#: src/gpodder/gtkui/main.py:2958
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:75
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:2995 share/gpodder/ui/gtk/gpodder.ui.h:12
+#: src/gpodder/gtkui/main.py:2964 share/gpodder/ui/gtk/gpodder.ui.h:12
 msgid "Remove podcasts"
 msgstr "Îndepărtează podcast-urile"
 
-#: src/gpodder/gtkui/main.py:2996
+#: src/gpodder/gtkui/main.py:2965
 msgid "Select the podcast you want to remove."
 msgstr "Selectați podcast-ul dorit pentru a fi șters"
 
-#: src/gpodder/gtkui/main.py:3000
+#: src/gpodder/gtkui/main.py:2969
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 #: share/gpodder/ui/qml/MediaPlayer.qml:240
 msgid "Remove"
 msgstr "Îndepărtează"
 
-#: src/gpodder/gtkui/main.py:3009
+#: src/gpodder/gtkui/main.py:2978
 msgid "Removing podcast"
 msgstr "Îndepărtează podcast-ul"
 
-#: src/gpodder/gtkui/main.py:3010
+#: src/gpodder/gtkui/main.py:2979
 msgid "Please wait while the podcast is removed"
 msgstr "Așteptați până la îndepărtarea podcast-ului."
 
-#: src/gpodder/gtkui/main.py:3011
+#: src/gpodder/gtkui/main.py:2980
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "Doriți să îndepărtați acest podcast împreună cu toate episoadele?"
 
-#: src/gpodder/gtkui/main.py:3013
+#: src/gpodder/gtkui/main.py:2982
 msgid "Removing podcasts"
 msgstr "Se îndepărtează podcast-uri"
 
-#: src/gpodder/gtkui/main.py:3014
+#: src/gpodder/gtkui/main.py:2983
 msgid "Please wait while the podcasts are removed"
 msgstr "Așteptați până la îndepărtarea podcast-ului"
 
-#: src/gpodder/gtkui/main.py:3015
+#: src/gpodder/gtkui/main.py:2984
 msgid "Do you really want to remove the selected podcasts and their episodes?"
 msgstr "Doriți să îndepărtați acest podcast împreună cu toate episoadele?"
 
-#: src/gpodder/gtkui/main.py:3075
+#: src/gpodder/gtkui/main.py:3044
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Selectează un podcast din listă pentru a fi îndepartat."
 
-#: src/gpodder/gtkui/main.py:3085
+#: src/gpodder/gtkui/main.py:3054
 msgid "OPML files"
 msgstr "Fișiere OPML"
 
-#: src/gpodder/gtkui/main.py:3090
+#: src/gpodder/gtkui/main.py:3059
 msgid "Import from OPML"
 msgstr "Importă din OPML"
 
-#: src/gpodder/gtkui/main.py:3104
+#: src/gpodder/gtkui/main.py:3073
 msgid "Import podcasts from OPML file"
 msgstr "Importă podcast-uri din fișiere OPML"
 
-#: src/gpodder/gtkui/main.py:3111
+#: src/gpodder/gtkui/main.py:3080
 msgid "Nothing to export"
 msgstr "Nimic de exportat"
 
-#: src/gpodder/gtkui/main.py:3112
+#: src/gpodder/gtkui/main.py:3081
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -960,11 +961,11 @@ msgstr ""
 "Lista de abonamente pentru podcast-uri este goală. Abonează-te la podcast-"
 "uri înainte de a încerca să exporți lista."
 
-#: src/gpodder/gtkui/main.py:3116
+#: src/gpodder/gtkui/main.py:3085
 msgid "Export to OPML"
 msgstr "Export către OPML"
 
-#: src/gpodder/gtkui/main.py:3127
+#: src/gpodder/gtkui/main.py:3096
 #, fuzzy, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
@@ -972,91 +973,91 @@ msgstr[0] "%d abonament a fost exportat"
 msgstr[1] "%d abonamente au fost exportate"
 msgstr[2] "%d de abonamente au fost exportate"
 
-#: src/gpodder/gtkui/main.py:3128
+#: src/gpodder/gtkui/main.py:3097
 msgid "Your podcast list has been successfully exported."
 msgstr "Lista de podcast-uri a fost exportată cu success."
 
-#: src/gpodder/gtkui/main.py:3130
+#: src/gpodder/gtkui/main.py:3099
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "Nu s-a putut exporta OPML în fișier. Verificați permisiunea."
 
-#: src/gpodder/gtkui/main.py:3130
+#: src/gpodder/gtkui/main.py:3099
 msgid "OPML export failed"
 msgstr "Exportul OPML a eșuat"
 
-#: src/gpodder/gtkui/main.py:3157
+#: src/gpodder/gtkui/main.py:3126
 #, fuzzy
 msgid "No updates available"
 msgstr "Nu există episoade disponibile"
 
-#: src/gpodder/gtkui/main.py:3158
+#: src/gpodder/gtkui/main.py:3127
 msgid "You have the latest version of gPodder."
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3162
+#: src/gpodder/gtkui/main.py:3131
 #, fuzzy
 msgid "New version available"
 msgstr "Episoade noi sunt disponibile"
 
-#: src/gpodder/gtkui/main.py:3164
+#: src/gpodder/gtkui/main.py:3133
 #, python-format
 msgid "Installed version: %s"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3165
+#: src/gpodder/gtkui/main.py:3134
 #, fuzzy, python-format
 msgid "Newest version: %s"
 msgstr "Se șterg: %s"
 
-#: src/gpodder/gtkui/main.py:3166
+#: src/gpodder/gtkui/main.py:3135
 #, fuzzy, python-format
 msgid "Release date: %s"
 msgstr "Publicat: %s"
 
-#: src/gpodder/gtkui/main.py:3168
+#: src/gpodder/gtkui/main.py:3137
 #, fuzzy
 msgid "Download the latest version from gpodder.org?"
 msgstr "Descarcă abonamentele de la my.gpodder.org"
 
-#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:148
+#: src/gpodder/gtkui/main.py:3150 share/gpodder/ui/qml/main_default.qml:148
 #, fuzzy
 msgid "About gPodder"
 msgstr "Închide gPodder"
 
-#: src/gpodder/gtkui/main.py:3208
+#: src/gpodder/gtkui/main.py:3177
 #, fuzzy
 msgid "Donate / Wishlist"
 msgstr "Lista Amazon"
 
-#: src/gpodder/gtkui/main.py:3211
+#: src/gpodder/gtkui/main.py:3180
 msgid "Report a problem"
 msgstr "Raportează probleme"
 
-#: src/gpodder/gtkui/main.py:3237
+#: src/gpodder/gtkui/main.py:3206
 msgid "translator-credits"
 msgstr "translatori"
 
-#: src/gpodder/gtkui/main.py:3239
+#: src/gpodder/gtkui/main.py:3208
 msgid "Translation by:"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3243
+#: src/gpodder/gtkui/main.py:3212
 msgid "Thanks to:"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3322
+#: src/gpodder/gtkui/main.py:3291
 msgid "Please select an episode from the episode list to display shownotes."
 msgstr "Selectați un episod din listă pentru a afisa informații despre el."
 
-#: src/gpodder/gtkui/main.py:3322
+#: src/gpodder/gtkui/main.py:3291
 msgid "No episode selected"
 msgstr "Nici un episod nu a fost selectat"
 
-#: src/gpodder/gtkui/main.py:3528
+#: src/gpodder/gtkui/main.py:3497
 msgid "Cannot start gPodder"
 msgstr "gPodder nu poate fi pornit"
 
-#: src/gpodder/gtkui/main.py:3529
+#: src/gpodder/gtkui/main.py:3498
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "Eroare D-Bus: %s"
@@ -1089,7 +1090,7 @@ msgstr "Astăzi"
 msgid "downloaded %s"
 msgstr "descărcate %s"
 
-#: src/gpodder/gtkui/model.py:338 src/gpodder/qmlui/__init__.py:66
+#: src/gpodder/gtkui/model.py:338 src/gpodder/qmlui/__init__.py:67
 msgid "Deleted"
 msgstr "Șters"
 
@@ -1141,7 +1142,7 @@ msgstr "deschis"
 msgid "deletion prevented"
 msgstr "ștergere prevenită"
 
-#: src/gpodder/gtkui/model.py:433 src/gpodder/qmlui/__init__.py:758
+#: src/gpodder/gtkui/model.py:433 src/gpodder/qmlui/__init__.py:766
 #: share/gpodder/ui/gtk/gpodder.ui.h:33
 msgid "All episodes"
 msgstr "Toate episoadele"
@@ -1415,7 +1416,7 @@ msgid "Select folder for mount point"
 msgstr "Selecta-ți locul de montare al iPod-ului."
 
 #: src/gpodder/gtkui/desktop/shownotes.py:114
-#: src/gpodder/qmlui/__init__.py:1026
+#: src/gpodder/qmlui/__init__.py:1075
 msgid "Please wait..."
 msgstr "Vă rugam așteptați..."
 
@@ -1452,143 +1453,148 @@ msgstr ""
 "Trebuie eliberat %s\n"
 "Doriți să continuați?"
 
-#: src/gpodder/qmlui/__init__.py:62
+#: src/gpodder/qmlui/__init__.py:63
 msgid "All"
 msgstr "Tot"
 
-#: src/gpodder/qmlui/__init__.py:63
+#: src/gpodder/qmlui/__init__.py:64
 #, fuzzy
 msgid "Hide deleted"
 msgstr "Ascunde episoadele șterse"
 
-#: src/gpodder/qmlui/__init__.py:65
+#: src/gpodder/qmlui/__init__.py:66
 msgid "Downloaded"
 msgstr "Descărcate"
 
-#: src/gpodder/qmlui/__init__.py:68
+#: src/gpodder/qmlui/__init__.py:69
 #, fuzzy
 msgid "Archived"
 msgstr "Toate episoadele"
 
-#: src/gpodder/qmlui/__init__.py:69
+#: src/gpodder/qmlui/__init__.py:70
 msgid "Videos"
 msgstr ""
 
-#: src/gpodder/qmlui/__init__.py:199
+#: src/gpodder/qmlui/__init__.py:200
 #, fuzzy, python-format
 msgid "Flattred (%(count)d)"
 msgstr "după %d zi"
 
-#: src/gpodder/qmlui/__init__.py:203
+#: src/gpodder/qmlui/__init__.py:204
 #, fuzzy, python-format
 msgid "Flattr this (%(count)d)"
 msgstr "după %d zi"
 
-#: src/gpodder/qmlui/__init__.py:217
+#: src/gpodder/qmlui/__init__.py:218
 msgid "Sign in to Flattr in the settings."
 msgstr ""
 
-#: src/gpodder/qmlui/__init__.py:220
+#: src/gpodder/qmlui/__init__.py:221
 #, fuzzy
 msgid "Flattring episode..."
 msgstr "Selectați episoadele"
 
-#: src/gpodder/qmlui/__init__.py:244
+#: src/gpodder/qmlui/__init__.py:245
 msgid "Could not log in to Flattr."
 msgstr ""
 
-#: src/gpodder/qmlui/__init__.py:271 src/gpodder/qmlui/__init__.py:629
-#: src/gpodder/qmlui/__init__.py:654 share/gpodder/ui/gtk/gpodder.ui.h:22
+#: src/gpodder/qmlui/__init__.py:272 src/gpodder/qmlui/__init__.py:637
+#: src/gpodder/qmlui/__init__.py:662 share/gpodder/ui/gtk/gpodder.ui.h:22
 #: share/gpodder/ui/qml/EpisodeActions.qml:42
 #: share/gpodder/ui/qml/main_default.qml:190 share/gpodder/ui/qml/Main.qml:549
 msgid "Delete"
 msgstr "Șterge"
 
-#: src/gpodder/qmlui/__init__.py:370
+#: src/gpodder/qmlui/__init__.py:371
 #, fuzzy
 msgid "Uploading subscriptions..."
 msgstr "Încarcă abonamentele"
 
-#: src/gpodder/qmlui/__init__.py:377
+#: src/gpodder/qmlui/__init__.py:378
 #, fuzzy
 msgid "Error on upload:"
 msgstr "Eroare la încărcare"
 
-#: src/gpodder/qmlui/__init__.py:438
+#: src/gpodder/qmlui/__init__.py:439
 #, fuzzy
 msgid "Update all"
 msgstr "Adu la zi totul"
 
-#: src/gpodder/qmlui/__init__.py:440
+#: src/gpodder/qmlui/__init__.py:441
 #, fuzzy
 msgid "Update"
 msgstr "Adu la zi totul"
 
-#: src/gpodder/qmlui/__init__.py:442 src/gpodder/qmlui/__init__.py:538
-#: src/gpodder/qmlui/__init__.py:547
+#: src/gpodder/qmlui/__init__.py:443 src/gpodder/qmlui/__init__.py:542
+#: src/gpodder/qmlui/__init__.py:551
 #, fuzzy
 msgid "Rename"
 msgstr "Nume utilizator"
 
-#: src/gpodder/qmlui/__init__.py:443
+#: src/gpodder/qmlui/__init__.py:444
 #, fuzzy
 msgid "Change section"
 msgstr "Inversează selecția"
 
-#: src/gpodder/qmlui/__init__.py:444 src/gpodder/qmlui/__init__.py:518
+#: src/gpodder/qmlui/__init__.py:445 src/gpodder/qmlui/__init__.py:522
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
 msgid "Unsubscribe"
 msgstr "Întrerupe abonamentul"
 
-#: src/gpodder/qmlui/__init__.py:477
+#: src/gpodder/qmlui/__init__.py:478
 #, fuzzy
 msgid "Merging episode actions..."
 msgstr "Selectați episoadele"
 
-#: src/gpodder/qmlui/__init__.py:481
+#: src/gpodder/qmlui/__init__.py:482
 #, fuzzy, python-format
 msgid "Merging episode actions (%d)"
 msgstr "Selectați episoadele"
 
-#: src/gpodder/qmlui/__init__.py:517
+#: src/gpodder/qmlui/__init__.py:521
 #, fuzzy
 msgid "Remove this podcast and episodes?"
 msgstr "Îndepărtează podcast-uri si episoade?"
 
-#: src/gpodder/qmlui/__init__.py:537
+#: src/gpodder/qmlui/__init__.py:541
 #, fuzzy
 msgid "New section name:"
 msgstr "Nume nou:"
 
-#: src/gpodder/qmlui/__init__.py:546
+#: src/gpodder/qmlui/__init__.py:550
 #, fuzzy
 msgid "New name:"
 msgstr "Nume nou: %s"
 
-#: src/gpodder/qmlui/__init__.py:629
+#: src/gpodder/qmlui/__init__.py:637
 #, fuzzy
 msgid "Delete this episode?"
 msgstr "Îndepărtează episoadele vechi"
 
-#: src/gpodder/qmlui/__init__.py:647
+#: src/gpodder/qmlui/__init__.py:655
 msgid "Mark as new"
 msgstr "Marcat ca nou"
 
-#: src/gpodder/qmlui/__init__.py:650
+#: src/gpodder/qmlui/__init__.py:658
 msgid "Allow deletion"
 msgstr "Permite ștergerea"
 
-#: src/gpodder/qmlui/__init__.py:656
+#: src/gpodder/qmlui/__init__.py:664
 #, fuzzy
 msgid "Add to play queue"
 msgstr "Player audio:"
 
-#: src/gpodder/qmlui/__init__.py:677 src/gpodder/qmlui/__init__.py:681
+#: src/gpodder/qmlui/__init__.py:685 src/gpodder/qmlui/__init__.py:689
 #, fuzzy
 msgid "Adding podcasts..."
 msgstr "Se adaugă podcast-uri"
 
-#: src/gpodder/qmlui/__init__.py:1013
+#: src/gpodder/qmlui/__init__.py:998
+#, fuzzy
+msgid "Resume"
+msgstr "Reia roate descărcările"
+
+#: src/gpodder/qmlui/__init__.py:1062
 msgid "OK"
 msgstr "OK"
 
@@ -1626,6 +1632,14 @@ msgstr ""
 
 #: share/gpodder/extensions/flv2mp4.py:56
 msgid "Convert FLV to MP4"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:11
+msgid "Gtk Status Icon"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:12
+msgid "Show a status icon for Gtk-based Desktops."
 msgstr ""
 
 #: share/gpodder/extensions/m4a_converter.py:19
