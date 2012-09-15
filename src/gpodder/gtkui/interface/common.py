@@ -57,34 +57,6 @@ class BuilderWidget(GtkBuilderWidget):
                 (pw, ph) = self.main_window.get_size()
                 self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
 
-    def _on_key_press_event_maemo(self, widget, event):
-        window_type = widget.get_type_hint()
-        if window_type != gtk.gdk.WINDOW_TYPE_HINT_NORMAL:
-            return False
-
-        if event.keyval == gtk.keysyms.F6:
-            if self._maemo_fullscreen:
-                if self._maemo_fullscreen_chain is not None:
-                    self._maemo_fullscreen_chain.unfullscreen()
-                self.main_window.unfullscreen()
-                self.main_window.set_border_width(0)
-            else:
-                if self._maemo_fullscreen_chain is not None:
-                    self._maemo_fullscreen_chain.fullscreen()
-                self.main_window.fullscreen()
-                self.main_window.set_border_width(12)
-            return True
-        else:
-            return False
-
-    def _on_window_state_event_maemo(self, widget, event):
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-            self._maemo_fullscreen = True
-        else:
-            self._maemo_fullscreen = False
-
-        return False
-
     def _on_window_state_event_visibility(self, widget, event):
         if event.state & gtk.gdk.VISIBILITY_FULLY_OBSCURED:
             self._window_visible = False

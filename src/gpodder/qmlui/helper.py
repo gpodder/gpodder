@@ -83,8 +83,6 @@ class MediaButtonsHandler(QtCore.QObject):
         if gpodder.ui.harmattan:
             headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_0'
             headset_path2 = '/org/freedesktop/Hal/devices/computer_logicaldev_input'
-        elif gpodder.ui.fremantle:
-            headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_1'
         else:
             return
 

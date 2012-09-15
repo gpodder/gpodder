@@ -73,10 +73,9 @@ del sqlite3
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
-# Are we running in GUI, Maemo or console mode?
+# Are we running in GUI, MeeGo 1.2 Harmattan or console mode?
 class UI(object):
     def __init__(self):
-        self.fremantle = False
         self.harmattan = False
         self.gtk = False
         self.qml = False
@@ -211,10 +210,9 @@ def detect_platform():
     except Exception, e:
         etc_issue = ''
 
-    ui.fremantle = ('Maemo 5' in etc_issue)
     ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
 
-    if (ui.fremantle or ui.harmattan) and ENV_HOME not in os.environ:
+    if ui.harmattan and ENV_HOME not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
         set_home(os.path.expanduser(new_home))
 

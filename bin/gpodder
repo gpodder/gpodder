@@ -90,7 +90,7 @@ def main():
 
     gpodder.prefix = prefix
 
-    # Platform detection (i.e. Maemo 5, etc..)
+    # Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
     gpodder.detect_platform()
 
     # Enable i18n for gPodder translations
@@ -125,7 +125,7 @@ def main():
 
     options, args = parser.parse_args(sys.argv)
 
-    if options.qml or gpodder.ui.fremantle or gpodder.ui.harmattan:
+    if options.qml or gpodder.ui.harmattan:
         gpodder.ui.qml = True
     else:
         gpodder.ui.gtk = True

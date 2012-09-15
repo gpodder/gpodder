@@ -1845,7 +1845,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if resume_position == episode.total_time:
                 resume_position = 0
 
-            # If Panucci is configured, use D-Bus on Maemo to call it
+            # If Panucci is configured, use D-Bus to call it
             if player == 'panucci':
                 try:
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
@@ -1887,22 +1887,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Open episodes with system default player
         if 'default' in groups:
-            # Special-casing for a single episode when the object is a PDF
-            # file - this is needed on Maemo 5, so we only use gui_open()
-            # for single PDF files, but still use the built-in media player
-            # with an M3U file for single audio/video files. (The Maemo 5
-            # media player behaves differently when opening a single-file
-            # M3U playlist compared to opening the single file directly.)
-            if len(groups['default']) == 1:
-                fn = groups['default'][0]
-                # The list of extensions is taken from gui_open in util.py
-                # where all special-cases of Maemo apps are listed
-                for extension in ('.pdf', '.jpg', '.jpeg', '.png'):
-                    if fn.lower().endswith(extension):
-                        util.gui_open(fn)
-                        groups['default'] = []
-                        break
-
             for filename in groups['default']:
                 logger.debug('Opening with system default: %s', filename)
                 util.gui_open(filename)

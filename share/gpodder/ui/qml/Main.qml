@@ -25,16 +25,26 @@ Image {
     property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: (closeButton.isRequired || mediaPlayer.visible) && !progressIndicator.opacity
+    property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
     property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
-    property bool hasSearchButton: searchButton.visible && !mediaPlayer.visible && !progressIndicator.opacity
+    property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
+    function clickSearchButton() {
+        contextMenu.showSubscribe()
+    }
+
     function goBack() {
-        if (nowPlayingThrobber.opened) {
-            nowPlayingThrobber.opened = false
-        } else {
-            closeButton.clicked()
+        if (contextMenu.state == 'opened') {
+            contextMenu.state = 'closed'
+        } else if (main.state == 'podcasts') {
+            mediaPlayer.stop()
+            controller.quit()
+        } else if (main.state == 'episodes') {
+            main.state = 'podcasts'
+            main.currentPodcast = undefined
+        } else if (main.state == 'shownotes') {
+            main.state = 'episodes'
         }
     }
 
@@ -43,7 +53,7 @@ Image {
     }
 
     function clickPlayButton() {
-        nowPlayingThrobber.clicked()
+        nowPlayingThrobber.opened = !nowPlayingThrobber.opened
     }
 
     function showMultiEpisodesSheet(title, label, action) {
@@ -53,20 +63,6 @@ Image {
         multiEpisodesList.selected = [];
         multiEpisodesSheet.open();
         multiEpisodesSheet.opened = true;
-    }
-
-    function clickSearchButton() {
-        searchButton.clicked()
-    }
-
-    Keys.onPressed: {
-        console.log(event.key)
-        if (event.key == Qt.Key_Escape) {
-            goBack()
-        }
-        if (event.key == Qt.Key_F && event.modifiers & Qt.ControlModifier) {
-            searchButton.clicked()
-        }
     }
 
     width: 800
@@ -275,34 +271,11 @@ Image {
         }
     }
 
-    CornerButton {
-        id: extraCloseButton
-        visible: false
-        z: (contextMenu.state == 'opened')?2:0
-        tab: 'artwork/back-tab.png'
-        icon: 'artwork/back.png'
-        isLeftCorner: true
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        onClicked: closeButton.clicked()
-        opened: !(!Config.hasCloseButton && closeButton.isRequired)
-    }
-
-    CornerButton {
-        z: 3
-
-        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
-
+    Item {
+        // XXX: Remove me
         id: nowPlayingThrobber
-        visible: false
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        opacity: shouldAppear
-
-        caption: (mediaPlayer.episode!=undefined)?mediaPlayer.episode.qtitle:''
-
-        opened: false
-        onClicked: { opened = !opened }
+        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
+        property bool opened: false
     }
 
     MediaPlayer {
@@ -392,7 +365,7 @@ Image {
     Item {
         id: titleBar
         visible: podcastList.hasItems
-        height: visible?taskSwitcher.height*.8:0
+        height: visible?Config.headerHeight*.8:0
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -414,35 +387,12 @@ Image {
             }
         }
 
-        Item {
-            id: taskSwitcher
-            visible: contextMenu.state != 'opened' && Config.hasTaskSwitcher
-            anchors.left: parent.left
-            anchors.top: parent.top
-            width: Config.switcherWidth
-            height: Config.headerHeight
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: controller.switcher()
-            }
-
-            ScaledIcon {
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    left: parent.left
-                    leftMargin: (parent.width * .8 - width) / 2
-                }
-                source: 'artwork/switch.png'
-            }
-        }
-
         Label {
             id: titleBarText
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: taskSwitcher.visible?taskSwitcher.right:taskSwitcher.left
-            anchors.leftMargin: (contextMenu.state == 'opened')?(Config.largeSpacing):(Config.hasTaskSwitcher?0:Config.largeSpacing)
-            anchors.right: searchButton.visible?searchButton.left:searchButton.right
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: Config.largeSpacing
             wrapMode: Text.NoWrap
             clip: true
             text: multiEpisodesSheet.opened?multiEpisodesSheet.title:((contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder"))
@@ -455,42 +405,6 @@ Image {
             target: controller
             property: 'windowTitle'
             value: titleBarText.text
-        }
-
-        TitlebarButton {
-            id: searchButton
-            anchors.right: closeButton.visible?closeButton.left:closeButton.right
-
-            source: 'artwork/subscriptions.png'
-
-            onClicked: contextMenu.showSubscribe()
-
-            visible: (contextMenu.state == 'closed' && main.state == 'podcasts')
-            opacity: 0
-        }
-
-        TitlebarButton {
-            id: closeButton
-            anchors.right: parent.right
-            property bool isRequired: main.state != 'podcasts' || contextMenu.state != 'closed'
-            visible: extraCloseButton.opened && (Config.hasCloseButton || isRequired)
-
-            source: (main.state == 'podcasts' && contextMenu.state == 'closed')?'artwork/close.png':'artwork/back.png'
-            rotation: 0
-
-            onClicked: {
-                if (contextMenu.state == 'opened') {
-                    contextMenu.state = 'closed'
-                } else if (main.state == 'podcasts') {
-                    mediaPlayer.stop()
-                    controller.quit()
-                } else if (main.state == 'episodes') {
-                    main.state = 'podcasts'
-                    main.currentPodcast = undefined
-                } else if (main.state == 'shownotes') {
-                    main.state = 'episodes'
-                }
-            }
         }
     }
 

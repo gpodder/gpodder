@@ -359,8 +359,7 @@ class Controller(QObject):
         return self.root.view.windowTitle()
 
     def setWindowTitle(self, windowTitle):
-        if gpodder.ui.fremantle:
-            self.root.view.setWindowTitle(windowTitle)
+        self.root.view.setWindowTitle(windowTitle)
 
     windowTitle = Property(unicode, getWindowTitle,
             setWindowTitle, notify=windowTitleChanged)
@@ -710,13 +709,7 @@ class Controller(QObject):
 
     @Slot()
     def switcher(self):
-        if gpodder.ui.harmattan:
-            self.root.view.showMinimized()
-        elif gpodder.ui.fremantle:
-            os.system('dbus-send /com/nokia/hildon_desktop '+
-                    'com.nokia.hildon_desktop.exit_app_view')
-        else:
-            self.root.view.showMinimized()
+        self.root.view.showMinimized()
 
 
 class gPodderListModel(QAbstractListModel):
@@ -862,14 +855,6 @@ class qtPodder(QObject):
         # TODO: Expose the same D-Bus API as the Gtk UI D-Bus object (/gui)
         # TODO: Create a gpodder.dbusproxy.DBusPodcastsProxy object (/podcasts)
 
-        # Enable OpenGL rendering without requiring QtOpenGL
-        # On Harmattan we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
-            if gpodder.ui.fremantle:
-                args += ['-graphicssystem', 'opengl']
-            elif not gpodder.win32:
-                args += ['-graphicssystem', 'raster']
-
         self.app = QApplication(args)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.quit.connect(self.on_quit)
@@ -905,14 +890,6 @@ class qtPodder(QObject):
 
         engine = self.view.engine()
 
-        # Maemo 5: Experimental Qt Mobility packages are installed in /opt
-        if gpodder.ui.fremantle:
-            for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
-                engine.addImportPath(path)
-        elif gpodder.win32:
-            for path in (r'C:\QtSDK\Desktop\Qt\4.7.4\msvc2008\imports',):
-                engine.addImportPath(path)
-
         # Add the cover art image provider
         self.cover_provider = images.LocalCachedImageProvider()
         engine.addImageProvider('cover', self.cover_provider)
@@ -937,9 +914,6 @@ class qtPodder(QObject):
         self.view.setWindowTitle('gPodder')
 
         if gpodder.ui.harmattan:
-            self.view.showFullScreen()
-        elif gpodder.ui.fremantle:
-            self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
             self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..
