@@ -35,6 +35,7 @@ except ImportError:
 
 import re
 import urllib
+import urlparse
 
 # See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # Currently missing: 3GP profile
@@ -69,7 +70,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
-        url = 'http://www.youtube.com/watch?v=' + vid
+        url = 'http://www.youtube.com/get_video_info?&video_id=' + vid
 
         while page is None:
             req = util.http_request(url, method='GET')
@@ -81,14 +82,12 @@ def get_real_download_url(url, preferred_fmt_id=None):
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
         def find_urls(page):
-            r4 = re.search('.*"url_encoded_fmt_stream_map"\:\s+"([^"]+)".*', page)
+            r4 = re.search('.*&url_encoded_fmt_stream_map=([^&]+)&.*', page)
             if r4 is not None:
-                fmt_url_map = r4.group(1)
+                fmt_url_map = urllib.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
-                    video_info = dict(map(urllib.unquote, x.split('=', 1))
-                            for x in fmt_url_encoded.split('\\u0026'))
-
-                    yield int(video_info['itag']), video_info['url']
+                    video_info = urlparse.parse_qs(fmt_url_encoded)
+                    yield int(video_info['itag'][0]), video_info['url'][0]
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
         # Default to the highest fmt_id if we don't find a match below
