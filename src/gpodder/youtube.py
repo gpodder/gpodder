@@ -28,7 +28,13 @@ from gpodder.liblogger import log
 
 import re
 import urllib
-import urlparse
+
+try:
+    # Python >= 2.6
+    from urlparse import parse_qs
+except ImportError:
+    # Python < 2.6
+    from cgi import parse_qs
 
 # See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # Currently missing: the WebM 480p and 720 formats; 3GP profile
@@ -64,7 +70,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
             if r4 is not None:
                 fmt_url_map = urllib.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
-                    video_info = urlparse.parse_qs(fmt_url_encoded)
+                    video_info = parse_qs(fmt_url_encoded)
                     yield int(video_info['itag'][0]), video_info['url'][0]
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
