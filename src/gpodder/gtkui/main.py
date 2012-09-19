@@ -1835,9 +1835,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.playback_mark()
             self.mygpo_client.on_playback([episode])
 
-            fmt_id = self.config.youtube_preferred_fmt_id
+            fmt_ids = youtube.formats.get(self.config.youtube_preferred_fmt_id, ([]))[0] \
+                if not self.config.youtube_preferred_fmt_ids \
+                else self.config.youtube_preferred_fmt_ids
+
             allow_partial = (player != 'default')
-            filename = episode.get_playback_url(fmt_id, allow_partial)
+            filename = episode.get_playback_url(fmt_ids, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning

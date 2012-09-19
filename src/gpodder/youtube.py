@@ -23,6 +23,7 @@
 
 import gpodder
 
+from collections import OrderedDict
 from gpodder import util
 
 import logging
@@ -43,31 +44,53 @@ except ImportError:
     # Python < 2.6
     from cgi import parse_qs
 
-# See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
-# Currently missing: 3GP profile
+# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 supported_formats = [
-    (37, '37/1920x1080/9/0/115', '1920x1080 (HD)'),
-    (22, '22/1280x720/9/0/115', '1280x720 (HD)'),
-    (35, '35/854x480/9/0/115', '854x480'),
-    (34, '34/640x360/9/0/115', '640x360'),
-    (18, '18/640x360/9/0/115', '640x360 (iPod)'),
-    (18, '18/480x360/9/0/115', '480x360 (iPod)'),
-    (5, '5/320x240/7/0/0', '320x240 (FLV)'),
-
-    # WebM formats have lower priority, because "most" players are still less
-    # compatible with WebM than their equivalent MP4 formats above (bug 1336)
-    # If you really want WebM files, set the preferred fmt_id to any of these:
-    (45, '45/1280x720/99/0/0', 'WebM 720p'),
-    (44, '44/854x480/99/0/0', 'WebM 480p'),
-    (43, '43/640x360/99/0/0', 'WebM 360p'),
+    102, 101, 100,   # 3D WebM
+    85, 84, 83, 82,  # 3D MP4
+    46, 45, 44, 43,  # WebM
+    38, 37, 22, 18,  # MP4
+    13, 36, 17,      # 3GP
+    35, 34, 6, 5     # FLV
 ]
+
+# format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
+formats = OrderedDict([
+    # WebM VP8 video, Vorbis audio
+    # Fallback to an MP4 version of same quality.
+    # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
+    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
+    (46, ([46, 37, 45, 22, 44, 35, 43, 18, 6, 34, 5], '45/1280x720/99/0/0', 'WebM 1080p (1920x1080)')), # N/A,      192 kbps
+    (45, ([45, 22, 44, 35, 43, 18, 6, 34, 5],         '45/1280x720/99/0/0', 'WebM 720p (1280x720)')),   # 2.0 Mbps, 192 kbps
+    (44, ([44, 35, 43, 18, 6, 34, 5],                 '44/854x480/99/0/0',  'WebM 480p (854x480)')),    # 1.0 Mbps, 128 kbps
+    (43, ([43, 18, 6, 34, 5],                         '43/640x360/99/0/0',  'WebM 360p (640x360)')),    # 0.5 Mbps, 128 kbps
+
+    # MP4 H.264 video, AAC audio
+    # Try 35 (FLV 480p H.264 AAC) between 720p and 360p because there's no MP4 480p.
+    # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
+    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
+    (38, ([38, 37, 22, 35, 18, 34, 6, 5], '38/1920x1080/9/0/115', 'MP4 4K 3072p (4096x3072)')), # 5.0 - 3.5 Mbps, 192 kbps
+    (37, ([37, 22, 35, 18, 34, 6, 5],     '37/1920x1080/9/0/115', 'MP4 HD 1080p (1920x1080)')), # 4.3 - 3.0 Mbps, 192 kbps
+    (22, ([22, 35, 18, 34, 6, 5],         '22/1280x720/9/0/115',  'MP4 HD 720p (1280x720)')),   # 2.9 - 2.0 Mbps, 192 kbps
+    (18, ([18, 34, 6, 5],                 '18/640x360/9/0/115',   'MP4 360p (640x360)')),       #       0.5 Mbps,  96 kbps
+
+    # FLV H.264 video, AAC audio
+    # Does not check for 360p MP4.
+    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
+    (35, ([35, 34, 6, 5], '35/854x480/9/0/115',   'FLV 480p (854x480)')), # 1 - 0.80 Mbps, 128 kbps
+    (34, ([34, 6, 5],     '34/640x360/9/0/115',   'FLV 360p (640x360)')), #     0.50 Mbps, 128 kbps
+
+    # FLV Sorenson H.263 video, MP3 audio
+    (6, ([6, 5],         '5/480x270/7/0/0',      'FLV 270p (480x270)')), #     0.80 Mbps,  64 kbps
+    (5, ([5],            '5/320x240/7/0/0',      'FLV 240p (320x240)')), #     0.25 Mbps,  64 kbps
+])
 
 class YouTubeError(Exception): pass
 
-def get_real_download_url(url, preferred_fmt_id=None):
-    # Default fmt_id when none preferred
-    if preferred_fmt_id is None:
-        preferred_fmt_id = 18
+def get_real_download_url(url, preferred_fmt_ids):
+
+    if not preferred_fmt_ids:
+        preferred_fmt_ids = formats.get(45, []) # WebM 720p with fallback to MP4 and FLV
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -96,47 +119,30 @@ def get_real_download_url(url, preferred_fmt_id=None):
                 raise YouTubeError('Cannot download video: %s' % error_message)
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
-        # Default to the highest fmt_id if we don't find a match below
-        if fmt_id_url_map:
-            default_fmt_id, default_url = fmt_id_url_map[0]
-        else:
+
+        if not fmt_id_url_map:
             raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
+
+        # Default to the highest fmt_id if we don't find a match below
+        fmt_id = fmt_id_url_map[0][0]
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        if gpodder.ui.harmattan:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
-            if preferred_fmt_id == 5:
-                fmt_id = 5
-            else:
-                fmt_id = 18
-        else:
-            # As a fallback, use fmt_id 18 (seems to be always available)
-            fmt_id = 18
+        if gpodder.ui.harmattan and preferred_fmt_ids != [5]:
+            preferred_fmt_ids = [18]
 
-            # This will be set to True if the search below has already "seen"
-            # our preferred format, but has not yet found a suitable available
-            # format for the given video.
-            seen_preferred = False
-
-            for id, wanted, description in supported_formats:
-                # If we see our preferred format, accept formats below
-                if id == preferred_fmt_id:
-                    seen_preferred = True
-
-                # If the format is available and preferred (or lower),
-                # use the given format for our fmt_id
-                if id in formats_available and seen_preferred:
+        for id in preferred_fmt_ids:
+            id = int(id);
+            if (id in supported_formats and id in formats_available):
                     logger.info('Found YouTube format: %s (fmt_id=%d)',
-                            description, id)
+                        formats.get(id, ([id], '', 'Custom'))[2], id)
                     fmt_id = id
                     break
 
         url = fmt_id_url_map.get(fmt_id, None)
-        if url is None:
-            url = default_url
 
     return url
 

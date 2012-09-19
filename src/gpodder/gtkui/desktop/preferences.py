@@ -31,6 +31,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder import util
+from gpodder import youtube
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
@@ -136,6 +137,29 @@ class gPodderFlattrSignIn(BuilderWidget):
     def on_btn_close_clicked(self, widget):
         util.idle_add(self.main_window.destroy)
 
+class VideoFormatList(gtk.ListStore):
+    C_CAPTION, C_ID = range(2)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, int)
+        self._config = config
+
+        if self._config.youtube.preferred_fmt_ids:
+		    self.append((_('Custom (%s)' % ', '.join(self.custom_format_ids)), -1))
+        else:
+            for id in youtube.formats:
+                self.append((youtube.formats[id][2], id))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.youtube.preferred_fmt_id == row[self.C_ID]:
+                return index
+        return 0
+
+    def set_index(self, index):
+        value = self[index][self.C_ID]
+        if value > 0:
+            self._config.youtube.preferred_fmt_id = value
 
 class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION = range(3)
@@ -160,6 +184,13 @@ class gPodderPreferences(BuilderWidget):
         self.combo_video_player_app.set_model(self.video_player_model)
         index = self.video_player_model.get_index(self._config.videoplayer)
         self.combo_video_player_app.set_active(index)
+
+        self.preferred_video_format_model = VideoFormatList(self._config)
+        self.combobox_preferred_video_format.set_model(self.preferred_video_format_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_preferred_video_format.pack_start(cellrenderer, True)
+        self.combobox_preferred_video_format.add_attribute(cellrenderer, 'text', self.preferred_video_format_model.C_CAPTION)
+        self.combobox_preferred_video_format.set_active(self.preferred_video_format_model.get_index())
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
@@ -349,6 +380,10 @@ class gPodderPreferences(BuilderWidget):
     def on_combo_video_player_app_changed(self, widget):
         index = self.combo_video_player_app.get_active()
         self._config.videoplayer = self.video_player_model.get_command(index)
+
+    def on_combobox_preferred_video_format_changed(self, widget):
+        index = self.combobox_preferred_video_format.get_active()
+        self.preferred_video_format_model.set_index(index)
 
     def on_button_audio_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure audio player'), \
