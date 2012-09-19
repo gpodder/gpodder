@@ -52,7 +52,7 @@
                   <object class="GtkTable" id="table_players">
                     <property name="column_spacing">6</property>
                     <property name="n_columns">3</property>
-                    <property name="n_rows">2</property>
+                    <property name="n_rows">3</property>
                     <property name="row_spacing">6</property>
                     <property name="visible">True</property>
                     <child>
@@ -133,6 +133,32 @@
                         <property name="right_attach">3</property>
                         <property name="top_attach">1</property>
                         <property name="x_options">fill</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_preferred_video_format">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Preferred video format:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">fill</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="combobox_preferred_video_format">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <signal name="changed" handler="on_combobox_preferred_video_format_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
                       </packing>
                     </child>
                   </object>
