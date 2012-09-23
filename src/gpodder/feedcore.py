@@ -269,7 +269,7 @@ class Fetcher(object):
             self._check_wifi_login_page(feed)
 
             if feed.status != 304 and not feed.version and autodiscovery:
-                self._autodiscover_feed(feed)
+                feed = self._autodiscover_feed(feed)
 
             self._check_valid_feed(feed)
 
