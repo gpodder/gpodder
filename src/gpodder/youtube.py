@@ -54,7 +54,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
-        url = 'http://www.youtube.com/get_video_info?&video_id=' + vid
+        url = 'http://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
 
         while page is None:
             req = util.http_request(url, method='GET')
@@ -72,6 +72,10 @@ def get_real_download_url(url, preferred_fmt_id=18):
                 for fmt_url_encoded in fmt_url_map.split(','):
                     video_info = parse_qs(fmt_url_encoded)
                     yield int(video_info['itag'][0]), video_info['url'][0]
+            else:
+                error_info = parse_qs(page)
+                error_message = util.remove_html_tags(error_info['reason'][0])
+                raise YouTubeError('Cannot download video: %s' % error_message)
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
         # Default to the highest fmt_id if we don't find a match below
