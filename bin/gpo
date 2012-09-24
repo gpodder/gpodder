@@ -78,6 +78,8 @@ if os.path.exists(src_dir) and os.path.exists(data_dir) and \
 import gpodder
 _ = gpodder.gettext
 
+from gpodder import util
+
 # Use only the gPodder API here, so this serves both as an example
 # and as a motivation to provide all functionality in the API :)
 from gpodder import api
@@ -99,7 +101,7 @@ class gPodderCli(object):
         self._current_action = ''
 
     def _start_action(self, msg, *args):
-        line = msg % args
+        line = util.convert_bytes(msg % args)
         if len(line) > self.COLUMNS-7:
             line = line[:self.COLUMNS-7-3] + '...'
         else:

@@ -1222,6 +1222,35 @@ def open_website(url):
     else:
         threading.Thread(target=webbrowser.open, args=(url,)).start()
 
+def convert_bytes(d):
+    """
+    Convert byte strings to unicode strings
+
+    This function will decode byte strings into unicode
+    strings. Any other data types will be left alone.
+
+    >>> convert_bytes(None)
+    >>> convert_bytes(1)
+    1
+    >>> convert_bytes(4711L)
+    4711L
+    >>> convert_bytes(True)
+    True
+    >>> convert_bytes(3.1415)
+    3.1415
+    >>> convert_bytes('Hello')
+    u'Hello'
+    >>> convert_bytes(u'Hey')
+    u'Hey'
+    """
+    if d is None:
+        return d
+    if any(isinstance(d, t) for t in (int, long, bool, float)):
+        return d
+    elif not isinstance(d, unicode):
+        return d.decode('utf-8', 'ignore')
+    return d
+
 def sanitize_encoding(filename):
     r"""
     Generate a sanitized version of a string (i.e.
