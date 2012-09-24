@@ -85,7 +85,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.fremantle or gpodder.ui.harmattan:
+    elif gpodder.ui.harmattan:
         encoding = 'utf-8'
     elif gpodder.win32:
         # To quote http://docs.python.org/howto/unicode.html:
@@ -807,34 +807,37 @@ def get_first_line( s):
     return s.strip().split('\n')[0].strip()
 
 
-def object_string_formatter( s, **kwargs):
+def object_string_formatter(s, **kwargs):
     """
-    Makes attributes of object passed in as keyword 
-    arguments available as {OBJECTNAME.ATTRNAME} in 
-    the passed-in string and returns a string with 
-    the above arguments replaced with the attribute 
+    Makes attributes of object passed in as keyword
+    arguments available as {OBJECTNAME.ATTRNAME} in
+    the passed-in string and returns a string with
+    the above arguments replaced with the attribute
     values of the corresponding object.
 
-    Example:
+    >>> class x: pass
+    >>> a = x()
+    >>> a.title = 'Hello world'
+    >>> object_string_formatter('{episode.title}', episode=a)
+    'Hello world'
 
-    e = Episode()
-    e.title = 'Hello'
-    s = '{episode.title} World'
-    
-    print object_string_formatter( s, episode = e)
-          => 'Hello World'
+    >>> class x: pass
+    >>> a = x()
+    >>> a.published = 123
+    >>> object_string_formatter('Hi {episode.published} 456', episode=a)
+    'Hi 123 456'
     """
     result = s
-    for ( key, o ) in kwargs.items():
-        matches = re.findall( r'\{%s\.([^\}]+)\}' % key, s)
+    for key, o in kwargs.iteritems():
+        matches = re.findall(r'\{%s\.([^\}]+)\}' % key, s)
         for attr in matches:
-            if hasattr( o, attr):
+            if hasattr(o, attr):
                 try:
-                    from_s = '{%s.%s}' % ( key, attr )
-                    to_s = getattr( o, attr)
-                    result = result.replace( from_s, to_s)
+                    from_s = '{%s.%s}' % (key, attr)
+                    to_s = str(getattr(o, attr))
+                    result = result.replace(from_s, to_s)
                 except:
-                    logger.warn('Could not replace attribute "%s" in string "%s".', attr, s)
+                    logger.warn('Replace of "%s" failed for "%s".', attr, s)
 
     return result
 
@@ -1225,7 +1228,6 @@ def gui_open(filename):
     systems with a few exceptions:
 
        on Win32, os.startfile() is used
-       on Maemo, osso is used to communicate with Nokia Media Player
     """
     try:
         if gpodder.win32:
@@ -1246,15 +1248,7 @@ def open_website(url):
     browser. This uses Python's "webbrowser" module, so
     make sure your system is set up correctly.
     """
-    if gpodder.ui.fremantle:
-        import osso
-        context = osso.Context('gPodder', gpodder.__version__, False)
-        rpc = osso.Rpc(context)
-        rpc.rpc_run_with_defaults('osso_browser', \
-                                  'open_new_window', \
-                                  (url,))
-    else:
-        run_in_background(lambda: webbrowser.open(url))
+    run_in_background(lambda: webbrowser.open(url))
 
 def convert_bytes(d):
     """
@@ -1485,7 +1479,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.fremantle or gpodder.ui.harmattan:
+    if gpodder.ui.harmattan:
         return 'mobile'
     elif glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop
@@ -1632,4 +1626,17 @@ def run_in_background(function, daemon=False):
     thread.setDaemon(daemon)
     thread.start()
     return thread
+
+
+def website_reachable(url='http://www.google.com'):
+    """
+    Check if a specific website is available.
+    """  
+    try:
+        response = urllib2.urlopen(url, timeout=1)
+        return (True, response)
+    except urllib2.URLError as err:
+        pass
+        
+    return (False, None)
 

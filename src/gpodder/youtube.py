@@ -36,6 +36,13 @@ except ImportError:
 import re
 import urllib
 
+try:
+    # Python >= 2.6
+    from urlparse import parse_qs
+except ImportError:
+    # Python < 2.6
+    from cgi import parse_qs
+
 # See http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # Currently missing: 3GP profile
 supported_formats = [
@@ -62,14 +69,10 @@ def get_real_download_url(url, preferred_fmt_id=None):
     if preferred_fmt_id is None:
         preferred_fmt_id = 18
 
-    # For Maemo 5, we force fmt_id 5 for performance reasons
-    if gpodder.ui.fremantle:
-        preferred_fmt_id = 5
-
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
-        url = 'http://www.youtube.com/watch?v=' + vid
+        url = 'http://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
 
         while page is None:
             req = util.http_request(url, method='GET')
@@ -81,14 +84,16 @@ def get_real_download_url(url, preferred_fmt_id=None):
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
         def find_urls(page):
-            r4 = re.search('.*"url_encoded_fmt_stream_map"\:\s+"([^"]+)".*', page)
+            r4 = re.search('.*&url_encoded_fmt_stream_map=([^&]+)&.*', page)
             if r4 is not None:
-                fmt_url_map = r4.group(1)
+                fmt_url_map = urllib.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
-                    video_info = dict(map(urllib.unquote, x.split('=', 1))
-                            for x in fmt_url_encoded.split('\\u0026'))
-
-                    yield int(video_info['itag']), video_info['url']
+                    video_info = parse_qs(fmt_url_encoded)
+                    yield int(video_info['itag'][0]), video_info['url'][0]
+            else:
+                error_info = parse_qs(page)
+                error_message = util.remove_html_tags(error_info['reason'][0])
+                raise YouTubeError('Cannot download video: %s' % error_message)
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
         # Default to the highest fmt_id if we don't find a match below
@@ -100,7 +105,7 @@ def get_real_download_url(url, preferred_fmt_id=None):
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        if gpodder.ui.fremantle or gpodder.ui.harmattan:
+        if gpodder.ui.harmattan:
             # This provides good quality video, seems to be always available
             # and is playable fluently in Media Player
             if preferred_fmt_id == 5:

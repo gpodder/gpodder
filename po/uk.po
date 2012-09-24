@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 0.9.2+svn20070611\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-25 11:19+0200\n"
+"POT-Creation-Date: 2012-08-16 09:53+0200\n"
 "PO-Revision-Date: 2010-03-16 21:25+0300\n"
 "Last-Translator: Boryslav Larin <brabadu@gmail.com>\n"
 "Language-Team: Украинский <brabadu@gmail.com>\n"
@@ -122,15 +122,15 @@ msgstr "Опис відсутній"
 msgid "unknown"
 msgstr "невідомий"
 
-#: src/gpodder/model.py:818 src/gpodder/model.py:1251
+#: src/gpodder/model.py:818 src/gpodder/model.py:1252
 msgid "Other"
 msgstr "Інше"
 
-#: src/gpodder/model.py:1234 src/gpodder/model.py:1249
+#: src/gpodder/model.py:1235 src/gpodder/model.py:1250
 msgid "Video"
 msgstr ""
 
-#: src/gpodder/model.py:1247
+#: src/gpodder/model.py:1248
 msgid "Audio"
 msgstr ""
 
@@ -250,7 +250,7 @@ msgstr "Вчора"
 msgid "(unknown)"
 msgstr "(невідомо)"
 
-#: src/gpodder/util.py:1187 src/gpodder/util.py:1206
+#: src/gpodder/util.py:1190 src/gpodder/util.py:1209
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
@@ -258,7 +258,7 @@ msgstr[0] "%(count)d секунда"
 msgstr[1] "%(count)d секунди"
 msgstr[2] "%(count)d секунд"
 
-#: src/gpodder/util.py:1200
+#: src/gpodder/util.py:1203
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
@@ -266,7 +266,7 @@ msgstr[0] "%(count)d година"
 msgstr[1] "%(count)d години"
 msgstr[2] "%(count)d годин"
 
-#: src/gpodder/util.py:1203
+#: src/gpodder/util.py:1206
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
@@ -274,7 +274,7 @@ msgstr[0] "%(count)d хвилина"
 msgstr[1] "%(count)d хвилини"
 msgstr[2] "%(count)d хвилин\t"
 
-#: src/gpodder/util.py:1209
+#: src/gpodder/util.py:1212
 msgid "and"
 msgstr "та"
 
@@ -312,8 +312,7 @@ msgstr ""
 msgid "Flattred"
 msgstr ""
 
-#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-#: share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
+#: src/gpodder/gtkui/flattr.py:54 share/gpodder/ui/gtk/gpoddershownotes.ui.h:2
 msgid "Flattr this"
 msgstr ""
 
@@ -538,7 +537,7 @@ msgstr "Почати завантаження"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
 #: share/gpodder/ui/gtk/gpodder.ui.h:20
 #: share/gpodder/ui/qml/EpisodeActions.qml:18
-#: share/gpodder/ui/qml/main_default.qml:175
+#: share/gpodder/ui/qml/main_default.qml:176
 msgid "Download"
 msgstr "Завантажити"
 
@@ -616,7 +615,6 @@ msgid "New"
 msgstr "Новий"
 
 #: src/gpodder/gtkui/main.py:1914 src/gpodder/gtkui/interface/shownotes.py:103
-#: src/gpodder/gtkui/desktop/channel.py:194
 msgid "Flattr status"
 msgstr ""
 
@@ -824,7 +822,7 @@ msgid "Select the episodes you want to delete:"
 msgstr "Оберіть епізоди, які ви хочете видалити:"
 
 #: src/gpodder/gtkui/main.py:2687 share/gpodder/ui/gtk/gpodder.ui.h:4
-#: share/gpodder/ui/qml/main_default.qml:187
+#: share/gpodder/ui/qml/main_default.qml:188
 msgid "Delete episodes"
 msgstr "Видалити епізоди"
 
@@ -1007,7 +1005,7 @@ msgstr "опубліковано: %s"
 msgid "Download the latest version from gpodder.org?"
 msgstr "Завантажити підписки з my.gpodder.org"
 
-#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:147
+#: src/gpodder/gtkui/main.py:3181 share/gpodder/ui/qml/main_default.qml:148
 #, fuzzy
 msgid "About gPodder"
 msgstr "Вийти з gPodder"
@@ -1153,7 +1151,7 @@ msgid "Clipboard is empty"
 msgstr "Буфер обміну пустий"
 
 #: src/gpodder/gtkui/interface/common.py:188
-#: share/gpodder/ui/qml/main_default.qml:451
+#: share/gpodder/ui/qml/main_default.qml:452
 msgid "Username"
 msgstr "Ім'я користувача:"
 
@@ -1170,7 +1168,7 @@ msgid "Authentication required"
 msgstr "Необхідна аутентифікація"
 
 #: src/gpodder/gtkui/interface/common.py:231
-#: share/gpodder/ui/qml/main_default.qml:456
+#: share/gpodder/ui/qml/main_default.qml:457
 msgid "Password"
 msgstr "Пароль"
 
@@ -1197,20 +1195,30 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Помилка зміни налаштувань"
 
-#: src/gpodder/gtkui/desktop/channel.py:101
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "Add section"
+msgstr "Дія"
+
+#: src/gpodder/gtkui/desktop/channel.py:84
+#, fuzzy
+msgid "New section:"
+msgstr "Нова назва:"
+
+#: src/gpodder/gtkui/desktop/channel.py:117
 msgid "Select new podcast cover artwork"
 msgstr "Оберіть обкладинку для нового подкасту"
 
-#: src/gpodder/gtkui/desktop/channel.py:126
+#: src/gpodder/gtkui/desktop/channel.py:142
 msgid "You can only drop a single image or URL here."
 msgstr "Ви можете кинути сюди лише один файл чи одне посилання."
 
-#: src/gpodder/gtkui/desktop/channel.py:126
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:142
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "Drag and drop"
 msgstr "Перетягніть та киньте"
 
-#: src/gpodder/gtkui/desktop/channel.py:136
+#: src/gpodder/gtkui/desktop/channel.py:152
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Ви можете кидати сюди файли з вашого комп'ютера та http:// посилання."
 
@@ -1317,7 +1325,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:263
 #: share/gpodder/ui/gtk/gpodderflattrsignin.ui.h:1
-#: share/gpodder/ui/qml/main_default.qml:417
+#: share/gpodder/ui/qml/main_default.qml:418
 msgid "Sign in to Flattr"
 msgstr ""
 
@@ -1327,7 +1335,7 @@ msgid "Logged in as <b>%(username)s</b>"
 msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:267
-#: share/gpodder/ui/qml/main_default.qml:415
+#: share/gpodder/ui/qml/main_default.qml:416
 msgid "Sign out"
 msgstr ""
 
@@ -1476,7 +1484,7 @@ msgstr "Не можу видалити подкаст."
 #: src/gpodder/qmlui/__init__.py:271 src/gpodder/qmlui/__init__.py:629
 #: src/gpodder/qmlui/__init__.py:654 share/gpodder/ui/gtk/gpodder.ui.h:22
 #: share/gpodder/ui/qml/EpisodeActions.qml:42
-#: share/gpodder/ui/qml/main_default.qml:189 share/gpodder/ui/qml/Main.qml:549
+#: share/gpodder/ui/qml/main_default.qml:190 share/gpodder/ui/qml/Main.qml:549
 msgid "Delete"
 msgstr "Видалити"
 
@@ -1626,6 +1634,14 @@ msgstr "Конвертор iPod OGG"
 msgid "Conversion failed"
 msgstr "один файл"
 
+#: share/gpodder/extensions/minimize_on_start.py:10
+msgid "Minimize on start"
+msgstr ""
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimizes the gPodder window on startup."
+msgstr ""
+
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
 msgstr ""
@@ -1679,6 +1695,14 @@ msgstr ""
 #, fuzzy
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "Показувати \"Всі епіозди\" у списку подкастів"
+
+#: share/gpodder/extensions/ted_subtitles.py:16
+msgid "Subtitle Downloader for TED Talks"
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr ""
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:10
 msgid "Ubuntu App Indicator"
@@ -1763,11 +1787,6 @@ msgid "website label"
 msgstr "мітка веб-сайту"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-#, fuzzy
-msgid "<b>Flattr</b>"
-msgstr "<b>Очистка</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "Advanced"
 msgstr "Детальніше"
 
@@ -1847,7 +1866,7 @@ msgid "Device name:"
 msgstr "Назва пристрою:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-#: share/gpodder/ui/qml/main_default.qml:442
+#: share/gpodder/ui/qml/main_default.qml:443
 msgid "gpodder.net"
 msgstr "gpodder.net"
 
@@ -1958,7 +1977,7 @@ msgstr "_Епізоди"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:18
 #: share/gpodder/ui/qml/EpisodeActions.qml:34
-#: share/gpodder/ui/qml/main_default.qml:182
+#: share/gpodder/ui/qml/main_default.qml:183
 msgid "Play"
 msgstr "Слухати"
 
@@ -2101,87 +2120,87 @@ msgstr ""
 msgid "Show episodes"
 msgstr "Показати список епізодів"
 
-#: share/gpodder/ui/qml/main_default.qml:135
-#: share/gpodder/ui/qml/main_default.qml:162
+#: share/gpodder/ui/qml/main_default.qml:136
+#: share/gpodder/ui/qml/main_default.qml:163
 msgid "Now playing"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:139
+#: share/gpodder/ui/qml/main_default.qml:140
 msgid "Settings"
 msgstr "Параметри"
 
-#: share/gpodder/ui/qml/main_default.qml:168
+#: share/gpodder/ui/qml/main_default.qml:169
 #, fuzzy
 msgid "Playlist empty"
 msgstr "Назва списку епізодів:"
 
-#: share/gpodder/ui/qml/main_default.qml:173
+#: share/gpodder/ui/qml/main_default.qml:174
 #, fuzzy
 msgid "Download episodes"
 msgstr "Завантажені епізоди"
 
-#: share/gpodder/ui/qml/main_default.qml:180
+#: share/gpodder/ui/qml/main_default.qml:181
 #, fuzzy
 msgid "Playback episodes"
 msgstr "Прослухати епізод"
 
-#: share/gpodder/ui/qml/main_default.qml:254
+#: share/gpodder/ui/qml/main_default.qml:255
 msgid "About"
 msgstr "Про програму"
 
-#: share/gpodder/ui/qml/main_default.qml:279
+#: share/gpodder/ui/qml/main_default.qml:280
 msgid "Thanks"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:289
+#: share/gpodder/ui/qml/main_default.qml:290
 msgid "Credits"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:386
+#: share/gpodder/ui/qml/main_default.qml:387
 #, fuzzy
 msgid "gPodder settings"
 msgstr "Налаштування my.gPodder.org"
 
-#: share/gpodder/ui/qml/main_default.qml:390
+#: share/gpodder/ui/qml/main_default.qml:391
 #, fuzzy
 msgid "Screen orientation"
 msgstr "Орієнтація екрану"
 
-#: share/gpodder/ui/qml/main_default.qml:394
+#: share/gpodder/ui/qml/main_default.qml:395
 #, fuzzy
 msgid "Automatic rotation"
 msgstr "Автоматичне очищення"
 
-#: share/gpodder/ui/qml/main_default.qml:400
+#: share/gpodder/ui/qml/main_default.qml:401
 msgid "Media indexing"
 msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:404
+#: share/gpodder/ui/qml/main_default.qml:405
 #, fuzzy
 msgid "Show podcasts in Music app"
 msgstr "Немає відповідних подкастів"
 
-#: share/gpodder/ui/qml/main_default.qml:436
+#: share/gpodder/ui/qml/main_default.qml:437
 #, fuzzy
 msgid "Auto-Flattr on playback"
 msgstr "Продовжити відтворення"
 
-#: share/gpodder/ui/qml/main_default.qml:446
+#: share/gpodder/ui/qml/main_default.qml:447
 #, fuzzy
 msgid "Enable synchronization"
 msgstr "Після синхронізації:"
 
-#: share/gpodder/ui/qml/main_default.qml:461
+#: share/gpodder/ui/qml/main_default.qml:462
 #, fuzzy
 msgid "Device name"
 msgstr "Назва пристрою:"
 
-#: share/gpodder/ui/qml/main_default.qml:467
+#: share/gpodder/ui/qml/main_default.qml:468
 #, fuzzy
 msgid "Replace list on server"
 msgstr "Замінити список завантаження на сервері"
 
-#: share/gpodder/ui/qml/main_default.qml:479
+#: share/gpodder/ui/qml/main_default.qml:480
 msgid "No account? Register here"
 msgstr ""
 
@@ -2420,6 +2439,10 @@ msgstr "Список подкастів"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr ""
+
+#, fuzzy
+#~ msgid "<b>Flattr</b>"
+#~ msgstr "<b>Очистка</b>"
 
 #~ msgid "Downloads"
 #~ msgstr "Завантаження"

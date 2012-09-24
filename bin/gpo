@@ -116,21 +116,21 @@ gpodder.prefix = prefix
 # This is the command-line UI variant
 gpodder.ui.cli = True
 
-# Platform detection (i.e. Maemo 5, etc..)
+# Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
 gpodder.detect_platform()
-
-from gpodder import api
-from gpodder import my
-from gpodder import opml
-from gpodder import util
-from gpodder import log
-from gpodder.config import config_value_to_string
 
 have_ansi = sys.stdout.isatty() and not gpodder.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
+from gpodder import log
 log.setup(verbose)
+
+from gpodder import api
+from gpodder import my
+from gpodder import opml
+from gpodder import util
+from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
     if have_ansi and cli.config.ui.cli.colors:

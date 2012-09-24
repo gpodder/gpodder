@@ -50,6 +50,7 @@ from gpodder import download
 from gpodder import my
 from gpodder import youtube
 from gpodder import player
+from gpodder import common
 
 import logging
 logger = logging.getLogger(__name__)
@@ -227,74 +228,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.message_area = None
 
-        def find_partial_downloads():
-            # Look for partial file downloads
-            partial_files = glob.glob(os.path.join(gpodder.downloads, '*', '*.partial'))
-            count = len(partial_files)
-            resumable_episodes = []
-            if count:
-                util.idle_add(self.wNotebook.set_current_page, 1)
-                indicator = ProgressIndicator(_('Loading incomplete downloads'),
-                        _('Some episodes have not finished downloading in a previous session.'),
-                        False, self.get_dialog_parent())
-                indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
-
-                candidates = [f[:-len('.partial')] for f in partial_files]
-                found = 0
-
-                for c in self.channels:
-                    for e in c.get_all_episodes():
-                        filename = e.local_filename(create=False, check_only=True)
-                        if filename in candidates:
-                            found += 1
-                            indicator.on_message(e.title)
-                            indicator.on_progress(float(found)/count)
-                            candidates.remove(filename)
-                            partial_files.remove(filename+'.partial')
-
-                            if os.path.exists(filename):
-                                # The file has already been downloaded;
-                                # remove the leftover partial file
-                                util.delete_file(filename+'.partial')
-                            else:
-                                resumable_episodes.append(e)
-
-                        if not candidates:
-                            break
-
-                    if not candidates:
-                        break
-
-                for f in partial_files:
-                    logger.warn('Partial file without episode: %s', f)
-                    util.delete_file(f)
-
-                util.idle_add(indicator.on_finished)
-
-                if len(resumable_episodes):
-                    def offer_resuming():
-                        self.download_episode_list_paused(resumable_episodes)
-                        resume_all = gtk.Button(_('Resume all'))
-                        def on_resume_all(button):
-                            selection = self.treeDownloads.get_selection()
-                            selection.select_all()
-                            selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = self.downloads_list_get_selection()
-                            selection.unselect_all()
-                            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
-                            self.message_area.hide()
-                        resume_all.connect('clicked', on_resume_all)
-
-                        self.message_area = SimpleMessageArea(_('Incomplete downloads from a previous session were found.'), (resume_all,))
-                        self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
-                        self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
-                        self.message_area.show_all()
-                        self.clean_up_downloads(delete_partial=False)
-                    util.idle_add(offer_resuming)
-                else:
-                    util.idle_add(self.wNotebook.set_current_page, 0)
-            else:
-                util.idle_add(self.clean_up_downloads, True)
-        util.run_in_background(find_partial_downloads)
+        self.partial_downloads_indicator = None
+        util.run_in_background(self.find_partial_downloads)
 
         # Start the auto-update procedure
         self._auto_update_timer_source_id = None
@@ -320,6 +255,51 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if diff > (60*60*24)*self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
+
+    def find_partial_downloads(self):
+        def start_progress_callback(count):
+            self.partial_downloads_indicator = ProgressIndicator(
+                    _('Loading incomplete downloads'),
+                    _('Some episodes have not finished downloading in a previous session.'),
+                    False, self.get_dialog_parent())
+            self.partial_downloads_indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
+
+            util.idle_add(self.wNotebook.set_current_page, 1)
+
+        def progress_callback(title, progress):
+            self.partial_downloads_indicator.on_message(title)
+            self.partial_downloads_indicator.on_progress(progress)
+
+        def finish_progress_callback(resumable_episodes):
+            util.idle_add(self.partial_downloads_indicator.on_finished)
+            self.partial_downloads_indicator = None
+
+            if resumable_episodes:
+                def offer_resuming():
+                    self.download_episode_list_paused(resumable_episodes)
+                    resume_all = gtk.Button(_('Resume all'))
+                    def on_resume_all(button):
+                        selection = self.treeDownloads.get_selection()
+                        selection.select_all()
+                        selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
+                        selection.unselect_all()
+                        self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+                        self.message_area.hide()
+                    resume_all.connect('clicked', on_resume_all)
+
+                    self.message_area = SimpleMessageArea(_('Incomplete downloads from a previous session were found.'), (resume_all,))
+                    self.vboxDownloadStatusWidgets.pack_start(self.message_area, expand=False)
+                    self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
+                    self.message_area.show_all()
+                    common.clean_up_downloads(delete_partial=False)
+                util.idle_add(offer_resuming)
+            else:
+                util.idle_add(self.wNotebook.set_current_page, 0)
+
+        common.find_partial_downloads(self.channels,
+                start_progress_callback,
+                progress_callback,
+                finish_progress_callback)
 
     def episode_object_by_uri(self, uri):
         """Get an episode object given a local or remote URI
@@ -1833,17 +1813,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(set(e.channel.url for e in episodes))
         self.db.commit()
 
-    def clean_up_downloads(self, delete_partial=False):
-        # Clean up temporary files left behind by old gPodder versions
-        temporary_files = glob.glob('%s/*/.tmp-*' % gpodder.downloads)
-
-        if delete_partial:
-            temporary_files += glob.glob('%s/*/*.partial' % gpodder.downloads)
-
-        for tempfile in temporary_files:
-            util.delete_file(tempfile)
-
-
     def streaming_possible(self):
         # User has to have a media player set on the Desktop, or else we
         # would probably open the browser when giving a URL to xdg-open..
@@ -1876,7 +1845,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if resume_position == episode.total_time:
                 resume_position = 0
 
-            # If Panucci is configured, use D-Bus on Maemo to call it
+            # If Panucci is configured, use D-Bus to call it
             if player == 'panucci':
                 try:
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
@@ -1918,22 +1887,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Open episodes with system default player
         if 'default' in groups:
-            # Special-casing for a single episode when the object is a PDF
-            # file - this is needed on Maemo 5, so we only use gui_open()
-            # for single PDF files, but still use the built-in media player
-            # with an M3U file for single audio/video files. (The Maemo 5
-            # media player behaves differently when opening a single-file
-            # M3U playlist compared to opening the single file directly.)
-            if len(groups['default']) == 1:
-                fn = groups['default'][0]
-                # The list of extensions is taken from gui_open in util.py
-                # where all special-cases of Maemo apps are listed
-                for extension in ('.pdf', '.jpg', '.jpeg', '.png'):
-                    if fn.lower().endswith(extension):
-                        util.gui_open(fn)
-                        groups['default'] = []
-                        break
-
             for filename in groups['default']:
                 logger.debug('Opening with system default: %s', filename)
                 util.gui_open(filename)
@@ -3064,7 +3017,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 channel.delete()
 
             # Clean up downloads and download directories
-            self.clean_up_downloads()
+            common.clean_up_downloads()
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)

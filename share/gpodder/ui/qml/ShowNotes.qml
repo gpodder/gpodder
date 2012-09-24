@@ -31,7 +31,17 @@ Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             wrapMode: Text.Wrap
-            text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3>\n\n'+episode.qdescription):'No episode selected'
+            text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3><small>'+formatSubtitle()+'</small><p>'+episode.qdescription+'</p>'):'No episode selected'
+
+            function formatSubtitle() {
+                var pubdate = episode.qpubdate;
+                var filesize = episode.qfilesize;
+                if (filesize !== '') {
+                    return pubdate + ' | ' + filesize;
+                } else {
+                    return pubdate;
+                }
+            }
         }
     }
 

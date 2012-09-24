@@ -20,9 +20,9 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.2.0'
-__date__      = '2012-07-25'
-__relname__   = 'The Great Radish Famine'
+__version__   = '3.3.0'
+__date__      = '2012-09-24'
+__relname__   = 'Intermission'
 __copyright__ = '© 2005-2012 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -73,10 +73,9 @@ del sqlite3
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
-# Are we running in GUI, Maemo or console mode?
+# Are we running in GUI, MeeGo 1.2 Harmattan or console mode?
 class UI(object):
     def __init__(self):
-        self.fremantle = False
         self.harmattan = False
         self.gtk = False
         self.qml = False
@@ -154,6 +153,8 @@ database_file = None
 downloads = None
 prefix = None
 
+ENV_HOME, ENV_DOWNLOADS = 'GPODDER_HOME', 'GPODDER_DOWNLOAD_DIR'
+
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
@@ -161,14 +162,21 @@ def set_home(new_home):
 
     config_file = os.path.join(home, 'Settings.json')
     database_file = os.path.join(home, 'Database')
-    downloads = os.path.join(home, 'Downloads')
+    if ENV_DOWNLOADS not in os.environ:
+        downloads = os.path.join(home, 'Downloads')
 
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
-set_home(os.environ.get('GPODDER_HOME', default_home))
+set_home(os.environ.get(ENV_HOME, default_home))
 
 if home != default_home:
     print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
+
+if ENV_DOWNLOADS in os.environ:
+    # Allow to relocate the downloads folder (pull request 4, bug 466)
+    downloads = os.environ[ENV_DOWNLOADS]
+    print >>sys.stderr, 'Storing downloads in %s (%s is set)' % (downloads,
+            ENV_DOWNLOADS)
 
 # Plugins to load by default
 DEFAULT_PLUGINS = [
@@ -202,10 +210,9 @@ def detect_platform():
     except Exception, e:
         etc_issue = ''
 
-    ui.fremantle = ('Maemo 5' in etc_issue)
     ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
 
-    if (ui.fremantle or ui.harmattan) and 'GPODDER_HOME' not in os.environ:
+    if ui.harmattan and ENV_HOME not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
         set_home(os.path.expanduser(new_home))
 

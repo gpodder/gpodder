@@ -32,7 +32,7 @@
 
     - Python 2.6 or newer              http://python.org/
     - "sqlite3" Python module          (usually included with Python)
-    - Feedparser 5.0.1 or newer        http://code.google.com/p/feedparser/
+    - Feedparser 5.1.2 or newer        http://code.google.com/p/feedparser/
     - mygpoclient 1.4 or newer         http://thp.io/2010/mygpoclient/
     - Python D-Bus bindings
 
@@ -94,6 +94,14 @@
 
     - python-minimock
     - python-coverage
+
+ [ TESTING ]
+
+    To run tests, use...
+        make unittest
+
+    To set a specific python binary set PYTHON:
+        PYTHON=python2 make unittest
 
 
  [ RUNNING AND INSTALLATION ]
@@ -159,6 +167,28 @@
 
         export GPODDER_HOME=/media/usbdisk/gpodder-data/
 
+
+ [ CHANGING THE DOWNLOAD DIRECTORY ]
+
+    The run-time environment variable GPODDER_DOWNLOAD_DIR is used to
+    set the location for storing the downloads only (independent of the
+    data directory GPODDER_HOME):
+
+        export GPODDER_DOWNLOAD_DIR=/media/BigDisk/Podcasts/
+
+    In this case, the database and settings will be stored in the default
+    location, with the downloads stored in /media/BigDisk/Podcasts/.
+
+    Another example would be to set both environment variables:
+
+        export GPODDER_HOME=~/.config/gpodder/
+        export GPODDER_DOWNLOAD_DIR=~/Podcasts/
+
+    This will store the database and settings files in ~/.config/gpodder/
+    and the downloads in ~/Podcasts/. If GPODDER_DOWNLOAD_DIR is not set,
+    $GPODDER_HOME/Downloads/ will be used if it is set.
+
+
  [ LOGGING ]
 
     By default, gPodder writes log files to $GPODDER_HOME/Logs/ and removes
@@ -166,6 +196,7 @@
     the environment variable GPODDER_WRITE_LOGS to "no", e.g:
 
         export GPODDER_WRITE_LOGS=no
+
 
  [ EXTENSIONS ]
 
@@ -183,6 +214,32 @@
 
     If you want to report a bug, please try to disable all extensions and
     check if the bug still appears to see if an extension causes the bug.
+
+
+ [ TRANSLATIONS ]
+
+    These instructions are mostly useful for the maintainer, but they are
+    documented here in case you want to update translations yourself:
+
+    To upload a changed translation template:
+
+        make messages       # update translations from source
+        make clean          # remove temporary files after "make messages"
+        tx push --source    # upload po/messages.pot to transifex.net
+
+    To download a translation that has been updated:
+
+        tx pull -l XX -f    # download po/XX.po from transifex.net
+
+    To generate Git commit commands for the translation updates:
+
+        python tools/i18n/generate_commits.py
+
+    The "tx" command is provided by the Transifex client (transifex-client
+    in Debian/Ubuntu) which can be obtained from:
+
+        http://help.transifex.com/features/client/
+
 
 
  [ MORE INFORMATION ]

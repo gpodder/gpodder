@@ -115,6 +115,19 @@ class QEpisode(QObject):
 
     qfiletype = Property(unicode, _filetype, notify=never_changed)
 
+    def _pubdate(self):
+        return self._episode.cute_pubdate()
+
+    qpubdate = Property(unicode, _pubdate, notify=never_changed)
+
+    def _filesize(self):
+        if self._episode.file_size:
+            return util.format_filesize(self._episode.file_size)
+        else:
+            return ''
+
+    qfilesize = Property(unicode, _filesize, notify=changed)
+
     def _downloaded(self):
         return self._episode.was_downloaded(and_exists=True)
 
@@ -327,6 +340,7 @@ class EpisodeSubsetView(QObject):
         self.title = title
         self.description = description
         self.eql = eql
+        self.pause_subscription = False
 
         self._new_count = -1
         self._downloaded_count = -1

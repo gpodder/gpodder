@@ -63,25 +63,17 @@ def get_header_param(headers, param, header_name):
 
     Returns None if the filename cannot be retrieved.
     """
+    value = None
     try:
         headers_string = ['%s:%s'%(k,v) for k,v in headers.items()]
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
-            value = msg.get_param(param, header=header_name)
-            if value is None:
-                return None
-            decoded_list = decode_header(value)
-            value = []
-            for part, encoding in decoded_list:
-                if encoding:
-                    value.append(part.decode(encoding))
-                else:
-                    value.append(unicode(part))
-            return u''.join(value)
+            raw_value = msg.get_param(param, header=header_name)
+            value = email.utils.collapse_rfc2231_value(raw_value)
     except Exception, e:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
-    return None
+    return value
 
 class ContentRange(object):
     # Based on:

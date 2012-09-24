@@ -196,7 +196,7 @@ class Device(services.ObservableService):
 
     def close(self):
         self.notify('status', _('Writing data to disk'))
-        if self._config.device_sync.sync_disks_after_transfer and not gpodder.win32:
+        if self._config.device_sync.after_sync.sync_disks and not gpodder.win32:
             os.system('sync')
         else:
             logger.warning('Not syncing disks. Unmount your device before unplugging.')
@@ -488,7 +488,7 @@ class MP3PlayerDevice(Device):
             download_status_model,
             download_queue_manager):
         Device.__init__(self, config)
-        self.destination = self._config.device_sync.device_folder
+        self.destination = util.sanitize_encoding(self._config.device_sync.device_folder)
         self.buffer_size = 1024*1024 # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager

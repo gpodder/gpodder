@@ -46,6 +46,7 @@ from gpodder import core
 from gpodder import util
 from gpodder import my
 from gpodder import query
+from gpodder import common
 
 from gpodder.model import Model
 
@@ -67,6 +68,8 @@ EPISODE_LIST_FILTERS = [
     (_('Finished'), 'finished'),
     (_('Archived'), 'downloaded and archive'),
     (_('Videos'), 'video'),
+    (_('Partially played'), 'downloaded and played and not finished'),
+    (_('Unplayed downloads'), 'downloaded and not played'),
 ]
 
 
@@ -358,8 +361,7 @@ class Controller(QObject):
         return self.root.view.windowTitle()
 
     def setWindowTitle(self, windowTitle):
-        if gpodder.ui.fremantle:
-            self.root.view.setWindowTitle(windowTitle)
+        self.root.view.setWindowTitle(windowTitle)
 
     windowTitle = Property(unicode, getWindowTitle,
             setWindowTitle, notify=windowTitleChanged)
@@ -492,14 +494,17 @@ class Controller(QObject):
         util.run_in_background(lambda: merge_proc(self))
 
         for podcast in self.root.podcast_model.get_objects():
-            podcast.qupdate(finished_callback=self.update_subset_stats)
+            if not podcast.pause_subscription:
+                podcast.qupdate(finished_callback=self.update_subset_stats)
 
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
         action = self.context_menu_actions[index]
         if action.action == 'update':
-            action.target.qupdate(finished_callback=self.update_subset_stats)
+            podcast = action.target
+            if not podcast.pause_subscription:
+                podcast.qupdate(finished_callback=self.update_subset_stats)
         elif action.action == 'force-update':
             action.target.qupdate(force=True, \
                     finished_callback=self.update_subset_stats)
@@ -551,13 +556,17 @@ class Controller(QObject):
 
             self.start_input_dialog(title_changer(action.target))
 
-    def confirm_action(self, message, affirmative, callback):
-        def confirm(message, affirmative, callback):
+    def confirm_action(self, message, affirmative, callback,
+            negative_callback=None):
+        def confirm(message, affirmative, callback, negative_callback):
             args = (message, '', affirmative, _('Cancel'), False)
             if (yield args):
                 callback()
+            elif negative_callback is not None:
+                negative_callback()
 
-        self.start_input_dialog(confirm(message, affirmative, callback))
+        self.start_input_dialog(confirm(message, affirmative, callback,
+            negative_callback))
 
     def start_input_dialog(self, generator):
         """Carry out an input dialog with the UI
@@ -702,13 +711,7 @@ class Controller(QObject):
 
     @Slot()
     def switcher(self):
-        if gpodder.ui.harmattan:
-            self.root.view.showMinimized()
-        elif gpodder.ui.fremantle:
-            os.system('dbus-send /com/nokia/hildon_desktop '+
-                    'com.nokia.hildon_desktop.exit_app_view')
-        else:
-            self.root.view.showMinimized()
+        self.root.view.showMinimized()
 
 
 class gPodderListModel(QAbstractListModel):
@@ -854,14 +857,6 @@ class qtPodder(QObject):
         # TODO: Expose the same D-Bus API as the Gtk UI D-Bus object (/gui)
         # TODO: Create a gpodder.dbusproxy.DBusPodcastsProxy object (/podcasts)
 
-        # Enable OpenGL rendering without requiring QtOpenGL
-        # On Harmattan we let the system choose the best graphicssystem
-        if '-graphicssystem' not in args and not gpodder.ui.harmattan:
-            if gpodder.ui.fremantle:
-                args += ['-graphicssystem', 'opengl']
-            elif not gpodder.win32:
-                args += ['-graphicssystem', 'raster']
-
         self.app = QApplication(args)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.quit.connect(self.on_quit)
@@ -897,14 +892,6 @@ class qtPodder(QObject):
 
         engine = self.view.engine()
 
-        # Maemo 5: Experimental Qt Mobility packages are installed in /opt
-        if gpodder.ui.fremantle:
-            for path in ('/opt/qtm11/imports', '/opt/qtm12/imports'):
-                engine.addImportPath(path)
-        elif gpodder.win32:
-            for path in (r'C:\QtSDK\Desktop\Qt\4.7.4\msvc2008\imports',):
-                engine.addImportPath(path)
-
         # Add the cover art image provider
         self.cover_provider = images.LocalCachedImageProvider()
         engine.addImageProvider('cover', self.cover_provider)
@@ -930,9 +917,6 @@ class qtPodder(QObject):
 
         if gpodder.ui.harmattan:
             self.view.showFullScreen()
-        elif gpodder.ui.fremantle:
-            self.view.setAttribute(Qt.WA_Maemo5AutoOrientation, True)
-            self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..
             desktop = self.app.desktop()
@@ -948,7 +932,48 @@ class qtPodder(QObject):
         self.do_end_progress.connect(self.on_end_progress)
         self.do_show_message.connect(self.on_show_message)
 
-        self.load_podcasts()
+        podcasts = self.load_podcasts()
+
+        self.resumable_episodes = None
+        self.do_offer_download_resume.connect(self.on_offer_download_resume)
+        util.run_in_background(self.find_partial_downloads(podcasts))
+
+    def find_partial_downloads(self, podcasts):
+        def start_progress_callback(count):
+            self.start_progress(_('Loading incomplete downloads'))
+
+        def progress_callback(title, progress):
+            self.start_progress('%s (%d%%)' % (
+                _('Loading incomplete downloads'),
+                progress*100))
+
+        def finish_progress_callback(resumable_episodes):
+            self.end_progress()
+            self.resumable_episodes = resumable_episodes
+            self.do_offer_download_resume.emit()
+
+        common.find_partial_downloads(podcasts,
+                start_progress_callback,
+                progress_callback,
+                finish_progress_callback)
+
+    do_offer_download_resume = Signal()
+
+    def on_offer_download_resume(self):
+        if self.resumable_episodes:
+            def download_episodes():
+                for episode in self.resumable_episodes:
+                    qepisode = self.wrap_simple_episode(episode)
+                    self.controller.downloadEpisode(qepisode)
+
+            def delete_episodes():
+                logger.debug('Deleting incomplete downloads.')
+                common.clean_up_downloads(delete_partial=True)
+
+            message = _('Incomplete downloads from a previous session were found.')
+            title = _('Resume')
+
+            self.controller.confirm_action(message, title, download_episodes, delete_episodes)
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
@@ -1059,12 +1084,20 @@ class qtPodder(QObject):
     def load_podcasts(self):
         podcasts = map(model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
+        return podcasts
 
     def wrap_episode(self, podcast, episode):
         try:
             return self.active_episode_wrappers[episode.id]
         except KeyError:
             return model.QEpisode(self, podcast, episode)
+
+    def wrap_simple_episode(self, episode):
+        for podcast in self.podcast_model.get_podcasts():
+            if podcast.id == episode.podcast_id:
+                return self.wrap_episode(podcast, episode)
+
+        return None
 
     def select_podcast(self, podcast):
         if isinstance(podcast, model.QPodcast):
@@ -1098,7 +1131,7 @@ class qtPodder(QObject):
         logger.debug('extensions_podcast_update_cb(%s)', podcast)
         try:
             qpodcast = self.podcast_to_qpodcast(podcast)
-            if qpodcast is not None:
+            if qpodcast is not None and not qpodcast.pause_subscription:
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
