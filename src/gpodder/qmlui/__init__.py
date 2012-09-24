@@ -68,6 +68,8 @@ EPISODE_LIST_FILTERS = [
     (_('Finished'), 'finished'),
     (_('Archived'), 'downloaded and archive'),
     (_('Videos'), 'video'),
+    (_('Partially played'), 'downloaded and played and not finished'),
+    (_('Unplayed downloads'), 'downloaded and not played'),
 ]
 
 
