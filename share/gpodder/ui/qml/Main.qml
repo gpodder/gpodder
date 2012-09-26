@@ -35,7 +35,9 @@ Image {
     }
 
     function goBack() {
-        if (contextMenu.state == 'opened') {
+        if (nowPlayingThrobber.opened) {
+            clickPlayButton()
+        } else if (contextMenu.state == 'opened') {
             contextMenu.state = 'closed'
         } else if (main.state == 'podcasts') {
             mediaPlayer.stop()
