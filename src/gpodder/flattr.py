@@ -179,7 +179,8 @@ class Flattr(object):
         if not self._config.token:
             return (0, False)
 
-        url = self.THING_INFO_URL_TEMPLATE % {'url': urllib.quote_plus(payment_url)}
+        quote_url = urllib.quote_plus(util.sanitize_encoding(payment_url))
+        url = self.THING_INFO_URL_TEMPLATE % {'url': quote_url}
         data = self.request(url)
         return (int(data.get('flattrs', 0)), bool(data.get('flattred', False)))
 
