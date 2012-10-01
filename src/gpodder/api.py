@@ -271,10 +271,7 @@ class PodcastClient(object):
         WARNING: API subject to change.
         """
 
-        fmt_ids = youtube.formats.get(self._config.youtube_preferred_fmt_id, ([]))[0] \
-            if not self._config.youtube_preferred_fmt_ids \
-            else self._config.youtube_preferred_fmt_ids
-
+        fmt_ids = youtube.get_fmt_ids(self._config.youtube)
         yurl = youtube.get_real_download_url(url, fmt_ids)
 
         return yurl

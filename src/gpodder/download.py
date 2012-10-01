@@ -746,12 +746,8 @@ class DownloadTask(object):
         self._notification_shown = False
 
         try:
-
-            fmt_ids = youtube.formats.get(self._config.youtube_preferred_fmt_id, ([]))[0] \
-                if not self._config.youtube_preferred_fmt_ids \
-                else self._config.youtube_preferred_fmt_ids
-
             # Resolve URL and start downloading the episode
+            fmt_ids = youtube.get_fmt_ids(self._config.youtube)
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url)
 

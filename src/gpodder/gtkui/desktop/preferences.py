@@ -145,10 +145,14 @@ class VideoFormatList(gtk.ListStore):
         self._config = config
 
         if self._config.youtube.preferred_fmt_ids:
-		    self.append((_('Custom (%s)' % ', '.join(self.custom_format_ids)), -1))
+            caption = _('Custom (%(format_ids)s)') % {
+                    'format_ids': ', '.join(self.custom_format_ids),
+            }
+            self.append((caption, -1))
         else:
             for id in youtube.formats:
-                self.append((youtube.formats[id][2], id))
+                fmt_ids, path, description = youtube.formats[id]
+                self.append((description, id))
 
     def get_index(self):
         for index, row in enumerate(self):

@@ -177,8 +177,8 @@ defaults = {
     },
 
     'youtube': {
-        'preferred_fmt_id': 18,
-        'preferred_fmt_ids': [],
+        'preferred_fmt_id': 18, # default fmt_id (see fallbacks in youtube.py)
+        'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
     },
 
     'extensions': {
@@ -213,8 +213,6 @@ gPodderSettings_LegacySupport = {
     'episode_list_view_mode': 'ui.gtk.episode_list.view_mode',
     'podcast_list_view_mode': 'ui.gtk.podcast_list.view_mode',
     'podcast_list_hide_boring': 'ui.gtk.podcast_list.hide_empty',
-    'youtube_preferred_fmt_id': 'youtube.preferred_fmt_id',
-    'youtube_preferred_fmt_ids': 'youtube.preferred_fmt_ids',
     'episode_list_columns': 'ui.gtk.episode_list.columns',
     'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
     'auto_update_feeds': 'auto.update.enabled',
