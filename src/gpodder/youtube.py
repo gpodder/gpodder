@@ -45,15 +45,6 @@ except ImportError:
     from cgi import parse_qs
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
-supported_formats = [
-    102, 101, 100,   # 3D WebM
-    85, 84, 83, 82,  # 3D MP4
-    46, 45, 44, 43,  # WebM
-    38, 37, 22, 18,  # MP4
-    13, 36, 17,      # 3GP
-    35, 34, 6, 5     # FLV
-]
-
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
 formats = OrderedDict([
     # WebM VP8 video, Vorbis audio
@@ -87,10 +78,21 @@ formats = OrderedDict([
 
 class YouTubeError(Exception): pass
 
-def get_real_download_url(url, preferred_fmt_ids):
 
+def get_fmt_ids(youtube_config):
+    fmt_ids = youtube_config.preferred_fmt_ids
+    if not fmt_ids:
+        format = formats.get(youtube_config.preferred_fmt_id)
+        if format is None:
+            fmt_ids = []
+        else:
+            fmt_ids, path, description = format
+
+    return fmt_ids
+
+def get_real_download_url(url, preferred_fmt_ids):
     if not preferred_fmt_ids:
-        preferred_fmt_ids = formats.get(45, []) # WebM 720p with fallback to MP4 and FLV
+        preferred_fmt_ids, _, _ = formats[22] # MP4 720p
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -124,25 +126,29 @@ def get_real_download_url(url, preferred_fmt_ids):
             raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
 
         # Default to the highest fmt_id if we don't find a match below
-        fmt_id = fmt_id_url_map[0][0]
+        _, url  = fmt_id_url_map[0]
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-            # This provides good quality video, seems to be always available
-            # and is playable fluently in Media Player
-        if gpodder.ui.harmattan and preferred_fmt_ids != [5]:
+        # This provides good quality video, seems to be always available
+        # and is playable fluently in Media Player
+        if gpodder.ui.harmattan:
             preferred_fmt_ids = [18]
 
         for id in preferred_fmt_ids:
-            id = int(id);
-            if (id in supported_formats and id in formats_available):
-                    logger.info('Found YouTube format: %s (fmt_id=%d)',
-                        formats.get(id, ([id], '', 'Custom'))[2], id)
-                    fmt_id = id
-                    break
+            id = int(id)
+            if id in formats_available:
+                format = formats.get(id)
+                if format is not None:
+                    _, _, description = format
+                else:
+                    description = 'Unknown'
 
-        url = fmt_id_url_map.get(fmt_id, None)
+                logger.info('Found YouTube format: %s (fmt_id=%d)',
+                        description, id)
+                url = fmt_id_url_map[id]
+                break
 
     return url
 

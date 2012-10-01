@@ -1835,9 +1835,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.playback_mark()
             self.mygpo_client.on_playback([episode])
 
-            fmt_ids = youtube.formats.get(self.config.youtube_preferred_fmt_id, ([]))[0] \
-                if not self.config.youtube_preferred_fmt_ids \
-                else self.config.youtube_preferred_fmt_ids
+            fmt_ids = youtube.get_fmt_ids(self.config.youtube)
 
             allow_partial = (player != 'default')
             filename = episode.get_playback_url(fmt_ids, allow_partial)
