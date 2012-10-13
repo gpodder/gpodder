@@ -50,6 +50,19 @@ class gPodderChannel(BuilderWidget):
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
 
+        self.strategy_list = gtk.ListStore(str, int)
+        active_index = 0
+        for index, (checked, strategy_id, strategy) in \
+            enumerate(self.channel.get_download_strategies()):
+            self.strategy_list.append([strategy, strategy_id])
+            if checked:
+                active_index = index
+        self.combo_strategy.set_model(self.strategy_list)
+        cell_renderer = gtk.CellRendererText()
+        self.combo_strategy.pack_start(cell_renderer)
+        self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
+        self.combo_strategy.set_active(active_index)
+
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
 
@@ -186,6 +199,9 @@ class gPodderChannel(BuilderWidget):
             section_changed = True
         else:
             section_changed = False
+
+        new_strategy = self.strategy_list[self.combo_strategy.get_active()][1]
+        self.channel.set_download_strategy(new_strategy)
 
         self.channel.save()
 

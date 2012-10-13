@@ -791,6 +791,15 @@ class PodcastChannel(PodcastModelObject):
 
     UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
 
+    # Enumerations for download strategy
+    STRATEGY_DEFAULT, STRATEGY_LATEST = range(2)
+
+    # Description and ordering of strategies
+    STRATEGIES = [
+        (STRATEGY_DEFAULT, _('Default')),
+        (STRATEGY_LATEST, _('Only keep latest')),
+    ]
+
     MAX_FOLDERNAME_LENGTH = 60
     SECONDS_PER_WEEK = 7*24*60*60
     EpisodeClass = PodcastEpisode
@@ -821,6 +830,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.section = _('Other')
         self._common_prefix = None
+        self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
 
     @property
     def model(self):
@@ -829,6 +839,21 @@ class PodcastChannel(PodcastModelObject):
     @property
     def db(self):
         return self.parent.db
+
+    def get_download_strategies(self):
+        for value, caption in PodcastChannel.STRATEGIES:
+            yield self.download_strategy == value, value, caption
+
+    def set_download_strategy(self, download_strategy):
+        if download_strategy == self.download_strategy:
+            return
+
+        caption = dict(self.STRATEGIES).get(download_strategy)
+        if caption is not None:
+            logger.debug('Strategy for %s changed to %s', self.title, caption)
+            self.download_strategy = download_strategy
+        else:
+            logger.warn('Cannot set strategy to %d', download_strategy)
 
     def check_download_folder(self):
         """Check the download folder for externally-downloaded files
@@ -1037,20 +1062,20 @@ class PodcastChannel(PodcastModelObject):
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
 
-        # We can limit the maximum number of entries that gPodder will parse
-        if max_episodes > 0 and len(feed.entries) > max_episodes:
+        try:
             # We have to sort the entries in descending chronological order,
             # because if the feed lists items in ascending order and has >
             # max_episodes old episodes, new episodes will not be shown.
             # See also: gPodder Bug 1186
-            try:
-                entries = sorted(feed.entries, key=feedcore.get_pubdate,
-                        reverse=True)[:max_episodes]
-            except Exception, e:
-                logger.warn('Could not sort episodes: %s', e, exc_info=True)
-                entries = feed.entries[:max_episodes]
-        else:
+            entries = sorted(feed.entries, key=feedcore.get_pubdate,
+                    reverse=True)
+        except Exception, e:
+            logger.warn('Could not sort episodes: %s', e, exc_info=True)
             entries = feed.entries
+
+        # We can limit the maximum number of entries that gPodder will parse
+        if max_episodes > 0 and len(entries) > max_episodes:
+            entries = entries[:max_episodes]
 
         # Title + PubDate hashes for existing episodes
         existing_dupes = dict((e.duplicate_id(), e) for e in existing)
@@ -1063,6 +1088,9 @@ class PodcastChannel(PodcastModelObject):
 
         # Keep track of episode GUIDs currently seen in the feed
         seen_guids = set()
+
+        # Number of new episodes found
+        new_episodes = 0
 
         # Search all entries for new episodes
         for entry in entries:
@@ -1103,6 +1131,12 @@ class PodcastChannel(PodcastModelObject):
                     existing_episode.update_from(episode)
                     existing_episode.save()
                     continue
+
+            new_episodes += 1
+            # Only allow a certain number of new episodes per update
+            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
+                    new_episodes > 1):
+                episode.is_new = False
 
             # Workaround for bug 340: If the episode has been
             # published earlier than one week before the most

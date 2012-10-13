@@ -237,7 +237,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.restart_auto_update_timer()
 
         # Find expired (old) episodes and delete them
-        old_episodes = list(self.get_expired_episodes())
+        old_episodes = list(common.get_expired_episodes(self.channels, self.config))
         if len(old_episodes) > 0:
             self.delete_episode_list(old_episodes, confirm=False)
             updated_urls = set(e.channel.url for e in old_episodes)
@@ -2508,40 +2508,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.quit()
         if macapp is None:
             sys.exit(0)
-
-    def get_expired_episodes(self):
-        # XXX: Move out of gtkui and into a generic module (gpodder.model)?
-
-        # Only expire episodes if the age in days is positive
-        if self.config.episode_old_age < 1:
-            return
-
-        for channel in self.channels:
-            for episode in channel.get_downloaded_episodes():
-                # Never consider archived episodes as old
-                if episode.archive:
-                    continue
-
-                # Never consider fresh episodes as old
-                if episode.age_in_days() < self.config.episode_old_age:
-                    continue
-
-                # Do not delete played episodes (except if configured)
-                if not episode.is_new:
-                    if not self.config.auto_remove_played_episodes:
-                        continue
-
-                # Do not delete unfinished episodes (except if configured)
-                if not episode.is_finished():
-                    if not self.config.auto_remove_unfinished_episodes:
-                        continue
-
-                # Do not delete unplayed episodes (except if configured)
-                if episode.is_new:
-                    if not self.config.auto_remove_unplayed_episodes:
-                        continue
-
-                yield episode
 
     def delete_episode_list(self, episodes, confirm=True, skip_locked=True):
         if not episodes:

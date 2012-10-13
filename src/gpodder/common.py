@@ -93,3 +93,43 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
     else:
         clean_up_downloads(True)
 
+def get_expired_episodes(channels, config):
+    for channel in channels:
+        for index, episode in enumerate(channel.get_downloaded_episodes()):
+            # Never consider archived episodes as old
+            if episode.archive:
+                continue
+
+            # Download strategy "Only keep latest"
+            if (channel.download_strategy == channel.STRATEGY_LATEST and
+                    index > 0):
+                logger.info('Removing episode (only keep latest strategy): %s',
+                        episode.title)
+                yield episode
+                continue
+
+            # Only expire episodes if the age in days is positive
+            if config.episode_old_age < 1:
+                continue
+
+            # Never consider fresh episodes as old
+            if episode.age_in_days() < config.episode_old_age:
+                continue
+
+            # Do not delete played episodes (except if configured)
+            if not episode.is_new:
+                if not config.auto_remove_played_episodes:
+                    continue
+
+            # Do not delete unfinished episodes (except if configured)
+            if not episode.is_finished():
+                if not config.auto_remove_unfinished_episodes:
+                    continue
+
+            # Do not delete unplayed episodes (except if configured)
+            if episode.is_new:
+                if not config.auto_remove_unplayed_episodes:
+                    continue
+
+            yield episode
+

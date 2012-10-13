@@ -61,9 +61,10 @@ PodcastColumns = (
     'pause_subscription',
     'section',
     'payment_url',
+    'download_strategy',
 )
 
-CURRENT_VERSION = 3
+CURRENT_VERSION = 4
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -82,6 +83,11 @@ UPGRADE_SQL = [
         ALTER TABLE episode ADD COLUMN payment_url TEXT NULL DEFAULT NULL
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
+
+        # Version 4: Per-podcast download strategy management
+        (3, 4, """
+        ALTER TABLE podcast ADD COLUMN download_strategy INTEGER NOT NULL DEFAULT 0
+        """)
 ]
 
 def initialize_database(db):
@@ -102,7 +108,8 @@ def initialize_database(db):
         download_folder TEXT NOT NULL DEFAULT '',
         pause_subscription INTEGER NOT NULL DEFAULT 0,
         section TEXT NOT NULL DEFAULT '',
-        payment_url TEXT NULL DEFAULT NULL
+        payment_url TEXT NULL DEFAULT NULL,
+        download_strategy INTEGER NOT NULL DEFAULT 0
     )
     """)
 
@@ -224,6 +231,7 @@ def convert_gpodder2_db(old_db, new_db):
                 not row['feed_update_enabled'],
                 '',
                 None,
+                0,
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
