@@ -57,6 +57,15 @@ if not hasattr(mygpoclient, 'require_version') or \
     """ % (MYGPOCLIENT_REQUIRED, mygpoclient.__version__)
     sys.exit(1)
 
+try:
+    from mygpoclient.simple import MissingCredentials
+
+except ImportError:
+    # if MissingCredentials does not yet exist in the installed version of
+    # mygpoclient, we use an object that can never be raised/caught
+    MissingCredentials = object()
+
+
 from mygpoclient import api
 from mygpoclient import public
 
@@ -489,6 +498,11 @@ class MygPoClient(object):
 
                 # Save the "since" value for later use
                 self._store.update(since_o, since=changes.since)
+
+            except MissingCredentials:
+                # handle outside
+                raise
+
             except Exception, e:
                 logger.warn('Exception while polling for episodes.', exc_info=True)
 
@@ -504,6 +518,12 @@ class MygPoClient(object):
             self._store.remove(actions)
             logger.debug('Episode actions have been uploaded to the server.')
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             logger.error('Cannot upload episode actions: %s', str(e), exc_info=True)
             return False
@@ -563,6 +583,12 @@ class MygPoClient(object):
             self._store.remove(actions)
             logger.debug('All actions have been uploaded to the server.')
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             logger.error('Cannot upload subscriptions: %s', str(e), exc_info=True)
             return False
@@ -574,6 +600,12 @@ class MygPoClient(object):
                     action.caption, action.device_type)
             logger.debug('Device settings uploaded.')
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             logger.error('Cannot update device %s: %s', self.device_id,
                 str(e), exc_info=True)
@@ -581,7 +613,16 @@ class MygPoClient(object):
 
     def get_devices(self):
         result = []
-        for d in self._client.get_devices():
+
+        try:
+            devices = self._client.get_devices()
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            raise
+
+        for d in devices:
             result.append((d.device_id, d.caption, d.type))
         return result
 
