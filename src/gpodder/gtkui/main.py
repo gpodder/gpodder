@@ -209,6 +209,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Subscribed channels
         self.active_channel = None
         self.channels = self.model.get_podcasts()
+        
+        # Set up the first instance of MygPoClient
+        self.mygpo_client = my.MygPoClient(self.config)
 
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
@@ -217,9 +220,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         util.run_in_background(self.user_apps_reader.read)
-
-        # Set up the first instance of MygPoClient
-        self.mygpo_client = my.MygPoClient(self.config)
 
         # Now, update the feed cache, when everything's in place
         self.btnUpdateFeeds.show()
