@@ -474,6 +474,9 @@ class Controller(QObject):
 
     @Slot()
     def updateAllPodcasts(self):
+        if not self.request_connection():
+            return
+
         # Process episode actions received from gpodder.net
         def merge_proc(self):
             self.root.start_progress(_('Merging episode actions...'))
@@ -497,11 +500,28 @@ class Controller(QObject):
             if not podcast.pause_subscription:
                 podcast.qupdate(finished_callback=self.update_subset_stats)
 
+    def request_connection(self):
+        """Request an internet connection
+
+        Returns True if a connection is available, False otherwise
+        """
+        if not util.connection_available():
+            # TODO: Try to request the network connection dialog, and wait
+            # for a connection - if a connection is available, return True
+
+            self.root.show_message('\n\n'.join((_('No network connection'),
+                _('Please connect to a network, then try again.'))))
+            return False
+
+        return True
+
     @Slot(int)
     def contextMenuResponse(self, index):
         assert index < len(self.context_menu_actions)
         action = self.context_menu_actions[index]
         if action.action == 'update':
+            if not self.request_connection():
+                return
             podcast = action.target
             if not podcast.pause_subscription:
                 podcast.qupdate(finished_callback=self.update_subset_stats)

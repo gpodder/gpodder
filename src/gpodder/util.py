@@ -1628,15 +1628,51 @@ def run_in_background(function, daemon=False):
     return thread
 
 
-def website_reachable(url='http://www.google.com'):
+def linux_get_active_interfaces():
+    """Get active network interfaces using 'ip link'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    stdout = subprocess.check_output(['ip', 'link'])
+    return re.findall(r'\d+: ([^:]+):.*state UP', stdout)
+
+
+def connection_available():
+    """Check if an Internet connection is available
+
+    Returns True if a connection is available (or if there
+    is no way to determine the connection). Returns False
+    if no network interfaces are up (i.e. no connectivity).
+    """
+    try:
+        if gpodder.win32:
+            # FIXME: Implement for Windows
+            return True
+        elif gpodder.osx:
+            # FIXME: Implement for Mac OS X
+            return True
+        else:
+            return len(linux_get_active_interfaces()) > 0
+    except Exception, e:
+        logger.warn('Cannot get connection status: %s', e, exc_info=True)
+        return False
+
+
+def website_reachable(url):
     """
     Check if a specific website is available.
-    """  
+    """
+    if not connection_available():
+        # No network interfaces up - assume website not reachable
+        return (False, None)
+
     try:
         response = urllib2.urlopen(url, timeout=1)
         return (True, response)
     except urllib2.URLError as err:
         pass
-        
+
     return (False, None)
 

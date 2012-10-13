@@ -425,10 +425,19 @@ Image {
 
         Label {
             id: messageDialogText
-            anchors.centerIn: parent
+            anchors {
+                left: parent.left
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+                leftMargin: Config.largeSpacing
+                rightMargin: Config.largeSpacing
+            }
             color: 'white'
             font.pixelSize: 20
             font.bold: true
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
     }
 
