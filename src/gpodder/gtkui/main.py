@@ -3292,6 +3292,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_auto_update_timer(self):
         if not util.connection_available():
             logger.debug('Skipping auto update (no connection available)')
+            return True
 
         logger.debug('Auto update timer fired.')
         self.update_feed_cache()
