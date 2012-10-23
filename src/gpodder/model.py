@@ -170,15 +170,6 @@ class PodcastEpisode(PodcastModelObject):
     is_played = property(fget=_deprecated, fset=_deprecated)
     is_locked = property(fget=_deprecated, fset=_deprecated)
 
-    def _get_podcast_id(self):
-        return self.channel.id
-
-    def _set_podcast_id(self, podcast_id):
-        assert self.channel.id == podcast_id
-
-    # Accessor for the "podcast_id" DB column
-    podcast_id = property(fget=_get_podcast_id, fset=_set_podcast_id)
-
     def has_website_link(self):
         return bool(self.link) and (self.link != self.url or \
                 youtube.is_video_link(self.link))
@@ -336,6 +327,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def __init__(self, channel):
         self.parent = channel
+        self.podcast_id = self.parent.id
         self.children = (None, None)
 
         self.id = None
