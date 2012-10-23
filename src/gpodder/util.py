@@ -1639,6 +1639,20 @@ def linux_get_active_interfaces():
     return re.findall(r'\d+: ([^:]+):.*state UP', stdout)
 
 
+def osx_get_active_interfaces():
+    """Get active network interfaces using 'ifconfig'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    stdout = subprocess.check_output(['ifconfig'])
+    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
+        if b:
+            yield b.group(1)
+
+
 def connection_available():
     """Check if an Internet connection is available
 
@@ -1651,7 +1665,7 @@ def connection_available():
             # FIXME: Implement for Windows
             return True
         elif gpodder.osx:
-            # FIXME: Implement for Mac OS X
+            return len(list(osx_get_active_interfaces())) > 0
             return True
         else:
             return len(linux_get_active_interfaces()) > 0
