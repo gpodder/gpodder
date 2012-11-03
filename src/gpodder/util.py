@@ -1635,8 +1635,10 @@ def linux_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ip', 'link'])
-    return re.findall(r'\d+: ([^:]+):.*state UP', stdout)
+    data = subprocess.check_output(['ip', 'link'])
+    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data):
+        if interface != 'lo':
+            yield interface
 
 
 def osx_get_active_interfaces():
@@ -1668,7 +1670,7 @@ def connection_available():
             return len(list(osx_get_active_interfaces())) > 0
             return True
         else:
-            return len(linux_get_active_interfaces()) > 0
+            return len(list(linux_get_active_interfaces())) > 0
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         return False
