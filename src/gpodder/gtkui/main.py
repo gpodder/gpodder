@@ -413,7 +413,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client.confirm_received_actions(ignored)
 
         def execute_podcast_actions(selected):
-            add_list = [c.action.url for c in selected if c.action.is_add]
+            # In the future, we might retrieve the title from gpodder.net here,
+            # but for now, we just use "None" to use the feed-provided title
+            title = None
+            add_list = [(title, c.action.url)
+                    for c in selected if c.action.is_add]
             remove_list = [c.podcast for c in selected if c.action.is_remove]
 
             # Apply the accepted changes locally
@@ -2120,8 +2124,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
         return False
 
-    def add_podcast_list(self, urls, auth_tokens=None):
-        """Subscribe to a list of podcast given their URLs
+    def add_podcast_list(self, podcasts, auth_tokens=None):
+        """Subscribe to a list of podcast given (title, url) pairs
 
         If auth_tokens is given, it should be a dictionary
         mapping URLs to (username, password) tuples."""
@@ -2131,9 +2135,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         existing_urls = set(podcast.url for podcast in self.channels)
 
+        # For a given URL, the desired title (or None)
+        title_for_url = {}
+
         # Sort and split the URL list into five buckets
         queued, failed, existing, worked, authreq = [], [], [], [], []
-        for input_url in urls:
+        for input_title, input_url in podcasts:
             url = util.normalize_feed_url(input_url)
             if url is None:
                 # Fail this one because the URL is not valid
@@ -2141,8 +2148,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif url in existing_urls:
                 # A podcast already exists in the list for this URL
                 existing.append(url)
+                # XXX: Should we try to update the title of the existing
+                # subscription from input_title here if it is different?
             else:
                 # This URL has survived the first round - queue for add
+                title_for_url[url] = input_title
                 queued.append(url)
                 if url != input_url and input_url in auth_tokens:
                     auth_tokens[url] = auth_tokens[input_url]
@@ -2216,7 +2226,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If we have authentication data to retry, do so here
             if retry_podcasts:
-                self.add_podcast_list(retry_podcasts.keys(), retry_podcasts)
+                podcasts = [(title_for_url.get(url), url)
+                        for url in retry_podcasts.keys()]
+                self.add_podcast_list(podcasts, retry_podcasts)
                 # This will NOT show new episodes for podcasts that have
                 # been added ("worked"), but it will prevent problems with
                 # multiple dialogs being open at the same time ;)
@@ -2240,8 +2252,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # After the initial sorting and splitting, try all queued podcasts
             length = len(queued)
             for index, url in enumerate(queued):
+                title = title_for_url.get(url)
                 progress.on_progress(float(index)/float(length))
-                progress.on_message(url)
+                progress.on_message(title or url)
                 try:
                     # The URL is valid and does not exist already - subscribe!
                     channel = self.model.load_podcast(url=url, create=True, \
@@ -2253,11 +2266,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     except ValueError, ve:
                         username, password = (None, None)
 
+                    if title is not None:
+                        # Prefer title from subscription source (bug 1711)
+                        channel.title = title
+
                     if username is not None and channel.auth_username is None and \
                             password is not None and channel.auth_password is None:
                         channel.auth_username = username
                         channel.auth_password = password
-                        channel.save()
+
+                    channel.save()
 
                     self._update_cover(channel)
                 except feedcore.AuthenticationRequired:
@@ -2878,7 +2896,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                 custom_title=_('Subscriptions on gpodder.net'), \
-                add_urls_callback=self.add_podcast_list, \
+                add_podcast_list=self.add_podcast_list,
                 hide_url_entry=True)
 
         # TODO: Refactor this into "gpodder.my" or mygpoclient, so that
@@ -2891,7 +2909,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemAddChannel_activate(self, widget=None):
         gPodderAddPodcast(self.gPodder, \
-                add_urls_callback=self.add_podcast_list)
+                add_podcast_list=self.add_podcast_list)
 
     def on_itemEditChannel_activate(self, widget, *args):
         if self.active_channel is None:
@@ -3027,7 +3045,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if filename is not None:
             dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
                     custom_title=_('Import podcasts from OPML file'), \
-                    add_urls_callback=self.add_podcast_list, \
+                    add_podcast_list=self.add_podcast_list,
                     hide_url_entry=True)
             dir.download_opml_file(filename)
 
@@ -3058,7 +3076,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemImportChannels_activate(self, widget, *args):
         dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
-                add_urls_callback=self.add_podcast_list)
+                add_podcast_list=self.add_podcast_list)
         util.idle_add(dir.download_opml_file, my.EXAMPLES_OPML)
 
     def on_homepage_activate(self, widget, *args):
@@ -3389,7 +3407,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     @dbus.service.method(gpodder.dbus_interface)
     def subscribe_to_url(self, url):
         gPodderAddPodcast(self.gPodder,
-                add_urls_callback=self.add_podcast_list,
+                add_podcast_list=self.add_podcast_list,
                 preset_url=url)
 
     @dbus.service.method(gpodder.dbus_interface)

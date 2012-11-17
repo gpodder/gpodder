@@ -47,8 +47,8 @@ class gPodderPodcastDirectory(BuilderWidget):
             new_parent.remove(self.notebookChannelAdder)
             self.vboxOpmlImport.reparent(new_parent)
 
-        if not hasattr(self, 'add_urls_callback'):
-            self.add_urls_callback = None
+        if not hasattr(self, 'add_podcast_list'):
+            self.add_podcast_list = None
 
         self.setup_treeview(self.treeviewChannelChooser)
         self.setup_treeview(self.treeviewTopPodcastsChooser)
@@ -89,7 +89,8 @@ class gPodderPodcastDirectory(BuilderWidget):
         if model is not None:
             for row in model:
                 if row[OpmlListModel.C_SELECTED]:
-                    channels.append(row[OpmlListModel.C_URL])
+                    channels.append((row[OpmlListModel.C_TITLE],
+                        row[OpmlListModel.C_URL]))
 
         return channels
 
@@ -172,12 +173,12 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.select_all(False)
 
     def on_btnOK_clicked(self, widget, *args):
-        channel_urls = self.get_selected_channels()
+        channels = self.get_selected_channels()
         self.gPodderPodcastDirectory.destroy()
 
         # add channels that have been selected
-        if self.add_urls_callback is not None:
-            self.add_urls_callback(channel_urls)
+        if self.add_podcast_list is not None:
+            self.add_podcast_list(channels)
 
     def on_btnCancel_clicked(self, widget, *args):
         self.gPodderPodcastDirectory.destroy()
