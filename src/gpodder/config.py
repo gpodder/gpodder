@@ -146,7 +146,6 @@ defaults = {
                 'descriptions': True,
                 'view_mode': 1,
                 'columns': int('101', 2), # bitfield of visible columns
-                'embed_shownotes': False, # show shownotes below episode list
             },
 
             'download_list': {
