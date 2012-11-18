@@ -134,6 +134,9 @@ def main():
         gpodder.ui.qml_desktop = True
     else:
         gpodder.ui.gtk = True
+    
+    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
+        ('ubuntu', 'ubuntu-2d'))
 
     gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in
         ('ubuntu', 'ubuntu-2d'))
