@@ -9,6 +9,7 @@ _ = gpodder.gettext
 
 __title__ = _('Minimize on start')
 __description__ = _('Minimizes the gPodder window on startup.')
+__category__ = 'interface'
 __only_for__ = 'gtk'
 
 class gPodderExtension:
