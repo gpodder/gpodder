@@ -23,7 +23,6 @@
 
 import gpodder
 
-from collections import OrderedDict
 from gpodder import util
 
 import logging
@@ -46,7 +45,7 @@ except ImportError:
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
-formats = OrderedDict([
+formats = [
     # WebM VP8 video, Vorbis audio
     # Fallback to an MP4 version of same quality.
     # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
@@ -74,7 +73,8 @@ formats = OrderedDict([
     # FLV Sorenson H.263 video, MP3 audio
     (6, ([6, 5],         '5/480x270/7/0/0',      'FLV 270p (480x270)')), #     0.80 Mbps,  64 kbps
     (5, ([5],            '5/320x240/7/0/0',      'FLV 240p (320x240)')), #     0.25 Mbps,  64 kbps
-])
+]
+formats_dict = dict(formats)
 
 class YouTubeError(Exception): pass
 
@@ -82,7 +82,7 @@ class YouTubeError(Exception): pass
 def get_fmt_ids(youtube_config):
     fmt_ids = youtube_config.preferred_fmt_ids
     if not fmt_ids:
-        format = formats.get(youtube_config.preferred_fmt_id)
+        format = formats_dict.get(youtube_config.preferred_fmt_id)
         if format is None:
             fmt_ids = []
         else:
@@ -92,7 +92,7 @@ def get_fmt_ids(youtube_config):
 
 def get_real_download_url(url, preferred_fmt_ids):
     if not preferred_fmt_ids:
-        preferred_fmt_ids, _, _ = formats[22] # MP4 720p
+        preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -139,7 +139,7 @@ def get_real_download_url(url, preferred_fmt_ids):
         for id in preferred_fmt_ids:
             id = int(id)
             if id in formats_available:
-                format = formats.get(id)
+                format = formats_dict.get(id)
                 if format is not None:
                     _, _, description = format
                 else:
