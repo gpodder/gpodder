@@ -16,6 +16,7 @@ _ = gpodder.gettext
 __title__ = _('Enqueue in media players')
 __description__ = _('Add a context menu item for enqueueing episodes in installed media players')
 __author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__category__ = 'interface'
 __only_for__ = 'gtk'
 
 AMAROK = (['amarok', '--play', '--append'], 'Enqueue in Amarok')
@@ -40,7 +41,6 @@ class gPodderExtension:
         vlc = subprocess.Popen(cmd + filenames,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        stdout, stderr = vlc.communicate()
 
     def _enqueue_episodes_amarok(self, episodes):
         self._enqueue_episodes_cmd(episodes, AMAROK[0])

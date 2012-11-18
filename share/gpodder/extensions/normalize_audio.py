@@ -21,6 +21,7 @@ _ = gpodder.gettext
 __title__ = _('Normalize audio with re-encoding')
 __description__ = _('Normalize the volume of audio files with normalize-audio')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
+__category__ = 'post-download'
 
 
 DefaultConfig = {

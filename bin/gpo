@@ -121,7 +121,7 @@ gpodder.ui.cli = True
 # Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
 gpodder.detect_platform()
 
-have_ansi = sys.stdout.isatty() and not gpodder.win32
+have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
