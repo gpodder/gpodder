@@ -32,6 +32,7 @@ are not tied to any specific part of gPodder.
 
 import gpodder
 
+import ctypes
 import logging
 logger = logging.getLogger(__name__)
 
@@ -420,16 +421,17 @@ def get_free_disk_space_win32(path):
     """
 
     drive, tail = os.path.splitdrive(path)
+    user_free = ctypes.c_ulonglong()
+    
+    if isinstance(drive, unicode):
+        GetFreeDiskSpaceEx = ctypes.windll.kernel32.GetDiskFreeSpaceExW
+    else:
+        GetDiskFreeSpaceEx = ctypes.windll.kernel32.GetDiskFreeSpaceExA
 
-    try:
-        import win32file
-        userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
-        return userFree
-    except ImportError:
-        logger.warn('Running on Win32 but win32api/win32file not installed.')
-
-    # Cannot determine free disk space
-    return 0
+    if GetDiskFreeSpaceEx(drive, 0, 0, ctypes.byref(user_free)) == 0:
+        raise ctypes.WindowsError()
+    else:
+        return user_free.value
 
 
 def get_free_disk_space(path):
