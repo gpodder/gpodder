@@ -62,8 +62,7 @@ if pynotify is not None:
                 # See http://gpodder.org/bug/966
                 pass
 elif pynotify is None and win32gui is not None:
-    import os
-    import pywintypes
+    import win32gui
 
     IDI_APPLICATION = 32512
     WM_TASKBARCREATED = win32gui.RegisterWindowMessage('TaskbarCreated')
@@ -76,21 +75,14 @@ elif pynotify is None and win32gui is not None:
             self._id = 0
             self._flags = win32gui.NIF_MESSAGE | win32gui.NIF_ICON
             self._callbackmessage = WM_TRAYMESSAGE
-            icon_path = os.path.abspath(r'share\gpodder\images\gpodder.ico')
-            print(icon_path)
-            try:
-                self._hicon = win32gui.LoadImage(None, icon_path, 1, 0, 0, 0x50)
-            except pywintypes.error as e:
-                logger.warn("Couldn't load gpodder icon for tray")
-                self._hicon = win32gui.LoadIcon(0, IDI_APPLICATION)
-            print self._hicon
+            self._hicon = win32gui.LoadIcon(0, IDI_APPLICATION)
             self._tip = ''
             self._info = ''
             self._timeout = 0
             self._infotitle = ''
             self._infoflags = win32gui.NIIF_NONE
             win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, self.notify_config_data)
-            
+
             
         @property
         def notify_config_data(self):
@@ -135,8 +127,8 @@ elif pynotify is None and win32gui is not None:
                 print window.get_icon()
                 self.notifier = NotifyIcon(window.window.handle)
 
-            if name == 'gpodder-gtk':
-                ui_object.main_window.connect('realize', 
+            if name == "gpodder-gtk":
+                ui_object.main_window.connect("realize", 
                                               partial(callback, self))
 
         def on_notification_show(self, title, message):
