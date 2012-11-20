@@ -150,8 +150,7 @@ class VideoFormatList(gtk.ListStore):
             }
             self.append((caption, -1))
         else:
-            for id in youtube.formats:
-                fmt_ids, path, description = youtube.formats[id]
+            for id, (fmt_id, path, description) in youtube.formats:
                 self.append((description, id))
 
     def get_index(self):
