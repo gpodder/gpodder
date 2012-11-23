@@ -1635,7 +1635,8 @@ def linux_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    data = subprocess.check_output(['ip', 'link'])
+    process = subprocess.Popen(['ip', 'link'], stdout=subprocess.PIPE)
+    data, _ = process.communicate()
     for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data):
         if interface != 'lo':
             yield interface
