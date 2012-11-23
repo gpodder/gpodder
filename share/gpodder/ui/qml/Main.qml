@@ -4,7 +4,7 @@ import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
-Image {
+Item {
     id: main
     focus: true
 
@@ -69,18 +69,6 @@ Image {
 
     width: 800
     height: 480
-
-    property bool useEmptyBackground: !podcastList.hasItems
-
-    anchors.topMargin: useEmptyBackground?-35:0
-    fillMode: useEmptyBackground?Image.Tile:Image.Stretch
-    source: {
-        if (useEmptyBackground) {
-            '/usr/share/themes/blanco/meegotouch/images/backgrounds/meegotouch-empty-application-background-black-portrait.png'
-        } else {
-            'artwork/background-harmattan.png'
-        }
-    }
 
     state: 'podcasts'
 
@@ -184,7 +172,6 @@ Image {
     Item {
         id: listContainer
         anchors.fill: parent
-        anchors.topMargin: titleBar.height
 
         PodcastList {
             id: podcastList
@@ -226,7 +213,7 @@ Image {
 
         anchors {
             left: parent.left
-            top: titleBar.bottom
+            top: parent.top
             bottom: parent.bottom
         }
         width: parent.width
@@ -238,7 +225,6 @@ Image {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        anchors.topMargin: (nowPlayingThrobber.opened || messageDialog.opacity > 0 || inputDialog.opacity > 0 || progressIndicator.opacity > 0)?0:titleBar.height
         z: (contextMenu.state != 'opened')?2:0
 
         opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
@@ -361,52 +347,6 @@ Image {
 
         transitions: Transition {
             AnchorAnimation { duration: Config.slowTransition }
-        }
-    }
-
-    Item {
-        id: titleBar
-        visible: podcastList.hasItems
-        height: visible?Config.headerHeight*.8:0
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-
-        //anchors.topMargin: mediaPlayer.fullscreen?-height:0
-        //opacity: mediaPlayer.fullscreen?0:1
-
-        Behavior on opacity { PropertyAnimation { } }
-        Behavior on anchors.topMargin { PropertyAnimation { } }
-
-        Rectangle {
-            anchors.fill: parent
-            color: "black"
-            opacity: .9
-
-            MouseArea {
-                // clicks should not fall through!
-                anchors.fill: parent
-            }
-        }
-
-        Label {
-            id: titleBarText
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: Config.largeSpacing
-            wrapMode: Text.NoWrap
-            clip: true
-            text: multiEpisodesSheet.opened?multiEpisodesSheet.title:((contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder"))
-            color: 'white'
-            font.pixelSize: parent.height * .5
-            font.bold: false
-        }
-
-        Binding {
-            target: controller
-            property: 'windowTitle'
-            value: titleBarText.text
         }
     }
 
