@@ -90,7 +90,7 @@ def get_fmt_ids(youtube_config):
 
     return fmt_ids
 
-def get_real_download_url(url, preferred_fmt_ids):
+def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
 
