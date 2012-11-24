@@ -61,6 +61,7 @@
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
+    pipe                       Start gPodder in pipe-based IPC server mode
 
 """
 
@@ -113,6 +114,7 @@ import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
+gpodder.images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
 gpodder.prefix = prefix
 
 # This is the command-line UI variant
@@ -583,6 +585,10 @@ class gPodderCli(object):
             webui.main(only_localhost=False, core=self.core)
         else:
             webui.main(core=self.core)
+
+    def pipe(self):
+        from gpodder import pipe
+        pipe.main(core=self.core)
 
     def search(self, *terms):
         query = ' '.join(terms)
