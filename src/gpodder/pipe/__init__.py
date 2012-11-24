@@ -94,7 +94,7 @@ class Pipe:
                         raise
                     continue
 
-            self.event_out('? %s' % line)
+            self.event_out('? %s' % cmd)
 
     def event_in(self, data):
         self.events_in.put(data)
