@@ -182,7 +182,7 @@ class Exporter(object):
             if available < 2*len(data)+FREE_DISK_SPACE_AFTER:
                 # On Windows, if we have zero bytes available, assume that we have
                 # not had the win32file module available + assume enough free space
-                if not gpodder.win32 or available > 0:
+                if not gpodder.ui.win32 or available > 0:
                     logger.error('Not enough free disk space to save channel list to %s', self.filename)
                     return False
             fp = open(self.filename+'.tmp', 'w')

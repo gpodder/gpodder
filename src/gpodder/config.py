@@ -88,7 +88,7 @@ defaults = {
 
     # Software updates from gpodder.org (primary audience: Windows users)
     'software_update': {
-        'check_on_startup': gpodder.win32, # check for updates on start
+        'check_on_startup': gpodder.ui.win32, # check for updates on start
         'last_check': 0, # unix timestamp of last update check
         'interval': 5, # interval (in days) to check for updates
     },
