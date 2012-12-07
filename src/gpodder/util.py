@@ -67,6 +67,13 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
+if gpodder.win32:
+    try:
+        import win32file
+    except ImportError:
+        logger.warn('Running on Win32 but win32api/win32file not installed.')
+        win32file = None
+
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
@@ -411,6 +418,19 @@ def file_age_to_string(days):
         return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
 
 
+def is_system_file(filename):
+    """
+    Checks to see if the given file is a system file.
+    """
+    if gpodder.win32 and win32file is not None:
+        result = win32file.GetFileAttributes(filename)
+        #-1 is returned by GetFileAttributes when an error occurs
+        #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
+        return result != -1 and result & 0x4 != 0
+    else:
+        return False
+
+
 def get_free_disk_space_win32(path):
     """
     Win32-specific code to determine the free disk space remaining
@@ -418,18 +438,13 @@ def get_free_disk_space_win32(path):
 
     http://mail.python.org/pipermail/python-list/2003-May/203223.html
     """
+    if win32file is None:
+        # Cannot determine free disk space
+        return 0
 
     drive, tail = os.path.splitdrive(path)
-
-    try:
-        import win32file
-        userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
-        return userFree
-    except ImportError:
-        logger.warn('Running on Win32 but win32api/win32file not installed.')
-
-    # Cannot determine free disk space
-    return 0
+    userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
+    return userFree
 
 
 def get_free_disk_space(path):
