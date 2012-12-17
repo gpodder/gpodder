@@ -67,7 +67,7 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
-if gpodder.win32:
+if gpodder.ui.win32:
     try:
         import win32file
     except ImportError:
@@ -422,7 +422,7 @@ def is_system_file(filename):
     """
     Checks to see if the given file is a system file.
     """
-    if gpodder.win32 and win32file is not None:
+    if gpodder.ui.win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
         #-1 is returned by GetFileAttributes when an error occurs
         #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
