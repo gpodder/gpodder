@@ -82,57 +82,54 @@ Item {
             id: listItem
 
             height: listItem.opened?(Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight):(Config.listItemHeight)
-            width: parent.width
             property bool opened: (index == listView.openedIndex)
 
-            Loader {
-                id: loader
-                clip: true
-                source: listItem.opened?'EpisodeActions.qml':''
-
-                Behavior on opacity { PropertyAnimation { } }
-
-                opacity: listItem.opened
-
-                onItemChanged: {
-                    if (item) {
-                        item.episode = modelData
-                    }
-                }
-
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    topMargin: episodeItem.y + episodeItem.height
-                    bottom: parent.bottom
-                }
-
-                width: parent.width
-            }
-
-            Behavior on height { PropertyAnimation { } }
+            Behavior on height { PropertyAnimation { duration: Config.fastTransition } }
 
             EpisodeItem {
                 id: episodeItem
+
                 y: listItem.opened?Config.smallSpacing:0
-                width: parent.width
+                width: listView.width
+
                 onSelected: {
                     if (listView.openedIndex == index) {
                         listView.openedIndex = -1
+                        episodeActions.episode = null
                     } else {
                         listView.openedIndex = index
+                        episodeActions.episode = modelData
                     }
                 }
                 onContextMenu: episodeList.episodeContextMenu(item)
 
-                Behavior on y { PropertyAnimation { } }
+                Behavior on y { PropertyAnimation { duration: Config.fastTransition } }
             }
         }
     }
 
     ScrollDecorator {
         flickableItem: listView
+    }
+
+    EpisodeActions {
+        id: episodeActions
+        Behavior on opacity { PropertyAnimation { duration: Config.fastTransition } }
+        property alias modelData: episodeActions.episode
+        opacity: listView.openedIndex !== -1
+
+        anchors {
+            top: parent.top
+            topMargin: {
+                if (listView.openedIndex !== -1) {
+                    listView.openedIndex * Config.listItemHeight + Config.listItemHeight + Config.smallSpacing * 2 - listView.contentY
+                } else {
+                    -episodeActions.height
+                }
+            }
+        }
+
+        width: parent.width
     }
 
     SelectionDialog {

@@ -14,26 +14,30 @@ SelectableItem {
 
     Rectangle {
         id: downloadProgress
-        anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
+
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        visible: modelData.qdownloading
         width: parent.width * modelData.qprogress
-        height: modelData.qdownloading?parent.height:0
-        color: Config.downloadColor
-        opacity: modelData.qdownloaded?0:.3
-        Behavior on opacity { PropertyAnimation { } }
-        Behavior on height { PropertyAnimation { } }
+        color: Config.downloadColorBg
     }
 
     Rectangle {
         id: playbackProgress
 
-        anchors.left: parent.left
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
 
-        anchors.verticalCenter: parent.verticalCenter
-        width: modelData.qduration?(parent.width * (modelData.qposition / modelData.qduration)):0
-        height: parent.height
-        color: Config.playbackColor
-        opacity: .3
+        visible: modelData.qduration && !(downloadProgress.visible && downloadProgress.width > 0)
+        width: parent.width * (modelData.qposition / modelData.qduration)
+        color: Config.playbackColorBg
     }
 
     Image {
@@ -53,23 +57,24 @@ SelectableItem {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Config.largeSpacing
-        opacity: (modelData.qdownloaded || modelData.qdownloading)?1:.3
+        opacity: modelData.qdownloaded?1:.3
         Behavior on opacity { PropertyAnimation { } }
+
+        cache: true
     }
 
     Label {
         id: title
         text: modelData.qtitle
         wrapMode: Text.NoWrap
-        color: modelData.qdownloading?'#8ae234':(modelData.qplaying?'#729fcf':(modelData.qnew?(modelData.qdownloaded?"white":Config.newColor):"#888"))
+        color: modelData.qdownloading?Config.downloadColor:(modelData.qplaying?Config.playbackColor:(modelData.qnew?(modelData.qdownloaded?"white":Config.newColor):'#ddd'))
         font.pixelSize: episodeItem.height * .35
-        font.bold: false
+
         anchors.left: icon.right
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: positionInfo.left
         anchors.leftMargin: Config.largeSpacing
-        anchors.rightMargin: Config.smallSpacing
-        clip: true
+
+        anchors.top: parent.top
+        anchors.topMargin: Config.smallSpacing * 1.5
     }
 
     Label {
@@ -77,9 +82,12 @@ SelectableItem {
         text: modelData.qduration?Util.formatDuration(modelData.qduration):''
         font.pixelSize: episodeItem.height * .2
         color: '#888'
-        anchors.right: archiveIcon.visible?archiveIcon.left:parent.right
-        anchors.rightMargin: Config.largeSpacing
-        anchors.verticalCenter: parent.verticalCenter
+
+        anchors.left: icon.right
+        anchors.leftMargin: Config.largeSpacing
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Config.smallSpacing * 1.5
     }
 
     Image {
@@ -89,9 +97,14 @@ SelectableItem {
         visible: modelData.qarchive
         width: Config.iconSize
         height: Config.iconSize
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.rightMargin: Config.largeSpacing
+
+        anchors.left: parent.left
+        //anchors.leftMargin: Config.smallSpacing
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Config.smallSpacing
+
+        cache: true
     }
 }
 
