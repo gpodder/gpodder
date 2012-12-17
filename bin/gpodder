@@ -119,7 +119,7 @@ def main():
                       help=_('Subscribe to the given URL'))
 
     # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
-    if gpodder.osx:
+    if gpodder.ui.osx:
         parser.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
                           help=_('Mac OS X application process number'))
 
@@ -129,6 +129,9 @@ def main():
         gpodder.ui.qml = True
     else:
         gpodder.ui.gtk = True
+    
+    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
+        ('ubuntu', 'ubuntu-2d'))
 
     from gpodder import log
     log.setup(options.verbose)
@@ -156,7 +159,7 @@ def main():
             except dbus.exceptions.DBusException, dbus_exception:
                 logger.info('Cannot connect to remote object.', exc_info=True)
 
-    if not gpodder.win32 and os.environ.get('DISPLAY', '') == '':
+    if not gpodder.ui.win32 and os.environ.get('DISPLAY', '') == '':
         logger.error('Cannot start gPodder: $DISPLAY is not set.')
         sys.exit(1)
 

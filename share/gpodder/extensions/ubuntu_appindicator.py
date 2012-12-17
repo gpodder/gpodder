@@ -9,7 +9,11 @@ _ = gpodder.gettext
 
 __title__ = _('Ubuntu App Indicator')
 __description__ = _('Show a status indicator in the top bar.')
+__authors__ = 'Thomas Perl <thp@gpodder.org>'
+__category__ = 'desktop-integration'
 __only_for__ = 'gtk'
+__mandatory_in__ = 'unity'
+
 
 import appindicator
 import gtk

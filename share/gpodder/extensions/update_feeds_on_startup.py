@@ -14,6 +14,7 @@ _ = gpodder.gettext
 __title__ = _('Search for new episodes on startup')
 __description__ = _('Starts the search for new episodes on startup')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
+__category__ = 'interface'
 __only_for__ = 'gtk'
 
 

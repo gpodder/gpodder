@@ -19,6 +19,7 @@ _ = gpodder.gettext
 __title__ = _('Convert M4A audio to MP3 or OGG')
 __description__ = _('Transcode .m4a files to .mp3 or .ogg using ffmpeg')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
+__category__ = 'post-download'
 
 
 DefaultConfig = {

@@ -91,7 +91,7 @@ from gpodder import extensions
 
 
 macapp = None
-if gpodder.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
+if gpodder.ui.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
     try:
         from gtk_osxapplication import *
         macapp = OSXApplication()
@@ -3450,7 +3450,7 @@ def main(options=None):
     if options.subscribe:
         util.idle_add(gp.subscribe_to_url, options.subscribe)
 
-    if gpodder.osx:
+    if gpodder.ui.osx:
         from gpodder.gtkui import macosx
 
         # Handle "subscribe to podcast" events from firefox

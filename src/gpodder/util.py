@@ -87,7 +87,7 @@ if encoding is None:
         logger.info('Detected encoding: %s', encoding)
     elif gpodder.ui.harmattan:
         encoding = 'utf-8'
-    elif gpodder.win32:
+    elif gpodder.ui.win32:
         # To quote http://docs.python.org/howto/unicode.html:
         # ,,on Windows, Python uses the name "mbcs" to refer
         #   to whatever the currently configured encoding is``
@@ -444,7 +444,7 @@ def get_free_disk_space(path):
     if not os.path.exists(path):
         return 0
 
-    if gpodder.win32:
+    if gpodder.ui.win32:
         return get_free_disk_space_win32(path)
 
     s = os.statvfs(path)
@@ -1020,7 +1020,7 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if gpodder.win32 and not os.path.exists(command_file):
+        if gpodder.ui.win32 and not os.path.exists(command_file):
             for extension in ('.bat', '.exe'):
                 cmd = command_file + extension
                 if os.path.isfile(cmd):
@@ -1230,9 +1230,9 @@ def gui_open(filename):
        on Win32, os.startfile() is used
     """
     try:
-        if gpodder.win32:
+        if gpodder.ui.win32:
             os.startfile(filename)
-        elif gpodder.osx:
+        elif gpodder.ui.osx:
             subprocess.Popen(['open', filename])
         else:
             subprocess.Popen(['xdg-open', filename])
@@ -1560,7 +1560,7 @@ def atomic_rename(old_name, new_name):
     the new contents into a temporary file and then moving the
     temporary file over the original file to replace it.
     """
-    if gpodder.win32:
+    if gpodder.ui.win32:
         # Win32 does not support atomic rename with os.rename
         shutil.move(old_name, new_name)
     else:
@@ -1664,10 +1664,10 @@ def connection_available():
     if no network interfaces are up (i.e. no connectivity).
     """
     try:
-        if gpodder.win32:
+        if gpodder.ui.win32:
             # FIXME: Implement for Windows
             return True
-        elif gpodder.osx:
+        elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
             return True
         else:

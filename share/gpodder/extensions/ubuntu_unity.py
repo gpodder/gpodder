@@ -9,7 +9,11 @@ _ = gpodder.gettext
 
 __title__ = _('Ubuntu Unity Integration')
 __description__ = _('Show download progress in the Unity Launcher icon.')
-__only_for__ = 'gtk'
+__authors__ = 'Thomas Perl <thp@gpodder.org>'
+__category__ = 'desktop-integration'
+__only_for__ = 'unity'
+__mandatory_in__ = 'unity'
+
 
 # FIXME: Due to the fact that we do not yet use the GI-style bindings, we will
 # have to run this module in its own interpreter and send commands to it using
@@ -17,7 +21,9 @@ __only_for__ = 'gtk'
 # this and still expose the same "interface' (LauncherEntry and its methods)
 # to our callers.
 
+import os
 import subprocess
+import sys
 import logging
 
 if __name__ != '__main__':
@@ -32,6 +38,7 @@ if __name__ != '__main__':
 
         def on_load(self):
             logger.info('Starting Ubuntu Unity Integration.')
+            os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
             self.process = subprocess.Popen(['python', __file__],
                     stdin=subprocess.PIPE)
 
