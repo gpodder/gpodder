@@ -10,10 +10,10 @@ Item {
     property string currentFilterText
     property string mainState
 
-    onMainStateChanged: {
+    /*onMainStateChanged: {
         // Don't remember contentY when leaving episode list
         listView.lastContentY = 0;
-    }
+    }*/
 
     property alias model: listView.model
     property alias moving: listView.moving
@@ -49,14 +49,6 @@ Item {
 
     ListView {
         id: listView
-        cacheBuffer: 10000
-
-        onContentHeightChanged: {
-            if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
-                /* Scroll the "opening" item into view at the bottom */
-                listView.positionViewAtEnd();
-            }
-        }
 
         property real lastContentY: 0
 
@@ -66,12 +58,10 @@ Item {
                 if (lastContentY > 0) {
                     contentY = lastContentY;
                 }
-            } else {
-                if (episodeList.mainState === 'episodes') {
-                    // Only store scroll position when the episode list is
-                    // shown (avoids overwriting it in onMainStateChanged)
-                    lastContentY = contentY;
-                }
+            } else if (episodeList.mainState === 'episodes') {
+                // Only store scroll position when the episode list is
+                // shown (avoids overwriting it in onMainStateChanged)
+                lastContentY = contentY;
             }
         }
 
@@ -110,7 +100,7 @@ Item {
 
     EpisodeActions {
         id: episodeActions
-        opacity: listView.openedIndex !== -1
+        visible: listView.openedIndex !== -1
 
         episode: episodeListModel.get(listView.openedIndex)
         playing: {
@@ -126,14 +116,34 @@ Item {
         anchors {
             top: parent.top
             topMargin: {
-                if (listView.openedIndex !== -1) {
-                    listView.openedIndex * Config.listItemHeight + Config.listItemHeight - listView.contentY
-                } else {
-                    -episodeActions.height
+                var overlayIndex = listView.openedIndex + 1
+                if (listView.count === listView.openedIndex + 1 && listView.height < listView.contentHeight) {
+                    overlayIndex = listView.openedIndex - 1
                 }
+                overlayIndex * Config.listItemHeight - listView.contentY
             }
             left: parent.left
             right: parent.right
+        }
+    }
+
+    Image {
+        id: archiveIcon
+        source: 'artwork/episode-archive.png'
+
+        visible: (listView.openedIndex !== -1) && model.get(listView.openedIndex).archive
+
+        sourceSize {
+            width: Config.iconSize
+            height: Config.iconSize
+        }
+
+        anchors {
+            top: parent.top
+            topMargin: {
+                (listView.openedIndex + 1) * Config.listItemHeight - height - Config.smallSpacing - listView.contentY
+            }
+            left: parent.left
         }
     }
 

@@ -852,6 +852,7 @@ class gPodderEpisodeListModel(gPodderListModel):
 
                     'title': episode.qtitle,
                     'podcast': episode.qpodcast,
+                    'cover_url': episode.qpodcast.qcoverart,
                     'filetype': episode.qfiletype,
 
                     'duration': episode.qduration,
@@ -891,6 +892,8 @@ def QML(filename):
         if os.path.exists(filename):
             return filename
 
+import time
+
 class DeclarativeView(QDeclarativeView):
     def __init__(self):
         QDeclarativeView.__init__(self)
@@ -898,6 +901,13 @@ class DeclarativeView(QDeclarativeView):
         self.setAttribute(Qt.WA_NoSystemBackground)
         self.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
         self.viewport().setAttribute(Qt.WA_NoSystemBackground)
+
+#    def paintEvent(self, event):
+#        old = time.time()
+#        QDeclarativeView.paintEvent(self, event)
+#        fps = 1. / (time.time() - old)
+#        if fps < 60:
+#            print 'FPS: %2.0f' % fps
 
     closing = Signal()
 

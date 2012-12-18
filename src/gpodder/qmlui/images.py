@@ -45,8 +45,7 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         if key in self._cache:
             return self._cache[key]
 
-        cover_file, cover_url, podcast_url, podcast_title = (urllib.unquote(x)
-                for x in id.split('|'))
+        cover_file, cover_url, podcast_url, podcast_title = id.split('|')
 
         def get_filename():
             return self.downloader.get_cover(cover_file, cover_url,

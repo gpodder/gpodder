@@ -36,6 +36,7 @@ from gpodder import model
 from gpodder import coverart
 
 import os
+import urllib
 
 convert = util.convert_bytes
 
@@ -311,6 +312,17 @@ class QPodcast(QObject):
 
     qcoverurl = Property(unicode, _coverurl, notify=changed)
 
+    def _coverart(self):
+        quote = lambda x: convert(x) if x else u''
+        return convert(u'image://cover/%s|%s|%s|%s' % (
+            quote(self._podcast.cover_file),
+            quote(self._podcast.cover_url),
+            quote(self._podcast.url),
+            quote(self._podcast.title),
+        ))
+
+    qcoverart = Property(unicode, _coverart, notify=changed)
+
     def _downloaded(self):
         return self._podcast.get_statistics()[3]
 
@@ -423,6 +435,17 @@ class EpisodeSubsetView(QObject):
     qcoverfile = Property(unicode, _return_cover, notify=changed)
     qcoverurl = Property(unicode, _return_empty, notify=changed)
     qsection = Property(unicode, _return_empty, notify=changed)
+
+    def _coverart(self):
+        quote = lambda x: convert(x) if x else u''
+        return convert(u'image://cover/%s|%s|%s|%s' % (
+            quote(coverart.CoverDownloader.ALL_EPISODES_ID),
+            u'',
+            u'',
+            quote(self.title),
+        ))
+
+    qcoverart = Property(unicode, _coverart, notify=changed)
 
     def _title(self):
         return convert(self.title)

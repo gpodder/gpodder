@@ -287,7 +287,7 @@ Item {
                     width: 150 * Config.scale
                     height: 150 * Config.scale
 
-                    source: (episode!==undefined)?Util.formatCoverURL(episode.qpodcast):''
+                    source: (episode!==undefined)?episode.qpodcast.qcoverart:''
 
                     MouseArea {
                         anchors.fill: parent

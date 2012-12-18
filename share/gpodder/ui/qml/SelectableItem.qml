@@ -26,8 +26,8 @@ Item {
         id: mouseArea
 
         anchors.fill: parent
-        onClicked: selectableItem.selected(modelData)
-        onPressAndHold: selectableItem.contextMenu(modelData)
+        onClicked: parent.selected(modelData)
+        onPressAndHold: parent.contextMenu(modelData)
     }
 }
 
