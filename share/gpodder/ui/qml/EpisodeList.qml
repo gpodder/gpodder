@@ -49,6 +49,7 @@ Item {
 
     ListView {
         id: listView
+        cacheBuffer: 10000
 
         property real lastContentY: 0
 
