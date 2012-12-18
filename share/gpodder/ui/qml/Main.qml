@@ -32,18 +32,23 @@ Item {
     property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
+    property bool loadingEpisodes: false
+
     function clearEpisodeListModel() {
-        episodeListModel.clear();
+        loadingEpisodes = true
+        startProgress(_('Loading episodes'))
     }
 
     function setEpisodeListModel(model) {
+        episodeListModel.clear();
         for (var i=0; i<model.length; i++) {
             episodeListModel.append(model[i]);
         }
+        loadingEpisodes = false
+        endProgress()
     }
 
     function episodeUpdated(id) {
-        console.log('episode updated:' + id);
         for (var i=0; i<episodeListModel.count; i++) {
             var element = episodeListModel.get(i);
             if (element.episode_id === id) {
@@ -172,7 +177,7 @@ Item {
             name: 'episodes'
             PropertyChanges {
                 target: episodeList
-                opacity: 1
+                opacity: !main.loadingEpisodes
             }
             PropertyChanges {
                 target: podcastList
