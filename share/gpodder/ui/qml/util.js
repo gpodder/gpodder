@@ -1,5 +1,9 @@
 
 function formatDuration(duration) {
+    if (duration !== 0 && !duration) {
+        return ''
+    }
+
     var h = parseInt(duration / 3600) % 24
     var m = parseInt(duration / 60) % 60
     var s = parseInt(duration % 60)

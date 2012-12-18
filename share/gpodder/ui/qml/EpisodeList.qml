@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -29,7 +29,7 @@ Item {
         listView.openedIndex = -1
     }
 
-    onModelChanged: {
+    function resetFilterDialog() {
         filterDialog.resetSelection();
     }
 
@@ -49,6 +49,7 @@ Item {
 
     ListView {
         id: listView
+        cacheBuffer: 10000
 
         onContentHeightChanged: {
             if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
@@ -78,33 +79,61 @@ Item {
         property int openedIndex: -1
         visible: count > 0
 
-        delegate: Item {
-            id: listItem
+        delegate: EpisodeItem {
+            id: episodeItem
+            property variant modelData: episode
+            property bool playing: (episode === mediaPlayer.episode) && mediaPlayer.playing
 
-            height: listItem.opened?(Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight):(Config.listItemHeight)
-            property bool opened: (index == listView.openedIndex)
-
-            Behavior on height { PropertyAnimation { duration: Config.fastTransition } }
-
-            EpisodeItem {
-                id: episodeItem
-
-                y: listItem.opened?Config.smallSpacing:0
-                width: listView.width
-
-                onSelected: {
-                    if (listView.openedIndex == index) {
-                        listView.openedIndex = -1
-                        episodeActions.episode = null
-                    } else {
-                        listView.openedIndex = index
-                        episodeActions.episode = modelData
-                    }
+            inSelection: (index === listView.openedIndex)
+            opacity: {
+                if ((listView.openedIndex === -1) || inSelection) {
+                    1
+                } else {
+                    .3
                 }
-                onContextMenu: episodeList.episodeContextMenu(item)
-
-                Behavior on y { PropertyAnimation { duration: Config.fastTransition } }
             }
+
+            height: Config.listItemHeight
+            width: listView.width
+
+            onSelected: {
+                if (listView.openedIndex !== -1) {
+                    listView.openedIndex = -1
+                } else {
+                    listView.openedIndex = index
+                }
+            }
+
+            onContextMenu: episodeList.episodeContextMenu(episode)
+        }
+    }
+
+    EpisodeActions {
+        id: episodeActions
+        opacity: listView.openedIndex !== -1
+
+        episode: episodeListModel.get(listView.openedIndex)
+        playing: {
+            if (episode !== undefined) {
+                (episode.episode === mediaPlayer.episode) && mediaPlayer.playing
+            } else {
+                false
+            }
+        }
+
+        property alias modelData: episodeActions.episode
+
+        anchors {
+            top: parent.top
+            topMargin: {
+                if (listView.openedIndex !== -1) {
+                    listView.openedIndex * Config.listItemHeight + Config.listItemHeight - listView.contentY
+                } else {
+                    -episodeActions.height
+                }
+            }
+            left: parent.left
+            right: parent.right
         }
     }
 
@@ -112,38 +141,22 @@ Item {
         flickableItem: listView
     }
 
-    EpisodeActions {
-        id: episodeActions
-        Behavior on opacity { PropertyAnimation { duration: Config.fastTransition } }
-        property alias modelData: episodeActions.episode
-        opacity: listView.openedIndex !== -1
-
-        anchors {
-            top: parent.top
-            topMargin: {
-                if (listView.openedIndex !== -1) {
-                    listView.openedIndex * Config.listItemHeight + Config.listItemHeight + Config.smallSpacing * 2 - listView.contentY
-                } else {
-                    -episodeActions.height
-                }
-            }
-        }
-
-        width: parent.width
-    }
-
     SelectionDialog {
         id: filterDialog
         titleText: _('Show episodes')
 
         function resetSelection() {
-            selectedIndex = episodeList.model.getFilter();
-            accepted();
+            if (main.episodeModel !== undefined) {
+                selectedIndex = main.episodeModel.getFilter();
+                accepted();
+            }
         }
 
         onAccepted: {
-            episodeList.currentFilterText = model.get(selectedIndex).name;
-            episodeList.model.setFilter(selectedIndex);
+            if (main.episodeModel !== undefined) {
+                episodeList.currentFilterText = model.get(selectedIndex).name;
+                episodeModel.setFilter(selectedIndex);
+            }
         }
 
         model: ListModel {}

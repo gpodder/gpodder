@@ -1,4 +1,4 @@
-import Qt 4.7
+import QtQuick 1.1
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -6,69 +6,85 @@ import 'util.js' as Util
 
 SelectableItem {
     id: episodeItem
-
-    // Show context menu when single-touching the icon
-    singlePressContextMenuLeftBorder: title.x
+    property bool playing: false
+    property real playbackPosition: playing?mediaPlayer.position:position
+    property real playbackDuration: duration?duration:(playing?mediaPlayer.duration:0)
 
     height: Config.listItemHeight
 
     Rectangle {
-        id: downloadProgress
-
         anchors {
             left: parent.left
             top: parent.top
             bottom: parent.bottom
         }
 
-        visible: modelData.qdownloading
-        width: parent.width * modelData.qprogress
-        color: Config.downloadColorBg
-    }
+        visible: downloading || (playbackPosition && (episodeItem.playing || !episodeItem.inSelection))
 
-    Rectangle {
-        id: playbackProgress
-
-        anchors {
-            left: parent.left
-            top: parent.top
-            bottom: parent.bottom
-        }
-
-        visible: modelData.qduration && !(downloadProgress.visible && downloadProgress.width > 0)
-        width: parent.width * (modelData.qposition / modelData.qduration)
-        color: Config.playbackColorBg
+        width: parent.width * (downloading?(progress):(playbackPosition / duration))
+        color: downloading?Config.downloadColorBg:Config.playbackColorBg
     }
 
     Image {
         id: icon
-        source: {
-            if (episodeModel.is_subset_view) {
-                Util.formatCoverURL(modelData.qpodcast)
+        opacity: {
+            if (downloaded) {
+                1
             } else {
-                'artwork/' + modelData.qfiletype + (modelData.qdownloading?'-downloading':(modelData.qplaying?'-playing':'')) + '.png'
+                .5
             }
         }
-        sourceSize.width: width
-        sourceSize.height: height
+        source: {
+            if (episodeModel.is_subset_view) {
+                Util.formatCoverURL(podcast)
+            } else if (downloading) {
+                'artwork/' + filetype + '-downloading.png'
+            } else if (episodeItem.playing && true/*!episodeItem.inSelection*/) {
+                'artwork/' + filetype + '-playing.png'
+            } else {
+                'artwork/' + filetype + '.png'
+            }
+        }
 
-        width: Config.iconSize
-        height: Config.iconSize
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.leftMargin: Config.largeSpacing
-        opacity: modelData.qdownloaded?1:.3
-        Behavior on opacity { PropertyAnimation { } }
+        sourceSize {
+            width: Config.iconSize
+            height: Config.iconSize
+        }
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            leftMargin: Config.largeSpacing
+        }
 
         cache: true
     }
 
     Label {
-        id: title
-        text: modelData.qtitle
+        id: labelTitle
+
+        text: title
         wrapMode: Text.NoWrap
-        color: modelData.qdownloading?Config.downloadColor:(modelData.qplaying?Config.playbackColor:(modelData.qnew?(modelData.qdownloaded?"white":Config.newColor):'#ddd'))
-        font.pixelSize: episodeItem.height * .35
+
+        color: {
+            if (downloading) {
+                Config.downloadColor
+            } else if (episodeItem.playing) {
+                Config.playbackColor
+            } else if (episodeItem.inSelection) {
+                Config.selectColor
+            } else if (isnew) {
+                if (downloaded) {
+                    'white'
+                } else {
+                    Config.newColor
+                }
+            } else {
+                '#999'
+            }
+        }
+
+        font.pixelSize: Config.listItemHeight * .35
 
         anchors.left: icon.right
         anchors.leftMargin: Config.largeSpacing
@@ -78,10 +94,15 @@ SelectableItem {
     }
 
     Label {
-        id: positionInfo
-        text: modelData.qduration?Util.formatDuration(modelData.qduration):''
-        font.pixelSize: episodeItem.height * .2
-        color: '#888'
+        text: {
+            if (episodeItem.playbackDuration) {
+                Util.formatDuration(episodeItem.playbackDuration)
+            } else {
+                '-'
+            }
+        }
+        font.pixelSize: Config.listItemHeight * .2
+        color: labelTitle.color
 
         anchors.left: icon.right
         anchors.leftMargin: Config.largeSpacing
@@ -91,20 +112,21 @@ SelectableItem {
     }
 
     Image {
-        id: archiveIcon
         source: 'artwork/episode-archive.png'
-        opacity: .5
-        visible: modelData.qarchive
-        width: Config.iconSize
-        height: Config.iconSize
-
-        anchors.left: parent.left
-        //anchors.leftMargin: Config.smallSpacing
-
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Config.smallSpacing
 
         cache: true
+        visible: archive
+
+        sourceSize {
+            width: Config.iconSize
+            height: Config.iconSize
+        }
+
+        anchors {
+            left: parent.left
+            bottom: parent.bottom
+            bottomMargin: Config.smallSpacing
+        }
     }
 }
 
