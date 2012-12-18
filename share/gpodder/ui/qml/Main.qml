@@ -19,6 +19,7 @@ Item {
 
     property alias podcastModel: podcastList.model
     property variant episodeModel
+    property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
     onEpisodeModelChanged: episodeList.resetFilterDialog()
     property alias currentEpisode: mediaPlayer.episode
     property alias showNotesEpisode: showNotes.episode
@@ -450,6 +451,9 @@ Item {
         property bool opened: false
         property string title: ''
         acceptButtonText: _('Delete')
+        visualParent: episodeList
+        anchors.fill: parent
+        anchors.topMargin: -36
 
         rejectButtonText: _('Cancel')
 
@@ -469,7 +473,6 @@ Item {
                 property variant selected: []
 
                 anchors.fill: parent
-                anchors.bottomMargin: Config.largeSpacing
                 model: episodeList.model
 
                 delegate: EpisodeItem {

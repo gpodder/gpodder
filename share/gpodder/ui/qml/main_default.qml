@@ -18,7 +18,7 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
-    showToolBar: (mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton) && (mainObject.hasPodcasts || mainObject.canGoBack) || pageStack.depth > 1
+    showToolBar: !mainObject.multiEpisodesSheetOpened && ((mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton) && (mainObject.hasPodcasts || mainObject.canGoBack) || pageStack.depth > 1)
 
     // Hide status bar in landscape mode
     showStatusBar: screen.currentOrientation == Screen.Portrait
