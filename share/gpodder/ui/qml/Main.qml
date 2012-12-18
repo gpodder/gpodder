@@ -3,6 +3,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
+import 'util.js' as Util
 
 Item {
     id: main

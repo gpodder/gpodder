@@ -36,7 +36,7 @@ SelectableItem {
         }
         source: {
             if (episodeModel.is_subset_view) {
-                Util.formatCoverURL(podcast)
+                cover_url
             } else if (downloading) {
                 'artwork/' + filetype + '-downloading.png'
             } else if (episodeItem.playing && true/*!episodeItem.inSelection*/) {
@@ -60,72 +60,50 @@ SelectableItem {
         cache: true
     }
 
-    Label {
-        id: labelTitle
-
-        text: title
-        wrapMode: Text.NoWrap
-
-        color: {
-            if (downloading) {
-                Config.downloadColor
-            } else if (episodeItem.playing) {
-                Config.playbackColor
-            } else if (episodeItem.inSelection) {
-                Config.selectColor
-            } else if (isnew) {
-                if (downloaded) {
-                    'white'
-                } else {
-                    Config.newColor
-                }
-            } else {
-                '#999'
-            }
-        }
-
-        font.pixelSize: Config.listItemHeight * .35
-
-        anchors.left: icon.right
-        anchors.leftMargin: Config.largeSpacing
-
-        anchors.top: parent.top
-        anchors.topMargin: Config.smallSpacing * 1.5
-    }
-
-    Label {
-        text: {
-            if (episodeItem.playbackDuration) {
-                Util.formatDuration(episodeItem.playbackDuration)
-            } else {
-                '-'
-            }
-        }
-        font.pixelSize: Config.listItemHeight * .2
-        color: labelTitle.color
-
-        anchors.left: icon.right
-        anchors.leftMargin: Config.largeSpacing
-
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Config.smallSpacing * 1.5
-    }
-
-    Image {
-        source: 'artwork/episode-archive.png'
-
-        cache: true
-        visible: archive
-
-        sourceSize {
-            width: Config.iconSize
-            height: Config.iconSize
-        }
-
+    Column {
         anchors {
-            left: parent.left
-            bottom: parent.bottom
-            bottomMargin: Config.smallSpacing
+            left: icon.right
+            leftMargin: Config.largeSpacing
+            verticalCenter: parent.verticalCenter
+        }
+
+        Label {
+            id: labelTitle
+
+            text: title
+            wrapMode: Text.NoWrap
+
+            color: {
+                if (downloading) {
+                    Config.downloadColor
+                } else if (episodeItem.playing) {
+                    Config.playbackColor
+                } else if (episodeItem.inSelection) {
+                    Config.selectColor
+                } else if (isnew) {
+                    if (downloaded) {
+                        'white'
+                    } else {
+                        Config.newColor
+                    }
+                } else {
+                    '#999'
+                }
+            }
+
+            font.pixelSize: Config.listItemHeight * .35
+        }
+
+        Label {
+            text: {
+                if (episodeItem.playbackDuration) {
+                    Util.formatDuration(episodeItem.playbackDuration)
+                } else {
+                    '-'
+                }
+            }
+            font.pixelSize: Config.listItemHeight * .2
+            color: labelTitle.color
         }
     }
 }
