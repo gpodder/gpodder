@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 import QtMultimediaKit 1.1
 import com.nokia.meego 1.0
 
@@ -12,6 +12,8 @@ Item {
     height: (Config.largeSpacing * 4) + (150 * Config.scale) + 110
 
     property variant episode: undefined
+    property real position: audioPlayer.position/1000
+    property real duration: audioPlayer.duration/1000
     property variant playQueue: []
     property int startedFrom: 0
 

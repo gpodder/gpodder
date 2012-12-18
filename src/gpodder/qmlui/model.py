@@ -155,7 +155,7 @@ class QEpisode(QObject):
 
     qprogress = Property(float, _progress, notify=changed)
 
-    def qdownload(self, config, finished_callback=None):
+    def qdownload(self, config, finished_callback=None, progress_callback=None):
         # Avoid starting the same download twice
         if self.download_task is not None:
             return
@@ -172,13 +172,18 @@ class QEpisode(QObject):
             def cb(progress):
                 if progress > self._qt_download_progress + .01 or progress == 1:
                     self._qt_download_progress = progress
+                    print 'progress:', progress
                     self.changed.emit()
+                    if progress_callback is not None:
+                        progress_callback(self.id)
             task.add_progress_callback(cb)
             task.run()
             task.recycle()
             task.removed_from_list()
-            self.changed.emit()
             self.source_url_changed.emit()
+
+            if progress_callback is not None:
+                progress_callback(self.id)
 
             # Make sure the single channel is updated (main view)
             self._podcast.changed.emit()

@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -17,7 +17,8 @@ Item {
     }
 
     property alias podcastModel: podcastList.model
-    property alias episodeModel: episodeList.model
+    property variant episodeModel
+    onEpisodeModelChanged: episodeList.resetFilterDialog()
     property alias currentEpisode: mediaPlayer.episode
     property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
@@ -29,6 +30,34 @@ Item {
     property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
     property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
+
+    function clearEpisodeListModel() {
+        episodeListModel.clear();
+    }
+
+    function setEpisodeListModel(model) {
+        for (var i=0; i<model.length; i++) {
+            episodeListModel.append(model[i]);
+        }
+    }
+
+    function episodeUpdated(id) {
+        console.log('episode updated:' + id);
+        for (var i=0; i<episodeListModel.count; i++) {
+            var element = episodeListModel.get(i);
+            if (element.episode_id === id) {
+                var episode = element.episode;
+                element.duration = episode.qduration;
+                element.downloading = episode.qdownloading;
+                element.position = episode.qposition;
+                element.progress = episode.qprogress;
+                element.downloaded = episode.qdownloaded;
+                element.isnew = episode.qnew;
+                element.archive = episode.qarchive;
+                break;
+            }
+        }
+    }
 
     function clickSearchButton() {
         contextMenu.showSubscribe()
@@ -193,6 +222,8 @@ Item {
         EpisodeList {
             id: episodeList
             mainState: main.state
+
+            model: ListModel { id: episodeListModel }
 
             opacity: 0
 
@@ -436,6 +467,7 @@ Item {
                 model: episodeList.model
 
                 delegate: EpisodeItem {
+                    property variant modelData: episode
                     inSelection: multiEpisodesList.selected.indexOf(index) !== -1
                     onSelected: {
                         var newSelection = [];
@@ -487,7 +519,7 @@ Item {
                         onClicked: {
                             var newSelection = [];
                             for (var i=0; i<multiEpisodesList.count; i++) {
-                                if (episodeList.model.get_object_by_index(i).qdownloaded) {
+                                if (main.episodeModel.get_object_by_index(i).downloaded) {
                                     newSelection.push(i);
                                 }
                             }
@@ -622,6 +654,5 @@ Item {
             running: parent.opacity > 0
         }
     }
-
 }
 

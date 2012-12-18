@@ -1,12 +1,14 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import 'config.js' as Config
 
-Item {
+Rectangle {
     id: episodeActions
+    color: '#e0000000'
 
     property variant episode: undefined
+    property bool playing: false
 
     height: Config.listItemHeight
 
@@ -17,23 +19,23 @@ Item {
             height: episodeActions.height
             text: _('Download')
             image: 'download'
-            onSelected: controller.downloadEpisode(episode)
-            visible: (episode!==undefined)?(!episode.qdownloaded && !episode.qdownloading):false
+            onSelected: controller.downloadEpisode(episode.episode)
+            visible: (episode!==undefined)?(!episode.downloaded && !episode.downloading):false
         }
 
         EpisodeActionItem {
             height: episodeActions.height
             text: _('Cancel')
             image: 'download-cancel'
-            onSelected: controller.cancelDownload(episode)
-            visible: (episode!==undefined)?(!episode.qdownloaded && episode.qdownloading):false
+            onSelected: controller.cancelDownload(episode.episode)
+            visible: (episode!==undefined)?(!episode.downloaded && episode.downloading):false
         }
 
         EpisodeActionItem {
             height: episodeActions.height
-            text: (episode!==undefined)?(episode.qplaying?_('Pause'):(episode.qdownloaded?_('Play'):_('Stream'))):''
-            image: (episode!==undefined)?(episode.qplaying?'pause':'play'):''
-            onSelected: main.togglePlayback(episode)
+            text: (episode!==undefined)?(episodeActions.playing?_('Pause'):(episode.downloaded?_('Play'):_('Stream'))):''
+            image: (episode!==undefined)?(episodeActions.playing?'pause':'play'):''
+            onSelected: main.togglePlayback(episode.episode)
             visible: episode!==undefined
         }
 
@@ -41,15 +43,15 @@ Item {
             height: episodeActions.height
             text: _('Delete')
             image: 'delete'
-            onSelected: controller.deleteEpisode(episode)
-            visible: (episode!==undefined)?(episode.qdownloaded && !episode.qarchive):false
+            onSelected: controller.deleteEpisode(episode.episode)
+            visible: (episode!==undefined)?(episode.downloaded && !episode.archive):false
         }
 
         EpisodeActionItem {
             height: episodeActions.height
             text: _('Shownotes')
             image: 'shownotes'
-            onSelected: main.openShowNotes(episode)
+            onSelected: main.openShowNotes(episode.episode)
             visible: episode!==undefined
         }
     }
