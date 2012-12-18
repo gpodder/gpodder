@@ -806,6 +806,7 @@ class gPodderEpisodeListModel(gPodderListModel):
         gPodderListModel.__init__(self)
         self._filter = config.ui.qml.state.episode_list_filter
         self._filtered = []
+        self._processed = []
         self._is_subset_view = False
 
         self._config = config
@@ -864,8 +865,11 @@ class gPodderEpisodeListModel(gPodderListModel):
                     'archive': episode.qarchive,
                 }
 
-            self._root.setEpisodeListModel.emit(map(to_dict,
-                self._filtered[:EPISODE_LIST_LIMIT]))
+            processed = map(to_dict, self._filtered[:EPISODE_LIST_LIMIT])
+            self._root.setEpisodeListModel.emit(processed)
+
+            # Keep a reference here to avoid crashes
+            self._processed = processed
 
     def get_objects(self):
         return self._filtered
