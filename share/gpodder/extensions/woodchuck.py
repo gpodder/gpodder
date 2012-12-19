@@ -21,6 +21,7 @@
 
 __title__ = 'Woodchuck Plugin'
 __description__ = 'Let the woodchuck analyze your download habits.'
+__disable_in__ = 'win32'
 
 import gpodder
 from gpodder import feedcore
