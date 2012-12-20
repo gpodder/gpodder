@@ -101,7 +101,7 @@ Item {
 
     EpisodeActions {
         id: episodeActions
-        visible: listView.openedIndex !== -1
+        visible: (listView.openedIndex !== -1) && listView.visible
 
         episode: episodeListModel.get(listView.openedIndex)
         playing: {
