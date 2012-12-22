@@ -19,9 +19,10 @@ __author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
-AMAROK = (['amarok', '--play', '--append'], 'Enqueue in Amarok')
+AMAROK = (['amarok', '--play', '--append'],
+    '%s/%s' % (_('Enqueue in'), 'Amarok'))
 VLC = (['vlc', '--started-from-file', '--playlist-enqueue'],
-    'Enqueue in VLC')
+    '%s/%s' % (_('Enqueue in'), 'VLC'))
 
 
 class gPodderExtension:
@@ -42,10 +43,10 @@ class gPodderExtension:
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
 
-    def _enqueue_episodes_amarok(self, episodes):
+    def enqueue_episodes_amarok(self, episodes):
         self._enqueue_episodes_cmd(episodes, AMAROK[0])
 
-    def _enqueue_episodes_vlc(self, episodes):
+    def enqueue_episodes_vlc(self, episodes):
         self._enqueue_episodes_cmd(episodes, VLC[0])
 
     def on_episodes_context_menu(self, episodes):
@@ -55,9 +56,9 @@ class gPodderExtension:
         menu_entries = []
 
         if self.amarok_available:
-            menu_entries.append((AMAROK[1], self._enqueue_episodes_amarok))
+            menu_entries.append((AMAROK[1], self.enqueue_episodes_amarok))
 
         if self.vlc_available:
-            menu_entries.append((VLC[1], self._enqueue_episodes_vlc))
+            menu_entries.append((VLC[1], self.enqueue_episodes_vlc))
 
         return menu_entries
