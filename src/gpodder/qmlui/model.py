@@ -168,12 +168,13 @@ class QEpisode(QObject):
         task = download.DownloadTask(self._episode, config)
         task.status = download.DownloadTask.QUEUED
         self.changed.emit()
+        if progress_callback is not None:
+            progress_callback(self.id)
 
         def t(self):
             def cb(progress):
                 if progress > self._qt_download_progress + .01 or progress == 1:
                     self._qt_download_progress = progress
-                    print 'progress:', progress
                     self.changed.emit()
                     if progress_callback is not None:
                         progress_callback(self.id)
