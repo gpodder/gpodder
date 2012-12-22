@@ -89,14 +89,6 @@ PageStackWindow {
             }
 
             ToolIcon {
-                id: toolRefresh
-                iconId: 'icon-m-toolbar-refresh-white'
-                onClicked: controller.updateAllPodcasts()
-                visible: mainObject.hasSearchButton && mainObject.hasPodcasts
-                anchors.left: parent.left
-            }
-
-            ToolIcon {
                 id: toolAdd
                 iconId: "icon-m-toolbar-add-white"
                 onClicked: mainObject.clickSearchButton()
