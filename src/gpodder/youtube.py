@@ -71,7 +71,7 @@ def get_real_download_url(url, preferred_fmt_id=18):
                 fmt_url_map = urllib.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
                     video_info = parse_qs(fmt_url_encoded)
-                    yield int(video_info['itag'][0]), video_info['url'][0]
+                    yield int(video_info['itag'][0]), video_info['url'][0] + "&signature=" + video_info['sig'][0]
             else:
                 error_info = parse_qs(page)
                 error_message = util.remove_html_tags(error_info['reason'][0])
