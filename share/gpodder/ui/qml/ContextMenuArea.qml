@@ -58,7 +58,6 @@ Item {
         id: subscribe
         visible: contextMenuArea.subscribeMode && (contextMenuArea.state == 'opened')
         anchors.fill: parent
-        anchors.topMargin: Config.headerHeight
 
         onSubscribe: {
             controller.addSubscriptions(urls)

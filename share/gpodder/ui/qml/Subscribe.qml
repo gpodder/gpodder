@@ -13,11 +13,12 @@ Item {
     function show() {
         searchInput.text = ''
         searchResultsListModel.source = ''
-        topBar.opened = true
+        resultsSheet.reject();
     }
 
     function search() {
-        searchResultsListModel.searchFor(searchInput.text)
+        searchResultsListModel.searchFor(searchInput.text);
+        resultsSheet.open();
     }
 
     onVisibleChanged: {
@@ -29,29 +30,13 @@ Item {
 
     Item {
         id: topBar
-        property bool opened: true
-        clip: true
-
-        height: opened?70:0
-
-        Behavior on height { PropertyAnimation { duration: Config.slowTransition } }
+        visible: resultsSheet.status == DialogStatus.Closed
+        height: 70
 
         anchors {
             left: parent.left
             right: parent.right
             top: parent.top
-        }
-
-        Label {
-            id: searchLabel
-            text: _('Search for:')
-            color: 'white'
-            font.pixelSize: 20
-            anchors {
-                leftMargin: Config.smallSpacing
-                left: parent.left
-                verticalCenter: parent.verticalCenter
-            }
         }
 
         InputField {
@@ -60,7 +45,7 @@ Item {
 
             anchors {
                 leftMargin: Config.smallSpacing
-                left: searchLabel.right
+                left: parent.left
                 right: searchButton.left
                 verticalCenter: parent.verticalCenter
             }
@@ -86,180 +71,7 @@ Item {
     }
 
     Item {
-        id: listHeader
-        anchors {
-            top: topBar.bottom
-            left: parent.left
-            right: parent.right
-        }
-
-        height: (listView.selectedIndices.length > 0)?Config.listItemHeight:0
-        Behavior on height { PropertyAnimation { } }
-        clip: true
-
-        Text {
-            anchors {
-                verticalCenter: parent.verticalCenter
-                left: parent.left
-                right: subscribeButton.left
-                leftMargin: Config.largeSpacing
-            }
-
-            elide: Text.ElideRight
-            text: controller.formatCount(n_('%(count)s podcast selected', '%(count)s podcasts selected', listView.selectedIndices.length), listView.selectedIndices.length)
-            color: 'white'
-            font.pixelSize: 20 * Config.scale
-        }
-
-        SimpleButton {
-            id: subscribeButton
-            width: parent.height
-            height: parent.height
-
-            anchors {
-                verticalCenter: parent.verticalCenter
-                right: parent.right
-            }
-
-            image: 'artwork/subscriptions.png'
-
-            onClicked: {
-                var urls = new Array();
-                var i;
-
-                for (i=0; i<listView.selectedIndices.length; i++) {
-                    urls.push(listView.model.get(listView.selectedIndices[i]).url);
-                }
-
-                subscribe.subscribe(urls)
-            }
-        }
-    }
-
-
-    ListView {
-        id: listView
-        property variant selectedIndices: []
-        clip: true
-
-        opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
-        Behavior on opacity { PropertyAnimation { } }
-
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-            top: listHeader.bottom
-        }
-
-        model: SearchResultsListModel {
-            id: searchResultsListModel
-
-            function searchFor(query) {
-                console.log('Searching for: ' + query)
-                source = 'http://gpodder.net/search.xml?q=' + query
-                console.log('new source:' + source)
-            }
-        }
-
-        delegate: SelectableItem {
-            property string modelData: url
-            inSelection: (listView.selectedIndices.indexOf(index) != -1)
-
-            height: Config.listItemHeight
-            width: listView.width
-
-            Item {
-                id: coverArt
-
-                height: Config.listItemHeight
-                width: Config.listItemHeight
-
-                anchors {
-                    leftMargin: Config.largeSpacing
-                    left: parent.left
-                    verticalCenter: parent.verticalCenter
-                }
-
-                Image {
-                    anchors.centerIn: parent
-                    source: logo
-                }
-            }
-
-            Column {
-                clip: true
-
-                anchors {
-                    leftMargin: Config.largeSpacing
-                    rightMargin: Config.largeSpacing
-                    left: coverArt.right
-                    right: subscriberCount.left
-                    verticalCenter: parent.verticalCenter
-                }
-
-                Label {
-                    text: title
-                    anchors.leftMargin: Config.largeSpacing
-                    color: 'white'
-                    font.pixelSize: 25
-                }
-
-                Label {
-                    text: url
-                    anchors.leftMargin: Config.largeSpacing
-                    color: '#aaa'
-                    font.pixelSize: 15
-                }
-            }
-
-            Label {
-                id: subscriberCount
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    leftMargin: Config.largeSpacing
-                    right: parent.right
-                    rightMargin: Config.largeSpacing
-                }
-                text: subscribers
-                color: 'white'
-                font.pixelSize: 30
-            }
-
-            onSelected: {
-                var position = listView.selectedIndices.indexOf(index);
-                var tmp;
-                var i;
-
-                tmp = new Array();
-
-                for (i=0; i<listView.selectedIndices.length; i++) {
-                    if (listView.selectedIndices[i] != index) {
-                        tmp.push(listView.selectedIndices[i]);
-                    }
-                }
-
-                if (position == -1) {
-                    tmp.push(index);
-                }
-
-                listView.selectedIndices = tmp;
-            }
-        }
-    }
-
-    BusyIndicator {
-        anchors.centerIn: parent
-        running: opacity > 0
-        platformStyle: BusyIndicatorStyle { size: "large" }
-
-        opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
-        Behavior on opacity { PropertyAnimation { } }
-    }
-
-    Item {
         id: directoryButtons
-        visible: searchResultsListModel.source == ''
 
         anchors.fill: parent
         anchors.bottomMargin: Config.listItemHeight
@@ -276,8 +88,8 @@ Item {
                     property string modelData: 'http://gpodder.org/directory/toplist.xml'
                     anchors.fill: parent
                     onSelected: {
-                        searchResultsListModel.source = item
-                        topBar.opened = false
+                        searchResultsListModel.source = item;
+                        resultsSheet.open();
                     }
                 }
 
@@ -297,8 +109,8 @@ Item {
                     property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.org/directory/examples.xml')
                     anchors.fill: parent
                     onSelected: {
-                        searchResultsListModel.source = item
-                        topBar.opened = false
+                        searchResultsListModel.source = item;
+                        resultsSheet.open();
                     }
                 }
 
@@ -313,10 +125,6 @@ Item {
         }
     }
 
-    ScrollDecorator {
-        flickableItem: listView
-    }
-
     Label {
         visible: directoryButtons.visible
         anchors.right: parent.right
@@ -326,5 +134,142 @@ Item {
         color: 'white'
         text: '<em>' + _('powered by gpodder.net') + '</em>'
     }
+
+    Sheet {
+        id: resultsSheet
+
+        anchors.fill: parent
+        anchors.topMargin: -36
+        visualParent: subscribe
+
+        acceptButtonText: _('Subscribe')
+        rejectButtonText: _('Cancel')
+
+        content: Item {
+            anchors.fill: parent
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.log('caught')
+            }
+
+            ListView {
+                id: listView
+                property variant selectedIndices: []
+
+                opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
+                Behavior on opacity { PropertyAnimation { } }
+
+                anchors.fill: parent
+
+                model: SearchResultsListModel {
+                    id: searchResultsListModel
+
+                    function searchFor(query) {
+                        console.log('Searching for: ' + query)
+                        source = 'http://gpodder.net/search.xml?q=' + query
+                        console.log('new source:' + source)
+                    }
+                }
+
+                delegate: SelectableItem {
+                    id: subscribeDelegate
+                    property string modelData: url
+                    inSelection: (listView.selectedIndices.indexOf(index) != -1)
+
+                    height: Config.listItemHeight
+                    width: listView.width
+
+                    Item {
+                        id: coverArt
+
+                        height: Config.listItemHeight
+                        width: Config.listItemHeight
+
+                        anchors {
+                            leftMargin: Config.largeSpacing
+                            left: parent.left
+                            verticalCenter: parent.verticalCenter
+                        }
+
+                        Image {
+                            anchors.centerIn: parent
+                            source: logo
+                        }
+                    }
+
+                    Column {
+                        anchors {
+                            leftMargin: Config.largeSpacing
+                            rightMargin: Config.largeSpacing
+                            left: coverArt.right
+                            right: parent.right
+                            verticalCenter: parent.verticalCenter
+                        }
+
+                        Label {
+                            id: subscribeDelegateTitle
+                            text: title + ' (' + subscribers + ')'
+                            anchors.leftMargin: Config.largeSpacing
+                            color: !subscribeDelegate.inSelection?'white':Config.selectColor
+                            font.pixelSize: 25
+                        }
+
+                        Label {
+                            text: url
+                            anchors.leftMargin: Config.largeSpacing
+                            color: subscribeDelegateTitle.color
+                            font.pixelSize: 15
+                        }
+                    }
+
+                    onSelected: {
+                        var position = listView.selectedIndices.indexOf(index);
+                        var tmp;
+                        var i;
+
+                        tmp = new Array();
+
+                        for (i=0; i<listView.selectedIndices.length; i++) {
+                            if (listView.selectedIndices[i] != index) {
+                                tmp.push(listView.selectedIndices[i]);
+                            }
+                        }
+
+                        if (position == -1) {
+                            tmp.push(index);
+                        }
+
+                        listView.selectedIndices = tmp;
+                    }
+                }
+            }
+
+            ScrollDecorator {
+                flickableItem: listView
+            }
+
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: opacity > 0
+                platformStyle: BusyIndicatorStyle { size: "large" }
+
+                opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
+                Behavior on opacity { PropertyAnimation { } }
+            }
+        }
+
+        onAccepted: {
+            var urls = new Array();
+            var i;
+
+            for (i=0; i<listView.selectedIndices.length; i++) {
+                urls.push(listView.model.get(listView.selectedIndices[i]).url);
+            }
+
+            subscribe.subscribe(urls)
+        }
+    }
+
 }
 
