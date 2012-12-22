@@ -13,6 +13,7 @@ __authors__ = 'Thomas Perl <thp@gpodder.org>'
 __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
 __mandatory_in__ = 'unity'
+__disable_in__ = 'win32'
 
 
 import appindicator
