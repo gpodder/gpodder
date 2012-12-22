@@ -13,6 +13,7 @@ __authors__ = 'Thomas Perl <thp@gpodder.org>'
 __category__ = 'desktop-integration'
 __only_for__ = 'unity'
 __mandatory_in__ = 'unity'
+__disable_in__ = 'win32'
 
 
 # FIXME: Due to the fact that we do not yet use the GI-style bindings, we will
